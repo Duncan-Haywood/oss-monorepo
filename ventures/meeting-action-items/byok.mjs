@@ -12,17 +12,27 @@
 //   const text = await withFallback(cfg, () => templateEmail(lead),
 //     c => complete(c, { system: SALES_SYSTEM, prompt: leadBrief(lead) }).then(r => r.text));
 //
-// Providers: `anthropic`, `openai`, `gemini`, and `openai-compatible` (OpenRouter,
-// Groq, Together, Mistral, a local Ollama or LM Studio: anything that speaks
-// /chat/completions). Only Anthropic gets a default model; for the others the
-// person names the model, because a hard-coded third-party model id goes stale.
+// Providers: `anthropic`, `openai`, `gemini`, `openai-compatible` (OpenRouter,
+// Groq, Together, Mistral: anything that speaks /chat/completions), and three
+// local servers that need no key and cost nothing per call: `ollama`,
+// `lmstudio` and `llamacpp` (llama.cpp's llama-server), each preset to its
+// default localhost port. Only Anthropic gets a default model; for the others
+// the person names the model (or picks one from `listModels`/`detectLocal`),
+// because a hard-coded model id goes stale.
 
 export const PROVIDERS = Object.freeze({
   anthropic: { baseUrl: 'https://api.anthropic.com/v1', defaultModel: 'claude-opus-5-5', keyRequired: true },
   openai: { baseUrl: 'https://api.openai.com/v1', defaultModel: null, keyRequired: true },
   gemini: { baseUrl: 'https://generativelanguage.googleapis.com/v1beta', defaultModel: null, keyRequired: true },
   'openai-compatible': { baseUrl: null, defaultModel: null, keyRequired: false },
+  // Local servers: the model runs on the person's own machine, so there is no
+  // key and no per-call bill. All three speak the OpenAI wire format.
+  ollama: { baseUrl: 'http://localhost:11434/v1', defaultModel: null, keyRequired: false, local: true },
+  lmstudio: { baseUrl: 'http://localhost:1234/v1', defaultModel: null, keyRequired: false, local: true },
+  llamacpp: { baseUrl: 'http://localhost:8080/v1', defaultModel: null, keyRequired: false, local: true },
 });
+
+export const LOCAL_PROVIDERS = Object.freeze(Object.keys(PROVIDERS).filter(p => PROVIDERS[p].local));
 
 export class ByokError extends Error {
   constructor(message, { provider, status, retryable = false } = {}) {
@@ -41,18 +51,29 @@ export function configFromEnv(env = {}) {
     || (env.OPENAI_API_KEY && 'openai')
     || (env.GEMINI_API_KEY && 'gemini')
     || (env.LLM_BASE_URL && 'openai-compatible')
+    || (env.OLLAMA_HOST && 'ollama')
     || null;
   if (!provider) return null;
   const keyVar = {
     anthropic: 'ANTHROPIC_API_KEY', openai: 'OPENAI_API_KEY', gemini: 'GEMINI_API_KEY',
-    'openai-compatible': 'LLM_API_KEY',
-  }[provider];
+  }[provider] || 'LLM_API_KEY';
   return normalise({
     provider,
     apiKey: env.LLM_API_KEY || env[keyVar] || null,
     model: env.LLM_MODEL || null,
-    baseUrl: env.LLM_BASE_URL || null,
+    baseUrl: env.LLM_BASE_URL || (provider === 'ollama' ? ollamaBase(env.OLLAMA_HOST) : null),
   });
+}
+
+// OLLAMA_HOST is Ollama's own variable: "0.0.0.0", "127.0.0.1:11434" or a full URL.
+function ollamaBase(host) {
+  if (!host) return null;
+  let h = host.trim().replace(/\/+$/, '');
+  if (!/^https?:\/\//.test(h)) h = `http://${h}`;
+  const u = new URL(h);
+  if (u.hostname === '0.0.0.0') u.hostname = 'localhost';  // a bind address, not a destination
+  if (!u.port && !/^https?:\/\/[^/]+:\d+/.test(h)) u.port = '11434';
+  return `${u.origin}/v1`;
 }
 
 /** Validate and fill defaults; throws ByokError on a config that cannot work. */
@@ -73,6 +94,21 @@ export function normalise(cfg) {
   if (spec.keyRequired && !out.apiKey) throw new ByokError(`${cfg.provider} needs an API key`, { provider: cfg.provider });
   if (!out.model) throw new ByokError(`${cfg.provider} needs a model name`, { provider: cfg.provider });
   return out;
+}
+
+/**
+ * True when the config's model runs on this machine or this network (a local
+ * preset, or a baseUrl on localhost or a private address). A page can say
+ * "nothing leaves your computer" only when this is true.
+ */
+export function isLocal(cfg) {
+  let c;
+  try { c = normalise(cfg); } catch { return false; }
+  let host;
+  try { host = new URL(c.baseUrl).hostname.replace(/^\[|\]$/g, ''); } catch { return false; }
+  return host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host === '::1'
+    || /^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host)
+    || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
 }
 
 /** True when a usable config is present; the cheap check before showing AI features. */
@@ -181,6 +217,54 @@ export async function complete(config, { system = '', prompt, maxTokens = 2048, 
   }
   if (hold) guard.settle(hold, parsed.usage);
   return { text: parsed.text, provider: cfg.provider, model: cfg.model, usage: parsed.usage };
+}
+
+/**
+ * The models a provider offers, as an array of ids, so a page can offer a
+ * picker instead of a free-text box. Needs no model in the config. For a local
+ * server these are the models the person has already downloaded.
+ */
+export async function listModels(config, { fetch: fetchImpl = globalThis.fetch, signal } = {}) {
+  const cfg = normalise({ model: 'x', ...config });
+  const { provider, apiKey, baseUrl } = cfg;
+  const headers = {};
+  if (provider === 'anthropic') {
+    Object.assign(headers, { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' });
+    if (cfg.browser) headers['anthropic-dangerous-direct-browser-access'] = 'true';
+  } else if (provider === 'gemini') headers['x-goog-api-key'] = apiKey;
+  else if (apiKey) headers.authorization = `Bearer ${apiKey}`;
+  let res;
+  try {
+    res = await fetchImpl(`${baseUrl}/models`, { method: 'GET', headers, signal });
+  } catch (err) {
+    throw new ByokError(`could not reach ${provider}: ${err.message}`, { provider, retryable: true });
+  }
+  if (!res.ok) throw new ByokError(`${provider} returned HTTP ${res.status}`, { provider, status: res.status });
+  const data = await res.json();
+  if (provider === 'gemini') return (data.models || []).map(m => String(m.name || '').replace(/^models\//, '')).filter(Boolean);
+  return (data.data || []).map(m => m.id).filter(Boolean);
+}
+
+/**
+ * Probe the default ports of the local servers (Ollama, LM Studio, llama.cpp)
+ * and resolve to the ones that answered: [{ provider, baseUrl, models }].
+ * Never rejects; a server that is off, slow or blocks this page's origin
+ * (CORS) is simply absent. Each probe gives up after `timeoutMs`.
+ */
+export async function detectLocal({ fetch: fetchImpl = globalThis.fetch, timeoutMs = 1500 } = {}) {
+  const probes = LOCAL_PROVIDERS.map(async provider => {
+    const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    const timer = setTimeout(() => ctl?.abort(), timeoutMs);
+    try {
+      const models = await listModels({ provider }, { fetch: fetchImpl, signal: ctl?.signal });
+      return { provider, baseUrl: PROVIDERS[provider].baseUrl, models };
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  });
+  return (await Promise.all(probes)).filter(Boolean);
 }
 
 /**
