@@ -272,7 +272,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -366,6 +366,15 @@
         const worst = r.pairs.filter((x) => x.gap === r.shortest).slice(0, 2).map((x) => `${x.a} v ${x.b}`).join(", ");
         return ` Days between a pair's two meetings: from ${r.shortest} to ${r.longest} (shortest: ${worst}).`;
       };
+      const byeNote = (sch) => {
+        const r = byeReport(sch);
+        if (!r.rows.length) return "";
+        const bits = [];
+        if (r.first.length) bits.push(`${r.first.join(", ")} sit${r.first.length === 1 ? "s" : ""} out the first round`);
+        if (r.last.length) bits.push(`${r.last.join(", ")} sit${r.last.length === 1 ? "s" : ""} out the last round`);
+        if (r.consecutive.length) bits.push(`${r.consecutive.join(", ")} ha${r.consecutive.length === 1 ? "s" : "ve"} byes in two rounds running`);
+        return bits.length ? ` Byes: ${bits.join("; ")}.` : "";
+      };
       const slotNote = (sch) => {
         const f = slotFairness(sch);
         const part = (x, what) => x && x.spread > 1 ? ` ${x.team} has the widest ${what} gap: ${x.mostCount} game(s) at ${x.most} against ${x.leastCount} at ${x.least}.` : "";
@@ -388,7 +397,7 @@
           : ` Over your deadline: the last game is ${dayLabel(c.lastDay)}, ${-c.daysSpare} day(s) after ${dayLabel(d)}; ${c.roundsAfter} round(s) and ${c.matchesAfter} match(es) fall after it. Add a night or a court, or switch to a single round robin.`;
       };
       const sp = (o) => `${s.stats.courtSpread} court and ${s.stats.timeSpread} time-slot game(s)`;
-      $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).${slotNote(s)}${restNote(s)}${runNote(s)}${rematchNote(s)}${costNote(s)}${deadlineNote(s)}`;
+      $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).${slotNote(s)}${restNote(s)}${runNote(s)}${rematchNote(s)}${byeNote(s)}${costNote(s)}${deadlineNote(s)}`;
       $("#race-wrap").hidden = !extra.race;
       if (extra.race) {
         $("#race-note").textContent = `Top ${extra.race.spots} qualify. ${extra.race.rows.exact ? "Every way the remaining games could finish was checked." : "Many games remain, so only the safe bounds are used: a team marked alive may already be settled."} Ranked on points only; a tie on points counts against the team, so "clinched" and "out" are never wrong, and goal difference can help a team marked alive. Chance is an estimate from playing the rest of the season out 4,000 times with each team's results so far: a guide, not a promise.`;
