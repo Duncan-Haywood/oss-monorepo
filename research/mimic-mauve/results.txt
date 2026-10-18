@@ -1,0 +1,36 @@
+family/model            n   MAUVE(sd)       null    AUROC   distinct2 human->model
+abstracts/llama-chat    100  0.210 (0.052)  0.959  0.967   0.763 -> 0.554
+abstracts/mistral-chat  100  0.201 (0.076)  0.967  0.953   0.759 -> 0.639
+books/llama-chat        100  0.018 (0.004)  0.964  1.000   0.796 -> 0.612
+books/mistral-chat      100  0.030 (0.016)  0.973  0.997   0.799 -> 0.637
+news/llama-chat         100  0.749 (0.156)  0.978  0.972   0.796 -> 0.733
+news/mistral-chat       100  0.640 (0.120)  0.962  0.960   0.795 -> 0.728
+poetry/llama-chat        92  0.091 (0.039)  0.961  0.991   0.830 -> 0.788
+poetry/mistral-chat     100  0.136 (0.037)  0.967  0.995   0.828 -> 0.755
+poetry/mpt-chat         100  0.117 (0.027)  0.953  0.971   0.829 -> 0.839
+recipes/llama-chat      100  0.324 (0.173)  0.967  0.999   0.604 -> 0.380
+recipes/mistral-chat    100  0.325 (0.099)  0.984  0.999   0.605 -> 0.416
+recipes/mpt-chat         48  0.617 (0.210)  0.985  0.990   0.681 -> 0.646
+reddit/llama-chat        91  0.216 (0.166)  0.971  0.993   0.758 -> 0.694
+reddit/mistral-chat     100  0.441 (0.165)  0.956  0.946   0.752 -> 0.723
+reddit/mpt-chat         100  0.250 (0.075)  0.971  0.977   0.747 -> 0.804
+reviews/llama-chat      100  0.020 (0.008)  0.956  0.998   0.782 -> 0.630
+reviews/mistral-chat     79  0.009 (0.004)  0.968  0.998   0.800 -> 0.628
+reviews/mpt-chat         83  0.029 (0.012)  0.971  0.992   0.798 -> 0.754
+wiki/llama-chat         100  0.636 (0.135)  0.939  0.937   0.801 -> 0.692
+wiki/mistral-chat       100  0.830 (0.075)  0.924  0.832   0.804 -> 0.743
+
+{
+ "cells": 20,
+ "spearman_mauve_vs_auroc": [
+  -0.6015037593984961,
+  0.005023202586882035
+ ],
+ "spearman_mauve_vs_d2ratio": [
+  0.24060150375939846,
+  0.3068610916782757
+ ],
+ "null_mauve_mean": 0.9637861589005856,
+ "null_mauve_min": 0.9236497449661009,
+ "mauve_max": 0.8296215761538346
+}
