@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the size and power of the twin-informed certification test against how many times the true failure rate the twin claims; a twin claiming a failure rate far below the truth pushes the size to 0.24, almost five times the 0.05 target">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Twin-informed certification when the twin is wrong (w=0.01, n=400)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.0" y2="273.0" stroke="#ddd"/><text x="58" y="277.0" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.1" y2="222.1" stroke="#ddd"/><text x="58" y="226.1" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="171.1" y2="171.1" stroke="#ddd"/><text x="58" y="175.1" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="120.1" y2="120.1" stroke="#ddd"/><text x="58" y="124.1" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="69.2" y2="69.2" stroke="#ddd"/><text x="58" y="73.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.01</text>
+<text x="271.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="479.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">twin's claimed failure rate as a multiple of eps (lambda, log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">probability</text>
+<line x1="64" x2="624" y1="311.3" y2="311.3" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,263.7 271.5,263.7 416.5,300.9 479.0,319.4 541.4,324.0 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="263.7" r="3" fill="#c0392b"/>
+<circle cx="271.5" cy="263.7" r="3" fill="#c0392b"/>
+<circle cx="416.5" cy="300.9" r="3" fill="#c0392b"/>
+<circle cx="479.0" cy="319.4" r="3" fill="#c0392b"/>
+<circle cx="541.4" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">size at p=eps (want <= 0.05)</text>
+<polyline points="64.0,107.5 271.5,107.5 416.5,167.3 479.0,257.0 541.4,324.0 624.0,324.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="107.5" r="3" fill="#1f6fb2"/>
+<circle cx="271.5" cy="107.5" r="3" fill="#1f6fb2"/>
+<circle cx="416.5" cy="167.3" r="3" fill="#1f6fb2"/>
+<circle cx="479.0" cy="257.0" r="3" fill="#1f6fb2"/>
+<circle cx="541.4" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">power at eps/3</text>
+<polyline points="64.0,71.2 271.5,71.2 416.5,84.8 479.0,153.2 541.4,324.0 624.0,324.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="271.5" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="416.5" cy="84.8" r="3" fill="#2e8b57"/>
+<circle cx="479.0" cy="153.2" r="3" fill="#2e8b57"/>
+<circle cx="541.4" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">power at eps/10</text>
+</svg>
