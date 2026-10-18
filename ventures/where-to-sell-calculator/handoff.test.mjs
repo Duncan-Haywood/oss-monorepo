@@ -30,6 +30,7 @@ import { INPUT_IDS as POSHMARK_FIELDS } from '../poshmark-fee-calculator/calc.mj
 import { FIELD_IDS as STOCKX_FIELDS } from '../stockx-seller-payout-calculator/share.mjs';
 import { INPUT_IDS as MERCARI_FIELDS } from '../mercari-fee-calculator/calc.mjs';
 import { INPUT_IDS as DEPOP_FIELDS } from '../depop-fee-calculator/calc.mjs';
+import { INPUT_IDS as GRAILED_FIELDS } from '../grailed-fee-calculator/calc.mjs';
 import { INPUT_IDS as FB_FIELDS } from '../facebook-marketplace-fee-calculator/calc.mjs';
 import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculator/calc.mjs';
 
@@ -45,6 +46,7 @@ const TARGET_FIELDS = {
   'stockx-seller-payout-calculator': STOCKX_FIELDS,
   'mercari-fee-calculator': MERCARI_FIELDS,
   'depop-fee-calculator': DEPOP_FIELDS,
+  'grailed-fee-calculator': GRAILED_FIELDS,
   'facebook-marketplace-fee-calculator': FB_FIELDS,
   'walmart-marketplace-calculator': WALMART_FIELDS,
 };

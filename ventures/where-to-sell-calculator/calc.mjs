@@ -32,7 +32,9 @@
  * `calculateChannel` then prices, breaks even and solves for a target on
  * whichever side of the cliff the item actually sits. A channel that omits
  * both fields is unaffected, down to the arithmetic: every coefficient below
- * collapses to what it was before the cliff existed.
+ * collapses to what it was before the cliff existed. Grailed's step is a
+ * lower percentage below the threshold rather than a flat fee, which a channel
+ * says with `commissionRateBelow`.
  */
 
 export const CHANNEL_PRESETS = [
@@ -453,9 +455,39 @@ export const CHANNEL_PRESETS = [
     enabled: false,
   },
   {
+    id: "grailed",
+    label: "Grailed (menswear & streetwear, US)",
+    note: "Off by default because it only suits menswear, designer and streetwear. Since 20 May 2026 Grailed's commission is a step: 6% on a sale under $120 and 9% on a sale of $120 or more, applied to the whole sale, plus 3.49% + $0.49 payment processing -- so a $120 item can pay you less than a $119.99 one. Grailed's $1.99 minimum commission (it only matters under about $33) is not modelled here; `ventures/grailed-fee-calculator` does, along with international buyers and the $120 cliff. These rates come from third-party fee guides, not Grailed's own help centre, so check one real payout. Sell-through and days to sell are illustrative starting points, not a claim about Grailed velocity.",
+    // Matches ventures/grailed-fee-calculator's TIER_THRESHOLD, LOW_RATE,
+    // HIGH_RATE and domestic processing; parity-tested by import above $33.
+    commissionRate: 9,
+    commissionBase: "order",
+    commissionThreshold: 120,
+    commissionRateBelow: 6,
+    paymentRate: 3.49,
+    paymentFixed: 0.49,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions: Grailed has no buyer's-remorse return
+    // window; returns are not-as-described disputes, so they are rare.
+    returnRate: 3,
+    returnShippingCost: 8,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire, but
+    // designer menswear is a narrow audience and sits.
+    sellThroughPct: 30,
+    daysToSell: 50,
+    listingRenewalDays: 0,
+    // Off until the seller says this is menswear: enabled by default it would
+    // add a channel most sellers cannot list on, like Poshmark and Depop.
+    enabled: false,
+  },
+  {
     id: "other",
     label: "Other channel",
-    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — GOAT, a craft fair, a wholesale account. Mercari, Poshmark, StockX, Depop, Facebook Marketplace and Walmart have their own rows above.",
+    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — GOAT, a craft fair, a wholesale account. Mercari, Poshmark, StockX, Depop, Grailed, Facebook Marketplace and Walmart have their own rows above.",
     commissionRate: 0,
     paymentRate: 0,
     paymentFixed: 0,
@@ -531,6 +563,9 @@ export function calculateChannel(channel, shared = {}) {
   // Poshmark, and leaves every coefficient below exactly as it was.
   const commissionThreshold = number(channel.commissionThreshold, `${label} commission threshold`, 0);
   const commissionFlatBelow = number(channel.commissionFlatBelow, `${label} flat commission`, 0);
+  // Grailed's rule below its $120 step is a lower *percentage*, not a flat fee.
+  // When set it replaces the flat fee on that side; unset leaves Poshmark's.
+  const commissionRateBelow = number(channel.commissionRateBelow, `${label} commission rate below the threshold`, 0);
   const paymentRate = number(channel.paymentRate, `${label} payment rate`, 0);
   const adRate = number(channel.adRate, `${label} ads rate`, 0);
   const paymentFixed = number(channel.paymentFixed, `${label} payment fixed fee`, 0);
@@ -596,13 +631,13 @@ export function calculateChannel(channel, shared = {}) {
     commissionBase === "item" ? itemPrice : itemPrice + shippingCharged;
   // `chargesRate` false is the flat-fee side of the cliff.
   const branchRates = (chargesRate) => {
-    const rate = chargesRate ? commissionRate : 0;
+    const rate = chargesRate ? commissionRate : commissionRateBelow;
     return {
       orderRate: (paymentRate + adRate + (commissionBase === "order" ? rate : 0)) / 100,
       itemRate: (commissionBase === "item" ? rate : 0) / 100,
     };
   };
-  const flatCommissionOn = (chargesRate) => (chargesRate ? 0 : commissionFlatBelow);
+  const flatCommissionOn = (chargesRate) => (chargesRate || commissionRateBelow > 0 ? 0 : commissionFlatBelow);
 
   const commissionBaseAmount = commissionBaseAt(price);
   // Which side this item is actually on. Poshmark's switch is at exactly
@@ -623,7 +658,9 @@ export function calculateChannel(channel, shared = {}) {
       // reachable below the flat fee itself, and never inside a break-even
       // answer: the solved flat-branch price is at least the flat fee
       // whenever there is any cash to recover.
-      : Math.min(commissionFlatBelow, commissionBaseAmount),
+      : commissionRateBelow > 0
+        ? (commissionBaseAmount * commissionRateBelow) / 100
+        : Math.min(commissionFlatBelow, commissionBaseAmount),
     payment: (revenue * paymentRate) / 100 + paymentFixed,
     ads: (revenue * adRate) / 100,
     listing: perListingFee,
