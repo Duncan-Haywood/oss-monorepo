@@ -508,6 +508,36 @@ export const SAMPLE_FOODS = [
   "Apple (1) | 0.50 | 95 | 0.5 | 25 | 0.3 | 4.4 | 2 |  | 2",
 ].join("\n");
 
+// Eating style: drop foods whose NAME says they are animal-derived. Names are
+// free text the user typed, so this is a keyword screen, not a label check: the
+// page lists what it dropped, and ingredients on a real label still win.
+const MEAT = ["chicken", "beef", "pork", "turkey", "lamb", "bacon", "ham", "sausage", "steak", "mince", "ground meat", "jerky", "salami"];
+const FISH = ["tuna", "salmon", "sardine", "fish", "shrimp", "prawn", "anchov", "cod", "tilapia", "mackerel"];
+const DAIRY = ["milk", "cheese", "cheddar", "yogurt", "yoghurt", "whey", "butter", "cream", "ghee", "casein", "mozzarella", "parmesan"];
+export const STYLES = {
+  any: { label: "Anything", words: [] },
+  pescatarian: { label: "No meat (fish ok)", words: MEAT },
+  vegetarian: { label: "Vegetarian", words: [...MEAT, ...FISH] },
+  vegan: { label: "Vegan", words: [...MEAT, ...FISH, ...DAIRY, "egg", "honey"] },
+  dairyfree: { label: "Dairy-free", words: DAIRY },
+};
+// Plant foods that contain a trigger word.
+const NOT_ANIMAL = /peanut butter|almond butter|nut butter|cocoa butter|butter bean|butternut|eggplant|coconut milk|oat milk|soy milk|soya milk|almond milk|rice milk|coconut cream/;
+
+// Returns { foods, dropped } for a style key; an unknown key keeps everything.
+export function filterByStyle(foods, style) {
+  const words = (STYLES[style] || STYLES.any).words;
+  if (!words.length) return { foods, dropped: [] };
+  const dropped = [];
+  const kept = foods.filter((f) => {
+    const name = f.name.toLowerCase();
+    const hit = words.some((w) => new RegExp("\\b" + w).test(name.replace(NOT_ANIMAL, "")));
+    if (hit) dropped.push(f.name);
+    return !hit;
+  });
+  return { foods: kept, dropped };
+}
+
 export function sampleSpec() {
   return { ...DEFAULTS, foods: parseFoods(SAMPLE_FOODS).foods };
 }
