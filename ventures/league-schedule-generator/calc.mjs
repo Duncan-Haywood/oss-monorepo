@@ -1322,6 +1322,26 @@ export function teamMessages(schedule) {
   });
 }
 
+/**
+ * One ready-to-paste note per official (set by assignOfficials): the matches they work, with date, time, court and the
+ * two teams, in schedule order. Officials with no match are left out. Returns [{ official, matches, text }].
+ */
+export function officialMessages(schedule) {
+  const by = new Map();
+  for (const r of schedule.rounds) {
+    for (const m of r.matches) {
+      if (!m.official) continue;
+      if (!by.has(m.official)) by.set(m.official, []);
+      by.get(m.official).push(`${r.label} - ${dayLabel(r.day)}${m.time ? " " + m.time : ""}${m.court ? ", " + m.court : ""}: ${m.homeName} vs ${m.awayName}`);
+    }
+  }
+  return [...by].map(([official, lines]) => ({
+    official,
+    matches: lines.length,
+    text: [`Hi ${official}, the matches you are officiating (${lines.length}):`, ...lines, "Check the dates before you plan around them."].join("\n"),
+  }));
+}
+
 export function scheduleText(schedule, bracket = null) {
   const n = schedule.teams.length;
   const lines = [`${n}-team ${schedule.config.double ? "double" : "single"} round robin`, ""];

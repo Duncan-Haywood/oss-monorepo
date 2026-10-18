@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
-  scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
@@ -1517,6 +1517,22 @@ test("overdueResults lists played-date matches with no typed result, earliest me
   const firstMeeting = flat.find((m) => [m.home, m.away].sort().join() === "0,1");
   assert.ok(!od.some((m) => m.day === firstMeeting.day && [m.home, m.away].sort().join() === "0,1"));
   assert.ok(od.every((m, i) => i === 0 || od[i - 1].day <= m.day));
+});
+
+test("official messages list only that official's matches, in schedule order, and match the loads", () => {
+  const s = buildSchedule(baseSpec(6, { courts: ["A", "B", "C"], times: [] }));
+  const { officials } = parseOfficials(["Ann", "Bo (Team 1)", "Cy (Team 2)", "Di"].join("\n"), s.teams);
+  const r = assignOfficials(s, officials);
+  const msgs = officialMessages(r.schedule);
+  assert.equal(msgs.length, r.loads.filter((l) => l.matches > 0).length);
+  for (const m of msgs) {
+    assert.equal((m.text.match(/ vs /g) || []).length, m.matches);
+    assert.equal(m.matches, r.loads.find((l) => l.name === m.official).matches);
+    assert.match(m.text, new RegExp(`^Hi ${m.official}, the matches you are officiating \\(${m.matches}\\):`));
+  }
+  const bo = msgs.find((m) => m.official === "Bo");
+  assert.ok(!bo.text.includes("Team 1 vs") && !bo.text.includes("vs Team 1"));
+  assert.deepEqual(officialMessages(s), []); // no officials assigned, nothing to send
 });
 
 test("byeReport: odd leagues give each team one bye per leg, recounted independently; even leagues none", () => {
