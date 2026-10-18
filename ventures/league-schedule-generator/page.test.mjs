@@ -339,6 +339,34 @@ test("the odd-team round robin guide's worked example matches roundRobin() and i
   assert.match(page("index.html"), /href="\.\/how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html"/);
 });
 
+test("the home/away balance guide's worked example matches roundRobin() and countBreaks() and is linked and in the sitemap", () => {
+  const name = "how-to-balance-home-and-away-games-in-a-round-robin.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const names = ["Hawks", "Owls", "Foxes", "Bears", "Lynx", "Wolves"];
+  const wrap = (n, double) => ({ teams: Array(n).fill(0), rounds: roundRobin(n, { double }).map((r) => ({ matches: r.matches.map(([home, away]) => ({ home, away })) })) });
+  const rr = roundRobin(6);
+  const breaks = countBreaks(wrap(6, false));
+  names.forEach((t, i) => {
+    const pat = rr.map((r) => r.matches.some(([h]) => h === i) ? "H" : "A").join(" ");
+    const row = `<tr><td>${t}</td><td>${pat}</td><td>${breaks[i]}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  });
+  const sum = (a) => a.reduce((x, y) => x + y, 0);
+  for (const n of [4, 6, 8, 10, 12, 16]) {
+    assert.equal(sum(countBreaks(wrap(n, false))), n - 2);
+    assert.equal(sum(countBreaks(wrap(n, true))), 3 * (n - 2));
+  }
+  for (const n of [5, 7, 9]) assert.equal(sum(countBreaks(wrap(n, false))), 0);
+  assert.equal(Math.max(...countBreaks(wrap(6, true))), 3);
+  assert.match(page("sitemap.xml"), /how-to-balance-home-and-away-games-in-a-round-robin\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-balance-home-and-away-games-in-a-round-robin\.html"/);
+});
+
 test("the courts-and-time-slots guide's worked example matches buildSchedule() and is linked and in the sitemap", () => {
   const name = "how-to-schedule-a-league-with-limited-courts-and-time-slots.html";
   const html = page(name);

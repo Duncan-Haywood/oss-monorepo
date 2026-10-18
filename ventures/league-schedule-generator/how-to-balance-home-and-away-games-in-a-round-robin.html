@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Balance Home And Away Games In A Round Robin</title>
+  <meta name="description" content="What a home/away break is, the fewest breaks a round robin can have, why a mirrored double round robin has more, and a worked six-team example with every team's H and A pattern. Then build yours free.">
+  <meta property="og:title" content="How To Balance Home And Away Games In A Round Robin">
+  <meta property="og:description" content="Home/away breaks explained, with a worked six-team example. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-balance-home-and-away-games-in-a-round-robin.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a home/away break in a round robin?", "acceptedAnswer": {"@type": "Answer", "text": "A break is two home games or two away games in a row for the same team. Fewer breaks means a fairer season, because long runs at home or away skew results and travel."}}, {"@type": "Question", "name": "What is the fewest breaks a round robin can have?", "acceptedAnswer": {"@type": "Answer", "text": "With an even number of teams n, at least n \u2212 2 breaks across the whole league, and the circle method reaches that: 4 breaks for 6 teams, 6 for 8. With an odd number of teams it can be done with none, because every team has a bye that resets its run."}}, {"@type": "Question", "name": "Does a double round robin have more breaks?", "acceptedAnswer": {"@type": "Answer", "text": "If you simply replay the first half with home and away swapped, yes: the two halves meet at the seam, and an even league ends up with 3 \u00d7 (n \u2212 2) breaks in total (12 for 6 teams) with at most 3 on one team. Check the seam, where a team that finished the first half away starts the second half away too."}}, {"@type": "Question", "name": "Can I avoid home/away breaks completely?", "acceptedAnswer": {"@type": "Answer", "text": "Not with an even number of teams in a single round robin: n \u2212 2 is the proven minimum. You can only choose which teams carry the breaks, so give them to the teams that mind least rather than leaving it to chance."}}, {"@type": "Question", "name": "How do I check my own schedule for breaks?", "acceptedAnswer": {"@type": "Answer", "text": "Write each team's season as a string of H and A, one letter per round, and look for two matching letters side by side. The free tool does this for you and names any team with three or more home or away games in a row."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to balance home and away games in a round robin, with a worked example</h1>
+  <p>In a fair round robin every team plays everyone else once, and the home games and away games are shared as evenly as the number of teams allows. The thing to avoid is a run of two or more home games or two or more away games for the same team. That run is called a break, and the circle method keeps the total as low as it can be.</p>
+  <p><a class="cta" href="./">Open the free schedule tool</a> (paste the teams; home and away are balanced for you)</p>
+  <h2>A worked example: 6 teams, 5 rounds</h2>
+  <p>Six invented teams play a single round robin. Each row is one team's season, one letter per round: H for a home game, A for away. Two of the same letter side by side is a break.</p>
+  <table>
+    <thead><tr><th>Team</th><th>Rounds 1 to 5</th><th>Breaks</th></tr></thead>
+    <tbody>
+      <tr><td>Hawks</td><td>H A H A H</td><td>0</td></tr>
+      <tr><td>Owls</td><td>H A A H A</td><td>1</td></tr>
+      <tr><td>Foxes</td><td>A H H A H</td><td>1</td></tr>
+      <tr><td>Bears</td><td>H A H A A</td><td>1</td></tr>
+      <tr><td>Lynx</td><td>A H A H H</td><td>1</td></tr>
+      <tr><td>Wolves</td><td>A H A H A</td><td>0</td></tr>
+    </tbody>
+  </table>
+  <p>Each team plays 5 games, 2 or 3 of them at home. The league has 4 breaks in total, which is the minimum for 6 teams, and no team has more than one. The pattern comes from the same code the page runs and a test recomputes this table from it, so it cannot drift from the tool.</p>
+  <p><a class="cta" href="./">Build your own schedule</a></p>
+  <h2>Questions</h2>
+  <h3>What is a home/away break in a round robin?</h3>
+  <p>A break is two home games or two away games in a row for the same team. Fewer breaks means a fairer season, because long runs at home or away skew results and travel.</p>
+  <h3>What is the fewest breaks a round robin can have?</h3>
+  <p>With an even number of teams n, at least n − 2 breaks across the whole league, and the circle method reaches that: 4 breaks for 6 teams, 6 for 8. With an odd number of teams it can be done with none, because every team has a bye that resets its run.</p>
+  <h3>Does a double round robin have more breaks?</h3>
+  <p>If you simply replay the first half with home and away swapped, yes: the two halves meet at the seam, and an even league ends up with 3 × (n − 2) breaks in total (12 for 6 teams) with at most 3 on one team. Check the seam, where a team that finished the first half away starts the second half away too.</p>
+  <h3>Can I avoid home/away breaks completely?</h3>
+  <p>Not with an even number of teams in a single round robin: n − 2 is the proven minimum. You can only choose which teams carry the breaks, so give them to the teams that mind least rather than leaving it to chance.</p>
+  <h3>How do I check my own schedule for breaks?</h3>
+  <p>Write each team's season as a string of H and A, one letter per round, and look for two matching letters side by side. The free tool does this for you and names any team with three or more home or away games in a row.</p>
+  <p>Related: <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>, <a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">byes with an odd number of teams</a>, and <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing and date before you announce it; your event's own rules and tie-breaks apply. The example teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

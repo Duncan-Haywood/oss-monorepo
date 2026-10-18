@@ -64,7 +64,7 @@
     <p class="note">LEAGUE SCHEDULE GENERATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Make a fair round-robin league schedule in a minute</h1>
     <p>Paste the <strong>team names</strong>, pick a <strong>start date and weekday</strong>, and get every round with <strong>real dates</strong>, <strong>home and away balanced</strong>, <strong>courts and time slots shared evenly</strong>, and <strong>blackout dates</strong> handled. Export a <strong>CSV</strong>, a <strong>calendar file</strong> for the league or one team, or <strong>plain text</strong> for the group chat.</p>
-    <p class="note">For rec leagues, youth sports, pickleball, darts and chess clubs and office leagues. New to this? Read <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule, with a worked example</a>, <a href="./how-to-run-a-swiss-tournament.html">how Swiss pairings work</a>, <a href="./how-to-break-ties-in-league-standings.html">how to break ties in the standings</a>, <a href="./how-to-reschedule-a-rained-out-league-game.html">how to reschedule a rained-out game</a>, <a href="./how-to-run-an-americano-tournament.html">how an Americano rotation works</a>, <a href="./how-to-run-a-mexicano-tournament.html">how a Mexicano draw works</a>, <a href="./how-to-run-a-ladder-league.html">how a challenge ladder moves players up</a>, <a href="./how-to-run-a-single-elimination-bracket.html">how to seed a single-elimination bracket and give byes</a>, <a href="./how-to-run-a-double-elimination-tournament.html">how double elimination and the grand final reset work</a>, <a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">how byes work with an odd number of teams</a>, <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">how to fit a league onto limited courts and time slots</a>, or look up <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>, <a href="./how-long-does-a-round-robin-tournament-take.html">how long a one-day round robin takes</a>, or <a href="./tournament-bracket-by-number-of-teams.html">byes, rounds and games for a 3 to 32 team bracket</a>, or copy a <a href="./round-robin-schedule-template.html">ready-made round robin fixture list for 4 to 16 teams</a>.</p>
+    <p class="note">For rec leagues, youth sports, pickleball, darts and chess clubs and office leagues. New to this? Read <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule, with a worked example</a>, <a href="./how-to-run-a-swiss-tournament.html">how Swiss pairings work</a>, <a href="./how-to-break-ties-in-league-standings.html">how to break ties in the standings</a>, <a href="./how-to-reschedule-a-rained-out-league-game.html">how to reschedule a rained-out game</a>, <a href="./how-to-run-an-americano-tournament.html">how an Americano rotation works</a>, <a href="./how-to-run-a-mexicano-tournament.html">how a Mexicano draw works</a>, <a href="./how-to-run-a-ladder-league.html">how a challenge ladder moves players up</a>, <a href="./how-to-run-a-single-elimination-bracket.html">how to seed a single-elimination bracket and give byes</a>, <a href="./how-to-run-a-double-elimination-tournament.html">how double elimination and the grand final reset work</a>, <a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">how byes work with an odd number of teams</a>, <a href="./how-to-balance-home-and-away-games-in-a-round-robin.html">how to balance home and away games</a>, <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">how to fit a league onto limited courts and time slots</a>, or look up <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>, <a href="./how-long-does-a-round-robin-tournament-take.html">how long a one-day round robin takes</a>, or <a href="./tournament-bracket-by-number-of-teams.html">byes, rounds and games for a 3 to 32 team bracket</a>, or copy a <a href="./round-robin-schedule-template.html">ready-made round robin fixture list for 4 to 16 teams</a>.</p>
   </header>
 
   <main>
@@ -202,7 +202,8 @@
     <h2>Swiss system: pair the next round</h2>
     <p class="note">For chess, darts, board-game and esports events where a full round robin takes too long. List the players best seed first (the Teams box above), type finished games below as <code>Ana 1 - 0 Ben</code> (equal numbers are a draw) or <code>Cy bye</code>, and get the next round's boards: players with the same score meet, nobody meets twice, the bye goes to someone who has not had one, and colours alternate. The table ranks by score, then Buchholz (the sum of your opponents' scores).</p>
     <label for="swiss-results">Finished games so far (all rounds)</label>
-    <textarea id="swiss-results" rows="4" placeholder="Ana 1 - 0 Ben&#10;Cy 1 - 1 Dee"></textarea>
+    <textarea id="swiss-results" rows="4" placeholder="Ana 1 - 0 Ben&#10;Cy 1 - 1 Dee&#10;Eve out"></textarea>
+    <p class="note">A line like <code>Eve out</code> removes a player who has left: their games stay in the table and nobody is paired with them again.</p>
     <button type="button" id="build-swiss">Pair next round</button>
     <button type="button" class="secondary" id="dl-swiss">Download pairings (text)</button>
     <p id="swiss-status" role="status" class="note"></p>
@@ -652,15 +653,15 @@
       const parsed = parseSwissResults($("#swiss-results").value, players);
       if (parsed.errors.length) { out.textContent = parsed.errors.join(" "); return; }
       let round;
-      try { round = swissPairings(players, parsed.games, parsed.byes); } catch (e) { out.textContent = e.message; return; }
-      const problems = validateSwiss(players, parsed.games, parsed.byes, round);
+      try { round = swissPairings(players, parsed.games, parsed.byes, parsed.withdrawn); } catch (e) { out.textContent = e.message; return; }
+      const problems = validateSwiss(players, parsed.games, parsed.byes, round, parsed.withdrawn);
       if (problems.length) { out.textContent = problems.join(" "); return; }
       const played = Math.max(0, ...swissStandings(players, parsed.games, parsed.byes).map((r) => r.played + r.byes));
       const table = swissStandings(players, parsed.games, parsed.byes);
       swissOut = swissText(players, round, played + 1) + "\n\nStandings\n" +
         table.map((r) => `  ${r.rank}. ${r.name}  ${r.score} pts  Buchholz ${r.buchholz}  SB ${r.sonnebornBerger}`).join("\n");
       $("#swiss-out").textContent = swissOut;
-      out.textContent = `Round ${played + 1} of about ${swissRounds(players.length)} for ${players.length} players. The pairing passed the check.`;
+      out.textContent = `Round ${played + 1} of about ${swissRounds(players.length)} for ${players.length - parsed.withdrawn.length} players${parsed.withdrawn.length ? ` (${parsed.withdrawn.length} left the event)` : ""}. The pairing passed the check.`;
       record("swiss_paired");
     }));
     $("#dl-swiss").addEventListener("click", () => { if (swissOut) download("swiss-pairings.txt", swissOut, "text/plain"); });

@@ -1611,3 +1611,25 @@ test("official calendar holds only that official's matches, as events they can i
   assert.doesNotMatch(bo, /Team 1 vs|vs Team 1/);
   assert.equal((scheduleIcs(r.schedule, null, "20261001T000000Z", "Nobody").match(/BEGIN:VEVENT/g) || []).length, 0);
 });
+
+test("swiss withdrawals: a player who is out keeps their games but is never paired again", () => {
+  const players = ["A", "B", "C", "D", "E", "F"];
+  const { games, byes, withdrawn, errors } = parseSwissResults("A 1 - 0 D\nB 1 - 0 E\nC 1 - 0 F\nB out\nb OUT\nZed out", players);
+  assert.deepEqual(withdrawn, [1]);
+  assert.equal(errors.length, 1);
+  const round = swissPairings(players, games, byes, withdrawn);
+  assert.deepEqual(validateSwiss(players, games, byes, round, withdrawn), []);
+  const used = round.pairs.flatMap((p) => [p.white, p.black]).concat(round.bye ?? []);
+  assert.ok(!used.includes(1));
+  assert.equal(used.length, 5);
+  assert.notEqual(round.bye, null);
+  assert.equal(swissStandings(players, games, byes).find((r) => r.name === "B").score, 1);
+});
+
+test("swiss withdrawals: even field after a drop-out has no bye, and too few players is refused", () => {
+  const players = ["A", "B", "C", "D", "E"];
+  const r = swissPairings(players, [], [], [4]);
+  assert.equal(r.bye, null);
+  assert.equal(r.pairs.length, 2);
+  assert.throws(() => swissPairings(["A", "B", "C"], [], [], [0, 1]), /at least 2/);
+});

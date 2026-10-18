@@ -2133,17 +2133,26 @@ export function swissRounds(n) {
 }
 
 /**
- * Read finished Swiss games. One per line: `Ana 1 - 0 Ben` (equal numbers are a draw) or `Cy bye`.
- * Returns { games: [{a, b, ga, gb}], byes: [index], errors }.
+ * Read finished Swiss games. One per line: `Ana 1 - 0 Ben` (equal numbers are a draw), `Cy bye`, or
+ * `Dee out` for a player who has left the event (kept in the table, not paired again).
+ * Returns { games: [{a, b, ga, gb}], byes: [index], withdrawn: [index], errors }.
  */
 export function parseSwissResults(text, players) {
   const games = [];
   const byes = [];
+  const withdrawn = [];
   const errors = [];
   const rest = [];
   for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
     const line = raw.trim();
     if (!line) continue;
+    const w = line.match(/^(.*?)\s+(?:out|withdrawn|withdraws)$/i);
+    if (w) {
+      const idx = teamIndex(players, w[1]);
+      if (idx < 0) errors.push(`Result line ${i + 1}: "${w[1]}" is not one of the players.`);
+      else if (!withdrawn.includes(idx)) withdrawn.push(idx);
+      continue;
+    }
     const m = line.match(/^(.*?)\s+bye$/i);
     if (m) {
       const idx = teamIndex(players, m[1]);
@@ -2156,7 +2165,7 @@ export function parseSwissResults(text, players) {
   const parsed = parseResults(rest.join("\n"), players);
   games.push(...parsed.results);
   errors.push(...parsed.errors);
-  return { games, byes, errors };
+  return { games, byes, withdrawn, errors };
 }
 
 /** Score table: win 1, draw 0.5, bye counts as a win. Buchholz = sum of opponents' scores, then Sonneborn-Berger breaks ties. */
@@ -2193,11 +2202,12 @@ export function swissStandings(players, games, byes = [], { win = 1, draw = 0.5 
  * alternate. Games are `{a, b}` with a = white. `players` are in seed order (strongest first).
  * Returns { pairs: [{white, black}], bye: index | null, floaters: number }.
  */
-export function swissPairings(players, games, byes = []) {
-  const n = players.length;
-  if (n < 2) throw new Error("Swiss pairing needs at least 2 players.");
+export function swissPairings(players, games, byes = [], withdrawn = []) {
+  const gone = new Set(withdrawn);
+  const n = players.length - gone.size;
+  if (n < 2) throw new Error("Swiss pairing needs at least 2 players still in the event.");
   const table = swissStandings(players, games, byes);
-  const order = table.map((r) => r.index);
+  const order = table.map((r) => r.index).filter((i) => !gone.has(i));
   const info = new Map(table.map((r) => [r.index, r]));
   const met = new Set();
   for (const g of games) { met.add(`${g.a}|${g.b}`); met.add(`${g.b}|${g.a}`); }
@@ -2252,15 +2262,16 @@ export function swissPairings(players, games, byes = []) {
 }
 
 /** Check a pairing: everyone placed once, no rematches, bye unused. Returns a list of problems. */
-export function validateSwiss(players, games, byes, round) {
+export function validateSwiss(players, games, byes, round, withdrawn = []) {
   const problems = [];
   const seen = new Set();
   for (const { white, black } of round.pairs) {
     for (const i of [white, black]) { if (seen.has(i)) problems.push(`${players[i]} is paired twice.`); seen.add(i); }
     if (games.some((g) => (g.a === white && g.b === black) || (g.a === black && g.b === white))) problems.push(`${players[white]} and ${players[black]} already played.`);
   }
-  if (round.bye !== null) { if (seen.has(round.bye)) problems.push(`${players[round.bye]} has a bye and a game.`); seen.add(round.bye); if (byes.includes(round.bye) && byes.length < players.length) problems.push(`${players[round.bye]} already had a bye.`); }
-  if (seen.size !== players.length) problems.push("Not every player is paired.");
+  if (round.bye !== null) { if (seen.has(round.bye)) problems.push(`${players[round.bye]} has a bye and a game.`); seen.add(round.bye); if (byes.includes(round.bye) && byes.length < players.length - withdrawn.length) problems.push(`${players[round.bye]} already had a bye.`); }
+  for (const i of withdrawn) if (seen.has(i)) problems.push(`${players[i]} has left the event but is paired.`);
+  if (seen.size !== players.length - withdrawn.length) problems.push("Not every player is paired.");
   return problems;
 }
 
