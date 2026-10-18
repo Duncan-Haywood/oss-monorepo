@@ -42,6 +42,33 @@ class T(unittest.TestCase):
         self.assertEqual(len(commits), 1)
         self.assertEqual(slug_dupe.main(["foo-calc"]), 1)
 
+    def test_recent_commit_without_directory_is_duplicate(self):
+        (self.clone / "other.txt").write_text("y")
+        run(self.clone, "add", "-A")
+        run(self.clone, "commit", "-m", "baz-gadget: started")
+        run(self.clone, "push", "origin", "HEAD:main")
+        run(self.clone, "fetch", "origin")
+        on_main, commits, _ = slug_dupe.check("baz-gadget")
+        self.assertFalse(on_main)
+        self.assertEqual(len(commits), 1)
+        self.assertEqual(slug_dupe.main(["baz-gadget"]), 1)
+
+    def test_directory_older_than_window_is_still_duplicate(self):
+        (self.clone / "ventures/old-tool").mkdir(parents=True)
+        (self.clone / "ventures/old-tool/a.txt").write_text("x")
+        run(self.clone, "add", "-A")
+        os.environ["GIT_AUTHOR_DATE"] = os.environ["GIT_COMMITTER_DATE"] = "2020-01-01T00:00:00"
+        try:
+            run(self.clone, "commit", "-m", "old-tool: new venture")
+        finally:
+            del os.environ["GIT_AUTHOR_DATE"], os.environ["GIT_COMMITTER_DATE"]
+        run(self.clone, "push", "origin", "HEAD:main")
+        run(self.clone, "fetch", "origin")
+        on_main, commits, _ = slug_dupe.check("old-tool")
+        self.assertTrue(on_main)
+        self.assertEqual(commits, [])
+        self.assertEqual(slug_dupe.main(["old-tool"]), 1)
+
     def test_branch_only_is_notice(self):
         on_main, commits, branches = slug_dupe.check("bar-tool")
         self.assertFalse(on_main)
