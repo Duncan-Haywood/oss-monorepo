@@ -303,7 +303,7 @@
       $("#st tbody").innerHTML = result.states.map((s) => {
         const pill = { over: "high", close: "high", under: "good" }[s.status] || "info";
         const cross = s.triggerDate ? dayIso(s.triggerDate) : s.rule ? "not this year" : "";
-        return `<tr><td><strong>${esc(s.code)}</strong> <span class="ghost">${esc(s.name)}</span></td><td class="n">${s.days}${s.assumedDays ? ` <span class="ghost">(${s.assumedDays} assumed)</span>` : ""}</td><td class="n">${s.daysToDate}</td><td class="n">${s.rule ? s.rule.limit : ""}</td><td class="n">${s.room === null ? "" : s.room}</td><td><span class="pill ${pill}">${esc(statusText(s))}</span></td><td>${cross}</td><td class="n">${fmtNum(s.workdays, 1)}</td><td class="n">${fmtMoney(s.wages)}</td></tr>`;
+        return `<tr><td><strong>${esc(s.code)}</strong> <span class="ghost">${esc(s.name)}</span></td><td class="n">${s.days}${s.assumedDays ? ` <span class="ghost">(${s.assumedDays} assumed)</span>` : ""}${s.otherDays !== s.days ? ` <span class="ghost">(${s.otherDays} by ${result.convention === "nights" ? "any part of a day" : "nights"})</span>` : ""}</td><td class="n">${s.daysToDate}</td><td class="n">${s.rule ? s.rule.limit : ""}</td><td class="n">${s.room === null ? "" : s.room}</td><td><span class="pill ${pill}">${esc(statusText(s))}</span></td><td>${cross}</td><td class="n">${fmtNum(s.workdays, 1)}</td><td class="n">${fmtMoney(s.wages)}</td></tr>`;
       }).join("");
       const em = result.employer;
       $("#employer-box").hidden = !em;

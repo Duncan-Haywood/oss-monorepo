@@ -372,7 +372,7 @@ function rangesOf(flags, start) {
   return out;
 }
 
-export function analyze(spec) {
+export function analyze(spec, _alt = false) {
   const errs = validateSpec(spec);
   if (errs.length) throw new Error(errs.join(" "));
   const { start: y0, end: y1, total } = yearBounds(spec.year);
@@ -501,6 +501,20 @@ export function analyze(spec) {
   if (gapsToDate && !home) notices.push(`${gapsToDate} day(s) up to the as-of date are not in any stay. They are not counted anywhere; add a stay or pick the state you assume you were in. Uncovered: ${gapList}.`);
   if (home && gapRanges.length) notices.push(`Days not in any stay are assumed to be in ${home}: ${gapList}. Add stays for any of these you spent elsewhere.`);
   if (unplanned && !home) notices.push(`${unplanned} day(s) after the as-of date have no plan yet.`);
+
+  // The other counting convention, side by side: auditors often count any part
+  // of a day, so show what the choice is worth and flag where it changes a result.
+  if (!_alt) {
+    const other = analyze({ ...spec, convention: convention === "nights" ? "inclusive" : "nights" }, true);
+    for (const s of states) {
+      const o = other.states.find((x) => x.code === s.code);
+      s.otherDays = o ? o.days : 0;
+      s.otherStatus = o ? o.status : s.status;
+      if (s.rule && s.otherStatus !== s.status && (s.status === "over" || s.otherStatus === "over")) {
+        notices.push(`${s.name}: ${s.days} day(s) counted by ${convention === "nights" ? "nights" : "any part of a day"} but ${s.otherDays} by ${convention === "nights" ? "any part of a day" : "nights"}, and that difference decides whether you are over the ${s.rule.limit}-day line. Check which method ${s.name} uses.`);
+      }
+    }
+  }
 
   return {
     year: spec.year, totalDays: total, asOf, convention, states, conflicts,
