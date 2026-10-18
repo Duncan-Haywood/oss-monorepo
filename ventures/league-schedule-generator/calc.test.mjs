@@ -369,7 +369,7 @@ test("share links round-trip every field, including non-ASCII names, and reject 
   const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", officials: "Pat (A): Tue max 4", grounds: "A, B" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
-  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false });
+  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "" });
   assert.deepEqual(decodeFields("#s=" + code), decodeFields(code));
   const again = decodeFields(code);
   assert.deepEqual(readSpec(again).spec.teams, readSpec(f).spec.teams);
@@ -1340,4 +1340,35 @@ test("crossTable: scores from each row team's side, in standings order, repeats 
   const r = crossTable(teams, results, [2, 0, 1]);
   assert.deepEqual(r.heads, ["C", "A", "B"]);
   assert.deepEqual(r.rows[0].cells, ["·", "3-1", ""]);
+});
+
+test("parsePointSystem: 3-1-0 default, 2-1-0 / slashes / spaces, refuses a system that rewards losing", async () => {
+  const { parsePointSystem } = await import("./calc.mjs");
+  assert.deepEqual(parsePointSystem(""), { win: 3, draw: 1, loss: 0, error: null });
+  assert.deepEqual(parsePointSystem("2-1-0"), { win: 2, draw: 1, loss: 0, error: null });
+  assert.deepEqual(parsePointSystem("2/1/0"), { win: 2, draw: 1, loss: 0, error: null });
+  assert.deepEqual(parsePointSystem("3 2 1"), { win: 3, draw: 2, loss: 1, error: null });
+  for (const bad of ["abc", "1-2-0", "2-2-0", "3-1"]) {
+    const p = parsePointSystem(bad);
+    assert.ok(p.error, bad);
+    assert.equal(p.win, 3);
+  }
+});
+
+test("a 2-1-0 points system changes the table and the play-off race", async () => {
+  const { parsePointSystem } = await import("./calc.mjs");
+  const teams = ["A", "B", "C"];
+  const results = [{ a: 0, b: 1, ga: 1, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 1 }, { a: 2, b: 0, ga: 0, gb: 0 }];
+  const pts = parsePointSystem("2-1-0");
+  const t = standings(teams, results, pts);
+  assert.deepEqual(t.map((r) => [r.name, r.points]), [["A", 3], ["C", 2], ["B", 1]]);
+  const t3 = standings(teams, results);
+  assert.equal(t3[0].points, 4);
+  const race = playoffRace(teams, results, [], 1, pts);
+  assert.equal(race[0].name, "A");
+});
+
+test("the points system survives a share link", () => {
+  const f = { ...sampleFields(), scoring: "2-1-0" };
+  assert.equal(decodeFields(encodeFields(f)).scoring, "2-1-0");
 });

@@ -109,6 +109,8 @@
     </div>
     <label for="results">Results so far, one per line, to rank the teams (blank = seeded in the order you listed them): <code>Hawks 3 - 2 Owls</code>, or <code>Hawks w/o Owls</code> when Owls forfeit (Hawks get a 3-0 win), or <code>Owls -3 pts</code> for a points deduction (<code>+1</code> adds one)</label>
     <textarea id="results" rows="3" placeholder="Hawks 3 - 2 Owls"></textarea>
+    <label for="scoring">Points for a win-draw-loss (blank = 3-1-0; <code>2-1-0</code> for hockey or darts)</label>
+    <input id="scoring" placeholder="3-1-0" autocomplete="off">
     <input type="checkbox" id="h2h" style="margin-top:6px"> <label for="h2h" style="display:inline">Break ties on points by head-to-head results first</label>
 
     <h2 style="margin-top:18px">5. Rainouts and cancellations (optional)</h2>
@@ -265,7 +267,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, raceText, crossTable, remainingFixtures, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, raceText, crossTable, remainingFixtures, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -295,6 +297,7 @@
       $("#withdrawals").value = f.withdrawals || "";
       $("#officials").value = f.officials || "";
       $("#grounds").value = f.grounds || "";
+      $("#scoring").value = f.scoring || "";
     }
 
     function readFields() {
@@ -304,7 +307,7 @@
         teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value,
-        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, officials: $("#officials").value, grounds: $("#grounds").value,
+        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, officials: $("#officials").value, grounds: $("#grounds").value, scoring: $("#scoring").value,
       };
     }
 
@@ -446,11 +449,14 @@
       const want = Math.trunc(Number($("#playoff").value) || 0);
       let seeds = s.teams;
       const resText = $("#results").value;
+      const ps = parsePointSystem($("#scoring").value);
+      if (ps.error) warnings.push(ps.error);
+      const pts = { win: ps.win, draw: ps.draw, loss: ps.loss };
       if (resText.trim()) {
         const pr = parseResults(resText, s.teams);
         warnings.push(...pr.errors);
         pres = pr.results;
-        table = standings(s.teams, pr.results, { headToHead: $("#h2h").checked, adjustments: pr.adjustments });
+        table = standings(s.teams, pr.results, { ...pts, headToHead: $("#h2h").checked, adjustments: pr.adjustments });
         seeds = table.map((r) => r.name);
         const gl = gamesLeft(s.teams.length, remainingFixtures(s, pr.results));
         const rem = remainingFixtures(s, pr.results);
@@ -460,7 +466,7 @@
       let race = null;
       if (resText.trim() && want >= 1 && want < s.teams.length) {
         const pr2 = parseResults(resText, s.teams);
-        race = { spots: want, rows: playoffRace(s.teams, pr2.results, remainingFixtures(s, pr2.results), want, { adjustments: pr2.adjustments }) };
+        race = { spots: want, rows: playoffRace(s.teams, pr2.results, remainingFixtures(s, pr2.results), want, { ...pts, adjustments: pr2.adjustments }) };
       }
       let bracketTxt = "";
       if (want >= 2) {
@@ -555,7 +561,7 @@
         parts.push(`${p.name.toUpperCase()}: ${sched.teams.join(", ")}\n${scheduleText(sched)}`);
         if (resText.trim()) {
           const pr = parseResults(resText, sched.teams);
-          tables.push(standings(sched.teams, pr.results, { headToHead: $("#h2h").checked, adjustments: pr.adjustments }));
+          tables.push(standings(sched.teams, pr.results, { ...parsePointSystem($("#scoring").value), headToHead: $("#h2h").checked, adjustments: pr.adjustments }));
         }
       }
       if (tables.length) {
