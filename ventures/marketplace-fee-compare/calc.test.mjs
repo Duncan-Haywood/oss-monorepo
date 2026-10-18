@@ -239,6 +239,14 @@ test("Whatnot is excluded with a stated reason and a pointer, not silently dropp
   assert.ok(!CHANNEL_IDS.includes("whatnot"));
 });
 
+test("StockX is excluded with a stated reason and a pointer, not silently dropped", () => {
+  const stockx = EXCLUDED_CHANNELS.find((c) => c.deepTool === "stockx-seller-payout-calculator");
+  assert.ok(stockx, "StockX must be in EXCLUDED_CHANNELS");
+  assert.match(stockx.why, /sneakers/i);
+  assert.match(stockx.why, /Seller Level/);
+  assert.ok(!CHANNEL_IDS.includes("stockx"));
+});
+
 test("every channel points at the deep calculator that carries what it cannot", () => {
   for (const channel of CHANNELS) {
     assert.ok(channel.deepTool, `${channel.label} has no deep tool`);

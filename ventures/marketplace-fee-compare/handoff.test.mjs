@@ -47,6 +47,7 @@ import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs
 // than silently start dropping a field on arrival.
 import { INPUT_IDS as WHATNOT_FIELDS } from '../whatnot-seller-payout/calc.mjs';
 import { INPUT_FIELDS as REVERB_FIELDS } from '../reverb-fee-calculator/calc.mjs';
+import { FIELD_IDS as STOCKX_FIELDS } from '../stockx-seller-payout-calculator/share.mjs';
 
 // The other comparison page in this portfolio, imported so the two tables can
 // be checked against each other rather than kept in sync by hand.
@@ -315,6 +316,7 @@ test('handoffsForRows on an empty comparison returns nothing', () => {
 const EXCLUDED_TARGET_FIELDS = {
   'whatnot-seller-payout': WHATNOT_FIELDS,
   'reverb-fee-calculator': REVERB_FIELDS,
+  'stockx-seller-payout-calculator': STOCKX_FIELDS,
 };
 
 test('every field we send an excluded channel is one its calculator reads', () => {
@@ -491,4 +493,14 @@ test('every field carried to where-to-sell is one its decoder keeps', () => {
 test('a blank or nonsense item gives the bare where-to-sell link', () => {
   assert.equal(whereToSellUrl({}), '../where-to-sell-calculator/');
   assert.equal(whereToSellUrl({ price: '', itemCost: -4, otherCost: 'x' }), '../where-to-sell-calculator/');
+});
+
+test('the item arrives on StockX under StockX names, without postage the buyer pays', () => {
+  const params = paramsOf(excludedHandoffUrl('stockx-seller-payout-calculator', ITEM));
+  assert.equal(params.get('salePrice'), '40', 'price should arrive as salePrice');
+  assert.equal(params.get('itemCostBasis'), '12');
+  assert.equal(params.get('shippingCost'), '5.2');
+  assert.equal(params.get('otherCost'), '1.1');
+  assert.ok(!params.has('shippingCharged'), 'StockX buyers pay StockX for delivery');
+  assert.ok(!params.has('monthlyOrders'), 'StockX has no monthly plan to amortise');
 });
