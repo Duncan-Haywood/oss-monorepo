@@ -201,3 +201,70 @@ test("breakEvenBuyerBrokerRate: goes negative when A trails B with no buyer-brok
   const b = { salePrice: 417000, buyerBrokerRate: 0 };
   assert.ok(breakEvenBuyerBrokerRate(shared, a, b).rate < 0);
 });
+
+import { rankOffers } from "./calc.mjs";
+
+const rankShared = { loanPayoff: 280000, listingRate: 2.5, titleFlat: 2400, transferTaxRate: 0.11, recording: 125 };
+
+test("rankOffers: a certain close with no carrying cost ranks by net", () => {
+  const r = rankOffers(rankShared, [
+    { label: "High", salePrice: 425000, buyerBrokerRate: 2.5, concessionFlat: 8000 },
+    { label: "Clean", salePrice: 417000 },
+  ]);
+  assert.equal(r.winner.label, "Clean");
+  assert.equal(r.topPrice.label, "High");
+  assert.equal(r.winnerIsTopPrice, false);
+  assert.equal(r.winnerIsTopNet, true);
+  for (const row of r.rows) assert.equal(row.expected, row.net);
+});
+
+test("rankOffers: expected value follows the stated formula", () => {
+  const r = rankOffers(rankShared, [
+    { label: "A", salePrice: 430000, daysToClose: 45, fallThroughPct: 20 },
+    { label: "B", salePrice: 410000, daysToClose: 21, fallThroughPct: 0 },
+  ], { carryPerDay: 100, fallbackDays: 30, fallback: { salePrice: 400000 } });
+  const fb = calculateNetSheet({ ...rankShared, salePrice: 400000 }).net;
+  const a = r.rows.find((x) => x.label === "A");
+  const netA = calculateNetSheet({ ...rankShared, salePrice: 430000 }).net;
+  const expected = 0.8 * (netA - 4500) + 0.2 * (fb - 100 * 75);
+  assert.ok(Math.abs(a.expected - expected) < 1e-6);
+  assert.equal(r.fallback.net, fb);
+});
+
+test("rankOffers: a risky high bid loses to a sure lower one and the break-even chance is exact", () => {
+  const offers = [
+    { label: "Risky", salePrice: 440000, fallThroughPct: 40, daysToClose: 30 },
+    { label: "Sure", salePrice: 425000, fallThroughPct: 0, daysToClose: 30 },
+  ];
+  const opts = { carryPerDay: 150, fallbackDays: 45, fallback: { salePrice: 405000 } };
+  const r = rankOffers(rankShared, offers, opts);
+  assert.equal(r.winner.label, "Sure");
+  const risky = r.rows.find((x) => x.label === "Risky");
+  const sure = r.rows.find((x) => x.label === "Sure");
+  const pStar = risky.maxFallThroughPct;
+  assert.ok(pStar > 0 && pStar < 40);
+  const at = rankOffers(rankShared, [{ ...offers[0], fallThroughPct: pStar }, offers[1]], opts);
+  const a = at.rows.find((x) => x.label === "Risky");
+  const b = at.rows.find((x) => x.label === "Sure");
+  assert.ok(Math.abs(a.expected - b.expected) < 1e-6);
+  const qStar = sure.maxFallThroughPct;
+  assert.ok(qStar > 0 && qStar < 100);
+  const atSure = rankOffers(rankShared, [offers[0], { ...offers[1], fallThroughPct: qStar }], opts);
+  assert.ok(Math.abs(atSure.rows[0].expected - atSure.rows[1].expected) < 1e-6);
+});
+
+test("rankOffers: an offer that cannot win even if it surely closes has no break-even chance", () => {
+  const r = rankOffers(rankShared, [
+    { label: "Low", salePrice: 380000 },
+    { label: "High", salePrice: 430000 },
+  ]);
+  assert.equal(r.rows.find((x) => x.label === "Low").maxFallThroughPct, null);
+});
+
+test("rankOffers: rejects empty lists, too many offers and impossible chances", () => {
+  assert.throws(() => rankOffers(rankShared, []), /at least one/);
+  assert.throws(() => rankOffers(rankShared, Array.from({ length: 13 }, () => ({ salePrice: 1 }))), /at most 12/);
+  assert.throws(() => rankOffers(rankShared, [{ salePrice: 400000, fallThroughPct: 101 }]), /at most 100/);
+  assert.throws(() => rankOffers(rankShared, [{ salePrice: 400000, daysToClose: -1 }]), /at least 0/);
+  assert.throws(() => rankOffers(rankShared, [{ salePrice: 400000 }], { carryPerDay: "x" }), /must be a number/);
+});

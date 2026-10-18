@@ -289,6 +289,90 @@ export function breakEvenBuyerBrokerRate(shared = {}, offerA = {}, offerB = {}) 
   return { rate, askedRate, headroom: rate - askedRate };
 }
 
+/**
+ * Rank several offers on what the seller can expect to hold, not only on the
+ * cash each would leave if it closed.
+ *
+ * Two things the net sheet cannot see, both typed in by the seller:
+ *   - days to close, priced at what it costs to own the house per day
+ *     (mortgage interest, taxes, insurance, utilities);
+ *   - the chance the offer falls through (financing, appraisal, inspection or
+ *     sale-of-buyer's-home contingencies). A failed deal sends the seller back
+ *     to a fallback sale (price they choose, default the lowest offer) that
+ *     closes `fallbackDays` later, after the days already spent.
+ *
+ * expected = (1 - p) * (net - carry * days)
+ *          + p * (fallbackNet - carry * (days + fallbackDays))
+ *
+ * The chances are the seller's own judgement, not statistics: the tool ships
+ * no default. Net is linear in p, so the break-even chance is exact.
+ */
+export function rankOffers(shared = {}, offers = [], options = {}) {
+  if (!Array.isArray(offers) || offers.length === 0) throw new Error("Add at least one offer");
+  if (offers.length > 12) throw new Error("Compare at most 12 offers at a time");
+  const carryPerDay = number(options.carryPerDay, "Carrying cost per day");
+  const fallbackDays = number(options.fallbackDays, "Days to a fallback sale");
+  const sheets = offers.map((offer, index) => {
+    const fallThroughPct = number(offer.fallThroughPct, `Offer ${index + 1} fall-through chance`);
+    if (fallThroughPct > 100) throw new Error(`Offer ${index + 1} fall-through chance must be at most 100%`);
+    const days = number(offer.daysToClose, `Offer ${index + 1} days to close`);
+    const sheet = calculateNetSheet({ ...shared, ...offer, targetNet: undefined });
+    return { label: offer.label || `Offer ${index + 1}`, index, days, fallThroughPct, sheet };
+  });
+  const lowest = Math.min(...sheets.map((s) => s.sheet.salePrice));
+  const fallbackInput = { ...(options.fallback ?? {}) };
+  if (fallbackInput.salePrice === undefined || fallbackInput.salePrice === null || fallbackInput.salePrice === "") {
+    fallbackInput.salePrice = lowest;
+  }
+  const fallbackSheet = calculateNetSheet({ ...shared, ...fallbackInput, targetNet: undefined });
+  const rows = sheets.map((s) => {
+    const p = s.fallThroughPct / 100;
+    const carryToClose = carryPerDay * s.days;
+    const ifCloses = s.sheet.net - carryToClose;
+    const ifFails = fallbackSheet.net - carryPerDay * (s.days + fallbackDays);
+    return {
+      label: s.label,
+      index: s.index,
+      salePrice: s.sheet.salePrice,
+      net: s.sheet.net,
+      days: s.days,
+      fallThroughPct: s.fallThroughPct,
+      carryToClose,
+      ifCloses,
+      ifFails,
+      expected: (1 - p) * ifCloses + p * ifFails,
+      sheet: s.sheet,
+    };
+  });
+  for (const row of rows) {
+    const rivals = rows.filter((r) => r !== row);
+    if (rivals.length === 0) {
+      row.maxFallThroughPct = null;
+      continue;
+    }
+    const bestRival = Math.max(...rivals.map((r) => r.expected));
+    const gap = row.ifCloses - row.ifFails;
+    if (row.ifCloses <= bestRival) row.maxFallThroughPct = null;
+    else if (gap <= 0) row.maxFallThroughPct = 100;
+    else row.maxFallThroughPct = Math.min(100, ((row.ifCloses - bestRival) / gap) * 100);
+  }
+  const byExpected = [...rows].sort((x, y) => y.expected - x.expected || y.net - x.net || x.index - y.index);
+  const topPrice = rows.reduce((best, r) => (r.salePrice > best.salePrice ? r : best), rows[0]);
+  const topNet = rows.reduce((best, r) => (r.net > best.net ? r : best), rows[0]);
+  const winner = byExpected[0];
+  return {
+    rows: byExpected,
+    fallback: { salePrice: fallbackSheet.salePrice, net: fallbackSheet.net, days: fallbackDays },
+    carryPerDay,
+    winner,
+    topPrice,
+    topNet,
+    winnerIsTopPrice: winner === topPrice,
+    winnerIsTopNet: winner === topNet,
+    expectedGapToRunnerUp: byExpected.length > 1 ? winner.expected - byExpected[1].expected : null,
+  };
+}
+
 export function formatNetSheetSummary(result, { offerLabel = "Offer" } = {}) {
   if (!result) throw new Error("No net sheet to summarize");
   const money = (value) =>

@@ -97,11 +97,11 @@ export const GENERIC_BUDGET_OVERRIDES = {
   'str-host-payout-calculator': {
     allowed: 2,
     why:
-      'Recorded 2026-10-18: #7938 added "vs. subtracting a flat percentage" beside the existing "vs. tracking ' +
-      'payouts in a spreadsheet", and the live-catalogue check has been red since. The two answer different ' +
-      'questions (a host who guesses a flat rate versus one who keeps a hand-built ledger), so this records the ' +
-      'second page rather than deleting a day-old URL. Allowed at two, which still blocks a third. Folding them ' +
-      'into one page is worth doing when someone next edits either.',
+      'Recorded 2026-10-18: #7938 added "vs. subtracting a flat percentage" while "vs. tracking payouts in a ' +
+      'spreadsheet" was already on main, and the check was red on main afterwards. The angles differ: a host who ' +
+      'knocks a flat platform percentage off the nightly rate and never models the host-only fee, taxes or the ' +
+      'cleaning split, versus a host who keeps a spreadsheet of past payouts and cannot see what a stay will pay ' +
+      'before it is booked. Allowed at two, which still blocks a third.',
   },
   'shopify-fee-calculator': {
     allowed: 2,
