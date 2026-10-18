@@ -135,3 +135,28 @@ test("decodeBuffer handles BOM and UTF-16", () => {
   assert.equal(decodeBuffer(new Uint8Array([0xef, 0xbb, 0xbf, 0x41]).buffer), "A");
   assert.equal(decodeBuffer(new Uint8Array([0xff, 0xfe, 0x41, 0x00]).buffer), "A");
 });
+
+const ev = (...p) => cal(vevent("DTSTART:20260105T090000Z", "SUMMARY:t", ...p));
+
+test("RRULE BY* parts are range-checked", () => {
+  assert.ok(has(validate(ev("RRULE:FREQ=WEEKLY;BYDAY=MONDAY")), /bad BYDAY value MONDAY/));
+  assert.ok(has(validate(ev("RRULE:FREQ=MONTHLY;BYMONTHDAY=32")), /bad BYMONTHDAY/));
+  assert.ok(has(validate(ev("RRULE:FREQ=MONTHLY;BYMONTHDAY=0")), /bad BYMONTHDAY/));
+  assert.ok(has(validate(ev("RRULE:FREQ=YEARLY;BYMONTH=13")), /bad BYMONTH value 13/));
+  assert.ok(has(validate(ev("RRULE:FREQ=DAILY;COUNT=0")), /bad COUNT/));
+  assert.ok(has(validate(ev("RRULE:FREQ=WEEKLY;WKST=XX")), /bad WKST/));
+  assert.ok(has(validate(ev("RRULE:FREQ=WEEKLY;BYMONTHDAY=5")), /BYMONTHDAY with FREQ=WEEKLY/));
+  assert.ok(has(validate(ev("RRULE:FREQ=WEEKLY;BYDAY=2TU")), /needs FREQ=MONTHLY/));
+});
+
+test("valid BY* parts raise nothing", () => {
+  for (const rule of ["FREQ=MONTHLY;BYDAY=2TU,-1FR", "FREQ=MONTHLY;BYMONTHDAY=1,-1", "FREQ=YEARLY;BYMONTH=1,12;BYDAY=1MO", "FREQ=WEEKLY;BYDAY=MO,WE;WKST=SU;COUNT=10"])
+    assert.deepEqual(validate(ev("RRULE:" + rule)).findings, [], rule);
+});
+
+test("EXDATE/RDATE must match DTSTART's type and parse", () => {
+  assert.ok(has(validate(ev("RRULE:FREQ=DAILY", "EXDATE;VALUE=DATE:20260106")), /EXDATE type does not match/));
+  assert.ok(has(validate(ev("RRULE:FREQ=DAILY", "RDATE:20260106")), /RDATE type does not match/));
+  assert.ok(has(validate(ev("RRULE:FREQ=DAILY", "EXDATE:2026-01-06")), /bad EXDATE value/));
+  assert.deepEqual(validate(ev("RRULE:FREQ=DAILY", "EXDATE:20260106T090000Z,20260107T090000Z")).findings, []);
+});
