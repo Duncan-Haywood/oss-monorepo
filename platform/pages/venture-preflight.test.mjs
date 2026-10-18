@@ -32,6 +32,7 @@ test('mirror status: 0 clean, 1 stale, anything else could not answer', () => {
   assert.match(mirrorProblem(1), /mirror is stale/);
   assert.match(mirrorProblem(2), /could not answer \(exit 2\)/);
   assert.match(mirrorProblem(null), /could not answer/);
+  assert.match(mirrorProblem(2, 'git: not a repo\n'), /could not answer \(exit 2\):\ngit: not a repo/);
 });
 
 test('build problem only on a non-zero exit, tail of stderr first', () => {
