@@ -59,10 +59,10 @@
   <main>
   <section class="card">
     <h2>1. Foods</h2>
-    <label for="foods">One per line: name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings (optional) | servings per pack (optional) | sodium mg (optional)</label>
+    <label for="foods">One per line: name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings (optional) | servings per pack (optional) | sodium mg (optional) | calcium mg (optional) | iron mg (optional) | potassium mg (optional)</label>
     <textarea id="foods" spellcheck="false" style="min-height:260px" placeholder="Rice, white, dry (50 g) | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7"></textarea>
     <h2 style="margin-top:18px">2. Daily targets</h2>
-    <div class="row3"><div><label for="kmin">Calories, minimum</label><input id="kmin" inputmode="decimal" value="2000"></div><div><label for="kmax">Calories, maximum</label><input id="kmax" inputmode="decimal" value="2300"></div><div><label for="pmin">Protein minimum (g)</label><input id="pmin" inputmode="decimal" value="100"></div><div><label for="fmin">Fat minimum (g)</label><input id="fmin" inputmode="decimal" value="45"></div><div><label for="fmax">Fat maximum (g)</label><input id="fmax" inputmode="decimal" value="80"></div><div><label for="cmin">Carbs minimum (g)</label><input id="cmin" inputmode="decimal" value=""></div><div><label for="cmax">Carbs maximum (g)</label><input id="cmax" inputmode="decimal" value=""></div><div><label for="fibmin">Fibre minimum (g)</label><input id="fibmin" inputmode="decimal" value="28"></div><div><label for="nacmax">Sodium maximum (mg)</label><input id="nacmax" inputmode="decimal" value="" placeholder="no limit"></div><div><label for="dmax">Default max servings per food</label><input id="dmax" inputmode="decimal" value="4"></div><div><label for="share">Most calories from one food (%)</label><input id="share" inputmode="decimal" value="" placeholder="no limit"></div></div>
+    <div class="row3"><div><label for="kmin">Calories, minimum</label><input id="kmin" inputmode="decimal" value="2000"></div><div><label for="kmax">Calories, maximum</label><input id="kmax" inputmode="decimal" value="2300"></div><div><label for="pmin">Protein minimum (g)</label><input id="pmin" inputmode="decimal" value="100"></div><div><label for="fmin">Fat minimum (g)</label><input id="fmin" inputmode="decimal" value="45"></div><div><label for="fmax">Fat maximum (g)</label><input id="fmax" inputmode="decimal" value="80"></div><div><label for="cmin">Carbs minimum (g)</label><input id="cmin" inputmode="decimal" value=""></div><div><label for="cmax">Carbs maximum (g)</label><input id="cmax" inputmode="decimal" value=""></div><div><label for="fibmin">Fibre minimum (g)</label><input id="fibmin" inputmode="decimal" value="28"></div><div><label for="nacmax">Sodium maximum (mg)</label><input id="nacmax" inputmode="decimal" value="" placeholder="no limit"></div><div><label for="camin">Calcium minimum (mg)</label><input id="camin" inputmode="decimal" value="" placeholder="e.g. 1000"></div><div><label for="femin">Iron minimum (mg)</label><input id="femin" inputmode="decimal" value="" placeholder="e.g. 8"></div><div><label for="potmin">Potassium minimum (mg)</label><input id="potmin" inputmode="decimal" value="" placeholder="e.g. 3400"></div><div><label for="dmax">Default max servings per food</label><input id="dmax" inputmode="decimal" value="4"></div><div><label for="share">Most calories from one food (%)</label><input id="share" inputmode="decimal" value="" placeholder="no limit"></div></div>
     <label for="style">Eating style (leaves out foods whose name is animal-derived)</label>
     <select id="style"><option value="any">Anything</option><option value="pescatarian">No meat (fish ok)</option><option value="vegetarian">Vegetarian</option><option value="vegan">Vegan</option><option value="dairyfree">Dairy-free</option></select>
     <label for="step">Servings come in</label>
@@ -154,7 +154,7 @@
     const $ = (s) => document.querySelector(s);
     const status = $("#form-status");
     let last = null;
-    const LABEL = { kcal: "Calories", protein: "Protein", carbs: "Carbs", fat: "Fat", fiber: "Fibre", sodium: "Sodium" };
+    const LABEL = { kcal: "Calories", protein: "Protein", carbs: "Carbs", fat: "Fat", fiber: "Fibre", sodium: "Sodium", calcium: "Calcium", iron: "Iron", potassium: "Potassium" };
 
     function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
     const val = (id) => $(id).value.trim();
@@ -165,7 +165,7 @@
       const styled = filterByStyle(parsed.foods, $("#style").value);
       const f = { foods: styled.foods, errors: parsed.errors };
       dropped = styled.dropped;
-      const spec = { foods: f.foods, kcalMin: val("#kmin"), kcalMax: val("#kmax"), proteinMin: val("#pmin"), fatMin: val("#fmin"), fatMax: val("#fmax"), carbsMin: val("#cmin"), carbsMax: val("#cmax"), fiberMin: val("#fibmin"), sodiumMax: val("#nacmax"), defaultMax: Number(val("#dmax")), step: Number($("#step").value), daysPerWeek: 7, maxShare: val("#share") };
+      const spec = { foods: f.foods, kcalMin: val("#kmin"), kcalMax: val("#kmax"), proteinMin: val("#pmin"), fatMin: val("#fmin"), fatMax: val("#fmax"), carbsMin: val("#cmin"), carbsMax: val("#cmax"), fiberMin: val("#fibmin"), sodiumMax: val("#nacmax"), calciumMin: val("#camin"), ironMin: val("#femin"), potassiumMin: val("#potmin"), defaultMax: Number(val("#dmax")), step: Number($("#step").value), daysPerWeek: 7, maxShare: val("#share") };
       return { spec, errors: f.errors };
     }
 
@@ -202,7 +202,8 @@
       const problems = verifyPlan(spec, res);
       last = { spec, res };
       const noSodium = spec.sodiumMax !== "" ? spec.foods.filter((f) => !f.sodiumKnown).length : 0;
-      $("#notices").innerHTML = (problems.length ? `<div class="bad">Internal check failed: ${esc(problems.join(" "))}</div>` : "") + (dropped.length ? `<div class="warn">${esc(STYLES[$("#style").value].label)}: left out ${dropped.length} food${dropped.length === 1 ? "" : "s"} by name (${esc(dropped.join(", "))}). This is a name screen, not a label check; read ingredients on what you buy.</div>` : "") + (noSodium ? `<div class="warn">${noSodium} of ${spec.foods.length} foods have no sodium figure (tenth column) and count as 0 mg, so the sodium total is a floor, not the real intake.</div>` : "");
+      const microGaps = [["calcium", "calciumMin", 0], ["iron", "ironMin", 1], ["potassium", "potassiumMin", 2]].map(([n, key, j]) => [n, spec[key] !== "" ? spec.foods.filter((f) => !f.microKnown[j]).length : 0]).filter(([, c]) => c);
+      $("#notices").innerHTML = (microGaps.length ? `<div class="warn">${microGaps.map(([n, c]) => `${c} of ${spec.foods.length} foods have no ${n} figure and count as 0 mg`).join("; ")}, so the plan may buy more of the foods that do than it needs to. Fill the columns for the foods you eat.</div>` : "") + (problems.length ? `<div class="bad">Internal check failed: ${esc(problems.join(" "))}</div>` : "") + (dropped.length ? `<div class="warn">${esc(STYLES[$("#style").value].label)}: left out ${dropped.length} food${dropped.length === 1 ? "" : "s"} by name (${esc(dropped.join(", "))}). This is a name screen, not a label check; read ingredients on what you buy.</div>` : "") + (noSodium ? `<div class="warn">${noSodium} of ${spec.foods.length} foods have no sodium figure (tenth column) and count as 0 mg, so the sodium total is a floor, not the real intake.</div>` : "");
       $("#big").innerHTML = [
         [money2(res.cost), "per day"],
         [money2(res.weekly), "per week"],
@@ -252,7 +253,7 @@
     $("#clear-all").addEventListener("click", () => {
       $("#foods").value = ""; last = null; $("#report").hidden = true; status.textContent = "Cleared."; persist();
     });
-    const FIELD_ID = { kmin: "#kmin", kmax: "#kmax", pmin: "#pmin", fmin: "#fmin", fmax: "#fmax", cmin: "#cmin", cmax: "#cmax", fibmin: "#fibmin", nacmax: "#nacmax", dmax: "#dmax", share: "#share", step: "#step" };
+    const FIELD_ID = { kmin: "#kmin", kmax: "#kmax", pmin: "#pmin", fmin: "#fmin", fmax: "#fmax", cmin: "#cmin", cmax: "#cmax", fibmin: "#fibmin", nacmax: "#nacmax", camin: "#camin", femin: "#femin", potmin: "#potmin", dmax: "#dmax", share: "#share", step: "#step" };
     $("#share-link").addEventListener("click", async () => {
       const fields = {};
       for (const k of SHARE_FIELDS) fields[k] = $(FIELD_ID[k]).value.trim();

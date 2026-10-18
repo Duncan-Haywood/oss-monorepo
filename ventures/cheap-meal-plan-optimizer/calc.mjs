@@ -10,8 +10,8 @@
 // approximate generic nutrition and EXAMPLE prices only. Not medical,
 // dietary or nutrition advice.
 
-export const NUTRIENTS = ["kcal", "protein", "carbs", "fat", "fiber", "sodium"];
-export const UNITS = { kcal: "kcal", protein: "g", carbs: "g", fat: "g", fiber: "g", sodium: "mg" };
+export const NUTRIENTS = ["kcal", "protein", "carbs", "fat", "fiber", "sodium", "calcium", "iron", "potassium"];
+export const UNITS = { kcal: "kcal", protein: "g", carbs: "g", fat: "g", fiber: "g", sodium: "mg", calcium: "mg", iron: "mg", potassium: "mg" };
 export const MIN_SAFE_KCAL = 1200;
 const EPS = 1e-9;
 
@@ -102,7 +102,7 @@ export function simplex(c, rows) {
 
 // ------------------------------------------------------------ parsing
 
-/** Foods, one per line: Name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings per day (optional) | servings per pack (optional, for the shopping list) | sodium mg (optional; blank counts as 0). */
+/** Foods, one per line: Name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings per day (optional) | servings per pack (optional, for the shopping list) | sodium mg | calcium mg | iron mg | potassium mg (the last four optional; blank counts as 0). */
 export function parseFoods(text) {
   const rows = [];
   const errors = [];
@@ -124,12 +124,21 @@ export function parseFoods(text) {
     if (c.length >= 9 && c[8] !== "" && !(pack > 0)) { errors.push(`Food line ${i + 1} ("${name}"): servings per pack must be a number above 0 (or leave it blank).`); return; }
     const sodium = c.length >= 10 && c[9] !== "" ? Number(c[9]) : 0;
     if (!Number.isFinite(sodium) || sodium < 0) { errors.push(`Food line ${i + 1} ("${name}"): sodium must be a number of mg, zero or more (or leave it blank).`); return; }
-    rows.push({ name, price: nums[0], n: [...nums.slice(1, 6), sodium], sodiumKnown: c.length >= 10 && c[9] !== "", max: Number.isFinite(max) && max >= 0 ? max : null, pack: Number.isFinite(pack) ? pack : null });
+    const micro = [];
+    let microBad = false;
+    ["calcium", "iron", "potassium"].forEach((label, j) => {
+      const cell = c[10 + j];
+      const v = cell === undefined || cell === "" ? 0 : Number(cell);
+      if (!Number.isFinite(v) || v < 0) { errors.push(`Food line ${i + 1} ("${name}"): ${label} must be a number of mg, zero or more (or leave it blank).`); microBad = true; }
+      micro.push(v);
+    });
+    if (microBad) return;
+    rows.push({ name, price: nums[0], n: [...nums.slice(1, 6), sodium, ...micro], sodiumKnown: c.length >= 10 && c[9] !== "", microKnown: [10, 11, 12].map((j) => c.length > j && c[j] !== ""), max: Number.isFinite(max) && max >= 0 ? max : null, pack: Number.isFinite(pack) ? pack : null });
   });
   return { foods: rows, errors };
 }
 
-export const DEFAULTS = { kcalMin: 2000, kcalMax: 2300, proteinMin: 100, carbsMin: "", carbsMax: "", fatMin: 45, fatMax: 80, fiberMin: 28, defaultMax: 4, step: 0.5, daysPerWeek: 7, maxShare: "", sodiumMax: "" };
+export const DEFAULTS = { kcalMin: 2000, kcalMax: 2300, proteinMin: 100, carbsMin: "", carbsMax: "", fatMin: 45, fatMax: 80, fiberMin: 28, defaultMax: 4, step: 0.5, daysPerWeek: 7, maxShare: "", sodiumMax: "", calciumMin: "", ironMin: "", potassiumMin: "" };
 
 const bound = (v) => (v === "" || v == null ? null : Number(v));
 
@@ -141,6 +150,9 @@ export function bounds(spec) {
     fat: [bound(spec.fatMin), bound(spec.fatMax)],
     fiber: [bound(spec.fiberMin), null],
     sodium: [null, bound(spec.sodiumMax)],
+    calcium: [bound(spec.calciumMin), null],
+    iron: [bound(spec.ironMin), null],
+    potassium: [bound(spec.potassiumMin), null],
   };
 }
 
@@ -316,7 +328,7 @@ export function solve(spec, nodeLimit = 3000) {
   const totals = nutrition(spec, servings);
   const marginal = {};
   const b = bounds(spec);
-  const unit = { kcal: 100, protein: 10, carbs: 10, fat: 10, fiber: 5, sodium: 100 };
+  const unit = { kcal: 100, protein: 10, carbs: 10, fat: 10, fiber: 5, sodium: 100, calcium: 100, iron: 2, potassium: 500 };
   for (const k of NUTRIENTS) {
     if (b[k][0] === null) continue;
     const c2 = costWithRaised(spec, k, unit[k]);
@@ -478,7 +490,7 @@ export function groceryText(spec, res) {
 
 export function planCsv(spec, res) {
   const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
-  const rows = [["Food", "Servings per day", "Cost per day", "kcal", "Protein g", "Carbs g", "Fat g", "Fibre g", "Sodium mg"].join(",")];
+  const rows = [["Food", "Servings per day", "Cost per day", "kcal", "Protein g", "Carbs g", "Fat g", "Fibre g", "Sodium mg", "Calcium mg", "Iron mg", "Potassium mg"].join(",")];
   for (const it of res.items) rows.push([q(it.name), it.servings, it.cost.toFixed(2), ...it.nutrients.map((v) => v.toFixed(1))].join(","));
   rows.push([q("Total"), "", res.cost.toFixed(2), ...res.totals.map((v) => v.toFixed(1))].join(","));
   return rows.join("\n") + "\n";
@@ -486,26 +498,26 @@ export function planCsv(spec, res) {
 
 // Approximate generic nutrition per the serving named; EXAMPLE prices, edit to your store.
 export const SAMPLE_FOODS = [
-  "Rice, white, dry (50 g) | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7 |  | 36 | 1",
-  "Lentils, dry (50 g) | 0.20 | 170 | 12.5 | 30 | 0.5 | 8 |  | 18 | 5",
-  "Black beans, dry (50 g) | 0.20 | 170 | 10.8 | 31 | 0.7 | 7.8 |  | 18 | 3",
-  "Rolled oats (40 g) | 0.12 | 156 | 6.8 | 26.4 | 2.8 | 4.2 |  | 30 | 5",
-  "Egg, large (1) | 0.30 | 72 | 6.3 | 0.4 | 4.8 | 0 | 6 | 12 | 71",
-  "Chicken thigh, raw (100 g) | 0.80 | 121 | 19.7 | 0 | 4.1 | 0 | 4 |  | 90",
-  "Peanut butter (2 tbsp) | 0.18 | 190 | 7 | 7 | 16 | 2 | 2 |  | 150",
-  "Whole milk (1 cup) | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | 3 |  | 105",
-  "Banana (1) | 0.25 | 105 | 1.3 | 27 | 0.4 | 3.1 | 3 |  | 1",
-  "Carrots (100 g) | 0.15 | 41 | 0.9 | 9.6 | 0.2 | 2.8 |  |  | 69",
-  "Broccoli, frozen (100 g) | 0.30 | 34 | 2.8 | 6.6 | 0.4 | 2.6 |  |  | 33",
-  "Whole wheat bread (1 slice) | 0.15 | 70 | 3 | 12 | 1 | 2 | 6 | 20 | 140",
-  "Cooking oil (1 tbsp) | 0.08 | 120 | 0 | 0 | 14 | 0 | 3 |  | 0",
-  "Tuna in water, canned (85 g) | 1.00 | 100 | 22 | 0 | 1 | 0 | 2 |  | 240",
-  "Greek yogurt, nonfat (170 g) | 0.80 | 100 | 17 | 6 | 0.7 | 0 | 2 |  | 65",
-  "Cabbage (100 g) | 0.10 | 25 | 1.3 | 5.8 | 0.1 | 2.5 |  |  | 18",
-  "Potato (150 g) | 0.25 | 116 | 3 | 26 | 0.2 | 3.3 |  |  | 10",
-  "Whey protein (1 scoop, 30 g) | 0.75 | 120 | 24 | 3 | 1.5 | 0 | 2 | 30 | 130",
-  "Cheddar cheese (28 g) | 0.45 | 113 | 7 | 0.4 | 9.3 | 0 | 2 |  | 180",
-  "Apple (1) | 0.50 | 95 | 0.5 | 25 | 0.3 | 4.4 | 2 |  | 2",
+  "Rice, white, dry (50 g) | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7 |  | 36 | 1 | 5 | 1.8 | 57",
+  "Lentils, dry (50 g) | 0.20 | 170 | 12.5 | 30 | 0.5 | 8 |  | 18 | 5 | 18 | 3.3 | 366",
+  "Black beans, dry (50 g) | 0.20 | 170 | 10.8 | 31 | 0.7 | 7.8 |  | 18 | 3 | 62 | 2.5 | 740",
+  "Rolled oats (40 g) | 0.12 | 156 | 6.8 | 26.4 | 2.8 | 4.2 |  | 30 | 5 | 22 | 1.8 | 140",
+  "Egg, large (1) | 0.30 | 72 | 6.3 | 0.4 | 4.8 | 0 | 6 | 12 | 71 | 28 | 0.9 | 69",
+  "Chicken thigh, raw (100 g) | 0.80 | 121 | 19.7 | 0 | 4.1 | 0 | 4 |  | 90 | 10 | 0.9 | 230",
+  "Peanut butter (2 tbsp) | 0.18 | 190 | 7 | 7 | 16 | 2 | 2 |  | 150 | 14 | 0.6 | 208",
+  "Whole milk (1 cup) | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | 3 |  | 105 | 276 | 0.1 | 322",
+  "Banana (1) | 0.25 | 105 | 1.3 | 27 | 0.4 | 3.1 | 3 |  | 1 | 6 | 0.3 | 422",
+  "Carrots (100 g) | 0.15 | 41 | 0.9 | 9.6 | 0.2 | 2.8 |  |  | 69 | 33 | 0.3 | 320",
+  "Broccoli, frozen (100 g) | 0.30 | 34 | 2.8 | 6.6 | 0.4 | 2.6 |  |  | 33 | 40 | 0.7 | 250",
+  "Whole wheat bread (1 slice) | 0.15 | 70 | 3 | 12 | 1 | 2 | 6 | 20 | 140 | 30 | 0.9 | 80",
+  "Cooking oil (1 tbsp) | 0.08 | 120 | 0 | 0 | 14 | 0 | 3 |  | 0 | 0 | 0 | 0",
+  "Tuna in water, canned (85 g) | 1.00 | 100 | 22 | 0 | 1 | 0 | 2 |  | 240 | 10 | 1.3 | 200",
+  "Greek yogurt, nonfat (170 g) | 0.80 | 100 | 17 | 6 | 0.7 | 0 | 2 |  | 65 | 190 | 0.1 | 240",
+  "Cabbage (100 g) | 0.10 | 25 | 1.3 | 5.8 | 0.1 | 2.5 |  |  | 18 | 40 | 0.5 | 170",
+  "Potato (150 g) | 0.25 | 116 | 3 | 26 | 0.2 | 3.3 |  |  | 10 | 18 | 1.1 | 640",
+  "Whey protein (1 scoop, 30 g) | 0.75 | 120 | 24 | 3 | 1.5 | 0 | 2 | 30 | 130 | 130 | 0.4 | 160",
+  "Cheddar cheese (28 g) | 0.45 | 113 | 7 | 0.4 | 9.3 | 0 | 2 |  | 180 | 200 | 0.2 | 28",
+  "Apple (1) | 0.50 | 95 | 0.5 | 25 | 0.3 | 4.4 | 2 |  | 2 | 11 | 0.2 | 195",
 ].join("\n");
 
 // Eating style: drop foods whose NAME says they are animal-derived. Names are
@@ -543,7 +555,7 @@ export function sampleSpec() {
 }
 
 // Share link: the food list and targets as a URL fragment (never sent to a server).
-export const SHARE_FIELDS = ["kmin", "kmax", "pmin", "fmin", "fmax", "cmin", "cmax", "fibmin", "nacmax", "dmax", "share", "step"];
+export const SHARE_FIELDS = ["kmin", "kmax", "pmin", "fmin", "fmax", "cmin", "cmax", "fibmin", "nacmax", "camin", "femin", "potmin", "dmax", "share", "step"];
 const SHARE_VALUE = /^[0-9.]*$/;
 
 export function encodeShare(foodsText, fields) {
