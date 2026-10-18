@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1281 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1282 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-17T00:00:00Z</updated>
+  <updated>2026-10-18T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Grailed Fee Calculator — What You Keep After the New 6% / 9% Commission</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grailed-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/grailed-fee-calculator</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free Grailed seller fee calculator for the tiered commission (6% under $120 with a $1.99 minimum, 9% from $120) plus 3.49% + $0.49 payment processing. See your payout, profit, the price for a target profit, and the $120 step where the whole sale jumps to 9%. Nothing leaves your browser.</summary>
+  </entry>
   <entry>
     <title>GitHub Actions Schedule Cron Check — Invalid, Too-Frequent and Top-of-Hour Crons</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-schedule-check/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to MadKudu and Pocus for small SaaS: learn from your own signups which first-week behaviour comes before paying, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.</summary>
-  </entry>
-  <entry>
-    <title>Recompete Radar — Federal Contracts About to Expire</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/recompete-radar/"/>
-    <id>tag:marisstella.dev,2026:tool/recompete-radar</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free tool for small government contractors: list the federal contracts in your NAICS code and state that end in the next 6 to 24 months, who holds them, how concentrated the market is, and when the follow-on is likely to be solicited. Public USAspending data, runs in your browser.</summary>
   </entry>
 </feed>
