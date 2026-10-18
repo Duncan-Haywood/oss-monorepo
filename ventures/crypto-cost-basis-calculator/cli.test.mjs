@@ -90,3 +90,9 @@ test("--magi adds the 3.8% surtax line and per-method column; bad --filing is re
   assert.match(out, /NIIT/);
   assert.doesNotMatch(render(run([{ name: "a.csv", text: csv }], {}), {}), /Net investment income tax/);
 });
+
+test("--donate prints a gift plan and rejects missing inputs", async () => {
+  const { main, parseArgs } = await import("./cli.mjs");
+  assert.equal(parseArgs(["--donate", "btc", "--price", "9", "--qty", "1", "x.csv"]).donate, "BTC");
+  assert.equal(await main(["--example", "--donate", "BTC"]), 2);
+});

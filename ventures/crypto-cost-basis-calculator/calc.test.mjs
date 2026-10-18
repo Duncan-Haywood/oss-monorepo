@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseCsv, parseDate, parseTransactions, normalizeType, holdingTerm, matchLots, analyze, estimateTax,
-  toForm8949Csv, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan, planSale, waitPlan,
+  toForm8949Csv, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan, planSale, donationPlan, waitPlan,
 } from "./calc.mjs";
 
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.005, `${msg ?? ""} ${a} != ${b}`);
@@ -612,4 +612,24 @@ test("form8949Box maps term and report status; unknown values warn and count as 
 test("without a reported column the Form 8949 CSV keeps its original columns", () => {
   const r = analyze(SAMPLE_CSV, { method: "FIFO" });
   assert.match(toForm8949Csv(r.rows).split("\n")[0], /,Term,Note$/);
+});
+
+test("donationPlan: gives long-term lots with the most gain first, skips short-term, avoids tax on the gain", () => {
+  const lots = [
+    { asset: "BTC", acquired: "2020-01-01", qty: 1, basis: 10000, wallet: "" },
+    { asset: "BTC", acquired: "2021-01-01", qty: 1, basis: 40000, wallet: "" },
+    { asset: "BTC", acquired: "2026-09-01", qty: 1, basis: 1000, wallet: "" },
+  ];
+  const d = donationPlan(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 1.5, longRate: 0.2, deductionRate: 0.3 });
+  assert.equal(d.longQty, 2);
+  assert.equal(d.qty, 1.5);
+  assert.equal(d.lots[0].basis, 10000);
+  assert.equal(d.value, 75000);
+  assert.equal(d.basis, 30000);
+  assert.equal(d.gain, 45000);
+  assert.equal(d.taxAvoided, 9000);
+  assert.equal(d.deductionValue, 22500);
+  const big = donationPlan(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 5 });
+  assert.equal(big.capped, true);
+  assert.equal(big.qty, 2);
 });

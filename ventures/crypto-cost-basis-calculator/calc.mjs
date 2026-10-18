@@ -708,6 +708,32 @@ const q = (v) => {
 };
 
 // CSV in Form 8949 column order, ready to paste into tax software or hand to a preparer.
+// Gift of appreciated coins to a public charity: only lots held over a year count at
+// market value, so pick those with the most gain per coin first. Compares with selling
+// the same lots (gain tax avoided). `deductionRate` is yours (0 = ignore the deduction).
+export function donationPlan(openLots, { asset, price, asOf, qty, longRate = 0.15, deductionRate = 0 }) {
+  const held = openLots.filter((l) => l.asset === asset && l.qty > EPS && holdingTerm(l.acquired, asOf) === "Long")
+    .map((l) => ({ wallet: l.wallet, acquired: l.acquired, qty: l.qty, perCoin: l.basis / l.qty, basis: l.basis }))
+    .sort((a, b) => a.perCoin - b.perCoin);
+  const longQty = held.reduce((a, l) => a + l.qty, 0);
+  const target = Math.min(qty, longQty);
+  let left = target;
+  const lots = [];
+  for (const l of held) {
+    if (left <= EPS) break;
+    const take = Math.min(l.qty, left);
+    const value = take * price, basis = l.perCoin * take;
+    lots.push({ wallet: l.wallet, acquired: l.acquired, qty: Number(take.toFixed(8)), value: cents(value), basis: cents(basis), gain: cents(value - basis) });
+    left -= take;
+  }
+  const value = cents(lots.reduce((a, l) => a + l.value, 0));
+  const basis = cents(lots.reduce((a, l) => a + l.basis, 0));
+  const gain = cents(value - basis);
+  const taxAvoided = cents(Math.max(0, gain) * longRate);
+  const deductionValue = cents(value * deductionRate);
+  return { asset, price, asOf, requested: qty, qty: Number(target.toFixed(8)), longQty: Number(longQty.toFixed(8)), capped: qty > longQty + EPS, lots, value, basis, gain, taxAvoided, deductionValue, totalBenefit: cents(taxAvoided + deductionValue) };
+}
+
 export function toForm8949Csv(rows) {
   // Box column only when the file says which sales a broker reported on a 1099-DA.
   const boxes = rows.some((r) => r.reported);
