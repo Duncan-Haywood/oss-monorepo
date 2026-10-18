@@ -78,3 +78,15 @@ test("--sell prints a sell plan that agrees with planSale and rejects missing in
   assert.throws(() => parseArgs(["--sale-date", "tomorrow"]), /yyyy-mm-dd/);
   assert.equal(await main(["--example", "--sell", "BTC"]), 2);
 });
+
+test("--magi adds the 3.8% surtax line and per-method column; bad --filing is rejected", () => {
+  const o = parseArgs(["--magi", "180000", "--filing", "mfj", "x.csv"]);
+  assert.equal(o.magi, 180000);
+  assert.equal(o.filing, "mfj");
+  assert.throws(() => parseArgs(["--filing", "nope"]), /--filing must be one of/);
+  const csv = "date,type,asset,quantity,total,fee,wallet\n2022-01-10,buy,BTC,1,20000,0,A\n2024-09-20,sell,BTC,1,300000,0,A\n";
+  const out = render(run([{ name: "a.csv", text: csv }], { magi: 100000 }), {});
+  assert.match(out, /Net investment income tax \(3\.8%, single, threshold \$200,000\.00\): \$6,840\.00 on \$180,000\.00/);
+  assert.match(out, /NIIT/);
+  assert.doesNotMatch(render(run([{ name: "a.csv", text: csv }], {}), {}), /Net investment income tax/);
+});

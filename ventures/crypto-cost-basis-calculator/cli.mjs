@@ -14,7 +14,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
-import { analyze, planSale, toForm8949Csv, toIncomeCsv, form8949Totals, METHODS, METHOD_LABELS, SAMPLE_CSV } from "./calc.mjs";
+import { analyze, planSale, toForm8949Csv, toIncomeCsv, form8949Totals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
@@ -29,6 +29,9 @@ Options:
   --carry-short <usd>  short-term loss carried in from before the file starts
   --carry-long <usd>   long-term loss carried in from before the file starts
   --mfs                $1,500 annual loss deduction (married filing separately)
+  --magi <usd>         your other income for the year (excluding these results): adds the 3.8% net investment income tax
+  --other-nii <usd>    other net investment income (interest, dividends, other gains) for that estimate
+  --filing <status>    single (default), mfj, mfs, hoh or qw: sets the NIIT threshold
   --short-rate <pct>  short-term rate for the tax estimate (default 24)
   --long-rate <pct>   long-term rate for the tax estimate (default 15)
   --sell <COIN>       sell planner: compare the five methods for selling COIN; needs --price and --qty or --cash
@@ -74,6 +77,15 @@ export function parseArgs(argv) {
       if (!Number.isFinite(v) || v < 0) throw new Error(`${arg} needs a positive dollar amount`);
       opts[arg === "--carry-short" ? "carryShort" : "carryLong"] = v;
     } else if (arg === "--mfs") opts.lossLimit = 1500;
+    else if (arg === "--magi" || arg === "--other-nii") {
+      const v = Number(need(++i, arg));
+      if (!Number.isFinite(v) || (arg === "--magi" && v < 0)) throw new Error(`${arg} needs a dollar amount`);
+      opts[arg === "--magi" ? "magi" : "otherNii"] = v;
+    } else if (arg === "--filing") {
+      const f = need(++i, arg).toLowerCase();
+      if (!(f in NIIT_THRESHOLDS)) throw new Error(`--filing must be one of ${Object.keys(NIIT_THRESHOLDS).join(", ")}`);
+      opts.filing = f;
+    }
     else if (arg === "--sell") opts.sell = need(++i, arg).toUpperCase();
     else if (arg === "--price" || arg === "--qty" || arg === "--cash") {
       const v = Number(need(++i, arg));
@@ -97,7 +109,7 @@ const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { 
 // files: [{ name, text }]. Returns { result, formats, notes, csv, error }.
 export function run(files, opts = {}) {
   const { formats, csv, notes } = convertMany(files);
-  const result = analyze(csv, { method: opts.method || "FIFO", year: opts.year ?? null, perWallet: !!opts.perWallet, shortRate: opts.shortRate ?? 0.24, longRate: opts.longRate ?? 0.15, carryShort: opts.carryShort || 0, carryLong: opts.carryLong || 0, lossLimit: opts.lossLimit || 3000 });
+  const result = analyze(csv, { method: opts.method || "FIFO", year: opts.year ?? null, perWallet: !!opts.perWallet, shortRate: opts.shortRate ?? 0.24, longRate: opts.longRate ?? 0.15, carryShort: opts.carryShort || 0, carryLong: opts.carryLong || 0, lossLimit: opts.lossLimit || 3000, magi: opts.magi ?? null, otherNii: opts.otherNii || 0, filing: opts.filing || "single" });
   const error = result.errors.length && result.rows.length === 0 ? result.errors.join("; ") : null;
   return { result, formats, notes, csv, error };
 }
@@ -118,13 +130,17 @@ export function render({ result, formats, notes }, opts = {}) {
     out.push("", `Loss limit and carryforward (${usd(opts.lossLimit || 3000)} a year; years chained from the first sale in the file):`);
     for (const c of result.carryChain) out.push(`  ${c.year}  carried in ${usd(c.carryShortIn + c.carryLongIn).padStart(12)}   net ${usd(c.totalNet).padStart(13)}   deductible ${usd(c.deduction).padStart(10)}   carried out ${usd(c.carryShortOut + c.carryLongOut).padStart(12)}   tax ${usd(c.tax).padStart(11)}${c.year === result.year ? "   <- shown year" : ""}`);
   }
+  if (result.niit) {
+    const n = result.niit;
+    out.push("", `Net investment income tax (3.8%, ${n.status}, threshold ${usd(n.threshold)}): ${usd(n.tax)} on ${usd(n.base)}; the crypto result adds ${usd(n.fromCrypto)} of it. Your MAGI with these results is ${usd(n.totalMagi)}.`);
+  }
   const ir = result.incomeReport;
   if (ir && ir.count) {
     out.push("", `Income received in ${ir.year} (staking, mining, airdrops; ordinary income, not in the gains above): ${usd(ir.total)} from ${ir.count} receipt(s)`);
     for (const a of ir.assets) out.push(`  ${a.asset.padEnd(8)} ${String(a.qty).padStart(14)}   ${usd(a.usd).padStart(12)}   ${a.count} receipt(s), ${a.first} to ${a.last}`);
   }
   out.push("", "Method comparison (same sales):");
-  for (const c of result.comparison) out.push(`  ${c.label.padEnd(24)} gain ${usd(c.totalGain).padStart(14)}   tax ${usd(c.tax).padStart(12)}${c.method === result.bestMethod ? "   <- lowest estimated tax" : ""}`);
+  for (const c of result.comparison) out.push(`  ${c.label.padEnd(24)} gain ${usd(c.totalGain).padStart(14)}   tax ${usd(c.tax).padStart(12)}${c.niit !== undefined ? `   NIIT ${usd(c.niit).padStart(10)}` : ""}${c.method === result.bestMethod ? "   <- lowest estimated tax" : ""}`);
   if (result.holdings.length) {
     out.push("", "Still held:");
     for (const h of result.holdings) out.push(`  ${h.asset.padEnd(8)} ${String(h.qty).padStart(14)}   basis ${usd(h.basis)}`);

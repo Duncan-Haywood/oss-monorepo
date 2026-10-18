@@ -20,6 +20,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Wallet-to-wallet transfers (`matchLots` in `calc.mjs`): with per-wallet matching on, a `transfer` row with a `to wallet` column moves lots (purchase date and basis intact, chosen by the selected method) so basis follows the coins; over-transfers are warned, not guessed. Without the column, or with matching off, transfers stay ignored.
 - `netCapital` / `carryoverChain` in `calc.mjs`: the $3,000 (or $1,500) annual capital-loss deduction and indefinite carryforward, chained year by year from the first sale in the file, with a table on the page and in the CLI. A loss year now lowers later years' estimated tax instead of vanishing.
 - `incomeReport` / `toIncomeCsv` in `calc.mjs`: staking, mining and airdrop receipts for the report year by coin (receipts, quantity, first and last date, value when received) on the page, in the CLI and as a CSV (`--income-csv`), so the ordinary-income side of a crypto year is not buried inside the gains.
+- `niit` in `calc.mjs` (`--magi`, `--other-nii`, `--filing` in the CLI; three optional boxes on the page): the 3.8% net investment income tax (Form 8960, simplified). Give your other income for the year and filing status and it charges 3.8% on the smaller of net investment income and the amount your income with the crypto result exceeds $200,000 (single or head of household), $250,000 (joint or qualifying surviving spouse) or $125,000 (separate), shows how much of it the crypto result causes, and adds a surtax column to the method comparison so a method that lowers income tax but not the surtax is visible. Staking and mining income is left to you to add as other income or other investment income, because whether it counts depends on your facts.
 - `importers.mjs` - Coinbase, Kraken, Binance.US, Crypto.com App, Gemini and Bitstamp export readers that produce the plain CSV `calc.mjs` reads (unpriced rows left empty and flagged, never zero).
 - `cli.mjs` - the same matching in a terminal, zero dependencies and no network: `node cli.mjs --method HIFO --year 2024 --form8949 8949.csv coinbase.csv kraken.csv` reads one or more exchange exports (or `-` for stdin), prints gains, the five-method comparison and holdings, and writes Form 8949 style rows; `--json` for scripts, `--per-wallet`, `--short-rate`/`--long-rate`, `--carry-short`/`--carry-long`/`--mfs` for loss carryforward. Exit 2 on bad usage, 1 when no transactions could be read.
 - `usage.mjs` - local-only feature counters with an opt-out.
@@ -37,7 +38,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 **No warranty.** Free and as-is; arithmetic on figures you type, not legal, tax,
 financial or investment advice. It does not fetch prices or connect to exchanges,
 and does not model DeFi, NFTs, forks, lost coins, gifts, wash-sale style rules,
-state tax, the net investment income tax or loss limits. Which lot-identification
+state tax or loss limits; the net investment income tax is a simplified estimate that runs only when you enter your other income. Which lot-identification
 methods you may use depends on your jurisdiction and records. Unverified against a
 real tax return: tested on hand-calculated examples and conservation checks.
 

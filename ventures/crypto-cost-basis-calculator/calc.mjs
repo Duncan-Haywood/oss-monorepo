@@ -379,6 +379,30 @@ export function netCapital(shortGain, longGain, { carryShort = 0, carryLong = 0,
   return { shortNet: s, longNet: l, totalNet: total, deduction: cents(deduction), carryShortOut: cents(outShort), carryLongOut: cents(outLong), tax: cents(tax) };
 }
 
+// Net investment income tax (IRC section 1411, Form 8960): 3.8% of the smaller of
+// net investment income and the amount modified AGI exceeds a threshold that is not
+// indexed for inflation. `magi` is the user's income for the year EXCLUDING these
+// crypto results (include wages and any staking or mining income); `otherNii` is
+// other net investment income (interest, dividends, other gains). The crypto
+// result enters both at its netted amount, a net loss only by the allowed
+// deduction. Whether staking or mining income is net investment income depends on
+// facts (a trade or business is excluded), so it is left to the user via `otherNii`.
+export const NIIT_THRESHOLDS = { single: 200000, hoh: 200000, mfj: 250000, qw: 250000, mfs: 125000 };
+export const NIIT_RATE = 0.038;
+export function niit(netting, { magi, otherNii = 0, status = "single" } = {}) {
+  const threshold = NIIT_THRESHOLDS[status];
+  if (threshold === undefined || !Number.isFinite(magi) || magi < 0 || !Number.isFinite(otherNii)) return null;
+  const crypto = netting.totalNet >= 0 ? netting.totalNet : -netting.deduction;
+  const nii = cents(Math.max(0, crypto + otherNii));
+  const totalMagi = cents(magi + crypto);
+  const over = cents(Math.max(0, totalMagi - threshold));
+  const base = Math.min(nii, over);
+  const tax = cents(base * NIIT_RATE);
+  // What the crypto result alone adds: the same calculation without it.
+  const without = cents(Math.min(Math.max(0, otherNii), Math.max(0, magi - threshold)) * NIIT_RATE);
+  return { status, threshold, totalMagi, nii, over, base, tax, fromCrypto: cents(tax - without) };
+}
+
 // Chains `netCapital` over several years: [{ year, shortGain, longGain }] in
 // any order, years with no sales between them carry through unchanged.
 export function carryoverChain(yearSummaries, opts = {}) {
@@ -424,11 +448,11 @@ export function toIncomeCsv(report) {
 }
 
 export function analyze(text, options = {}) {
-  const { method = "FIFO", year = null, perWallet = false, shortRate = 0.24, longRate = 0.15, carryShort = 0, carryLong = 0, lossLimit = 3000 } = options;
+  const { method = "FIFO", year = null, perWallet = false, shortRate = 0.24, longRate = 0.15, carryShort = 0, carryLong = 0, lossLimit = 3000, magi = null, otherNii = 0, filing = "single" } = options;
   const parsed = parseTransactions(text);
   const result = {
     errors: parsed.errors, skipped: parsed.skipped, warnings: [], years: [], year: null,
-    rows: [], summary: null, tax: null, netting: null, carryChain: [], comparison: [], holdings: [], openLots: [], income: 0, incomeReport: null, method, count: parsed.transactions.length,
+    rows: [], summary: null, tax: null, netting: null, niit: null, carryChain: [], comparison: [], holdings: [], openLots: [], income: 0, incomeReport: null, method, count: parsed.transactions.length,
   };
   if (parsed.errors.length && parsed.transactions.length === 0) return result;
   const txs = parsed.transactions;
@@ -471,6 +495,20 @@ export function analyze(text, options = {}) {
     const sums = [...byYear].map(([y, rs]) => { const sm = summarize(rs); return { year: y, shortGain: sm.shortGain, longGain: sm.longGain }; });
     result.carryChain = carryoverChain(sums, { carryShort, carryLong, limit: lossLimit, shortRate, longRate });
     result.netting = result.carryChain.find((c) => c.year === chosen) || null;
+    if (magi !== null && result.netting) result.niit = niit(result.netting, { magi, otherNii, status: filing });
+    // The same year under every method, so a method that lowers income tax but
+    // raises the 3.8% surtax (or the reverse) shows up in the comparison.
+    if (magi !== null && chosen !== null) {
+      for (const c of result.comparison) {
+        const { pieces: mp } = matchLots(txs, { method: c.method, perWallet, shortRate, longRate });
+        const byY = new Map();
+        for (const p of mp) { const row = toRow(p), y = yearOf(row.sold); byY.set(y, [...(byY.get(y) || []), row]); }
+        const ms = [...byY].map(([y, rs]) => { const sm = summarize(rs); return { year: y, shortGain: sm.shortGain, longGain: sm.longGain }; });
+        const n = carryoverChain(ms, { carryShort, carryLong, limit: lossLimit, shortRate, longRate }).find((x) => x.year === chosen);
+        const nn = n ? niit(n, { magi, otherNii, status: filing }) : null;
+        c.niit = nn ? nn.tax : 0;
+      }
+    }
   }
   const best = result.comparison.reduce((a, b) => (b.tax < a.tax || (b.tax === a.tax && b.totalGain < a.totalGain) ? b : a));
   result.bestMethod = best.method;
