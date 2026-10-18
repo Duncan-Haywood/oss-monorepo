@@ -7,7 +7,9 @@ import {
   compareOffers,
   estimateTaxProration,
   formatNetSheetSummary,
+  breakEvenBuyerBrokerRate,
   formatOfferComparison,
+  netGrid,
   salePriceForTargetNet,
 } from "./calc.mjs";
 
@@ -173,4 +175,29 @@ test("offer comparison narrative matches net exactly: price gap minus cost gap",
   const text = formatOfferComparison(comparison);
   assert.match(text, /lower price/);
   assert.match(text, /lower payoff and selling costs/);
+});
+
+test("netGrid: each column step costs price x rate and the middle cell matches the sheet", () => {
+  const input = { ...shared, salePrice: 425000, buyerBrokerRate: 2.5 };
+  const grid = netGrid(input, { prices: [425000], buyerRates: [2, 2.5, 3] });
+  near(grid.rows[0].nets[1], calculateNetSheet(input).net, "centre cell");
+  near(grid.rows[0].nets[0] - grid.rows[0].nets[1], 425000 * 0.005, "half point");
+  const dflt = netGrid(input);
+  assert.equal(dflt.rows.length, 5);
+  assert.equal(dflt.rows[2].salePrice, 425000);
+});
+
+test("breakEvenBuyerBrokerRate: at the break-even rate A and B net the same", () => {
+  const a = { salePrice: 425000, buyerBrokerRate: 2.5 };
+  const b = { salePrice: 417000, buyerBrokerRate: 0 };
+  const be = breakEvenBuyerBrokerRate(shared, a, b);
+  assert.ok(be.rate > 0 && be.rate < 2.5, `rate ${be.rate}`);
+  near(compareOffers(shared, { ...a, buyerBrokerRate: be.rate }, b).delta, 0, "tie at break-even");
+  near(be.headroom, be.rate - 2.5, "headroom");
+});
+
+test("breakEvenBuyerBrokerRate: goes negative when A trails B with no buyer-broker pay", () => {
+  const a = { salePrice: 425000, buyerBrokerRate: 2.5, concessionFlat: 20000 };
+  const b = { salePrice: 417000, buyerBrokerRate: 0 };
+  assert.ok(breakEvenBuyerBrokerRate(shared, a, b).rate < 0);
 });
