@@ -2737,6 +2737,11 @@
      "summary": "A stdlib analysis of the 355 run records (14 to 18 October 2026) that carry an API-equivalent <code>cost_usd</code>. The median run costs $0.68 (95% bootstrap $0.64 to $0.72) and the 355 together $337; the top 10% of runs hold 36% of spend. Research runs are 47% of spend with the highest median ($0.82), process runs 24% on 14% of runs because of a long tail. Cost scales with tool calls with exponent 1.18 (1.11 to 1.25) and input tokens with 1.37, consistent with context re-read at each step. Preliminary: five days, one model, estimates not invoices, and cost is not scored against value."
     },
     {
+     "slug": "swe-costpermerge",
+     "title": "What does an agent run cost per merged pull request?",
+     "summary": "Joins the 366 run records (14 to 18 October 2026) that carry an API-equivalent <code>cost_usd</code> to the pull-request numbers in the subject lines of <code>main</code>&#39;s first-parent history. 273 (75%, Wilson 70% to 79%) name a merged pull request, 1 names one not on <code>main</code> and 92 name none. A merged run costs $1.26 on average (bootstrap 1.08 to 1.49) against $0.94 per priced run, because 19% of spend sits on runs with no merged PR on record; process runs cost about 2.4 times a research run per merged run. All 34 red-team records omit their PR although red-team PRs are on <code>main</code>, so their 0% is a recording gap. <em>Preliminary</em>: five days, one model, API-equivalent cost, and cost per merge is not value per merge."
+    },
+    {
      "slug": "swe-backfill",
      "title": "What does git history say about the agent loop that the run log cannot?",
      "summary": "A stdlib reader of 517 commits touching <code>research/&lt;slug&gt;/</code> (396 projects, 2026-09-28 to 2026-10-15) fills in what the run log lacks. All 157 projects created since 2026-10-13 are in the log; the 217 it never lists were made in two bulk days (09-29 and 09-30) before the log began. Half of all projects (49%) sit in follow-up families, creations arrive in bursts (median gap 4 minutes), and only 6 of 234 fully observed projects (2.6%, 95% interval 1% to 5%) have a later commit whose subject says it corrects something, a lower bound on defects, not an estimate. No tokens, cost, pull request or CI data; preliminary."
