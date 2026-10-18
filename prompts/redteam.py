@@ -443,6 +443,9 @@ def main(argv: list[str] | None = None) -> int:
         camp = campaign(target, args.mutants, seed, timeout=args.timeout)
         if args.record:
             add_to_record(args.record, camp)
+        else:
+            print("not saved: rerun with --record prompts/runs/<your record>.json "
+                  "to keep this campaign in the run record", file=sys.stderr)
         print(json.dumps(camp, indent=2))
         print(json.dumps(tally([{"redteam": {"campaigns": [camp]}}])), file=sys.stderr)
         return 0
