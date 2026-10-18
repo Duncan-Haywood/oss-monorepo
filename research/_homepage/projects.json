@@ -1359,6 +1359,11 @@
      "summary": "A loop in which rewrites of a 16-bit adder and a 6&times;6 multiplier must be proved equivalent to the reference by a Yosys miter before a generic-gate ABC script scores cells and depth. With nine attempts written by the session agent (not an LLM benchmark; two were seeded faults the gate rejected), the best adder is a 4-bit carry-select at 0.85&times; the reference cells&times;depth, the same circuit family as the best config of a no-model parameter sweep, so a random sweep of the same budget never beats it (ties in 63 of 200 seeds). No multiplier rewrite beat <code>a * b</code>. Stylised: gate counts, not layout; one tool version; two designs."
     },
     {
+     "slug": "chip-scaling",
+     "title": "How does generic-gate area grow with bit width for adders, shifters, popcount and multipliers?",
+     "summary": "Seven behavioural blocks synthesised by Yosys 0.33 to generic gates at widths 4&ndash;64. Cell counts for the adder, comparator, equality and 4:1 mux are close to linear in width (fitted exponent 1.00&ndash;1.13); the multiplier is quadratic (2.19 overall, 2.06 on the largest widths); the barrel shifter sits at 1.27&ndash;1.35. Logic depth scales differently from cells: the default-script adder's depth grows about 2&times;W (7 to 125) while the comparator's grows slowly (5 to 16). Preliminary: five widths, one tool version, generic gates rather than library area, no confidence intervals."
+    },
+    {
      "slug": "chip-abc-sweep",
      "title": "Does the ABC synthesis script matter as much as the written RTL structure for adder and multiplier area and depth?",
      "summary": "A follow-up to <code>chip-ppa-loop</code>: five ABC scripts are applied to five written 16-bit adder structures and eight 6&times;6 multiplier structures, each proved equivalent to its reference by a Yosys miter. For the adder, cells&times;depth moves by up to 1.75&times; with the script for one structure and 1.18&ndash;1.94&times; across structures for a fixed script; the best pair is 0.48&times; the default-script plain adder. All eight multiplier structures score identically under each script, yet the script alone moves them by 1.17&times;. Stylised: two designs, one Yosys version, generic-gate counts rather than layout."
