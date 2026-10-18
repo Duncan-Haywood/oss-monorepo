@@ -88,3 +88,10 @@ test('every published page carries Open Graph tags and a robots/canonical pair',
 test('index links to the Whatnot seller payout calculator it is paired with', () => {
   assert.match(markup, /href="\.\.\/whatnot-seller-payout\/"/);
 });
+
+test('the where-to-sell link is the handoff, refreshed from the form and counted', () => {
+  assert.match(markup, /<a id="whereToSellLink" href="\.\.\/where-to-sell-calculator\/">/);
+  assert.match(markup, /import \{ whereToSellUrl \} from '\.\/to-where-to-sell\.mjs'/);
+  assert.match(markup, /el\('whereToSellLink'\)\.href = whereToSellUrl\(readInput\(\)\)/);
+  assert.match(markup, /count\('handoff_where_to_sell'\)/);
+});
