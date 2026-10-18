@@ -1,0 +1,47 @@
+house-truss experiments (SPF No. 2, pin-jointed W truss, 4/12 unless stated; lumber in nominal board feet, no waste, plates excluded)
+
+A. Lightest passing truss at 24 in o.c. versus stick framing (rafters + ceiling joists at 16 in), 30 psf snow
+ span_ft   top  bottom   web  truss_bf  truss_bf/sf  rafter  joist  stick_bf/sf  saving_%
+      12   2x4     2x4   2x4      22.1        0.920     2x6    2x6        1.541      40.3
+      14   2x4     2x4   2x4      25.8        0.920     2x6    2x6        1.541      40.3
+      16   2x4     2x4   2x4      29.5        0.920     2x6    2x8        1.791      48.6
+      18   2x4     2x4   2x4      33.1        0.920     2x6    2x8        1.791      48.6
+      20   2x6     2x4   2x4      43.8        1.096     2x6   2x10        2.041      46.3
+      22   2x6     2x4   2x4      48.2        1.096     2x8   2x10        2.304      52.4
+      24   2x6     2x6   2x4      60.6        1.263     2x8   2x10        2.304      45.2
+      26   2x6     2x6   2x4      65.7        1.263     2x8   2x12        2.554      50.6
+      28   2x6     2x6   2x4      70.7        1.263    2x10   2x12        2.818      55.2
+      30   2x8     2x6   2x4      86.3        1.438    2x10   2x12        2.818      48.9
+      32   no stick passes
+
+B. Same, 50 psf snow
+      12 2x4 2x4 2x4   22.1 bf 0.920 bf/sf  stick 2x6+2x6 1.541  saving 40.3%
+      14 2x4 2x4 2x4   25.8 bf 0.920 bf/sf  stick 2x6+2x6 1.541  saving 40.3%
+      16 2x4 2x4 2x4   29.5 bf 0.920 bf/sf  stick 2x6+2x8 1.791  saving 48.6%
+      18 2x6 2x4 2x4   39.5 bf 1.096 bf/sf  stick 2x6+2x8 1.791  saving 38.8%
+      20 2x6 2x4 2x4   43.8 bf 1.096 bf/sf  stick 2x8+2x10 2.304  saving 52.4%
+      22 2x6 2x4 2x4   48.2 bf 1.096 bf/sf  stick 2x8+2x10 2.304  saving 52.4%
+      24 2x6 2x6 2x4   60.6 bf 1.263 bf/sf  stick 2x10+2x10 2.568  saving 50.8%
+      26 2x8 2x6 2x4   74.8 bf 1.438 bf/sf  stick 2x10+2x12 2.818  saving 48.9%
+      28 2x8 2x6 2x4   80.6 bf 1.438 bf/sf  stick 2x10+2x12 2.818  saving 48.9%
+      30 2x8 2x6 2x4   86.3 bf 1.438 bf/sf  stick 2x12+2x12 3.081  saving 53.3%
+      32 no 2x4-2x8 W truss passes  no stick passes
+
+C. What governs the 24 ft truss (30 psf snow): demand/capacity ratio per member group, by chord size
+  top  bottom  top_chord  bottom_chord    web  deflect
+  2x4     2x4       2.81          1.05   0.17     0.26
+  2x6     2x4       0.59          1.05   0.17     0.20
+  2x6     2x6       0.59          0.61   0.17     0.17
+  2x8     2x6       0.33          0.61   0.17     0.14
+
+D. Pitch at a 24 ft span, 30 psf snow: steeper roofs cut chord force but lengthen the chords
+  3/12: top 2x6, bottom 2x6, web 2x4, 58.7 bf, 1.224 bf/sf
+  4/12: top 2x6, bottom 2x6, web 2x4, 60.6 bf, 1.263 bf/sf
+  6/12: top 2x6, bottom 2x4, web 2x4, 57.3 bf, 1.193 bf/sf
+  8/12: top 2x6, bottom 2x4, web 2x4, 62.7 bf, 1.307 bf/sf
+  12/12: top 2x6, bottom 2x4, web 2x4, 75.2 bf, 1.567 bf/sf
+
+E. Truss spacing at a 24 ft span, 4/12, 30 psf snow
+  16 in: top 2x6, bottom 2x4, web 2x4, 52.6 bf, 1.644 bf/sf
+  19.2 in: top 2x6, bottom 2x4, web 2x4, 52.6 bf, 1.370 bf/sf
+  24 in: top 2x6, bottom 2x6, web 2x4, 60.6 bf, 1.263 bf/sf
