@@ -2314,6 +2314,11 @@
      "summary": "Follow-up to the nesting and cost-teardown projects. Adding a 1&nbsp;cm seam allowance to stylised pieces lowered marker efficiency from 0.69 to 0.63 for a shirt and from 0.71 to 0.51 for a four-gore skirt (the skirt mostly loses its interlocking gores); nesting three shirt sizes in one marker was 9% shorter than three separate markers. Swapping the measured efficiencies into the teardown formula moves a $7/m<sup>2</sup> trench&rsquo;s cloth cost from $26 (assumed 0.80) to $33&ndash;41. Stylised: invented outlines, one ply, small annealing budget (differences of a few cm are noise), and the coats were not nested, so the cost step is a sensitivity, not a measurement."
     },
     {
+     "slug": "garment-cutplan",
+     "title": "How much cloth does a cutting plan save by mixing sizes in one marker, and is the saving real?",
+     "summary": "Cutting-order planning as an exact integer program (marker mixes and plies) over 34 nested markers of a stylised three-size shirt. Laying several garments per marker saves 9&ndash;11% of cloth against one garment per marker on 20 random orders. Mixing sizes adds a further 0.4&ndash;3.7% in sample, but re-nesting the markers the plan picked with fresh seeds leaves a +0.09% difference: the gain is within annealing noise (about 5%) and partly selection of luckily short markers. Stylised: invented shirt, linear size grading, small annealing budget, mixes of at most four garments, free setup cost."
+    },
+    {
      "slug": "garment-nestcost",
      "title": "How far is a fixed 0.80 marker efficiency from a nested coat, and what does the difference do to the cost model?",
      "summary": "Follow-up to the nesting and cost-teardown projects (stylised, preliminary). A coat drawn as 10 shell and 5 lining polygons, grown by a 1.5&nbsp;cm seam allowance and nested by annealing at cloth widths of 110, 140 and 150&nbsp;cm, gives marker efficiencies of 0.68&ndash;0.73 for the shell and 0.59&ndash;0.68 for the lining, against the fixed 0.80 assumed earlier (0.77&ndash;0.82 without allowance). Transplanted into the teardown trench model, the efficiency alone raises factory cost by about $20&ndash;30; the larger uncertainty is the pattern area, which these invented pieces do not settle. One ply, one size, my own shapes, no exact reference."
