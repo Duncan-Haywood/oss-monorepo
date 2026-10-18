@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables,
+  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -454,4 +454,18 @@ test("accessible guests still honour pins of others and capacity under reseat", 
   const again = reseat(spec, prev, "high");
   assert.deepEqual(verifyPlan(spec, again), []);
   assert.ok([0, 1].includes(again.table[0]) && [0, 1].includes(again.table[1]));
+});
+
+test("place cards: one per guest, 8 to a page, name twice, table number, escaped, no meals", () => {
+  const names = Array.from({ length: 10 }, (_, i) => `Guest${i} | | | vegan`);
+  names[0] = "Ann <b>X | | | vegan";
+  const spec = specFrom(names.join("\n"), "", { seatsPerTable: 5 });
+  const res = optimize(spec);
+  const html = placeCardsHtml(spec, res, "Cards <1>");
+  assert.equal((html.match(/class="c"/g) || []).length, 10);
+  assert.equal((html.match(/<section>/g) || []).length, 2);
+  for (const t of res.tables) assert.ok(html.includes(`Table ${t.number}</em>`));
+  assert.ok(html.includes("Ann &lt;b&gt;X") && !/<script|<b>|vegan/i.test(html));
+  assert.ok(html.includes("<title>Cards &lt;1&gt;</title>"));
+  assert.ok(placeCardsHtml(spec, { tables: [] }).includes("No guests"));
 });

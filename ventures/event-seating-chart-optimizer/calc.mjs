@@ -601,6 +601,27 @@ export function escortBoardHtml(spec, result, title = "Find your table") {
     + `<body><h1>${escHtml(title)}</h1><ul>${items}</ul></body></html>`;
 }
 
+/**
+ * Folded tent place cards, 8 to a US Letter page (2 across, 4 down), cut and
+ * fold on the dotted line. The name is printed upside down on the upper half and the right way up with
+ * the table number on the lower half, so it reads from both sides once folded. Cards come out grouped by table, in seat order. Meals never appear.
+ * Guest text is escaped; no script, nothing loaded.
+ */
+export function placeCardsHtml(spec, result, title = "Place cards") {
+  const cards = [];
+  result.tables.forEach((t) => t.guests.forEach((name) => cards.push({ name, table: t.number })));
+  const cell = (c) => `<div class="c"><div class="f">${escHtml(c.name)}</div><div class="b">${escHtml(c.name)}<em>Table ${c.table}</em></div></div>`;
+  const pages = [];
+  for (let i = 0; i < cards.length; i += 8) pages.push(`<section>${cards.slice(i, i + 8).map(cell).join("")}</section>`);
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${escHtml(title)}</title>`
+    + `<style>@page{size:letter;margin:0.5in}body{font-family:Georgia,serif;margin:0}section{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:2.25in;gap:0;page-break-after:always;break-after:page}`
+    + `section:last-child{page-break-after:auto;break-after:auto}.c{display:flex;flex-direction:column;border:1px solid #bbb}`
+    + `.f,.b{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:26px;padding:0 8px}`
+    + `.f{transform:rotate(180deg);border-bottom:1px dotted #777}.b{flex-direction:column}`
+    + `.b em{font-style:normal;font-size:16px;color:#555;margin-top:6px}</style></head>`
+    + `<body>${pages.join("\n") || "<p>No guests to print.</p>"}</body></html>`;
+}
+
 export function planCsv(spec, result) {
   const withMeal = spec.guests.some((g) => g.meal);
   const rows = [["Table", "Guest", "Party", "Group", ...(withMeal ? ["Meal"] : [])]];
