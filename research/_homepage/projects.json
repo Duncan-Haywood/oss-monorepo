@@ -2902,6 +2902,11 @@
      "summary": "A permutation null for the repeat rate in <code>swe-friction</code>. Of 418 classified <code>doc_friction</code> entries (1 to 18 October 2026), 171 name a (file, theme) pair reported on an earlier day, against a null median of 238 (95% interval 224 to 250; none of 2,000 shuffles reached 171). Complaints repeat <em>less</em> than chance on 16 and 17 October and match it on the 18th, so the rising repeat rate is mostly arithmetic of a growing history. Consistent with fixes landing, but the commits are not linked. Keyword themes, self-reported, 18 days. Preliminary."
     },
     {
+     "slug": "free-excitation",
+     "title": "Which test input should you use to calibrate a mass-spring-damper twin?",
+     "summary": "Fitting mass, damping and stiffness of a lightly damped oscillator (&zeta; = 0.1) from one 10 s noisy trace under four equal-energy inputs, with Cram&eacute;r-Rao bounds and 100 Gauss-Newton fits each. A sine at the natural frequency gives the lowest held-out prediction error (mean RMSE 3.1&times;10<sup>&minus;4</sup> against 1.1&times;10<sup>&minus;3</sup> for a step and 2.8&times;10<sup>&minus;3</sup> for an off-resonance sine) although it has the worst Fisher condition number (527 against 56 to 114), so conditioning ranks the inputs backwards. The step estimates damping 4.5&times; less precisely. Fitted spreads are within 0.83 to 1.09 of the bounds. Stylised: one plant, one noise level, truth inside the model class. Preliminary."
+    },
+    {
      "slug": "swe-ledger",
      "title": "What can the run log measure about the agent loop today?",
      "summary": "A stdlib reader of a snapshot of <code>prompts/runs.jsonl</code> (189 runs, 184 listed projects) reports coverage and throughput proxies. Token, cost and tool-call fields are present in at most 1% of runs and wall time is derivable for only 15, so no cost-per-project figure is possible yet. About a third of listed projects sit in follow-up families of three or more, and 24 slugs appear in more than one run. All 143 recorded CI-failure counts are zero, which looks like a success-only field, not a clean record. Preliminary: first step of the ledger milestone; no git-history backfill, no value or correctness scoring."
