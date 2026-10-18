@@ -561,3 +561,15 @@ class FamilyTests(unittest.TestCase):
         self.assertTrue(queue[0]["task"].startswith("Consolidate"))
         self.assertIn("5 '*-bid-calculator'", queue[0]["task"])
         self.assertFalse(any(r["task"].startswith("Consolidate") for r in queue[1:]))
+
+    def test_consolidated_members_neither_claim_nor_count(self):
+        clones = [make(f"t{i}-bid-calculator", merit=7.0 - i / 10) for i in range(7)]
+        clones[0].consolidated_into = "host"
+        clones[1].consolidated_into = "host"
+        queue = work_queue(clones)
+        claimed = [r for r in queue if r["task"].startswith("Consolidate")]
+        self.assertEqual(len(claimed), 1)
+        self.assertNotIn(claimed[0]["venture"], ("t0-bid-calculator", "t1-bid-calculator"))
+        self.assertIn("5 '*-bid-calculator'", claimed[0]["task"])
+        clones[2].consolidated_into = "host"
+        self.assertFalse(any(r["task"].startswith("Consolidate") for r in work_queue(clones)))
