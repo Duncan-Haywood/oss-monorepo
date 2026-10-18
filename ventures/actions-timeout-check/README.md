@@ -42,6 +42,7 @@ finding — nothing is uploaded, and the page makes no network requests.
 ```sh
 python3 check.py                  # scan .github/workflows under the current directory
 python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py ci.yml           # scan one workflow file
 python3 check.py --format json    # machine-readable
 python3 check.py --fail-on-risk   # exit 2 if any finding exists
 ```
