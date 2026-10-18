@@ -1,5 +1,7 @@
 # Does Opus pay for itself on this portfolio's runs? Cost ratio by track, and the sample needed to find out (preliminary)
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-modelmix/
+
 Pure Python standard library. Milestone 8 of track 10 (the software-engineering loop): which model for which kind of task. Produced with AI assistance (Claude). **Preliminary: the ledger holds 12 priced Opus runs against 342 Sonnet runs, so this measures cost, not value, and says how much data a value comparison needs.**
 
 **Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-modelmix/
