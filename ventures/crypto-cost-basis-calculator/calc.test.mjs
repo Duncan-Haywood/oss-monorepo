@@ -572,3 +572,44 @@ test("analyze with magi reports the surtax per method and leaves it off otherwis
   assert.equal(on.niit.tax, fifo.niit);
 });
 function cents2(n) { return Math.round(n * 100) / 100; }
+
+import { form8949Box, form8949BoxTotals } from "./calc.mjs";
+
+test("a reported column sorts sales into Form 8949 boxes G to L", () => {
+  const csv = `date,type,asset,quantity,total,reported
+2022-01-01,buy,BTC,1,10000,
+2024-01-01,buy,BTC,1,20000,
+2024-02-01,sell,BTC,1,30000,basis
+2024-03-01,sell,BTC,1,30000,nobasis
+2024-04-01,buy,ETH,1,1000,
+2024-05-01,sell,ETH,1,900,`;
+  const r = analyze(csv, { method: "FIFO" });
+  const boxes = Object.fromEntries(form8949BoxTotals(r.rows).map((b) => [b.box, b]));
+  assert.deepEqual(Object.keys(boxes), ["H", "I", "J"]);
+  assert.equal(boxes.J.rows, 1);
+  assert.equal(boxes.J.gain, 20000);
+  assert.equal(boxes.G ?? null, null);
+  assert.equal(r.rows.find((x) => x.asset === "ETH").box, "I");
+  const total = form8949BoxTotals(r.rows).reduce((s, b) => s + b.gain, 0);
+  close(total, r.summary.totalGain, "box totals add to the summary");
+  const out = toForm8949Csv(r.rows);
+  assert.match(out.split("\n")[0], /,Term,Box,Note$/);
+});
+
+test("form8949Box maps term and report status; unknown values warn and count as unreported", () => {
+  assert.equal(form8949Box("Short", "basis"), "G");
+  assert.equal(form8949Box("Short", "nobasis"), "H");
+  assert.equal(form8949Box("Short", ""), "I");
+  assert.equal(form8949Box("Long", "basis"), "J");
+  assert.equal(form8949Box("Long", "nobasis"), "K");
+  assert.equal(form8949Box("Long", ""), "L");
+  const p = parseTransactions("date,type,asset,quantity,total,reported\n2024-01-01,sell,BTC,1,100,maybe\n");
+  assert.equal(p.transactions.length, 1);
+  assert.equal(p.transactions[0].reported, undefined);
+  assert.equal(p.skipped.length, 1);
+});
+
+test("without a reported column the Form 8949 CSV keeps its original columns", () => {
+  const r = analyze(SAMPLE_CSV, { method: "FIFO" });
+  assert.match(toForm8949Csv(r.rows).split("\n")[0], /,Term,Note$/);
+});

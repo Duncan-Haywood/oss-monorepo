@@ -44,10 +44,11 @@ export async function launchedProblems(slug, file = LAUNCHED_FILE) {
   return problems;
 }
 
-export function mirrorProblem(status) {
+export function mirrorProblem(status, output = '') {
   if (status === 0) return null;
   if (status === 1) return 'front-door mirror is stale: run `node platform/marketing/regen.mjs` and commit what it rewrites';
-  return `regen.mjs --verify could not answer (exit ${status})`;
+  const tail = output.trim().slice(-1500);
+  return `regen.mjs --verify could not answer (exit ${status})${tail ? `:\n${tail}` : ''}`;
 }
 
 export function buildProblem(built) {
@@ -88,7 +89,7 @@ async function main(argv) {
   // it with regen.mjs, then rerun for the build.
   console.log('1b/3 marketing mirror (regen.mjs --verify)');
   const verify = run(['platform/marketing/regen.mjs', '--verify']);
-  const mirror = mirrorProblem(verify.status);
+  const mirror = mirrorProblem(verify.status, (verify.stderr || '') + (verify.stdout || ''));
   if (mirror) failures.push(mirror);
   if (failures.length) {
     console.log(`\nPREFLIGHT FAILED for ${slug} (stopped before the build; fix, then rerun):`);

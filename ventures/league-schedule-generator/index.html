@@ -47,6 +47,16 @@
     details summary { cursor: pointer; font-weight: 700; color: #1f3b2d; }
     pre { background: #eef2ec; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
     @media (max-width: 720px) { body { padding: 16px; } }
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, footer, button, label, select, textarea, #pool-card, #swiss-card, #americano-card, #mexicano-card, .card:not(#report), #form-status { display: none !important; }
+      #report { border: 0; box-shadow: none; padding: 0; margin: 0; }
+      .big div { background: none; border: 1px solid #999; }
+      .scroll { overflow: visible; }
+      tr { break-inside: avoid; }
+      thead { display: table-header-group; }
+    }
   </style>
 </head>
 <body>
@@ -157,6 +167,7 @@
     <button type="button" class="secondary" id="copy-link">Copy share link</button>
     <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
     <button type="button" class="secondary" id="dl-text">Download text</button>
+    <button type="button" class="secondary" id="print-page">Print or save as PDF</button>
     <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
     <button type="button" id="dl-page">Download league web page (.html)</button>
   </section>
@@ -469,6 +480,7 @@
       download(`${last.s.teams[idx].replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "team"}-schedule.ics`, scheduleIcs(last.s, idx), "text/calendar");
       record("ics_downloaded");
     });
+    $("#print-page").addEventListener("click", () => { if (!last) return; window.print(); record("text_shared"); });
     $("#dl-text").addEventListener("click", () => { if (!last) return; download("league-schedule.txt", fullText(), "text/plain"); record("text_shared"); });
     $("#dl-team-msgs").addEventListener("click", () => {
       if (!last) return;

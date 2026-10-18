@@ -284,7 +284,7 @@ export function analyze(rows, opts = {}) {
     subs.push({
       merchant: key, sample: last.desc, kind: kindOf(key), site: identifyService(key)?.site ?? null, via: storeBiller(last.desc), cadence: cadence.id, cadenceLabel: cadence.label, fixed,
       count: cycle.length, first: days[0], last: last.day, amount: r2(current), perMonth: r2(perYear / 12), perYear: r2(perYear),
-      total: r2(amounts.reduce((a, b) => a + b, 0)), rises, riseImpactYear: r2(rises.length ? (current - amounts[0]) * cadence.perYear : 0),
+      total: r2(amounts.reduce((a, b) => a + b, 0)), history: cycle.map((r) => ({ day: r.day, amount: r2(r.spend) })), rises, riseImpactYear: r2(rises.length ? (current - amounts[0]) * cadence.perYear : 0),
       next, nextInDays: next - asOf, status,
     });
   }
@@ -317,6 +317,23 @@ export function analyze(rows, opts = {}) {
   return { subs, active, ended, doubleCharges, overlaps, upcoming, findings, totals, range: { first: firstDay, last: lastDay, asOf, days: spanDays }, charges: rows.length, merchants: groups.size, shortFile: spanDays < 75 };
 }
 
+// Recurring money actually charged in each calendar month of the file, from the
+// detected subscriptions only (ended ones included: they were paid then). The
+// first and last months are partial when the export starts or stops mid-month.
+export function monthlyTimeline(a) {
+  const by = new Map();
+  for (const s of a.subs) for (const h of s.history) {
+    const m = isoDay(h.day).slice(0, 7);
+    const e = by.get(m) || { month: m, total: 0, charges: 0 };
+    e.total = r2(e.total + h.amount); e.charges++;
+    by.set(m, e);
+  }
+  const rows = [...by.values()].sort((x, y) => (x.month < y.month ? -1 : 1));
+  const first = isoDay(a.range.first).slice(0, 7), lastM = isoDay(a.range.last).slice(0, 7);
+  for (const r of rows) r.partial = (r.month === first && isoDay(a.range.first).slice(8) !== "01") || (r.month === lastM && r.month !== first && new Date(Date.UTC(+r.month.slice(0, 4), +r.month.slice(5, 7), 0)).getUTCDate() > +isoDay(a.range.last).slice(8));
+  return rows;
+}
+
 // What cancelling a set of merchants saves. Names come from analyze().
 export function savings(a, cancelled) {
   const set = new Set(cancelled);
@@ -334,6 +351,29 @@ export function reportCsv(a) {
   const lines = [head.join(",")];
   for (const s of a.subs) lines.push([s.merchant, s.status, s.cadenceLabel, s.fixed ? "yes" : "no", s.count, s.amount.toFixed(2), s.perMonth.toFixed(2), s.perYear.toFixed(2), isoDay(s.last), s.status === "active" ? isoDay(s.next) : "", s.rises.length].map(csvCell).join(","));
   return lines.join("\n") + "\n";
+}
+
+const icsText = (v) => String(v ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const icsDate = (day) => isoDay(day).replace(/-/g, "");
+
+// Calendar file of the next expected charge for each active subscription that
+// bills monthly or less often (weekly and two-weekly ones would bury the
+// calendar), each with a reminder `leadDays` before so there is time to cancel.
+// The date is the last charge plus one cycle: a guess from the statement.
+export function renewalsIcs(a, { leadDays = 3, stamp = null } = {}) {
+  const lead = Number.isInteger(leadDays) && leadDays >= 0 && leadDays <= 60 ? leadDays : 3;
+  const dtstamp = stamp || new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//subscription-audit-from-statement//EN", "CALSCALE:GREGORIAN", "X-WR-CALNAME:Subscription renewals"];
+  for (const s of a.active) {
+    if (s.cadence === "weekly" || s.cadence === "biweekly") continue;
+    out.push("BEGIN:VEVENT", `UID:${icsDate(s.next)}-${icsText(s.merchant).replace(/[^A-Za-z0-9]+/g, "-")}@subscription-audit-from-statement`, `DTSTAMP:${dtstamp}`,
+      `DTSTART;VALUE=DATE:${icsDate(s.next)}`, `DTEND;VALUE=DATE:${icsDate(s.next + 1)}`,
+      `SUMMARY:${icsText(`${s.merchant} renews: ${usd(s.amount)}`)}`,
+      `DESCRIPTION:${icsText(`${s.cadenceLabel} charge of ${usd(s.amount)} (about ${usd(s.perYear)} a year). Expected date is a guess from your statement. Cancel before this day if you do not want it.`)}`,
+      "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsText(`${s.merchant} renews in ${lead} day(s)`)}`, `TRIGGER:-P${lead}D`, "END:VALARM", "END:VEVENT");
+  }
+  out.push("END:VCALENDAR");
+  return out.join("\r\n") + "\r\n";
 }
 
 export function summaryText(a, cancelled = []) {

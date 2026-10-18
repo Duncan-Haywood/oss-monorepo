@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, detectDelimiter, decodeBuffer, parseNumber, parseDate, isoDay, guessDateOrder, merchantKey, kindOf, normalizeStatement, analyze, savings, reportCsv, summaryText, sampleCsv } from "./calc.mjs";
+import { parseCsv, detectDelimiter, decodeBuffer, parseNumber, parseDate, isoDay, guessDateOrder, merchantKey, kindOf, normalizeStatement, analyze, savings, reportCsv, summaryText, renewalsIcs, monthlyTimeline, sampleCsv } from "./calc.mjs";
 
 const read = (text, opts) => { const d = detectDelimiter(text); return normalizeStatement(parseCsv(text, d), { decimalComma: d === ";", ...opts }); };
 const monthly = (name, amt, n, day = "05", from = 2026, startMonth = 1) => {
@@ -286,4 +286,38 @@ test("app-store charges are flagged with where to look, and not guessed", () => 
   const f = a.findings.find((x) => /billed through Apple/.test(x.title));
   assert.ok(f);
   assert.match(f.detail, /Settings > your name > Subscriptions/);
+});
+
+test("renewalsIcs: one all-day event per active monthly-or-slower charge, with a reminder", () => {
+  const a = analyze(normalizeStatement(parseCsv(sampleCsv())).rows);
+  const ics = renewalsIcs(a, { leadDays: 5, stamp: "20260101T000000" });
+  const events = ics.split("BEGIN:VEVENT").length - 1;
+  assert.equal(events, a.active.filter((s) => s.cadence !== "weekly" && s.cadence !== "biweekly").length);
+  assert.ok(events >= 4);
+  assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
+  assert.match(ics, /END:VCALENDAR\r\n$/);
+  assert.match(ics, /TRIGGER:-P5D/);
+  const netflix = a.active.find((s) => s.merchant === "NETFLIX");
+  assert.ok(ics.includes(`DTSTART;VALUE=DATE:${isoDay(netflix.next).replace(/-/g, "")}`));
+  assert.ok(!/skillshare/i.test(ics), "an ended charge gets no reminder");
+});
+
+test("renewalsIcs: bad lead days fall back to 3, text is escaped, nothing active gives an empty calendar", () => {
+  const a = analyze(normalizeStatement(parseCsv(sampleCsv())).rows);
+  assert.match(renewalsIcs(a, { leadDays: -1 }), /TRIGGER:-P3D/);
+  const odd = { active: [{ merchant: "A;B,C", cadence: "monthly", cadenceLabel: "Monthly", amount: 5, perYear: 60, next: 20000 }] };
+  assert.ok(renewalsIcs(odd).includes("SUMMARY:A\\;B\\,C renews"));
+  const none = renewalsIcs({ active: [] });
+  assert.ok(!none.includes("BEGIN:VEVENT"));
+});
+
+test("monthlyTimeline: sums detected recurring charges per calendar month and flags partial edge months", () => {
+  const a = analyze(read(["Date,Description,Amount", ...monthly("ACME STREAM", 10, 4), ...monthly("BETA CLOUD", 5, 4, "20")].join("\n")).rows);
+  const tl = monthlyTimeline(a);
+  assert.deepEqual(tl.map((r) => r.month), ["2026-01", "2026-02", "2026-03", "2026-04"]);
+  assert.deepEqual(tl.map((r) => r.total), [15, 15, 15, 15]);
+  assert.ok(tl.every((r) => r.charges === 2));
+  assert.equal(tl[0].partial, true);
+  assert.equal(tl[3].partial, true);
+  assert.equal(tl[1].partial, false);
 });

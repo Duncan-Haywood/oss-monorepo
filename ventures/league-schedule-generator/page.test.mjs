@@ -425,3 +425,12 @@ test("links to the meeting-action-items sibling", async () => {
   const html = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /href="\.\.\/meeting-action-items\/"/);
 });
+
+test("the schedule can be printed: a print stylesheet keeps only the report", () => {
+  const html = page("index.html");
+  const css = html.match(/@media print \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+  assert.match(css, /\.card:not\(#report\)/);
+  assert.match(css, /button/);
+  assert.match(html, /id="print-page"/);
+  assert.match(html, /\$\("#print-page"\)\.addEventListener\("click", \(\) => \{ if \(!last\) return; window\.print\(\)/);
+});

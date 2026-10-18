@@ -2737,6 +2737,11 @@
    "blurb": "Measuring and optimising the agent loop that builds this portfolio: what the run log records, what a run costs, and which work is worth the budget.",
    "projects": [
     {
+     "slug": "swe-friction",
+     "title": "Where do agent runs say the documentation hurts, and do the same complaints keep coming back?",
+     "summary": "A stdlib analysis of the <code>doc_friction</code> field in 1,015 dated run records (1 to 18 October 2026): 575 runs (57%) report at least one problem, 714 entries in all. They concentrate: <code>CLAUDE.md</code> and <code>research/PROJECTS.md</code> hold 39% of entries and the top ten files 70% (Gini 0.75 over 115 files). Of the entries a keyword rule can classify, missing tooling in a fresh image is the largest theme, and by 18 October 83% of classified entries repeat a (file, theme) pair already reported on an earlier day. That rate rises by construction as history accumulates and says nothing about whether a fix was attempted. Keyword themes, self-reported field, 18 days. Preliminary."
+    },
+    {
      "slug": "swe-ledger",
      "title": "What can the run log measure about the agent loop today?",
      "summary": "A stdlib reader of a snapshot of <code>prompts/runs.jsonl</code> (189 runs, 184 listed projects) reports coverage and throughput proxies. Token, cost and tool-call fields are present in at most 1% of runs and wall time is derivable for only 15, so no cost-per-project figure is possible yet. About a third of listed projects sit in follow-up families of three or more, and 24 slugs appear in more than one run. All 143 recorded CI-failure counts are zero, which looks like a success-only field, not a clean record. Preliminary: first step of the ledger milestone; no git-history backfill, no value or correctness scoring."
@@ -2969,6 +2974,11 @@
      "slug": "house-open-design",
      "title": "What does an open, reproducible plan set for a 480 sq ft backyard cottage look like when it is generated from code?",
      "summary": "Composes the track's six earlier models on one concrete design, a 24 &times; 20 ft one-bedroom accessory dwelling unit, and writes a floor plan and south elevation (SVG), a framing bill of materials (CSV), an IFC4 model and a report. The plan passes every layout rule and member check and needs 2,614 board feet of framing (5.45 per sq ft). Under <code>house-structure</code>'s assumed coefficients the short walls carry 1,164 lb of wind per line at 6 in nailing; a tighter envelope cuts modelled heating and cooling cost 36&ndash;37% in every climate tested ($72&ndash;158 a year at assumed prices). The composition exposed rough edges (the lateral and energy models were built around a different house), the cost index is extrapolated far below its data, and nothing here is a buildable design: it needs a licensed review and a permit."
+    },
+    {
+     "slug": "house-breakeven",
+     "title": "How much extra can a tight envelope cost before it stops paying back on a 480 sq ft backyard cottage?",
+     "summary": "Inverts the question <code>house-energy</code> asks: instead of the lowest-cost package, the largest extra first cost each upgrade can carry before its 30-year energy saving no longer covers it, on the <code>house-open-design</code> ADU (24 &times; 20 ft). The whole tight package (advanced 2x6 wall with R-5 foam, R-49 attic, U-0.27 windows, 3 ACH50, R-30 floor) saves $72 to $158 a year with a heat pump, so at a 3&percnt; real rate it can carry $1,409 (Houston) to $3,104 (Minneapolis) of extra cost, and $892 to $1,965 at 7&percnt;. Energy is linear in heat loss, so the one-at-a-time savings add up exactly to the package. At <code>house-energy</code>'s unsourced unit prices the attic ($319 extra) only breaks even in Minneapolis, air sealing ($500) needs energy 1.3 to 2.6 times as dear, and the windows ($1,392) 2.7 to 5.5 times; the wall switch is the best of the five upgrades. Stylised: degree-day climates from memory, every price assumed, no first-cost data for the wall or floor, not a design anyone should build from without a licensed review."
     },
     {
      "slug": "house-truss",
