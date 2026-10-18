@@ -429,6 +429,13 @@ export function groceryList(spec, res) {
   return { lines, spend, extra: spend - res.cost * days };
 }
 
+/** The weekly shopping list as plain text, one line per food, ready to paste into a notes or messaging app. */
+export function groceryText(spec, res) {
+  const gl = groceryList(spec, res);
+  const lines = gl.lines.map((l) => (l.packs === null ? `${l.name}: ${fmt(l.servings, 1)} servings` : `${l.name}: ${l.packs} x ${fmt(l.pack, 1)}-serving pack`));
+  return `Shopping list (one week)\n${lines.join("\n")}\nEstimated total: ${money2(gl.spend)}\n`;
+}
+
 export function planCsv(spec, res) {
   const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
   const rows = [["Food", "Servings per day", "Cost per day", "kcal", "Protein g", "Carbs g", "Fat g", "Fibre g", "Sodium mg"].join(",")];
