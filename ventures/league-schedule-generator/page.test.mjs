@@ -444,7 +444,7 @@ test("the standings row template has one cell for every header column", () => {
   assert.equal(cells, heads, "a header without a cell (or the reverse) shifts every later column");
   // Each value the table shows is rendered, in header order.
   const order = [...row.matchAll(/\$\{(?:esc\()?r\.(\w+)/g)].map((m) => m[1]);
-  assert.deepEqual(order, ["rank", "name", "played", "won", "drawn", "lost", "gd", "points", "left", "oppAvg", "form"]);
+  assert.deepEqual(order, ["rank", "name", "played", "won", "drawn", "lost", "gd", "points", "left", "oppAvg", "form", "streak"]);
 });
 
 test("standings row template has one cell per header column", () => {
