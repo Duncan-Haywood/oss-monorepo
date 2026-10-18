@@ -405,6 +405,26 @@ class DeviationTest(PromptTestCase):
         self.assertEqual(promptctl.validate(self.fx.root), [])
 
 
+class BackfillPrTest(unittest.TestCase):
+    def test_pr_number_comes_from_the_squash_subject(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            repo = Path(d)
+            root = repo / "prompts"
+            (root / "runs").mkdir(parents=True)
+            git = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                                            cwd=repo, check=True, capture_output=True)
+            git("init", "-q")
+            (root / "runs" / "a.json").write_text(json.dumps({"pr": None}))
+            (root / "runs" / "b.json").write_text(json.dumps({"pr": "5"}))
+            git("add", "-A")
+            git("commit", "-qm", "redteam: x (#123)")
+            self.assertEqual(promptctl.backfill_prs(root, write=False), [("a.json", "123")])
+            promptctl.backfill_prs(root)
+            self.assertEqual(json.loads((root / "runs" / "a.json").read_text())["pr"], "123")
+            self.assertEqual(json.loads((root / "runs" / "b.json").read_text())["pr"], "5")
+
+
 if __name__ == "__main__":
     unittest.main()
 
