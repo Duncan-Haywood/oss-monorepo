@@ -23,7 +23,11 @@ def num(tok):
 
 
 def table(text, section, xcol, ycols, maxrows=None):
-    """Numeric rows of the results.txt block that starts with `section`; skips rows whose x is not a number."""
+    """Numeric rows of the results.txt block that starts with `section`; skips rows whose x is not a number.
+
+    `section` is a literal prefix of the heading line, spaces included ("== C." matches a line "== C. ...").
+    The block ends at the next line starting "==" or like "1. " / "E3".
+    """
     xs, ys, on = [], [[] for _ in ycols], False
     for l in text:
         if l.startswith(section):
@@ -39,7 +43,8 @@ def table(text, section, xcol, ycols, maxrows=None):
             if maxrows and len(xs) == maxrows:
                 break
     if not xs:
-        raise SystemExit("no rows parsed for section " + section)
+        heads = [l.rstrip() for l in text if l.startswith("==")][:8]
+        raise SystemExit("no rows parsed for section %r; headings starting '==' are: %s" % (section, heads))
     return xs, ys
 
 
