@@ -1340,6 +1340,15 @@ export function formString(teamIdx, results, n = 5) {
   return out.slice(-n).join("");
 }
 
+/** A team's current run from the form string, e.g. "WDLWW" is "W2", "" (no games) is "". */
+export function streakOf(form) {
+  if (!form) return "";
+  const last = form[form.length - 1];
+  let n = 0;
+  for (let i = form.length - 1; i >= 0 && form[i] === last; i--) n++;
+  return last + n;
+}
+
 /**
  * Results grid in table order: one row per team, one column per opponent, each cell the score from the row
  * team's side ("3-2"), several meetings joined with ", ", "" where the pair has not met and "·" on the diagonal.
@@ -1370,7 +1379,7 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
     else if (r.ga < r.gb) { B.won++; A.lost++; B.points += win; A.points += loss; }
     else { A.drawn++; B.drawn++; A.points += draw; B.points += draw; }
   }
-  for (const r of rows) { r.form = formString(r.index, results, 5); r.gd = r.gf - r.ga; r.adj = adjustments[r.index] ?? 0; r.points += r.adj; }
+  for (const r of rows) { r.form = formString(r.index, results, 5); r.streak = streakOf(formString(r.index, results, Infinity)); r.gd = r.gf - r.ga; r.adj = adjustments[r.index] ?? 0; r.points += r.adj; }
   if (headToHead) {
     const level = new Map();
     for (const r of rows) level.set(r.points, [...(level.get(r.points) ?? []), r.index]);
