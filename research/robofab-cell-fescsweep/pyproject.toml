@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofab-cell-fescsweep"
+version = "0.1.0"
+description = "Where does the flow-equivalent-server decomposition of a robot-printer cell err as the inspector speeds up or slows down?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
