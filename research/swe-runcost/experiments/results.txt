@@ -1,0 +1,18 @@
+runs with cost_usd: 355   dates 2026-10-14 to 2026-10-18
+total $337.25   mean $0.95   median $0.68 (95% bootstrap 0.64 to 0.72)
+top 10% of runs hold 36% of spend; the top 1% (4 runs) hold 14%
+
+track        runs   total$  share  median$ (95% bootstrap)
+  research    164   158.34    47%  0.82 (0.77 to 0.89)
+  process      50    80.01    24%  0.51 (0.45 to 0.56)
+  ventures     80    65.05    19%  0.68 (0.64 to 0.72)
+  explore      20    14.97     4%  0.62 (0.53 to 0.79)
+  redteam      31    14.01     4%  0.44 (0.38 to 0.47)
+  review       10     4.87     1%  0.51 (0.43 to 0.55)
+
+least squares cost ~ a*Min_tokens_in + b*Mtok_out: a = $0.242, b = $25.09 per million
+log-log exponent, cost vs tool calls: 1.18 (95% bootstrap 1.11 to 1.25)
+log-log exponent, cost vs wall minutes: 0.36 (95% bootstrap 0.30 to 0.42)
+log-log exponent, tokens_in vs tool calls: 1.37 (95% bootstrap 1.30 to 1.42)
+
+tool calls per run: median 22, max 258
