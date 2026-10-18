@@ -64,10 +64,15 @@
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <label for="sales">…or paste rows (header optional: date, sku, quantity)</label>
     <textarea id="sales" spellcheck="false" placeholder="date,sku,quantity&#10;2025-01-02,WIDGET-L,3&#10;2025-01-02,WIDGET-S,5"></textarea>
+    <label for="stockfile">Optional: stock on hand, to get an order list (CSV: sku, on_hand, and optionally on_order, moq, pack_size)</label>
+    <input id="stockfile" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="stock">…or paste stock rows</label>
+    <textarea id="stock" spellcheck="false" placeholder="sku,on_hand,on_order,moq,pack_size&#10;WIDGET-L,40,0,50,12"></textarea>
     <div class="grid">
       <div><label for="period">Forecast by</label><select id="period"><option value="week" selected>Week</option><option value="month">Month</option></select></div>
       <div><label for="lead">Lead time plus review period (days)</label><input id="lead" inputmode="numeric" value="14"></div>
       <div><label for="service">Service level (%)</label><input id="service" inputmode="decimal" value="95"></div>
+      <div><label for="cover">Order enough for (days beyond the reorder point)</label><input id="cover" inputmode="numeric" placeholder="same as lead time"></div>
       <div><label for="partial">Part-filled periods</label><select id="partial"><option value="auto" selected>Drop an incomplete first or last period</option><option value="keep">Keep every period</option></select></div>
     </div>
     <p class="note">Lead time is the days between placing an order and having stock to sell, plus the days until your next order opportunity. Service level is the chance of not running out before the next delivery. Units should be consistent (each, not cases, for one SKU).</p>
@@ -81,6 +86,11 @@
     <h2>Result</h2>
     <div class="big" id="big"></div>
     <div id="report-findings"></div>
+    <div id="orders" hidden>
+      <h3>What to order now</h3>
+      <p class="note" id="orders-note"></p>
+      <div class="scroll"><table id="order-table"><thead><tr><th>SKU</th><th class="n">On hand</th><th class="n">On order</th><th class="n">Days of cover</th><th class="n">Reorder point</th><th class="n">Order</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+    </div>
     <h3>Stock plan by SKU</h3>
     <div class="scroll"><table id="skus"><thead><tr><th>SKU</th><th>Class</th><th>Method that won</th><th class="n">Lead-time demand</th><th class="n">Safety stock</th><th class="n">Reorder point</th><th class="n">Error on unseen</th><th class="n">Repeat-last error</th></tr></thead><tbody></tbody></table></div>
     <p class="note" id="sku-note"></p>
@@ -94,7 +104,7 @@
   <section class="card">
     <h2>How it is calculated</h2>
     <p><strong>Periods:</strong> sales are summed into weeks (Monday start) or months. A part-filled first or last period is dropped when your rows are daily, so a half-empty week is not read as a slump. Each SKU's history starts at its first sale, so a new product is not forecast from months before it existed. <strong>Methods:</strong> repeat last period; moving average (8 weeks or 3 months); exponential smoothing; Croston with the Syntetos-Boylan correction for intermittent demand; damped-trend smoothing (Gardner and McKenzie); and, once a SKU has two full years plus a few back-test points, same-period-last-year and additive seasonal smoothing (Holt-Winters without trend). Smoothing constants are fitted by a coarse grid on past one-step errors. <strong>Back-test:</strong> from up to 30 past forecast origins each method sees only earlier history and forecasts the whole lead time; the error in total lead-time demand is recorded. With nine or more origins the winner is picked on the older two thirds (preferring the simpler method unless another is 3% better) and scored on the newest third. <strong>Stock:</strong> safety stock is the normal quantile for your service level times the winner's root-mean-square lead-time error over all origins; reorder point is forecast lead-time demand plus safety stock; the interval is forecast ± 1.96 times that error. <strong>Classes:</strong> ABC by cumulative share of units (80/15/5); XYZ by coefficient of variation of period sales (up to 0.5, up to 1, above).</p>
-    <p><strong>Not modelled:</strong> stock-outs (sales are not demand), promotions, price changes, holidays that move, supplier lead-time variability, order minimums, shelf life, substitution between SKUs and the cost of holding stock. <strong>Unverified:</strong> checked against closed-form results on constructed series and against invented data in unit tests, not against a published retail dataset or a commercial planning tool.</p>
+    <p><strong>Order list:</strong> with a stock file, inventory position is on hand plus on order; at or below the reorder point the order brings it up to the reorder point plus the cover days of forecast demand, is raised to your minimum order quantity and rounded up to whole packs. <strong>Not modelled:</strong> stock-outs (sales are not demand), promotions, price changes, holidays that move, supplier lead-time variability, shelf life, budget limits, substitution between SKUs and the cost of holding stock. <strong>Unverified:</strong> checked against closed-form results on constructed series and against invented data in unit tests, not against a published retail dataset or a commercial planning tool.</p>
   </section>
 
   <section class="card">
@@ -113,6 +123,8 @@
     <p>ABC ranks SKUs by units sold: A is the top 80% of volume, B the next 15%, C the last 5%. XYZ measures how steady demand is: X is a coefficient of variation up to 0.5, Y up to 1.0 and Z above that. A-X items are worth managing tightly; C-Z items are usually worth a simple min/max rule.</p>
     <h3>Are zero-sales weeks really zero demand?</h3>
     <p>Not if the item was out of stock. Sales are not demand, and a stock-out teaches every method to forecast too low. The tool flags SKUs with many empty periods so you can check them against your stock history before you order.</p>
+    <h3>How do I get an order list, not just reorder points?</h3>
+    <p>Add a stock file with one row per SKU: units on hand, and optionally units already on order, the supplier's minimum order quantity and pack size. The tool compares each SKU's inventory position with its reorder point and lists what to order now, rounded up to your packs, plus what will run out before an order can arrive and what is overstocked. Download the CSV for your purchase order.</p>
     <h3>Is my sales data uploaded anywhere?</h3>
     <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and your sales are never stored.</p>
   </section>
@@ -121,14 +133,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified analyst. Results are statistical forecasts from the sales you supply; they do not guarantee what customers will buy. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any e-commerce platform, inventory software vendor or research firm, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your sales are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your sales are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>stock_loaded</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../shopify-inventory-reorder-planner/">inventory reorder planner</a> works from a Shopify orders and stock export, the <a href="../price-elasticity-estimator/">price elasticity estimator</a> shows how demand responds to price, the <a href="../clearance-markdown-planner/">clearance markdown planner</a> handles stock that did not sell, and the <a href="../customer-lifetime-value-predictor/">customer lifetime value predictor</a> forecasts per-customer value.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseSales, analyze, reportCsv, sampleText, pct, num } from "./calc.mjs";
+    import { parseSales, parseStock, orderPlan, analyze, reportCsv, sampleText, pct, num } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -141,6 +153,18 @@
       if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
       const r = analyze(parsed.rows, { period: $("#period").value, leadDays: Number($("#lead").value), serviceLevel: Number($("#service").value) / 100, partial: $("#partial").value });
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      $("#orders").hidden = true;
+      const stockText = $("#stock").value.trim();
+      if (stockText) {
+        const st = parseStock(stockText);
+        if (st.error) { status.textContent = st.error; report.hidden = true; return false; }
+        const cover = Number($("#cover").value);
+        const pp = orderPlan(r, st.stock, { coverDays: cover });
+        const buy = r.skus.filter((k) => k.order && k.order.status === "order").sort((a, b) => b.order.qty - a.order.qty);
+        $("#orders-note").textContent = `${pp.ordered} of ${st.stock.size} SKUs at or below their reorder point, ${num(pp.units)} units in total` + (pp.late ? `; ${pp.late} will run out before an order placed today arrives` : "") + (pp.excess ? `; ${pp.excess} have more than enough, so pause buying` : "") + (pp.unmatchedSales.length ? `. ${pp.unmatchedSales.length} SKUs with sales have no stock row and are not in this list` : "") + (pp.unmatchedStock.length ? `. ${pp.unmatchedStock.length} stock SKUs never appear in the sales file (${pp.unmatchedStock.slice(0, 3).join(", ")}): check spelling` : "") + ". Position = on hand + on order; the order brings it up to the reorder point plus the cover days of forecast demand.";
+        $("#order-table tbody").innerHTML = buy.length ? buy.slice(0, 100).map((k) => `<tr><td>${esc(k.sku)}</td><td class="n">${num(k.order.onHand)}</td><td class="n">${num(k.order.onOrder)}</td><td class="n">${num(k.order.daysCover)}</td><td class="n">${num(k.order.reorderPoint)}</td><td class="n"><strong>${num(k.order.qty)}</strong></td><td>${esc(k.order.notes.join(" "))}</td></tr>`).join("") : '<tr><td colspan="7">Nothing is at or below its reorder point.</td></tr>';
+        $("#orders").hidden = false;
+      }
       last = r;
       const s = r.summary;
       const gain = s.pooledWape !== null && s.pooledNaiveWape > 0 ? 1 - s.pooledWape / s.pooledNaiveWape : null;
@@ -173,7 +197,13 @@
       rd.onload = () => { $("#sales").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Back-test.`; };
       rd.readAsText(f);
     });
-    $("#clear-all").addEventListener("click", () => { $("#sales").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your sales, then click Back-test."; });
+    $("#stockfile").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#stock").value = String(rd.result); record("stock_loaded"); status.textContent = `Loaded stock file ${f.name}. Click Back-test.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#sales").value = ""; $("#file").value = ""; $("#stock").value = ""; $("#stockfile").value = ""; $("#orders").hidden = true; report.hidden = true; last = null; status.textContent = "Upload or paste your sales, then click Back-test."; });
     $("#download").addEventListener("click", () => {
       if (!last) return;
       const a = document.createElement("a");

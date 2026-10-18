@@ -447,15 +447,112 @@ export function analyze(rows, options = {}) {
   return { summary, skus, findings, bucket: { dropped: b.dropped, dailyish: b.dailyish } };
 }
 
+// ---------- purchase plan ----------
+
+const ONHAND_HEAD = /^(on[ _-]?hand|stock|in[ _-]?stock|qty[ _-]?on[ _-]?hand|inventory|available|current[ _-]?stock|quantity[ _-]?on[ _-]?hand)/i;
+const ONORDER_HEAD = /^(on[ _-]?order|incoming|open[ _-]?po|inbound|in[ _-]?transit|po[ _-]?qty|on[ _-]?po)/i;
+const MOQ_HEAD = /^(moq|min(imum)?[ _-]?order|min[ _-]?qty)/i;
+const PACK_HEAD = /^(pack|pack[ _-]?size|case|case[ _-]?size|multiple|order[ _-]?multiple|carton)/i;
+
+/**
+ * Parse a stock file: one row per SKU with on-hand units, and optionally units already on order,
+ * a minimum order quantity and a pack size. Returns { stock: Map(lowercased sku -> entry), skipped } or { error }.
+ */
+export function parseStock(text) {
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) return { error: "The stock file needs a header row and at least one SKU row: sku, on_hand (optionally on_order, moq, pack_size)." };
+  const delim = [",", "\t", ";"].map((d) => [d, lines[0].split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
+  const head = splitLine(lines[0], delim);
+  const iSku = head.findIndex((c) => SKU_HEAD.test(c));
+  const iHand = head.findIndex((c, i) => i !== iSku && ONHAND_HEAD.test(c));
+  if (iSku < 0 || iHand < 0) return { error: `Could not find a SKU column and an on-hand column in the stock header (${head.join(", ")}). Name them "sku" and "on_hand".` };
+  const find = (re) => head.findIndex((c, i) => i !== iSku && i !== iHand && re.test(c));
+  const iOrd = find(ONORDER_HEAD), iMoq = find(MOQ_HEAD), iPack = find(PACK_HEAD);
+  const n = (cells, i) => {
+    if (i < 0 || cells[i] === undefined || cells[i] === "") return null;
+    const v = Number(String(cells[i]).replace(/[, ]/g, ""));
+    return Number.isFinite(v) ? v : NaN;
+  };
+  const stock = new Map();
+  let skipped = 0;
+  for (const line of lines.slice(1)) {
+    const cells = splitLine(line, delim);
+    const sku = cells[iSku];
+    const hand = n(cells, iHand), ord = n(cells, iOrd), moq = n(cells, iMoq), pack = n(cells, iPack);
+    if (!sku || hand === null || [hand, ord, moq, pack].some((v) => Number.isNaN(v))) { skipped++; continue; }
+    // Duplicate SKU rows (several bins or locations) add up.
+    const key = sku.toLowerCase();
+    const prev = stock.get(key);
+    stock.set(key, {
+      sku: prev?.sku ?? sku, onHand: (prev?.onHand || 0) + hand, onOrder: (prev?.onOrder || 0) + (ord || 0),
+      moq: Math.max(prev?.moq || 0, moq || 0), pack: Math.max(prev?.pack || 0, pack || 0),
+    });
+  }
+  if (!stock.size) return { error: "No readable rows in the stock file. Each row needs a SKU and a number of units on hand." };
+  return { stock, skipped };
+}
+
+/**
+ * Turn the stock plan into an order list. Adds `order` to every SKU that has a stock row and returns a summary.
+ *
+ * Inventory position = on hand + on order. When it is at or below the reorder point the order brings it up to the
+ * reorder point plus `coverDays` of forecast demand (default: one more lead-time cycle), then respects the supplier's
+ * minimum order quantity and rounds up to whole packs. A SKU whose back-test was too short to size safety stock is
+ * planned on forecast lead-time demand alone and says so.
+ */
+export function orderPlan(result, stock, options = {}) {
+  const period = result.summary.period;
+  const cycleDays = result.summary.horizon * PERIOD[period].days;
+  const coverDays = Number.isFinite(options.coverDays) && options.coverDays > 0 ? options.coverDays : result.summary.leadDays;
+  const seen = new Set();
+  const plan = { ordered: 0, units: 0, late: 0, excess: 0, unmatchedSales: [], unmatchedStock: [] };
+  for (const s of result.skus) {
+    const e = stock.get(s.sku.toLowerCase());
+    if (!e) { plan.unmatchedSales.push(s.sku); continue; }
+    seen.add(s.sku.toLowerCase());
+    const daily = s.leadDemand / cycleDays;
+    const position = e.onHand + e.onOrder;
+    const ss = s.safetyStock ?? 0;
+    const rop = s.leadDemand + ss;
+    const target = rop + daily * coverDays;
+    let qty = 0, status = "ok";
+    const notes = [];
+    if (s.safetyStock === null) notes.push("No safety stock: too little history to back-test, so this uses forecast demand alone.");
+    if (position <= rop) {
+      qty = Math.max(0, target - position);
+      if (qty > 0 && e.moq && qty < e.moq) { qty = e.moq; notes.push(`Raised to the minimum order of ${e.moq}.`); }
+      if (qty > 0 && e.pack > 1) qty = Math.ceil(qty / e.pack - 1e-9) * e.pack;
+      else qty = Math.ceil(qty - 1e-9);
+      status = "order";
+      plan.ordered++;
+      plan.units += qty;
+    } else if (position > target + s.leadDemand) {
+      status = "excess";
+      plan.excess++;
+    }
+    // Stock on the shelf now runs out before an order placed today could arrive.
+    const lateBy = e.onHand < s.leadDemand;
+    if (status === "order" && lateBy && daily > 0) { plan.late++; notes.push(`On hand covers about ${Math.floor(e.onHand / daily)} days; an order placed today lands after about ${result.summary.leadDays}. Expect a gap, or expedite.`); }
+    if (status === "excess" && daily > 0) notes.push(`About ${Math.round(position / daily)} days of cover on hand and on order: pause buying.`);
+    s.order = { onHand: e.onHand, onOrder: e.onOrder, position, daysCover: daily > 0 ? e.onHand / daily : null, reorderPoint: rop, orderUpTo: target, qty, status, notes };
+  }
+  for (const e of stock.values()) if (!seen.has(e.sku.toLowerCase())) plan.unmatchedStock.push(e.sku);
+  return plan;
+}
+
 // ---------- output ----------
 
 export function reportCsv(result) {
   const q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   const head = ["sku", "abc", "xyz", "units_total", "method", "lead_time_demand", "safety_stock", "reorder_point", "interval_low", "interval_high", "backtest_error_pct", "repeat_last_error_pct", "better_than_repeat_pct", "backtest_points", "tested_on_unseen", "notes"];
+  const withOrders = result.skus.some((s) => s.order);
+  if (withOrders) head.splice(8, 0, "on_hand", "on_order", "days_of_cover", "status", "order_qty");
   const f = (v, d = 1) => (v === null || v === undefined ? "" : Number(v).toFixed(d));
   const lines = [head.join(",")];
   for (const s of result.skus) {
-    lines.push([s.sku, s.abc, s.xyz, f(s.total, 0), s.methodLabel, f(s.leadDemand), f(s.safetyStock), f(s.reorderPoint), f(s.low), f(s.high), f(s.wape === null ? null : s.wape * 100), f(s.naiveWape === null ? null : s.naiveWape * 100), f(s.gain === null ? null : s.gain * 100, 0), s.origins, s.verified ? "yes" : "no", s.flags.join(" ")].map(q).join(","));
+    const o = s.order;
+    const ord = withOrders ? [o ? f(o.onHand, 0) : "", o ? f(o.onOrder, 0) : "", o ? f(o.daysCover, 0) : "", o ? o.status : "no stock row", o ? f(o.qty, 0) : ""] : [];
+    lines.push([s.sku, s.abc, s.xyz, f(s.total, 0), s.methodLabel, f(s.leadDemand), f(s.safetyStock), f(s.reorderPoint), ...ord, f(s.low), f(s.high), f(s.wape === null ? null : s.wape * 100), f(s.naiveWape === null ? null : s.naiveWape * 100), f(s.gain === null ? null : s.gain * 100, 0), s.origins, s.verified ? "yes" : "no", s.flags.concat(o ? o.notes : []).join(" ")].map(q).join(","));
   }
   return lines.join("\n") + "\n";
 }
