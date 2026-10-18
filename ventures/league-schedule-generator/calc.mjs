@@ -1482,6 +1482,13 @@ export function remainingFixtures(schedule, results) {
   return left;
 }
 
+/** Games each team still has to play, from `remainingFixtures`: an array indexed by team. */
+export function gamesLeft(nTeams, remaining) {
+  const left = new Array(nTeams).fill(0);
+  for (const [a, b] of remaining) { left[a]++; left[b]++; }
+  return left;
+}
+
 /** One plain sentence per team that has a decided or live position. */
 export function raceText(rows, spots) {
   const lines = [];
