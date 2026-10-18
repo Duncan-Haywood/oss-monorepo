@@ -53,6 +53,13 @@
 <dt>Profit margin</dt><dd id="marginOut"></dd>
 <dt>Return on cost (ROI)</dt><dd id="roiOut"></dd>
 </dl>
+<h3>Price to list at</h3>
+<label>Profit I want on this sale ($)<input id="wantedProfit" type="number" min="0" step="1" value="20"></label>
+<dl>
+<dt>Break-even sale price</dt><dd id="breakEvenOut"></dd>
+<dt>Sale price for that profit</dt><dd id="wantedPriceOut"></dd>
+</dl>
+<p class="note">The same fees and costs as above, run backwards: the lowest price that covers your cost, fees, shipping and supplies, and the price that also leaves the profit you typed. Not saved.</p>
 <p class="note">This is a planning floor from the numbers you typed, not your actual payout statement. It does not add StockX's own currency conversion, promotional fee waivers, or bulk-listing tools unless you fold those into the rates you enter yourself. It never verifies authenticity, tracks inventory, or replaces reading your own seller dashboard.</p>
 </section>
 </main>
@@ -92,7 +99,7 @@
 <footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It is also not an authentication, inventory, or sourcing tool of any kind — it never verifies an item, tracks stock, or replaces your own StockX seller dashboard and payout statements. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, confirm a payout amount, or replace your own accountant. StockX is a trademark of StockX LLC, named here only to describe what this tool calculates — this tool is not affiliated with, endorsed by, or sponsored by StockX, and its seller-fee, Fast Shipping, and payment-processing rates change over time and by seller; verify every rate against your own current seller dashboard before relying on the result.</p><p>Selling through a different single-channel marketplace instead? The <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> prices commission on the hammer plus checkout processing for livestream auctions. Selling across several storefronts and want to compare take-home in one place? The <a href="../marketplace-fee-compare/">marketplace fee compare</a> ranks eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store from one set of inputs. Funding a project instead of reselling an item? The <a href="../kickstarter-fee-calculator/">Kickstarter fee calculator</a> is the same single-channel platform-fee-schedule shape — a platform cut plus a flat per-transaction processing charge — applied to a whole campaign's pledges rather than one sale.</p><p>Reselling event tickets instead of sneakers? The <a href="../ticket-resale-profit-calculator/">ticket resale profit calculator</a> nets out the seller fee, finds your break-even list price and prices in the listings that do not sell.</p><p>MIT licensed. If it helped you decide which sales actually pay, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
 
 <script type="module">
-import { calculate, computeMonthProfit, incomeGap, DEFAULTS } from './calc.mjs';
+import { calculate, computeMonthProfit, incomeGap, priceForProfit, DEFAULTS } from './calc.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
 import { encodeInputs, decodeInputs, formValues } from './share.mjs';
 import { whereToSellUrl } from './to-where-to-sell.mjs';
@@ -148,10 +155,14 @@ function updateSale(count = false) {
     el('profitOut').textContent = money(r.netProfit);
     el('marginOut').textContent = r.profitMarginPct === null ? '—' : `${r.profitMarginPct.toFixed(1)}%`;
     el('roiOut').textContent = r.roiPct === null ? '—' : `${r.roiPct.toFixed(1)}%`;
+    const priceText = n => n === null ? 'no price covers it (fees take 100%)' : money(n);
+    const wanted = parseFloat(el('wantedProfit').value) || 0;
+    el('breakEvenOut').textContent = priceText(priceForProfit(saleInputs(), 0));
+    el('wantedPriceOut').textContent = priceText(priceForProfit(saleInputs(), wanted));
     if (count && !counted) { recordEvent('sale-priced'); counted = true; }
   } catch (e) {
     el('errors').textContent = e.message; el('errors').hidden = false; el('profit').hidden = true;
-    for (const id of ['rateLine', 'effFeeOut', 'sellerFeeOut', 'processingOut', 'otherCostOut', 'totalFeesOut', 'payoutOut', 'profitOut', 'marginOut', 'roiOut']) el(id).textContent = '';
+    for (const id of ['rateLine', 'effFeeOut', 'sellerFeeOut', 'processingOut', 'otherCostOut', 'totalFeesOut', 'payoutOut', 'profitOut', 'marginOut', 'roiOut', 'breakEvenOut', 'wantedPriceOut']) el(id).textContent = '';
   }
 }
 
@@ -183,6 +194,7 @@ function updateMonth(count = false) {
 SALE_IDS.forEach(id => el(id).addEventListener('input', () => { updateSale(true); persistSale(); }));
 document.querySelectorAll('.saleProfit').forEach(input => input.addEventListener('input', () => updateMonth(true)));
 el('targetMonthlyProfit').addEventListener('input', () => updateMonth(true));
+el('wantedProfit').addEventListener('input', () => updateSale(true));
 el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
 // Records only that the handoff happened, never the item — this is the one
 // signal that will say whether the cross-channel link is worth keeping.

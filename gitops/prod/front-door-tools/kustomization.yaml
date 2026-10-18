@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 118 files, 555632 bytes
 #   portfolio-front-tools-8: 129 files, 553475 bytes
 #   portfolio-front-tools-9: 137 files, 554928 bytes
-#   portfolio-front-tools-10: 142 files, 551481 bytes
+#   portfolio-front-tools-10: 142 files, 552177 bytes
 #   portfolio-front-tools-11: 133 files, 555802 bytes
 #   portfolio-front-tools-12: 126 files, 550529 bytes
 #   portfolio-front-tools-13: 130 files, 555860 bytes
@@ -58,9 +58,9 @@
 #   portfolio-front-tools-22: 120 files, 554775 bytes
 #   portfolio-front-tools-23: 123 files, 548292 bytes
 #   portfolio-front-tools-24: 118 files, 555493 bytes
-#   portfolio-front-tools-25: 118 files, 555289 bytes
-#   portfolio-front-tools-26: 136 files, 555803 bytes
-#   portfolio-front-tools-27: 126 files, 545377 bytes
+#   portfolio-front-tools-25: 118 files, 555037 bytes
+#   portfolio-front-tools-26: 136 files, 556705 bytes
+#   portfolio-front-tools-27: 127 files, 547969 bytes
 #   portfolio-front-tools-28: 139 files, 555417 bytes
 #   portfolio-front-tools-29: 132 files, 556905 bytes
 #   portfolio-front-tools-30: 124 files, 555766 bytes
@@ -73,7 +73,7 @@
 #   portfolio-front-tools-37: 94 files, 550641 bytes
 #   portfolio-front-tools-38: 125 files, 552456 bytes
 #   portfolio-front-tools-39: 118 files, 551855 bytes
-#   portfolio-front-tools-40: 112 files, 555091 bytes
+#   portfolio-front-tools-40: 112 files, 555547 bytes
 #   portfolio-front-tools-41: 131 files, 552873 bytes
 #   portfolio-front-tools-42: 125 files, 555304 bytes
 #   portfolio-front-tools-43: 137 files, 553807 bytes
@@ -3504,6 +3504,7 @@ configMapGenerator:
       - lead-response-time-analyzer__usage.mjs.gz=lead-response-time-analyzer__usage.mjs.gz
       - league-schedule-generator__calc.mjs.gz=league-schedule-generator__calc.mjs.gz
       - league-schedule-generator__how-long-does-a-round-robin-tournament-take.html.gz=league-schedule-generator__how-long-does-a-round-robin-tournament-take.html.gz
+      - league-schedule-generator__how-to-balance-home-and-away-games-in-a-round-robin.html.gz=league-schedule-generator__how-to-balance-home-and-away-games-in-a-round-robin.html.gz
       - league-schedule-generator__how-to-break-ties-in-league-standings.html.gz=league-schedule-generator__how-to-break-ties-in-league-standings.html.gz
       - league-schedule-generator__how-to-make-a-round-robin-schedule.html.gz=league-schedule-generator__how-to-make-a-round-robin-schedule.html.gz
       - league-schedule-generator__how-to-reschedule-a-rained-out-league-game.html.gz=league-schedule-generator__how-to-reschedule-a-rained-out-league-game.html.gz
@@ -3552,12 +3553,12 @@ configMapGenerator:
       - lien-waiver-checker__calc.mjs.gz=lien-waiver-checker__calc.mjs.gz
       - lien-waiver-checker__index.html.gz=lien-waiver-checker__index.html.gz
       - lien-waiver-checker__usage.mjs.gz=lien-waiver-checker__usage.mjs.gz
-      - like-kind-exchange-1031-calculator__calc.mjs.gz=like-kind-exchange-1031-calculator__calc.mjs.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - like-kind-exchange-1031-calculator__calc.mjs.gz=like-kind-exchange-1031-calculator__calc.mjs.gz
       - like-kind-exchange-1031-calculator__index.html.gz=like-kind-exchange-1031-calculator__index.html.gz
       - like-kind-exchange-1031-calculator__usage.mjs.gz=like-kind-exchange-1031-calculator__usage.mjs.gz
       - link-keeper__engine.mjs.gz=link-keeper__engine.mjs.gz
@@ -3693,12 +3694,12 @@ configMapGenerator:
       - meeting-action-items__ai.mjs.gz=meeting-action-items__ai.mjs.gz
       - meeting-action-items__cli.mjs.gz=meeting-action-items__cli.mjs.gz
       - meeting-action-items__extract.mjs.gz=meeting-action-items__extract.mjs.gz
-      - meeting-action-items__how-to-write-meeting-action-items.html.gz=meeting-action-items__how-to-write-meeting-action-items.html.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - meeting-action-items__how-to-write-meeting-action-items.html.gz=meeting-action-items__how-to-write-meeting-action-items.html.gz
       - meeting-action-items__index.html.gz=meeting-action-items__index.html.gz
       - meeting-action-items__usage.mjs.gz=meeting-action-items__usage.mjs.gz
       - mega-backdoor-roth-calculator__calc.mjs.gz=mega-backdoor-roth-calculator__calc.mjs.gz

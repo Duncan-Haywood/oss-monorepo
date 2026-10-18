@@ -277,7 +277,7 @@ test("sodium cap survives a share link and is exported in the CSV", () => {
   assert.equal(decodeShare(enc).fields.nacmax, "2300");
   const spec = { ...sampleSpec(), step: 0 };
   const csv = planCsv(spec, solve(spec));
-  assert.ok(csv.split("\n")[0].endsWith("Sodium mg"));
+  assert.ok(csv.split("\n")[0].endsWith("Potassium mg"));
 });
 
 test("weekMenu rotates the staples: every day feasible, several different menus, extra cost not negative", () => {
@@ -333,4 +333,36 @@ test("eating style drops animal foods by name, keeps plant lookalikes, and the v
   assert.equal(res.status, "optimal");
   assert.deepEqual(verifyPlan(veg, res), []);
   assert.ok(res.cost >= solve(spec).cost - 1e-9);
+});
+
+test("calcium, iron and potassium columns parse; blank counts as zero and a bad value is reported", () => {
+  const ok = parseFoods("Milk | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | | | 105 | 276 | 0.1 | 322\nRice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7");
+  assert.deepEqual(ok.foods[0].n.slice(6), [276, 0.1, 322]);
+  assert.deepEqual(ok.foods[0].microKnown, [true, true, true]);
+  assert.deepEqual(ok.foods[1].n.slice(6), [0, 0, 0]);
+  assert.deepEqual(ok.foods[1].microKnown, [false, false, false]);
+  assert.equal(parseFoods("Milk | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | | | 105 | -1").errors.length, 1);
+  assert.equal(parseFoods("Milk | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | | | 105 | 276 | x").errors.length, 1);
+});
+
+test("micronutrient minimums are met, verified, never make the plan cheaper, and have a marginal cost", () => {
+  const base = { ...sampleSpec(), step: 0 };
+  const free = solve(base);
+  for (const [key, idx] of [["calciumMin", 6], ["ironMin", 7], ["potassiumMin", 8]]) {
+    const target = Math.ceil(free.totals[idx] * 1.5);
+    const spec = { ...base, [key]: target };
+    const r = solve(spec);
+    assert.equal(r.status, "optimal", key);
+    assert.ok(r.totals[idx] >= target - 1e-6, key);
+    assert.ok(r.cost >= free.cost - 1e-9, key);
+    assert.deepEqual(verifyPlan(spec, r), [], key);
+  }
+  const r = solve({ ...base, calciumMin: 1000 });
+  assert.ok(r.marginal.calcium && r.marginal.calcium.per === 100);
+  assert.notEqual(solve({ ...base, ironMin: 1000 }).status, "optimal");
+});
+
+test("micronutrient minimums survive a share link", () => {
+  const enc = encodeShare("A | 1 | 2 | 3 | 4 | 5 | 6", { camin: "1000", femin: "8", potmin: "3400" });
+  assert.deepEqual(decodeShare(enc).fields, { camin: "1000", femin: "8", potmin: "3400" });
 });
