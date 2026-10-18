@@ -5,6 +5,7 @@ import { planRecovery, replan, classifyDecline, formatMoney, mergePolicy } from 
 import { renderEmail } from "./templates.mjs";
 import { findExpiring } from "./expiry.mjs";
 import { assignArm, experiment } from "./holdout.mjs";
+import { buildDigest, renderDigest, DIGEST_EVERY_MS } from "./digest.mjs";
 
 export function newState() { return { cases: {}, seen: [], stats: { recoveredMinor: {}, recovered: 0, lost: 0, emails: 0, retries: 0 } }; }
 
@@ -21,6 +22,18 @@ function closeCase(state, c, outcome, now) {
   } else if (outcome === "lost") state.stats.lost += 1;
 }
 
+// Operator action: stop chasing one invoice (customer phoned, goodwill, dispute).
+// The case stays on record as "stopped" and later failures of the same invoice
+// do not restart it. It is not counted as recovered or lost.
+export function stopCase(state, invoiceId, now) {
+  const c = state.cases[invoiceId];
+  if (!c) return { error: "no such case", code: 404 };
+  if (c.status !== "open") return { error: `case is already ${c.status}`, code: 409 };
+  closeCase(state, c, "stopped", now);
+  c.log.push(`${new Date(now).toISOString()} stopped by operator`);
+  return { stopped: invoiceId };
+}
+
 // Feed one verified Stripe event in. `declineCode` is resolved by the caller
 // (it needs an API call) and only used for payment_failed.
 export function applyEvent(state, event, { now, policy, declineCode, holdoutPct = 0 }) {
@@ -33,6 +46,7 @@ export function applyEvent(state, event, { now, policy, declineCode, holdoutPct 
       if (!obj.id) return { ignored: "no invoice id" };
       if (obj.paid || obj.status === "paid") return { ignored: "already paid" };
       const existing = state.cases[obj.id];
+      if (existing && existing.status === "stopped") return { ignored: "stopped by operator" };
       if (existing && existing.status === "open") {
         existing.attempts = obj.attempt_count ?? existing.attempts + 1;
         existing.lastDecline = declineCode || existing.lastDecline;
@@ -147,7 +161,23 @@ export async function tick(state, now, deps) {
       else s.at = now + 5 * 60000 * s.tries; // back off, try again on a later tick
     }
   }
+  await sendDigest(state, now, deps, done);
   return done;
+}
+
+// Once a week, if DIGEST_TO is set: a plain-text summary to the owner. The
+// first call only starts the clock, so a fresh install does not mail an empty
+// week. deps adds: digestTo, sendEmail, company, dryRun.
+async function sendDigest(state, now, deps, done) {
+  if (!deps.digestTo) return;
+  const dg = (state.digest ||= { last: now });
+  if (now - dg.last < DIGEST_EVERY_MS) return;
+  const mail = renderDigest(buildDigest(state, now), { company: deps.company, dryRun: deps.dryRun });
+  try {
+    if (!deps.dryRun) await deps.sendEmail({ to: deps.digestTo, ...mail });
+  } catch (e) { done.push(`digest: error: ${e.message}`); dg.last = now - DIGEST_EVERY_MS + 3600000; return; }
+  dg.last = now;
+  done.push(deps.dryRun ? `digest: dry run: would email ${deps.digestTo}: ${mail.subject}` : `digest: emailed ${deps.digestTo}`);
 }
 
 const SCAN_EVERY_MS = 24 * 3600000;

@@ -176,3 +176,20 @@ test("an expired card gets past-tense wording", async () => {
   await scanExpiring(s, NOWX, deps);
   assert.match(log.emails[0].subject, /expired on 09\/2026/);
 });
+
+test("stopCase: operator stops an open case; steps skipped, not counted, and a later failure does not restart it", async () => {
+  const { applyEvent, stopCase, newState, dueSteps } = await import("./engine.mjs");
+  const state = newState();
+  const ev = (id) => ({ id, type: "invoice.payment_failed", data: { object: { id: "in_s", customer: "cus_s", amount_due: 500, currency: "usd" } } });
+  applyEvent(state, ev("e1"), { now: 1000, policy: {}, declineCode: "generic_decline" });
+  assert.deepEqual(stopCase(state, "in_s", 2000), { stopped: "in_s" });
+  const c = state.cases.in_s;
+  assert.equal(c.status, "stopped");
+  assert.ok(c.steps.every((s) => s.status !== "pending"));
+  assert.equal(dueSteps(state, 1e15).length, 0);
+  assert.equal(state.stats.recovered + state.stats.lost, 0);
+  assert.deepEqual(applyEvent(state, ev("e2"), { now: 3000, policy: {}, declineCode: "generic_decline" }), { ignored: "stopped by operator" });
+  assert.equal(state.cases.in_s.status, "stopped");
+  assert.equal(stopCase(state, "in_s", 4000).code, 409);
+  assert.equal(stopCase(state, "nope", 4000).code, 404);
+});

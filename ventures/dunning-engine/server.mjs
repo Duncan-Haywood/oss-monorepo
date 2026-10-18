@@ -11,7 +11,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { verifySignature, createStripe } from "./stripe.mjs";
 import { ADMIN_HTML, ADMIN_CSP } from "./admin.mjs";
 import { clampPct } from "./holdout.mjs";
-import { applyEvent, tick, scanExpiring, summary, newState } from "./engine.mjs";
+import { applyEvent, stopCase, tick, scanExpiring, summary, newState } from "./engine.mjs";
 
 const env = process.env;
 
@@ -74,6 +74,14 @@ export function handler(cfg) {
         if (url.pathname === "/v1/summary") return send(200, { dryRun: cfg.dryRun, ...summary(cfg.state) }, "application/json");
         return send(200, Object.values(cfg.state.cases).map(({ steps, log, ...c }) => ({ ...c, steps: steps.map((s) => ({ id: s.id, kind: s.kind, at: new Date(s.at).toISOString(), status: s.status })), log: log.slice(-5) })), "application/json");
       }
+      const stop = req.method === "POST" && url.pathname.match(/^\/v1\/cases\/([^/]+)\/stop$/);
+      if (stop) {
+        if (!bearerOk(req, cfg.adminKey)) return send(401, "admin key required\n");
+        const r = stopCase(cfg.state, decodeURIComponent(stop[1]), now());
+        if (r.error) return send(r.code, r, "application/json");
+        cfg.save();
+        return send(200, r, "application/json");
+      }
       return send(404, "not found\n");
     } catch (e) {
       console.error("request failed:", e.message);
@@ -111,7 +119,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const publicUrl = (env.PUBLIC_URL || "").replace(/\/$/, "");
   const deps = {
     stripe, policy, dryRun, alert, sendEmail: sendResend, company: env.COMPANY_NAME, address: env.COMPANY_ADDRESS,
-    cancelOnExpire: env.CANCEL_ON_EXPIRE === "true",
+    cancelOnExpire: env.CANCEL_ON_EXPIRE === "true", digestTo: env.DIGEST_TO || null,
     expiryNotices: env.EXPIRY_NOTICES !== "false", expiryDays: Number(env.EXPIRY_DAYS || 30),
     updateUrl: (c) => (publicUrl ? `${publicUrl}/update/${linkToken(env.LINK_SECRET, c.customer)}` : c.hostedUrl || ""),
   };
