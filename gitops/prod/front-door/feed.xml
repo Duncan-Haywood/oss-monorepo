@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1286 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1287 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-18T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Paste a page&#39;s HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.</summary>
+  </entry>
+  <entry>
+    <title>Free Price Drop and Back-in-Stock Alerts (Self-Hosted)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/price-drop-watcher/"/>
+    <id>tag:marisstella.dev,2026:tool/price-drop-watcher</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Get price drop and back-in-stock alerts for any product page, free. Runs on your own GitHub Actions, alerts your phone, no account or tracking. Test a page in your browser first.</summary>
   </entry>
   <entry>
     <title>TCGplayer Fee Calculator — What You Keep After 10.75% Commission and the $0.30 Order Fee</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">A help center you host yourself: Markdown articles, typo-tolerant ranked search, helpful votes and a report of what visitors searched for and could not find. Open source, MIT, no per-seat fee. Try the search in your browser.</summary>
-  </entry>
-  <entry>
-    <title>ICP Lens — Free Ideal Customer Profile Builder and Lead Scorer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/icp-lens/"/>
-    <id>tag:marisstella.dev,2026:tool/icp-lens</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">A free, open-source alternative to lead-scoring add-ons: learn your ideal customer profile from your own won and lost list, rank your prospects by lookalike fit with a leave-one-out accuracy check, and draft compliant first outreach on your own AI key. Runs in your browser.</summary>
   </entry>
 </feed>
