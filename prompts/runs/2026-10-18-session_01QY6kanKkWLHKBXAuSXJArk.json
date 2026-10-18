@@ -40,7 +40,17 @@
   "deviations": [],
   "goal": null,
   "notes": "Added run-in strength column to league-schedule-generator. CI had no check runs at merge time; local node --test 153/153 passed.",
-  "corrections": [],
+  "corrections": [
+    {
+      "date": "2026-10-18",
+      "field": "errors",
+      "from": [],
+      "to": [
+        "PR 8038 dropped the Left cell from the standings row template (header kept it), misaligning every column after Pts; fixed by PR 8041"
+      ],
+      "why": "review audit: ea60b0e86b diff vs 6bc8f76f29; the page test added in 8038 did not count row cells against header cells"
+    }
+  ],
   "redteam": null,
   "usage": {
     "measured_by": "prompts/runcost.py v1",

@@ -446,3 +446,10 @@ test("the standings row template has one cell for every header column", () => {
   const order = [...row.matchAll(/\$\{(?:esc\()?r\.(\w+)/g)].map((m) => m[1]);
   assert.deepEqual(order, ["rank", "name", "played", "won", "drawn", "lost", "gd", "points", "left", "oppAvg", "form"]);
 });
+
+test("standings row template has one cell per header column", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const head = html.match(/<table id="standings"><thead><tr>(.*?)<\/tr>/)[1];
+  const row = html.match(/\$\("#standings tbody"\)\.innerHTML = extra\.table\.map\(\(r\) => `<tr>(.*?)<\/tr>`/)[1];
+  assert.equal((row.match(/<td/g) || []).length, (head.match(/<th/g) || []).length);
+});

@@ -715,3 +715,13 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   Open friction not fixed: ventures runs report that router top candidates are
   already deep; `allocate.py` needs its own run.
 - Result: (next review)
+
+## E38: review 2026-10-18 (fourth)
+
+- Change: no prompt or doc change. Audit sample (recent venture PRs) found
+  one shipped regression (#8038, fixed by #8041); added a header/row cell-count
+  test to `league-schedule-generator`.
+- Metric: audit runs that find a defect in a recent venture PR; the audit is
+  runnable when it names a venture with `node --test`.
+- Candidates: unchanged. Drift: `prompts/drift/2026-10-18d.md`.
+- Result: (next review)
