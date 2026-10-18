@@ -80,6 +80,12 @@
     <div id="report-findings"></div>
     <h3>Channels: today versus the recommended split</h3>
     <div class="scroll"><table id="channels"><thead><tr><th>Channel</th><th class="n">Weekly spend now</th><th class="n">Average ROAS</th><th class="n">Marginal ROAS now</th><th class="n">Range (10th-90th)</th><th class="n">Of ceiling</th><th class="n">Recommended spend</th><th class="n">Change</th></tr></thead><tbody></tbody></table></div>
+    <h3>What if you spend more or less in total?</h3>
+    <p class="note">Each row is the best split of that weekly total on the fitted curves, against spreading the same total in proportion to today's spend. Marginal ROAS is what the last dollar of that total earns; contribution is margin times revenue minus spend. Totals the per-channel limits cannot reach are left out.</p>
+    <div class="scroll"><table id="ladder"><thead><tr><th class="n">Weekly total</th><th class="n">Change</th><th class="n">Revenue (best split)</th><th class="n">Gain over pro rata</th><th class="n">Marginal ROAS</th><th class="n">Contribution</th></tr></thead><tbody></tbody></table></div>
+    <label for="whatif">Try a weekly total</label>
+    <input id="whatif" inputmode="decimal" placeholder="e.g. 12000">
+    <div id="whatif-out" class="note" role="status"></div>
     <h3>Fitted curves</h3>
     <p class="note legend"><span>Dots: your weeks</span><span>Line: fitted curve</span><span>Ring: spend now</span><span>Diamond: recommended spend</span></p>
     <div class="row2" id="charts"></div>
@@ -127,7 +133,7 @@
   </footer>
 
   <script type="module">
-    import { parseSpend, analyze, reportCsv, sampleText, money, pct, dayToIso, curveValue } from "./calc.mjs";
+    import { parseSpend, analyze, reportCsv, sampleText, money, pct, dayToIso, curveValue, budgetPlan, budgetLadder } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -170,6 +176,8 @@
       $("#channels tbody").innerHTML = r.channels.map((c) => c.modelled
         ? `<tr><td>${esc(c.name)}</td><td class="n">${esc(money(c.current))}</td><td class="n">${c.roas.toFixed(2)}</td><td class="n">${c.mroas.toFixed(2)}</td><td class="n">${c.mroasLo.toFixed(2)} - ${c.mroasHi.toFixed(2)}</td><td class="n">${pct(c.saturation, 0)}</td><td class="n">${esc(money(c.recommended))}</td><td class="n">${c.recommended >= c.current ? "+" : ""}${esc(money(c.recommended - c.current))}</td></tr>`
         : `<tr><td>${esc(c.name)}</td><td class="n">${esc(money(c.current))}</td><td class="n">${Number.isFinite(c.roas) ? c.roas.toFixed(2) : "n/a"}</td><td colspan="5">Not modelled: ${esc(c.reason)}. Left as it is.</td></tr>`).join("");
+      $("#ladder tbody").innerHTML = budgetLadder(r).map((p) => `<tr><td class="n">${esc(money(p.total))}</td><td class="n">${p.mult >= 1 ? "+" : ""}${((p.mult - 1) * 100).toFixed(0)}%</td><td class="n">${esc(money(p.revenue))}</td><td class="n">${esc(money(p.splitGain))}</td><td class="n">${p.marginalRoas.toFixed(2)}</td><td class="n">${esc(money(p.contribution))}</td></tr>`).join("");
+      $("#whatif").value = ""; $("#whatif-out").textContent = "";
       $("#charts").innerHTML = r.modelled.map(chart).join("");
       const t = r.backtestTotal;
       $("#bt-note").textContent = t ? `Fitted on the weeks before the last ${t.holdout}, then asked to predict revenue in those weeks from the spend that happened. Total predicted ${money(t.curve)}, actual ${money(t.actual)}.` : "Not enough weeks to hold out a test period.";
@@ -183,6 +191,12 @@
       return true;
     }
 
+    $("#whatif").addEventListener("input", () => {
+      const out = $("#whatif-out"), v = Number($("#whatif").value.replace(/[$,\s]/g, ""));
+      if (!last || !$("#whatif").value.trim()) { out.textContent = ""; return; }
+      const p = budgetPlan(last, v);
+      out.textContent = p ? `${money(p.total)} a week: best split earns ${money(p.revenue)} (${money(p.splitGain)} more than pro rata), last dollar returns ${p.marginalRoas.toFixed(2)}, contribution ${money(p.contribution)}. Split: ${p.channels.map((c) => `${c.name} ${money(c.spend)}`).join(", ")}.` : "That total is outside what the per-channel limits allow (about 0.25x to 2x of today's spend per channel).";
+    });
     $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
     $("#load-example").addEventListener("click", () => {
       $("#rows").value = sampleText();
