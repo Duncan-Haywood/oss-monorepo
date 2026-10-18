@@ -1,0 +1,58 @@
+name: page-seo-audit
+description: >-
+  Free on-page SEO and AI-readiness audit. Paste a page's HTML (or run the
+  zero-dependency Node CLI on a file or URL) and get a score, ranked findings
+  and a fix for each: title, meta description, headings, canonical, Open Graph,
+  JSON-LD that actually parses, image alt text, vague link text and whether the
+  text exists before JavaScript runs. Runs in the browser; nothing is uploaded.
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-10-18. duplicate_check.py: closest rows were
+# structured-data-drift-check 0.26 and social-preview-check 0.25 (single-slice
+# checkers); nothing near the 0.45 line. This is the whole-page overview those
+# slice tools sit under, and the lead magnet for them: free hosted SEO checkers
+# (Semrush, Ahrefs, SEOptimer) are the head terms people search, and almost all
+# of them want an email or a URL fetched on their servers. A paste-your-source,
+# private, CI-gateable version is the angle.
+# Distribution: searches such as "on-page seo checker", "meta tag checker",
+# "seo audit tool free"; the CLI --min-score as a deploy gate. Volume is not
+# measured; no external tool was available to this session.
+# Liability boundary: reads markup the user pastes. No fetching in the browser,
+# no storage, no accounts. Not a ranking guarantee.
+
+hypotheses:
+  - claim: >-
+      Site owners and developers who search for a free on-page SEO checker will
+      paste a page's source into a private, no-signup audit and fix the top
+      findings, because the hosted checkers ask for an email or crawl a URL
+      they may not want to expose (staging, pre-launch, intranet).
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Teams will add `cli.mjs audit <build output> --min-score N` to a deploy
+      pipeline so a page that loses its title, canonical or structured data
+      fails the build rather than shipping.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/page-seo-audit/
+  analytics: null
