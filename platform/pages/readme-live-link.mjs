@@ -3,6 +3,7 @@
 // what the thing is and link to the live page). Idempotent.
 //   node platform/pages/readme-live-link.mjs          # rewrite READMEs
 //   node platform/pages/readme-live-link.mjs --check  # exit 1 if any lack it
+//   (--root <dir> points either at another tree)
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +12,8 @@ export const BASE = 'https://duncan-haywood.github.io/monorepo-projects/';
 
 export function addLiveLink(readme, slug) {
   const url = `${BASE}${slug}/`;
-  if (readme.includes(`monorepo-projects/${slug}`)) return readme;
+  // Boundary after the slug: a link to `foo-bar` is not a link to `foo`.
+  if (new RegExp(`monorepo-projects/${slug}(?![\\w.-])`).test(readme)) return readme;
   const lines = readme.split('\n');
   let i = 0;
   while (i < lines.length && (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;
@@ -41,7 +43,8 @@ export function run(root, check) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  const ri = process.argv.indexOf('--root');
+  const root = ri > 0 ? process.argv[ri + 1] : join(dirname(fileURLToPath(import.meta.url)), '..', '..');
   const check = process.argv.includes('--check');
   const m = run(root, check);
   console.log(`${check ? 'missing' : 'updated'}: ${m.length} README(s)`);

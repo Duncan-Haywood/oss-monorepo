@@ -1,0 +1,245 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01VzNPmCZn37tFCgnXjYcguz",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T09:07:07Z",
+  "ended": "2026-10-18T09:07:27Z",
+  "wall_minutes": 1.2,
+  "tokens_in": 941666,
+  "tokens_out": 4928,
+  "cost_usd": 0.4334,
+  "tool_calls": 14,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/readme-live-link.mjs",
+        "test": "node --test platform/pages/readme-live-link.test.mjs  (in .)",
+        "seed": 563704266,
+        "commit": "6821283c77",
+        "sites": 18,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "platform/pages/readme-live-link.mjs",
+            "line": 17,
+            "col": 11,
+            "operator": "lt-to-le",
+            "before": "while (i < lines.length && (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;",
+            "after": "while (i <= lines.length && (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;",
+            "line_text": "  while (i < lines.length && (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/readme-live-link.mjs",
+            "line": 17,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "while (i < lines.length && (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;",
+            "after": "while (i < lines.length || (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;",
+            "line_text": "  while (i < lines.length && (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/readme-live-link.mjs",
+            "line": 19,
+            "col": 11,
+            "operator": "lt-to-le",
+            "before": "while (i < lines.length && (fence || lines[i].trim() !== '')) {",
+            "after": "while (i <= lines.length && (fence || lines[i].trim() !== '')) {",
+            "line_text": "  while (i < lines.length && (fence || lines[i].trim() !== '')) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/readme-live-link.mjs",
+            "line": 19,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "while (i < lines.length && (fence || lines[i].trim() !== '')) {",
+            "after": "while (i < lines.length || (fence || lines[i].trim() !== '')) {",
+            "line_text": "  while (i < lines.length && (fence || lines[i].trim() !== '')) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/readme-live-link.mjs",
+            "line": 19,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "while (i < lines.length && (fence || lines[i].trim() !== '')) {",
+            "after": "while (i < lines.length && (fence && lines[i].trim() !== '')) {",
+            "line_text": "  while (i < lines.length && (fence || lines[i].trim() !== '')) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/readme-live-link.mjs",
+            "line": 24,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "lines.splice(i, 0, '', `**Live tool:** ${url}`);",
+            "after": "lines.splice(i, 1, '', `**Live tool:** ${url}`);",
+            "line_text": "  lines.splice(i, 0, '', `**Live tool:** ${url}`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/readme-live-link.mjs",
+            "line": 36,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "if (next === old) continue;",
+            "after": "if (next !== old) continue;",
+            "line_text": "    if (next === old) continue;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test of run() or the CLI exit code; added run() and CLI (--root) tests"
+          },
+          {
+            "file": "platform/pages/readme-live-link.mjs",
+            "line": 48,
+            "col": 12,
+            "operator": "and-to-or",
+            "before": "if (check && m.length) process.exit(1);",
+            "after": "if (check || m.length) process.exit(1);",
+            "line_text": "  if (check && m.length) process.exit(1);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test of run() or the CLI exit code; added run() and CLI (--root) tests"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/pages/readme-live-link.mjs",
+        "issue": "addLiveLink treated a link to monorepo-projects/foo-bar/ as already linking foo (prefix match), so foo's README never got its live link",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a6c390d5-6232-56ea-b273-fd2b9968bab7",
+    "transcripts": 1,
+    "first": "2026-10-18T09:07:07Z",
+    "last": "2026-10-18T09:08:19Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 13,
+        "input": 26,
+        "output": 4928,
+        "thinking": 404,
+        "cache_read": 890142,
+        "cache_write_5m": 0,
+        "cache_write_1h": 51498,
+        "api_equivalent_usd": 0.4334,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 13,
+      "input": 26,
+      "output": 4928,
+      "thinking": 404,
+      "cache_read": 890142,
+      "cache_write_5m": 0,
+      "cache_write_1h": 51498,
+      "api_equivalent_usd": 0.4334,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.945,
+    "tool_calls": 14,
+    "tools": {
+      "Bash": 11,
+      "Read": 3
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.2,
+      "active_minutes": 1.2,
+      "model_minutes": 0.74,
+      "tool_minutes": 0.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "small campaign, one bug fix, three tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 230.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

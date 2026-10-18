@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, seasonCost, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1255,4 +1255,54 @@ test("seasonCost: court-hours times rate, split across teams rounded up to the c
   assert.equal(frac.perTeam, 25.03);
   assert.ok(frac.perTeam * 6 >= frac.total);
   for (const bad of [undefined, "", -1, "abc"]) assert.equal(seasonCost(sch, { rate: bad }), null);
+});
+
+test("deadlineCheck: last game against a must-finish date, counting the rounds after it", () => {
+  const sch = buildSchedule(baseSpec(4)); // Tuesdays from 2026-10-06, 3 rounds
+  const last = sch.rounds[sch.rounds.length - 1].day;
+  assert.equal(dayIso(last), "2026-10-20");
+  const ok = deadlineCheck(sch, parseDate("2026-10-27"));
+  assert.deepEqual([ok.fits, ok.daysSpare, ok.roundsAfter, ok.matchesAfter], [true, 7, 0, 0]);
+  const exact = deadlineCheck(sch, last);
+  assert.deepEqual([exact.fits, exact.daysSpare], [true, 0]);
+  const tight = deadlineCheck(sch, parseDate("2026-10-13"));
+  assert.deepEqual([tight.fits, tight.daysSpare, tight.roundsAfter, tight.matchesAfter], [false, -7, 1, 2]);
+  assert.equal(deadlineCheck(sch, null), null);
+  assert.equal(deadlineCheck(sch, NaN), null);
+  assert.equal(deadlineCheck({ rounds: [] }, 5), null);
+});
+
+test("standings show each team's last five results, oldest first", async () => {
+  const { formString, standings: st } = await import("./calc.mjs");
+  const teams = ["A", "B", "C"];
+  const results = [
+    { a: 0, b: 1, ga: 2, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 1 }, { a: 2, b: 0, ga: 3, gb: 1 },
+    { a: 0, b: 1, ga: 0, gb: 0 }, { a: 0, b: 2, ga: 4, gb: 0 }, { a: 1, b: 0, ga: 0, gb: 1 }, { a: 0, b: 2, ga: 2, gb: 1 },
+  ];
+  assert.equal(formString(0, results, 5), "LDWWW");
+  assert.equal(formString(1, results, 5), "LDDL");
+  const rows = st(teams, results);
+  assert.equal(rows.find((r) => r.name === "A").form, "LDWWW");
+});
+
+test("homeAwayReport: counts and longest runs match a hand-built sequence", () => {
+  const sch = { teams: ["A", "B", "C"], rounds: [
+    { day: 14, matches: [{ home: 0, away: 2 }] },
+    { day: 0, matches: [{ home: 0, away: 1 }] },
+    { day: 7, matches: [{ home: 0, away: 2 }] },
+    { day: 21, matches: [{ home: 1, away: 0 }] },
+  ] };
+  const r = homeAwayReport(sch);
+  assert.deepEqual(r.rows[0], { team: "A", home: 3, away: 1, longestHome: 3, longestAway: 1 });
+  assert.deepEqual(r.rows[2], { team: "C", home: 0, away: 2, longestHome: 0, longestAway: 2 });
+  assert.equal(r.longestRun, 3);
+  assert.deepEqual(r.worst, [{ team: "A", kind: "home" }]);
+});
+
+test("homeAwayReport: generated leagues keep home and away within one and runs of at most two", () => {
+  for (const n of [4, 5, 6, 8, 9]) {
+    const r = homeAwayReport(buildSchedule(baseSpec(n)));
+    for (const x of r.rows) assert.ok(Math.abs(x.home - x.away) <= 1, `${n} teams: ${x.team}`);
+    assert.ok(r.longestRun <= 2, `${n} teams run ${r.longestRun}`);
+  }
 });

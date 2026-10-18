@@ -1,0 +1,53 @@
+runs dated 2026-10-01 to 2026-10-18: 1015; runs with >=1 friction entry: 575 (57%, 95% Wilson 54% to 60%); entries: 714
+
+distinct files named: 115; Gini of entries over files 0.75; top 3 files hold 44%, top 10 hold 70%
+   165  CLAUDE.md
+   112  research/PROJECTS.md
+    34  prompts/ventures/prompt-1.md
+    33  prompts/research/prompt-0.md
+    33  research/CLAUDE.md
+    31  prompts/process/prompt-1.md
+    29  prompts/review/prompt-1.md
+    27  portfolio/ledger/session_gate.py
+    19  prompts/redteam/prompt-0.md
+    17  prompt.md
+
+themes (keyword rules, first match wins)
+   296   41%  other
+   128   18%  missing-tooling
+    80   11%  stale-or-wrong
+    58    8%  unclear-or-missing
+    37    5%  too-long
+    36    5%  shallow-clone
+    30    4%  timeout
+    22    3%  duplicate-check
+    17    2%  red-on-clean-main
+    10    1%  no-good-candidate
+
+entries per run by track: runs, entries, runs with an entry
+  research   530  276  225   0.52 per run
+  ventures   238  225  185   0.95 per run
+  process     92  107   80   1.16 per run
+  redteam     70   21   19   0.30 per run
+  explore     51   36   33   0.71 per run
+  review      34   49   33   1.44 per run
+
+repeat rate by day: entries whose (file, theme) was reported on an EARLIER day
+  2026-10-15    0/ 87  0%
+  2026-10-16   60/157  38%
+  2026-10-17   73/128  57%
+  2026-10-18   38/ 46  83%
+
+(file, theme) pairs reported on >=3 different days: 14
+  4 days  research/PROJECTS.md  [unclear-or-missing]
+  4 days  CLAUDE.md  [timeout]
+  4 days  CLAUDE.md  [shallow-clone]
+  4 days  CLAUDE.md  [missing-tooling]
+  3 days  research/PROJECTS.md  [stale-or-wrong]
+  3 days  research/CLAUDE.md  [missing-tooling]
+  3 days  prompts/ventures/prompt-1.md  [stale-or-wrong]
+  3 days  prompts/research/prompt-0.md  [unclear-or-missing]
+  3 days  prompts/redteam/prompt-0.md  [unclear-or-missing]
+  3 days  prompts/promptctl.py  [missing-tooling]
+  3 days  portfolio/ledger/session_gate.py  [missing-tooling]
+  3 days  platform/ci/run_workflow_locally.py  [timeout]
