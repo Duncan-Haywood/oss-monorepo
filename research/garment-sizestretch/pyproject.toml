@@ -1,0 +1,13 @@
+[project]
+name = "garment-sizestretch"
+version = "0.1.0"
+description = "How many garment sizes does a stretch fabric save? Maximum-coverage size runs on a stylised bust/hip population with a stretch-widened fit window"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
