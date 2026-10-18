@@ -148,3 +148,17 @@ local counter; `index.html` is the calculator UI.
 Not yet deployed to a public URL — publishing under the portfolio's name
 is owner-gated per `portfolio/DIRECTION.md` — but the page is ready to
 host as static files.
+
+## Comparing to other channels without retyping
+
+The footer's link to the [where-to-sell calculator](../where-to-sell-calculator/)
+carries this listing's sale price, seller-paid shipping label, item cost and
+prep/other costs across and switches Walmart on there (it is off by default
+over there because Marketplace is invitation-based), so ranking it against
+eBay, Etsy, Amazon and an own store does not mean re-entering anything
+(`to-where-to-sell.mjs`). It is the reverse of that tool's own handoff, which
+already carried a comparison down into this page. Referral rate, WFS fees,
+storage and ads stay here: they have no shared field over there, and the
+WFS-versus-self-ship question is the follow-up once Walmart wins.
+`to-where-to-sell.test.mjs` decodes every link through that page's own
+decoder, so a change to its payload shape fails a test here.

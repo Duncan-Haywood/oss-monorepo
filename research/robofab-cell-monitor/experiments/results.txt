@@ -1,0 +1,41 @@
+Types: A prints 20 min, B 60 min (equal mix); load/unload 2 min each; inspect 3 min; no inspection rejects.
+Failure rate 0.3 per printing hour unless stated (A fails 9.5%, B 25.9%). cv 0.3, wip = printers + 2,
+horizon 48 h, warm-up 4 h, 40 seeds. Each simulated value is followed by its standard error (good parts per hour).
+
+1. Printer count: blind printing against a camera that aborts 10 min after a failure
+P  blind_bound limit      blind sim  se  cam_bound limit      cam sim  se   gain_pct
+ 2     2.13 printers      2.09 0.03     2.29 printers      2.30 0.03     10.2
+ 4     4.25 printers      4.22 0.04     4.58 printers      4.50 0.04      6.7
+ 6     6.38 printers      6.13 0.05     6.87 printers      6.64 0.05      8.4
+ 8     8.50 printers      7.93 0.05     9.15 printers      8.54 0.05      7.7
+10    10.63 printers      9.59 0.06    11.44 printers     10.19 0.05      6.2
+12    12.22 arm          10.87 0.05    12.22 arm          11.36 0.04      4.5
+16    12.22 arm          12.08 0.05    12.22 arm          12.18 0.05      0.8
+
+2. Detection delay at P=6 (delay 'inf' = blind)
+delay_min  bound  sim  se  wasted_share
+        0   7.14   6.82 0.04 0.114
+        5   6.99   6.72 0.04 0.126
+       10   6.87   6.64 0.05 0.140
+       20   6.68   6.46 0.04 0.165
+       40   6.45   6.33 0.03 0.186
+       80   6.38   6.16 0.06 0.205
+      inf   6.38   6.13 0.05 0.208
+
+3. Camera false stops at P=6, delay 10 min (per printing hour); blind sim shown for reference
+false_stop_per_h  bound  sim  se  mean_attempts
+blind   6.38   6.13 0.05 1.23
+            0.00   6.87   6.64 0.05 1.22
+            0.05   6.71   6.42 0.04 1.28
+            0.10   6.55   6.29 0.05 1.32
+            0.20   6.24   6.04 0.04 1.41
+            0.40   5.66   5.47 0.05 1.61
+            0.80   4.59   4.39 0.05 2.18
+
+4. Failure rate at P=6, delay 10 min, no false stops
+fail_rate_per_h  blind_sim  se  cam_sim  se  gain_pct
+            0.0   7.84 0.04   7.84 0.04      0.0
+            0.1   7.22 0.04   7.43 0.03      2.8
+            0.3   6.13 0.05   6.64 0.05      8.4
+            0.6   4.80 0.05   5.57 0.05     16.0
+            1.0   3.43 0.05   4.41 0.03     28.4

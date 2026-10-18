@@ -398,3 +398,14 @@ test("gap notices name the uncovered date ranges", () => {
   const noHome = analyze({ ...spec, homeState: null }).notices.find((x) => x.includes("not in any stay"));
   assert.ok(noHome.includes("Uncovered: 2026-01-01 to 2026-02-28"), noHome);
 });
+
+test("a home state that is not a two-letter code is ignored, so it never becomes a row of its own", () => {
+  const r = analyze(spec(["2025-03-01 to 2025-03-10 NY"], { homeState: "florida" }));
+  assert.deepEqual(r.states.map((s) => s.code), ["NY"]);
+});
+
+test("no 'may claim wages' notice when every workday was already spent in the employer's state", () => {
+  const r = analyze(spec(["2025-06-02 to 2025-06-06 NY"], { wages: 1000, employerState: "NY" }));
+  assert.equal(r.employer.remoteDays, 0);
+  assert.ok(!r.notices.some((n) => /may claim wages/.test(n)));
+});
