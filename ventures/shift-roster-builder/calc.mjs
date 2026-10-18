@@ -142,6 +142,7 @@ const AVOID_CELL = /^(avoid|rather[ -]?not)\s*:/i;
 // "prefer: Sat; Fri 5pm-close" = the mirror image: hours the person would like. Each hour worked inside them earns a small
 // bonus in the search, so they are used first among otherwise equal choices, and never at the cost of a shift left open.
 const PREFER_CELL = /^(prefer|would[ -]?like|extra[ -]?hours)\s*:/i;
+const TOUGH_CELL = /^(tough|recent[ -]?tough)\s*:/i;
 function parseAvoid(text, label = "avoid") {
   const errors = [], avoid = Array.from({ length: 7 }, () => []);
   for (const tok of String(text).split(/;|\|/)) {
@@ -251,7 +252,13 @@ export function parseStaff(text, { weekStart = null } = {}) {
       maxDaily = Number(dailyCell.replace(DAILY_CELL, "").replace(/h(ours?)?$/i, "").trim());
       if (!Number.isFinite(maxDaily) || maxDaily <= 0) { errors.push(`${where} (${c[0]}): could not read "${dailyCell}"; write it like "daily: 8" (most hours in one day)`); maxDaily = 0; }
     }
-    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x);
+    let toughBefore = 0;
+    const toughCell = tail.find((x) => TOUGH_CELL.test(x));
+    if (toughCell) {
+      toughBefore = Number(toughCell.replace(TOUGH_CELL, "").trim());
+      if (!Number.isFinite(toughBefore) || toughBefore < 0) { errors.push(`${where} (${c[0]}): could not read "${toughCell}"; write it like "tough: 3" (weekend, closing and opening shifts worked recently)`); toughBefore = 0; }
+    }
+    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x);
     const avoidCells = tail.filter((x) => AVOID_CELL.test(x));
     const av2 = parseAvoid(avoidCells.map((x) => x.replace(AVOID_CELL, "")).join(";"));
     av2.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
@@ -263,7 +270,7 @@ export function parseStaff(text, { weekStart = null } = {}) {
     for (const cell of tail.filter((x) => OFF_CELL.test(x))) {
       applyTimeOff(av.days, cell.replace(OFF_CELL, ""), weekStart, notes).forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     }
-    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null });
+    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
@@ -469,17 +476,19 @@ function softPenalty(ctx, p, h, list) {
   const { o, staff, target, avgWage } = ctx;
   const short = Math.max(0, staff[p].minHours - h) * o.shortfallValue;
   const fair = (o.balance / 100) * avgWage * 0.1 * (h - target[p]) ** 2;
-  return short + fair + toughPenalty(ctx, list) + avoidPenalty(ctx, p, list) - preferBonus(ctx, p, list);
+  return short + fair + toughPenalty(ctx, p, list) + avoidPenalty(ctx, p, list) - preferBonus(ctx, p, list);
 }
 // A weekend, closing (10pm or later, past midnight) or opening (6am or earlier) shift is "tough", as fairnessReport counts them.
 // With toughBalance > 0 the squared count per person is penalised, which spreads a fixed number of tough shifts evenly.
 const toughSlot = (s) => s.day >= 5 || s.endMin >= 22 * 60 || s.endMin <= s.startMin || s.startMin <= 6 * 60;
-function toughPenalty(ctx, list) {
+// A person's `tough:` cell is how many tough shifts they worked in recent weeks. Penalising (before + n)^2 minus the
+// constant before^2 leaves n^2 + 2*before*n, so each new tough shift costs more for someone who has had many lately.
+function toughPenalty(ctx, p, list) {
   const w = ctx.o.toughBalance;
   if (!(w > 0) || !list) return 0;
   let n = 0;
   for (const i of list) if (toughSlot(ctx.slots[i])) n++;
-  return (w / 100) * ctx.avgWage * n * n;
+  return (w / 100) * ctx.avgWage * (n * n + 2 * (ctx.staff[p].toughBefore || 0) * n);
 }
 // Each hour inside a person's avoid: window costs avoidValue x their wage, so a real saving or an otherwise-open shift outweighs it.
 function avoidPenalty(ctx, p, list) {
@@ -1069,8 +1078,21 @@ export function scheduleChanges(postedCsv, revisedCsv, { changedAt = null, notic
 }
 
 // Sets "prev:" on every staff line whose person worked last week, replacing any old one. Other lines are untouched.
+// Tough shifts (weekend, closing, opening: the same test as the search and fairnessReport) per person in a roster CSV.
+export function toughCounts(csv) {
+  const counts = new Map();
+  for (const sh of parseRosterCsv(csv)) {
+    const startMin = sh.start - sh.day * 1440, endMin = sh.end - sh.day * 1440;
+    const tough = sh.day >= 5 || endMin >= 22 * 60 || startMin <= 6 * 60;
+    const key = sh.person.toLowerCase();
+    counts.set(key, (counts.get(key) || 0) + (tough ? 1 : 0));
+  }
+  return counts;
+}
+
 export function carryOverStaff(staffText, lastWeekCsv) {
   const ends = lastShiftEnds(lastWeekCsv);
+  const tough = toughCounts(lastWeekCsv);
   let changed = 0;
   const out = String(staffText || "").split(/\r?\n/).map((raw) => {
     const line = raw.trim();
@@ -1082,6 +1104,12 @@ export function carryOverStaff(staffText, lastWeekCsv) {
     const kept = cells.filter((x) => !PREV_CELL.test(x));
     while (kept.length < 4) kept.push(""); // prev: sits after wage, max, min; blank cells take the defaults
     kept.push(`prev: ${DAYS[day]} ${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")}`);
+    // Rolling tally: last week's tough shifts plus half of what was already recorded, so old weeks fade.
+    const oldTough = kept.find((x) => TOUGH_CELL.test(x));
+    const rolled = Math.round(((oldTough ? Number(oldTough.replace(TOUGH_CELL, "")) || 0 : 0) * 0.5 + (tough.get(e.name.toLowerCase()) || 0)) * 10) / 10;
+    const rest = kept.filter((x) => !TOUGH_CELL.test(x));
+    if (rolled > 0) rest.push(`tough: ${rolled}`);
+    kept.length = 0; kept.push(...rest);
     changed++;
     return kept.join(line.includes("\t") ? "\t" : ", ");
   });
@@ -1120,6 +1148,23 @@ export function dailyLabor(r, staff, salesText = "") {
   const withSales = days.filter((d) => d.pct !== null);
   const worst = withSales.length ? withSales.reduce((a, b) => (b.pct > a.pct ? b : a)) : null;
   return { days, worst, hasSales: withSales.length > 0 };
+}
+
+// Sales per labor hour by day: the figure restaurants and shops staff to. With each day's sales (as in dailyLabor) and a
+// target sales per labor hour, `needHours` is the hours that day's sales call for and `gap` is scheduled minus needed
+// (positive = more hours than the target asks for). Days without sales are listed with nulls. Returns null when the
+// target is not a positive number or no day has sales.
+export function salesPerLaborHour(r, staff, salesText, target) {
+  const t = Number(target);
+  if (!(t > 0)) return null;
+  const dl = dailyLabor(r, staff, salesText);
+  if (!dl.hasSales) return null;
+  const days = dl.days.map((d) => d.sales
+    ? { day: d.day, hours: d.hours, sales: d.sales, splh: d.hours > 0 ? d.sales / d.hours : null, needHours: d.sales / t, gap: d.hours - d.sales / t }
+    : { day: d.day, hours: d.hours, sales: null, splh: null, needHours: null, gap: null });
+  const known = days.filter((d) => d.gap !== null);
+  const over = known.filter((d) => d.gap > 0.5), under = known.filter((d) => d.gap < -0.5);
+  return { target: t, days, over, under, totalGap: known.reduce((a, d) => a + d.gap, 0) };
 }
 
 // Headcount per hour for each day of the roster, so thin and heavy hours show at a glance. A shift counts on the day it
@@ -1356,7 +1401,7 @@ export function parseAvailabilityReply(line) {
 export function mergeAvailabilityReplies(staffText, repliesText) {
   const lines = String(staffText || "").split(/\r?\n/);
   const errors = [], updated = [], added = [];
-  const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x);
+  const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x);
   const rowOf = (name) => lines.findIndex((l) => { const t = l.trim(); return t && !t.startsWith("#") && splitLine(t)[0].toLowerCase() === name.toLowerCase(); });
   for (const raw of String(repliesText || "").split(/\r?\n/)) {
     if (!raw.trim() || raw.trim().startsWith("#")) continue;

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placeBreaks, laborPercent, dailyLabor, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
+import { placeBreaks, laborPercent, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -1049,4 +1049,51 @@ test("a high balance setting never costs coverage on the sample week", () => {
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
   const base = buildRoster(staff, slots, { balance: 0 }).unfilledHours;
   for (const balance of [25, 50, 75, 100]) assert.equal(buildRoster(staff, slots, { balance }).unfilledHours, base, `balance ${balance}`);
+});
+
+test("tough: history makes the search hand this week's closes to the person who has had fewest lately", async () => {
+  const { parseStaff, parseShifts, buildRoster, carryOverStaff, toughCounts } = await import("./calc.mjs");
+  const st = parseStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any, tough: 4\nBen, 15, 40, 0, any, tough: 0");
+  assert.deepEqual(st.errors, []);
+  assert.equal(st.staff[0].toughBefore, 4);
+  assert.equal(st.staff[1].toughBefore, 0);
+  assert.equal(st.staff[0].days.length > 0, true);
+  const sh = parseShifts("Mon-Thu, 5pm, 11pm, 1, close");
+  const r = buildRoster(st.staff, sh.slots, { toughBalance: 100, balance: 0 });
+  const by = (n) => r.assignments.filter((a) => a.person === n).length;
+  assert.equal(by("Ana") + by("Ben"), 4);
+  assert.ok(by("Ben") > by("Ana"), `Ben ${by("Ben")} vs Ana ${by("Ana")}`);
+  // Without history the same week splits evenly.
+  const even = parseStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any\nBen, 15, 40, 0, any");
+  const r2 = buildRoster(even.staff, sh.slots, { toughBalance: 100, balance: 0 });
+  assert.equal(r2.assignments.filter((a) => a.person === "Ana").length, 2);
+  // A bad cell is reported.
+  assert.match(parseStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any, tough: lots").errors[0], /tough: 3/);
+  // Carry over: counts last week's tough shifts and halves the old tally.
+  const csv = ["day,start,end,hours,label,assigned_to,role", "Sat,9am,5pm,8.00,,Ana,", "Mon,5pm,11pm,6.00,,Ana,", "Tue,9am,5pm,8.00,,Ana,", "Tue,9am,5pm,8.00,,Ben,"].join("\n");
+  assert.equal(toughCounts(csv).get("ana"), 2);
+  assert.equal(toughCounts(csv).get("ben"), 0);
+  const c = carryOverStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any, tough: 4\nBen, 15, 40, 0, any, tough: 2", csv);
+  const next = parseStaff(c.text);
+  assert.deepEqual(next.errors, []);
+  assert.equal(next.staff[0].toughBefore, 4); // 4 * 0.5 + 2
+  assert.equal(next.staff[1].toughBefore, 1); // 2 * 0.5 + 0
+});
+
+test("salesPerLaborHour: hours each day's sales call for against hours scheduled", () => {
+  const staff = staffOf("Ann,10,40,0,any");
+  const slots = slotsOf("Mon,8,12,1\nMon,13,17,1\nWed,9,13,1");
+  const r = buildRoster(staff, slots, { minRestHours: 0 });
+  const g = salesPerLaborHour(r, staff, "$400, 0, 100", 50);
+  assert.equal(g.days[0].splh, 50);
+  assert.equal(g.days[0].needHours, 8);
+  assert.equal(g.days[0].gap, 0);
+  assert.equal(g.days[1].gap, null);
+  assert.equal(g.days[2].needHours, 2);
+  assert.equal(g.days[2].gap, 2);
+  assert.deepEqual(g.over.map((d) => d.day), ["Wed"]);
+  assert.deepEqual(g.under, []);
+  assert.equal(salesPerLaborHour(r, staff, "", 50), null);
+  assert.equal(salesPerLaborHour(r, staff, "400", 0), null);
+  assert.deepEqual(salesPerLaborHour(r, staff, "800", 50).under.map((d) => d.day), ["Mon"]);
 });
