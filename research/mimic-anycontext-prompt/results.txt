@@ -1,0 +1,20 @@
+mimic-anycontext-prompt: prompted Qwen2.5-0.5B-Instruct detector, single-text mode, AUROC of ranking human above LLM text
+(below 0.5 = the detector calls LLM text more human than human text). 16 candidate prompts, 8 families, 30+30 test texts each.
+mean over families (held-out = prompt picked on the other 6 families' opt texts):
+  plain              0.278
+  universal_heldout  0.293
+  universal_seen     0.304
+  per_family         0.311
+  random_prompt      0.291
+  oracle             0.334
+per family (held-out): family plain universal per_family oracle
+  abstracts  0.313 0.323 0.313 0.338
+  books      0.292 0.280 0.277 0.307
+  news       0.309 0.313 0.327 0.359
+  poetry     0.241 0.264 0.282 0.299
+  recipes    0.088 0.089 0.186 0.186
+  reddit     0.332 0.403 0.356 0.403
+  reviews    0.314 0.349 0.414 0.424
+  wiki       0.330 0.319 0.330 0.354
+candidate mean test AUROC: min 0.271 max 0.314
+
