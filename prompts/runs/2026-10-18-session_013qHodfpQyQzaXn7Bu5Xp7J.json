@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_013qHodfpQyQzaXn7Bu5Xp7J",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T18:37:44Z",
+  "ended": "2026-10-18T18:40:26Z",
+  "wall_minutes": 2.8,
+  "tokens_in": 1302197,
+  "tokens_out": 10458,
+  "cost_usd": 0.6334,
+  "tool_calls": 18,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "Near-copy command lists suffix counts but the allocate.py Consolidate tasks point the opposite way; had to choose by judgment."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Deepened event-seating-chart-optimizer with a self-hosted find-your-table server (guest lookup page, admin, Docker/Fly/Render). Near-copy check showed 6 calculators in newest 15, so no new calculator.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c439ed12-623b-5420-bd5d-b2b8059608b1",
+    "transcripts": 1,
+    "first": "2026-10-18T18:37:44Z",
+    "last": "2026-10-18T18:40:32Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 16,
+        "input": 32,
+        "output": 10458,
+        "thinking": 866,
+        "cache_read": 1231543,
+        "cache_write_5m": 0,
+        "cache_write_1h": 70622,
+        "api_equivalent_usd": 0.6334,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 16,
+      "input": 32,
+      "output": 10458,
+      "thinking": 866,
+      "cache_read": 1231543,
+      "cache_write_5m": 0,
+      "cache_write_1h": 70622,
+      "api_equivalent_usd": 0.6334,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.946,
+    "tool_calls": 18,
+    "tools": {
+      "Bash": 14,
+      "Read": 2,
+      "bash": 1,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.8,
+      "active_minutes": 2.8,
+      "model_minutes": 1.3,
+      "tool_minutes": 1.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "server, tests, deploy files, README by a developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 631.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
