@@ -36,7 +36,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/page-seo-audit/"/>
     <id>tag:marisstella.dev,2026:tool/page-seo-audit</id>
     <updated>2026-10-18T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a page&#39;s HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.</summary>
   </entry>
   <entry>
@@ -60,7 +60,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/youth-lineup-rotator/"/>
     <id>tag:marisstella.dev,2026:tool/youth-lineup-rotator</id>
     <updated>2026-10-18T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free youth sports lineup generator for volunteer coaches. Equal playing time, nobody benched twice in a row, goalkeeper turns shared, subs planned per period. Soccer, basketball, hockey and more. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -84,7 +84,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/jwt-security-check/"/>
     <id>tag:marisstella.dev,2026:tool/jwt-security-check</id>
     <updated>2026-10-17T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a JWT and get its header and payload decoded, plus every common security misconfiguration flagged: alg:none, embedded jwk/jku/x5u/x5c key material, symmetric-vs-asymmetric algorithm confusion, a kid header shaped like path traversal or SQL injection, missing/excessive exp, and sensitive-looking fields in the unencrypted payload. Free JWT decoder and security checker, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
