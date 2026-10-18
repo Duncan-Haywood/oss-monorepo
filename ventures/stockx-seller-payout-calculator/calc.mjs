@@ -141,6 +141,26 @@ export function calculate(input) {
 }
 
 /**
+ * The lowest sale price that still leaves `targetMarginPct` of itself as net
+ * profit. Fees scale with price and shipping/supplies do not, so the answer is
+ * (cost + flat costs) / (1 - fee% - processing% - margin%). With a margin of 0
+ * this is the break-even ask: any sale below it loses money. Returns null when
+ * the percentage take alone is 100% or more, because no price clears it.
+ */
+export function minimumSalePrice(input, targetMarginPct = 0) {
+  const itemCostBasis = number(input.itemCostBasis, 'Item cost basis');
+  const sellerFeePct = number(input.sellerFeePct, 'Seller fee percentage', { max: 100 });
+  const fastShippingDiscountPct = number(input.fastShippingDiscountPct, 'Fast Shipping discount percentage', { max: 100 });
+  const paymentProcessingFeePct = number(input.paymentProcessingFeePct, 'Payment processing fee percentage', { max: 100 });
+  const shippingCost = number(input.shippingCost, 'Shipping cost');
+  const otherCost = number(input.otherCost ?? 0, 'Other per-sale costs');
+  const margin = number(targetMarginPct, 'Target margin percentage', { max: 100, exclusiveMax: true });
+  const feePct = Math.max(0, sellerFeePct - fastShippingDiscountPct) + paymentProcessingFeePct + margin;
+  if (feePct >= 100) return null;
+  return (itemCostBasis + shippingCost + otherCost) / (1 - feePct / 100);
+}
+
+/**
  * Roll a list of sales' net profit up into total profit for the month.
  * @param {{netProfit: number}[]} sales
  */
