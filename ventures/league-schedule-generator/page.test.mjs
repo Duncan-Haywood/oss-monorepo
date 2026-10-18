@@ -353,3 +353,25 @@ test("play-off race table has a copy button wired to raceText", () => {
   assert.match(html, /import \{[^}]*\braceText\b[^}]*\} from "\.\/calc\.mjs"/);
   assert.match(html, /raceText\(last\.race\.rows, last\.race\.spots\)/);
 });
+
+test("the tie-break guide's worked example matches standings and is linked and in the sitemap", async () => {
+  const { standings, parseResults } = await import("./calc.mjs");
+  const name = "how-to-break-ties-in-league-standings.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-break-ties-in-league-standings\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const T = ["Owls", "Lynx", "Hawks", "Otters"];
+  const games = [["Owls", 0, 1, "Lynx"], ["Owls", 6, 0, "Hawks"], ["Owls", 1, 0, "Otters"], ["Lynx", 0, 1, "Hawks"], ["Lynx", 1, 0, "Otters"], ["Hawks", 0, 0, "Otters"]];
+  for (const [a, x, y, b] of games) assert.ok(html.includes(`<tr><td>${a} v ${b}</td><td>${x} - ${y}</td></tr>`), `${a} v ${b}`);
+  const { results } = parseResults(games.map(([a, x, y, b]) => `${a} ${x} - ${y} ${b}`).join("\n"), T);
+  const plain = standings(T, results).map((r) => r.name);
+  const h2h = standings(T, results, { headToHead: true }).map((r) => r.name);
+  assert.deepEqual(plain, ["Owls", "Lynx", "Hawks", "Otters"]);
+  assert.deepEqual(h2h, ["Lynx", "Owls", "Hawks", "Otters"]);
+  plain.forEach((n, i) => assert.ok(html.includes(`<tr><td>${i + 1}</td><td>${plain[i]}</td><td>${h2h[i]}</td></tr>`), n));
+  assert.match(page("sitemap.xml"), /how-to-break-ties-in-league-standings\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-break-ties-in-league-standings\.html"/);
+});
