@@ -1257,3 +1257,16 @@ test("age: 15 applies the federal youth-hour limits as hard rules", () => {
   assert.equal(parseStaff("Name, Wage\nTy, 12, , , age: 12").errors.length, 1);
   assert.equal(parseStaff("Name, Wage\nTy, 12, , , age: old").errors.length, 1);
 });
+
+import { parseTimeOffRequest, addTimeOff } from "./calc.mjs";
+test("parseTimeOffRequest and addTimeOff build an off: entry", () => {
+  assert.deepEqual(parseTimeOffRequest("2026-11-04"), { entry: "2026-11-04" });
+  assert.deepEqual(parseTimeOffRequest("2026-11-04", "2026-11-06"), { entry: "2026-11-04..2026-11-06" });
+  for (const bad of [["2026-13-40"], ["2026-02-30"], ["tomorrow"], ["2026-11-06", "2026-11-04"], ["2026-01-01", "2026-06-01"]]) assert.ok(parseTimeOffRequest(...bad).error, bad.join());
+  const staff = "name, wage, max hours, min hours, availability\nAna, 20, 40, 0, any\nBen, 20, 40, 0, any, off: Fri";
+  assert.match(addTimeOff(staff, "ana", "2026-11-04").text, /Ana, 20, 40, 0, any, off: 2026-11-04$/m);
+  const b = addTimeOff(staff, "Ben", "2026-11-04").text;
+  assert.match(b, /Ben, 20, 40, 0, any, off: Fri; 2026-11-04$/m);
+  assert.equal(addTimeOff(b, "Ben", "2026-11-04").text, b);
+  assert.ok(addTimeOff(staff, "Zed", "2026-11-04").error);
+});
