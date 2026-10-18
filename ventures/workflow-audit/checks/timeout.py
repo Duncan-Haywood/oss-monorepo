@@ -4,6 +4,7 @@ for the 360-minute default and bill every minute of it.
 
     python3 check.py                       # scan .github/workflows under .
     python3 check.py /path/to/repo         # scan a specific checkout
+    python3 check.py ci.yml                # scan one workflow file
     python3 check.py --format json         # machine-readable
     python3 check.py --fail-on-risk        # exit 2 if any finding exists
 
@@ -210,7 +211,12 @@ def scan_text(text, filename="<workflow>"):
 
 
 def discover_workflow_files(root):
-    """`.github/workflows/*.yml` and `*.yaml` under root, sorted for stable output."""
+    """`.github/workflows/*.yml` and `*.yaml` under root, sorted for stable output.
+
+    A path to a single `.yml`/`.yaml` file scans just that file.
+    """
+    if Path(root).is_file() and Path(root).suffix in (".yml", ".yaml"):
+        return [Path(root)]
     workflows_dir = Path(root) / ".github" / "workflows"
     if not workflows_dir.is_dir():
         return []
@@ -263,7 +269,7 @@ def render_text(findings, root):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
-        "path", nargs="?", default=".", help="directory to scan (default: current directory)"
+        "path", nargs="?", default=".", help="repo directory, or one workflow .yml/.yaml file (default: current directory)"
     )
     parser.add_argument(
         "--format", choices=("text", "json"), default="text", help="output format"

@@ -30,6 +30,26 @@ Scanning. Nothing is uploaded and it makes no network calls.
 
 CLI: `python3 audit.py [path] [--format text|json|markdown|sarif] [--fail-on high]`.
 
+## Adopt it on a repo that already has findings
+
+A gate that fails on day one gets deleted on day two. Accept what exists, fail on what is new:
+
+```
+python3 audit.py --write-baseline .workflow-audit-baseline.json   # commit the file
+```
+```yaml
+- uses: Duncan-Haywood/oss-monorepo/ventures/workflow-audit@main
+  with: { fail-on: medium, baseline: .workflow-audit-baseline.json }
+```
+
+Baseline entries match on file, rule, job and the offending line's text, not its line number, so
+editing above a finding does not bring it back. A second copy of an accepted line is new and is
+reported. A missing or unreadable baseline is an error, never a silent pass. To silence one finding
+for a stated reason, comment its line or the line above:
+`# workflow-audit: ignore[unpinned-third-party-action]` (or a bare `# workflow-audit: ignore`).
+Reports say how many findings were suppressed. On this monorepo the scan finds 1,182; the baseline
+is what makes `fail-on` usable there.
+
 ## What it runs
 
 Vendored copies, in `checks/`, of the sibling ventures `actions-injection-check`,
