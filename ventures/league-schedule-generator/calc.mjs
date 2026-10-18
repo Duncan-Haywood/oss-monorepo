@@ -1431,6 +1431,38 @@ export function streakOf(form) {
 }
 
 /**
+ * Season highlights from typed results: the biggest win, the highest-scoring match, the best attack and the
+ * best defence (goals per game, teams with at least one game). Walkovers are left out of the match records
+ * because their score is a rule, not a game. Returns null when no game has been played.
+ */
+export function seasonRecords(teams, results) {
+  const games = results.filter((r) => !r.walkover);
+  if (!games.length) return null;
+  const biggest = games.reduce((m, r) => (Math.abs(r.ga - r.gb) > Math.abs(m.ga - m.gb) ? r : m));
+  const highest = games.reduce((m, r) => (r.ga + r.gb > m.ga + m.gb ? r : m));
+  const tally = teams.map(() => ({ gf: 0, ga: 0, n: 0 }));
+  for (const r of results) {
+    tally[r.a].gf += r.ga; tally[r.a].ga += r.gb; tally[r.a].n++;
+    tally[r.b].gf += r.gb; tally[r.b].ga += r.ga; tally[r.b].n++;
+  }
+  const pick = (key, dir) => {
+    let best = -1;
+    tally.forEach((t, i) => {
+      if (!t.n) return;
+      if (best < 0 || dir * (t[key] / t.n - tally[best][key] / tally[best].n) < 0) best = i;
+    });
+    return best < 0 ? null : { team: teams[best], perGame: tally[best][key] / tally[best].n };
+  };
+  const line = (r) => `${teams[r.a]} ${r.ga}-${r.gb} ${teams[r.b]}`;
+  return {
+    biggestWin: biggest.ga === biggest.gb ? null : line(biggest),
+    highestScoring: line(highest),
+    bestAttack: pick("gf", -1),
+    bestDefence: pick("ga", 1),
+  };
+}
+
+/**
  * Results grid in table order: one row per team, one column per opponent, each cell the score from the row
  * team's side ("3-2"), several meetings joined with ", ", "" where the pair has not met and "·" on the diagonal.
  * `order` is a list of team indexes (default: entry order), e.g. the standings order.

@@ -1386,6 +1386,20 @@ test("the points system survives a share link", () => {
   assert.equal(decodeFields(encodeFields(f)).scoring, "2-1-0");
 });
 
+test("seasonRecords: biggest win, highest-scoring game, best attack and defence; walkovers and all-draw seasons handled", async () => {
+  const { seasonRecords } = await import("./calc.mjs");
+  const teams = ["A", "B", "C"];
+  assert.equal(seasonRecords(teams, []), null);
+  const r = seasonRecords(teams, [{ a: 0, b: 1, ga: 4, gb: 0 }, { a: 1, b: 2, ga: 2, gb: 3 }, { a: 2, b: 0, ga: 3, gb: 0, walkover: true }]);
+  assert.equal(r.biggestWin, "A 4-0 B");
+  assert.equal(r.highestScoring, "B 2-3 C");
+  assert.equal(r.bestAttack.team, "C");
+  assert.equal(r.bestAttack.perGame, 3);
+  assert.equal(r.bestDefence.team, "C");
+  assert.equal(r.bestDefence.perGame, 1);
+  assert.equal(seasonRecords(teams, [{ a: 0, b: 1, ga: 1, gb: 1 }]).biggestWin, null);
+});
+
 test("resultsCheck flags a duplicated result line and a pair that never meets", () => {
   const s = buildSchedule(baseSpec(4));
   const { results } = parseResults("Team 1 2 - 1 Team 2\nTeam 1 2 - 1 Team 2\nTeam 3 0 - 0 Team 4", s.teams);
