@@ -1,6 +1,7 @@
 name: tcgplayer-fee-calculator
 description: A private browser calculator for TCGplayer sellers that prices one marketplace order against the published fee table (10.75% commission on cards plus buyer-paid shipping capped at $75 per product, plus 2.5% of the order total including tax and a flat $0.30 per order), shows profit after postage, card cost and supplies, solves for the card price that hits a target profit, and shows Pro and pre-February-2026 rates side by side. Makes the per-order $0.30 visible by taking a quantity, which is what decides the margin on cheap singles.
 stage: prototype
+consolidated_into: marketplace-fee-compare
 owner: duncan
 
 hypotheses:

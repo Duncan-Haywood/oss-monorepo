@@ -1,6 +1,7 @@
 name: reverb-fee-calculator
 description: A private browser calculator for Reverb sellers to see cash at list, cash on a buyer offer, whether that offer still beats the same sale on eBay, whether Reverb Safe Shipping still beats an own label after expected claims, and whether a shop consignment cut or cash offer still beats listing it themselves.
 stage: prototype
+consolidated_into: marketplace-fee-compare
 owner: duncan
 hypotheses:
   - claim: Musicians and gear sellers will return to a fast offer-versus-list calculator because Reverb inboxes fill with lowballs and the 5% marketplace fee hides the cash they leave on the table.
