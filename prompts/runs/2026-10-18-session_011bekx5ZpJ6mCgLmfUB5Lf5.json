@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_011bekx5ZpJ6mCgLmfUB5Lf5",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo to develop, deploy, market, sell revenue-generating software; merge when done",
+  "input_sha256": "76f17a7150088cdd7e45d5365e138ba301f49873f4fe175c1c987f2dbd59ed72",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T22:02:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder: open-shift pick-up requests in the self-hosted server",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "8177",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Ventures I screened for new niches (nexus, SPF, menu engineering, review replies, job tracker) all already existed; the gate's empty build-now queue sends you to deepening, which took several tool calls to discover."
+    },
+    {
+      "file": "AGENTS.md",
+      "issue": "Running platform/marketing/regen.mjs after a README-only change rewrote ~dozens of unrelated front-door files; the 'run before you push' rule should say it applies to page changes only."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "The router drew the process track, but the standing brief was to build revenue products and the process backlog had only owner rows, so I shipped a venture feature instead and recorded it under the routed track."
+    }
+  ],
+  "goal": null,
+  "notes": "Open shifts exist because nobody was eligible, so the check rarely says 'fits'; added a manager-owned 'Approve anyway' showing the broken rule. Fit branch of claimRows is not covered by a test. Pages snapshot refresh attempted after merge.",
+  "corrections": [],
+  "redteam": null
+}
