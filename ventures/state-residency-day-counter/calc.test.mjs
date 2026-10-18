@@ -469,3 +469,11 @@ test("the other counting convention is shown and flagged when it flips a result"
   const far = analyze({ year: 2026, stays: [{ state: "NY", start: toDay(2026, 1, 1), end: toDay(2026, 2, 1) }], abode: { NY: true } });
   assert.ok(!far.notices.some((n) => /decides whether/.test(n)));
 });
+
+test("Iowa and DC day tests", () => {
+  assert.equal(RULES.IA.limit, 183);
+  assert.equal(RULES.IA.requiresAbode, true);
+  assert.equal(RULES.DC.limit, 182);
+  assert.equal(RULES.DC.requiresAbode, true);
+  assert.equal(RULES.DC.kind, "statutory");
+});
