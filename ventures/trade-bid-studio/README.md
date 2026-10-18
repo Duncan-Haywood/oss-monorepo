@@ -14,6 +14,22 @@ It is also the single front door to the portfolio's 121 trade-specific
 "consolidate" step from `docs/reports/2026-10-16-calculator-glut.md`: one
 discoverable product instead of 121 separate pages, with every old URL kept.
 
+## Hand the customer a proposal
+
+Below the bid, "Hand the customer a proposal" prints (or saves as a PDF) a
+one-page proposal: your business details, the customer's, a scope drafted from
+the takeoff lines (work and quantities only, edit freely), the price, a deposit
+split, a price-held-until date and a signature line. It quotes the calculated
+price, or the figure you type in "Quote this price instead" when you round a
+bid. Printing sends the proposal and nothing else, so crew hours, wages, burden
+and margin never reach the customer's copy. Your business details stay in this
+browser; the customer's are never saved. It contains no warranty, lien or
+cancellation wording, only text you typed. The layout is the shared
+[`platform/proposal/proposal.mjs`](../../platform/proposal/README.md) (copied
+here, kept in step by that module's sync test); [`quote.mjs`](quote.mjs) holds
+the two studio-specific rules (draft scope, which price is quoted) and
+[`quote.test.mjs`](quote.test.mjs) checks them.
+
 ## Start from your trade
 
 Pick a trade and the studio fills in a **line-item takeoff** for that trade:
