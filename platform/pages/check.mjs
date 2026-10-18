@@ -1323,7 +1323,7 @@ const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basenam
 if (invokedDirectly) {
   const positional = process.argv.slice(2).find((a) => !a.startsWith('--'));
   const flag = process.argv.find((a) => a.startsWith('--dist='))?.slice('--dist='.length);
-  const site = path.resolve(flag ?? positional ?? 'dist');
+  const site = path.resolve(flag ?? positional ?? fileURLToPath(new URL('./dist', import.meta.url)));
 
   // Deliberately well below the ~38 products on `main`, so a venture landing
   // does not require touching this number, while a collapse still fails.
