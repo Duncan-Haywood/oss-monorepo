@@ -72,3 +72,9 @@ test("strips the leading # so a raw location.hash decodes the same as a bare fra
   const encoded = encodeShare({ price: "55" }, {});
   assert.deepEqual(decodeShare(`#${encoded}`), decodeShare(encoded));
 });
+
+test("advertising rates round-trip and unknown channels are dropped", () => {
+  const decoded = decodeShare(encodeShare({ price: "20" }, {}, { etsy: "15", bogus: "9" }));
+  assert.equal(decoded.adRates.etsy, "15");
+  assert.equal("bogus" in decoded.adRates, false);
+});
