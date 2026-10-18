@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Garage-wall line demand over capacity at 6 inch nailing by centred door width: 9 ft flexible 0.25, rigid 0.24; 12 ft flexible 0.30, rigid 0.27; 16 ft flexible 0.41, rigid 0.30; 20 ft flexible 0.67, rigid 0.28; 22 ft flexible 1.05, rigid 0.23">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Garage-wall line demand over capacity, centred door, 115 mph</text>
+<text x="320.0" y="40" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">Stylised toy stiffness (r = 1); 1.0 means 6 in nailing is just enough</text>
+<line x1="60" x2="620" y1="330.0" y2="330.0" stroke="#ddd"/>
+<text x="54" y="334.0" text-anchor="end" font-family="sans-serif" font-size="11">0.0</text>
+<line x1="60" x2="620" y1="286.7" y2="286.7" stroke="#ddd"/>
+<text x="54" y="290.7" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="60" x2="620" y1="243.3" y2="243.3" stroke="#ddd"/>
+<text x="54" y="247.3" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="60" x2="620" y1="200.0" y2="200.0" stroke="#ddd"/>
+<text x="54" y="204.0" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="60" x2="620" y1="156.7" y2="156.7" stroke="#ddd"/>
+<text x="54" y="160.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="60" x2="620" y1="113.3" y2="113.3" stroke="#c0392b"/>
+<text x="54" y="117.3" text-anchor="end" font-family="sans-serif" font-size="11">1.0</text>
+<text x="97.3" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">9</text>
+<text x="209.3" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="358.7" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="508.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="582.7" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">22</text>
+<text x="320.0" y="372" text-anchor="middle" font-family="sans-serif" font-size="11">garage door width, ft</text>
+<polyline points="97.3,275.8 209.3,265.0 358.7,241.2 508.0,184.8 582.7,102.5" fill="none" stroke="#b5651d" stroke-width="2.5"/>
+<text x="574.7" y="94.5" text-anchor="end" font-family="sans-serif" font-size="12" fill="#b5651d">flexible (half each)</text>
+<polyline points="97.3,278.0 209.3,271.5 358.7,265.0 508.0,269.3 582.7,280.2" fill="none" stroke="#2a6f97" stroke-width="2.5"/>
+<text x="574.7" y="296.2" text-anchor="end" font-family="sans-serif" font-size="12" fill="#2a6f97">rigid (stiffness split)</text>
+</svg>
