@@ -34,6 +34,8 @@ those lines separate and shows both nets on one page.
 
 **Break-even and sensitivity.** Under the offer comparison, the page states the most buyer-broker pay Offer A can ask before it nets less than Offer B (`breakEvenBuyerBrokerRate`, exact because net is linear in that rate) and a price × buyer-broker-rate grid of Offer A's net (`netGrid`), so "what does each half point cost" needs no re-typing.
 
+[Who pays transfer tax, state by state](transfer-tax-by-state.html) lists the statewide starting rates behind the calculator's state menu (`transfer-tax.mjs`).
+
 [Higher offer vs cleaner offer](offer-comparison.html) answers that search
 question directly, and
 [this calculator vs. Zillow's Home Sale Calculator](vs-zillows-home-sale-calculator.html)
