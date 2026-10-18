@@ -293,9 +293,16 @@ scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 dist="$scratch/dist"
 
-echo "Building the site..."
-( cd "$here" && node build.mjs --out="$dist" >/dev/null )
-say "built $(find "$dist" -type f | wc -l | tr -d ' ') files"
+echo "Building the site (takes minutes; a line prints every 30s while it runs)..."
+# The build prints nothing useful here, so a quiet minute looked like a hang.
+build_start=$SECONDS
+( while sleep 30; do say "...still building ($((SECONDS - build_start))s)"; done ) &
+heartbeat=$!
+build_rc=0
+( cd "$here" && node build.mjs --out="$dist" >/dev/null ) || build_rc=$?
+kill "$heartbeat" 2>/dev/null || true
+[ "$build_rc" -eq 0 ] || die "site build failed (exit $build_rc)"
+say "built $(find "$dist" -type f | wc -l | tr -d ' ') files in $((SECONDS - build_start))s"
 if [ -n "$cname" ]; then
   say "custom domain: $cname (base URL ${PAGES_BASE_URL})"
 else
