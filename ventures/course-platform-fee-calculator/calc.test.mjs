@@ -61,3 +61,19 @@ test("every preset is complete and the processor default is sane", () => {
   assert.equal(r.rows.length, PRESETS.length);
   assert.ok(r.rows[0].net >= r.rows[r.rows.length - 1].net);
 });
+
+test("extra creator-platform presets stay out of the first-load table but compare cleanly", () => {
+  const extra = PRESETS.filter((p) => p.listed === false);
+  assert.ok(extra.length >= 6);
+  assert.ok(PRESETS.filter((p) => p.listed !== false).length >= 6, "the original course platforms still load by default");
+  for (const id of ["lemon-squeezy", "paddle", "payhip-free", "kofi-free", "buymeacoffee", "patreon-standard", "stan-store"]) {
+    assert.ok(PRESETS.some((p) => p.id === id), id);
+  }
+  // A $20 sale on a 5% + $0.50 merchant of record nets $18.50 before refunds.
+  const ls = PRESETS.find((p) => p.id === "lemon-squeezy");
+  const r = compareCoursePlatforms({ price: 20, salesPerMonth: 1, refundRatePercent: 0, platforms: [ls, pct] });
+  assert.ok(Math.abs(r.rows.find((x) => x.name === "Lemon Squeezy").net - 18.5) < 1e-9);
+  // A flat plan overtakes a percentage cut at some volume.
+  const kofi = PRESETS.find((p) => p.id === "kofi-free"), gold = PRESETS.find((p) => p.id === "kofi-gold");
+  assert.ok(crossoverSales(kofi, gold, { price: 25 }) > 0);
+});
