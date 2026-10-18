@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, resultsCheck, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1384,6 +1384,19 @@ test("a 2-1-0 points system changes the table and the play-off race", async () =
 test("the points system survives a share link", () => {
   const f = { ...sampleFields(), scoring: "2-1-0" };
   assert.equal(decodeFields(encodeFields(f)).scoring, "2-1-0");
+});
+
+test("resultsCheck flags a duplicated result line and a pair that never meets", () => {
+  const s = buildSchedule(baseSpec(4));
+  const { results } = parseResults("Team 1 2 - 1 Team 2\nTeam 1 2 - 1 Team 2\nTeam 3 0 - 0 Team 4", s.teams);
+  const msgs = resultsCheck(s, results);
+  assert.equal(msgs.length, 1);
+  assert.match(msgs[0], /Team 1 and Team 2 meet once in the schedule but 2 results/);
+  assert.deepEqual(resultsCheck(s, results.slice(1)), []);
+  const dbl = buildSchedule(baseSpec(4, { double: true }));
+  assert.deepEqual(resultsCheck(dbl, results.slice(0, 2)), []);
+  const pools = { rounds: [{ matches: [{ home: 0, away: 1 }] }], teams: ["A", "B", "C"] };
+  assert.match(resultsCheck(pools, [{ a: 0, b: 2, ga: 1, gb: 0 }])[0], /A and C are not scheduled to meet/);
 });
 
 test("a late-joining team plays nothing before its first night and keeps every pairing", () => {

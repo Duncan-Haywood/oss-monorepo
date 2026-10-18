@@ -1588,6 +1588,28 @@ export function remainingFixtures(schedule, results) {
   return left;
 }
 
+/**
+ * Heads-ups about typed results that the schedule cannot account for: a pair entered more times than
+ * they meet (a duplicated line, which counts twice in the table), or a pair that is not scheduled to
+ * meet at all (a typo'd name, or a result from another pool). Returns an array of messages.
+ */
+export function resultsCheck(schedule, results) {
+  const key = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
+  const meets = new Map();
+  for (const round of schedule.rounds) for (const m of round.matches) meets.set(key(m.home, m.away), (meets.get(key(m.home, m.away)) ?? 0) + 1);
+  const seen = new Map();
+  for (const r of results) seen.set(key(r.a, r.b), (seen.get(key(r.a, r.b)) ?? 0) + 1);
+  const out = [];
+  for (const [k, n] of seen) {
+    const [a, b] = k.split("-").map(Number);
+    const names = `${schedule.teams[a]} and ${schedule.teams[b]}`;
+    const m = meets.get(k) ?? 0;
+    if (m === 0) out.push(`${names} are not scheduled to meet, but a result is typed for them; it still counts in the table.`);
+    else if (n > m) out.push(`${names} meet ${m === 1 ? "once" : m + " times"} in the schedule but ${n} results are typed; check for a duplicated line (every line counts in the table).`);
+  }
+  return out;
+}
+
 /** Games each team still has to play, from `remainingFixtures`: an array indexed by team. */
 export function gamesLeft(nTeams, remaining) {
   const left = new Array(nTeams).fill(0);
