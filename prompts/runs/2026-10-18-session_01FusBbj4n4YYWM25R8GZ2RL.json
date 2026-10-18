@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01FusBbj4n4YYWM25R8GZ2RL",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T14:08:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": 0,
+  "integrity_issues": 0,
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog had only owner rows again; Critique on doc_friction was enough."
+    },
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "issue": "Told sessions to run publish-branch.sh first, but it refuses a HEAD not on origin/main; fixed in this PR."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Process critique, no backlog ids touched. Reworded session_gate stale-snapshot message. pytest unavailable; assertion string unchanged, py_compile ok, promptctl validate and prompts unittest pass. runcost attach not run: no transcript path.",
+  "corrections": [],
+  "redteam": null
+}
