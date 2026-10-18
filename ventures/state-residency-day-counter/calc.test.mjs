@@ -537,3 +537,15 @@ test("Kentucky test needs an abode and crosses past 183 days", () => {
   assert.equal(RULES.KY.requiresAbode, true);
   assert.equal(RULES.KY.kind, "statutory");
 });
+
+test("Missouri and Colorado day tests need an abode", () => {
+  assert.equal(RULES.MO.limit, 183);
+  assert.equal(RULES.MO.requiresAbode, true);
+  assert.equal(RULES.CO.limit, 182);
+  assert.equal(RULES.CO.requiresAbode, true);
+  const sp = spec(["CO 2025-01-01 to 2025-07-02"], { abode: { CO: true }, homeState: "FL" }); // 183 days
+  assert.equal(by(analyze(sp), "CO").days, 183);
+  assert.equal(by(analyze(sp), "CO").status, "over");
+  const mo = spec(["MO 2025-01-01 to 2025-07-02"], { abode: { MO: true }, homeState: "FL" }); // 183 days
+  assert.notEqual(by(analyze(mo), "MO").status, "over");
+});
