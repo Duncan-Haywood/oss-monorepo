@@ -547,6 +547,44 @@ export function harvestPlan(openLots, prices, { asOf, summary = null, shortRate 
   };
 }
 
+function addDays(iso, n) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+
+// Wait-for-long-term view: lots you hold at a gain that are still short-term on `asOf` but
+// turn long-term within `windowDays`. A lot is long-term from the day after its first
+// anniversary (holdingTerm). For each: the first long-term sale date, days to wait, the
+// estimated tax saved by selling then instead of on `asOf` at the same price (against the
+// year's result in `summary`), and `breakEvenFall`, how far the lot's value can drop while
+// waiting before waiting leaves you with less cash after tax than selling now. Prices are
+// yours; fees, state tax and the year the sale lands in are not modelled.
+export function waitPlan(openLots, prices, { asOf, windowDays = 90, summary = null, shortRate = 0.24, longRate = 0.15 } = {}) {
+  const base = summary || { shortGain: 0, longGain: 0 };
+  const rates = { shortRate, longRate };
+  const unpriced = new Set();
+  const lots = [];
+  for (const l of openLots) {
+    const price = prices[l.asset];
+    if (!price) { unpriced.add(l.asset); continue; }
+    if (holdingTerm(l.acquired, asOf) !== "Short") continue;
+    const longFrom = addDays(addOneYear(l.acquired), 1);
+    const days = Math.round((Date.parse(longFrom) - Date.parse(asOf)) / 86400000);
+    if (days > windowDays) continue;
+    const value = cents(l.qty * price);
+    const gain = cents(value - l.basis);
+    if (gain <= 0) continue;
+    const taxNow = estimateTax({ shortGain: base.shortGain + gain, longGain: base.longGain }, rates) - estimateTax(base, rates);
+    const taxLater = estimateTax({ shortGain: base.shortGain, longGain: base.longGain + gain }, rates) - estimateTax(base, rates);
+    const taxSaved = cents(taxNow - taxLater);
+    if (taxSaved <= 0) continue;
+    const fall = cents(Math.max(0, gain * (shortRate - longRate) / (1 - longRate)));
+    lots.push({ asset: l.asset, wallet: l.wallet, acquired: l.acquired, qty: l.qty, basis: l.basis, value, gain, longFrom, days, taxSaved, breakEvenFall: fall, breakEvenFallPct: value > 0 ? Number((fall / value * 100).toFixed(1)) : 0 });
+  }
+  lots.sort((a, b) => a.days - b.days || b.taxSaved - a.taxSaved);
+  return { asOf, windowDays, lots, unpriced: [...unpriced].sort(), taxSaved: cents(lots.reduce((a, l) => a + l.taxSaved, 0)) };
+}
+
 // Sell planner: which of the lots you still hold to sell for `asset` at a price you typed,
 // under each method, and what each choice adds to the year's estimated tax. Give `qty`
 // (coins) or `cash` (dollars of proceeds wanted, before the fee). `summary` is the year's
