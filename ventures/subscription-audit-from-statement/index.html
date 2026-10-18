@@ -88,7 +88,8 @@
     <p class="note" id="skipped"></p>
     <label for="summary">Copyable summary</label>
     <textarea id="summary" readonly spellcheck="false"></textarea>
-    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download table as CSV</button></p>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download table as CSV</button> <button type="button" class="secondary" id="download-ics">Download renewal reminders (.ics)</button></p>
+    <p class="note">The calendar file puts each monthly, quarterly, six-monthly and yearly charge on its expected next date with a reminder three days before, so you can cancel in time. Dates are guesses from your statement.</p>
   </section>
 
   <section class="card">
@@ -134,7 +135,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeStatement, analyze, savings, reportCsv, summaryText, sampleCsv, isoDay, money } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeStatement, analyze, savings, reportCsv, summaryText, renewalsIcs, sampleCsv, isoDay, money } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -196,6 +197,14 @@
       a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
       a.download = "subscription-audit.csv";
       a.click();
+    });
+    $("#download-ics").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([renewalsIcs(last)], { type: "text/calendar" }));
+      a.download = "subscription-renewals.ics";
+      a.click();
+      record("renewals_ics_downloaded");
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }

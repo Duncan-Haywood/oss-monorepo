@@ -20,6 +20,8 @@ a subscription-manager app.
 **Column names are matched by alias and unverified against real bank exports.** Comma, semicolon and
 tab files, UTF-16, `$` signs, parentheses and thousands separators are read.
 
+- Renewal reminders: "Download renewal reminders (.ics)" writes one all-day calendar event per active monthly, quarterly, six-monthly or yearly charge on its expected next date, each with a reminder three days before so there is time to cancel (`renewalsIcs` in `calc.mjs`). The date is the last charge plus one cycle, a guess from the statement.
+
 ## Model
 
 Charges are grouped by a cleaned merchant name. A group is recurring when at least 60% of the gaps
