@@ -520,3 +520,55 @@ test("waitPlan: the anniversary day itself is still short-term; the next day cou
   assert.equal(w.lots[0].longFrom, "2026-10-17");
   assert.equal(w.lots[0].days, 1);
 });
+
+import { niit, NIIT_THRESHOLDS } from "./calc.mjs";
+
+test("niit: 3.8% of the smaller of investment income and the excess over the threshold", () => {
+  // $100k gain on top of $150k other income: MAGI 250k, 50k over 200k, NII 100k -> base 50k.
+  const n = niit(netCapital(0, 100000), { magi: 150000 });
+  assert.equal(n.over, 50000);
+  assert.equal(n.base, 50000);
+  assert.equal(n.tax, 1900);
+  assert.equal(n.fromCrypto, 1900);
+  // Far over the threshold: the investment income is the smaller figure.
+  const big = niit(netCapital(0, 100000), { magi: 500000 });
+  assert.equal(big.base, 100000);
+  assert.equal(big.tax, 3800);
+});
+
+test("niit: thresholds by filing status, nothing under the line, other investment income counts", () => {
+  assert.deepEqual(NIIT_THRESHOLDS, { single: 200000, hoh: 200000, mfj: 250000, qw: 250000, mfs: 125000 });
+  const g = netCapital(0, 40000);
+  assert.equal(niit(g, { magi: 150000, status: "single" }).tax, 0);      // 190k
+  assert.equal(niit(g, { magi: 150000, status: "mfs" }).tax, 1520); // 190k vs 125k: NII 40k < 65k excess
+  assert.equal(niit(g, { magi: 220000, status: "mfj" }).tax, 380);       // 260k, 10k over
+  // $30k of dividends already pushes a $230k earner over: crypto adds only its own share.
+  const d = niit(netCapital(0, 10000), { magi: 230000, otherNii: 30000 });
+  assert.equal(d.tax, cents2((Math.min(40000, 40000)) * 0.038));
+  assert.equal(d.fromCrypto, cents2(10000 * 0.038));
+});
+
+test("niit: a net loss lowers income by the allowed deduction only", () => {
+  const n = niit(netCapital(0, -20000), { magi: 210000, otherNii: 50000 });
+  assert.equal(n.totalMagi, 207000);        // 210k less the $3,000 deduction
+  assert.equal(n.nii, 47000);
+  assert.equal(n.base, 7000);
+  assert.equal(n.tax, 266);
+  assert.equal(niit(netCapital(0, 1), { magi: -1 }), null);
+  assert.equal(niit(netCapital(0, 1), { magi: 1, status: "bogus" }), null);
+});
+
+test("analyze with magi reports the surtax per method and leaves it off otherwise", () => {
+  const csv = "date,type,asset,quantity,total,fee,wallet\n2022-01-10,buy,BTC,1,20000,0,A\n2022-02-10,buy,BTC,1,60000,0,A\n2024-09-20,sell,BTC,1,100000,0,A\n";
+  const off = analyze(csv, { method: "FIFO" });
+  assert.equal(off.niit, null);
+  assert.equal(off.comparison[0].niit, undefined);
+  const on = analyze(csv, { method: "FIFO", magi: 180000 });
+  const hifo = on.comparison.find((c) => c.method === "HIFO"), fifo = on.comparison.find((c) => c.method === "FIFO");
+  assert.equal(fifo.totalGain, 80000);
+  assert.equal(hifo.totalGain, 40000);
+  assert.equal(fifo.niit, cents2(0.038 * Math.min(80000, 180000 + 80000 - 200000)));  // 60k over -> 2280
+  assert.equal(hifo.niit, cents2(0.038 * Math.min(40000, 180000 + 40000 - 200000)));  // 20k over -> 760
+  assert.equal(on.niit.tax, fifo.niit);
+});
+function cents2(n) { return Math.round(n * 100) / 100; }
