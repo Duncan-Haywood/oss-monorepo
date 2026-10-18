@@ -708,8 +708,10 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 
 ## E37: review 2026-10-18 (third)
 
-- Change: none to prompts or docs; `derived/` regenerated. Candidates unchanged
-  (ventures 2 / research 1 overlap; review/2 has 6 runs).
-- Metric: none new; E35/E36 metrics still open.
-- Drift: `prompts/drift/2026-10-18c.md`.
+- Change: `research/PROJECTS.md` "Picking work" step 1 gives the track-draw
+  formula (2 reports said the number-to-track mapping was a guess).
+- Metric: friction reports about the track draw, next 40 research runs; expect none.
+- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 6 runs).
+  Open friction not fixed: ventures runs report that router top candidates are
+  already deep; `allocate.py` needs its own run.
 - Result: (next review)
