@@ -2738,6 +2738,11 @@
      "summary": "Uncertainty for <em>eda-equivpredict</em>, replayed from the same <em>eda-verify</em> log. The 27 survivors sit on only 11 distinct source lines, so a line-cluster bootstrap gives a 95% interval of 76.5&ndash;100% around the observed 25 of 27 (92.6%), against a 59.3% majority-class baseline, and a permutation test that shuffles line groups gives p&nbsp;=&nbsp;0.012. One design, one solver, predictors chosen with the log in view. Stylised."
     },
     {
+     "slug": "eda-equivxfer",
+     "title": "Does \"the mutant synthesises to the golden netlist\" predict formal equivalence on a second design family?",
+     "summary": "Follow-up to <em>eda-conefeat</em> on a design the idea was not fit on: a 2&times;4 systolic array from <em>chip-systolic</em> is mutated, 32 of 143 compiling mutants survive random simulation, and Yosys tries to prove them equivalent (12 proved, 20 timeouts at 60&nbsp;s/120&nbsp;s, none killed). An identical post-synthesis cell histogram is always right (3 of 3 across this design and the MAC engine) but finds only 3 of the 28 proved equivalents, so it saves about 3% of formal CPU; equivalent mutants usually change the netlist by &minus;75 to +131 cells, and a zero change is as common among timeouts as among proofs. Two designs, short timeouts on the new one. Stylised."
+    },
+    {
      "slug": "eda-conefeat",
      "title": "Do synthesized-netlist features predict which simulation survivors Yosys can prove equivalent?",
      "summary": "Follow-up to <em>eda-equivpredict</em> on the same 27 survivors, now with Yosys installed. Position-free features (cell-count change after synthesis, miter size, identical cell histogram) are scored under leave-one-line-out. None beats guessing the majority class (16 of 27, 59.3%); the source-line rule gets 25 of 27. The nine solver timeouts barely change the netlist (|&Delta;cells| 0 for six), but equivalent mutants span 0 to 178, and miter size is nearly constant (1,188&ndash;1,199). A negative result on one design; cone depth and fan-in were not tried (see <em>eda-conehash</em>)."

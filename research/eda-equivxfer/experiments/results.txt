@@ -1,0 +1,22 @@
+# Yosys 0.33 (git sha1 2584903a060); Icarus Verilog version 12.0 (stable) ()
+# systolic 2x4 (rows x columns) wb=4: 231 mutants enumerated, 160 sampled, 143 compile, 32 survive 32 random batches; formal timeouts 120s induction / 60s SAT, bound 43 cycles
+
+== A: chip-accel MAC p=8 (27 survivors, formal from eda-verify, 150/240 s timeouts)
+formal verdicts: {'undecided': 9, 'killed': 2, 'equivalent': 16}; golden cells 2800
+  signature same    : {'equivalent': 1, 'killed': 0, 'undecided': 0}
+  signature differs : {'equivalent': 15, 'killed': 2, 'undecided': 9}
+  cell delta, equivalent: n=16 [-75, -46, -46, -2, 0, 0, 10, 11, 18, 20, 20, 34, 84, 85, 98, 117]
+  cell delta, killed    : n=2 [-1, 13]
+  cell delta, undecided : n=9 [-94, 0, 0, 0, 0, 0, 0, 0, 7]
+  cpu-s: formal on all survivors 7414; signatures for all 147; formal skipped where signature matches 224
+  mean s: signature 5.4; formal 275
+
+== B: chip-systolic (formal here, 60/120 s timeouts)
+formal verdicts: {'equivalent': 12, 'undecided': 20}; golden cells 3269
+  signature same    : {'equivalent': 2, 'killed': 0, 'undecided': 0}
+  signature differs : {'equivalent': 10, 'killed': 0, 'undecided': 20}
+  cell delta, equivalent: n=12 [-5, 0, 0, 2, 6, 15, 35, 59, 96, 97, 107, 131]
+  cell delta, killed    : n=0 []
+  cell delta, undecided : n=20 [-2, -1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 4, 4, 10, 11, 12, 22, 98]
+  cpu-s: formal on all survivors 5246; signatures for all 253; formal skipped where signature matches 163
+  mean s: signature 7.9; formal 164
