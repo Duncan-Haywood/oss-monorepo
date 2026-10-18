@@ -20,7 +20,7 @@ zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** When I Work, Deputy, Homebase and 7shifts charge per user per month and hold your staff
   data. This is the same publish-and-notify loop for a single small team, on your own server, MIT-licensed. It does
-  not do time clocks, payroll, automatic shift-swap approvals or push notifications; if you need those, use one of them.
+  not do time clocks, payroll, push notifications; if you need those, use one of them.
 - **Secrets:** `ADMIN_KEY` unlocks `/admin?key=...` (edit, build, publish, merge). `TEAM_TOKEN` is the secret in the
   staff link `/team?t=...`. The server refuses to serve without both. Wages, hour caps and payroll never appear on the
   staff page (tested). Put it behind HTTPS (Fly and Render do); the key is in the URL, so do not share admin links.
@@ -28,6 +28,7 @@ zero dependencies, one JSON file on a disk you own.
   `docker compose up -d` (`docker-compose.yml`), Fly (`fly.toml`), or Render
   (`render.yaml`, deploy from your fork; it generates both secrets). Nothing runs on the author's accounts.
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list).
+- **Shift trades:** staff pick their shift and a colleague's on the team page ("Want to trade shifts?"). `/admin` shows each request with the same check as the browser tool's trade checker (rest gaps, hour limits, availability, payroll change) and enables **Approve** only when both weeks stay inside the rules. Approving swaps the two people on the published schedule; declining changes nothing. Nobody is notified automatically.
 - **Staff replies** are checked with the same parser as the browser tool and capped at 200 waiting lines and 64 KB
   per request. Read them in `/admin` before merging.
 - Tests: `node --test server.test.mjs`.
