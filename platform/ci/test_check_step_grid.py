@@ -1,8 +1,10 @@
+import contextlib
+import io
 import tempfile
 import unittest
 from pathlib import Path
 
-from check_step_grid import check_input, check_tree
+from check_step_grid import check_input, check_tree, main
 
 
 class CheckInput(unittest.TestCase):
@@ -83,6 +85,40 @@ class CheckTree(unittest.TestCase):
             '<input id="c" type="text">'
         )
         self.assertEqual(problems, [])
+
+    def test_falls_back_from_id_to_name_to_unnamed(self):
+        bad = 'type="number" min="1" step="50"'
+        self.assertIn(": rate:", self._tree(f'<input name="rate" {bad}>')[0])
+        self.assertIn(": (unnamed input):", self._tree(f"<input {bad}>")[0])
+
+
+class Main(unittest.TestCase):
+    def _run(self, markup: str | None, *extra: str) -> tuple[int, str, str]:
+        out, err = io.StringIO(), io.StringIO()
+        with tempfile.TemporaryDirectory() as tmp:
+            if markup is not None:
+                (Path(tmp) / "index.html").write_text(markup, encoding="utf-8")
+            argv = ["check_step_grid.py", tmp, *extra]
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = main(argv)
+        return code, out.getvalue(), err.getvalue()
+
+    def test_clean_tree_exits_zero(self):
+        code, out, _ = self._run('<input type="number" min="0" step="1">')
+        self.assertEqual(code, 0)
+        self.assertIn("step grid a visitor can land on", out)
+
+    def test_a_bad_grid_exits_one_and_lists_it(self):
+        code, out, _ = self._run('<input id="rate" type="number" min="1" step="50">')
+        self.assertEqual(code, 1)
+        self.assertIn("rate", out)
+
+    def test_missing_root_exits_two(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            code = main(["check_step_grid.py", "/nonexistent/root/for/test"])
+        self.assertEqual(code, 2)
+        self.assertIn("does not exist", err.getvalue())
 
 
 class Repository(unittest.TestCase):
