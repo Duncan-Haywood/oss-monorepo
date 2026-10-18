@@ -737,3 +737,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   runnable when it names a venture with `node --test`.
 - Candidates: unchanged. Drift: `prompts/drift/2026-10-18e.md`.
 - Result: (next review)
+
+## E40: review 2026-10-18 (sixth)
+
+- Change: `session_gate.py` stale-snapshot reason now says "after your PR
+  merges" up front. It used to say "before anything else" and then, three
+  sentences later, that the script refuses a work branch (35 friction reports
+  on the gate, the latest several on exactly this).
+- Metric: friction reports naming `session_gate.py` about the publish order,
+  next 20 runs that run the gate; expect none.
+- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 7 runs).
+- Drift: `prompts/drift/2026-10-18f.md`.
+- Result: (next review)
