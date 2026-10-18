@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Demand Forecast Back-Tester — safety stock and reorder points from your sales</title>
+  <meta name="description" content="Free demand forecasting for small sellers. Upload a sales CSV to get a back-tested forecast per SKU, safety stock and reorder points at your service level, ABC-XYZ classes, and an honest check of whether the forecast beats repeating last month. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Demand Forecast Back-Tester — free, private, in your browser">
+  <meta property="og:description" content="Seven forecasting methods replayed on your own sales history, with safety stock and reorder points and a report card you can check.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Demand Forecast Back-Tester", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Upload a sales export (date, SKU, units) and get a back-tested demand forecast for every SKU, safety stock and reorder points at your service level, ABC-XYZ classes, and an honest report of whether the forecast beats simply repeating last period. Runs entirely in your browser.", "featureList": "demand forecasting, forecast back-test, safety stock calculator, reorder point calculator, ABC XYZ analysis, seasonal forecasting, intermittent demand Croston method, inventory planning from CSV, free inventory forecasting tool"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I forecast demand for each product from a sales export?", "acceptedAnswer": {"@type": "Answer", "text": "Upload a CSV with a date, a SKU and units sold. For every SKU the tool tries seven standard methods, from repeating last period to seasonal smoothing, replays each one from many points in your own past, and keeps the one that would have predicted best. It then forecasts demand over your supplier lead time and turns the forecast error into safety stock and a reorder point."}}, {"@type": "Question", "name": "What data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "One row per sale, per day or per period with a date, a SKU or product name and the units sold. Shopify, WooCommerce, Amazon and spreadsheet exports work if they have those columns; the tool finds them by header name. Returns (negative units) net against sales. A year is the practical minimum; two full years allow seasonal methods to be tested."}}, {"@type": "Question", "name": "What does the back-test actually do?", "acceptedAnswer": {"@type": "Answer", "text": "It pretends it is standing at an earlier date, hides everything after it, forecasts the next lead-time window, and compares with what really sold. It does this from up to 30 earlier dates for every method. The method is chosen on the older dates and its accuracy is reported on the newest third, which it was not chosen on, so a lucky pick shows up as a loss against simply repeating last period."}}, {"@type": "Question", "name": "How is safety stock calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Safety stock is the service-level z-score times the typical size of the chosen method's miss on lead-time demand, measured in the back-test, not an assumed formula. The reorder point is the forecast lead-time demand plus that safety stock. A 95% service level uses z of 1.645; 99% uses 2.33."}}, {"@type": "Question", "name": "Why does the tool sometimes say my forecast is no better than repeating last month?", "acceptedAnswer": {"@type": "Answer", "text": "Because for noisy or short series that is true, and most forecasting software will not tell you. When no method beats the simplest one on unseen points, the useful levers are shorter and more reliable lead times and a sensible buffer, not a better model."}}, {"@type": "Question", "name": "What are ABC and XYZ classes?", "acceptedAnswer": {"@type": "Answer", "text": "ABC ranks SKUs by units sold: A is the top 80% of volume, B the next 15%, C the last 5%. XYZ measures how steady demand is: X is a coefficient of variation up to 0.5, Y up to 1.0 and Z above that. A-X items are worth managing tightly; C-Z items are usually worth a simple min/max rule."}}, {"@type": "Question", "name": "Are zero-sales weeks really zero demand?", "acceptedAnswer": {"@type": "Answer", "text": "Not if the item was out of stock. Sales are not demand, and a stock-out teaches every method to forecast too low. The tool flags SKUs with many empty periods so you can check them against your stock history before you order."}}, {"@type": "Question", "name": "Is my sales data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and your sales are never stored."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    fieldset { border: 1px solid #d9dfe6; border-radius: 10px; margin: 12px 0 0; padding: 4px 14px 14px; }
+    legend { font-weight: 700; color: #1f4a5d; padding: 0 6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DEMAND FORECAST BACK-TESTER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which forecast can you trust, and how much stock does it need?</h1>
+    <p>Drop in a sales export (date, SKU, units). For every product the tool replays <strong>seven forecasting methods</strong> on your own history, keeps the one that would have predicted best, and tells you <strong>how it did on weeks it was not chosen on</strong>, against simply repeating last period. Then it gives the <strong>demand over your lead time</strong>, the <strong>safety stock</strong> your service level needs, a <strong>reorder point</strong>, and an <strong>ABC-XYZ</strong> class for each SKU. When no method beats the naive one, it says so.</p>
+    <p class="note">Your sales never leave this browser tab. Statistical forecast from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your sales</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="sales">…or paste rows (header optional: date, sku, quantity)</label>
+    <textarea id="sales" spellcheck="false" placeholder="date,sku,quantity&#10;2025-01-02,WIDGET-L,3&#10;2025-01-02,WIDGET-S,5"></textarea>
+    <div class="grid">
+      <div><label for="period">Forecast by</label><select id="period"><option value="week" selected>Week</option><option value="month">Month</option></select></div>
+      <div><label for="lead">Lead time plus review period (days)</label><input id="lead" inputmode="numeric" value="14"></div>
+      <div><label for="service">Service level (%)</label><input id="service" inputmode="decimal" value="95"></div>
+      <div><label for="partial">Part-filled periods</label><select id="partial"><option value="auto" selected>Drop an incomplete first or last period</option><option value="keep">Keep every period</option></select></div>
+    </div>
+    <p class="note">Lead time is the days between placing an order and having stock to sell, plus the days until your next order opportunity. Service level is the chance of not running out before the next delivery. Units should be consistent (each, not cases, for one SKU).</p>
+    <button type="button" id="analyze">Back-test and plan stock</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your sales, then click Back-test.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Stock plan by SKU</h3>
+    <div class="scroll"><table id="skus"><thead><tr><th>SKU</th><th>Class</th><th>Method that won</th><th class="n">Lead-time demand</th><th class="n">Safety stock</th><th class="n">Reorder point</th><th class="n">Error on unseen</th><th class="n">Repeat-last error</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="sku-note"></p>
+    <h3>Which methods won</h3>
+    <div class="scroll"><table id="methods"><thead><tr><th>Method</th><th class="n">SKUs</th></tr></thead><tbody></tbody></table></div>
+    <h3>Warnings by SKU</h3>
+    <div id="sku-flags"></div>
+    <button type="button" id="download">Download per-SKU CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Periods:</strong> sales are summed into weeks (Monday start) or months. A part-filled first or last period is dropped when your rows are daily, so a half-empty week is not read as a slump. Each SKU's history starts at its first sale, so a new product is not forecast from months before it existed. <strong>Methods:</strong> repeat last period; moving average (8 weeks or 3 months); exponential smoothing; Croston with the Syntetos-Boylan correction for intermittent demand; damped-trend smoothing (Gardner and McKenzie); and, once a SKU has two full years plus a few back-test points, same-period-last-year and additive seasonal smoothing (Holt-Winters without trend). Smoothing constants are fitted by a coarse grid on past one-step errors. <strong>Back-test:</strong> from up to 30 past forecast origins each method sees only earlier history and forecasts the whole lead time; the error in total lead-time demand is recorded. With nine or more origins the winner is picked on the older two thirds (preferring the simpler method unless another is 3% better) and scored on the newest third. <strong>Stock:</strong> safety stock is the normal quantile for your service level times the winner's root-mean-square lead-time error over all origins; reorder point is forecast lead-time demand plus safety stock; the interval is forecast ± 1.96 times that error. <strong>Classes:</strong> ABC by cumulative share of units (80/15/5); XYZ by coefficient of variation of period sales (up to 0.5, up to 1, above).</p>
+    <p><strong>Not modelled:</strong> stock-outs (sales are not demand), promotions, price changes, holidays that move, supplier lead-time variability, order minimums, shelf life, substitution between SKUs and the cost of holding stock. <strong>Unverified:</strong> checked against closed-form results on constructed series and against invented data in unit tests, not against a published retail dataset or a commercial planning tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I forecast demand for each product from a sales export?</h3>
+    <p>Upload a CSV with a date, a SKU and units sold. For every SKU the tool tries seven standard methods, from repeating last period to seasonal smoothing, replays each one from many points in your own past, and keeps the one that would have predicted best. It then forecasts demand over your supplier lead time and turns the forecast error into safety stock and a reorder point.</p>
+    <h3>What data do I need?</h3>
+    <p>One row per sale, per day or per period with a date, a SKU or product name and the units sold. Shopify, WooCommerce, Amazon and spreadsheet exports work if they have those columns; the tool finds them by header name. Returns (negative units) net against sales. A year is the practical minimum; two full years allow seasonal methods to be tested.</p>
+    <h3>What does the back-test actually do?</h3>
+    <p>It pretends it is standing at an earlier date, hides everything after it, forecasts the next lead-time window, and compares with what really sold. It does this from up to 30 earlier dates for every method. The method is chosen on the older dates and its accuracy is reported on the newest third, which it was not chosen on, so a lucky pick shows up as a loss against simply repeating last period.</p>
+    <h3>How is safety stock calculated?</h3>
+    <p>Safety stock is the service-level z-score times the typical size of the chosen method's miss on lead-time demand, measured in the back-test, not an assumed formula. The reorder point is the forecast lead-time demand plus that safety stock. A 95% service level uses z of 1.645; 99% uses 2.33.</p>
+    <h3>Why does the tool sometimes say my forecast is no better than repeating last month?</h3>
+    <p>Because for noisy or short series that is true, and most forecasting software will not tell you. When no method beats the simplest one on unseen points, the useful levers are shorter and more reliable lead times and a sensible buffer, not a better model.</p>
+    <h3>What are ABC and XYZ classes?</h3>
+    <p>ABC ranks SKUs by units sold: A is the top 80% of volume, B the next 15%, C the last 5%. XYZ measures how steady demand is: X is a coefficient of variation up to 0.5, Y up to 1.0 and Z above that. A-X items are worth managing tightly; C-Z items are usually worth a simple min/max rule.</p>
+    <h3>Are zero-sales weeks really zero demand?</h3>
+    <p>Not if the item was out of stock. Sales are not demand, and a stock-out teaches every method to forecast too low. The tool flags SKUs with many empty periods so you can check them against your stock history before you order.</p>
+    <h3>Is my sales data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and your sales are never stored.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified analyst. Results are statistical forecasts from the sales you supply; they do not guarantee what customers will buy. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any e-commerce platform, inventory software vendor or research firm, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your sales are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../shopify-inventory-reorder-planner/">inventory reorder planner</a> works from a Shopify orders and stock export, the <a href="../price-elasticity-estimator/">price elasticity estimator</a> shows how demand responds to price, the <a href="../clearance-markdown-planner/">clearance markdown planner</a> handles stock that did not sell, and the <a href="../customer-lifetime-value-predictor/">customer lifetime value predictor</a> forecasts per-customer value.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSales, analyze, reportCsv, sampleText, pct, num } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function run() {
+      const parsed = parseSales($("#sales").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.rows, { period: $("#period").value, leadDays: Number($("#lead").value), serviceLevel: Number($("#service").value) / 100, partial: $("#partial").value });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary;
+      const gain = s.pooledWape !== null && s.pooledNaiveWape > 0 ? 1 - s.pooledWape / s.pooledNaiveWape : null;
+      $("#big").innerHTML = [
+        [pct(s.pooledWape), `Lead-time error on weeks the methods were not chosen on`],
+        [pct(s.pooledNaiveWape), `Same error repeating last ${s.period}`],
+        [gain === null ? "–" : (gain >= 0 ? "" : "-") + Math.abs(gain * 100).toFixed(0) + "%", "Error cut by the chosen methods"],
+        [`${s.beatNaive} of ${s.tested}`, "SKUs clearly better than repeating last period"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#skus tbody").innerHTML = r.skus.slice(0, 40).map((k) => `<tr><td>${esc(k.sku)}</td><td>${k.abc}${k.xyz}</td><td>${esc(k.methodLabel)}${k.verified ? "" : " *"}</td><td class="n">${num(k.leadDemand)}</td><td class="n">${num(k.safetyStock)}</td><td class="n">${num(k.reorderPoint)}</td><td class="n">${pct(k.wape)}</td><td class="n">${pct(k.naiveWape)}</td></tr>`).join("");
+      $("#sku-note").textContent = (r.skus.length > 40 ? `Showing the 40 highest-volume of ${r.skus.length} SKUs; the download has all of them. ` : "") + `Lead time ${s.leadDays} days = ${s.horizon} ${s.period}(s); service level ${pct(s.service)} (z = ${s.z.toFixed(2)}). * = too little history to back-test or choose honestly.`;
+      $("#methods tbody").innerHTML = Object.entries(s.byMethod).sort((a, b) => b[1] - a[1]).map(([id, n]) => `<tr><td>${esc(r.skus.find((k) => k.method === id).methodLabel)}</td><td class="n">${n}</td></tr>`).join("");
+      const flagged = r.skus.filter((k) => k.flags.length).slice(0, 30);
+      $("#sku-flags").innerHTML = flagged.length ? flagged.map((k) => `<div class="finding"><h4>${esc(k.sku)}</h4><p>${esc(k.flags.join(" "))}</p></div>`).join("") : '<p class="note">No SKU-level warnings.</p>';
+      report.hidden = false;
+      status.textContent = `Done: ${s.skus} SKUs over ${s.periods} ${s.period}s (${s.startLabel} to ${s.endLabel})` + (parsed.skipped ? `; ${parsed.skipped} unreadable rows skipped.` : ".");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#sales").value = sampleText(); $("#period").value = "month"; $("#lead").value = "60";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 20 invented SKUs over 48 months, not a real shop."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#sales").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Back-test.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#sales").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your sales, then click Back-test."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "stock-plan.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

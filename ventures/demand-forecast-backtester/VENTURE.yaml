@@ -1,0 +1,58 @@
+name: demand-forecast-backtester
+description: >-
+  Free browser tool for small sellers and wholesalers: upload a sales export
+  (date, SKU, units) and get a back-tested demand forecast per SKU from seven
+  methods replayed on the seller's own history, safety stock and reorder points
+  at a chosen service level, ABC-XYZ classes, and an honest report of whether
+  the forecast beats repeating last period on points it was not chosen on.
+  Nothing is uploaded; zero-dependency CLI included.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-18. slug_dupe.py: no match. Adjacent ventures:
+# shopify-inventory-reorder-planner (Shopify exports, one blended velocity
+# estimate), price-elasticity-estimator, clearance-markdown-planner. None
+# compares forecasting methods, tests seasonality, or reports its own error.
+# Paid alternatives are inventory-planning apps (store-connected, monthly fee).
+# Angle: platform-neutral CSV, a back-test that is shown, and a plain statement
+# when the model adds nothing over "same as last month".
+# First visitor: searches such as "safety stock calculator from sales data",
+# "reorder point calculator", "demand forecasting for small business",
+# "ABC XYZ analysis"; r/ecommerce, r/smallbusiness, r/supplychain. Volume not
+# measured.
+# Privacy is the liability boundary: sales files never leave the browser (tests
+# assert no network calls).
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# paid or bring-your-own-key tier could add scheduled refreshes, multi-location
+# and purchase-order export; not built.
+# Liability: statistical forecast of supplied data, not advice; the page lists
+# what is not modelled. Unverified: tested on constructed and invented series
+# only, not on a published retail dataset.
+
+hypotheses:
+  - claim: >-
+      Owners of small catalogues with a few dozen to a few hundred SKUs will
+      paste a sales export into a private back-testing forecaster to set
+      reorder points, and will come back when they export new sales, because
+      the back-test tells them which forecasts to trust.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a forecast or safety-stock figure disagrees with a standard reference implementation on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/demand-forecast-backtester/
+  analytics: null
