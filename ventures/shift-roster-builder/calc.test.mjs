@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placeBreaks, laborPercent, dailyLabor, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
+import { placeBreaks, laborPercent, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -1049,4 +1049,22 @@ test("a high balance setting never costs coverage on the sample week", () => {
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
   const base = buildRoster(staff, slots, { balance: 0 }).unfilledHours;
   for (const balance of [25, 50, 75, 100]) assert.equal(buildRoster(staff, slots, { balance }).unfilledHours, base, `balance ${balance}`);
+});
+
+test("salesPerLaborHour: hours each day's sales call for against hours scheduled", () => {
+  const staff = staffOf("Ann,10,40,0,any");
+  const slots = slotsOf("Mon,8,12,1\nMon,13,17,1\nWed,9,13,1");
+  const r = buildRoster(staff, slots, { minRestHours: 0 });
+  const g = salesPerLaborHour(r, staff, "$400, 0, 100", 50);
+  assert.equal(g.days[0].splh, 50);
+  assert.equal(g.days[0].needHours, 8);
+  assert.equal(g.days[0].gap, 0);
+  assert.equal(g.days[1].gap, null);
+  assert.equal(g.days[2].needHours, 2);
+  assert.equal(g.days[2].gap, 2);
+  assert.deepEqual(g.over.map((d) => d.day), ["Wed"]);
+  assert.deepEqual(g.under, []);
+  assert.equal(salesPerLaborHour(r, staff, "", 50), null);
+  assert.equal(salesPerLaborHour(r, staff, "400", 0), null);
+  assert.deepEqual(salesPerLaborHour(r, staff, "800", 50).under.map((d) => d.day), ["Mon"]);
 });
