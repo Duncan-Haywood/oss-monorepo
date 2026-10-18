@@ -1642,6 +1642,28 @@ export function resultsCheck(schedule, results) {
   return out;
 }
 
+/**
+ * Matches dated before `today` (days since 1970, as `toDay` gives) with no typed result: the games an
+ * organiser still has to chase. A pair's typed results are matched to its meetings earliest first, so a
+ * double round robin with one result typed reports only the second meeting. Returns
+ * `[{ home, away, day }]` in date order; `schedule.teams` names them.
+ */
+export function overdueResults(schedule, results, today) {
+  const key = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
+  const typed = new Map();
+  for (const r of results) typed.set(key(r.a, r.b), (typed.get(key(r.a, r.b)) ?? 0) + 1);
+  const all = [];
+  for (const round of schedule.rounds) for (const m of round.matches) all.push({ home: m.home, away: m.away, day: round.day });
+  all.sort((x, y) => x.day - y.day);
+  const out = [];
+  for (const m of all) {
+    const k = key(m.home, m.away);
+    if (typed.get(k) > 0) typed.set(k, typed.get(k) - 1);
+    else if (m.day < today) out.push(m);
+  }
+  return out;
+}
+
 /** Games each team still has to play, from `remainingFixtures`: an array indexed by team. */
 export function gamesLeft(nTeams, remaining) {
   const left = new Array(nTeams).fill(0);
