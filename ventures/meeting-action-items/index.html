@@ -9,7 +9,7 @@
   <meta property="og:description" content="Private, no-signup extractor: who does what by when, decisions, open questions, follow-up email, CSV and calendar file.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Meeting Action Items", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste meeting notes or a transcript and get action items with owners and due dates, decisions, open questions, a follow-up email, CSV and calendar file. Runs in your browser; nothing is uploaded."}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I turn meeting notes into action items for free without uploading them?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Paste the notes or transcript and the tool finds who committed to what, with due dates, decisions and open questions. It runs in your browser and makes no network calls, so a confidential call never leaves your device."}}, {"@type": "Question", "name": "How does it decide who owns an action item?", "acceptedAnswer": {"@type": "Answer", "text": "From the words: a named person with will or to (\"Cleo will book the venue\"), a speaker saying I'll, a request to a named person (\"John, can you check the contract?\"), or an explicit ACTION line with a name. If nobody is named it says so and lists the item under needs an owner instead of guessing."}}, {"@type": "Question", "name": "How are dates like \"by Friday\" or \"next week\" worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Against the meeting date you enter. A bare weekday means the next one after the meeting, \"next Friday\" means Friday of next week, \"end of the week\" is Friday, and \"in 2 weeks\" is fourteen days on. Without a meeting date it leaves the phrase as written and tells you."}}, {"@type": "Question", "name": "Is this as good as an AI note-taker like Otter or Fireflies?", "acceptedAnswer": {"@type": "Answer", "text": "No, and it does not try to be. Those record and transcribe the call. This starts from notes or a transcript you already have and uses fixed rules you can read, so it misses a commitment phrased in an unusual way. It never invents one, and it costs nothing."}}, {"@type": "Question", "name": "What can I export?", "acceptedAnswer": {"@type": "Answer", "text": "A markdown checklist, a CSV, a follow-up email grouped by person, and a calendar file with all-day entries for every dated item. The command-line version can fail a CI step while any item still has no owner."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I turn meeting notes into action items for free without uploading them?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Paste the notes or transcript and the tool finds who committed to what, with due dates, decisions and open questions. It runs in your browser and, unless you turn on the optional AI pass with your own key, makes no network calls, so a confidential call never leaves your device."}}, {"@type": "Question", "name": "How does it decide who owns an action item?", "acceptedAnswer": {"@type": "Answer", "text": "From the words: a named person with will or to (\"Cleo will book the venue\"), a speaker saying I'll, a request to a named person (\"John, can you check the contract?\"), or an explicit ACTION line with a name. If nobody is named it says so and lists the item under needs an owner instead of guessing."}}, {"@type": "Question", "name": "How are dates like \"by Friday\" or \"next week\" worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Against the meeting date you enter. A bare weekday means the next one after the meeting, \"next Friday\" means Friday of next week, \"end of the week\" is Friday, and \"in 2 weeks\" is fourteen days on. Without a meeting date it leaves the phrase as written and tells you."}}, {"@type": "Question", "name": "Is this as good as an AI note-taker like Otter or Fireflies?", "acceptedAnswer": {"@type": "Answer", "text": "No, and it does not try to be. Those record and transcribe the call. This starts from notes or a transcript you already have and uses fixed rules you can read, so it misses a commitment phrased in an unusual way. It never invents one, and it costs nothing."}}, {"@type": "Question", "name": "What can I export?", "acceptedAnswer": {"@type": "Answer", "text": "A markdown checklist, a CSV, a follow-up email grouped by person, and a calendar file with all-day entries for every dated item. The command-line version can fail a CI step while any item still has no owner."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -60,7 +60,7 @@
     <p class="note">MEETING ACTION ITEMS · RUNS IN YOUR BROWSER</p>
     <h1>Turn meeting notes into action items with an owner and a date</h1>
     <p>Paste your notes or a transcript. You get who agreed to do what and by when, the decisions made, the questions still open, and a follow-up email grouped by person. Anything nobody owns is flagged, not guessed.</p>
-    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this page makes no network calls.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, unless you turn on the optional AI pass below with your own key. It is off by default.</p>
   </header>
   <section class="card">
     <h2>1. Paste the notes</h2>
@@ -70,6 +70,16 @@
       <div><label for="date">Meeting date (to turn &ldquo;by Friday&rdquo; into a date)</label><input id="date" type="date"></div>
       <div><label for="people">People in the meeting (optional, comma separated)</label><input id="people" type="text" placeholder="Ana, Ben, Cleo, Dev"></div>
     </div>
+    <details id="ai-box">
+      <summary>Optional: add an AI pass on your own key</summary>
+      <p class="note">The rules above are the product. This pass asks a model for commitments the rules missed. It sends your notes straight from this browser to the provider you pick, so use it only for notes you are allowed to share with them. Each suggestion must quote your notes word for word, its date comes from that quote, and anything it cannot support is dropped. Suggestions are marked low confidence. Your key stays in this browser and is never sent to us.</p>
+      <div class="row">
+        <div><label for="ai-provider">Provider</label><select id="ai-provider"><option value="">Off (rules only)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">Other (OpenAI-compatible)</option></select></div>
+        <div><label for="ai-model">Model (required except Anthropic)</label><input id="ai-model" type="text" autocomplete="off"></div>
+        <div><label for="ai-base">Base URL (OpenAI-compatible only)</label><input id="ai-base" type="text" autocomplete="off" placeholder="http://localhost:11434/v1"></div>
+        <div><label for="ai-key">API key</label><input id="ai-key" type="password" autocomplete="off"></div>
+      </div>
+    </details>
     <p>
       <button type="button" id="run">Find the action items</button>
       <button type="button" class="secondary" id="load-example">Load worked example</button>
@@ -105,7 +115,7 @@ node cli.mjs notes.txt --date 2026-10-19 --format csv</pre>
   <section class="card">
     <h2>Questions people actually ask</h2>
     <h3>Can I turn meeting notes into action items for free without uploading them?</h3>
-    <p>Yes. Paste the notes or transcript and the tool finds who committed to what, with due dates, decisions and open questions. It runs in your browser and makes no network calls, so a confidential call never leaves your device.</p>
+    <p>Yes. Paste the notes or transcript and the tool finds who committed to what, with due dates, decisions and open questions. It runs in your browser and, unless you turn on the optional AI pass with your own key, makes no network calls, so a confidential call never leaves your device.</p>
     <h3>How does it decide who owns an action item?</h3>
     <p>From the words: a named person with will or to ("Cleo will book the venue"), a speaker saying I'll, a request to a named person ("John, can you check the contract?"), or an explicit ACTION line with a name. If nobody is named it says so and lists the item under needs an owner instead of guessing.</p>
     <h3>How are dates like "by Friday" or "next week" worked out?</h3>
@@ -119,20 +129,30 @@ node cli.mjs notes.txt --date 2026-10-19 --format csv</pre>
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reads patterns in text, so it can miss or misread a commitment, and it is not a record of what anyone agreed to. <strong>You are responsible for reviewing and verifying its output before you send or rely on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="extract.mjs" rel="noopener">extract.mjs</a> and run it yourself.</p>
-    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the page makes no network calls. Anonymous feature events (<code>extract_run</code>, <code>export_used</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded unless you turn on the optional AI pass with your own key; there are no accounts, cookies, or analytics vendors, and without that pass the page makes no network calls. Anonymous feature events (<code>extract_run</code>, <code>export_used</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related: <a href="../shift-roster-builder/">Shift Roster Builder</a> builds the weekly staff rota, and <a href="../league-schedule-generator/">League Schedule Generator</a> makes fixtures for clubs and leagues.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
+    import { extractWithAi } from "./ai.mjs";
     import { extract, actionsCsv, actionsMarkdown, actionsIcs, followUpEmail, SAMPLE } from "./extract.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
     let last = null;
-    function run() {
+    async function run() {
       const people = $("people").value.split(",").map((x) => x.trim()).filter(Boolean);
-      const r = extract($("notes").value, { date: $("date").value || null, attendees: people });
+      const opts = { date: $("date").value || null, attendees: people };
+      const provider = $("ai-provider").value;
+      let r, aiNote = "";
+      if (provider) {
+        $("status").textContent = "Asking your model…";
+        const x = await extractWithAi({ provider, model: $("ai-model").value.trim(), baseUrl: $("ai-base").value.trim(), apiKey: $("ai-key").value.trim(), browser: true }, $("notes").value, opts);
+        r = x.result;
+        aiNote = x.source === "model" ? ` AI pass added ${x.added} suggestion${x.added === 1 ? "" : "s"} (low confidence) and dropped ${x.dropped.length} it could not support.` : ` AI pass did not run (${x.error}); these are the rules only.`;
+        if (x.source === "model") record("ai_pass_run");
+      } else r = extract($("notes").value, opts);
       const status = $("status");
       if (!r.ok) { $("results").hidden = true; last = null; status.textContent = r.error; status.className = "error"; return; }
       last = r;
@@ -163,7 +183,7 @@ node cli.mjs notes.txt --date 2026-10-19 --format csv</pre>
       list("decisions", "Decisions", r.decisions);
       list("questions", "Open questions", r.questions);
       $("email").textContent = followUpEmail(r);
-      status.textContent = r.date ? "Dates are worked out from the meeting date. Check each row against your notes." : "No meeting date given, so relative dates (Friday, next week) are left as written.";
+      status.textContent = (r.date ? "Dates are worked out from the meeting date. Check each row against your notes." : "No meeting date given, so relative dates (Friday, next week) are left as written.") + aiNote;
       status.className = "note";
     }
     const save = (name, type, body) => {
