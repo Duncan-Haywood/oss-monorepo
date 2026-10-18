@@ -7,7 +7,7 @@ checks them against the commonly published statutory residency tests (more than
 Massachusetts, Pennsylvania, Minnesota, Rhode Island, Virginia, Maryland and Utah (183 days or more), Michigan, Vermont and Maine; 183 days or more with no abode needed in Georgia; more than 200 days in
 Oregon; more than 270 days in Idaho; the nine-month presumption in California), shows the room left and the
 date you would cross a limit, splits remote-work wages by workdays, draws a
-year calendar coloured by state, imports stays from a calendar (.ics) export or Google Timeline (Takeout) history, and exports a day-range CSV. Nothing is uploaded.
+year calendar coloured by state, imports stays from a calendar (.ics) export, the Timeline.json your phone exports from Google Maps (coordinates matched to states in the browser), or older Google Takeout history, and exports a day-range CSV. Nothing is uploaded.
 
 **Live tool:** https://duncan-haywood.github.io/monorepo-projects/state-residency-day-counter/
 
@@ -22,6 +22,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Trip what-if: enter a planned trip and see the days it adds per state, whether it crosses a published limit, and the longest trip from that date that stays inside it (`tripImpact`).
 - Remember and save: an opt-in "Remember my entries on this device" box (local storage only) and a save-to-file / load-from-file pair for the form fields, so a year of stays survives between visits (`setupToJson`, `setupFromJson`).
 - Gap check: the notices name the date ranges no stay covers (the days the home-state assumption fills, or that count nowhere without one), so a missing trip shows up before an audit finds it (`gaps.ranges`).
+- `state-boundaries.mjs` / `build-boundaries.py` - simplified (~200 m) US state outlines from the Census cartographic files, loaded only when a phone Timeline export is imported; `deviceTimelineToStays` resolves each visit's coordinates to a state and counts visits within about 1 km of a state line for the user to check.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `183-day-rule-by-state.html` - guide with a worked example that the test
   suite recomputes.

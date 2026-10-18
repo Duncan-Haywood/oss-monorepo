@@ -226,6 +226,101 @@ export function timelineToStays(text, year) {
   return mergeFound(found, skipped);
 }
 
+// ---- on-device Google Timeline export -----------------------------------------
+//
+// Since 2024 Google keeps Timeline on the phone, and the file the phone exports
+// ("Timeline.json" on Android, "location-history.json" on iPhone) has no street
+// addresses: each visit carries only coordinates, so the state has to come from
+// a point-in-polygon lookup against state boundaries. The boundaries are passed
+// in (`state-boundaries.mjs`, loaded only when this file type is used) so this
+// module stays small and pure.
+
+const _bboxes = new WeakMap();
+
+function ringBox(ring) {
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (let i = 0; i < ring.length; i += 2) {
+    if (ring[i] < x0) x0 = ring[i];
+    if (ring[i] > x1) x1 = ring[i];
+    if (ring[i + 1] < y0) y0 = ring[i + 1];
+    if (ring[i + 1] > y1) y1 = ring[i + 1];
+  }
+  return [x0, y0, x1, y1];
+}
+
+function inRing(ring, lon, lat) {
+  let inside = false;
+  const n = ring.length / 2;
+  for (let i = 0, j = n - 1; i < n; j = i++) {
+    const xi = ring[2 * i], yi = ring[2 * i + 1], xj = ring[2 * j], yj = ring[2 * j + 1];
+    if ((yi > lat) !== (yj > lat) && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+// The two-letter code of the state containing the point, or "" if it is in
+// none (open water, another country). Rings of one state are combined
+// even-odd, so a hole such as a lake cut out of a polygon is excluded.
+export function stateAt(lon, lat, rings) {
+  if (!Number.isFinite(lon) || !Number.isFinite(lat)) return "";
+  let boxes = _bboxes.get(rings);
+  if (!boxes) { boxes = {}; _bboxes.set(rings, boxes); }
+  for (const code of Object.keys(rings)) {
+    const list = rings[code];
+    const bb = boxes[code] || (boxes[code] = list.map(ringBox));
+    let inside = false;
+    for (let k = 0; k < list.length; k++) {
+      const b = bb[k];
+      if (lon < b[0] || lon > b[2] || lat < b[1] || lat > b[3]) continue;
+      if (inRing(list[k], lon, lat)) inside = !inside;
+    }
+    if (inside) return code;
+  }
+  return "";
+}
+
+// "37.4220°, -122.0841°" (Android) or "geo:37.4220,-122.0841" (iPhone).
+export function parseLatLng(value) {
+  const m = /(-?\d+(?:\.\d+)?)\s*°?\s*,\s*(-?\d+(?:\.\d+)?)/.exec(String(value || ""));
+  return m ? { lat: +m[1], lon: +m[2] } : null;
+}
+
+// True for the on-device export: an array of segments (iPhone) or an object
+// with `semanticSegments` (Android).
+export function isDeviceTimeline(parsed) {
+  const segs = Array.isArray(parsed) ? parsed : parsed && parsed.semanticSegments;
+  return Array.isArray(segs) && segs.some((x) => x && (x.visit || x.activity || x.timelinePath));
+}
+
+// Each visit's coordinates are resolved to a state and dated by the visit's
+// local start and end (the first 10 characters of the timestamp, which carries
+// the device's own UTC offset). `nearBorder` counts visits that fall in a
+// different state if moved about a kilometre in any compass direction, so the
+// user knows which lines to check by hand. Activities and paths are skipped.
+export function deviceTimelineToStays(text, year, rings) {
+  let parsed;
+  try { parsed = JSON.parse(String(text || "")); } catch { return { lines: [], imported: 0, skipped: 0, nearBorder: 0, error: "Not a JSON file." }; }
+  if (!isDeviceTimeline(parsed)) return { lines: [], imported: 0, skipped: 0, nearBorder: 0, error: "Not a Google Timeline export from a phone." };
+  const segs = Array.isArray(parsed) ? parsed : parsed.semanticSegments;
+  const found = [];
+  let skipped = 0, nearBorder = 0;
+  for (const seg of segs) {
+    const v = seg && seg.visit;
+    const pl = v && v.topCandidate && v.topCandidate.placeLocation;
+    const pt = parseLatLng(pl && (pl.latLng || pl));
+    const a = icsDay(String(seg && seg.startTime || "").slice(0, 10).replace(/-/g, ""));
+    const b = icsDay(String(seg && seg.endTime || seg && seg.startTime || "").slice(0, 10).replace(/-/g, ""));
+    const state = pt && stateAt(pt.lon, pt.lat, rings);
+    if (!a || !b || !state) { skipped++; continue; }
+    const end = Math.max(a.day, b.day);
+    if (year && (+dayIso(end).slice(0, 4) < +year || +dayIso(a.day).slice(0, 4) > +year)) { skipped++; continue; }
+    const d = 0.01;
+    if ([[d, 0], [-d, 0], [0, d], [0, -d]].some(([dx, dy]) => stateAt(pt.lon + dx, pt.lat + dy, rings) !== state)) nearBorder++;
+    found.push({ state, start: a.day, end });
+  }
+  return { ...mergeFound(found, skipped), nearBorder };
+}
+
 function mergeFound(found, skipped) {
   found.sort((x, y) => x.start - y.start || x.end - y.end);
   const merged = [];
