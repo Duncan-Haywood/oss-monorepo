@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eda-adapt"
+version = "0.1.0"
+description = "How many syntheses does it take to adapt a cell-count surrogate to a design family it has not seen"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scikit-learn"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
