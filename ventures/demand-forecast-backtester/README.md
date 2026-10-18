@@ -24,10 +24,14 @@ to mean paid inventory-planning software or a data analyst.
   method unless another is 3% better) and scored on the newest third. Fewer origins are flagged as optimistic.
 - Stock: safety stock = normal quantile(service level) x RMS lead-time error of the winner over all origins; reorder
   point = forecast lead-time demand + safety stock; interval = forecast +/- 1.96 x that error.
+- Order list (optional stock file `sku,on_hand[,on_order,moq,pack_size]`): inventory position = on hand + on order; at or
+  below the reorder point, order up to the reorder point plus the cover days (default one more lead time) of forecast
+  demand, raised to the minimum order and rounded up to whole packs. Flags SKUs that will run out before delivery and
+  SKUs with excess cover. CLI: `node cli.mjs --stock stock.csv sales.csv`.
 - Classes: ABC by cumulative units (80/15/5); XYZ by coefficient of variation (0.5 / 1.0).
 
 Not modelled: stock-outs (sales are not demand; zero-heavy SKUs are flagged), promotions, price changes, moving
-holidays, supplier lead-time variability, order minimums, shelf life, substitution, holding cost.
+holidays, supplier lead-time variability, shelf life, budget limits, substitution, holding cost.
 
 **Checked so far.** Unit tests cover the inverse-normal against table values, each method on a series where the
 answer is known (flat, ramp, exact seasonal cycle, lumpy demand), that the back-test never lets a method see the period

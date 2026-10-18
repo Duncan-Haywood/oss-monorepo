@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { qnorm, parseDate, dayToIso, parseSales, bucketSales, backtest, methodSet, analyze, reportCsv, sampleText } from "./calc.mjs";
+import { parseStock, orderPlan, qnorm, parseDate, dayToIso, parseSales, bucketSales, backtest, methodSet, analyze, reportCsv, sampleText } from "./calc.mjs";
 
 const near = (a, b, tol = 1e-6) => assert.ok(Math.abs(a - b) <= tol, `${a} vs ${b}`);
 
@@ -161,4 +161,44 @@ test("reportCsv has a header, one row per SKU and quotes awkward names", () => {
   const csv = reportCsv(r).trim().split("\n");
   assert.equal(csv.length, 2);
   assert.match(csv[1], /^"Widget, ""large"""/);
+});
+
+test("parseStock finds columns, sums duplicate SKUs and reports bad rows", () => {
+  const r = parseStock("Item,Qty on hand,Open PO,MOQ,Case size\nA-1,10,5,20,6\na-1,2,0,,\nB,x,0,,\n,3,0,,\n");
+  assert.equal(r.stock.size, 1);
+  assert.deepEqual(r.stock.get("a-1"), { sku: "A-1", onHand: 12, onOrder: 5, moq: 20, pack: 6 });
+  assert.equal(r.skipped, 2);
+  assert.ok(parseStock("sku,price\nA,3").error);
+  assert.ok(parseStock("sku,on_hand").error);
+});
+
+test("orderPlan orders up to target only at or below the reorder point, honours MOQ and packs, and flags gaps and excess", () => {
+  const res = analyze(parseSales(sampleText()).rows, { period: "month", leadDays: 60 });
+  const [a, b, c] = res.skus.filter((s) => s.safetyStock !== null);
+  const stock = parseStock(
+    `sku,on_hand,on_order,moq,pack_size\n${a.sku},0,0,1000,12\n${b.sku},${Math.ceil(b.reorderPoint + 1)},0,,\n${c.sku},${Math.ceil(c.leadDemand * 10)},0,,\nGHOST,1,0,,\n`,
+  ).stock;
+  const plan = orderPlan(res, stock);
+  assert.equal(a.order.status, "order");
+  assert.ok(a.order.qty >= 1000 && a.order.qty % 12 === 0, "MOQ then whole packs");
+  assert.equal(b.order.status, "ok");
+  assert.equal(b.order.qty, 0);
+  assert.equal(c.order.status, "excess");
+  assert.equal(plan.ordered, 1);
+  assert.equal(plan.units, a.order.qty);
+  assert.deepEqual(plan.unmatchedStock, ["GHOST"]);
+  assert.ok(a.order.notes.some((n) => /expedite/.test(n)), "empty shelf cannot cover the lead time");
+  // Stock already on order counts toward the position.
+  const covered = orderPlan(res, parseStock(`sku,on_hand,on_order\n${a.sku},0,${Math.ceil(a.orderUpTo ?? a.reorderPoint * 3)}\n`).stock);
+  assert.equal(a.order.qty, 0);
+  assert.equal(covered.ordered, 0);
+});
+
+test("reportCsv adds order columns only when a stock file was planned", () => {
+  const res = analyze(parseSales(sampleText()).rows, { period: "month", leadDays: 60 });
+  assert.ok(!reportCsv(res).split("\n")[0].includes("order_qty"));
+  orderPlan(res, parseStock(`sku,on_hand\n${res.skus[0].sku},0\n`).stock);
+  const lines = reportCsv(res).trim().split("\n");
+  assert.ok(lines[0].includes("order_qty"));
+  assert.equal(lines[2].split(",").length, lines[0].split(",").length);
 });
