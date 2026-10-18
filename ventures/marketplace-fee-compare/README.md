@@ -11,6 +11,7 @@ Free, no signup, and nothing you type leaves the browser.
 - `index.html` — the comparison
 - `which-marketplace-has-the-lowest-fees.html` — the worked explainer
 - `calc.mjs` — the fee models and the ranking
+- `bulk.html` / `bulk.mjs` — paste a whole catalogue (CSV or spreadsheet rows), get the best buyer-bringing channel per item and the monthly cost of staying on one channel
 - `share.mjs` — allowlisted encode/decode for the "Copy share link" URL fragment
 - `usage.mjs` — anonymous, local, opt-out event counting
 
@@ -97,6 +98,20 @@ also sends you no buyers. When it wins, the page names the best channel that
 *does* bring demand and the gap between them, and calls that gap the
 advertising budget.
 
+## Bulk catalogue mode
+
+`bulk.html` takes a header row plus up to 500 items (`price` and `cost`
+required; `name`, `shipping_charged`, `shipping_cost`, `other_cost`,
+`category`, `orders` optional), runs each through the same `compareChannels`
+model, and reports the winner per item, how many items each channel wins, and
+the monthly gain over the channel you list on today. Rows that fail to parse
+are reported by line number without hiding the rest. Own store is never the
+recommended channel (it sends no buyers). The monthly figure assumes each
+item's full order volume moves, so it is an upper bound. The CSV export
+prefixes cells that start with `=`, `+`, `-` or `@` so a spreadsheet will not
+run them as formulas. Nothing is uploaded; the only counter is an anonymous
+local `catalog_compared` event.
+
 ## Sharing a comparison
 
 "Copy share link" encodes the item, category, orders-per-month, and any rate
@@ -129,7 +144,7 @@ three.
 node --test "ventures/marketplace-fee-compare/*.test.mjs"
 ```
 
-64 tests across five files: the fee arithmetic and ranking (`calc.test.mjs`),
+Run `node --test "ventures/marketplace-fee-compare/*.test.mjs"` for the current count. The files cover the fee arithmetic and ranking (`calc.test.mjs`),
 the usage counter's privacy guarantees (`usage.test.mjs`), the share link's
 round-trip and allowlist guarantees (`share.test.mjs`), the page's structure
 and wiring (`page.test.mjs`), and the explainer article's worked numbers pinned
