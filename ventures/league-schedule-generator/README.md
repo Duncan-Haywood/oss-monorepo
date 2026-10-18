@@ -78,6 +78,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `how-to-run-a-double-elimination-tournament.html` - guide to winners/losers brackets, byes and the grand final reset with a worked 6-team example that the test suite recomputes from `doubleEliminationBracket`.
 - `how-to-run-a-single-elimination-bracket.html` - guide to seeding, byes and game counts with a worked 6-team example that the test suite recomputes from `playoffBracket`.
 - `how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html` - guide to byes with 5, 7 or 9 teams and a worked 5-team example that the test suite recomputes from `roundRobin`.
+- `how-to-balance-home-and-away-games-in-a-round-robin.html` - guide to home/away breaks, the n − 2 minimum for an even league and why a mirrored double round robin has 3 × (n − 2), with a worked 6-team example that the test suite recomputes from `roundRobin` and `countBreaks`.
 - `how-to-schedule-a-league-with-limited-courts-and-time-slots.html` - guide to courts and time slots (slots per round, fair early and late slots) with a worked 6-team, 2-court example that the test suite recomputes from `buildSchedule`.
 - `how-to-break-ties-in-league-standings.html` - guide to head-to-head versus goal difference with a worked 4-team example that the test suite recomputes from `standings`.
 - `how-to-reschedule-a-rained-out-league-game.html` - guide to moving a rainout to the earliest night both teams are free, with a worked 4-team example that the test suite recomputes from `applyRainouts`.
