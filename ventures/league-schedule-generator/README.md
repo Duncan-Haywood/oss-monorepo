@@ -81,6 +81,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `how-to-schedule-a-league-with-limited-courts-and-time-slots.html` - guide to courts and time slots (slots per round, fair early and late slots) with a worked 6-team, 2-court example that the test suite recomputes from `buildSchedule`.
 - `how-to-break-ties-in-league-standings.html` - guide to head-to-head versus goal difference with a worked 4-team example that the test suite recomputes from `standings`.
 - `how-to-reschedule-a-rained-out-league-game.html` - guide to moving a rainout to the earliest night both teams are free, with a worked 4-team example that the test suite recomputes from `applyRainouts`.
+- `how-long-does-a-round-robin-tournament-take.html` - match slots a one-day round robin needs for 4 to 16 teams on 1 to 4 courts, turned into hours; the test suite recomputes every cell from `roundRobin`.
 - `how-to-make-a-round-robin-schedule.html` - guide with a worked 5-team example
   that the test suite recomputes.
 

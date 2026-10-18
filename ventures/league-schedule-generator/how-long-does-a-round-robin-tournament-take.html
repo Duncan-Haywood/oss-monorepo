@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Long Does A Round Robin Tournament Take? Slots By Teams And Courts</title>
+  <meta name="description" content="How many match slots a one-day round robin needs for 4 to 16 teams on 1 to 4 courts, and how to turn slots into hours. Table computed by the generator. Then build your schedule free.">
+  <meta property="og:title" content="How Long Does A Round Robin Tournament Take?">
+  <meta property="og:description" content="Match slots for 4 to 16 teams on 1 to 4 courts, and the hours they add up to. Free, private, in your browser.">
+  <link rel="canonical" href="./how-long-does-a-round-robin-tournament-take.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How long does a round robin tournament take?", "acceptedAnswer": {"@type": "Answer", "text": "Count the match slots, then multiply by the length of one slot. Six teams play 15 games; on 2 courts that is 5 rounds of 2 slots, so 10 slots, or 10 hours at 60 minutes a slot and 7.5 hours at 45. The table gives the slot count for 4 to 16 teams on 1 to 4 courts."}}, {"@type": "Question", "name": "How many courts do I need to finish a round robin in one day?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the slot count by the number of slots you can fit in the day. With 8-hour days of 60-minute slots, 8 teams need 28 slots on 1 court (too long), 14 on 2, 7 on 4. Adding courts helps until a round fits in one slot, which takes half the teams in courts; after that more courts change nothing."}}, {"@type": "Question", "name": "Why is the slot count sometimes higher than games divided by courts?", "acceptedAnswer": {"@type": "Answer", "text": "Each round is played to completion before the next starts, as in the generator, so a round of 3 games on 2 courts takes 2 slots with one court idle in the second. That keeps the schedule easy to run and every team resting between rounds; a looser packing can save a slot or two but lets teams play back to back."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How long does a round robin tournament take?</h1>
+  <p>Planning a one-day tournament and need to know if it fits? Find your team count and your number of courts below: the table gives the match slots a single round robin needs. Multiply by the length of one slot (match plus changeover) to get the hours. The figures follow the generator's rule that a round is finished before the next begins, and the test suite recomputes every cell from the same circle-method code the tool uses.</p>
+  <p><a class="cta" href="./">Build the schedule for your teams</a></p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Teams</th><th>Total games</th><th>Games per round</th><th>Slots, 1 court</th><th>Slots, 2 courts</th><th>Slots, 3 courts</th><th>Slots, 4 courts</th></tr></thead>
+    <tbody>
+      <tr><td>4</td><td>6</td><td>2</td><td>6</td><td>3</td><td>3</td><td>3</td></tr>
+      <tr><td>5</td><td>10</td><td>2</td><td>10</td><td>5</td><td>5</td><td>5</td></tr>
+      <tr><td>6</td><td>15</td><td>3</td><td>15</td><td>10</td><td>5</td><td>5</td></tr>
+      <tr><td>7</td><td>21</td><td>3</td><td>21</td><td>14</td><td>7</td><td>7</td></tr>
+      <tr><td>8</td><td>28</td><td>4</td><td>28</td><td>14</td><td>14</td><td>7</td></tr>
+      <tr><td>9</td><td>36</td><td>4</td><td>36</td><td>18</td><td>18</td><td>9</td></tr>
+      <tr><td>10</td><td>45</td><td>5</td><td>45</td><td>27</td><td>18</td><td>18</td></tr>
+      <tr><td>11</td><td>55</td><td>5</td><td>55</td><td>33</td><td>22</td><td>22</td></tr>
+      <tr><td>12</td><td>66</td><td>6</td><td>66</td><td>33</td><td>22</td><td>22</td></tr>
+      <tr><td>13</td><td>78</td><td>6</td><td>78</td><td>39</td><td>26</td><td>26</td></tr>
+      <tr><td>14</td><td>91</td><td>7</td><td>91</td><td>52</td><td>39</td><td>26</td></tr>
+      <tr><td>15</td><td>105</td><td>7</td><td>105</td><td>60</td><td>45</td><td>30</td></tr>
+      <tr><td>16</td><td>120</td><td>8</td><td>120</td><td>60</td><td>45</td><td>30</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Slots = rounds &times; ceil(games per round &divide; courts). At 60 minutes a slot, 6 teams on 2 courts need 10 hours; at 45 minutes, 7.5 hours. If that is too long for the day, add a court, shorten the match (first to 11 instead of 15, or a running clock), or split the field into two pools with <a href="./">pool play</a> and play a short play-off.</p>
+  <h2>Questions</h2>
+  <h3>How long does a round robin tournament take?</h3>
+  <p>Count the match slots, then multiply by the length of one slot. Six teams play 15 games; on 2 courts that is 5 rounds of 2 slots, so 10 slots, or 10 hours at 60 minutes a slot and 7.5 hours at 45. The table gives the slot count for 4 to 16 teams on 1 to 4 courts.</p>
+  <h3>How many courts do I need to finish a round robin in one day?</h3>
+  <p>Divide the slot count by the number of slots you can fit in the day. With 8-hour days of 60-minute slots, 8 teams need 28 slots on 1 court (too long), 14 on 2, 7 on 4. Adding courts helps until a round fits in one slot, which takes half the teams in courts; after that more courts change nothing.</p>
+  <h3>Why is the slot count sometimes higher than games divided by courts?</h3>
+  <p>Each round is played to completion before the next starts, as in the generator, so a round of 3 games on 2 courts takes 2 slots with one court idle in the second. That keeps the schedule easy to run and every team resting between rounds; a looser packing can save a slot or two but lets teams play back to back.</p>
+  <p>Related: <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>, <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">fitting a league onto limited courts and time slots</a>, and <a href="./tournament-bracket-by-number-of-teams.html">knockout brackets for 3 to 32 teams</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every date, court and pairing before you announce a schedule; your event's own rules apply.</p>
+    <p>Everything the generator does runs in your browser; team names and dates are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
