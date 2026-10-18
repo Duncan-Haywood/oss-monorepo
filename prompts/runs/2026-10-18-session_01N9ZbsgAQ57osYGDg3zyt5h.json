@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01N9ZbsgAQ57osYGDg3zyt5h",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T13:41:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "track 12 (pick_track draw 0.957): house-structure next step",
+  "projects": [
+    "research/house-diaphragm"
+  ],
+  "pr": 8058,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "first test asserted the wrong torsion physics (stiff long walls restrain twist); the model was right, test fixed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "record step says run runcost.py attach; not run here because no transcript path was available to point at"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Toy stiffness model; finding is that the flexible split governs the garage line. Cost not attached.",
+  "corrections": [],
+  "redteam": null
+}

@@ -10,8 +10,8 @@
 // approximate generic nutrition and EXAMPLE prices only. Not medical,
 // dietary or nutrition advice.
 
-export const NUTRIENTS = ["kcal", "protein", "carbs", "fat", "fiber"];
-export const UNITS = { kcal: "kcal", protein: "g", carbs: "g", fat: "g", fiber: "g" };
+export const NUTRIENTS = ["kcal", "protein", "carbs", "fat", "fiber", "sodium"];
+export const UNITS = { kcal: "kcal", protein: "g", carbs: "g", fat: "g", fiber: "g", sodium: "mg" };
 export const MIN_SAFE_KCAL = 1200;
 const EPS = 1e-9;
 
@@ -102,7 +102,7 @@ export function simplex(c, rows) {
 
 // ------------------------------------------------------------ parsing
 
-/** Foods, one per line: Name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings per day (optional) | servings per pack (optional, for the shopping list). */
+/** Foods, one per line: Name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings per day (optional) | servings per pack (optional, for the shopping list) | sodium mg (optional; blank counts as 0). */
 export function parseFoods(text) {
   const rows = [];
   const errors = [];
@@ -122,12 +122,14 @@ export function parseFoods(text) {
     const max = c.length >= 8 && c[7] !== "" ? Number(c[7]) : NaN;
     const pack = c.length >= 9 && c[8] !== "" ? Number(c[8]) : NaN;
     if (c.length >= 9 && c[8] !== "" && !(pack > 0)) { errors.push(`Food line ${i + 1} ("${name}"): servings per pack must be a number above 0 (or leave it blank).`); return; }
-    rows.push({ name, price: nums[0], n: nums.slice(1, 6), max: Number.isFinite(max) && max >= 0 ? max : null, pack: Number.isFinite(pack) ? pack : null });
+    const sodium = c.length >= 10 && c[9] !== "" ? Number(c[9]) : 0;
+    if (!Number.isFinite(sodium) || sodium < 0) { errors.push(`Food line ${i + 1} ("${name}"): sodium must be a number of mg, zero or more (or leave it blank).`); return; }
+    rows.push({ name, price: nums[0], n: [...nums.slice(1, 6), sodium], sodiumKnown: c.length >= 10 && c[9] !== "", max: Number.isFinite(max) && max >= 0 ? max : null, pack: Number.isFinite(pack) ? pack : null });
   });
   return { foods: rows, errors };
 }
 
-export const DEFAULTS = { kcalMin: 2000, kcalMax: 2300, proteinMin: 100, carbsMin: "", carbsMax: "", fatMin: 45, fatMax: 80, fiberMin: 28, defaultMax: 4, step: 0.5, daysPerWeek: 7, maxShare: "" };
+export const DEFAULTS = { kcalMin: 2000, kcalMax: 2300, proteinMin: 100, carbsMin: "", carbsMax: "", fatMin: 45, fatMax: 80, fiberMin: 28, defaultMax: 4, step: 0.5, daysPerWeek: 7, maxShare: "", sodiumMax: "" };
 
 const bound = (v) => (v === "" || v == null ? null : Number(v));
 
@@ -138,6 +140,7 @@ export function bounds(spec) {
     carbs: [bound(spec.carbsMin), bound(spec.carbsMax)],
     fat: [bound(spec.fatMin), bound(spec.fatMax)],
     fiber: [bound(spec.fiberMin), null],
+    sodium: [null, bound(spec.sodiumMax)],
   };
 }
 
@@ -176,7 +179,7 @@ function buildRows(spec, lo, hi, minScale = {}) {
   const n = foods.length;
   const rows = [];
   NUTRIENTS.forEach((k, ki) => {
-    const a = foods.map((f) => f.n[ki] * step);
+    const a = foods.map((f) => (f.n[ki] || 0) * step);
     let base = 0;
     for (let i = 0; i < n; i++) base += a[i] * lo[i];
     const [mn, mx] = b[k];
@@ -217,7 +220,7 @@ function stepBounds(spec) {
 }
 
 export function nutrition(spec, servings) {
-  return NUTRIENTS.map((k, ki) => spec.foods.reduce((s, f, i) => s + f.n[ki] * servings[i], 0));
+  return NUTRIENTS.map((k, ki) => spec.foods.reduce((s, f, i) => s + (f.n[ki] || 0) * servings[i], 0));
 }
 
 export function planFeasible(spec, servings) {
@@ -287,7 +290,7 @@ export function greedyPlan(spec) {
     foods.forEach((f, i) => {
       if (s[i] + step > cap(spec, f) + 1e-9) return;
       let gain = 0;
-      NUTRIENTS.forEach((k, ki) => { if (b[k][0] !== null) gain += Math.min(short[ki], (f.n[ki] * step) / Math.max(b[k][0], 1)); });
+      NUTRIENTS.forEach((k, ki) => { if (b[k][0] !== null) gain += Math.min(short[ki], ((f.n[ki] || 0) * step) / Math.max(b[k][0], 1)); });
       const v = gain / Math.max(f.price * step, 1e-6);
       if (v > bestV + 1e-12) { bestV = v; pick = i; }
     });
@@ -313,14 +316,14 @@ export function solve(spec, nodeLimit = 3000) {
   const totals = nutrition(spec, servings);
   const marginal = {};
   const b = bounds(spec);
-  const unit = { kcal: 100, protein: 10, carbs: 10, fat: 10, fiber: 5 };
+  const unit = { kcal: 100, protein: 10, carbs: 10, fat: 10, fiber: 5, sodium: 100 };
   for (const k of NUTRIENTS) {
     if (b[k][0] === null) continue;
     const c2 = costWithRaised(spec, k, unit[k]);
     marginal[k] = c2 === null ? null : { per: unit[k], extra: Math.max(0, c2 - root.cost) };
   }
   const greedy = greedyPlan(spec);
-  const items = spec.foods.map((f, i) => ({ index: i, name: f.name, servings: servings[i], cost: f.price * servings[i], nutrients: f.n.map((v) => v * servings[i]) })).filter((x) => x.servings > 1e-6).sort((a, b2) => b2.cost - a.cost);
+  const items = spec.foods.map((f, i) => ({ index: i, name: f.name, servings: servings[i], cost: f.price * servings[i], nutrients: NUTRIENTS.map((k, ki) => (f.n[ki] || 0) * servings[i]) })).filter((x) => x.servings > 1e-6).sort((a, b2) => b2.cost - a.cost);
   return { status: "optimal", servings, items, totals, cost, weekly: cost * spec.daysPerWeek, bound, gap: cost - root.cost, exact: isExact, nodes, marginal, greedy, feasible: planFeasible(spec, servings) };
 }
 
@@ -428,7 +431,7 @@ export function groceryList(spec, res) {
 
 export function planCsv(spec, res) {
   const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
-  const rows = [["Food", "Servings per day", "Cost per day", "kcal", "Protein g", "Carbs g", "Fat g", "Fibre g"].join(",")];
+  const rows = [["Food", "Servings per day", "Cost per day", "kcal", "Protein g", "Carbs g", "Fat g", "Fibre g", "Sodium mg"].join(",")];
   for (const it of res.items) rows.push([q(it.name), it.servings, it.cost.toFixed(2), ...it.nutrients.map((v) => v.toFixed(1))].join(","));
   rows.push([q("Total"), "", res.cost.toFixed(2), ...res.totals.map((v) => v.toFixed(1))].join(","));
   return rows.join("\n") + "\n";
@@ -436,26 +439,26 @@ export function planCsv(spec, res) {
 
 // Approximate generic nutrition per the serving named; EXAMPLE prices, edit to your store.
 export const SAMPLE_FOODS = [
-  "Rice, white, dry (50 g) | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7 | | 36",
-  "Lentils, dry (50 g) | 0.20 | 170 | 12.5 | 30 | 0.5 | 8 | | 18",
-  "Black beans, dry (50 g) | 0.20 | 170 | 10.8 | 31 | 0.7 | 7.8 | | 18",
-  "Rolled oats (40 g) | 0.12 | 156 | 6.8 | 26.4 | 2.8 | 4.2 | | 30",
-  "Egg, large (1) | 0.30 | 72 | 6.3 | 0.4 | 4.8 | 0 | 6 | 12",
-  "Chicken thigh, raw (100 g) | 0.80 | 121 | 19.7 | 0 | 4.1 | 0 | 4",
-  "Peanut butter (2 tbsp) | 0.18 | 190 | 7 | 7 | 16 | 2 | 2",
-  "Whole milk (1 cup) | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | 3",
-  "Banana (1) | 0.25 | 105 | 1.3 | 27 | 0.4 | 3.1 | 3",
-  "Carrots (100 g) | 0.15 | 41 | 0.9 | 9.6 | 0.2 | 2.8",
-  "Broccoli, frozen (100 g) | 0.30 | 34 | 2.8 | 6.6 | 0.4 | 2.6",
-  "Whole wheat bread (1 slice) | 0.15 | 70 | 3 | 12 | 1 | 2 | 6 | 20",
-  "Cooking oil (1 tbsp) | 0.08 | 120 | 0 | 0 | 14 | 0 | 3",
-  "Tuna in water, canned (85 g) | 1.00 | 100 | 22 | 0 | 1 | 0 | 2",
-  "Greek yogurt, nonfat (170 g) | 0.80 | 100 | 17 | 6 | 0.7 | 0 | 2",
-  "Cabbage (100 g) | 0.10 | 25 | 1.3 | 5.8 | 0.1 | 2.5",
-  "Potato (150 g) | 0.25 | 116 | 3 | 26 | 0.2 | 3.3",
-  "Whey protein (1 scoop, 30 g) | 0.75 | 120 | 24 | 3 | 1.5 | 0 | 2 | 30",
-  "Cheddar cheese (28 g) | 0.45 | 113 | 7 | 0.4 | 9.3 | 0 | 2",
-  "Apple (1) | 0.50 | 95 | 0.5 | 25 | 0.3 | 4.4 | 2",
+  "Rice, white, dry (50 g) | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7 |  | 36 | 1",
+  "Lentils, dry (50 g) | 0.20 | 170 | 12.5 | 30 | 0.5 | 8 |  | 18 | 5",
+  "Black beans, dry (50 g) | 0.20 | 170 | 10.8 | 31 | 0.7 | 7.8 |  | 18 | 3",
+  "Rolled oats (40 g) | 0.12 | 156 | 6.8 | 26.4 | 2.8 | 4.2 |  | 30 | 5",
+  "Egg, large (1) | 0.30 | 72 | 6.3 | 0.4 | 4.8 | 0 | 6 | 12 | 71",
+  "Chicken thigh, raw (100 g) | 0.80 | 121 | 19.7 | 0 | 4.1 | 0 | 4 |  | 90",
+  "Peanut butter (2 tbsp) | 0.18 | 190 | 7 | 7 | 16 | 2 | 2 |  | 150",
+  "Whole milk (1 cup) | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | 3 |  | 105",
+  "Banana (1) | 0.25 | 105 | 1.3 | 27 | 0.4 | 3.1 | 3 |  | 1",
+  "Carrots (100 g) | 0.15 | 41 | 0.9 | 9.6 | 0.2 | 2.8 |  |  | 69",
+  "Broccoli, frozen (100 g) | 0.30 | 34 | 2.8 | 6.6 | 0.4 | 2.6 |  |  | 33",
+  "Whole wheat bread (1 slice) | 0.15 | 70 | 3 | 12 | 1 | 2 | 6 | 20 | 140",
+  "Cooking oil (1 tbsp) | 0.08 | 120 | 0 | 0 | 14 | 0 | 3 |  | 0",
+  "Tuna in water, canned (85 g) | 1.00 | 100 | 22 | 0 | 1 | 0 | 2 |  | 240",
+  "Greek yogurt, nonfat (170 g) | 0.80 | 100 | 17 | 6 | 0.7 | 0 | 2 |  | 65",
+  "Cabbage (100 g) | 0.10 | 25 | 1.3 | 5.8 | 0.1 | 2.5 |  |  | 18",
+  "Potato (150 g) | 0.25 | 116 | 3 | 26 | 0.2 | 3.3 |  |  | 10",
+  "Whey protein (1 scoop, 30 g) | 0.75 | 120 | 24 | 3 | 1.5 | 0 | 2 | 30 | 130",
+  "Cheddar cheese (28 g) | 0.45 | 113 | 7 | 0.4 | 9.3 | 0 | 2 |  | 180",
+  "Apple (1) | 0.50 | 95 | 0.5 | 25 | 0.3 | 4.4 | 2 |  | 2",
 ].join("\n");
 
 export function sampleSpec() {
@@ -463,7 +466,7 @@ export function sampleSpec() {
 }
 
 // Share link: the food list and targets as a URL fragment (never sent to a server).
-export const SHARE_FIELDS = ["kmin", "kmax", "pmin", "fmin", "fmax", "cmin", "cmax", "fibmin", "dmax", "share", "step"];
+export const SHARE_FIELDS = ["kmin", "kmax", "pmin", "fmin", "fmax", "cmin", "cmax", "fibmin", "nacmax", "dmax", "share", "step"];
 const SHARE_VALUE = /^[0-9.]*$/;
 
 export function encodeShare(foodsText, fields) {
