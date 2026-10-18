@@ -131,6 +131,23 @@
     </table>
     <p class="note">Marketplace and Reverb Gives apply to the item price. Payment processing applies to item plus shipping charged. eBay's final-value fee in this compare applies to item plus shipping, the usual marketplace shape — overwrite it from your own statement.</p>
   </section>
+  <section class="compare" id="offer-ladder">
+    <h2>Offer ladder: what each lowball leaves you</h2>
+    <p id="ladderVerdict" class="verdict"></p>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Offer</th>
+          <th scope="col">% of list</th>
+          <th scope="col">Net cash</th>
+          <th scope="col">Given up vs list</th>
+          <th scope="col">vs eBay at list</th>
+        </tr>
+      </thead>
+      <tbody id="ladderRows"></tbody>
+    </table>
+    <p class="note">Same fees as above at every step, so you can answer an offer without retyping the field. The lowest offer that still covers your costs is the floor; the marketplace fee cap (if any) is applied at each price.</p>
+  </section>
   <section class="compare" id="wait-compare">
     <h2>Take the offer now, or wait for a better one?</h2>
     <p id="waitVerdict" class="verdict"></p>
@@ -323,7 +340,7 @@
     <p>Free and open source. If it stopped you from taking a $720 offer that left $73 on the table, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, counterOfferMessage, compareWaitForBetterOffer, waitForBetterOfferNote, compareShippingPaths, compareSafeShipping, compareConsignment, consignmentNote, compareBump, compareReturnResolution, returnResolutionNote } from './calc.mjs';
+    import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, offerLadder, counterOfferMessage, compareWaitForBetterOffer, waitForBetterOfferNote, compareShippingPaths, compareSafeShipping, compareConsignment, consignmentNote, compareBump, compareReturnResolution, returnResolutionNote } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { encodeInputs, decodeInputs, formValues } from './share.mjs';
     import { whereToSellUrl } from './to-where-to-sell.mjs';
@@ -414,6 +431,12 @@
         { label: 'eBay at list', price: vsEbay.ebay.salePrice, fees: vsEbay.ebay.fees.total, profit: vsEbay.ebay.profit },
         { label: 'eBay at the same offer', price: ebayAtOffer.salePrice, fees: ebayAtOffer.fees.total, profit: ebayAtOffer.profit },
       ];
+      const ladder = offerLadder(inputs);
+      document.getElementById('ladderVerdict').textContent =
+        `The lowest offer that still covers your costs is ${money(ladder.breakEvenOffer)}. Selling on eBay at list would net ${money(ladder.ebayListProfit)}.`;
+      document.getElementById('ladderRows').innerHTML = ladder.rows.map(row =>
+        `<tr class="${row.pays ? '' : 'negative'}"><td>${money(row.offerPrice)}</td><td>${row.percent}%</td><td>${money(row.profit)}</td><td>${row.givenUp === 0 ? '—' : signed(-row.givenUp)}</td><td>${row.beatsEbayList ? 'beats eBay' : 'below eBay'}</td></tr>`
+      ).join('');
       const best = Math.max(...compareRows.map(row => row.profit));
       document.getElementById('compareRows').innerHTML = compareRows.map(row =>
         `<tr class="${row.profit === best ? 'winner' : ''}"><td>${row.label}</td><td>${money(row.price)}</td><td>${money(row.fees)}</td><td>${money(row.profit)}</td><td>${signed(row.profit - offer.list.profit)}</td></tr>`
