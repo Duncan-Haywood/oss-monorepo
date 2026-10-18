@@ -124,3 +124,42 @@ test("csv and packet carry the figures", () => {
   assert.match(html, /No warranty/);
   assert.equal(fmt(-1234.5), "-$1,234.50");
 });
+
+import { plan } from "./calc.mjs";
+
+test("planner: distribution ceiling is exact and one cent more is taxable", () => {
+  const r = run({ stock: 10000, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, income: 5000, distributions: 20000 }]);
+  const p = plan(r);
+  assert.equal(p.maxTaxFreeDistribution, 15000);
+  assert.equal(step(r.rows[0].open, { ...Z, income: 5000, distributions: 15000 }).lines.excessDistributions, 0);
+  assert.ok(step(r.rows[0].open, { ...Z, income: 5000, distributions: 15000.01 }).lines.excessDistributions > 0);
+  assert.equal(p.contributionToCoverExcess, 5000);
+});
+
+test("planner: a contribution or a loan unlocks exactly the suspended loss", () => {
+  const r = run({ stock: 5000, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, losses: 20000 }]);
+  const p = plan(r);
+  assert.equal(r.closing.suspended, 15000);
+  assert.equal(p.contributionToDeductAll, 15000);
+  assert.equal(p.loanToDeductAll, 15000);
+  const loan = p.scenarios.find((s) => s.label.startsWith("Lend"));
+  assert.equal(loan.suspended, 0);
+  assert.equal(loan.debtBasis, 0);
+});
+
+test("planner: distributions cost loss deduction, and the keep-losses ceiling is where that starts", () => {
+  const r = run({ stock: 10000, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, losses: 6000, distributions: 8000 }]);
+  const p = plan(r);
+  // 10,000 stock: 8,000 out leaves 2,000 for a 6,000 loss.
+  assert.equal(r.closing.suspended, 4000);
+  assert.equal(p.maxDistributionKeepingLosses, 4000);
+  assert.equal(p.maxTaxFreeDistribution, 10000);
+  assert.match(p.advice.join(" "), /suspends \$4,000.00 more loss/);
+});
+
+test("planner: a loan does not cover an excess distribution, a contribution does", () => {
+  const r = run({ stock: 1000, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, distributions: 4000 }]);
+  const p = plan(r);
+  assert.equal(p.contributionToCoverExcess, 3000);
+  assert.equal(p.loanToDeductAll, 0);
+});

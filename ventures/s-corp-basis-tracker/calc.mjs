@@ -84,6 +84,7 @@ export function step(open, y) {
   const close = { stock: cents(stock), debtBasis: cents(debtBasis), debtFace: cents(face), suspended: cents(suspended), ndCarry: cents(ndCarry) };
   return {
     year: y.year,
+    input: { year: y.year, contributions: contrib, loansMade: loans, loansRepaid: repay, income: pos(y.income), taxExempt: pos(y.taxExempt), distributions: dist, nondeductible: pos(y.nondeductible), losses: pos(y.losses) },
     open: { ...o },
     lines: {
       contributions: cents(contrib), loansMade: cents(loans), income: cents(pos(y.income)), taxExempt: cents(pos(y.taxExempt)),
@@ -176,4 +177,83 @@ export function packetHtml(result, title = "S corporation shareholder basis work
       (r.notes.length ? `<ul>${r.notes.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "");
   };
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font:14px system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px}table{width:100%;border-collapse:collapse}td{border-bottom:1px solid #ddd;padding:4px}td.n{text-align:right}h2{margin-top:28px}</style></head><body><h1>${esc(title)}</h1><p>Prepared with the free S-Corp Basis Tracker from numbers the preparer typed. An organising aid in the order Form 7203 uses; not tax advice and not a filed form. Check each amount against the K-1 and the current Form 7203 instructions.</p>${result.rows.map(block).join("")}<p>No warranty. Not tax, legal or financial advice.</p></body></html>`;
+}
+
+// ---- Year-end planner ------------------------------------------------------
+// Answers the three questions an owner asks before 31 December: how much can I
+// still take out tax free, how much would I have to add to deduct what is
+// suspended, and is a contribution or a loan the better way to add it.
+// Every figure comes from re-running `step` on the last row, so it cannot drift
+// from the roll-forward above.
+
+const up = (n) => Math.ceil(n * 100 - 1e-6) / 100;
+const down = (n) => Math.floor(n * 100 + 1e-6) / 100;
+
+// Smallest x in [0, hi] (to the cent) with ok(x) true; ok must be monotone. null if ok(hi) is false.
+function smallest(ok, hi) {
+  if (ok(0)) return 0;
+  if (!ok(hi)) return null;
+  let lo = 0, h = hi;
+  for (let i = 0; i < 60; i++) { const mid = (lo + h) / 2; if (ok(mid)) h = mid; else lo = mid; }
+  let x = up(h);
+  while (!ok(x)) x = cents(x + 0.01);
+  return x;
+}
+// Largest x in [0, hi] (to the cent) with ok(x) true; ok must be monotone decreasing.
+function largest(ok, hi) {
+  if (ok(hi)) return hi;
+  let lo = 0, h = hi;
+  for (let i = 0; i < 60; i++) { const mid = (lo + h) / 2; if (ok(mid)) lo = mid; else h = mid; }
+  let x = down(lo);
+  while (x > 0 && !ok(x)) x = cents(x - 0.01);
+  return x;
+}
+
+// `result` is the output of run(); the planned year is its last row.
+export function plan(result) {
+  const base = result.rows[result.rows.length - 1];
+  if (!base) return null;
+  const y = base.input;
+  const o = base.open;
+  const cap = pos(o.stock) + pos(o.debtBasis) + y.contributions + y.loansMade + y.income + y.taxExempt + y.distributions + base.close.suspended + 1;
+
+  const withDist = (d) => step(o, { ...y, distributions: d });
+  const noDist = withDist(0);
+  // Largest distribution that is entirely return of basis.
+  const maxTaxFree = largest((d) => withDist(d).lines.excessDistributions <= 0.004, cap);
+  // Largest distribution that suspends no more loss than taking none would.
+  const maxKeepLoss = Math.min(maxTaxFree, largest((d) => withDist(d).close.suspended <= noDist.close.suspended + 0.004, cap));
+
+  const addCon = (x) => step(o, { ...y, contributions: y.contributions + x });
+  const addLoan = (x) => step(o, { ...y, loansMade: y.loansMade + x });
+  const hi = base.close.suspended + base.lines.excessDistributions + 1;
+  const stillSuspended = base.close.suspended;
+  const conNeed = stillSuspended > 0 ? smallest((x) => addCon(x).close.suspended <= 0.004, hi) : 0;
+  const loanNeed = stillSuspended > 0 ? smallest((x) => addLoan(x).close.suspended <= 0.004, hi) : 0;
+  const conCoverExcess = base.lines.excessDistributions > 0 ? smallest((x) => addCon(x).lines.excessDistributions <= 0.004, hi) : 0;
+
+  const summary = (label, r, added) => ({
+    label, added: cents(added), deductedLosses: r.deductedLosses, suspended: r.close.suspended,
+    excessDistributions: r.lines.excessDistributions, stock: r.close.stock, debtBasis: r.close.debtBasis,
+    // Face value of loans above their basis: repaying that part later is gain.
+    loanAboveBasis: cents(pos(r.close.debtFace - r.close.debtBasis)),
+  });
+  const scenarios = [summary("As entered", base, 0)];
+  if (conNeed) scenarios.push(summary("Contribute " + fmt(conNeed), addCon(conNeed), conNeed));
+  if (loanNeed) scenarios.push(summary("Lend " + fmt(loanNeed), addLoan(loanNeed), loanNeed));
+  if (conCoverExcess) scenarios.push(summary("Contribute " + fmt(conCoverExcess) + " against the excess", addCon(conCoverExcess), conCoverExcess));
+
+  const advice = [];
+  if (base.lines.excessDistributions > 0) {
+    advice.push("The distributions entered for " + y.year + " are " + fmt(base.lines.excessDistributions) + " over your stock basis. Taking at most " + fmt(maxTaxFree) + " keeps them tax free" +
+      (conCoverExcess ? ", or a capital contribution of " + fmt(conCoverExcess) + " before year end covers the rest. A loan does not: distributions reduce stock basis only." : "."));
+  } else if (y.distributions < maxTaxFree) {
+    advice.push("You can distribute up to " + fmt(maxTaxFree) + " in " + y.year + " before any of it is taxable; you have entered " + fmt(y.distributions) + ".");
+  }
+  const costOfDist = base.close.suspended - noDist.close.suspended;
+  if (costOfDist > 0.004) advice.push("The " + fmt(y.distributions) + " of distributions entered suspends " + fmt(costOfDist) + " more loss than taking none, because distributions reduce stock basis before losses do. Up to " + fmt(maxKeepLoss) + " would not suspend more.");
+  if (stillSuspended > 0 && conNeed != null && loanNeed != null) {
+    advice.push("To deduct the " + fmt(stillSuspended) + " suspended after " + y.year + ", add " + fmt(conNeed) + " as a capital contribution or " + fmt(loanNeed) + " as a direct loan from you to the company, before the year ends. A contribution is not repaid; a loan is, and repaying a loan whose basis losses have used can be gain.");
+  }
+  return { year: y.year, maxTaxFreeDistribution: maxTaxFree, maxDistributionKeepingLosses: maxKeepLoss, contributionToDeductAll: conNeed, loanToDeductAll: loanNeed, contributionToCoverExcess: conCoverExcess, scenarios, advice };
 }
