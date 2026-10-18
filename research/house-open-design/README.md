@@ -31,7 +31,7 @@ python experiments/run.py        # writes the plan set into experiments/ (about 
 ```bash
 cd research/house-open-design
 PY=$(python3 ../../platform/ci/pyenv.py pytest ifcopenshell | tail -1)   # ifcopenshell needs Python 3.13
-$PY -m pytest -q tests          # 12 tests (the IFC test skips without ifcopenshell)
+$PY -m pytest -q tests          # 15 tests (the IFC test skips without ifcopenshell)
 $PY experiments/run.py
 ```
 
@@ -39,6 +39,7 @@ $PY experiments/run.py
 - **Plan:** living 24 x 10 ft (240 sq ft), bedroom 18 x 10 (180), bath 6 x 10 (60). All layout rules and member checks pass. Members: 2x4 studs at 24 in, 2x8 joists at 16 in over a 2x10 girder on four posts, 2x10 rafters, 2x12 ceiling joists spanning the full 24 ft (no central wall), 2x12 ridge. 2,614 bf of lumber, plus 22 sheets of wall, 19 of roof and 15 of subfloor sheathing.
 - **Lateral** (115 mph, Sds 0.5, house-structure's assumed coefficients): south and north walls, 6.5 ft of full-height wall each, need 6 in edge nailing for 1,164 lb of wind and 290 lb of seismic per line (the limit is about 188 mph at that nailing); east and west walls, 16 ft each, need 6 in nailing for 1,023 lb (about 322 mph). Seismic never governs.
 - **Envelope:** baseline UA 155.7 Btu/h F, tight 98.8. Annual heating and cooling cost with a heat pump (assumed $0.16/kWh): Houston $195 to $123, Baltimore $297 to $189, Chicago $364 to $231, Minneapolis $433 to $275. Gas furnace plus AC (assumed $1.30/therm) is $175 to $111 in Houston and $325 to $206 in Minneapolis. The windows are the largest single loss in the tight package (31 of 99 Btu/h F).
+- **Roof option** (added 2026-10-18, from `house-truss`): the stick roof (2x10 rafters, 2x12 ceiling joists over the full 24 ft, 2x12 ridge) is 1,070 board feet; 11 lightest-passing W trusses at 24 in (2x6 top and bottom, 2x4 web, 60.6 bf each) are 667 bf, 38% less roof lumber, at an assumed 30 psf ground-snow roof load on plan. Lumber only: plates, bracing, waste, the heel detail and a truss manufacturer's sealed design are not counted, and `house-truss` has not been checked against a truss design program.
 - **Cost index:** 54.0 with a lot and 37.5 on one's own lot (reference 100 for a 2,000 sq ft two-storey house); 225 and 156 per sq ft against 100. Treat it as a lever, not a price (below).
 
 ## Limitations
@@ -49,7 +50,7 @@ $PY experiments/run.py
 - Every figure inherits the limits of the six sibling projects, including unverified design values, interior walls given no shear credit, degree-day climates from memory, and every price assumed.
 
 ## Next steps
-Price the BOM line by line (`house-cost`'s next step) so the envelope upgrade has a payback; add a truss option; give the plan a kitchen and closets and let the search move them; add a foundation and hold-down sizing; export studs and plates to IFC and open the file in FreeCAD; take it to a licensed engineer.
+Price the BOM line by line (`house-cost`'s next step) so the envelope upgrade has a payback; price the truss option against the stick roof; give the plan a kitchen and closets and let the search move them; add a foundation and hold-down sizing; export studs and plates to IFC and open the file in FreeCAD; take it to a licensed engineer.
 
 ## Owner steps
 Everything physical or professional: a licensed architect's or engineer's review and stamp, the local code's prescriptive path or an engineered design, a permit, site and foundation design, and any construction. No purchases were made or priced.

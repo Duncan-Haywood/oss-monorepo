@@ -85,4 +85,11 @@ Annual heating and cooling cost, USD (assumed prices of $1.30 per therm and $0.1
 - with lot: price index 54.0 (construction 28.9), 225 per sq ft against 100 for the 2,000 sq ft two-storey reference
 - own lot: price index 37.5 (construction 28.9), 156 per sq ft against 100 for the 2,000 sq ft two-storey reference
 
+## Roof option: trusses against rafters and ceiling joists (`house-truss`)
+
+- stick roof (rafters, 2x12 ceiling joists spanning the full width, ridge): 1070 board feet
+- 11 W trusses at 24 in, top 2x6, bottom 2x6, web 2x4: 60.6 bf each, 667 board feet
+- trusses use 38% less roof lumber (404 bf), before connector plates, bracing, waste and a heel detail
+- the truss check assumes 30 psf ground-snow roof load on plan (the plan states no site load); a truss is an engineered, sealed component, so this is a lumber comparison, not a roof design
+
 The index extrapolates a model fitted to a 2,000 sq ft average house to a 480 sq ft one through assumed fixed/area splits; treat it as a lever, not a price.

@@ -7,7 +7,7 @@ from house_plan.plan import Params, make_plan
 from house_plan.rules import check_layout
 from house_plan.takeoff import bom_lines, takeoff
 
-from .analysis import PACKAGES, annual_energy, cost_index, envelope, lateral
+from .analysis import PACKAGES, annual_energy, cost_index, envelope, lateral, roof_option
 from .drawings import floor_plan_svg, south_elevation_svg
 
 # One bedroom, 24 x 20 ft, 4:12 roof, 24 in studs and rafters, 16 in joists: chosen by hand from the house-plan
@@ -23,7 +23,8 @@ def facts(params=ADU):
     env = {k: envelope(plan, v) for k, v in PACKAGES.items()}
     energy = {(c, s, k): annual_energy(env[k], c, s) for c in CLIMATE_SET for s in SYSTEM_SET for k in PACKAGES}
     return {"plan": plan, "takeoff": t, "problems": t["failures"] + check_layout(plan), "lateral": lateral(plan),
-            "env": env, "energy": energy, "cost": cost_index(plan)}
+            "env": env, "energy": energy, "cost": cost_index(plan),
+            "roof": roof_option(plan, t)}
 
 
 def bom_rows(t):
@@ -73,6 +74,20 @@ def report(f):
     for k, c in f["cost"].items():
         L.append(f"- {k}: price index {c['price_index']:.1f} (construction {c['construction_index']:.1f}), "
                  f"{c['per_sqft_vs_reference']:.0f} per sq ft against 100 for the 2,000 sq ft two-storey reference")
+    r = f["roof"]
+    L += ["", "## Roof option: trusses against rafters and ceiling joists (`house-truss`)", ""]
+    if r["truss"] is None:
+        L.append("No 2x4 to 2x8 W truss passes at this span; the stick roof stays.")
+    else:
+        t = r["truss"]
+        L += [f"- stick roof (rafters, {f['takeoff']['sizes']['ceiling']} ceiling joists spanning the full width, ridge): "
+              f"{r['stick_bf']:.0f} board feet",
+              f"- {r['n_trusses']} W trusses at {p.rafter_oc} in, top {t.top}, bottom {t.bottom}, web {t.web}: "
+              f"{r['truss_bf_each']:.1f} bf each, {r['truss_bf']:.0f} board feet",
+              f"- trusses use {100 * (1 - r['truss_bf'] / r['stick_bf']):.0f}% less roof lumber "
+              f"({r['stick_bf'] - r['truss_bf']:.0f} bf), before connector plates, bracing, waste and a heel detail",
+              "- the truss check assumes 30 psf ground-snow roof load on plan (the plan states no site load); a truss is an "
+              "engineered, sealed component, so this is a lumber comparison, not a roof design"]
     L += ["", "The index extrapolates a model fitted to a 2,000 sq ft average house to a 480 sq ft one through assumed fixed/area splits; "
           "treat it as a lever, not a price.", ""]
     return "\n".join(L)
@@ -96,6 +111,7 @@ def write(outdir, params=ADU, ifc=True):
         except ImportError:
             pass
     summary = {"area_sqft": params.width * params.depth, "framing_bf": round(f["takeoff"]["total_bf"], 1),
+               "roof": {"stick_bf": round(f["roof"]["stick_bf"], 1), "truss_bf": round(f["roof"].get("truss_bf", 0), 1)},
                "problems": f["problems"], "wrote": wrote}
     (out / "summary.json").write_text(json.dumps(summary, indent=1) + "\n")
     return f, summary
