@@ -1,0 +1,43 @@
+{
+ "date": "2026-10-18",
+ "session": "https://claude.ai/code/session_0194MxK297rgkDemBxLQ6u3L",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled: continue work on the repo developing revenue-generating software products; merge when done",
+ "input_sha256": "ca910e9defb5164a5a865288b977cdeab0b979cc69f7d09500f8fad64a986d20",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-18T12:00:34Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8034",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompt.md",
+   "issue": "Scheduled brief says build revenue products but the router sent a research run; no guidance on which wins."
+  }
+ ],
+ "deviations": [],
+ "goal": null,
+ "notes": "Research track 12 draw; added the truss roof option to house-open-design. Brief asked for revenue products; the portfolio's blockers (payout rail, accounts) are owner-gated and the product side is already saturated, so the routed research track was followed.",
+ "corrections": [],
+ "redteam": null
+}
