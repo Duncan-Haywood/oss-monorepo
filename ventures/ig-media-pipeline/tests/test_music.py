@@ -572,7 +572,7 @@ def test_build_mixes_music_credits_it_and_keeps_it_through_revisions(built):
     assert [m for _, m in renders] == [Path("/music/t1.mp3")] * 2               # the same track both times
     assert renders[1][0].music == MusicChoice(track_id="t1", start_s=8.5)
     assert "id=t1" in judge.tasks[0].instructions and "Music: id=t1" in judge.tasks[1].instructions
-    caption = (cfg.output_dir / "reels" / "short" / "k__short-01.caption.txt").read_text()
+    caption = (cfg.output_dir / "reels" / "k" / "k__short-01.caption.txt").read_text()
     post, _, sound = caption.partition("\n\n---\n")
     assert post == 'Morning light.\n\nMusic: "Dawn" by A. Composer'                # the credit is posted
     assert sound.startswith('Sound: "t1" (s, CC-BY-4.0), from 8.50 s.')        # the track, for swapping
@@ -588,7 +588,7 @@ def test_build_renders_silent_when_the_mix_fails(built):
     assert renders[0][1] is None and rec["music"] is None and rec["plan"]["music"] is None
     # never silent: a reel whose mix failed does not ship
     assert rec["status"] == "needs-attention" and "music" in rec["reason"]
-    caption = (cfg.output_dir / "reels" / "_needs-attention" / "k__short-01.caption.txt").read_text()
+    caption = (cfg.output_dir / "reels" / "_needs-attention" / "k" / "k__short-01.caption.txt").read_text()
     assert caption.partition("\n\n---\n")[0] == "c"
 
 

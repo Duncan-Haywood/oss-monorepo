@@ -81,17 +81,36 @@ def _assemble(group_key: str, paths: list[Path], meta: dict) -> Asset | None:
                  ("taken_at", "date_label", "location", "event", "camera", "clock_time") if k in meta})
 
 
-def scan_flat(folder: Path) -> list[Asset]:
+TYPE_DIRS = ("RAW", "JPG", "VIDEO")     # an event folder's camera files, sorted by type (organize.py)
+
+
+def _flat_assets(files, prefix: str) -> list[Asset]:
     groups: dict[str, list[Path]] = defaultdict(list)
     meta: dict[str, dict] = {}
-    for p in folder.iterdir():
+    for p in files:
         if p.is_file() and not p.name.startswith((".", "_")):
             fields = parse_flat(p.name)
             if fields:
                 groups[fields["stem"]].append(p)
                 meta[fields["stem"]] = fields
-    out = [_assemble(f"{folder.name}/{k}", v, meta[k]) for k, v in sorted(groups.items())]
+    out = [_assemble(f"{prefix}/{k}", v, meta[k]) for k, v in sorted(groups.items())]
     return [a for a in out if a]
+
+
+def scan_flat(folder: Path) -> list[Asset]:
+    return _flat_assets(folder.iterdir(), folder.name)
+
+
+def is_event_folder(folder: Path) -> bool:
+    return any((folder / t).is_dir() for t in TYPE_DIRS)
+
+
+def scan_event(folder: Path, prefix: str) -> list[Asset]:
+    """An organised event folder: a shot's RAW, JPG and sidecar sit in different type folders.
+    Ids use the library root's name, as they did before the files were filed, so every score
+    and edit stays attached."""
+    files = [p for d in (folder, *(folder / t for t in TYPE_DIRS)) if d.is_dir() for p in d.iterdir()]
+    return _flat_assets(files, prefix)
 
 
 def scan_insta360(folder: Path) -> list[Asset]:
@@ -129,5 +148,10 @@ def scan(roots: list[Path]) -> list[Asset]:
             continue
         assets += scan_flat(root)
         for sub in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith((".", "_"))):
-            assets += scan_insta360(sub) if (sub / "_index.csv").exists() else scan_flat(sub)
+            if (sub / "_index.csv").exists():
+                assets += scan_insta360(sub)
+            elif is_event_folder(sub):
+                assets += scan_event(sub, root.name)
+            else:
+                assets += scan_flat(sub)
     return assets

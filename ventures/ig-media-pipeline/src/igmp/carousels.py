@@ -16,12 +16,12 @@ q92) and fills the frame: a picture of another shape is cropped around its focus
 subject a crop would cut may be shown whole over a blurred copy of itself ('fit'), at most one per
 carousel. Slides are photos only (no video slides yet).
 
-Outputs (cfg.output_dir / "carousels"); <name> is <event>__NN for story carousels (NN counts them)
-and <event>__before-after:
-  <name>/01.jpg .. NN.jpg, cover.jpg (= slide 1), caption.txt     shipped
-  _review/<name>/            shipped, but the event matches the `review_events` setting (other
-                             people in it: the owner approves them)
-  _needs-attention/<name>/   the critic never passed it
+Outputs (cfg.output_dir / "carousels"), one folder per event; <name> is <event>__NN for story
+carousels (NN counts them) and <event>__before-after:
+  <event>/<name>/01.jpg .. NN.jpg, cover.jpg (= slide 1), caption.txt     shipped
+  _review/<event>/<name>/            shipped, but the event matches the `review_events` setting
+                                     (other people in it: the owner approves them)
+  _needs-attention/<event>/<name>/   the critic never passed it
 
 Every step is saved as it happens, in the store's "carousels" table (one record per carousel,
 keyed by <name>): the candidate list and its sheet once prepared, the plan the moment it arrives,
@@ -817,9 +817,9 @@ def slide_path(cfg: Config, name: str, f: Frame, s: CarouselFrame) -> Path:
 
 
 def _destinations(cfg: Config, name: str) -> dict[str, Path]:
-    root = cfg.output_dir / "carousels"
-    return {"shipped": root / name, "review": root / "_review" / name,
-            "needs-attention": root / "_needs-attention" / name}
+    root, event = cfg.output_dir / "carousels", name.split("__")[0]
+    return {"shipped": root / event / name, "review": root / "_review" / event / name,
+            "needs-attention": root / "_needs-attention" / event / name}
 
 
 def publish(slides: list[Path], caption: str, dest: Path, stale: list[Path] = ()) -> None:

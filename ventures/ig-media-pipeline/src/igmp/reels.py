@@ -11,10 +11,11 @@ moves, every still moves, at most one bordered 'fit' shot, few and motivated tra
 renders it; automatic checks (prechecks.py, when present) and a per-class critic watch the result
 and revise up to three times, else it waits in reels/_needs-attention/.
 
-Outputs (cfg.output_dir / "reels"), <name> = <event>__<class>-NN (a B version: ...-NNb):
-  short|medium|long/<name>.mp4, .caption.txt, .jpg (cover)   shipped
-  _review/<name>.*            shipped, but the event matches `review_events` (other people)
-  _needs-attention/<name>.*   the critic never passed it, or it could not get music
+Outputs (cfg.output_dir / "reels"), one folder per event, <name> = <event>__<class>-NN (a B
+version: ...-NNb):
+  <event>/<name>.mp4, .caption.txt, .jpg (cover)   shipped
+  _review/<event>/<name>.*            shipped, but the event matches `review_events` (other people)
+  _needs-attention/<event>/<name>.*   the critic never passed it, or it could not get music
 Each reel is a store row keyed <name>, so a stopped run resumes where it left off.
 """
 from __future__ import annotations
@@ -1352,20 +1353,23 @@ def needs_review(key: str, cfg: Config) -> bool:
     return any(p and p.lower() in key.lower() for p in review_patterns(cfg))
 
 
-FOLDERS = (*REEL_CLASSES, "_review", "_needs-attention")
+LEGACY_FOLDERS = (*REEL_CLASSES, "_review", "_needs-attention")   # before reels were filed by event
 
 
 def out_folder(cfg: Config, key: str, length_class: str, shipped: bool) -> Path:
+    """reels/<event>/, or reels/_review/<event>/ and reels/_needs-attention/<event>/: every reel of
+    an event sits together, its length class is in its name."""
     base = cfg.output_dir / "reels"
     if not shipped:
-        return base / "_needs-attention"
-    return base / ("_review" if needs_review(key, cfg) else length_class)
+        return base / "_needs-attention" / key
+    return (base / "_review" / key) if needs_review(key, cfg) else base / key
 
 
-def _clear_other_copies(cfg: Config, name: str, keep: Path) -> None:
+def _clear_other_copies(cfg: Config, name: str, keep: Path, key: str = "") -> None:
     """A reel made again (say once music arrived) may land in another folder: drop the old copy."""
-    for folder in FOLDERS:
-        d = cfg.output_dir / "reels" / folder
+    base = cfg.output_dir / "reels"
+    folders = [base / key, base / "_review" / key, base / "_needs-attention" / key] if key else []
+    for d in folders + [base / f for f in LEGACY_FOLDERS]:
         if d == keep or not d.is_dir():
             continue
         for suffix in (".mp4", ".caption.txt", ".jpg"):
@@ -1734,7 +1738,7 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
         _render(as_rendered, sources, video, cfg, tracks, draft=True, transitions=transitions)
     out_dir = out_folder(cfg, key, length_class, shipped)
     out_dir.mkdir(parents=True, exist_ok=True)
-    _clear_other_copies(cfg, name, out_dir)
+    _clear_other_copies(cfg, name, out_dir, key)
     final = out_dir / f"{name}.mp4"
     video.replace(final)
     track = tracks.get(plan.music.track_id) if plan.music else None

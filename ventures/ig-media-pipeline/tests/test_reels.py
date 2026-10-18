@@ -259,9 +259,10 @@ def test_review_events_and_failures_are_routed(tmp_path):
     c = cfg(tmp_path)
     c.extra["review_events"] = ["wedding"]
     base = tmp_path / "reels"
-    assert reels.out_folder(c, "2026-10-03_Mesa", "medium", True) == base / "medium"
-    assert reels.out_folder(c, "2026-10-03_Mesa_Wedding", "short", True) == base / "_review"
-    assert reels.out_folder(c, "2026-10-03_Mesa_Wedding", "short", False) == base / "_needs-attention"
+    assert reels.out_folder(c, "2026-10-03_Mesa", "medium", True) == base / "2026-10-03_Mesa"
+    assert reels.out_folder(c, "2026-10-03_Mesa_Wedding", "short", True) == base / "_review" / "2026-10-03_Mesa_Wedding"
+    assert reels.out_folder(c, "2026-10-03_Mesa_Wedding", "short", False) == \
+        base / "_needs-attention" / "2026-10-03_Mesa_Wedding"
 
 
 # --------------------------------------------------------------------------- prompts
@@ -394,11 +395,10 @@ def test_build_all_one_story_call_per_event_saves_everything_and_routes(stage):
     assert {k for k, _ in store.all("reel_plans")} == set(names)          # every plan saved as it came
     assert all(store.get("reel_rounds", f"{n}#00")["outcome"] == "ship" for n in names)
     out = c.output_dir / "reels"
-    for n in mesa:
-        cls = reels.parse_name(n)[1]
-        assert (out / cls / f"{n}.mp4").exists() and (out / cls / f"{n}.caption.txt").exists()
-        assert (out / cls / f"{n}.jpg").exists()
-    assert sorted(p.name for p in (out / "_review").glob("*.mp4")) == [
+    for n in mesa:                                       # every reel of an event in its own folder
+        ev = out / "2026-10-03_Mesa"
+        assert (ev / f"{n}.mp4").exists() and (ev / f"{n}.caption.txt").exists() and (ev / f"{n}.jpg").exists()
+    assert sorted(p.name for p in (out / "_review" / "2026-10-05_Harbor_Wedding").glob("*.mp4")) == [
         "2026-10-05_Harbor_Wedding__short-01.mp4", "2026-10-05_Harbor_Wedding__short-01b.mp4"]
     rec = store.get("reels", "2026-10-03_Mesa__short-01b")
     assert rec["trial_of"] == "2026-10-03_Mesa__short-01" and rec["status"] == "shipped"
@@ -490,7 +490,7 @@ def test_no_music_library_never_ships_and_waits_for_music(stage, monkeypatch):
     rec = store.get("reels", "2026-10-03_Mesa__short-01")
     assert rec["status"] == "needs-attention" and rec["reason"] == reels.NO_MUSIC
     assert not any(k.endswith("short-01") and ":" not in k for k in judge.keys)   # no critic call spent
-    assert (c.output_dir / "reels" / "_needs-attention" / "2026-10-03_Mesa__short-01.mp4").exists()
+    assert (c.output_dir / "reels" / "_needs-attention" / "2026-10-03_Mesa" / "2026-10-03_Mesa__short-01.mp4").exists()
     # once there is music, the reel is made again (from its saved plan: no new story call)
     from igmp import music as music_mod
     from igmp.music import License, Track, TrackInfo
@@ -505,7 +505,7 @@ def test_no_music_library_never_ships_and_waits_for_music(stage, monkeypatch):
     rec = store.get("reels", "2026-10-03_Mesa__short-01")
     assert rec["status"] == "shipped" and rec["music"]["track_id"] == "t1"
     assert not any(k.startswith(("story:", "bundle:")) for k in judge2.keys)
-    assert not (c.output_dir / "reels" / "_needs-attention" / "2026-10-03_Mesa__short-01.mp4").exists()
+    assert not (c.output_dir / "reels" / "_needs-attention" / "2026-10-03_Mesa" / "2026-10-03_Mesa__short-01.mp4").exists()
 
 
 def test_director_transitions_reach_the_renderer(stage, monkeypatch):
@@ -598,7 +598,7 @@ def test_real_render_end_to_end(tmp_path, monkeypatch):
     rec = store.get("reels", "2026-10-03_Mesa__short-01")
     assert rec["status"] == "shipped", rec.get("reason")
     out = Path(rec["video"])
-    assert out.parent.name == "short" and out.exists() and Path(rec["cover"]).exists()
+    assert out.parent.name == "2026-10-03_Mesa" and out.exists() and Path(rec["cover"]).exists()
     assert Image.open(rec["cover"]).size == (1080, 1920)
     assert any(k.startswith("transitions:") for k in judge.keys)          # the director was asked
     assert any(t["kind"] != "cut" for t in rec["transitions"])

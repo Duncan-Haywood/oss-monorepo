@@ -119,12 +119,35 @@ def run_backup(cfg: config.Config, args) -> int:
     return 1 if bad else 0
 
 
+def run_organize(cfg: config.Config, store: Store, args) -> int:
+    """File loose shots into <root>/<event>/RAW|JPG|VIDEO; a dry run unless --apply."""
+    from . import organize
+    if args.undo:
+        print(organize.undo(Path(args.undo)))
+    else:
+        for root in cfg.library_roots:
+            if not Path(root).exists():
+                print(f"{root}: not connected, skipped")
+                continue
+            moves = organize.plan(Path(root))
+            print(organize.summary(moves, Path(root)))
+            if args.apply:
+                print(organize.apply(Path(root), moves))
+        if not args.apply:
+            print("dry run: add --apply to move the files")
+            return 0
+    scan(cfg, store)          # same ids, new paths
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="igmp", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("command", choices=["init", "run", "scan", "prefilter", "score", "astro", "edit", "reels", "carousels",
-                                       "tag", "backup", "geo", "music", "status"])
+                                       "tag", "backup", "geo", "music", "status", "organize"])
     p.add_argument("action", nargs="?", choices=["manifest", "verify", "copy"], help="backup only")
     p.add_argument("--to", type=str, default=None, help="backup copy destination")
+    p.add_argument("--apply", action="store_true", help="organize: move the files (default: show the plan)")
+    p.add_argument("--undo", type=str, default=None, help="organize: a manifest to move back")
     p.add_argument("--only", type=str, default=None, help="limit to events whose key contains this text")
     p.add_argument("--limit", type=int, default=None,
                    help="score at most this many candidates (reels, carousels: make at most this many)")
@@ -146,6 +169,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "backup":
         return run_backup(cfg, args)
+    if args.command == "organize":
+        return run_organize(cfg, store, args)
     if args.command == "music":
         from . import music
         print(music.library_listing(cfg) or f"no licensed tracks in {music.music_dir(cfg)}")

@@ -310,7 +310,7 @@ def test_build_ships_slides_in_plan_order_with_cover_and_caption(tmp_path, libra
         [critique()])
     made = C.build_all(c, st, judge, assets)
     assert made == 1
-    out = c.output_dir / "carousels" / f"{EVENT}__01"
+    out = c.output_dir / "carousels" / EVENT / f"{EVENT}__01"
     assert slides_in(out) == [f"{i:02d}.jpg" for i in range(1, 7)]
     assert (out / "cover.jpg").read_bytes() == (out / "01.jpg").read_bytes()
     assert (out / "caption.txt").read_text() == "Last light on the water.\n"
@@ -351,8 +351,8 @@ def test_review_events_wait_in_review(tmp_path):
     c = cfg(tmp_path, review_events=["wedding"])
     judge = FakeJudge([plan_of([a.id for a in assets])], [critique()])
     assert C.build_all(c, st, judge, assets) == 1
-    assert slides_in(c.output_dir / "carousels" / "_review" / f"{key}__01")
-    assert not (c.output_dir / "carousels" / f"{key}__01").exists()
+    assert slides_in(c.output_dir / "carousels" / "_review" / key / f"{key}__01")
+    assert not (c.output_dir / "carousels" / key / f"{key}__01").exists()
     assert C.record(st, f"{key}__01")["status"] == "review"
     assert C.needs_review("2026-06-01_Town_Wedding", cfg(tmp_path, review_events="Wedding"))
     assert not C.needs_review(EVENT, cfg(tmp_path))
@@ -369,7 +369,7 @@ def test_critic_revision_is_rendered_and_shipped(tmp_path, library):
     assert rec["status"] == "shipped" and rec["rounds"] == 2
     assert [f["id"] for f in rec["frames"]] == ["a03", "a07", "a00", "a05", "a02"]
     assert "weak hook" in judge.tasks[2].instructions          # the second critic remembers the first
-    assert (c.output_dir / "carousels" / f"{EVENT}__01" / "caption.txt").read_text() == "Revised.\n"
+    assert (c.output_dir / "carousels" / EVENT / f"{EVENT}__01" / "caption.txt").read_text() == "Revised.\n"
 
 
 def test_failing_critic_sends_it_to_needs_attention_after_two_revisions(tmp_path, library):
@@ -381,8 +381,8 @@ def test_failing_critic_sends_it_to_needs_attention_after_two_revisions(tmp_path
     assert len(judge.tasks) == 1 + C.REVISIONS + 1
     rec = C.record(st, f"{EVENT}__01")
     assert rec["status"] == "needs-attention" and rec["rounds"] == C.REVISIONS + 1
-    assert slides_in(c.output_dir / "carousels" / "_needs-attention" / f"{EVENT}__01")
-    assert not (c.output_dir / "carousels" / f"{EVENT}__01").exists()
+    assert slides_in(c.output_dir / "carousels" / "_needs-attention" / EVENT / f"{EVENT}__01")
+    assert not (c.output_dir / "carousels" / EVENT / f"{EVENT}__01").exists()
 
 
 def test_ship_verdict_with_a_failed_check_does_not_ship(tmp_path, library):
@@ -426,7 +426,7 @@ def test_second_carousel_of_an_event_uses_other_frames(tmp_path, library):
     first = {f["asset_id"] for f in C.record(st, f"{EVENT}__01")["frames"]}
     other = {f["asset_id"] for f in C.record(st, f"{EVENT}__02")["frames"]}
     assert first and other and not first & other
-    assert slides_in(c.output_dir / "carousels" / f"{EVENT}__02")
+    assert slides_in(c.output_dir / "carousels" / EVENT / f"{EVENT}__02")
 
 
 def test_unreadable_candidates_are_dropped_not_fatal(tmp_path, library):
@@ -548,7 +548,7 @@ def test_before_after_shows_camera_jpeg_then_edit_framed_alike(tmp_path, edited)
     assert len(C.pair_frames(groups[EVENT])) == 3                  # too few frames for a story, enough pairs
     judge = FakeJudge([], [], [plan_of(["a01", "a00"], caption="Before and after #rawedit")], [critique()])
     assert C.build_all(c, st, judge, assets) == 1
-    out = c.output_dir / "carousels" / f"{EVENT}__before-after"
+    out = c.output_dir / "carousels" / EVENT / f"{EVENT}__before-after"
     assert slides_in(out) == ["01.jpg", "02.jpg", "03.jpg", "04.jpg"]
     rec = C.record(st, f"{EVENT}__before-after")
     assert rec["kind"] == "before-after" and rec["status"] == "shipped"
