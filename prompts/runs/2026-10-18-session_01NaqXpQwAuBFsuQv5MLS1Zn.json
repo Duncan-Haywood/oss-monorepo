@@ -27,7 +27,7 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": 0,
+  "errors": [],
   "integrity_issues": [],
   "doc_friction": [
     {
