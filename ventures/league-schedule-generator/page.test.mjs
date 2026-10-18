@@ -162,6 +162,24 @@ test("the team-count page's table matches roundRobin", () => {
   for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)) JSON.parse(m[1]);
 });
 
+test("the round-robin duration page's slot table matches roundRobin and it is linked", () => {
+  const html = page("how-long-does-a-round-robin-tournament-take.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-long-does-a-round-robin-tournament-take\.html">/);
+  assert.match(page("sitemap.xml"), /how-long-does-a-round-robin-tournament-take\.html/);
+  for (const f of ["index.html", "round-robin-schedule-by-number-of-teams.html"]) assert.match(page(f), /href="\.\/how-long-does-a-round-robin-tournament-take\.html"/);
+  for (let n = 4; n <= 16; n++) {
+    const rr = roundRobin(n);
+    const m = Math.floor(n / 2);
+    const cells = [1, 2, 3, 4].map((c) => `<td>${rr.length * Math.ceil(m / c)}</td>`).join("");
+    const row = `<tr><td>${n}</td><td>${(n * (n - 1)) / 2}</td><td>${m}</td>${cells}</tr>`;
+    assert.ok(html.includes(row), row);
+  }
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+});
+
 test("the fixture-template page's rows match roundRobin and it is linked and in the sitemap", () => {
   const html = page("round-robin-schedule-template.html");
   assert.match(html, /No warranty/);
