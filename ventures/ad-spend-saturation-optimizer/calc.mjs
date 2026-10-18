@@ -433,11 +433,44 @@ export function analyze(rows, opts = {}) {
     firstWeek, lastWeek, margin, budget, fixedSpend, currentRevenue: curRev, recommendedRevenue: alloc.revenue,
     gain, gainLo: percentile(gains, 0.1), gainMid: percentile(gains, 0.5), gainHi: percentile(gains, 0.9),
     pGain: gains.length ? gains.filter((g) => g > 0).length / gains.length : NaN, boots: gains.length,
-    profitAtBudget, profitAtCurrent, breakevenRoas: 1 / margin,
+    profitAtBudget, profitAtCurrent, breakevenRoas: 1 / margin, frontier: fr,
   };
   const res = { channels, modelled, summary, optimum, backtest: bt, backtestTotal: btTotal };
   res.findings = findings(res);
   return res;
+}
+
+// Budget what-if: the best split of a different weekly total, read off the
+// frontier analyze() already built (no refit). Returns null outside the range the
+// per-channel limits allow. `prorata` is the same total spread in proportion to
+// today's spend, the "cut or raise every channel by the same percent" baseline.
+export function budgetPlan(res, total) {
+  if (!res || !res.modelled || !Number.isFinite(total) || total <= 0) return null;
+  const fr = res.modelled.length ? res.summary.frontier : null;
+  if (!fr) return null;
+  const unit = fr.unit, b = Math.round(total / unit);
+  const at = fr.at(b);
+  if (!at) return null;
+  const margin = res.summary.margin;
+  const spend = at.units.map((u) => u * unit), spent = b * unit;
+  const k = Math.max(1, Math.round(b * 0.02));
+  const lo = fr.revenueAt(Math.max(fr.minUnits, b - k)), hi = fr.revenueAt(Math.min(fr.maxUnits, b + k));
+  const span = (Math.min(fr.maxUnits, b + k) - Math.max(fr.minUnits, b - k)) * unit;
+  const mult = spent / res.summary.budget;
+  const prorata = res.modelled.reduce((a, c) => a + curveValue(c.fit, c.current * mult), 0);
+  return {
+    total: spent, mult, revenue: at.revenue, contribution: margin * at.revenue - spent,
+    marginalRoas: span > 0 ? (hi - lo) / span : NaN,
+    prorataRevenue: prorata, splitGain: at.revenue - prorata,
+    channels: res.modelled.map((c, i) => ({ name: c.name, current: c.current, spend: spend[i], revenue: curveValue(c.fit, spend[i]) })),
+  };
+}
+
+// A short ladder of budgets from a cut to a raise, for a "what if I spend X%
+// more or less" table. Steps outside the feasible range are left out.
+export function budgetLadder(res, mults = [0.7, 0.8, 0.9, 1, 1.1, 1.25, 1.5]) {
+  if (!res || !res.summary) return [];
+  return mults.map((m) => budgetPlan(res, res.summary.budget * m)).filter(Boolean);
 }
 
 function findings(res) {

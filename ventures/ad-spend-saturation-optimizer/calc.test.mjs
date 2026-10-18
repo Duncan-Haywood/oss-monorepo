@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   CURVES, curveValue, marginal, fitCurve, fitBest, frontier, allocate, parseSpend, parseDay, dayToIso, weekStart,
-  weekly, adstock, fitAdstock, analyze, backtestChannel, reportCsv, simulateSpend, sampleText, percentile, nelderMead, money,
+  weekly, budgetPlan, budgetLadder, adstock, fitAdstock, analyze, backtestChannel, reportCsv, simulateSpend, sampleText, percentile, nelderMead, money,
 } from "./calc.mjs";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ""} ${a} vs ${b}`);
@@ -322,4 +322,26 @@ test("carry-over model fits lagged data better than the memoryless one, and can 
   const on = analyze(rows), off = analyze(rows, { adstock: false });
   assert.equal(off.modelled[0].lambda, 0);
   assert.ok(on.modelled[0].fit.rmse < off.modelled[0].fit.rmse * 0.8, `${on.modelled[0].fit.rmse} vs ${off.modelled[0].fit.rmse}`);
+});
+
+test("budgetPlan: today's budget reproduces the recommended split, and revenue rises with budget", () => {
+  const r = analyze(SAMPLE.rows, { boots: 20 });
+  const p = budgetPlan(r, r.summary.budget);
+  near(p.total, r.summary.budget, r.summary.budget / 400 + 1e-9);
+  rel(p.revenue, r.summary.recommendedRevenue, 0.01);
+  const up = budgetPlan(r, r.summary.budget * 1.25), down = budgetPlan(r, r.summary.budget * 0.8);
+  assert.ok(down.revenue < p.revenue && p.revenue < up.revenue);
+  assert.ok(up.marginalRoas < p.marginalRoas, "diminishing returns on the total");
+  assert.ok(up.splitGain >= -1e-6, "best split never loses to pro rata");
+  near(up.channels.reduce((a, c) => a + c.spend, 0), up.total, 1e-6);
+});
+
+test("budgetPlan: out-of-range or bad totals return null; ladder keeps only feasible rows", () => {
+  const r = analyze(SAMPLE.rows, { boots: 20 });
+  assert.equal(budgetPlan(r, r.summary.budget * 10), null);
+  assert.equal(budgetPlan(r, -5), null);
+  assert.equal(budgetPlan(r, NaN), null);
+  const l = budgetLadder(r);
+  assert.ok(l.length >= 5);
+  for (let i = 1; i < l.length; i++) assert.ok(l[i].total > l[i - 1].total);
 });
