@@ -12,7 +12,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grailed-fee-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/grailed-fee-calculator</id>
     <updated>2026-10-18T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Marketplace seller tools"/>
     <summary type="text">Free Grailed seller fee calculator for the tiered commission (6% under $120 with a $1.99 minimum, 9% from $120) plus 3.49% + $0.49 payment processing. See your payout, profit, the price for a target profit, and the $120 step where the whole sale jumps to 9%. Nothing leaves your browser.</summary>
   </entry>
   <entry>
@@ -20,7 +20,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meeting-action-items/"/>
     <id>tag:marisstella.dev,2026:tool/meeting-action-items</id>
     <updated>2026-10-18T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Creator &amp; solo earner income"/>
     <summary type="text">Paste meeting notes or a transcript and get action items with owner and due date, decisions and open questions, plus a follow-up email. Free, private, no upload.</summary>
   </entry>
   <entry>
@@ -28,7 +28,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/page-seo-audit/"/>
     <id>tag:marisstella.dev,2026:tool/page-seo-audit</id>
     <updated>2026-10-18T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a page&#39;s HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.</summary>
   </entry>
   <entry>
@@ -44,7 +44,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tcgplayer-fee-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/tcgplayer-fee-calculator</id>
     <updated>2026-10-18T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Marketplace seller tools"/>
     <summary type="text">Free TCGplayer seller fee calculator: 10.75% marketplace commission (capped at $75 per product, charged on cards plus shipping) and 2.5% + $0.30 per-order transaction fee. See your payout, profit per order, the price for a target profit, and Pro or pre-February-2026 rates side by side. Nothing leaves your browser.</summary>
   </entry>
   <entry>
@@ -52,7 +52,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/youth-lineup-rotator/"/>
     <id>tag:marisstella.dev,2026:tool/youth-lineup-rotator</id>
     <updated>2026-10-18T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free youth sports lineup generator for volunteer coaches. Equal playing time, nobody benched twice in a row, goalkeeper turns shared, subs planned per period. Soccer, basketball, hockey and more. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -68,7 +68,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aid-award-letter-comparator/"/>
     <id>tag:marisstella.dev,2026:tool/aid-award-letter-comparator</id>
     <updated>2026-10-17T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free financial aid award letter comparator. Type in each college&#39;s cost, grants, loans and work-study and see the true four-year cost, loans repaid with interest, the year-2 price jump and the grant that would match the cheapest offer. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -76,7 +76,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/jwt-security-check/"/>
     <id>tag:marisstella.dev,2026:tool/jwt-security-check</id>
     <updated>2026-10-17T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a JWT and get its header and payload decoded, plus every common security misconfiguration flagged: alg:none, embedded jwk/jku/x5u/x5c key material, symmetric-vs-asymmetric algorithm confusion, a kid header shaped like path traversal or SQL injection, missing/excessive exp, and sensitive-looking fields in the unencrypted payload. Free JWT decoder and security checker, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>

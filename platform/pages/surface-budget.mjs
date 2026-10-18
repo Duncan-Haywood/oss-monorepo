@@ -94,6 +94,15 @@ export const GENERIC_BUDGET_OVERRIDES = {
       'duplication does. Allowed at two, which still blocks a fourth. Folding them into one page is worth doing ' +
       'when someone next edits either.',
   },
+  'str-host-payout-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-10-18: #7938 added "vs. subtracting a flat percentage" while "vs. tracking payouts in a ' +
+      'spreadsheet" was already on main, and the check was red on main afterwards. The angles differ: a host who ' +
+      'knocks a flat platform percentage off the nightly rate and never models the host-only fee, taxes or the ' +
+      'cleaning split, versus a host who keeps a spreadsheet of past payouts and cannot see what a stay will pay ' +
+      'before it is booked. Allowed at two, which still blocks a third.',
+  },
   'shopify-fee-calculator': {
     allowed: 2,
     why:
