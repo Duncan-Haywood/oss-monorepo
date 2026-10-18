@@ -156,6 +156,14 @@ class Main(unittest.TestCase):
             finally:
                 os.chdir(old)
 
+    def test_an_explicit_root_is_the_one_checked(self):
+        bad = '<form><input id="area" type="number" min="0.01" step="1" value="10000"></form>'
+        good = '<form><input id="n" type="number" min="0" step="1" value="3"></form>'
+        for markup, code in ((bad, 1), (good, 0)):
+            with tempfile.TemporaryDirectory() as tmp:
+                (Path(tmp) / "index.html").write_text(markup, encoding="utf-8")
+                self.assertEqual(main(["check_form_defaults.py", tmp]), code)
+
 
 if __name__ == "__main__":
     unittest.main()
