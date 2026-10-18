@@ -1,0 +1,13 @@
+[project]
+name = "house-breakeven"
+version = "0.1.0"
+description = "How much extra can a tight envelope cost before it stops paying back? Break-even first cost for the 480 sq ft ADU, by upgrade, climate, heating system, energy price and discount rate"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-open-design/src", "../house-plan/src", "../house-spans/src", "../house-framing/src", "../house-structure/src", "../house-energy/src", "../house-cost/src"]
