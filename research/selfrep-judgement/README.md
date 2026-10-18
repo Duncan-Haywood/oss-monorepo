@@ -2,6 +2,8 @@
 
 New question for track 1 (`PROJECTS.md`), not a micro-variant of an earlier result: the track's projects have varied dynamics (growth, repair, resale) around one fixed make-or-buy table, and `selfrep-closure`'s sensitivity run only scaled masses and costs. Its README admits that "which process can make which part is my judgement". This project flips that judgement and asks how far the headline closure moves, and which *missing* capability would move it most. Produced with AI assistance (Claude). Computed only; no real part was tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-judgement/
+
 **Builds on.** `selfrep-closure` (its bill of materials from the RepRap wiki, Prusa Mendel iteration 2, oldid 181926, and its process-capability judgements), imported by relative path. Vocabulary and framing: Jones et al., *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method
