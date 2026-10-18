@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, seasonCost, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1255,4 +1255,19 @@ test("seasonCost: court-hours times rate, split across teams rounded up to the c
   assert.equal(frac.perTeam, 25.03);
   assert.ok(frac.perTeam * 6 >= frac.total);
   for (const bad of [undefined, "", -1, "abc"]) assert.equal(seasonCost(sch, { rate: bad }), null);
+});
+
+test("deadlineCheck: last game against a must-finish date, counting the rounds after it", () => {
+  const sch = buildSchedule(baseSpec(4)); // Tuesdays from 2026-10-06, 3 rounds
+  const last = sch.rounds[sch.rounds.length - 1].day;
+  assert.equal(dayIso(last), "2026-10-20");
+  const ok = deadlineCheck(sch, parseDate("2026-10-27"));
+  assert.deepEqual([ok.fits, ok.daysSpare, ok.roundsAfter, ok.matchesAfter], [true, 7, 0, 0]);
+  const exact = deadlineCheck(sch, last);
+  assert.deepEqual([exact.fits, exact.daysSpare], [true, 0]);
+  const tight = deadlineCheck(sch, parseDate("2026-10-13"));
+  assert.deepEqual([tight.fits, tight.daysSpare, tight.roundsAfter, tight.matchesAfter], [false, -7, 1, 2]);
+  assert.equal(deadlineCheck(sch, null), null);
+  assert.equal(deadlineCheck(sch, NaN), null);
+  assert.equal(deadlineCheck({ rounds: [] }, 5), null);
 });
