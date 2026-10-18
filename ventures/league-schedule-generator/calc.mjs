@@ -163,6 +163,28 @@ export function parseTimeLimits(text, teams) {
   return { limits, errors };
 }
 
+/** Lines like "Cubs: Court 1, Court 2": the only courts that team may be given (matched to the league's court names). */
+export function parseCourtLimits(text, teams, courts = null) {
+  const limits = {};
+  const errors = [];
+  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(.*?)\s*(?::|\bcan only play on\b|\bonly plays on\b)\s*(.+)$/i);
+    if (!m) { errors.push(`Line ${i + 1}: write the team, a colon, then the courts (Cubs: Field 2).`); continue; }
+    const idx = teamIndex(teams, m[1]);
+    if (idx < 0) { errors.push(`Line ${i + 1}: "${m[1].trim()}" is not one of the teams.`); continue; }
+    const names = [];
+    for (const c of parseNameList(m[2])) {
+      const hit = courts ? courts.find((x) => x.toLowerCase() === c.toLowerCase()) : c;
+      if (!hit) errors.push(`Line ${i + 1}: "${c}" is not one of the courts.`);
+      else if (!names.includes(hit)) names.push(hit);
+    }
+    if (names.length) limits[idx] = [...new Set([...(limits[idx] || []), ...names])];
+  }
+  return { limits, errors };
+}
+
 export function parseNameList(text) {
   return [...new Set(String(text ?? "").split(/[\n,;]+/).map((s) => s.replace(/\s+/g, " ").trim()).filter(Boolean))];
 }
@@ -196,6 +218,9 @@ export function readSpec(f) {
   errors.push(...times.errors);
   const tl = parseTimeLimits(f.timeLimits, t.teams);
   errors.push(...tl.errors);
+  const courtNames = parseNameList(f.courts);
+  const cl = parseCourtLimits(f.courtLimits, t.teams, courtNames.length ? courtNames : null);
+  errors.push(...cl.errors);
   const seed = Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1;
   const minutes = f.minutes === undefined || f.minutes === "" ? 60 : Number(f.minutes);
   if (!Number.isFinite(minutes) || minutes < 5 || minutes > 600) errors.push("Match length must be between 5 and 600 minutes.");
@@ -203,7 +228,7 @@ export function readSpec(f) {
     errors,
     spec: {
       teams: t.teams, double: Boolean(f.double), start, weekdays: w.weekdays, skipDays: skip.days,
-      blackouts: b.blackouts, timeLimits: tl.limits, courts: parseNameList(f.courts), times: times.times, seed, minutes,
+      blackouts: b.blackouts, timeLimits: tl.limits, courtLimits: cl.limits, courts: courtNames, times: times.times, seed, minutes,
     },
   };
 }
@@ -290,9 +315,10 @@ function sumSq(arr) {
  * and moves inside a round with a seeded PRNG, so the same seed gives the same schedule.
  * `banned[team]` (optional) is a set of time indexes that team may not be given; each use costs
  * LIMIT_PENALTY, far more than any evenness gain, so the search clears them whenever it can.
+ * `bannedCourts[team]` does the same for court indexes.
  * Mutates match.slot; returns the final cost (sum over teams of squared usage counts).
  */
-export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, banned = null) {
+export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, banned = null, bannedCourts = null) {
   const cap = courtCount * timeCount;
   const cc = Array.from({ length: nTeams }, () => Array(courtCount).fill(0));
   const tc = Array.from({ length: nTeams }, () => Array(timeCount).fill(0));
@@ -309,6 +335,7 @@ export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, ban
   const teamCost = (x) => {
     let c = sumSq(cc[x]) + sumSq(tc[x]);
     if (banned && banned[x]) for (const t of banned[x]) c += LIMIT_PENALTY * tc[x][t];
+    if (bannedCourts && bannedCourts[x]) for (const k of bannedCourts[x]) c += LIMIT_PENALTY * cc[x][k];
     return c;
   };
   for (const r of rounds) for (const m of r.matches) bump(m, m.slot, 1);
@@ -463,7 +490,14 @@ export function buildSchedule(spec) {
     if (!ok.length) { notices.push(`${teams[t]} is limited to times that are not among the league's time slots, so the limit was ignored.`); continue; }
     banned[t] = times.map((x, i) => (ok.includes(x) ? -1 : i)).filter((i) => i >= 0);
   }
-  const cost = assignSlots(rounds, n, courts.length, times.length, spec.seed ?? 1, Object.keys(banned).length ? banned : null);
+  const courtLim = spec.courtLimits || {};
+  const bannedCourts = {};
+  for (const [t, allowed] of Object.entries(courtLim)) {
+    const ok = allowed.filter((x) => courts.includes(x));
+    if (!ok.length) { notices.push(`${teams[t]} is limited to courts that are not among the league's courts, so the limit was ignored.`); continue; }
+    bannedCourts[t] = courts.map((x, i) => (ok.includes(x) ? -1 : i)).filter((i) => i >= 0);
+  }
+  const cost = assignSlots(rounds, n, courts.length, times.length, spec.seed ?? 1, Object.keys(banned).length ? banned : null, Object.keys(bannedCourts).length ? bannedCourts : null);
   for (const r of rounds) {
     for (const m of r.matches) {
       m.court = courts[m.slot % courts.length];
@@ -475,10 +509,11 @@ export function buildSchedule(spec) {
   }
 
   const timeLimits = Object.fromEntries(Object.keys(banned).map((t) => [t, times.filter((_, i) => !banned[t].includes(i))]));
+  const courtLimits = Object.fromEntries(Object.keys(bannedCourts).map((t) => [t, courts.filter((_, i) => !bannedCourts[t].includes(i))]));
   const schedule = {
     teams,
     config: {
-      timeLimits,
+      timeLimits, courtLimits,
       double: Boolean(spec.double), start: spec.start, weekdays: [...weekdaySet].sort(), skipDays: [...skipSet].sort((a, b) => a - b),
       blackouts: Object.fromEntries(blackSet.map((s, i) => [i, [...s].sort((a, b) => a - b)]).filter(([, d]) => d.length)),
       courts, times, seed: spec.seed ?? 1, minutes: spec.minutes ?? 60,
@@ -487,7 +522,7 @@ export function buildSchedule(spec) {
     notices,
     slotCost: cost,
   };
-  for (const e of validateSchedule(schedule).errors) if (e.includes("only plays at")) notices.push(e.replace(/^Round \d+: |^Makeup \d+: /, ""));
+  for (const e of validateSchedule(schedule).errors) if (e.includes("only plays at") || e.includes("only plays on")) notices.push(e.replace(/^Round \d+: |^Makeup \d+: /, ""));
   schedule.stats = scheduleStats(schedule);
   return schedule;
 }
@@ -620,6 +655,8 @@ export function validateSchedule(schedule) {
       for (const t of [home, away]) {
         const lim = (cfg.timeLimits || {})[t];
         if (lim && !lim.includes(m.time)) errors.push(`${round.label}: ${schedule.teams[t]} only plays at ${lim.join(", ")}, but is at ${m.time}.`);
+        const cl = (cfg.courtLimits || {})[t];
+        if (cl && !cl.includes(m.court)) errors.push(`${round.label}: ${schedule.teams[t]} only plays on ${cl.join(", ")}, but is on ${m.court}.`);
       }
     }
   }
@@ -704,7 +741,9 @@ export function applyRainouts(schedule, text) {
         const total = cfg.courts.length * cfg.times.length;
         const want = slotOf(mt);
         const timeOk = (k) => [mt.home, mt.away].every((t) => !(cfg.timeLimits || {})[t] || cfg.timeLimits[t].includes(cfg.times[Math.floor(k / cfg.courts.length)]));
-        const free = !taken.has(want) && timeOk(want) ? want : Array.from({ length: total }, (_, k) => k).find((k) => !taken.has(k) && timeOk(k));
+        const courtOk = (k) => [mt.home, mt.away].every((t) => !(cfg.courtLimits || {})[t] || cfg.courtLimits[t].includes(cfg.courts[k % cfg.courts.length]));
+        const slotOk = (k) => timeOk(k) && courtOk(k);
+        const free = !taken.has(want) && slotOk(want) ? want : Array.from({ length: total }, (_, k) => k).find((k) => !taken.has(k) && slotOk(k));
         if (free === undefined) continue;
         placed = { d, target, free };
       }
@@ -1394,7 +1433,7 @@ export function buildPoolPlay(spec, k, clubs = []) {
   return splitPools(spec.teams, k, clubs).map((pool) => {
     const remap = (obj) => Object.fromEntries(Object.entries(obj || {}).filter(([i]) => pool.teams.includes(spec.teams[i]))
       .map(([i, v]) => [pool.teams.indexOf(spec.teams[i]), v]));
-    const schedule = buildSchedule({ ...spec, teams: pool.teams, blackouts: remap(spec.blackouts), timeLimits: remap(spec.timeLimits) });
+    const schedule = buildSchedule({ ...spec, teams: pool.teams, blackouts: remap(spec.blackouts), timeLimits: remap(spec.timeLimits), courtLimits: remap(spec.courtLimits) });
     return { name: pool.name, schedule };
   });
 }
@@ -1579,7 +1618,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -1603,7 +1642,7 @@ export function decodeFields(text) {
     const wd = Array.isArray(o.weekdays) ? o.weekdays.filter((d) => WEEKDAYS.includes(d)) : [];
     return {
       teams: str(o.teams), double: o.double === true, start: str(o.start), weekdays: wd,
-      skip: str(o.skip), blackouts: str(o.blackouts), timeLimits: str(o.timeLimits), courts: str(o.courts), times: str(o.times),
+      skip: str(o.skip), blackouts: str(o.blackouts), timeLimits: str(o.timeLimits), courtLimits: str(o.courtLimits), courts: str(o.courts), times: str(o.times),
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
-  scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
@@ -366,7 +366,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", officials: "Pat (A): Tue max 4", grounds: "A, B" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", officials: "Pat (A): Tue max 4", grounds: "A, B" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false });
@@ -1181,4 +1181,38 @@ test("rainout with '-> date' moves the match to the named day, or refuses and ke
   // a date that is not after the cancelled night, and a malformed date
   assert.equal(applyRainouts(s, `${dayIso(day)} A -> ${dayIso(day)}`).errors.length, 1);
   assert.equal(applyRainouts(s, `${dayIso(day)} A -> 2026-02-31`).errors.length, 1);
+});
+
+test("parseCourtLimits matches court names case-insensitively and reports bad lines", () => {
+  const r = parseCourtLimits("A: court 2\nZed: Court 1\nB can only play on Court 1\nC: Pitch 9\nnonsense", ["A", "B", "C"], ["Court 1", "Court 2"]);
+  assert.deepEqual(r.limits, { 0: ["Court 2"], 1: ["Court 1"] });
+  assert.equal(r.errors.length, 3);
+});
+
+test("a team limited to one court is only ever put there, through a rainout too, and the validator agrees", () => {
+  const { spec, errors } = readSpec({ ...LIMIT_BASE, courtLimits: "A: Court 2\nB: Court 1, Court 2" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  for (const r of s.rounds) for (const m of r.matches) if (m.home === 0 || m.away === 0) assert.equal(m.court, "Court 2");
+  assert.deepEqual(s.notices.filter((n) => n.includes("only plays")), []);
+  assert.equal(validateSchedule(s).ok, true, validateSchedule(s).errors.join(" "));
+  const r = applyRainouts(s, `${dayIso(s.rounds[0].day)} A`);
+  assert.equal(r.moves.length, 1);
+  assert.equal(r.moves[0].court, "Court 2");
+  assert.equal(validateSchedule(r.schedule).ok, true, validateSchedule(r.schedule).errors.join(" "));
+});
+
+test("an unknown court name is an error, and a validator breach is caught", () => {
+  const bad = readSpec({ ...LIMIT_BASE, courtLimits: "A: Court 9" });
+  assert.ok(bad.errors.some((e) => e.includes("not one of the courts")));
+  const { spec } = readSpec({ ...LIMIT_BASE, courtLimits: "A: Court 1" });
+  const s = buildSchedule(spec);
+  const mt = s.rounds.flatMap((r) => r.matches).find((m) => m.home === 0 || m.away === 0);
+  mt.court = "Court 2";
+  assert.ok(validateSchedule(s).errors.some((e) => e.includes("only plays on")));
+});
+
+test("court limits survive a share link", () => {
+  const f = { ...sampleFields(), courtLimits: "Lob Squad: Court 1" };
+  assert.equal(decodeFields(encodeFields(f)).courtLimits, "Lob Squad: Court 1");
 });
