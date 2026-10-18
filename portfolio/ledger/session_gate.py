@@ -676,9 +676,12 @@ def report(
             "no runner, no cluster and no credential beyond the push you "
             "already have. Cloud harnesses may deny that push as a production "
             "deploy, and the script takes 10+ minutes in a shallow clone: start it "
-            "with `run_in_background` (a foreground call times out). If it is "
-            "denied or fails, say so in your reply and carry on with the "
-            "work below instead of retrying. "
+            "with `run_in_background` (a foreground call times out). It refuses "
+            "any HEAD not on `origin/main`, so run it after your PR merges "
+            "(`git fetch origin main && git checkout --detach origin/main`), "
+            "not from your work branch, and do the work below first. If it is "
+            "denied or fails, say so in your reply and carry on "
+            "instead of retrying. "
             f"Reason: {snap_reason}"
         ] + reasons
     elif snap != "current":
