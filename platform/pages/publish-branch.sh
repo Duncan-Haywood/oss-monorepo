@@ -293,9 +293,10 @@ scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 dist="$scratch/dist"
 
-echo "Building the site..."
+echo "Building the site (a few minutes; silent until it finishes)..."
+build_started=$SECONDS
 ( cd "$here" && node build.mjs --out="$dist" >/dev/null )
-say "built $(find "$dist" -type f | wc -l | tr -d ' ') files"
+say "built $(find "$dist" -type f | wc -l | tr -d ' ') files in $((SECONDS - build_started))s"
 if [ -n "$cname" ]; then
   say "custom domain: $cname (base URL ${PAGES_BASE_URL})"
 else
