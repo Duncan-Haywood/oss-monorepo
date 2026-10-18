@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UK Statutory Residence Test Ties Table: Days and Ties for Leavers and Arrivers</title>
+  <meta name="description" content="The sufficient ties test as a table: how many UK ties make you resident at each number of days, for leavers and arrivers, with a worked example of 101 days and two ties. Free, private checker included.">
+  <meta property="og:title" content="UK Statutory Residence Test ties table, leavers and arrivers">
+  <meta property="og:description" content="Days in the UK against the number of ties that makes you resident, with a worked example.">
+  <link rel="canonical" href="./uk-statutory-residence-test-ties-table.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many days can I spend in the UK without becoming resident?","acceptedAnswer":{"@type":"Answer","text":"It depends on your ties. With no ties, up to 182 days; a recent leaver with four ties becomes resident at 16 days; an arriver with all four ties becomes resident at 46. The tables on this page give the threshold for every number of days."}},{"@type":"Question","name":"What are the five ties?","acceptedAnswer":{"@type":"Answer","text":"Family, accommodation, work, 90-day and (for leavers only) country. Each is defined in HMRC's RDR3 guidance; the checker asks you a question for each."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    fieldset { border: 1px solid #dad6c8; border-radius: 10px; margin: 16px 0 0; padding: 4px 14px 14px; }
+    legend { font-weight: 700; padding: 0 6px; color: #14283b; }
+    .pill.met { background: #fde8e8; color: #9a3412; }
+    .pill.no { background: #e3f1e6; color: #1f5a2d; }
+    .pill.na { background: #e8e4d6; color: #14283b; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="index.html">UK Statutory Residence Test checker</a> · guide</p>
+    <h1>UK Statutory Residence Test ties table: how many days with how many ties</h1>
+    <p>If no automatic overseas test and no automatic UK test settles your residence for the tax year, the sufficient ties test does. It compares the days you spent in the UK with the number of ties you keep here. Which table applies depends on whether you were UK resident in any of the previous three tax years.</p>
+  </header>
+  <section class="card">
+    <h2>Leavers: UK resident in one or more of the last 3 tax years</h2>
+    <p>Five ties can count: family, accommodation, work, 90-day and country.</p>
+    <div class="scroll"><table><thead><tr><th>Days in the UK</th><th>Result</th></tr></thead><tbody><tr><td>0 to 15</td><td>Automatically not resident</td></tr><tr><td>16 to 45</td><td>Resident with 4 or more ties</td></tr><tr><td>46 to 90</td><td>Resident with 3 or more ties</td></tr><tr><td>91 to 120</td><td>Resident with 2 or more ties</td></tr><tr><td>121 to 182</td><td>Resident with 1 or more ties</td></tr><tr><td>183 or more</td><td>Automatically resident</td></tr></tbody></table></div>
+    <h2>Arrivers: not UK resident in any of the last 3 tax years</h2>
+    <p>Four ties can count: the country tie does not apply.</p>
+    <div class="scroll"><table><thead><tr><th>Days in the UK</th><th>Result</th></tr></thead><tbody><tr><td>0 to 45</td><td>Automatically not resident</td></tr><tr><td>46 to 90</td><td>Resident with 4 or more ties</td></tr><tr><td>91 to 120</td><td>Resident with 3 or more ties</td></tr><tr><td>121 to 182</td><td>Resident with 2 or more ties</td></tr><tr><td>183 or more</td><td>Automatically resident</td></tr></tbody></table></div>
+  </section>
+  <section class="card">
+    <h2>The ties</h2>
+    <ul>
+      <li><strong>Family:</strong> a spouse, civil partner or partner you live with who is UK resident, or a child under 18 who is UK resident and whom you see in the UK on at least 61 days.</li>
+      <li><strong>Accommodation:</strong> a place to live available for a continuous 91 days or more in the tax year, where you spend at least one night (16 nights if it belongs to a close relative).</li>
+      <li><strong>Work:</strong> three or more hours of work in the UK on at least 40 days in the tax year.</li>
+      <li><strong>90-day:</strong> 90 or more days in the UK in either of the previous two tax years.</li>
+      <li><strong>Country (leavers only):</strong> you spent more days in the UK than in any other single country.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Worked example</h2>
+    <p>A recent leaver spends 101 days in the UK in 2026/27. They keep a family tie and an accommodation tie, so 2 ties. At 101 days a leaver needs 2, so they are resident under this test. At 90 days the requirement is 3, so they would not be: 11 fewer days changes the answer. <a href="index.html">Try your own numbers</a>.</p>
+  </section>
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How many days can I spend in the UK without becoming resident?</h3>
+    <p>It depends on your ties. With no ties, up to 182 days; a recent leaver with four ties becomes resident at 16 days; an arriver with all four ties becomes resident at 46. The tables on this page give the threshold for every number of days.</p>
+    <h3>What are the five ties?</h3>
+    <p>Family, accommodation, work, 90-day and (for leavers only) country. Each is defined in HMRC's RDR3 guidance; the checker asks you a question for each.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is; not tax, legal, or immigration advice. The table is written from HMRC's published Statutory Residence Test guidance (RDR3) without a live lookup. Check it against the current guidance before relying on it. Automatic tests, split-year treatment and the deeming rule can override the table.</p>
+    <p>Everything runs in your browser. Nothing you type is uploaded.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional.</p>
+  </footer>
+</body>
+</html>
