@@ -5,8 +5,8 @@ surface in this repository into one GitHub Pages deployment, behind a hub page
 that lists and searches them.
 
 ```
-node platform/pages/build.mjs --out=dist          # build
-node platform/pages/check.mjs dist                # check the artifact
+node platform/pages/build.mjs                    # build into platform/pages/dist
+node platform/pages/check.mjs                    # check that artifact (--dist=DIR for another)
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 

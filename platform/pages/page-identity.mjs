@@ -5,6 +5,7 @@
 //   used by check.mjs; node platform/pages/page-identity.mjs <dist> to run alone
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Pages that are not search landing pages (error and offline shells).
 const SKIP = new Set(['404.html', 'offline.html']);
@@ -60,7 +61,7 @@ export async function loadPages(site) {
 
 const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
 if (invokedDirectly) {
-  const problems = checkPageIdentity(await loadPages(path.resolve(process.argv[2] ?? 'dist')));
+  const problems = checkPageIdentity(await loadPages(path.resolve(process.argv[2] ?? fileURLToPath(new URL('./dist', import.meta.url)))));
   for (const p of problems) console.error(p);
   console.log(problems.length ? `${problems.length} problem(s)` : 'every page has a unique title and one h1');
   process.exit(problems.length ? 1 : 0);
