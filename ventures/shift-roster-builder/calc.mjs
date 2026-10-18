@@ -1395,6 +1395,19 @@ export function loneStretches(r, overHours = 2) {
   });
 }
 
+// Assigned shifts shorter than `minHours`, for places that want a minimum shift (or pay a reporting-time premium on
+// short ones). Counts the whole shift as listed, meal break included. A heads-up only; the search does not enforce it.
+export function shortShifts(r, minHours = 4) {
+  const out = [];
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const { day, startMin, endMin } = a.slot;
+    const hours = ((endMin <= startMin ? endMin + 1440 : endMin) - startMin) / 60;
+    if (hours < minHours) out.push({ person: a.person, day: DAYS[day % 7], startMin, endMin, hours });
+  }
+  return out;
+}
+
 // What a seventh-consecutive-day premium would add for each person who works all seven days of the week (the last day
 // is DAYS[6], so this assumes the workweek starts on Monday). California's rule is 1.5x for the first `firstHours` of
 // that day and 2x after; both multipliers are yours to set. Returns only the extra over straight time (burden
