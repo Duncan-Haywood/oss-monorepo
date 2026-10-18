@@ -1553,3 +1553,46 @@ test("byeReport: odd leagues give each team one bye per leg, recounted independe
   }
   assert.deepEqual(byeReport(buildSchedule(baseSpec(6))), { rows: [], consecutive: [], first: [], last: [] });
 });
+
+import { parseLadderResults, ladderStandings, ladderChallenges, ladderText } from "./calc.mjs";
+
+test("ladder: results parse, bad lines are named", () => {
+  const P = ["Ana", "Ben", "Cy", "Dee"];
+  const ok = parseLadderResults("Cy beat Ana\n# note\nDee def. Ben", P);
+  assert.deepEqual(ok.results, [{ winner: 2, loser: 0 }, { winner: 3, loser: 1 }]);
+  const bad = parseLadderResults("Zed beat Ana\nAna beat Ana\nnonsense", P);
+  assert.equal(bad.errors.length, 3);
+  assert.match(bad.errors[0], /"Zed"/);
+});
+
+test("ladder: a challenger who wins takes the rung and the others drop one; a defender's win changes nothing", () => {
+  const P = ["Ana", "Ben", "Cy", "Dee"];
+  let s = ladderStandings(P, [{ winner: 2, loser: 0 }]);
+  assert.deepEqual(s.order, [2, 0, 1, 3]);
+  s = ladderStandings(P, [{ winner: 0, loser: 3 }]);
+  assert.deepEqual(s.order, [0, 1, 2, 3]);
+  assert.equal(s.moves[0].held, true);
+  s = ladderStandings(P, [{ winner: 3, loser: 1 }, { winner: 3, loser: 0 }]);
+  assert.deepEqual(s.order, [3, 0, 1, 2]);
+  assert.deepEqual(s.played, [1, 1, 0, 2]);
+});
+
+test("ladder: swap mode trades only the two places, and reach flags long challenges without blocking them", () => {
+  const P = ["A", "B", "C", "D", "E", "F"];
+  const s = ladderStandings(P, [{ winner: 5, loser: 0 }], { reach: 2, move: "swap" });
+  assert.deepEqual(s.order, [5, 1, 2, 3, 4, 0]);
+  assert.deepEqual(s.outOfReach, [{ n: 1, winner: 5, loser: 0, rungs: 5 }]);
+  assert.equal(ladderStandings(P, [{ winner: 2, loser: 0 }], { reach: 2 }).outOfReach.length, 0);
+  assert.throws(() => ladderStandings(["solo"], []), /at least 2/);
+});
+
+test("ladder: challenge list and text sheet", () => {
+  const P = ["Ana", "Ben", "Cy", "Dee"];
+  const s = ladderStandings(P, [{ winner: 2, loser: 0 }]);
+  const ch = ladderChallenges(s.order, 2);
+  assert.deepEqual(ch[0].may, []);
+  assert.deepEqual(ch[3].may, [1, 0]);
+  const txt = ladderText(P, s, { reach: 2 });
+  assert.match(txt, /1\. Cy {2}\(1 played\)/);
+  assert.match(txt, /Dee -> Ben, Ana/);
+});

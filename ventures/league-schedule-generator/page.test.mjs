@@ -453,3 +453,23 @@ test("standings row template has one cell per header column", () => {
   const row = html.match(/\$\("#standings tbody"\)\.innerHTML = extra\.table\.map\(\(r\) => `<tr>(.*?)<\/tr>`/)[1];
   assert.equal((row.match(/<td/g) || []).length, (head.match(/<th/g) || []).length);
 });
+
+test("the ladder guide's worked example matches ladderStandings() and is linked and in the sitemap", async () => {
+  const { ladderStandings, parseLadderResults } = await import("./calc.mjs");
+  const html = page("how-to-run-a-ladder-league.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-run-a-ladder-league\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const P = ["Ana", "Ben", "Cy", "Dee", "Eli", "Fay"];
+  const text = html.match(/<pre>(.*?)<\/pre>/s)[1];
+  const { results, errors } = parseLadderResults(text, P);
+  assert.deepEqual(errors, []);
+  const s = ladderStandings(P, results, { reach: 2 });
+  s.order.forEach((p, i) => assert.ok(html.includes(`<tr><td>${i + 1}</td><td>${P[p]}</td></tr>`), P[p]));
+  assert.equal(s.outOfReach.length, 1);
+  assert.match(page("sitemap.xml"), /how-to-run-a-ladder-league\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-run-a-ladder-league\.html"/);
+  assert.match(page("index.html"), /id="build-ladder"/);
+});
