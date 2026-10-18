@@ -12,7 +12,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_form_defaults import check_input, check_tree
+from check_form_defaults import check_input, check_tree, main
 
 
 def attrs(**kwargs) -> dict[str, str]:
@@ -60,6 +60,13 @@ class CheckInput(unittest.TestCase):
     def test_non_number_inputs_are_ignored(self):
         self.assertIsNone(check_input(attrs(type="text", value="anything")))
         self.assertIsNone(check_input(attrs(type="checkbox", value="on")))
+
+
+    def test_a_malformed_or_non_positive_step_is_ignored(self):
+        # The browser falls back to its default step, so there is nothing to flag.
+        self.assertIsNone(check_input(attrs(type="number", min="0", step="abc", value="5")))
+        self.assertIsNone(check_input(attrs(type="number", min="0", step="0", value="5")))
+        self.assertIsNone(check_input(attrs(type="number", min="0", step="-1", value="5")))
 
 
 class CheckTree(unittest.TestCase):
@@ -123,6 +130,31 @@ class CheckTree(unittest.TestCase):
             '<input id="b" type="number" min="0.01" step="any" value="10000"></form>'
         )
         self.assertEqual(problems, [])
+
+
+    def test_names_the_field_by_id_then_name_then_a_placeholder_label(self):
+        bad = 'type="number" min="0.01" step="1" value="10000"'
+        by_id = self._tree(f'<form><input id="area" name="a" {bad}></form>')[0]
+        by_name = self._tree(f'<form><input name="area_field" {bad}></form>')[0]
+        unnamed = self._tree(f"<form><input {bad}></form>")[0]
+        self.assertIn(": area: ", by_id)
+        self.assertIn(": area_field: ", by_name)
+        self.assertIn("(unnamed input)", unnamed)
+
+
+class Main(unittest.TestCase):
+    def test_no_argument_means_the_ventures_tree(self):
+        # With only the program name in argv the default root is used; it is
+        # "ventures", which does not exist under a temp cwd, so exit code 2.
+        import os
+
+        with tempfile.TemporaryDirectory() as tmp:
+            old = os.getcwd()
+            os.chdir(tmp)
+            try:
+                self.assertEqual(main(["check_form_defaults.py"]), 2)
+            finally:
+                os.chdir(old)
 
 
 if __name__ == "__main__":
