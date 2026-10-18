@@ -17,3 +17,19 @@ test("exit 0 when every action has an owner, 1 when one does not, 2 on bad input
   m = mk({ "a.txt": "x" });
   assert.equal(await main(["a.txt", "--format", "pdf"], m.deps), 2);
 });
+
+test("--ai with no key falls back to the rules and says so", async () => {
+  const errs = [];
+  const code = await main(["n.txt", "--ai", "--format", "json"], { log() {}, err: (m) => errs.push(m), read: async () => "Cleo will book the venue next Friday.", env: {} });
+  assert.equal(code, 0);
+  assert.match(errs[0], /AI pass off: no key/);
+});
+
+test("--ai adds a supported suggestion and reports counts on stderr", async () => {
+  const errs = [], out = [];
+  const list = JSON.stringify([{ owner: "Dana", task: "Send the quote", quote: "Dana owes us a quote" }]);
+  const fetch = async () => ({ ok: true, status: 200, json: async () => ({ content: [{ type: "text", text: list }] }), text: async () => "" });
+  await main(["n.txt", "--ai", "--format", "json"], { log: (m) => out.push(m), err: (m) => errs.push(m), read: async () => "Cleo will book the venue.\nDana owes us a quote.", env: { ANTHROPIC_API_KEY: "k" }, fetch });
+  assert.match(errs[0], /added 1 item/);
+  assert.equal(JSON.parse(out[0]).actions.at(-1).via, "ai");
+});

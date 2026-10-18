@@ -1,7 +1,7 @@
 # Meeting Action Items
 
 A free tool that turns meeting notes or a transcript into **action items with an owner and a due date, the decisions made,
-the questions still open, and a follow-up email grouped by person**. It runs in your browser; nothing is uploaded.
+the questions still open, and a follow-up email grouped by person**. It runs in your browser; nothing is uploaded unless you turn on the optional AI pass.
 
 **Live tool:** https://duncan-haywood.github.io/monorepo-projects/meeting-action-items/
 
@@ -41,15 +41,24 @@ node cli.mjs notes.txt --date 2026-10-19 --attendees "Ana,Ben,Cleo" --format ema
 Exit 0 when every action has an owner, 1 when one does not (usable as a check), 2 on unreadable input. Zero dependencies,
 Node 18+.
 
+## Optional AI pass (your own key)
+
+For messy transcripts the rules miss, add `--ai` on the CLI (key from `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` or
+`LLM_*`) or pick a provider under "Optional: add an AI pass" on the page. It is off by default, and the notes go straight to the
+provider you choose, so use it only on notes you may share. The model is never trusted: each suggestion must quote your notes
+word for word, its owner must be named in the notes or attendee list (otherwise it is left without one), its date is worked out
+from that quote by the same date rules, and anything unsupported is dropped and counted. Kept items are marked low confidence.
+Without a key, or if the call fails, you get the rules result and a line saying so. Shared client: `platform/llm/byok.mjs`
+(`byok.mjs` here is a synced copy; `ai.test.mjs` fails if they drift).
+
 ## Limits
 
-Pattern matching, not language understanding. English only. It reads what was written; it is not a record of what anyone
-agreed. Review the list before you send it. A bring-your-own-key AI pass for messy transcripts (see `platform/llm/`) is
-the obvious next step and is not built.
+Pattern matching, not language understanding, unless you add the AI pass. English only. It reads what was written; it is not a
+record of what anyone agreed. Review the list before you send it.
 
 ## Files
 
-`extract.mjs` (engine, shared by page and CLI), `cli.mjs`, `index.html`, `how-to-write-meeting-action-items.html`,
+`extract.mjs` (engine, shared by page and CLI), `ai.mjs` + `byok.mjs` (optional AI pass), `cli.mjs`, `index.html`, `how-to-write-meeting-action-items.html`,
 `usage.mjs` (opt-out local counters), tests: `node --test ventures/meeting-action-items/*.test.mjs`.
 
 MIT licensed. Free; support via GitHub Sponsors is optional.
