@@ -180,6 +180,7 @@
     <button type="button" class="secondary" id="dl-text">Download text</button>
     <button type="button" class="secondary" id="print-page">Print or save as PDF</button>
     <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
+    <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
     <button type="button" id="dl-page">Download league web page (.html)</button>
   </section>
 
@@ -272,7 +273,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -337,6 +338,7 @@
         ? `<span class="pill good">checked</span> Every pair meets the right number of times, nobody plays twice in a round, home and away is balanced and no court is double-booked.`
         : `<span class="pill high">problem</span> ${esc(v.errors.slice(0, 4).join(" "))}`;
       $("#off-th").hidden = !s.rounds.some((r) => r.matches.some((m) => m.official !== undefined));
+      $("#dl-off-msgs").hidden = !s.rounds.some((r) => r.matches.some((m) => m.official));
       $("#rounds tbody").innerHTML = s.rounds.map((r) => {
         const cls = r.makeup ? ' class="mk"' : "";
         const rows = r.matches.map((m, i) => `<tr${cls}><td>${i === 0 ? esc(r.label) : ""}</td><td>${i === 0 ? dayLabel(r.day) : ""}</td><td>${esc(m.time)}</td><td>${esc(m.court)}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td>${m.official !== undefined ? `<td>${esc(m.official)}</td>` : ""}</tr>`);
@@ -541,6 +543,10 @@
     $("#dl-team-msgs").addEventListener("click", () => {
       if (!last) return;
       download("team-messages.txt", teamMessages(last.s).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("text_shared");
+    });
+    $("#dl-off-msgs").addEventListener("click", () => {
+      if (!last) return;
+      download("official-messages.txt", officialMessages(last.s).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("text_shared");
     });
     $("#dl-page").addEventListener("click", () => {
       if (!last) return;
