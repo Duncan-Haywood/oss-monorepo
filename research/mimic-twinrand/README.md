@@ -1,5 +1,7 @@
 # Does domain randomization over a wrong digital twin cut the controller regret of tuning on one wrong twin?
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twinrand/
+
 Track 11 (adversarial human imitation), side project, the follow-up that `mimic-twinregret` listed as a next step: if one wrong twin costs a tuned controller some regret on the real system, does tuning on a *spread* of twins around it recover that regret? **No LLM is used and no text is generated.** Stylised and simulated only. **Preliminary: one toy pendulum, one task, a 48-point gain grid, 24 tuning seeds.** Produced with AI assistance (Claude).
 
 Numbers come from `experiments/results.txt` and `results.json`; the figure is `experiments/regret_vs_width.svg`.
