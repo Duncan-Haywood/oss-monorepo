@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseCsv, parseDate, parseTransactions, normalizeType, holdingTerm, matchLots, analyze, estimateTax,
-  toForm8949Csv, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan, planSale,
+  toForm8949Csv, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan, planSale, waitPlan,
 } from "./calc.mjs";
 
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.005, `${msg ?? ""} ${a} != ${b}`);
@@ -488,4 +488,35 @@ test("incomeReport groups receipts by coin for the year and exports CSV", async 
   assert.equal(toIncomeCsv(r), "Asset,Receipts,Quantity,First received,Last received,Fair market value (USD)\nSOL,1,10,2024-02-21,2024-02-21,1500.00\nETH,2,0.5,2024-01-15,2024-02-20,1250.30\nTotal,3,,,,2750.30\n");
   const a = analyze(csv + "\n2024-04-01,sell,BTC,0.1,7000,0,", { year: 2024 });
   assert.equal(a.incomeReport.total, a.income);
+});
+
+test("waitPlan: short-term gains turning long-term inside the window, with tax saved and break-even fall", () => {
+  const lots = [
+    { asset: "BTC", wallet: "", acquired: "2025-12-01", qty: 1, basis: 40000 },  // long from 2026-12-02, 47 days out, gain 10000
+    { asset: "ETH", wallet: "", acquired: "2026-03-01", qty: 10, basis: 20000 }, // 136+ days out, outside 90-day window
+    { asset: "SOL", wallet: "", acquired: "2025-11-20", qty: 10, basis: 3000 },  // loss, waiting would not help
+    { asset: "ADA", wallet: "", acquired: "2024-01-01", qty: 1, basis: 1 },      // already long
+    { asset: "DOGE", wallet: "", acquired: "2026-01-01", qty: 1, basis: 5 },     // no price
+  ];
+  const w = waitPlan(lots, { BTC: 50000, ETH: 3000, SOL: 100, ADA: 5 }, { asOf: "2026-10-16", shortRate: 0.3, longRate: 0.2 });
+  assert.equal(w.lots.length, 1);
+  assert.deepEqual(w.unpriced, ["DOGE"]);
+  const l = w.lots[0];
+  assert.equal(l.asset, "BTC");
+  assert.equal(l.longFrom, "2026-12-02");
+  assert.equal(l.days, 47);
+  assert.equal(l.taxSaved, 1000); // 10000 * (0.30 - 0.20)
+  // after-tax cash equal when value falls by gain*(s-l)/(1-l) = 10000*0.1/0.8 = 1250
+  assert.equal(l.breakEvenFall, 1250);
+  const keepNow = 50000 - 10000 * 0.3;
+  const later = 50000 - 1250;
+  close(later - (later - 40000) * 0.2, keepNow, "break-even keeps the same cash");
+  assert.equal(w.taxSaved, 1000);
+});
+
+test("waitPlan: the anniversary day itself is still short-term; the next day counts as long", () => {
+  const lot = [{ asset: "BTC", wallet: "", acquired: "2025-10-16", qty: 1, basis: 100 }];
+  const w = waitPlan(lot, { BTC: 200 }, { asOf: "2026-10-16" });
+  assert.equal(w.lots[0].longFrom, "2026-10-17");
+  assert.equal(w.lots[0].days, 1);
 });

@@ -170,7 +170,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, form8949Totals, parsePrices, harvestPlan, planSale, toForm8949Csv, toIncomeCsv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
+    import { analyze, form8949Totals, parsePrices, harvestPlan, waitPlan, planSale, toForm8949Csv, toIncomeCsv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
     import { convertMany, FORMAT_LABELS } from "./importers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -237,7 +237,10 @@
         ? `<p><strong>${h.losers.length} lot${h.losers.length > 1 ? "s" : ""} under water</strong>: ${usd(h.shortLoss)} short-term and ${usd(h.longLoss)} long-term. Selling them all on ${esc(asOf)} would lower the estimated ${last.year} tax from ${usd(h.taxBefore)} to ${usd(h.taxAfter)}, saving about <strong>${usd(h.taxSaved)}</strong>.` + (h.unusedLoss > 0 ? ` ${usd(h.unusedLoss)} of loss would be left over after netting (the annual deduction limit and carryforward are not modelled).` : "") + "</p>"
         : "<p>None of the lots you hold is under water at these prices, so there is nothing to harvest.</p>";
       const rows = h.losers.map((l) => `<tr><td>${esc(l.asset)}${l.wallet ? " · " + esc(l.wallet) : ""}</td><td>${l.acquired}</td><td class="n">${l.qty}</td><td class="n">${usd(l.basis)}</td><td class="n">${usd(l.value)}</td><td class="n">${usd(l.gain)}</td><td><span class="pill ${l.term === "Long" ? "good" : "info"}">${l.term}</span></td><td class="n">${usd(l.taxSaved)}</td></tr>`).join("");
-      out.innerHTML = msgs.join("") + verdict + (rows ? `<div class="scroll"><table><thead><tr><th>Lot</th><th>Acquired</th><th class="n">Qty</th><th class="n">Basis</th><th class="n">Value</th><th class="n">Loss</th><th>Term</th><th class="n">Tax saved alone</th></tr></thead><tbody>${rows}</tbody></table></div>` : "") + '<p class="note">Wash-sale rules are not applied. Whether they reach crypto depends on current law in your country; check before you sell and buy back. Selling costs fees and moves your holding; this is arithmetic on your typed prices, not advice.</p>';
+      const w = waitPlan(last.openLots, prices, { asOf, summary: last.summary, ...rates });
+      const wrows = w.lots.map((l) => `<tr><td>${esc(l.asset)}${l.wallet ? " · " + esc(l.wallet) : ""}</td><td>${l.acquired}</td><td class="n">${l.qty}</td><td class="n">${usd(l.gain)}</td><td>${l.longFrom}</td><td class="n">${l.days}</td><td class="n">${usd(l.taxSaved)}</td><td class="n">${usd(l.breakEvenFall)} (${l.breakEvenFallPct}%)</td></tr>`).join("");
+      const waitHtml = wrows ? `<h4>Gains that turn long-term within ${w.windowDays} days</h4><p>Waiting for the long-term rate on these lots would save about <strong>${usd(w.taxSaved)}</strong> at the same prices. The last column is how far the lot's value can fall while you wait before selling now would have left you with more cash after tax.</p><div class="scroll"><table><thead><tr><th>Lot</th><th>Acquired</th><th class="n">Qty</th><th class="n">Gain</th><th>Long-term from</th><th class="n">Days</th><th class="n">Tax saved</th><th class="n">Break-even fall</th></tr></thead><tbody>${wrows}</tbody></table></div><p class="note">Waiting leaves the price risk with you, and the saving can land in a later tax year. Fees and state tax are not modelled.</p>` : "";
+      out.innerHTML = msgs.join("") + verdict + (rows ? `<div class="scroll"><table><thead><tr><th>Lot</th><th>Acquired</th><th class="n">Qty</th><th class="n">Basis</th><th class="n">Value</th><th class="n">Loss</th><th>Term</th><th class="n">Tax saved alone</th></tr></thead><tbody>${rows}</tbody></table></div>` : "") + '<p class="note">Wash-sale rules are not applied. Whether they reach crypto depends on current law in your country; check before you sell and buy back. Selling costs fees and moves your holding; this is arithmetic on your typed prices, not advice.</p>' + waitHtml;
     }
     function plan() {
       const out = $("#plan-out");
