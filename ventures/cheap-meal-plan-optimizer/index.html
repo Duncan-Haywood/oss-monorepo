@@ -91,6 +91,13 @@
     <h3>What variety costs</h3>
     <p class="note">The cheapest plan is often a few foods. This caps the share of the day's calories any one food may supply and shows the cost and the number of foods used, with your other bounds unchanged.</p>
     <div style="overflow-x:auto"><table class="t" id="variety"><thead><tr><th class="n">Most calories from one food</th><th class="n">Cheapest cost / day</th><th class="n">Foods used</th></tr></thead><tbody></tbody></table></div>
+    <h3>A different menu each day</h3>
+    <p class="note">The cheapest plan repeats every day. This plans the week day by day, charging more for a food each time it has already appeared, so the staples rotate while every bound still holds. Costs are at your real prices.</p>
+    <label for="week-var">Variety</label>
+    <select id="week-var"><option value="0.25">some</option><option value="0.5">more</option><option value="1" selected>as much as possible</option></select>
+    <p id="week-note" class="note"></p>
+    <div style="overflow-x:auto"><table class="t" id="week"><thead><tr><th>Day</th><th>Foods (servings)</th><th class="n">Cost</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="copy-week">Copy the week's menu as text</button>
     <h3>Foods left out: what price would earn a place?</h3>
     <p class="note">The price per serving at which each food the plan skips would start to be used, with everything else unchanged. Watch for sales near these.</p>
     <div style="overflow-x:auto"><table class="t" id="breakeven"><thead><tr><th>Food</th><th class="n">Your price</th><th class="n">Used below</th><th class="n">Drop needed</th></tr></thead><tbody></tbody></table></div>
@@ -139,7 +146,7 @@
   </footer>
 
   <script type="module">
-    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, breakEvenPrices, planCsv, groceryList, groceryText, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
+    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, breakEvenPrices, planCsv, groceryList, groceryText, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -156,6 +163,14 @@
       return { spec, errors: f.errors };
     }
 
+    function renderWeek() {
+      if (!last) return;
+      const w = weekMenu(last.spec, { penalty: Number($("#week-var").value) });
+      last.week = w;
+      $("#week tbody").innerHTML = w.days.map((d) => `<tr><td>Day ${d.day}</td><td>${d.servings ? d.items.map((i) => `${esc(i.name)} ${fmt(i.servings, 2)}`).join(", ") : "no plan meets the bounds"}</td><td class="n">${d.servings ? money2(d.cost) : "—"}</td></tr>`).join("");
+      $("#week-note").textContent = w.extra === null ? "" : `${w.distinct} different menus over ${w.days.length} days using ${w.foodsUsed} foods; ${money2(w.cost)} for the week, ${w.extra > 0.005 ? money2(w.extra) + " more than eating the cheapest plan every day" : "no more than the cheapest plan every day"}.`;
+    }
+
     function run() {
       const { spec, errors } = read();
       const all = [...errors, ...validateSpec(spec)];
@@ -164,7 +179,7 @@
         $("#report").hidden = false;
         $("#notices").innerHTML = `<div class="bad"><strong>Fix these first:</strong><ul>${all.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
         for (const id of ["#big", "#marginal"]) $(id).innerHTML = "";
-        for (const id of ["#plan", "#totals", "#frontier", "#budget", "#variety"]) $(id + " tbody").innerHTML = "";
+        for (const id of ["#plan", "#totals", "#frontier", "#budget", "#variety", "#week"]) $(id + " tbody").innerHTML = "";
         $("#verdict").textContent = "";
         last = null;
         return false;
@@ -174,7 +189,7 @@
       if (res.status !== "optimal") {
         $("#notices").innerHTML = `<div class="bad">No plan meets every bound with these foods and caps. Loosen a minimum, raise the serving caps, finer servings, or add foods.</div>`;
         for (const id of ["#big", "#marginal"]) $(id).innerHTML = "";
-        for (const id of ["#plan", "#totals", "#frontier", "#budget", "#variety"]) $(id + " tbody").innerHTML = "";
+        for (const id of ["#plan", "#totals", "#frontier", "#budget", "#variety", "#week"]) $(id + " tbody").innerHTML = "";
         $("#verdict").textContent = "";
         last = null; status.textContent = "No feasible plan."; return false;
       }
@@ -204,6 +219,7 @@
       $("#frontier tbody").innerHTML = fr.map((r) => `<tr><td class="n">${r.protein} g</td><td class="n">${r.cost === null ? "not possible" : money2(r.cost)}</td></tr>`).join("");
       $("#budget tbody").innerHTML = budgetFrontier(spec, [0.9, 1, 1.25, 1.5, 2].map((m) => res.bound * m)).map((r) => `<tr><td class="n">${money2(r.budget)}</td><td class="n">${r.protein === null ? "not possible" : fmt(r.protein, 0) + " g"}</td></tr>`).join("");
       $("#variety tbody").innerHTML = varietyFrontier(spec, [100, 50, 40, 30, 25, 20]).map((r) => `<tr><td class="n">${r.share >= 100 ? "no limit" : r.share + "%"}</td><td class="n">${r.cost === null ? "not possible" : money2(r.cost)}</td><td class="n">${r.cost === null ? "—" : r.foods}</td></tr>`).join("");
+      renderWeek();
       const be = breakEvenPrices(spec, res);
       $("#breakeven tbody").innerHTML = be.length ? be.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${money2(r.current)}</td><td class="n">${r.price === null ? "never" : money2(r.price)}</td><td class="n">${r.drop === null ? "no price helps" : fmt(r.drop * 100, 0) + "%"}</td></tr>`).join("") : `<tr><td colspan="4">Every food on your list is already in the plan.</td></tr>`;
       const gl = groceryList(spec, res);
@@ -215,6 +231,13 @@
     }
 
     const later = (fn) => setTimeout(fn, 0);
+    $("#week-var").addEventListener("change", renderWeek);
+    $("#copy-week").addEventListener("click", async () => {
+      if (!last || !last.week) return;
+      const text = weekText(last.week);
+      try { await navigator.clipboard.writeText(text); status.textContent = "Week's menu copied."; record("week_copied"); }
+      catch { status.textContent = "Could not copy; select the table instead."; }
+    });
     $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
     $("#load-example").addEventListener("click", () => {
       $("#foods").value = SAMPLE_FOODS;

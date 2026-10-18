@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, planCsv, groceryList, groceryText, breakEvenPrices, encodeShare, decodeShare, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, planCsv, groceryList, groceryText, breakEvenPrices, encodeShare, decodeShare, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -278,4 +278,31 @@ test("sodium cap survives a share link and is exported in the CSV", () => {
   const spec = { ...sampleSpec(), step: 0 };
   const csv = planCsv(spec, solve(spec));
   assert.ok(csv.split("\n")[0].endsWith("Sodium mg"));
+});
+
+test("weekMenu rotates the staples: every day feasible, several different menus, extra cost not negative", () => {
+  const s = { ...sampleSpec(), step: 0.5 };
+  const w = weekMenu(s);
+  assert.equal(w.days.length, 7);
+  assert.ok(w.complete);
+  for (const d of w.days) assert.ok(planFeasible(s, d.servings));
+  assert.ok(w.distinct >= 3, `only ${w.distinct} different menus`);
+  const cheapest = solve(s).cost;
+  assert.ok(Math.abs(w.days[0].cost - cheapest) < 1e-6);
+  assert.ok(w.extra >= -1e-6);
+  assert.ok(Math.abs(w.cost - w.days.reduce((t, d) => t + d.cost, 0)) < 1e-9);
+});
+
+test("weekMenu with no penalty repeats the cheapest plan every day at no extra cost", () => {
+  const s = { ...sampleSpec(), step: 0.5 };
+  const same = weekMenu(s, { penalty: 0 });
+  assert.equal(same.distinct, 1);
+  assert.ok(Math.abs(same.extra) < 1e-6);
+});
+
+test("weekText lists a line per day and the week's cost", () => {
+  const w = weekMenu({ ...sampleSpec(), step: 0.5 });
+  const txt = weekText(w);
+  assert.equal(txt.split("\n").filter((l) => l.startsWith("Day ")).length, 7);
+  assert.match(txt, /Estimated cost: \$/);
 });
