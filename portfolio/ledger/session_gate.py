@@ -669,16 +669,14 @@ def report(
         # for real visitors rather than something worth doing next, and
         # DIRECTION.md ranks it above the work the verdict is about to name.
         reasons = [
-            "THE LIVE SITE IS BEHIND `main`. Refresh the published snapshot "
-            "before anything else — `CONFIRM=publish-pages-branch PUSH=1 "
-            "./platform/pages/publish-branch.sh`, then `python3 "
-            "platform/ci/pages_state.py --require-current` to confirm. It needs "
-            "no runner, no cluster and no credential beyond the push you "
-            "already have. Cloud harnesses may deny that push as a production "
-            "deploy, and the script takes 10+ minutes in a shallow clone: start it "
-            "with `run_in_background` (a foreground call times out). If it is "
-            "denied or fails, say so in your reply and carry on with the "
-            "work below instead of retrying. "
+            "THE LIVE SITE IS BEHIND `main`. It is refreshed from `main`, so "
+            "land your own work first, then run `CONFIRM=publish-pages-branch "
+            "PUSH=1 ./platform/pages/publish-branch.sh` from `main` and confirm "
+            "with `python3 platform/ci/pages_state.py --require-current`. The "
+            "script refuses an unmerged branch and takes 10+ minutes in a "
+            "shallow clone: start it with `run_in_background`. Cloud harnesses "
+            "may deny the push; if it is denied or fails, say so in your reply "
+            "and do not retry. Do not let it displace the work below. "
             f"Reason: {snap_reason}"
         ] + reasons
     elif snap != "current":
