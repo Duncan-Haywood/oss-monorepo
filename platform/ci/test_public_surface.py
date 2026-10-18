@@ -294,6 +294,10 @@ class ServingTests(unittest.TestCase):
         self.assertEqual(result.redirected_to, TOOLS)
         self.assertIn(TOOLS, result.summary())
 
+    def test_only_a_3xx_records_a_redirect_target(self):
+        result = self.probe_with({APEX: (200, b"x" * 600, {"Location": TOOLS})})
+        self.assertEqual(result.redirected_to, "")
+
     def test_a_503_is_an_answer_not_an_error(self):
         result = self.probe_with({APEX: (503, b"unavailable", {})})
         self.assertEqual(result.status, 503)
@@ -564,6 +568,21 @@ class PagesSitemapTests(unittest.TestCase):
         ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub(table)):
             urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/monorepo-projects/")
         self.assertEqual(urls, [])
+
+    def test_the_base_url_defaults_to_the_one_build_mjs_exports(self):
+        table = {
+            ("show", "origin/gh-pages:sitemap.xml"): (
+                "<sitemapindex><sitemap><loc>https://pages.test/x/sitemap-a.xml</loc></sitemap></sitemapindex>"
+            ),
+            ("show", "origin/gh-pages:sitemap-a.xml"): "<urlset><url><loc>https://pages.test/x/p/</loc></url></urlset>",
+        }
+        with unittest.mock.patch.object(
+            ps.publish_surface, "pages_branch_survey", return_value={"ref": "origin/gh-pages"}
+        ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub(table)), unittest.mock.patch.object(
+            ps, "pages_base_url", return_value="https://pages.test/x/"
+        ):
+            urls = ps.pages_sitemap_urls()
+        self.assertEqual(urls, ["https://pages.test/x/p/"])
 
     def test_probes_expect_a_document(self):
         probes = ps.pages_sitemap_probes(limit=2, urls=["https://a/", "https://b/", "https://c/"])
