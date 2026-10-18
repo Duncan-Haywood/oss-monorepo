@@ -14,6 +14,7 @@ Pure Python standard library. Milestone 8 of track 10 (the software-engineering 
 cd research/swe-modelmix
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 python3 experiments/run.py > experiments/results.txt
+python3 experiments/figure.py   # writes experiments/runs_needed.svg from results.txt
 ```
 
 ## Motivation
