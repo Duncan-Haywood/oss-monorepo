@@ -509,3 +509,9 @@ test("Hawaii 200-day presumption", () => {
   assert.equal(RULES.HI.kind, "presumption");
   assert.equal(RULES.HI.requiresAbode, false);
 });
+
+test("Nebraska six-month test needs an abode and crosses at 183 days", () => {
+  assert.equal(RULES.NE.limit, 182);
+  assert.equal(RULES.NE.requiresAbode, true);
+  assert.equal(RULES.NE.kind, "statutory");
+});
