@@ -283,6 +283,15 @@ class MeasureTest(PromptTestCase):
         self.assertEqual(m["doc_friction"]["CLAUDE.md"]["reports"], 1)
         self.assertEqual(m["since_review"], 3)
 
+    def test_measure_ignores_no_friction_reports(self):
+        friction = [{"file": "CLAUDE.md", "issue": "none significant; picking took a while"},
+                    {"file": "CLAUDE.md", "issue": "No friction."},
+                    {"file": "CLAUDE.md", "issue": "none of the listed commands exist"},
+                    {"file": "CLAUDE.md", "issue": "stale command"}]
+        self.fx.run("2026-10-12-a.json", _record(day="2026-10-01", doc_friction=friction))
+        m = promptctl.measure(self.fx.root)
+        self.assertEqual(m["doc_friction"]["CLAUDE.md"]["reports"], 2)
+
     def test_verdict_rules(self):
         champ = {"runs": 20, "success_rate": 0.5, "integrity_issues": 0,
                  "success_ci95": [0.3, 0.7]}

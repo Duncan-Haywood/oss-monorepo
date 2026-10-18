@@ -639,6 +639,8 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
         for item in rec.get("doc_friction") or []:
             if not isinstance(item, dict):  # malformed free-text entry: keep it countable
                 item = {"file": "(unattributed)", "issue": str(item)}
+            if _NO_FRICTION.match(str(item.get("issue") or "")):
+                continue  # "none significant" says there was no friction; counting it buries real reports
             # the run's end time (minutes) when known, so a same-day report can be told from a stale one
             friction[item["file"]].append(f"{(rec.get('ended') or rec['date'])[:16]}: {item['issue']}")
         for item in rec.get("deviations") or []:
@@ -810,6 +812,9 @@ def _named_files_changed(report: str) -> str:
         if (ROOT.parent / path).is_file():
             latest = _latest(latest, _changed_note(path)[1])
     return latest
+
+
+_NO_FRICTION = re.compile(r"\s*(none|no friction|nothing)\b[^.;:]{0,20}([.;:]|$)", re.I)
 
 
 def _latest(a: str, b: str) -> str:
