@@ -515,3 +515,9 @@ test("Nebraska six-month test needs an abode and crosses at 183 days", () => {
   assert.equal(RULES.NE.requiresAbode, true);
   assert.equal(RULES.NE.kind, "statutory");
 });
+
+test("Kentucky test needs an abode and crosses past 183 days", () => {
+  assert.equal(RULES.KY.limit, 183);
+  assert.equal(RULES.KY.requiresAbode, true);
+  assert.equal(RULES.KY.kind, "statutory");
+});
