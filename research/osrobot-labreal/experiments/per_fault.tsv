@@ -1,0 +1,12 @@
+fault	mutants	twin	real
+typo labware	50	50	50
+well off plate	50	50	50
+drop pick_up_tip	35	35	35
+second pick_up_tip	35	35	35
+reuse a used tip	32	32	0
+drop the last drop_tip	3	3	0
+volume 350 uL	50	50	50
+volume 5 uL	50	50	0
+overdraw source (5000 uL)	50	50	50
+skip tip change between samples	32	7	0
+low travel (30 mm)	135	4	0
