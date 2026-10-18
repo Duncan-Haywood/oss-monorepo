@@ -48,7 +48,7 @@ every guard here runs on a PR or on `main`.
    `ventures/*` product code counts too:
    `CLAUDE.md` settled that on 2026-08-25. If the merge won't go:
    - **Conflict:** merge `origin/main` into your branch, re-run what the
-     checklist says (`regen.mjs`, `sync_tree_counts.py`), re-verify, and
+     checklist says (`node platform/marketing/regen.mjs`, `sync_tree_counts.py`), re-verify, and
      merge. A conflict is never a reason to stop.
    - **A check your change turned red:** fix forward on the same PR.
    - **A check that is red on `main` too:** it isn't yours. If a fix exists,
