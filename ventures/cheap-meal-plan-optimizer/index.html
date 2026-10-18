@@ -85,6 +85,9 @@
     <ul id="marginal"></ul>
     <h3>Cost as the protein minimum rises</h3>
     <div style="overflow-x:auto"><table class="t" id="frontier"><thead><tr><th class="n">Protein minimum</th><th class="n">Cheapest cost / day</th></tr></thead><tbody></tbody></table></div>
+    <h3>Foods left out: what price would earn a place?</h3>
+    <p class="note">The price per serving at which each food the plan skips would start to be used, with everything else unchanged. Watch for sales near these.</p>
+    <div style="overflow-x:auto"><table class="t" id="breakeven"><thead><tr><th>Food</th><th class="n">Your price</th><th class="n">Used below</th><th class="n">Drop needed</th></tr></thead><tbody></tbody></table></div>
     <h3>Shopping list for the week</h3>
     <p class="note" id="grocery-note"></p>
     <div style="overflow-x:auto"><table class="t" id="grocery"><thead><tr><th>Food</th><th class="n">Servings / week</th><th class="n">Packs to buy</th><th class="n">Left over</th><th class="n">At the till</th></tr></thead><tbody></tbody></table></div>
@@ -129,7 +132,7 @@
   </footer>
 
   <script type="module">
-    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, planCsv, groceryList, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
+    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, breakEvenPrices, planCsv, groceryList, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -191,6 +194,8 @@
       const pm = spec.proteinMin === "" ? 100 : Number(spec.proteinMin);
       const fr = proteinFrontier(spec, [0.6, 0.8, 1, 1.25, 1.5].map((m) => Math.round(pm * m)));
       $("#frontier tbody").innerHTML = fr.map((r) => `<tr><td class="n">${r.protein} g</td><td class="n">${r.cost === null ? "not possible" : money2(r.cost)}</td></tr>`).join("");
+      const be = breakEvenPrices(spec, res);
+      $("#breakeven tbody").innerHTML = be.length ? be.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${money2(r.current)}</td><td class="n">${r.price === null ? "never" : money2(r.price)}</td><td class="n">${r.drop === null ? "no price helps" : fmt(r.drop * 100, 0) + "%"}</td></tr>`).join("") : `<tr><td colspan="4">Every food on your list is already in the plan.</td></tr>`;
       const gl = groceryList(spec, res);
       const anyPack = gl.lines.some((l) => l.packs !== null);
       $("#grocery tbody").innerHTML = gl.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${fmt(l.servings, 1)}</td><td class="n">${l.packs === null ? "—" : l.packs + " × " + fmt(l.pack, 1)}</td><td class="n">${l.packs === null ? "—" : fmt(l.leftover, 1)}</td><td class="n">${money2(l.spend)}</td></tr>`).join("") + `<tr><td><strong>Total</strong></td><td></td><td></td><td></td><td class="n"><strong>${money2(gl.spend)}</strong></td></tr>`;
