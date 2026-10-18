@@ -2777,6 +2777,11 @@
      "summary": "A 60-entry blind sample of the run records&rsquo; reported errors, hand-labelled once and compared with <code>swe-errors</code>&rsquo; keyword rules: they agree on 40 of 60 entries (66.7%, Wilson 95% 54.1&ndash;77.3%; Cohen&rsquo;s &kappa; 0.59). The <code>ci-or-tooling</code> rule never wins (9 hand-labelled, 0 assigned), the run&rsquo;s-own-mistake class is found with recall 55%, and environment, timeout and collision hold up (recall 92&ndash;100%). So the earlier error shares are a lower bound for tooling and own mistakes. Preliminary: one labeller, the same kind of model that wrote the records, and 60 entries."
     },
     {
+     "slug": "swe-errfix",
+     "title": "Can the swe-errors keyword rules be improved on 30 hand labels and still help on the other 30?",
+     "summary": "A two-fold held-out check of a mechanical refit (best rule order, then up to six greedily added keywords) of the <code>swe-errors</code> rules against <code>swe-errlabel</code>&rsquo;s 60 hand labels. Averaged over 200 random run-level splits the refit agrees with the hand label on 68.5% of entries against 66.7% for the shipped rules (+1.1 entries, range &minus;4 to +7), while fitted and scored on all 60 it reaches 85%: most of an in-sample improvement is memorisation. Preliminary: one labeller, 60 entries."
+    },
+    {
      "slug": "swe-modelmix",
      "title": "Does Opus pay for itself on this portfolio's runs? Cost ratio by track, and the sample needed to find out",
      "summary": "An Opus run costs about 8&ndash;9&times; a Sonnet run in the same track (process 7.9&times;, bootstrap 6.7&ndash;11.7; research 9.1&times;, 3.7&ndash;12.1 on only 3 Opus runs). The ledger holds 12 priced Opus runs against 342 Sonnet runs, confounded with date and task, so value per dollar cannot be compared yet: detecting a 50% difference in projects per run needs about 129 runs per arm. Preliminary; cost only."

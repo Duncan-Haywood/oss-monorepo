@@ -1,0 +1,12 @@
+entries 60; 200 random run-level splits into two folds; each fit uses one fold and is scored on the other, both ways (60 scored per split)
+baseline swe-errors rules on those entries: correct 40.0 of 60 (the same rules every split; they were not fit on any fold)
+refit rules, held-out: correct mean 41.1 of 60 = 68.5%
+paired gain per split: mean +1.09 entries; min -4, max +7; splits with gain > 0: 125, = 0: 29, < 0: 46
+Wilson 95% on the refit held-out accuracy (n=60, ignores split-to-split spread): 55.8% to 78.7%
+
+seed 0 split, in detail
+  fit on 30, scored on 30: order ['collision', 'timeout', 'environment', 'ci-or-tooling', 'own-mistake']; added [('own-mistake', 'first', 4), ('ci-or-tooling', 'failed', 3)]
+  fit on 30, scored on 30: order ['timeout', 'environment', 'ci-or-tooling', 'collision', 'own-mistake']; added [('own-mistake', 'above', 2)]
+
+fit on all 60 (descriptive only, scored on its own training data, not a held-out number)
+  order ['timeout', 'ci-or-tooling', 'collision', 'environment', 'own-mistake']; added [('own-mistake', 'first', 5), ('ci-or-tooling', 'failed', 3), ('ci-or-tooling', 'gitops', 2)]; accuracy 51/60 against baseline 40/60
