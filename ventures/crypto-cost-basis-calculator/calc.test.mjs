@@ -441,3 +441,22 @@ test("SAMPLE_CSV dates are zero-padded ISO and the sample sells land on the date
   const r = analyze(SAMPLE_CSV, { method: "FIFO", year: 2024 });
   assert.ok(r.rows.some((x) => x.sold === "2024-11-02"));
 });
+
+test("incomeReport groups receipts by coin for the year and exports CSV", async () => {
+  const { incomeReport, toIncomeCsv, parseTransactions } = await import("./calc.mjs");
+  const csv = `date,type,asset,quantity,total,fee,wallet
+2023-12-30,income,ETH,0.5,900,0,
+2024-01-15,income,ETH,0.25,600.10,0,
+2024-02-20,income,eth,0.25,650.20,0,
+2024-02-21,income,SOL,10,1500,0,
+2024-03-01,buy,BTC,1,60000,0,`;
+  const r = incomeReport(parseTransactions(csv).transactions, 2024);
+  assert.equal(r.count, 3);
+  assert.equal(r.total, 2750.3);
+  assert.deepEqual(r.assets.map((a) => [a.asset, a.count, a.qty, a.usd, a.first, a.last]), [["SOL", 1, 10, 1500, "2024-02-21", "2024-02-21"], ["ETH", 2, 0.5, 1250.3, "2024-01-15", "2024-02-20"]]);
+  assert.deepEqual(r.months.map((m) => m.month), ["2024-01", "2024-02"]);
+  assert.equal(incomeReport(parseTransactions(csv).transactions, null).count, 4);
+  assert.equal(toIncomeCsv(r), "Asset,Receipts,Quantity,First received,Last received,Fair market value (USD)\nSOL,1,10,2024-02-21,2024-02-21,1500.00\nETH,2,0.5,2024-01-15,2024-02-20,1250.30\nTotal,3,,,,2750.30\n");
+  const a = analyze(csv + "\n2024-04-01,sell,BTC,0.1,7000,0,", { year: 2024 });
+  assert.equal(a.incomeReport.total, a.income);
+});

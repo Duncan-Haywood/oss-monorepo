@@ -396,12 +396,39 @@ export function yearOf(iso) {
   return Number(iso.slice(0, 4));
 }
 
+// Ordinary income received (staking, mining, airdrops, rewards) in a tax year, by coin and
+// by month, valued at the USD amounts the user entered. Each row is also a lot, so the
+// same figures are the basis of the coins when they are later sold.
+export function incomeReport(txs, year = null) {
+  const rows = txs.filter((t) => t.kind === "income" && (year === null || yearOf(t.date) === year));
+  const byAsset = new Map(), byMonth = new Map();
+  for (const t of rows) {
+    const a = byAsset.get(t.asset) || { asset: t.asset, count: 0, qty: 0, usd: 0, first: t.date, last: t.date };
+    a.count++; a.qty += t.qty; a.usd += t.usd;
+    if (t.date < a.first) a.first = t.date;
+    if (t.date > a.last) a.last = t.date;
+    byAsset.set(t.asset, a);
+    const m = t.date.slice(0, 7);
+    byMonth.set(m, (byMonth.get(m) || 0) + t.usd);
+  }
+  const assets = [...byAsset.values()].map((a) => ({ ...a, qty: Number(a.qty.toFixed(8)), usd: cents(a.usd) })).sort((a, b) => b.usd - a.usd);
+  const months = [...byMonth].map(([month, usd]) => ({ month, usd: cents(usd) })).sort((a, b) => (a.month < b.month ? -1 : 1));
+  return { year, count: rows.length, total: cents(rows.reduce((n, t) => n + t.usd, 0)), assets, months };
+}
+
+export function toIncomeCsv(report) {
+  const lines = [["Asset", "Receipts", "Quantity", "First received", "Last received", "Fair market value (USD)"].join(",")];
+  for (const a of report.assets) lines.push([a.asset, a.count, a.qty, a.first, a.last, a.usd.toFixed(2)].map(q).join(","));
+  lines.push(["Total", report.count, "", "", "", report.total.toFixed(2)].map(q).join(","));
+  return lines.join("\n") + "\n";
+}
+
 export function analyze(text, options = {}) {
   const { method = "FIFO", year = null, perWallet = false, shortRate = 0.24, longRate = 0.15, carryShort = 0, carryLong = 0, lossLimit = 3000 } = options;
   const parsed = parseTransactions(text);
   const result = {
     errors: parsed.errors, skipped: parsed.skipped, warnings: [], years: [], year: null,
-    rows: [], summary: null, tax: null, netting: null, carryChain: [], comparison: [], holdings: [], openLots: [], income: 0, method, count: parsed.transactions.length,
+    rows: [], summary: null, tax: null, netting: null, carryChain: [], comparison: [], holdings: [], openLots: [], income: 0, incomeReport: null, method, count: parsed.transactions.length,
   };
   if (parsed.errors.length && parsed.transactions.length === 0) return result;
   const txs = parsed.transactions;
@@ -465,6 +492,7 @@ export function analyze(text, options = {}) {
     asset: l.asset, wallet: l.wallet, acquired: l.date, qty: Number(l.qty.toFixed(8)), basis: cents((l.basis / l.qtyOriginal) * l.qty),
   }));
   result.income = cents(txs.filter((t) => t.kind === "income" && (chosen === null || yearOf(t.date) === chosen)).reduce((a, t) => a + t.usd, 0));
+  result.incomeReport = incomeReport(txs, chosen);
   return result;
 }
 
