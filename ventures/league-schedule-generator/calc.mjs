@@ -913,6 +913,87 @@ export function applyWithdrawals(schedule, text) {
   return { schedule: s, withdrawals: fresh, errors };
 }
 
+// ---------------------------------------------------------------- late joiners
+
+/**
+ * A team enters the league late. List it with the other teams, then give each late team on a line
+ * of `text` as `2026-11-03 Newbies` (the first night it can play). Every match of that team dated
+ * before that night moves to the earliest playable date on or after it on which both teams are free
+ * (no blackout, not already playing) and a court and time slot are open, respecting each team's
+ * time and court limits; late matches that fit no existing round get a make-up round. Nothing else
+ * moves. Returns a new schedule (the input is not mutated) plus `joins` ({ team, from, moved[] })
+ * and `errors`; a match that cannot be placed stays where it was and is named in `errors`.
+ */
+export function applyLateTeams(schedule, text) {
+  const s = JSON.parse(JSON.stringify(schedule));
+  const cfg = s.config;
+  const weekdaySet = new Set(cfg.weekdays);
+  const skipSet = new Set(cfg.skipDays);
+  const total = cfg.courts.length * cfg.times.length;
+  const slotOf = (m) => cfg.times.indexOf(m.time) * cfg.courts.length + cfg.courts.indexOf(m.court);
+  const errors = [];
+  const joins = [];
+  for (const raw of String(text ?? "").split(/\n+/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(\d{4}-\d{1,2}-\d{1,2})\s*[:,-]?\s*(.*)$/);
+    const from = m ? parseDate(m[1]) : null;
+    if (from === null) { errors.push(`"${line}": start each line with the first night the team can play, like 2026-11-03 Newbies.`); continue; }
+    const name = m[2].trim();
+    const team = s.teams.findIndex((t) => t.toLowerCase() === name.toLowerCase());
+    if (team < 0) { errors.push(`"${name}" is not one of the teams.`); continue; }
+    if (joins.some((j) => j.team === team)) { errors.push(`${s.teams[team]} is already listed as a late joiner.`); continue; }
+    const early = [];
+    for (const r of s.rounds) {
+      if (r.day >= from) continue;
+      const mine = r.matches.filter((x) => x.home === team || x.away === team);
+      early.push(...mine.map((x) => ({ x, round: r })));
+      r.matches = r.matches.filter((x) => !mine.includes(x));
+    }
+    const moved = [];
+    for (const { x: mt, round: origin } of early) {
+      let placed = null;
+      let d = from - 1;
+      for (let guard = 0; guard < 400 && !placed; guard++) {
+        d = nextPlayDay(d + 1, weekdaySet, skipSet);
+        if (d === null) break;
+        if ((cfg.blackouts[mt.home] || []).includes(d) || (cfg.blackouts[mt.away] || []).includes(d)) continue;
+        const target = s.rounds.find((r) => r.day === d);
+        if (target && target.matches.some((x) => [x.home, x.away].some((t) => t === mt.home || t === mt.away))) continue;
+        const taken = new Set((target ? target.matches : []).map(slotOf));
+        const ok = (k) => [mt.home, mt.away].every((t) => {
+          const tl = (cfg.timeLimits || {})[t];
+          const cl = (cfg.courtLimits || {})[t];
+          return (!tl || tl.includes(cfg.times[Math.floor(k / cfg.courts.length)])) && (!cl || cl.includes(cfg.courts[k % cfg.courts.length]));
+        });
+        const free = Array.from({ length: total }, (_, k) => k).find((k) => !taken.has(k) && ok(k));
+        if (free === undefined) continue;
+        placed = { d, target, free };
+      }
+      if (!placed) {
+        errors.push(`${mt.homeName} v ${mt.awayName}: no free date found on or after ${dayIso(from)}; it stays on its original night.`);
+        origin.matches.push(mt);
+        continue;
+      }
+      const mv = { ...mt, court: cfg.courts[placed.free % cfg.courts.length], time: cfg.times[Math.floor(placed.free / cfg.courts.length)], slot: placed.free, moved: true };
+      if (placed.target) placed.target.matches.push(mv);
+      else s.rounds.push({ number: null, label: "Makeup", makeup: true, day: placed.d, bye: null, matches: [mv] });
+      moved.push({ home: mt.homeName, away: mt.awayName, to: placed.d, court: mv.court, time: mv.time });
+    }
+    joins.push({ team, from, moved });
+  }
+  s.rounds = s.rounds.filter((r) => r.matches.length || (r.bye !== null && r.bye !== undefined)).sort((a, b) => a.day - b.day);
+  for (const r of s.rounds) r.matches.sort((a, b) => a.slot - b.slot);
+  let mk = 0;
+  for (const r of s.rounds) if (r.makeup) r.label = `Makeup ${++mk}`;
+  for (const j of joins) {
+    s.notices = [...s.notices, `${s.teams[j.team]} joins from ${dayIso(j.from)}: ${j.moved.length} match(es) moved to later nights. Everything else is unchanged.`];
+  }
+  s.lateJoins = [...(s.lateJoins || []), ...joins.map((j) => ({ team: j.team, from: j.from }))];
+  s.stats = scheduleStats(s);
+  return { schedule: s, joins, errors };
+}
+
 // ---------------------------------------------------------------- shared grounds
 
 /** Lines like "Hawks, Owls" (teams that share one ground, rink or pitch). Two or more known teams per line. */

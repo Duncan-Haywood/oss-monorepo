@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
+  applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
@@ -1384,4 +1384,37 @@ test("a 2-1-0 points system changes the table and the play-off race", async () =
 test("the points system survives a share link", () => {
   const f = { ...sampleFields(), scoring: "2-1-0" };
   assert.equal(decodeFields(encodeFields(f)).scoring, "2-1-0");
+});
+
+test("a late-joining team plays nothing before its first night and keeps every pairing", () => {
+  const s = buildSchedule(baseSpec(6, { courts: ["A", "B", "C"] }));
+  const from = D("2026-10-20");
+  const r = applyLateTeams(s, "2026-10-20 Team 6");
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.joins[0].moved.length, s.rounds.filter((x) => x.day < from).flatMap((x) => x.matches).filter((m) => m.home === 5 || m.away === 5).length);
+  for (const round of r.schedule.rounds) if (round.day < from) for (const m of round.matches) assert.ok(m.home !== 5 && m.away !== 5);
+  assert.deepEqual(validateSchedule(r.schedule).errors, []);
+  assert.equal(r.schedule.rounds.flatMap((x) => x.matches).length, s.rounds.flatMap((x) => x.matches).length);
+  assert.equal(s.rounds.flatMap((x) => x.matches).filter((m) => m.home === 5 || m.away === 5).length, 5);
+});
+
+test("late joiner: other teams' matches do not move, input is not mutated, bad lines are reported", () => {
+  const s = buildSchedule(baseSpec(4, { courts: ["A", "B"] }));
+  const before = JSON.stringify(s);
+  const r = applyLateTeams(s, "2026-10-20 Team 4\nnonsense\n2026-10-20 Nobody\n2026-10-27 Team 4");
+  assert.equal(JSON.stringify(s), before);
+  assert.equal(r.errors.length, 3);
+  const key = (sch) => sch.rounds.flatMap((x) => x.matches.filter((m) => m.home !== 3 && m.away !== 3).map((m) => `${x.day}|${m.home}|${m.away}|${m.court}`)).sort();
+  assert.deepEqual(key(r.schedule), key(s));
+  assert.equal(applyLateTeams(s, "").joins.length, 0);
+});
+
+test("late joiner respects blackouts, time limits and double round robins", () => {
+  const spec = baseSpec(4, { double: true, courts: ["A"], times: ["18:00", "19:00"], blackouts: { 0: [D("2026-10-27")] }, timeLimits: { 3: ["19:00"] } });
+  const s = buildSchedule(spec);
+  const r = applyLateTeams(s, "2026-10-20 Team 4");
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(validateSchedule(r.schedule).errors, []);
+  for (const round of r.schedule.rounds) for (const m of round.matches) if (m.home === 3 || m.away === 3) assert.equal(m.time, "19:00");
+  assert.equal(r.schedule.rounds.flatMap((x) => x.matches).filter((m) => m.home === 3 || m.away === 3).length, 6);
 });
