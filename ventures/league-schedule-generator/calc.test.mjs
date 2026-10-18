@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, gamesLeft, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -576,6 +576,21 @@ test("gamesLeft counts each team's unplayed fixtures", () => {
   assert.deepEqual(gamesLeft(4, remainingFixtures(s, [])), [6, 6, 6, 6]);
   const left = gamesLeft(4, remainingFixtures(s, [{ a: 0, b: 1, ga: 1, gb: 0 }]));
   assert.deepEqual(left, [5, 5, 6, 6]);
+});
+
+test("scheduleStrength averages the points per game of opponents still to play", () => {
+  const s = buildSchedule(baseSpec(4, {}));
+  const results = [{ a: 0, b: 1, ga: 2, gb: 0 }, { a: 2, b: 3, ga: 1, gb: 1 }];
+  const table = standings(s.teams, results);
+  const rem = remainingFixtures(s, results);
+  const st = scheduleStrength(table, rem);
+  const ppg = (i) => table.find((r) => r.index === i).points / 1;
+  for (let i = 0; i < 4; i++) {
+    const opps = rem.filter(([a, b]) => a === i || b === i).map(([a, b]) => (a === i ? b : a));
+    assert.equal(st[i].games, opps.length);
+    assert.ok(Math.abs(st[i].avg - opps.reduce((t, j) => t + ppg(j), 0) / opps.length) < 1e-9);
+  }
+  assert.equal(scheduleStrength(standings(s.teams, []), remainingFixtures(s, []))[0].avg, null);
 });
 
 test("raceText names each team's position", () => {

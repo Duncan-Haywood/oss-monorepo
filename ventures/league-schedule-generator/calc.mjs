@@ -1489,6 +1489,20 @@ export function gamesLeft(nTeams, remaining) {
   return left;
 }
 
+/**
+ * Strength of the games still to play: for each team, the average points per game (from `rows`, the
+ * `standings` table) of the opponents it has yet to meet, one entry per remaining fixture. Returns an
+ * array indexed by team of `{ avg, games }`; `avg` is null when the team has no games left or nobody
+ * has played yet. A guide to who has the easier run-in, not a forecast.
+ */
+export function scheduleStrength(rows, remaining) {
+  const ppg = new Map(rows.map((r) => [r.index, r.played ? r.points / r.played : null]));
+  const out = Array.from({ length: rows.length }, () => ({ sum: 0, n: 0, games: 0 }));
+  const take = (i, j) => { out[i].games++; const v = ppg.get(j); if (v != null) { out[i].sum += v; out[i].n++; } };
+  for (const [a, b] of remaining) { take(a, b); take(b, a); }
+  return out.map((o) => ({ avg: o.n ? o.sum / o.n : null, games: o.games }));
+}
+
 /** One plain sentence per team that has a decided or live position. */
 export function raceText(rows, spots) {
   const lines = [];
