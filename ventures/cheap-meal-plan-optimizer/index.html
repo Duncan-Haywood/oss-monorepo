@@ -9,7 +9,7 @@
   <meta property="og:description" content="What is the cheapest way to hit your protein and calories? Edit the prices, set targets, get a daily plan, weekly cost and the price of each extra gram of protein.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Cheapest Meal Plan Optimizer", "applicationCategory": "HealthApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter foods with prices and nutrition per serving, set calorie, protein, fat, carb and fibre targets, and the optimizer finds the cheapest daily servings that meet them, with the cost of each extra target. A minimum-cost diet linear program that runs entirely in your browser; nothing is uploaded.", "featureList": "Cheapest meal plan, budget meal planner, minimum cost diet, grocery cost optimizer, high protein on a budget, linear programming, CSV export"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make the cheapest meal plan that still hits my protein and calories?", "acceptedAnswer": {"@type": "Answer", "text": "List the foods you can buy with the price of one serving and the nutrition in that serving, set a calorie range, a protein minimum and any fat, carb or fibre bounds, and the optimizer finds the servings per day with the lowest cost that meets all of them. It solves a linear program, the classic minimum-cost diet problem, then rounds to whole or half servings with branch and bound."}}, {"@type": "Question", "name": "Are the prices and nutrition numbers real?", "acceptedAnswer": {"@type": "Answer", "text": "The starter foods carry approximate generic nutrition and example prices only. Prices vary by store, region and week, so edit the price on every line to what you pay, and check the nutrition against the label of what you actually buy. The result is only as good as the numbers you put in."}}, {"@type": "Question", "name": "Why is the cheapest plan so repetitive?", "acceptedAnswer": {"@type": "Answer", "text": "Because a cost minimiser has no taste. If lentils and oats are the cheapest way to get calories and protein, it will use a lot of them. Lower the maximum servings per food, delete foods you will not eat, or add foods you like, and rerun it to see what variety costs."}}, {"@type": "Question", "name": "What does 'extra cost per 10 g of protein' mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is how much more the cheapest plan costs per day if you raise the protein minimum by 10 g, holding everything else. A target that adds nothing is not binding on this menu."}}, {"@type": "Question", "name": "Why will it not build a plan under 1,200 calories?", "acceptedAnswer": {"@type": "Answer", "text": "A very low intake needs a clinician or registered dietitian, not an optimizer. The tool refuses to plan below 1,200 calories a day, and it is not suitable for children, pregnancy, eating disorders, diabetes or other medical conditions."}}, {"@type": "Question", "name": "Is this nutrition or medical advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you give it. It does not know your health, allergies or needs, and it is not a substitute for a doctor or registered dietitian."}}, {"@type": "Question", "name": "Is my food list uploaded or stored?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser, nothing is sent to a server, there are no accounts, and nothing is saved when you close the page. To keep or send your list, use Copy share link (it puts the list in the address, which only your browser sees) or download the plan as a CSV."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make the cheapest meal plan that still hits my protein and calories?", "acceptedAnswer": {"@type": "Answer", "text": "List the foods you can buy with the price of one serving and the nutrition in that serving, set a calorie range, a protein minimum and any fat, carb or fibre bounds, and the optimizer finds the servings per day with the lowest cost that meets all of them. It solves a linear program, the classic minimum-cost diet problem, then rounds to whole or half servings with branch and bound."}}, {"@type": "Question", "name": "Are the prices and nutrition numbers real?", "acceptedAnswer": {"@type": "Answer", "text": "The starter foods carry approximate generic nutrition and example prices only. Prices vary by store, region and week, so edit the price on every line to what you pay, and check the nutrition against the label of what you actually buy. The result is only as good as the numbers you put in."}}, {"@type": "Question", "name": "Why is the cheapest plan so repetitive?", "acceptedAnswer": {"@type": "Answer", "text": "Because a cost minimiser has no taste. If lentils and oats are the cheapest way to get calories and protein, it will use a lot of them. Lower the maximum servings per food, delete foods you will not eat, or add foods you like, and rerun it to see what variety costs."}}, {"@type": "Question", "name": "What does 'extra cost per 10 g of protein' mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is how much more the cheapest plan costs per day if you raise the protein minimum by 10 g, holding everything else. A target that adds nothing is not binding on this menu."}}, {"@type": "Question", "name": "Why will it not build a plan under 1,200 calories?", "acceptedAnswer": {"@type": "Answer", "text": "A very low intake needs a clinician or registered dietitian, not an optimizer. The tool refuses to plan below 1,200 calories a day, and it is not suitable for children, pregnancy, eating disorders, diabetes or other medical conditions."}}, {"@type": "Question", "name": "Is this nutrition or medical advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you give it. It does not know your health, allergies or needs, and it is not a substitute for a doctor or registered dietitian."}}, {"@type": "Question", "name": "Is my food list uploaded or stored?", "acceptedAnswer": {"@type": "Answer", "text": "It is never uploaded. Everything runs in your browser, nothing is sent to a server and there are no accounts. So your prices are still there next week, your food list and targets are remembered on this device only (browser local storage); click Forget saved data to remove them. To send your list to someone else, use Copy share link (it puts the list in the address, which only your browser sees) or download the plan as a CSV."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1f2d17; background: #f5f8f0; }
     body { max-width: 1080px; margin: auto; padding: 28px; }
@@ -70,6 +70,7 @@
     <button type="button" class="secondary" id="share-link">Copy share link</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <p id="form-status" role="status" class="note">Add your foods and targets, then click Find the cheapest plan.</p>
+    <p class="note">Your food list, prices and targets are remembered on this device only (browser local storage), so you can update prices each week. <button type="button" class="secondary" id="forget">Forget saved data</button></p>
   </section>
 
   <section id="report" class="card" hidden>
@@ -113,7 +114,7 @@
     <h3>Is this nutrition or medical advice?</h3>
     <p>No. It does arithmetic on the numbers you give it. It does not know your health, allergies or needs, and it is not a substitute for a doctor or registered dietitian.</p>
     <h3>Is my food list uploaded or stored?</h3>
-    <p>No. Everything runs in your browser, nothing is sent to a server, there are no accounts, and nothing is saved when you close the page. To keep or send your list, use Copy share link (it puts the list in the address, which only your browser sees) or download the plan as a CSV.</p>
+    <p>It is never uploaded. Everything runs in your browser, nothing is sent to a server and there are no accounts. So your prices are still there next week, your food list and targets are remembered on this device only (browser local storage); click Forget saved data to remove them. To send your list to someone else, use Copy share link (it puts the list in the address, which only your browser sees) or download the plan as a CSV.</p>
   </section>
   </main>
 
@@ -205,7 +206,7 @@
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Starter foods: approximate generic nutrition and example prices. Edit the prices to what you pay."; } });
     });
     $("#clear-all").addEventListener("click", () => {
-      $("#foods").value = ""; last = null; $("#report").hidden = true; status.textContent = "Cleared.";
+      $("#foods").value = ""; last = null; $("#report").hidden = true; status.textContent = "Cleared."; persist();
     });
     const FIELD_ID = { kmin: "#kmin", kmax: "#kmax", pmin: "#pmin", fmin: "#fmin", fmax: "#fmax", cmin: "#cmin", cmax: "#cmax", fibmin: "#fibmin", dmax: "#dmax", share: "#share", step: "#step" };
     $("#share-link").addEventListener("click", async () => {
@@ -216,12 +217,30 @@
       try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It holds your food list and targets in the address itself; nothing is uploaded."; }
       catch { status.textContent = "Copy the address from your browser's address bar: it now holds your food list and targets."; }
     });
+    const KEY = "cheap-meal-plan-setup-v1";
+    let saveOff = false;
+    function persist() {
+      if (saveOff) return;
+      const fields = {};
+      for (const k of SHARE_FIELDS) fields[k] = $(FIELD_ID[k]).value.trim();
+      try { localStorage.setItem(KEY, encodeShare($("#foods").value, fields)); } catch (e) {}
+    }
+    try {
+      const saved = decodeShare(localStorage.getItem(KEY) || "");
+      if (saved.foods) {
+        $("#foods").value = saved.foods;
+        for (const k of SHARE_FIELDS) if (k in saved.fields) $(FIELD_ID[k]).value = saved.fields[k];
+        status.textContent = "Restored your last food list and targets from this device. Update any prices, then click Find the cheapest plan.";
+      }
+    } catch (e) {}
+    for (const sel of ["#foods", ...Object.values(FIELD_ID)]) $(sel).addEventListener("input", persist);
+    $("#forget").addEventListener("click", () => { saveOff = true; try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device. Nothing more is saved until you reload."; });
     if (location.hash.length > 1) {
       const shared = decodeShare(location.hash);
       if (shared.foods) {
         $("#foods").value = shared.foods;
         for (const k of SHARE_FIELDS) if (k in shared.fields) $(FIELD_ID[k]).value = shared.fields[k];
-        status.textContent = "Loaded the food list and targets from the link. Check every price, then click Find the cheapest plan.";
+        status.textContent = "Loaded the food list and targets from the link. Check every price, then click Find the cheapest plan."; persist();
       }
     }
     $("#download").addEventListener("click", () => {
