@@ -59,3 +59,18 @@ test("--format slack prints Slack mrkdwn", async () => {
   await main(["n.txt", "--date", "2026-10-19", "--format", "slack"], m.deps);
   assert.match(m.o.out[0], /^\*Meeting \(2026-10-19\)\*[\s\S]*• Fix the toggle — \*Ben\*, by 2026-10-23/);
 });
+
+test("workload flags an owner with three actions or two due the same day", async () => {
+  const notes = "Ben will fix the toggle by Friday.\nBen will update the docs by Friday.\nCleo will book the venue by Monday.";
+  const m = mk({ "n.txt": notes });
+  await main(["n.txt", "--date", "2026-10-19", "--format", "json"], m.deps);
+  const j = JSON.parse(m.o.out[0]);
+  assert.equal(j.workload.people[0].owner, "Ben");
+  assert.deepEqual(j.workload.flagged.map((p) => p.owner), ["Ben"]);
+  const md = mk({ "n.txt": notes });
+  await main(["n.txt", "--date", "2026-10-19"], md.deps);
+  assert.match(md.o.out[0], /Heads-up: loaded owners[\s\S]*\*\*Ben\*\*: 2 due 2026-10-23/);
+  const csv = mk({ "n.txt": notes });
+  await main(["n.txt", "--date", "2026-10-19", "--format", "csv"], csv.deps);
+  assert.doesNotMatch(csv.o.out[0], /Heads-up/);
+});

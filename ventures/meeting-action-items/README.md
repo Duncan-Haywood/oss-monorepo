@@ -43,6 +43,8 @@ node cli.mjs notes.txt --date 2026-10-26 --previous last-week.json   # last week
 actions that are past due and not mentioned today, those discussed again, and those not yet due. It never marks anything done;
 silence in the notes is a prompt to ask, not a verdict.
 
+md, slack and email output end with a "Heads-up: loaded owners" section when someone has 3+ actions or 2+ due the same day (JSON carries `workload`). It counts only what the notes say.
+
 Exit 0 when every action has an owner, 1 when one does not (usable as a check), 2 on unreadable input. Zero dependencies,
 Node 18+.
 

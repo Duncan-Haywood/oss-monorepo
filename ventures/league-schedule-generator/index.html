@@ -85,6 +85,7 @@
     <label for="courtLimits">Optional: teams that can only use certain courts or fields, one per line: <code>Team name: Field 2</code> (needs two or more courts below; names must match the court names)</label>
     <textarea id="courtLimits" rows="2" placeholder="Under-8 Owls: Field 2"></textarea>
     <div class="row4">
+      <div><label for="hire">Court hire per hour, optional (to price a team fee)</label><input id="hire" inputmode="decimal" placeholder="40"></div>
       <div><label for="courts">Courts or tables (comma or line separated, blank = automatic)</label><input id="courts" placeholder="Court 1, Court 2"></div>
       <div><label for="times">Time slots each night (blank = one)</label><input id="times" placeholder="18:00, 19:00"></div>
     </div>
@@ -249,7 +250,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, rematchReport, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, raceText, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, rematchReport, seasonCost, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, raceText, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -335,8 +336,18 @@
         const worst = r.pairs.filter((x) => x.gap === r.shortest).slice(0, 2).map((x) => `${x.a} v ${x.b}`).join(", ");
         return ` Days between a pair's two meetings: from ${r.shortest} to ${r.longest} (shortest: ${worst}).`;
       };
+      const slotNote = (sch) => {
+        const f = slotFairness(sch);
+        const part = (x, what) => x && x.spread > 1 ? ` ${x.team} has the widest ${what} gap: ${x.mostCount} game(s) at ${x.most} against ${x.leastCount} at ${x.least}.` : "";
+        return part(f.time, "time-slot") + part(f.court, "court");
+      };
+      const costNote = (sch) => {
+        const c = seasonCost(sch, { rate: $("#hire").value.trim() });
+        if (!c) return "";
+        return ` Court hire: ${c.matches} match(es) x ${sch.config.minutes} min = ${c.courtHours} court-hour(s), ${c.total.toFixed(2)} in all, so ${c.perTeam.toFixed(2)} per team splits it evenly.`;
+      };
       const sp = (o) => `${s.stats.courtSpread} court and ${s.stats.timeSpread} time-slot game(s)`;
-      $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).${restNote(s)}${rematchNote(s)}`;
+      $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).${slotNote(s)}${restNote(s)}${rematchNote(s)}${costNote(s)}`;
       $("#race-wrap").hidden = !extra.race;
       if (extra.race) {
         $("#race-note").textContent = `Top ${extra.race.spots} qualify. ${extra.race.rows.exact ? "Every way the remaining games could finish was checked." : "Many games remain, so only the safe bounds are used: a team marked alive may already be settled."} Ranked on points only; a tie on points counts against the team, so "clinched" and "out" are never wrong, and goal difference can help a team marked alive.`;

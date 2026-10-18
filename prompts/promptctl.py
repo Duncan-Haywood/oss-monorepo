@@ -817,6 +817,30 @@ def _flag_stale(report: str, changed: str) -> str:
     return report
 
 
+def backfill_prs(root: Path, write: bool = True) -> list[tuple[str, str]]:
+    """Fill a null `pr` in run records from the squash-merge subject "... (#N)" of the
+    commit that added the record. A record is committed before its PR exists, so many
+    (68 of 69 red-team ones) never name it. Needs real history: a shallow clone finds none."""
+    found = []
+    for path in sorted((root / "runs").glob("*.json")):
+        text = path.read_text()
+        try:
+            rec = json.loads(text)
+        except ValueError:
+            continue
+        if not isinstance(rec, dict) or rec.get("pr") or rec.get("repo"):
+            continue
+        out = subprocess.run(["git", "log", "HEAD", "--diff-filter=A", "--format=%s", "--", str(path)],
+                             cwd=root.parent, capture_output=True, text=True).stdout.splitlines()
+        m = re.search(r"\(#(\d+)\)$", out[-1].strip()) if out else None
+        if m:
+            found.append((path.name, m.group(1)))
+            if write:
+                rec["pr"] = m.group(1)
+                path.write_text(json.dumps(rec, indent=2) + ("\n" if text.endswith("\n") else ""))
+    return found
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -838,6 +862,8 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("measure", help="score prompt versions from the run records")
     p.add_argument("--json", action="store_true")
     sub.add_parser("backlog", help="list open process improvements, best first")
+    p = sub.add_parser("backfill-pr", help="fill empty `pr` in run records from the merge commit subject")
+    p.add_argument("--dry-run", action="store_true")
     sub.add_parser("validate", help="check routing, prompts, run records and the backlog")
     args = parser.parse_args(argv)
 
@@ -859,6 +885,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "measure":
         m = measure(ROOT)
         print(json.dumps(m, indent=2)) if args.json else print_measure(m)
+        return 0
+    if args.cmd == "backfill-pr":
+        found = backfill_prs(ROOT, not args.dry_run)
+        print(f"{len(found)} record(s) {'would get' if args.dry_run else 'got'} a pr number")
         return 0
     if args.cmd == "backlog":
         print_backlog(ROOT)

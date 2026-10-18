@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": "refresh the stale gh-pages snapshot (session gate), then pick a venture",
   "projects": [],
-  "pr": null,
+  "pr": "7417",
   "repo": null,
   "commits": [],
   "lines_added": null,

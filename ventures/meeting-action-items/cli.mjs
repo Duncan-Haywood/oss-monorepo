@@ -4,7 +4,7 @@
 import { readFile } from "node:fs/promises";
 import { extractWithAi } from "./ai.mjs";
 import { configFromEnv } from "./byok.mjs";
-import { extract, actionsCsv, actionsMarkdown, actionsIcs, followUpEmail, slackMessage, carryOver, carryOverMarkdown } from "./extract.mjs";
+import { extract, actionsCsv, actionsMarkdown, actionsIcs, followUpEmail, slackMessage, carryOver, carryOverMarkdown, workload, workloadMarkdown } from "./extract.mjs";
 
 export async function main(argv, io = { log: console.log, err: console.error, read: (f) => readFile(f, "utf8"), env: process.env, fetch: undefined }) {
   const opt = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : null);
@@ -33,8 +33,12 @@ export async function main(argv, io = { log: console.log, err: console.error, re
     try { carry = carryOver(JSON.parse(await io.read(prevFile)), r); } catch (e) { io.err(`could not use ${prevFile}: ${e.message}`); return 2; }
     if (!carry.ok) { io.err(carry.error); return 2; }
   }
-  if (carry && fmt === "json") io.log(JSON.stringify({ ...r, carryOver: carry }, null, 2));
-  else io.log((out(r).trimEnd() + (carry && ["md", "slack", "email"].includes(fmt) ? "\n\n" + carryOverMarkdown(carry).trimEnd() : "")).trimEnd());
+  const load = workload(r);
+  if (fmt === "json") io.log(JSON.stringify({ ...r, workload: load, ...(carry ? { carryOver: carry } : {}) }, null, 2));
+  else {
+    const extra = ["md", "slack", "email"].includes(fmt) ? [carry && carryOverMarkdown(carry), workloadMarkdown(load)].filter(Boolean) : [];
+    io.log([out(r), ...extra].map((x) => x.trimEnd()).join("\n\n").trimEnd());
+  }
   return r.counts.unowned ? 1 : 0; // exit 1: something still needs an owner, so a CI step can gate on it
 }
 
