@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches,
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
@@ -605,6 +605,37 @@ test("swapOptions: open shifts and a missing roster are reported, not guessed", 
   const open = r.assignments.findIndex((a) => a.person === null);
   assert.ok(swapOptions(staff, slots, r, open).error);
   assert.ok(swapOptions(staff, slots, null, 0).error);
+});
+
+test("checkTrade: an allowed trade carries its payroll change, a blocked one names who it breaks and why", () => {
+  const staff = staffOf("Ana, 10, 16, 0, Mon 8-16; Tue 8-16\nBen, 20, 16, 0, Mon 8-16; Tue 8-16\nCy, 11, 8, 0, Wed 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open\nTue, 8, 16, 1, close\nWed, 8, 16, 1, mid");
+  const r = { owner: [0, 1, 2], options: {} };
+  const ok = checkTrade(staff, slots, r, 0, 1);
+  assert.equal(ok.ok, true);
+  assert.deepEqual(ok.problems, []);
+  assert.equal(ok.a.name, "Ana");
+  assert.equal(ok.b.name, "Ben");
+  assert.ok(Math.abs(ok.extraCost) < 1e-6); // both still work 8 hours at their own wage
+  const bad = checkTrade(staff, slots, r, 0, 2); // Ana cannot work Wednesday, Cy cannot work Monday
+  assert.equal(bad.ok, false);
+  assert.deepEqual(bad.problems.map((x) => x.name).sort(), ["Ana", "Cy"]);
+  assert.equal(bad.extraCost, null);
+});
+
+test("checkTrade: names the hard rule that stops a trade, and rejects same shift, open shifts and same person", () => {
+  const staff = staffOf("Ana, 10, 8, 0, any\nBen, 12, 24, 0, any");
+  const slots = slotsOf("Mon, 8, 16, 1, a\nTue, 8, 20, 1, b\nWed, 8, 12, 1, c");
+  const r = { owner: [0, 1, 1], options: {} };
+  const cap = checkTrade(staff, slots, r, 0, 1); // Ana (8 h cap) would take a 12 h shift
+  assert.equal(cap.ok, false);
+  assert.deepEqual(cap.problems, [{ name: "Ana", reason: "would go over their weekly hour limit" }]);
+  assert.equal(cap.extraCost, null);
+  assert.equal(checkTrade(staff, slots, r, 0, 2).ok, true); // Ana 4 h, Ben 8 + 12 = 20 h
+  assert.ok(checkTrade(staff, slots, r, 1, 2).error); // Ben holds both
+  assert.ok(checkTrade(staff, slots, r, 1, 1).error);
+  assert.ok(checkTrade(staff, slots, { owner: [0, -1, 1], options: {} }, 0, 1).error); // open shift
+  assert.ok(checkTrade(staff, slots, null, 0, 1).error);
 });
 
 test("dailyLabor: hours and base-wage cost per day, labor share where sales are given", () => {
