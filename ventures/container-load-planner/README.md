@@ -27,11 +27,11 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - **A spreadsheet of cubic metres:** quick, but total volume ignores carton shapes, rotation limits, stacking and weight, so it overstates what fits.
 - **Freight forwarder or carrier quotes and their load calculators:** accurate for their own booking, but usually need contact details and are tied to a quote. This tool needs no signup and states no rate.
 - **Desktop and paid load-planning software:** deeper (axle weights, bracing, carrier rules), and priced and set up for logistics teams. This tool is for the earlier question of how many containers to book.
-- **What this adds:** a to-scale 3D packing with rotation, support and load-on-top rules, an independent checker of each plan, a swap table across standard container sizes, and a loading list. Nothing is uploaded.
+- **What this adds:** a to-scale 3D packing with rotation, support and load-on-top rules, an independent checker of each plan, a swap table across standard container sizes, a centre-of-gravity check (back-heavy, side-heavy or top-heavy loads are flagged), and a loading list. Nothing is uploaded.
 
 **No warranty.** Free and as-is; a planning aid, not legal, tax, financial or
 safety advice, and not a load-securing, axle-weight or compliance certificate.
-It does not model bracing, axle weights, centre of gravity, pallet overhang,
+It reports the centre of gravity (assuming evenly loaded units) but does not model bracing, axle weights, pallet overhang,
 dunnage, hazardous goods or carrier limits, and states no freight rate. The
 packer is a heuristic: it tries many orderings and keeps the best, which is not
 a proof of optimality. Container sizes and payloads are nominal and editable.

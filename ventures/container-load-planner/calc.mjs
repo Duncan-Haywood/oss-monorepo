@@ -22,8 +22,8 @@
 // exactly. `verifyPacking` re-checks a result with a separate implementation:
 // bounds, pairwise overlap, payload, orientation, support, layers and load.
 //
-// It is a planning aid. It does not model load securing, axle weights, centre
-// of gravity, dunnage, pallet overhang rules, hazardous goods separation,
+// It is a planning aid. It reports where the centre of gravity sits (`balanceReport`) but does not
+// model load securing, axle weights, dunnage, pallet overhang rules, hazardous goods separation,
 // carrier or legal limits, and it asserts no freight rate.
 
 export const SYSTEMS = Object.freeze({
@@ -568,6 +568,33 @@ export function verifyPacking(cont, lines, placements, opts = {}) {
   }
   for (let i = 0; i < n; i++) if (load[i] > lines[placements[i].line].maxTop + 1e-6) errors.push(`unit ${i}: carries ${load[i].toFixed(1)} kg, limit ${lines[placements[i].line].maxTop}`);
   return { ok: errors.length === 0, errors };
+}
+
+// ----- balance --------------------------------------------------------------
+
+// Where the weight sits. Each unit is treated as uniform in density, so its
+// mass is at the centre of its box. Fractions run 0..1 from the back wall, the
+// left wall and the floor, so 0.5 is the middle of the container. `ok` is
+// false when the centre of gravity is further from the middle than the
+// tolerances (fractions of length / width, and a height ceiling). The defaults
+// are planning figures, not a rule from any carrier or code; pass your own.
+export function balanceReport(cont, lines, placements, { longTol = 0.1, latTol = 0.05, maxHeight = 0.6 } = {}) {
+  let w = 0, mx = 0, my = 0, mz = 0, back = 0, left = 0;
+  for (const p of placements) {
+    const m = lines[p.line].weight;
+    const cx = p.x + p.l / 2, cy = p.y + p.w / 2, cz = p.z + p.h / 2;
+    w += m; mx += m * cx; my += m * cy; mz += m * cz;
+    if (cx < cont.l / 2) back += m;
+    if (cy < cont.w / 2) left += m;
+  }
+  if (!(w > 0)) return { weight: 0, x: NaN, y: NaN, z: NaN, backShare: NaN, leftShare: NaN, ok: true, warnings: [] };
+  const x = mx / w / cont.l, y = my / w / cont.w, z = mz / w / cont.h;
+  const warnings = [];
+  const dir = (f, lo, hi) => (f < 0.5 ? lo : hi);
+  if (Math.abs(x - 0.5) > longTol) warnings.push(`The centre of gravity is ${Math.round(Math.abs(x - 0.5) * 100)}% of the length off the middle, toward the ${dir(x, "back wall", "doors")}. Move heavy lines toward the middle.`);
+  if (Math.abs(y - 0.5) > latTol) warnings.push(`The centre of gravity is ${Math.round(Math.abs(y - 0.5) * 100)}% of the width off the middle, toward the ${dir(y, "left", "right")} wall.`);
+  if (z > maxHeight) warnings.push(`The centre of gravity is ${Math.round(z * 100)}% of the way up the container; put heavy lines on the floor.`);
+  return { weight: w, x, y, z, backShare: back / w, leftShare: left / w, ok: warnings.length === 0, warnings };
 }
 
 // ----- pallets and comparison ---------------------------------------------

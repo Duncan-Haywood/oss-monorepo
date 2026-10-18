@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, parseRotation, orientations, resolveContainer,
   packPass, bestPack, planLoad, verifyPacking, palletise, compareOptions, viewRects, loadingOrder,
-  mulberry32, lineFits, suggestRestarts, reportCsv, sampleCargo, toMm, fromMm, MAX_UNITS,
+  mulberry32, balanceReport, lineFits, suggestRestarts, reportCsv, sampleCargo, toMm, fromMm, MAX_UNITS,
 } from "./calc.mjs";
 
 const M = SYSTEMS.metric, IMP = SYSTEMS.imperial;
@@ -398,4 +398,46 @@ test("a thousand-plus units plan in a reasonable time and validate", () => {
   assert.ok(Date.now() - t < 20000);
   for (const c of plan.containers) assert.equal(verifyPacking(plan.container, lines, c.placements).ok, true);
   assert.equal(plan.packedUnits, 1600);
+});
+
+// ----- balance --------------------------------------------------------------
+
+test("balance: a single centred box sits at 0.5, 0.5 and half its height", () => {
+  const c = box(1000, 400, 400);
+  const ln = [mk("a", 20, 20, 20, 100, 1)];
+  const r = balanceReport(c, ln, [{ line: 0, x: 400, y: 100, z: 0, l: 200, w: 200, h: 200 }]);
+  assert.equal(r.x, 0.5); assert.equal(r.y, 0.5); assert.equal(r.z, 0.25);
+  assert.equal(r.backShare, 0); assert.ok(r.ok);
+});
+
+test("balance: weight weighs the average, and a back-heavy load warns", () => {
+  const c = box(1000, 400, 400);
+  const ln = [mk("heavy", 20, 20, 20, 900, 1), mk("light", 20, 20, 20, 100, 1)];
+  const r = balanceReport(c, ln, [
+    { line: 0, x: 0, y: 100, z: 0, l: 200, w: 200, h: 200 },
+    { line: 1, x: 800, y: 100, z: 0, l: 200, w: 200, h: 200 },
+  ]);
+  assert.ok(Math.abs(r.x - 0.18) < 1e-9); // (900*100 + 100*900)/1000 mm of a 1000 mm length
+  assert.ok(Math.abs(r.backShare - 0.9) < 1e-9);
+  assert.equal(r.ok, false);
+  assert.match(r.warnings[0], /back wall/);
+});
+
+test("balance: side-heavy and top-heavy loads each warn; empty load is fine", () => {
+  const c = box(1000, 400, 400);
+  const ln = [mk("a", 20, 20, 20, 100, 1)];
+  const side = balanceReport(c, ln, [{ line: 0, x: 400, y: 0, z: 0, l: 200, w: 200, h: 200 }]);
+  assert.match(side.warnings.join(" "), /left wall/);
+  const high = balanceReport(c, ln, [{ line: 0, x: 400, y: 100, z: 200, l: 200, w: 200, h: 200 }]);
+  assert.match(high.warnings.join(" "), /floor/);
+  assert.equal(balanceReport(c, ln, []).ok, true);
+});
+
+test("balance: a planned load's weight matches the container weight", () => {
+  const ln = [mk("carton", 40, 30, 30, 20, 60)];
+  const plan = planLoad(ln, PRESETS.find((p) => p.id === "20ft"));
+  const c = plan.containers[0];
+  const r = balanceReport(plan.container, ln, c.placements);
+  assert.equal(r.weight, c.weight);
+  assert.ok(r.x > 0 && r.x < 1);
 });
