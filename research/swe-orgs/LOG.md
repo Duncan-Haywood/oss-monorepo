@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-17 · Batch 15: normal accidents and the DevOps Handbook
+
+- Added 2 sources and 2 practices (51 practices, 50 sources): Perrow's *Normal Accidents* (1984; P50) and Kim, Humble, Debois and Willis's *The DevOps Handbook* (2016; P51). P50 completes a trio with batch 14: Reason on layered defences, Vaughan on eroding checks, Perrow on why tightly coupled, complex systems fail even when every layer works.
+- **P50 transfers `partial` and is `partly` adopted**: one project per pull request and per-project directories loosen the coupling, but `README.md`, `projects.json` and the generated mirror stay shared, tightly coupled files. **P51 is `yes` and `adopted`**: landing is flow, CI and run records are feedback, the review track is learning. It is a framing, not a new change.
+- **Still no proposal.** The ledger has 905 rows (it had 762); every class share fell again (tooling 2.1%). The highest unadopted `yes` row is P23 at 2.1%, below the 5% bar.
+- Verification was by web search only (blog summaries for Perrow, the publisher page for the Handbook); neither book was read and no figure from either is used. Both batches 14 and 15 are theory and practitioner books, not measurements: the catalogue's `measured` count stays at 4.
+
 ## 2026-10-17 · Batch 14: layered defences and normalization of deviance
 
 - Added 2 sources and 2 practices (49 practices, 48 sources): Reason's *Managing the Risks of Organizational Accidents* (1997; P48) and Vaughan's *The Challenger Launch Decision* (1996; P49). Both extend P33 (Feynman) from "a safety check nobody confirmed" to how checks fail together or erode.
