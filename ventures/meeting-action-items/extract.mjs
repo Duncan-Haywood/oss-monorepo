@@ -276,6 +276,53 @@ export function followUpEmail(r, { title = "our meeting", sender = "" } = {}) {
   return out.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
 }
 
+// Compare last meeting's actions (the JSON this tool printed then) with this meeting's notes.
+// "again": the same task shows up in this meeting's notes (matched by owner and shared words, so a reworded line still counts).
+// "overdue": no longer mentioned and past its due date as of this meeting. "open": no longer mentioned, not yet due or undated.
+// Nothing is marked done: silence in the notes is not proof, so the list is a prompt to ask, not a verdict.
+const words = (t) => new Set(String(t).toLowerCase().match(/[a-z0-9]{3,}/g) || []);
+export function carryOver(previous, r) {
+  const prev = Array.isArray(previous) ? previous : previous?.actions;
+  if (!Array.isArray(prev)) return { ok: false, error: "previous must be the JSON from an earlier run (an object with an actions list)" };
+  const today = r.date ? parseIso(r.date) : null;
+  const out = { ok: true, again: [], overdue: [], open: [] };
+  for (const p of prev) {
+    if (!p || !p.task) continue;
+    const pw = words(p.task);
+    const hit = r.actions.some((a) => {
+      if (p.owner && a.owner && p.owner.toLowerCase() !== a.owner.toLowerCase()) return false;
+      const aw = words(a.task);
+      const shared = [...pw].filter((w) => aw.has(w)).length;
+      return pw.size > 0 && shared / Math.min(pw.size, aw.size || 1) >= 0.6;
+    });
+    const due = p.due ? parseIso(p.due) : null;
+    (hit ? out.again : today != null && due != null && due < today ? out.overdue : out.open).push(p);
+  }
+  return out;
+}
+
+export function carryOverMarkdown(c) {
+  if (!c.ok) return "";
+  const line = (a) => `- ${a.task} — **${a.owner || "needs an owner"}**${a.due ? `, was due ${a.due}` : ""}`;
+  const out = ["## From the last meeting"];
+  if (!c.again.length && !c.overdue.length && !c.open.length) return "";
+  if (c.overdue.length) out.push("", "Past due and not mentioned today (ask if done):", ...c.overdue.map(line));
+  if (c.again.length) out.push("", "Discussed again today:", ...c.again.map(line));
+  if (c.open.length) out.push("", "Not mentioned today, not yet due:", ...c.open.map(line));
+  return out.join("\n") + "\n";
+}
+
+// Slack mrkdwn: paste into a channel or a canvas. Owners are plain names; nothing is looked up or sent.
+export function slackMessage(r, { title = "Meeting" } = {}) {
+  const out = [`*${title}${r.date ? ` (${r.date})` : ""}*`];
+  if (r.decisions.length) out.push("", "*Decisions*", ...r.decisions.map((d) => `• ${d.text}`));
+  out.push("", "*Action items*");
+  if (!r.actions.length) out.push("• None found.");
+  for (const a of r.actions) out.push(`• ${a.task} — *${a.owner || "needs an owner"}*${a.due ? `, by ${a.due}` : a.dueText ? `, ${a.dueText}` : ""}`);
+  if (r.questions.length) out.push("", "*Still open*", ...r.questions.map((q) => `• ${q.text}`));
+  return out.join("\n") + "\n";
+}
+
 const icsEsc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 // All-day calendar entries for dated actions (one VTODO-free VEVENT each, importable anywhere).
 export function actionsIcs(r, stamp = "20260101T000000Z") {

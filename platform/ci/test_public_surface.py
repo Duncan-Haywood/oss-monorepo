@@ -276,6 +276,13 @@ class ServingTests(unittest.TestCase):
         self.assertTrue(result.serving)
         self.assertTrue(result.agrees)
 
+    def test_the_body_size_threshold_is_inclusive_at_the_minimum(self):
+        at = self.probe_with({APEX: served(ps.MIN_SERVED_BYTES)})
+        below = self.probe_with({APEX: served(ps.MIN_SERVED_BYTES - 1)})
+        self.assertEqual(ps.MIN_SERVED_BYTES, 512)
+        self.assertTrue(at.serving)
+        self.assertFalse(below.serving)
+
     def test_a_200_with_a_stub_body_is_not_serving(self):
         result = self.probe_with({APEX: (200, b"ok", {})})
         self.assertFalse(result.serving)
@@ -429,6 +436,11 @@ class SampleTests(unittest.TestCase):
 
     def test_sample_returns_everything_when_the_limit_exceeds_the_list(self):
         self.assertEqual(ps.sample(["a", "b"], 10), ["a", "b"])
+
+    def test_default_sample_size_is_24(self):
+        self.assertEqual(ps.DEFAULT_SAMPLE, 24)
+        urls = [f"u{i}" for i in range(100)]
+        self.assertEqual(len(ps.sitemap_probes(urls=urls)), 24)
 
     def test_sample_of_zero_returns_everything(self):
         """`--all` passes 0 through `limit or len(urls)`; guard the raw call."""
