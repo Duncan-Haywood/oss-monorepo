@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Course Platform Fee Calculator — Gumroad vs Podia vs Teachable</title>
-  <meta name="description" content="Free calculator comparing what a course or digital-product creator keeps on Gumroad, Podia, Teachable, Thinkific, Kajabi and Udemy at their own price and volume, with the sales-per-month crossover where the cheapest platform changes. Entirely client-side, nothing uploaded.">
+  <meta name="description" content="Free calculator comparing what a course or digital-product creator keeps on Gumroad, Podia, Teachable, Thinkific, Kajabi and Udemy (plus Lemon Squeezy, Paddle, Payhip, Ko-fi, Buy Me a Coffee, Patreon and Stan Store from a picker) at their own price and volume, with the sales-per-month crossover where the cheapest platform changes. Entirely client-side, nothing uploaded.">
   <meta property="og:title" content="Course Platform Fee Calculator — free">
   <meta property="og:description" content="What you keep per month on each course platform at your price and volume, and where the cheapest one changes. Runs in your browser.">
   <link rel="canonical" href="./index.html">
@@ -71,7 +71,10 @@
     <h2>2. Platforms and their fees</h2>
     <p class="note">These are approximate starting points, <strong>not verified</strong>. Platforms change pricing often: check each platform's pricing page and edit any number.</p>
     <div id="platforms"></div>
-    <button type="button" class="secondary" id="add-platform">Add a platform</button>
+    <label for="preset-picker">More platforms</label>
+    <select id="preset-picker"><option value="">Choose a platform to add…</option></select>
+    <button type="button" class="secondary" id="add-preset">Add it</button>
+    <button type="button" class="secondary" id="add-platform">Add a blank platform</button>
     <button type="button" class="secondary" id="reset-platforms">Reset to presets</button>
   </section>
 
@@ -153,7 +156,14 @@
       ${p.note ? `<p class="note">${esc(p.note)}</p>` : ""}`;
       host.appendChild(d);
     }
-    function resetRows() { host.innerHTML = ""; PRESETS.forEach(addRow); }
+    function resetRows() { host.innerHTML = ""; PRESETS.filter((p) => p.listed !== false).forEach(addRow); }
+    const picker = $("#preset-picker");
+    PRESETS.filter((p) => p.listed === false).forEach((p) => picker.add(new Option(p.name, p.id)));
+    $("#add-preset").addEventListener("click", () => {
+      const p = PRESETS.find((x) => x.id === picker.value);
+      if (!p) return;
+      addRow(p); record("platform_added");
+    });
     function readRows() {
       return [...host.querySelectorAll(".plat")].map((d) => {
         const n = d.dataset.row, v = (k) => document.getElementById(k + n);
