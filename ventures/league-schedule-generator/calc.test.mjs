@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, resultsCheck, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -498,6 +498,42 @@ test("pool advancers seed winners, then runners-up, best record first", () => {
   const A = standings(["a1", "a2", "a3"], [{ a: 0, b: 1, ga: 2, gb: 0 }, { a: 0, b: 2, ga: 1, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 0 }]);
   const B = standings(["b1", "b2", "b3"], [{ a: 0, b: 1, ga: 5, gb: 0 }, { a: 0, b: 2, ga: 5, gb: 0 }, { a: 1, b: 2, ga: 0, gb: 0 }]);
   assert.deepEqual(poolAdvancers([A, B], 2), ["b1", "a1", "a2", "b2"]);
+});
+
+// ---- playoff odds
+test("playoff odds: a finished table gives 1 or 0, race verdicts agree, and chances add up to the number of spots", () => {
+  const teams = ["A", "B", "C", "D"];
+  const res = [[0,1],[0,2],[1,2],[1,3],[2,3],[0,3]].map(([a, b]) => ({ a, b, ga: 1, gb: 0 }));
+  assert.deepEqual(playoffOdds(teams, res, [], 2).map((r) => r.chance), [1, 1, 0, 0]);
+  const rnd = mulberry32(11);
+  for (let trial = 0; trial < 30; trial++) {
+    const n = 3 + Math.floor(rnd() * 4);
+    const fixtures = [];
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) fixtures.push([a, b]);
+    const played = fixtures.filter(() => rnd() < 0.5);
+    const results = played.map(([a, b]) => ({ a, b, ga: Math.floor(rnd() * 3), gb: Math.floor(rnd() * 3) }));
+    const remaining = fixtures.filter((f) => !played.includes(f));
+    const spots = 1 + Math.floor(rnd() * (n - 1));
+    const odds = playoffOdds(names(n), results, remaining, spots, { runs: 500 });
+    assert.ok(Math.abs(odds.reduce((s, r) => s + r.chance, 0) - spots) < 1e-9);
+    const race = playoffRace(names(n), results, remaining, spots);
+    race.forEach((row) => {
+      if (row.status === "clinched") assert.equal(odds[row.index].chance, 1);
+      if (row.status === "eliminated") assert.ok(odds[row.index].chance <= 0.5);
+    });
+    assert.deepEqual(odds, playoffOdds(names(n), results, remaining, spots, { runs: 500 }));
+  }
+});
+
+test("playoff odds: a leader with a points cushion is likelier than a team that has lost every game", () => {
+  const teams = ["Strong", "Mid", "Weak", "Mid2"];
+  const results = [
+    { a: 0, b: 1, ga: 3, gb: 0 }, { a: 0, b: 2, ga: 2, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 0 },
+  ];
+  const remaining = [[0, 3], [1, 3], [2, 3]];
+  const o = playoffOdds(teams, results, remaining, 2);
+  assert.ok(o[0].chance > o[2].chance + 0.3, JSON.stringify(o));
+  assert.ok(o[0].expected > o[2].expected);
 });
 
 // ---- playoff race
@@ -1444,4 +1480,41 @@ test("late joiner respects blackouts, time limits and double round robins", () =
   assert.deepEqual(validateSchedule(r.schedule).errors, []);
   for (const round of r.schedule.rounds) for (const m of round.matches) if (m.home === 3 || m.away === 3) assert.equal(m.time, "19:00");
   assert.equal(r.schedule.rounds.flatMap((x) => x.matches).filter((m) => m.home === 3 || m.away === 3).length, 6);
+});
+
+test("weeklyUpdate: last round's scores, the table and the next round; handles no results and a finished season", async () => {
+  const { weeklyUpdate, buildSchedule: bs, readSpec: rs } = await import("./calc.mjs");
+  const spec = baseSpec(4);
+  const s = buildSchedule(spec);
+  const [r0, r1] = s.rounds;
+  const res = r0.matches.map((m, i) => ({ a: m.away, b: m.home, ga: i + 1, gb: 0 }));
+  const text = weeklyUpdate(s, res);
+  assert.match(text, /Round 1 results/);
+  const m0 = r0.matches[0];
+  assert.ok(text.includes(`${m0.homeName} 0 - 1 ${m0.awayName}`), "score is shown home first even when typed away first");
+  assert.match(text, /Table\n {2}1\./);
+  assert.match(text, new RegExp(`Next up: ${r1.label}`));
+  assert.ok(!text.includes("That was the last round"));
+  assert.match(weeklyUpdate(s, []), /^Next up: Round 1/);
+  assert.ok(!weeklyUpdate(s, []).includes("Table"));
+  const all = [];
+  for (const r of s.rounds) for (const m of r.matches) all.push({ a: m.home, b: m.away, ga: 1, gb: 1 });
+  const done = weeklyUpdate(s, all);
+  assert.match(done, /That was the last round/);
+  assert.ok(!done.includes("Next up"));
+  assert.equal(weeklyUpdate({ ...s, rounds: [] }, []), "");
+});
+
+test("overdueResults lists played-date matches with no typed result, earliest meeting first", () => {
+  const s = buildSchedule(baseSpec(4, { double: true }));
+  const flat = s.rounds.flatMap((r) => r.matches.map((m) => ({ ...m, day: r.day }))).sort((a, b) => a.day - b.day);
+  const lastDay = flat[flat.length - 1].day;
+  assert.equal(overdueResults(s, [], lastDay + 1).length, flat.length);
+  assert.equal(overdueResults(s, [], flat[0].day).length, 0);
+  const { results } = parseResults("Team 1 2 - 1 Team 2", s.teams);
+  const od = overdueResults(s, results, lastDay + 1);
+  assert.equal(od.length, flat.length - 1);
+  const firstMeeting = flat.find((m) => [m.home, m.away].sort().join() === "0,1");
+  assert.ok(!od.some((m) => m.day === firstMeeting.day && [m.home, m.away].sort().join() === "0,1"));
+  assert.ok(od.every((m, i) => i === 0 || od[i - 1].day <= m.day));
 });

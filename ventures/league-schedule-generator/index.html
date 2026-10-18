@@ -158,12 +158,13 @@
       <p class="note">Each row is a team's score against the team in the column (its own goals first), in table order.</p>
       <div class="scroll"><table id="crosstable"></table></div>
       <p id="records" class="note"></p>
+      <p><button type="button" class="secondary" id="copy-week">Copy weekly update as text</button> <span class="note">Last round's scores, the table and the next round's fixtures, ready for the group chat.</span></p>
     </div>
     <div id="race-wrap" hidden>
       <h2 style="margin-top:22px">Play-off race</h2>
       <p class="note" id="race-note"></p>
       <p><button type="button" class="secondary" id="copy-race">Copy race update as text</button></p>
-      <div class="scroll"><table id="race"><thead><tr><th>Team</th><th class="n">Pts</th><th class="n">To play</th><th class="n">Max</th><th>Status</th><th class="n">Points to clinch</th></tr></thead><tbody></tbody></table></div>
+      <div class="scroll"><table id="race"><thead><tr><th>Team</th><th class="n">Pts</th><th class="n">To play</th><th class="n">Max</th><th>Status</th><th class="n">Points to clinch</th><th class="n">Chance</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div id="bracket-wrap" hidden>
       <h2 style="margin-top:22px">Play-off bracket</h2>
@@ -271,7 +272,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -390,8 +391,8 @@
       $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).${slotNote(s)}${restNote(s)}${runNote(s)}${rematchNote(s)}${costNote(s)}${deadlineNote(s)}`;
       $("#race-wrap").hidden = !extra.race;
       if (extra.race) {
-        $("#race-note").textContent = `Top ${extra.race.spots} qualify. ${extra.race.rows.exact ? "Every way the remaining games could finish was checked." : "Many games remain, so only the safe bounds are used: a team marked alive may already be settled."} Ranked on points only; a tie on points counts against the team, so "clinched" and "out" are never wrong, and goal difference can help a team marked alive.`;
-        $("#race tbody").innerHTML = extra.race.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.maxPoints}</td><td>${r.status === "clinched" ? "Clinched" : r.status === "eliminated" ? "Out" : "Alive"}</td><td class="n">${r.magic ?? "–"}</td></tr>`).join("");
+        $("#race-note").textContent = `Top ${extra.race.spots} qualify. ${extra.race.rows.exact ? "Every way the remaining games could finish was checked." : "Many games remain, so only the safe bounds are used: a team marked alive may already be settled."} Ranked on points only; a tie on points counts against the team, so "clinched" and "out" are never wrong, and goal difference can help a team marked alive. Chance is an estimate from playing the rest of the season out 4,000 times with each team's results so far: a guide, not a promise.`;
+        $("#race tbody").innerHTML = extra.race.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.maxPoints}</td><td>${r.status === "clinched" ? "Clinched" : r.status === "eliminated" ? "Out" : "Alive"}</td><td class="n">${r.magic ?? "–"}</td><td class="n">${r.status === "clinched" ? "100%" : r.status === "eliminated" ? "0%" : Math.min(99, Math.max(1, Math.round(r.chance * 100))) + "%"}</td></tr>`).join("");
       }
       $("#standings-wrap").hidden = !extra.table;
       if (extra.table) $("#standings tbody").innerHTML = extra.table.map((r) => `<tr><td class="n">${r.rank}</td><td>${esc(r.name)}</td><td class="n">${r.played}</td><td class="n">${r.won}</td><td class="n">${r.drawn}</td><td class="n">${r.lost}</td><td class="n">${r.gd}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.oppAvg == null ? "–" : r.oppAvg.toFixed(2)}</td><td>${esc(r.form.split("").join(" "))}</td><td class="n">${esc(r.streak)}</td></tr>`).join("");
@@ -469,6 +470,9 @@
         warnings.push(...pr.errors);
         pres = pr.results;
         warnings.push(...resultsCheck(s, pr.results));
+        const now = new Date();
+        const od = overdueResults(s, pr.results, parseDate(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`));
+        if (od.length) warnings.push(`${od.length} match(es) dated before today have no result typed: ${od.slice(0, 5).map((m) => `${s.teams[m.home]} v ${s.teams[m.away]} (${dayLabel(m.day)})`).join("; ")}${od.length > 5 ? "; ..." : ""}.`);
         table = standings(s.teams, pr.results, { ...pts, headToHead: $("#h2h").checked, adjustments: pr.adjustments });
         seeds = table.map((r) => r.name);
         const gl = gamesLeft(s.teams.length, remainingFixtures(s, pr.results));
@@ -479,7 +483,10 @@
       let race = null;
       if (resText.trim() && want >= 1 && want < s.teams.length) {
         const pr2 = parseResults(resText, s.teams);
-        race = { spots: want, rows: playoffRace(s.teams, pr2.results, remainingFixtures(s, pr2.results), want, { ...pts, adjustments: pr2.adjustments }) };
+        const left2 = remainingFixtures(s, pr2.results);
+        race = { spots: want, rows: playoffRace(s.teams, pr2.results, left2, want, { ...pts, adjustments: pr2.adjustments }) };
+        const odds = playoffOdds(s.teams, pr2.results, left2, want, { ...pts, adjustments: pr2.adjustments });
+        race.rows.forEach((r) => { r.chance = odds[r.index].chance; });
       }
       let bracketTxt = "";
       if (want >= 2) {
@@ -539,6 +546,13 @@
       if (!last) return;
       download("league-page.html", leaguePageHtml(last.s, { title: "League schedule", table: last.table, bracket: last.bracket }), "text/html");
       record("page_downloaded");
+    });
+    $("#copy-week").addEventListener("click", async () => {
+      if (!last || !last.table) return;
+      const pr = parseResults($("#results").value, last.s.teams);
+      const text = weeklyUpdate(last.s, pr.results, { adjustments: pr.adjustments, points: parsePointSystem($("#scoring").value), headToHead: $("#h2h").checked });
+      try { await navigator.clipboard.writeText(text); status.textContent = "Copied the weekly update. Paste it into your group chat."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying."; }
     });
     $("#copy-race").addEventListener("click", async () => {
       if (!last || !last.race) return;

@@ -19,6 +19,13 @@ class LinksIn(unittest.TestCase):
         self.assertEqual(self.targets("`[a](x.md)` and ``[`b`](y.md)``"), [])
         self.assertEqual(self.targets("```\n[a](x.md)\n```\n[b](z.md)"), ["z.md"])
 
+    def test_badge_link_checks_outer_target(self):
+        # [![alt](img)](href): the href used to be skipped and img counted twice
+        self.assertEqual(sorted(self.targets("[![b](p.png)](dead.md)")), ["dead.md", "p.png"])
+
+    def test_parenthesised_target(self):
+        self.assertEqual(self.targets("[a](foo_(1).md)"), ["foo_(1).md"])
+
 
 class DeadLinks(unittest.TestCase):
     def test_dead_vs_live(self):

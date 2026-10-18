@@ -10,7 +10,7 @@ that file; propose changes to it instead (step 8).
 
 One review, one pull request, titled `prompts: review YYYY-MM-DD`. Open it as
 a draft within your first few minutes, so other runs see the claim and route
-with `--skip-review`.
+with `--skip-review`. To find an existing claim, use `search_pull_requests` (`is:open "prompts: review" in:title`, `minimal_output`); `list_pull_requests` returns ~60KB of unrelated PRs.
 
 ## 1. Measure
 

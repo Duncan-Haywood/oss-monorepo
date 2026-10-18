@@ -2272,6 +2272,11 @@
      "summary": "A stylised, preliminary scan of one steel bar cross-section (8&times;2&nbsp;mm, tip shear, clamped end) at l/w = 3, 6, 12 and 24 on a fixed element size. The finite-element critical load sits 14.5%, 7.4%, 3.8% and 2.1% above the Timoshenko&ndash;Gere closed form, so the gap shrinks roughly in proportion to w/l and is consistent with a short-bar effect rather than mesh error. One cross-section and one cross-section mesh; no refinement at the longer lengths."
     },
     {
+     "slug": "simdesign-volscale",
+     "title": "How much stiffer than a uniformly thinned plate is a topology-optimised part, and how does that depend on volume fraction?",
+     "summary": "A stylised, preliminary study of two 2D plane-stress problems (cantilever 60&times;20, half-MBB 90&times;30). Thresholded 0/1 SIMP designs have 26&ndash;31% lower compliance than a plate thinned uniformly to the same volume at v&nbsp;=&nbsp;0.3&ndash;0.5, the advantage shrinking to about 14% at v&nbsp;=&nbsp;0.8; fits give C &prop; v<sup>&minus;0.8</sup> against v<sup>&minus;1</sup> for the plate. At low volume on these grids the design is disconnected and the comparison fails. One run per point, coarse grids, variable-thickness reference."
+    },
+    {
      "slug": "simdesign-shellorder",
      "title": "At what rate does the 3D eigenbuckling model converge under uniform mesh refinement?",
      "summary": "A stylised, preliminary study of one short steel bar (24&times;8&times;2&nbsp;mm, tip shear). Three uniformly refined hexahedral meshes give an observed order of about 2.6 and a Richardson limit of 9618&nbsp;N, 0.12% below the finest mesh. The limit is still 13.7% above the slender-beam closed form, so the gap is not discretisation error (plausibly shear deformation and clamp warping; untested). One geometry, one mesh triple."
@@ -2367,6 +2372,11 @@
      "slug": "garment-sizeset",
      "title": "How many clothing sizes does it take to fit a population, and does a regular S-M-L grid waste them?",
      "summary": "Stylised and preliminary: a synthetic bust and hip population (assumed means 95 and 100&nbsp;cm, sd 8&nbsp;cm, no survey data) with a fit tolerance of &plusmn;4&nbsp;cm. Choosing <em>k</em> sizes to fit the most people is maximum coverage; solved exactly (integer program), greedily and as a regular grid on 300 people, 3 seeds. At bust&ndash;hip correlation 0.9, exact sizes fit 12&ndash;25 points more people than the best grid and 6 sizes reach 80%; greedy is within 3.7 points of exact. At correlation 0 the gap is small, and on 20,000 fresh people the exact set is no better than the grid, so the optimiser overfits small samples. Limits: Gaussian two-measurement population, pass/fail box fit, no cost of extra sizes."
+    },
+    {
+     "slug": "garment-sizestretch",
+     "title": "How many clothing sizes does a stretch fabric save?",
+     "summary": "Stylised and preliminary: follow-up to the size-set project on a synthetic bust and hip population (assumed means 95 and 100&nbsp;cm, sd 8&nbsp;cm, no survey data). A body fits a garment if it is at most 8&nbsp;cm smaller and no more than <em>stretch</em> larger than the nominal size, in both measurements; the best <em>k</em> sizes are found exactly (integer program). Sizes needed to fit 80% fall from 6 to more than 8 with no stretch to 2&ndash;3 at 10% and 1 at 20%, and the loss on fresh people shrinks too. The stretch model is idealised: usable stretch is far below rated stretch, so these are upper bounds."
     },
     {
      "slug": "garment-thermal",

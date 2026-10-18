@@ -764,3 +764,43 @@ export function sampleCargo(sys = SYSTEMS.metric) {
   const f = (n, k) => (sys.id === "metric" ? n : +(n / k).toFixed(2));
   return rows.map((r) => [r[0], f(r[1], 2.54), f(r[2], 2.54), f(r[3], 2.54), sys.id === "metric" ? r[4] : +(r[4] / 0.45359237).toFixed(1), r[5], r[6], r[7], r[8] === "" ? "" : sys.id === "metric" ? r[8] : +(r[8] / 0.45359237).toFixed(1)].join(",")).join("\n");
 }
+
+// ----- share link: the whole form as text in the URL hash, so a plan can be sent to a forwarder or a colleague -----
+const SHARE_ROW_KEYS = ["name", "l", "w", "h", "weight", "qty", "rotation", "maxLayers", "maxTop"];
+const SHARE_MAX_CHARS = 6000;
+const b64urlEncode = (s) => {
+  const bytes = new TextEncoder().encode(s);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
+const b64urlDecode = (t) => {
+  const bin = atob(t.replace(/-/g, "+").replace(/_/g, "/"));
+  return new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+};
+
+// state: { units: "metric"|"imperial", preset, container: {l,w,h,payload}, rows: [{name,l,w,h,weight,qty,rotation,maxLayers,maxTop}] }
+// Values stay as the typed display-unit text, so the link reopens exactly what was on screen.
+export function encodeShare(state) {
+  const rows = (state.rows || []).slice(0, MAX_LINES).map((r) => SHARE_ROW_KEYS.map((k) => String(r[k] ?? "")));
+  const c = state.container || {};
+  const payload = { v: 1, u: state.units === "imperial" ? "i" : "m", p: String(state.preset || "custom"), c: [c.l, c.w, c.h, c.payload].map((x) => String(x ?? "")), r: rows };
+  const token = b64urlEncode(JSON.stringify(payload));
+  return token.length > SHARE_MAX_CHARS ? { error: "This plan is too long to fit in a link. Use the CSV or printable plan instead." } : { token };
+}
+
+export function decodeShare(token) {
+  const bad = { error: "That link does not hold a plan this tool can read." };
+  let o;
+  try { o = JSON.parse(b64urlDecode(String(token || "").replace(/^#?plan=/, ""))); } catch { return bad; }
+  if (!o || o.v !== 1 || !Array.isArray(o.r) || !Array.isArray(o.c) || o.c.length !== 4 || o.r.length > MAX_LINES) return bad;
+  const str = (x) => typeof x === "string" && x.length <= 200;
+  if (![o.p, ...o.c].every(str) || !o.r.every((r) => Array.isArray(r) && r.length === SHARE_ROW_KEYS.length && r.every(str))) return bad;
+  const known = PRESETS.some((p) => p.id === o.p) || o.p === "pallet" || o.p === "custom";
+  const rows = o.r.map((r) => {
+    const row = Object.fromEntries(SHARE_ROW_KEYS.map((k, i) => [k, r[i]]));
+    if (!ROTATIONS.includes(row.rotation)) row.rotation = "upright";
+    return row;
+  });
+  return { units: o.u === "i" ? "imperial" : "metric", preset: known ? o.p : "custom", container: { l: o.c[0], w: o.c[1], h: o.c[2], payload: o.c[3] }, rows };
+}

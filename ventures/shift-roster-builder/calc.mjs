@@ -777,6 +777,18 @@ export function buildRoster(staff, slots, options = {}) {
   };
 }
 
+// Why `nl` (a person's list after taking `slotIndex` onto `base`) breaks a hard rule, in the order a manager would check.
+function blockReason(ctx, staff, slots, p, base, nl, slotIndex) {
+  const slot = slots[slotIndex];
+  const mins = nl.reduce((t, k) => t + slots[k].end - slots[k].start, 0);
+  if (base.some((k) => slots[k].start < slot.end && slot.start < slots[k].end)) return "already on a shift at that time";
+  if (mins > staff[p].maxHours * 60 + 1e-9) return "would go over their weekly hour limit";
+  if (overDaily(ctx, p, nl)) return "would go over their daily hour limit";
+  if (slot.start < (staff[p].prevEnd ?? -Infinity) + ctx.restMin
+    || base.some((k) => slot.start < slots[k].end + ctx.restMin && slots[k].start < slot.end + ctx.restMin)) return "would break the rest rule";
+  return "would break the days-in-a-row limit";
+}
+
 // Sick call or swap request: who could take shift `slotIndex` right now, leaving everyone else as the roster has them?
 // The person it is taken from (if any) is skipped. Each candidate gets the payroll change of the move (the shift
 // leaves its current owner and lands on them, overtime included); people who are free but blocked get the rule that blocks them.
@@ -805,18 +817,39 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
       fits.push({ name: staff[p].name, extraCost: delta, hoursAfter: h, overtimeAfter: (({ ot, dt }) => ot + dt)(payParts(ctx, nl)) });
       continue;
     }
-    let reason;
-    const mins = nl.reduce((t, k) => t + slots[k].end - slots[k].start, 0);
-    if (base.some((k) => slots[k].start < slot.end && slot.start < slots[k].end)) reason = "already on a shift at that time";
-    else if (mins > staff[p].maxHours * 60 + 1e-9) reason = "would go over their weekly hour limit";
-    else if (overDaily(ctx, p, nl)) reason = "would go over their daily hour limit";
-    else if (slot.start < (staff[p].prevEnd ?? -Infinity) + ctx.restMin
-      || base.some((k) => slot.start < slots[k].end + ctx.restMin && slots[k].start < slot.end + ctx.restMin)) reason = "would break the rest rule";
-    else reason = "would break the days-in-a-row limit";
+    const reason = blockReason(ctx, staff, slots, p, base, nl, slotIndex);
     blocked.push({ name: staff[p].name, reason });
   }
   fits.sort((a, b) => a.extraCost - b.extraCost || a.name.localeCompare(b.name));
   return { slot, current: current >= 0 ? staff[current].name : null, fits, blocked };
+}
+
+// "Ana and Ben want to swap Tuesday close for Saturday open": check that one specific trade (the owners of shifts
+// `slotA` and `slotB` exchange them) keeps both weeks inside every hard rule, with the payroll change of the pair.
+// When it does not, each person who cannot take their new shift gets the rule that stops them. Everything else stays put.
+export function checkTrade(staff, slots, roster, slotA, slotB, options = {}) {
+  if (!roster || !roster.owner || !slots[slotA] || !slots[slotB]) return { error: "Build a roster first." };
+  const ctx = buildContext(staff, slots, { ...(roster.options || {}), ...options });
+  const owner = roster.owner;
+  const a = owner[slotA], b = owner[slotB];
+  if (slotA === slotB) return { error: "Pick two different shifts." };
+  if (a < 0 || b < 0) return { error: "A trade needs two staffed shifts; use the sick-call finder for an open one." };
+  if (a === b) return { error: `${staff[a].name} holds both shifts; there is nobody to trade with.` };
+  const listOf = (p) => owner.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0).sort((x, y) => slots[x].start - slots[y].start || x - y);
+  const aBase = listOf(a), bBase = listOf(b);
+  const aRest = aBase.filter((k) => k !== slotA), bRest = bBase.filter((k) => k !== slotB);
+  const aNew = insertSorted(ctx, aRest, slotB), bNew = insertSorted(ctx, bRest, slotA);
+  const problems = [];
+  if (!ctx.elig[a][slotB]) problems.push({ name: staff[a].name, reason: "is not available for that shift or lacks its role" });
+  else if (!validList(ctx, a, aNew)) problems.push({ name: staff[a].name, reason: blockReason(ctx, staff, slots, a, aRest, aNew, slotB) });
+  if (!ctx.elig[b][slotA]) problems.push({ name: staff[b].name, reason: "is not available for that shift or lacks its role" });
+  else if (!validList(ctx, b, bNew)) problems.push({ name: staff[b].name, reason: blockReason(ctx, staff, slots, b, bRest, bNew, slotA) });
+  const extraCost = problems.length ? null : payroll(ctx, a, aNew) - payroll(ctx, a, aBase) + payroll(ctx, b, bNew) - payroll(ctx, b, bBase);
+  return {
+    ok: problems.length === 0, problems, extraCost,
+    a: { name: staff[a].name, gives: slots[slotA], gets: slots[slotB], hoursAfter: hoursOf(ctx, aNew) },
+    b: { name: staff[b].name, gives: slots[slotB], gets: slots[slotA], hoursAfter: hoursOf(ctx, bNew) },
+  };
 }
 
 // Over budget? Rank the assignments by what dropping each one saves in payroll (overtime and burden included, from the
@@ -1335,6 +1368,32 @@ export function unsupervisedStretches(r, staff) {
     else out.push({ people, start: lo, end: hi });
   }
   return out.map((x) => { const d = Math.floor(x.start / 1440); return { people: x.people, day: DAYS[d % 7], startMin: x.start - d * 1440, endMin: (x.end - d * 1440) % 1440 || 1440 }; });
+}
+
+// Stretches where exactly one person is on shift and nobody else is, lasting more than `overHours` (lone-worker
+// rule of thumb: cash handling, closing, safety). A heads-up, not a search constraint. Consecutive cuts with the same
+// person merge; a stretch that crosses midnight is reported on the day it starts.
+export function loneStretches(r, overHours = 2) {
+  const spans = [];
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const base = a.slot.day * 1440, end = a.slot.endMin <= a.slot.startMin ? a.slot.endMin + 1440 : a.slot.endMin;
+    spans.push({ person: a.person, s: base + a.slot.startMin, e: base + end });
+  }
+  const cuts = [...new Set(spans.flatMap((x) => [x.s, x.e]))].sort((a, b) => a - b);
+  const out = [];
+  for (let i = 0; i + 1 < cuts.length; i++) {
+    const [lo, hi] = [cuts[i], cuts[i + 1]];
+    const here = [...new Set(spans.filter((x) => x.s <= lo && x.e >= hi).map((x) => x.person))];
+    if (here.length !== 1) continue;
+    const last = out[out.length - 1];
+    if (last && last.end === lo && last.person === here[0]) last.end = hi;
+    else out.push({ person: here[0], start: lo, end: hi });
+  }
+  return out.filter((x) => (x.end - x.start) / 60 > overHours).map((x) => {
+    const d = Math.floor(x.start / 1440);
+    return { person: x.person, day: DAYS[d % 7], startMin: x.start - d * 1440, endMin: (x.end - d * 1440) % 1440 || 1440, hours: (x.end - x.start) / 60 };
+  });
 }
 
 // What a seventh-consecutive-day premium would add for each person who works all seven days of the week (the last day

@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01SsTAKjfemU6BVZwwxfJyKH",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T16:17:57Z",
+  "ended": "2026-10-18T16:18:08Z",
+  "wall_minutes": 1.61,
+  "tokens_in": 1422597,
+  "tokens_out": 5918,
+  "cost_usd": 0.518,
+  "tool_calls": 22,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "8 mutants on platform/pages/jobs.mjs, 4 escaped (null bid in costGapSentence, single/bare-quoted ids in tagAttributes, inline-script today() and aria-label). Added 4 guard assertions; rerun catch 1.0. No real defects found.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/jobs.mjs",
+        "test": "node --test platform/pages/jobs.test.mjs  (in .)",
+        "seed": 618395961,
+        "commit": "3ba7a794",
+        "sites": 1188,
+        "baseline_seconds": 3.9,
+        "mutants": [
+          {
+            "file": "platform/pages/jobs.mjs",
+            "line": 188,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "attrs[match[1].toLowerCase()] = match[2] ?? match[3] ?? match[4] ?? '';",
+            "after": "attrs[match[1].toLowerCase()] = match[2] ?? match[3] ?? match[5] ?? '';",
+            "line_text": "    attrs[match[1].toLowerCase()] = match[2] ?? match[3] ?? match[4] ?? '';",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/jobs.mjs",
+            "line": 1558,
+            "col": 13,
+            "operator": "or-to-and",
+            "before": "if (!bid || typeof bid !== 'object') continue;",
+            "after": "if (!bid && typeof bid !== 'object') continue;",
+            "line_text": "    if (!bid || typeof bid !== 'object') continue;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/jobs.mjs",
+            "line": 1663,
+            "col": 65,
+            "operator": "times-to-div",
+            "before": "percents.push(((parsed.value - Number(went)) / Number(went)) * 100);",
+            "after": "percents.push(((parsed.value - Number(went)) / Number(went)) / 100);",
+            "line_text": "    percents.push(((parsed.value - Number(went)) / Number(went)) * 100);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/jobs.mjs",
+            "line": 1969,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "charged: 0, spent: 0, mixed: false };",
+            "after": "charged: 0, spent: 1, mixed: false };",
+            "line_text": "        charged: 0, spent: 0, mixed: false };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/jobs.mjs",
+            "line": 2150,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "if (ranked.length < MIN_MIX_TOOLS) return '';",
+            "after": "if (ranked.length <= MIN_MIX_TOOLS) return '';",
+            "line_text": "  if (ranked.length < MIN_MIX_TOOLS) return '';",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/jobs.mjs",
+            "line": 2384,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (var i = 0; i < rows.length; i++) {",
+            "after": "for (var i = 1; i < rows.length; i++) {",
+            "line_text": "  for (var i = 0; i < rows.length; i++) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/jobs.mjs",
+            "line": 3103,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "try { return new Date().toISOString().slice(0, 10); } catch (e) { return 'Saved bid'; }",
+            "after": "try { return new Date().toISOString().slice(1, 10); } catch (e) { return 'Saved bid'; }",
+            "line_text": "    try { return new Date().toISOString().slice(0, 10); } catch (e) { return 'Saved bid'; }",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/jobs.mjs",
+            "line": 3312,
+            "col": 67,
+            "operator": "plus-to-minus",
+            "before": "state.setAttribute('aria-label', 'Outcome of the bid named ' + bid.name);",
+            "after": "state.setAttribute('aria-label', 'Outcome of the bid named ' - bid.name);",
+            "line_text": "      state.setAttribute('aria-label', 'Outcome of the bid named ' + bid.name);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "408b7e67-44ef-54e4-8aac-282d30a82f96",
+    "transcripts": 1,
+    "first": "2026-10-18T16:17:57Z",
+    "last": "2026-10-18T16:19:34Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 21,
+        "input": 42,
+        "output": 5918,
+        "thinking": 648,
+        "cache_read": 1376711,
+        "cache_write_5m": 0,
+        "cache_write_1h": 45844,
+        "api_equivalent_usd": 0.518,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 21,
+      "input": 42,
+      "output": 5918,
+      "thinking": 648,
+      "cache_read": 1376711,
+      "cache_write_5m": 0,
+      "cache_write_1h": 45844,
+      "api_equivalent_usd": 0.518,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 22,
+    "tools": {
+      "Bash": 19,
+      "Read": 2,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.61,
+      "active_minutes": 1.61,
+      "model_minutes": 1.17,
+      "tool_minutes": 0.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "read target, write 3 tests, rerun",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 193.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

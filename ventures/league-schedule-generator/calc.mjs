@@ -1621,6 +1621,52 @@ export function remainingFixtures(schedule, results) {
 }
 
 /**
+ * The weekly group-chat post: last round's scores, the table, and the next round's fixtures, as plain text.
+ * Typed results are matched to the schedule pair by pair in round order (the way `remainingFixtures` does),
+ * so a round counts as played once every one of its matches has a result. The "next round" is the first
+ * round with a match still unplayed. Returns "" when there is nothing to post (no rounds).
+ */
+export function weeklyUpdate(schedule, results, { adjustments = {}, points = {}, headToHead = false, maxRows = 8 } = {}) {
+  const key = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
+  const pool = new Map();
+  for (const r of results) { const k = key(r.a, r.b); pool.set(k, [...(pool.get(k) ?? []), r]); }
+  const rounds = schedule.rounds.map((round) => ({
+    round,
+    matches: round.matches.map((m) => {
+      const found = pool.get(key(m.home, m.away))?.shift();
+      return { m, score: found ? (found.a === m.home ? [found.ga, found.gb] : [found.gb, found.ga]) : null, walkover: !!found?.walkover };
+    }),
+  }));
+  const next = rounds.findIndex((r) => r.matches.some((x) => !x.score));
+  const lastDone = (next < 0 ? rounds.length : next) - 1;
+  if (!rounds.length) return "";
+  const out = [];
+  if (lastDone >= 0) {
+    const r = rounds[lastDone];
+    out.push(`${r.round.label} results (${dayLabel(r.round.day)})`);
+    for (const x of r.matches) out.push(`  ${x.m.homeName} ${x.score[0]} - ${x.score[1]} ${x.m.awayName}${x.walkover ? " (walkover)" : ""}`);
+    if (r.round.bye !== null && r.round.bye !== undefined) out.push(`  Bye: ${schedule.teams[r.round.bye]}`);
+    out.push("");
+  }
+  if (results.length) {
+    const rows = standings(schedule.teams, results, { ...points, headToHead, adjustments });
+    out.push("Table");
+    for (const r of rows.slice(0, maxRows)) out.push(`  ${r.rank}. ${r.name} - ${r.points} pts (${r.played} played, GD ${r.gd >= 0 ? "+" : ""}${r.gd})`);
+    if (rows.length > maxRows) out.push(`  ...and ${rows.length - maxRows} more`);
+    out.push("");
+  }
+  if (next >= 0) {
+    const r = rounds[next];
+    out.push(`Next up: ${r.round.label} - ${dayLabel(r.round.day)}`);
+    for (const x of r.matches.filter((y) => !y.score)) out.push(`  ${x.m.time ? x.m.time + " " : ""}${x.m.court}: ${x.m.homeName} (home) vs ${x.m.awayName}`);
+    if (r.round.bye !== null && r.round.bye !== undefined) out.push(`  Bye: ${schedule.teams[r.round.bye]}`);
+  } else {
+    out.push("That was the last round of the schedule.");
+  }
+  return out.join("\n").trim();
+}
+
+/**
  * Heads-ups about typed results that the schedule cannot account for: a pair entered more times than
  * they meet (a duplicated line, which counts twice in the table), or a pair that is not scheduled to
  * meet at all (a typo'd name, or a result from another pool). Returns an array of messages.
@@ -1638,6 +1684,28 @@ export function resultsCheck(schedule, results) {
     const m = meets.get(k) ?? 0;
     if (m === 0) out.push(`${names} are not scheduled to meet, but a result is typed for them; it still counts in the table.`);
     else if (n > m) out.push(`${names} meet ${m === 1 ? "once" : m + " times"} in the schedule but ${n} results are typed; check for a duplicated line (every line counts in the table).`);
+  }
+  return out;
+}
+
+/**
+ * Matches dated before `today` (days since 1970, as `toDay` gives) with no typed result: the games an
+ * organiser still has to chase. A pair's typed results are matched to its meetings earliest first, so a
+ * double round robin with one result typed reports only the second meeting. Returns
+ * `[{ home, away, day }]` in date order; `schedule.teams` names them.
+ */
+export function overdueResults(schedule, results, today) {
+  const key = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
+  const typed = new Map();
+  for (const r of results) typed.set(key(r.a, r.b), (typed.get(key(r.a, r.b)) ?? 0) + 1);
+  const all = [];
+  for (const round of schedule.rounds) for (const m of round.matches) all.push({ home: m.home, away: m.away, day: round.day });
+  all.sort((x, y) => x.day - y.day);
+  const out = [];
+  for (const m of all) {
+    const k = key(m.home, m.away);
+    if (typed.get(k) > 0) typed.set(k, typed.get(k) - 1);
+    else if (m.day < today) out.push(m);
   }
   return out;
 }
@@ -1664,6 +1732,60 @@ export function scheduleStrength(rows, remaining) {
 }
 
 /** One plain sentence per team that has a decided or live position. */
+/**
+ * Chance of finishing in the top `spots`, by playing the remaining fixtures out many times. Each
+ * team's strength is its smoothed share of the available results so far (a win counts 1, a draw
+ * half, plus one imaginary draw-less game each way so nobody is 0 or 1), a game's win chances come
+ * from the log5 rule on the two strengths, and the draw chance is the league's own draw rate so
+ * far (smoothed toward one in five). Ranked on points; a tie at the cut is split by a coin flip, so
+ * the figure is an estimate and not a promise. Seeded, so the same table gives the same numbers.
+ * Returns [{ index, name, points, chance, expected }] where `chance` is 0..1. With no games
+ * left the chances are exactly 1 or 0 and a team the race table calls clinched is always 1; one it calls out can
+ * still show a small chance, because the race table counts a tie at the cut against the team and
+ * here it is a coin flip.
+ */
+export function playoffOdds(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, adjustments = {}, runs = 4000, seed = 1 } = {}) {
+  const n = teams.length;
+  const k = Math.max(1, Math.min(spots, n));
+  const base = Array.from({ length: n }, (_, i) => adjustments[i] ?? 0);
+  const score = Array(n).fill(1);
+  const played = Array(n).fill(2);
+  let draws = 0;
+  for (const r of results) {
+    if (r.ga > r.gb) { base[r.a] += win; base[r.b] += loss; score[r.a] += 1; }
+    else if (r.ga < r.gb) { base[r.b] += win; base[r.a] += loss; score[r.b] += 1; }
+    else { base[r.a] += draw; base[r.b] += draw; score[r.a] += 0.5; score[r.b] += 0.5; draws++; }
+    played[r.a]++; played[r.b]++;
+  }
+  const strength = score.map((x, i) => x / played[i]);
+  const pDraw = (draws + 1) / (results.length + 5);
+  const odds = remaining.map(([a, b]) => {
+    const sa = strength[a];
+    const sb = strength[b];
+    const pa = (sa * (1 - sb)) / (sa * (1 - sb) + sb * (1 - sa));
+    return { a, b, winA: (1 - pDraw) * pa, drawEnd: (1 - pDraw) * pa + pDraw };
+  });
+  const rand = mulberry32(seed);
+  const hits = Array(n).fill(0);
+  const total = Array(n).fill(0);
+  const pts = Array(n);
+  const order = Array.from({ length: n }, (_, i) => i);
+  const tie = Array(n);
+  for (let run = 0; run < runs; run++) {
+    for (let i = 0; i < n; i++) pts[i] = base[i];
+    for (const m of odds) {
+      const u = rand();
+      if (u < m.winA) { pts[m.a] += win; pts[m.b] += loss; }
+      else if (u < m.drawEnd) { pts[m.a] += draw; pts[m.b] += draw; }
+      else { pts[m.b] += win; pts[m.a] += loss; }
+    }
+    for (let i = 0; i < n; i++) { tie[i] = rand(); total[i] += pts[i]; }
+    order.sort((x, y) => pts[y] - pts[x] || tie[y] - tie[x]);
+    for (let r = 0; r < k; r++) hits[order[r]]++;
+  }
+  return teams.map((name, i) => ({ index: i, name, points: base[i], chance: hits[i] / runs, expected: total[i] / runs }));
+}
+
 export function raceText(rows, spots) {
   const lines = [];
   for (const r of rows) {

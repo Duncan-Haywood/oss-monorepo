@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables,
+  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -468,4 +468,22 @@ test("place cards: one per guest, 8 to a page, name twice, table number, escaped
   assert.ok(html.includes("Ann &lt;b&gt;X") && !/<script|<b>|vegan/i.test(html));
   assert.ok(html.includes("<title>Cards &lt;1&gt;</title>"));
   assert.ok(placeCardsHtml(spec, { tables: [] }).includes("No guests"));
+});
+
+test("checkMove reports capacity, pins, broken and fixed wishes without changing the plan", () => {
+  const spec = specFrom("A\nB\nC\nD\nE\nF", "A + B\nC ! D\nE @ 1", { seatsPerTable: 3, tableCount: 2 });
+  const res = optimize(spec);
+  const before = res.table.slice();
+  const ix = (n) => spec.guests.findIndex((g) => g.name === n);
+  assert.match(checkMove(spec, res, "Zed", 1).errors[0], /No guest/);
+  assert.match(checkMove(spec, res, "A", 9).errors[0], /1 to 2/);
+  assert.equal(checkMove(spec, res, "a", res.table[ix("A")] + 1).same, true);
+  const other = res.table[ix("A")] === 0 ? 2 : 1;
+  const m = checkMove(spec, res, "A", other);
+  assert.ok(m.broke.some((x) => x.aName === "A" && x.bName === "B"));
+  assert.ok(m.blocked.some((x) => /full/.test(x)));
+  assert.ok(m.scoreDelta < 0);
+  const p = checkMove(spec, res, "E", 2);
+  assert.ok(p.blocked.some((x) => /pinned to table 1/.test(x)));
+  assert.deepEqual(res.table, before);
 });
