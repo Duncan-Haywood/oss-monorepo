@@ -49,6 +49,8 @@ shuffling on Sunday night.
 
 - Returning each week: people, shifts and settings are remembered in this browser's local storage only ("Forget saved data" removes them), and can be saved to or loaded from a `roster-setup.json` file to move between devices.
 
+Guide pages, each with figures a test re-derives from the engine: [how to make an employee schedule](how-to-make-an-employee-schedule.html), [clopening](how-to-avoid-clopening.html), [overtime](how-to-reduce-overtime-in-a-schedule.html), [labor cost by day](labor-cost-percentage-by-day.html), [hiring test](do-i-need-to-hire-another-employee.html) and [covering a call-out](how-to-cover-a-shift-when-someone-calls-out.html).
+
 ## What you use today, and what this does differently
 
 - **Paper, a whiteboard or a spreadsheet:** free and private, but you check availability, rest gaps and overtime by eye, and nothing tells you a shift is unfillable until Sunday night.
