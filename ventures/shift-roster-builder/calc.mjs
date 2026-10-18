@@ -1626,6 +1626,33 @@ export function mergeAvailabilityReplies(staffText, repliesText) {
   return { text: lines.join("\n"), updated, added, errors };
 }
 
+// A dated whole-day time-off request ("2026-11-04" or "2026-11-04" to "2026-11-06") for one person, as the `off:` entry
+// it becomes. Returns { entry } or { error }.
+export function parseTimeOffRequest(from, to = "") {
+  const real = (v) => { const d = new Date(v + "T00:00:00Z"); return ISO_DATE.test(v) && !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v; };
+  from = String(from || "").trim(); to = String(to || "").trim() || from;
+  if (!real(from) || !real(to)) return { error: "Write the dates as YYYY-MM-DD." };
+  const days = utcDay(to) - utcDay(from);
+  if (days < 0) return { error: "The last day is before the first day." };
+  if (days > 60) return { error: "Ask for 60 days or fewer at a time." };
+  return { entry: from === to ? from : `${from}..${to}` };
+}
+
+// Add one `off:` entry to a person's row in the staff text, joining an existing off: cell instead of adding a second.
+// Returns { text } or { error } when the name is not on the list.
+export function addTimeOff(staffText, name, entry) {
+  const lines = String(staffText || "").split(/\r?\n/);
+  const i = lines.findIndex((l) => { const t = l.trim(); return t && !t.startsWith("#") && splitLine(t)[0].toLowerCase() === String(name).toLowerCase(); });
+  if (i < 0) return { error: `${name} is not on the staff list.` };
+  const c = splitLine(lines[i].trim());
+  while (c.length < 5) c.push("");
+  const k = c.findIndex((x, j) => j >= 4 && OFF_CELL.test(x));
+  if (k < 0) c.push(`off: ${entry}`);
+  else if (!c[k].split(":").slice(1).join(":").split(";").map((x) => x.trim()).includes(entry)) c[k] = `${c[k]}; ${entry}`;
+  lines[i] = c.join(", ");
+  return { text: lines.join("\n") };
+}
+
 export function sampleStaff() {
   return [
     "name, wage, max hours, min hours, availability",

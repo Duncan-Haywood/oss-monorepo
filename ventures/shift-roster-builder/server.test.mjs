@@ -184,3 +184,32 @@ test("an open-shift request shows the rule it breaks and is applied only when th
   assert.doesNotMatch(await (await fetch(s.base + "/team?t=tm")).text(), /Open shifts you can pick up/);
   s.close();
 });
+
+test("time-off request: staff ask, manager approves into the staff list's off: cell", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, any\nBen, 19.43, 40, 0, any, off: Fri";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon-Fri, 9, 17, 1, day" });
+  assert.match(await (await fetch(s.base + "/team?t=tm")).text(), /Need days off\?/);
+  const bad = await post(s.base + "/team/timeoff?t=tm", { name: "Ana", from: "2026-13-40" });
+  assert.equal(bad.status, 400);
+  assert.equal((await post(s.base + "/team/timeoff?t=tm", { name: "Zed", from: "2026-11-04" })).status, 400);
+  assert.equal((await post(s.base + "/team/timeoff?t=tm", { name: "Ana", from: "2026-11-06", to: "2026-11-04" })).status, 400);
+  assert.equal((await post(s.base + "/team/timeoff?t=tm", { name: "Ana", from: "2026-11-04", to: "2026-11-06", note: "<b>trip</b>" })).status, 200);
+  await post(s.base + "/team/timeoff?t=tm", { name: "Ana", from: "2026-11-04", to: "2026-11-06" });
+  await post(s.base + "/team/timeoff?t=tm", { name: "Ben", from: "2026-11-09" });
+  assert.equal(s.state.offs.length, 2);
+  const admin = await (await fetch(s.base + "/admin?key=adm")).text();
+  assert.match(admin, /Time-off requests \(2\)/);
+  assert.match(admin, /2026-11-04 to 2026-11-06 off/);
+  assert.doesNotMatch(admin, /<b>trip/);
+  assert.equal((await post(s.base + "/admin/timeoff?key=adm", { i: "0", act: "approve" })).status, 303);
+  assert.match(s.state.staff, /Ana, 23\.17, 40, 0, any, off: 2026-11-04\.\.2026-11-06/);
+  await post(s.base + "/admin/timeoff?key=adm", { i: "0", act: "approve" });
+  assert.match(s.state.staff, /Ben, 19\.43, 40, 0, any, off: Fri; 2026-11-09/);
+  assert.equal(s.state.offs.length, 0);
+  await post(s.base + "/team/timeoff?t=tm", { name: "Ana", from: "2026-12-01" });
+  await post(s.base + "/admin/timeoff?key=adm", { i: "0", act: "decline" });
+  assert.equal(s.state.offs.length, 0);
+  assert.doesNotMatch(s.state.staff, /2026-12-01/);
+  s.close();
+});
