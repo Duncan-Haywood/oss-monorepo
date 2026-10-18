@@ -528,6 +528,55 @@ export function checkMove(spec, result, guestName, toTable) {
   return { errors: [], guest: spec.guests[g].name, from: from + 1, to: to + 1, blocked, scoreDelta, broke, fixed };
 }
 
+/**
+ * "How do I fix this unmet wish?" For each wish the plan could not meet, tries moving either guest to the other's
+ * table and swapping either guest with someone at the other's table, keeps only options that respect capacity, pins
+ * and access tables and that raise the plan's score, and returns the best per wish. Nothing is applied. Returns
+ * [{ rule, aName, bName, kind, action, scoreDelta, broke: [..] }], best score gain first; a wish with no worthwhile
+ * fix is left out, because the plan already trades it against something worth more.
+ */
+export function suggestFixes(spec, result) {
+  const n = spec.guests.length;
+  const T = resolveTableCount(spec);
+  const W = weightMatrix(spec);
+  const caps = capacitiesOf(spec, T);
+  const pins = pinsOf(spec), access = accessOf(spec);
+  const base = planScore(W, n, result.table);
+  const ok = (g, to) => (pins.get(g) === undefined || pins.get(g) === to) && canSit(access, g, to);
+  const met = (table, r) => (r.kind === "want" || r.kind === "must" ? table[r.a] === table[r.b] : table[r.a] !== table[r.b]);
+  const pairRules = spec.rules.filter((r) => r.kind !== "pin" && r.kind !== "access");
+  const nm = (g) => spec.guests[g].name;
+  const out = [];
+  for (const br of result.broken) {
+    if (br.kind !== "want" && br.kind !== "must") continue;
+    const { a, b } = br;
+    const options = [];
+    const size = (t) => result.table.filter((x) => x === t).length;
+    for (const [mover, anchor] of [[a, b], [b, a]]) {
+      const to = result.table[anchor], from = result.table[mover];
+      if (ok(mover, to) && size(to) < caps[to]) {
+        const next = result.table.slice(); next[mover] = to;
+        options.push({ next, action: `Move ${nm(mover)} from table ${from + 1} to table ${to + 1}.` });
+      }
+      result.table.forEach((t, x) => {
+        if (t !== to || x === anchor || !ok(mover, to) || !ok(x, from)) return;
+        const next = result.table.slice(); next[mover] = to; next[x] = from;
+        options.push({ next, action: `Swap ${nm(mover)} (table ${from + 1}) with ${nm(x)} (table ${to + 1}).` });
+      });
+    }
+    let best = null;
+    for (const o of options) {
+      const delta = planScore(W, n, o.next) - base;
+      if (delta > 1e-9 && (!best || delta > best.scoreDelta)) {
+        best = { rule: br.kind, aName: br.aName, bName: br.bName, kind: br.kind, action: o.action, scoreDelta: Math.round(delta * 100) / 100,
+          broke: pairRules.filter((r) => met(result.table, r) && !met(o.next, r)).map((r) => ({ kind: r.kind, aName: nm(r.a), bName: nm(r.b) })) };
+      }
+    }
+    if (best) out.push(best);
+  }
+  return out.sort((x, y) => y.scoreDelta - x.scoreDelta);
+}
+
 /** Per group, how many of its guests sit at each table: [{ group, perTable: [..] }]. Empty when no guest has a group. */
 export function groupMixOf(spec, table, T = resolveTableCount(spec)) {
   const byGroup = new Map();

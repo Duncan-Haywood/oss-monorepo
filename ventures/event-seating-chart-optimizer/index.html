@@ -98,6 +98,7 @@
     <div class="tables" id="tables"></div>
     <h3>Wishes it could not meet</h3>
     <ul id="broken"></ul>
+    <div id="fixes" hidden><h3>Ways to fix a missed wish</h3><ul id="fixes-list"></ul></div>
     <div id="groupmix" hidden><h3>Groups by table</h3><ul id="groupmix-list"></ul></div>
     <div id="meals" hidden><h3>Meals by table</h3><ul id="meals-list"></ul></div>
     <button type="button" id="download">Download the plan (CSV)</button>
@@ -165,7 +166,7 @@
   </footer>
 
   <script type="module">
-    import { checkMove, importGuestSheet, parseGuests, parseRules, parseTableSizes, parseAccessTables, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, sampleSpec, setupJson, parseSetup, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
+    import { checkMove, suggestFixes, importGuestSheet, parseGuests, parseRules, parseTableSizes, parseAccessTables, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, sampleSpec, setupJson, parseSetup, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -192,6 +193,7 @@
         $("#report").hidden = false;
         $("#notices").innerHTML = `<div class="bad"><strong>Fix these first:</strong><ul>${all.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
         for (const id of ["#big", "#tables", "#broken"]) $(id).innerHTML = "";
+        $("#fixes").hidden = true;
         $("#verdict").textContent = "";
         last = null;
         return false;
@@ -220,6 +222,9 @@
       $("#meals").hidden = $("#caterer").hidden = res.meals.length === 0;
       $("#meals-list").innerHTML = res.meals.map((m) => `<li>${esc(m.meal)} (${m.total}): ${m.perTable.map((c, i) => c ? `table ${i + 1}: ${c}` : "").filter(Boolean).join(", ")}</li>`).join("");
       $("#broken").innerHTML = lines.length ? lines.map((l) => `<li>${l}</li>`).join("") : "<li>None.</li>";
+      const fixes = suggestFixes(spec, res);
+      $("#fixes").hidden = fixes.length === 0;
+      $("#fixes-list").innerHTML = fixes.map((f) => `<li>${esc(f.aName)} ${f.kind === "must" ? "++" : "+"} ${esc(f.bName)}: ${esc(f.action)} Score +${f.scoreDelta}${f.broke.length ? "; breaks " + f.broke.map((x) => `${esc(x.aName)} ${{ want: "+", must: "++", avoid: "!", never: "!!" }[x.kind]} ${esc(x.bName)}`).join(", ") : ", breaks no other wish"}.</li>`).join("");
       status.textContent = "Done. Review the tables, then download the plan.";
       return true;
     }
