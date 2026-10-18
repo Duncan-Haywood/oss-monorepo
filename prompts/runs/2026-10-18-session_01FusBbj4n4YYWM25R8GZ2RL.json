@@ -26,7 +26,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,7 +41,7 @@
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Process critique, no backlog ids touched. Reworded session_gate stale-snapshot message. pytest unavailable; assertion string unchanged, py_compile ok, promptctl validate and prompts unittest pass. runcost attach not run: no transcript path.",
+  "notes": "Process critique. My session_gate snapshot-message rewording duplicated an identical fix that landed on main minutes earlier; took main's version, so this PR carries only the record. Duplicate-work check missed it (open-PR check cannot see a sibling that merged minutes before).",
   "corrections": [],
   "redteam": null
 }

@@ -733,7 +733,7 @@ def print_measure(m: dict[str, Any]) -> None:
         print("None reported.\n")
     for path, f in m["doc_friction"].items():
         note, changed = _changed_note(path)
-        tagged = [_flag_stale(r, changed) for r in f["recent"]]
+        tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in f["recent"]]
         live = [r for r in tagged if not r.startswith("[file changed since]")]
         shown = (live or tagged)[-3:]
         hidden = len(tagged) - len(shown)
@@ -788,6 +788,34 @@ def _changed_note(path: str) -> tuple[str, str]:
     except (OSError, subprocess.SubprocessError):
         return "", ""
     return (f" (file last changed {out[:10]})", out) if out else ("", "")
+
+
+_PATH_RE = re.compile(r"[\w./-]+\.(?:py|sh|mjs|md|json|yaml)\b")
+
+
+def _named_files_changed(report: str) -> str:
+    """Latest commit time of the repo files a report names (a complaint about pyenv.py is stale once
+    pyenv.py changes, even when the file whose list it sits under did not). '' if none resolve.
+    A bare file name resolves only when exactly one tracked file has it."""
+    latest = ""
+    for token in dict.fromkeys(_PATH_RE.findall(report)):
+        path = token
+        if "/" not in token:
+            hits = subprocess.run(["git", "ls-files", f"*{token}"], cwd=ROOT.parent,
+                                  capture_output=True, text=True, timeout=20).stdout.split()
+            hits = [h for h in hits if h.rsplit("/", 1)[-1] == token]
+            if len(hits) != 1:
+                continue
+            path = hits[0]
+        if (ROOT.parent / path).is_file():
+            latest = _latest(latest, _changed_note(path)[1])
+    return latest
+
+
+def _latest(a: str, b: str) -> str:
+    """The later of two ISO times ('' loses)."""
+    wa, wb = _when(a) if a else None, _when(b) if b else None
+    return b if wa is None or (wb is not None and wb > wa) else a
 
 
 def _when(text: str) -> datetime | None:
