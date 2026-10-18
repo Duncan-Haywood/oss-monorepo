@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, seasonCost, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1232,4 +1232,27 @@ test("slotFairness: one court and one slot leave nothing to compare", () => {
   const f = slotFairness(buildSchedule(baseSpec(2, { courts: ["Court 1"], times: ["18:00"] })));
   assert.equal(f.court, null);
   assert.equal(f.time, null);
+});
+
+test("seasonCost: court-hours times rate, split across teams rounded up to the cent", () => {
+  const sch = buildSchedule(baseSpec(4, { minutes: 90 }));
+  const c = seasonCost(sch, { rate: 40, officialFee: 5 });
+  assert.equal(c.matches, 6);
+  assert.equal(c.courtHours, 9);
+  assert.equal(c.courtCost, 360);
+  assert.equal(c.officialCost, 30);
+  assert.equal(c.total, 390);
+  assert.equal(c.perTeam, 97.5);
+  // 7 teams: 21 matches x 1h x 10 = 210, split 7 ways
+  const odd = seasonCost(buildSchedule(baseSpec(7)), { rate: 10 });
+  assert.equal(odd.total, 210);
+  assert.equal(odd.perTeam, 30);
+  const up = seasonCost(buildSchedule(baseSpec(3)), { rate: 10 });
+  assert.equal(up.total, 30);
+  assert.equal(up.perTeam, 10);
+  const frac = seasonCost(buildSchedule(baseSpec(6)), { rate: 10.01 });
+  assert.equal(frac.total, 150.15);
+  assert.equal(frac.perTeam, 25.03);
+  assert.ok(frac.perTeam * 6 >= frac.total);
+  for (const bad of [undefined, "", -1, "abc"]) assert.equal(seasonCost(sch, { rate: bad }), null);
 });

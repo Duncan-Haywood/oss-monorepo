@@ -336,6 +336,29 @@ export function reportCsv(a) {
   return lines.join("\n") + "\n";
 }
 
+const icsText = (v) => String(v ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const icsDate = (day) => isoDay(day).replace(/-/g, "");
+
+// Calendar file of the next expected charge for each active subscription that
+// bills monthly or less often (weekly and two-weekly ones would bury the
+// calendar), each with a reminder `leadDays` before so there is time to cancel.
+// The date is the last charge plus one cycle: a guess from the statement.
+export function renewalsIcs(a, { leadDays = 3, stamp = null } = {}) {
+  const lead = Number.isInteger(leadDays) && leadDays >= 0 && leadDays <= 60 ? leadDays : 3;
+  const dtstamp = stamp || new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//subscription-audit-from-statement//EN", "CALSCALE:GREGORIAN", "X-WR-CALNAME:Subscription renewals"];
+  for (const s of a.active) {
+    if (s.cadence === "weekly" || s.cadence === "biweekly") continue;
+    out.push("BEGIN:VEVENT", `UID:${icsDate(s.next)}-${icsText(s.merchant).replace(/[^A-Za-z0-9]+/g, "-")}@subscription-audit-from-statement`, `DTSTAMP:${dtstamp}`,
+      `DTSTART;VALUE=DATE:${icsDate(s.next)}`, `DTEND;VALUE=DATE:${icsDate(s.next + 1)}`,
+      `SUMMARY:${icsText(`${s.merchant} renews: ${usd(s.amount)}`)}`,
+      `DESCRIPTION:${icsText(`${s.cadenceLabel} charge of ${usd(s.amount)} (about ${usd(s.perYear)} a year). Expected date is a guess from your statement. Cancel before this day if you do not want it.`)}`,
+      "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsText(`${s.merchant} renews in ${lead} day(s)`)}`, `TRIGGER:-P${lead}D`, "END:VALARM", "END:VEVENT");
+  }
+  out.push("END:VCALENDAR");
+  return out.join("\r\n") + "\r\n";
+}
+
 export function summaryText(a, cancelled = []) {
   const t = a.totals, out = [];
   out.push(`Subscription audit: ${a.charges} charge(s) from ${isoDay(a.range.first)} to ${isoDay(a.range.last)}.`);
