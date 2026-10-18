@@ -1,6 +1,7 @@
 name: grailed-fee-calculator
 description: A private browser calculator for Grailed sellers that prices one sale against the tiered commission in force since 20 May 2026 (6% under $120 with a $1.99 minimum, 9% from $120) plus 3.49% + $0.49 payment processing, shows profit after item, label and prep cost, solves for the listing price that hits a target profit on the correct side of the step, and computes the $120 cliff where the whole sale jumps to 9% and a $120 sale pays less than a $119.99 one. Compares the current schedule with an international buyer and the old flat 9%, and hands the item to the where-to-sell calculator.
 stage: prototype
+consolidated_into: marketplace-fee-compare
 owner: duncan
 
 hypotheses:

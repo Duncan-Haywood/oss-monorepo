@@ -68,6 +68,9 @@ class Venture:
     ledger_entries: int = 0
     portfolio_mentions: int = 0
     merit: Optional[float] = None
+    # Set from VENTURE.yaml `consolidated_into: <host>` once this venture's
+    # calculation lives in a shared engine; the family task skips it.
+    consolidated_into: Optional[str] = None
 
     @property
     def _first_untested(self) -> Optional[dict]:
@@ -253,6 +256,7 @@ def load_ventures(
                 ledger_entries=ledger_counts.get(name, 0),
                 portfolio_mentions=mention_counts.get(name, 0),
                 merit=merit_scores.get(name),
+                consolidated_into=data.get("consolidated_into"),
             )
         )
     return ventures
@@ -341,6 +345,8 @@ def family_of(name: str) -> str:
 def family_sizes(ventures: list[Venture]) -> dict[str, int]:
     sizes: dict[str, int] = {}
     for v in ventures:
+        if v.consolidated_into:
+            continue
         f = family_of(v.name)
         sizes[f] = sizes.get(f, 0) + 1
     return sizes
@@ -365,7 +371,7 @@ def diversify(ordered: list[Venture], tier=lambda v: 0, cap: int = FAMILY_CAP) -
         kept, deferred = [], []
         for v in ordered[i:j]:
             f = family_of(v.name)
-            if sizes[f] >= FAMILY_MIN:
+            if sizes.get(f, 0) >= FAMILY_MIN and not v.consolidated_into:
                 seen[f] = seen.get(f, 0) + 1
                 if seen[f] > cap:
                     deferred.append(v)
@@ -414,7 +420,13 @@ def work_queue(ventures: list[Venture]) -> list[dict]:
 
     def task_for(v: Venture) -> str:
         f = family_of(v.name)
-        if sizes[f] >= FAMILY_MIN and f not in claimed and not v.needs_decision and v.dispatchable:
+        if (
+            not v.consolidated_into
+            and sizes.get(f, 0) >= FAMILY_MIN
+            and f not in claimed
+            and not v.needs_decision
+            and v.dispatchable
+        ):
             claimed.add(f)
             return consolidation_task(f, sizes[f])
         return next_task(v)
