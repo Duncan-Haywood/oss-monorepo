@@ -181,6 +181,8 @@
     <button type="button" class="secondary" id="print-page">Print or save as PDF</button>
     <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
     <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
+    <select id="official-pick" hidden aria-label="Official"></select>
+    <button type="button" class="secondary" id="dl-off-ics" hidden>Download calendar (.ics), selected official</button>
     <button type="button" id="dl-page">Download league web page (.html)</button>
   </section>
 
@@ -353,7 +355,10 @@
         ? `<span class="pill good">checked</span> Every pair meets the right number of times, nobody plays twice in a round, home and away is balanced and no court is double-booked.`
         : `<span class="pill high">problem</span> ${esc(v.errors.slice(0, 4).join(" "))}`;
       $("#off-th").hidden = !s.rounds.some((r) => r.matches.some((m) => m.official !== undefined));
-      $("#dl-off-msgs").hidden = !s.rounds.some((r) => r.matches.some((m) => m.official));
+      const offNames = [...new Set(s.rounds.flatMap((r) => r.matches.map((m) => m.official)).filter(Boolean))];
+      $("#dl-off-msgs").hidden = !offNames.length;
+      $("#dl-off-ics").hidden = $("#official-pick").hidden = !offNames.length;
+      $("#official-pick").innerHTML = offNames.map((n) => `<option>${esc(n)}</option>`).join("");
       $("#rounds tbody").innerHTML = s.rounds.map((r) => {
         const cls = r.makeup ? ' class="mk"' : "";
         const rows = r.matches.map((m, i) => `<tr${cls}><td>${i === 0 ? esc(r.label) : ""}</td><td>${i === 0 ? dayLabel(r.day) : ""}</td><td>${esc(m.time)}</td><td>${esc(m.court)}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td>${m.official !== undefined ? `<td>${esc(m.official)}</td>` : ""}</tr>`);
@@ -567,6 +572,12 @@
     $("#dl-team-msgs").addEventListener("click", () => {
       if (!last) return;
       download("team-messages.txt", teamMessages(last.s).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("text_shared");
+    });
+    $("#dl-off-ics").addEventListener("click", () => {
+      if (!last) return;
+      const name = $("#official-pick").value;
+      download(`${name.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "official"}-officiating.ics`, scheduleIcs(last.s, null, null, name), "text/calendar");
+      record("ics_downloaded");
     });
     $("#dl-off-msgs").addEventListener("click", () => {
       if (!last) return;

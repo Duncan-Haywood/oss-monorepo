@@ -1596,3 +1596,18 @@ test("ladder: challenge list and text sheet", () => {
   assert.match(txt, /1\. Cy {2}\(1 played\)/);
   assert.match(txt, /Dee -> Ben, Ana/);
 });
+
+test("official calendar holds only that official's matches, as events they can import", () => {
+  const s = buildSchedule(baseSpec(6, { courts: ["A", "B", "C"], times: ["18:00"] }));
+  const { officials } = parseOfficials(["Ann", "Bo (Team 1)", "Cy (Team 2)", "Di"].join("\n"), s.teams);
+  const r = assignOfficials(s, officials);
+  for (const o of r.loads.filter((l) => l.matches > 0)) {
+    const ics = scheduleIcs(r.schedule, null, "20261001T000000Z", o.name);
+    assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, o.matches);
+    assert.match(ics, new RegExp(`X-WR-CALNAME:${o.name} officiating`));
+    assert.match(ics, /SUMMARY:Officiate: /);
+  }
+  const bo = scheduleIcs(r.schedule, null, "20261001T000000Z", "Bo");
+  assert.doesNotMatch(bo, /Team 1 vs|vs Team 1/);
+  assert.equal((scheduleIcs(r.schedule, null, "20261001T000000Z", "Nobody").match(/BEGIN:VEVENT/g) || []).length, 0);
+});

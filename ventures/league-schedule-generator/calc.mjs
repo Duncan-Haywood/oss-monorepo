@@ -1274,16 +1274,18 @@ const compactDate = (day) => dayIso(day).replace(/-/g, "");
  * An iCalendar file for one team (teamIdx) or every match (teamIdx omitted).
  * Times are floating local times, so a phone shows them as written at the venue.
  * `stamp` (YYYYMMDDTHHMMSSZ) is injectable so the output is reproducible in tests.
+ * `official` (a name set by assignOfficials) keeps only the matches that person works, for a referee's own calendar.
  */
-export function scheduleIcs(schedule, teamIdx = null, stamp = null) {
+export function scheduleIcs(schedule, teamIdx = null, stamp = null, official = null) {
   const dtstamp = stamp || new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
   const minutes = schedule.config.minutes || 60;
   const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//league-schedule-generator//EN", "CALSCALE:GREGORIAN",
-    `X-WR-CALNAME:${icsEscape(teamIdx === null ? "League schedule" : `${schedule.teams[teamIdx]} schedule`)}`];
+    `X-WR-CALNAME:${icsEscape(official !== null ? `${official} officiating` : teamIdx === null ? "League schedule" : `${schedule.teams[teamIdx]} schedule`)}`];
   for (const r of schedule.rounds) {
     r.matches.forEach((m, i) => {
       if (teamIdx !== null && m.home !== teamIdx && m.away !== teamIdx) return;
-      const summary = teamIdx === null
+      if (official !== null && m.official !== official) return;
+      const summary = official !== null ? `Officiate: ${m.homeName} vs ${m.awayName}` : teamIdx === null
         ? `${m.homeName} vs ${m.awayName}`
         : `${schedule.teams[teamIdx]} vs ${schedule.teams[m.home === teamIdx ? m.away : m.home]} (${m.home === teamIdx ? "home" : "away"})`;
       out.push("BEGIN:VEVENT", `UID:${m.home}-${m.away}-${compactDate(r.day)}-${i}@league-schedule-generator`, `DTSTAMP:${dtstamp}`);
