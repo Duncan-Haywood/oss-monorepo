@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Statutory Residence Test Checker — Days, Ties and Automatic Tests</title>
+  <meta name="description" content="Free UK Statutory Residence Test checker: enter your UK stays and ties to see which test decides, whether you are UK resident, and how many more days you can spend in the UK before that changes. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK Statutory Residence Test checker: which test decides, and how many days you have left. Free, private">
+  <meta property="og:description" content="Automatic overseas and UK tests, sufficient ties for leavers and arrivers, days of headroom.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Statutory Residence Test Checker", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the UK Statutory Residence Test?", "acceptedAnswer": {"@type": "Answer", "text": "A three-part test that decides whether you are UK resident for a tax year (6 April to 5 April). First the automatic overseas tests, then the automatic UK tests, and if neither settles it, the sufficient ties test, which compares your days in the UK against the ties you keep here."}}, {"@type": "Question", "name": "Is the 183-day rule the whole test?", "acceptedAnswer": {"@type": "Answer", "text": "No. 183 days or more in the UK makes you resident, but you can be resident on far fewer days: with a UK home, a UK-resident family, work here and days from earlier years, as few as 16 days can be enough for someone who recently left."}}, {"@type": "Question", "name": "What counts as a day in the UK?", "acceptedAnswer": {"@type": "Answer", "text": "A day you are in the UK at midnight at the end of it. Arriving on the 10th and leaving on the 15th is 5 days. Passing through on the same day, or being in transit, is generally not a day. Up to 60 days of exceptional circumstances can be left out."}}, {"@type": "Question", "name": "What is the difference between a leaver and an arriver?", "acceptedAnswer": {"@type": "Answer", "text": "A leaver was UK resident in at least one of the previous three tax years; an arriver was not. Leavers have five possible ties (including the country tie) and a stricter table; arrivers have four."}}, {"@type": "Question", "name": "Does this decide whether I am UK resident?", "acceptedAnswer": {"@type": "Answer", "text": "No. It runs the published test on the dates and answers you type and shows which step decided. It does not model split-year treatment, the deeming rule or deaths in the year. Check HMRC's RDR3 guidance or an adviser."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    fieldset { border: 1px solid #dad6c8; border-radius: 10px; margin: 16px 0 0; padding: 4px 14px 14px; }
+    legend { font-weight: 700; padding: 0 6px; color: #14283b; }
+    .pill.met { background: #fde8e8; color: #9a3412; }
+    .pill.no { background: #e3f1e6; color: #1f5a2d; }
+    .pill.na { background: #e8e4d6; color: #14283b; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK STATUTORY RESIDENCE TEST CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Are you UK resident this tax year, and how many more UK days can you spend?</h1>
+    <p>List your UK stays, answer a few questions about your home, work and family, and see which part of the Statutory Residence Test decides: the automatic overseas tests, the automatic UK tests, or the sufficient ties test. You also get the number of days that would flip the answer.</p>
+    <p class="note">Written from the published test without a live lookup. HMRC and the courts decide residence; split-year treatment and the deeming rule are not modelled. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <label for="stays">Time in the UK, one stay per line: arrival date then departure date (YYYY-MM-DD). Include earlier tax years for the 90-day tie.</label>
+    <textarea id="stays" spellcheck="false" placeholder="2026-04-20 2026-05-30&#10;2026-07-01 2026-08-12"></textarea>
+    <div class="grid">
+      <div><label for="taxYear">Tax year starting 6 April of</label><input id="taxYear" type="number" min="2013" max="2100" step="1" placeholder="2026"></div>
+      <div><label for="priorResident">Were you UK resident in any of the last 3 tax years?</label><span class="note"> Yes makes you a leaver, no an arriver.</span><select id="priorResident"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="exceptional">Days to leave out for exceptional circumstances</label><span class="note"> Up to 60, such as illness or war.</span><input id="exceptional" type="number" min="0" step="1" placeholder="0"></div>
+    </div>
+    <fieldset><legend>Work</legend><div class="grid">
+      <div><label for="fullTimeAbroad">Full-time work abroad all year?</label><span class="note"> 35+ hours a week on average, no break of 31+ days.</span><select id="fullTimeAbroad"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="ukWorkDays">UK days you worked 3+ hours</label><span class="note"> Counts for the work tie (40+) and overseas test 3 (under 31).</span><input id="ukWorkDays" type="number" min="0" step="1" placeholder="0"></div>
+      <div><label for="ukFullTimeWork">Full-time work in the UK over a 365-day period?</label><span class="note"> 75%+ of days over 3 hours, no break of 31+ days, spanning part of this year.</span><select id="ukFullTimeWork"><option value="no">No</option><option value="yes">Yes</option></select></div>
+    </div></fieldset>
+    <fieldset><legend>Homes</legend><div class="grid">
+      <div><label for="ukHome">A UK home available for 91+ days?</label><span class="note"> At least 30 of them within this tax year.</span><select id="ukHome"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="ukHomeDays">Days you were present at the UK home this year</label><input id="ukHomeDays" type="number" min="0" step="1" placeholder="0"></div>
+      <div><label for="overseasHome">An overseas home?</label><select id="overseasHome"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="overseasHomeDays">Days at your most-used overseas home this year</label><span class="note"> The UK-home test fails if this is 30 or more.</span><input id="overseasHomeDays" type="number" min="0" step="1" placeholder="0"></div>
+    </div></fieldset>
+    <fieldset><legend>Ties and earlier years</legend><div class="grid">
+      <div><label for="family">Family tie?</label><span class="note"> Spouse or partner UK resident, or a UK-resident child under 18 you see on 61+ days in the UK.</span><select id="family"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="accommodation">Accommodation tie?</label><span class="note"> Somewhere to live available for 91+ days that you spent at least one night in (16 nights if it is a close relative's).</span><select id="accommodation"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="prev1">UK days in the previous tax year</label><span class="note"> Leave blank to count from your stays.</span><input id="prev1" type="number" min="0" step="1" placeholder="from stays"></div>
+      <div><label for="prev2">UK days two tax years ago</label><span class="note"> Leave blank to count from your stays.</span><input id="prev2" type="number" min="0" step="1" placeholder="from stays"></div>
+      <div><label for="mostElsewhere">Most days in any one other country this year</label><span class="note"> Leavers only: the country tie needs more UK days than this.</span><input id="mostElsewhere" type="number" min="0" step="1" placeholder="0"></div>
+    </div></fieldset>
+    <p>
+      <button type="button" id="calc">Run the test</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Enter your stays and answers, then click Run the test.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>Each test in order</h2>
+    <div class="scroll"><table><thead><tr><th>Test</th><th>Outcome</th><th>Why</th></tr></thead><tbody id="steps"></tbody></table></div>
+    <h2>Ties</h2>
+    <div class="scroll"><table><thead><tr><th>Tie</th><th>Present</th></tr></thead><tbody id="ties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the three automatic overseas tests, the three automatic UK tests and the sufficient ties test for leavers and arrivers, with days counted as midnights, overlapping stays merged and up to 60 exceptional days removed.</li>
+      <li><strong>Gives:</strong> the test that decided and why, the ties present against the number needed, and the days of headroom (or the days to cut) that change the answer. The full threshold table is in the <a href="uk-statutory-residence-test-ties-table.html">ties table guide</a>.</li>
+      <li><strong>Not decided:</strong> split-year treatment, the deeming rule, deaths in the year, Crown and forces employees, domicile and the remittance basis, double tax treaty tie-breakers, and whether a particular home or work pattern meets HMRC's wording. You answer those questions; HMRC or an adviser decides them.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is the UK Statutory Residence Test?</h3>
+    <p>A three-part test that decides whether you are UK resident for a tax year (6 April to 5 April). First the automatic overseas tests, then the automatic UK tests, and if neither settles it, the sufficient ties test, which compares your days in the UK against the ties you keep here.</p>
+    <h3>Is the 183-day rule the whole test?</h3>
+    <p>No. 183 days or more in the UK makes you resident, but you can be resident on far fewer days: with a UK home, a UK-resident family, work here and days from earlier years, as few as 16 days can be enough for someone who recently left.</p>
+    <h3>What counts as a day in the UK?</h3>
+    <p>A day you are in the UK at midnight at the end of it. Arriving on the 10th and leaving on the 15th is 5 days. Passing through on the same day, or being in transit, is generally not a day. Up to 60 days of exceptional circumstances can be left out.</p>
+    <h3>What is the difference between a leaver and an arriver?</h3>
+    <p>A leaver was UK resident in at least one of the previous three tax years; an arriver was not. Leavers have five possible ties (including the country tie) and a stricter table; arrivers have four.</p>
+    <h3>Does this decide whether I am UK resident?</h3>
+    <p>No. It runs the published test on the dates and answers you type and shows which step decided. It does not model split-year treatment, the deeming rule or deaths in the year. Check HMRC's RDR3 guidance or an adviser.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal, or immigration advice and does not decide anyone's tax residence. You are responsible for checking its output against HMRC's guidance (RDR3, the Statutory Residence Test) or a qualified adviser before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../schengen-90-180-day-calculator/">Schengen 90/180 day calculator</a> and the <a href="../state-residency-day-counter/">US state residency day counter</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { assess, summaryText, SAMPLE, taxYearLabel } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { stays: "stays", taxYear: "taxYear", priorResident: "priorResident", exceptional: "exceptional", fullTimeAbroad: "fullTimeAbroad", ukWorkDays: "ukWorkDays", ukFullTimeWork: "ukFullTimeWork", ukHome: "ukHome", ukHomeDays: "ukHomeDays", overseasHome: "overseasHome", overseasHomeDays: "overseasHomeDays", family: "family", accommodation: "accommodation", prev1: "prev1", prev2: "prev2", mostElsewhere: "mostElsewhere" };
+    const IDLE = "Enter your stays and answers, then click Run the test.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = assess(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const v = r.verdict;
+      $("#due").textContent = `${v.resident ? "UK resident" : "Not UK resident"} for ${taxYearLabel(r.year)} · ${r.days} UK day(s)`;
+      $("#summary").textContent = summaryText(r);
+      const heads = [];
+      if (!v.resident && r.headroom !== null) heads.push(`<div class="finding"><span class="pill info">headroom</span>${r.headroom} more UK day(s) before the answer changes, if nothing else changes.</div>`);
+      if (v.resident && r.reduceBy) heads.push(`<div class="finding"><span class="pill medium">to change it</span>${r.reduceBy} fewer UK day(s) (${r.reduceTo} in total) would change the answer, if nothing else changes.</div>`);
+      $("#report-findings").innerHTML = heads.concat(r.notices.map((n) => `<div class="finding"><span class="pill info">note</span>${esc(n)}</div>`)).join("");
+      $("#steps").innerHTML = v.steps.map((s) => `<tr><td>${esc(s.label)}</td><td><span class="pill ${s.met === null ? "na" : s.met ? "met" : "no"}">${s.met === null ? "n/a" : s.met ? "met" : "not met"}</span></td><td>${esc(s.detail)}</td></tr>`).join("");
+      $("#ties").innerHTML = v.ties ? v.ties.list.map((t) => `<tr><td>${esc(t.label)}</td><td>${t.present ? "Yes" : "No"}</td></tr>`).join("") + `<tr class="total"><td>${v.ties.count} present, ${v.ties.needed} needed</td><td></td></tr>` : `<tr><td colspan="2">An automatic test decided, so ties were not needed.</td></tr>`;
+      report.hidden = false;
+      status.textContent = "Done. Verify with HMRC's RDR3 guidance named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a recent leaver with a UK home they barely use, 101 days here and two ties.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) { const el = $("#" + id); el.value = el.tagName === "SELECT" ? "no" : ""; } report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-residence-test-check.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
