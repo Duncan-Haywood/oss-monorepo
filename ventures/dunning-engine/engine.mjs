@@ -5,6 +5,7 @@ import { planRecovery, replan, classifyDecline, formatMoney, mergePolicy } from 
 import { renderEmail } from "./templates.mjs";
 import { findExpiring } from "./expiry.mjs";
 import { assignArm, experiment } from "./holdout.mjs";
+import { buildDigest, renderDigest, DIGEST_EVERY_MS } from "./digest.mjs";
 
 export function newState() { return { cases: {}, seen: [], stats: { recoveredMinor: {}, recovered: 0, lost: 0, emails: 0, retries: 0 } }; }
 
@@ -147,7 +148,23 @@ export async function tick(state, now, deps) {
       else s.at = now + 5 * 60000 * s.tries; // back off, try again on a later tick
     }
   }
+  await sendDigest(state, now, deps, done);
   return done;
+}
+
+// Once a week, if DIGEST_TO is set: a plain-text summary to the owner. The
+// first call only starts the clock, so a fresh install does not mail an empty
+// week. deps adds: digestTo, sendEmail, company, dryRun.
+async function sendDigest(state, now, deps, done) {
+  if (!deps.digestTo) return;
+  const dg = (state.digest ||= { last: now });
+  if (now - dg.last < DIGEST_EVERY_MS) return;
+  const mail = renderDigest(buildDigest(state, now), { company: deps.company, dryRun: deps.dryRun });
+  try {
+    if (!deps.dryRun) await deps.sendEmail({ to: deps.digestTo, ...mail });
+  } catch (e) { done.push(`digest: error: ${e.message}`); dg.last = now - DIGEST_EVERY_MS + 3600000; return; }
+  dg.last = now;
+  done.push(deps.dryRun ? `digest: dry run: would email ${deps.digestTo}: ${mail.subject}` : `digest: emailed ${deps.digestTo}`);
 }
 
 const SCAN_EVERY_MS = 24 * 3600000;

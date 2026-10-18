@@ -77,7 +77,7 @@ Reference pages: [which Stripe decline codes to retry and which never to](https:
 
 ```sh
 cd ventures/dunning-engine
-node --test        # 78 tests, no network
+node --test        # 83 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://dunning.example.com node server.mjs
@@ -122,6 +122,7 @@ Setup in Stripe:
 | `COMPANY_NAME`, `COMPANY_ADDRESS` | email wording and footer |
 | `POLICY_JSON` | override the schedule, e.g. `{"graceDays":10,"softRetryDays":[2,5]}` |
 | `EXPIRY_NOTICES`, `EXPIRY_DAYS` | card-expiry heads-up emails (default on, 30 days) |
+| `DIGEST_TO` | email address that gets a plain-text weekly summary (new failures, recovered, lost, still open); off when unset |
 | `HOLDOUT_PCT` | share of customers left alone to measure uplift, 0 to 50 (default 0 = off) |
 | `ALERT_WEBHOOK_URL` | Slack/Discord-style `{"text":...}` alerts |
 | `STATE` | path of the JSON state file |
