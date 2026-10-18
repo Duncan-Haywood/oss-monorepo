@@ -26,6 +26,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   earliest later night both teams are free and a court is open, nothing else
   changes), and an independent validator that re-checks a finished schedule.
 - A team drops out mid-season (`Lob Squad` or `2026-11-03 Lob Squad`): its remaining matches are removed, matches already played stay, nothing else moves, and the page lists how many fixtures each opponent loses so the league can decide how earlier results count (`applyWithdrawals`).
+- Named make-up date: end a rainout line with `-> 2026-10-16` (or `→`) to put the match on a day you already agreed, even outside the league weekday; it is refused with the reason if either team is blacked out or already playing, or no court and slot is free (`applyRainouts`).
 - Per-team time limits (`Team: 17:00`): a youth team that can only play early is only given those slots, rainout moves respect them, and the validator flags any breach; an unsatisfiable limit is reported, never hidden.
 - Standings rank by points, goal difference, goals for; tick head-to-head to split teams level on points by the matches among them first (`standings(..., { headToHead: true })`).
 - Points deductions and bonuses: in the results box write `Owls -3 pts (late fee)` or `Lynx +1`; the number is added to that team's table points before every tiebreak, and the play-off race uses it too (`parseResults` returns `adjustments`, `standings` and `playoffRace` take them).
