@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1283,4 +1283,26 @@ test("standings show each team's last five results, oldest first", async () => {
   assert.equal(formString(1, results, 5), "LDDL");
   const rows = st(teams, results);
   assert.equal(rows.find((r) => r.name === "A").form, "LDWWW");
+});
+
+test("homeAwayReport: counts and longest runs match a hand-built sequence", () => {
+  const sch = { teams: ["A", "B", "C"], rounds: [
+    { day: 14, matches: [{ home: 0, away: 2 }] },
+    { day: 0, matches: [{ home: 0, away: 1 }] },
+    { day: 7, matches: [{ home: 0, away: 2 }] },
+    { day: 21, matches: [{ home: 1, away: 0 }] },
+  ] };
+  const r = homeAwayReport(sch);
+  assert.deepEqual(r.rows[0], { team: "A", home: 3, away: 1, longestHome: 3, longestAway: 1 });
+  assert.deepEqual(r.rows[2], { team: "C", home: 0, away: 2, longestHome: 0, longestAway: 2 });
+  assert.equal(r.longestRun, 3);
+  assert.deepEqual(r.worst, [{ team: "A", kind: "home" }]);
+});
+
+test("homeAwayReport: generated leagues keep home and away within one and runs of at most two", () => {
+  for (const n of [4, 5, 6, 8, 9]) {
+    const r = homeAwayReport(buildSchedule(baseSpec(n)));
+    for (const x of r.rows) assert.ok(Math.abs(x.home - x.away) <= 1, `${n} teams: ${x.team}`);
+    assert.ok(r.longestRun <= 2, `${n} teams run ${r.longestRun}`);
+  }
 });

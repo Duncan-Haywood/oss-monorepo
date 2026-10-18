@@ -643,6 +643,35 @@ export function restReport(schedule) {
 }
 
 /**
+ * Home and away load per team, in date order: home games, away games and the longest run of
+ * home or away games in a row (byes do not break a run). Returns { rows: [{ team, home, away,
+ * longestHome, longestAway }], longestRun, worst } where worst names the teams holding the
+ * longest run and which kind it is, so an organiser sees who is stuck on the road.
+ */
+export function homeAwayReport(schedule) {
+  const seq = schedule.teams.map(() => []);
+  const rounds = schedule.rounds.slice().sort((a, b) => a.day - b.day);
+  for (const r of rounds) for (const m of r.matches) { seq[m.home].push("H"); seq[m.away].push("A"); }
+  let longestRun = 0;
+  const rows = schedule.teams.map((team, i) => {
+    let lh = 0, la = 0, run = 0, prev = null;
+    for (const c of seq[i]) {
+      run = c === prev ? run + 1 : 1;
+      prev = c;
+      if (c === "H") lh = Math.max(lh, run); else la = Math.max(la, run);
+    }
+    longestRun = Math.max(longestRun, lh, la);
+    return { team, home: seq[i].filter((c) => c === "H").length, away: seq[i].filter((c) => c === "A").length, longestHome: lh, longestAway: la };
+  });
+  const worst = [];
+  for (const r of rows) {
+    if (longestRun > 0 && r.longestHome === longestRun) worst.push({ team: r.team, kind: "home" });
+    if (longestRun > 0 && r.longestAway === longestRun) worst.push({ team: r.team, kind: "away" });
+  }
+  return { rows, longestRun, worst };
+}
+
+/**
  * Rematch spacing for a double round-robin: days between the two meetings of each pair, so
  * a league can see whether any pair replays the same fixture back to back. Returns
  * { pairs: [{ a, b, gap }] sorted shortest first, shortest, longest }. A single round-robin
