@@ -35,7 +35,7 @@
     .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
     .tbl { border: 2px solid #c9b8dc; border-radius: 12px; padding: 10px 12px; background: #fbf9fd; }
     .tbl h4 { margin: 0 0 6px; font-size: .95rem; color: #3a2457; }
-    .tbl ul { margin: 0; padding-left: 18px; }
+    .tbl ul, .tbl ol { margin: 0; padding-left: 18px; }
     .tbl li { line-height: 1.4; }
     .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
     .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
@@ -118,7 +118,7 @@
     <h2>How it works</h2>
     <p><strong>Scoring:</strong> every pair of guests that shares a table adds to a score. Members of the same party add 6, a <code>+</code> adds 3, a <code>++</code> adds 12, a <code>!</code> takes away 6 and a <code>!!</code> takes away 200. The plan with the highest total wins, so a feud is separated even if it splits a friendship.</p>
     <p><strong>Search:</strong> simulated annealing moves and swaps guests between tables, accepting some worse moves early so it does not get stuck, restarted six times; a hill-climbing pass then applies any move or swap that still helps. Table capacity and pinned tables are never broken. The same list gives the same plan until you ask for another arrangement. On small events the answer is checked against trying every possible arrangement.</p>
-    <p><strong>Not modelled:</strong> seat order within a table, couples at a head table sitting in a row, wheelchair access or room layout, grouping guests by dietary need (a fourth column only tallies meals for the caterer), which tables are near the stage or the door, children's tables as a rule, and how much one person dislikes another beyond the four strengths. Unverified against a real event: tested against exhaustive search on hundreds of small random lists and on a 200-guest list.</p>
+    <p><strong>Seat order:</strong> each table's guests are listed in order around the table (the last seat touches the first), so a party and wanted pairs sit side by side and avoided pairs do not touch; it assumes a round table. <strong>Not modelled:</strong> a head table's row, couples at a head table sitting in a row, wheelchair access or room layout, grouping guests by dietary need (a fourth column only tallies meals for the caterer), which tables are near the stage or the door, children's tables as a rule, and how much one person dislikes another beyond the four strengths. Unverified against a real event: tested against exhaustive search on hundreds of small random lists and on a 200-guest list.</p>
   </section>
 
   <section class="card">
@@ -200,7 +200,7 @@
       $("#verdict").textContent = res.rulesTotal === 0
         ? "No pair wishes were entered, so only parties and pins shaped this plan."
         : res.broken.length === 0 ? "Every wish is met." : `${res.broken.length} wish${res.broken.length === 1 ? " is" : "es are"} not met; they are listed below.`;
-      $("#tables").innerHTML = res.tables.map((t) => `<div class="tbl"><h4>Table ${t.number} · ${t.size} of ${t.seats} seats</h4><ul>${t.guests.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div>`).join("");
+      $("#tables").innerHTML = res.tables.map((t) => `<div class="tbl"><h4>Table ${t.number} · ${t.size} of ${t.seats} seats</h4><ol>${t.guests.map((n) => `<li>${esc(n)}</li>`).join("")}</ol></div>`).join("");
       const lines = res.broken.map((b) => `${esc(b.aName)} ${{ want: "+", must: "++", avoid: "!", never: "!!" }[b.kind]} ${esc(b.bName)} (${b.kind === "want" || b.kind === "must" ? "not together" : "at the same table"})`);
       for (const p of res.partySplits) lines.push(`Party "${esc(p.party)}" (${p.size}) is split across tables ${p.tables.join(", ")}`);
       $("#groupmix").hidden = res.groupMix.length === 0;
@@ -233,7 +233,7 @@
         [String(res.dropped.length), `removed since last plan`],
       ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
       $("#verdict").textContent = res.broken.length === 0 ? "Every wish is met." : `${res.broken.length} wish${res.broken.length === 1 ? " is" : "es are"} not met; they are listed below.`;
-      $("#tables").innerHTML = res.tables.map((t) => `<div class="tbl"><h4>Table ${t.number} · ${t.size} guest${t.size === 1 ? "" : "s"}</h4><ul>${t.guests.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div>`).join("");
+      $("#tables").innerHTML = res.tables.map((t) => `<div class="tbl"><h4>Table ${t.number} · ${t.size} guest${t.size === 1 ? "" : "s"}</h4><ol>${t.guests.map((n) => `<li>${esc(n)}</li>`).join("")}</ol></div>`).join("");
       $("#broken").innerHTML = res.broken.length ? res.broken.map((b) => `<li>${esc(b.aName)} ${{ want: "+", must: "++", avoid: "!", never: "!!" }[b.kind]} ${esc(b.bName)}</li>`).join("") : "<li>None.</li>";
       $("#moves").innerHTML = `<h3>Who moved</h3><ul>${res.moved.length ? res.moved.map((m) => `<li>${esc(m.name)}: table ${m.from} to table ${m.to}</li>`).join("") : "<li>Nobody moved.</li>"}</ul>` + (res.added.length ? `<h3>New guests</h3><p>${res.added.map(esc).join(", ")}</p>` : "");
       status.textContent = `Re-seated: ${res.moved.length} guest${res.moved.length === 1 ? "" : "s"} moved.`;

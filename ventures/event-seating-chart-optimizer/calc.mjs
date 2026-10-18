@@ -340,12 +340,63 @@ export function optimize(spec) {
   return describe(spec, W, bestTable, baseline);
 }
 
+/**
+ * Orders the guests of one table around it (a ring: the last seat touches the
+ * first). Neighbours score the pair weight, so a party and wanted pairs end up
+ * side by side and avoided pairs do not touch. Tables up to 9 are solved
+ * exhaustively; larger ones by greedy chaining then swap and reversal passes.
+ */
+export function orderTable(members, W, n) {
+  const m = members.length;
+  if (m <= 2) return members.slice();
+  const w = (a, b) => W[a * n + b];
+  const ring = (p) => { let s = 0; for (let i = 0; i < m; i++) s += w(p[i], p[(i + 1) % m]); return s; };
+  if (m <= 9) {
+    let best = members.slice(), bestS = ring(best);
+    const rest = members.slice(1);
+    const used = new Array(rest.length).fill(false);
+    const cur = [members[0]];
+    const rec = () => {
+      if (cur.length === m) { const s = ring(cur); if (s > bestS + 1e-9) { bestS = s; best = cur.slice(); } return; }
+      for (let i = 0; i < rest.length; i++) {
+        if (used[i]) continue;
+        used[i] = true; cur.push(rest[i]); rec(); cur.pop(); used[i] = false;
+      }
+    };
+    rec();
+    return best;
+  }
+  const left = members.slice(1);
+  const path = [members[0]];
+  while (left.length) {
+    const last = path[path.length - 1];
+    let bi = 0;
+    for (let i = 1; i < left.length; i++) if (w(last, left[i]) > w(last, left[bi])) bi = i;
+    path.push(left.splice(bi, 1)[0]);
+  }
+  let score = ring(path), improved = true;
+  while (improved) {
+    improved = false;
+    for (let i = 0; i < m; i++) for (let j = i + 1; j < m; j++) {
+      const a = path.slice(); [a[i], a[j]] = [a[j], a[i]];
+      let s = ring(a);
+      if (s > score + 1e-9) { path.splice(0, m, ...a); score = s; improved = true; continue; }
+      const b = path.slice(); b.splice(i, j - i + 1, ...b.slice(i, j + 1).reverse());
+      s = ring(b);
+      if (s > score + 1e-9) { path.splice(0, m, ...b); score = s; improved = true; }
+    }
+  }
+  return path;
+}
+
 /** Turn an assignment into the report: tables, satisfied and broken rules, scores. */
 export function describe(spec, W, table, baseline) {
   const n = spec.guests.length;
   const T = resolveTableCount(spec);
   const tables = Array.from({ length: T }, () => []);
   table.forEach((t, g) => tables[t].push(g));
+  // Each table's guests are listed in seat order around it, not list order.
+  tables.forEach((members, t) => { tables[t] = orderTable(members, W, n); });
   const pairs = (list) => list.map((r) => ({ ...r, aName: spec.guests[r.a].name, bName: spec.guests[r.b].name, met: r.kind === "want" || r.kind === "must" ? table[r.a] === table[r.b] : table[r.a] !== table[r.b] }));
   const pairRules = pairs(spec.rules.filter((r) => r.kind !== "pin"));
   const broken = pairRules.filter((r) => !r.met);
