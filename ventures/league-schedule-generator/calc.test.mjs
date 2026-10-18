@@ -1503,6 +1503,7 @@ test("weeklyUpdate: last round's scores, the table and the next round; handles n
   assert.match(done, /That was the last round/);
   assert.ok(!done.includes("Next up"));
   assert.equal(weeklyUpdate({ ...s, rounds: [] }, []), "");
+});
 
 test("overdueResults lists played-date matches with no typed result, earliest meeting first", () => {
   const s = buildSchedule(baseSpec(4, { double: true }));
