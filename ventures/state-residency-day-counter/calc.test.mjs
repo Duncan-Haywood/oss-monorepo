@@ -453,3 +453,11 @@ test("deviceTimelineToStays: coordinates resolve to states for the Android and i
   assert.equal(deviceTimelineToStays("nope", 2025, STATE_RINGS).error, "Not a JSON file.");
   assert.match(deviceTimelineToStays("{}", 2025, STATE_RINGS).error, /phone/);
 });
+
+test("Iowa and DC day tests", () => {
+  assert.equal(RULES.IA.limit, 183);
+  assert.equal(RULES.IA.requiresAbode, true);
+  assert.equal(RULES.DC.limit, 182);
+  assert.equal(RULES.DC.requiresAbode, true);
+  assert.equal(RULES.DC.kind, "statutory");
+});
