@@ -25,6 +25,7 @@ python -m unittest discover -s tests
 - `abs_delta` ranks well in-sample (AUC 0.79) because the nine undecided survivors barely change the netlist (|delta| 0 for six, then 1, 2, 37), while equivalent mutants span 0 to 178. A threshold fitted on other lines does not carry over, since the line groups differ in size and sign.
 - The miter is almost the same size for every mutant (1,188 to 1,199 cells), so solver difficulty is not visible in miter size here.
 - Ten mutants leave the cell count unchanged: 3 equivalent, 6 undecided, 1 killed. Of the two with an identical cell histogram, one is equivalent and one (a ROM edit) is killed by formal, so "netlist unchanged" does not mean "equivalent" after `synth`.
+- Figure: `experiments/abs_delta.svg` (from `python experiments/figure.py`, parsed from `results.txt`) plots each survivor's |delta| by verdict: the undecided ones sit at 0 to 2 cells except one at 37, the equivalent ones range from 0 to 178.
 - Reading: on this design the cheap cell-count features do not replace source position, and the line signal in `eda-equivpredict` is not explained by them. It does not show that richer features (cone depth, fan-in of the mutated register, a structural hash of the fan-in cone) would also fail.
 
 ## Limitations
