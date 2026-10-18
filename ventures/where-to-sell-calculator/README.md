@@ -370,6 +370,13 @@ behaviour.
 each target's *own* field list imported from that venture — so a rename
 there fails a test here rather than silently dropping a number there.
 
+`handoff-arrival.check.mjs` is the browser half: it opens each of the 13
+target calculators with a handoff link in Chromium and reads the inputs back,
+so a target that renames an input id or stops reading the URL fragment fails
+there. Not part of `node --test` (it needs a browser and a local server; usage
+is in the file header). Last run 2026-10-18: 13 of 13 arrive with the values
+sent.
+
 `page.test.mjs` adds structural checks on `index.html` itself, because
 `calc.test.mjs` imports `calc.mjs` directly and never looks at the page. It
 asserts that the results table declares exactly as many columns as the row
