@@ -33,3 +33,29 @@ test("--ai adds a supported suggestion and reports counts on stderr", async () =
   assert.match(errs[0], /added 1 item/);
   assert.equal(JSON.parse(out[0]).actions.at(-1).via, "ai");
 });
+
+test("--previous lists last meeting's actions that are overdue, open or discussed again", async () => {
+  const prev = JSON.stringify({ actions: [
+    { task: "Fix the Safari toggle", owner: "Ben", due: "2026-10-14" },
+    { task: "Draft the launch email", owner: "Ana", due: "2026-10-30" },
+    { task: "Renew the domain", owner: "Dev", due: "2026-10-12" },
+  ] });
+  const m = mk({ "n.txt": "Ben: I'll fix the Safari toggle by Friday.", "p.json": prev });
+  const code = await main(["n.txt", "--date", "2026-10-19", "--previous", "p.json", "--format", "json"], m.deps);
+  assert.equal(code, 0);
+  const j = JSON.parse(m.o.out[0]).carryOver;
+  assert.deepEqual(j.again.map((a) => a.owner), ["Ben"]);
+  assert.deepEqual(j.overdue.map((a) => a.owner), ["Dev"]);
+  assert.deepEqual(j.open.map((a) => a.owner), ["Ana"]);
+  const t = mk({ "n.txt": "Ben: I'll fix the Safari toggle by Friday.", "p.json": prev });
+  await main(["n.txt", "--date", "2026-10-19", "--previous", "p.json"], t.deps);
+  assert.match(t.o.out[0], /Past due and not mentioned today[\s\S]*Renew the domain/);
+  const bad = mk({ "n.txt": "x", "p.json": "{nope" });
+  assert.equal(await main(["n.txt", "--previous", "p.json"], bad.deps), 2);
+});
+
+test("--format slack prints Slack mrkdwn", async () => {
+  const m = mk({ "n.txt": "Ben: I'll fix the toggle by Friday." });
+  await main(["n.txt", "--date", "2026-10-19", "--format", "slack"], m.deps);
+  assert.match(m.o.out[0], /^\*Meeting \(2026-10-19\)\*[\s\S]*• Fix the toggle — \*Ben\*, by 2026-10-23/);
+});

@@ -35,8 +35,13 @@ ISO dates. Without a meeting date the phrase is kept as written and the row says
 ## CLI
 
 ```
-node cli.mjs notes.txt --date 2026-10-19 --attendees "Ana,Ben,Cleo" --format email   # md | csv | ics | email | json
+node cli.mjs notes.txt --date 2026-10-19 --attendees "Ana,Ben,Cleo" --format email   # md | csv | ics | email | slack | json
+node cli.mjs notes.txt --date 2026-10-26 --previous last-week.json   # last week's `--format json` output
 ```
+
+`--format slack` prints Slack formatting to paste into a channel. `--previous` adds a "From the last meeting" section: last meeting's
+actions that are past due and not mentioned today, those discussed again, and those not yet due. It never marks anything done;
+silence in the notes is a prompt to ask, not a verdict.
 
 Exit 0 when every action has an owner, 1 when one does not (usable as a check), 2 on unreadable input. Zero dependencies,
 Node 18+.
