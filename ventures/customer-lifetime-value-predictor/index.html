@@ -68,6 +68,7 @@
       <div><label for="horizon">Predict the next</label><select id="horizon"><option value="6">6 months</option><option value="12" selected>12 months</option><option value="24">24 months</option><option value="36">36 months</option></select></div>
       <div><label for="margin">Gross margin on orders (%)</label><input id="margin" inputmode="decimal" value="100"></div>
       <div><label for="disc">Annual discount rate (%)</label><input id="disc" inputmode="decimal" value="10"></div>
+      <div><label for="cac">What you pay to win a customer (optional)</label><input id="cac" inputmode="decimal" placeholder="e.g. 35"></div>
     </div>
     <p class="note">Leave margin at 100 to value revenue; enter your gross margin (for example 45) to value profit. Amounts should be in one currency. Orders on the same day count as one purchase; refunds and zero amounts are ignored.</p>
     <button type="button" id="analyze">Predict lifetime value</button>
@@ -82,6 +83,11 @@
     <div id="report-findings"></div>
     <h3>What a new customer is worth</h3>
     <div class="big" id="new-big"></div>
+    <div id="payback" hidden>
+      <h3>Does it pay back?</h3>
+      <div class="big" id="payback-big"></div>
+      <p class="note">Running total of the new-customer value above against the acquisition cost you entered, at your margin and discount rate. The 3 : 1 line is a common rule of thumb, not a law of nature.</p>
+    </div>
     <h3>Customer segments</h3>
     <div class="scroll"><table id="segments"><thead><tr><th>Segment</th><th class="n">Customers</th><th class="n">Predicted value</th><th>What to do</th></tr></thead><tbody></tbody></table></div>
     <h3>Back-test: predicted vs actual purchases in your last weeks</h3>
@@ -129,7 +135,7 @@
   </footer>
 
   <script type="module">
-    import { parseOrders, analyze, reportCsv, sampleText, money, pct, dayToIso } from "./calc.mjs";
+    import { parseOrders, analyze, paybackCurve, reportCsv, sampleText, money, pct, dayToIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -164,6 +170,15 @@
         [n.expectedRepeat.toFixed(2), "Expected repeat orders"],
         [money(n.firstOrder), "Average first order"],
       ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pb = Number($("#cac").value) > 0 ? paybackCurve(r, Number($("#cac").value)) : null;
+      $("#payback").hidden = !pb;
+      if (pb) {
+        $("#payback-big").innerHTML = [
+          [pb.verdict, `Payback of ${money(pb.cac)} (first order counted)`],
+          [`${pb.ltvToCac.toFixed(1)} : 1`, `Value to cost over ${pb.horizonMonths} months`],
+          [money(pb.maxCacForTarget), `Most to pay for a ${pb.target} : 1 return`],
+        ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      }
       $("#segments tbody").innerHTML = ["Top 20% value", "Active", "At risk, high spend", "Likely lost"].filter((k) => r.segments[k]).map((k) => `<tr><td>${esc(k)}</td><td class="n">${r.segments[k].customers.toLocaleString("en-US")}</td><td class="n">${esc(money(r.segments[k].clv))}</td><td>${esc(ACTIONS[k])}</td></tr>`).join("");
       const bt = r.backtest;
       $("#bt-note").textContent = bt ? `Model fitted on orders up to ${bt.holdoutWeeks} weeks before your last order (${bt.customers.toLocaleString("en-US")} customers), then asked to predict those final weeks. Total predicted ${bt.predicted.toFixed(0)}, actual ${bt.actual}.` : "Not enough history (under about 30 weeks) to hold out a test period.";

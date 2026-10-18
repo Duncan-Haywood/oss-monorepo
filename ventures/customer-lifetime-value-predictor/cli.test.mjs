@@ -60,3 +60,10 @@ test("the CLI runs on the example, as CSV and as JSON, and fails on a missing fi
   const stdin = spawnSync("node", [cli, "-"], { input: sampleText(), encoding: "utf8" });
   assert.equal(stdin.status, 0);
 });
+
+test("--cac adds an acquisition payback line", () => {
+  assert.equal(parseArgs(["--cac", "30", "x.csv"]).cac, 30);
+  const { result, parsed } = run(sampleText(), { cac: 30, margin: 45 });
+  assert.match(render(result, parsed, { cac: 30 }), /Acquisition\s+\$30\.00 paid pays back/);
+  assert.ok(!/Acquisition/.test(render(result, parsed, {})));
+});

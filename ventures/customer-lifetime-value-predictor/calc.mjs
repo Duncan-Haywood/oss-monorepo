@@ -396,6 +396,35 @@ export function analyze(orders, opts = {}) {
   return { summary, params, gg, customers, sorted, segments: seg, newCustomer, backtest: bt, findings, correlation: corr };
 }
 
+// Acquisition payback: what one new customer returns, month by month, against
+// what you paid to win them. `res` is an analyze() result. The first order
+// lands at month 0; later months add the model's expected repeat orders at the
+// population's average repeat order, at your margin and discount rate. Payback
+// is the first month the running total reaches `cac`, or null inside `maxMonths`.
+export function paybackCurve(res, cac, { maxMonths = 36, target = 3 } = {}) {
+  if (!(cac > 0)) return { error: "Enter what you pay to acquire a customer, above zero." };
+  const { params, gg, summary, newCustomer } = res;
+  const monthly = Math.pow(1 + summary.annualDiscount, 1 / 12) - 1;
+  const aov = expectedOrderValue(gg, 0, 0, summary.repeatAov);
+  let cum = newCustomer.firstOrder * summary.margin, prev = 0, payback = cum >= cac ? 0 : null;
+  const months = [{ month: 0, cumulative: cum }];
+  for (let m = 1; m <= maxMonths; m++) {
+    const e = expectedNewCustomer(params, m * WEEK_MONTH);
+    cum += (e - prev) * aov * summary.margin / Math.pow(1 + monthly, m);
+    prev = e;
+    months.push({ month: m, cumulative: cum });
+    if (payback === null && cum >= cac) payback = m;
+  }
+  const at = (m) => months[Math.min(m, maxMonths)].cumulative;
+  const h = Math.min(summary.horizonMonths, maxMonths);
+  return {
+    cac, months, paybackMonth: payback, horizonMonths: h,
+    ltv: at(h), ltvToCac: at(h) / cac,
+    maxCacForTarget: at(h) / target, target,
+    verdict: payback === null ? "never within the window" : payback === 0 ? "on the first order" : `month ${payback}`,
+  };
+}
+
 function correlation(xs, ys) {
   const n = xs.length; if (n < 3) return 0;
   const mx = xs.reduce((s, v) => s + v, 0) / n, my = ys.reduce((s, v) => s + v, 0) / n;
