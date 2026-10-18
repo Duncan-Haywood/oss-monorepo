@@ -44,6 +44,10 @@ export const CATEGORY_PRESETS = {
   home: { label: "Home & kitchen", amazon: 15, walmart: 15 },
   toys: { label: "Toys & games", amazon: 15, walmart: 15 },
   sports: { label: "Sports & outdoors", amazon: 15, walmart: 15 },
+  // The two below exist so a specialist channel (specialists.mjs) can apply;
+  // the general-channel rates are the same 15% as "Everything else".
+  music_gear: { label: "Musical instruments & gear", amazon: 15, walmart: 15 },
+  trading_cards: { label: "Trading cards & collectibles", amazon: 15, walmart: 15 },
 };
 
 export const CATEGORY_IDS = Object.freeze(Object.keys(CATEGORY_PRESETS));
@@ -262,7 +266,7 @@ export const EXCLUDED_CHANNELS = [
     deepTool: "reverb-fee-calculator",
     deepToolLabel: "Reverb fee calculator",
     why:
-      "Reverb only accepts musical instruments and gear, where the ten channels above sell almost anything — so seating it in a general-purpose ranking would read as a recommendation to list any item there, which is true for none of the other rows' inventory. Its fee shape (marketplace percentage plus payment processing) is genuinely close to eBay's, which the deep tool compares directly on the same guitar or pedal.",
+      "Reverb only accepts musical instruments and gear, where the ten channels above sell almost anything — so it is kept out of the general ranking and shown in its own specialist-marketplaces section only when the category is Musical instruments & gear (and likewise Grailed for clothing and TCGplayer for trading cards). Its fee shape (marketplace percentage plus payment processing) is genuinely close to eBay's, which the deep tool compares directly on the same guitar or pedal.",
   },
   {
     label: "StockX (sneakers & streetwear)",

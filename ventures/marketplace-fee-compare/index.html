@@ -257,6 +257,12 @@
         <span id="copyStatus" class="fine" role="status" aria-live="polite"></span>
       </div>
 
+      <div id="specialistSection" class="hidden">
+        <h3>Specialist marketplaces for this kind of item</h3>
+        <p class="fine">These sites only take this category, so they are not in the ranking above. Shown against the best general channel for the same item.</p>
+        <ul id="specialists" class="fine"></ul>
+      </div>
+
       <details>
         <summary>Adjust the fee rates</summary>
         <p class="fine">
@@ -366,6 +372,7 @@
     comparisonText,
     loadItem,
   } from "./calc.mjs";
+  import { specialistRows } from "./specialists.mjs";
   import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
   import { decodeShare, encodeShare } from "./share.mjs";
   import { handoffsForRows, handoffUrl, excludedHandoffUrl, whereToSellUrl } from "./handoff.mjs";
@@ -524,8 +531,36 @@
       caveat.classList.add("hidden");
     }
 
+    paintSpecialists(rows, item);
     paintHandoffs(rows, item);
     paintPointers(item);
+  }
+
+  // Niche marketplaces that take only this kind of item, shown apart from the
+  // general ranking and measured against its best channel. Hidden for every
+  // category no specialist accepts.
+  function paintSpecialists(rows, item) {
+    const best = rows.find((row) => row.demandIncluded);
+    const spec = specialistRows(item, best ? best.profit : null);
+    const section = el("specialistSection");
+    if (spec.length === 0) {
+      section.classList.add("hidden");
+      el("specialists").replaceChildren();
+      return;
+    }
+    section.classList.remove("hidden");
+    el("specialists").innerHTML = spec.map((row) => {
+      const gap = row.vsBestGeneral === null ? "" : row.vsBestGeneral >= 0.005
+        ? `${money(row.vsBestGeneral)} more than ${escapeHtml(best.label)}`
+        : row.vsBestGeneral <= -0.005
+          ? `${money(-row.vsBestGeneral)} less than ${escapeHtml(best.label)}`
+          : `the same as ${escapeHtml(best.label)}`;
+      return `<li><strong>${escapeHtml(row.label)}</strong> (${escapeHtml(row.accepts)}): fees ${money(row.channelFees)}
+        at ${escapeHtml(row.rateLabel)}, nets <strong class="${row.profit >= 0 ? "profit-good" : "profit-bad"}">${money(row.profit)}</strong>
+        (${row.margin.toFixed(1)}% margin), break-even ${money(row.breakEvenPrice)}${gap ? `, ${gap}` : ""}.
+        Not included: ${escapeHtml(row.notCovered)}
+        <a href="${escapeHtml(`../${row.deepTool}/`)}" data-pointer="${escapeHtml(row.deepTool)}">Open the ${escapeHtml(row.deepToolLabel)}</a>.</li>`;
+    }).join("");
   }
 
   // "Continue with these numbers", rebuilt on every render.
