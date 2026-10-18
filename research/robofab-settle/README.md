@@ -38,6 +38,10 @@ Physics engine: Todorov, Erez and Tassa (2012), "MuJoCo: A physics engine for mo
 
 See the bullets at the top and `experiments/results.txt` (confusion tables per friction and threshold, the first twelve disagreements, and the order counts).
 
+![Agreement between the geometric rule and the MuJoCo settle test against friction](experiments/agreement_vs_mu.svg)
+
+Regenerate with `python experiments/figure.py` (parses `results.txt`).
+
 ## Limitations
 
 Stylised. One product, boxes only. The test is static: parts start in their final poses and are released at once; it does not simulate the insertion motions, a gripper, or press and snap fits, so it cannot say whether a held state can be reached. One second of simulation may miss slow creep, and the verdicts depend on the thresholds and on MuJoCo's default contact softness, which were not tuned or compared with other engines. Friction having no effect says the verdicts are decided by geometry and gravity in this model, not that friction is irrelevant for real printed parts. The acyclic variant was designed after seeing the failures, so its 99.5% agreement is on the same states used to find the problem, not a held-out test. Nothing is a claim about a physical assembly.
