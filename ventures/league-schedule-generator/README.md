@@ -26,6 +26,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   earliest later night both teams are free and a court is open, nothing else
   changes), and an independent validator that re-checks a finished schedule.
 - A team drops out mid-season (`Lob Squad` or `2026-11-03 Lob Squad`): its remaining matches are removed, matches already played stay, nothing else moves, and the page lists how many fixtures each opponent loses so the league can decide how earlier results count (`applyWithdrawals`).
+- Named make-up date: end a rainout line with `-> 2026-10-16` (or `→`) to put the match on a day you already agreed, even outside the league weekday; it is refused with the reason if either team is blacked out or already playing, or no court and slot is free (`applyRainouts`).
 - Per-team time limits (`Team: 17:00`): a youth team that can only play early is only given those slots, rainout moves respect them, and the validator flags any breach; an unsatisfiable limit is reported, never hidden.
 - Standings rank by points, goal difference, goals for; tick head-to-head to split teams level on points by the matches among them first (`standings(..., { headToHead: true })`).
 - Points deductions and bonuses: in the results box write `Owls -3 pts (late fee)` or `Lynx +1`; the number is added to that team's table points before every tiebreak, and the play-off race uses it too (`parseResults` returns `adjustments`, `standings` and `playoffRace` take them).
@@ -35,6 +36,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Shared grounds (`Net Ninjas, Dink Dynasty`): teams that share one pitch or court are moved so they are not both at home the same night where that can be avoided. Only venues flip (a double round robin flips both meetings), the validator must still pass, and clashes that cannot be avoided are listed (`parseGrounds`, `groundClashes`, `applyGroundSharing`).
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `round-robin-schedule-by-number-of-teams.html` - rounds, games, byes and home/away breaks for 3 to 16 teams; the test suite recomputes the table from `roundRobin`.
+- `tournament-bracket-by-number-of-teams.html` - bracket size, first-round byes, rounds and games for 3 to 32 teams, single and double elimination; the test suite recomputes every row from `playoffBracket` and `doubleEliminationBracket`.
 - `round-robin-schedule-template.html` - the full round-by-round fixture list (home first, byes marked) for 4, 5, 6, 7, 8, 9, 10, 11, 12, 14 and 16 teams; the test suite recomputes every row from `roundRobin`.
 - `how-to-run-a-swiss-tournament.html` - guide to Swiss pairings with a worked 6-player example that the test suite recomputes from `swissPairings`.
 - `how-to-run-an-americano-tournament.html` - guide to Americano rotations with a worked 8-player, 2-court example that the test suite recomputes from `americano`.

@@ -1159,3 +1159,26 @@ test("swiss Sonneborn-Berger counts full opponent score per win and half per dra
   assert.equal(t.E.sonnebornBerger, 0.25); // drew B (0.5) -> half
   assert.equal(t.B.sonnebornBerger, 0.25); // drew E (0.5) -> half
 });
+
+test("rainout with '-> date' moves the match to the named day, or refuses and keeps it", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const day = s.rounds[0].day;
+  const total = (x) => x.rounds.reduce((a, r) => a + r.matches.length, 0);
+  const thu = day + 2;
+  const r = applyRainouts(s, `${dayIso(day)} A -> ${dayIso(thu)}`);
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.moves.length, 1);
+  assert.equal(r.moves[0].to, thu);
+  assert.equal(total(r.schedule), total(s));
+  assert.equal(validateSchedule(r.schedule).ok, true, validateSchedule(r.schedule).errors.join(" "));
+  // a day both teams are already playing is refused and the match stays where it was
+  const next = s.rounds[1].day;
+  const clash = applyRainouts(s, `${dayIso(day)} A → ${dayIso(next)}`);
+  assert.equal(clash.moves.length, 0);
+  assert.equal(clash.errors.length, 1);
+  assert.equal(total(clash.schedule), total(s));
+  // a date that is not after the cancelled night, and a malformed date
+  assert.equal(applyRainouts(s, `${dayIso(day)} A -> ${dayIso(day)}`).errors.length, 1);
+  assert.equal(applyRainouts(s, `${dayIso(day)} A -> 2026-02-31`).errors.length, 1);
+});

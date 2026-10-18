@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tournament Bracket By Number Of Teams: Byes, Rounds And Games For 3 To 32 Teams</title>
+  <meta name="description" content="How many byes, rounds and games a single or double elimination bracket needs for 3 to 32 teams. Table computed by the generator. Then build your bracket free.">
+  <meta property="og:title" content="Tournament Bracket By Number Of Teams (3 To 32)">
+  <meta property="og:description" content="Bracket size, first-round byes, rounds and total games for every field from 3 to 32 teams. Free, private, in your browser.">
+  <link rel="canonical" href="./tournament-bracket-by-number-of-teams.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many games are in a single-elimination tournament?","acceptedAnswer":{"@type":"Answer","text":"One fewer than the number of teams, because every game eliminates exactly one team and all but the champion go out: 12 teams, 11 games. Byes do not add games."}},{"@type":"Question","name":"How many rounds does a bracket with byes have?","acceptedAnswer":{"@type":"Answer","text":"The number of rounds is the exponent of the next power of two: 5 to 8 teams is 3 rounds, 9 to 16 is 4, 17 to 32 is 5. The extra slots become first-round byes for the top seeds."}},{"@type":"Question","name":"How many games in a double-elimination bracket?","acceptedAnswer":{"@type":"Answer","text":"Two fewer than twice the number of teams (12 teams: 22), plus one more game only if the team from the losers bracket wins the grand final and forces the reset."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>Tournament bracket by number of teams</h1>
+  <p>Planning a knockout and need to know how many byes, rounds and games it takes? Find your team count below. Every figure is computed by the same bracket code the generator uses, and the test suite recomputes this table, so it cannot drift from the tool.</p>
+  <p><a class="cta" href="./">Build the bracket for your teams</a></p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Teams</th><th>Bracket size</th><th>First-round byes</th><th>Rounds</th><th>Games (single elimination)</th><th>Games (double elimination)</th></tr></thead>
+    <tbody>
+      <tr><td>3</td><td>4</td><td>1</td><td>2</td><td>2</td><td>4</td></tr>
+      <tr><td>4</td><td>4</td><td>0</td><td>2</td><td>3</td><td>6</td></tr>
+      <tr><td>5</td><td>8</td><td>3</td><td>3</td><td>4</td><td>8</td></tr>
+      <tr><td>6</td><td>8</td><td>2</td><td>3</td><td>5</td><td>10</td></tr>
+      <tr><td>7</td><td>8</td><td>1</td><td>3</td><td>6</td><td>12</td></tr>
+      <tr><td>8</td><td>8</td><td>0</td><td>3</td><td>7</td><td>14</td></tr>
+      <tr><td>9</td><td>16</td><td>7</td><td>4</td><td>8</td><td>16</td></tr>
+      <tr><td>10</td><td>16</td><td>6</td><td>4</td><td>9</td><td>18</td></tr>
+      <tr><td>11</td><td>16</td><td>5</td><td>4</td><td>10</td><td>20</td></tr>
+      <tr><td>12</td><td>16</td><td>4</td><td>4</td><td>11</td><td>22</td></tr>
+      <tr><td>13</td><td>16</td><td>3</td><td>4</td><td>12</td><td>24</td></tr>
+      <tr><td>14</td><td>16</td><td>2</td><td>4</td><td>13</td><td>26</td></tr>
+      <tr><td>15</td><td>16</td><td>1</td><td>4</td><td>14</td><td>28</td></tr>
+      <tr><td>16</td><td>16</td><td>0</td><td>4</td><td>15</td><td>30</td></tr>
+      <tr><td>17</td><td>32</td><td>15</td><td>5</td><td>16</td><td>32</td></tr>
+      <tr><td>18</td><td>32</td><td>14</td><td>5</td><td>17</td><td>34</td></tr>
+      <tr><td>19</td><td>32</td><td>13</td><td>5</td><td>18</td><td>36</td></tr>
+      <tr><td>20</td><td>32</td><td>12</td><td>5</td><td>19</td><td>38</td></tr>
+      <tr><td>21</td><td>32</td><td>11</td><td>5</td><td>20</td><td>40</td></tr>
+      <tr><td>22</td><td>32</td><td>10</td><td>5</td><td>21</td><td>42</td></tr>
+      <tr><td>23</td><td>32</td><td>9</td><td>5</td><td>22</td><td>44</td></tr>
+      <tr><td>24</td><td>32</td><td>8</td><td>5</td><td>23</td><td>46</td></tr>
+      <tr><td>25</td><td>32</td><td>7</td><td>5</td><td>24</td><td>48</td></tr>
+      <tr><td>26</td><td>32</td><td>6</td><td>5</td><td>25</td><td>50</td></tr>
+      <tr><td>27</td><td>32</td><td>5</td><td>5</td><td>26</td><td>52</td></tr>
+      <tr><td>28</td><td>32</td><td>4</td><td>5</td><td>27</td><td>54</td></tr>
+      <tr><td>29</td><td>32</td><td>3</td><td>5</td><td>28</td><td>56</td></tr>
+      <tr><td>30</td><td>32</td><td>2</td><td>5</td><td>29</td><td>58</td></tr>
+      <tr><td>31</td><td>32</td><td>1</td><td>5</td><td>30</td><td>60</td></tr>
+      <tr><td>32</td><td>32</td><td>0</td><td>5</td><td>31</td><td>62</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Bracket size is the next power of two at or above the number of teams; each empty slot is a first-round bye, given to the top seeds. Double elimination counts the games before the grand final reset; add one game if the losers-bracket team wins the grand final. Games per team vary: with a bye a team plays one fewer game.</p>
+  <h2>Questions</h2>
+  <h3>How many games are in a single-elimination tournament?</h3>
+  <p>One fewer than the number of teams, because every game eliminates exactly one team and all but the champion go out: 12 teams, 11 games. Byes do not add games.</p>
+  <h3>How many rounds does a bracket with byes have?</h3>
+  <p>The number of rounds is the exponent of the next power of two: 5 to 8 teams is 3 rounds, 9 to 16 is 4, 17 to 32 is 5. The extra slots become first-round byes for the top seeds.</p>
+  <h3>How many games in a double-elimination bracket?</h3>
+  <p>Two fewer than twice the number of teams (12 teams: 22), plus one more game only if the team from the losers bracket wins the grand final and forces the reset.</p>
+  <p>For seeding and byes with a worked example, read <a href="./how-to-run-a-single-elimination-bracket.html">how to run a single-elimination bracket</a> or <a href="./how-to-run-a-double-elimination-tournament.html">how double elimination works</a>. For a league season instead, see <a href="./round-robin-schedule-by-number-of-teams.html">round robin rounds and games by team count</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every date, court and pairing before you send a schedule to a league.</p>
+    <p>Everything the generator does runs in your browser; team names and dates are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
