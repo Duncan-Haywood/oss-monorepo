@@ -1,0 +1,62 @@
+synthetic audio: 20 seeds x 120 s per room; hangover 10 frames (20 ms each)
+active-speech share of frames: 0.196
+speech rms uniform in [-36, -20] dBFS per utterance; background rooms (dBFS rms): [-60, -50, -40, -30]
+reference hours: always_stream (open=1) 57.6, perfect gate (open=active share) 119.0, closed always 160.7
+
+== fixed threshold (rms dBFS): recall / open fraction / wasted / hours, per room ==
+thr  -62:  [-60] 1.00/1.00/0.49/ 57.6h  [-50] 1.00/1.00/0.50/ 57.6h  [-40] 1.00/1.00/0.49/ 57.6h  [-30] 1.00/1.00/0.51/ 57.6h
+thr  -58:  [-60] 1.00/0.71/0.24/ 70.8h  [-50] 1.00/1.00/0.50/ 57.6h  [-40] 1.00/1.00/0.49/ 57.6h  [-30] 1.00/1.00/0.51/ 57.6h
+thr  -54:  [-60] 1.00/0.46/0.03/ 87.9h  [-50] 1.00/1.00/0.50/ 57.6h  [-40] 1.00/1.00/0.49/ 57.6h  [-30] 1.00/1.00/0.51/ 57.6h
+thr  -50:  [-60] 1.00/0.44/0.01/ 90.1h  [-50] 1.00/1.00/0.50/ 57.7h  [-40] 1.00/1.00/0.49/ 57.6h  [-30] 1.00/1.00/0.51/ 57.6h
+thr  -46:  [-60] 1.00/0.42/0.00/ 91.8h  [-50] 1.00/0.47/0.05/ 87.4h  [-40] 1.00/1.00/0.49/ 57.6h  [-30] 1.00/1.00/0.51/ 57.6h
+thr  -42:  [-60] 0.99/0.41/0.00/ 92.9h  [-50] 0.99/0.42/0.02/ 91.5h  [-40] 1.00/1.00/0.49/ 57.6h  [-30] 1.00/1.00/0.51/ 57.6h
+thr  -38:  [-60] 0.97/0.39/0.00/ 94.3h  [-50] 0.97/0.39/0.00/ 94.5h  [-40] 0.99/0.69/0.23/ 72.0h  [-30] 1.00/1.00/0.51/ 57.6h
+thr  -34:  [-60] 0.93/0.37/0.00/ 96.4h  [-50] 0.93/0.37/0.00/ 96.9h  [-40] 0.95/0.42/0.03/ 92.2h  [-30] 1.00/1.00/0.51/ 57.6h
+thr  -30:  [-60] 0.86/0.34/0.00/ 99.8h  [-50] 0.86/0.34/0.00/100.3h  [-40] 0.87/0.36/0.01/ 97.8h  [-30] 1.00/1.00/0.50/ 57.7h
+thr  -26:  [-60] 0.64/0.25/0.00/110.6h  [-50] 0.65/0.25/0.00/110.9h  [-40] 0.65/0.26/0.00/109.9h  [-30] 0.83/0.37/0.04/ 96.4h
+thr  -22:  [-60] 0.40/0.16/0.00/125.0h  [-50] 0.42/0.16/0.00/124.8h  [-40] 0.42/0.16/0.00/124.3h  [-30] 0.52/0.22/0.01/115.9h
+
+== adaptive threshold (k x 5 s running-min floor) ==
+k   2:  [-60] 1.00/0.99/0.48/ 58.1h  [-50] 1.00/0.99/0.49/ 58.1h  [-40] 1.00/0.99/0.48/ 58.1h  [-30] 1.00/0.99/0.49/ 58.1h
+k   3:  [-60] 1.00/0.72/0.25/ 70.1h  [-50] 1.00/0.71/0.25/ 70.9h  [-40] 0.99/0.70/0.24/ 71.6h  [-30] 0.95/0.67/0.25/ 73.2h
+k   4:  [-60] 1.00/0.53/0.08/ 82.4h  [-50] 1.00/0.51/0.08/ 83.8h  [-40] 0.98/0.50/0.08/ 85.0h  [-30] 0.89/0.44/0.08/ 90.0h
+k   6:  [-60] 1.00/0.47/0.03/ 87.3h  [-50] 1.00/0.45/0.03/ 88.9h  [-40] 0.96/0.43/0.03/ 90.8h  [-30] 0.76/0.33/0.03/101.6h
+k   8:  [-60] 1.00/0.46/0.03/ 88.1h  [-50] 1.00/0.44/0.02/ 90.2h  [-40] 0.94/0.41/0.03/ 92.4h  [-30] 0.65/0.27/0.02/107.8h
+k  12:  [-60] 1.00/0.45/0.02/ 89.1h  [-50] 0.99/0.42/0.02/ 91.5h  [-40] 0.91/0.39/0.02/ 94.7h  [-30] 0.52/0.22/0.01/115.9h
+
+== one setting for every room: worst-room recall and mean hours over rooms ==
+fixed     -62: worst recall 1.00  mean recall 1.00  mean hours  57.6  worst hours  57.6
+fixed     -58: worst recall 1.00  mean recall 1.00  mean hours  60.9  worst hours  57.6
+fixed     -54: worst recall 1.00  mean recall 1.00  mean hours  65.2  worst hours  57.6
+fixed     -50: worst recall 1.00  mean recall 1.00  mean hours  65.8  worst hours  57.6
+fixed     -46: worst recall 1.00  mean recall 1.00  mean hours  73.6  worst hours  57.6
+fixed     -42: worst recall 0.99  mean recall 1.00  mean hours  74.9  worst hours  57.6
+fixed     -38: worst recall 0.97  mean recall 0.98  mean hours  79.6  worst hours  57.6
+fixed     -34: worst recall 0.93  mean recall 0.95  mean hours  85.8  worst hours  57.6
+fixed     -30: worst recall 0.86  mean recall 0.90  mean hours  88.9  worst hours  57.7
+fixed     -26: worst recall 0.64  mean recall 0.69  mean hours 106.9  worst hours  96.4
+fixed     -22: worst recall 0.40  mean recall 0.44  mean hours 122.5  worst hours 115.9
+adaptive    2: worst recall 1.00  mean recall 1.00  mean hours  58.1  worst hours  58.1
+adaptive    3: worst recall 0.95  mean recall 0.99  mean hours  71.4  worst hours  70.1
+adaptive    4: worst recall 0.89  mean recall 0.97  mean hours  85.3  worst hours  82.4
+adaptive    6: worst recall 0.76  mean recall 0.93  mean hours  92.2  worst hours  87.3
+adaptive    8: worst recall 0.65  mean recall 0.90  mean hours  94.6  worst hours  88.1
+adaptive   12: worst recall 0.52  mean recall 0.86  mean hours  97.8  worst hours  89.1
+
+== best fixed threshold per room if the room were known (recall >= 0.90, max hours) ==
+room -60: thr -34 dBFS, recall 0.93, 96.4 h
+room -50: thr -34 dBFS, recall 0.93, 96.9 h
+room -40: thr -34 dBFS, recall 0.95, 92.2 h
+room -30: thr -30 dBFS, recall 1.00, 57.7 h
+== best adaptive k per room (recall >= 0.90, max hours) ==
+room -60: k 12, recall 1.00, 89.1 h
+room -50: k 12, recall 0.99, 91.5 h
+room -40: k 12, recall 0.91, 94.7 h
+room -30: k 3, recall 0.95, 73.2 h
+
+== hangover (frames) at adaptive k=4 ==
+hangover  0:  [-60] 1.00/0.25/111.5h  [-50] 1.00/0.23/113.7h  [-40] 0.96/0.21/116.6h  [-30] 0.73/0.15/126.0h
+hangover  5:  [-60] 1.00/0.40/ 93.8h  [-50] 1.00/0.38/ 95.6h  [-40] 0.98/0.36/ 97.3h  [-30] 0.87/0.31/103.8h
+hangover 10:  [-60] 1.00/0.53/ 82.4h  [-50] 1.00/0.51/ 83.8h  [-40] 0.98/0.50/ 85.0h  [-30] 0.89/0.44/ 90.0h
+hangover 25:  [-60] 1.00/0.69/ 71.9h  [-50] 1.00/0.69/ 72.2h  [-40] 1.00/0.69/ 72.1h  [-30] 0.98/0.66/ 73.7h
+hangover 50:  [-60] 1.00/0.83/ 64.6h  [-50] 1.00/0.82/ 65.0h  [-40] 1.00/0.82/ 65.0h  [-30] 0.99/0.81/ 65.8h
