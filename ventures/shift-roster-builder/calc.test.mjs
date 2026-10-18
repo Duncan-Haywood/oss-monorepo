@@ -1121,3 +1121,31 @@ test("openShiftPost: names the people who could take an open shift", () => {
   assert.equal(post.count, 1);
   assert.match(post.text, /Mon: 9am-1pm crew - could take it: Ben, Ana/);
 });
+
+import { planWeeks, sampleStaff as _ss, sampleShifts as _sh, parseRosterCsv as _prc } from "./calc.mjs";
+
+test("planWeeks builds consecutive weeks and carries the tough-shift tally forward", () => {
+  const p = planWeeks(_ss(), _sh(), { weeks: 3, weekStart: "2026-11-02", toughBalance: 60, restarts: 1, iterations: 3000 });
+  assert.ok(p.ok);
+  assert.equal(p.weeks.length, 3);
+  assert.deepEqual(p.weeks.map((w) => w.weekStart), ["2026-11-02", "2026-11-09", "2026-11-16"]);
+  for (const w of p.weeks) assert.ok(_prc(w.csv).length > 0);
+  assert.equal(p.totalCost, p.weeks.reduce((t, w) => t + w.roster.cost, 0));
+});
+
+test("planWeeks applies a dated off entry only in the week it falls in", () => {
+  const staff = _ss().replace("Gus, 19, 40, 0, any", "Gus, 19, 40, 0, any, off: 2026-11-10");
+  const p = planWeeks(staff, _sh(), { weeks: 2, weekStart: "2026-11-02", restarts: 1, iterations: 3000 });
+  assert.ok(p.ok);
+  const gusTue = (w) => _prc(w.csv).filter((s) => s.person === "Gus" && s.day === 1).length;
+  assert.equal(gusTue(p.weeks[1]), 0);
+});
+
+test("planWeeks drops a stale prev: for people who did not work last week", () => {
+  const staff = "name, wage, max hours, min hours, availability\nAna, 18, 40, 0, Mon-Sun 6-22, prev: Sun 10pm\nBen, 16, 40, 0, Mon-Sun 6-22";
+  const shifts = "day, start, end, people needed, label\nMon-Fri, 9, 17, 1, day";
+  const p = planWeeks(staff, shifts, { weeks: 2, weekStart: "2026-11-02", restarts: 1, iterations: 2000 });
+  assert.ok(p.ok);
+  assert.equal(p.weeks.length, 2);
+  assert.equal(planWeeks(staff, shifts, { weeks: 99 }).weeks.length, 8);
+});
