@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-labelledby="t d">
+<title id="t">Power of a classifier test to flag a wrong pendulum twin, by number of real trajectories</title>
+<desc id="d">One line per wrong twin: share of replicates in which the C2ST AUROC beats the 95th percentile of the exact-twin null, against the number of real trajectories. Red lines are twins whose controller regret is at least 0.001, blue lines cost nothing, grey lines are in between.</desc>
+<style>text{font:12px sans-serif;fill:#222}.g{stroke:#ddd}.a{stroke:#555}@media(prefers-color-scheme:dark){text{fill:#ddd}.g{stroke:#444}.a{stroke:#aaa}}</style>
+<rect width="720" height="420" fill="none"/>
+<text x="60" y="24" style="font-size:14px;font-weight:bold">Every twin that costs a controller something is flagged by 80 real trajectories</text>
+<text x="60" y="42" style="font-size:12px">so are some that cost nothing, so a flag is not a verdict</text>
+<line class="g" x1="60" x2="700" y1="364.0" y2="364.0"/><text x="54" y="368.0" text-anchor="end">0.00</text>
+<line class="g" x1="60" x2="700" y1="288.0" y2="288.0"/><text x="54" y="292.0" text-anchor="end">0.25</text>
+<line class="g" x1="60" x2="700" y1="212.0" y2="212.0"/><text x="54" y="216.0" text-anchor="end">0.50</text>
+<line class="g" x1="60" x2="700" y1="136.0" y2="136.0"/><text x="54" y="140.0" text-anchor="end">0.75</text>
+<line class="g" x1="60" x2="700" y1="60.0" y2="60.0"/><text x="54" y="64.0" text-anchor="end">1.00</text>
+<line class="g" x1="60.0" x2="60.0" y1="60" y2="364"/><text x="60.0" y="380" text-anchor="middle">10</text>
+<line class="g" x1="220.0" x2="220.0" y1="60" y2="364"/><text x="220.0" y="380" text-anchor="middle">20</text>
+<line class="g" x1="380.0" x2="380.0" y1="60" y2="364"/><text x="380.0" y="380" text-anchor="middle">40</text>
+<line class="g" x1="540.0" x2="540.0" y1="60" y2="364"/><text x="540.0" y="380" text-anchor="middle">80</text>
+<line class="g" x1="700.0" x2="700.0" y1="60" y2="364"/><text x="700.0" y="380" text-anchor="middle">160</text>
+<line class="a" x1="60" x2="700" y1="364" y2="364"/><line class="a" x1="60" x2="60" y1="60" y2="364"/>
+<text x="380.0" y="406" text-anchor="middle">real trajectories (and as many twin trajectories)</text>
+<text transform="translate(16 212.0) rotate(-90)" text-anchor="middle">power (share of replicates flagged)</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,348.8 540.0,348.8 700.0,348.8"><title>coul -10%: regret 0.00000</title></polyline>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,348.8 540.0,333.6 700.0,272.8"><title>coul -20%: regret 0.00000</title></polyline>
+<polyline fill="none" stroke="#888" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,348.8 540.0,303.2 700.0,181.6"><title>coul -33%: regret 0.00022</title></polyline>
+<polyline fill="none" stroke="#888" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,333.6 540.0,257.6 700.0,60.0"><title>coul -67%: regret 0.00091</title></polyline>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,348.8 540.0,120.8 700.0,60.0"><title>coul = 0: regret 0.00137</title></polyline>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,348.8 540.0,303.2 700.0,60.0"><title>visc x2: regret 0.00000</title></polyline>
+<polyline fill="none" stroke="#888" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,333.6 540.0,333.6 700.0,151.2"><title>visc x0.5: regret 0.00042</title></polyline>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,242.4 540.0,60.0 700.0,60.0"><title>g/L +20%: regret 0.00137</title></polyline>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,166.4 540.0,60.0 700.0,60.0"><title>g/L -20%: regret 0.00000</title></polyline>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,120.8 540.0,60.0 700.0,60.0"><title>gauss noise, same sd: regret 0.00158</title></polyline>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,60.0 540.0,60.0 700.0,60.0"><title>noise sd x0.5: regret 0.00000</title></polyline>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,136.0 540.0,75.2 700.0,60.0"><title>noise sd x0.75: regret 0.00000</title></polyline>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,90.4 540.0,60.0 700.0,60.0"><title>noise sd x1.5: regret 0.00207</title></polyline>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,60.0 540.0,60.0 700.0,60.0"><title>noise sd x2: regret 0.00400</title></polyline>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" opacity="0.8" points="60.0,364.0 220.0,364.0 380.0,60.0 540.0,60.0 700.0,60.0"><title>noise sd x0 (no noise): regret 0.00987</title></polyline>
+<text x="700" y="74" text-anchor="end" style="fill:#c0392b">red: regret &#8805; 0.001</text><text x="700" y="90" text-anchor="end" style="fill:#1f6fb2">blue: regret exactly 0</text><text x="700" y="106" text-anchor="end" style="fill:#888">grey: in between</text>
+</svg>
