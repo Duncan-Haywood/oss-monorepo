@@ -58,8 +58,10 @@ sequence. Build each one with [`platform/llm/byok.mjs`](../../platform/llm/READM
 
 1. **Deterministic core, AI on the user's key.** It works fully with no key.
    With a key, AI features turn on, using Anthropic, OpenAI, Gemini or any
-   `/chat/completions` endpoint (OpenRouter, a local Ollama). The page says
-   which path ran. Use the shared client and never copy it into a venture.
+   `/chat/completions` endpoint (OpenRouter), or a model on the user's own
+   machine (Ollama, LM Studio, llama.cpp: no key, no per-call cost). The
+   page offers the local option next to the hosted ones and says which path
+   ran. Use the shared client and never copy it into a venture.
 2. **Three ways to use it.** Each tool should support all three, cheapest
    first:
    - **Standalone business:** a person deploys their own copy from the

@@ -193,6 +193,19 @@ the sales and marketing ventures that already exist comes before adding
 new ones. Spec, guardrails and definition of done:
 [`portfolio/sales-tools/README.md`](../portfolio/sales-tools/README.md).
 
+## Direction: local models as an option beside API keys
+
+Set by the owner on 2026-10-18: "for the majority of applications, I think
+the possibility of hosting local and using local ai is another good way to
+go for applications. instead of using api keys for llms and image and video
+gen."
+
+Every AI feature that takes a key also takes a model running on the user's
+own machine or network (Ollama, LM Studio, llama.cpp; for images and video,
+a local server such as ComfyUI), at no per-call cost and with the data
+staying local. The deterministic path stays the product. How:
+[`platform/llm/`](../platform/llm/README.md) and `PRODUCT_PLAYBOOK.md` §3.
+
 ## Judgment over rules
 
 Set by the owner on 2026-10-15. The owner writes rarely and does not review
