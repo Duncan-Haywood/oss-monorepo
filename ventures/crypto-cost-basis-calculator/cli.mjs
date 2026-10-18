@@ -14,7 +14,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
-import { analyze, toForm8949Csv, form8949Totals, METHODS, METHOD_LABELS, SAMPLE_CSV } from "./calc.mjs";
+import { analyze, toForm8949Csv, toIncomeCsv, form8949Totals, METHODS, METHOD_LABELS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
@@ -32,6 +32,7 @@ Options:
   --short-rate <pct>  short-term rate for the tax estimate (default 24)
   --long-rate <pct>   long-term rate for the tax estimate (default 15)
   --form8949 <file>   also write Form 8949 style rows to this file
+  --income-csv <file> also write the year's staking/mining/airdrop income by coin to this file
   --json              print the full analysis as JSON
   --example           use the built-in sample instead of a file
   -h, --help          this message
@@ -43,7 +44,7 @@ prices, and rows an export gives no USD value for are flagged, never zero.
 `;
 
 export function parseArgs(argv) {
-  const opts = { files: [], method: "FIFO", year: null, perWallet: false, shortRate: 0.24, longRate: 0.15, form8949: null, carryShort: 0, carryLong: 0, lossLimit: 3000, json: false, example: false, help: false };
+  const opts = { files: [], method: "FIFO", year: null, perWallet: false, shortRate: 0.24, longRate: 0.15, form8949: null, incomeCsv: null, carryShort: 0, carryLong: 0, lossLimit: 3000, json: false, example: false, help: false };
   const need = (i, arg) => { if (i >= argv.length) throw new Error(`${arg} needs a value`); return argv[i]; };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -69,6 +70,7 @@ export function parseArgs(argv) {
       opts[arg === "--carry-short" ? "carryShort" : "carryLong"] = v;
     } else if (arg === "--mfs") opts.lossLimit = 1500;
     else if (arg === "--form8949") opts.form8949 = need(++i, arg);
+    else if (arg === "--income-csv") opts.incomeCsv = need(++i, arg);
     else if (arg.startsWith("-") && arg !== "-") throw new Error(`unknown option: ${arg}`);
     else opts.files.push(arg);
   }
@@ -100,6 +102,11 @@ export function render({ result, formats, notes }, opts = {}) {
   if (result.carryChain.length) {
     out.push("", `Loss limit and carryforward (${usd(opts.lossLimit || 3000)} a year; years chained from the first sale in the file):`);
     for (const c of result.carryChain) out.push(`  ${c.year}  carried in ${usd(c.carryShortIn + c.carryLongIn).padStart(12)}   net ${usd(c.totalNet).padStart(13)}   deductible ${usd(c.deduction).padStart(10)}   carried out ${usd(c.carryShortOut + c.carryLongOut).padStart(12)}   tax ${usd(c.tax).padStart(11)}${c.year === result.year ? "   <- shown year" : ""}`);
+  }
+  const ir = result.incomeReport;
+  if (ir && ir.count) {
+    out.push("", `Income received in ${ir.year} (staking, mining, airdrops; ordinary income, not in the gains above): ${usd(ir.total)} from ${ir.count} receipt(s)`);
+    for (const a of ir.assets) out.push(`  ${a.asset.padEnd(8)} ${String(a.qty).padStart(14)}   ${usd(a.usd).padStart(12)}   ${a.count} receipt(s), ${a.first} to ${a.last}`);
   }
   out.push("", "Method comparison (same sales):");
   for (const c of result.comparison) out.push(`  ${c.label.padEnd(24)} gain ${usd(c.totalGain).padStart(14)}   tax ${usd(c.tax).padStart(12)}${c.method === result.bestMethod ? "   <- lowest estimated tax" : ""}`);
@@ -134,6 +141,7 @@ export async function main(argv) {
   catch (e) { process.stderr.write(`cannot read input: ${e.message}\n`); return 2; }
   const r = run(files, opts);
   if (r.error) { process.stderr.write(`${r.error}\n`); return 1; }
+  if (opts.incomeCsv) await writeFile(opts.incomeCsv, toIncomeCsv(r.result.incomeReport));
   if (opts.form8949) await writeFile(opts.form8949, toForm8949Csv(r.result.rows));
   process.stdout.write(opts.json ? JSON.stringify(r.result, null, 2) + "\n" : render(r, opts));
   return 0;

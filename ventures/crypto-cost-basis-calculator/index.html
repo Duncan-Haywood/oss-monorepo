@@ -100,6 +100,10 @@
     <h3>Totals for Form 8949 and Schedule D</h3>
     <div class="scroll"><table id="tt"><thead><tr><th>Part</th><th class="n">Rows</th><th class="n">Proceeds</th><th class="n">Basis</th><th class="n">Gain / loss</th></tr></thead><tbody></tbody></table></div>
     <p class="note">These are the column totals of the rows above: short-term for Part I, long-term for Part II. For 2025 returns the digital-asset boxes on Form 8949 (G to L) depend on whether your broker reported the sale on a Form 1099-DA, so split the rows by box yourself or with your preparer before carrying a total to Schedule D.</p>
+    <h3>Income received (staking, mining, airdrops)</h3>
+    <div class="scroll"><table id="it"><thead><tr><th>Asset</th><th class="n">Receipts</th><th class="n">Quantity</th><th>First</th><th>Last</th><th class="n">Value when received</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Rows typed as <code>income</code> for the same year as the sales, valued at the USD amount you entered. In the United States this is generally ordinary income when you gain control of the coins, reported apart from capital gains, and the same amount becomes the basis of those coins. The value is yours to document; this is not tax advice.</p>
+    <p><button type="button" class="secondary" id="download-income">Download income (CSV)</button></p>
     <h3>Coins still held</h3>
     <div class="scroll"><table id="ht"><thead><tr><th>Asset</th><th class="n">Quantity</th><th class="n">Remaining basis</th></tr></thead><tbody></tbody></table></div>
     <h3>Tax-loss harvesting: what selling your losing lots today would do</h3>
@@ -152,7 +156,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, form8949Totals, parsePrices, harvestPlan, toForm8949Csv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
+    import { analyze, form8949Totals, parsePrices, harvestPlan, toForm8949Csv, toIncomeCsv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
     import { convertMany, FORMAT_LABELS } from "./importers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -174,7 +178,7 @@
       if (carryShort === null || carryLong === null) { status.textContent = "Enter carried-in losses as positive dollar amounts, or 0."; return false; }
       const r = analyze($("#csv").value, { method: $("#method").value, year, perWallet: $("#perWallet").checked, shortRate, longRate, carryShort, carryLong, lossLimit: Number($("#lossLimit").value) });
       const notices = [...(pre.formats[0] !== "generic" ? pre.notes : []), ...r.errors, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`);
-      if (!r.summary) { $("#notices").innerHTML = notices.join(""); report.hidden = false; $("#big").innerHTML = ""; $("#verdict").textContent = ""; for (const t of ["#ct", "#nt", "#rt", "#tt", "#ht"]) $(t + " tbody").innerHTML = ""; status.textContent = "Fix the rows listed in the result and run it again."; return false; }
+      if (!r.summary) { $("#notices").innerHTML = notices.join(""); report.hidden = false; $("#big").innerHTML = ""; $("#verdict").textContent = ""; for (const t of ["#ct", "#nt", "#rt", "#tt", "#it", "#ht"]) $(t + " tbody").innerHTML = ""; status.textContent = "Fix the rows listed in the result and run it again."; return false; }
       last = r;
       const years = r.years.map((y) => `<option value="${y}"${y === r.year ? " selected" : ""}>${y}</option>`).join("");
       $("#year").innerHTML = '<option value="">Latest year with sales</option>' + years;
@@ -199,6 +203,7 @@
       $("#rt tbody").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.description)}${x.missingBasis ? ' <span class="pill high">no basis</span>' : ""}</td><td>${x.acquired || "VARIOUS"}</td><td>${x.sold}</td><td class="n">${usd(x.proceeds)}</td><td class="n">${usd(x.basis)}</td><td class="n">${usd(x.gain)}</td><td><span class="pill ${x.term === "Long" ? "good" : "info"}">${x.term}</span></td></tr>`).join("") || '<tr><td colspan="7">No sales in this year.</td></tr>';
       const ft = form8949Totals(r.rows);
       $("#tt tbody").innerHTML = [["Part I · short-term", ft.short], ["Part II · long-term", ft.long], ["Total", ft.total]].map(([n, v]) => `<tr><td>${n}${v.noBasis ? ` <span class="pill high">${v.noBasis} no basis</span>` : ""}</td><td class="n">${v.rows}</td><td class="n">${usd(v.proceeds)}</td><td class="n">${usd(v.basis)}</td><td class="n">${usd(v.gain)}</td></tr>`).join("");
+      $("#it tbody").innerHTML = r.incomeReport.assets.map((a) => `<tr><td>${esc(a.asset)}</td><td class="n">${a.count}</td><td class="n">${a.qty}</td><td>${a.first}</td><td>${a.last}</td><td class="n">${usd(a.usd)}</td></tr>`).join("") + (r.incomeReport.count ? `<tr><td><strong>Total</strong></td><td class="n">${r.incomeReport.count}</td><td></td><td></td><td></td><td class="n"><strong>${usd(r.incomeReport.total)}</strong></td></tr>` : '<tr><td colspan="6">No income rows in this year.</td></tr>');
       $("#ht tbody").innerHTML = r.holdings.map((h) => `<tr><td>${esc(h.asset)}</td><td class="n">${h.qty}</td><td class="n">${usd(h.basis)}</td></tr>`).join("") || '<tr><td colspan="3">Nothing left.</td></tr>';
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
@@ -246,6 +251,14 @@
       a.download = `form-8949-rows-${last.year}-${last.method}.csv`;
       a.click();
       record("report_downloaded");
+    });
+    $("#download-income").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toIncomeCsv(last.incomeReport)], { type: "text/csv" }));
+      a.download = `crypto-income-${last.year}.csv`;
+      a.click();
+      record("income_downloaded");
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
