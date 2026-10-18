@@ -332,3 +332,29 @@ def test_star_signal_keeps_stars_and_drops_noise():
     lifted_raw = float(np.median(raw_max[empty]) - np.median(frames[0][empty]))
     lifted_sig = float(np.median((bg + sig)[empty]) - np.median(bg[empty]))
     assert lifted_sig < lifted_raw / 4
+
+
+def test_rough_horizon_snaps_to_the_ridge():
+    h, w = 600, 900
+    xs = np.arange(w)
+    ridge = (0.55 + 0.1 * np.sin(xs / w * math.pi)) * h          # a hill
+    yy = np.arange(h)[:, None]
+    img = np.where(yy < ridge[None, :], 0.05, 0.5).astype(np.float32)   # dark sky, bright moonlit rock
+    rng = np.random.default_rng(2)
+    for _ in range(300):                                            # stars right above the ridge too
+        x, y = rng.integers(0, w), rng.integers(0, h // 2)
+        img[y, x] = 1.0
+    img += rng.normal(0, 0.01, img.shape).astype(np.float32)
+    rough = [(x, (0.55 + 0.1 * math.sin(x * math.pi)) - 0.025) for x in np.linspace(0, 1, 6)]   # 15 px into the sky
+    refined = core.refine_horizon(img, rough)
+    got = core.horizon_ys(refined, (h, w))
+    assert np.median(np.abs(got - ridge)) <= 2
+    assert np.percentile(np.abs(got - ridge), 95) <= 6
+
+
+def test_colour_pinning_keeps_brightness_and_fixes_balance():
+    ref = np.full((50, 50, 3), (0.10, 0.10, 0.20), np.float32)
+    drift = np.full((50, 50, 3), (0.24, 0.12, 0.12), np.float32)    # brighter and warmer
+    out = core.match_colour(drift, core.colour_ratio(ref))
+    assert np.allclose(core.colour_ratio(out), core.colour_ratio(ref), atol=1e-3)
+    assert out.mean() == pytest.approx(drift.mean(), rel=0.01)

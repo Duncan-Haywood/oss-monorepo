@@ -87,6 +87,9 @@ MIN_STARS = 25               # stars on a ~1024 px preview of a clear sky: hundr
 WORK_LONG_EDGE = 3000        # px; outputs are 1080 wide, this leaves room for crops
 MAX_STACK = 40               # sqrt(40) ~ 6x less noise; more frames add little but time
 REVISIONS = 2
+FEATHER = 0.001              # of the long edge: the skyline is snapped to the real edge, so a soft
+                             # blend only smears land colour into the sky (or sky into the rock)
+LAYERS_VERSION = 2           # bump when how frames become layers changes: cached .npz files go stale
 FEED_SIZE = (1080, 1350)
 SHEET_FRAMES = 12
 
@@ -398,7 +401,7 @@ def _even(idx: list[int], k: int) -> list[int]:
 
 
 def _layers_path(group: AstroGroup, cfg: Config, mode: str, idx: list[int], edge: int) -> Path:
-    key = f"{mode}_{edge}_{idx[0]}-{idx[-1]}_{len(idx)}_{abs(hash(tuple(idx))) % 10**8}"
+    key = f"{mode}_{edge}_{idx[0]}-{idx[-1]}_{len(idx)}_{abs(hash(tuple(idx))) % 10**8}_v{LAYERS_VERSION}"
     return cfg.state_dir / "astro" / group.id / f"{key}.npz"
 
 
@@ -415,6 +418,10 @@ def sky_layers(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Co
     frames = [load_linear(members[i], edge) for i in idx]
     shape = min(f.shape for f in frames)
     frames = [f[:shape[0], :shape[1]] for f in frames]
+    # auto white balance wanders through a night run: pin every frame to the middle one's balance
+    rough_sky = core.horizon_mask([(p.x, p.y) for p in plan.horizon], frames[0].shape[:2])
+    ref_ratio = core.colour_ratio(frames[len(frames) // 2], rough_sky)
+    frames = [core.match_colour(f, ref_ratio, rough_sky) for f in frames]
     if mode == "stack":
         ref = frames[len(frames) // 2]
         sky_mask = core.horizon_mask([(p.x, p.y) for p in plan.horizon], ref.shape[:2])
@@ -500,9 +507,16 @@ def grade(lin: np.ndarray, g: AstroGrade, sky_alpha: np.ndarray, lv: tuple[float
     return np.clip(x, 0, 1)
 
 
-def composite(sky: np.ndarray, fg: np.ndarray, plan: AstroPlan) -> tuple[np.ndarray, np.ndarray]:
-    mask = core.horizon_mask([(p.x, p.y) for p in plan.horizon], sky.shape[:2])
-    alpha = core.feather(mask, 0.004 * max(sky.shape[:2])) if plan.foreground != "none" else np.ones(mask.shape, np.float32)
+def skyline(plan: AstroPlan, land: np.ndarray) -> list[tuple[float, float]]:
+    """Claude's horizon snapped to the real edge in `land` (linear RGB of the foreground)."""
+    return core.refine_horizon(land, [(p.x, p.y) for p in plan.horizon])
+
+
+def composite(sky: np.ndarray, fg: np.ndarray, plan: AstroPlan,
+              horizon: list[tuple[float, float]] | None = None) -> tuple[np.ndarray, np.ndarray]:
+    line = horizon if horizon is not None else [(p.x, p.y) for p in plan.horizon]
+    mask = core.horizon_mask(line, sky.shape[:2])
+    alpha = core.feather(mask, FEATHER * max(sky.shape[:2])) if plan.foreground != "none" else np.ones(mask.shape, np.float32)
     return sky * alpha[..., None] + fg * (1 - alpha[..., None]), alpha
 
 
@@ -522,7 +536,7 @@ def out_dir(group: AstroGroup, cfg: Config) -> Path:
 def render_still(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config, mode: str) -> dict:
     edge = int(cfg.extra.get("astro_long_edge", WORK_LONG_EDGE))
     sky, fg = sky_layers(group, members, plan, cfg, mode, edge)
-    lin, alpha = composite(sky, fg, plan)
+    lin, alpha = composite(sky, fg, plan, skyline(plan, fg))
     im = _to_image(grade(lin, plan.grade, alpha))
     d = out_dir(group, cfg)
     d.mkdir(parents=True, exist_ok=True)
@@ -537,7 +551,7 @@ def _plan_tag(plan: AstroPlan) -> str:
     import hashlib
     key = plan.model_dump_json(include={"grade", "horizon", "foreground", "foreground_frame", "trail_decay",
                                         "fps", "vertical_focus", "drop_frames", "frame_from", "frame_to"})
-    return hashlib.sha1(key.encode()).hexdigest()[:10]
+    return hashlib.sha1(f"{key}v{LAYERS_VERSION}".encode()).hexdigest()[:10]
 
 
 def render_trail_timelapse(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config) -> dict:
@@ -552,8 +566,9 @@ def render_trail_timelapse(group: AstroGroup, members: list[Asset], plan: AstroP
         return {"video": str(clip)}
     edge = int(cfg.extra.get("astro_video_long_edge", 2400))
     first = load_linear(members[idx[0]], edge)
-    mask = core.horizon_mask([(p.x, p.y) for p in plan.horizon], first.shape[:2])
-    alpha = core.feather(mask, 0.004 * max(first.shape[:2])) if plan.foreground != "none" \
+    mask = core.horizon_mask(skyline(plan, first), first.shape[:2])
+    ref_ratio = core.colour_ratio(first, mask)
+    alpha = core.feather(mask, FEATHER * max(first.shape[:2])) if plan.foreground != "none" \
         else np.ones(mask.shape, np.float32)
     model = gradient_model(first, alpha)
     lv = levels(np.clip(first - plan.grade.gradient_removal * model * alpha[..., None], 0, None), plan.grade, mask)
@@ -561,7 +576,8 @@ def render_trail_timelapse(group: AstroGroup, members: list[Asset], plan: AstroP
     try:
         acc = None
         for k, i in enumerate(idx):
-            cur = first if k == 0 else load_linear(members[i], edge)[: first.shape[0], : first.shape[1]]
+            cur = first if k == 0 else core.match_colour(
+                load_linear(members[i], edge)[: first.shape[0], : first.shape[1]], ref_ratio, mask)
             bg, stars = core.star_signal(cur, mask)
             acc = stars if acc is None else np.maximum(acc * plan.trail_decay, stars)
             sky = np.maximum(cur, bg + acc)

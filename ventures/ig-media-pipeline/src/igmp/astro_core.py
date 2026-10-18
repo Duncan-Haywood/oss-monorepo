@@ -300,3 +300,109 @@ def horizon_mask(horizon: Sequence[Sequence[float]] | None, size: tuple[int, int
 
 def feather(mask: np.ndarray, px: float) -> np.ndarray:
     return ndimage.gaussian_filter(mask.astype(np.float32), px) if px > 0 else mask.astype(np.float32)
+
+
+# --- horizon and colour ------------------------------------------------------------------
+def horizon_ys(horizon: Sequence[Sequence[float]] | None, size: tuple[int, int]) -> np.ndarray:
+    """Per-column y (px) of a normalised left-to-right horizon polyline."""
+    h, w = size
+    if not horizon:
+        return np.full(w, float(h))
+    pts = sorted((float(x), float(y)) for x, y in horizon)
+    xs = np.linspace(0, 1, w)
+    return np.interp(xs, [p[0] for p in pts], [p[1] for p in pts]) * h
+
+
+def _edge_features(img: np.ndarray) -> np.ndarray:
+    """(H, W, C) per-pixel features for telling sky from land: brightness and, for colour, two
+    chromaticities - moonlit trees can be as bright as a moonlit sky but are green, not blue.
+    Each is standardised so no one dominates."""
+    if img.ndim == 2:
+        feats = [img]
+    else:
+        lum = luminance(img)
+        tot = img.sum(axis=2) + 1e-4
+        feats = [np.log1p(50 * np.clip(lum, 0, None)), img[..., 0] / tot, img[..., 2] / tot]
+    out = []
+    for f in feats:
+        f = ndimage.median_filter(f.astype(np.float32), size=3)           # stars are points: gone
+        out.append((f - f.mean()) / (f.std() + 1e-6))
+    return np.stack(out, axis=-1)
+
+
+def refine_horizon(img: np.ndarray, horizon: Sequence[Sequence[float]] | None, window: float = 0.08,
+                   points: int = 200, max_jump: int = 12, jump_cost: float = 0.04) -> list[tuple[float, float]]:
+    """Snap a rough skyline (Claude's, traced on a small preview) to the real sky/land edge.
+
+    In each column, every split within `window` x height of the rough line is scored by how
+    differently the pixels above and below it look (a step fit on brightness and colour, weighted
+    so a split near an end of the band cannot win on a few pixels). The skyline is then the one
+    continuous path through those scores - dynamic programming, as in seam carving - that moves at
+    most `max_jump` px between neighbouring columns and pays `jump_cost` per px it moves. A column
+    where the rough line missed the edge, or where trees and sky look alike, follows its
+    neighbours instead of jumping into the sky. A line left a few pixels into the sky leaves a
+    strip graded as land: the bright halo this prevents.
+    """
+    if not horizon:
+        return []
+    h, w = img.shape[:2]
+    rough = horizon_ys(horizon, (h, w))
+    feats = _edge_features(img)
+    feats = ndimage.uniform_filter1d(feats, size=max(3, w // 200) | 1, axis=1)
+    half = max(6, int(window * h))
+    lo_all = int(max(0, rough.min() - half))
+    hi_all = int(min(h, rough.max() + half))
+    band = feats[lo_all:hi_all]                                   # (B, W, C)
+    nb = band.shape[0]
+    score = np.full((nb, w), -np.inf)
+    csum = np.concatenate([np.zeros((1, w, band.shape[2])), np.cumsum(band, axis=0)], axis=0)
+    for x in range(w):
+        lo = int(max(lo_all, rough[x] - half)) - lo_all
+        hi = int(min(hi_all, rough[x] + half)) - lo_all
+        n = hi - lo
+        if n < 4:
+            continue
+        k = np.arange(1, n)
+        top = csum[lo + k, x] - csum[lo, x]
+        tot = csum[hi, x] - csum[lo, x]
+        diff = (tot - top) / (n - k)[:, None] - top / k[:, None]
+        score[lo + k, x] = np.linalg.norm(diff, axis=1) * np.sqrt(k * (n - k) / n) / math.sqrt(n)
+    # dynamic programming, left to right
+    total = score[:, 0].copy()
+    back = np.zeros((nb, w), np.int32)
+    offs = np.arange(-max_jump, max_jump + 1)
+    for x in range(1, w):
+        best = np.full(nb, -np.inf)
+        arg = np.zeros(nb, np.int32)
+        for d in offs:
+            prev = np.roll(total, d)
+            if d > 0:
+                prev[:d] = -np.inf
+            elif d < 0:
+                prev[d:] = -np.inf
+            cand = prev - jump_cost * abs(d)
+            better = cand > best
+            best[better] = cand[better]
+            arg[better] = (np.arange(nb) - d)[better]
+        total = best + score[:, x]
+        back[:, x] = arg
+    ys = np.empty(w, np.int64)
+    ys[-1] = int(np.argmax(total))
+    for x in range(w - 1, 0, -1):
+        ys[x - 1] = back[ys[x], x]
+    ys = ys + lo_all
+    xs = np.linspace(0, w - 1, points).astype(int)
+    return [(x / (w - 1), float(ys[x]) / h) for x in xs]
+
+
+def colour_ratio(frame: np.ndarray, mask: np.ndarray | None = None) -> np.ndarray:
+    """A frame's colour balance: per-channel median over `mask`, divided by their mean."""
+    px = frame[mask] if mask is not None and mask.any() else frame.reshape(-1, frame.shape[2])
+    med = np.median(px[:: max(1, len(px) // 200_000)], axis=0) + 1e-6
+    return (med / med.mean()).astype(np.float32)
+
+
+def match_colour(frame: np.ndarray, ref_ratio: np.ndarray, mask: np.ndarray | None = None) -> np.ndarray:
+    """Pin a frame's colour balance to a reference (auto white balance wandering through a night
+    run), leaving its brightness alone."""
+    return (frame * (ref_ratio / colour_ratio(frame, mask))).astype(np.float32)
