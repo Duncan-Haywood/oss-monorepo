@@ -71,7 +71,10 @@ results, in the same commit:
    pull request that touches `research/`. Open `research/_homepage/_site/index.html` to preview.
 
 Tests and figures need packages the image may lack: from the repo root,
-`PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`, then use `"$PY"` instead of `python3`.
+`PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`, then use `"$PY"` instead of `python3`
+(stdout is only the interpreter path, and it can differ from the default `python3`).
+EDA/chip projects also need `yosys` and `iverilog`, which the image lacks:
+`apt-get update -qq && apt-get install -y yosys iverilog` (about a minute; checked 2026-10-18).
 
 A new `experiments/figure.py` that draws a line plot from `results.txt` should import
 `research/_shared/linefig.py` (`table`, `write_lines`; stdlib only, example:
