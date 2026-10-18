@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 334" role="img" aria-label="Precision and recall of the keyword error classes against hand labels">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="16" y="22" font-family="sans-serif" font-size="14">Keyword rules vs hand labels, 60 entries: precision (blue) and recall (orange)</text>
+<text x="16" y="40" font-family="sans-serif" font-size="12" fill="#555">n/a = the rule assigned nothing</text>
+<text x="112" y="75" text-anchor="end" font-family="sans-serif" font-size="13">collision</text>
+<rect x="120" y="60" width="252.0" height="15" fill="#2563eb"/>
+<text x="378.0" y="72" font-family="sans-serif" font-size="12">56%</text>
+<rect x="120" y="78" width="450.0" height="15" fill="#d97706"/>
+<text x="576.0" y="90" font-family="sans-serif" font-size="12">100%</text>
+<text x="112" y="119" text-anchor="end" font-family="sans-serif" font-size="13">timeout</text>
+<rect x="120" y="104" width="387.0" height="15" fill="#2563eb"/>
+<text x="513.0" y="116" font-family="sans-serif" font-size="12">86%</text>
+<rect x="120" y="122" width="450.0" height="15" fill="#d97706"/>
+<text x="576.0" y="134" font-family="sans-serif" font-size="12">100%</text>
+<text x="112" y="163" text-anchor="end" font-family="sans-serif" font-size="13">environment</text>
+<rect x="120" y="148" width="414.0" height="15" fill="#2563eb"/>
+<text x="540.0" y="160" font-family="sans-serif" font-size="12">92%</text>
+<rect x="120" y="166" width="414.0" height="15" fill="#d97706"/>
+<text x="540.0" y="178" font-family="sans-serif" font-size="12">92%</text>
+<text x="112" y="207" text-anchor="end" font-family="sans-serif" font-size="13">ci-or-tooling</text>
+<text x="120" y="204" font-family="sans-serif" font-size="12" fill="#555">n/a</text>
+<rect x="120" y="210" width="1.0" height="15" fill="#d97706"/>
+<text x="126.0" y="222" font-family="sans-serif" font-size="12">0%</text>
+<text x="112" y="251" text-anchor="end" font-family="sans-serif" font-size="13">own-mistake</text>
+<rect x="120" y="236" width="319.5" height="15" fill="#2563eb"/>
+<text x="445.5" y="248" font-family="sans-serif" font-size="12">71%</text>
+<rect x="120" y="254" width="247.5" height="15" fill="#d97706"/>
+<text x="373.5" y="266" font-family="sans-serif" font-size="12">55%</text>
+<text x="112" y="295" text-anchor="end" font-family="sans-serif" font-size="13">other</text>
+<rect x="120" y="280" width="162.0" height="15" fill="#2563eb"/>
+<text x="288.0" y="292" font-family="sans-serif" font-size="12">36%</text>
+<rect x="120" y="298" width="450.0" height="15" fill="#d97706"/>
+<text x="576.0" y="310" font-family="sans-serif" font-size="12">100%</text>
+</svg>

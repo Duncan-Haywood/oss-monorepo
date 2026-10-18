@@ -696,6 +696,62 @@ export function reportCsv(plan, lines, sys) {
   return rows.map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
 }
 
+const PACKET_COLORS = ["#0072b2", "#e69f00", "#009e73", "#cc79a7", "#56b4e9", "#d55e00", "#7a7a1f", "#8a5cf6", "#2c8c99", "#b5446e"];
+const htmlEsc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const lineLetter = (i) => (i < 26 ? String.fromCharCode(65 + i) : String(i + 1));
+
+// One to-scale view as inline SVG (no script, so it prints and e-mails as is).
+function packetSvg(cont, placements, view, width = 640) {
+  const across = cont.l, down = view === "top" ? cont.w : cont.h;
+  const k = width / across, h = Math.max(20, Math.round(down * k));
+  const rects = viewRects(placements, view).map((r) => {
+    const x = r.a * k, y = view === "top" ? r.b * k : (down - r.b - r.db) * k, w = r.da * k, hh = r.db * k;
+    const label = w >= 15 && hh >= 15 ? `<text x="${(x + w / 2).toFixed(1)}" y="${(y + hh / 2 + 4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">${lineLetter(r.line)}</text>` : "";
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${hh.toFixed(1)}" fill="${PACKET_COLORS[r.line % PACKET_COLORS.length]}" stroke="#fff" stroke-width="1"/>${label}`;
+  }).join("");
+  const name = view === "top" ? "Top-down view" : "Side view";
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 ${width + 4} ${h + 4}" width="100%" role="img" aria-label="${name}, to scale"><rect x="0" y="0" width="${width}" height="${h}" fill="#eef2f6" stroke="#1f4a5d" stroke-width="2"/>${rects}</svg>`;
+}
+
+// A self-contained, printable load plan: to-scale views, the per-line counts,
+// the balance check and the loading list for every container, plus the
+// disclaimer. `notes` are the planner's notices; `when` is a date string.
+export function planReportHtml(plan, lines, sys, { title = "Container load plan", notes = [], when = "" } = {}) {
+  const cont = plan.container;
+  const dims = `${dimsText([cont.l, cont.w, cont.h], sys)} ${sys.len}`;
+  const sections = plan.containers.map((c, ci) => {
+    const bal = balanceReport(cont, lines, c.placements);
+    const legend = lines.map((l, k) => (c.counts[k] ? `<span class="lg"><i style="background:${PACKET_COLORS[k % PACKET_COLORS.length]}"></i>${lineLetter(k)} · ${htmlEsc(l.name)} × ${c.counts[k]}</span>` : "")).join("");
+    const rows = loadingOrder(c.placements).map((p) => `<tr><td>${p.step}</td><td>${lineLetter(p.line)} · ${htmlEsc(lines[p.line].name)}</td><td>${lenText(p.x, sys)}</td><td>${lenText(p.y, sys)}</td><td>${lenText(p.z, sys)}</td><td>${wtText(lines[p.line].weight, sys)}</td></tr>`).join("");
+    const balText = bal.weight > 0
+      ? `Centre of gravity ${pct(bal.x)} from the back wall, ${pct(bal.y)} from the left wall, ${pct(bal.z)} up. ` + (bal.ok ? "Near the middle." : bal.warnings.join(" "))
+      : "No weight entered, so no balance to report.";
+    return `<section><h2>Container ${ci + 1} of ${plan.containers.length}</h2>
+<p>${c.count} units, ${pct(c.util, 1)} of the volume, ${wtText(c.weight, sys)} ${sys.wt} (${pct(c.payloadPct)} of the payload).</p>
+${packetSvg(cont, c.placements, "top")}${packetSvg(cont, c.placements, "side")}
+<p>${legend}</p><p>${htmlEsc(balText)}</p>
+<table><thead><tr><th>Step</th><th>Line</th><th>From back (${sys.len})</th><th>From left (${sys.len})</th><th>From floor (${sys.len})</th><th>Weight (${sys.wt})</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+  }).join("");
+  const summary = lines.map((l, k) => {
+    const packed = plan.containers.reduce((s, c) => s + c.counts[k], 0);
+    return `<tr><td>${lineLetter(k)} · ${htmlEsc(l.name)}</td><td>${l.qty}</td><td>${packed}</td><td>${l.qty - packed}</td></tr>`;
+  }).join("");
+  const noteHtml = notes.map((n) => `<li>${htmlEsc(n)}</li>`).join("");
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${htmlEsc(title)}</title>
+<style>body{font:14px/1.5 system-ui,sans-serif;color:#1d2330;max-width:760px;margin:24px auto;padding:0 16px}h1{font-size:22px}h2{font-size:17px;margin-top:28px;break-before:page}table{border-collapse:collapse;width:100%;margin:8px 0}th,td{border-bottom:1px solid #d6dbe1;padding:3px 6px;text-align:left}.lg{display:inline-block;margin:0 14px 4px 0}.lg i{display:inline-block;width:11px;height:11px;margin-right:4px;border-radius:2px}svg{display:block;margin:8px 0}.disc{margin-top:28px;font-size:12px;color:#4c5a68}</style></head>
+<body><h1>${htmlEsc(title)}</h1>
+<p>${htmlEsc(cont.name || "Container")}: ${dims}, payload ${wtText(cont.payload, sys)} ${sys.wt}.${when ? " Planned " + htmlEsc(when) + "." : ""} ${plan.containersNeeded} container${plan.containersNeeded === 1 ? "" : "s"} for ${plan.totalUnits} units.</p>
+${noteHtml ? `<ul>${noteHtml}</ul>` : ""}
+<h2 style="break-before:auto">Cargo</h2>
+<table><thead><tr><th>Line</th><th>Ordered</th><th>Packed</th><th>Not packed</th></tr></thead><tbody>${summary}</tbody></table>
+${sections}
+<p class="disc"><strong>No warranty.</strong> A planning aid made in the browser by Container Load Planner; not a load-securing, axle-weight or compliance certificate. The packer is a heuristic, container sizes and payloads are nominal, and nothing here has been checked against a real loading. Confirm with your carrier or forwarder before booking.</p>
+</body></html>
+`;
+}
+
 export function sampleCargo(sys = SYSTEMS.metric) {
   // Invented goods, written in cm and kg and converted for imperial display.
   const rows = [

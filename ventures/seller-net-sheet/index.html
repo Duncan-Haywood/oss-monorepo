@@ -109,6 +109,32 @@
           <label>Other seller concessions ($) <input id="concessionFlat" type="number" min="0" step="1" value="0"></label>
           <label>Title / escrow (flat $) <input id="titleFlat" type="number" min="0" step="1" value="2400"></label>
           <label>Title / escrow (%) <input id="titleRate" type="number" min="0" step="0.01" value="0"></label>
+          <label class="span2">State starting point for transfer tax
+            <select id="transferTaxState">
+              <option value="">Choose a state (optional)</option>
+              <option value="AK">Alaska (0%)</option>
+              <option value="AZ">Arizona (0%)</option>
+              <option value="CA">California (0.11%)</option>
+              <option value="CO">Colorado (0.01%)</option>
+              <option value="FL">Florida (0.7%)</option>
+              <option value="GA">Georgia (0.1%)</option>
+              <option value="ID">Idaho (0%)</option>
+              <option value="IL">Illinois (0.15%)</option>
+              <option value="IN">Indiana (0%)</option>
+              <option value="KS">Kansas (0%)</option>
+              <option value="MA">Massachusetts (0.456%)</option>
+              <option value="MN">Minnesota (0.33%)</option>
+              <option value="MO">Missouri (0%)</option>
+              <option value="NC">North Carolina (0.2%)</option>
+              <option value="NY">New York (0.4%)</option>
+              <option value="OR">Oregon (0%)</option>
+              <option value="PA">Pennsylvania (1%)</option>
+              <option value="SC">South Carolina (0.37%)</option>
+              <option value="TX">Texas (0%)</option>
+              <option value="UT">Utah (0%)</option>
+              <option value="VA">Virginia (0.1%)</option>
+            </select>
+          </label>
           <label>Transfer tax (%) <input id="transferTaxRate" type="number" min="0" step="0.01" value="0.11"></label>
           <label>Transfer tax (flat $) <input id="transferTaxFlat" type="number" min="0" step="1" value="0"></label>
           <label>Recording fees <input id="recording" type="number" min="0" step="1" value="125"></label>
@@ -187,6 +213,8 @@
       percentage. The decision sellers actually face after NAR is
       <strong>which offer leaves more cash</strong> once buyer-broker
       compensation and concessions are separate lines.
+      <a href="transfer-tax-by-state.html">Who pays transfer tax, state by state</a>
+      lists the starting rates behind the state menu, and
       <a href="offer-comparison.html">Higher offer vs cleaner offer</a>
       walks through that in search-query words, and
       <a href="vs-title-company-net-sheet.html">this calculator vs. your title company's net sheet</a>
@@ -233,6 +261,7 @@
       formatNetSheetSummary,
       formatOfferComparison,
     } from "./calc.mjs";
+    import { TRANSFER_TAX_STATES } from "./transfer-tax.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
     import { encodeInputs, decodeInputs } from "./share.mjs";
 
@@ -457,6 +486,14 @@
       setCopyStatus("Comparison copied");
     }
 
+    el("transferTaxState").addEventListener("change", () => {
+      const state = TRANSFER_TAX_STATES[el("transferTaxState").value];
+      if (!state) return;
+      el("transferTaxRate").value = state.rate;
+      el("transferTaxFlat").value = 0;
+      update();
+      count("transfer_tax_state_applied");
+    });
     el("preset").addEventListener("change", applyPreset);
     [...SHARED_IDS, ...A_IDS, ...B_IDS].forEach((id) => {
       el(id).addEventListener("input", update);

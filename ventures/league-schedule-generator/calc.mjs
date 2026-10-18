@@ -597,6 +597,25 @@ export function seasonCost(schedule, { rate, officialFee = 0 } = {}) {
 }
 
 /**
+ * Does the season finish by a date the organiser has to meet (end of term, venue lease,
+ * tournament weekend)? `deadline` is a day number as `parseDate` returns. Returns null for a
+ * missing or invalid deadline or an empty schedule, else { deadline, lastDay, fits,
+ * daysSpare, roundsAfter, matchesAfter } where `daysSpare` is negative when the last game
+ * falls after the deadline, and `roundsAfter` / `matchesAfter` count the rounds and
+ * matches (makeup rounds included) dated after it.
+ */
+export function deadlineCheck(schedule, deadline) {
+  if (!Number.isInteger(deadline) || !schedule.rounds.length) return null;
+  const days = schedule.rounds.map((r) => r.day);
+  const lastDay = Math.max(...days);
+  const late = schedule.rounds.filter((r) => r.day > deadline);
+  return {
+    deadline, lastDay, fits: lastDay <= deadline, daysSpare: deadline - lastDay,
+    roundsAfter: late.length, matchesAfter: late.reduce((a, r) => a + r.matches.length, 0),
+  };
+}
+
+/**
  * Rest between games, per team: days between consecutive matches (byes and idle nights
  * count as rest). Returns { rows: [{ team, games, shortest, longest }], shortest, longest,
  * back_to_back } where back_to_back counts gaps of 1 day or less, so a league playing on
@@ -621,6 +640,35 @@ export function restReport(schedule) {
     return { team, games: d.length, shortest: lo, longest: hi };
   });
   return { rows, shortest, longest, back_to_back: backToBack };
+}
+
+/**
+ * Home and away load per team, in date order: home games, away games and the longest run of
+ * home or away games in a row (byes do not break a run). Returns { rows: [{ team, home, away,
+ * longestHome, longestAway }], longestRun, worst } where worst names the teams holding the
+ * longest run and which kind it is, so an organiser sees who is stuck on the road.
+ */
+export function homeAwayReport(schedule) {
+  const seq = schedule.teams.map(() => []);
+  const rounds = schedule.rounds.slice().sort((a, b) => a.day - b.day);
+  for (const r of rounds) for (const m of r.matches) { seq[m.home].push("H"); seq[m.away].push("A"); }
+  let longestRun = 0;
+  const rows = schedule.teams.map((team, i) => {
+    let lh = 0, la = 0, run = 0, prev = null;
+    for (const c of seq[i]) {
+      run = c === prev ? run + 1 : 1;
+      prev = c;
+      if (c === "H") lh = Math.max(lh, run); else la = Math.max(la, run);
+    }
+    longestRun = Math.max(longestRun, lh, la);
+    return { team, home: seq[i].filter((c) => c === "H").length, away: seq[i].filter((c) => c === "A").length, longestHome: lh, longestAway: la };
+  });
+  const worst = [];
+  for (const r of rows) {
+    if (longestRun > 0 && r.longestHome === longestRun) worst.push({ team: r.team, kind: "home" });
+    if (longestRun > 0 && r.longestAway === longestRun) worst.push({ team: r.team, kind: "away" });
+  }
+  return { rows, longestRun, worst };
 }
 
 /**
@@ -1265,6 +1313,17 @@ export function parseResults(text, teams, { walkover = [3, 0] } = {}) {
  * `adjustments` ({ teamIndex: points }, from `parseResults`) adds or deducts table points, e.g. a
  * league penalty; the row shows it as `adj` and it counts before every tiebreak.
  */
+/** A team's last `n` results in the order they were typed, oldest first, as "WDLWW" (W win, D draw, L loss). */
+export function formString(teamIdx, results, n = 5) {
+  const out = [];
+  for (const r of results) {
+    if (r.a !== teamIdx && r.b !== teamIdx) continue;
+    const mine = r.a === teamIdx ? r.ga - r.gb : r.gb - r.ga;
+    out.push(mine > 0 ? "W" : mine < 0 ? "L" : "D");
+  }
+  return out.slice(-n).join("");
+}
+
 export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToHead = false, adjustments = {} } = {}) {
   const rows = teams.map((name, i) => ({ index: i, name, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, points: 0 }));
   for (const r of results) {
@@ -1276,7 +1335,7 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
     else if (r.ga < r.gb) { B.won++; A.lost++; B.points += win; A.points += loss; }
     else { A.drawn++; B.drawn++; A.points += draw; B.points += draw; }
   }
-  for (const r of rows) { r.gd = r.gf - r.ga; r.adj = adjustments[r.index] ?? 0; r.points += r.adj; }
+  for (const r of rows) { r.form = formString(r.index, results, 5); r.gd = r.gf - r.ga; r.adj = adjustments[r.index] ?? 0; r.points += r.adj; }
   if (headToHead) {
     const level = new Map();
     for (const r of rows) level.set(r.points, [...(level.get(r.points) ?? []), r.index]);

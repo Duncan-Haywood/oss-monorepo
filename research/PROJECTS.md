@@ -38,7 +38,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
    - **Keep what already works.** Every project and product card, the per-project test counts,
      the disclaimers, usage tracking, sitemaps and SEO metadata all stay. `python3 research/_homepage/build.py`
      still prints `ok`. In `oss-monorepo`, run the starvation checklist from its `CLAUDE.md`,
-     including `regen.mjs --verify` and the browser checks (`contrast.mjs`).
+     including `node platform/marketing/regen.mjs --verify` and the browser checks (`contrast.mjs`).
    - **Done when** both homepages and the super homepage ship the new design, each links to the
      other two, and before and after screenshots at phone and desktop widths are in the pull
      request. The research side, the catalogue and the super homepage are all in this
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random.** Draw a uniform random number. If it is below 0.05, this is a
-   free-choice run (below). Otherwise map it to the twelve tracks. Four runs start in the same
+   free-choice run (below). Otherwise rescale: track = 1 + floor((r - 0.05) / 0.95 * 12), so 0.11 is track 1 and 0.99 is track 12. Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in

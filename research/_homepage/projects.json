@@ -2314,6 +2314,11 @@
      "summary": "Follow-up to the nesting and cost-teardown projects. Adding a 1&nbsp;cm seam allowance to stylised pieces lowered marker efficiency from 0.69 to 0.63 for a shirt and from 0.71 to 0.51 for a four-gore skirt (the skirt mostly loses its interlocking gores); nesting three shirt sizes in one marker was 9% shorter than three separate markers. Swapping the measured efficiencies into the teardown formula moves a $7/m<sup>2</sup> trench&rsquo;s cloth cost from $26 (assumed 0.80) to $33&ndash;41. Stylised: invented outlines, one ply, small annealing budget (differences of a few cm are noise), and the coats were not nested, so the cost step is a sensitivity, not a measurement."
     },
     {
+     "slug": "garment-cutplan",
+     "title": "How much cloth does a cutting plan save by mixing sizes in one marker, and is the saving real?",
+     "summary": "Cutting-order planning as an exact integer program (marker mixes and plies) over 34 nested markers of a stylised three-size shirt. Laying several garments per marker saves 9&ndash;11% of cloth against one garment per marker on 20 random orders. Mixing sizes adds a further 0.4&ndash;3.7% in sample, but re-nesting the markers the plan picked with fresh seeds leaves a +0.09% difference: the gain is within annealing noise (about 5%) and partly selection of luckily short markers. Stylised: invented shirt, linear size grading, small annealing budget, mixes of at most four garments, free setup cost."
+    },
+    {
      "slug": "garment-nestcost",
      "title": "How far is a fixed 0.80 marker efficiency from a nested coat, and what does the difference do to the cost model?",
      "summary": "Follow-up to the nesting and cost-teardown projects (stylised, preliminary). A coat drawn as 10 shell and 5 lining polygons, grown by a 1.5&nbsp;cm seam allowance and nested by annealing at cloth widths of 110, 140 and 150&nbsp;cm, gives marker efficiencies of 0.68&ndash;0.73 for the shell and 0.59&ndash;0.68 for the lining, against the fixed 0.80 assumed earlier (0.77&ndash;0.82 without allowance). Transplanted into the teardown trench model, the efficiency alone raises factory cost by about $20&ndash;30; the larger uncertainty is the pattern area, which these invented pieces do not settle. One ply, one size, my own shapes, no exact reference."
@@ -2737,6 +2742,16 @@
    "blurb": "Measuring and optimising the agent loop that builds this portfolio: what the run log records, what a run costs, and which work is worth the budget.",
    "projects": [
     {
+     "slug": "swe-friction",
+     "title": "Where do agent runs say the documentation hurts, and do the same complaints keep coming back?",
+     "summary": "A stdlib analysis of the <code>doc_friction</code> field in 1,015 dated run records (1 to 18 October 2026): 575 runs (57%) report at least one problem, 714 entries in all. They concentrate: <code>CLAUDE.md</code> and <code>research/PROJECTS.md</code> hold 39% of entries and the top ten files 70% (Gini 0.75 over 115 files). Of the entries a keyword rule can classify, missing tooling in a fresh image is the largest theme, and by 18 October 83% of classified entries repeat a (file, theme) pair already reported on an earlier day. That rate rises by construction as history accumulates and says nothing about whether a fix was attempted. Keyword themes, self-reported field, 18 days. Preliminary."
+    },
+    {
+     "slug": "free-frictionnull",
+     "title": "Do documentation complaints in agent run records repeat more than chance?",
+     "summary": "A permutation null for the repeat rate in <code>swe-friction</code>. Of 418 classified <code>doc_friction</code> entries (1 to 18 October 2026), 171 name a (file, theme) pair reported on an earlier day, against a null median of 238 (95% interval 224 to 250; none of 2,000 shuffles reached 171). Complaints repeat <em>less</em> than chance on 16 and 17 October and match it on the 18th, so the rising repeat rate is mostly arithmetic of a growing history. Consistent with fixes landing, but the commits are not linked. Keyword themes, self-reported, 18 days. Preliminary."
+    },
+    {
      "slug": "swe-ledger",
      "title": "What can the run log measure about the agent loop today?",
      "summary": "A stdlib reader of a snapshot of <code>prompts/runs.jsonl</code> (189 runs, 184 listed projects) reports coverage and throughput proxies. Token, cost and tool-call fields are present in at most 1% of runs and wall time is derivable for only 15, so no cost-per-project figure is possible yet. About a third of listed projects sit in follow-up families of three or more, and 24 slugs appear in more than one run. All 143 recorded CI-failure counts are zero, which looks like a success-only field, not a clean record. Preliminary: first step of the ledger milestone; no git-history backfill, no value or correctness scoring."
@@ -2745,6 +2760,16 @@
      "slug": "swe-runcost",
      "title": "What does an agent run cost, and which runs cost the most?",
      "summary": "A stdlib analysis of the 355 run records (14 to 18 October 2026) that carry an API-equivalent <code>cost_usd</code>. The median run costs $0.68 (95% bootstrap $0.64 to $0.72) and the 355 together $337; the top 10% of runs hold 36% of spend. Research runs are 47% of spend with the highest median ($0.82), process runs 24% on 14% of runs because of a long tail. Cost scales with tool calls with exponent 1.18 (1.11 to 1.25) and input tokens with 1.37, consistent with context re-read at each step. Preliminary: five days, one model, estimates not invoices, and cost is not scored against value."
+    },
+    {
+     "slug": "swe-errors",
+     "title": "What do agent runs record going wrong, and does it relate to partial outcomes or cost?",
+     "summary": "Reads the free-text <code>errors</code> field of 1,027 run records: 175 runs (17.0%, Wilson 14.9&ndash;19.5%) record at least one, 24.5% of research runs against 12.4% of ventures runs. Keyword rules put 28% of the 222 entries in environment and tooling, 21% in the run&#39;s own mistake, 17% in collisions with a parallel run and 7% in timeouts; 24% match no rule. Runs with an error end <em>partial</em> 12.6% of the time against 6.0%, and the 30 priced ones cost a median $1.29 against $0.64. An association, not a cause. <em>Preliminary</em>: unvalidated classifier, self-reported errors."
+    },
+    {
+     "slug": "swe-errlabel",
+     "title": "Do the swe-errors keyword rules sort run-record errors correctly?",
+     "summary": "A 60-entry blind sample of the run records&rsquo; reported errors, hand-labelled once and compared with <code>swe-errors</code>&rsquo; keyword rules: they agree on 40 of 60 entries (66.7%, Wilson 95% 54.1&ndash;77.3%; Cohen&rsquo;s &kappa; 0.59). The <code>ci-or-tooling</code> rule never wins (9 hand-labelled, 0 assigned), the run&rsquo;s-own-mistake class is found with recall 55%, and environment, timeout and collision hold up (recall 92&ndash;100%). So the earlier error shares are a lower bound for tooling and own mistakes. Preliminary: one labeller, the same kind of model that wrote the records, and 60 entries."
     },
     {
      "slug": "swe-modelmix",
@@ -2924,6 +2949,11 @@
      "slug": "house-vibration",
      "title": "Does a floor-vibration frequency limit erase the lumber saved by deep, widely spaced joists?",
      "summary": "A first-mode natural-frequency check (<em>f</em><sub>1</sub> = (&pi;/2<em>L</em><sup>2</sup>)&radic;(<em>EIg</em>/<em>w</em>), derived and tested against the static-deflection form) added to the NDS strength and deflection checks of <code>house-spans</code>, for SPF No. 2 floor joists under 10 + 40 psf. The joist alone is modelled, with no subfloor composite action. Any limit up to 10 Hz changes nothing: the longest strength-passing 2x10 at 16 in (15 ft 3 in) already vibrates at 10.1 Hz. At 12 Hz it shortens to 13 ft 11 in, and at 15 Hz the least-lumber joist at a 12 ft span moves from 2x10 at 24 in (0.83 board feet per sq ft) to 2x12 at 24 in (1.00), while at 14 ft the 2x12 at 24 in no longer passes and 2x12 at 16 in (1.50) is needed. The limit in Hz is a policy choice swept here, not a code-book criterion, and the model is conservative by ignoring the subfloor and optimistic by ignoring live-load mass. Stylised."
+    },
+    {
+     "slug": "house-composite",
+     "title": "How much of a floor-vibration penalty does the subfloor's T-beam action recover?",
+     "summary": "The subfloor modelled as a partial flange of a T-beam by the gamma method (rederived from the parallel-axis theorem and tested against an independent transformed-section calculation), added to the frequency check of <code>house-vibration</code> for a 2x10 SPF No. 2 joist at 16 in. The result depends on two assumed, unsourced inputs, the connection efficiency &gamma; and the panel modulus. At a panel modulus of 0.5 million psi the 15 ft first-mode frequency rises from 10.5 Hz to 12.6 Hz at &gamma; 0.5 and 14.0 Hz at &gamma; 1, and under a 15 Hz limit the span grows from 12 ft 6 in to 13 ft 2 in&ndash;14 ft 6 in. Strength checks stay joist-alone; live-load mass is left out, so gains are optimistic. Stylised, not validated against a measured floor, not a design."
     },
     {
      "slug": "house-continuous",
