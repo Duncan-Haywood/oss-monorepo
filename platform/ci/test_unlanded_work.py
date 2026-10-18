@@ -289,6 +289,28 @@ class TestMain(Fixture):
         self.assertIn("STRANDED", buf.getvalue())
         self.assertIn(".github/prompts/land-your-work.md", buf.getvalue())
 
+    def test_subject_containing_a_tab_is_kept_whole(self):
+        self.branch("claude/tabbed")
+        self.commit("a.txt", "a\n", "left\tright", day="2026-10-02")
+        self.push("claude/tabbed")
+        found = uw.sweep(str(self.clone), since="2026-09-01", probe=self.probe)
+        self.assertEqual([c.subject for c in found[0][2]], ["left\tright"])
+
+    def test_unreadable_diff_does_not_raise(self):
+        self.branch("claude/x")
+        self.commit("a.txt", "a\n", "a")
+        self.push("claude/x")
+        run(self.clone, "fetch", "-q", "origin")
+        self.assertTrue(uw.landed_by_content(
+            str(self.clone), "origin/no-such-branch", "origin/main"))
+
+    def test_help_describes_the_script_by_its_first_paragraph(self):
+        out = io.StringIO()
+        with redirect_stdout(out), self.assertRaises(SystemExit):
+            uw.main(["--help"])
+        self.assertIn("Is the work on this branch in a pull request", out.getvalue())
+        self.assertNotIn("Why this exists", out.getvalue())
+
     def test_cannot_answer_exits_2(self):
         run(self.clone, "checkout", "-q", "--detach", "origin/main")
         err = io.StringIO()
