@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01NfjrE1croXoLK2yR6JgdVr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T20:41:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "deepen stockx-seller-payout-calculator: break-even ask",
+  "projects": [
+    "stockx-seller-payout-calculator"
+  ],
+  "pr": 8159,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Generic brief gives no pick rule; allocate.py top entries are huge consolidations, so I chose a small deepening instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "Did not run venture-preflight (background, >5 min) for a one-function additive change; ran the venture's full node test suites instead."
+    }
+  ],
+  "goal": null,
+  "notes": "Added minimumSalePrice + two result rows. CI not awaited beyond local tests.",
+  "corrections": [],
+  "redteam": null
+}
