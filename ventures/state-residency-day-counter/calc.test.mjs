@@ -454,6 +454,22 @@ test("deviceTimelineToStays: coordinates resolve to states for the Android and i
   assert.match(deviceTimelineToStays("{}", 2025, STATE_RINGS).error, /phone/);
 });
 
+test("the other counting convention is shown and flagged when it flips a result", () => {
+  const stays = [{ state: "NY", start: toDay(2026, 1, 1), end: toDay(2026, 7, 3), work: true }];
+  const spec = { year: 2026, stays, abode: { NY: true } };
+  const inc = analyze({ ...spec, convention: "inclusive" });
+  const nyI = inc.states.find((s) => s.code === "NY");
+  assert.equal(nyI.days, 184);
+  assert.equal(nyI.otherDays, 183);
+  assert.ok(inc.notices.some((n) => /New York.*184.*183/.test(n)));
+  const nyN = analyze({ ...spec, convention: "nights" }).states.find((s) => s.code === "NY");
+  assert.equal(nyN.days, 183);
+  assert.equal(nyN.otherDays, 184);
+  // No flag when the choice changes nothing.
+  const far = analyze({ year: 2026, stays: [{ state: "NY", start: toDay(2026, 1, 1), end: toDay(2026, 2, 1) }], abode: { NY: true } });
+  assert.ok(!far.notices.some((n) => /decides whether/.test(n)));
+});
+
 test("Iowa and DC day tests", () => {
   assert.equal(RULES.IA.limit, 183);
   assert.equal(RULES.IA.requiresAbode, true);
