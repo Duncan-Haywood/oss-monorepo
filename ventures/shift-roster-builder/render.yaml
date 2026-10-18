@@ -1,0 +1,21 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# Starter plan on purpose: the free plan has no disk, so published schedules would vanish on restart.
+# Render generates ADMIN_KEY and TEAM_TOKEN; read them in the service's Environment tab.
+services:
+  - type: web
+    name: roster-hub
+    runtime: docker
+    dockerContext: ventures/shift-roster-builder
+    dockerfilePath: ventures/shift-roster-builder/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: TEAM_TOKEN
+        generateValue: true

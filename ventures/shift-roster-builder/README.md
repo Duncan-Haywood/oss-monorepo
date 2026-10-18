@@ -11,6 +11,26 @@ After using this, you can now **build a week's schedule that nobody has to be mo
 unfillable before the week starts, and find the people the week depends on**, which used to be an hour of spreadsheet
 shuffling on Sunday night.
 
+## Run your own team schedule (self-hosted)
+
+The browser tool builds the roster; `server.mjs` is the part that gets it to your staff. You build and publish the
+week, and your team opens **one link** to see their shifts, add them to their calendar (`.ics`) and send you their
+availability, which you merge into the staff list in one click. No accounts, no per-seat price, no third party:
+zero dependencies, one JSON file on a disk you own.
+
+- **Alternatives today:** When I Work, Deputy, Homebase and 7shifts charge per user per month and hold your staff
+  data. This is the same publish-and-notify loop for a single small team, on your own server, MIT-licensed. It does
+  not do time clocks, payroll, shift-swap approvals or push notifications; if you need those, use one of them.
+- **Secrets:** `ADMIN_KEY` unlocks `/admin?key=...` (edit, build, publish, merge). `TEAM_TOKEN` is the secret in the
+  staff link `/team?t=...`. The server refuses to serve without both. Wages, hour caps and payroll never appear on the
+  staff page (tested). Put it behind HTTPS (Fly and Render do); the key is in the URL, so do not share admin links.
+- **Run:** `ADMIN_KEY=a TEAM_TOKEN=b STATE=./state.json node server.mjs`, or one of:
+  `docker compose up -d` (`docker-compose.yml`), Fly (`fly.toml`), or Render
+  (`render.yaml`, deploy from your fork; it generates both secrets). Nothing runs on the author's accounts.
+- **Staff replies** are checked with the same parser as the browser tool and capped at 200 waiting lines and 64 KB
+  per request. Read them in `/admin` before merging.
+- Tests: `node --test server.test.mjs`.
+
 ## Model
 
 - People: `name, wage, max hours, min hours, availability, roles: cook|server, prev: Sun 10pm` (`prev:` is when their last shift last week ended, so the rest rule holds across the week boundary; `Mon-Fri 9-17; Sat 10am-2pm; Sun off`; blank = any time; roles optional).
