@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculate, computeMonthProfit, incomeGap, DEFAULTS } from './calc.mjs';
+import { calculate, computeMonthProfit, incomeGap, minimumSalePrice, DEFAULTS } from './calc.mjs';
 
 function close(actual, expected, eps = 0.01) {
   assert.ok(Math.abs(actual - expected) < eps, `expected ${actual} to be close to ${expected}`);
@@ -157,4 +157,26 @@ test('incomeGap cannot compute additional sales needed when the average profit p
   const gap = incomeGap(1000, 0, 0);
   assert.equal(gap.additionalSalesNeeded, null);
   assert.equal(gap.meetsTarget, false);
+});
+
+test('minimumSalePrice() break-even sale leaves exactly zero profit', () => {
+  const be = minimumSalePrice(DEFAULTS);
+  // (100 + 6) / (1 - 0.12) = 120.4545...
+  close(be, 120.4545, 0.001);
+  close(calculate({ ...DEFAULTS, salePrice: be }).netProfit, 0, 1e-9);
+});
+
+test('minimumSalePrice() with a margin target yields that margin; Fast Shipping and supplies lower/raise it', () => {
+  const ask = minimumSalePrice(DEFAULTS, 15);
+  close(calculate({ ...DEFAULTS, salePrice: ask }).profitMarginPct, 15, 1e-9);
+  assert.ok(minimumSalePrice({ ...DEFAULTS, fastShippingDiscountPct: 2 }) < minimumSalePrice(DEFAULTS));
+  assert.ok(minimumSalePrice({ ...DEFAULTS, otherCost: 3 }) > minimumSalePrice(DEFAULTS));
+  assert.equal(minimumSalePrice({ ...DEFAULTS, otherCost: undefined }) > 0, true);
+});
+
+test('minimumSalePrice() is null when the percentage take reaches 100%, and rejects bad input', () => {
+  assert.equal(minimumSalePrice({ ...DEFAULTS, sellerFeePct: 97, paymentProcessingFeePct: 3 }), null);
+  assert.equal(minimumSalePrice(DEFAULTS, 88), null);
+  assert.throws(() => minimumSalePrice(DEFAULTS, 100), /below 100/);
+  assert.throws(() => minimumSalePrice({ ...DEFAULTS, itemCostBasis: -1 }), /Item cost basis/);
 });

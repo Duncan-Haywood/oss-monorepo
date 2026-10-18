@@ -12,8 +12,8 @@ test('every DEFAULTS field has a matching input on the page', () => {
   }
 });
 
-test('the page imports calculate, computeMonthProfit, and incomeGap from calc.mjs', () => {
-  assert.match(html, /import \{ calculate, computeMonthProfit, incomeGap, DEFAULTS \} from '\.\/calc\.mjs'/);
+test('the page imports calculate, computeMonthProfit, incomeGap, and minimumSalePrice from calc.mjs', () => {
+  assert.match(html, /import \{ calculate, computeMonthProfit, incomeGap, minimumSalePrice, DEFAULTS \} from '\.\/calc\.mjs'/);
 });
 
 test('the page wires usage counting for both the sale and month calculators', () => {
