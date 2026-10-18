@@ -42,6 +42,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Season highlights: a line under the results grid names the biggest win, the highest-scoring game, the best attack and the best defence (walkovers excluded from the match records) (`seasonRecords` in `calc.mjs`).
 - Results grid: under the standings, a team-by-team grid of every score so far (row team's goals first), in table order, so an organiser sees at a glance who has not yet met (`crossTable` in `calc.mjs`).
 - Result check: a warning when a pair has more typed results than meetings in the schedule (a duplicated line that would count twice in the table) or a result for a pair that never meets (`resultsCheck` in `calc.mjs`).
+- Results to chase: once results are typed, a warning lists matches dated before today that have no result yet (a pair's results are matched to its meetings earliest first), so a missing score is named rather than silently counted as unplayed (`overdueResults` in `calc.mjs`).
 - Standings CSV: once results are typed, "Download standings CSV" saves the ranked table (`standingsCsv` in `calc.mjs`).
 - Rest report: the fairness note shows the shortest and longest days between each team's games and counts games that follow within a day (`restReport` in `calc.mjs`).
 - Home/away runs: the fairness note flags any team stuck with three or more home or away games in a row and names it (`homeAwayReport` in `calc.mjs`).
