@@ -386,7 +386,7 @@
         $("#race tbody").innerHTML = extra.race.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.maxPoints}</td><td>${r.status === "clinched" ? "Clinched" : r.status === "eliminated" ? "Out" : "Alive"}</td><td class="n">${r.magic ?? "–"}</td></tr>`).join("");
       }
       $("#standings-wrap").hidden = !extra.table;
-      if (extra.table) $("#standings tbody").innerHTML = extra.table.map((r) => `<tr><td class="n">${r.rank}</td><td>${esc(r.name)}</td><td class="n">${r.played}</td><td class="n">${r.won}</td><td class="n">${r.drawn}</td><td class="n">${r.lost}</td><td class="n">${r.gd}</td><td class="n">${r.points}</td><td class="n">${r.oppAvg == null ? "–" : r.oppAvg.toFixed(2)}</td><td>${esc(r.form.split("").join(" "))}</td></tr>`).join("");
+      if (extra.table) $("#standings tbody").innerHTML = extra.table.map((r) => `<tr><td class="n">${r.rank}</td><td>${esc(r.name)}</td><td class="n">${r.played}</td><td class="n">${r.won}</td><td class="n">${r.drawn}</td><td class="n">${r.lost}</td><td class="n">${r.gd}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.oppAvg == null ? "–" : r.oppAvg.toFixed(2)}</td><td>${esc(r.form.split("").join(" "))}</td></tr>`).join("");
       if (extra.table) {
         const ct = crossTable(s.teams, extra.results, extra.table.map((r) => r.index));
         $("#crosstable").innerHTML = `<thead><tr><th>Team</th>${ct.heads.map((h) => `<th class="n">${esc(h)}</th>`).join("")}</tr></thead><tbody>${ct.rows.map((r) => `<tr><td>${esc(r.name)}</td>${r.cells.map((c) => `<td class="n">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody>`;
