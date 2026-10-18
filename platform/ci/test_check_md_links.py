@@ -1,3 +1,6 @@
+import contextlib
+import io
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -28,6 +31,46 @@ class DeadLinks(unittest.TestCase):
                 "[ok](../real.md#h) [bad](nope.md) [web](https://x.y) [anc](#a) [site](/page)\n"
             )
             self.assertEqual([t for _, t in c.dead_links(doc, root)], ["nope.md"])
+
+    def test_line_numbers_and_query_strings(self):
+        self.assertEqual(list(c.links_in("[a](x.md)\n\n[b](y.md)")), [(1, "x.md"), (3, "y.md")])
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "real.md").write_text("x")
+            doc = root / "a.md"
+            doc.write_text("[q](real.md?raw=1) [n](nope.md)\n")
+            self.assertEqual(list(c.dead_links(doc, root)), [(1, "nope.md")])
+
+
+class Main(unittest.TestCase):
+    def run_main(self, root, *paths):
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            rc = c.main(["--root", str(root), *paths])
+        return rc, err.getvalue()
+
+    def test_exit_code_and_count(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            doc = root / "a.md"
+            doc.write_text("[a](x.md) [b](y.md)\n")
+            self.assertEqual(self.run_main(root, str(doc)), (1, "2 dead link(s)\n"))
+            doc.write_text("fine\n")
+            self.assertEqual(self.run_main(root, str(doc)), (0, ""))
+
+    def test_tracked_markdown_skips_archive(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            subprocess.run(["git", "-C", d, "init", "-q"], check=True)
+            (root / "docs/history").mkdir(parents=True)
+            (root / "a.md").write_text("x")
+            (root / "docs/history/old.md").write_text("x")
+            subprocess.run(["git", "-C", d, "add", "."], check=True)
+            self.assertEqual(c.tracked_markdown(root), [root / "a.md"])
+            # outside a git repo the listing must fail loudly, not look clean
+            with tempfile.TemporaryDirectory() as e:
+                with self.assertRaises(subprocess.CalledProcessError):
+                    c.tracked_markdown(Path(e))
 
 
 if __name__ == "__main__":
