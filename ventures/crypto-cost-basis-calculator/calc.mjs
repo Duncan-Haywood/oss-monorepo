@@ -62,6 +62,7 @@ const HEADER_ALIASES = {
   price: ["price", "price per unit", "spot price", "unit price", "price usd", "rate"],
   fee: ["fee", "fees", "fee usd", "fees usd", "commission"],
   wallet: ["wallet", "account", "exchange", "platform", "source"],
+  reported: ["reported", "broker reported", "1099-da", "form 1099-da", "reported on 1099-da"],
   toWallet: ["to wallet", "to account", "to", "destination", "destination wallet", "to exchange"],
 };
 
@@ -113,6 +114,18 @@ function parseNumber(raw) {
   return Number.isFinite(n) ? n : NaN;
 }
 
+// Whether the broker reported a sale on Form 1099-DA: "basis" (reported with
+// cost basis), "nobasis" (reported, basis not) or "" (not reported). undefined
+// means the cell held something else.
+function parseReported(raw) {
+  const t = norm(raw).replace(/[\s_-]+/g, "");
+  if (t === "") return "";
+  if (["basis", "withbasis", "yes"].includes(t)) return "basis";
+  if (["nobasis", "basisnotreported"].includes(t)) return "nobasis";
+  if (["none", "no", "notreported", "n", "0"].includes(t)) return "";
+  return undefined;
+}
+
 // ---- rows --------------------------------------------------------------
 
 // Returns { transactions, skipped, errors }. A transaction is
@@ -157,7 +170,13 @@ export function parseTransactions(text) {
     const feeRaw = map.fee === undefined ? 0 : parseNumber(get("fee"));
     const fee = Number.isNaN(feeRaw) || feeRaw === null ? 0 : Math.abs(feeRaw);
     const wallet = get("wallet") || "";
-    out.transactions.push({ line, date, kind, asset, qty, usd, fee, wallet });
+    const tx = { line, date, kind, asset, qty, usd, fee, wallet };
+    if (kind === "sell") {
+      const rep = parseReported(get("reported"));
+      if (rep === undefined) out.skipped.push(`Line ${line}: "${get("reported")}" in the reported column is not basis, nobasis or none; treated as none.`);
+      else if (rep) tx.reported = rep;
+    }
+    out.transactions.push(tx);
   }
   return out;
 }
@@ -256,6 +275,7 @@ export function matchLots(transactions, { method = "FIFO", perWallet = false, sh
         proceeds: netProceeds * share,
         basis: (lot.basis / lot.qtyOriginal) * take,
         term: holdingTerm(lot.date, t.date),
+        reported: t.reported || "",
         missingBasis: false,
       });
       lot.qty -= take;
@@ -266,7 +286,7 @@ export function matchLots(transactions, { method = "FIFO", perWallet = false, sh
       shortfalls.push({ asset: t.asset, wallet: t.wallet, line: t.line, date: t.date, qty: remaining });
       pieces.push({
         asset: t.asset, wallet: t.wallet, qty: remaining, saleLine: t.line, lotLine: null,
-        acquired: null, sold: t.date, proceeds: netProceeds * share, basis: 0, term: "Short", missingBasis: true,
+        acquired: null, sold: t.date, proceeds: netProceeds * share, basis: 0, term: "Short", reported: t.reported || "", missingBasis: true,
       });
     }
   }
@@ -290,8 +310,17 @@ export function toRow(p) {
     basis,
     gain: cents(proceeds - basis),
     term: p.term,
+    reported: p.reported || "",
+    box: form8949Box(p.term, p.reported),
     missingBasis: p.missingBasis,
   };
+}
+
+// Form 8949 digital-asset boxes (2025 forms): short-term G (1099-DA, basis
+// reported), H (1099-DA, basis not reported), I (no 1099-DA); long-term J, K, L.
+export function form8949Box(term, reported) {
+  const i = reported === "basis" ? 0 : reported === "nobasis" ? 1 : 2;
+  return (term === "Long" ? "JKL" : "GHI")[i];
 }
 
 function trimQty(q) {
@@ -338,6 +367,19 @@ export function form8949Totals(rows) {
     noBasis: t.short.noBasis + t.long.noBasis,
   };
   return t;
+}
+
+// Column totals per Form 8949 box (G to L), only for boxes that have rows, so a
+// return can carry each box to its own Form 8949 page.
+export function form8949BoxTotals(rows) {
+  const t = {};
+  for (const r of rows) {
+    const b = (t[r.box] ||= { box: r.box, rows: 0, proceeds: 0, basis: 0, gain: 0 });
+    b.rows += 1; b.proceeds += r.proceeds; b.basis += r.basis; b.gain += r.gain;
+  }
+  return Object.values(t).sort((a, b) => (a.box < b.box ? -1 : 1)).map((b) => ({
+    ...b, proceeds: cents(b.proceeds), basis: cents(b.basis), gain: cents(b.gain),
+  }));
 }
 
 // Federal-style netting of short and long results, ignoring NIIT, the $3,000
@@ -667,11 +709,14 @@ const q = (v) => {
 
 // CSV in Form 8949 column order, ready to paste into tax software or hand to a preparer.
 export function toForm8949Csv(rows) {
-  const head = ["Description of property", "Date acquired", "Date sold", "Proceeds", "Cost or other basis", "Gain or loss", "Term", "Note"];
+  // Box column only when the file says which sales a broker reported on a 1099-DA.
+  const boxes = rows.some((r) => r.reported);
+  const head = ["Description of property", "Date acquired", "Date sold", "Proceeds", "Cost or other basis", "Gain or loss", "Term", ...(boxes ? ["Box"] : []), "Note"];
   const lines = [head.join(",")];
   for (const r of rows) {
     lines.push([
       r.description, r.acquired || "VARIOUS", r.sold, r.proceeds.toFixed(2), r.basis.toFixed(2), r.gain.toFixed(2), r.term,
+      ...(boxes ? [r.box] : []),
       r.missingBasis ? "No basis on record" : "",
     ].map(q).join(","));
   }
