@@ -2,6 +2,8 @@
 
 Track 11 (adversarial human imitation), side project, the follow-up that `mimic-twinregret` listed as a next step: if one wrong twin costs a tuned controller some regret on the real system, does tuning on a *spread* of twins around it recover that regret? **No LLM is used and no text is generated.** Stylised and simulated only. **Preliminary: one toy pendulum, one task, a 48-point gain grid, 24 tuning seeds.** Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twinrand/
+
 Numbers come from `experiments/results.txt` and `results.json`; the figure is `experiments/regret_vs_width.svg`.
 
 - **Setup.** Same "real" pendulum, noisy-feedback saturating PD task, cost and regret as `mimic-twinregret` (its `twin.py` is imported, not copied). Tuning uses 200 start angles in all conditions. For width 0 they are all on the one nominal twin; for width w > 0 they are split over 8 twins whose four parameters (noise sd, Coulomb and viscous friction, g/L) are each uniform on nominal ± w × the real value, clipped at 0 (g/L at 0.1). Five nominal twins: the exact one, and four that `mimic-twinregret` found to cost something or nothing. Regret is averaged over 24 tuning seeds.
