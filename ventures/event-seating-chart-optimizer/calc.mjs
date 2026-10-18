@@ -30,9 +30,11 @@ export function parseGuests(text) {
   return { guests, errors };
 }
 
+const ACCESS_WORD = /^(accessible|access|step-free|wheelchair)$/i;
+
 const OP = /^(.*?)\s+(\+\+|\+|!!|!|@)\s+(.*)$/;
 
-/** Parse the rule box: "A + B", "A ++ B", "A ! B", "A !! B", "A @ 3". */
+/** Parse the rule box: "A + B", "A ++ B", "A ! B", "A !! B", "A @ 3", "A @ accessible". */
 export function parseRules(text, guests) {
   const index = new Map(guests.map((g, i) => [g.name.toLowerCase(), i]));
   const rules = [];
@@ -45,6 +47,7 @@ export function parseRules(text, guests) {
     const [, a, op, b] = m;
     const ai = index.get(a.trim().replace(/\s+/g, " ").toLowerCase());
     if (ai === undefined) { errors.push(`Rule line ${i + 1}: "${a.trim()}" is not in the guest list.`); return; }
+    if (op === "@" && ACCESS_WORD.test(b.trim())) { rules.push({ kind: "access", a: ai, line: i + 1 }); return; }
     if (op === "@") {
       const t = Number(b.trim());
       if (!Number.isInteger(t) || t < 1) { errors.push(`Rule line ${i + 1}: "${b.trim()}" is not a table number.`); return; }
@@ -115,6 +118,19 @@ export function validateSpec(spec) {
     if (pinned.has(r.a) && pinned.get(r.a) !== r.table) errors.push(`${spec.guests[r.a].name} is pinned to two different tables.`);
     pinned.set(r.a, r.table);
   }
+  const acc = accessOf(spec);
+  if (acc.guests.size) {
+    const names = (set) => [...set].map((g) => spec.guests[g].name);
+    if (!acc.tables.size) errors.push(`${names(acc.guests).join(", ")} need an accessible table, but no accessible tables are listed.`);
+    else {
+      for (const t of acc.tables) if (t >= T) errors.push(`Accessible table ${t + 1} is listed, but there are only ${T} tables.`);
+      let room = 0;
+      for (const t of acc.tables) if (t < T) room += caps[t];
+      for (const [g, t] of pinned) if (!acc.guests.has(g) && acc.tables.has(t)) room--;
+      for (const [g, t] of pinned) if (acc.guests.has(g) && !acc.tables.has(t)) errors.push(`${spec.guests[g].name} needs an accessible table but is pinned to table ${t + 1}.`);
+      if (acc.guests.size > room) errors.push(`${acc.guests.size} guests need an accessible table but the accessible tables have room for ${Math.max(room, 0)}; list another accessible table or enlarge one.`);
+    }
+  }
   return errors;
 }
 
@@ -176,7 +192,7 @@ export function weightMatrix(spec, neverWeight = WEIGHTS.never) {
   spec.guests.forEach((g, i) => { if (g.party) { const k = g.party.toLowerCase(); (byParty.get(k) || byParty.set(k, []).get(k)).push(i); } });
   for (const members of byParty.values())
     for (let x = 0; x < members.length; x++) for (let y = x + 1; y < members.length; y++) add(members[x], members[y], WEIGHTS.party);
-  for (const r of spec.rules) if (r.kind !== "pin") add(r.a, r.b, r.kind === "never" ? neverWeight : r.weight);
+  for (const r of spec.rules) if (r.kind !== "pin" && r.kind !== "access") add(r.a, r.b, r.kind === "never" ? neverWeight : r.weight);
   // Optional mixing by group (side of the family, age band, "singles"): spread
   // pushes same-group guests to different tables, cluster pulls them together.
   const mixSign = spec.mix === "spread" ? -1 : spec.mix === "cluster" ? 1 : 0;
@@ -195,6 +211,30 @@ export function planScore(W, n, table) {
   return s;
 }
 
+/**
+ * Parse the accessible-tables box ("1, 2" or "Table 1; 3"): the tables with step-free access
+ * (near the door, no stairs, room for a wheelchair). Returns { tables: [0-based], errors }.
+ */
+export function parseAccessTables(text) {
+  const tables = [];
+  const errors = [];
+  for (const raw of String(text || "").split(/[\s,;]+/)) {
+    const part = raw.trim().replace(/^table/i, "");
+    if (!part) continue;
+    if (!/^\d+$/.test(part) || Number(part) < 1) { errors.push(`Accessible table "${raw.trim()}" should be a table number such as 1.`); continue; }
+    if (!tables.includes(Number(part) - 1)) tables.push(Number(part) - 1);
+  }
+  return { tables, errors };
+}
+
+/** Guests flagged "@ accessible" and the tables they may use (null set = none given). */
+function accessOf(spec) {
+  const guests = new Set(spec.rules.filter((r) => r.kind === "access").map((r) => r.a));
+  const tables = new Set(Array.isArray(spec.accessTables) ? spec.accessTables : []);
+  return { guests, tables };
+}
+const canSit = (acc, g, t) => !acc.guests.has(g) || acc.tables.has(t);
+
 function pinsOf(spec) {
   const pin = new Map();
   for (const r of spec.rules) if (r.kind === "pin") pin.set(r.a, r.table);
@@ -210,6 +250,12 @@ export function baselinePlan(spec) {
   const table = new Array(n).fill(-1);
   const load = new Array(T).fill(0);
   for (const [g, t] of pin) { table[g] = t; load[t]++; }
+  const acc = accessOf(spec);
+  for (let g = 0; g < n; g++) {
+    if (table[g] !== -1 || !acc.guests.has(g)) continue;
+    const t2 = [...acc.tables].sort((a, b) => a - b).find((x) => x < T && load[x] < cap[x]);
+    if (t2 !== undefined) { table[g] = t2; load[t2]++; }
+  }
   let t = 0;
   for (let g = 0; g < n; g++) {
     if (table[g] !== -1) continue;
@@ -224,6 +270,7 @@ function anneal(spec, W, seed, iters) {
   const T = resolveTableCount(spec);
   const cap = capacitiesOf(spec, T);
   const pin = pinsOf(spec);
+  const acc = accessOf(spec);
   const rnd = mulberry32(seed);
   const free = [];
   for (let g = 0; g < n; g++) if (!pin.has(g)) free.push(g);
@@ -234,8 +281,15 @@ function anneal(spec, W, seed, iters) {
   for (const [g, t] of pin) { table[g] = t; load[t]++; }
   const order = free.slice();
   for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  // guests who need an accessible table are placed first, at accessible tables with room
+  const accList = [...acc.tables].filter((x) => x < T);
+  for (const g of order.filter((x) => acc.guests.has(x))) {
+    const open = accList.filter((x) => load[x] < cap[x]);
+    const x = open[Math.floor(rnd() * open.length)];
+    table[g] = x; load[x]++;
+  }
   let tt = 0;
-  for (const g of order) { while (load[tt] >= cap[tt]) tt = (tt + 1) % T; table[g] = tt; load[tt]++; }
+  for (const g of order) { if (table[g] !== -1) continue; while (load[tt] >= cap[tt]) tt = (tt + 1) % T; table[g] = tt; load[tt]++; }
 
   // A[g*T + t] = sum of W[g][h] over guests h (h != g) at table t
   const A = new Float64Array(n * T);
@@ -272,12 +326,13 @@ function anneal(spec, W, seed, iters) {
     const g = free[Math.floor(rnd() * free.length)];
     if (rnd() < 0.5) {
       const to = Math.floor(rnd() * T);
-      if (to === table[g] || load[to] >= cap[to]) continue;
+      if (to === table[g] || load[to] >= cap[to] || !canSit(acc, g, to)) continue;
       const d = A[g * T + to] - A[g * T + table[g]];
       if (d >= 0 || rnd() < Math.exp(d / temp)) { move(g, to); score += d; }
     } else {
       const g2 = free[Math.floor(rnd() * free.length)];
       if (g2 === g || table[g2] === table[g]) continue;
+      if (!canSit(acc, g, table[g2]) || !canSit(acc, g2, table[g])) continue;
       const a = table[g], b = table[g2], w = W[g * n + g2];
       const d = (A[g * T + b] - w) + (A[g2 * T + a] - w) - A[g * T + a] - A[g2 * T + b];
       if (d >= 0 || rnd() < Math.exp(d / temp)) { swap(g, g2); score += d; }
@@ -293,6 +348,7 @@ function polish(spec, W, table0) {
   const T = resolveTableCount(spec);
   const cap = capacitiesOf(spec, T);
   const pin = pinsOf(spec);
+  const acc = accessOf(spec);
   const table = table0.slice();
   const load = new Array(T).fill(0);
   table.forEach((t) => load[t]++);
@@ -304,11 +360,12 @@ function polish(spec, W, table0) {
       if (pin.has(g)) continue;
       const here = aff(g, table[g]);
       for (let t = 0; t < T; t++) {
-        if (t === table[g] || load[t] >= cap[t]) continue;
+        if (t === table[g] || load[t] >= cap[t] || !canSit(acc, g, t)) continue;
         if (aff(g, t) - here > 1e-9) { load[table[g]]--; load[t]++; table[g] = t; improved = true; break; }
       }
       for (let g2 = g + 1; g2 < n; g2++) {
         if (pin.has(g2) || table[g2] === table[g]) continue;
+        if (!canSit(acc, g, table[g2]) || !canSit(acc, g2, table[g])) continue;
         const a = table[g], b = table[g2];
         const d = aff(g, b, g2) + aff(g2, a, g) - aff(g, a) - aff(g2, b);
         if (d > 1e-9) { table[g] = b; table[g2] = a; improved = true; }
@@ -398,7 +455,7 @@ export function describe(spec, W, table, baseline) {
   // Each table's guests are listed in seat order around it, not list order.
   tables.forEach((members, t) => { tables[t] = orderTable(members, W, n); });
   const pairs = (list) => list.map((r) => ({ ...r, aName: spec.guests[r.a].name, bName: spec.guests[r.b].name, met: r.kind === "want" || r.kind === "must" ? table[r.a] === table[r.b] : table[r.a] !== table[r.b] }));
-  const pairRules = pairs(spec.rules.filter((r) => r.kind !== "pin"));
+  const pairRules = pairs(spec.rules.filter((r) => r.kind !== "pin" && r.kind !== "access"));
   const broken = pairRules.filter((r) => !r.met);
   const partySplits = [];
   const byParty = new Map();
@@ -427,6 +484,7 @@ export function describe(spec, W, table, baseline) {
     partySplits,
     groupMix,
     meals: mealTally(spec, table, T),
+    accessSeated: spec.rules.filter((r) => r.kind === "access").map((r) => ({ name: spec.guests[r.a].name, table: table[r.a] + 1 })),
     capacity: Math.max(...capacitiesOf(spec, T)),
     capacities: capacitiesOf(spec, T),
   };
@@ -461,6 +519,8 @@ export function verifyPlan(spec, result) {
   const where = new Map();
   result.tables.forEach((t) => t.guests.forEach((name) => where.set(name.toLowerCase(), t.number - 1)));
   for (const r of spec.rules) if (r.kind === "pin" && where.get(spec.guests[r.a].name.toLowerCase()) !== r.table) problems.push(`${spec.guests[r.a].name} is not at their pinned table.`);
+  const acc = accessOf(spec);
+  for (const g of acc.guests) { const t = where.get(spec.guests[g].name.toLowerCase()); if (!acc.tables.has(t)) problems.push(`${spec.guests[g].name} needs an accessible table but is at table ${t + 1}.`); }
   let s = 0;
   const W = weightMatrix(spec);
   for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) if (where.get(spec.guests[i].name.toLowerCase()) === where.get(spec.guests[j].name.toLowerCase())) s += W[i * n + j];
@@ -744,7 +804,7 @@ export function reseat(spec, prev, stickiness = "medium") {
 // a planner can come back over the weeks RSVPs trickle in. The page keeps it
 // in this browser's local storage and in a downloadable file; nothing leaves
 // the device.
-export const SETUP_FIELDS = ["guests", "rules", "seats", "tcount", "sizes", "balance", "mix", "prevplan"];
+export const SETUP_FIELDS = ["guests", "rules", "seats", "tcount", "sizes", "access", "balance", "mix", "prevplan"];
 const MIX_VALUES = ["off", "spread", "cluster"];
 
 export function setupJson(state) {
@@ -762,7 +822,7 @@ export function parseSetup(text) {
     return { state: null, error: "That is not a seating setup saved by this tool." };
   }
   const state = {};
-  for (const k of ["guests", "rules", "sizes", "prevplan"]) if (typeof raw[k] === "string") state[k] = raw[k].slice(0, 200000);
+  for (const k of ["guests", "rules", "sizes", "access", "prevplan"]) if (typeof raw[k] === "string") state[k] = raw[k].slice(0, 200000);
   for (const k of ["seats", "tcount"]) if (typeof raw[k] === "string" || typeof raw[k] === "number") state[k] = String(raw[k]).slice(0, 8);
   if (typeof raw.balance === "boolean") state.balance = raw.balance;
   if (MIX_VALUES.includes(raw.mix)) state.mix = raw.mix;
