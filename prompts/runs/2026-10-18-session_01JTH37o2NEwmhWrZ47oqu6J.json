@@ -25,14 +25,14 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 2,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "goal": null,
-  "notes": "",
+  "notes": "Target platform/ci/check_md_links.py: 8 mutants, 7 caught, 1 equivalent. Real defect: badge-link outer targets unchecked; fixed with tests. Repo has no dead links under the stricter check.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -96,9 +96,9 @@
             "line_text": "        local = unquote(target.split(\"#\", 1)[0].split(\"?\", 1)[0])",
             "caught": false,
             "seconds": 0.1,
-            "triage": null,
+            "triage": "equivalent",
             "caught_after_fix": null,
-            "note": ""
+            "note": "split(\"?\",N)[0] is the same piece for any N>=1; only index 0 is used."
           },
           {
             "file": "platform/ci/check_md_links.py",
@@ -159,6 +159,12 @@
         ]
       }
     ],
-    "real_defects": []
+    "real_defects": [
+      {
+        "file": "platform/ci/check_md_links.py",
+        "issue": "Badge links [![alt](img)](href) never had the outer href checked (and the image was reported twice); targets with parentheses like foo_(1).md were truncated.",
+        "patched": true
+      }
+    ]
   }
 }
