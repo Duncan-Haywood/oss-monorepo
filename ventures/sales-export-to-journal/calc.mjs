@@ -1,4 +1,4 @@
-// Sales export -> journal, any platform. Drop the CSV you have; this works out which of fifteen
+// Sales export -> journal, any platform. Drop the CSV you have; this works out which of sixteen
 // platforms wrote it (Airbnb, Amazon, eBay, Etsy, Fiverr, Gumroad, KDP, Ko-fi/Buy Me a Coffee/Teachable, Paddle, Patreon/Lemon Squeezy, PayPal, Shopify, Square, Stripe, Upwork) by running each
 // platform's own reader over it and keeping the one that understands the most rows, then hands back
 // that engine's journals. The readers are unmodified copies of the per-platform tools in this
@@ -6,6 +6,7 @@
 // sample report to the hub and fails if the wrong platform wins.
 import * as airbnb from "./engines/airbnb.mjs";
 import * as amazon from "./engines/amazon.mjs";
+import * as distrokid from "./engines/distrokid.mjs";
 import * as ebay from "./engines/ebay.mjs";
 import * as etsy from "./engines/etsy.mjs";
 import * as fiverr from "./engines/fiverr.mjs";
@@ -23,6 +24,7 @@ import * as upwork from "./engines/upwork.mjs";
 export const PLATFORMS = [
   { id: "airbnb", label: "Airbnb host transaction history", engine: airbnb },
   { id: "amazon", label: "Amazon settlement report", engine: amazon },
+  { id: "distrokid", label: "DistroKid bank details / earnings report", engine: distrokid },
   { id: "ebay", label: "eBay Transaction report", engine: ebay },
   { id: "etsy", label: "Etsy payment account statement", engine: etsy },
   { id: "fiverr", label: "Fiverr earnings history", engine: fiverr },
@@ -43,6 +45,7 @@ export const PLATFORMS = [
 const SIGNATURES = {
   airbnb: ["confirmation code", "arriving by date"],
   amazon: ["settlement-id", "amount-description"],
+  distrokid: ["isrc", "songwriter royalties withheld"],
   ebay: ["transaction creation date", "payout currency"],
   etsy: ["fees & taxes", "fees-&-taxes"],
   fiverr: ["date,order id,type", "order id,type,description"],
@@ -92,7 +95,7 @@ export function detect(text, opts = {}) {
 export function convert(text, opts = {}) {
   const d = opts.platform && opts.platform !== "auto" ? { id: opts.platform, ranked: [], confident: true, forced: true } : detect(text, opts);
   if (!d.id) {
-    return { detection: d, platform: null, result: null, findings: [{ severity: "error", title: "Could not tell which platform wrote this file", detail: "None of the fifteen readers recognised the header row. Choose the platform from the list, or open the single-platform tool for the export you have.", line: 0 }] };
+    return { detection: d, platform: null, result: null, findings: [{ severity: "error", title: "Could not tell which platform wrote this file", detail: "None of the sixteen readers recognised the header row. Choose the platform from the list, or open the single-platform tool for the export you have.", line: 0 }] };
   }
   const p = platform(d.id);
   const { platform: _drop, ...rest } = opts;
