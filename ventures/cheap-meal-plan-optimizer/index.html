@@ -98,6 +98,7 @@
     <p class="note" id="grocery-note"></p>
     <div style="overflow-x:auto"><table class="t" id="grocery"><thead><tr><th>Food</th><th class="n">Servings / week</th><th class="n">Packs to buy</th><th class="n">Left over</th><th class="n">At the till</th></tr></thead><tbody></tbody></table></div>
     <button type="button" id="download">Download the plan (CSV)</button>
+    <button type="button" class="secondary" id="copy-list">Copy shopping list as text</button>
   </section>
 
   <section class="card">
@@ -138,7 +139,7 @@
   </footer>
 
   <script type="module">
-    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, breakEvenPrices, planCsv, groceryList, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
+    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, breakEvenPrices, planCsv, groceryList, groceryText, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -263,6 +264,13 @@
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob); a.download = "cheapest-meal-plan.csv"; a.click();
       URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#copy-list").addEventListener("click", async () => {
+      if (!last) return;
+      const text = groceryText(last.spec, last.res);
+      try { await navigator.clipboard.writeText(text); status.textContent = "Shopping list copied. Paste it into your notes app."; }
+      catch { status.textContent = "Could not copy automatically: download the CSV instead."; }
       record("report_downloaded");
     });
     $("#optout").addEventListener("click", () => {

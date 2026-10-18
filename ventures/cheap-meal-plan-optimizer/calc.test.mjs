@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, planCsv, groceryList, breakEvenPrices, encodeShare, decodeShare, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, planCsv, groceryList, groceryText, breakEvenPrices, encodeShare, decodeShare, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -190,6 +190,13 @@ test("groceryList rounds up to whole packs and prices the leftover", () => {
   assert.ok(Math.abs(g.extra - (8 + 4.2 - 1.2 * 7)) < 1e-9);
   spec.foods[0].pack = 21; // exact multiple: no float round-up
   assert.equal(groceryList(spec, res).lines[0].packs, 1);
+});
+
+test("groceryText lists packs and exact servings with the till total", () => {
+  const spec = { daysPerWeek: 7, foods: foods([["Rice", 0.2, [180, 3, 40, 0, 1]], ["Egg", 0.3, [72, 6, 0, 5, 0]]]) };
+  spec.foods[0].pack = 20;
+  const res = { cost: 1.2, items: [{ index: 0, name: "Rice", servings: 3, cost: 0.6 }, { index: 1, name: "Egg", servings: 2, cost: 0.6 }] };
+  assert.equal(groceryText(spec, res), "Shopping list (one week)\nRice: 2 x 20.0-serving pack\nEgg: 14.0 servings\nEstimated total: $12.20\n");
 });
 
 test("breakEvenPrices finds the price at which a left-out food starts to win", () => {
