@@ -1320,6 +1320,11 @@
      "slug": "free-secretarynoise",
      "title": "How much does noisy scoring cost the secretary problem, and should the 1/e cutoff move?",
      "summary": "Simulation of the classical cutoff rule for hiring the best of <em>n</em> = 50 candidates when only a noisy score is seen (noise sd 0 to 4 times the quality sd, 40,000 trials per cell, checked against the exact noiseless formula). The best cutoff barely moves, 19 with no noise and 16&ndash;17 at every noise level; the chance of picking the true best falls from 0.373 to 0.145 at noise 1 and 0.043 at noise 4 (lottery: 0.02). Keeping the classical cutoff costs at most 0.006. A high mean true rank wants a much earlier cutoff (7&ndash;9). Cutoff rules only, Gaussian, one setting; the optimal noisy policy is not computed."
+    },
+    {
+     "slug": "free-secretarymargin",
+     "title": "With noisy scores, does a \"beat the record by a margin\" rule pick the best candidate more often than the best cutoff?",
+     "summary": "Simulation (<em>n</em> = 50 candidates, parameters tuned on 8,000 training trials, scored on 60,000 fresh paired trials) of a two-parameter margin rule: skip <em>r</em>&minus;1 candidates, then take the first whose noisy score beats the earlier maximum by at least <em>d</em>. P(pick the true best) rises from 0.2334 to 0.2444 at noise 0.5 (+0.0111, se 0.0014) and from 0.1429 to 0.1491 at noise 1 (+0.0062, se 0.0015); at noise 2 the gain (+0.0018, se 0.0011) is not distinguishable from zero, and with no noise the tuning picks the plain cutoff. One setting, one seed pair, a coarse grid; the Bayes-optimal policy is not computed."
     }
    ]
   },
