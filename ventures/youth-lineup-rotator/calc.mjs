@@ -38,7 +38,7 @@ export function parseSlots(text) {
   for (const raw of String(text || "").split(/[,\n;]/)) {
     const tok = raw.trim();
     if (!tok) continue;
-    const m = tok.match(/^(.*?)\s*[x×]\s*(\d+)$/i) || tok.match(/^(\d+)\s*[x×]?\s+(.*)$/i);
+    const m = tok.match(/^(.*?)(?:\s+x|\s*×)\s*(\d+)$/i) || tok.match(/^(\d+)\s*[x×]?\s+(.*)$/i);
     let name = tok;
     let n = 1;
     if (m) {

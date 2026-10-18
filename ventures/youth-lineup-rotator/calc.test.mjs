@@ -15,6 +15,8 @@ const names = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`).join("\n")
 
 test("parseSlots expands counts in both spellings and rejects nonsense", () => {
   assert.deepEqual(parseSlots("GK, DEF x2, 2 MID").slots, ["GK", "DEF", "DEF", "MID", "MID"]);
+  // A position that merely ends in "x" is a name, not a count.
+  assert.deepEqual(parseSlots("Flex2, Flex x2, Mix 2, DEF×2").slots, ["Flex2", "Flex", "Flex", "Mix 2", "DEF", "DEF"]);
   assert.ok(parseSlots("").errors.length);
   assert.ok(parseSlots("DEF x0").errors.length);
   for (const p of Object.values(PRESETS)) assert.ok(parseSlots(p.slots).slots.length >= 5, p.label);
