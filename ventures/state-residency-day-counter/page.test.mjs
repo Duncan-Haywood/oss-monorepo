@@ -18,7 +18,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 });
 
 test("JSON-LD blocks parse and every FAQ question is on the page", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html", "georgia-new-mexico-louisiana-days-only-residency.html"]) {
     const html = page(name);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
     const faq = blocks.find((b) => b["@type"] === "FAQPage");
@@ -97,7 +97,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
 });
 
 test("related-tool links point at ventures that exist", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html", "georgia-new-mexico-louisiana-days-only-residency.html"]) {
     for (const m of page(name).matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
@@ -211,4 +211,26 @@ test("the California guide's figures match the counter", async () => {
   assert.match(guide, /No warranty/);
   assert.match(page("index.html"), /href="\.\/california-nine-month-residency-presumption\.html"/);
   assert.match(page("sitemap.xml"), /california-nine-month-residency-presumption\.html/);
+});
+
+test("the days-only residency guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay, RULES } = await import("./calc.mjs");
+  const guide = page("georgia-new-mexico-louisiana-days-only-residency.html");
+  const run = (text, code) => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "TX", abode: { TX: true }, asOf: toDay(2025, 12, 31), convention: "inclusive", wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === code);
+  };
+  assert.equal(RULES.GA.limit, 182);
+  assert.equal(RULES.NM.limit, 184);
+  assert.equal(RULES.LA.limit, 182);
+  for (const code of ["GA", "NM", "LA"]) assert.equal(RULES[code].requiresAbode, false);
+  const room = (r) => (r.room > 0 ? `${r.room} day${r.room === 1 ? "" : "s"} of room` : r.room === 0 ? "No room left" : `Over by ${-r.room}`);
+  for (const [text, code] of [["2025-01-01 to 2025-06-30 GA", "GA"], ["2025-01-01 to 2025-07-01 GA", "GA"], ["2025-01-01 to 2025-07-02 GA", "GA"], ["2025-01-01 to 2025-07-03 NM", "NM"], ["2025-01-01 to 2025-07-04 NM", "NM"]]) {
+    const r = run(text, code);
+    assert.ok(guide.includes(`<td class="n">${r.days}</td><td>${room(r)}</td>`), text);
+  }
+  assert.match(guide, /<link rel="canonical" href="\.\/georgia-new-mexico-louisiana-days-only-residency\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/georgia-new-mexico-louisiana-days-only-residency\.html"/);
+  assert.match(page("sitemap.xml"), /georgia-new-mexico-louisiana-days-only-residency\.html/);
 });
