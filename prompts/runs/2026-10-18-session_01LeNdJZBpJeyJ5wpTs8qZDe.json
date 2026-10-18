@@ -16,7 +16,10 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
+  "projects": [
+    "crypto-cost-basis-calculator",
+    "container-load-planner"
+  ],
   "pr": null,
   "repo": null,
   "commits": [],
@@ -26,13 +29,13 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "goal": null,
-  "notes": "",
+  "notes": "Self-host kit (Dockerfile, compose, fly, render, deploy.test.mjs, README section) for crypto-cost-basis-calculator and container-load-planner, both static. Docker image not built here. Existing suites pass (106, 71).",
   "corrections": [],
   "redteam": null
 }
