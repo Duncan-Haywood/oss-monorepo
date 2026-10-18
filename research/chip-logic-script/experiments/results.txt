@@ -1,0 +1,78 @@
+== pop16: 13 candidates, 1 rejected by the RTL equivalence gate (P:p3_wrong_bug); 60 (candidate, script) pairs scored; 0 mapped netlists NOT equivalent to the reference 
+cells*depth (cells/depth) per candidate and script:
+candidate                 yosys_default      strash_map         dc2_map            dch_map            resyn2_map         
+reference                 896 (64/14)        1005 (67/15)       938 (67/14)        938 (67/14)        990 (66/15)        
+P:p0_pair_tree            896 (64/14)        1005 (67/15)       938 (67/14)        938 (67/14)        990 (66/15)        
+P:p1_nibble_case          1320 (88/15)       1339 (103/13)      1246 (89/14)       1157 (89/13)       1288 (92/14)       
+P:p2_full_adder_csa       896 (64/14)        896 (64/14)        910 (65/14)        910 (65/14)        896 (64/14)        
+P:p4_split_8              896 (64/14)        1005 (67/15)       938 (67/14)        938 (67/14)        990 (66/15)        
+S:flat                    896 (64/14)        1005 (67/15)       938 (67/14)        938 (67/14)        990 (66/15)        
+S:pair                    896 (64/14)        1005 (67/15)       938 (67/14)        938 (67/14)        990 (66/15)        
+S:csa                     896 (64/14)        896 (64/14)        910 (65/14)        910 (65/14)        896 (64/14)        
+S:group_2                 896 (64/14)        1005 (67/15)       938 (67/14)        938 (67/14)        990 (66/15)        
+S:group_4                 896 (64/14)        1005 (67/15)       938 (67/14)        938 (67/14)        990 (66/15)        
+S:group_8                 896 (64/14)        1005 (67/15)       938 (67/14)        938 (67/14)        990 (66/15)        
+S:lut4                    1320 (88/15)       1339 (103/13)      1246 (89/14)       1157 (89/13)       1288 (92/14)       
+
+winner per script (lowest cells*depth; ties listed):
+  yosys_default  896  reference, P:p0_pair_tree, P:p2_full_adder_csa, P:p4_split_8, S:flat, S:pair, S:csa, S:group_2, S:group_4, S:group_8  (reference 896, ratio 1.00)
+  strash_map     896  P:p2_full_adder_csa, S:csa  (reference 1005, ratio 0.89)
+  dc2_map        910  P:p2_full_adder_csa, S:csa  (reference 938, ratio 0.97)
+  dch_map        910  P:p2_full_adder_csa, S:csa  (reference 938, ratio 0.97)
+  resyn2_map     896  P:p2_full_adder_csa, S:csa  (reference 990, ratio 0.91)
+default-script winner ['reference', 'P:p0_pair_tree', 'P:p2_full_adder_csa', 'P:p4_split_8', 'S:flat', 'S:pair', 'S:csa', 'S:group_2', 'S:group_4', 'S:group_8'] also wins (or ties) under 5 of 5 scripts
+reference default 896; reference best script 896 (yosys_default); overall best 896 = reference under yosys_default, cells/depth (64, 14)
+overall best / reference-default = 1.00; overall best / reference-best-script = 1.00
+
+== clz16: 12 candidates, 1 rejected by the RTL equivalence gate (P:c3_bug_noZero); 55 (candidate, script) pairs scored; 0 mapped netlists NOT equivalent to the reference 
+cells*depth (cells/depth) per candidate and script:
+candidate                 yosys_default      strash_map         dc2_map            dch_map            resyn2_map         
+reference                 615 (41/15)        1110 (74/15)       630 (42/15)        615 (41/15)        630 (42/15)        
+P:c0_casez                600 (60/10)        981 (109/9)        845 (65/13)        616 (77/8)         747 (83/9)         
+P:c1_binary_search        552 (46/12)        430 (43/10)        630 (45/14)        540 (45/12)        484 (44/11)        
+P:c2_nibble_combine       504 (42/12)        222 (37/6)         546 (42/13)        216 (36/6)         336 (42/8)         
+P:c4_isolate_msb          1104 (48/23)       2730 (130/21)      2496 (78/32)       1008 (72/14)       2266 (103/22)      
+S:loop_up                 615 (41/15)        1110 (74/15)       630 (42/15)        615 (41/15)        630 (42/15)        
+S:loop_down               935 (55/17)        7320 (120/61)      3520 (88/40)       1577 (83/19)       2992 (88/34)       
+S:chain                   615 (41/15)        1110 (74/15)       630 (42/15)        615 (41/15)        630 (42/15)        
+S:tree_8                  344 (43/8)         720 (80/9)         405 (45/9)         344 (43/8)         360 (45/8)         
+S:tree_4                  504 (42/12)        462 (66/7)         504 (42/12)        396 (44/9)         396 (44/9)         
+S:nibble                  504 (42/12)        488 (61/8)         504 (42/12)        396 (44/9)         396 (44/9)         
+
+winner per script (lowest cells*depth; ties listed):
+  yosys_default  344  S:tree_8  (reference 615, ratio 0.56)
+  strash_map     222  P:c2_nibble_combine  (reference 1110, ratio 0.20)
+  dc2_map        405  S:tree_8  (reference 630, ratio 0.64)
+  dch_map        216  P:c2_nibble_combine  (reference 615, ratio 0.35)
+  resyn2_map     336  P:c2_nibble_combine  (reference 630, ratio 0.53)
+default-script winner ['S:tree_8'] also wins (or ties) under 2 of 5 scripts
+reference default 615; reference best script 615 (yosys_default); overall best 216 = P:c2_nibble_combine under dch_map, cells/depth (36, 6)
+overall best / reference-default = 0.35; overall best / reference-best-script = 0.35
+
+== absd8: 12 candidates, 1 rejected by the RTL equivalence gate (P:d3_bug_ones_comp); 55 (candidate, script) pairs scored; 0 mapped netlists NOT equivalent to the reference 
+cells*depth (cells/depth) per candidate and script:
+candidate                 yosys_default      strash_map         dc2_map            dch_map            resyn2_map         
+reference                 1071 (63/17)       990 (90/11)        1105 (65/17)       891 (81/11)        912 (76/12)        
+P:d0_sub_negate           1116 (62/18)       988 (76/13)        1134 (63/18)       780 (65/12)        980 (70/14)        
+P:d1_max_minus_min        1856 (64/29)       1566 (87/18)       2288 (88/26)       1512 (84/18)       1343 (79/17)       
+P:d2_xor_borrow           1334 (58/23)       975 (75/13)        1334 (58/23)       949 (73/13)        1036 (74/14)       
+P:d4_two_subtractors      1314 (73/18)       1056 (96/11)       1332 (74/18)       935 (85/11)        1092 (84/13)       
+S:cmp_mux                 1071 (63/17)       990 (90/11)        1105 (65/17)       891 (81/11)        912 (76/12)        
+S:cmp_mux_lt              1314 (73/18)       1056 (96/11)       1332 (74/18)       935 (85/11)        1092 (84/13)       
+S:sub_neg                 1116 (62/18)       988 (76/13)        1134 (63/18)       780 (65/12)        980 (70/14)        
+S:sub_xor                 1334 (58/23)       975 (75/13)        1334 (58/23)       949 (73/13)        1036 (74/14)       
+S:two_sub                 1314 (73/18)       1056 (96/11)       1332 (74/18)       935 (85/11)        1092 (84/13)       
+S:minmax                  1856 (64/29)       1566 (87/18)       2288 (88/26)       1512 (84/18)       1343 (79/17)       
+
+winner per script (lowest cells*depth; ties listed):
+  yosys_default  1071  reference, S:cmp_mux  (reference 1071, ratio 1.00)
+  strash_map     975  P:d2_xor_borrow, S:sub_xor  (reference 990, ratio 0.98)
+  dc2_map        1105  reference, S:cmp_mux  (reference 1105, ratio 1.00)
+  dch_map        780  P:d0_sub_negate, S:sub_neg  (reference 891, ratio 0.88)
+  resyn2_map     912  reference, S:cmp_mux  (reference 912, ratio 1.00)
+default-script winner ['reference', 'S:cmp_mux'] also wins (or ties) under 3 of 5 scripts
+reference default 1071; reference best script 891 (dch_map); overall best 780 = P:d0_sub_negate under dch_map, cells/depth (65, 12)
+overall best / reference-default = 0.73; overall best / reference-best-script = 0.88
+
+summary: pop16: best/ref-default 1.00, best/ref-best-script 1.00, default winner holds under 5/5; clz16: best/ref-default 0.35, best/ref-best-script 0.35, default winner holds under 2/5; absd8: best/ref-default 0.73, best/ref-best-script 0.88, default winner holds under 3/5
+tool: Yosys 0.33 (git sha1 2584903a060)
