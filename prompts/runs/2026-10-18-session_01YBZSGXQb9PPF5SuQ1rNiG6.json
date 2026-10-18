@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01YBZSGXQb9PPF5SuQ1rNiG6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T03:08:41Z",
+  "ended": "2026-10-18T03:12:31Z",
+  "wall_minutes": 4.14,
+  "tokens_in": 2013460,
+  "tokens_out": 6899,
+  "cost_usd": 0.8211,
+  "tool_calls": 25,
+  "task": "state-residency-day-counter: add West Virginia rule",
+  "projects": [
+    "state-residency-day-counter"
+  ],
+  "pr": 7915,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Router queue is all calculator consolidation/explore hypotheses; finding a contained deepening of an already-deep venture took many reads."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Shallow clone has no merge base, so supersede_check/stranded-branch triage cannot run without a long unshallow."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Skipped #7905 (live session, CI running) and stranded comparison-page drafts (orphan pages, comparison-page glut). WV statute wording from search snippet, not the legislature page.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ba68fa89-86c3-5dd9-80f4-be7268e32f44",
+    "transcripts": 1,
+    "first": "2026-10-18T03:08:41Z",
+    "last": "2026-10-18T03:12:50Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 20,
+        "input": 40,
+        "output": 6899,
+        "thinking": 1950,
+        "cache_read": 1921491,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91929,
+        "api_equivalent_usd": 0.8211,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 20,
+      "input": 40,
+      "output": 6899,
+      "thinking": 1950,
+      "cache_read": 1921491,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91929,
+      "api_equivalent_usd": 0.8211,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.954,
+    "tool_calls": 25,
+    "tools": {
+      "Bash": 17,
+      "Read": 3,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__list_pull_requests": 1,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.14,
+      "active_minutes": 4.14,
+      "model_minutes": 1.2,
+      "tool_minutes": 2.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "research one statute, edit rules, pages, test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 121.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
