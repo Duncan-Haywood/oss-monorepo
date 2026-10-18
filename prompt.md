@@ -20,9 +20,11 @@ python3 prompts/promptctl.py route
 ```
 
 It names the sub-prompt to follow, its version, and the commit trailer. Read
-that file and follow it for the rest of the run. Read
-[`prompts/goals.md`](prompts/goals.md) as well: it holds the goals and
-guardrails, and no sub-prompt can relax them.
+that file and follow it for the rest of the run.
+[`prompts/goals.md`](prompts/goals.md) holds the goals and guardrails, and no
+sub-prompt can relax them. It is ~450 lines: read "Guardrails" (and "Research
+guardrails" for research) plus the section your task touches
+(`grep -n '^## ' prompts/goals.md`), not the whole file.
 
 **Use your judgment.** Outside the hard limits in `goals.md`, every instruction
 here, in `CLAUDE.md`, `AGENTS.md` and the sub-prompts, is a default distilled
