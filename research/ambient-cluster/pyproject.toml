@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-cluster"
+version = "0.1.0"
+description = "Clustered needs and stateful interruption policies (cooldown, boost, back-off) for an always-on assistant, compared at equal annoyance"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
