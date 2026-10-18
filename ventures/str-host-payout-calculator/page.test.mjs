@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { compareChannels, CHANNEL_PRESETS } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 
@@ -128,4 +129,19 @@ test("index links one hop to the turo-host-payout-calculator sibling", () => {
     /href="\.\.\/turo-host-payout-calculator\/"/,
     "index must link ../turo-host-payout-calculator/ so crawlers reach the Turo host payout calculator in one hop",
   );
+});
+
+test("the flat-percentage comparison page links back, names no product, and matches the worked Vrbo example", () => {
+  const vsFlat = readFileSync(new URL("./vs-subtracting-a-flat-percentage.html", import.meta.url), "utf8");
+  assert.match(vsFlat, /<a href="\.\/">/);
+  assert.match(vsFlat, /names no specific product/i);
+  assert.match(vsFlat, /github\.com\/sponsors\/Duncan-Haywood/);
+  const input = { nightlyRate: 225, nights: 2, cleaningFee: 95, extraFees: 0, taxRate: 10, securityDeposit: 200, bookingsPerYear: 36 };
+  const c = compareChannels(input, CHANNEL_PRESETS);
+  const vrbo = c.channels.find((x) => x.id === "vrbo-pay-per-booking");
+  const near = (a, e) => assert.ok(Math.abs(a - e) < 0.01, `${a} vs ${e}`);
+  near(c.booking.subtotal, 545);
+  near(c.booking.subtotal * 0.92, 501.4);
+  near(vrbo.payoutPerStay, 493.77);
+  for (const n of ["$545", "$501.40", "$493.77", "$7.63"]) assert.ok(vsFlat.includes(n), n);
 });
