@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import os
 import random
 import re
 import subprocess
@@ -230,7 +231,10 @@ def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS) -> tupl
     """(passed, seconds). A timeout counts as a failure: the suite noticed."""
     start = time.monotonic()
     try:
-        proc = subprocess.run(cmd, cwd=cwd, capture_output=True, timeout=timeout)
+        # No .pyc written: a same-size mutant's pyc (mtime+size match) would
+        # keep serving the mutant after the file is restored.
+        env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+        proc = subprocess.run(cmd, cwd=cwd, capture_output=True, timeout=timeout, env=env)
         passed = proc.returncode == 0
     except subprocess.TimeoutExpired:
         passed = False

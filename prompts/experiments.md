@@ -696,3 +696,12 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   40 runs; expect none.
 - Drift: `prompts/drift/2026-10-18.md`.
 - Result: (next review)
+
+## E36: review 2026-10-18 (second)
+
+- Change: `redteam.py` runs suites with `PYTHONDONTWRITEBYTECODE=1` (stale
+  `.pyc` kept serving a same-size mutant).
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about stale
+  bytecode, next 20 redteam runs; expect none.
+- Candidates: unchanged. Drift: `prompts/drift/2026-10-18b.md`.
+- Result: (next review)
