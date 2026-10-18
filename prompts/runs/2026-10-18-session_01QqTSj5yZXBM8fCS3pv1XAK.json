@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01QqTSj5yZXBM8fCS3pv1XAK",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T06:38:59Z",
+  "ended": "2026-10-18T06:39:15Z",
+  "wall_minutes": 2.17,
+  "tokens_in": 853258,
+  "tokens_out": 3213,
+  "cost_usd": 0.3695,
+  "tool_calls": 13,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Targeted platform/ci/public_surface.py: 6/8 caught, 2 boundary-constant gaps (MIN_SERVED_BYTES, DEFAULT_SAMPLE) guarded. No real defects found.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/public_surface.py",
+        "test": "/usr/local/bin/python3 -m unittest test_public_surface  (in platform/ci)",
+        "seed": 510458,
+        "commit": "07442527c4",
+        "sites": 87,
+        "baseline_seconds": 7.7,
+        "mutants": [
+          {
+            "file": "platform/ci/public_surface.py",
+            "line": 137,
+            "col": 29,
+            "operator": "div-to-times",
+            "before": "PUBLISH_BRANCH_SCRIPT = REPO / \"platform\" / \"pages\" / \"publish-branch.sh\"",
+            "after": "PUBLISH_BRANCH_SCRIPT = REPO * \"platform\" / \"pages\" / \"publish-branch.sh\"",
+            "line_text": "PUBLISH_BRANCH_SCRIPT = REPO / \"platform\" / \"pages\" / \"publish-branch.sh\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/public_surface.py",
+            "line": 154,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "MIN_SERVED_BYTES = 512",
+            "after": "MIN_SERVED_BYTES = 513",
+            "line_text": "MIN_SERVED_BYTES = 512",
+            "caught": false,
+            "seconds": 5.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "boundary constant untested; added tests in test_public_surface.py"
+          },
+          {
+            "file": "platform/ci/public_surface.py",
+            "line": 160,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "DEFAULT_SAMPLE = 24",
+            "after": "DEFAULT_SAMPLE = 25",
+            "line_text": "DEFAULT_SAMPLE = 24",
+            "caught": false,
+            "seconds": 6.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "boundary constant untested; added tests in test_public_surface.py"
+          },
+          {
+            "file": "platform/ci/public_surface.py",
+            "line": 262,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "if self.probe.expect == \"serves\":",
+            "after": "if self.probe.expect != \"serves\":",
+            "line_text": "        if self.probe.expect == \"serves\":",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/public_surface.py",
+            "line": 301,
+            "col": 20,
+            "operator": "or-to-and",
+            "before": "opener = opener or _opener()",
+            "after": "opener = opener and _opener()",
+            "line_text": "    opener = opener or _opener()",
+            "caught": true,
+            "seconds": 12.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/public_surface.py",
+            "line": 326,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "for key, value in (headers or {}).items():",
+            "after": "for key, value in (headers and {}).items():",
+            "line_text": "    for key, value in (headers or {}).items():",
+            "caught": true,
+            "seconds": 5.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/public_surface.py",
+            "line": 475,
+            "col": 16,
+            "operator": "or-to-and",
+            "before": "path = path or APEX_SITEMAP",
+            "after": "path = path and APEX_SITEMAP",
+            "line_text": "    path = path or APEX_SITEMAP",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/public_surface.py",
+            "line": 630,
+            "col": 30,
+            "operator": "plus-to-minus",
+            "before": "everything = host_results + page_results + pages_sitemap_results",
+            "after": "everything = host_results - page_results + pages_sitemap_results",
+            "line_text": "    everything = host_results + page_results + pages_sitemap_results",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "47431914-f9b9-5d6c-a8ba-2cea04fcf4e8",
+    "transcripts": 1,
+    "first": "2026-10-18T06:38:59Z",
+    "last": "2026-10-18T06:41:09Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 13,
+        "input": 26,
+        "output": 3213,
+        "thinking": 43,
+        "cache_read": 809382,
+        "cache_write_5m": 0,
+        "cache_write_1h": 43850,
+        "api_equivalent_usd": 0.3695,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 13,
+      "input": 26,
+      "output": 3213,
+      "thinking": 43,
+      "cache_read": 809382,
+      "cache_write_5m": 0,
+      "cache_write_1h": 43850,
+      "api_equivalent_usd": 0.3695,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.949,
+    "tool_calls": 13,
+    "tools": {
+      "Bash": 12,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.17,
+      "active_minutes": 2.17,
+      "model_minutes": 0.45,
+      "tool_minutes": 1.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "two boundary tests plus campaign",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 135.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
