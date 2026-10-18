@@ -188,6 +188,8 @@
       <span class="note">No pay or wages on it, so it is safe to post in the break room.</span></div>
     <div style="margin-top:12px"><button type="button" class="secondary" id="make-messages">Write a text for each person</button>
       <div id="messages" aria-live="polite"></div></div>
+    <div style="margin-top:12px"><button type="button" class="secondary" id="make-open-post">Write one post for the open shifts</button>
+      <div id="open-post" aria-live="polite"></div></div>
   </section>
 
   <section class="card">
@@ -230,7 +232,7 @@
   </footer>
 
   <script type="module">
-    import { parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -410,6 +412,20 @@
         row.append(ta, b); box.append(row);
       }
       record("messages_made");
+    });
+
+    $("#make-open-post").addEventListener("click", () => {
+      if (!last) return;
+      let post;
+      try { post = openShiftPost(lastIn.staff, lastIn.slots, last, $("#weekstart").value || null); } catch (e) { post = openShiftPost(lastIn.staff, lastIn.slots, last); }
+      const box = $("#open-post"); box.textContent = "";
+      if (!post.count) { box.textContent = "Every shift is filled, so there is nothing to post."; return; }
+      const ta = document.createElement("textarea"); ta.readOnly = true; ta.rows = Math.min(10, post.text.split("\n").length + 1);
+      ta.value = post.text; ta.setAttribute("aria-label", "Post for the open shifts"); ta.style.width = "100%";
+      const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = "Copy the post";
+      b.addEventListener("click", () => { ta.select(); try { navigator.clipboard.writeText(post.text); } catch (e) { document.execCommand("copy"); } record("open_post_copied"); });
+      box.append(ta, b);
+      record("open_post_made");
     });
 
     // Remember the team on this device only; nothing is sent anywhere.

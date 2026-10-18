@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01DAiGgPmL5svzPQyDS6sKWU",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T12:21:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder: open-shift post",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8043",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "Brief is a generic 'continue work'; picking a venture cost several calls. list_pull_requests output (stranded-branch drafts) was huge and unfiltered."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Small feature on an already deep venture; the search leaves shifts open only when nobody fits, so named candidates are rare. No live-site refresh attempted (gate suggested it).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, laborPercent, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
@@ -1096,4 +1096,28 @@ test("salesPerLaborHour: hours each day's sales call for against hours scheduled
   assert.equal(salesPerLaborHour(r, staff, "", 50), null);
   assert.equal(salesPerLaborHour(r, staff, "400", 0), null);
   assert.deepEqual(salesPerLaborHour(r, staff, "800", 50).under.map((d) => d.day), ["Mon"]);
+});
+
+test("openShiftPost: one group message naming each open shift and who could take it, no pay figures", () => {
+  const staff = staffOf("Ana, 15, 40, 0, Mon 9-17\nBen, 12, 40, 0, Mon 9-17; Tue 9-17");
+  const slots = slotsOf("Mon, 9, 13, 1, early\nTue, 9, 13, 1, tue\nSat, 9, 13, 1, sat");
+  const r = buildRoster(staff, slots);
+  const post = openShiftPost(staff, slots, r, "2026-10-12");
+  assert.equal(post.count, 1);
+  assert.match(post.text, /^Open shifts this week\. Reply to claim one:/);
+  assert.match(post.text, /Sat 17 Oct: 9am-1pm sat - open to anyone free/);
+  assert.doesNotMatch(post.text, /\$/);
+  const full = buildRoster(staff, slotsOf("Mon, 9, 13, 1, early"));
+  assert.deepEqual(openShiftPost(staff, slotsOf("Mon, 9, 13, 1, early"), full), { count: 0, text: "" });
+  assert.ok(openShiftPost(staff, slots, null).error);
+});
+
+test("openShiftPost: names the people who could take an open shift", () => {
+  const staff = staffOf("Ana, 15, 40, 0, Mon 9-17\nBen, 12, 40, 0, Mon 9-17");
+  const slots = slotsOf("Mon, 9, 13, 1, crew");
+  const r = buildRoster(staff, slots);
+  const emptied = { ...r, owner: [-1] };
+  const post = openShiftPost(staff, slots, emptied);
+  assert.equal(post.count, 1);
+  assert.match(post.text, /Mon: 9am-1pm crew - could take it: Ben, Ana/);
 });

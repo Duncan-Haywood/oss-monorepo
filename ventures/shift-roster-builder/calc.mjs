@@ -948,9 +948,8 @@ export function rosterIcs(r, weekStart, person = null) {
   return lines.join("\r\n") + "\r\n";
 }
 
-// Plain-text message per person ("Hi Sam, here is your week: ..."), ready to paste into a text or chat.
-// weekStart ("YYYY-MM-DD", a Monday) is optional; with it each line carries the date, e.g. "Mon 6 Oct".
-export function rosterMessages(r, weekStart = null) {
+// "Mon" or, given the Monday as YYYY-MM-DD, "Mon 6 Oct".
+function dayLabeler(weekStart) {
   let base = null;
   if (weekStart) {
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(weekStart));
@@ -958,11 +957,17 @@ export function rosterMessages(r, weekStart = null) {
     base = Date.UTC(+m[1], +m[2] - 1, +m[3]);
   }
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const dayLabel = (d) => {
+  return (d) => {
     if (base === null) return DAYS[d];
     const dt = new Date(base + d * 86400000);
     return `${DAYS[d]} ${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]}`;
   };
+}
+
+// Plain-text message per person ("Hi Sam, here is your week: ..."), ready to paste into a text or chat.
+// weekStart ("YYYY-MM-DD", a Monday) is optional; with it each line carries the date, e.g. "Mon 6 Oct".
+export function rosterMessages(r, weekStart = null) {
+  const dayLabel = dayLabeler(weekStart);
   const byPerson = new Map();
   for (const a of r.assignments) {
     if (!a.person) continue;
@@ -979,6 +984,26 @@ export function rosterMessages(r, weekStart = null) {
     out.push({ person: p.name, shifts: slots.length, text });
   }
   return out;
+}
+
+// One group message for the shifts still open after a build: each open shift and the people who could take it without
+// moving anyone else (from coverOptions), in listed order and without pay figures, so it can be posted to the team chat
+// as is. The search leaves a shift open only when nobody listed can take it, so the names are usually empty and the
+// line then invites anyone not on the list (a call-in, a new hire) to claim it.
+export function openShiftPost(staff, slots, roster, weekStart = null) {
+  if (!roster || !roster.owner) return { error: "Build a roster first." };
+  const dayLabel = dayLabeler(weekStart);
+  const open = roster.owner.map((p, i) => (p < 0 ? i : -1)).filter((i) => i >= 0)
+    .sort((a, b) => slots[a].day - slots[b].day || slots[a].startMin - slots[b].startMin || a - b);
+  if (!open.length) return { count: 0, text: "" };
+  const lines = open.map((i) => {
+    const s = slots[i];
+    const c = coverOptions(staff, slots, roster, i);
+    const names = c.fits.map((f) => f.name);
+    const when = `${dayLabel(s.day)}: ${fmtClock(s.startMin)}-${fmtClock(s.endMin)}${s.label ? " " + s.label : ""}${s.role ? ` (${s.role})` : ""}`;
+    return `${when} - ${names.length ? "could take it: " + names.join(", ") : "open to anyone free"}`;
+  });
+  return { count: open.length, text: `Open shifts this week. Reply to claim one:\n${lines.join("\n")}` };
 }
 
 // Last week's roster CSV (from rosterCsv) -> each person's latest shift end, as minutes from last Monday 00:00.
