@@ -455,6 +455,14 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
         self.assertEqual(promptctl._flag_stale("2026-10-17T13:00: x", "2026-10-17T12:00:00+00:00"),
                          "2026-10-17T13:00: x")
 
+    def test_latest_and_named_files(self):
+        self.assertEqual(promptctl._latest("", "2026-10-17"), "2026-10-17")
+        self.assertEqual(promptctl._latest("2026-10-18", "2026-10-17"), "2026-10-18")
+        self.assertEqual(promptctl._latest("2026-10-18", ""), "2026-10-18")
+        self.assertEqual(promptctl._named_files_changed("no path here"), "")
+        self.assertEqual(promptctl._named_files_changed("nonexistent/zzz.py broke"), "")
+        self.assertTrue(promptctl._named_files_changed("prompts/promptctl.py is long"))
+
     def test_string_friction_and_deviation_entries_do_not_crash(self):
         import tempfile, json
         from pathlib import Path
