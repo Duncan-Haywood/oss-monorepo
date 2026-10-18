@@ -163,6 +163,16 @@ class RecordTest(PromptTestCase):
         path.write_text(json.dumps(rec))
         self.assertEqual(promptctl.validate(self.fx.root), [])
 
+    def test_a_successful_record_from_the_cutoff_date_must_name_its_pr(self):
+        path = promptctl.record(self.fx.root, "research", 0, "https://x/session_abc", day="2026-10-19")
+        rec = json.loads(path.read_text())
+        rec["outcome"] = "success"
+        path.write_text(json.dumps(rec))
+        self.assertTrue(any("names its pull request" in e for e in promptctl.validate(self.fx.root)))
+        rec["pr"] = "123"
+        path.write_text(json.dumps(rec))
+        self.assertEqual(promptctl.validate(self.fx.root), [])
+
     def test_mirrored_upstream_line_with_no_date_or_session_is_valid_but_a_native_one_is_not(self):
         path = promptctl.record(self.fx.root, "research", 0, "https://x/session_abc", day="2026-10-12")
         rec = json.loads(path.read_text())
