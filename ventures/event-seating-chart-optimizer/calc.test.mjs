@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove, suggestFixes,
+  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove, suggestFixes, compareTableCounts,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -504,4 +504,24 @@ test("suggestFixes offers a score-raising move or swap for an unmet wish and app
   assert.equal(fix.length, 1);
   assert.match(fix[0].action, /^(Move|Swap) .*\b[AB]\b/);
   assert.deepEqual(fix[0].broke, []);
+});
+
+test("compareTableCounts runs the optimiser at each table count and applies nothing", () => {
+  const spec = specFrom("A\nB\nC\nD\nE\nF\nG\nH\nI\nJ", "A + B\nC + D\nE + F\nG ! H\nA ++ I", { seatsPerTable: 4, tableCount: "" });
+  const before = JSON.stringify(spec);
+  const rows = compareTableCounts(spec);
+  assert.equal(JSON.stringify(spec), before);
+  assert.deepEqual(rows.map((r) => r.tables), [3, 4, 5, 6]);
+  for (const r of rows) {
+    assert.equal(r.rulesTotal, 5);
+    assert.ok(r.maxPerTable <= 4);
+    assert.ok(r.rulesMet >= 0 && r.rulesMet <= 5);
+  }
+  assert.ok(rows.some((r) => r.best));
+  // Each row matches a direct run at that count.
+  const direct = optimize({ ...spec, tableCount: 4 });
+  assert.equal(rows[1].score, direct.score);
+  // A pin to table 5 rules out smaller counts.
+  const pinned = specFrom("A\nB\nC\nD\nE\nF", "A @ 5", { seatsPerTable: 3, tableCount: "" });
+  assert.deepEqual(compareTableCounts(pinned, 4).map((r) => r.tables), [5, 6]);
 });

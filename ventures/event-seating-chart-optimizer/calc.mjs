@@ -491,6 +491,24 @@ export function describe(spec, W, table, baseline) {
 }
 
 /**
+ * "Would one more (or fewer) table seat everyone better?" Re-runs the optimiser
+ * for table counts from the fewest that fit up to `extra` more and reports each
+ * one's wishes met and fullest table. Counts the spec rules out (a pin past the
+ * last table, an accessible table that does not exist) are left out. Nothing is applied.
+ */
+export function compareTableCounts(spec, extra = 3) {
+  const base = resolveTableCount({ ...spec, tableCount: "" });
+  const rows = [];
+  for (let T = base; T <= base + extra; T++) {
+    const res = optimize({ ...spec, tableCount: T });
+    if (res.errors.length) continue;
+    rows.push({ tables: T, rulesMet: res.rulesMet, rulesTotal: res.rulesTotal, score: res.score, maxPerTable: Math.max(...res.tables.map((t) => t.size)) });
+  }
+  const top = Math.max(...rows.map((r) => r.score), 0);
+  return rows.map((r) => ({ ...r, best: rows.length > 1 && r.score === top }));
+}
+
+/**
  * "What if I move this guest to table N?" Checks a hand edit against the
  * plan: capacity, pin, access, and which wishes it would break or fix, with
  * the score change. Nothing is applied. Returns { errors } for a bad name or

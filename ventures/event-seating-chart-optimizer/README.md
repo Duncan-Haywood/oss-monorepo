@@ -44,6 +44,7 @@ zero dependencies, one JSON file on a disk you own.
 - `importGuestSheet` in `calc.mjs` - paste rows from a spreadsheet or RSVP export (or choose a .csv): tab, comma or semicolon separated, header columns for name (or first and last), household/party, side/group, meal, RSVP and plus-one are recognised, declined RSVPs are dropped, and a named plus-one is seated in their host's party.
 - `orderTable` in `calc.mjs` - seat order around each table (a ring): exhaustive up to 9 guests, greedy plus swap/reversal passes above; parties and wanted pairs end up neighbours, avoided pairs do not. Table signs, the CSV and the on-screen tables list guests in this order.
 - `suggestFixes` in `calc.mjs` - for each wish the plan could not meet, the best single move or swap that raises the score within capacity, pins and accessible tables, and which other wishes it would break. Shown under "Ways to fix a missed wish"; nothing is applied.
+- `compareTableCounts` in `calc.mjs` - "would one more table seat better?": re-runs the optimiser at the fewest tables that fit and up to three more, and reports wishes met and the fullest table for each; counts a pin or accessible table rules out are skipped. Nothing is applied.
 - `checkMove` in `calc.mjs` - "what if I move Aunt Linda to table 3?": reports whether the table has room, the pin and access rules, which wishes the move would break or fix, and the score change, without applying it.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
