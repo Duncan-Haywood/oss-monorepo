@@ -324,6 +324,28 @@ export function validateLineup(ctx, grid) {
   return problems;
 }
 
+// League minimum-play rule ("every child plays at least half the game"):
+// `fraction` of the periods the whole game has, rounded up. A child who is only
+// there for part of the game is never asked for more than they can play.
+// Returns the children who fall short.
+export function minPlayCheck(result, fraction) {
+  const f = Number(fraction);
+  if (!(f > 0 && f <= 1)) return [];
+  const short = [];
+  for (const s of result.stats) {
+    if (s.avail === 0) continue;
+    const need = Math.min(s.avail, Math.ceil(f * result.periods - 1e-9));
+    if (s.played < need) short.push({ name: s.name, played: s.played, need, avail: s.avail });
+  }
+  return short;
+}
+
+export function minPlayWarning(short, fraction) {
+  if (!short.length) return null;
+  const pct = Math.round(Number(fraction) * 100);
+  return `Minimum play of ${pct}% is not met for ${short.map((x) => `${x.name} (${x.played} of ${x.need} periods)`).join(", ")}. Too many children are restricted to share the field; change the restrictions or check your league's rule.`;
+}
+
 export function periodTable(result) {
   return Array.from({ length: result.periods }, (_, t) => result.slotNames.map((pos, s) => ({ pos, player: result.grid[t][s] >= 0 ? result.playerNames[result.grid[t][s]] : null })));
 }

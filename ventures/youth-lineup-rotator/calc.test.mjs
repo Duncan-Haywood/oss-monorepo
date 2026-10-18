@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   PRESETS, EXAMPLE, parseSlots, parsePlayers, buildContext, buildLineup, lineupCost, validateLineup,
-  lineupText, lineupCsv, carryOverText, playerMessages, encodeSetup, decodeSetup, periodTable,
+  lineupText, lineupCsv, carryOverText, playerMessages, encodeSetup, decodeSetup, periodTable, minPlayCheck, minPlayWarning,
 } from "./calc.mjs";
 
 const make = (slotsText, playersText, periods, extra = {}) => {
@@ -166,4 +166,24 @@ test("setup links round-trip, including non-ASCII names, and reject junk", () =>
   assert.deepEqual(decodeSetup(encodeSetup(setup)).setup, setup);
   assert.ok(decodeSetup("%%%").error);
   assert.ok(decodeSetup(encodeSetup({ nope: 1 })).error);
+});
+
+test("minimum-play rule: even lineups pass, a squeezed child is named", () => {
+  const even = buildLineup(make("GK, DEF x2, MID x2, FWD x2", names(10), 4));
+  assert.deepEqual(minPlayCheck(even, 0.5), []);
+  assert.deepEqual(minPlayCheck(even, 0), []);
+  // A played 1 of 4 periods: short of half; C is only there for 1 period; D is absent.
+  const tight = { periods: 4, stats: [
+    { name: "A", played: 1, avail: 4 }, { name: "B", played: 4, avail: 4 }, { name: "C", played: 1, avail: 1 }, { name: "D", played: 0, avail: 0 },
+  ] };
+  const short = minPlayCheck(tight, 0.5);
+  assert.deepEqual(short.map((x) => x.name), ["A"]);
+  assert.equal(short[0].need, 2);
+  assert.match(minPlayWarning(short, 0.5), /A \(1 of 2 periods\)/);
+  assert.equal(minPlayWarning([], 0.5), null);
+});
+
+test("minimum-play never asks a late arrival for more than they can play", () => {
+  const r = { periods: 4, stats: [{ name: "L", played: 1, avail: 1 }] };
+  assert.deepEqual(minPlayCheck(r, 1), []);
 });
