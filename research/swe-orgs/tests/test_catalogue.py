@@ -49,3 +49,25 @@ def test_load_ledger_reads_a_directory_and_a_jsonl_file(tmp_path):
     f = tmp_path / "l.jsonl"
     f.write_text('{"errors": []}\n\n{"errors": ["y"]}\n')
     assert len(load_ledger(f)) == 2
+
+
+def test_readme_counts_match_the_csvs():
+    """The README repeats the catalogue's counts by hand each batch; fail when one drifts."""
+    import re
+    from collections import Counter
+    text = (Path(__file__).resolve().parents[1] / "README.md").read_text()
+    sources, practices = read_csv("sources.csv"), read_csv("practices.csv")
+    transfer = Counter(p["transfer"] for p in practices)
+    expected = [
+        (r"`data/sources\.csv`: (\d+) sources", len(sources)),
+        (r"`data/practices\.csv`: (\d+) practices", len(practices)),
+        (r"Of (\d+) practices", len(practices)),
+        (r"(\d+) transfer as `yes`", transfer["yes"]),
+        (r"(\d+) as `partial`", transfer["partial"]),
+        (r"(\d+) as `no`", transfer["no"]),
+        (r"The catalogue has (\d+) rows", len(practices)),
+    ]
+    for pattern, want in expected:
+        found = re.findall(pattern, text)
+        assert found, f"README no longer matches /{pattern}/"
+        assert all(int(n) == want for n in found), f"/{pattern}/ says {found}, CSV has {want}"
