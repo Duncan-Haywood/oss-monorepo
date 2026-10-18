@@ -484,6 +484,12 @@ test("West Virginia: more than 183 days with a permanent place of abode", () => 
   assert.equal(RULES.WV.kind, "statutory");
 });
 
+test("Louisiana six-month test is a no-abode statutory limit of 182", () => {
+  assert.equal(RULES.LA.limit, 182);
+  assert.equal(RULES.LA.requiresAbode, false);
+  assert.equal(RULES.LA.kind, "statutory");
+});
+
 test("Delaware and New Mexico day tests", () => {
   assert.equal(RULES.DE.limit, 183);
   assert.equal(RULES.DE.requiresAbode, true);
