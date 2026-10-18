@@ -73,8 +73,8 @@ deleted; its pull requests, review threads and old Pages site stay there.
 
 ## Picking work
 
-1. **Pick a track at random.** Draw a uniform random number. If it is below 0.05, this is a
-   free-choice run (below). Otherwise rescale: track = 1 + floor((r - 0.05) / 0.95 * 12), so 0.11 is track 1 and 0.99 is track 12. Four runs start in the same
+1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
+   free-choice run; otherwise it maps the draw onto tracks 1-12). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in

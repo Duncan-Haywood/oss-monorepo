@@ -715,3 +715,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   Open friction not fixed: ventures runs report that router top candidates are
   already deep; `allocate.py` needs its own run.
 - Result: (next review)
+
+## E38: review 2026-10-18 (fourth)
+
+- Change: `research/_shared/pick_track.py` does the track draw that
+  `research/PROJECTS.md` "Picking work" step 1 describes (a report said no
+  script did it); the step is now one line plus the command.
+- Metric: friction reports about the track draw, next 40 research runs; expect none.
+- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 6 runs).
+  `derived/` regenerated (25 of 29 PRs). Audit not run (recent outputs
+  mirrored or doc-only).
+- Drift: `prompts/drift/2026-10-18d.md`.
+- Result: (next review)
