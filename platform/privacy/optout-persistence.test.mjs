@@ -1701,7 +1701,7 @@ const RELATIVE_SELF = relative(
 // +1: `reseller-books` graduated.
 // +1: `review-reply-desk` graduated.
 // +1: `sales-call-notes-desk` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1259;
+const SWITCHES_IN_THE_CATALOGUE = 1260;
 // +1: `llm-spend-guard` graduated.
 // +1: `liability-audit` graduated.
 // +1: `equipment-lease-vs-buy-calculator` graduated.
