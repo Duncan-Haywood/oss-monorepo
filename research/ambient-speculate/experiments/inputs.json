@@ -1,0 +1,33 @@
+{
+ "source": "research/ambient-pipeline/experiments/results.json (4 threads, clean audio, one run; copied so this project is self-contained)",
+ "asr_ms": [
+  308,
+  304,
+  348,
+  298,
+  285,
+  373
+ ],
+ "llm_first_sentence_ms": [
+  375,
+  343,
+  129,
+  162,
+  297,
+  237
+ ],
+ "tts_first_chunk_ms": [
+  120,
+  121,
+  54,
+  71,
+  106,
+  67
+ ],
+ "endpoint_offset_ms": [
+  55.0,
+  51.0,
+  75.0,
+  63.0
+ ]
+}
