@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable,
+  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -416,4 +416,42 @@ test("optimize lists each table's guests in seat order with all guests present o
   assert.deepEqual(verifyPlan(spec, res), []);
   const seen = res.tables.flatMap((t) => t.guests);
   assert.equal(new Set(seen).size, spec.guests.length);
+});
+
+test("parseAccessTables reads table numbers and flags junk", () => {
+  assert.deepEqual(parseAccessTables("1, Table 3; 3").tables, [0, 2]);
+  assert.equal(parseAccessTables("one").errors.length, 1);
+});
+
+test("a guest marked accessible is always seated at an accessible table, even when a wish pulls elsewhere", () => {
+  const names = Array.from({ length: 12 }, (_, i) => `G${i + 1}`);
+  const g = names.join("\n");
+  // G1 wants to sit with G12 and G11, who are free; table 3 is the only non-accessible one.
+  for (let seed = 1; seed <= 15; seed++) {
+    const spec = specFrom(g, "G1 @ accessible\nG1 ++ G12\nG1 + G11\nG5 ! G6", { seatsPerTable: 4, accessTables: [0, 1], seed });
+    assert.deepEqual(validateSpec(spec), []);
+    const res = optimize(spec);
+    assert.deepEqual(verifyPlan(spec, res), []);
+    assert.ok(res.table[0] === 0 || res.table[0] === 1, `seed ${seed}: G1 at table ${res.table[0] + 1}`);
+    assert.deepEqual(res.accessSeated, [{ name: "G1", table: res.table[0] + 1 }]);
+  }
+});
+
+test("accessible rule: validation names the problem", () => {
+  const g = "A\nB\nC\nD\nE\nF";
+  assert.match(validateSpec(specFrom(g, "A @ accessible"))[0], /no accessible tables are listed/);
+  assert.match(validateSpec(specFrom(g, "A @ accessible\nB @ wheelchair\nC @ step-free", { seatsPerTable: 2, accessTables: [0] })).join(" "), /room for 2/);
+  assert.match(validateSpec(specFrom(g, "A @ accessible\nA @ 2", { seatsPerTable: 3, accessTables: [0] })).join(" "), /pinned to table 2/);
+  assert.match(validateSpec(specFrom(g, "A @ accessible", { seatsPerTable: 3, accessTables: [5] })).join(" "), /only 2 tables/);
+});
+
+test("accessible guests still honour pins of others and capacity under reseat", () => {
+  const g = "A\nB\nC\nD\nE\nF\nG\nH";
+  const spec = specFrom(g, "A @ accessible\nB @ accessible\nC @ 1", { seatsPerTable: 3, accessTables: [0, 1] });
+  const first = optimize(spec);
+  assert.deepEqual(verifyPlan(spec, first), []);
+  const { prev } = parsePlanCsv(planCsv(spec, first));
+  const again = reseat(spec, prev, "high");
+  assert.deepEqual(verifyPlan(spec, again), []);
+  assert.ok([0, 1].includes(again.table[0]) && [0, 1].includes(again.table[1]));
 });
