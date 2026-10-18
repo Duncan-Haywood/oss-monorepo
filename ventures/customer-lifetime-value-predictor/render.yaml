@@ -1,0 +1,13 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render serves the files as a static site in YOUR account; nothing runs on the author's.
+services:
+  - type: web
+    name: customer-lifetime-value-predictor
+    runtime: static
+    rootDir: ventures/customer-lifetime-value-predictor
+    staticPublishPath: .
+    buildCommand: "true"
+    headers:
+      - path: /*.mjs
+        name: Content-Type
+        value: text/javascript

@@ -1,0 +1,7 @@
+# Any box with Docker:  docker compose up -d   (then open http://localhost:8080)
+# Put a TLS proxy in front for a public address. Nothing you type reaches the server: it only serves files.
+services:
+  ad-spend-saturation-optimizer:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:80"]
