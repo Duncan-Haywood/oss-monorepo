@@ -78,3 +78,5 @@ MIT licence, see `LICENSE`.
 **Forfeits.** In the results box, `Hawks w/o Owls` (or `wo`, `walkover`) awards Hawks the win at 3-0, counted in the table, goal difference, head-to-head and the play-off race like a played game. Leagues score forfeits differently, so apply your own rule by typing the score you want instead (`parseResults` in `calc.mjs`, `walkover` option).
 
 **A message per team.** "Download a message per team" writes one ready-to-paste note for each team ("Hi Hawks, your fixtures: ...") with only that team's dates, venues, opponents and byes, so a coordinator can message each team instead of forwarding the whole league (`teamMessages` in `calc.mjs`).
+
+**Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
