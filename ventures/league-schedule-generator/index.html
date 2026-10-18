@@ -148,7 +148,7 @@
 
     <div id="standings-wrap" hidden>
       <h2 style="margin-top:22px">Standings</h2>
-      <div class="scroll"><table id="standings"><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody></tbody></table></div>
+      <div class="scroll"><table id="standings"><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GD</th><th class="n">Pts</th><th>Form</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div id="race-wrap" hidden>
       <h2 style="margin-top:22px">Play-off race</h2>
@@ -377,7 +377,7 @@
         $("#race tbody").innerHTML = extra.race.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.maxPoints}</td><td>${r.status === "clinched" ? "Clinched" : r.status === "eliminated" ? "Out" : "Alive"}</td><td class="n">${r.magic ?? "–"}</td></tr>`).join("");
       }
       $("#standings-wrap").hidden = !extra.table;
-      if (extra.table) $("#standings tbody").innerHTML = extra.table.map((r) => `<tr><td class="n">${r.rank}</td><td>${esc(r.name)}</td><td class="n">${r.played}</td><td class="n">${r.won}</td><td class="n">${r.drawn}</td><td class="n">${r.lost}</td><td class="n">${r.gd}</td><td class="n">${r.points}</td></tr>`).join("");
+      if (extra.table) $("#standings tbody").innerHTML = extra.table.map((r) => `<tr><td class="n">${r.rank}</td><td>${esc(r.name)}</td><td class="n">${r.played}</td><td class="n">${r.won}</td><td class="n">${r.drawn}</td><td class="n">${r.lost}</td><td class="n">${r.gd}</td><td class="n">${r.points}</td><td>${esc(r.form.split("").join(" "))}</td></tr>`).join("");
       $("#bracket-wrap").hidden = !extra.bracketText;
       $("#bracket").textContent = extra.bracketText || "";
     }

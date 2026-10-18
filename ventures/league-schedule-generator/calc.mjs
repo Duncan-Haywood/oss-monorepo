@@ -1284,6 +1284,17 @@ export function parseResults(text, teams, { walkover = [3, 0] } = {}) {
  * `adjustments` ({ teamIndex: points }, from `parseResults`) adds or deducts table points, e.g. a
  * league penalty; the row shows it as `adj` and it counts before every tiebreak.
  */
+/** A team's last `n` results in the order they were typed, oldest first, as "WDLWW" (W win, D draw, L loss). */
+export function formString(teamIdx, results, n = 5) {
+  const out = [];
+  for (const r of results) {
+    if (r.a !== teamIdx && r.b !== teamIdx) continue;
+    const mine = r.a === teamIdx ? r.ga - r.gb : r.gb - r.ga;
+    out.push(mine > 0 ? "W" : mine < 0 ? "L" : "D");
+  }
+  return out.slice(-n).join("");
+}
+
 export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToHead = false, adjustments = {} } = {}) {
   const rows = teams.map((name, i) => ({ index: i, name, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, points: 0 }));
   for (const r of results) {
@@ -1295,7 +1306,7 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
     else if (r.ga < r.gb) { B.won++; A.lost++; B.points += win; A.points += loss; }
     else { A.drawn++; B.drawn++; A.points += draw; B.points += draw; }
   }
-  for (const r of rows) { r.gd = r.gf - r.ga; r.adj = adjustments[r.index] ?? 0; r.points += r.adj; }
+  for (const r of rows) { r.form = formString(r.index, results, 5); r.gd = r.gf - r.ga; r.adj = adjustments[r.index] ?? 0; r.points += r.adj; }
   if (headToHead) {
     const level = new Map();
     for (const r of rows) level.set(r.points, [...(level.get(r.points) ?? []), r.index]);
