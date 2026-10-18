@@ -3117,6 +3117,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `self-hosted-saas-stack` graduated (browser directory of the 27 self-hosted small-SaaS tools, grouped by job and named against the paid products they replace).
     # +1: `trial-converter` graduated (self-hosted Stripe trial-to-paid conversion: card and no-card plans, browser simulator plus zero-dependency server).
     # +1: `survey-keeper` reached the mirror (it landed on main without its count bump; counted by sync_tree_counts.py while merging main into #7632).
+    # +1: a venture landed on main without its count bump (counted by sync_tree_counts.py while merging main into #7987).
     # +1: `review-reply-desk` graduated (browser local-business review reply writer: rating-aware replies, risky-review triage, health-privacy-safe mode, reply checker, optional own-key AI).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()

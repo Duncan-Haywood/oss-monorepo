@@ -597,6 +597,25 @@ export function seasonCost(schedule, { rate, officialFee = 0 } = {}) {
 }
 
 /**
+ * Does the season finish by a date the organiser has to meet (end of term, venue lease,
+ * tournament weekend)? `deadline` is a day number as `parseDate` returns. Returns null for a
+ * missing or invalid deadline or an empty schedule, else { deadline, lastDay, fits,
+ * daysSpare, roundsAfter, matchesAfter } where `daysSpare` is negative when the last game
+ * falls after the deadline, and `roundsAfter` / `matchesAfter` count the rounds and
+ * matches (makeup rounds included) dated after it.
+ */
+export function deadlineCheck(schedule, deadline) {
+  if (!Number.isInteger(deadline) || !schedule.rounds.length) return null;
+  const days = schedule.rounds.map((r) => r.day);
+  const lastDay = Math.max(...days);
+  const late = schedule.rounds.filter((r) => r.day > deadline);
+  return {
+    deadline, lastDay, fits: lastDay <= deadline, daysSpare: deadline - lastDay,
+    roundsAfter: late.length, matchesAfter: late.reduce((a, r) => a + r.matches.length, 0),
+  };
+}
+
+/**
  * Rest between games, per team: days between consecutive matches (byes and idle nights
  * count as rest). Returns { rows: [{ team, games, shortest, longest }], shortest, longest,
  * back_to_back } where back_to_back counts gaps of 1 day or less, so a league playing on

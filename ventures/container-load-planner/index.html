@@ -149,6 +149,7 @@
     <div class="scroll"><table id="lt"><thead><tr><th class="n">Step</th><th>Line</th><th class="n">From back (<span class="lu">cm</span>)</th><th class="n">From left (<span class="lu">cm</span>)</th><th class="n">Height (<span class="lu">cm</span>)</th><th>As placed (L × W × H)</th></tr></thead><tbody></tbody></table></div>
     <p class="note" id="lt-note"></p>
     <button type="button" id="download">Download the loading list (CSV)</button>
+    <button type="button" class="secondary" id="download-packet">Download a printable load plan (HTML)</button>
 
     <h3>What if I swap?</h3>
     <p class="note">The same cargo through every standard size, loose and on pallets. Container counts and fill only; it prices nothing, so weigh it against your own quotes.</p>
@@ -189,14 +190,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or safety advice, is not a load-securing, axle-weight or regulatory compliance certificate, and does not replace your carrier, forwarder or a qualified loading supervisor. Results are a planning estimate from the figures you type; container sizes and payloads vary by equipment. You are responsible for reviewing and verifying its output.</p>
     <p><strong>Independent.</strong> Not affiliated with any shipping line, carrier, forwarder, marketplace or equipment maker, and none is named or ranked here. The example cargo is invented, and no freight rate is stated or implied.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>packet_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../shipping-box-size-optimizer/">shipping box size optimizer</a> for choosing carton sizes, the <a href="../warehouse-slotting-optimizer/">warehouse slotting optimizer</a> for deciding which shelf each SKU belongs on, the <a href="../parcel-dim-weight-calculator/">dimensional weight calculator</a> for one parcel, the <a href="../ltl-freight-class-estimator/">LTL freight class estimator</a> for pallets, the <a href="../import-landed-cost-calculator/">import landed cost calculator</a> and the <a href="../3pl-quote-normalizer/">3PL quote normalizer</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, finishLines, planLoad, verifyPacking, balanceReport, compareOptions, viewRects, loadingOrder, suggestRestarts, reportCsv, sampleCargo, fmtNum, fmtInt, pct, lenText, wtText, dimsText, toMm, toKg } from "./calc.mjs";
+    import { SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, finishLines, planLoad, verifyPacking, balanceReport, compareOptions, viewRects, loadingOrder, suggestRestarts, reportCsv, sampleCargo, planReportHtml, fmtNum, fmtInt, pct, lenText, wtText, dimsText, toMm, toKg } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -499,6 +500,14 @@
       a.download = "container-load-plan.csv";
       a.click();
       record("report_downloaded");
+    });
+    $("#download-packet").addEventListener("click", () => {
+      if (!plan) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([planReportHtml(plan, lines, sys, { notes: notices, when: new Date().toISOString().slice(0, 10) })], { type: "text/html" }));
+      a.download = "container-load-plan.html";
+      a.click();
+      record("packet_downloaded");
     });
     window.addEventListener("resize", () => { if (plan && plan.containers[shown] && !report.hidden) renderContainer(shown); });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
