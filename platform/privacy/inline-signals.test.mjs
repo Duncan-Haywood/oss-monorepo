@@ -16,6 +16,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -328,4 +329,51 @@ test("the inline half actually covers the ventures it was written for", () => {
   );
   const passed = checkAllInline().filter((r) => r.status === "pass");
   assert.ok(passed.length >= 10, `expected inline counters to be verified, got ${passed.length}`);
+});
+
+// Red-team 2026-10-18: boundary cases the mutation campaign showed nothing pinned.
+
+test("a signal read at the very first character of a script file still guards a top-level write", () => {
+  const v = venture({
+    "index.html": "<!doctype html><title>p</title><main></main>",
+    "app.js": "doNotTrack?0:localStorage.setItem('probe-usage','1');",
+  });
+  try {
+    assert.equal(checkInlinePage(v.page).status, "pass");
+  } finally { v.cleanup(); }
+});
+
+test("a predicate whose braced body opens with the signal read is still a predicate", () => {
+  const v = venture({
+    "index.html": page(`
+      const countable = () => {doNotTrack; return true;};
+      function store(k) { try { localStorage.setItem(k, '1'); } catch (_) {} }
+      function bump(k) { if (countable()) store(k); }
+    `),
+  });
+  try {
+    assert.equal(checkInlinePage(v.page).status, "pass");
+  } finally { v.cleanup(); }
+});
+
+test("an expression-bodied predicate ends at its own semicolon, not after a nested block", () => {
+  // Overrunning the body makes the predicate look like a writer too, and the
+  // self-vouching guard then drops it, so a correctly gated counter fails.
+  const v = venture({
+    "index.html": page(`
+      const countable = () => [1].some((x) => { return x; }) && !navigator.doNotTrack;
+      function store(k) { try { localStorage.setItem(k, '1'); } catch (_) {} }
+      function bump(k) { if (countable()) store(k); }
+    `),
+  });
+  try {
+    assert.equal(checkInlinePage(v.page).status, "pass");
+  } finally { v.cleanup(); }
+});
+
+test("the CLI exits 0 when every inline counter is gated", () => {
+  const run = spawnSync(process.execPath, [new URL("./inline-signals.mjs", import.meta.url).pathname], {
+    encoding: "utf8",
+  });
+  assert.equal(run.status, 0, run.stderr);
 });

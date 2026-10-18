@@ -42,6 +42,7 @@ shuffling on Sunday night.
 - Hour-by-hour coverage: a headcount grid for each clock hour of the week, darker when busier, so hours with one person alone stand out (`coverageGrid` in `calc.mjs`).
 
 - Labor %: add projected sales and a target labor percentage to see payroll as a share of sales and the dollars under or over target (`laborPercent` in `calc.mjs`).
+- Sales per labor hour: with sales by day and a target sales per labor hour, a table shows the hours each day's sales call for against the hours scheduled, and which days run heavy or light (`salesPerLaborHour` in `calc.mjs`). A guide only; the builder fills the shifts you list.
 - What-if: when shifts stay open, rebuilds with one extra person free at any time (average wage, 40 h) and reports the hours it would cover and the payroll it adds.
 
 - Carry over last week: choose last week's roster CSV and every person who worked gets a `prev:` cell with when their last shift ended (overnight closes written as `Sun 25:00`), so the rest rule holds across Monday (`carryOverStaff`).

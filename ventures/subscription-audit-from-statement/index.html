@@ -85,10 +85,14 @@
     <p class="note">Tick the ones you would cancel to see what it saves. Ended charges are not counted.</p>
     <div class="scroll"><table><thead><tr><th scope="col">Cancel?</th><th scope="col">Merchant</th><th scope="col">Pattern</th><th class="n" scope="col">Amount</th><th class="n" scope="col">Per month</th><th class="n" scope="col">Per year</th><th scope="col">Last charge</th><th scope="col">Next expected</th></tr></thead><tbody id="by-sub"></tbody></table></div>
     <p class="stats" id="saving"></p>
+    <h3>Recurring money charged each month</h3>
+    <p class="note">Only the charges counted as recurring above, including ended ones. A first or last month the export covers only in part is marked partial and reads low.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Total</th><th scope="col"><span class="note">Relative size</span></th></tr></thead><tbody id="timeline"></tbody></table></div>
     <p class="note" id="skipped"></p>
     <label for="summary">Copyable summary</label>
     <textarea id="summary" readonly spellcheck="false"></textarea>
-    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download table as CSV</button></p>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download table as CSV</button> <button type="button" class="secondary" id="download-ics">Download renewal reminders (.ics)</button></p>
+    <p class="note">The calendar file puts each monthly, quarterly, six-monthly and yearly charge on its expected next date with a reminder three days before, so you can cancel in time. Dates are guesses from your statement.</p>
   </section>
 
   <section class="card">
@@ -134,7 +138,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeStatement, analyze, savings, reportCsv, summaryText, sampleCsv, isoDay, money } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeStatement, analyze, savings, reportCsv, summaryText, renewalsIcs, monthlyTimeline, sampleCsv, isoDay, money } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -161,6 +165,8 @@
       $("#report-stats").innerHTML = `${a.charges} charge(s) from ${isoDay(a.range.first)} to ${isoDay(a.range.last)}. <strong>${a.totals.active} recurring charge(s), about ${usd(a.totals.perMonth)} a month, ${usd(a.totals.perYear)} a year.</strong>` + (a.shortFile ? " This file covers under 75 days, so most patterns cannot be told apart yet; use a longer export." : "");
       $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out beyond the list below.</p>`;
       $("#by-sub").innerHTML = a.subs.length ? a.subs.map((x) => `<tr class="${x.status}"><td>${x.status === "active" ? `<input type="checkbox" value="${esc(x.merchant)}" aria-label="Cancel ${esc(x.merchant)}">` : "ended"}</td><th scope="row">${esc(x.merchant)}${x.kind || x.site || x.via ? `<br><span class="note">${esc([x.kind, x.site, x.via ? "billed via " + x.via.label : ""].filter(Boolean).join(" · "))}</span>` : ""}</th><td>${esc(x.cadenceLabel)}${x.fixed ? "" : ", varies"}<br><span class="note">${x.count} charge(s)</span></td><td class="n">${money(x.amount)}</td><td class="n">${x.status === "active" ? money(x.perMonth) : "–"}</td><td class="n">${x.status === "active" ? money(x.perYear) : "–"}</td><td>${isoDay(x.last)}</td><td>${x.status === "active" ? isoDay(x.next) : "–"}</td></tr>`).join("") : `<tr><td colspan="8">No recurring charges found. Try a longer export.</td></tr>`;
+      const tl = monthlyTimeline(a), top = Math.max(1, ...tl.map((r) => r.total));
+      $("#timeline").innerHTML = tl.map((r) => `<tr><th scope="row">${esc(r.month)}${r.partial ? ' <span class="note">(partial)</span>' : ""}</th><td class="n">${r.charges}</td><td class="n">${money(r.total)}</td><td><div style="height:.6em;background:currentColor;opacity:.35;border-radius:2px;width:${Math.round((r.total / top) * 100)}%" aria-hidden="true"></div></td></tr>`).join("");
       for (const b of document.querySelectorAll("#by-sub input")) b.addEventListener("change", showSaving);
       const notes = [], skipped = s.skipped;
       if (skipped.length) notes.push(`${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (skipped.length > 5 ? "; …" : "") + ".");
@@ -196,6 +202,14 @@
       a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
       a.download = "subscription-audit.csv";
       a.click();
+    });
+    $("#download-ics").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([renewalsIcs(last)], { type: "text/calendar" }));
+      a.download = "subscription-renewals.ics";
+      a.click();
+      record("renewals_ics_downloaded");
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }

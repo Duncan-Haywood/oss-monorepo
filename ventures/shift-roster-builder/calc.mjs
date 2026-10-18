@@ -1150,6 +1150,23 @@ export function dailyLabor(r, staff, salesText = "") {
   return { days, worst, hasSales: withSales.length > 0 };
 }
 
+// Sales per labor hour by day: the figure restaurants and shops staff to. With each day's sales (as in dailyLabor) and a
+// target sales per labor hour, `needHours` is the hours that day's sales call for and `gap` is scheduled minus needed
+// (positive = more hours than the target asks for). Days without sales are listed with nulls. Returns null when the
+// target is not a positive number or no day has sales.
+export function salesPerLaborHour(r, staff, salesText, target) {
+  const t = Number(target);
+  if (!(t > 0)) return null;
+  const dl = dailyLabor(r, staff, salesText);
+  if (!dl.hasSales) return null;
+  const days = dl.days.map((d) => d.sales
+    ? { day: d.day, hours: d.hours, sales: d.sales, splh: d.hours > 0 ? d.sales / d.hours : null, needHours: d.sales / t, gap: d.hours - d.sales / t }
+    : { day: d.day, hours: d.hours, sales: null, splh: null, needHours: null, gap: null });
+  const known = days.filter((d) => d.gap !== null);
+  const over = known.filter((d) => d.gap > 0.5), under = known.filter((d) => d.gap < -0.5);
+  return { target: t, days, over, under, totalGap: known.reduce((a, d) => a + d.gap, 0) };
+}
+
 // Headcount per hour for each day of the roster, so thin and heavy hours show at a glance. A shift counts on the day it
 // starts; the hours after midnight of an overnight shift are listed under 24-47 on that day. `from`/`to` default to the
 // span the roster actually uses. `thin` marks hours with exactly one person on, `empty` hours inside a day's span with none.
