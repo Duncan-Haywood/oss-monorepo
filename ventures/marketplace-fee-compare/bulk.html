@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bulk Marketplace Fee Comparison — Best Channel for Every SKU</title>
+  <meta name="description" content="Paste your catalogue (CSV or spreadsheet rows) and see which of ten selling channels nets the most on every item, and what listing everything on one channel costs you per month. Free, runs entirely in your browser.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="bulk.html">
+  <style>
+    :root { color-scheme: light dark; --bg:#fbfbfa; --fg:#1a1a19; --muted:#5c5c58; --card:#fff; --border:#e2e2dd; --accent:#1c5d3a; --good:#17603b; --bad:#a3251b; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#17181a; --fg:#ececeb; --muted:#a3a39e; --card:#202124; --border:#34353a; --accent:#6fcf97; --good:#6fcf97; --bad:#ef8c82; } }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+    .wrap { max-width:62rem; margin:0 auto; padding:2rem 1.1rem 4rem; }
+    h1 { font-size:1.8rem; line-height:1.2; margin:0 0 .5rem; }
+    h2 { font-size:1.15rem; margin:0 0 .6rem; }
+    section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.1rem 1.15rem; margin-top:1.25rem; }
+    textarea, select, button { font:inherit; padding:.5rem .6rem; border:1px solid var(--border); border-radius:7px; background:var(--bg); color:var(--fg); }
+    textarea { width:100%; min-height:9rem; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.85rem; }
+    button { background:var(--accent); color:var(--bg); font-weight:700; border:0; cursor:pointer; padding:.6rem 1rem; }
+    .actions { display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; margin-top:.8rem; }
+    table { width:100%; border-collapse:collapse; }
+    .scroll { overflow-x:auto; }
+    th,td { text-align:right; padding:.5rem; border-bottom:1px solid var(--border); white-space:nowrap; }
+    th:first-child,td:first-child { text-align:left; white-space:normal; }
+    th { font-size:.82rem; color:var(--muted); }
+    .fine { font-size:.87rem; color:var(--muted); }
+    .errors { color:var(--bad); white-space:pre-line; font-size:.9rem; }
+    .good { color:var(--good); font-weight:700; }
+    .bad { color:var(--bad); font-weight:700; }
+    .hidden { display:none; }
+    a { color:var(--accent); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Best marketplace for every item in your catalogue</h1>
+    <p class="fine">Paste a CSV or a block of spreadsheet rows. Each item is run through the same fee model as the <a href="./">single-item comparison</a>, and you see the winning channel per item and what staying on one channel costs per month. Free, no signup, nothing leaves your browser.</p>
+  </header>
+  <main>
+    <section>
+      <h2>Your catalogue</h2>
+      <p class="fine">First row is a header. Required columns: <code>price</code> and <code>cost</code>. Optional: <code>name</code>, <code>shipping_charged</code>, <code>shipping_cost</code>, <code>other_cost</code>, <code>category</code> (everything else, clothing, jewelry, electronics, grocery, beauty, home &amp; kitchen, toys, sports), <code>orders</code> (per month, default 50). Up to 500 rows.</p>
+      <label for="catalog" class="fine">Rows</label>
+      <textarea id="catalog" spellcheck="false"></textarea>
+      <div class="actions">
+        <label for="baseline" class="fine">I list on today:</label>
+        <select id="baseline"></select>
+        <button id="run" type="button">Compare catalogue</button>
+        <button id="sample" type="button" style="background:var(--card);color:var(--fg);border:1px solid var(--border)">Load sample</button>
+      </div>
+      <p id="errors" class="errors" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="resultSection" class="hidden" aria-live="polite">
+      <h2>Result</h2>
+      <p id="verdict"></p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th scope="col">Item</th><th scope="col">Best channel</th><th scope="col">Best nets</th><th scope="col">On your channel</th><th scope="col">Gain / sale</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p id="wins" class="fine"></p>
+      <div class="actions"><button id="copyCsv" type="button">Copy result as CSV</button><span id="copyStatus" class="fine" role="status"></span></div>
+    </section>
+
+    <section>
+      <h2>Read this first</h2>
+      <p class="fine"><strong>Headline rates, not a statement.</strong> Fee rates change and the defaults are inputs from the single-item tool; confirm against your own statement. The winner is the best channel that brings buyers: your own store tops almost any table on arithmetic but sends nobody, so it is never recommended here. Monthly gain assumes each item's whole monthly order count moves with it, which a real channel switch rarely does; read it as an upper bound.</p>
+      <p class="fine"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not tax, financial, or business advice. You are responsible for verifying its output before relying on it. To the maximum extent permitted by law the authors accept no liability for any loss arising from its use.</p>
+      <p class="fine"><strong>Best-effort hosting, no SLA.</strong> Free and experimental; it may be slow, moved, or taken offline without notice. Do not use it as a system of record.</p>
+      <p class="fine">Anonymous local counters only (catalogues compared), kept in your browser, honoring Do Not Track and Global Privacy Control, never any prices, names or costs.
+        <label><input id="usageOptOut" type="checkbox"> Do not count anonymous local usage events</label></p>
+      <p class="fine">Free and open source under an <a href="LICENSE">MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and never changes what the tool does. <a href="./">Back to the single-item comparison</a>.</p>
+    </section>
+  </main>
+</div>
+<script type="module">
+  import { CHANNELS } from "./calc.mjs";
+  import { parseCatalog, compareCatalog, catalogCsv, SAMPLE_CATALOG } from "./bulk.mjs";
+  import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+
+  const el = (id) => document.getElementById(id);
+  const money = (v) => `${v < 0 ? "-" : ""}$${Math.abs(v).toFixed(2)}`;
+  const escapeHtml = (v) => String(v).replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const label = (id) => CHANNELS.find((c) => c.id === id)?.label ?? id;
+
+  el("baseline").innerHTML = CHANNELS.filter((c) => c.demandIncluded)
+    .map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.label)}</option>`).join("");
+  el("usageOptOut").checked = readOptOut(localStorage);
+  el("usageOptOut").addEventListener("change", (e) => writeOptOut(localStorage, e.target.checked));
+  let lastCsv = "";
+
+  el("sample").addEventListener("click", () => { el("catalog").value = SAMPLE_CATALOG; });
+
+  el("run").addEventListener("click", () => {
+    const { items, errors } = parseCatalog(el("catalog").value);
+    el("errors").textContent = errors.join("\n");
+    el("resultSection").classList.toggle("hidden", items.length === 0);
+    if (items.length === 0) return;
+    const result = compareCatalog(items, el("baseline").value);
+    const base = label(result.baselineId);
+    el("verdict").textContent = result.movedCount === 0
+      ? `${base} is already the best buyer-bringing channel (or within 50 cents of it) for all ${items.length} items.`
+      : `${result.movedCount} of ${items.length} items net at least 50 cents more on another channel than on ${base}: up to ${money(result.monthlyGain)} a month if each item's whole monthly volume moved with it.` +
+        (result.unprofitableCount ? ` ${result.unprofitableCount} item(s) lose money on every channel.` : "");
+    el("rows").innerHTML = result.rows.map((r) => `<tr>
+      <td>${escapeHtml(r.name)}</td>
+      <td>${escapeHtml(r.bestLabel)}</td>
+      <td class="${r.bestProfit > 0 ? "good" : "bad"}">${money(r.bestProfit)}</td>
+      <td>${money(r.baselineProfit)}</td>
+      <td>${r.moves ? money(r.gain) : "—"}</td></tr>`).join("");
+    el("wins").textContent = "Where each item ends up: " + Object.entries(result.wins)
+      .sort((a, b) => b[1] - a[1]).map(([id, n]) => `${label(id)} ${n}`).join(", ") + ".";
+    lastCsv = catalogCsv(result);
+    recordUsage(localStorage, el("usageOptOut").checked, "catalog_compared");
+  });
+
+  el("copyCsv").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(lastCsv); el("copyStatus").textContent = "Copied."; }
+    catch { el("copyStatus").textContent = "Copy failed; select the table instead."; }
+  });
+</script>
+</body>
+</html>
