@@ -1,0 +1,26 @@
+40 RTL runs and Yosys syntheses (P = 8, 2 random problems each, int4 weights, int8 inputs, 24-bit accumulators).
+bit-exact against NumPy in all runs: True
+cycles and weight/activation fetch counts identical between orig and new: True
+flops identical between orig and new: False
+
+shape      B design  cells_orig cells_new  new/orig  flops  WS/OS_orig  WS/OS_new
+L1 64x70   1 OS         3029      3000   0.990     403
+L1 64x70   1 WS         3024      2933   0.970     403  1.00       0.98
+L1 64x70   2 OS         3028      2960   0.978     407
+L1 64x70   2 WS         3441      3771   1.096     599  1.14       1.27
+L1 64x70   4 OS         2982      3018   1.012     409
+L1 64x70   4 WS         4946      4898   0.990     985  1.66       1.62
+L1 64x70   8 OS         2986      3026   1.013     411
+L1 64x70   8 WS         6500      7278   1.120    1755  2.18       2.41
+L1 64x70  16 OS         3006      3029   1.008     413
+L1 64x70  16 WS        12284     11888   0.968    3293  4.09       3.92
+L2 11x64   1 OS         3038      2985   0.983     398
+L2 11x64   1 WS         2979      2970   0.997     398  0.98       0.99
+L2 11x64   2 OS         2970      2996   1.009     402
+L2 11x64   2 WS         3417      3743   1.095     594  1.15       1.25
+L2 11x64   4 OS         3021      2953   0.977     404
+L2 11x64   4 WS         4909      4872   0.992     980  1.62       1.65
+L2 11x64   8 OS         3035      2950   0.972     406
+L2 11x64   8 WS         6467      7259   1.122    1750  2.13       2.46
+L2 11x64  16 OS         3025      2954   0.977     408
+L2 11x64  16 WS        12249     11861   0.968    3288  4.05       4.02
