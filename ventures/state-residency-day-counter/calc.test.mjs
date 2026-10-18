@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney, dailyLog, dailyLogCsv, auditReportHtml, tripImpact } from "./calc.mjs";
+import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney, dailyLog, dailyLogCsv, auditReportHtml, tripImpact, deadlinesIcs } from "./calc.mjs";
 
 const Y = 2025;
 const spec = (lines, extra = {}) => ({ year: Y, stays: parseStays(lines.join("\n"), Y).stays, abode: {}, overrides: {}, ...extra });
@@ -548,4 +548,23 @@ test("Missouri and Colorado day tests need an abode", () => {
   assert.equal(by(analyze(sp), "CO").status, "over");
   const mo = spec(["MO 2025-01-01 to 2025-07-02"], { abode: { MO: true }, homeState: "FL" }); // 183 days
   assert.notEqual(by(analyze(mo), "MO").status, "over");
+});
+
+test("deadline reminders: one all-day event per state still short of its limit, on the last safe day", () => {
+  const base = { ...spec(["2025-01-01 to 2025-03-31 NY"]), abode: { NY: true }, asOf: toDay(Y, 3, 31) };
+  const r = analyze(base);
+  const { ics, count } = deadlinesIcs(r);
+  const ny = by(r, "NY");
+  assert.equal(count, 1);
+  assert.ok(ics.startsWith("BEGIN:VCALENDAR\r\n") && ics.endsWith("END:VCALENDAR\r\n"));
+  const last = ny.triggerDate - 1;
+  assert.ok(ics.includes(`DTSTART;VALUE=DATE:${dayIso(last).replace(/-/g, "")}`));
+  // Being there every day through the last safe day sits exactly on the limit; one more crosses it.
+  const through = (end) => by(analyze({ ...base, stays: [...base.stays, { state: "NY", start: toDay(Y, 4, 1), end, work: true }] }), "NY");
+  assert.equal(through(last).days, 183);
+  assert.equal(through(last).status, "close");
+  assert.equal(through(last + 1).status, "over");
+  // A state already over its limit gets no reminder.
+  const over = analyze({ ...base, stays: [{ state: "NY", start: toDay(Y, 1, 1), end: toDay(Y, 12, 31), work: true }] });
+  assert.equal(deadlinesIcs(over).count, 0);
 });

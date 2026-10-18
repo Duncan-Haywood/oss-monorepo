@@ -30,6 +30,7 @@ server only hands out files and never sees a date you type.
   split, Google Timeline import (`timelineToStays`), CSV export, and an independent brute-force recount.
 - Day-by-day log: one CSV row per calendar day (state, whether it came from a stay or the home-state assumption, weekday, a blank column for the evidence you keep), the log residency audits ask for (`dailyLog`, `dailyLogCsv`).
 - Printable audit packet: one self-contained HTML file (days by state against the test, the date ranges behind each total, notices, the day-by-day log with an evidence column, disclaimer) to print to PDF and keep with receipts (`auditReportHtml`).
+- Last-safe-day reminders: a calendar (.ics) file with one all-day event per state still short of its limit, on the last day you can be there every day from the as-of date and stay inside it (`deadlinesIcs`).
 - Trip what-if: enter a planned trip and see the days it adds per state, whether it crosses a published limit, and the longest trip from that date that stays inside it (`tripImpact`).
 - Remember and save: an opt-in "Remember my entries on this device" box (local storage only) and a save-to-file / load-from-file pair for the form fields, so a year of stays survives between visits (`setupToJson`, `setupFromJson`).
 - Counting-method check: each state's total is also shown under the other convention (any part of a day vs nights), and a notice fires when that choice decides whether you are over a limit (`otherDays` in `analyze`).
