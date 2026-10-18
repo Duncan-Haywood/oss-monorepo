@@ -24,6 +24,14 @@
     <summary type="text">Free TCGplayer seller fee calculator: 10.75% marketplace commission (capped at $75 per product, charged on cards plus shipping) and 2.5% + $0.30 per-order transaction fee. See your payout, profit per order, the price for a target profit, and Pro or pre-February-2026 rates side by side. Nothing leaves your browser.</summary>
   </entry>
   <entry>
+    <title>Youth Lineup Rotator — fair playing time for every kid, free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/youth-lineup-rotator/"/>
+    <id>tag:marisstella.dev,2026:tool/youth-lineup-rotator</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free youth sports lineup generator for volunteer coaches. Equal playing time, nobody benched twice in a row, goalkeeper turns shared, subs planned per period. Soccer, basketball, hockey and more. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>GitHub Actions Schedule Cron Check — Invalid, Too-Frequent and Top-of-Hour Crons</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-schedule-check/"/>
     <id>tag:marisstella.dev,2026:tool/actions-schedule-check</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free, open-source scan of your app&#39;s code or built site for legal and financial exposure: trackers with no consent, subscriptions with no renewal terms, a missing privacy policy or terms, affiliate links with no disclosure, AI with no disclosure, live keys in the tree, LLM endpoints with no spend cap, and cloud IaC with no budget alarm. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>LLM Spend Guard — Hard Budget Caps and Runaway-Loop Breakers for OpenAI and Claude API Calls</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/llm-spend-guard/"/>
-    <id>tag:marisstella.dev,2026:tool/llm-spend-guard</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent loops. Free, open source, self-hosted proxy or a zero-dependency library. Replay your own usage log here to see what a policy would have stopped.</summary>
   </entry>
 </feed>
