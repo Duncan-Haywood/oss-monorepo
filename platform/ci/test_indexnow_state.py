@@ -195,6 +195,22 @@ class Verdicts(unittest.TestCase):
             "an unreadable state must not fail as though it were unannounced",
         )
 
+    def test_a_run_without_started_at_falls_back_to_created_at(self) -> None:
+        run = _run(1, "2026-09-11T05:00:00Z")
+        run["run_started_at"] = None
+        run["created_at"] = "2026-09-11T04:59:00Z"
+        jobs = {
+            1: [
+                _job(
+                    1000054728,
+                    steps=[{"name": "Notify IndexNow", "conclusion": "success"}],
+                    conclusion="success",
+                )
+            ]
+        }
+        result = state.collect(api_for([run], jobs, branch=branch_commit()))
+        self.assertEqual(result["examined"][0]["at"], "2026-09-11T04:59:00Z")
+
     def test_one_unreadable_run_does_not_sink_the_whole_reading(self) -> None:
         runs = [_run(1, "2026-09-11T05:00:00Z"), _run(2, "2026-09-11T03:22:02Z")]
         jobs = {
@@ -339,6 +355,14 @@ class LiveCoverage(unittest.TestCase):
                 state.run_indexnow_dry(ref="origin/gh-pages")
         self.assertIn("could not run node", str(ctx.exception))
 
+    def test_run_indexnow_dry_captures_output_as_text(self) -> None:
+        ok = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+        with unittest.mock.patch.object(state.subprocess, "run", return_value=ok) as run:
+            with self.assertRaises(RuntimeError):
+                state.run_indexnow_dry(ref="origin/gh-pages")
+        self.assertIs(run.call_args.kwargs["text"], True)
+        self.assertIs(run.call_args.kwargs["capture_output"], True)
+
     def test_run_indexnow_dry_names_a_nonzero_exit(self) -> None:
         failed = subprocess.CompletedProcess(args=[], returncode=1, stdout="", stderr="fatal: bad ref\n")
         with unittest.mock.patch.object(state.subprocess, "run", return_value=failed):
@@ -399,6 +423,10 @@ class LiveCoverage(unittest.TestCase):
         clipped = state.most_informative_line("Error: " + ("x" * 5000), limit=120)
         self.assertEqual(len(clipped), 120)
         self.assertTrue(clipped.endswith("…"))
+
+    def test_a_message_exactly_at_the_limit_is_not_clipped(self) -> None:
+        exact = "Error: " + ("x" * 13)
+        self.assertEqual(state.most_informative_line(exact, limit=len(exact)), exact)
 
     def test_run_indexnow_dry_names_unparseable_output(self) -> None:
         odd = subprocess.CompletedProcess(args=[], returncode=0, stdout="not the expected shape\n", stderr="")
