@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import { weekStart, composeRelease, plan, run } from './releases.mjs';
+import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
+import { weekStart, composeRelease, plan, run, MAX_TOOLS } from './releases.mjs';
 
 const page = '<title>Mileage Log — Free Tracker</title><meta name="description" content="Free log. Second sentence.">';
 
@@ -21,6 +23,24 @@ test('composeRelease links each tool and states the limits', () => {
 
 test('plan returns null when nothing launched in the window', async () => {
   assert.equal(await plan({ launched: { a: '2026-01-01' }, today: '2026-10-15', readPage: async () => page }), null);
+});
+
+test('plan caps the release at MAX_TOOLS and reports nothing planned when empty', async () => {
+  const launched = Object.fromEntries(Array.from({ length: MAX_TOOLS + 5 }, (_, i) => [`t${i}`, '2026-10-14']));
+  const rel = await plan({ launched, today: '2026-10-15', readPage: async () => page });
+  assert.equal(rel.body.split('\n').filter((l) => l.startsWith('- [')).length, MAX_TOOLS);
+  const logs = [];
+  const r = await run({ env: {}, fetchImpl: () => { throw new Error('network'); }, log: (m) => logs.push(m), now: new Date('2000-01-01') });
+  assert.deepEqual(r, { posted: 0, planned: 0 });
+  assert.match(logs[0], /nothing launched/);
+});
+
+test('importing the module is silent; running it as a CLI does a dry run', () => {
+  const file = fileURLToPath(new URL('./releases.mjs', import.meta.url));
+  const quiet = execFileSync(process.execPath, ['-e', `import(${JSON.stringify(file)})`], { encoding: 'utf8', env: {} });
+  assert.equal(quiet, '');
+  const out = execFileSync(process.execPath, [file], { encoding: 'utf8', env: {} });
+  assert.match(out, /DRY RUN|nothing launched/);
 });
 
 test('dry run and half-configured runs never touch the network', async () => {
