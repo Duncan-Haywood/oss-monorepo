@@ -1315,6 +1315,11 @@
      "slug": "free-citeaudit",
      "title": "How many research READMEs admit their citations are unchecked, and which works need checking first?",
      "summary": "A stdlib scan of all 550 project READMEs for lines that flag a citation or figure as written from memory or not re-checked: 94 (17.1%) have at least one, 137 flagged lines in all, naming 41 distinct author-year works. Four recur most: Dawid &amp; Skene (1979) in 10 projects, Zhang et al. (2019) in 9, Horowitz (2014) and Horvitz (1999) in 6 each, so checking those once from a networked session clears many flags. A flag is the README's own admission, not a verdict; nothing was verified in this run (Crossref was unreachable)."
+    },
+    {
+     "slug": "free-secretarynoise",
+     "title": "How much does noisy scoring cost the secretary problem, and should the 1/e cutoff move?",
+     "summary": "Simulation of the classical cutoff rule for hiring the best of <em>n</em> = 50 candidates when only a noisy score is seen (noise sd 0 to 4 times the quality sd, 40,000 trials per cell, checked against the exact noiseless formula). The best cutoff barely moves, 19 with no noise and 16&ndash;17 at every noise level; the chance of picking the true best falls from 0.373 to 0.145 at noise 1 and 0.043 at noise 4 (lottery: 0.02). Keeping the classical cutoff costs at most 0.006. A high mean true rank wants a much earlier cutoff (7&ndash;9). Cutoff rules only, Gaussian, one setting; the optimal noisy policy is not computed."
     }
    ]
   },
