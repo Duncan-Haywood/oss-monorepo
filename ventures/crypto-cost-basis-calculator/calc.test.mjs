@@ -434,3 +434,10 @@ test("analyze: reports the netting for the chosen year with the earlier-year los
   assert.equal(r.netting.totalNet, -2000);
   assert.equal(r.netting.deduction, 2000);
 });
+
+test("SAMPLE_CSV dates are zero-padded ISO and the sample sells land on the dates shown", () => {
+  const dates = SAMPLE_CSV.trim().split("\n").slice(1).map((l) => l.split(",")[0]);
+  for (const d of dates) assert.match(d, /^\d{4}-\d{2}-\d{2}$/, d);
+  const r = analyze(SAMPLE_CSV, { method: "FIFO", year: 2024 });
+  assert.ok(r.rows.some((x) => x.sold === "2024-11-02"));
+});
