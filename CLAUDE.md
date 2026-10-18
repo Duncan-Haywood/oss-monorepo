@@ -263,7 +263,8 @@ python3 portfolio/ledger/supersede_check.py <pr>      # before closing a PR as "
   Merge `main` into the branch and resolve it. A conflict means the work is
   still wanted where others are editing.
 - **Shallow clones lie about history.** Run `git fetch --unshallow origin
-  main` with `run_in_background`: it takes 2-5 min. Name the ref, because a
+  main` with `run_in_background`: it takes 2-5 min (foreground `sleep` is
+  blocked in cloud sessions; wait per `verify-and-merge.md`, "Long suites"). Name the ref, because a
   bare `--unshallow` skips a ref you fetched by name. Then check
   `git rev-list --count origin/main`, which should be in
   the thousands, not 1. Otherwise `git merge` reports unrelated histories and
