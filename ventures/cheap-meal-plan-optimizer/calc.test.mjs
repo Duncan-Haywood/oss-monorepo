@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, planCsv, groceryList, breakEvenPrices, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, planCsv, groceryList, breakEvenPrices, encodeShare, decodeShare, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -238,4 +238,37 @@ test("budgetFrontier: protein rises with the budget, and agrees with the cost fr
   const p = fr[2].protein;
   const back = proteinFrontier({ ...base, step: 0 }, [p * 0.999])[0].cost;
   assert.ok(back <= min * 1.5 + 1e-6);
+});
+
+test("sodium column parses, blank counts as zero, and a bad value is reported", () => {
+  const ok = parseFoods("Bread | 0.15 | 70 | 3 | 12 | 1 | 2 | 6 | 20 | 140\nRice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7");
+  assert.deepEqual(ok.errors, []);
+  assert.equal(ok.foods[0].n[5], 140);
+  assert.equal(ok.foods[0].sodiumKnown, true);
+  assert.equal(ok.foods[1].n[5], 0);
+  assert.equal(ok.foods[1].sodiumKnown, false);
+  assert.equal(parseFoods("Bread | 0.15 | 70 | 3 | 12 | 1 | 2 | | | -5").errors.length, 1);
+});
+
+test("a sodium maximum is respected, verified, and never makes the plan cheaper", () => {
+  const base = { ...sampleSpec(), step: 0 };
+  const free = solve(base);
+  const cap = Math.round(free.totals[5] * 0.6);
+  const limited = solve({ ...base, sodiumMax: cap });
+  assert.equal(limited.status, "optimal");
+  assert.ok(limited.totals[5] <= cap + 1e-6);
+  assert.ok(limited.cost >= free.cost - 1e-9);
+  assert.deepEqual(verifyPlan({ ...base, sodiumMax: cap }, limited), []);
+  const salty = base.foods.filter((f) => /Tuna|Cheddar|bread|Whey/.test(f.name));
+  assert.notEqual(solve({ ...base, foods: salty, sodiumMax: 100 }).status, "optimal");
+  const whole = solve({ ...base, step: 0.5, sodiumMax: cap });
+  assert.ok(whole.totals[5] <= cap + 1e-6);
+});
+
+test("sodium cap survives a share link and is exported in the CSV", () => {
+  const enc = encodeShare("A | 1 | 2 | 3 | 4 | 5 | 6", { nacmax: "2300" });
+  assert.equal(decodeShare(enc).fields.nacmax, "2300");
+  const spec = { ...sampleSpec(), step: 0 };
+  const csv = planCsv(spec, solve(spec));
+  assert.ok(csv.split("\n")[0].endsWith("Sodium mg"));
 });
