@@ -27,7 +27,9 @@ from urllib.parse import unquote, urlsplit
 ATTR_RE = re.compile(r"""\b(?:href|src)\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
 IMPORT_RE = re.compile(r"""\bfrom\s+["'](\.{1,2}/[^"']+)["']""")
 
-SKIP_PREFIXES = ("http://", "https://", "//", "mailto:", "tel:", "data:", "javascript:", "#")
+ID_RE = re.compile(r"""\b(?:id|name)\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
+
+SKIP_PREFIXES = ("http://", "https://", "//", "mailto:", "tel:", "data:", "javascript:")
 
 
 def _targets(markup: str):
@@ -37,8 +39,25 @@ def _targets(markup: str):
         yield match.group(1)
 
 
+def _anchor_ids(path: Path, cache: dict) -> set:
+    if path not in cache:
+        cache[path] = set(ID_RE.findall(path.read_text(encoding="utf-8", errors="replace")))
+    return cache[path]
+
+
+def _is_anchor(fragment: str) -> bool:
+    """True for a plain `#section-id`, False for state a page decodes itself.
+
+    Calculators hand a prefilled worked example over as `#price=200&...` or
+    `#c=%7B...%7D`; those are read by the receiving page's script, not scrolled
+    to, so no element needs to carry that id.
+    """
+    return bool(fragment) and fragment != "top" and not re.search(r"[=&%{]", fragment)
+
+
 def check_site(site_dir: Path) -> list[str]:
     problems: list[str] = []
+    ids_cache: dict = {}
     pages = sorted(site_dir.rglob("*.html"))
 
     for page in pages:
@@ -63,8 +82,12 @@ def check_site(site_dir: Path) -> list[str]:
             # `unescape` because an href is HTML-escaped: `&` is written `&amp;`
             # and a path containing one would otherwise be looked up by its
             # entity spelling.
-            path_part = unquote(unescape(urlsplit(target).path))
+            parts = urlsplit(unescape(target))
+            path_part = unquote(parts.path)
             if not path_part:
+                # `#section` on the same page: the id must exist here.
+                if _is_anchor(parts.fragment) and parts.fragment not in _anchor_ids(page, ids_cache):
+                    problems.append(f"{page.relative_to(site_dir)} -> {target} (no id=\"{parts.fragment}\" on this page)")
                 continue
 
             if path_part.startswith("/"):
@@ -81,6 +104,12 @@ def check_site(site_dir: Path) -> list[str]:
             if not resolved.exists():
                 rel = page.relative_to(site_dir)
                 problems.append(f"{rel} -> {target}")
+            elif resolved.suffix == ".html" and _is_anchor(parts.fragment):
+                # The page exists but the section it points at does not: the
+                # visitor lands at the top and never sees what the link promised.
+                if parts.fragment not in _anchor_ids(resolved, ids_cache):
+                    rel = page.relative_to(site_dir)
+                    problems.append(f"{rel} -> {target} (no id=\"{parts.fragment}\" in {resolved.name})")
 
     return problems
 
