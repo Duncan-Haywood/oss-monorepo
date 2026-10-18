@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_017h2X54FdNWWLy3AAZXJkpg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T15:40:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "pending",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "issue": "Gate output says to publish pages first, but also says that script needs a post-merge run; skipped, no time"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added loneStretches lone-worker warning to shift-roster-builder; 127 venture tests pass. venture-preflight and runcost not run.",
+  "corrections": [],
+  "redteam": null
+}

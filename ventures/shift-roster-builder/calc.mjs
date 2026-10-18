@@ -1336,6 +1336,32 @@ export function unsupervisedStretches(r, staff) {
   return out.map((x) => { const d = Math.floor(x.start / 1440); return { people: x.people, day: DAYS[d % 7], startMin: x.start - d * 1440, endMin: (x.end - d * 1440) % 1440 || 1440 }; });
 }
 
+// Stretches where exactly one person is on shift and nobody else is, lasting more than `overHours` (lone-worker
+// rule of thumb: cash handling, closing, safety). A heads-up, not a search constraint. Consecutive cuts with the same
+// person merge; a stretch that crosses midnight is reported on the day it starts.
+export function loneStretches(r, overHours = 2) {
+  const spans = [];
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const base = a.slot.day * 1440, end = a.slot.endMin <= a.slot.startMin ? a.slot.endMin + 1440 : a.slot.endMin;
+    spans.push({ person: a.person, s: base + a.slot.startMin, e: base + end });
+  }
+  const cuts = [...new Set(spans.flatMap((x) => [x.s, x.e]))].sort((a, b) => a - b);
+  const out = [];
+  for (let i = 0; i + 1 < cuts.length; i++) {
+    const [lo, hi] = [cuts[i], cuts[i + 1]];
+    const here = [...new Set(spans.filter((x) => x.s <= lo && x.e >= hi).map((x) => x.person))];
+    if (here.length !== 1) continue;
+    const last = out[out.length - 1];
+    if (last && last.end === lo && last.person === here[0]) last.end = hi;
+    else out.push({ person: here[0], start: lo, end: hi });
+  }
+  return out.filter((x) => (x.end - x.start) / 60 > overHours).map((x) => {
+    const d = Math.floor(x.start / 1440);
+    return { person: x.person, day: DAYS[d % 7], startMin: x.start - d * 1440, endMin: (x.end - d * 1440) % 1440 || 1440, hours: (x.end - x.start) / 60 };
+  });
+}
+
 // What a seventh-consecutive-day premium would add for each person who works all seven days of the week (the last day
 // is DAYS[6], so this assumes the workweek starts on Monday). California's rule is 1.5x for the first `firstHours` of
 // that day and 2x after; both multipliers are yours to set. Returns only the extra over straight time (burden

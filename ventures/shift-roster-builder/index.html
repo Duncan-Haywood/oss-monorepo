@@ -102,6 +102,7 @@
       <div><label for="mealmin">Unpaid break length (minutes)</label><input id="mealmin" inputmode="decimal" value="30"></div>
       <div><label for="ddtafter">Double time after (hours a day, 0 = off)</label><input id="ddtafter" inputmode="decimal" value="0"></div>
       <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" inputmode="decimal" value="0"></div>
+      <div><label for="loneafter">Warn when one person is alone for more than (hours, optional)</label><input id="loneafter" inputmode="decimal" placeholder="e.g. 2"></div>
       <div><label for="budget">Weekly payroll budget ($, optional)</label><input id="budget" inputmode="decimal" placeholder="e.g. 3500"></div>
       <div><label for="sales">Projected sales this week ($, optional)</label><input id="sales" inputmode="decimal" placeholder="e.g. 12000"></div>
       <div><label for="dailysales">Sales by day, Mon to Sun ($, optional)</label><input id="dailysales" placeholder="e.g. 1200, 1100, 1300, 1500, 2600, 3200, 1800"></div>
@@ -237,7 +238,7 @@
   </footer>
 
   <script type="module">
-    import { planWeeks, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { planWeeks, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -322,6 +323,7 @@
         ...sf.longStretches.map((x) => `${x.person} works ${num(x.hours)} hours straight on ${x.day} (${fmtClock(x.startMin)}–${fmtClock(x.endMin)}). Many places require an unpaid or paid meal break after about 5 hours; a suggested break time is in the last notice below.`),
         ...sf.sevenDays.map((x) => { const e = seventhDayPay(r, { burdenPct: r.options.burdenPct }).rows.find((y) => y.person === x.person); return `${x.person} works all seven days. Some states (California, for one) owe a premium for the seventh consecutive day in a workweek; the search does not price it.` + (e ? ` For scale: if the premium were 1.5x for the first 8 hours and 2x after, Sunday would add about ${money(e.extra)} for ${x.person} (assumes the workweek starts Monday; check your state's rule).` : ""); }),
         ...unsupervisedStretches(r, st.staff).map((x) => `${x.people.join(" and ")} ${x.people.length > 1 ? "are" : "is"} on shift ${x.day} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)} with nobody who is not marked minor/supervised. Swap in an adult or pin one with fixed:; the search does not enforce this.`),
+        ...(parseFloat($("#loneafter").value) >= 0 ? loneStretches(r, parseFloat($("#loneafter").value)).map((x) => `${x.person} is alone on shift ${x.day} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)} (${num(x.hours)} hours). Add a second person or pin one with fixed:; the search does not enforce this.`) : []),
         ...(sf.notice && sf.notice.short ? [`The week starts in ${sf.notice.days} days. Fair-workweek rules in some cities require ${sf.notice.required} days of notice, so changes after posting may owe premium pay.`] : []),
       ];
       const brk = placeBreaks(r);
@@ -457,7 +459,7 @@
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
-    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "diffwhen", "diffhour", "diffpct", "burden", "balance", "tough", "sales", "dailysales", "splh", "labortarget", "budget", "hoursline", "tippot"];
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "diffwhen", "diffhour", "diffpct", "burden", "balance", "tough", "sales", "dailysales", "splh", "labortarget", "budget", "loneafter", "hoursline", "tippot"];
     const KEY = "shift-roster-builder:setup:v1";
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };
