@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-18 · Batch 16: Etsy's day-one deploys and the Friday-freeze argument
+
+- Added 2 sources and 2 practices (53 practices, 52 sources): Etsy's practice of having new engineers deploy on their first day, as reported by CIO.com in 2011 (P52), and Majors's essays against calendar deploy freezes (P53). Both are early-stage or startup-flavoured, which the catalogue still lacks.
+- **Both transfer `partial`.** P52 is `adopted`: every session lands its own work from its first minutes, gated by CI and scope rules. P53 is `partly` adopted: there is no freeze rule, and CLAUDE.md swaps a starved runner for a local checklist, but nothing measures whether checklist merges fail more often than CI merges. They rank 0.9% and 0.5%.
+- **Still no proposal.** The ledger has 1070 rows (it had 905); every class share fell again (tooling 1.8%). The highest unadopted `yes` row is P23 at 1.8%, below the 5% bar. The `measured` count stays at 4.
+- Verification was by web search only. The Etsy article could not be fetched (the container could not reach it), so only its existence and the day-one claim are recorded; Majors's essays were not read, and the original essay's date was not found.
+
 ## 2026-10-17 · Batch 15: normal accidents and the DevOps Handbook
 
 - Added 2 sources and 2 practices (51 practices, 50 sources): Perrow's *Normal Accidents* (1984; P50) and Kim, Humble, Debois and Willis's *The DevOps Handbook* (2016; P51). P50 completes a trio with batch 14: Reason on layered defences, Vaughan on eroding checks, Perrow on why tightly coupled, complex systems fail even when every layer works.
