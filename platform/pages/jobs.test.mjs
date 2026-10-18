@@ -1887,8 +1887,11 @@ test('it counts only won jobs whose figure the panel can actually read', () => {
     { name: 'negative hero', at: AT, outcome: 'won', amount: '-$4.20' },
     // Still waiting on an answer, so there is no delivered job to cost.
     { name: 'waiting', at: AT, amount: '$9,999' },
+    // A garbled saved list: a stranger's localStorage can hold anything.
+    null,
+    'not a bid',
   ]) {
-    assert.equal(costGapSentence([...rows, noise]), drawn, noise.name);
+    assert.equal(costGapSentence([...rows, noise]), drawn, noise && noise.name);
   }
   // An unreadable cost is not a cost: that row still counts as uncosted, which
   // is the honest reading of a box holding "about 500".
@@ -2983,4 +2986,16 @@ test('the outcome menu preselects by option value, not by its label', () => {
   // `outcome` is 'won' or 'lost'; the labels are 'Won' and 'Lost'. Comparing
   // against the label would show every restored bid as Waiting.
   assert.match(module_(), /if \(options\[o\]\[0\] === outcome\) option\.selected = true;|if\(options\[o\]\[0\]===outcome\)option\.selected=true;/);
+});
+
+test('field ids are read whether the attribute is double-quoted, single-quoted or bare', () => {
+  assert.deepEqual(
+    pageSaveableFieldIds(page('<input id="a"><input id=\'b\'><input id=c><select id=\'d\'></select>')),
+    ['a', 'b', 'c', 'd'],
+  );
+});
+
+test('the module dates a saved bid with today\'s ISO date and labels each outcome menu by bid', () => {
+  assert.match(module_(), /var today = function\(\)\{\s*try \{ return new Date\(\)\.toISOString\(\)\.slice\(0, 10\)/);
+  assert.match(module_(), /'Outcome of the bid named ' \+ bid\.name/);
 });
