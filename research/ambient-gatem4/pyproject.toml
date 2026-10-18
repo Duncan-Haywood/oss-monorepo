@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-gatem4"
+version = "0.1.0"
+description = "Cross-compile the ambient-gatefw adaptive voice gate for Cortex-M4 with clang, and count flash bytes, library calls and executed instructions per 20 ms frame in a Thumb-2 emulator"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy", "unicorn"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
