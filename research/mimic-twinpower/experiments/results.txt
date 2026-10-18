@@ -1,0 +1,31 @@
+C2ST power against wrong pendulum twins. n real + n twin trajectories, 20 replicates per cell, null = exact twin.
+Rejection threshold per n = 0.95 quantile of the null AUROC over 20 replicates (so the false-positive rate is about 0.05 by construction, with a coarse estimate).
+Power = share of replicates above the threshold. n80 = smallest n with power >= 0.8 ('>160' if none). Regret from mimic-twinregret.
+
+null threshold  n=10:0.500  n=20:0.500  n=40:0.644  n=80:0.586  n=160:0.565
+
+twin                         regret     pw@10   pw@20   pw@40   pw@80  pw@160    n80
+exact twin (null)           0.00000      0.00    0.00    0.05    0.05    0.05   >160
+coul -10%                   0.00000      0.00    0.00    0.05    0.05    0.05   >160
+coul -20%                   0.00000      0.00    0.00    0.05    0.10    0.30   >160
+coul -33%                   0.00022      0.00    0.00    0.05    0.20    0.60   >160
+coul -67%                   0.00091      0.00    0.00    0.10    0.35    1.00    160
+coul = 0                    0.00137      0.00    0.00    0.05    0.80    1.00     80
+visc x2                     0.00000      0.00    0.00    0.05    0.20    1.00    160
+visc x0.5                   0.00042      0.00    0.00    0.10    0.10    0.70   >160
+g/L +20%                    0.00137      0.00    0.00    0.40    1.00    1.00     80
+g/L -20%                    0.00000      0.00    0.00    0.65    1.00    1.00     80
+gauss noise, same sd        0.00158      0.00    0.00    0.80    1.00    1.00     40
+noise sd x0.5               0.00000      0.00    0.00    1.00    1.00    1.00     40
+noise sd x0.75              0.00000      0.00    0.00    0.75    0.95    1.00     80
+noise sd x1.5               0.00207      0.00    0.00    0.90    1.00    1.00     40
+noise sd x2                 0.00400      0.00    0.00    1.00    1.00    1.00     40
+noise sd x0 (no noise)      0.00987      0.00    0.00    1.00    1.00    1.00     40
+Spearman(power@10, regret) over 15 wrong twins: rho=nan, p=nan
+Spearman(power@20, regret) over 15 wrong twins: rho=nan, p=nan
+Spearman(power@40, regret) over 15 wrong twins: rho=0.48, p=0.068
+Spearman(power@80, regret) over 15 wrong twins: rho=0.52, p=0.048
+Spearman(power@160, regret) over 15 wrong twins: rho=0.40, p=0.144
+Twins with regret >= 0.001: 6; with zero regret: 6.
+Median n80 (costly): coul = 0=80, g/L +20%=80, gauss noise, same sd=40, noise sd x1.5=40, noise sd x2=40, noise sd x0 (no noise)=40
+Median n80 (zero-regret): coul -10%=>160, coul -20%=>160, visc x2=160, g/L -20%=80, noise sd x0.5=40, noise sd x0.75=80

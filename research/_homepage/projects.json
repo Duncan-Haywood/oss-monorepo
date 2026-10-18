@@ -2892,6 +2892,11 @@
      "slug": "mimic-twinnoiserand",
      "title": "Does randomizing only the sensor-noise level of a wrong digital twin keep domain randomization's rescue without its blow-up?",
      "summary": "Follow-up to <code>mimic-twinrand</code> on the same stylised pendulum PD task. Only the twin's noise sd is spread (uniform on nominal &plusmn; <em>w</em>&times;0.02); friction and g/L stay nominal. A no-noise twin's regret falls from 0.0098 to 0 at <em>w</em>=2 and stays at 0.00035 (worst seed 0.0015) at <em>w</em>=4, where randomizing all four parameters has a worst seed of 0.042. A doubled-noise twin improves monotonically (0.0038 to 0.0012), which all-four did not. Friction and gravity errors are untouched (0.00138 at every width). 24 seeds, 48-point grid; preliminary, one toy system, no LLM."
+    },
+    {
+     "slug": "mimic-twinpower",
+     "title": "How many real trajectories does a classifier test need to flag a wrong digital twin, and are the twins it flags the ones that cost a controller?",
+     "summary": "On the stylised pendulum of <code>mimic-twinregret</code>, a boosted-tree C2ST with <em>n</em> real and <em>n</em> twin trajectories flags a twin when its AUROC beats the 95th percentile of the exact-twin null at the same <em>n</em> (20 replicates per cell, <em>n</em> = 10 to 160). The six twins whose controller regret is at least 0.001 are all flagged in at least 80% of replicates by <em>n</em>&nbsp;=&nbsp;80 (by 40 for the four noise-level and noise-shape twins), so the test does not miss costly twins at that size. It also flags three twins that cost nothing (g/L &minus;20%, noise &times;0.5, noise &times;0.75) by <em>n</em>&nbsp;=&nbsp;40&ndash;80, while Coulomb &minus;10% and &minus;20% stay unflagged at 160. Spearman correlation of power at 80 with regret is 0.52 (p&nbsp;=&nbsp;0.048, 15 twins). A flag is a cheap alarm, not a verdict on usefulness. Limits: one system, one task, 20 replicates, a null threshold that is degenerate at <em>n</em>&nbsp;&le;&nbsp;20. Stylised, simulated, no LLM."
     }
    ]
   },
