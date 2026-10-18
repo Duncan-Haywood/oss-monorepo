@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672.0 384.0" width="672.0" height="384.0" font-family="sans-serif" font-size="12" role="img" aria-label="South elevation, 4:12 roof">
+<title>South elevation, 4:12 roof</title>
+<rect width="672.0" height="384.0" fill="#fff"/>
+<line x1="32.0" y1="336.0" x2="640.0" y2="336.0" stroke="#444"/>
+<rect x="48.0" y="144.0" width="576.0" height="192.0" fill="#efe9dc" stroke="#222" stroke-width="2"/>
+<polygon points="24.0,144.0 336.0,48.0 648.0,144.0" fill="#c9c2b3" stroke="#222" stroke-width="2"/>
+<rect x="300.0" y="176.0" width="72.0" height="160.0" fill="#e3c9a8" stroke="#b5651d" stroke-width="2"/>
+<rect x="62.0" y="168.0" width="96.0" height="96.0" fill="#cfe3f7" stroke="#3a7bd5" stroke-width="2"/>
+<rect x="172.0" y="168.0" width="96.0" height="96.0" fill="#cfe3f7" stroke="#3a7bd5" stroke-width="2"/>
+<rect x="459.0" y="168.0" width="96.0" height="96.0" fill="#cfe3f7" stroke="#3a7bd5" stroke-width="2"/>
+<text x="48.0" y="22" fill="#333" font-weight="bold">South elevation, 4:12 roof. Not for construction.</text>
+</svg>

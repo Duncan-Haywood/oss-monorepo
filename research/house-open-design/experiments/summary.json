@@ -1,0 +1,12 @@
+{
+ "area_sqft": 480.0,
+ "framing_bf": 2613.8,
+ "problems": [],
+ "wrote": [
+  "floor-plan.svg",
+  "south-elevation.svg",
+  "bom.csv",
+  "report.md",
+  "adu.ifc"
+ ]
+}
