@@ -94,6 +94,15 @@ export const GENERIC_BUDGET_OVERRIDES = {
       'duplication does. Allowed at two, which still blocks a fourth. Folding them into one page is worth doing ' +
       'when someone next edits either.',
   },
+  'str-host-payout-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-10-18: #7938 added "vs. subtracting a flat percentage" beside the existing "vs. tracking ' +
+      'payouts in a spreadsheet", and the live-catalogue check has been red since. The two answer different ' +
+      'questions (a host who guesses a flat rate versus one who keeps a hand-built ledger), so this records the ' +
+      'second page rather than deleting a day-old URL. Allowed at two, which still blocks a third. Folding them ' +
+      'into one page is worth doing when someone next edits either.',
+  },
   'shopify-fee-calculator': {
     allowed: 2,
     why:
