@@ -449,6 +449,31 @@ class LinkChecking(unittest.TestCase):
         (self.tmp / "index.html").write_text('<a href="a&amp;b.html">x</a>', encoding="utf-8")
         self.assertEqual(links.check_site(self.tmp), [])
 
+    def test_flags_a_fragment_whose_section_does_not_exist(self):
+        """`./#compare` into a page with no `id="compare"` lands the reader at
+        the top of the page; the file exists, so the plain path check passed."""
+        (self.tmp / "index.html").write_text('<h2>Other</h2>', encoding="utf-8")
+        (self.tmp / "guide.html").write_text('<a href="./#compare">x</a>', encoding="utf-8")
+        (self.tmp / "same.html").write_text('<a href="#nope">x</a>', encoding="utf-8")
+        self.assertEqual(len(links.check_site(self.tmp)), 2)
+
+    def test_accepts_a_fragment_that_matches_an_id(self):
+        (self.tmp / "index.html").write_text('<section id="compare">x</section>', encoding="utf-8")
+        (self.tmp / "guide.html").write_text(
+            '<a href="./#compare">x</a><a href="#here">y</a><i id="here"></i>', encoding="utf-8"
+        )
+        self.assertEqual(links.check_site(self.tmp), [])
+
+    def test_does_not_treat_prefilled_state_fragments_as_anchors(self):
+        """`#price=200&land=40` and `#c=%7B...%7D` are read by the calculator's
+        script, not scrolled to, so no element carries that id."""
+        (self.tmp / "index.html").write_text("ok", encoding="utf-8")
+        (self.tmp / "guide.html").write_text(
+            '<a href="./#price=200&amp;land=40">x</a><a href="./#c=%7B%22a%22%3A1%7D">y</a>',
+            encoding="utf-8",
+        )
+        self.assertEqual(links.check_site(self.tmp), [])
+
     def test_ignores_js_template_literal_hrefs(self):
         """tender-radar builds source links in a script: href="${escapeHtml(href)}".
         That is not a published path and must not fail the Pages link check."""
