@@ -705,3 +705,11 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   bytecode, next 20 redteam runs; expect none.
 - Candidates: unchanged. Drift: `prompts/drift/2026-10-18b.md`.
 - Result: (next review)
+
+## E37: review 2026-10-18 (third)
+
+- Change: none to prompts or docs; `derived/` regenerated. Candidates unchanged
+  (ventures 2 / research 1 overlap; review/2 has 6 runs).
+- Metric: none new; E35/E36 metrics still open.
+- Drift: `prompts/drift/2026-10-18c.md`.
+- Result: (next review)

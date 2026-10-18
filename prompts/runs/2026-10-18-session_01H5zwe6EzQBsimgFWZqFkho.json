@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01H5zwe6EzQBsimgFWZqFkho",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T09:10:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "derive.py fetch needs far longer than ~100s for 222 PRs; a pgrep -f wait loop matches itself and never ends."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Third review of the day: derived/ regenerated (partial fetch, killed after ~75 of 222 PRs), drift report and E37; no prompt or doc change. Audit not run (recent outputs mirrored/doc-only).",
+  "corrections": [],
+  "redteam": null
+}
