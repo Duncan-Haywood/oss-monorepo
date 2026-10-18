@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-falsewake"
+version = "0.1.0"
+description = "False wakes per day of an always-on trigger on autocorrelated frame scores: exact grid-Markov-chain rate versus the independent-frames rule, checked by Monte Carlo"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

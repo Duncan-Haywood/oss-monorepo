@@ -2,6 +2,8 @@
 
 Track 11 (adversarial human imitation), a no-model slice of milestone 5 (`mimic-transfer`), built on `mimic-contexts`. It was chosen because the two reference detectors there look complementary (an n-gram classifier and a Binoculars-style score) but nobody had combined them. **Preliminary, stylised: RAID plain-prompt text only, three chat models, 1,200 training and 720 held-out texts, one split.** Produced with AI assistance (Claude). No LLM was run: the container cannot reach Hugging Face, so this reuses the stored suite and the stored Qwen2.5-0.5B scores from `mimic-contexts`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-stack/
+
 **Result.** The two detectors' scores are uncorrelated within each class (correlation −0.02 for human, 0.02 for machine text), yet combining them barely helps. On the held-out families (poetry, reviews, wiki) the n-gram detector alone gets AUROC 0.926. Averaging its z-score with the Binoculars-style score gets 0.935; the gain is +0.009 with a paired 95% bootstrap interval of −0.010 to +0.026, so it is **not distinguishable from zero**. Fitted logistic-regression stacks do no better (−0.003 and −0.019). The gain is uneven: it is largest on wiki (0.892 to 0.935) and on llama-chat (0.941 to 0.978), and it hurts on poetry (0.946 to 0.901) and mpt-chat (0.955 to 0.877), where the zero-shot score is weak (0.65).
 
 All numbers are in `results.txt` and `results.json`; `experiments/figure.svg` plots the held-out AUROCs.
