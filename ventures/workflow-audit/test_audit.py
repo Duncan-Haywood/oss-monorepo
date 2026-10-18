@@ -132,6 +132,65 @@ jobs:
         self.assertIn("x\\|y", md)
         self.assertIn("not a security audit", md)
 
+    def test_inline_ignore_silences_by_rule_or_wholesale(self):
+        with repo(BAD) as d:
+            all_f, _ = audit.audit(d)
+            inj = next(f for f in all_f if f["rule"] == "script-injection")
+            p = Path(d) / inj["file"]
+            lines = p.read_text().splitlines()
+            lines[inj["line"] - 1] += "  # workflow-audit: ignore[script-injection]"
+            p.write_text("\n".join(lines) + "\n")
+            kept, n_inline, n_base = audit.suppress(audit.audit(d)[0], d)
+        self.assertEqual((n_inline, n_base), (1, 0))
+        self.assertNotIn("script-injection", {f["rule"] for f in kept})
+        self.assertIn("pwn-request-checkout", {f["rule"] for f in kept})
+
+    def test_inline_ignore_for_another_rule_does_not_silence(self):
+        with repo(BAD) as d:
+            f0 = next(f for f in audit.audit(d)[0] if f["rule"] == "script-injection")
+            p = Path(d) / f0["file"]
+            lines = p.read_text().splitlines()
+            lines[f0["line"] - 1] += "  # workflow-audit: ignore[write-all]"
+            p.write_text("\n".join(lines) + "\n")
+            kept, n_inline, _ = audit.suppress(audit.audit(d)[0], d)
+        self.assertEqual(n_inline, 0)
+        self.assertIn("script-injection", {f["rule"] for f in kept})
+
+    def test_baseline_hides_old_findings_survives_line_shifts_and_shows_new_ones(self):
+        with repo(BAD) as d:
+            base = str(Path(d) / "base.json")
+            self.assertEqual(audit.main([d, "--write-baseline", base]), 0)
+            # Everything accepted: gate passes.
+            self.assertEqual(audit.main([d, "--baseline", base, "--fail-on", "low"]), 0)
+            # Shift every line down: fingerprints use line text, so still accepted.
+            wf = Path(d) / ".github" / "workflows" / "ci.yml"
+            wf.write_text("# a new leading comment\n" + wf.read_text())
+            self.assertEqual(audit.main([d, "--baseline", base, "--fail-on", "low"]), 0)
+            # A genuinely new problem is reported.
+            wf.write_text(wf.read_text() + '      - run: echo "${{ github.head_ref }}"\n')
+            self.assertEqual(audit.main([d, "--baseline", base, "--fail-on", "high"]), 2)
+            out = Path(d) / "o.json"
+            audit.main([d, "--baseline", base, "--format", "json", "--output", str(out)])
+            rep = json.loads(out.read_text())
+        self.assertEqual(len(rep["findings"]), 1)
+        self.assertEqual(rep["findings"][0]["rule"], "script-injection")
+        self.assertGreater(rep["suppressed"]["baseline"], 0)
+
+    def test_baseline_counts_duplicates_so_a_second_copy_is_new(self):
+        line = '      - run: echo "${{ github.event.pull_request.title }}"\n'
+        with repo(BAD) as d:
+            base = str(Path(d) / "base.json")
+            audit.main([d, "--write-baseline", base])
+            wf = Path(d) / ".github" / "workflows" / "ci.yml"
+            wf.write_text(wf.read_text() + line)
+            kept, _, n_base = audit.suppress(audit.audit(d)[0], d, audit.load_baseline(base))
+        self.assertTrue(any(f["rule"] == "script-injection" for f in kept))
+        self.assertGreater(n_base, 0)
+
+    def test_unreadable_baseline_is_an_error_not_a_pass(self):
+        with repo(BAD) as d:
+            self.assertEqual(audit.main([d, "--baseline", str(Path(d) / "missing.json")]), 1)
+
     def test_vendored_copies_match_source_ventures(self):
         # Drift guard: the action must not silently diverge from the venture it vendors.
         root = Path(__file__).resolve().parent.parent

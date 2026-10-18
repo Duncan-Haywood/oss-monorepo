@@ -7,6 +7,12 @@
     python3 audit.py --format sarif        # SARIF 2.1.0 for github/codeql-action/upload-sarif
     python3 audit.py --format markdown     # for $GITHUB_STEP_SUMMARY or a PR comment
     python3 audit.py --fail-on high        # exit 2 when a finding is at least this severe
+    python3 audit.py --write-baseline .workflow-audit-baseline.json   # accept today's findings
+    python3 audit.py --baseline .workflow-audit-baseline.json         # then report only new ones
+
+A finding can also be silenced in the workflow itself with a comment on its
+line or the line above: `# workflow-audit: ignore` or
+`# workflow-audit: ignore[rule-a, rule-b]`.
 
 Zero dependencies (Python 3.8+). Read-only. Makes no network calls. Each check
 is a vendored copy of the matching `actions-*-check` venture in `checks/`, run
@@ -16,7 +22,9 @@ Not a security audit and not a compliance attestation: it matches documented
 patterns line by line. A clean report means these patterns were absent.
 """
 import argparse
+import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -143,6 +151,80 @@ def audit(root):
     return unique, errors
 
 
+IGNORE_RE = re.compile(r"#\s*workflow-audit:\s*ignore(?:\[([^\]]*)\])?", re.I)
+
+
+def _source_lines(root, file, cache):
+    if file not in cache:
+        try:
+            cache[file] = (Path(root) / file).read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            cache[file] = []
+    return cache[file]
+
+
+def _line_text(lines, line):
+    return lines[line - 1].strip() if 1 <= line <= len(lines) else ""
+
+
+def fingerprint(f, text):
+    """Stable across line-number shifts: file + rule + scope + the offending line's text."""
+    raw = "\x1f".join((f["file"], f["rule"], str(f["scope"] or ""), text))
+    return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
+
+
+def inline_ignored(f, lines):
+    for n in (f["line"], f["line"] - 1):
+        if not 1 <= n <= len(lines):
+            continue
+        m = IGNORE_RE.search(lines[n - 1])
+        if not m:
+            continue
+        if m.group(1) is None:
+            return True
+        if f["rule"] in {r.strip() for r in m.group(1).split(",")}:
+            return True
+    return False
+
+
+def load_baseline(path):
+    """Return {fingerprint: allowed count}. A missing or unreadable file is an error, not 'no baseline'."""
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    out = {}
+    for entry in data.get("findings", []):
+        out[entry["fingerprint"]] = out.get(entry["fingerprint"], 0) + 1
+    return out
+
+
+def write_baseline(path, findings, root):
+    cache = {}
+    entries = [{
+        "fingerprint": fingerprint(f, _line_text(_source_lines(root, f["file"], cache), f["line"])),
+        "file": f["file"], "rule": f["rule"], "severity": f["severity"],
+    } for f in findings]
+    entries.sort(key=lambda e: (e["file"], e["rule"], e["fingerprint"]))
+    Path(path).write_text(json.dumps({"version": 1, "findings": entries}, indent=2) + "\n", encoding="utf-8")
+    return len(entries)
+
+
+def suppress(findings, root, baseline=None):
+    """Drop inline-ignored and baselined findings; return (kept, n_inline, n_baselined)."""
+    cache, kept, n_inline, n_base = {}, [], 0, 0
+    budget = dict(baseline or {})
+    for f in findings:
+        lines = _source_lines(root, f["file"], cache)
+        if inline_ignored(f, lines):
+            n_inline += 1
+            continue
+        fp = fingerprint(f, _line_text(lines, f["line"]))
+        if budget.get(fp, 0) > 0:
+            budget[fp] -= 1
+            n_base += 1
+            continue
+        kept.append(f)
+    return kept, n_inline, n_base
+
+
 def counts(findings):
     return {s: sum(1 for f in findings if f["severity"] == s) for s in SEVERITIES}
 
@@ -153,7 +235,16 @@ def should_fail(findings, fail_on):
     return any(RANK[f["severity"]] >= RANK[fail_on] for f in findings)
 
 
-def render_text(findings, errors):
+def suppressed_note(n_inline, n_base):
+    parts = []
+    if n_inline:
+        parts.append(f"{n_inline} ignored inline")
+    if n_base:
+        parts.append(f"{n_base} in the baseline")
+    return f"Suppressed: {', '.join(parts)}." if parts else ""
+
+
+def render_text(findings, errors, note=""):
     c = counts(findings)
     lines = []
     for f in findings:
@@ -162,6 +253,8 @@ def render_text(findings, errors):
         if f["fix"]:
             lines.append(f"         fix: {f['fix']}")
     lines.append(summary_line(findings, c))
+    if note:
+        lines.append(note)
     lines.extend(f"warning: {e}" for e in errors)
     return "\n".join(lines)
 
@@ -173,8 +266,10 @@ def summary_line(findings, c=None):
     return f"{len(findings)} finding(s): {c['high']} high, {c['medium']} medium, {c['low']} low."
 
 
-def render_markdown(findings, errors):
+def render_markdown(findings, errors, note=""):
     out = ["## Workflow Audit", "", summary_line(findings), ""]
+    if note:
+        out += [note, ""]
     if findings:
         out += ["| Severity | Location | Rule | Detail | Fix |", "|---|---|---|---|---|"]
         for f in findings:
@@ -217,6 +312,9 @@ def main(argv=None):
     p.add_argument("--format", choices=("text", "json", "sarif", "markdown"), default="text")
     p.add_argument("--fail-on", choices=("high", "medium", "low", "none"), default="none",
                    help="exit 2 when a finding is at least this severe (default: never)")
+    p.add_argument("--baseline", help="JSON file from --write-baseline; findings it lists are not reported")
+    p.add_argument("--write-baseline", metavar="FILE",
+                   help="write every current finding to FILE as the accepted baseline, then exit 0")
     p.add_argument("--output", help="write the report to this file instead of stdout")
     args = p.parse_args(argv)
     root = Path(args.path)
@@ -224,14 +322,29 @@ def main(argv=None):
         print(f"error: {root} is not a directory", file=sys.stderr)
         return 1
     findings, errors = audit(root)
+    if args.write_baseline:
+        # Inline ignores still apply: the baseline only needs what they do not cover.
+        kept, _, _ = suppress(findings, root)
+        n = write_baseline(args.write_baseline, kept, root)
+        print(f"Wrote {n} finding(s) to {args.write_baseline}. Commit it; later runs with --baseline report only new ones.")
+        return 0
+    baseline = None
+    if args.baseline:
+        try:
+            baseline = load_baseline(args.baseline)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print(f"error: cannot read baseline {args.baseline}: {exc}", file=sys.stderr)
+            return 1
+    findings, n_inline, n_base = suppress(findings, root, baseline)
+    note = suppressed_note(n_inline, n_base)
     if args.format == "json":
-        text = json.dumps({"summary": counts(findings), "findings": findings, "errors": errors}, indent=2)
+        text = json.dumps({"summary": counts(findings), "suppressed": {"inline": n_inline, "baseline": n_base}, "findings": findings, "errors": errors}, indent=2)
     elif args.format == "sarif":
         text = render_sarif(findings)
     elif args.format == "markdown":
-        text = render_markdown(findings, errors)
+        text = render_markdown(findings, errors, note)
     else:
-        text = render_text(findings, errors)
+        text = render_text(findings, errors, note)
     if args.output:
         Path(args.output).write_text(text + "\n", encoding="utf-8")
     else:
