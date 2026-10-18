@@ -696,6 +696,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer for exactly that reason). Same reasoning as the
   // amazon-fba-calculator spreadsheet page above.
   'str-host-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html',
+  // Compares against "subtracting a flat percentage" -- the mental-math
+  // shortcut of applying one headline rate to the booking subtotal, not a
+  // company or product this could be mistaken for. The page names no
+  // competing calculator or tool.
+  'str-host-payout-calculator/vs-subtracting-a-flat-percentage.html',
   // Compares against "a flat rate per square foot" -- a pricing habit every
   // turf and landscape shop is shopped against, not a company or product
   // this could be mistaken for. The page names no vendor or competing
