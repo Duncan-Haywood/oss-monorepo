@@ -16,7 +16,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 
 test("every form control has a label and the page makes no network requests", () => {
   const html = page("index.html");
-  for (const id of ["events", "churn", "asof"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  for (const id of ["events", "churn", "mrr", "asof"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
 });
 
@@ -51,3 +51,8 @@ test("index links one hop to the cancel-flow sibling and each sibling exists", (
 });
 
 test("footer names pql-radar so no sibling is an orphan", () => { assert.match(page("index.html"), /href="\.\.\/pql-radar\/"/); });
+
+test("the revenue-at-risk view is wired into the page", () => {
+  const html = page("index.html");
+  assert.match(html, /atRiskList/); assert.match(html, /MRR on at-risk accounts/); assert.match(html, /parseCsv\(\$\("events"\)\.value, \$\("churn"\)\.value, \$\("mrr"\)\.value\)/);
+});

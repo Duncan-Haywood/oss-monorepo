@@ -41,7 +41,8 @@ founder who wants a ranked "talk to these five people today" list.
 5. **Fallback.** Under 20 churned or 20 retained account-weeks it does not train
    and shows a fixed rule-based index (silence and falling activity), flagged
    `calibrated: false`.
-6. **Reasons.** Each flagged account lists up to three features pushing its
+6. **Money first.** Give an account its MRR and the at-risk list is ordered by expected loss (risk x MRR) instead of risk alone, so a $2,000 account at 45% outranks a $20 account at 90%. Expected loss is only computed from a trained model, whose scores are probabilities; the rule-based index shows MRR but never a dollar loss. It is an estimate for ordering a to-do list, not a revenue forecast.
+7. **Reasons.** Each flagged account lists up to three features pushing its
    score up, in words ("last seen 12 days ago").
 
 The tests use a seeded synthetic dataset, where churn is made to follow fading
@@ -66,8 +67,9 @@ API (bearer `API_KEY`):
 
 - `POST /v1/events` — `{id, account, type, timestamp?, signup?}` or `{events:[...]}` up to 500. Idempotent on `id`.
 - `POST /v1/outcomes` — `{account, churnedAt?}` records a cancellation; `{account, churned:false}` undoes it.
-- `GET /v1/at-risk?limit=20` — accounts at or above the threshold, with reasons.
-- `GET /v1/digest?limit=10[&format=text]` — a paste-ready "talk to these people" list for Slack or email, with the reasons.
+- `POST /v1/accounts/:id/mrr` — `{mrr: 499}` sets the account's monthly revenue (`{mrr: null}` clears it). Events may carry `mrr` too, and Stripe `customer.subscription.created` / `.updated` webhooks keep it current (items x quantity, yearly plans divided by 12).
+- `GET /v1/at-risk?limit=20` — accounts at or above the threshold, with reasons. With MRR on file the list is ordered by money, not raw risk, and the response adds `mrrAtRisk` and `expectedLoss30d`.
+- `GET /v1/digest?limit=10[&format=text]` — a paste-ready "talk to these people" list for Slack or email, with the reasons and, when MRR is known, each account's monthly revenue and the total MRR on flagged accounts.
 - `GET /v1/accounts/:id` — one account's score.
 - `GET /v1/model` — mode, sample sizes, out-of-time validation, weights.
 - `POST /stripe/webhook` — `customer.subscription.deleted` records a cancellation,
@@ -80,7 +82,7 @@ tool (and `account,date` cancellations from billing) and load them, so the
 first model trains on your past instead of waiting weeks:
 
 ```
-RADAR_URL=https://radar.example.com RADAR_API_KEY=... node import.mjs events.csv cancellations.csv
+RADAR_URL=https://radar.example.com RADAR_API_KEY=... node import.mjs events.csv cancellations.csv [mrr.csv]
 ```
 
 It is safe to re-run (repeat rows are reported as duplicates). The browser page
