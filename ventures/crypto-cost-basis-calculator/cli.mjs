@@ -14,7 +14,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
-import { analyze, planSale, toForm8949Csv, toIncomeCsv, form8949Totals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
+import { analyze, planSale, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
@@ -159,7 +159,8 @@ export function renderPlan(p) {
 
 function totalsLine(result) {
   const f = form8949Totals(result.rows);
-  return f.total.noBasis ? `${f.total.noBasis} row(s) have no purchase on record (zero basis); fix before filing.` : "";
+  const bt = result.rows.some((r) => r.reported) ? "\n" + form8949BoxTotals(result.rows).map((b) => `Box ${b.box}: ${b.rows} row(s), proceeds ${usd(b.proceeds)}, basis ${usd(b.basis)}, gain ${usd(b.gain)}`).join("\n") : "";
+  return bt + (f.total.noBasis ? `${f.total.noBasis} row(s) have no purchase on record (zero basis); fix before filing.` : "");
 }
 
 async function readInput(name) {
