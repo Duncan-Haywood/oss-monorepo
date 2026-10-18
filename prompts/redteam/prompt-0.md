@@ -70,6 +70,11 @@ It re-applies every escaped mutant and sets `caught_after_fix`. Each `gap`
 should now read `true`. If one reads `false`, the new test does not catch it
 yet.
 
+`rerun` finds each mutated line by its text, so run it after adding the test
+and before any refactor that moves or rewrites those lines (extracting
+helpers, say). A line it reports as `line changed` is triaged by hand: re-apply
+the mutant to the new code and say so in `note`.
+
 If a defect is too large for this run, such as a product that is wrong in a
 way that needs a redesign, leave `patched: false`, describe it in the PR, and
 fix only what is safe. Do not widen the run.
