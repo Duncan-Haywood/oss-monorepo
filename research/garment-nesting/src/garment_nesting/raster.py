@@ -79,13 +79,13 @@ def nest_raster(pieces, W, order, flips, cell=2.0, max_len=600.0):
     return placed, top * cell, occ[:top]
 
 
-def anneal_raster(pieces, W, evals=200, seed=0, cell=2.0, allow_flip=True):
+def anneal_raster(pieces, W, evals=200, seed=0, cell=2.0, allow_flip=True, max_len=600.0):
     """Simulated annealing over (order, 180-degree flips), same move set as the rectangle version."""
     rng = np.random.default_rng(seed)
     n = len(pieces)
     order = sorted(range(n), key=lambda i: -polygon_area(pieces[i].poly))
     flips = [False] * n
-    _, cur, _ = nest_raster(pieces, W, order, flips, cell)
+    _, cur, _ = nest_raster(pieces, W, order, flips, cell, max_len)
     best, best_state = cur, (list(order), list(flips))
     t0 = 0.04 * cur
     for k in range(1, evals):
@@ -99,7 +99,7 @@ def anneal_raster(pieces, W, evals=200, seed=0, cell=2.0, allow_flip=True):
             co[a], co[b] = co[b], co[a]
         else:
             co.insert(b, co.pop(a))
-        _, val, _ = nest_raster(pieces, W, co, cf, cell)
+        _, val, _ = nest_raster(pieces, W, co, cf, cell, max_len)
         if val <= cur or rng.random() < math.exp((cur - val) / t):
             order, flips, cur = co, cf, val
             if cur < best - 1e-9:
