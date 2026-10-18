@@ -375,3 +375,26 @@ test("the tie-break guide's worked example matches standings and is linked and i
   assert.match(page("sitemap.xml"), /how-to-break-ties-in-league-standings\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-break-ties-in-league-standings\.html"/);
 });
+
+test("the rainout guide's worked example matches buildSchedule and applyRainouts and is linked and in the sitemap", async () => {
+  const { applyRainouts, dayIso } = await import("./calc.mjs");
+  const name = "how-to-reschedule-a-rained-out-league-game.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-reschedule-a-rained-out-league-game\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const { spec } = readSpec({ teams: "Owls\nLynx\nHawks\nOtters", start: "2026-10-06", weekdays: "Tue", courts: "Court 1\nCourt 2", times: "7pm" });
+  const row = (r) => `<tr><td>${dayIso(r.day)}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court})`).join(", ")}</td></tr>`;
+  const base = buildSchedule(spec);
+  for (const r of base.rounds) assert.ok(html.includes(row(r)), row(r));
+  const out = applyRainouts(base, "2026-10-13 Owls");
+  assert.deepEqual(out.errors, []);
+  assert.equal(out.moves.length, 1);
+  assert.equal(dayIso(out.moves[0].to), "2026-10-27");
+  assert.equal(`${out.moves[0].home} v ${out.moves[0].away} ${out.moves[0].court} ${out.moves[0].time}`, "Hawks v Owls Court 2 19:00");
+  for (const r of out.schedule.rounds) assert.ok(html.includes(row(r)), row(r));
+  assert.match(page("sitemap.xml"), /how-to-reschedule-a-rained-out-league-game\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-reschedule-a-rained-out-league-game\.html"/);
+});

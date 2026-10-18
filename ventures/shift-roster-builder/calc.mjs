@@ -290,14 +290,19 @@ export function parseShifts(text) {
     if (!Number.isInteger(count) || count < 1 || count > 50) { errors.push(`${where}: people needed must be a whole number from 1 to 50`); return; }
     const label = ROLE_CELL.test(c[4] || "") || FIXED_CELL.test(c[4] || "") ? "" : (c[4] || "");
     const roleCell = c.slice(4).find((x) => ROLE_CELL.test(x));
-    const role = roleCell ? parseRoles(roleCell)[0] || "" : FIXED_CELL.test(c[5] || "") ? "" : (c[5] || "").trim().toLowerCase();
+    const roleRaw = roleCell ? parseRoles(roleCell)[0] || "" : FIXED_CELL.test(c[5] || "") ? "" : (c[5] || "").trim().toLowerCase();
+    // "role: keyholder x1" asks for one keyholder among the people needed; the other copies take anyone. No "xN" = every copy.
+    const roleCount = /^(.+?)\s*[x×]\s*(\d+)$/.exec(roleRaw);
+    const role = roleCount ? roleCount[1].trim() : roleRaw;
+    const roleNeeded = roleCount ? Number(roleCount[2]) : count;
+    if (roleCount && (roleNeeded < 1 || roleNeeded > count)) { errors.push(`${where}: "${roleRaw}" asks for ${roleNeeded} with the role but only ${count} people are needed`); return; }
     // "fixed: Sam" pins every copy to Sam; "fixed: Sam + Ana" pins copy 1 to Sam, copy 2 to Ana; extra copies stay open.
     const fixedCell = c.slice(4).find((x) => FIXED_CELL.test(x));
     const fixedNames = fixedCell ? parseFixed(fixedCell) : [];
     if (fixedCell && !fixedNames.length) { errors.push(`${where}: "fixed:" needs a name`); return; }
     for (const d of days) for (let k = 0; k < count; k++) {
       const end = b <= a ? b + 1440 : b; // an end at or before the start runs overnight
-      slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role, copy: k + 1, of: count, fixed: fixedNames[k] || "" });
+      slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role: k < roleNeeded ? role : "", copy: k + 1, of: count, fixed: fixedNames[k] || "" });
     }
   });
   if (!slots.length && !errors.length) errors.push("Add at least one shift to cover.");

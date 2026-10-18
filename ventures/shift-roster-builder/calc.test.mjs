@@ -1030,3 +1030,17 @@ test("placeBreaks: a break taken on one day does not take that person off the fl
   assert.equal(b.length, 4);
   assert.ok(b.every((x) => !x.alone && x.others === 1));
 });
+
+test("roles: 'role: keyholder x1' needs one keyholder among several people, the rest take anyone", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, roles: keyholder\nBen, 12, 40, 0, any\nCy, 10, 40, 0, any");
+  const slots = slotsOf("Mon, 8, 16, 3, open, role: keyholder x1");
+  assert.deepEqual(slots.map((s) => s.role), ["keyholder", "", ""]);
+  const r = buildRoster(staff, slots);
+  assert.equal(r.unfilled.length, 0);
+  assert.equal(r.assignments.filter((a) => a.slot.role === "keyholder")[0].person, "Ana");
+  // Without Ana nobody can hold the keyholder copy, so exactly that one stays open.
+  const noKey = buildRoster(staffOf("Ben, 12, 40, 0, any\nCy, 10, 40, 0, any\nDi, 9, 40, 0, any"), slots);
+  assert.equal(noKey.unfilled.length, 1);
+  assert.match(noKey.unfilled[0].text, /nobody listed has the role "keyholder"/);
+  assert.match(parseShifts("Mon, 8, 16, 2, open, role: keyholder x3").errors[0], /asks for 3/);
+});
