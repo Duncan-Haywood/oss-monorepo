@@ -483,3 +483,11 @@ test("West Virginia: more than 183 days with a permanent place of abode", () => 
   assert.equal(RULES.WV.requiresAbode, true);
   assert.equal(RULES.WV.kind, "statutory");
 });
+
+test("Delaware and New Mexico day tests", () => {
+  assert.equal(RULES.DE.limit, 183);
+  assert.equal(RULES.DE.requiresAbode, true);
+  assert.equal(RULES.NM.limit, 184);
+  assert.equal(RULES.NM.requiresAbode, false);
+  assert.equal(RULES.NM.kind, "statutory");
+});
