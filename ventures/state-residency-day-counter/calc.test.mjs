@@ -491,3 +491,9 @@ test("Delaware and New Mexico day tests", () => {
   assert.equal(RULES.NM.requiresAbode, false);
   assert.equal(RULES.NM.kind, "statutory");
 });
+
+test("Hawaii 200-day presumption", () => {
+  assert.equal(RULES.HI.limit, 200);
+  assert.equal(RULES.HI.kind, "presumption");
+  assert.equal(RULES.HI.requiresAbode, false);
+});
