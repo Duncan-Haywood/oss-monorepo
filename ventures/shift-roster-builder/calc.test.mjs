@@ -1050,3 +1050,32 @@ test("a high balance setting never costs coverage on the sample week", () => {
   const base = buildRoster(staff, slots, { balance: 0 }).unfilledHours;
   for (const balance of [25, 50, 75, 100]) assert.equal(buildRoster(staff, slots, { balance }).unfilledHours, base, `balance ${balance}`);
 });
+
+test("tough: history makes the search hand this week's closes to the person who has had fewest lately", async () => {
+  const { parseStaff, parseShifts, buildRoster, carryOverStaff, toughCounts } = await import("./calc.mjs");
+  const st = parseStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any, tough: 4\nBen, 15, 40, 0, any, tough: 0");
+  assert.deepEqual(st.errors, []);
+  assert.equal(st.staff[0].toughBefore, 4);
+  assert.equal(st.staff[1].toughBefore, 0);
+  assert.equal(st.staff[0].days.length > 0, true);
+  const sh = parseShifts("Mon-Thu, 5pm, 11pm, 1, close");
+  const r = buildRoster(st.staff, sh.slots, { toughBalance: 100, balance: 0 });
+  const by = (n) => r.assignments.filter((a) => a.person === n).length;
+  assert.equal(by("Ana") + by("Ben"), 4);
+  assert.ok(by("Ben") > by("Ana"), `Ben ${by("Ben")} vs Ana ${by("Ana")}`);
+  // Without history the same week splits evenly.
+  const even = parseStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any\nBen, 15, 40, 0, any");
+  const r2 = buildRoster(even.staff, sh.slots, { toughBalance: 100, balance: 0 });
+  assert.equal(r2.assignments.filter((a) => a.person === "Ana").length, 2);
+  // A bad cell is reported.
+  assert.match(parseStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any, tough: lots").errors[0], /tough: 3/);
+  // Carry over: counts last week's tough shifts and halves the old tally.
+  const csv = ["day,start,end,hours,label,assigned_to,role", "Sat,9am,5pm,8.00,,Ana,", "Mon,5pm,11pm,6.00,,Ana,", "Tue,9am,5pm,8.00,,Ana,", "Tue,9am,5pm,8.00,,Ben,"].join("\n");
+  assert.equal(toughCounts(csv).get("ana"), 2);
+  assert.equal(toughCounts(csv).get("ben"), 0);
+  const c = carryOverStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any, tough: 4\nBen, 15, 40, 0, any, tough: 2", csv);
+  const next = parseStaff(c.text);
+  assert.deepEqual(next.errors, []);
+  assert.equal(next.staff[0].toughBefore, 4); // 4 * 0.5 + 2
+  assert.equal(next.staff[1].toughBefore, 1); // 2 * 0.5 + 0
+});
