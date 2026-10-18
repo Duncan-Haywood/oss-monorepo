@@ -1,0 +1,60 @@
+baseline from selfrep-growth: print 25.0 g/h x 1100 g printed, assembly 6.0 h (W=50.0 h), vitamins V=170.3 units; fleet 1 -> 64
+Sobol: Saltelli/Jansen estimators, N=4000 base samples x 7 evaluations, seed 0, fluid model; inputs independent
+ranges: print rate, assembly h, vitamin cost, budget log-uniform within x/s..x*s (s given per scenario); fail uniform on 0..0.5
+
+== A import-limited: budget baseline 4/h, budget spread x/2..x2, others x/2..x2
+  output = doubling time (h); sum S1 = 0.90
+    budget      S1  0.401  ST  0.484
+    vit_cost    S1  0.397  ST  0.470
+    fail        S1  0.102  ST  0.141
+    print_rate  S1  0.000  ST  0.000
+    assembly_h  S1 -0.000  ST  0.000
+  output = ln(doubling time); sum S1 = 1.02
+    budget      S1  0.459  ST  0.445
+    vit_cost    S1  0.450  ST  0.433
+    fail        S1  0.115  ST  0.110
+    print_rate  S1  0.000  ST  0.000
+    assembly_h  S1 -0.000  ST  0.000
+
+== B time-limited: budget baseline 64/h, budget spread x/2..x2, others x/2..x2
+  output = doubling time (h); sum S1 = 0.89
+    budget      S1  0.216  ST  0.293
+    vit_cost    S1  0.220  ST  0.287
+    fail        S1  0.251  ST  0.284
+    print_rate  S1  0.202  ST  0.216
+    assembly_h  S1  0.002  ST  0.004
+  output = ln(doubling time); sum S1 = 0.93
+    print_rate  S1  0.240  ST  0.279
+    fail        S1  0.255  ST  0.254
+    budget      S1  0.214  ST  0.252
+    vit_cost    S1  0.217  ST  0.247
+    assembly_h  S1  0.003  ST  0.006
+
+== C wide budget: budget baseline 4/h, budget spread x/16..x16, others x/2..x2
+  output = doubling time (h); sum S1 = 0.81
+    budget      S1  0.731  ST  0.927
+    vit_cost    S1  0.065  ST  0.195
+    fail        S1  0.016  ST  0.060
+    print_rate  S1 -0.000  ST  0.000
+    assembly_h  S1 -0.000  ST  0.000
+  output = ln(doubling time); sum S1 = 1.02
+    budget      S1  0.940  ST  0.942
+    vit_cost    S1  0.061  ST  0.055
+    fail        S1  0.016  ST  0.016
+    print_rate  S1 -0.000  ST  0.002
+    assembly_h  S1 -0.000  ST  0.000
+
+== D. local elasticity d ln T / d ln x at the baselines (fluid, central difference), and DES check
+   DES: +-20% step on one input, 300 runs each, same seeds; elasticity = dlnT/dlnx between the two medians
+  budget 4/h, fail 0.1
+    print_rate  fluid  -0.00   DES    n/a
+    assembly_h  fluid   0.00   DES    n/a
+    vit_cost    fluid   1.00   DES   0.99
+    budget      fluid  -1.00   DES  -0.99
+    fail        fluid  -1.00   DES  -1.14
+  budget 64/h, fail 0.1
+    print_rate  fluid  -0.48   DES    n/a
+    assembly_h  fluid   0.07   DES    n/a
+    vit_cost    fluid   0.45   DES   0.01
+    budget      fluid  -0.45   DES  -0.02
+    fail        fluid  -1.00   DES  -0.71

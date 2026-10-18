@@ -2055,6 +2055,11 @@
      "summary": "Follow-up to selfrep-alurod and selfrep-rodmodes: rods of the printer redesign are sized to a first-mode frequency target (Rayleigh estimate, assumed 0.3&nbsp;kg carriage) instead of a sag spec. Aluminium reaches 40&nbsp;Hz with 10.0&nbsp;mm, inside the assumed 12&nbsp;mm holder limit, where hardwood needs 16.0&nbsp;mm; within 12&nbsp;mm the highest reachable frequency is 56&nbsp;Hz for aluminium and 23&nbsp;Hz for hardwood. Closure by mass rises with the target only because thicker stock counts as makeable, while imported stock grows from 1946&nbsp;g to 2596&nbsp;g. Stylised: one mode, assumed carriage mass, moduli and holder limit."
     },
     {
+     "slug": "selfrep-sensitivity",
+     "title": "Which assumed input of the replicating-printer growth model does the doubling time depend on most?",
+     "summary": "Follow-up to selfrep-growth: variance-based (Sobol) sensitivity of the fluid-model doubling time to print rate, assembly time, vitamin cost, import budget and build-failure probability over assumed ranges. Import-limited (4/h): budget and vitamin cost carry about 0.45 and 0.43 of the variance of ln&nbsp;T, failure 0.11, print rate and assembly time none. Time-limited (64/h): budget, vitamin cost, failure and print rate are comparable (0.25&ndash;0.28). The fluid model overstates budget sensitivity at 64/h against the discrete-event model (elasticity &minus;0.45 vs &minus;0.02). Stylised, with assumed ranges and inputs."
+    },
+    {
      "slug": "selfrep-terminal",
      "title": "How does a resale value for the finished fleet move the switch from copies to goods?",
      "summary": "Follow-up to selfrep-reinvest. Giving each machine left at the horizon a value <em>s</em> shortens the goods phase from one e-folding time 1/<em>k</em> to 1/<em>k</em> &minus; <em>s</em>/<em>a</em>, so the switch moves later; at <em>s</em> &ge; <em>a</em>/<em>k</em> (50 per machine with no failures, 29% of the assumed vitamin cost) the shop copies to the end. The grid optimum of the Euler simulation agrees with this closed form to within 1&nbsp;h, and ignoring a terminal value of 12.5&ndash;50 per machine costs 3&ndash;26% of the optimum. Every input is assumed; cash is free and demand unlimited. Stylised."
@@ -2641,9 +2646,9 @@
      "summary": "<em>accel-gatedmux</em> found that a variable-index accumulator read made the weight-stationary (WS) engines of <em>accel-gatedrtl</em> 17 to 28&nbsp;% too large. The batched engine of <em>accel-planebatch</em> has the same index. Rewriting its read as an AND-OR over constant indices and its write as decoded enables, and re-running all 40 points (two <em>accel-kws</em> layers, batch 1 to 16, <em>P</em>&nbsp;=&nbsp;8), gives bit-exact outputs and identical cycles and fetch counts, with WS area between &minus;3&nbsp;% and +12&nbsp;% of the original and no trend in batch (WS/OS cells at B&nbsp;=&nbsp;4: 1.66 before, 1.62 after). Negative: the earlier verdict stands, because here the accumulators are a Verilog array that Yosys already muxes per entry. Generic-gate cells from one mapper run per point, which moves about 3&nbsp;% by itself."
     },
     {
-        "slug": "accel-surrogate",
-        "title": "Can a quantised MLP surrogate of a finite-element beam beat the beam's own model-form error, and when would an accelerator for it pay?",
-        "summary": "A 8-32-32-1 MLP imitates an Euler-Bernoulli finite-element cantilever with eight section heights. Shear deformation (Timoshenko vs Euler-Bernoulli) moves the tip deflection by a median 0.09&nbsp;%; the float surrogate's median error is 1.66&nbsp;%, about 18&times; larger, and quantisation adds little at 6 bits with quantisation-aware training (1.95&nbsp;%) but 21 points at 3 bits post-training. Modelled inference is 3.7&nbsp;nJ at 8 bits against about 407&nbsp;nJ for the CPU solve, but the break-even is ~1,600 simulator flops, which a closed-form beam does not reach. Stylised: one tiny network, assumed energy constants, no RTL."
+     "slug": "accel-surrogate",
+     "title": "Can a quantised MLP surrogate of a finite-element beam beat the beam's own model-form error, and when would an accelerator for it pay?",
+     "summary": "A 8-32-32-1 MLP imitates an Euler-Bernoulli finite-element cantilever with eight section heights. Shear deformation (Timoshenko vs Euler-Bernoulli) moves the tip deflection by a median 0.09&nbsp;%; the float surrogate's median error is 1.66&nbsp;%, about 18&times; larger, and quantisation adds little at 6 bits with quantisation-aware training (1.95&nbsp;%) but 21 points at 3 bits post-training. Modelled inference is 3.7&nbsp;nJ at 8 bits against about 407&nbsp;nJ for the CPU solve, but the break-even is ~1,600 simulator flops, which a closed-form beam does not reach. Stylised: one tiny network, assumed energy constants, no RTL."
     },
     {
      "slug": "accel-policy",
