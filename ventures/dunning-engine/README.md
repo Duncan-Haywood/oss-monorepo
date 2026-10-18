@@ -77,7 +77,7 @@ Reference pages: [which Stripe decline codes to retry and which never to](https:
 
 ```sh
 cd ventures/dunning-engine
-node --test        # 64 tests, no network
+node --test        # 78 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://dunning.example.com node server.mjs
@@ -87,6 +87,15 @@ It starts in **DRY_RUN** (the default): failures are recorded and every email or
 retry it *would* do is logged, but Stripe and your customers are not touched.
 Try it with a **test-mode** key and `stripe trigger invoice.payment_failed`,
 read the log, then set `DRY_RUN=false` with `RESEND_API_KEY` and `MAIL_FROM`.
+
+Before going live, run the preflight with the same environment:
+`node doctor.mjs` (in Docker: `docker exec <container> node doctor.mjs`). It checks the
+config, that the key can read invoices, customers, subscriptions and
+PaymentIntents, that an active customer-portal configuration exists, that a
+webhook endpoint points at `PUBLIC_URL/webhook/stripe` and has all seven events,
+and that `/healthz` answers. It only reads from Stripe, so it cannot test write
+permissions, and Smart Retries cannot be read through the API, so it always
+reminds you to turn it off. Exit code 1 means a blocker.
 
 Setup in Stripe:
 
@@ -137,7 +146,7 @@ country; you are the operator and responsible for them.
 
 Files: `dunning.mjs` (classification, schedule; also runs in the browser),
 `templates.mjs` (emails), `engine.mjs` (state machine), `holdout.mjs` (uplift experiment), `stripe.mjs` (webhook
-verification, API calls), `server.mjs` (HTTP shell), `admin.mjs` (dashboard page), `index.html` (simulator).
+verification, API calls), `server.mjs` (HTTP shell), `admin.mjs` (dashboard page), `doctor.mjs` (go-live preflight), `index.html` (simulator).
 
 Support the project: <https://github.com/sponsors/Duncan-Haywood>.
 
