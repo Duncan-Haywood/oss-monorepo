@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": "session_gate: stale-snapshot message tells cloud sessions what to do when the gh-pages push is denied",
   "projects": [],
-  "pr": null,
+  "pr": "7886",
   "repo": null,
   "commits": [],
   "lines_added": null,
