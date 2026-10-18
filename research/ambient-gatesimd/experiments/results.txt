@@ -1,0 +1,7 @@
+synthetic audio from ambient-gateroc: 60 s per room x seeds [3, 4, 5], rooms [-60, -50, -40, -30] dBFS; k = 4, hangover 10
+clang 18 --target=thumbv7em-none-eabi -mcpu=cortex-m4 -mfloat-abi=soft -ffreestanding; Unicorn Thumb-2
+instr/frame: executed instructions in bench_push, steady state (frames 260+), mean over rooms and seeds;
+the libgcc 64-bit divide of variants 0 and 1 is replaced by a host computation and NOT counted
+
+== -Os, block 1 ==
+variant                              .text B  libcalls          instr/frame    open frames differing from variant 0
