@@ -21,6 +21,7 @@ a subscription-manager app.
 tab files, UTF-16, `$` signs, parentheses and thousands separators are read.
 
 - Renewal reminders: "Download renewal reminders (.ics)" writes one all-day calendar event per active monthly, quarterly, six-monthly or yearly charge on its expected next date, each with a reminder three days before so there is time to cancel (`renewalsIcs` in `calc.mjs`). The date is the last charge plus one cycle, a guess from the statement.
+- Month-by-month table: how much recurring money was charged in each calendar month of the file, ended subscriptions included, with the first or last month marked partial when the export covers only part of it (`monthlyTimeline` in `calc.mjs`). It shows whether the bill is creeping up.
 
 ## Model
 

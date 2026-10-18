@@ -104,6 +104,7 @@
       <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" inputmode="decimal" value="0"></div>
       <div><label for="sales">Projected sales this week ($, optional)</label><input id="sales" inputmode="decimal" placeholder="e.g. 12000"></div>
       <div><label for="dailysales">Sales by day, Mon to Sun ($, optional)</label><input id="dailysales" placeholder="e.g. 1200, 1100, 1300, 1500, 2600, 3200, 1800"></div>
+      <div><label for="splh">Target sales per labor hour ($, optional)</label><input id="splh" inputmode="decimal" placeholder="e.g. 60"></div>
       <div><label for="hoursline">Weekly hours line to watch (optional)</label><input id="hoursline" inputmode="decimal" placeholder="e.g. 30"></div>
       <div><label for="tippot">Tip pot to split this week ($, optional)</label><input id="tippot" inputmode="decimal" placeholder="e.g. 1450"></div>
       <div><label for="labortarget">Target labor cost (% of sales)</label><input id="labortarget" inputmode="decimal" placeholder="e.g. 30"></div>
@@ -149,7 +150,8 @@
     <h3>Who this week depends on</h3>
     <p class="note">Re-builds the week without each person. If shifts then go uncovered, that person is a single point of failure.</p>
     <div id="critical"></div>
-    <div id="daily-box"></div>
+      <div id="splh-box"></div>
+      <div id="daily-box"></div>
     <div id="cover-box"></div>
     <div id="fair-box"></div>
     <div id="hours-box"></div>
@@ -191,7 +193,7 @@
   <section class="card">
     <h2>How it is calculated</h2>
     <p><strong>Hard rules</strong> (never broken): a person is only given a shift that falls inside one of their availability windows for the whole shift; shifts for one person never overlap and leave at least your rest gap between them; weekly hours stay at or under their maximum; days in a row stay at or under your limit. <strong>Objective:</strong> first cover as many shift-hours as possible, then minimise real payroll (wage × (1 + extras), overtime hours above your threshold at the multiplier), plus a small penalty for each hour a person is under their minimum and a quadratic penalty for hours drifting from a fair share (the balance slider). <strong>Search:</strong> a greedy build that fills the most constrained shifts first, then seeded simulated annealing with reassign and swap moves over several restarts; a fixed seed makes it repeatable. On small problems the tests compare it with an exhaustive search of every roster and it finds the same optimum; on large ones it is a strong heuristic, not a proof.</p>
-    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, tips, union rules, seniority, time off requests across weeks (one week's time off works: add <code>off: Wed; Fri 5pm-close</code> to a person; a soft wish works too: <code>prefer: Sat</code> gives that person those hours when it costs nothing; <code>avoid: Sat; Fri 5pm-close</code> keeps those hours free unless the roster would otherwise leave a shift open or cost more). The rest rule does carry over from last week if you add <code>prev: Sun 10pm</code> to a person (when their last shift ended). Roles work: <code>role: keyholder x1</code> on a shift needing 3 people asks for one keyholder among them. <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
+    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, tips, union rules, seniority, time off requests across weeks (a running <code>tough: 3</code> cell, filled in by &ldquo;carry over last week&rdquo;, remembers who closed or worked weekends lately so the next week spreads them fairly when the spread setting is above 0; one week's time off works: add <code>off: Wed; Fri 5pm-close</code> to a person; a soft wish works too: <code>prefer: Sat</code> gives that person those hours when it costs nothing; <code>avoid: Sat; Fri 5pm-close</code> keeps those hours free unless the roster would otherwise leave a shift open or cost more). The rest rule does carry over from last week if you add <code>prev: Sun 10pm</code> to a person (when their last shift ended). Roles work: <code>role: keyholder x1</code> on a shift needing 3 people asks for one keyholder among them. <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
   </section>
 
   <section class="card">
@@ -228,7 +230,7 @@
   </footer>
 
   <script type="module">
-    import { parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -333,6 +335,8 @@
       }
       const dl = dailyLabor(r, st.staff, $("#dailysales").value);
       $("#daily-box").innerHTML = `<h3>Each day against sales</h3><p class="note">Scheduled hours and payroll at base wage (plus extras) per day${dl.hasSales ? ", with each day's labor share of the sales you gave" : "; add sales by day above to see each day's labor share"}. Overtime premiums are priced across the week, so they are not spread over days here.</p><div class="scroll"><table><thead><tr><th>Day</th><th class="n">Hours</th><th class="n">Payroll</th>${dl.hasSales ? '<th class="n">Sales</th><th class="n">Labor share</th>' : ""}</tr></thead><tbody>${dl.days.map((d) => `<tr><td>${d.day}</td><td class="n">${num(d.hours)}</td><td class="n">${money(d.cost)}</td>${dl.hasSales ? `<td class="n">${d.sales ? money(d.sales) : "—"}</td><td class="n">${d.pct === null ? "—" : num(d.pct) + "%" + (d === dl.worst ? " (highest)" : "")}</td>` : ""}</tr>`).join("")}</tbody></table></div>`;
+      const sp = salesPerLaborHour(r, st.staff, $("#dailysales").value, val("splh", 0));
+      $("#splh-box").innerHTML = sp ? `<h3>Hours your sales call for</h3><p class="note">At ${money(sp.target)} of sales per labor hour, each day's sales call for the hours shown; the gap is scheduled minus called-for. ${sp.over.length ? `Heavier than the target: ${sp.over.map((d) => d.day).join(", ")}. ` : ""}${sp.under.length ? `Lighter than the target: ${sp.under.map((d) => d.day).join(", ")}. ` : ""}A guide from your own numbers: the builder fills the shifts you list and does not add or remove them.</p><div class="scroll"><table><thead><tr><th>Day</th><th class="n">Scheduled hours</th><th class="n">Sales</th><th class="n">Sales per hour</th><th class="n">Hours called for</th><th class="n">Gap</th></tr></thead><tbody>${sp.days.map((d) => `<tr><td>${d.day}</td><td class="n">${num(d.hours)}</td><td class="n">${d.sales ? money(d.sales) : "\u2014"}</td><td class="n">${d.splh === null ? "\u2014" : money(d.splh)}</td><td class="n">${d.needHours === null ? "\u2014" : num(d.needHours)}</td><td class="n">${d.gap === null ? "\u2014" : (d.gap > 0 ? "+" : "") + num(d.gap)}</td></tr>`).join("")}</tbody></table></div>` : "";
       const cg = coverageGrid(r);
       $("#cover-box").innerHTML = cg.rows.length ? `<h3>People on, hour by hour</h3><p class="note">Headcount for each clock hour (an hour counts when any part of it is covered). Darker is busier; a <strong>1</strong> is one person alone, which is where a no-show hurts.</p><div class="scroll"><table><thead><tr><th>Day</th>${cg.rows[0].counts.map((_, i) => `<th class="n">${fmtClock(((cg.from + i) % 24) * 60)}</th>`).join("")}</tr></thead><tbody>${cg.rows.map((row) => `<tr><td>${row.day}</td>${row.counts.map((c) => `<td class="n" style="background:rgba(106,61,181,${(0.5 * c / Math.max(cg.peak, 1)).toFixed(2)})">${c || ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : "";
       const fr = fairnessReport(r);
@@ -409,7 +413,7 @@
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
-    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "diffwhen", "diffhour", "diffpct", "burden", "balance", "tough", "sales", "dailysales", "labortarget", "hoursline", "tippot"];
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "diffwhen", "diffhour", "diffpct", "burden", "balance", "tough", "sales", "dailysales", "splh", "labortarget", "hoursline", "tippot"];
     const KEY = "shift-roster-builder:setup:v1";
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };
@@ -444,7 +448,7 @@
     $("#lastweek-file").addEventListener("change", (e) => {
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();
-      rd.onload = () => { const r = carryOverStaff($("#staff").value, String(rd.result)); $("#staff").value = r.text; persist(); status.textContent = r.changed ? `Set "prev:" for ${r.changed} ${r.changed === 1 ? "person" : "people"} from ${f.name}. Click the button to rebuild.` : `No names in ${f.name} matched your people. Is it a roster CSV from this tool?`; };
+      rd.onload = () => { const r = carryOverStaff($("#staff").value, String(rd.result)); $("#staff").value = r.text; persist(); status.textContent = r.changed ? `Set "prev:" and the running "tough:" tally for ${r.changed} ${r.changed === 1 ? "person" : "people"} from ${f.name}. Click the button to rebuild.` : `No names in ${f.name} matched your people. Is it a roster CSV from this tool?`; };
       rd.readAsText(f);
     });
     $("#setup-file").addEventListener("change", (e) => {

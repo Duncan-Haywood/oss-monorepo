@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, detectDelimiter, decodeBuffer, parseNumber, parseDate, isoDay, guessDateOrder, merchantKey, kindOf, normalizeStatement, analyze, savings, reportCsv, summaryText, renewalsIcs, sampleCsv } from "./calc.mjs";
+import { parseCsv, detectDelimiter, decodeBuffer, parseNumber, parseDate, isoDay, guessDateOrder, merchantKey, kindOf, normalizeStatement, analyze, savings, reportCsv, summaryText, renewalsIcs, monthlyTimeline, sampleCsv } from "./calc.mjs";
 
 const read = (text, opts) => { const d = detectDelimiter(text); return normalizeStatement(parseCsv(text, d), { decimalComma: d === ";", ...opts }); };
 const monthly = (name, amt, n, day = "05", from = 2026, startMonth = 1) => {
@@ -309,4 +309,15 @@ test("renewalsIcs: bad lead days fall back to 3, text is escaped, nothing active
   assert.ok(renewalsIcs(odd).includes("SUMMARY:A\\;B\\,C renews"));
   const none = renewalsIcs({ active: [] });
   assert.ok(!none.includes("BEGIN:VEVENT"));
+});
+
+test("monthlyTimeline: sums detected recurring charges per calendar month and flags partial edge months", () => {
+  const a = analyze(read(["Date,Description,Amount", ...monthly("ACME STREAM", 10, 4), ...monthly("BETA CLOUD", 5, 4, "20")].join("\n")).rows);
+  const tl = monthlyTimeline(a);
+  assert.deepEqual(tl.map((r) => r.month), ["2026-01", "2026-02", "2026-03", "2026-04"]);
+  assert.deepEqual(tl.map((r) => r.total), [15, 15, 15, 15]);
+  assert.ok(tl.every((r) => r.charges === 2));
+  assert.equal(tl[0].partial, true);
+  assert.equal(tl[3].partial, true);
+  assert.equal(tl[1].partial, false);
 });

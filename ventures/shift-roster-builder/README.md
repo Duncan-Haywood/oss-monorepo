@@ -42,6 +42,7 @@ shuffling on Sunday night.
 - Hour-by-hour coverage: a headcount grid for each clock hour of the week, darker when busier, so hours with one person alone stand out (`coverageGrid` in `calc.mjs`).
 
 - Labor %: add projected sales and a target labor percentage to see payroll as a share of sales and the dollars under or over target (`laborPercent` in `calc.mjs`).
+- Sales per labor hour: with sales by day and a target sales per labor hour, a table shows the hours each day's sales call for against the hours scheduled, and which days run heavy or light (`salesPerLaborHour` in `calc.mjs`). A guide only; the builder fills the shifts you list.
 - What-if: when shifts stay open, rebuilds with one extra person free at any time (average wage, 40 h) and reports the hours it would cover and the payroll it adds.
 
 - Carry over last week: choose last week's roster CSV and every person who worked gets a `prev:` cell with when their last shift ended (overnight closes written as `Sun 25:00`), so the rest rule holds across Monday (`carryOverStaff`).
@@ -85,6 +86,8 @@ Provided free and as-is, without warranty of any kind. Not legal, tax, or financ
 **Getting under budget.** When you give projected sales and a target labor %, and the roster is over it, the report lists the biggest single payroll savings from dropping one assignment, safe cuts first (another person still works that shift), flagging cuts that leave a shift empty or put someone under their minimum hours (`trimOptions` in `calc.mjs`). Savings are per cut and do not add up exactly, because overtime is priced across the week. It lists options; it does not re-run the roster.
 
 **Spreading tough shifts.** Set "Spread weekend, closing and opening shifts" (0-100, default 0 = off) and the search penalises each person's squared count of those shifts, so a fixed number of them is shared out evenly; it never leaves a shift open to do so (`toughBalance`, `toughPenalty` in `calc.mjs`).
+
+**Fairness across weeks.** Add `tough: 3` to a person's row (weekend, closing and opening shifts they worked recently) and, when the spread setting is above 0, each new tough shift costs more for them than for someone with a lighter history, so the closes rotate instead of landing on the same people every week. "Carry over last week" fills it in: last week's tough shifts plus half of the old tally, so older weeks fade (`toughCounts`, `carryOverStaff`, `toughPenalty` in `calc.mjs`).
 
 **Who gets the tough shifts.** The report counts each person's weekend, closing (10pm or later, or past midnight) and opening (6am or earlier) shifts and says so when the spread is 3 or more, so one person is not quietly handed every close. A report; the search balances it only when you raise the spread setting above (`fairnessReport` in `calc.mjs`).
 
