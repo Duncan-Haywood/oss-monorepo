@@ -34,6 +34,8 @@ those lines separate and shows both nets on one page.
 
 **Break-even and sensitivity.** Under the offer comparison, the page states the most buyer-broker pay Offer A can ask before it nets less than Offer B (`breakEvenBuyerBrokerRate`, exact because net is linear in that rate) and a price × buyer-broker-rate grid of Offer A's net (`netGrid`), so "what does each half point cost" needs no re-typing.
 
+[Compare multiple offers](compare-multiple-offers.html) ranks up to twelve offers on net cash, then charges each for its days to close (at your daily cost of owning the house) and weighs it by your own chance that it falls through (`rankOffers` in `calc.mjs`; the chances are yours; the page's example rows are invented). Each offer also gets the exact fall-through chance at which it still beats the rest.
+
 [Higher offer vs cleaner offer](offer-comparison.html) answers that search
 question directly, and
 [this calculator vs. Zillow's Home Sale Calculator](vs-zillows-home-sale-calculator.html)
