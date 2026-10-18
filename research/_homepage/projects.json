@@ -2700,6 +2700,11 @@
      "summary": "A stdlib extension of <code>osrobot-specialise</code> equips a shop of 2 to 8 pick-and-place trays three ways: a robot per job, one shared gantry spanning all trays, or one shared arm, on capital cost over 200 random job mixes per row. Sharing wins only while the total load fits one machine (4 jobs at scatter 0.4&nbsp;m: shared cheapest in every mix at demand 0.2 of a gantry per job, a robot per job from 0.3) and only while changeover is short (a robot per job in 99% of mixes at 1,800&nbsp;s). Trays spread beyond about 0.6&nbsp;m erode the saving. The shared arm can hold 1 to 2&nbsp;mm in only 13% of default mixes, but is cheapest in about half of mixes with loose (5 and 10&nbsp;mm) tolerances. Stylised: every cost, speed, demand and changeover figure is assumed."
     },
     {
+     "slug": "osrobot-uptime",
+     "title": "What does a shared pick-and-place robot cost once it has to stay up, and do spares change when sharing beats a robot per job?",
+     "summary": "A stdlib extension of <code>osrobot-reconfig</code> adds independent unit failures (availability A) and buys the fewest spares that meet a service target, either per job or for every job at once (200 random job mixes per row, seed 7). While the shared robot's load fits one machine, spares change nothing in the per-job comparison: the shared fleet costs 0.68 of a robot per job at 4 jobs, A&nbsp;=&nbsp;0.95, target 0.99, with or without spares. Asking every job to be up at once favours sharing (0.34 to 0.51 at 4 jobs, A 0.90 to 0.99; 0.41 at 8 jobs, A&nbsp;=&nbsp;0.95), because a shared robot fails every job together while four independent jobs each need a spare. At demand 0.3 per job spares close the gap load opened (1.34 bare, 1.01 with spares). Limits: &ldquo;served in full&rdquo; is all or nothing, failures are independent with unlimited repair crews, and one assumed availability covers every machine. Stylised; no price or MTBF is sourced."
+    },
+    {
      "slug": "osrobot-assist",
      "title": "When a spoon-feeding arm meets a moving mouth, what sets the force on the lips: the sensor, the approach speed or a force cap?",
      "summary": "A stdlib planar point-mass twin of a feeding arm and a swaying mouth, with 200 paired trials per row. With a 0.05&nbsp;s forward lead the push on a blocked tip is 20&nbsp;N&middot;s/m &times; speed, so peak lip force tracks approach speed (1.0&nbsp;N at 0.05&nbsp;m/s, 4.0&nbsp;N at 0.20). A camera lowers the share of trials that touch the lips (0.40 against 0.72 at 30&nbsp;mm sway) without lowering the peak, and its advantage fades with latency (touch share 0.07 at no delay, 0.71 at 0.4&nbsp;s). A 1&nbsp;N force cap trims the worst peak but not the share of comfortable feeds. Stylised: all constants are assumed, the peak-force result is largely an identity of the chosen controller, and no human model or Assistive Gym was used."
@@ -2725,6 +2730,11 @@
      "slug": "swe-ledger",
      "title": "What can the run log measure about the agent loop today?",
      "summary": "A stdlib reader of a snapshot of <code>prompts/runs.jsonl</code> (189 runs, 184 listed projects) reports coverage and throughput proxies. Token, cost and tool-call fields are present in at most 1% of runs and wall time is derivable for only 15, so no cost-per-project figure is possible yet. About a third of listed projects sit in follow-up families of three or more, and 24 slugs appear in more than one run. All 143 recorded CI-failure counts are zero, which looks like a success-only field, not a clean record. Preliminary: first step of the ledger milestone; no git-history backfill, no value or correctness scoring."
+    },
+    {
+     "slug": "swe-runcost",
+     "title": "What does an agent run cost, and which runs cost the most?",
+     "summary": "A stdlib analysis of the 355 run records (14 to 18 October 2026) that carry an API-equivalent <code>cost_usd</code>. The median run costs $0.68 (95% bootstrap $0.64 to $0.72) and the 355 together $337; the top 10% of runs hold 36% of spend. Research runs are 47% of spend with the highest median ($0.82), process runs 24% on 14% of runs because of a long tail. Cost scales with tool calls with exponent 1.18 (1.11 to 1.25) and input tokens with 1.37, consistent with context re-read at each step. Preliminary: five days, one model, estimates not invoices, and cost is not scored against value."
     },
     {
      "slug": "swe-backfill",
@@ -2934,6 +2944,11 @@
      "slug": "house-open-design",
      "title": "What does an open, reproducible plan set for a 480 sq ft backyard cottage look like when it is generated from code?",
      "summary": "Composes the track's six earlier models on one concrete design, a 24 &times; 20 ft one-bedroom accessory dwelling unit, and writes a floor plan and south elevation (SVG), a framing bill of materials (CSV), an IFC4 model and a report. The plan passes every layout rule and member check and needs 2,614 board feet of framing (5.45 per sq ft). Under <code>house-structure</code>'s assumed coefficients the short walls carry 1,164 lb of wind per line at 6 in nailing; a tighter envelope cuts modelled heating and cooling cost 36&ndash;37% in every climate tested ($72&ndash;158 a year at assumed prices). The composition exposed rough edges (the lateral and energy models were built around a different house), the cost index is extrapolated far below its data, and nothing here is a buildable design: it needs a licensed review and a permit."
+    },
+    {
+     "slug": "house-truss",
+     "title": "How much lumber does a prefabricated roof truss save over rafters and ceiling joists?",
+     "summary": "A pin-jointed W-type truss solved by a small stiffness solver, with NDS chord and web checks and a search for the lightest passing 2x4 to 2x8 truss at 24 in o.c., against stick-built 16 in rafters and ceiling joists from <code>house-spans</code>. At 30 psf snow and 4/12 pitch the truss uses 40&ndash;55% less nominal lumber per sq ft of plan over 12&ndash;30 ft spans (45% at 24 ft: 1.26 against 2.30 board feet). Stylised: no connector plates, bracing or heel details, an unchecked tension value, and no comparison with a commercial truss design program."
     },
     {
      "slug": "house-offsite",
