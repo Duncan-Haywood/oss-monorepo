@@ -1,9 +1,9 @@
 # Sales Export To Journal
 
-Free browser tool: drop any Airbnb, Amazon, eBay, Etsy, Gumroad, PayPal, Shopify, Square or Stripe
+Free browser tool: drop any Airbnb, Amazon, eBay, Etsy, Gumroad, YouTube AdSense, PayPal, Shopify, Square or Stripe
 sales or payout export and it works out which platform wrote the file, proves the rows add up to the
 payout, splits sales, shipping, tax, fees and refunds, and downloads balanced month-split journals
-for Xero, QuickBooks Online and QuickBooks Desktop (IIF). One front door for sixteen single-platform
+for Xero, QuickBooks Online and QuickBooks Desktop (IIF). One front door for seventeen single-platform
 journal tools (Ko-fi, Buy Me a Coffee and Teachable share one export layout, as do Patreon and Lemon
 Squeezy); the file is read locally and never uploaded.
 

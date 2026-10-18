@@ -1,9 +1,10 @@
-// Sales export -> journal, any platform. Drop the CSV you have; this works out which of sixteen
-// platforms wrote it (Airbnb, Amazon, eBay, Etsy, Fiverr, Gumroad, KDP, Ko-fi/Buy Me a Coffee/Teachable, Paddle, Patreon/Lemon Squeezy, PayPal, Shopify, Square, Stripe, Upwork) by running each
+// Sales export -> journal, any platform. Drop the CSV you have; this works out which of seventeen
+// platforms wrote it (AdSense, Airbnb, Amazon, eBay, Etsy, Fiverr, Gumroad, KDP, Ko-fi/Buy Me a Coffee/Teachable, Paddle, Patreon/Lemon Squeezy, PayPal, Shopify, Square, Stripe, Upwork) by running each
 // platform's own reader over it and keeping the one that understands the most rows, then hands back
 // that engine's journals. The readers are unmodified copies of the per-platform tools in this
 // portfolio, so a fix to one is a copy away from the hub; detect.test.mjs feeds every engine's own
 // sample report to the hub and fails if the wrong platform wins.
+import * as adsense from "./engines/adsense.mjs";
 import * as airbnb from "./engines/airbnb.mjs";
 import * as amazon from "./engines/amazon.mjs";
 import * as distrokid from "./engines/distrokid.mjs";
@@ -22,6 +23,7 @@ import * as stripe from "./engines/stripe.mjs";
 import * as upwork from "./engines/upwork.mjs";
 
 export const PLATFORMS = [
+  { id: "adsense", label: "YouTube / Google AdSense payments", engine: adsense },
   { id: "airbnb", label: "Airbnb host transaction history", engine: airbnb },
   { id: "amazon", label: "Amazon settlement report", engine: amazon },
   { id: "distrokid", label: "DistroKid bank details / earnings report", engine: distrokid },
@@ -43,6 +45,7 @@ export const PLATFORMS = [
 // and the generic readers (Gumroad, Shopify) will happily parse a Stripe file as a worse fit, so the
 // signature is what breaks that tie while a drifted header still falls back to row counts.
 const SIGNATURES = {
+  adsense: ["us tax withholding", "adsense"],
   airbnb: ["confirmation code", "arriving by date"],
   amazon: ["settlement-id", "amount-description"],
   distrokid: ["isrc", "songwriter royalties withheld"],
@@ -75,7 +78,7 @@ export function score(r) {
   const rows = r.summary.rows || 0;
   if (!rows) return 0;
   const errors = r.findings.filter((f) => f.severity === "error").length;
-  const agreed = r.reconciliation.filter((x) => x.agrees === true || x.agree === true).length;
+  const agreed = (Array.isArray(r.reconciliation) ? r.reconciliation : []).filter((x) => x.agrees === true || x.agree === true).length;
   return Math.max(1, rows * 10 + r.journals.length * 5 + agreed * 20 - errors * 15);
 }
 
@@ -95,7 +98,7 @@ export function detect(text, opts = {}) {
 export function convert(text, opts = {}) {
   const d = opts.platform && opts.platform !== "auto" ? { id: opts.platform, ranked: [], confident: true, forced: true } : detect(text, opts);
   if (!d.id) {
-    return { detection: d, platform: null, result: null, findings: [{ severity: "error", title: "Could not tell which platform wrote this file", detail: "None of the sixteen readers recognised the header row. Choose the platform from the list, or open the single-platform tool for the export you have.", line: 0 }] };
+    return { detection: d, platform: null, result: null, findings: [{ severity: "error", title: "Could not tell which platform wrote this file", detail: "None of the seventeen readers recognised the header row. Choose the platform from the list, or open the single-platform tool for the export you have.", line: 0 }] };
   }
   const p = platform(d.id);
   const { platform: _drop, ...rest } = opts;
