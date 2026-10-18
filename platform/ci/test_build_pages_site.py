@@ -310,6 +310,44 @@ class BuildArtifact(unittest.TestCase):
             (self.out / "robots.txt").read_text(encoding="utf-8"),
         )
 
+    def _favicon_pixel(self, x, y):
+        import struct
+        import zlib
+
+        png = (self.out / "favicon.ico").read_bytes()[22:]
+        idat = b""
+        i = 8
+        while i < len(png):
+            n, tag = struct.unpack(">I4s", png[i : i + 8])
+            if tag == b"IDAT":
+                idat += png[i + 8 : i + 8 + n]
+            i += 12 + n
+        raw = zlib.decompress(idat)
+        stride = 1 + 32 * 4
+        off = y * stride + 1 + x * 4
+        return tuple(raw[off : off + 4])
+
+    def test_favicon_is_a_rounded_tile(self):
+        self.assertEqual(self._favicon_pixel(0, 0)[3], 0)
+        self.assertEqual(self._favicon_pixel(31, 31)[3], 0)
+        # Just inside the corner arc, and the middle of the tile, are opaque.
+        self.assertEqual(self._favicon_pixel(3, 3)[3], 255)
+        self.assertEqual(self._favicon_pixel(7, 0)[3], 255)
+        self.assertEqual(self._favicon_pixel(16, 16)[3], 255)
+        # The far edges are rounded by the same radius as the near ones.
+        self.assertEqual(self._favicon_pixel(31, 24)[3], 255)
+        self.assertEqual(self._favicon_pixel(24, 31)[3], 255)
+
+    def test_reports_the_number_of_files_it_copied(self):
+        copied = sum(
+            1
+            for slug in ("widget-calculator", "nested-calculator")
+            for f in (self.out / slug).rglob("*")
+            if f.is_file()
+        )
+        self.assertEqual(self.result["files"], copied)
+        self.assertGreater(copied, 0)
+
     def test_disables_jekyll(self):
         """Pages runs Jekyll by default, which drops underscore-prefixed paths."""
         self.assertTrue((self.out / ".nojekyll").is_file())
@@ -335,6 +373,16 @@ class BuildArtifact(unittest.TestCase):
         stale.write_text("gone", encoding="utf-8")
         self._build()
         self.assertFalse(stale.exists())
+
+
+class CheckCommand(unittest.TestCase):
+    def test_passes_when_a_product_ships_its_index_and_assets(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp)
+        make_venture(tmp, "widget-calculator")
+        with unittest.mock.patch.object(bp, "VENTURES_DIR", tmp / "ventures"):
+            with unittest.mock.patch("builtins.print"):
+                self.assertEqual(bp.check(), 0)
 
 
 class LinkChecking(unittest.TestCase):
