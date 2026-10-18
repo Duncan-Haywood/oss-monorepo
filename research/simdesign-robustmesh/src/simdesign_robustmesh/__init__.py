@@ -7,7 +7,7 @@ import os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "simdesign-robustradius", "src"))
 from simdesign_robustradius import run_case  # noqa: E402
 
-RADIUS_FRACTIONS = (1 / 60, 1 / 30, 1 / 20)  # filter radius as a share of the beam length
+RADIUS_FRACTIONS = (1 / 30, 1 / 20, 1 / 15)  # filter radius as a share of the beam length
 
 
 def radius_px(nx, fraction):

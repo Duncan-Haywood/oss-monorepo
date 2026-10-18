@@ -1,9 +1,9 @@
 """Experiments for simdesign-robustmesh. Writes experiments/results.txt and designs.png.
 
 Half-MBB, vf 0.5, p 3, beta 1..64 (30 iterations each). Filter radius as a share of the beam length
-1/60, 1/30, 1/20, on meshes 60x20 and 180x60 (so 1, 2, 3 and 3, 6, 9 elements). Plain Heaviside
+1/30, 1/20, 1/15, on meshes 60x20 and 180x60 (so 2, 3, 4 and 6, 9, 12 elements; a 1-element radius is no filter and divides by zero in the update). Plain Heaviside
 (gap 0) and robust (gap 0.2); every design is re-analysed at 0.5 +/- 0.2. One run per row.
-The 120x40 rows (2, 4, 6 elements) are in simdesign-robustradius/experiments/results.txt.
+The 120x40 rows (4, 6 elements at shares 1/30, 1/20) are in simdesign-robustradius/experiments/results.txt.
 """
 import os, sys, time
 HERE = os.path.dirname(__file__)
