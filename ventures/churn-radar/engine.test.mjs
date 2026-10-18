@@ -102,3 +102,37 @@ test("prune forgets old event ids and alerts", () => {
   const s = E.newState(); s.seen.old = NOW - 61 * E.DAY; s.seen.fresh = NOW; s.alerted.o = NOW - 61 * E.DAY;
   E.prune(s, NOW); assert.deepEqual(Object.keys(s.seen), ["fresh"]); assert.deepEqual(Object.keys(s.alerted), []);
 });
+
+test("MRR ranks the at-risk list by money: a big account at middling risk outranks a tiny one at high risk", () => {
+  const trained = { mode: "model", model: { baseRate: 0.1 } }; // threshold 0.3
+  const rows = [
+    { id: "tiny", risk: 0.9, calibrated: true, mrr: 20, expectedLoss: 18 },
+    { id: "big", risk: 0.45, calibrated: true, mrr: 2000, expectedLoss: 900 },
+    { id: "safe", risk: 0.05, calibrated: true, mrr: 9000, expectedLoss: 450 },
+  ];
+  assert.deepEqual(E.atRiskList(rows, trained).map((r) => r.id), ["big", "tiny"]);
+  const s = E.summarize(rows, trained);
+  assert.equal(s.mrrAtRisk, 2020); assert.equal(s.mrrTracked, 11020); assert.equal(s.expectedLoss30d, 1368);
+  const noMrr = rows.map(({ mrr, expectedLoss, ...r }) => r);
+  assert.deepEqual(E.atRiskList(noMrr, trained).map((r) => r.id), ["tiny", "big"]); // plain risk order
+  assert.equal(E.summarize(noMrr, trained).mrrAtRisk, undefined);
+});
+
+test("a rule-based index never claims a dollar loss, and MRR input is validated", () => {
+  const s = E.newState();
+  E.ingest(s, { id: "e1", account: "a", timestamp: NOW - 30 * E.DAY, mrr: "$49.5" }, NOW);
+  assert.equal(s.accounts.a.mrr, 49.5);
+  const heur = E.score(s.accounts, { mode: "heuristic" }, NOW);
+  assert.equal(heur[0].mrr, 49.5); assert.equal(heur[0].expectedLoss, null);
+  assert.equal(E.summarize(heur, { mode: "heuristic" }).expectedLoss30d, null);
+  assert.throws(() => E.ingest(s, { id: "e2", account: "a", mrr: -5 }, NOW), /mrr must be/);
+  assert.equal(s.seen.e2, undefined, "a rejected event must not burn its id");
+  assert.throws(() => E.setMrr(s, "ghost", 10), /unknown account/);
+  E.setMrr(s, "a", null); assert.equal(s.accounts.a.mrr, undefined);
+});
+
+test("parseCsv reads an optional account,mrr list", () => {
+  const { accounts, errors } = E.parseCsv("a,2026-09-01\nb,2026-09-01\n", "", "a,120\nb,not money\nghost,5\n");
+  assert.equal(accounts.a.mrr, 120); assert.equal(accounts.b.mrr, undefined);
+  assert.equal(errors.length, 2); assert.match(errors[0], /mrr line 2/);
+});

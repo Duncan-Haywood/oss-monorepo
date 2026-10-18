@@ -47,6 +47,8 @@
       <div><label for="churn">Accounts that cancelled: account, cancel date</label>
 <textarea id="churn" spellcheck="false" placeholder="initech, 2026-08-20"></textarea></div>
     </div>
+    <label for="mrr">Optional: monthly revenue per account (account, amount). Ranks the list by money at risk</label>
+<textarea id="mrr" spellcheck="false" placeholder="acme, 499&#10;globex, 49"></textarea>
     <label for="asof">Score as of (blank means the latest event date)</label>
     <input id="asof" type="date">
     <button id="run" type="button">Score my accounts</button>
@@ -87,7 +89,7 @@ curl localhost:8080/v1/at-risk -H "authorization: Bearer $API_KEY"</pre>
   </footer>
   </main>
   <script type="module">
-    import { train, score, summarize, parseCsv, syntheticAccounts, FEATURES } from "./engine.mjs";
+    import { train, score, summarize, atRiskList, parseCsv, syntheticAccounts, FEATURES } from "./engine.mjs";
     import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const el = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; return e; };
@@ -101,18 +103,21 @@ curl localhost:8080/v1/at-risk -H "authorization: Bearer $API_KEY"</pre>
       const stat = (b, s) => { const d = el("span", "", "stat"); d.append(el("b", b), document.createTextNode(s)); stats.append(d); };
       stat(String(sum.active), "active accounts scored"); stat(String(sum.atRisk), trained.mode === "model" ? `at ${pct(sum.threshold)} risk or more` : "flagged by the rule-based index");
       if (v) { stat(v.auc == null ? "n/a" : v.auc.toFixed(2), "out-of-time AUC (0.5 is a coin flip)"); stat(pct(v.topDecileCapture), `of churners in the top 10% (a coin flip finds 10%; base rate ${pct(v.baseRate)})`); }
+      const hasMrr = sum.mrrTracked != null, usd = (n) => "$" + Math.round(n).toLocaleString("en-US");
+      if (hasMrr) { stat(usd(sum.mrrAtRisk), "MRR on at-risk accounts"); if (sum.expectedLoss30d != null) stat(usd(sum.expectedLoss30d), "expected loss in 30 days (risk x MRR; only as good as the accuracy above)"); }
       out.append(stats);
-      const t = document.createElement("table"); t.innerHTML = "<thead><tr><th scope='col'>Account</th><th scope='col' class='n'>Risk</th><th scope='col'>Why</th></tr></thead>";
+      const list = hasMrr ? atRiskList(rows, trained).concat(rows.filter((r) => r.risk < sum.threshold)) : rows;
+      const t = document.createElement("table"); t.innerHTML = "<thead><tr><th scope='col'>Account</th><th scope='col' class='n'>Risk</th>" + (hasMrr ? "<th scope='col' class='n'>MRR</th>" : "") + "<th scope='col'>Why</th></tr></thead>";
       const tb = document.createElement("tbody");
-      for (const r of rows.slice(0, 25)) { const tr = document.createElement("tr"); tr.append(el("th", r.id), el("td", r.calibrated ? pct(r.risk) : `${Math.round(r.risk * 100)}/100`, "n"), el("td", r.reasons.join("; ") || "-")); tr.firstChild.scope = "row"; tb.append(tr); }
+      for (const r of list.slice(0, 25)) { const tr = document.createElement("tr"); tr.append(el("th", r.id), el("td", r.calibrated ? pct(r.risk) : `${Math.round(r.risk * 100)}/100`, "n")); if (hasMrr) tr.append(el("td", r.mrr == null ? "-" : usd(r.mrr), "n")); tr.append(el("td", r.reasons.join("; ") || "-")); tr.firstChild.scope = "row"; tb.append(tr); }
       t.append(tb); out.append(t);
-      if (rows.length > 25) out.append(el("p", `Top 25 of ${rows.length} shown.`, "note"));
+      if (rows.length > 25) out.append(el("p", `Top 25 of ${rows.length} shown${hasMrr ? ", flagged accounts first, largest expected loss at the top" : ""}.`, "note"));
       if (trained.model) { const w = FEATURES.map((f, j) => `${f.label}: ${trained.model.w[j] >= 0 ? "+" : ""}${trained.model.w[j].toFixed(2)}`).join("  |  "); out.append(el("p", "What it learned (standardised weights; positive raises risk): " + w, "note")); }
       record("score");
     }
     $("run").addEventListener("click", () => {
       $("err").textContent = "";
-      const { accounts, errors } = parseCsv($("events").value, $("churn").value);
+      const { accounts, errors } = parseCsv($("events").value, $("churn").value, $("mrr").value);
       if (errors.length) { $("err").textContent = errors.join(" "); return; }
       const all = Object.values(accounts).flatMap((a) => a.events.map((e) => e[0]));
       if (!all.length) { $("err").textContent = "Paste some events first: account, date, optional feature name."; return; }

@@ -52,9 +52,11 @@ export function ingest(state, ev, now) {
   const ts = ev.timestamp == null ? now : typeof ev.timestamp === "number" ? ev.timestamp : Date.parse(ev.timestamp);
   if (!Number.isFinite(ts)) throw fail("timestamp must be an ISO date or epoch milliseconds");
   if (ts > now + DAY) throw fail("timestamp is in the future");
+  const mrr = ev.mrr == null ? null : cleanMrr(ev.mrr);
   if (state.seen[ev.id]) return "duplicate";
   state.seen[ev.id] = ts;
   const a = state.accounts[ev.account] ||= { signupAt: ts, churnedAt: null, events: [] };
+  if (mrr != null) a.mrr = mrr;
   if (ev.signup != null) { const s = typeof ev.signup === "number" ? ev.signup : Date.parse(ev.signup); if (Number.isFinite(s)) a.signupAt = s; }
   else if (ts < a.signupAt) a.signupAt = ts;
   const ev2 = a.events, row = [ts, type];
@@ -62,6 +64,21 @@ export function ingest(state, ev, now) {
   else { let i = ev2.length; while (i > 0 && ev2[i - 1][0] > ts) i--; ev2.splice(i, 0, row); }
   if (ev2.length > MAX_EVENTS) ev2.splice(0, ev2.length - MAX_EVENTS);
   return "accepted";
+}
+
+/** Monthly recurring revenue in your currency; a bad value is a 400, never silently zero. */
+export function cleanMrr(v) {
+  const n = typeof v === "string" ? Number(v.replace(/^[$€£]/, "")) : v;
+  if (typeof n !== "number" || !Number.isFinite(n) || n < 0 || n > 1e9) throw fail("mrr must be a number from 0 to 1,000,000,000 (monthly recurring revenue)");
+  return Math.round(n * 100) / 100;
+}
+/** Set (or with null, clear) an account's MRR so the at-risk list can be ranked by money. */
+export function setMrr(state, account, mrr) {
+  if (!ID.test(account || "")) throw fail("account is required");
+  const a = state.accounts[account];
+  if (!a) throw fail("unknown account; send an event for it first", 404);
+  if (mrr == null) delete a.mrr; else a.mrr = cleanMrr(mrr);
+  return a;
 }
 
 /** Record that an account cancelled (the label the model learns from). */
@@ -172,6 +189,9 @@ export function heuristicRisk(w) {
 }
 const heuristicReasons = (w) => FEATURES.filter((f) => ["daysSilent", "trend", "activeDays14"].includes(f.key)).filter((f) => (f.key === "daysSilent" ? w.daysSilent >= 7 : f.key === "trend" ? w.ePrev7 > w.e7 : w.activeDays14 <= 5)).map((f) => f.why(w));
 
+/** `expectedLoss` (risk x MRR) only when the risk is a fitted probability; a rule-based index is not one. */
+const money = (a, p) => (a.mrr == null ? {} : { mrr: a.mrr, expectedLoss: p == null ? null : Math.round(p * a.mrr * 100) / 100 });
+
 /** Score every active (not churned) account as of `now`, highest risk first, each with up to three reasons. */
 export function score(accounts, trained, now) {
   const rows = [];
@@ -181,8 +201,8 @@ export function score(accounts, trained, now) {
     if (trained.mode === "model") {
       const { p, contrib } = predict(trained.model, x), z = x.map((v, j) => (v - trained.model.mean[j]) / trained.model.sd[j]);
       const reasons = contrib.map((c, j) => ({ c, j })).filter((r) => r.c > 0.15 && (FEATURES[r.j].bad === "low" ? z[r.j] < 0 : z[r.j] > 0)).sort((a2, b2) => b2.c - a2.c).slice(0, 3).map((r) => FEATURES[r.j].why(w));
-      rows.push({ id, risk: p, calibrated: true, reasons, lastSeenDaysAgo: Math.floor(w.daysSilent) });
-    } else rows.push({ id, risk: heuristicRisk(w), calibrated: false, reasons: heuristicReasons(w).slice(0, 3), lastSeenDaysAgo: Math.floor(w.daysSilent) });
+      rows.push({ id, risk: p, calibrated: true, reasons, lastSeenDaysAgo: Math.floor(w.daysSilent), ...money(a, p) });
+    } else rows.push({ id, risk: heuristicRisk(w), calibrated: false, reasons: heuristicReasons(w).slice(0, 3), lastSeenDaysAgo: Math.floor(w.daysSilent), ...money(a, null) });
   }
   return rows.sort((a, b) => b.risk - a.risk);
 }
@@ -195,11 +215,29 @@ export function prune(state, now) {
   for (const [id, ts] of Object.entries(state.alerted)) if (now - ts > 60 * DAY) delete state.alerted[id];
 }
 
-/** How many active accounts sit at or above the at-risk threshold. */
-export function summarize(rows, trained) {
-  const th = threshold(trained);
-  return { atRisk: rows.filter((r) => r.risk >= th).length, active: rows.length, threshold: th };
+/**
+ * The at-risk list in the order to work it. With MRR on file, money first: the largest expected
+ * loss (risk x MRR) when scores are probabilities, else the largest MRR among flagged accounts;
+ * without MRR it is plain risk order.
+ */
+export function atRiskList(rows, trained) {
+  const th = threshold(trained), flagged = rows.filter((r) => r.risk >= th);
+  if (!flagged.some((r) => r.mrr != null)) return flagged;
+  const key = (r) => (r.expectedLoss ?? r.mrr ?? 0);
+  return [...flagged].sort((a, b) => key(b) - key(a) || b.risk - a.risk);
 }
+
+/** How many active accounts sit at or above the at-risk threshold, and the money riding on them when MRR is known. */
+export function summarize(rows, trained) {
+  const th = threshold(trained), flagged = rows.filter((r) => r.risk >= th), out = { atRisk: flagged.length, active: rows.length, threshold: th };
+  if (rows.some((r) => r.mrr != null)) {
+    out.mrrTracked = round2(rows.reduce((s, r) => s + (r.mrr ?? 0), 0));
+    out.mrrAtRisk = round2(flagged.reduce((s, r) => s + (r.mrr ?? 0), 0));
+    out.expectedLoss30d = trained.mode === "model" ? round2(rows.reduce((s, r) => s + (r.expectedLoss ?? 0), 0)) : null;
+  }
+  return out;
+}
+const round2 = (n) => Math.round(n * 100) / 100;
 
 // ---- demo data: synthetic, seeded, clearly labelled wherever it is shown ----
 export function mulberry32(seed) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -222,8 +260,8 @@ export function syntheticAccounts(now, { n = 400, seed = 7 } = {}) {
   return accounts;
 }
 
-/** Parse a pasted CSV export: `account,date[,event_type]` rows, plus a second list of `account,churn_date`. */
-export function parseCsv(eventsText, churnText) {
+/** Parse a pasted CSV export: `account,date[,event_type]` rows, a second list of `account,churn_date`, and an optional third of `account,mrr`. */
+export function parseCsv(eventsText, churnText, mrrText = "") {
   const accounts = {}, errors = [];
   const rows = (t) => String(t || "").split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !/^account\b/i.test(l)).map((l) => l.split(",").map((s) => s.trim()));
   rows(eventsText).forEach((r, i) => {
@@ -237,6 +275,11 @@ export function parseCsv(eventsText, churnText) {
     const ts = Date.parse(r[1]);
     if (!accounts[r[0]] || !Number.isFinite(ts)) { if (errors.length < 5) errors.push(`churn line ${i + 1}: "${r.join(",")}" must name an account that has events, then a date`); return; }
     accounts[r[0]].churnedAt = ts;
+  });
+  rows(mrrText).forEach((r, i) => {
+    let v; try { v = cleanMrr(r[1]); } catch { v = null; }
+    if (!accounts[r[0]] || v == null) { if (errors.length < 5) errors.push(`mrr line ${i + 1}: "${r.join(",")}" must name an account that has events, then a monthly amount`); return; }
+    accounts[r[0]].mrr = v;
   });
   return { accounts, errors };
 }

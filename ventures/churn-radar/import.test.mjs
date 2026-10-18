@@ -38,3 +38,9 @@ test("a wrong key fails loudly", async () => {
   await assert.rejects(upload({ url: `http://127.0.0.1:${srv.address().port}`, key: "wrong", events: plan(EV, "").events, outcomes: [] }), /401/);
   srv.close();
 });
+
+test("plan carries a third mrr file into per-account figures", async () => {
+  const { plan } = await import("./import.mjs");
+  const p = plan("a,2026-09-01,login\nb,2026-09-02\n", "", "a,99\nb,oops\n");
+  assert.deepEqual(p.revenue, [{ account: "a", mrr: 99 }]); assert.equal(p.errors.length, 1);
+});

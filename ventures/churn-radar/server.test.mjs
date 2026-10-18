@@ -104,3 +104,26 @@ test("the sdk posts events with a bearer key, never throws, and reports failures
   const boom = createRadar({ url: "http://r", key: "k", fetchImpl: async () => { throw new Error("net"); } });
   await boom.track("a", "b"); // must not reject
 });
+
+test("with MRR on file the digest and at-risk list lead with the money, and Stripe keeps MRR current", async () => {
+  const state = seeded(), ids = Object.keys(state.accounts);
+  const { srv, call, base } = await boot(state);
+  const before = await (await call("GET", "/v1/at-risk?limit=50")).json();
+  assert.equal(before.mrrAtRisk, undefined);
+  const flagged = before.accounts.map((a) => a.id);
+  assert.ok(flagged.length >= 2);
+  // the lowest-risk flagged account is the biggest customer
+  await call("POST", `/v1/accounts/${flagged.at(-1)}/mrr`, { mrr: 5000 });
+  for (const id of flagged.slice(0, -1)) await call("POST", `/v1/accounts/${id}/mrr`, { mrr: 10 });
+  const d = await (await call("GET", "/v1/digest?limit=3")).json();
+  assert.equal(d.accounts[0].id, flagged.at(-1));
+  assert.ok(d.mrrAtRisk >= 5000); assert.match(d.text, /\$5,000\/mo/); assert.match(d.text, /of MRR is on flagged accounts/);
+  assert.equal((await call("POST", "/v1/accounts/nobody/mrr", { mrr: 1 })).status, 404);
+  assert.equal((await call("POST", `/v1/accounts/${ids[0]}/mrr`, { mrr: "lots" })).status, 400);
+  const sub = { customer: "cus_1", status: "active", items: { data: [{ quantity: 2, price: { unit_amount: 12000, recurring: { interval: "year", interval_count: 1 } } }] } };
+  E.ingest(state, { id: "s1", account: "cus_1", timestamp: NOW - 20 * E.DAY }, NOW);
+  const payload = JSON.stringify({ type: "customer.subscription.updated", data: { object: sub } });
+  await fetch(base + "/stripe/webhook", { method: "POST", headers: { "stripe-signature": signPayload(payload, WH, Math.floor(NOW / 1000)) }, body: payload });
+  assert.equal(state.accounts.cus_1.mrr, 20); // 2 seats x $120/yr = $20/mo
+  srv.close();
+});

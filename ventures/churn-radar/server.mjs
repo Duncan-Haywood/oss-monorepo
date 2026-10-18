@@ -38,9 +38,9 @@ export function ensureModel(state, now, force = false) {
 /** Alert once per account per 14 days when it first crosses the threshold. Failures keep the account un-alerted for the next pass. */
 export async function runAlerts(state, send, now) {
   const trained = ensureModel(state, now), th = E.threshold(trained), sent = [];
-  for (const r of E.score(state.accounts, trained, now)) {
+  for (const r of E.atRiskList(E.score(state.accounts, trained, now), trained)) {
     if (r.risk < th || (state.alerted[r.id] && now - state.alerted[r.id] < 14 * E.DAY)) continue;
-    try { await send({ type: "account.at_risk", account: r.id, risk: Number(r.risk.toFixed(3)), calibrated: r.calibrated, reasons: r.reasons, at: new Date(now).toISOString() }); state.alerted[r.id] = now; sent.push(r.id); }
+    try { await send({ type: "account.at_risk", account: r.id, risk: Number(r.risk.toFixed(3)), calibrated: r.calibrated, reasons: r.reasons, ...(r.mrr != null && { mrr: r.mrr, expectedLoss: r.expectedLoss }), at: new Date(now).toISOString() }); state.alerted[r.id] = now; sent.push(r.id); }
     catch (e) { console.error("alert failed:", e.message); break; }
   }
   return sent;
@@ -64,7 +64,8 @@ export function handler(cfg) {
         const ev = JSON.parse(raw), sub = ev.data?.object || {};
         const account = sub.metadata?.account_id || sub.customer;
         if (account && ev.type === "customer.subscription.deleted") { E.setOutcome(cfg.state, String(account), (sub.ended_at || sub.canceled_at || Math.floor(now() / 1000)) * 1000, now()); cfg.save(); }
-        else if (account && ev.type === "customer.subscription.created") { E.clearOutcome(cfg.state, String(account)); cfg.save(); }
+        else if (account && ev.type === "customer.subscription.created") { E.clearOutcome(cfg.state, String(account)); stripeMrr(cfg.state, String(account), sub); cfg.save(); }
+        else if (account && ev.type === "customer.subscription.updated") { stripeMrr(cfg.state, String(account), sub); cfg.save(); }
         return json(200, { received: true });
       }
 
@@ -89,15 +90,20 @@ export function handler(cfg) {
           if (b.churned === false) E.clearOutcome(cfg.state, b.account); else E.setOutcome(cfg.state, b.account, b.churnedAt, now());
           cfg.save(); return json(200, { ok: true });
         }
+        let mm;
+        if (req.method === "POST" && (mm = path.match(/^\/v1\/accounts\/([^/]+)\/mrr$/))) {
+          const b = JSON.parse((await readBody(req)) || "{}");
+          E.setMrr(cfg.state, decodeURIComponent(mm[1]), b.mrr ?? null); cfg.save(); return json(200, { ok: true });
+        }
         if (req.method === "GET" && path === "/v1/at-risk") {
           const t = ensureModel(cfg.state, now()), th = E.threshold(t), limit = Math.max(1, Math.min(500, Number(q.get("limit")) || 20));
           const rows = E.score(cfg.state.accounts, t, now());
-          return json(200, { mode: t.mode, threshold: th, note: t.note, accounts: rows.filter((r) => r.risk >= th).slice(0, limit).map(round) });
+          return json(200, { mode: t.mode, threshold: th, note: t.note, ...moneySummary(E.summarize(rows, t)), accounts: E.atRiskList(rows, t).slice(0, limit).map(round) });
         }
         if (req.method === "GET" && path === "/v1/digest") {
           const t = ensureModel(cfg.state, now()), th = E.threshold(t), limit = Math.max(1, Math.min(50, Number(q.get("limit")) || 10));
-          const risky = E.score(cfg.state.accounts, t, now()).filter((r) => r.risk >= th).slice(0, limit).map(round);
-          const d = digest(risky, t);
+          const scored = E.score(cfg.state.accounts, t, now()), risky = E.atRiskList(scored, t).slice(0, limit).map(round);
+          const d = digest(risky, t, E.summarize(scored, t));
           if (q.get("format") === "text") { res.writeHead(200, { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" }); return res.end(d.text + "\n"); }
           return json(200, d);
         }
@@ -119,10 +125,25 @@ export function handler(cfg) {
   };
 }
 /** A paste-ready "talk to these people" list. `text` is also a valid Slack incoming-webhook body when sent as {text}. */
-export function digest(rows, t) {
+export function digest(rows, t, sum = {}) {
   const head = rows.length ? `Churn Radar: ${rows.length} account${rows.length === 1 ? "" : "s"} to talk to this week${t.mode !== "model" ? " (rule-based ranking, not a forecast)" : ""}` : "Churn Radar: no account is above the risk threshold this week.";
-  const lines = rows.map((r, i) => `${i + 1}. ${r.id} (risk ${Math.round(r.risk * 100)}%)${r.reasons?.length ? ": " + r.reasons.join("; ") : ""}`);
-  return { mode: t.mode, count: rows.length, text: [head, ...lines].join("\n"), accounts: rows };
+  const lines = rows.map((r, i) => `${i + 1}. ${r.id} (risk ${Math.round(r.risk * 100)}%${r.mrr != null ? `, ${money(r.mrr)}/mo` : ""})${r.reasons?.length ? ": " + r.reasons.join("; ") : ""}`);
+  const ms = moneySummary(sum), total = ms.mrrAtRisk != null && rows.length ? `${money(ms.mrrAtRisk)}/mo of MRR is on flagged accounts${ms.expectedLoss30d != null ? `; expected loss over the next 30 days is about ${money(ms.expectedLoss30d)}` : ""}.` : null;
+  return { mode: t.mode, count: rows.length, ...ms, text: [head, ...(total ? [total] : []), ...lines].join("\n"), accounts: rows };
+}
+const money = (n) => `$${Math.round(n).toLocaleString("en-US")}`;
+const moneySummary = (sum) => (sum.mrrTracked == null ? {} : { mrrTracked: sum.mrrTracked, mrrAtRisk: sum.mrrAtRisk, expectedLoss30d: sum.expectedLoss30d });
+/** Monthly amount of a Stripe subscription: sum of item price x quantity, yearly/weekly/daily plans normalised to a month. Zero-decimal currencies are not special-cased: amounts are in the currency's minor unit /100. */
+export function stripeMrr(state, account, sub) {
+  const acct = state.accounts[account]; if (!acct) return;
+  const per = { month: 1, year: 1 / 12, week: 52 / 12, day: 365 / 12 };
+  let total = 0, ok = false;
+  for (const it of sub.items?.data || []) {
+    const price = it.price || it.plan || {}, unit = price.unit_amount ?? price.amount, rec = price.recurring || price, f = per[rec.interval];
+    if (typeof unit !== "number" || !f) continue;
+    total += (unit / 100) * (it.quantity ?? 1) * f / (rec.interval_count || 1); ok = true;
+  }
+  if (ok && sub.status !== "canceled") acct.mrr = Math.round(total * 100) / 100;
 }
 const round = (r) => ({ ...r, risk: Number(r.risk.toFixed(3)) });
 function summary(t) {
