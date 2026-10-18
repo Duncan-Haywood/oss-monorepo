@@ -410,6 +410,10 @@ if __name__ == "__main__":
 
 
 class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
+    def test_newest_orders_by_time_not_file_order(self):
+        got = promptctl._newest(["2026-10-18T00:20: c", "2026-10-17T00:38: a", "undated", "2026-10-17T09:00: b"], 3)
+        self.assertEqual(got, ["2026-10-17T00:38: a", "2026-10-17T09:00: b", "2026-10-18T00:20: c"])
+
     def test_flag_stale_marks_reports_older_than_the_file_change(self):
         self.assertEqual(promptctl._flag_stale("2026-10-15: x", "2026-10-16"), "[file changed since] 2026-10-15: x")
         self.assertEqual(promptctl._flag_stale("2026-10-16: x", "2026-10-16"), "2026-10-16: x")
