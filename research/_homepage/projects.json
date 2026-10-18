@@ -1310,6 +1310,11 @@
      "slug": "free-rdseeds",
      "title": "Why does the R<sub>d</sub> low-discrepancy lattice lose its advantage at d = 5 when evaluating a twin policy?",
      "summary": "Follow-up to <code>free-qmcdr</code>. The shifted <em>R<sub>d</sub></em> lattice&rsquo;s error exponent at <em>d</em> = 5 is &minus;0.45 &plusmn; 0.01 over six seed strings, no better than iid, so it is not a seed fluke; across <em>d</em> = 2&hellip;8 it dips at 5 between &minus;0.72 and &minus;0.61 neighbours, so it is not a smooth dimension effect; a generator built from &radic;<em>p</em><sub>j</sub> reaches &minus;0.66 at <em>d</em> = 5. A resonance score against small integer relations scores both generators alike, so the mechanism is not identified. Stylised analytic returns, not a simulator."
+    },
+    {
+     "slug": "free-citeaudit",
+     "title": "How many research READMEs admit their citations are unchecked, and which works need checking first?",
+     "summary": "A stdlib scan of all 550 project READMEs for lines that flag a citation or figure as written from memory or not re-checked: 94 (17.1%) have at least one, 137 flagged lines in all, naming 41 distinct author-year works. Four recur most: Dawid &amp; Skene (1979) in 10 projects, Zhang et al. (2019) in 9, Horowitz (2014) and Horvitz (1999) in 6 each, so checking those once from a networked session clears many flags. A flag is the README's own admission, not a verdict; nothing was verified in this run (Crossref was unreachable)."
     }
    ]
   },
