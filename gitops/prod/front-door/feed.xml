@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1281 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1282 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-17T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free review response generator. Paste your Google, Yelp or Facebook reviews and get a ready-to-post reply to each one: rating-aware, specific, safe around legal, health-privacy and refund traps, and checked before you post. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>S-Corp Shareholder Basis Tracker — stock basis, debt basis and Form 7203 worksheet</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/s-corp-basis-tracker/"/>
+    <id>tag:marisstella.dev,2026:tool/s-corp-basis-tracker</id>
+    <updated>2026-10-17T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free S corporation shareholder basis calculator. Enter each year&#39;s K-1 figures and get stock basis, debt basis and suspended losses carried forward in Form 7203 order, with taxable excess distributions flagged. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Sales Call Notes Desk — turn call notes into CRM fields and a follow-up email, free</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to MadKudu and Pocus for small SaaS: learn from your own signups which first-week behaviour comes before paying, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.</summary>
-  </entry>
-  <entry>
-    <title>Recompete Radar — Federal Contracts About to Expire</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/recompete-radar/"/>
-    <id>tag:marisstella.dev,2026:tool/recompete-radar</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free tool for small government contractors: list the federal contracts in your NAICS code and state that end in the next 6 to 24 months, who holds them, how concentrated the market is, and when the follow-on is likely to be solicited. Public USAspending data, runs in your browser.</summary>
   </entry>
 </feed>
