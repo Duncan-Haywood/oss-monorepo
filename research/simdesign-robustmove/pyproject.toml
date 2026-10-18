@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-robustmove"
+version = "0.1.0"
+description = "Does the optimality-criteria move limit decide whether a robust topology optimisation survives its beta steps?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
