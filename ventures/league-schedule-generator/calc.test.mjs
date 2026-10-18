@@ -1142,3 +1142,20 @@ test("share link keeps the double-elimination and third-place ticks", () => {
   assert.equal(back.playoffDouble, true);
   assert.equal(back.playoffThird, true);
 });
+
+test("swiss Sonneborn-Berger counts full opponent score per win and half per draw,", () => {
+  // A beat C; C beat D; D beat B; E drew B. Scores: A1 C1 D1 B0.5 E0.5.
+  const players = ["A", "B", "C", "D", "E"];
+  const games = [
+    { a: 0, b: 2, ga: 1, gb: 0 },
+    { a: 2, b: 3, ga: 1, gb: 0 },
+    { a: 3, b: 1, ga: 1, gb: 0 },
+    { a: 4, b: 1, ga: 1, gb: 1 },
+  ];
+  const t = Object.fromEntries(swissStandings(players, games).map((r) => [r.name, r]));
+  assert.equal(t.A.sonnebornBerger, 1); // beat C (1)
+  assert.equal(t.C.sonnebornBerger, 1); // beat D (1)
+  assert.equal(t.D.sonnebornBerger, 0.5); // beat B (0.5)
+  assert.equal(t.E.sonnebornBerger, 0.25); // drew B (0.5) -> half
+  assert.equal(t.B.sonnebornBerger, 0.25); // drew E (0.5) -> half
+});

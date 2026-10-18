@@ -527,7 +527,7 @@
       const played = Math.max(0, ...swissStandings(players, parsed.games, parsed.byes).map((r) => r.played + r.byes));
       const table = swissStandings(players, parsed.games, parsed.byes);
       swissOut = swissText(players, round, played + 1) + "\n\nStandings\n" +
-        table.map((r) => `  ${r.rank}. ${r.name}  ${r.score} pts  Buchholz ${r.buchholz}`).join("\n");
+        table.map((r) => `  ${r.rank}. ${r.name}  ${r.score} pts  Buchholz ${r.buchholz}  SB ${r.sonnebornBerger}`).join("\n");
       $("#swiss-out").textContent = swissOut;
       out.textContent = `Round ${played + 1} of about ${swissRounds(players.length)} for ${players.length} players. The pairing passed the check.`;
       record("swiss_paired");
