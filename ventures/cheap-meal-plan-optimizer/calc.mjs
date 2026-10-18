@@ -334,6 +334,24 @@ export function proteinFrontier(spec, targets) {
 }
 
 /**
+ * The question the other way round: the most protein a daily budget can buy while every other bound still holds (the
+ * protein minimum is dropped, a cost cap is added). `protein` is null when the budget cannot meet the calorie, fat,
+ * fiber and other bounds at all.
+ */
+export function budgetFrontier(spec, budgets) {
+  const { lo, hi } = stepBounds(spec);
+  const step = Number(spec.step) || 1;
+  const open = { ...spec, proteinMin: "" };
+  const c = spec.foods.map((f) => f.n[1] * step);
+  return budgets.map((budget) => {
+    const rows = buildRows(open, lo, hi);
+    rows.push({ a: spec.foods.map((f) => f.price * step), rel: "<=", b: budget });
+    const r = simplex(c, rows);
+    return { budget, protein: r.status === "optimal" ? r.value : null };
+  });
+}
+
+/**
  * Cost of the optimal continuous plan as the variety limit tightens (the most calories any one food may supply, in
  * percent), with how many foods that plan uses: the "what does variety cost" table. `cost` is null when no plan
  * meets every bound under that limit.
