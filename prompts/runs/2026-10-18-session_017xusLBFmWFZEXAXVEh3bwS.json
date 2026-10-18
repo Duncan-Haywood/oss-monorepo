@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_017xusLBFmWFZEXAXVEh3bwS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on revenue-generating products",
+  "input_sha256": "cff201b615ebc2003116e6381e5d7785501e13f7175346ab5fb80e22eea17ced",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T09:02:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "container-load-planner: printable load plan",
+  "projects": [
+    "container-load-planner"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "route drew the research track, but the scheduled brief asked for revenue products, so the run followed ventures/1"
+    }
+  ],
+  "goal": null,
+  "notes": "Pages republish (publish-branch.sh) was denied by the harness as a production deploy; not retried. Added planReportHtml and a download button; 56 tests pass; headless Chromium download verified.",
+  "corrections": [],
+  "redteam": null
+}
