@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1215,4 +1215,21 @@ test("an unknown court name is an error, and a validator breach is caught", () =
 test("court limits survive a share link", () => {
   const f = { ...sampleFields(), courtLimits: "Lob Squad: Court 1" };
   assert.equal(decodeFields(encodeFields(f)).courtLimits, "Lob Squad: Court 1");
+});
+
+test("slotFairness: names the team behind the widest time and court gap, matches scheduleStats", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD\nE\nF", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00, 19:00" });
+  const s = buildSchedule(spec);
+  const f = slotFairness(s);
+  assert.equal(f.time.spread, s.stats.timeSpread);
+  assert.equal(f.court.spread, s.stats.courtSpread);
+  const i = s.teams.indexOf(f.time.team);
+  assert.equal(s.stats.byTime[i][f.time.most], f.time.mostCount);
+  assert.equal(s.stats.byTime[i][f.time.least], f.time.leastCount);
+});
+
+test("slotFairness: one court and one slot leave nothing to compare", () => {
+  const f = slotFairness(buildSchedule(baseSpec(2, { courts: ["Court 1"], times: ["18:00"] })));
+  assert.equal(f.court, null);
+  assert.equal(f.time, null);
 });

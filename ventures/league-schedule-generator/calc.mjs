@@ -552,6 +552,30 @@ export function scheduleStats(schedule) {
 }
 
 /**
+ * Who is behind the court / time-slot spread in `scheduleStats`: for each of "court" and
+ * "time", the team with the widest gap between its most and least used value, with the
+ * value it plays most and least. Returns { court, time }, each null when there is nothing
+ * to compare (a single court or slot) or { team, most, mostCount, least, leastCount, spread }.
+ * Ties go to the first team in listed order.
+ */
+export function slotFairness(schedule) {
+  const { byCourt, byTime } = schedule.stats || scheduleStats(schedule);
+  const widest = (rec) => {
+    let best = null;
+    rec.forEach((o, i) => {
+      const e = Object.entries(o);
+      if (e.length < 2) return;
+      const hi = e.reduce((a, b) => (b[1] > a[1] ? b : a));
+      const lo = e.reduce((a, b) => (b[1] < a[1] ? b : a));
+      const spread = hi[1] - lo[1];
+      if (best === null || spread > best.spread) best = { team: schedule.teams[i], most: hi[0], mostCount: hi[1], least: lo[0], leastCount: lo[1], spread };
+    });
+    return best;
+  };
+  return { court: widest(byCourt), time: widest(byTime) };
+}
+
+/**
  * Rest between games, per team: days between consecutive matches (byes and idle nights
  * count as rest). Returns { rows: [{ team, games, shortest, longest }], shortest, longest,
  * back_to_back } where back_to_back counts gaps of 1 day or less, so a league playing on
