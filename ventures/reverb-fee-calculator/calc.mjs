@@ -235,6 +235,36 @@ function solvePriceForReverbProfit(input, targetProfit) {
   return cappedPrice >= capThresholdPrice ? cappedPrice : uncappedPrice;
 }
 
+// The offers a buyer is likely to send, priced in advance: Reverb net at 100%
+// down to 70% of list, each against what the seller would net selling on eBay
+// at the full list price, plus the lowest offer that still covers costs. Lets
+// a seller answer a lowball from a table instead of re-typing the field.
+export const OFFER_LADDER_PERCENTS = [100, 95, 90, 85, 80, 75, 70];
+
+export function offerLadder(input, percents = OFFER_LADDER_PERCENTS) {
+  const listPrice = number(input.price, 'List price');
+  const ebayList = calculateEbaySale(input, listPrice);
+  const listProfit = calculateReverbSale(input, listPrice).profit;
+  const rows = percents.map((percent) => {
+    const offerPrice = listPrice * percent / 100;
+    const sale = calculateReverbSale(input, offerPrice);
+    return {
+      percent,
+      offerPrice,
+      profit: sale.profit,
+      margin: sale.margin,
+      givenUp: listProfit - sale.profit,
+      pays: sale.profit >= 0,
+      beatsEbayList: sale.profit >= ebayList.profit,
+    };
+  });
+  return {
+    rows,
+    ebayListProfit: ebayList.profit,
+    breakEvenOffer: Math.max(0, solvePriceForReverbProfit(input, 0)),
+  };
+}
+
 // Reverb offer that leaves the same cash as selling this item on eBay at the
 // list price. Solved from the same arithmetic as calculateReverbSale — not a
 // recommended walk-away, just the crossover the seller can check.
