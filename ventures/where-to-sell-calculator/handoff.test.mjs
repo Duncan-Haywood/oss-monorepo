@@ -33,6 +33,7 @@ import { INPUT_IDS as DEPOP_FIELDS } from '../depop-fee-calculator/calc.mjs';
 import { INPUT_IDS as GRAILED_FIELDS } from '../grailed-fee-calculator/calc.mjs';
 import { INPUT_IDS as FB_FIELDS } from '../facebook-marketplace-fee-calculator/calc.mjs';
 import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculator/calc.mjs';
+import { INPUT_IDS as TCGPLAYER_FIELDS } from '../tcgplayer-fee-calculator/calc.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
@@ -49,6 +50,7 @@ const TARGET_FIELDS = {
   'grailed-fee-calculator': GRAILED_FIELDS,
   'facebook-marketplace-fee-calculator': FB_FIELDS,
   'walmart-marketplace-calculator': WALMART_FIELDS,
+  'tcgplayer-fee-calculator': TCGPLAYER_FIELDS,
 };
 
 const SHARED = {
@@ -349,4 +351,18 @@ test('Walmart receives the item with seller shipping and packaging as their own 
   assert.equal(got.salePrice, 40);
   assert.equal(got.sellerShippingCost, 5.2);
   assert.equal(got.costOfGoods, 12);
+});
+
+test('TCGplayer receives the item with packaging folded into other costs and decodes it back', async () => {
+  const params = paramsOf(handoffUrl('tcgplayer', SHARED));
+  assert.equal(params.get('itemPrice'), '40');
+  assert.equal(params.get('buyerShipping'), '6');
+  assert.equal(params.get('shippingCost'), '5.2');
+  assert.equal(params.get('itemCost'), '12');
+  assert.equal(params.get('otherCost'), String(SHARED.otherCost + SHARED.packagingCost));
+  const { decodeInputs } = await import('../tcgplayer-fee-calculator/share.mjs');
+  const got = decodeInputs(handoffUrl('tcgplayer', SHARED).split('#')[1]);
+  assert.equal(got.itemPrice, 40);
+  assert.equal(got.buyerShipping, 6);
+  assert.equal(got.itemCost, 12);
 });

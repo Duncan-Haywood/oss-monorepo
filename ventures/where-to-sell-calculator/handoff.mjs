@@ -308,6 +308,23 @@ export const HANDOFFS = [
     combine: { otherCost: ['otherCost', 'packagingCost'] },
   },
   {
+    channel: 'tcgplayer',
+    slug: 'tcgplayer-fee-calculator',
+    label: 'TCGplayer fee calculator',
+    // What it adds: order size (the $0.30 is per order, not per card), the
+    // Pro seller schedule, the $75-per-product commission cap, and the sales
+    // tax the processing fee is charged on. Packaging folds into
+    // `otherCost`; `quantity` is left at its default of one card.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'shippingCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
     channel: 'walmart',
     slug: 'walmart-marketplace-calculator',
     label: 'Walmart Marketplace calculator',

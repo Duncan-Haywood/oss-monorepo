@@ -455,6 +455,34 @@ export const CHANNEL_PRESETS = [
     enabled: false,
   },
   {
+    id: "tcgplayer",
+    label: "TCGplayer (trading cards, US)",
+    note: "Off by default because it only suits Magic, Pokemon, Yu-Gi-Oh! and other trading-card singles and sealed product. Prices one single-product order at the Marketplace Level 1-4 schedule: a 10.75% commission on the cards plus the shipping the buyer pays, and a 2.5% + $0.30 transaction fee on the order total. The $0.30 is per order, not per card, so a one-card sale feels it far more than a twenty-card cart; `ventures/tcgplayer-fee-calculator` takes the order size, the Pro seller schedule and the $75-per-product commission cap, none of which this page models (the cap only bites above roughly $700). TCGplayer Direct is not modelled either. The fee table was taken from a search, not the help centre, so check one real payout before repricing a binder. Sell-through and days to sell are illustrative starting points, not a claim about TCGplayer velocity.",
+    // Matches ventures/tcgplayer-fee-calculator's standard schedule for a
+    // one-card order (10.75% commission, 2.5% + $0.30 transaction fee);
+    // parity-tested by import.
+    commissionRate: 10.75,
+    commissionBase: "order",
+    paymentRate: 2.5,
+    paymentFixed: 0.3,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions: card orders rarely come back, and
+    // mostly as condition disputes on higher-value singles.
+    returnRate: 3,
+    returnShippingCost: 4,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire, and a
+    // fully priced single in demand moves quickly while a bulk common does not.
+    sellThroughPct: 45,
+    daysToSell: 21,
+    listingRenewalDays: 0,
+    // Off by default: it only suits trading cards.
+    enabled: false,
+  },
+  {
     id: "grailed",
     label: "Grailed (menswear & streetwear, US)",
     note: "Off by default because it only suits menswear, designer and streetwear. Since 20 May 2026 Grailed's commission is a step: 6% on a sale under $120 and 9% on a sale of $120 or more, applied to the whole sale, plus 3.49% + $0.49 payment processing -- so a $120 item can pay you less than a $119.99 one. Grailed's $1.99 minimum commission (it only matters under about $33) is not modelled here; `ventures/grailed-fee-calculator` does, along with international buyers and the $120 cliff. These rates come from third-party fee guides, not Grailed's own help centre, so check one real payout. Sell-through and days to sell are illustrative starting points, not a claim about Grailed velocity.",
