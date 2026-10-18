@@ -490,6 +490,44 @@ export function describe(spec, W, table, baseline) {
   };
 }
 
+/**
+ * "What if I move this guest to table N?" Checks a hand edit against the
+ * plan: capacity, pin, access, and which wishes it would break or fix, with
+ * the score change. Nothing is applied. Returns { errors } for a bad name or
+ * table, else { guest, from, to, blocked: [..], scoreDelta, broke: [..], fixed: [..] }.
+ */
+export function checkMove(spec, result, guestName, toTable) {
+  const n = spec.guests.length;
+  const T = resolveTableCount(spec);
+  const g = spec.guests.findIndex((x) => x.name.toLowerCase() === String(guestName || "").trim().toLowerCase());
+  if (g < 0) return { errors: [`No guest named "${String(guestName || "").trim()}".`] };
+  const to = Number(toTable) - 1;
+  if (!Number.isInteger(to) || to < 0 || to >= T) return { errors: [`Table should be a number from 1 to ${T}.`] };
+  const from = result.table[g];
+  const blocked = [];
+  if (from === to) return { errors: [], guest: spec.guests[g].name, from: from + 1, to: to + 1, blocked, scoreDelta: 0, broke: [], fixed: [], same: true };
+  const caps = capacitiesOf(spec, T);
+  const size = result.table.filter((t) => t === to).length;
+  if (size >= caps[to]) blocked.push(`Table ${to + 1} is full (${size} of ${caps[to]} seats).`);
+  const pin = pinsOf(spec).get(g);
+  if (pin !== undefined && pin !== to) blocked.push(`${spec.guests[g].name} is pinned to table ${pin + 1}.`);
+  if (!canSit(accessOf(spec), g, to)) blocked.push(`${spec.guests[g].name} needs an accessible table and table ${to + 1} is not one.`);
+  const W = weightMatrix(spec);
+  const next = result.table.slice();
+  next[g] = to;
+  const scoreDelta = planScore(W, n, next) - planScore(W, n, result.table);
+  const broke = [], fixed = [];
+  for (const r of spec.rules) {
+    if (r.kind === "pin" || r.kind === "access" || (r.a !== g && r.b !== g)) continue;
+    const wantTogether = r.kind === "want" || r.kind === "must";
+    const was = wantTogether ? result.table[r.a] === result.table[r.b] : result.table[r.a] !== result.table[r.b];
+    const will = wantTogether ? next[r.a] === next[r.b] : next[r.a] !== next[r.b];
+    const item = { kind: r.kind, aName: spec.guests[r.a].name, bName: spec.guests[r.b].name };
+    if (was && !will) broke.push(item); else if (!was && will) fixed.push(item);
+  }
+  return { errors: [], guest: spec.guests[g].name, from: from + 1, to: to + 1, blocked, scoreDelta, broke, fixed };
+}
+
 /** Per group, how many of its guests sit at each table: [{ group, perTable: [..] }]. Empty when no guest has a group. */
 export function groupMixOf(spec, table, T = resolveTableCount(spec)) {
   const byGroup = new Map();

@@ -106,6 +106,12 @@
     <button type="button" class="secondary" id="board">Print find-your-table list</button>
     <button type="button" class="secondary" id="cards">Print folded place cards</button>
     <div id="moves"></div>
+    <h3>What if I move someone?</h3>
+    <p class="note">Your mother-in-law wants a different table? Check it before you touch the cards: it says whether the table has room, which wishes the move would break or fix, and the score change. Nothing is changed.</p>
+    <label for="mv-guest">Guest</label><input id="mv-guest" list="mv-names" autocomplete="off" spellcheck="false"><datalist id="mv-names"></datalist>
+    <label for="mv-table">Move to table</label><input id="mv-table" inputmode="numeric">
+    <button type="button" class="secondary" id="mv-check">Check this move</button>
+    <p id="mv-out" role="status" class="note"></p>
   </section>
 
   <section class="card">
@@ -152,14 +158,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or event-planning advice, is not a guarantee that any guest will be content with their seat, and does not replace your own judgement or your planner's. Results come from the wishes you type; real people and venues differ. You are responsible for reviewing and verifying its output before you print place cards.</p>
     <p><strong>Independent.</strong> Not affiliated with any venue, caterer, planner or software company, and none is named or ranked here. The example guests are invented, and no price is stated or implied.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your guest list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>reseat_run</code>, <code>signs_printed</code>, <code>board_printed</code>, <code>cards_printed</code>, <code>caterer_printed</code>, <code>guest_sheet_imported</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your guest list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>reseat_run</code>, <code>move_checked</code>, <code>signs_printed</code>, <code>board_printed</code>, <code>cards_printed</code>, <code>caterer_printed</code>, <code>guest_sheet_imported</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../bounce-house-rental-calculator/">bounce house rental calculator</a>, the <a href="../container-load-planner/">container load planner</a>, the <a href="../cut-list-optimizer/">cut list optimizer</a> and the <a href="../secret-santa-draw/">Secret Santa draw</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { importGuestSheet, parseGuests, parseRules, parseTableSizes, parseAccessTables, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, sampleSpec, setupJson, parseSetup, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
+    import { checkMove, importGuestSheet, parseGuests, parseRules, parseTableSizes, parseAccessTables, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, sampleSpec, setupJson, parseSetup, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -245,6 +251,22 @@
       status.textContent = `Re-seated: ${res.moved.length} guest${res.moved.length === 1 ? "" : "s"} moved.`;
       record("reseat_run");
     }));
+    $("#mv-guest").addEventListener("focus", () => { if (last) $("#mv-names").innerHTML = last.spec.guests.map((g) => `<option value="${esc(g.name)}">`).join(""); });
+    $("#mv-check").addEventListener("click", () => {
+      const out = $("#mv-out");
+      if (!last) { out.textContent = "Seat your guests first."; return; }
+      const r = checkMove(last.spec, last.res, $("#mv-guest").value, $("#mv-table").value);
+      if (r.errors.length) { out.textContent = r.errors[0]; return; }
+      if (r.same) { out.textContent = `${r.guest} is already at table ${r.to}.`; return; }
+      const sym = { want: "+", must: "++", avoid: "!", never: "!!" };
+      const list = (a) => a.map((x) => `${x.aName} ${sym[x.kind]} ${x.bName}`).join("; ");
+      const parts = [`${r.guest}, table ${r.from} to table ${r.to}: score ${r.scoreDelta > 0 ? "+" : ""}${r.scoreDelta}.`];
+      if (r.blocked.length) parts.push("Not allowed: " + r.blocked.join(" "));
+      parts.push(r.broke.length ? "Would break: " + list(r.broke) + "." : "Breaks no wish.");
+      if (r.fixed.length) parts.push("Would meet: " + list(r.fixed) + ".");
+      out.textContent = parts.join(" ");
+      record("move_checked");
+    });
     $("#another").addEventListener("click", () => later(() => { seed += 1; if (run()) record("plan_run"); }));
     $("#load-example").addEventListener("click", () => {
       $("#guests").value = SAMPLE_GUESTS; $("#rules").value = SAMPLE_RULES;
