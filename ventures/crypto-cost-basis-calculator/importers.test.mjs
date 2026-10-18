@@ -298,3 +298,32 @@ test("Koinly universal: detected and mapped", () => {
   const a = analyze(r.csv, { method: "FIFO", year: 2023 });
   assert.equal(a.rows.length >= 2, true);
 });
+
+const CASHAPP = `Transaction ID,Date,Transaction Type,Currency,Amount,Fee,Net Amount,Asset Type,Asset Price,Asset Amount,Status,Notes,Name of sender/recipient,Account
+a1,2023-01-10 10:00:00 EST,Bitcoin Buy,USD,"-$10,000.00",-$40.00,"-$10,040.00",BTC,"$20,000.00",0.5,COMPLETE,,,Cash
+a2,2023-02-10 10:00:00 EST,Bitcoin Boost,USD,$0.00,$0.00,$0.00,BTC,"$24,000.00",0.0001,COMPLETE,,,Cash
+a3,2023-03-10 10:00:00 EST,Cash Card Debit,USD,-$12.00,$0.00,-$12.00,,,,COMPLETE,Coffee,,Cash
+a4,2023-09-10 10:00:00 EST,Bitcoin Sale,USD,"$15,000.00",-$30.00,"$14,970.00",BTC,"$30,000.00",0.5,COMPLETE,,,Cash
+a5,2023-09-11 10:00:00 EST,Bitcoin Buy,USD,-$100.00,$0.00,-$100.00,BTC,"$30,000.00",0.003,FAILED,,,Cash
+a6,2023-09-12 10:00:00 EST,Mystery Thing,USD,$1.00,$0.00,$1.00,BTC,,0.1,COMPLETE,,,Cash
+`;
+
+test("Cash App: detected, buys/sales mapped, boost unpriced, failed and cash rows ignored", () => {
+  assert.equal(detectFormat(CASHAPP), "cashapp");
+  const r = convertExchangeCsv(CASHAPP);
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines[0], OUT_HEADER);
+  assert.ok(lines.includes("2023-01-10,buy,BTC,0.5,10000,40,Cash App"));
+  assert.ok(lines.includes("2023-09-10,sell,BTC,0.5,15000,30,Cash App"));
+  assert.ok(lines.includes("2023-02-10,income,BTC,0.0001,,0,Cash App")); // unpriced stays empty, never zero
+  assert.equal(lines.length, 1 + 3);
+  assert.ok(r.notes.some((n) => /1 Cash App row had no USD value/.test(n)));
+  assert.ok(r.notes.some((n) => /1 Cash App row with a status other than complete/.test(n)));
+  assert.ok(r.notes.some((n) => /Mystery Thing/.test(n)));
+  assert.ok(r.notes.some((n) => /1 deposit, withdrawal/.test(n)));
+});
+
+test("Cash App export feeds the lot matcher end to end", () => {
+  const a = analyze(convertExchangeCsv(CASHAPP).csv, { method: "FIFO", year: 2023 });
+  assert.ok(a.rows.length > 0);
+});
