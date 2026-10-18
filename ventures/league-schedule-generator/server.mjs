@@ -67,6 +67,8 @@ ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}
 
 export function handler(state, save, env = process.env) {
   const adminKey = env.ADMIN_KEY || "", token = env.LEAGUE_TOKEN || "";
+  // Throttle guessing of the two URL secrets: MAX_FAILS wrong links from one address in WINDOW_MS locks it out for the rest of the window.
+  const MAX_FAILS = 10, WINDOW_MS = 15 * 60 * 1000, fails = new Map();
   return async (req, res) => {
     const send = (code, body, type = "text/html; charset=utf-8", extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
@@ -74,7 +76,17 @@ export function handler(state, save, env = process.env) {
     if (!adminKey || !token) return send(503, "Set ADMIN_KEY and LEAGUE_TOKEN.\n", "text/plain");
     const isAdmin = url.pathname.startsWith("/admin"), isLeague = url.pathname.startsWith("/league");
     if (!isAdmin && !isLeague) return send(404, "not found\n", "text/plain");
-    if (isAdmin ? !same(url.searchParams.get("key") ?? "", adminKey) : !same(url.searchParams.get("t") ?? "", token)) return send(401, "link required\n", "text/plain");
+    const hops = String(req.headers["x-forwarded-for"] || "").split(",").map((h) => h.trim()).filter(Boolean);
+    const who = hops.length ? hops[hops.length - 1] : req.socket.remoteAddress, now = Date.now();
+    let rec = fails.get(who);
+    if (rec && now > rec.until) { fails.delete(who); rec = undefined; }
+    if (rec && rec.n >= MAX_FAILS) return send(429, "too many wrong links; try again later\n", "text/plain", { "retry-after": String(Math.ceil((rec.until - now) / 1000)) });
+    if (isAdmin ? !same(url.searchParams.get("key") ?? "", adminKey) : !same(url.searchParams.get("t") ?? "", token)) {
+      if (fails.size >= 5000) fails.clear();
+      if (!rec) fails.set(who, rec = { n: 0, until: now + WINDOW_MS });
+      rec.n++;
+      return send(401, "link required\n", "text/plain");
+    }
     const t = url.searchParams.get("t");
     if (isLeague) {
       if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t) : page("League", "<p>No schedule has been published yet.</p>"));
