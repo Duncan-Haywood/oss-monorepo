@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS,
+  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -385,4 +385,35 @@ test("importGuestSheet handles quoted CSV, a plus-one name, and leaves bar forma
 test("importGuestSheet without a header reads Name, Party, Group, Meal", () => {
   const r = importGuestSheet("Ann Lee;Lee family;Bride;fish\nBob Ray;;Groom;");
   assert.equal(r.text, "Ann Lee | Lee family | Bride | fish\nBob Ray |  | Groom");
+});
+
+test("orderTable seats a party side by side and keeps an avoided pair apart on a ring", () => {
+  const spec = specFrom("A | x\nB\nC | x\nD\nE | x\nF", "B ! D", { seatsPerTable: 6 });
+  const W = weightMatrix(spec);
+  const n = spec.guests.length;
+  const order = orderTable([0, 1, 2, 3, 4, 5], W, n);
+  assert.deepEqual([...order].sort(), [0, 1, 2, 3, 4, 5]);
+  const adj = (a, b) => { const i = order.indexOf(a), j = order.indexOf(b); const d = Math.abs(i - j); return d === 1 || d === order.length - 1; };
+  assert.ok(adj(0, 2) && adj(2, 4) || adj(0, 4) && adj(4, 2) || adj(0, 2) && adj(0, 4) || adj(2, 4) && adj(0, 4), "the party of three sits in a row");
+  assert.ok(!adj(1, 3), "the avoided pair does not touch");
+});
+
+test("orderTable beats list order on a larger table and is deterministic", () => {
+  const names = Array.from({ length: 12 }, (_, i) => `G${i}`);
+  const guests = names.map((n, i) => `${n} | p${i % 3}`).join("\n");
+  const spec = specFrom(guests, "", { seatsPerTable: 12 });
+  const W = weightMatrix(spec), n = 12, all = names.map((_, i) => i);
+  const ring = (p) => p.reduce((s, g, i) => s + W[g * n + p[(i + 1) % p.length]], 0);
+  const o1 = orderTable(all, W, n), o2 = orderTable(all, W, n);
+  assert.deepEqual(o1, o2);
+  assert.deepEqual([...o1].sort((a, b) => a - b), all);
+  assert.ok(ring(o1) > ring(all));
+});
+
+test("optimize lists each table's guests in seat order with all guests present once", () => {
+  const spec = sampleSpec();
+  const res = optimize(spec);
+  assert.deepEqual(verifyPlan(spec, res), []);
+  const seen = res.tables.flatMap((t) => t.guests);
+  assert.equal(new Set(seen).size, spec.guests.length);
 });

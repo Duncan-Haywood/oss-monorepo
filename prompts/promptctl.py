@@ -41,6 +41,7 @@ REDTEAM = "redteam"
 REDTEAM_SHARE = (0.05, 0.10)
 OUTCOMES = ("success", "partial", "failed")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+PR_REQUIRED_FROM = "2026-10-19"  # earlier records left `pr` null (34 of 34 red-team records, 2026-10-17/18)
 REPO_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 PROMPT_RE = re.compile(r"^prompt-(\d+)\.md$")
 
@@ -311,6 +312,10 @@ def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) ->
         errors.append(f"{where}: repo must be 'owner/name' (the repository holding pr) or null")
     if rec.get("merged") not in (None, True, False):
         errors.append(f"{where}: merged must be true, false or null")
+    if (rec["outcome"] == "success" and rec.get("pr") is None and rec.get("merged") is not False
+            and isinstance(day, str) and day >= PR_REQUIRED_FROM):
+        errors.append(f"{where}: a successful run names its pull request in `pr` (it is open "
+                      f"since the first push); records that leave it null cannot be joined to PRs")
     for key in ("errors", "integrity_issues", "doc_friction"):
         if not isinstance(rec[key], list):
             errors.append(f"{where}: {key} must be a list")

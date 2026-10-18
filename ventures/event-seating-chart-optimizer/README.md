@@ -25,6 +25,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Different-sized tables: the optional box `1: 12, 5: 6` gives table 1 twelve seats and table 5 six (a head table, a kids table); every other table keeps the seats-per-table figure, fill-evenly shares what the sized tables leave, and the table count grows to fit when left blank (`parseTableSizes`, `capacitiesOf`). Capacity checks, `verifyPlan` and late-RSVP `reseat` all use each table's own size.
 - Save and return: guests, wishes, settings and the last plan CSV are remembered on this device and can be saved to or loaded from a setup file, so a planner can come back as RSVPs arrive.
 - `importGuestSheet` in `calc.mjs` - paste rows from a spreadsheet or RSVP export (or choose a .csv): tab, comma or semicolon separated, header columns for name (or first and last), household/party, side/group, meal, RSVP and plus-one are recognised, declined RSVPs are dropped, and a named plus-one is seated in their host's party.
+- `orderTable` in `calc.mjs` - seat order around each table (a ring): exhaustive up to 9 guests, greedy plus swap/reversal passes above; parties and wanted pairs end up neighbours, avoided pairs do not. Table signs, the CSV and the on-screen tables list guests in this order.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
   recomputed by the test suite.
@@ -35,11 +36,10 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - **Paper, sticky notes or a spreadsheet:** free and private, but every "keep these two apart" and "seat these together" is checked by eye, and a late RSVP means redoing it.
 - **Wedding-planning suites and seating-chart apps** (the seating tools bundled with planning sites, and standalone drag-and-drop chart makers): visual room layouts, guest-list sync and RSVP collection. They typically want an account and hold your guest list on their servers, and the table assignment is mostly drag-and-drop by you.
-- **What this adds:** it searches for the assignment that meets the most of your wishes within table capacity, lists every wish it could not meet, re-seats after changes while moving as few guests as it can, and prints table signs, a find-your-table list and a caterer sheet. Your guest list never leaves the browser. It does not draw a floor plan or seat people within a table; if you need a room layout or RSVP collection, a planning app is the better fit.
+- **What this adds:** it searches for the assignment that meets the most of your wishes within table capacity, lists every wish it could not meet, re-seats after changes while moving as few guests as it can, and prints table signs, a find-your-table list and a caterer sheet. Your guest list never leaves the browser. It does not draw a floor plan; if you need a room layout or RSVP collection, a planning app is the better fit.
 
 **No warranty.** Free and as-is; a planning aid, not event-planning advice or a
-guarantee that any guest will be content. It assigns tables, not seats within a
-table, and does not model room layout or access needs, and the meal column only counts choices; it does not place guests by diet. It is a
+guarantee that any guest will be content. It lists each table's guests in order around a round table (neighbours scored by the same wishes) but does not model room layout or access needs, and the meal column only counts choices; it does not place guests by diet. It is a
 heuristic search: tested against exhaustive search on hundreds of small random
 lists, not proven optimal on large ones.
 
