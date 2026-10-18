@@ -2832,6 +2832,11 @@
      "slug": "mimic-twinregret",
      "title": "Does a digital twin that a classifier can tell apart from the real system also make a worse controller?",
      "summary": "In the stylised pendulum of <code>mimic-twinc2st</code> with a torque input, a PD controller on noisy feedback is tuned on each wrong twin (48-point gain grid, 200 twin start angles) and scored on 2,000 held-out start angles on the &lsquo;real&rsquo; system. Regret is its real cost minus the best grid point&rsquo;s (0.259). Six of 15 wrong twins have regret exactly 0 in all 12 tuning seeds although the classifier two-sample test separates them from the real system with AUROC 0.58&ndash;0.999, among them g/L &minus;20%, whose paired error is the largest (0.25 rad). The largest regret, 0.0099 (3.8%), comes from a twin with no sensor noise at all, whose paired error is 0. Across the 15 twins AUROC and regret correlate only loosely (Spearman 0.46, p&nbsp;=&nbsp;0.08) and paired RMSE not at all (&minus;0.28). Detecting a twin is not the same as the twin mattering for the task. Limits: one system, one task, a coarse grid that quantises regret, 12 tuning seeds. Stylised, simulated, no LLM: a side piece of track 11."
+    },
+    {
+     "slug": "mimic-twinrand",
+     "title": "Does domain randomization over a wrong digital twin cut the controller regret of tuning on one wrong twin?",
+     "summary": "Follow-up to <code>mimic-twinregret</code> on the same stylised pendulum and noisy-feedback PD task. Gains are tuned on 200 start angles spread over 8 randomized twins (noise level, Coulomb and viscous friction, g/L each uniform on nominal &plusmn; <em>w</em>&times; the real value) and scored on 2,000 held-out real start angles, over 24 tuning seeds. For the no-noise twin, whose single-twin regret is 0.0098, randomization with <em>w</em>&nbsp;=&nbsp;0.5 brings it to 0.00006, the same as the exact twin. No-Coulomb and g/L +20% twins fall from 0.0014 to 0.00012 at <em>w</em>&nbsp;=&nbsp;1&ndash;2. It does not always help: for a doubled-noise twin regret stays about 0.003 for <em>w</em>&nbsp;&le;&nbsp;1 and at <em>w</em>&nbsp;=&nbsp;2 the mean rises to 0.0057 with a worst seed 7.5&times; the single-twin worst. Limits: one system and task, a 48-point grid that quantises regret, one randomization family with a shared width. Stylised, simulated, no LLM."
     }
    ]
   },
