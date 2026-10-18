@@ -1307,6 +1307,19 @@ test("standings show each team's last five results, oldest first", async () => {
   assert.equal(rows.find((r) => r.name === "A").form, "LDWWW");
 });
 
+test("streakOf and the standings streak count the current run over the whole season, not just the form window", async () => {
+  const { streakOf, standings: st } = await import("./calc.mjs");
+  assert.equal(streakOf(""), "");
+  assert.equal(streakOf("WDLWW"), "W2");
+  assert.equal(streakOf("WWWWWWD"), "D1");
+  const teams = ["A", "B"];
+  const results = Array.from({ length: 7 }, () => ({ a: 0, b: 1, ga: 1, gb: 0 }));
+  const rows = st(teams, results);
+  assert.equal(rows[0].form, "WWWWW");
+  assert.equal(rows[0].streak, "W7");
+  assert.equal(rows[1].streak, "L7");
+});
+
 test("homeAwayReport: counts and longest runs match a hand-built sequence", () => {
   const sch = { teams: ["A", "B", "C"], rounds: [
     { day: 14, matches: [{ home: 0, away: 2 }] },

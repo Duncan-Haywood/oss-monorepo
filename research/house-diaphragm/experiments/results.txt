@@ -1,0 +1,42 @@
+house 28 x 40 ft; wind across the ridge at 115 mph, total ASD base shear 4,655 lb on the two gable lines
+line A = garage-door gable wall (door at its corner or centred); line B = the other gable wall (one window)
+flexible diaphragm: half each; rigid diaphragm: stiffness-based with the long walls resisting twist; capacity at 6 in nailing, ASD
+
+bending-softness r = 0.0 (0 = pure shear stiffness)
+ door    place     kA     kB flex A lb rigid A lb  cap A lb D/C flex D/C rigid B D/C rigid
+  9ft   corner   2.26   3.01     2,328      2,200     9,222     0.25      0.24        0.20
+  9ft  centred   2.26   3.01     2,328      2,200     9,222     0.25      0.24        0.20
+ 12ft   corner   1.89   3.01     2,328      2,108     7,692     0.30      0.27        0.21
+ 12ft  centred   1.89   3.01     2,328      2,108     7,692     0.30      0.27        0.21
+ 16ft   corner   1.39   3.01     2,328      1,932     5,652     0.41      0.34        0.22
+ 16ft  centred   1.39   3.01     2,328      1,932     5,652     0.41      0.34        0.22
+ 20ft   corner   0.89   3.01     2,328      1,641     3,612     0.64      0.45        0.25
+ 20ft  centred   0.89   3.01     2,328      1,641     3,496     0.67      0.47        0.25
+ 22ft   corner   0.64   3.01     2,328      1,409     2,592     0.90      0.54        0.26
+ 22ft  centred   0.64   3.01     2,328      1,409     2,221     1.05      0.63        0.26
+
+bending-softness r = 1.0 (0 = pure shear stiffness)
+ door    place     kA     kB flex A lb rigid A lb  cap A lb D/C flex D/C rigid B D/C rigid
+  9ft   corner   1.89   2.09     2,328      2,303     9,222     0.25      0.25        0.19
+  9ft  centred   1.27   2.09     2,328      2,182     9,222     0.25      0.24        0.20
+ 12ft   corner   1.47   2.09     2,328      2,231     7,692     0.30      0.29        0.20
+ 12ft  centred   0.89   2.09     2,328      2,043     7,692     0.30      0.27        0.21
+ 16ft   corner   0.91   2.09     2,328      2,055     5,652     0.41      0.36        0.21
+ 16ft  centred   0.45   2.09     2,328      1,693     5,652     0.41      0.30        0.24
+ 20ft   corner   0.39   2.09     2,328      1,606     3,612     0.64      0.44        0.25
+ 20ft  centred   0.15   2.09     2,328        979     3,496     0.67      0.28        0.30
+ 22ft   corner   0.18   2.09     2,328      1,124     2,592     0.90      0.43        0.29
+ 22ft  centred   0.06   2.09     2,328        508     2,221     1.05      0.23        0.34
+
+bending-softness r = 3.0 (0 = pure shear stiffness)
+ door    place     kA     kB flex A lb rigid A lb  cap A lb D/C flex D/C rigid B D/C rigid
+  9ft   corner   1.42   1.30     2,328      2,344     9,222     0.25      0.25        0.19
+  9ft  centred   0.68   1.30     2,328      2,171     9,222     0.25      0.24        0.20
+ 12ft   corner   1.02   1.30     2,328      2,280     7,692     0.30      0.30        0.19
+ 12ft  centred   0.43   1.30     2,328      2,011     7,692     0.30      0.26        0.22
+ 16ft   corner   0.54   1.30     2,328      2,097     5,652     0.41      0.37        0.21
+ 16ft  centred   0.19   1.30     2,328      1,601     5,652     0.41      0.28        0.25
+ 20ft   corner   0.18   1.30     2,328      1,577     3,612     0.64      0.44        0.25
+ 20ft  centred   0.05   1.30     2,328        833     3,496     0.67      0.24        0.31
+ 22ft   corner   0.08   1.30     2,328      1,025     2,592     0.90      0.40        0.30
+ 22ft  centred   0.02   1.30     2,328        399     2,221     1.05      0.18        0.35
