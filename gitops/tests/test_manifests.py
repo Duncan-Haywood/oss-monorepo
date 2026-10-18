@@ -3083,7 +3083,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `internal-link-planner` graduated (browser and CLI internal link audit: orphans, menu-only pages, suggested links with the PageRank effect).
     # +1: `trade-bid-studio` graduated (browser trade-agnostic bid engine: price at a target margin, walk-away price, competitor-quote check, markup/margin converter, directory of the 121 bid calculators).
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
-    total = 1280  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1280 tools" wording.
+    total = 1281  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1281 tools" wording.
     # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
     # +1: `actions-schedule-check` graduated (browser + CLI lint of GitHub Actions schedule crons: invalid, faster than 5 minutes, minute 0).
     # +1: `liability-audit` graduated (zero-dependency repository scanner for legal and financial exposure: consent, auto-renewal, disclosures, leaked keys, open LLM endpoints, cloud budgets; CLI, SARIF, monorepo sweep, browser page, agent playbook).
