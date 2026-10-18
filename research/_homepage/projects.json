@@ -2272,6 +2272,11 @@
      "summary": "A stylised, preliminary scan of one steel bar cross-section (8&times;2&nbsp;mm, tip shear, clamped end) at l/w = 3, 6, 12 and 24 on a fixed element size. The finite-element critical load sits 14.5%, 7.4%, 3.8% and 2.1% above the Timoshenko&ndash;Gere closed form, so the gap shrinks roughly in proportion to w/l and is consistent with a short-bar effect rather than mesh error. One cross-section and one cross-section mesh; no refinement at the longer lengths."
     },
     {
+     "slug": "simdesign-volscale",
+     "title": "How much stiffer than a uniformly thinned plate is a topology-optimised part, and how does that depend on volume fraction?",
+     "summary": "A stylised, preliminary study of two 2D plane-stress problems (cantilever 60&times;20, half-MBB 90&times;30). Thresholded 0/1 SIMP designs have 26&ndash;31% lower compliance than a plate thinned uniformly to the same volume at v&nbsp;=&nbsp;0.3&ndash;0.5, the advantage shrinking to about 14% at v&nbsp;=&nbsp;0.8; fits give C &prop; v<sup>&minus;0.8</sup> against v<sup>&minus;1</sup> for the plate. At low volume on these grids the design is disconnected and the comparison fails. One run per point, coarse grids, variable-thickness reference."
+    },
+    {
      "slug": "simdesign-shellorder",
      "title": "At what rate does the 3D eigenbuckling model converge under uniform mesh refinement?",
      "summary": "A stylised, preliminary study of one short steel bar (24&times;8&times;2&nbsp;mm, tip shear). Three uniformly refined hexahedral meshes give an observed order of about 2.6 and a Richardson limit of 9618&nbsp;N, 0.12% below the finest mesh. The limit is still 13.7% above the slender-beam closed form, so the gap is not discretisation error (plausibly shear deformation and clamp warping; untested). One geometry, one mesh triple."
