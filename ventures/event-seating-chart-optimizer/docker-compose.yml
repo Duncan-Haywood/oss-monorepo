@@ -1,0 +1,12 @@
+# Any box with Docker:  ADMIN_KEY=$(openssl rand -hex 16) GUEST_TOKEN=$(openssl rand -hex 16) docker compose up -d
+services:
+  seating-hub:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data"]
+    environment:
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY}
+      GUEST_TOKEN: ${GUEST_TOKEN:?set GUEST_TOKEN}
+volumes:
+  state:

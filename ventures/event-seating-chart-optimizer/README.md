@@ -11,6 +11,20 @@ CSV for place cards. Nothing is uploaded.
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
+
+## Run your own "find your table" page (self-hosted)
+
+The browser tool seats the room; `server.mjs` gets the answer to your guests. You paste the guest list and wishes into
+`/admin?key=...` and click **Seat and publish**; guests open **one link** (`/find?t=...`), type their name and see their
+table number and who else sits there. Meals, groups and wishes are never shown. No accounts, no app, no third party:
+zero dependencies, one JSON file on a disk you own.
+
+- **Alternatives today:** paid wedding sites (Zola, The Knot, WithJoy) and event apps (Social Tables, AllSeated) host the
+  guest list for you behind their accounts. This is only the optimise-and-look-up loop, MIT-licensed, on your box.
+- **Deploy:** `docker compose up -d` with `ADMIN_KEY` and `GUEST_TOKEN` set (`openssl rand -hex 16`), `fly.toml` for Fly.io,
+  or `render.yaml` for Render, each in your own account. Keep `STATE` on a persistent disk. Put it behind HTTPS.
+- Anyone with the guest link sees every guest name; share it only with the guests. `node --test` covers it.
+
 - `calc.mjs` - parsing, the pair-weight matrix, simulated annealing with a
   softened never-together penalty, a hill-climbing polish, the report, and an
   independent `verifyPlan` check.
