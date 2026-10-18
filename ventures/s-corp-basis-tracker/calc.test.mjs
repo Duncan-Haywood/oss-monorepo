@@ -163,3 +163,41 @@ test("planner: a loan does not cover an excess distribution, a contribution does
   assert.equal(p.contributionToCoverExcess, 3000);
   assert.equal(p.loanToDeductAll, 0);
 });
+
+import { parseBatch, runBatch, batchSummary, batchCsv, batchPacketHtml, BATCH_SAMPLE, run as runOne, parseYears as parseOne } from "./calc.mjs";
+
+test("batch: each shareholder matches the single-shareholder roll-forward", () => {
+  const b = runBatch(BATCH_SAMPLE);
+  assert.deepEqual(b.errors, []);
+  assert.equal(b.holders.length, 3);
+  const avery = b.holders.find((h) => h.name === "Avery Example");
+  const solo = runOne({ stock: 20000, debtBasis: 0, debtFace: 0, suspended: 0 }, parseOne(SAMPLE.text).years);
+  assert.deepEqual(avery.result.rows.map((r) => r.close), solo.rows.map((r) => r.close));
+});
+
+test("batch: shareholders with problems sort first and are flagged", () => {
+  const s = batchSummary(runBatch(BATCH_SAMPLE));
+  assert.equal(s[0].name, "Blake Example");
+  assert.deepEqual(s[0].flags, ["excess distributions"]);
+  assert.equal(s[0].excessDistributions, 13000);
+  assert.deepEqual(s.at(-1).flags, []);
+});
+
+test("batch: bad rows are reported by shareholder, not dropped silently", () => {
+  const b = runBatch("Dana,opening,x,0,0,0\nDana,2024,0,0,0,abc,0,0,0,0\n,2024,0,0,0,0,0,0,0,0\nEli,opening,100,0,0,0");
+  assert.ok(b.errors.some((e) => /not an amount of zero or more/.test(e)));
+  assert.ok(b.errors.some((e) => /^Dana: Line 1/.test(e)));
+  assert.ok(b.errors.some((e) => /name the shareholder/.test(e)));
+  assert.ok(b.errors.some((e) => /^Eli: no year rows/.test(e)));
+});
+
+test("batch: CSV has one row per shareholder-year and quotes commas in names; worksheet escapes markup", () => {
+  const b = runBatch('"Doe, Jane",opening,1000,0,0,0\n"Doe, Jane",2024,0,0,0,500,0,0,0,0\n<b>X</b>,2024,0,0,0,1,0,0,0,0');
+  const rows = batchCsv(b).trim().split("\n");
+  assert.equal(rows.length, 3);
+  assert.ok(rows[1].startsWith('"Doe, Jane",2024,1000'));
+  const html = batchPacketHtml(b);
+  assert.ok(!html.includes("<b>X</b>"));
+  assert.ok(html.includes("&lt;b&gt;X&lt;/b&gt;"));
+  assert.equal(parseBatch("").holders.length, 0);
+});

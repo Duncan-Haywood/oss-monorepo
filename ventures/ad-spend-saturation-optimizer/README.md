@@ -31,6 +31,7 @@ Daily rows are summed into Monday weeks. Amounts in one currency.
   properly. Each channel is limited to 0.25x to 2x its current spend and never beyond 1.25x its highest week.
 - Uncertainty: 100 seeded resamples of the channel's own weeks give a 10th to 90th percentile range on marginal
   return and on the gain from the recommended split.
+- Budget what-if: `budgetPlan` / `budgetLadder` read the best split of a different weekly total (-30% to +50%, or one you type) off the same frontier, with revenue, the marginal return of the last dollar, contribution, and the gain over cutting or raising every channel pro rata.
 - Profit view: contribution = margin x revenue - spend; the tool reports where it peaks along the fitted frontier.
 - Back-test: refit on the weeks before the last 4 to 12, predict revenue in those weeks from the spend that really
   happened, compare with a flat-ROAS line.

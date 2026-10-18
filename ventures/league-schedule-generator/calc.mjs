@@ -643,6 +643,31 @@ export function restReport(schedule) {
 }
 
 /**
+ * Byes per team in an odd league: the dated rounds each team sits out, so an organiser sees
+ * who is idle in the opening or closing week and whether a double round robin gives anyone
+ * two byes in consecutive rounds (the end of one leg and the start of the next). Makeup
+ * rounds are ignored. Returns { rows: [{ team, byes: [{ label, day }], consecutive }],
+ * consecutive: [team names], first: [team names], last: [team names] }. An even league has
+ * no byes: rows is empty and every list is empty.
+ */
+export function byeReport(schedule) {
+  const rounds = schedule.rounds.filter((r) => !r.makeup).sort((a, b) => a.day - b.day);
+  const byes = schedule.teams.map(() => []);
+  rounds.forEach((r, k) => { if (r.bye !== null && r.bye !== undefined) byes[r.bye].push({ label: r.label, day: r.day, k }); });
+  const rows = [];
+  const consecutive = [], first = [], last = [];
+  schedule.teams.forEach((team, i) => {
+    if (!byes[i].length) return;
+    const adj = byes[i].some((b, j) => j > 0 && b.k - byes[i][j - 1].k === 1);
+    if (adj) consecutive.push(team);
+    if (byes[i].some((b) => b.k === 0)) first.push(team);
+    if (byes[i].some((b) => b.k === rounds.length - 1)) last.push(team);
+    rows.push({ team, byes: byes[i].map(({ label, day }) => ({ label, day })), consecutive: adj });
+  });
+  return { rows, consecutive, first, last };
+}
+
+/**
  * Home and away load per team, in date order: home games, away games and the longest run of
  * home or away games in a row (byes do not break a run). Returns { rows: [{ team, home, away,
  * longestHome, longestAway }], longestRun, worst } where worst names the teams holding the

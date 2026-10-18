@@ -1374,6 +1374,11 @@
      "summary": "A follow-up to <code>chip-ppa-loop</code> on three small blocks where written structure matters. Every candidate is proved equivalent to its reference by a Yosys miter before its generic-gate cells&times;depth counts. Popcount: no real gain (0.98&times;). Absolute difference: 0.86&times;, a structure the sweep also contains. Leading-zero count: the session-written rewrites reach 0.80&times; but a no-model sweep reaches 0.56&times; (depth 8 against 11) and beats the proposer in 168 of 200 equal-budget draws. Also fixes a gate bug that rejected correct ROM-style tables. Fifteen attempts by one author, one tool version, gate counts only."
     },
     {
+     "slug": "chip-logic-script",
+     "title": "Does the rewrite-versus-sweep verdict for a 16-bit leading-zero count survive five ABC scripts?",
+     "summary": "A follow-up to <code>chip-ppa-logic</code>: its 34 equivalent candidates for popcount, leading-zero count (clz16) and absolute difference are re-scored under five ABC scripts, and every mapped netlist is proved equivalent to the reference (none of 170 failed). On clz16 the verdict flips with the script: the no-model sweep wins under the default and <code>dc2</code> scripts (344, 405), while a session-written nibble-combine file wins under three others (216&ndash;336 against the sweep&rsquo;s 344&ndash;462); the overall best is 0.35&times; the reference&rsquo;s default score. Popcount&rsquo;s winner holds under all five scripts; absolute difference&rsquo;s under three. Stylised: three tiny blocks, one Yosys version, hand-written proposer files, generic-gate cells&times;depth rather than layout."
+    },
+    {
      "slug": "chip-ppa-mac",
      "title": "Does fusing the accumulate into the partial-product tree beat multiply-then-add once the ABC script varies?",
      "summary": "A follow-up to <code>chip-ppa-script</code> on a 4&times;4 unsigned multiply-accumulate (<em>a</em>&times;<em>b</em> + <em>c</em>): three hand-written proposer files and a 12-config sweep (chain, tree or carry-save summation, <em>c</em> first or last) are scored under five ABC scripts, and every mapped netlist is proved equivalent to the reference (none failed; one seeded fault is rejected by the gate). Under the default script nothing beats the reference (1.06&times; its cells&times;depth), and under three of five scripts the best rewrite is 1.04&ndash;1.10&times;. Only carry-save forms win, under <code>dch</code> (0.91&times;) and a <code>resyn2</code>-style script (0.94&times;); the overall best is 0.93&times; the reference under its own best script. Stylised: one tiny design, one Yosys version, a generic-gate library, proposer files written by the session agent."
@@ -1881,6 +1886,11 @@
      "slug": "ambient-exploreonly",
      "title": "Does fitting only on the windows an assistant explored at random fix learning from its own feedback?",
      "summary": "A stylised follow-up to <em>ambient-labelmatch</em> and the reweighting and doubly robust fixes after it. The deployed learner already draws a random sample for free: the windows it spoke on only because its &epsilon; coin came up. Fitting on those windows alone, unweighted, reaches 11.99 utility/h at &epsilon; = 0.02 and 12.25 at 0.05 with an uninformed prior, against &minus;13.08 and &minus;71.85 for the fit on every spoken window (oracle 12.71; 20 seeds), and as a learner it earns 6.49/h online at &epsilon; = 0.005 against &minus;2.04. Exploration costs dismissals (online utility falls at larger &epsilon;), and with an informed prior the plain fit is better at small &epsilon;. Stylised simulation only."
+    },
+    {
+     "slug": "ambient-gatesimd",
+     "title": "Do a dual-MAC energy loop and a divide-free threshold make the Cortex-M4 voice gate cheaper?",
+     "summary": "A stylised follow-up to <em>ambient-gatem4</em>. With the block-minimum floor the SMLALD energy loop cuts executed instructions per frame by 17% at -Os and 37% at -O2, but without it the gate gets slower (64-bit ring entries), RAM doubles and code grows by about 60%. A divide-free sum-domain threshold matched the original decision on all 36,000 frames per configuration and removes the only library call; the divide itself is not counted, so its saving is unmeasured. Emulator instruction counts on synthetic audio, not cycles and not hardware."
     },
     {
      "slug": "ambient-gatem4",
@@ -2773,6 +2783,11 @@
      "slug": "osrobot-uavnogo",
      "title": "If an observation UAV only launches when the forecast wind is below a limit, how much does forecast error bring failures back, and what does it cost in scrubbed missions?",
      "summary": "A stdlib extension of <code>osrobot-uavgust</code> sizes the airframe for a launch limit wind and launches only if the forecast of the wind is at most that limit, with a normal forecast error (exact discretisation, no sampling noise). With a perfect forecast every failure becomes a scrub (fixed wing, wind ~ N(5, 4)&nbsp;m/s: 48% scrubbed at the median limit, 4.6% at the 95th percentile, 1.274 to 1.313&nbsp;kg). A 2&nbsp;m/s forecast error brings the failure rate to 6.8% at the median limit but only 1.1% at the 95th-percentile limit. Stylised: one steady wind per mission, assumed constants, normal forecast error, no cost put on a scrub."
+    },
+    {
+     "slug": "osrobot-uavretry",
+     "title": "If a scrubbed observation-UAV launch can be retried later the same day, how much does persistent wind limit what retrying buys, and does retrying bring failures back?",
+     "summary": "A stdlib extension of <code>osrobot-uavnogo</code> lets the crew look again at the forecast in up to 8 slots a day, with wind following a Markov chain of persistence &rho; (exact probabilities, no sampling noise). Fixed wing, wind ~ |N(5, 4)| m/s, limit at the median wind, perfect forecast: one slot completes 52.0% of days, and eight slots complete 99.7% with independent wind but 97.0%, 87.2% and 71.5% at &rho; = 0.5, 0.8 and 0.95. With a 2 m/s forecast error each retry is another draw of the error, so eight slots raise the failure share from 6.8% to 13.6% of days (23.7% at &rho; = 0.95). Stylised: assumed constants, one steady wind per slot, forecast errors independent between slots, no abort, no value on a mission. Nothing was flown."
     },
     {
      "slug": "osrobot-uavvalue",

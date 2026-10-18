@@ -1,0 +1,122 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01HWpecARrSvPUppaTKcgJBZ",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T17:39:00Z",
+  "ended": "2026-10-18T17:43:14Z",
+  "wall_minutes": 4.32,
+  "tokens_in": 2531382,
+  "tokens_out": 18948,
+  "cost_usd": 1.0406,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8118",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/chip-ppa-logic/README.md",
+      "issue": "none; apt install of yosys fails until apt-get update is run, not documented in Reproduce lines"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Track 3 draw; chain had gone to micro-variants, so re-scored chip-ppa-logic under five ABC scripts (its stated next step). yosys/iverilog needed apt-get update first.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bf11bd9a-0321-52b7-8bd4-f67e66c6221b",
+    "transcripts": 1,
+    "first": "2026-10-18T17:39:00Z",
+    "last": "2026-10-18T17:43:19Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 27,
+        "input": 54,
+        "output": 18948,
+        "thinking": 2082,
+        "cache_read": 2440605,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90723,
+        "api_equivalent_usd": 1.0406,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 54,
+      "output": 18948,
+      "thinking": 2082,
+      "cache_read": 2440605,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90723,
+      "api_equivalent_usd": 1.0406,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 23,
+      "Read": 3,
+      "mcp__github__search_pull_requests": 1,
+      "bash": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.32,
+      "active_minutes": 4.32,
+      "model_minutes": 2.6,
+      "tool_minutes": 1.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "estimate: setup, experiment, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 288.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -91,3 +91,9 @@ test("the year-end planner is on the page and its event is disclosed", async () 
   assert.match(html, /Year-end planner/);
   assert.match(html, /<code>plan_viewed<\/code>/);
 });
+
+test("the preparer batch section is on the page and its events are disclosed", () => {
+  const html = page("index.html");
+  for (const id of ["batch-in", "batch-run", "batch-csv", "batch-sheet"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const ev of ["batch_run", "batch_example_loaded", "batch_csv_downloaded", "batch_worksheets_downloaded"]) assert.match(html, new RegExp(`<code>${ev}</code>`));
+});

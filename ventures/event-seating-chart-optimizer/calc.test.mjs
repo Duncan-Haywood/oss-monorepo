@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove,
+  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove, suggestFixes,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -486,4 +486,22 @@ test("checkMove reports capacity, pins, broken and fixed wishes without changing
   const p = checkMove(spec, res, "E", 2);
   assert.ok(p.blocked.some((x) => /pinned to table 1/.test(x)));
   assert.deepEqual(res.table, before);
+});
+
+test("suggestFixes offers a score-raising move or swap for an unmet wish and applies nothing", () => {
+  const spec = specFrom("A\nB\nC\nD\nE\nF\nG\nH", "A + B\nA + C\nA + D\nA + E\nA ++ F\nG ! H", { seatsPerTable: 4, tableCount: 2 });
+  const res = optimize(spec);
+  const before = res.table.slice();
+  const fixes = suggestFixes(spec, res);
+  assert.deepEqual(res.table, before);
+  for (const f of fixes) {
+    assert.ok(f.scoreDelta > 0);
+    assert.match(f.action, /^(Move|Swap) /);
+  }
+  // A deliberately bad plan: A+B apart in a roomy two-table event has a one-move fix.
+  const bad = { ...res, table: [0, 1, 0, 0, 1, 1, 0, 1], broken: [{ kind: "want", a: 0, b: 1, aName: "A", bName: "B" }] };
+  const fix = suggestFixes(specFrom("A\nB\nC\nD\nE\nF\nG\nH", "A + B", { seatsPerTable: 5, tableCount: 2 }), bad);
+  assert.equal(fix.length, 1);
+  assert.match(fix[0].action, /^(Move|Swap) .*\b[AB]\b/);
+  assert.deepEqual(fix[0].broke, []);
 });

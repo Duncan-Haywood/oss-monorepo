@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_016jYcRjtyjmBujAi1rxrmYB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T17:41:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8115",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder, league-schedule-generator",
+      "issue": "Top ventures are already so feature-saturated that finding a non-duplicate feature cost most of the run; allocate.py's top rows are Consolidate/Explore tasks, not features."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Skipped post-merge gh-pages refresh and venture-preflight: small additive change to an existing page."
+    }
+  ],
+  "goal": null,
+  "notes": "Added byeReport + fairness-note line to league-schedule-generator.",
+  "corrections": [],
+  "redteam": null
+}

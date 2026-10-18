@@ -87,6 +87,21 @@
     <div class="scroll"><table id="plan-tbl"></table></div>
   </section>
 
+  <section class="card" id="batch">
+    <h2>Preparing for several shareholders?</h2>
+    <p class="note">Paste a whole client list. Columns, comma or tab separated: shareholder, then the same columns as above starting with the year. A row with <code>opening</code> in the year column gives that shareholder's starting stock basis, debt basis, loan balance and suspended losses. You get one summary that puts the shareholders needing attention first, a combined CSV, and one printable file with a worksheet per shareholder.</p>
+    <label for="batch-in">Shareholders and years</label>
+    <textarea id="batch-in" spellcheck="false" aria-describedby="berr"></textarea>
+    <p id="berr" class="warn" hidden></p>
+    <button type="button" id="batch-run">Roll every shareholder forward</button>
+    <button type="button" class="secondary" id="batch-example">Load an invented example</button>
+    <div id="batch-out" hidden>
+      <div class="scroll"><table id="batch-tbl"></table></div>
+      <button type="button" class="secondary" id="batch-csv">Download combined CSV</button>
+      <button type="button" class="secondary" id="batch-sheet">Download printable worksheets</button>
+    </div>
+  </section>
+
   <section class="card">
     <h2>Questions</h2>
     <h3>What is S corporation shareholder basis?</h3>
@@ -108,14 +123,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or accounting advice and does not replace a tax professional or the instructions to Form 7203. It follows the commonly published ordering of basis adjustments and does not model at-risk limits, passive activity rules, the excess business loss limit, the qualified business income deduction, accumulated adjustments account or earnings and profits from C corporation years, stock sales, or state rules. Check every figure against your K-1 and your return.</p>
     <p><strong>Independent.</strong> Not affiliated with the IRS, any tax authority, or any tax software company, and none is named or ranked here. The example is invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved, so download the CSV.</p>
-    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>basis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>worksheet_downloaded</code>, <code>plan_viewed</code>) are counted only in local storage on your device, never sent anywhere. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>basis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>worksheet_downloaded</code>, <code>plan_viewed</code>, <code>batch_run</code>, <code>batch_example_loaded</code>, <code>batch_csv_downloaded</code>, <code>batch_worksheets_downloaded</code>) are counted only in local storage on your device, never sent anywhere. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../s-corp-reasonable-compensation-calculator/">S corporation reasonable compensation calculator</a>, the <a href="../excess-business-loss-calculator/">excess business loss calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
     <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseMoney, parseYears, run, plan, SAMPLE, csv, packetHtml, fmt } from "./calc.mjs";
+    import { parseMoney, parseYears, run, plan, SAMPLE, csv, packetHtml, fmt, runBatch, batchSummary, batchCsv, batchPacketHtml, BATCH_SAMPLE } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -193,6 +208,23 @@
     };
     $("#dl-csv").addEventListener("click", () => { if (last) { save(csv(last), "text/csv", "s-corp-basis.csv"); record("csv_downloaded"); } });
     $("#dl-sheet").addEventListener("click", () => { if (last) { save(packetHtml(last), "text/html", "s-corp-basis-worksheet.html"); record("worksheet_downloaded"); } });
+    let lastBatch = null;
+    $("#batch-run").addEventListener("click", () => {
+      const err = $("#berr");
+      const b = runBatch($("#batch-in").value);
+      if (!b.holders.some((h) => h.result)) { err.textContent = b.errors.join(" ") || "Add at least one shareholder with a year."; err.hidden = false; $("#batch-out").hidden = true; return; }
+      err.textContent = b.errors.join(" "); err.hidden = !b.errors.length;
+      lastBatch = b;
+      const cols = [["Shareholder", (r) => r.name], ["Through", (r) => r.lastYear], ["Stock basis", (r) => fmt(r.stock)], ["Debt basis", (r) => fmt(r.debtBasis)], ["Suspended", (r) => fmt(r.suspended)],
+        ["Taxable excess dist.", (r) => fmt(r.excessDistributions)], ["Can still distribute tax free", (r) => fmt(r.maxTaxFreeDistribution)], ["Needs attention", (r) => r.flags.join(", ") || "none"]];
+      $("#batch-tbl").innerHTML = `<tr>${cols.map(([h], i) => `<th${i > 1 && i < 7 ? ' class="n"' : ""}>${esc(h)}</th>`).join("")}</tr>` +
+        batchSummary(b).map((r) => `<tr>${cols.map(([, f], i) => `<td${i > 1 && i < 7 ? ' class="n"' : ""}>${esc(f(r))}</td>`).join("")}</tr>`).join("");
+      $("#batch-out").hidden = false;
+      record("batch_run");
+    });
+    $("#batch-example").addEventListener("click", () => { $("#batch-in").value = BATCH_SAMPLE; $("#batch-run").click(); record("batch_example_loaded"); });
+    $("#batch-csv").addEventListener("click", () => { if (lastBatch) { save(batchCsv(lastBatch), "text/csv", "s-corp-basis-all-shareholders.csv"); record("batch_csv_downloaded"); } });
+    $("#batch-sheet").addEventListener("click", () => { if (lastBatch) { save(batchPacketHtml(lastBatch), "text/html", "s-corp-basis-worksheets.html"); record("batch_worksheets_downloaded"); } });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
   </script>

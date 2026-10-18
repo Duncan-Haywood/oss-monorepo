@@ -257,3 +257,116 @@ export function plan(result) {
   }
   return { year: y.year, maxTaxFreeDistribution: maxTaxFree, maxDistributionKeepingLosses: maxKeepLoss, contributionToDeductAll: conNeed, loanToDeductAll: loanNeed, contributionToCoverExcess: conCoverExcess, scenarios, advice };
 }
+
+// ---- Several shareholders (preparers) --------------------------------------
+// One paste for a whole client list. Columns: shareholder, then the FIELDS of
+// parseYears (year first). A row whose year is "opening" (or "start") carries a
+// shareholder's starting figures instead, in the next four columns: stock basis,
+// debt basis, loan balance owed, suspended losses. Every shareholder is rolled
+// forward by the same `run` as the single-shareholder tool.
+
+const OPENING_WORDS = /^(opening|start|open)$/i;
+
+export function parseBatch(text) {
+  const errors = [];
+  const order = [];
+  const groups = new Map();
+  const get = (name) => {
+    if (!groups.has(name)) { groups.set(name, { name, opening: { stock: 0, debtBasis: 0, debtFace: 0, suspended: 0, ndCarry: 0 }, lines: [] }); order.push(name); }
+    return groups.get(name);
+  };
+  const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  lines.forEach((line, i) => {
+    const cells = line.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map((c) => c.replace(/^"|"$/g, "").trim());
+    if (i === 0 && /^(shareholder|name|owner)/i.test(cells[0])) return; // header
+    const name = cells[0];
+    if (!name) { errors.push("Line " + (i + 1) + ": the first column must name the shareholder."); return; }
+    const g = get(name);
+    if (OPENING_WORDS.test(cells[1] || "")) {
+      const keys = ["stock", "debtBasis", "debtFace", "suspended"];
+      keys.forEach((k, j) => {
+        const v = parseMoney(cells[2 + j] ?? "");
+        if (Number.isNaN(v) || v < 0) errors.push("Line " + (i + 1) + ": '" + cells[2 + j] + "' is not an amount of zero or more.");
+        else g.opening[k] = v;
+      });
+      return;
+    }
+    g.lines.push({ n: i + 1, text: cells.slice(1).join("\t") });
+  });
+  const holders = order.map((name) => {
+    const g = groups.get(name);
+    const p = parseYears(g.lines.map((l) => l.text).join("\n"));
+    p.errors.forEach((e) => errors.push(name + ": " + e));
+    return { name, opening: g.opening, years: p.years };
+  });
+  return { holders, errors };
+}
+
+export function runBatch(text) {
+  const parsed = parseBatch(text);
+  const holders = parsed.holders.map((h) => {
+    if (!h.years.length) return { ...h, result: null };
+    return { ...h, result: run(h.opening, h.years) };
+  });
+  const errors = [...parsed.errors];
+  for (const h of holders) {
+    if (!h.result) errors.push(h.name + ": no year rows.");
+    else h.result.problems.forEach((p) => errors.push(h.name + ": " + p));
+  }
+  return { holders, errors };
+}
+
+// Who needs attention first: one row per shareholder, flagged rows sorted to the top.
+export function batchSummary(batch) {
+  const rows = batch.holders.filter((h) => h.result).map((h) => {
+    const r = h.result;
+    const excess = cents(r.rows.reduce((a, x) => a + x.lines.excessDistributions, 0));
+    const repayGain = cents(r.rows.reduce((a, x) => a + x.lines.repaymentGain, 0));
+    const flags = [];
+    if (excess > 0) flags.push("excess distributions");
+    if (r.closing.suspended > 0) flags.push("suspended losses");
+    if (repayGain > 0) flags.push("loan repayment gain");
+    const p = plan(r);
+    return {
+      name: h.name, years: r.rows.length, lastYear: r.rows[r.rows.length - 1].year,
+      stock: r.closing.stock, debtBasis: r.closing.debtBasis, suspended: r.closing.suspended,
+      excessDistributions: excess, repaymentGain: repayGain, maxTaxFreeDistribution: p.maxTaxFreeDistribution,
+      contributionToDeductAll: p.contributionToDeductAll, flags,
+    };
+  });
+  return rows.sort((a, b) => b.flags.length - a.flags.length || b.excessDistributions + b.suspended - (a.excessDistributions + a.suspended));
+}
+
+export function batchCsv(batch) {
+  const q = (s) => (/[",\n]/.test(String(s)) ? '"' + String(s).replace(/"/g, '""') + '"' : String(s));
+  const head = ["shareholder", "year", "opening_stock", "opening_debt_basis", "contributions", "loans_made", "income", "tax_exempt", "debt_basis_restored", "distributions", "taxable_excess_distributions", "nondeductible_used", "losses_available", "loss_against_stock", "loss_against_debt", "losses_suspended", "repayment_gain", "closing_stock", "closing_debt_basis", "closing_loan_balance"];
+  const rows = [];
+  for (const h of batch.holders) {
+    if (!h.result) continue;
+    for (const r of h.result.rows) rows.push([q(h.name), r.year, r.open.stock, r.open.debtBasis, r.lines.contributions, r.lines.loansMade, r.lines.income, r.lines.taxExempt, r.lines.debtRestored, r.lines.distributions, r.lines.excessDistributions, r.lines.nondeductibleUsed, r.lines.lossesAvailable, r.lines.lossAgainstStock, r.lines.lossAgainstDebt, r.lines.lossesSuspended, r.lines.repaymentGain, r.close.stock, r.close.debtBasis, r.close.debtFace].join(","));
+  }
+  return [head.join(","), ...rows].join("\n") + "\n";
+}
+
+// One printable file: a summary page, then each shareholder's worksheet.
+export function batchPacketHtml(batch, title = "S corporation shareholder basis worksheets") {
+  const sum = batchSummary(batch);
+  const table = `<table><tr><th>Shareholder</th><th class="n">Stock basis</th><th class="n">Debt basis</th><th class="n">Suspended</th><th class="n">Taxable excess dist.</th><th>Flags</th></tr>` +
+    sum.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${esc(fmt(s.stock))}</td><td class="n">${esc(fmt(s.debtBasis))}</td><td class="n">${esc(fmt(s.suspended))}</td><td class="n">${esc(fmt(s.excessDistributions))}</td><td>${esc(s.flags.join(", ") || "none")}</td></tr>`).join("") + "</table>";
+  const inner = batch.holders.filter((h) => h.result).map((h) => {
+    const body = packetHtml(h.result, h.name).match(/<body>([\s\S]*)<\/body>/)[1];
+    return `<section style="page-break-before:always">${body.replace(/<p>Prepared with[\s\S]*?<\/p>/, "").replace(/<p>No warranty\.[\s\S]*?<\/p>/, "")}</section>`;
+  }).join("");
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font:14px system-ui,sans-serif;max-width:860px;margin:24px auto;padding:0 16px}table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #ddd;padding:4px;text-align:left}td.n,th.n{text-align:right}h2{margin-top:28px}</style></head><body><h1>${esc(title)}</h1><p>Prepared with the free S-Corp Basis Tracker from numbers the preparer typed. An organising aid in the order Form 7203 uses; not tax advice and not a filed form. Check each amount against the K-1 and the current Form 7203 instructions.</p>${table}${inner}<p>No warranty. Not tax, legal or financial advice.</p></body></html>`;
+}
+
+export const BATCH_SAMPLE = [
+  "shareholder,year,contributions,loansMade,loansRepaid,income,taxExempt,distributions,nondeductible,losses",
+  "Avery Example,opening,20000,0,0,0",
+  "Avery Example,2022,0,30000,0,0,0,0,1500,70000",
+  "Avery Example,2023,0,0,0,40000,0,10000,0,0",
+  "Avery Example,2024,0,0,15000,90000,500,60000,2000,0",
+  "Blake Example,opening,5000,0,0,0",
+  "Blake Example,2024,0,0,0,12000,0,30000,0,0",
+  "Casey Example,2024,10000,0,0,25000,0,8000,0,0",
+].join("\n");

@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1533,4 +1533,23 @@ test("official messages list only that official's matches, in schedule order, an
   const bo = msgs.find((m) => m.official === "Bo");
   assert.ok(!bo.text.includes("Team 1 vs") && !bo.text.includes("vs Team 1"));
   assert.deepEqual(officialMessages(s), []); // no officials assigned, nothing to send
+});
+
+test("byeReport: odd leagues give each team one bye per leg, recounted independently; even leagues none", () => {
+  for (const double of [false, true]) for (const n of [3, 5, 7, 9]) {
+    const sch = buildSchedule(baseSpec(n, { double }));
+    const r = byeReport(sch);
+    const want = new Map();
+    for (const rd of sch.rounds) {
+      const playing = new Set();
+      for (const m of rd.matches) { playing.add(m.home); playing.add(m.away); }
+      if (rd.makeup) continue;
+      for (let i = 0; i < n; i++) if (!playing.has(i)) want.set(i, (want.get(i) || 0) + 1);
+    }
+    assert.equal(r.rows.length, n);
+    for (const row of r.rows) assert.equal(row.byes.length, want.get(sch.teams.indexOf(row.team)), `${row.team} n=${n} double=${double}`);
+    assert.ok(r.rows.every((row) => row.byes.length === (double ? 2 : 1)));
+    assert.equal(r.consecutive.length, r.rows.filter((row) => row.consecutive).length);
+  }
+  assert.deepEqual(byeReport(buildSchedule(baseSpec(6))), { rows: [], consecutive: [], first: [], last: [] });
 });
