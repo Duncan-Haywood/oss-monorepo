@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, planCsv, groceryList, groceryText, breakEvenPrices, encodeShare, decodeShare, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, planCsv, groceryList, groceryText, breakEvenPrices, encodeShare, decodeShare, sampleSpec, filterByStyle, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -305,4 +305,32 @@ test("weekText lists a line per day and the week's cost", () => {
   const txt = weekText(w);
   assert.equal(txt.split("\n").filter((l) => l.startsWith("Day ")).length, 7);
   assert.match(txt, /Estimated cost: \$/);
+});
+
+test("eating style drops animal foods by name, keeps plant lookalikes, and the vegan sample plan is still feasible", () => {
+  const foods = parseFoods([
+    "Chicken thigh (100 g) | 0.8 | 121 | 19 | 0 | 4 | 0",
+    "Tuna in water | 1 | 100 | 22 | 0 | 1 | 0",
+    "Egg, large | 0.3 | 72 | 6 | 0 | 5 | 0",
+    "Eggplant (100 g) | 0.3 | 25 | 1 | 6 | 0 | 3",
+    "Peanut butter | 0.2 | 190 | 7 | 7 | 16 | 2",
+    "Butternut squash | 0.3 | 45 | 1 | 12 | 0 | 2",
+    "Soy milk (1 cup) | 0.3 | 80 | 7 | 4 | 4 | 1",
+    "Whole milk (1 cup) | 0.35 | 149 | 8 | 12 | 8 | 0",
+    "Rice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7",
+  ].join("\n")).foods;
+  const names = (s) => filterByStyle(foods, s).foods.map((f) => f.name);
+  assert.equal(names("any").length, 9);
+  assert.deepEqual(filterByStyle(foods, "vegan").dropped, ["Chicken thigh (100 g)", "Tuna in water", "Egg, large", "Whole milk (1 cup)"]);
+  assert.ok(names("vegan").includes("Eggplant (100 g)") && names("vegan").includes("Peanut butter") && names("vegan").includes("Soy milk (1 cup)"));
+  assert.ok(names("vegetarian").includes("Egg, large") && !names("vegetarian").includes("Tuna in water"));
+  assert.ok(names("pescatarian").includes("Tuna in water") && !names("pescatarian").includes("Chicken thigh (100 g)"));
+  assert.deepEqual(filterByStyle(foods, "dairyfree").dropped, ["Whole milk (1 cup)"]);
+  assert.equal(filterByStyle(foods, "nonsense").foods.length, 9);
+  const spec = sampleSpec();
+  const veg = { ...spec, foods: filterByStyle(spec.foods, "vegan").foods };
+  const res = solve(veg);
+  assert.equal(res.status, "optimal");
+  assert.deepEqual(verifyPlan(veg, res), []);
+  assert.ok(res.cost >= solve(spec).cost - 1e-9);
 });
