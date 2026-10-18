@@ -5,6 +5,7 @@ import json
 import os
 import time
 import unittest
+from datetime import date, timedelta
 from contextlib import redirect_stderr, redirect_stdout
 from unittest import mock
 
@@ -114,7 +115,7 @@ class TestPullRequest(PlanFixture):
     def test_title_and_body(self):
         cand = self.candidate()
         self.assertTrue(cand.title().startswith("Adopt stranded branch claude/new: x: long"))
-        self.assertLessEqual(len(cand.title()), ad.TITLE_LIMIT)
+        self.assertEqual(len(cand.title()), 200)  # GitHub's title cap; a long subject is cut to it
         body = cand.body()
         self.assertIn("ventures/x/index.html", body)
         self.assertIn("CI has not run here yet", body)
@@ -183,6 +184,50 @@ class TestPullRequest(PlanFixture):
             self.assertEqual(ad.github_repo_from_remote(".", "origin"), "Own/name")
         with mock.patch.object(ad.uw, "git", lambda *a, **k: "http://proxy@127.0.0.1:1/git/Own/name\n"):
             self.assertEqual(ad.github_repo_from_remote(".", "origin"), "Own/name")
+
+
+class TestCliDefaults(PlanFixture):
+    def main(self, *argv, token=True):
+        out, err = io.StringIO(), io.StringIO()
+        env = {"GITHUB_TOKEN": "tok"} if token else {}
+        with mock.patch.dict(os.environ, env), \
+                mock.patch.object(ad.uw, "probe_path", lambda repo: self.probe), \
+                redirect_stdout(out), redirect_stderr(err):
+            code = ad.main(["--repo", str(self.clone), *argv])
+        return code, out.getvalue()
+
+    def test_a_tip_under_six_hours_old_is_left_to_its_session_by_default(self):
+        self.stranded("claude/fresh", "ventures/x/index.html")
+        code, out = self.main()
+        self.assertEqual(code, 0)
+        self.assertIn("(min age 6h)", out)
+        self.assertIn("0 to adopt", out)
+
+    def test_a_branch_older_than_fourteen_days_is_outside_the_default_window(self):
+        self.branch("claude/ancient")
+        self.commit("ventures/x/index.html", "x\n", "x: old",
+                    day=date.today() - timedelta(days=20))
+        self.push("claude/ancient")
+        code, out = self.main("--min-age-hours", "0")
+        self.assertEqual(code, 0)
+        self.assertIn("0 stranded branch(es)", out)
+        code, out = self.main("--min-age-hours", "0", "--since", "all")
+        self.assertIn("1 stranded branch(es)", out)
+
+    def test_apply_opens_at_most_ten_and_exits_0_when_all_open(self):
+        for i in range(12):
+            self.stranded(f"claude/b{i:02d}", f"ventures/v{i}/index.html")
+        opened = []
+
+        def ok(repo, token, cand, base):
+            opened.append(cand.branch)
+            return len(opened), "ok"
+
+        with mock.patch.object(ad, "open_draft", ok):
+            code, _ = self.main("--min-age-hours", "0", "--since", "all",
+                                "--apply", "--github-repo", "o/r")
+        self.assertEqual(code, 0)
+        self.assertEqual(len(opened), 10)
 
 
 if __name__ == "__main__":

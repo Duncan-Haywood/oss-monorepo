@@ -38,6 +38,8 @@ function findHeader(grid, needles) {
 
 export function detectFormat(text) {
   const grid = parseCsv(text);
+  if (findHeader(grid, ["transaction id", "transaction type", "asset type", "asset amount", "net amount"]) >= 0) return "cashapp";
+  if (findHeader(grid, ["sent amount", "sent currency", "received amount", "received currency"]) >= 0) return "koinly";
   if (findHeader(grid, ["timestamp utc", "transaction kind", "native amount in usd"]) >= 0) return "cryptocom";
   if (findHeader(grid, ["date", "time utc", "type", "symbol", "usd amount usd"]) >= 0) return "gemini";
   if (findHeader(grid, ["timestamp", "transaction type", "asset"]) >= 0) return "coinbase";
@@ -390,16 +392,125 @@ function importCoinbasePro(grid) {
   return { format: "coinbasepro", rows: out, notes };
 }
 
+// ---- Koinly universal format ---------------------------------------------
+//
+// Koinly's "universal" CSV (also what several other tax tools accept) has one
+// row per movement: Sent and Received amount/currency, an optional fee and a
+// Net Worth value, plus a Label. Reading it lets someone who exported their
+// history from a paid service run the five-method comparison on it locally.
+// Only USD values are used; the Net Worth figure is Koinly's own estimate of
+// the value of the movement, taken as given.
+
+const KL_INCOME = /reward|staking|mining|airdrop|income|interest|cashback|fork|lending|liquidity/;
+const KL_FIAT = new Set(["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "CHF", "NZD", "SEK", "NOK", "DKK", "PLN", "INR", "BRL", "MXN", "SGD", "HKD"]);
+
+function importKoinly(grid) {
+  const h = findHeader(grid, ["sent amount", "sent currency", "received amount", "received currency"]);
+  const names = grid[h].map(norm);
+  const ix = (n) => names.indexOf(n);
+  const c = {
+    date: ix("date"), sa: ix("sent amount"), sc: ix("sent currency"), ra: ix("received amount"), rc: ix("received currency"),
+    fa: ix("fee amount"), fc: ix("fee currency"), nw: ix("net worth amount"), nc: ix("net worth currency"), label: ix("label"),
+  };
+  const out = [], notes = [];
+  let moves = 0, unpriced = 0, otherFiat = 0, feeSkipped = 0;
+  for (let i = h + 1; i < grid.length; i++) {
+    const r = grid[i];
+    const g = (k) => (c[k] < 0 ? "" : r[c[k]] ?? "");
+    if (!g("date")) continue;
+    const date = g("date").trim().slice(0, 10);
+    const sent = Math.abs(num(g("sa")) ?? 0), recv = Math.abs(num(g("ra")) ?? 0);
+    const sc = g("sc").toUpperCase().trim(), rc = g("rc").toUpperCase().trim();
+    const label = String(g("label")).toLowerCase().trim();
+    const nwUsd = g("nc").toUpperCase().trim() === "USD" ? num(g("nw")) : null;
+    let fee = 0;
+    if (num(g("fa"))) {
+      if (g("fc").toUpperCase().trim() === "USD") fee = Math.abs(num(g("fa")));
+      else feeSkipped++;
+    }
+    if ((sent && KL_FIAT.has(sc) && sc !== "USD") || (recv && KL_FIAT.has(rc) && rc !== "USD")) { otherFiat++; continue; }
+    const sentCoin = sent && sc && !KL_FIAT.has(sc), recvCoin = recv && rc && !KL_FIAT.has(rc);
+    const sentUsd = sent && sc === "USD", recvUsd = recv && rc === "USD";
+    if (recvCoin && sentUsd) out.push([date, "buy", rc, fmt(recv), fmt(sent), fmt(fee), "Koinly"]);
+    else if (sentCoin && recvUsd) out.push([date, "sell", sc, fmt(sent), fmt(recv), fmt(fee), "Koinly"]);
+    else if (sentCoin && recvCoin) {
+      if (nwUsd === null) unpriced++;
+      const total = nwUsd === null ? null : Math.abs(nwUsd);
+      out.push([date, "sell", sc, fmt(sent), fmt(total), fmt(fee), "Koinly"]);
+      out.push([date, "buy", rc, fmt(recv), fmt(total), "0", "Koinly"]);
+    } else if (recvCoin && !sent && KL_INCOME.test(label)) {
+      if (nwUsd === null) unpriced++;
+      out.push([date, "income", rc, fmt(recv), fmt(nwUsd === null ? null : Math.abs(nwUsd)), "0", "Koinly"]);
+    } else if (sentCoin && !recv && /gift|donation|payment|cost/.test(label)) {
+      if (nwUsd === null) unpriced++;
+      out.push([date, "sell", sc, fmt(sent), fmt(nwUsd === null ? null : Math.abs(nwUsd)), fmt(fee), "Koinly"]);
+    } else moves++;
+  }
+  if (unpriced) notes.push(`${unpriced} Koinly row${unpriced > 1 ? "s" : ""} had no USD Net Worth value and were left with an empty total. Fill each in from that day's price.`);
+  if (moves) notes.push(`${moves} unlabelled deposit, withdrawal and transfer rows ignored as movements between your own wallets. A withdrawal that paid someone is a sale; enter it by hand.`);
+  if (otherFiat) notes.push(`${otherFiat} row${otherFiat > 1 ? "s" : ""} paid in a non-USD currency were skipped, not converted at a rate nobody typed.`);
+  if (feeSkipped) notes.push(`${feeSkipped} fee${feeSkipped > 1 ? "s" : ""} paid in a coin or non-USD currency were left out.`);
+  notes.push("Koinly's own cost-basis method and Net Worth estimates are not carried over; the figures here come from the amounts in the file.");
+  return { format: "koinly", rows: out, notes };
+}
+
+// ---- Cash App ------------------------------------------------------------
+//
+// Cash App's account-activity export has one row per transaction with the
+// asset in `Asset Type`, the coin quantity in `Asset Amount` and the dollars in
+// `Amount` ("-$10,000.00" on a buy) and `Fee`. Only Bitcoin Buy / Sale rows
+// are taxable trades here; Boost, bonus and reward rows are income at no
+// recorded value; sends, receives and plain cash movements are ignored.
+
+const CA_INCOME = /boost|bonus|reward|bitcoin rewards|round up|giveaway|referral/;
+const CA_MOVE = /deposit|withdraw|cash out|add cash|p2p|payment|card|send|receive|transfer|paycheck/;
+
+function importCashApp(grid) {
+  const h = findHeader(grid, ["transaction id", "transaction type", "asset type", "asset amount", "net amount"]);
+  const names = grid[h].map(norm);
+  const ix = (n) => names.indexOf(n);
+  const c = { date: ix("date"), type: ix("transaction type"), amt: ix("amount"), fee: ix("fee"), asset: ix("asset type"), qty: ix("asset amount"), status: ix("status") };
+  const out = [], notes = [];
+  let moves = 0, unpriced = 0, failed = 0;
+  for (let i = h + 1; i < grid.length; i++) {
+    const r = grid[i];
+    const g = (k) => (c[k] < 0 ? "" : r[c[k]] ?? "");
+    const type = norm(g("type"));
+    if (!type || !g("date")) continue;
+    const status = norm(g("status"));
+    if (status && status !== "complete" && status !== "completed") { failed++; continue; }
+    const date = g("date").slice(0, 10);
+    const asset = g("asset").toUpperCase().trim();
+    const qty = num(g("qty"));
+    const isBuy = /\bbuy\b|\bpurchase\b/.test(type) && asset, isSell = /\bsale\b|\bsell\b/.test(type) && asset;
+    if (isBuy || isSell) {
+      if (qty === null || qty === 0) { notes.push(`Line ${i + 1}: Cash App ${g("type")} had no Asset Amount and was skipped.`); continue; }
+      const usd = num(g("amt"));
+      if (usd === null) unpriced++;
+      out.push([date, isBuy ? "buy" : "sell", asset, fmt(Math.abs(qty)), fmt(usd === null ? null : Math.abs(usd)), fmt(Math.abs(num(g("fee")) ?? 0)), "Cash App"]);
+    } else if (asset && qty && CA_INCOME.test(type)) {
+      unpriced++;
+      out.push([date, "income", asset, fmt(Math.abs(qty)), "", "0", "Cash App"]);
+    } else if (CA_MOVE.test(type) || !asset) moves++;
+    else notes.push(`Line ${i + 1}: Cash App transaction type "${g("type")}" was skipped.`);
+  }
+  if (unpriced) notes.push(`${unpriced} Cash App row${unpriced > 1 ? "s" : ""} had no USD value in the export and were left with an empty total. Fill each in from that day's price.`);
+  if (failed) notes.push(`${failed} Cash App row${failed > 1 ? "s" : ""} with a status other than complete (failed, pending, cancelled) ignored.`);
+  if (moves) notes.push(`${moves} deposit, withdrawal, payment and cash rows ignored as non-taxable movements. Sending bitcoin to someone as payment is a sale; enter it by hand.`);
+  notes.push("Cash App: the export's Amount is read as the dollars traded and Fee as separate; check one row against the app before relying on the basis.");
+  return { format: "cashapp", rows: out, notes };
+}
+
 // ---- entry points ---------------------------------------------------------
 
-export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", coinbasepro: "Coinbase Pro / Advanced Trade fills", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", bitstamp: "Bitstamp transaction export", generic: "plain CSV" };
+export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", coinbasepro: "Coinbase Pro / Advanced Trade fills", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", koinly: "Koinly universal CSV", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", bitstamp: "Bitstamp transaction export", cashapp: "Cash App account activity", generic: "plain CSV" };
 
 // Returns { format, csv, notes }. A generic file comes back unchanged.
 export function convertExchangeCsv(text) {
   const format = detectFormat(text);
   if (format === "generic") return { format, csv: String(text ?? ""), notes: [] };
   const grid = parseCsv(text);
-  const r = format === "coinbase" ? importCoinbase(grid) : format === "coinbasepro" ? importCoinbasePro(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : format === "bitstamp" ? importBitstamp(grid) : importKraken(grid);
+  const r = format === "coinbase" ? importCoinbase(grid) : format === "coinbasepro" ? importCoinbasePro(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "koinly" ? importKoinly(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : format === "bitstamp" ? importBitstamp(grid) : format === "cashapp" ? importCashApp(grid) : importKraken(grid);
   return { format, csv: toCsv(r.rows), notes: r.notes, count: r.rows.length };
 }
 

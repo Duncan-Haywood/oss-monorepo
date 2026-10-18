@@ -268,3 +268,62 @@ test("Coinbase Pro fills feed the lot matcher end to end", () => {
   assert.equal(a.rows.length, 1);
   assert.equal(a.rows[0].term, "Long");
 });
+
+const KOINLY = `Date,Sent Amount,Sent Currency,Received Amount,Received Currency,Fee Amount,Fee Currency,Net Worth Amount,Net Worth Currency,Label,Description,TxHash
+2023-01-10 10:00:00 UTC,10000,USD,0.5,BTC,10,USD,10000,USD,,Bought BTC,
+2023-06-15 10:00:00 UTC,,,2,ETH,,,5000,USD,staking,Reward,
+2023-08-01 10:00:00 UTC,0.1,BTC,1,ETH,,,3000,USD,,Swap,
+2023-09-01 10:00:00 UTC,0.2,BTC,,,,,,,,Moved to ledger,0xabc
+2023-10-01 10:00:00 UTC,0.2,BTC,6000,USD,5,USD,6000,USD,,Sold BTC,
+2023-11-01 10:00:00 UTC,100,EUR,0.01,BTC,,,,,,Euro buy,
+2023-12-01 10:00:00 UTC,,,0.3,SOL,,,,,airdrop,Airdrop,
+`;
+
+test("Koinly universal: detected and mapped", () => {
+  assert.equal(detectFormat(KOINLY), "koinly");
+  const r = convertExchangeCsv(KOINLY);
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines[0], OUT_HEADER);
+  assert.deepEqual(lines.slice(1), [
+    "2023-01-10,buy,BTC,0.5,10000,10,Koinly",
+    "2023-06-15,income,ETH,2,5000,0,Koinly",
+    "2023-08-01,sell,BTC,0.1,3000,0,Koinly",
+    "2023-08-01,buy,ETH,1,3000,0,Koinly",
+    "2023-10-01,sell,BTC,0.2,6000,5,Koinly",
+    "2023-12-01,income,SOL,0.3,,0,Koinly",
+  ]);
+  assert.ok(r.notes.some((n) => /1 unlabelled/.test(n)));
+  assert.ok(r.notes.some((n) => /non-USD/.test(n)));
+  assert.ok(r.notes.some((n) => /1 Koinly row had no USD/.test(n)));
+  const a = analyze(r.csv, { method: "FIFO", year: 2023 });
+  assert.equal(a.rows.length >= 2, true);
+});
+
+const CASHAPP = `Transaction ID,Date,Transaction Type,Currency,Amount,Fee,Net Amount,Asset Type,Asset Price,Asset Amount,Status,Notes,Name of sender/recipient,Account
+a1,2023-01-10 10:00:00 EST,Bitcoin Buy,USD,"-$10,000.00",-$40.00,"-$10,040.00",BTC,"$20,000.00",0.5,COMPLETE,,,Cash
+a2,2023-02-10 10:00:00 EST,Bitcoin Boost,USD,$0.00,$0.00,$0.00,BTC,"$24,000.00",0.0001,COMPLETE,,,Cash
+a3,2023-03-10 10:00:00 EST,Cash Card Debit,USD,-$12.00,$0.00,-$12.00,,,,COMPLETE,Coffee,,Cash
+a4,2023-09-10 10:00:00 EST,Bitcoin Sale,USD,"$15,000.00",-$30.00,"$14,970.00",BTC,"$30,000.00",0.5,COMPLETE,,,Cash
+a5,2023-09-11 10:00:00 EST,Bitcoin Buy,USD,-$100.00,$0.00,-$100.00,BTC,"$30,000.00",0.003,FAILED,,,Cash
+a6,2023-09-12 10:00:00 EST,Mystery Thing,USD,$1.00,$0.00,$1.00,BTC,,0.1,COMPLETE,,,Cash
+`;
+
+test("Cash App: detected, buys/sales mapped, boost unpriced, failed and cash rows ignored", () => {
+  assert.equal(detectFormat(CASHAPP), "cashapp");
+  const r = convertExchangeCsv(CASHAPP);
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines[0], OUT_HEADER);
+  assert.ok(lines.includes("2023-01-10,buy,BTC,0.5,10000,40,Cash App"));
+  assert.ok(lines.includes("2023-09-10,sell,BTC,0.5,15000,30,Cash App"));
+  assert.ok(lines.includes("2023-02-10,income,BTC,0.0001,,0,Cash App")); // unpriced stays empty, never zero
+  assert.equal(lines.length, 1 + 3);
+  assert.ok(r.notes.some((n) => /1 Cash App row had no USD value/.test(n)));
+  assert.ok(r.notes.some((n) => /1 Cash App row with a status other than complete/.test(n)));
+  assert.ok(r.notes.some((n) => /Mystery Thing/.test(n)));
+  assert.ok(r.notes.some((n) => /1 deposit, withdrawal/.test(n)));
+});
+
+test("Cash App export feeds the lot matcher end to end", () => {
+  const a = analyze(convertExchangeCsv(CASHAPP).csv, { method: "FIFO", year: 2023 });
+  assert.ok(a.rows.length > 0);
+});

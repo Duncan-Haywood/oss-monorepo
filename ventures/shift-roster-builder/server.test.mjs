@@ -76,3 +76,76 @@ test("oversized bodies are rejected", async () => {
   assert.equal(r.status, 413);
   s.close();
 });
+
+test("a call-out reaches the manager with who could cover, and staff never see wages", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, Mon 9-17\nBen, 19.43, 40, 0, any\nCy, 17.10, 40, 0, Tue-Fri 9-17";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon, 9, 17, 1, day" });
+  const team = await (await fetch(s.base + "/team?t=tm")).text();
+  assert.match(team, /Cannot make a shift\?/);
+  const shift = s.state.published.assignments.find((a) => a.person);
+  const val = [shift.person, shift.slot.day, shift.slot.startMin, shift.slot.endMin].join("|");
+  assert.equal((await post(s.base + "/team/callout?t=tm", { shift: "Nobody|0|1|2" })).status, 400);
+  assert.equal((await post(s.base + "/team/callout?t=wrong", { shift: val })).status, 401);
+  const ok = await post(s.base + "/team/callout?t=tm", { shift: val, note: "<b>sick</b>\nbad" });
+  assert.equal(ok.status, 200);
+  assert.equal(s.state.callouts.length, 1);
+  assert.doesNotMatch(s.state.callouts[0].note, /\n/);
+  const admin = await (await fetch(s.base + "/admin?key=adm")).text();
+  assert.match(admin, /Call-outs \(1\)/);
+  assert.match(admin, /&lt;b&gt;sick/);
+  assert.doesNotMatch(admin, /<b>sick/);
+  assert.match(admin, /Could cover/);
+  const other = shift.person === "Ana" ? "Ben" : "Ana";
+  assert.match(admin, new RegExp(`${other} \\(`));
+  await post(s.base + "/admin/clear-callouts?key=adm", {});
+  assert.equal(s.state.callouts.length, 0);
+  s.close();
+});
+
+test("a trade request is checked against the rules and applied only when the manager approves", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, any\nBen, 19.43, 40, 0, any";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon, 9, 17, 1, day\nTue, 9, 13, 1, am" });
+  const a = s.state.published.assignments, A = a[0], B = a.find((x) => x.person !== A.person);
+  const val = (x) => [x.person, x.slot.day, x.slot.startMin, x.slot.endMin].join("|");
+  const team = await (await fetch(s.base + "/team?t=tm")).text();
+  assert.match(team, /Want to trade shifts\?/);
+  assert.equal((await post(s.base + "/team/trade?t=tm", { mine: val(A), theirs: val(A) })).status, 400);
+  assert.equal((await post(s.base + "/team/trade?t=tm", { mine: val(A), theirs: "Nobody|0|1|2" })).status, 400);
+  assert.equal((await post(s.base + "/team/trade?t=wrong", { mine: val(A), theirs: val(B) })).status, 401);
+  assert.equal((await post(s.base + "/team/trade?t=tm", { mine: val(A), theirs: val(B), note: "<b>x</b>" })).status, 200);
+  assert.equal(s.state.trades.length, 1);
+  const admin = await (await fetch(s.base + "/admin?key=adm")).text();
+  assert.match(admin, /Trade requests \(1\)/);
+  assert.match(admin, /Keeps both weeks inside the rules/);
+  assert.doesNotMatch(admin, /<b>x/);
+  const [pa, pb] = [A.person, B.person];
+  const r = await post(s.base + "/admin/trade?key=adm", { i: "0", act: "approve" });
+  assert.equal(r.status, 303);
+  assert.equal(s.state.trades.length, 0);
+  assert.equal(A.person, pb);
+  assert.equal(B.person, pa);
+  const hours = Object.fromEntries(s.state.published.people.map((p) => [p.name, p.hours]));
+  assert.equal(hours[pa] + hours[pb], 12);
+  s.close();
+});
+
+test("a declined trade changes nothing and a blocked one cannot be approved", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 20, 40, 0, Mon 9-17\nBen, 20, 40, 0, Tue 9-17";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon, 9, 17, 1, mon\nTue, 9, 17, 1, tue" });
+  const [A, B] = s.state.published.assignments;
+  const val = (x) => [x.person, x.slot.day, x.slot.startMin, x.slot.endMin].join("|");
+  await post(s.base + "/team/trade?t=tm", { mine: val(A), theirs: val(B) });
+  const admin = await (await fetch(s.base + "/admin?key=adm")).text();
+  assert.match(admin, /Blocked:/);
+  const before = A.person;
+  await post(s.base + "/admin/trade?key=adm", { i: "0", act: "approve" });
+  assert.equal(A.person, before);
+  assert.equal(s.state.trades.length, 1);
+  await post(s.base + "/admin/trade?key=adm", { i: "0", act: "decline" });
+  assert.equal(s.state.trades.length, 0);
+  assert.equal(A.person, before);
+  s.close();
+});
