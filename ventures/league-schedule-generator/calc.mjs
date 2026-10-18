@@ -1417,7 +1417,7 @@ function roundName(matchesInRound) {
  * field gives the top seeds a first-round bye. Later-round slots name the match they come
  * from. Optional dates continue after `afterDay` on the league's weekdays.
  */
-export function playoffBracket(seedNames, { afterDay = null, weekdays = [], skipDays = [] } = {}) {
+export function playoffBracket(seedNames, { afterDay = null, weekdays = [], skipDays = [], thirdPlace = false } = {}) {
   const k = seedNames.length;
   if (k < 2) throw new Error("A play-off needs at least two teams.");
   const size = nextPow2(k);
@@ -1453,6 +1453,10 @@ export function playoffBracket(seedNames, { afterDay = null, weekdays = [], skip
       r.day = d;
       d++;
     }
+  }
+  if (thirdPlace && k >= 4) {
+    const semis = rounds[rounds.length - 2].matches;
+    rounds[rounds.length - 1].matches.push({ id: "3P", a: { loserOf: semis[0].id }, b: { loserOf: semis[1].id }, bye: false });
   }
   const games = rounds.reduce((s, r) => s + r.matches.filter((m) => !m.bye).length, 0);
   return { size, teams: k, rounds, games };
@@ -1557,7 +1561,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "rainouts", "withdrawals", "officials", "grounds"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -1585,6 +1589,7 @@ export function decodeFields(text) {
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
+      playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
       rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds),
     };
   } catch { return null; }

@@ -101,7 +101,7 @@
     <id>tag:marisstella.dev,2026:tool/devsec-toolkit</id>
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
-    <summary type="text">One zero-dependency command that runs your repository through 22 open-source DevSecOps checks: GitHub Actions injection and poisoning, Docker and Compose, Kubernetes, dependency confusion, JWT misuse, ReDoS, AI-agent permissions. One report, SARIF for code scanning, baselines. MIT licensed, nothing uploaded.</summary>
+    <summary type="text">One zero-dependency command that runs your repository through 23 open-source DevSecOps checks: GitHub Actions injection and poisoning, Docker and Compose, Kubernetes, dependency confusion, JWT misuse, ReDoS, AI-agent permissions. One report, SARIF for code scanning, baselines. MIT licensed, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Error Keeper — Free Self-Hosted Error Tracking (Sentry Alternative)</title>

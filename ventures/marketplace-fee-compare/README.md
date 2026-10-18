@@ -84,6 +84,12 @@ checkout total (item plus buyer-paid shipping and tax), with published category
 caps a flat retail referral rate cannot express. It gets a pointer to
 `whatnot-seller-payout` instead of a row.
 
+**StockX is excluded like Reverb, on category grounds.** It lists only sneakers,
+streetwear and graded cards, the buyer pays StockX for delivery (so no postage
+reaches you), and the fee rate falls with your own Seller Level. It gets a
+pointer to `stockx-seller-payout-calculator` with price, cost basis, shipping
+and other cost already filled in.
+
 **The own-store row carries a caveat attached to the win, not to the footnotes.**
 A Shopify checkout charges no referral fee and therefore tops the table on
 almost any item — arithmetically true and operationally misleading, because it

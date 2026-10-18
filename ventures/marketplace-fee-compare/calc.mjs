@@ -212,7 +212,7 @@ export const CHANNELS = [
 export const CHANNEL_IDS = Object.freeze(CHANNELS.map((channel) => channel.id));
 
 /**
- * Faire, Whatnot, and Reverb are deliberately not in the comparison above.
+ * Faire, Whatnot, Reverb, and StockX are deliberately not in the comparison above.
  *
  * Faire is wholesale: the buyer is a shop buying at roughly half retail, on a
  * commission and payout-timing structure that has no per-retail-order
@@ -233,6 +233,12 @@ export const CHANNEL_IDS = Object.freeze(CHANNELS.map((channel) => channel.id));
  * that seats a single-category channel beside the general ones would read as a
  * recommendation to list *any* item there, which is not true for the vast
  * majority of what this page's other sellers carry.
+ *
+ * StockX is excluded for the same category reason as Reverb: it only lists
+ * sneakers, streetwear and graded cards, and it is a bid/ask marketplace where
+ * the buyer pays StockX for delivery, so none of the postage a buyer pays ever
+ * reaches the seller. Its seller fee also falls with the seller's own Seller
+ * Level, which a single preset rate cannot express.
  *
  * Each gets a pointer instead of a row.
  */
@@ -257,6 +263,13 @@ export const EXCLUDED_CHANNELS = [
     deepToolLabel: "Reverb fee calculator",
     why:
       "Reverb only accepts musical instruments and gear, where the ten channels above sell almost anything — so seating it in a general-purpose ranking would read as a recommendation to list any item there, which is true for none of the other rows' inventory. Its fee shape (marketplace percentage plus payment processing) is genuinely close to eBay's, which the deep tool compares directly on the same guitar or pedal.",
+  },
+  {
+    label: "StockX (sneakers & streetwear)",
+    deepTool: "stockx-seller-payout-calculator",
+    deepToolLabel: "StockX seller payout calculator",
+    why:
+      "StockX only lists sneakers, streetwear and graded cards, and it is a bid/ask marketplace rather than a storefront: the buyer pays StockX for delivery, so no postage a buyer pays reaches you, and your fee rate falls as your own Seller Level rises. A preset rate in a general ranking would be a number that looks comparable and is not, so the dedicated calculator takes the rate from your own dashboard.",
   },
 ];
 

@@ -368,3 +368,19 @@ test('index links one hop to the stockx-seller-payout-calculator sibling', () =>
     'index must link ../stockx-seller-payout-calculator/ so crawlers reach the StockX seller payout calculator in one hop',
   );
 });
+
+test('the $2,400 graded-lot guide matches the arithmetic', () => {
+  const html = page('whatnot-fees-on-a-graded-card-over-1500.html');
+  const capped = calculateSale({ salePrice: 2400, commissionRate: 8, commissionCap: 1500, paymentRate: 2.9, paymentFixed: 0.3 });
+  near(capped.commission, 120);
+  near(capped.fees, 189.9, 0.01);
+  near(capped.payout, 2210.1, 0.01);
+  const flat = calculateSale({ salePrice: 2400, commissionRate: 8, commissionCap: '', paymentRate: 2.9, paymentFixed: 0.3 });
+  near(flat.fees, 261.9, 0.01);
+  near(flat.payout, 2138.1, 0.01);
+  for (const s of ['$189.90', '$2,210.10', '7.91%', '$261.90', '10.91%', '$2,138.10']) assert.ok(html.includes(s), s);
+  const big = calculateSale({ salePrice: 5000, commissionRate: 8, commissionCap: 1500, paymentRate: 2.9, paymentFixed: 0.3 });
+  near(big.fees, 265.3, 0.01);
+  assert.match(page('index.html'), /whatnot-fees-on-a-graded-card-over-1500\.html/);
+  assert.match(page('sitemap.xml'), /whatnot-fees-on-a-graded-card-over-1500\.html/);
+});
