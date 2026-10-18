@@ -594,7 +594,7 @@ export function validateSchedule(schedule) {
     seenDays.add(round.day);
     if (round.day < prevDay) errors.push(`${round.label}: dated before the round above it.`);
     prevDay = round.day;
-    if (!cfg.weekdays.includes(new Date(round.day * 86400000).getUTCDay())) errors.push(`${round.label}: ${dayIso(round.day)} is not a chosen weekday.`);
+    if (!round.chosenDay && !cfg.weekdays.includes(new Date(round.day * 86400000).getUTCDay())) errors.push(`${round.label}: ${dayIso(round.day)} is not a chosen weekday.`);
     if (cfg.skipDays.includes(round.day)) errors.push(`${round.label}: ${dayIso(round.day)} is a skip date.`);
     const inRound = new Set();
     const cells = new Set();
@@ -653,7 +653,9 @@ export function validateSchedule(schedule) {
  * team's match. A cancelled match moves to the earliest later playable date on which both teams are
  * free (no blackout, not already playing) and a court and time slot are open; the rest of the
  * schedule is left exactly as it was, so nobody's other fixtures change. Returns a new schedule
- * (the input is not mutated) plus `moves` and `errors`.
+ * (the input is not mutated) plus `moves` and `errors`. End a line with `-> 2026-10-20` to name the
+ * make-up date yourself (any day, not only a league weekday); it is refused, with the reason, if
+ * either team is blacked out or already playing, or no court and slot is free, and the match stays put.
  */
 export function applyRainouts(schedule, text) {
   const s = JSON.parse(JSON.stringify(schedule));
@@ -665,8 +667,16 @@ export function applyRainouts(schedule, text) {
   const nameIdx = (name) => s.teams.findIndex((t) => t.toLowerCase() === name.toLowerCase());
   const slotOf = (m) => cfg.times.indexOf(m.time) * cfg.courts.length + cfg.courts.indexOf(m.court);
   for (const raw of String(text ?? "").split(/\n+/)) {
-    const line = raw.trim();
+    let line = raw.trim();
     if (!line) continue;
+    // "2026-10-13 Lob Squad -> 2026-10-20" names the make-up date instead of searching for one.
+    let fixed = null;
+    const arrow = line.match(/^(.*?)\s*(?:->|=>|\u2192)\s*(\d{4}-\d{1,2}-\d{1,2})\s*$/);
+    if (arrow) {
+      fixed = parseDate(arrow[2]);
+      line = arrow[1].trim();
+      if (fixed === null) { errors.push(`"${raw.trim()}": "${arrow[2]}" is not a real date.`); continue; }
+    }
     const m = line.match(/^(\d{4}-\d{1,2}-\d{1,2})\s*[:,-]?\s*(.*)$/);
     const day = m ? parseDate(m[1]) : null;
     if (day === null) { errors.push(`"${line}": start each line with a real date like 2026-10-13.`); continue; }
@@ -681,11 +691,11 @@ export function applyRainouts(schedule, text) {
     if (!cancelled.length) { errors.push(`${dayIso(day)}: none of those teams play that night.`); continue; }
     round.matches = round.matches.filter((x) => !cancelled.includes(x));
     for (const mt of cancelled) {
-      let d = day + 1;
+      let d = fixed !== null ? fixed : day + 1;
       let placed = null;
-      for (let guard = 0; guard < 400 && !placed; guard++, d++) {
-        d = nextPlayDay(d, weekdaySet, skipSet);
-        if (d === null) break;
+      if (fixed !== null && fixed <= day) { errors.push(`${mt.homeName} v ${mt.awayName}: ${dayIso(fixed)} is not after ${dayIso(day)}.`); round.matches.push(mt); continue; }
+      for (let guard = 0; guard < (fixed !== null ? 1 : 400) && !placed; guard++, d++) {
+        if (fixed === null) { d = nextPlayDay(d, weekdaySet, skipSet); if (d === null) break; }
         const blocked = (t) => (cfg.blackouts[t] || []).includes(d);
         if (blocked(mt.home) || blocked(mt.away)) continue;
         const target = s.rounds.find((r) => r.day === d);
@@ -698,10 +708,10 @@ export function applyRainouts(schedule, text) {
         if (free === undefined) continue;
         placed = { d, target, free };
       }
-      if (!placed) { errors.push(`${mt.homeName} v ${mt.awayName}: no free date found after ${dayIso(day)}.`); round.matches.push(mt); continue; }
+      if (!placed) { errors.push(fixed !== null ? `${mt.homeName} v ${mt.awayName}: cannot play on ${dayIso(fixed)} (a team is away or busy that day, or no court and time slot is free). Leave the date off to let it search.` : `${mt.homeName} v ${mt.awayName}: no free date found after ${dayIso(day)}.`); round.matches.push(mt); continue; }
       const moved = { ...mt, court: cfg.courts[placed.free % cfg.courts.length], time: cfg.times[Math.floor(placed.free / cfg.courts.length)], moved: true, slot: placed.free };
       if (placed.target) placed.target.matches.push(moved);
-      else s.rounds.push({ number: null, label: "Rescheduled", makeup: true, day: placed.d, bye: null, matches: [moved] });
+      else s.rounds.push({ number: null, label: "Rescheduled", makeup: true, ...(fixed !== null ? { chosenDay: true } : {}), day: placed.d, bye: null, matches: [moved] });
       moves.push({ from: day, to: placed.d, home: mt.homeName, away: mt.awayName, court: moved.court, time: moved.time });
     }
   }
@@ -731,8 +741,16 @@ export function applyWithdrawals(schedule, text) {
   const before = (s.withdrawals || []).length;
   const withdrawals = [...(s.withdrawals || [])];
   for (const raw of String(text ?? "").split(/\n+/)) {
-    const line = raw.trim();
+    let line = raw.trim();
     if (!line) continue;
+    // "2026-10-13 Lob Squad -> 2026-10-20" names the make-up date instead of searching for one.
+    let fixed = null;
+    const arrow = line.match(/^(.*?)\s*(?:->|=>|\u2192)\s*(\d{4}-\d{1,2}-\d{1,2})\s*$/);
+    if (arrow) {
+      fixed = parseDate(arrow[2]);
+      line = arrow[1].trim();
+      if (fixed === null) { errors.push(`"${raw.trim()}": "${arrow[2]}" is not a real date.`); continue; }
+    }
     const m = line.match(/^(\d{4}-\d{1,2}-\d{1,2})\s*[:,-]?\s*(.*)$/);
     const from = m ? parseDate(m[1]) : null;
     if (m && from === null) { errors.push(`"${line}": that is not a real date.`); continue; }

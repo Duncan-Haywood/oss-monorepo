@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01MjJbztV2na1b7vh5qQ8u6D",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: follow ./prompt.md",
+  "input_sha256": "2842a2a6e18a29c8ffafb43f6b70cbfae6a7252cbacd6e537e94b1e7286196b2",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T03:49:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Preflight fails first on a stale front-door mirror; the fix (regen.mjs) takes >2 min and is only found from the failure message."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Rainout lines accept '-> date' to name the make-up day; refused with reason if blocked. Chose a small depth feature on a heavily-worked venture; hypotheses untested.",
+  "corrections": [],
+  "redteam": null
+}

@@ -98,7 +98,7 @@
     <input type="checkbox" id="h2h" style="margin-top:6px"> <label for="h2h" style="display:inline">Break ties on points by head-to-head results first</label>
 
     <h2 style="margin-top:18px">5. Rainouts and cancellations (optional)</h2>
-    <label for="rainouts">One per line: a date cancels every match that night, a date plus team names cancels only their match. Each cancelled match moves to the earliest later night both teams are free and a court is open; nothing else changes. <code>2026-10-13</code> or <code>2026-10-13 Lob Squad</code></label>
+    <label for="rainouts">One per line: a date cancels every match that night, a date plus team names cancels only their match. Each cancelled match moves to the earliest later night both teams are free and a court is open; nothing else changes. Already agreed a new date? End the line with <code>-&gt; date</code> and it goes there if both teams and a court are free (otherwise it stays put and tells you why). <code>2026-10-13</code>, <code>2026-10-13 Lob Squad</code> or <code>2026-10-13 Lob Squad -&gt; 2026-10-16</code></label>
     <textarea id="rainouts" rows="2" placeholder="2026-10-13 Lob Squad"></textarea>
     <h2 style="margin-top:18px">5b. A team drops out (optional)</h2>
     <label for="withdrawals">One per line: a team name removes all of its matches, a date plus a team name removes only the matches on or after that night. Nothing else moves, and the warnings list how many fixtures each opponent loses. <code>Lob Squad</code> or <code>2026-11-03 Lob Squad</code></label>
