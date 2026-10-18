@@ -71,3 +71,14 @@ def test_readme_counts_match_the_csvs():
         found = re.findall(pattern, text)
         assert found, f"README no longer matches /{pattern}/"
         assert all(int(n) == want for n in found), f"/{pattern}/ says {found}, CSV has {want}"
+
+
+def test_headline_counts_match_the_data():
+    """Other pages quote 'N practices from M sources'; they drifted by hand."""
+    import re
+    root = Path(__file__).resolve().parents[2]
+    want = (len(read_csv("practices.csv")), len(read_csv("sources.csv")))
+    for rel in ("README.md", "_homepage/projects.json"):
+        text = (root / rel).read_text(encoding="utf-8")
+        for m in re.finditer(r"(\d+) practices from (\d+) sources", text):
+            assert (int(m.group(1)), int(m.group(2))) == want, rel
