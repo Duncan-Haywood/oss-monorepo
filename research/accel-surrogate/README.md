@@ -2,6 +2,8 @@
 
 Track 8 (task-specific AI accelerators), milestone 7 ("accelerators for ... track 5's surrogates"). A small MLP imitates a finite-element (FE) cantilever from `simdesign`'s theme, is quantised to 3 to 8 weight bits, and its error is set against the gap between two beam theories (the `simdesign-fidelity` question) and its modelled energy against the FE solve. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-surrogate/
+
 **Why it seemed worth doing.** The accel chain had been refining engines for the same MLPs. This asks the missing question: what accuracy does a surrogate owe the simulator, and does hardware for it pay at all?
 
 ## Headline (all numbers from `experiments/results.txt`)
