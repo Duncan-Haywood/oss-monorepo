@@ -596,9 +596,9 @@ function anneal(ctx, seed, iterations, jitter) {
   return { owner: bestOwner, score: bestScore };
 }
 
-function search(ctx, restarts, iterations) {
+function search(ctx, restarts, iterations, first = 0) {
   let best = null;
-  for (let r = 0; r < restarts; r++) {
+  for (let r = first; r < first + restarts; r++) {
     const res = anneal(ctx, ctx.o.seed + r * 7919, iterations, r === 0 ? 0 : ctx.avgWage * 0.6);
     const re = scoreOwner(ctx, res.owner); // recompute exactly: the running total drifts by float error
     if (!best || re.total < best.score - 1e-9) best = { owner: res.owner, score: re.total };
@@ -688,7 +688,13 @@ export function buildRoster(staff, slots, options = {}) {
   if (!ctx.S) return { error: "Add at least one shift to cover." };
   const o = ctx.o;
   const iterations = o.iterations > 0 ? o.iterations : Math.max(9000, ctx.S * 70);
-  const best = search(ctx, o.restarts, iterations);
+  let best = search(ctx, o.restarts, iterations);
+  // Covering shifts outranks everything else, so while any shift is open spend as many extra restarts again on finding a roster that
+  // covers more. A balance of 50 on the sample week left 8 coverable hours open after four restarts; twelve found them.
+  if (scoreOwner(ctx, best.owner).unfilled > 0) {
+    const more = search(ctx, o.restarts * 2, iterations, o.restarts);
+    if (more.score < best.score - 1e-9) best = more;
+  }
   const res = summarise(ctx, best.owner);
   const base = summarise(ctx, listedOrder(ctx));
 

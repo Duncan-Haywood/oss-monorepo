@@ -1044,3 +1044,9 @@ test("roles: 'role: keyholder x1' needs one keyholder among several people, the 
   assert.match(noKey.unfilled[0].text, /nobody listed has the role "keyholder"/);
   assert.match(parseShifts("Mon, 8, 16, 2, open, role: keyholder x3").errors[0], /asks for 3/);
 });
+
+test("a high balance setting never costs coverage on the sample week", () => {
+  const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
+  const base = buildRoster(staff, slots, { balance: 0 }).unfilledHours;
+  for (const balance of [25, 50, 75, 100]) assert.equal(buildRoster(staff, slots, { balance }).unfilledHours, base, `balance ${balance}`);
+});

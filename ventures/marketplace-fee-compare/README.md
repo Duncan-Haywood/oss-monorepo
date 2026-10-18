@@ -167,3 +167,12 @@ rate-specific one: fee rates change, the defaults here are inputs rather than a
 schedule, and they should be confirmed against the seller's own statement
 before a catalogue is priced against them. This is an arithmetic comparison,
 not tax, financial, or business advice.
+
+## Specialist marketplaces
+
+Reverb (musical gear), Grailed (menswear and streetwear) and TCGplayer (trading
+cards) only take one kind of item, so they are not in the ten-row ranking.
+When the category is *Musical instruments & gear*, *Clothing & accessories* or
+*Trading cards & collectibles*, a separate section (`specialists.mjs`) shows
+what the item nets there and how that compares with the best general channel.
+Fee schedules match the sibling calculators, which a test asserts.

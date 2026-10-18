@@ -74,7 +74,10 @@ async function main(argv, env) {
 
   let ask = null;
   let model = null;
-  const cfg = parsed.flags['no-agent'] ? null : configFromEnv(env);
+  let cfg = null;
+  if (!parsed.flags['no-agent']) {
+    try { cfg = configFromEnv(env); } catch (err) { console.error(`uitest: ${err.message}`); return 3; }
+  }
   if (cfg && isConfigured(cfg)) {
     const c = normalise(cfg);
     model = { provider: c.provider, model: c.model };

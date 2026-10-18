@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Write Meeting Action Items That Get Done (With Example)</title>
+  <meta name="description" content="A good action item has one owner, one verb and a date. Worked example: raw meeting notes turned into owned, dated action items, decisions and open questions.">
+  <link rel="canonical" href="./how-to-write-meeting-action-items.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "How to write meeting action items that get done", "step": [{"@type": "HowToStep", "name": "Give every item exactly one owner", "text": "Write a person's name, not a team. If two people share it, split it into two items."}, {"@type": "HowToStep", "name": "Start with a verb", "text": "Send, book, decide, draft. A noun phrase like 'pricing page' is a topic, not a task."}, {"@type": "HowToStep", "name": "Put a calendar date on it", "text": "Friday and next week change meaning by the day you read them. Write 2026-10-23."}, {"@type": "HowToStep", "name": "Keep decisions and open questions apart", "text": "A decision needs no follow-up; an open question needs an owner to close it."}, {"@type": "HowToStep", "name": "Send the list the same day", "text": "Group it by person so each reader sees their own items first."}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.1; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 26px; }
+    p, li { line-height: 1.6; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 10px; padding: 14px; overflow-x: auto; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; background: #fff; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 14px; font-size: .86rem; color: #55606f; }
+    a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <p><a href="./index.html">← Meeting Action Items</a></p>
+  <h1>How to write meeting action items that get done</h1>
+  <p>Most meetings end with everyone nodding and nobody knowing who does what. An action item that gets done has <strong>one owner, one verb and one date</strong>. The rest of this page is how to get there, with an example you can check against the tool.</p>
+  <h2>1. One owner, a person not a team</h2>
+  <p>"Marketing will look at it" is owned by nobody. Name one person. If two people share a job, write two items, each with an owner, so each can be ticked off separately.</p>
+  <h2>2. Start with a verb</h2>
+  <p>"Safari toggle" is a topic. "Fix the Safari toggle" is a task: the reader can tell when it is finished.</p>
+  <h2>3. Write the date, not the weekday</h2>
+  <p>"By Friday" means a different day depending on when someone reads the notes. Resolve it against the meeting date: said on Monday 2026-10-19, "by Friday" is 2026-10-23, and "next Friday" is 2026-10-30.</p>
+  <h2>4. Keep decisions and open questions apart</h2>
+  <p>A decision ("keep the free tier through December") needs no follow-up. An open question ("who owns the refund wording?") is an action item waiting for an owner. Mixing them hides the second kind.</p>
+  <h2>Worked example</h2>
+  <p>Raw notes from a Monday sync (meeting date 2026-10-19):</p>
+  <pre id="raw">Ben: I'll fix the Safari toggle by Wednesday.
+Ana: We decided to keep the free tier through December.
+Cleo will book the venue for the offsite next Friday.
+We need to update the onboarding checklist before the webinar.
+Q: Who owns the refund policy wording?</pre>
+  <table id="result">
+    <thead><tr><th>Owner</th><th>Action</th><th>Due</th></tr></thead>
+    <tbody>
+      <tr><td>Ben</td><td>Fix the Safari toggle</td><td>2026-10-21</td></tr>
+      <tr><td>Cleo</td><td>Book the venue for the offsite</td><td>2026-10-30</td></tr>
+      <tr><td><em>needs an owner</em></td><td>Update the onboarding checklist before the webinar</td><td>none given</td></tr>
+    </tbody>
+  </table>
+  <p>Decision: keep the free tier through December. Open question: who owns the refund policy wording? Notice what the tool did not do: it did not guess an owner for the checklist, because nobody was named. That item is the one most likely to be forgotten, so it is flagged rather than filled in.</p>
+  <h2>5. Send it the same day</h2>
+  <p>Group the list by person and email it before anyone forgets the meeting. <a href="./index.html">Paste your notes into the free tool</a> to get that email, a CSV and calendar entries. Nothing is uploaded.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. The tool reads patterns in text and can miss or misread an item; check the list before you send it.</p>
+    <p>MIT licensed. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional</a>.</p>
+  </footer>
+</body>
+</html>

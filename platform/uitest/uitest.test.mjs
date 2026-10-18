@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, mkdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 import { parseArgs, resolveSpec, SpecError, scenarioUrl, allowedOrigins } from './lib/spec.mjs';
 import { formatSnapshot } from './lib/observe.mjs';
@@ -291,4 +292,49 @@ test('run: spec in, verdicts, reports and exit code out', async () => {
   ({ result } = await run(spec, { launch: async () => { throw new Error('Playwright is not installed'); }, log: quiet, env }));
   assert.deepEqual(result.scenarios.map(s => [s.name, s.verdict, s.reason]), [['setup', 'error', 'Playwright is not installed']]);
   assert.equal(result.exitCode, 1);
+});
+
+// The CLI entry point (uitest.mjs) is only reachable as a process: its exit
+// codes are the contract CI relies on. None of these reach a browser.
+const CLI = new URL('./uitest.mjs', import.meta.url).pathname;
+const cli = (args, env = {}) => spawnSync(process.execPath, [CLI, ...args], {
+  env: { PATH: process.env.PATH, HOME: tmpdir(), ...env }, encoding: 'utf8', timeout: 60000,
+});
+
+test('cli: --help exits 0 and documents every exit code', () => {
+  const r = cli(['--help']);
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /Exit: 0 pass, 1 fail, 2 nothing verified, 3 usage error\./);
+});
+
+test('cli: an unknown flag is a usage error (exit 3) with the help text', () => {
+  const r = cli(['--bogus']);
+  assert.equal(r.status, 3);
+  assert.match(r.stderr, /^uitest: /);
+  assert.match(r.stderr, /Usage: uitest/);
+});
+
+test('cli: an unknown LLM_PROVIDER is a usage error (exit 3), not a stack trace', () => {
+  const r = cli(['--url', 'http://127.0.0.1:9', '--goal', 'x', '--no-explore'], { LLM_PROVIDER: 'bogus' });
+  assert.equal(r.status, 3);
+  assert.match(r.stderr, /uitest: .*unknown provider "bogus"/);
+  assert.doesNotMatch(r.stderr, /\n\s+at /);
+});
+
+test('cli: a goal without a model key says it will be skipped; --no-agent stays quiet', () => {
+  const args = ['--url', 'http://127.0.0.1:9', '--goal', 'x', '--no-explore'];
+  assert.match(cli(args).stderr, /no model key configured; agent goals will be skipped/);
+  assert.doesNotMatch(cli([...args, '--no-agent']).stderr, /no model key configured/);
+  // no goal, nothing to skip
+  assert.doesNotMatch(cli(['--url', 'http://127.0.0.1:9']).stderr, /no model key configured/);
+});
+
+test('cli: the numbers --help states match the spec defaults and limits', () => {
+  const help = cli(['--help']).stdout;
+  const d = resolveSpec(null, { url: 'http://x' });
+  assert.match(help, new RegExp(`--max-steps N +agent actions per goal \\(default ${d.maxSteps}\\)`));
+  assert.match(help, new RegExp(`--timeout-ms N +navigation timeout \\(default ${d.timeoutMs}\\)`));
+  assert.match(help, new RegExp(`--workers N +run up to N scenarios at once \\(default ${d.workers}, max 16\\)`));
+  assert.equal(resolveSpec(null, { url: 'http://x', workers: 16 }).workers, 16);
+  assert.throws(() => resolveSpec(null, { url: 'http://x', workers: 17 }), SpecError);
 });

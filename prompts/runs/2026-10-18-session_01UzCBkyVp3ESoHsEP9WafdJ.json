@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01UzCBkyVp3ESoHsEP9WafdJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T05:40:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Brief says ship ambitious work; small per-state data additions are what a short scheduled run realistically lands."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added Hawaii 200-day presumption (Haw. Admin. Rules 18-235-1.07) to state-residency-day-counter. Skipped Kentucky/Louisiana: statute text not verified. Did not run venture-preflight or publish-pages.",
+  "corrections": [],
+  "redteam": null
+}

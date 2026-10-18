@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1284 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1286 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,22 @@
     <updated>2026-10-18T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free Grailed seller fee calculator for the tiered commission (6% under $120 with a $1.99 minimum, 9% from $120) plus 3.49% + $0.49 payment processing. See your payout, profit, the price for a target profit, and the $120 step where the whole sale jumps to 9%. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Meeting Notes to Action Items Extractor (Free)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meeting-action-items/"/>
+    <id>tag:marisstella.dev,2026:tool/meeting-action-items</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Paste meeting notes or a transcript and get action items with owner and due date, decisions and open questions, plus a follow-up email. Free, private, no upload.</summary>
+  </entry>
+  <entry>
+    <title>Free On-Page SEO Audit and AI-Readiness Checker — Page SEO Audit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/page-seo-audit/"/>
+    <id>tag:marisstella.dev,2026:tool/page-seo-audit</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Paste a page&#39;s HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.</summary>
   </entry>
   <entry>
     <title>TCGplayer Fee Calculator — What You Keep After 10.75% Commission and the $0.30 Order Fee</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">A free, open-source alternative to lead-scoring add-ons: learn your ideal customer profile from your own won and lost list, rank your prospects by lookalike fit with a leave-one-out accuracy check, and draft compliant first outreach on your own AI key. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Internal Link Planner — Find Orphan Pages and Missing Internal Links</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/internal-link-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/internal-link-planner</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free internal link audit and planner. Drop in your site&#39;s HTML files: it finds orphan pages and pages linked only from menus, then suggests the exact sentences in your other pages that should link to them, with the link-equity gain. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Liability Audit — Scan Your App for Legal and Financial Exposure (Trackers, Auto-Renew, Leaked Keys, Uncapped AI Spend)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/liability-audit/"/>
-    <id>tag:marisstella.dev,2026:tool/liability-audit</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free, open-source scan of your app&#39;s code or built site for legal and financial exposure: trackers with no consent, subscriptions with no renewal terms, a missing privacy policy or terms, affiliate links with no disclosure, AI with no disclosure, live keys in the tree, LLM endpoints with no spend cap, and cloud IaC with no budget alarm. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
