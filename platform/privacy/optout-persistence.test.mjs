@@ -1700,8 +1700,9 @@ const RELATIVE_SELF = relative(
 // +1: `workflow-audit` graduated.
 // +1: `reseller-books` graduated.
 // +1: `review-reply-desk` graduated.
+// +1: `page-seo-audit` reached the mirror (landed in #7934 without its count bump).
 // +1: `sales-call-notes-desk` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1256;
+const SWITCHES_IN_THE_CATALOGUE = 1257;
 // +1: `llm-spend-guard` graduated.
 // +1: `liability-audit` graduated.
 // +1: `equipment-lease-vs-buy-calculator` graduated.
