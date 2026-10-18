@@ -75,6 +75,8 @@ export function parse(html) {
     robots: meta("name", "robots"),
     lang: htmlTag ? attrs(htmlTag).lang || null : null,
     canonical: rel("canonical")?.href ?? null,
+    canonicalCount: links.filter((l) => (l.rel || "").toLowerCase().split(/\s+/).includes("canonical")).length,
+    titleCount: (body.match(/<title\b/gi) || []).length,
     icon: Boolean(links.find((l) => /(^|\s)icon(\s|$)/i.test(l.rel || ""))),
     og: Object.fromEntries(metas.filter((m) => /^og:/i.test(m.property || "")).map((m) => [m.property.toLowerCase(), squash(m.content || "")])),
     twitterCard: meta("name", "twitter:card"),
@@ -116,6 +118,17 @@ export function audit(html, { url = "" } = {}) {
   else if (!/^https?:\/\//i.test(p.canonical)) add("canonical-relative", "warning", "Canonical is not an absolute URL", `Found \`${p.canonical}\`. Engines expect a full https:// URL.`, "Use the full absolute URL.");
   if (!p.viewport) add("viewport", "warning", "No viewport meta tag", "Pages without it render zoomed-out on phones and fail mobile-friendly checks.", "Add <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">.");
   if (!p.lang) add("lang", "info", "<html> has no lang", "The language attribute helps engines, translators and screen readers.", "Add lang=\"en\" (or your language) to <html>.");
+  if (p.titleCount > 1) add("title-many", "warning", `${p.titleCount} <title> tags`, "Engines may pick any of them, or the wrong one.", "Keep a single <title> in <head>; remove the others.");
+  if (p.canonicalCount > 1) add("canonical-many", "critical", `${p.canonicalCount} canonical links`, "Conflicting canonicals are ignored by engines, so the preferred URL is left to chance.", "Keep one rel=canonical link.");
+  if (/nofollow/i.test(p.robots || "") && !/noindex/i.test(p.robots || "")) add("nofollow", "info", "Page is set to nofollow", `The robots meta tag says \`${p.robots}\`. Links on this page pass no signals.`, "Remove nofollow unless you mean it.");
+  if (p.og["og:image"] && !/^https?:\/\//i.test(p.og["og:image"])) add("og-image-relative", "warning", "og:image is not an absolute URL", `Found \`${p.og["og:image"].slice(0, 60)}\`. Many scrapers drop relative image URLs, leaving a card with no picture.`, "Use the full https:// URL of the image.");
+  if (p.title && p.description && p.title.toLowerCase() === p.description.toLowerCase()) add("title-eq-description", "info", "Title and description are identical", "The description is a second chance to sell the click; repeating the title wastes it.", "Write a description that adds detail the title lacks.");
+  const noSize = p.imgs.filter((i) => i.alt != null && (!i.width || !i.height) && !/\.svg(\?|$)/i.test(i.src || ""));
+  if (noSize.length) add("img-size", "info", `${noSize.length} image(s) without width and height`, `Example: \`${(noSize[0].src || "").slice(0, 60)}\`. Unsized images shift the layout as they load, which hurts the Cumulative Layout Shift score.`, "Add width and height attributes (or CSS aspect-ratio).");
+  const noCtx = p.jsonld.filter((x) => x.ok && !JSON.stringify(x.data).includes("@context"));
+  if (noCtx.length) add("jsonld-context", "warning", "JSON-LD without @context", "Without \"@context\": \"https://schema.org\" the block is plain JSON to engines.", "Add the @context line to each block.");
+  const emptyHref = p.anchors.filter((x) => x.href == null || x.href === "" || x.href === "#");
+  if (emptyHref.length) add("empty-href", "info", `${emptyHref.length} link(s) with no real destination`, "Anchors with a missing, empty or # href are not followed by crawlers.", "Point each at a URL, or use a button for in-page actions.");
   const missingOg = ["og:title", "og:description", "og:image"].filter((k) => !p.og[k]);
   if (missingOg.length) add("og", "warning", `Link preview incomplete (${missingOg.join(", ")} missing)`, "Open Graph tags control the card shown when the page is shared in chat apps and social feeds.", "Add the missing og: meta tags; og:image should be an absolute URL, about 1200×630.");
   if (!p.twitterCard) add("twitter", "info", "No twitter:card", "Some platforms read twitter:card to choose the preview size.", "Add <meta name=\"twitter:card\" content=\"summary_large_image\">.");
