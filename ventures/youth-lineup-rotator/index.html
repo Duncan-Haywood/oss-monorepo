@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Youth Lineup Rotator — fair playing time for every kid, free</title>
+  <meta name="description" content="Free youth sports lineup generator for volunteer coaches. Equal playing time, nobody benched twice in a row, goalkeeper turns shared, subs planned per period. Soccer, basketball, hockey and more. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Youth Lineup Rotator — equal playing time, planned in seconds">
+  <meta property="og:description" content="Type your roster and positions and get a fair rotation with the subs for every period. Free, private, no sign-up.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Youth Lineup Rotator", "applicationCategory": "SportsApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free youth sports lineup planner for volunteer coaches. Fair playing time for every kid, no one benched twice in a row, goalkeeper time shared, strength balanced across periods. Soccer, basketball, hockey, lacrosse and volleyball. Runs in your browser; nothing is uploaded.", "featureList": "youth soccer lineup generator, equal playing time, rotation chart, substitution plan, goalkeeper rotation, late arrivals, carry over between games, printable lineup, no sign-up"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make sure every kid gets equal playing time?", "acceptedAnswer": {"@type": "Answer", "text": "Add the roster and the positions on the field. The planner counts the periods each child is available and spreads the bench turns so that nobody plays more than one period more than anybody else. A child who arrives late or leaves early is only counted for the periods they are there."}}, {"@type": "Question", "name": "Can it stop a kid sitting out two periods in a row?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Sitting two periods running is penalised far more heavily than any other preference, so the planner avoids it whenever the numbers allow. With a very large roster it can be impossible, and then the page names who sits twice instead of hiding it."}}, {"@type": "Question", "name": "How do I share goalkeeper time?", "acceptedAnswer": {"@type": "Answer", "text": "Leave the keeper limit at one period. Every child allowed in goal then takes at most one period there, and if too few children are allowed the page tells you which ones must repeat."}}, {"@type": "Question", "name": "What if some kids are stronger than others?", "acceptedAnswer": {"@type": "Answer", "text": "Give each child a skill from 1 to 5. With strength balance on, the planner keeps the total skill on the field about the same in every period, so your strongest players are not all on the bench together. Turn it off if you do not rate your players."}}, {"@type": "Question", "name": "How do I keep it fair across the whole season?", "acceptedAnswer": {"@type": "Answer", "text": "After each game press Copy next game's roster. It adds a sat: number for each child who sat. Paste it in next time and those children are first in line to play."}}, {"@type": "Question", "name": "Is my team's information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Names and ratings stay in your browser. There are no accounts, no ads and no email addresses. A shared setup link carries the roster inside the link itself, so only share it with people on your team."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2a20; background: #f3f8f4; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f6b3a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #134a29; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #134a29; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46584b; }
+    .card { background: #fff; border: 1px solid #cfe2d4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #134a2912; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=text], input[type=date], select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5f7a67; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 96px; resize: vertical; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6b3a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #deeee3; color: #134a29; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #fbe0e0; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1212; }
+    .reveal { text-align: center; }
+    .reveal .who { font-size: clamp(2rem, 7vw, 3.2rem); font-weight: 800; color: #1f6b3a; margin: 10px 0; overflow-wrap: anywhere; }
+    .names { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .names button { margin: 0; }
+    .names button.done { text-decoration: line-through; opacity: .5; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #deeee3; }
+    .grid th, .grid td { font-size: .88rem; }
+    .bench { color: #5a6b5f; }
+    .pill { display:inline-block; padding:1px 8px; border-radius:99px; background:#deeee3; font-size:.8rem; }
+    @media print { .noprint, button, footer, .card.setup { display: none !important; } body { padding: 0; background: #fff; } }
+    footer { margin-top: 28px; border-top: 1px solid #cfe2d4; padding-top: 16px; }
+    code { background: #e8f2eb; padding: 1px 5px; border-radius: 4px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">YOUTH LINEUP ROTATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Youth soccer lineup generator: equal playing time, no kid benched twice in a row</h1>
+    <p>Type your roster and the positions on the field. Get a period-by-period lineup where every child plays about the same, the goalkeeper job is shared, your strongest players are spread across periods, and each substitution is spelled out for the sideline. Free, no sign-up, no app to install.</p>
+    <p class="note">Wondering how the numbers work out for your team size? Read <a href="./how-to-give-every-kid-equal-playing-time.html">how to give every kid equal playing time, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card setup" id="setup">
+    <h2>1. The game</h2>
+    <div class="row">
+      <div>
+        <label for="preset">Sport and format</label>
+        <select id="preset"></select>
+      </div>
+      <div>
+        <label for="periods">Periods (quarters, halves, thirds)</label>
+        <input type="number" id="periods" min="1" max="10" value="4">
+      </div>
+      <div>
+        <label for="minutes">Minutes per period (optional)</label>
+        <input type="number" id="minutes" min="0" max="90" value="12">
+      </div>
+    </div>
+    <label for="slots">Positions on the field at once</label>
+    <input type="text" id="slots" placeholder="GK, DEF x2, MID x2, FWD x2">
+    <h2 style="margin-top:20px">2. Your players</h2>
+    <label for="players">One player per line. Optional settings after a bar: <code>skill: 1-5</code>, <code>can: GK, DEF</code>, <code>not: GK</code>, <code>late: 1</code> (misses the first period), <code>leaves: 3</code> (gone after period 3), <code>sat: 2</code> (sat twice last game)</label>
+    <textarea id="players" rows="10" placeholder="Ana | skill: 4 | can: GK, DEF&#10;Ben&#10;Cy | not: GK&#10;Dee | late: 1"></textarea>
+    <div class="row">
+      <div>
+        <label for="keepermax">Most periods one child may play in goal</label>
+        <select id="keepermax"><option value="1" selected>1 (share the job)</option><option value="2">2</option><option value="99">No limit</option></select>
+      </div>
+      <div>
+        <label for="balance">Spread strong players across periods</label>
+        <select id="balance"><option value="1" selected>Yes (uses the skill numbers)</option><option value="0">No</option></select>
+      </div>
+      <div>
+        <label for="title">Game name (optional)</label>
+        <input type="text" id="title" maxlength="80" placeholder="Saturday vs Falcons">
+      </div>
+    </div>
+    <button type="button" id="make">Make the lineup</button>
+    <button type="button" class="secondary" id="again">Try another arrangement</button>
+    <button type="button" class="secondary" id="example">Load an example</button>
+    <p id="status" role="status" class="note">Pick a format, add your players, then press Make the lineup.</p>
+  </section>
+
+  <section class="card" id="out" hidden>
+    <h2 id="out-title">Lineup</h2>
+    <div id="warnings"></div>
+    <div id="periods-out"></div>
+    <h2 style="margin-top:22px">Playing time</h2>
+    <div id="time-out"></div>
+    <div class="noprint">
+      <button type="button" id="copy-text">Copy lineup as text</button>
+      <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+      <button type="button" class="secondary" id="print">Print the sideline sheet</button>
+      <button type="button" class="secondary" id="copy-msgs">Copy a note per family</button>
+      <button type="button" class="secondary" id="copy-next">Copy next game's roster</button>
+      <button type="button" class="secondary" id="make-link">Make a link to this setup</button>
+      <p id="out-status" role="status" class="note"></p>
+      <div id="link-box"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>Fair time.</strong> The planner counts how many periods each child is there for and how many they sit. It then searches thousands of arrangements and keeps the one where bench turns are spread most evenly, counting a child who sat last game as already owed some time on the field.</p>
+    <p><strong>Rules that always hold.</strong> Nobody is in two places in one period, nobody plays while absent, and nobody is put in a position you ruled out. Beyond that it prefers, in order: every position filled, equal time, no one benched twice running, one period at most in goal, a change of position, and balanced strength.</p>
+    <p><strong>Checked.</strong> The test suite validates every lineup against those rules and compares the search with an exhaustive search of every possible lineup on small teams.</p>
+    <p><strong>Limits.</strong> It plans whole periods, not minute-by-minute rotations. It does not know your league's rules, such as minimum play requirements, so check them yourself. The skill numbers are only the ones you type.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I make sure every kid gets equal playing time?</h3>
+    <p>Add the roster and the positions on the field. The planner counts the periods each child is available and spreads the bench turns so that nobody plays more than one period more than anybody else. A child who arrives late or leaves early is only counted for the periods they are there.</p>
+    <h3>Can it stop a kid sitting out two periods in a row?</h3>
+    <p>Yes. Sitting two periods running is penalised far more heavily than any other preference, so the planner avoids it whenever the numbers allow. With a very large roster it can be impossible, and then the page names who sits twice instead of hiding it.</p>
+    <h3>How do I share goalkeeper time?</h3>
+    <p>Leave the keeper limit at one period. Every child allowed in goal then takes at most one period there, and if too few children are allowed the page tells you which ones must repeat.</p>
+    <h3>What if some kids are stronger than others?</h3>
+    <p>Give each child a skill from 1 to 5. With strength balance on, the planner keeps the total skill on the field about the same in every period, so your strongest players are not all on the bench together. Turn it off if you do not rate your players.</p>
+    <h3>How do I keep it fair across the whole season?</h3>
+    <p>After each game press Copy next game's roster. It adds a sat: number for each child who sat. Paste it in next time and those children are first in line to play.</p>
+    <h3>Is my team's information uploaded?</h3>
+    <p>No. Names and ratings stay in your browser. There are no accounts, no ads and no email addresses. A shared setup link carries the roster inside the link itself, so only share it with people on your team.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It suggests a rotation for a youth team. It is not legal, medical, safety or league-rules advice, and you stay responsible for your players' welfare and for following your league's rules.</p>
+    <p><strong>Independent.</strong> Not affiliated with any league, club, governing body or sports brand, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Copy next game's roster to keep your own record.</p>
+    <p>Everything runs in your browser. Names, ratings and lineups are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>lineup_made</code>, <code>reshuffled</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>printed</code>, <code>messages_copied</code>, <code>roster_carried</code>, <code>link_made</code>, <code>link_opened</code>) are counted in your own browser's local storage and are never sent anywhere.</p>
+    <p>Related tools: the <a href="../league-schedule-generator/">league schedule generator</a> for the season fixtures, and the <a href="../volunteer-shift-scheduler/">volunteer shift scheduler</a> for snack and field duty rotas.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { PRESETS, EXAMPLE, parseSlots, parsePlayers, buildLineup, periodTable, lineupText, lineupCsv, carryOverText, playerMessages, encodeSetup, decodeSetup } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const download = (name, text, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+    const newSeed = () => { try { return crypto.getRandomValues(new Uint32Array(1))[0]; } catch { return Math.floor(Math.random() * 4294967296); } };
+    let seed = 1;
+    let current = null;
+
+    for (const [k, p] of Object.entries(PRESETS)) $("#preset").add(new Option(p.label, k));
+    $("#preset").add(new Option("Custom positions", "custom"));
+    function applyPreset() {
+      const p = PRESETS[$("#preset").value];
+      if (!p) return;
+      $("#slots").value = p.slots; $("#periods").value = p.periods; $("#minutes").value = p.minutes;
+    }
+    $("#preset").addEventListener("change", applyPreset);
+    applyPreset();
+
+    function readForm() {
+      const errors = [];
+      const periods = Math.floor(Number($("#periods").value));
+      if (!(periods >= 1 && periods <= 10)) errors.push("Periods must be between 1 and 10.");
+      const sl = parseSlots($("#slots").value);
+      errors.push(...sl.errors);
+      const pl = parsePlayers($("#players").value, sl.slots, periods);
+      errors.push(...pl.errors);
+      if (errors.length) return { errors };
+      return { spec: { players: pl.players, slotNames: sl.slots, periods, keeperMax: Number($("#keepermax").value), balance: Number($("#balance").value), seed } };
+    }
+
+    function render() {
+      const r = current.result;
+      const minutes = Math.max(0, Number($("#minutes").value) || 0);
+      $("#out").hidden = false;
+      $("#out-title").textContent = $("#title").value.trim() || "Lineup";
+      $("#warnings").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const tables = periodTable(r);
+      $("#periods-out").innerHTML = tables.map((cells, t) => {
+        const bench = r.stats.filter((s) => s.slots[t] === "bench").map((s) => s.name);
+        const sub = t > 0 ? r.subs[t - 1] : null;
+        return `<h3>Period ${t + 1}</h3><table class="grid"><tbody><tr>${cells.map((c) => `<th scope="col">${esc(c.pos)}</th>`).join("")}</tr><tr>${cells.map((c) => `<td>${esc(c.player || "—")}</td>`).join("")}</tr></tbody></table>
+          <p class="bench">Bench: ${bench.length ? esc(bench.join(", ")) : "nobody"}${sub ? ` · <strong>Subs:</strong> ${sub.on.length ? esc(sub.on.join(", ")) + " on" : "none"}${sub.off.length ? "; " + esc(sub.off.join(", ")) + " off" : ""}` : ""}</p>`;
+      }).join("");
+      $("#time-out").innerHTML = `<table class="grid"><thead><tr><th>Player</th>${tables.map((_, t) => `<th>P${t + 1}</th>`).join("")}<th>Played</th>${minutes ? "<th>Minutes</th>" : ""}</tr></thead><tbody>${r.stats.map((s) => `<tr><td>${esc(s.name)}</td>${s.slots.map((x) => `<td>${x === null ? "–" : x === "bench" ? '<span class="bench">bench</span>' : esc(x)}</td>`).join("")}<td>${s.played} of ${s.avail}</td>${minutes ? `<td>${s.played * minutes}</td>` : ""}</tr>`).join("")}</tbody></table>`;
+    }
+
+    function make(kind) {
+      const f = readForm();
+      if (f.errors) { $("#status").textContent = f.errors.join(" "); return; }
+      const result = buildLineup(f.spec);
+      current = { result, players: f.spec.players };
+      render();
+      record(kind);
+      const spread = result.spread;
+      $("#status").textContent = result.unfilled.length ? "Some positions could not be filled; see the notes above the lineup." : `Done. Playing time differs by ${spread} period${spread === 1 ? "" : "s"} at most.`;
+      $("#out").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#make").addEventListener("click", () => { seed = 1; make("lineup_made"); });
+    $("#again").addEventListener("click", () => { seed = newSeed(); make("reshuffled"); });
+
+    $("#example").addEventListener("click", () => {
+      $("#preset").value = EXAMPLE.preset; applyPreset(); $("#players").value = EXAMPLE.players; $("#title").value = "Saturday vs Falcons";
+      record("example_loaded");
+      $("#status").textContent = "Example loaded: eleven players, one arriving late, one leaving early, one who sat twice last game. Press Make the lineup.";
+    });
+
+    const say = (t) => { $("#out-status").textContent = t; };
+    const copy = async (text, done) => { try { await navigator.clipboard.writeText(text); say(done); } catch { say("Your browser blocked copying. Use Download CSV instead."); } };
+    $("#copy-text").addEventListener("click", () => { if (!current) return; record("text_copied"); copy(lineupText(current.result, { minutes: Number($("#minutes").value) || 0, title: $("#title").value.trim() }), "Copied. Paste it into your team chat."); });
+    $("#dl-csv").addEventListener("click", () => { if (!current) return; record("csv_downloaded"); download("lineup.csv", lineupCsv(current.result), "text/csv"); });
+    $("#print").addEventListener("click", () => { if (!current) return; record("printed"); window.print(); });
+    $("#copy-msgs").addEventListener("click", () => { if (!current) return; record("messages_copied"); copy(playerMessages(current.result, { minutes: Number($("#minutes").value) || 0 }).join("\n"), "Copied one note per family."); });
+    $("#copy-next").addEventListener("click", () => { if (!current) return; record("roster_carried"); copy(carryOverText(current.players, current.result), "Copied. Paste it into next game's player box: kids who sat will be first in line."); });
+    $("#make-link").addEventListener("click", () => {
+      const setup = { preset: $("#preset").value, slots: $("#slots").value, periods: Number($("#periods").value), minutes: Number($("#minutes").value) || 0, players: $("#players").value, title: $("#title").value.trim(), keepermax: $("#keepermax").value, balance: $("#balance").value };
+      const url = location.href.split("#")[0] + "#s=" + encodeSetup(setup);
+      record("link_made");
+      $("#link-box").innerHTML = `<label for="link-out">Link to this setup (it contains your roster, so share it only with your team)</label><input type="text" id="link-out" readonly value="${esc(url)}">`;
+      $("#link-out").select();
+    });
+
+    function openFromHash() {
+      if (!location.hash.startsWith("#s=")) return;
+      const d = decodeSetup(location.hash.slice(3));
+      if (d.error) { $("#status").textContent = d.error; return; }
+      const s = d.setup;
+      if (PRESETS[s.preset] || s.preset === "custom") $("#preset").value = s.preset;
+      $("#slots").value = s.slots ?? $("#slots").value; $("#periods").value = s.periods ?? 4; $("#minutes").value = s.minutes ?? 0;
+      $("#players").value = s.players; $("#title").value = s.title ?? ""; $("#keepermax").value = s.keepermax ?? "1"; $("#balance").value = s.balance ?? "1";
+      record("link_opened");
+      make("lineup_made");
+    }
+    window.addEventListener("hashchange", openFromHash);
+    openFromHash();
+
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

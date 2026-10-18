@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Give Every Kid Equal Playing Time — worked example</title>
+  <meta name="description" content="How volunteer coaches give every child fair playing time: the arithmetic for 7v7 soccer with 8 to 14 players, avoiding back-to-back benching, and sharing the goalkeeper job.">
+  <link rel="canonical" href="./how-to-give-every-kid-equal-playing-time.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How to give every kid equal playing time in youth sports", "description": "The arithmetic of fair rotations for volunteer coaches, with a table for 8 to 14 players in 7v7 soccer and a free planner.", "author": {"@type": "Organization", "name": "Youth Lineup Rotator"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many periods should each child play?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the field spots by the roster. In 7v7 with four periods there are 28 player-periods to hand out, so with 11 players everyone plays two or three periods and 6 players get the extra one. Nobody can be exactly equal unless the roster divides the spots evenly, so the fair target is a difference of at most one period."}}, {"@type": "Question", "name": "Is it fair to bench the weakest players more?", "acceptedAnswer": {"@type": "Answer", "text": "Not in most recreational leagues, and many require minimum play. The planner treats every available child the same on time and uses skill only to spread strength across periods, so a strong lineup in one period is not paid for with a weak one in the next."}}, {"@type": "Question", "name": "What about a child who arrives late?", "acceptedAnswer": {"@type": "Answer", "text": "Mark them late: 1 and the planner counts only the periods they are there, then shares the bench turns among the periods that remain. They are not penalised for the missed time."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2a20; background: #f3f8f4; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f6b3a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #134a29; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #134a29; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46584b; }
+    .card { background: #fff; border: 1px solid #cfe2d4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #134a2912; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=text], input[type=date], select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5f7a67; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 96px; resize: vertical; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6b3a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #deeee3; color: #134a29; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #fbe0e0; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1212; }
+    .reveal { text-align: center; }
+    .reveal .who { font-size: clamp(2rem, 7vw, 3.2rem); font-weight: 800; color: #1f6b3a; margin: 10px 0; overflow-wrap: anywhere; }
+    .names { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .names button { margin: 0; }
+    .names button.done { text-decoration: line-through; opacity: .5; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #deeee3; }
+    .grid th, .grid td { font-size: .88rem; }
+    .bench { color: #5a6b5f; }
+    .pill { display:inline-block; padding:1px 8px; border-radius:99px; background:#deeee3; font-size:.8rem; }
+    @media print { .noprint, button, footer, .card.setup { display: none !important; } body { padding: 0; background: #fff; } }
+    footer { margin-top: 28px; border-top: 1px solid #cfe2d4; padding-top: 16px; }
+    code { background: #e8f2eb; padding: 1px 5px; border-radius: 4px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./index.html">Youth Lineup Rotator</a> · guide</p>
+  <h1>How to give every kid equal playing time</h1>
+  <p>Fair playing time is arithmetic before it is anything else. Count the spots on the field, multiply by the number of periods, and divide by the roster. What is left over is the bench, and the only fair thing to do with it is share it out.</p>
+  <h2>The numbers for 7v7 soccer, four periods</h2>
+  <p>Seven on the field for four periods is 28 player-periods. This table shows how they split for rosters of 8 to 14, with nobody more than one period ahead of anybody else.</p>
+  <table>
+    <thead><tr><th>Players</th><th>On the bench each period</th><th>Periods each child plays</th></tr></thead>
+    <tbody>
+      <tr><td>8</td><td>1</td><td>4 play 4, 4 play 3</td></tr>
+      <tr><td>9</td><td>2</td><td>1 play 4, 8 play 3</td></tr>
+      <tr><td>10</td><td>3</td><td>8 play 3, 2 play 2</td></tr>
+      <tr><td>11</td><td>4</td><td>6 play 3, 5 play 2</td></tr>
+      <tr><td>12</td><td>5</td><td>4 play 3, 8 play 2</td></tr>
+      <tr><td>13</td><td>6</td><td>2 play 3, 11 play 2</td></tr>
+      <tr><td>14</td><td>7</td><td>everyone plays 2</td></tr>
+    </tbody>
+  </table>
+  <h2>Three rules that make a rotation feel fair</h2>
+  <ol>
+    <li><strong>Spread the bench.</strong> Nobody sits two periods in a row if you can help it. A child who sits the second and third period has watched half the game.</li>
+    <li><strong>Share the goalkeeper job.</strong> One period in goal each, assigned to children who are willing, rather than one child in goal for the whole game.</li>
+    <li><strong>Carry the debt forward.</strong> A child who sat out two periods last Saturday should be first in line this Saturday. The <a href="./index.html">planner</a> does this when you paste last game's <code>sat:</code> numbers in.</li>
+  </ol>
+  <h2>Do it in seconds</h2>
+  <p>The <a href="./index.html">Youth Lineup Rotator</a> makes the whole sheet, including who comes on and off at each break, and runs entirely in your browser.</p>
+  <h2>Common questions</h2>
+  <h3>How many periods should each child play?</h3>
+  <p>Divide the field spots by the roster. In 7v7 with four periods there are 28 player-periods to hand out, so with 11 players everyone plays two or three periods and 6 players get the extra one. Nobody can be exactly equal unless the roster divides the spots evenly, so the fair target is a difference of at most one period.</p>
+  <h3>Is it fair to bench the weakest players more?</h3>
+  <p>Not in most recreational leagues, and many require minimum play. The planner treats every available child the same on time and uses skill only to spread strength across periods, so a strong lineup in one period is not paid for with a weak one in the next.</p>
+  <h3>What about a child who arrives late?</h3>
+  <p>Mark them late: 1 and the planner counts only the periods they are there, then shares the bench turns among the periods that remain. They are not penalised for the missed time.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. This is general guidance for volunteer coaches, not league-rules, safety or legal advice; follow your league's own minimum-play rules.</p>
+    <p class="support">Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+  </footer>
+</main>
+</body>
+</html>

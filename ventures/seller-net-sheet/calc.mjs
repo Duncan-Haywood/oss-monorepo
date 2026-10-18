@@ -256,6 +256,39 @@ export function compareOffers(shared = {}, offerA = {}, offerB = {}) {
   };
 }
 
+/**
+ * Net to the seller across a grid of prices (rows) and buyer-broker rates
+ * (columns), everything else held fixed. Answers "what does each half point I
+ * concede cost me at this price" without re-typing the sheet.
+ */
+export function netGrid(input = {}, { prices, buyerRates } = {}) {
+  const base = number(input.salePrice, "Sale price");
+  const priceList = prices ?? [-2, -1, 0, 1, 2].map((pct) => Math.round(base * (1 + pct / 100)));
+  const rateList = buyerRates ?? [0, 1, 2, 2.5, 3];
+  const rows = priceList.map((salePrice) => ({
+    salePrice,
+    nets: rateList.map(
+      (buyerBrokerRate) =>
+        calculateNetSheet({ ...input, salePrice, buyerBrokerRate, targetNet: undefined }).net,
+    ),
+  }));
+  return { buyerRates: rateList, rows };
+}
+
+/**
+ * The most Offer A can ask for buyer-broker compensation (as % of its price,
+ * flat amount unchanged) and still leave the seller as much cash as Offer B.
+ * Net is linear in that rate, so this is exact. A negative result means A
+ * trails B even with no buyer-broker pay at all.
+ */
+export function breakEvenBuyerBrokerRate(shared = {}, offerA = {}, offerB = {}) {
+  const { a, b } = compareOffers(shared, offerA, offerB);
+  if (a.salePrice === 0) return { rate: null, askedRate: a.items.buyerBroker.rate, headroom: null };
+  const askedRate = a.items.buyerBroker.rate;
+  const rate = askedRate + ((a.net - b.net) * 100) / a.salePrice;
+  return { rate, askedRate, headroom: rate - askedRate };
+}
+
 export function formatNetSheetSummary(result, { offerLabel = "Offer" } = {}) {
   if (!result) throw new Error("No net sheet to summarize");
   const money = (value) =>
