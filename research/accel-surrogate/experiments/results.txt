@@ -1,0 +1,17 @@
+model-form gap (Timoshenko vs Euler-Bernoulli, relative): median 0.09%, 95th pct 0.17%, min 0.03%, max 0.25%
+MLP [8, 32, 32, 1], 1377 params; FE solve ~176810 flops (estimate)
+
+variant | wbits | median err % | 95th pct err % | share of designs with err < gap | energy (nJ) | break-even sim flops
+float | fp | 1.661 | 4.944 | 0.03 | 9.54 | 4150
+PTQ | 3 | 22.978 | 74.258 | 0.00 | 2.51 | 1090
+PTQ | 4 | 7.150 | 25.175 | 0.01 | 2.75 | 1195
+PTQ | 5 | 3.795 | 11.803 | 0.01 | 2.99 | 1301
+PTQ | 6 | 3.078 | 8.320 | 0.02 | 3.23 | 1406
+PTQ | 8 | 1.763 | 5.321 | 0.03 | 3.72 | 1617
+QAT | 3 | 6.359 | 18.771 | 0.01 | 2.51 | 1090
+QAT | 4 | 3.810 | 12.221 | 0.02 | 2.75 | 1195
+QAT | 5 | 2.925 | 9.310 | 0.02 | 2.99 | 1301
+QAT | 6 | 1.952 | 5.975 | 0.03 | 3.23 | 1406
+QAT | 8 | 1.720 | 5.029 | 0.03 | 3.72 | 1617
+
+FE solve energy (arithmetic only, 2.3 pJ/flop assumed): 406.7 nJ
