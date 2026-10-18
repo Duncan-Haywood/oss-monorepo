@@ -674,7 +674,11 @@ def report(
             "./platform/pages/publish-branch.sh`, then `python3 "
             "platform/ci/pages_state.py --require-current` to confirm. It needs "
             "no runner, no cluster and no credential beyond the push you "
-            f"already have. Reason: {snap_reason}"
+            "already have. Cloud harnesses may deny that push as a production "
+            "deploy, and the script takes minutes in a shallow clone: if it is "
+            "denied or times out, say so in your reply and carry on with the "
+            "work below instead of retrying. "
+            f"Reason: {snap_reason}"
         ] + reasons
     elif snap != "current":
         reasons = reasons + [
