@@ -179,6 +179,16 @@ test('listModels: OpenAI-style and Gemini lists, no model needed', async () => {
   await assert.rejects(listModels({ provider: 'lmstudio' }, { fetch: fakeFetchGet({}, 500) }), ByokError);
 });
 
+test('listModels: an unreachable provider is a retryable ByokError', async () => {
+  const down = async () => { throw new Error('ECONNREFUSED'); };
+  await assert.rejects(listModels({ provider: 'ollama' }, { fetch: down }), err => {
+    assert.ok(err instanceof ByokError);
+    assert.equal(err.retryable, true);
+    assert.match(err.message, /could not reach ollama: ECONNREFUSED/);
+    return true;
+  });
+});
+
 test('detectLocal: reports the servers that answered, never rejects', async () => {
   const f = async url => {
     if (url.startsWith('http://localhost:1234')) return { ok: true, status: 200, json: async () => ({ data: [{ id: 'phi' }] }) };
