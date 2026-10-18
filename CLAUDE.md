@@ -116,7 +116,8 @@ The finish line, every session:
 5. end your reply with the merged PR's link.
 
 In cloud sessions there is no `gh`: open and merge with the GitHub MCP tools
-(`create_pull_request`, `merge_pull_request`). The full protocol is
+(`create_pull_request`, `merge_pull_request`; they start deferred, so load
+them with `ToolSearch` `select:` first). The full protocol is
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md). It
 covers what is and is not a reason to stop short of merging, follow-up work
 after a merge (that needs a new PR), and other sessions' stalled PRs and
@@ -239,7 +240,9 @@ candidate `session_gate.py` names, or graduate a niche not in
 
 ## Duplicate PRs
 
-Scheduled sessions overlap. Before opening a PR, check open PRs and recent
+Scheduled sessions overlap. Before opening a PR, check open PRs (with
+`search_pull_requests`, `minimal_output` and a slug or keyword `in:title`;
+`list_pull_requests` returns ~60KB of unrelated PRs) and recent
 commits on `main`, then extend or consolidate instead of duplicating. If the
 backlog is large, merge the strongest and close the rest with a pointer. An
 open-PR check cannot see a sibling that merged ten minutes ago, but the tree
