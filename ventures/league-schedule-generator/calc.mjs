@@ -1324,6 +1324,25 @@ export function formString(teamIdx, results, n = 5) {
   return out.slice(-n).join("");
 }
 
+/**
+ * Results grid in table order: one row per team, one column per opponent, each cell the score from the row
+ * team's side ("3-2"), several meetings joined with ", ", "" where the pair has not met and "·" on the diagonal.
+ * `order` is a list of team indexes (default: entry order), e.g. the standings order.
+ */
+export function crossTable(teams, results, order = teams.map((_, i) => i)) {
+  const cell = new Map();
+  for (const r of results) {
+    for (const [x, y, gx, gy] of [[r.a, r.b, r.ga, r.gb], [r.b, r.a, r.gb, r.ga]]) {
+      const k = `${x}:${y}`;
+      cell.set(k, [...(cell.get(k) ?? []), `${gx}-${gy}`]);
+    }
+  }
+  return {
+    heads: order.map((i) => teams[i]),
+    rows: order.map((i) => ({ name: teams[i], cells: order.map((j) => (i === j ? "·" : (cell.get(`${i}:${j}`) ?? []).join(", "))) })),
+  };
+}
+
 export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToHead = false, adjustments = {} } = {}) {
   const rows = teams.map((name, i) => ({ index: i, name, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, points: 0 }));
   for (const r of results) {

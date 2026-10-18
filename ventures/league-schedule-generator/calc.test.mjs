@@ -1306,3 +1306,16 @@ test("homeAwayReport: generated leagues keep home and away within one and runs o
     assert.ok(r.longestRun <= 2, `${n} teams run ${r.longestRun}`);
   }
 });
+
+test("crossTable: scores from each row team's side, in standings order, repeats joined", async () => {
+  const { crossTable } = await import("./calc.mjs");
+  const teams = ["A", "B", "C"];
+  const results = [{ a: 0, b: 1, ga: 2, gb: 0 }, { a: 1, b: 0, ga: 1, gb: 1 }, { a: 2, b: 0, ga: 3, gb: 1 }];
+  const t = crossTable(teams, results);
+  assert.deepEqual(t.heads, ["A", "B", "C"]);
+  assert.deepEqual(t.rows[0].cells, ["·", "2-0, 1-1", "1-3"]);
+  assert.deepEqual(t.rows[1].cells, ["0-2, 1-1", "·", ""]);
+  const r = crossTable(teams, results, [2, 0, 1]);
+  assert.deepEqual(r.heads, ["C", "A", "B"]);
+  assert.deepEqual(r.rows[0].cells, ["·", "3-1", ""]);
+});

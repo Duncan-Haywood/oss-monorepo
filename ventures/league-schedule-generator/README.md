@@ -35,6 +35,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Season cost: type the court hire per hour and the fairness note prices the season (matches x match length x rate) and the even per-team fee, rounded up to the cent so the league never collects less than the bill (`seasonCost` in `calc.mjs`).
 - Must-finish date: type the date the season has to end by (end of term, lease) and the fairness note says how many days spare the last game leaves, or how many rounds and matches fall after it (`deadlineCheck` in `calc.mjs`).
 - Recent form: the standings table ends with each team's last five results in the order you typed them (`W D L`, oldest first), so a hot or sliding team shows at a glance (`formString` in `calc.mjs`).
+- Results grid: under the standings, a team-by-team grid of every score so far (row team's goals first), in table order, so an organiser sees at a glance who has not yet met (`crossTable` in `calc.mjs`).
 - Standings CSV: once results are typed, "Download standings CSV" saves the ranked table (`standingsCsv` in `calc.mjs`).
 - Rest report: the fairness note shows the shortest and longest days between each team's games and counts games that follow within a day (`restReport` in `calc.mjs`).
 - Home/away runs: the fairness note flags any team stuck with three or more home or away games in a row and names it (`homeAwayReport` in `calc.mjs`).
