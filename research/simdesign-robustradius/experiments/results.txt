@@ -1,0 +1,15 @@
+Half-MBB 120x40, vf 0.5, p 3, beta 1..64 (30 iterations each), one run per row.
+Heaviside rows are re-analysed at 0.5 +/- d_eta (the d_eta column) so every row is judged by the same erosion.
+c_e / c_b / c_d: compliance at thresholds 0.5+d_eta / 0.5 / 0.5-d_eta. Ms, Mv: min length scale (px) of solid / void,
+98% opening rule on the blueprint thresholded at 0.5; Ms/r: Ms divided by the filter radius in px.
+
+rmin  formulation  d_eta   c_e       c_b      c_d     grey   Ms  Mv  Ms/r  Mv/r  time
+  2   heaviside     0.2  3551054056.7   186.97   179.55   0.2%    1   1  0.50  0.50    21s
+  2   robust        0.1      208.8   200.31   197.02   0.7%    1   3  0.50  1.50    60s
+  2   robust        0.2      219.4   200.85   184.18   0.8%    3   1  1.50  0.50    61s
+  4   heaviside     0.2  2133327643.2   192.89   173.36   1.4%    3   3  0.75  0.75    24s
+  4   robust        0.1      212.1   195.34   185.83   1.1%    3   5  0.75  1.25    63s
+  4   robust        0.2      226.3   194.66   176.95   1.4%    3   5  0.75  1.25    64s
+  6   heaviside     0.2  62199612.4   196.83   166.93   2.6%    3   3  0.50  0.50    26s
+  6   robust        0.1      215.5   195.48   182.32   1.7%    3   5  0.50  0.83    66s
+  6   robust        0.2      261.0   200.40   173.61   2.2%    3   5  0.50  0.83    67s
