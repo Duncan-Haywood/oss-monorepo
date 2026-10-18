@@ -5,3 +5,28 @@ the libgcc 64-bit divide of variants 0 and 1 is replaced by a host computation a
 
 == -Os, block 1 ==
 variant                              .text B  libcalls          instr/frame    open frames differing from variant 0
+0 original (64-bit mean, divide)         252  __aeabi_uldivmod         3237                                       -
+1 SMLALD energy, divide kept             420  __aeabi_uldivmod         3780                              0 of 36000
+2 SMLALD, no divide (sum domain)         400  none                     3775                              0 of 36000
+
+== -Os, block 10 ==
+variant                              .text B  libcalls          instr/frame    open frames differing from variant 0
+0 original (64-bit mean, divide)         258  __aeabi_uldivmod         2096                                       -
+1 SMLALD energy, divide kept             426  __aeabi_uldivmod         1735                              0 of 36000
+2 SMLALD, no divide (sum domain)         406  none                     1729                              0 of 36000
+
+== -O2, block 1 ==
+variant                              .text B  libcalls          instr/frame    open frames differing from variant 0
+0 original (64-bit mean, divide)         526  __aeabi_uldivmod         2482                                       -
+1 SMLALD energy, divide kept             812  __aeabi_uldivmod         2880                              0 of 36000
+2 SMLALD, no divide (sum domain)         824  none                     3065                              0 of 36000
+
+== -O2, block 10 ==
+variant                              .text B  libcalls          instr/frame    open frames differing from variant 0
+0 original (64-bit mean, divide)         532  __aeabi_uldivmod         1676                                       -
+1 SMLALD energy, divide kept             824  __aeabi_uldivmod         1057                              0 of 36000
+2 SMLALD, no divide (sum domain)         828  none                     1072                              0 of 36000
+
+== gate state, bytes of RAM (size of the static gate struct in the linked image, llvm-nm -S) ==
+block  1: variant 0 1020 B, variant 1 2024 B, variant 2 2024 B
+block 10: variant 0 120 B, variant 1 224 B, variant 2 224 B
