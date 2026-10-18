@@ -1,0 +1,121 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01GQFMwZTBVdrGr9MrDtJuM6",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T23:18:11Z",
+  "ended": "2026-10-18T23:23:32Z",
+  "wall_minutes": 5.46,
+  "tokens_in": 1371806,
+  "tokens_out": 9484,
+  "cost_usd": 0.6259,
+  "tool_calls": 22,
+  "task": null,
+  "projects": [],
+  "pr": 8196,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py first run exceeds the 120s tool timeout when run in the foreground; the doc says about 20s"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Track 6 draw; built research/garment-bowdenbend from garment-assistloc next steps.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a7644e3c-f2d2-519f-a898-b9ded272928d",
+    "transcripts": 1,
+    "first": "2026-10-18T23:18:11Z",
+    "last": "2026-10-18T23:23:38Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 17,
+        "input": 34,
+        "output": 9484,
+        "thinking": 873,
+        "cache_read": 1304226,
+        "cache_write_5m": 0,
+        "cache_write_1h": 67546,
+        "api_equivalent_usd": 0.6259,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 17,
+      "input": 34,
+      "output": 9484,
+      "thinking": 873,
+      "cache_read": 1304226,
+      "cache_write_5m": 0,
+      "cache_write_1h": 67546,
+      "api_equivalent_usd": 0.6259,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.951,
+    "tool_calls": 22,
+    "tools": {
+      "Bash": 16,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.46,
+      "active_minutes": 5.46,
+      "model_minutes": 1.13,
+      "tool_minutes": 4.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "small stylised model, tests, README, site entry",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 479.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

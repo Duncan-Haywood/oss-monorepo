@@ -2594,6 +2594,11 @@
      "summary": "Extends the exosuit power-train model with where the mass sits: a kg at the shank costs an assumed multiple of a kg at the waist, and a waist layout pays a Bowden-cable loss (efficiency 0.6&ndash;1.0) and keeps 0.3&nbsp;kg of cable at the ankle. At gain 0.3 with a 4&nbsp;h battery the waist layout wins once the shank penalty exceeds 1.03&ndash;1.39&times; the waist one; at ratio 3 and 8&nbsp;N&nbsp;m/kg the shank suit is +20.7% against +3.3% for the waist suit. The ratio is assumed, not sourced, so the result is the break-even, not a prediction. Stylised."
     },
     {
+     "slug": "garment-bowdenbend",
+     "title": "How much cable bend can a waist-mounted exosuit power train tolerate before the shank layout wins?",
+     "summary": "Replaces the assumed Bowden-cable efficiency in the shank-versus-waist model with the capstan law exp(&minus;&mu;&theta;) for friction &mu; and total bend &theta;. At gain 0.3, a 4&nbsp;h battery, 8&nbsp;N&nbsp;m/kg and an assumed penalty ratio of 3, the waist layout stays ahead until about 31&nbsp;rad of bend at &mu;&nbsp;=&nbsp;0.1 (about 15&nbsp;rad at 0.2), far beyond a hip-to-ankle route, so energy lost to friction does not decide the layout. Hysteresis, backlash and pretension are not modelled, and &mu; and the ratio are assumed. Stylised."
+    },
+    {
      "slug": "garment-protective",
      "title": "What would a suit-like protective garment weigh and cost, and what limits it?",
      "summary": "A Cunniff-style specific-toughness scaling (U*) for nylon, aramid and UHMWPE with a 0.5&nbsp;m<sup>2</sup> torso-panel mass, cost, thickness and stiffness model. At equal weight UHMWPE gives 1.49&times; aramid's V50 in this scaling, and needs 0.20&ndash;0.67&times; the areal density depending on an unknown exponent. Under a 3&nbsp;mm, 1&nbsp;kg suit-like limit the panel falls short of a 4&nbsp;kg/m<sup>2</sup> aramid reference except for UHMWPE with an optimistic exponent. Stylised: recalled formula, assumed properties and unsourced prices, no ballistic physics and no protection claim."
