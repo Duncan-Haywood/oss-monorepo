@@ -749,3 +749,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 7 runs).
 - Drift: `prompts/drift/2026-10-18f.md`.
 - Result: (next review)
+
+## E41: review 2026-10-18 (seventh)
+
+- Change: `research/CLAUDE.md` now says the first `pyenv.py` call takes ~20s and
+  prints install chatter on stderr (3 friction reports). The yosys/apt-get
+  reports in `CLAUDE.md` friction were already fixed (lines 76-77); measure
+  still lists them as latest.
+- Metric: friction reports about pyenv first-use time, next 20 research runs; expect none.
+- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 7 runs).
+  `derived/` not regenerated, audit not run (no GitHub API fetch attempted; recent outputs doc-only/research).
+- Result: (next review)
