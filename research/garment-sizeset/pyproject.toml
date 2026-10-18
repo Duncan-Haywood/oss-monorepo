@@ -1,0 +1,13 @@
+[project]
+name = "garment-sizeset"
+version = "0.1.0"
+description = "Size-set design as maximum coverage on a stylised two-measurement population: exact, greedy and regular-grid size runs"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
