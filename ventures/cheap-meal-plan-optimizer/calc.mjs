@@ -334,6 +334,22 @@ export function proteinFrontier(spec, targets) {
 }
 
 /**
+ * Cost of the optimal continuous plan as the variety limit tightens (the most calories any one food may supply, in
+ * percent), with how many foods that plan uses: the "what does variety cost" table. `cost` is null when no plan
+ * meets every bound under that limit.
+ */
+export function varietyFrontier(spec, shares) {
+  const { lo, hi } = stepBounds(spec);
+  return shares.map((pct) => {
+    const s = { ...spec, maxShare: pct >= 100 ? "" : pct };
+    if (pct < 100 && !(spec.foods.length * (pct / 100) >= 1 - 1e-9)) return { share: pct, cost: null, foods: 0 };
+    const r = relaxed(s, lo, hi);
+    if (r.status !== "optimal") return { share: pct, cost: null, foods: 0 };
+    return { share: pct, cost: r.cost, foods: r.y.filter((v) => v > 1e-6).length };
+  });
+}
+
+/**
  * For each food the cheapest plan leaves out: the highest price per serving at which the continuous optimum would
  * start using it (bisection on the price, re-solving each time), and how far below today's price that is. `price`
  * is null when no price, even free, earns it a place (it breaks a maximum or adds nothing the menu lacks).

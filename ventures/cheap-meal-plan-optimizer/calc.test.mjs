@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, planCsv, groceryList, breakEvenPrices, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, planCsv, groceryList, breakEvenPrices, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -215,4 +215,14 @@ test("breakEvenPrices on the starter menu: every answer re-solves to a plan that
     const foodsLow = spec.foods.map((f, j) => (j === b.index ? { ...f, price: b.price * 0.98 } : f));
     assert.ok(solve({ ...spec, foods: foodsLow }).servings[b.index] > 1e-6, b.name);
   }
+});
+
+test("tightening the variety limit never makes the plan cheaper, and matches a direct solve", () => {
+  const base = sampleSpec();
+  const fr = varietyFrontier(base, [100, 50, 30]);
+  for (let i = 1; i < fr.length; i++) if (fr[i].cost !== null) assert.ok(fr[i].cost >= fr[i - 1].cost - 1e-9);
+  const direct = solve({ ...base, step: 0, maxShare: 30 });
+  assert.ok(Math.abs(direct.cost - fr[2].cost) < 1e-6);
+  assert.ok(fr[2].foods >= 4); // 30% per food needs at least 4 foods
+  assert.equal(varietyFrontier({ ...base, foods: base.foods.slice(0, 3) }, [20])[0].cost, null);
 });
