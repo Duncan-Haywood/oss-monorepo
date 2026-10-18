@@ -547,6 +547,43 @@ export function harvestPlan(openLots, prices, { asOf, summary = null, shortRate 
   };
 }
 
+// Sell planner: which of the lots you still hold to sell for `asset` at a price you typed,
+// under each method, and what each choice adds to the year's estimated tax. Give `qty`
+// (coins) or `cash` (dollars of proceeds wanted, before the fee). `summary` is the year's
+// realized result so far, so a sale of losing lots can offset it and a sale of gains stacks on it.
+// A request larger than the holding is cut to the holding and flagged, never invented.
+export function planSale(openLots, { asset, price, asOf, qty = null, cash = null, feeRate = 0, summary = null, shortRate = 0.24, longRate = 0.15 }) {
+  const rates = { shortRate, longRate };
+  const base = summary || { shortGain: 0, longGain: 0 };
+  const held = openLots.filter((l) => l.asset === asset && l.qty > EPS)
+    .map((l, i) => ({ date: l.acquired, seq: i, wallet: l.wallet, qty: l.qty, qtyOriginal: l.qty, basis: l.basis }));
+  const heldQty = held.reduce((a, l) => a + l.qty, 0);
+  const wanted = qty !== null ? qty : cash !== null ? cash / (price * (1 - feeRate)) : 0;
+  const target = Math.min(wanted, heldQty);
+  const taxBefore = estimateTax(base, rates);
+  const sale = { date: asOf };
+  const options = METHODS.map((method) => {
+    const lots = held.map((l) => ({ ...l }));
+    let left = target;
+    const taken = [];
+    for (const lot of orderLots(lots, method, sale, price * (1 - feeRate), rates)) {
+      if (left <= EPS) break;
+      const take = Math.min(lot.qty, left);
+      const proceeds = take * price * (1 - feeRate);
+      const basis = (lot.basis / lot.qtyOriginal) * take;
+      taken.push({ wallet: lot.wallet, acquired: lot.date, qty: Number(take.toFixed(8)), proceeds: cents(proceeds), basis: cents(basis), gain: cents(proceeds - basis), term: holdingTerm(lot.date, asOf) });
+      left -= take;
+    }
+    const sum = (term) => cents(taken.filter((t) => t.term === term).reduce((a, t) => a + t.gain, 0));
+    const shortGain = sum("Short"), longGain = sum("Long");
+    const proceeds = cents(taken.reduce((a, t) => a + t.proceeds, 0));
+    const extraTax = cents(estimateTax({ shortGain: base.shortGain + shortGain, longGain: base.longGain + longGain }, rates) - taxBefore);
+    return { method, label: METHOD_LABELS[method], lots: taken, proceeds, basis: cents(taken.reduce((a, t) => a + t.basis, 0)), shortGain, longGain, gain: cents(shortGain + longGain), extraTax, keep: cents(proceeds - extraTax) };
+  });
+  const best = options.reduce((a, b) => (b.extraTax < a.extraTax ? b : a));
+  return { asset, price, asOf, requested: Number(wanted.toFixed(8)), qty: Number(target.toFixed(8)), heldQty: Number(heldQty.toFixed(8)), capped: wanted > heldQty + EPS, taxBefore, options, bestMethod: best.method };
+}
+
 const q = (v) => {
   const s = v === null || v === undefined ? "" : String(v);
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;

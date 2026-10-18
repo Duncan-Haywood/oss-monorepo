@@ -114,6 +114,20 @@
     <input id="asof" type="date">
     <button type="button" class="secondary" id="harvest-run">Find losses to harvest</button>
     <div id="harvest-out"></div>
+    <h3>Sell planner: which lots to sell for the least extra tax</h3>
+    <p class="note">Tell it the coin, today's price and either how many coins or how many dollars you want to raise. It sells lots of the coins you still hold under each of the five methods and shows the extra tax each choice adds to the year's result above. You supply the price; nothing is fetched.</p>
+    <label for="plan-asset">Coin</label>
+    <input id="plan-asset" type="text" placeholder="BTC" autocomplete="off">
+    <label for="plan-price">Price per coin (USD)</label>
+    <input id="plan-price" type="number" min="0" step="any" placeholder="65000">
+    <label for="plan-qty">Coins to sell (leave blank to use dollars)</label>
+    <input id="plan-qty" type="number" min="0" step="any">
+    <label for="plan-cash">Dollars to raise (used when coins is blank)</label>
+    <input id="plan-cash" type="number" min="0" step="any">
+    <label for="plan-fee">Fee on the sale (%)</label>
+    <input id="plan-fee" type="number" min="0" max="50" step="any" value="0">
+    <button type="button" class="secondary" id="plan-run">Compare ways to sell</button>
+    <div id="plan-out"></div>
     <button type="button" id="download">Download rows (CSV)</button>
   </section>
 
@@ -156,7 +170,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, form8949Totals, parsePrices, harvestPlan, toForm8949Csv, toIncomeCsv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
+    import { analyze, form8949Totals, parsePrices, harvestPlan, planSale, toForm8949Csv, toIncomeCsv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
     import { convertMany, FORMAT_LABELS } from "./importers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -225,6 +239,27 @@
       const rows = h.losers.map((l) => `<tr><td>${esc(l.asset)}${l.wallet ? " · " + esc(l.wallet) : ""}</td><td>${l.acquired}</td><td class="n">${l.qty}</td><td class="n">${usd(l.basis)}</td><td class="n">${usd(l.value)}</td><td class="n">${usd(l.gain)}</td><td><span class="pill ${l.term === "Long" ? "good" : "info"}">${l.term}</span></td><td class="n">${usd(l.taxSaved)}</td></tr>`).join("");
       out.innerHTML = msgs.join("") + verdict + (rows ? `<div class="scroll"><table><thead><tr><th>Lot</th><th>Acquired</th><th class="n">Qty</th><th class="n">Basis</th><th class="n">Value</th><th class="n">Loss</th><th>Term</th><th class="n">Tax saved alone</th></tr></thead><tbody>${rows}</tbody></table></div>` : "") + '<p class="note">Wash-sale rules are not applied. Whether they reach crypto depends on current law in your country; check before you sell and buy back. Selling costs fees and moves your holding; this is arithmetic on your typed prices, not advice.</p>';
     }
+    function plan() {
+      const out = $("#plan-out");
+      if (!last) { out.innerHTML = ""; return false; }
+      const asset = $("#plan-asset").value.trim().toUpperCase(), price = Number($("#plan-price").value);
+      const qty = $("#plan-qty").value ? Number($("#plan-qty").value) : null, cash = $("#plan-cash").value ? Number($("#plan-cash").value) : null;
+      const fee = Number($("#plan-fee").value || 0);
+      const bad = !asset ? "Type the coin, for example BTC." : !(price > 0) ? "Type a price above zero." : (qty === null && cash === null) ? "Type how many coins or how many dollars to sell." : !((qty ?? cash) > 0) ? "The amount to sell must be above zero." : !(fee >= 0 && fee < 50) ? "Enter the fee as a percent between 0 and 50." : "";
+      if (bad) { out.innerHTML = `<div class="warn">${esc(bad)}</div>`; return false; }
+      const asOf = $("#asof").value || new Date().toISOString().slice(0, 10);
+      const rates = { shortRate: rate("#shortRate") ?? 0.24, longRate: rate("#longRate") ?? 0.15 };
+      const p = planSale(last.openLots, { asset, price, asOf, qty, cash, feeRate: fee / 100, summary: last.summary, ...rates });
+      if (!p.qty) { out.innerHTML = `<div class="warn">No ${esc(asset)} on record to sell. Check the coin symbol against the "Coins still held" table.</div>`; return false; }
+      const best = p.options.find((o) => o.method === p.bestMethod), worst = p.options.reduce((a, b) => (b.extraTax > a.extraTax ? b : a));
+      const head = (p.capped ? `<div class="warn">You asked for ${p.requested} ${esc(asset)} but only ${p.heldQty} is on record, so the plan sells ${p.qty}.</div>` : "") +
+        `<p>Selling <strong>${p.qty} ${esc(asset)}</strong> at ${usd(price)} on ${esc(asOf)}. ` + (best.extraTax < worst.extraTax ? `<strong>${esc(best.method)}</strong> adds the least tax, ${usd(best.extraTax)}, against ${usd(worst.extraTax)} under ${esc(worst.method)}: ${usd(worst.extraTax - best.extraTax)} apart on the same sale.` : "Every method adds the same tax here.") + " A negative figure means the sale lowers this year's estimated tax.</p>";
+      const rows = p.options.map((o) => `<tr${o.method === p.bestMethod ? ' class="rec"' : ""}><td>${esc(o.method)} — ${esc(o.label)}</td><td class="n">${usd(o.proceeds)}</td><td class="n">${usd(o.shortGain)}</td><td class="n">${usd(o.longGain)}</td><td class="n">${usd(o.extraTax)}</td><td class="n">${usd(o.keep)}</td></tr>`).join("");
+      const lots = best.lots.map((l) => `<tr><td>${esc(l.wallet || "")}</td><td>${l.acquired}</td><td class="n">${l.qty}</td><td class="n">${usd(l.proceeds)}</td><td class="n">${usd(l.basis)}</td><td class="n">${usd(l.gain)}</td><td><span class="pill ${l.term === "Long" ? "good" : "info"}">${l.term}</span></td></tr>`).join("");
+      out.innerHTML = head + `<div class="scroll"><table><thead><tr><th>Method</th><th class="n">Proceeds</th><th class="n">Short-term gain</th><th class="n">Long-term gain</th><th class="n">Extra tax</th><th class="n">Left after tax</th></tr></thead><tbody>${rows}</tbody></table></div><h4>Lots sold under ${esc(best.method)}</h4><div class="scroll"><table><thead><tr><th>Wallet</th><th>Acquired</th><th class="n">Qty</th><th class="n">Proceeds</th><th class="n">Basis</th><th class="n">Gain / loss</th><th>Term</th></tr></thead><tbody>${lots}</tbody></table></div><p class="note">Which lots you may sell depends on how your coins were identified and recorded at the time of sale; most platforms apply one method unless you can specify lots. Estimated tax uses the two rates above and ignores state tax, the net investment income tax and the loss deduction limit. Arithmetic on your typed figures, not advice.</p>`;
+      return true;
+    }
+    $("#plan-run").addEventListener("click", () => { if (plan()) record("plan_run"); });
     $("#harvest-run").addEventListener("click", () => { harvest(); record("harvest_run"); });
     $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
     $("#load-example").addEventListener("click", () => {
