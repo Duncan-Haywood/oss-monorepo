@@ -485,3 +485,12 @@ test('index links one hop to the tire-shop-ticket-margin-calculator sibling', ()
   assert.match(markup, /href="\.\.\/tire-shop-ticket-margin-calculator\/"/);
   assert.match(markup, /tire shop ticket margin calculator/i);
 });
+
+test('repair-order import is wired in and stays on the device', () => {
+  const html = page('index.html');
+  assert.match(html, /id="roPaste"/);
+  assert.match(html, /id="roImport"/);
+  assert.match(html, /from '\.\/ro-import\.mjs'/);
+  const mod = page('ro-import.mjs');
+  assert.doesNotMatch(mod, /fetch\(|XMLHttpRequest|sendBeacon|localStorage/);
+});

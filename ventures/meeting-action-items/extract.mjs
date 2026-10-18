@@ -312,6 +312,31 @@ export function carryOverMarkdown(c) {
   return out.join("\n") + "\n";
 }
 
+// Who is carrying the most. A person with 3+ actions, or 2+ due the same day, is flagged so the room can rebalance before
+// everyone leaves. Counts only what the notes say; nobody's real calendar or capacity is known.
+export function workload(r, { many = 3 } = {}) {
+  const by = new Map();
+  for (const a of r.actions) {
+    if (!a.owner) continue;
+    const k = a.owner.toLowerCase();
+    if (!by.has(k)) by.set(k, { owner: a.owner, actions: 0, sameDay: 0, days: new Map() });
+    const w = by.get(k);
+    w.actions++;
+    if (a.due) w.days.set(a.due, (w.days.get(a.due) || 0) + 1);
+  }
+  const people = [...by.values()].map(({ owner, actions, days }) => {
+    const [day, n] = [...days].sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]))[0] || [null, 0];
+    return { owner, actions, sameDay: n >= 2 ? { due: day, count: n } : null };
+  }).sort((x, y) => y.actions - x.actions || x.owner.localeCompare(y.owner));
+  return { people, flagged: people.filter((p) => p.actions >= many || p.sameDay) };
+}
+
+export function workloadMarkdown(w) {
+  if (!w.flagged.length) return "";
+  const why = (p) => [p.actions >= 3 ? `${p.actions} actions` : null, p.sameDay ? `${p.sameDay.count} due ${p.sameDay.due}` : null].filter(Boolean).join(", ");
+  return ["## Heads-up: loaded owners", "", ...w.flagged.map((p) => `- **${p.owner}**: ${why(p)}. Worth asking if someone can take one.`)].join("\n") + "\n";
+}
+
 // Slack mrkdwn: paste into a channel or a canvas. Owners are plain names; nothing is looked up or sent.
 export function slackMessage(r, { title = "Meeting" } = {}) {
   const out = [`*${title}${r.date ? ` (${r.date})` : ""}*`];
