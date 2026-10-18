@@ -499,6 +499,19 @@ test("scheduleFlags: daily hours, split shifts, notice", () => {
   assert.equal(scheduleFlags(r, { dailyLimit: 10 }).overDaily.length, 0);
   assert.equal(scheduleFlags(r).notice, null);
   assert.equal(scheduleFlags({}).overDaily.length, 0);
+  assert.deepEqual(f.shortDays, []);
+  assert.deepEqual(scheduleFlags(r, { minDay: 9.5 }).shortDays.map((x) => [x.person, x.day]), [["Ana", "Tue"], ["Sam", "Mon"]]);
+});
+
+test("scheduleFlags: shortDays flags days under the minimum, adjacent shifts count together", () => {
+  const r = { assignments: [
+    { slot: { day: 0, startMin: 600, endMin: 780 }, person: "Sam" },
+    { slot: { day: 1, startMin: 600, endMin: 720 }, person: "Sam" },
+    { slot: { day: 1, startMin: 720, endMin: 900 }, person: "Sam" },
+    { slot: { day: 2, startMin: 600, endMin: 720 }, person: null },
+  ] };
+  assert.deepEqual(scheduleFlags(r, { minDay: 4 }).shortDays.map((x) => [x.person, x.day, x.hours]), [["Sam", "Mon", 3]]);
+  assert.equal(scheduleFlags(r).shortDays.length, 0);
 });
 
 test("scheduleFlags: flags a person scheduled on all seven days", () => {
