@@ -160,8 +160,9 @@ export async function summarise(report: Report): Promise<Summary> {
 
 And say so in the interface, rather than silently degrading:
 
-> AI summaries are off. Add your own Anthropic or OpenAI key in Settings to
-> turn them on — it stays in your browser and is never sent to us.
+> AI summaries are off. Add your own Anthropic or OpenAI key in Settings, or
+> point it at a model running on your own computer (Ollama, LM Studio), to
+> turn them on. Nothing is ever sent to us.
 
 Why this shape matters: it ships today at zero cost, it is honest about who
 pays for inference, and it converts into a paid tier later by changing who
@@ -170,10 +171,17 @@ holds the key — no rewrite.
 Never commit a key. Never embed one of ours in a client. Never make a paid API
 a hard dependency of the main flow.
 
+**Local models are a first-class switch position** (owner, 2026-10-18).
+Wherever a key is offered, offer "a model on your own computer" beside it:
+no key, no per-call cost, and the user's data never leaves their machine.
+The same applies to image and video generation when a product adds it: a
+local server (ComfyUI, Stable Diffusion WebUI, LocalAI) is offered next to
+any hosted API, and neither is required for the main flow.
+
 Use the shared client rather than writing another:
 [`platform/llm/byok.mjs`](platform/llm/README.md) talks to Anthropic, OpenAI,
-Gemini or any `/chat/completions` endpoint with the user's own key, and its
-`withFallback` is the shape above.
+Gemini, any `/chat/completions` endpoint, or a local Ollama, LM Studio or
+llama.cpp server, and its `withFallback` is the shape above.
 
 ## 4. Build the thing
 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { complete, withFallback, configFromEnv, normalise, isConfigured, ByokError, PROVIDERS } from './byok.mjs';
+import { complete, withFallback, configFromEnv, normalise, isConfigured, isLocal, listModels, detectLocal, ByokError, PROVIDERS, LOCAL_PROVIDERS } from './byok.mjs';
 
 function fakeFetch(reply, status = 200) {
   const calls = [];
@@ -134,3 +134,65 @@ test('guard: a failed request releases its hold', async () => {
   const b = guard.status().budgets[0];
   assert.equal(b.spentUsd + b.heldUsd, 0);
 });
+
+test('local presets: no key, default localhost port, OpenAI wire format, no auth header', async () => {
+  assert.deepEqual([...LOCAL_PROVIDERS], ['ollama', 'lmstudio', 'llamacpp']);
+  const f = fakeFetch({ choices: [{ message: { content: 'local' } }], usage: { prompt_tokens: 2, completion_tokens: 1 } });
+  const r = await complete({ provider: 'ollama', model: 'llama3.2' }, { system: 'S', prompt: 'P', fetch: f });
+  assert.equal(r.text, 'local');
+  assert.equal(f.calls[0].url, 'http://localhost:11434/v1/chat/completions');
+  assert.equal(f.calls[0].init.headers.authorization, undefined);
+  assert.equal(normalise({ provider: 'lmstudio', model: 'm' }).baseUrl, 'http://localhost:1234/v1');
+  assert.equal(normalise({ provider: 'llamacpp', model: 'm', baseUrl: 'http://box:9000/v1/' }).baseUrl, 'http://box:9000/v1');
+  assert.equal(isConfigured({ provider: 'ollama' }), false, 'a model is still named');
+});
+
+test('configFromEnv: OLLAMA_HOST or LLM_PROVIDER picks a local server without a key', () => {
+  assert.equal(configFromEnv({ OLLAMA_HOST: '127.0.0.1:11434', LLM_MODEL: 'q' }).baseUrl, 'http://127.0.0.1:11434/v1');
+  assert.equal(configFromEnv({ OLLAMA_HOST: '0.0.0.0', LLM_MODEL: 'q' }).baseUrl, 'http://localhost:11434/v1');
+  assert.equal(configFromEnv({ OLLAMA_HOST: 'https://gpu.lan:8443/', LLM_MODEL: 'q' }).baseUrl, 'https://gpu.lan:8443/v1');
+  const c = configFromEnv({ LLM_PROVIDER: 'lmstudio', LLM_MODEL: 'q' });
+  assert.equal(c.baseUrl, 'http://localhost:1234/v1');
+  assert.equal(c.apiKey, null);
+  // A hosted key still wins over a stray OLLAMA_HOST.
+  assert.equal(configFromEnv({ ANTHROPIC_API_KEY: 'k', OLLAMA_HOST: 'x' }).provider, 'anthropic');
+});
+
+test('isLocal: localhost and private addresses only', () => {
+  assert.equal(isLocal({ provider: 'ollama', model: 'm' }), true);
+  assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: 'http://192.168.1.20:8080/v1' }), true);
+  assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: 'http://[::1]:8080/v1' }), true);
+  assert.equal(isLocal({ provider: 'ollama', model: 'm', baseUrl: 'https://ollama.example.com/v1' }), false);
+  assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: 'http://172.32.0.1/v1' }), false);
+  assert.equal(isLocal({ provider: 'anthropic', apiKey: 'k' }), false);
+  assert.equal(isLocal({ provider: 'ollama' }), false, 'an unusable config is not local');
+});
+
+test('listModels: OpenAI-style and Gemini lists, no model needed', async () => {
+  const f = fakeFetchGet({ data: [{ id: 'llama3.2:3b' }, { id: 'qwen2.5' }] });
+  assert.deepEqual(await listModels({ provider: 'ollama' }, { fetch: f }), ['llama3.2:3b', 'qwen2.5']);
+  assert.equal(f.calls[0].url, 'http://localhost:11434/v1/models');
+  assert.equal(f.calls[0].init.method, 'GET');
+  const g = fakeFetchGet({ models: [{ name: 'models/gemini-x' }] });
+  assert.deepEqual(await listModels({ provider: 'gemini', apiKey: 'k' }, { fetch: g }), ['gemini-x']);
+  assert.equal(g.calls[0].init.headers['x-goog-api-key'], 'k');
+  await assert.rejects(listModels({ provider: 'lmstudio' }, { fetch: fakeFetchGet({}, 500) }), ByokError);
+});
+
+test('detectLocal: reports the servers that answered, never rejects', async () => {
+  const f = async url => {
+    if (url.startsWith('http://localhost:1234')) return { ok: true, status: 200, json: async () => ({ data: [{ id: 'phi' }] }) };
+    if (url.startsWith('http://localhost:8080')) return { ok: false, status: 404, json: async () => ({}) };
+    throw new TypeError('Failed to fetch');
+  };
+  assert.deepEqual(await detectLocal({ fetch: f }), [{ provider: 'lmstudio', baseUrl: 'http://localhost:1234/v1', models: ['phi'] }]);
+  const hang = (url, init) => new Promise((_, reject) => init.signal.addEventListener('abort', () => reject(new Error('aborted'))));
+  assert.deepEqual(await detectLocal({ fetch: hang, timeoutMs: 10 }), []);
+});
+
+function fakeFetchGet(reply, status = 200) {
+  const calls = [];
+  const fn = async (url, init) => { calls.push({ url, init }); return { ok: status < 400, status, json: async () => reply }; };
+  fn.calls = calls;
+  return fn;
+}
