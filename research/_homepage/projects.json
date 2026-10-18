@@ -2023,6 +2023,11 @@
      "slug": "selfrep-resalecurve",
      "title": "How does a falling resale price for the finished fleet change when the shop stops copying?",
      "summary": "Follow-up to selfrep-terminalmarket: the fleet is sold at the horizon for <em>s</em><em>m</em>(1&nbsp;&minus;&nbsp;e<sup>&minus;<em>N</em>/<em>m</em></sup>), so the first machine fetches <em>s</em> and the price falls with market depth <em>m</em> (<em>W</em>&nbsp;=&nbsp;50&nbsp;h, failure 0, horizon 600&nbsp;h, all inputs assumed). With an unsaturated goods market a shallower resale market moves the optimal switch from 574&nbsp;h (linear) to 549&nbsp;h (<em>m</em>&nbsp;=&nbsp;10<sup>3</sup>), and a single switch matches the DP. With a saturating goods market (<em>c</em>&nbsp;=&nbsp;10<sup>4</sup>) the DP policy beats the best single switch by up to 14%. The DP table value is not a certificate (it overstates at 400 grid points); simulated policy values are reported. Stylised and preliminary; both market curves are assumed, not fitted."
+    },
+    {
+     "slug": "selfrep-judgement",
+     "title": "How much do the RepRap closure numbers depend on which parts a shop is judged able to make?",
+     "summary": "Flips the make-or-buy judgements behind selfrep-closure. Buying all five optimistic lines (washers, GT2 pulley, MDF bed, brass bushing) cuts the largest shop to 17&percnt; mass and 11&percnt; cost closure, the printer-alone level, and no single line moves mass closure by more than 2.4 points. Granting a missing capability matters far more: making the NEMA17 motors in-house would add 22 points of mass closure, the 370&nbsp;mm threaded rods 10. Monte Carlo (judged lines kept with probability 0.5, arguable vitamins granted with 0.1; arbitrary): mass closure 18&ndash;35&percnt; (5&ndash;95&percnt;). Stylised; masses and costs are assumed placeholders."
     }
    ]
   },
