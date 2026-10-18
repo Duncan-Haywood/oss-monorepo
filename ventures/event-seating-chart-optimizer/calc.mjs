@@ -531,6 +531,90 @@ export function sampleSpec() {
 
 export const STAY = { low: 1.5, medium: 4, high: 12 };
 
+/** Split delimited text (quoted cells allowed) into rows of cells. */
+function splitDelimited(text, delim) {
+  const rows = [];
+  let row = [], cur = "", q = false;
+  const src = String(text || "").replace(/^﻿/, "");
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (q) { if (c === '"' && src[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === delim) { row.push(cur); cur = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && src[i + 1] === "\n") i++; row.push(cur); cur = ""; rows.push(row); row = []; }
+    else cur += c;
+  }
+  row.push(cur); rows.push(row);
+  return rows.filter((r) => r.some((c) => c.trim()));
+}
+
+const SHEET_COLS = {
+  name: /^(full\s*name|guest(\s*name)?|name|attendee)$/i,
+  first: /^(first(\s*name)?|given(\s*name)?)$/i,
+  last: /^(last(\s*name)?|sur\s*name|surname|family\s*name)$/i,
+  party: /^(party|household|family|invitation|invite|rsvp\s*party|address\s*group)$/i,
+  group: /^(group|side|category|tag|list|relationship)$/i,
+  meal: /^(meal|entr[eé]e|menu|meal\s*choice|dinner|diet(ary)?)$/i,
+  rsvp: /^(rsvp|attending|status|response|coming)$/i,
+  plusone: /^(plus\s*-?\s*one|\+1|guest\s*name|companion)$/i,
+};
+const DECLINED = /^(no|n|declined?|not\s*attending|regrets?|false|0|can'?t\s*make\s*it)$/i;
+
+/**
+ * Turn a guest list pasted from a spreadsheet or RSVP export (tab, comma or
+ * semicolon separated, with or without a header) into the tool's
+ * "Name | party | group | meal" lines. Declined RSVPs are dropped, first and
+ * last name columns are joined, and a plus-one name becomes its own guest in
+ * the same party. Text already in bar format is returned untouched.
+ */
+export function importGuestSheet(text) {
+  const raw = String(text || "");
+  const notes = [];
+  const lines = raw.split(/\r?\n/).filter((l) => l.trim());
+  if (!lines.length) return { text: "", notes, imported: 0, converted: false };
+  if (lines.every((l) => l.includes("|") || l.trim().startsWith("#")) || (!/[\t;,]/.test(raw))) {
+    return { text: raw, notes, imported: 0, converted: false };
+  }
+  const count = (d) => lines.slice(0, 5).reduce((n, l) => n + l.split(d).length - 1, 0);
+  const delim = ["\t", ";", ","].map((d) => [d, count(d)]).sort((a, b) => b[1] - a[1])[0][0];
+  const rows = splitDelimited(raw, delim);
+  const cols = {};
+  const head = rows[0].map((c) => c.trim());
+  head.forEach((h, i) => { for (const k of Object.keys(SHEET_COLS)) if (cols[k] === undefined && SHEET_COLS[k].test(h)) cols[k] = i; });
+  const hasHeader = cols.name !== undefined || cols.first !== undefined;
+  let body = rows;
+  if (hasHeader) body = rows.slice(1);
+  else { Object.keys(cols).forEach((k) => delete cols[k]); cols.name = 0; cols.party = 1; cols.group = 2; cols.meal = 3; }
+  // A header called "Guest" alone is the guest's name; with a Name column it is the plus-one.
+  if (hasHeader && cols.name !== undefined && cols.plusone === cols.name) delete cols.plusone;
+  const cell = (r, k) => (cols[k] === undefined ? "" : (r[cols[k]] || "").trim().replace(/\s+/g, " ").replace(/\|/g, "/"));
+  const out = [];
+  let dropped = 0, plus = 0, blank = 0;
+  for (const r of body) {
+    const name = cols.first !== undefined && cols.name === undefined
+      ? `${cell(r, "first")} ${cell(r, "last")}`.trim()
+      : cell(r, "name") || `${cell(r, "first")} ${cell(r, "last")}`.trim();
+    if (!name) { blank++; continue; }
+    if (cols.rsvp !== undefined && DECLINED.test(cell(r, "rsvp"))) { dropped++; continue; }
+    const party = cell(r, "party");
+    const line = [name, party, cell(r, "group"), cell(r, "meal")];
+    while (line.length > 1 && !line[line.length - 1]) line.pop();
+    out.push(line.join(" | "));
+    const pn = hasHeader ? cell(r, "plusone") : "";
+    if (pn && !/^(yes|y|true|1|no|n|false|0|none|-)$/i.test(pn)) {
+      out.push([pn, party || `${name} party`].join(" | "));
+      if (!party) out[out.length - 2] = [name, `${name} party`, cell(r, "group"), cell(r, "meal")].join(" | ").replace(/( \| )+$/, "");
+      plus++;
+    }
+  }
+  if (hasHeader) notes.push(`Read the header row (${head.filter(Boolean).join(", ")}).`);
+  else notes.push("No header row found, so columns were read as Name, Party, Group, Meal.");
+  if (dropped) notes.push(`Left out ${dropped} declined RSVP${dropped === 1 ? "" : "s"}.`);
+  if (plus) notes.push(`Added ${plus} named plus-one${plus === 1 ? "" : "s"}, seated in the same party as their host.`);
+  if (blank) notes.push(`Skipped ${blank} row${blank === 1 ? "" : "s"} with no name.`);
+  return { text: out.join("\n"), notes, imported: out.length, converted: true };
+}
+
 /** Read a plan exported by planCsv (Table,Guest,Party) into Map(lowercased name -> table index). */
 export function parsePlanCsv(text) {
   const prev = new Map();

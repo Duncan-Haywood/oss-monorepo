@@ -1,5 +1,5 @@
 name: devsec-toolkit
-description: 'Free, open-source DevSecOps toolkit: one zero-dependency command that runs a repository through 22 static security checks (GitHub Actions injection, cache and artifact poisoning, secrets in workflows and image layers, privileged Compose services and Kubernetes pods, dependency confusion, end-of-life runtimes, JWT misuse, ReDoS, AI-agent permissions) and reports every finding once, on one severity scale, as text, JSON, Markdown or SARIF for GitHub code scanning, with baselines so CI fails only on new findings. Nothing is uploaded.'
+description: 'Free, open-source DevSecOps toolkit: one zero-dependency command that runs a repository through 23 static security checks (GitHub Actions injection, cache and artifact poisoning, secrets in workflows and image layers, privileged Compose services and Kubernetes pods, dependency confusion, end-of-life runtimes, JWT misuse, ReDoS, AI-agent permissions, hidden Unicode) and reports every finding once, on one severity scale, as text, JSON, Markdown or SARIF for GitHub code scanning, with baselines so CI fails only on new findings. Nothing is uploaded.'
 stage: prototype
 
 owner: duncan

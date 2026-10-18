@@ -67,6 +67,8 @@ Open `index.html`, or `node --test` to run the tests. No build step, no dependen
 
 Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. MIT licensed.
 
+**Seventh-day premium, for scale.** When someone works all seven days, the notice adds what a seventh-consecutive-day premium would cost if you applied 1.5x for the first 8 hours of Sunday and 2x after (extra over straight time, burden included; `seventhDayPay` in `calc.mjs`, which takes your own multipliers). It assumes a Monday workweek start and is not priced by the search or a statement of what any state requires.
+
 **Sick-call finder.** After a roster is built, pick any shift (or an open one) to see who could take it without changing anyone else's week, cheapest first with overtime flagged, and which rule blocks everyone else (`coverOptions` in `calc.mjs`).
 
 **Schedule flags.** After a build, the page flags days over 8 hours, split shifts with a gap over an hour, and a week that starts inside 14 days of today when you give the Monday (`scheduleFlags` in `calc.mjs`). These are heads-ups for daily-overtime, split-shift, meal-break (a straight stretch over 5 hours, back-to-back shifts joined; breaks are not scheduled) and fair-workweek rules the search does not enforce. It also flags a straight stretch over 5 hours (back-to-back shifts joined) as a meal-break heads-up; breaks are not scheduled.

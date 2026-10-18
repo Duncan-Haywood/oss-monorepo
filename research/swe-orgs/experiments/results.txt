@@ -1,63 +1,65 @@
-sources 48, practices 49, validation problems 0
-ledger rows 762; rows with any reported error 153
+sources 50, practices 51, validation problems 0
+ledger rows 905; rows with any reported error 164
 
 failure class: rows matching / rows (Wilson 95%)
-  coordination   12/762 =  1.6%  ( 0.9% to  2.7%)
-  unlanded        8/762 =  1.0%  ( 0.5% to  2.1%)
-  unverified      8/762 =  1.0%  ( 0.5% to  2.1%)
-  tooling        19/762 =  2.5%  ( 1.6% to  3.9%)
-  rework         10/762 =  1.3%  ( 0.7% to  2.4%)
-  duplicate      17/762 =  2.2%  ( 1.4% to  3.5%)
+  coordination   13/905 =  1.4%  ( 0.8% to  2.4%)
+  unlanded       10/905 =  1.1%  ( 0.6% to  2.0%)
+  unverified      8/905 =  0.9%  ( 0.4% to  1.7%)
+  tooling        19/905 =  2.1%  ( 1.3% to  3.3%)
+  rework         11/905 =  1.2%  ( 0.7% to  2.2%)
+  duplicate      18/905 =  2.0%  ( 1.3% to  3.1%)
 
 practice  transfer  status                                   target        ceiling  priority
-  P23  yes      not adopted (batch 4 found a ledger layo tooling        2.5%    2.5%
-  P36  yes      adopted (CLAUDE.md: merge when CI is gre tooling        2.5%    2.5%
-  P43  yes      partly adopted (CLAUDE.md says a second  tooling        2.5%    2.5%
-  P46  yes      partly adopted (CI runs on pull requests tooling        2.5%    2.5%
-  P27  yes      partly adopted (regen.mjs and sync_tree_ coordination   1.6%    1.6%
-  P28  yes      adopted (CLAUDE.md: merge when CI is gre rework         1.3%    1.3%
-  P30  yes      adopted (prompt.md: quality beats volume rework         1.3%    1.3%
-  P6   partial  not adopted                              tooling        2.5%    1.2%
-  P19  partial  not adopted (suites have no runtime budg tooling        2.5%    1.2%
-  P26  partial  not adopted                              tooling        2.5%    1.2%
-  P29  partial  partly adopted (research projects are pu tooling        2.5%    1.2%
-  P32  partial  not adopted (the red-team track, about 7 tooling        2.5%    1.2%
-  P34  partial  partly adopted (the verification block a tooling        2.5%    1.2%
-  P44  partial  adopted (the portfolio is one repository tooling        2.5%    1.2%
-  P48  partial  partly adopted (CI, the cross-review lay tooling        2.5%    1.2%
-  P10  partial  adopted (track 10 metric has three terms duplicate      2.2%    1.1%
-  P18  partial  partly adopted (runs claim one milestone duplicate      2.2%    1.1%
-  P21  partial  partly adopted (a project README opens w duplicate      2.2%    1.1%
-  P31  partial  partly adopted (research/CLAUDE.md asks  duplicate      2.2%    1.1%
-  P1   yes      adopted (prompt.md, Landing work)        unlanded       1.0%    1.0%
-  P5   yes      not adopted                              unverified     1.0%    1.0%
-  P7   yes      adopted (prompt.md steps 4 and 6)        unlanded       1.0%    1.0%
-  P9   yes      partly adopted (prompt.md: integrity is  unverified     1.0%    1.0%
-  P12  yes      adopted (swe-ledger)                     unverified     1.0%    1.0%
-  P15  yes      partly adopted (oss-monorepo guard_state unverified     1.0%    1.0%
-  P16  yes      adopted (the two copies were merged into unlanded       1.0%    1.0%
-  P22  yes      adopted (.github/prompts/land-your-work. unlanded       1.0%    1.0%
-  P33  yes      partly adopted (goals.md and CLAUDE.md f unverified     1.0%    1.0%
-  P4   partial  adopted (mirror under way)               coordination   1.6%    0.8%
-  P11  partial  not adopted                              coordination   1.6%    0.8%
-  P24  partial  partly adopted (_homepage/build.py fails coordination   1.6%    0.8%
-  P35  partial  partly adopted (research/CLAUDE.md: clai coordination   1.6%    0.8%
-  P38  partial  not adopted (the shared files are the kn coordination   1.6%    0.8%
-  P40  partial  partly adopted (the tracks are stream-al coordination   1.6%    0.8%
-  P42  partial  partly adopted (each project is self-con coordination   1.6%    0.8%
-  P2   partial  not adopted                              rework         1.3%    0.7%
-  P3   partial  partly adopted (audit pass exists, not p rework         1.3%    0.7%
-  P14  partial  not adopted                              rework         1.3%    0.7%
-  P20  partial  adopted (prompts/runs records ask each r rework         1.3%    0.7%
-  P39  partial  not adopted (the ledger records no per-f rework         1.3%    0.7%
-  P41  partial  partly adopted (merge on green CI is the rework         1.3%    0.7%
-  P45  partial  partly adopted (the cross-review layer i rework         1.3%    0.7%
-  P47  partial  partly adopted (projects are kept small  rework         1.3%    0.7%
-  P13  partial  not adopted                              unverified     1.0%    0.5%
-  P25  partial  partly adopted (CLAUDE.md says not to ma unlanded       1.0%    0.5%
-  P37  partial  partly adopted (land-before-build and on unlanded       1.0%    0.5%
-  P49  partial  partly adopted (the deviations field in  unverified     1.0%    0.5%
-  P8   no       not adopted                              coordination   1.6%    0.0%
-  P17  no       not adopted                              coordination   1.6%    0.0%
+  P23  yes      not adopted (batch 4 found a ledger layo tooling        2.1%    2.1%
+  P36  yes      adopted (CLAUDE.md: merge when CI is gre tooling        2.1%    2.1%
+  P43  yes      partly adopted (CLAUDE.md says a second  tooling        2.1%    2.1%
+  P46  yes      partly adopted (CI runs on pull requests tooling        2.1%    2.1%
+  P51  yes      adopted (landing is flow, CI and run rec tooling        2.1%    2.1%
+  P27  yes      partly adopted (regen.mjs and sync_tree_ coordination   1.4%    1.4%
+  P28  yes      adopted (CLAUDE.md: merge when CI is gre rework         1.2%    1.2%
+  P30  yes      adopted (prompt.md: quality beats volume rework         1.2%    1.2%
+  P1   yes      adopted (prompt.md, Landing work)        unlanded       1.1%    1.1%
+  P7   yes      adopted (prompt.md steps 4 and 6)        unlanded       1.1%    1.1%
+  P16  yes      adopted (the two copies were merged into unlanded       1.1%    1.1%
+  P22  yes      adopted (.github/prompts/land-your-work. unlanded       1.1%    1.1%
+  P6   partial  not adopted                              tooling        2.1%    1.0%
+  P19  partial  not adopted (suites have no runtime budg tooling        2.1%    1.0%
+  P26  partial  not adopted                              tooling        2.1%    1.0%
+  P29  partial  partly adopted (research projects are pu tooling        2.1%    1.0%
+  P32  partial  not adopted (the red-team track, about 7 tooling        2.1%    1.0%
+  P34  partial  partly adopted (the verification block a tooling        2.1%    1.0%
+  P44  partial  adopted (the portfolio is one repository tooling        2.1%    1.0%
+  P48  partial  partly adopted (CI, the cross-review lay tooling        2.1%    1.0%
+  P10  partial  adopted (track 10 metric has three terms duplicate      2.0%    1.0%
+  P18  partial  partly adopted (runs claim one milestone duplicate      2.0%    1.0%
+  P21  partial  partly adopted (a project README opens w duplicate      2.0%    1.0%
+  P31  partial  partly adopted (research/CLAUDE.md asks  duplicate      2.0%    1.0%
+  P5   yes      not adopted                              unverified     0.9%    0.9%
+  P9   yes      partly adopted (prompt.md: integrity is  unverified     0.9%    0.9%
+  P12  yes      adopted (swe-ledger)                     unverified     0.9%    0.9%
+  P15  yes      partly adopted (oss-monorepo guard_state unverified     0.9%    0.9%
+  P33  yes      partly adopted (goals.md and CLAUDE.md f unverified     0.9%    0.9%
+  P4   partial  adopted (mirror under way)               coordination   1.4%    0.7%
+  P11  partial  not adopted                              coordination   1.4%    0.7%
+  P24  partial  partly adopted (_homepage/build.py fails coordination   1.4%    0.7%
+  P35  partial  partly adopted (research/CLAUDE.md: clai coordination   1.4%    0.7%
+  P38  partial  not adopted (the shared files are the kn coordination   1.4%    0.7%
+  P40  partial  partly adopted (the tracks are stream-al coordination   1.4%    0.7%
+  P42  partial  partly adopted (each project is self-con coordination   1.4%    0.7%
+  P50  partial  partly adopted (one project per pull req coordination   1.4%    0.7%
+  P2   partial  not adopted                              rework         1.2%    0.6%
+  P3   partial  partly adopted (audit pass exists, not p rework         1.2%    0.6%
+  P14  partial  not adopted                              rework         1.2%    0.6%
+  P20  partial  adopted (prompts/runs records ask each r rework         1.2%    0.6%
+  P39  partial  not adopted (the ledger records no per-f rework         1.2%    0.6%
+  P41  partial  partly adopted (merge on green CI is the rework         1.2%    0.6%
+  P45  partial  partly adopted (the cross-review layer i rework         1.2%    0.6%
+  P47  partial  partly adopted (projects are kept small  rework         1.2%    0.6%
+  P25  partial  partly adopted (CLAUDE.md says not to ma unlanded       1.1%    0.6%
+  P37  partial  partly adopted (land-before-build and on unlanded       1.1%    0.6%
+  P13  partial  not adopted                              unverified     0.9%    0.4%
+  P49  partial  partly adopted (the deviations field in  unverified     0.9%    0.4%
+  P8   no       not adopted                              coordination   1.4%    0.0%
+  P17  no       not adopted                              coordination   1.4%    0.0%
 
 open candidates (transfer yes, not adopted, ceiling >= 5%):

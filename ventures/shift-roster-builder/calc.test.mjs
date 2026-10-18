@@ -509,6 +509,21 @@ test("scheduleFlags: flags a person scheduled on all seven days", () => {
   assert.equal(scheduleFlags({}).sevenDays.length, 0);
 });
 
+test("seventhDayPay: extra over straight time on the seventh day, only for people on all seven days", async () => {
+  const { seventhDayPay } = await import("./calc.mjs");
+  const week = [0, 1, 2, 3, 4, 5].map((day) => ({ slot: { day, startMin: 540, endMin: 780 }, person: "Sam" }));
+  const sun = { slot: { day: 6, startMin: 540, endMin: 1140 }, person: "Sam" }; // 10 hours
+  const r = { people: [{ name: "Sam", wage: 20 }, { name: "Ana", wage: 30 }], assignments: week.concat(sun, [{ slot: { day: 6, startMin: 0, endMin: 120 }, person: "Ana" }]) };
+  const p = seventhDayPay(r);
+  assert.equal(p.rows.length, 1);
+  assert.equal(p.rows[0].person, "Sam");
+  assert.equal(p.rows[0].hours, 10);
+  // 8h x 0.5 x $20 + 2h x 1.0 x $20 = $120
+  assert.equal(p.total, 120);
+  assert.equal(seventhDayPay(r, { burdenPct: 10 }).total, 132);
+  assert.equal(seventhDayPay({}).total, 0);
+});
+
 test("fixed: pins a shift to one person and the rest is planned around it", async () => {
   const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
   const staff = parseStaff("Ana, 10, 40, 0, any\nBen, 30, 40, 0, any").staff;
@@ -990,4 +1005,28 @@ test("merging reports bad lines without touching the rest", () => {
   assert.equal(m.text, staff);
   assert.equal(m.errors.length, 2);
   assert.deepEqual(m.updated, []);
+});
+
+test("parseRosterCsv: later days and overnight shifts keep absolute minutes from Monday", () => {
+  const csv = ["day,start,end,hours,label,assigned_to,role", "Tue,9:00 AM,5:00 PM,8.00,open,Ana,", "Fri (overnight),10:00 PM,2:00 AM,4.00,close,Ben,"].join("\n");
+  const rows = parseRosterCsv(csv);
+  assert.deepEqual([rows[0].start, rows[0].end], [1440 + 540, 1440 + 1020]);
+  assert.deepEqual([rows[1].start, rows[1].end], [4 * 1440 + 22 * 60, 5 * 1440 + 120]);
+});
+
+test("placeBreaks: only people on the floor at that time on that day count as cover", () => {
+  const r = { assignments: [
+    { slot: { day: 0, startMin: 480, endMin: 960 }, person: "Sam" },
+    { slot: { day: 1, startMin: 480, endMin: 960 }, person: "Zed" },
+  ] };
+  const b = placeBreaks(r);
+  const sam = b.find((x) => x.person === "Sam");
+  assert.ok(sam.alone && sam.others === 0, "Zed works Tuesday, so he is no cover for Monday");
+});
+
+test("placeBreaks: a break taken on one day does not take that person off the floor on another", () => {
+  const A = (person, day) => ({ slot: { day, startMin: 480, endMin: 960 }, person });
+  const b = placeBreaks({ assignments: [A("Ana", 0), A("Ben", 0), A("Ana", 1), A("Ben", 1)] });
+  assert.equal(b.length, 4);
+  assert.ok(b.every((x) => !x.alone && x.others === 1));
 });

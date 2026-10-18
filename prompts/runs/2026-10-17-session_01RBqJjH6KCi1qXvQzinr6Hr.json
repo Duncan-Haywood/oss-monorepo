@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01RBqJjH6KCi1qXvQzinr6Hr",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T23:07:00Z",
+  "ended": "2026-10-17T23:07:18Z",
+  "wall_minutes": 1.23,
+  "tokens_in": 1106604,
+  "tokens_out": 4170,
+  "cost_usd": 0.4644,
+  "tool_calls": 16,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "One campaign on platform/ci/outage_triage.py: 8 seeded, 4 escaped (gaps in _when, _ts, default resolver, --json-out indent); all 4 now caught after added tests. No real defects found; hunt was brief.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/outage_triage.py",
+        "test": "/usr/local/bin/python3 -m unittest test_outage_triage  (in platform/ci)",
+        "seed": 964049311,
+        "commit": "c820c9b36f",
+        "sites": 94,
+        "baseline_seconds": 1.8,
+        "mutants": [
+          {
+            "file": "platform/ci/outage_triage.py",
+            "line": 94,
+            "col": 27,
+            "operator": "div-to-times",
+            "before": "INVENTORY = REPO / \"infra\" / \"inventory.tf\"",
+            "after": "INVENTORY = REPO / \"infra\" * \"inventory.tf\"",
+            "line_text": "INVENTORY = REPO / \"infra\" / \"inventory.tf\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/outage_triage.py",
+            "line": 296,
+            "col": 24,
+            "operator": "or-to-and",
+            "before": "resolver = resolver or (",
+            "after": "resolver = resolver and (",
+            "line_text": "    resolver = resolver or (",
+            "caught": false,
+            "seconds": 2.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by TimestampsAndOutput in platform/ci/test_outage_triage.py"
+          },
+          {
+            "file": "platform/ci/outage_triage.py",
+            "line": 426,
+            "col": 24,
+            "operator": "or-to-and",
+            "before": "opener = opener or urllib.request.build_opener()",
+            "after": "opener = opener and urllib.request.build_opener()",
+            "line_text": "        opener = opener or urllib.request.build_opener()",
+            "caught": true,
+            "seconds": 3.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/outage_triage.py",
+            "line": 485,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "return action.get(\"finished\") or action.get(\"started\") or \"(no timestamp)\"",
+            "after": "return action.get(\"finished\") and action.get(\"started\") or \"(no timestamp)\"",
+            "line_text": "    return action.get(\"finished\") or action.get(\"started\") or \"(no timestamp)\"",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by TimestampsAndOutput in platform/ci/test_outage_triage.py"
+          },
+          {
+            "file": "platform/ci/outage_triage.py",
+            "line": 494,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "raw = action.get(\"finished\") or action.get(\"started\")",
+            "after": "raw = action.get(\"finished\") and action.get(\"started\")",
+            "line_text": "    raw = action.get(\"finished\") or action.get(\"started\")",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by TimestampsAndOutput in platform/ci/test_outage_triage.py"
+          },
+          {
+            "file": "platform/ci/outage_triage.py",
+            "line": 823,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "ssh = _state(triage, control.ipv4, 22)",
+            "after": "ssh = _state(triage, control.ipv4, 23)",
+            "line_text": "        ssh = _state(triage, control.ipv4, 22)",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/outage_triage.py",
+            "line": 854,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if ssh == OPEN and https in (REFUSED, NO_ANSWER):",
+            "after": "if ssh != OPEN and https in (REFUSED, NO_ANSWER):",
+            "line_text": "        if ssh == OPEN and https in (REFUSED, NO_ANSWER):",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/outage_triage.py",
+            "line": 1139,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "indent=2,",
+            "after": "indent=3,",
+            "line_text": "                indent=2,",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by TimestampsAndOutput in platform/ci/test_outage_triage.py"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f8a5b0aa-c7a2-542e-9af0-0cdd04a79a85",
+    "transcripts": 1,
+    "first": "2026-10-17T23:07:00Z",
+    "last": "2026-10-17T23:08:14Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 15,
+        "input": 30,
+        "output": 4170,
+        "thinking": 265,
+        "cache_read": 1053599,
+        "cache_write_5m": 0,
+        "cache_write_1h": 52975,
+        "api_equivalent_usd": 0.4644,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 15,
+      "input": 30,
+      "output": 4170,
+      "thinking": 265,
+      "cache_read": 1053599,
+      "cache_write_5m": 0,
+      "cache_write_1h": 52975,
+      "api_equivalent_usd": 0.4644,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.952,
+    "tool_calls": 16,
+    "tools": {
+      "Bash": 12,
+      "Read": 3,
+      "bash": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.23,
+      "active_minutes": 1.23,
+      "model_minutes": 0.57,
+      "tool_minutes": 0.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "write 4 small guard tests after a mutation campaign",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 215.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01VivzdJHq3D1JRjzKiBCcBc",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T23:40:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "figure for peer-prediction-effort (milestone 9)",
+  "projects": [
+    "peer-prediction-effort"
+  ],
+  "pr": 7866,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "My first scan for figure-less projects used a failing multi-glob ls and wrongly listed projects that had svgs; I overwrote abstention-scoring/experiments/figure.py, noticed from the git diff and restored it before any commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Small run: one figure from results.txt E5 via _shared/linefig.py.",
+  "corrections": [],
+  "redteam": null
+}

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS,
+  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -359,4 +359,30 @@ test("custom sizes: fill-evenly shares what the custom tables leave over; reseat
 test("setup file carries the table sizes box", () => {
   const out = parseSetup(setupJson({ guests: "A\nB", rules: "", seats: "8", tcount: "", sizes: "1: 12", balance: true, mix: "off", prevplan: "" }));
   assert.equal(out.state.sizes, "1: 12");
+});
+
+test("importGuestSheet converts a tab-separated RSVP export with a header", () => {
+  const sheet = "First Name\tLast Name\tHousehold\tSide\tEntree\tRSVP\nMaya\tOkafor\tOkafor family\tBride\tvegetarian\tYes\nDaniel\tOkafor\tOkafor family\tBride\t\tYes\nSam\tVoss\t\t\t\tDeclined\nPriya\tNair\t\t\t\tyes";
+  const r = importGuestSheet(sheet);
+  assert.equal(r.converted, true);
+  assert.equal(r.text, "Maya Okafor | Okafor family | Bride | vegetarian\nDaniel Okafor | Okafor family | Bride\nPriya Nair");
+  assert.match(r.notes.join(" "), /1 declined/);
+  const g = parseGuests(r.text);
+  assert.deepEqual(g.errors, []);
+  assert.equal(g.guests.length, 3);
+});
+
+test("importGuestSheet handles quoted CSV, a plus-one name, and leaves bar format alone", () => {
+  const csv = 'Name,Plus One,Group\n"Lee, Ann",Bob Ray,Work\nCy Dune,yes,Work\n';
+  const r = importGuestSheet(csv);
+  assert.equal(r.text, "Lee, Ann | Lee, Ann party | Work\nBob Ray | Lee, Ann party\nCy Dune |  | Work");
+  const bars = "Ann | Lee\nBob";
+  assert.equal(importGuestSheet(bars).converted, false);
+  assert.equal(importGuestSheet(bars).text, bars);
+  assert.equal(importGuestSheet("Ann Lee\nBob Ray").converted, false);
+});
+
+test("importGuestSheet without a header reads Name, Party, Group, Meal", () => {
+  const r = importGuestSheet("Ann Lee;Lee family;Bride;fish\nBob Ray;;Groom;");
+  assert.equal(r.text, "Ann Lee | Lee family | Bride | fish\nBob Ray |  | Groom");
 });

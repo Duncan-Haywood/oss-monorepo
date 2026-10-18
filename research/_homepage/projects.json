@@ -1310,6 +1310,16 @@
      "slug": "free-rdseeds",
      "title": "Why does the R<sub>d</sub> low-discrepancy lattice lose its advantage at d = 5 when evaluating a twin policy?",
      "summary": "Follow-up to <code>free-qmcdr</code>. The shifted <em>R<sub>d</sub></em> lattice&rsquo;s error exponent at <em>d</em> = 5 is &minus;0.45 &plusmn; 0.01 over six seed strings, no better than iid, so it is not a seed fluke; across <em>d</em> = 2&hellip;8 it dips at 5 between &minus;0.72 and &minus;0.61 neighbours, so it is not a smooth dimension effect; a generator built from &radic;<em>p</em><sub>j</sub> reaches &minus;0.66 at <em>d</em> = 5. A resonance score against small integer relations scores both generators alike, so the mechanism is not identified. Stylised analytic returns, not a simulator."
+    },
+    {
+     "slug": "free-citeaudit",
+     "title": "How many research READMEs admit their citations are unchecked, and which works need checking first?",
+     "summary": "A stdlib scan of all 550 project READMEs for lines that flag a citation or figure as written from memory or not re-checked: 94 (17.1%) have at least one, 137 flagged lines in all, naming 41 distinct author-year works. Four recur most: Dawid &amp; Skene (1979) in 10 projects, Zhang et al. (2019) in 9, Horowitz (2014) and Horvitz (1999) in 6 each, so checking those once from a networked session clears many flags. A flag is the README's own admission, not a verdict; nothing was verified in this run (Crossref was unreachable)."
+    },
+    {
+     "slug": "free-secretarynoise",
+     "title": "How much does noisy scoring cost the secretary problem, and should the 1/e cutoff move?",
+     "summary": "Simulation of the classical cutoff rule for hiring the best of <em>n</em> = 50 candidates when only a noisy score is seen (noise sd 0 to 4 times the quality sd, 40,000 trials per cell, checked against the exact noiseless formula). The best cutoff barely moves, 19 with no noise and 16&ndash;17 at every noise level; the chance of picking the true best falls from 0.373 to 0.145 at noise 1 and 0.043 at noise 4 (lottery: 0.02). Keeping the classical cutoff costs at most 0.006. A high mean true rank wants a much earlier cutoff (7&ndash;9). Cutoff rules only, Gaussian, one setting; the optimal noisy policy is not computed."
     }
    ]
   },
@@ -1489,6 +1499,21 @@
      "slug": "robofab-cell-cv",
      "title": "Where does exact queueing analysis of a robot-printer cell stop working?",
      "summary": "A follow-up to the mean-value-analysis project: a coefficient-of-variation sweep (0&ndash;2, lognormal times, 4&ndash;16 printers, 20 seeds) and a directly measured printer stall share (finished parts waiting for the arm). At 12 printers the MVA error runs from &minus;6.2% to +8.4% and crosses zero near cv&nbsp;1, while the utilisation bound stays 8&ndash;25% high. Stall is small (about 4.6% at 8 printers), but holding the printer through load and unload plus the stall reproduces the saturated rate at 4 and 8 printers (8.59 against 8.56&nbsp;&plusmn;&nbsp;0.09). Stylised, illustrative times, simulation only."
+    },
+    {
+     "slug": "robofab-cell-monitor",
+     "title": "Is a print-failure camera worth it in a robot-arm 3D-printer cell?",
+     "summary": "Adds mid-print failures (0.3 per printing hour) to the arm, printers and inspection cell and compares blind printing with a camera that aborts a failing print after a delay, including false stops, against an analytic bound and a 40-seed discrete-event simulation. With a 10 min delay the camera adds 6&ndash;10% good parts per hour at 2&ndash;10 printers, 4.5% at 12 and 0.8% at 16 where the arm limits the cell; the gain falls with detection delay (11% for an instant camera, about 0.5% at 80 min), vanishes between 0.1 and 0.2 false aborts per printing hour, and grows with the failure rate (28% at 1.0 per hour). Stylised: memoryless failures, a fixed detection delay, no real detector or measured farm."
+    },
+    {
+     "slug": "robofab-cell-fesc",
+     "title": "Can a flow-equivalent-server decomposition predict a robot-printer cell's throughput without enumerating its states?",
+     "summary": "A follow-up to the exact Markov-chain project: Norton&rsquo;s theorem applied to the same stylised cell (one arm, 2&ndash;6 printers held through load and unload, one inspector; Erlang print time; illustrative times). The arm-and-printers subsystem is solved exactly at each population and replaced by one load-dependent server. Over the same 42 settings the mean absolute error against the exact chain is 0.32% (maximum 1.57%), against 6.8% (up to 20.3%) for plain mean value analysis and 4.3% for the held-printer variant; in five cells of 8&ndash;12 printers it is 0.09&ndash;0.31%. It underestimates in 38 of 42 settings because the cell is not product form. The subsystem chain is about a tenth the size of the full chain, but both solve in under a second here, so no speed claim. Stylised: one job class, exponential load, unload and inspect times."
+    },
+    {
+     "slug": "robofab-cell-ctmc",
+     "title": "Is the error of queueing analysis of a robot-printer cell from print-time variability or from the cell's structure?",
+     "summary": "An exact Markov-chain solution of a stylised cell (one arm, 2&ndash;6 printers held through load and unload, one inspector; Erlang print time, cv 0.33&ndash;1; illustrative times) used as a noise-free reference. It matches a simulation in 10 settings (largest |z| 1.73). Changing the print-time cv from 1 to 0.33 moves the exact throughput by at most 0.71%, so the error of mean value analysis is structural: plain MVA is within 0.6% when work in process equals the printer count but overshoots by up to 20.3% beyond it (mean error 12.8% at twice the printers), and held-demand MVA is 2.8% off at saturation but &minus;5% to &minus;12% off at low load. One job class, exponential load, unload and inspect times. Stylised, simulation-only."
     },
     {
      "slug": "robofab-cell-held",
@@ -1831,6 +1856,11 @@
      "slug": "ambient-exploreonly",
      "title": "Does fitting only on the windows an assistant explored at random fix learning from its own feedback?",
      "summary": "A stylised follow-up to <em>ambient-labelmatch</em> and the reweighting and doubly robust fixes after it. The deployed learner already draws a random sample for free: the windows it spoke on only because its &epsilon; coin came up. Fitting on those windows alone, unweighted, reaches 11.99 utility/h at &epsilon; = 0.02 and 12.25 at 0.05 with an uninformed prior, against &minus;13.08 and &minus;71.85 for the fit on every spoken window (oracle 12.71; 20 seeds), and as a learner it earns 6.49/h online at &epsilon; = 0.005 against &minus;2.04. Exploration costs dismissals (online utility falls at larger &epsilon;), and with an informed prior the plain fit is better at small &epsilon;. Stylised simulation only."
+    },
+    {
+     "slug": "ambient-gateroc",
+     "title": "Does a fixed energy-gate threshold survive different rooms on an always-on audio pendant, and what does an adaptive one buy in battery life?",
+     "summary": "A stylised follow-up to <em>ambient-wearable</em>. Synthetic harmonic &lsquo;speech&rsquo; bursts (&minus;36 to &minus;20 dBFS) over pink-ish background noise at &minus;60, &minus;50, &minus;40 and &minus;30 dBFS plus short transients (20 seeds &times; 120 s per room) are passed through a Python port of the pendant&rsquo;s energy gate (checked frame by frame against the compiled C), and the gate-open fraction is turned into battery hours with the same power model. Any fixed threshold that holds worst-room speech recall at 0.9 or more ((&minus;30 dBFS or lower)minus;34 dBFS or lower on the grid I swept) stays open nearly all the time in the loudest room, giving 57.6 h, the always-streaming figure. One adaptive threshold (4&times; a 5 s running-minimum noise floor) gives 82&ndash;90 h at recall 0.89&ndash;1.00 in all four rooms. Within a single room the two trade-off curves are almost the same; the adaptive gate&rsquo;s gain is that one setting transfers. Stylised: synthetic audio, uniform one-microphone model, assumed power parameters, nothing measured on hardware or real speech."
     },
     {
      "slug": "ambient-wearable",
@@ -2645,6 +2675,11 @@
      "summary": "A stdlib extension of <code>osrobot-uavgust</code> sizes the airframe for a launch limit wind and launches only if the forecast of the wind is at most that limit, with a normal forecast error (exact discretisation, no sampling noise). With a perfect forecast every failure becomes a scrub (fixed wing, wind ~ N(5, 4)&nbsp;m/s: 48% scrubbed at the median limit, 4.6% at the 95th percentile, 1.274 to 1.313&nbsp;kg). A 2&nbsp;m/s forecast error brings the failure rate to 6.8% at the median limit but only 1.1% at the 95th-percentile limit. Stylised: one steady wind per mission, assumed constants, normal forecast error, no cost put on a scrub."
     },
     {
+     "slug": "osrobot-uavvalue",
+     "title": "What is a UAV launch wind limit worth in money, and should the launch threshold sit below the design limit when the forecast is wrong?",
+     "summary": "A stdlib extension of <code>osrobot-uavnogo</code> puts a money value on a completed observation, the loss of an aircraft on a failure and a scrubbed day, then searches the design wind limit L and the launch threshold T together (exact probabilities, no sampling noise). With a cheap airframe ($1,500/kg, assumed) the best design is for nearly every wind (L at 14 m/s or more in 17 of 18 cases, 11 on the grid edge) and the rule barely matters. With an expensive one ($30,000/kg, assumed) the optimum is interior, and with a 2 m/s forecast error the best T sits 1 to 6 m/s below L in all 9 cases, worth up to $284 per attempt over tying T to L, with failures at or below 0.1%. Money figures are assumptions, many optima sit on the grid edge, and a failure is assumed to lose the whole airframe. Stylised, no aircraft designed or flown."
+    },
+    {
      "slug": "osrobot-assist",
      "title": "When a spoon-feeding arm meets a moving mouth, what sets the force on the lips: the sensor, the approach speed or a force cap?",
      "summary": "A stdlib planar point-mass twin of a feeding arm and a swaying mouth, with 200 paired trials per row. With a 0.05&nbsp;s forward lead the push on a blocked tip is 20&nbsp;N&middot;s/m &times; speed, so peak lip force tracks approach speed (1.0&nbsp;N at 0.05&nbsp;m/s, 4.0&nbsp;N at 0.20). A camera lowers the share of trials that touch the lips (0.40 against 0.72 at 30&nbsp;mm sway) without lowering the peak, and its advantage fades with latency (touch share 0.07 at no delay, 0.71 at 0.4&nbsp;s). A 1&nbsp;N force cap trims the worst peak but not the share of comfortable feeds. Stylised: all constants are assumed, the peak-force result is largely an identity of the chosen controller, and no human model or Assistive Gym was used."
@@ -2734,7 +2769,7 @@
     {
      "slug": "swe-orgs",
      "title": "Which practices of engineering organisations that ship could help an agent loop, and what is there to fix?",
-     "summary": "A cited, growing catalogue of 49 practices from 48 sources (Reason on layered defences, Vaughan on normalization of deviance, Rigby and Bird, Humble and Farley, Beck, Allspaw and Hammond on Flickr, Parnas, Nygard, Conway, Nagappan et al., Skelton and Pais, Brooks, Fowler, Reinertsen, Toyota, the Rogers Commission, 37signals, Instagram, Google, Microsoft, Facebook, Netflix, Amazon, Etsy, Basecamp, Spotify, Stripe (twice, including its online-migrations post), Shopify, Linear, and postmortems from GitLab and Cloudflare, the SEC&rsquo;s order on Knight Capital and others), each tagged with company stage, evidence type (four measured, the rest case studies, postmortems, accounts or opinion), the loop element it maps to, how far it transfers to a fleet of agent sessions, and the assumption that does not carry over. The failure reports agree: a safety mechanism or a cost nobody measured before it shipped. Scored against the 758-row run ledger, the failure classes runs report are small (1.1&ndash;2.5% of runs, self-reported keyword matches), so <em>no practice clears the 5% ceiling as a new proposal</em>: a negative result. Sources were checked by web search only. Thirteenth batch of standing milestone 7 of track 10; the research log below records each batch."
+     "summary": "A cited, growing catalogue of 51 practices from 50 sources (Perrow on normal accidents, the DevOps Handbook, Reason on layered defences, Vaughan on normalization of deviance, Rigby and Bird, Humble and Farley, Beck, Allspaw and Hammond on Flickr, Parnas, Nygard, Conway, Nagappan et al., Skelton and Pais, Brooks, Fowler, Reinertsen, Toyota, the Rogers Commission, 37signals, Instagram, Google, Microsoft, Facebook, Netflix, Amazon, Etsy, Basecamp, Spotify, Stripe (twice, including its online-migrations post), Shopify, Linear, and postmortems from GitLab and Cloudflare, the SEC&rsquo;s order on Knight Capital and others), each tagged with company stage, evidence type (four measured, the rest case studies, postmortems, accounts or opinion), the loop element it maps to, how far it transfers to a fleet of agent sessions, and the assumption that does not carry over. The failure reports agree: a safety mechanism or a cost nobody measured before it shipped. Scored against the 758-row run ledger, the failure classes runs report are small (1.1&ndash;2.5% of runs, self-reported keyword matches), so <em>no practice clears the 5% ceiling as a new proposal</em>: a negative result. Sources were checked by web search only. Thirteenth batch of standing milestone 7 of track 10; the research log below records each batch."
     }
    ]
   },
@@ -2762,6 +2797,11 @@
      "slug": "mimic-anycontext-detect",
      "title": "Does a prompt-free human-vs-machine detector hold up on context families it never saw?",
      "summary": "Detector side of <code>mimic-anycontext</code>, run without an LLM because the model download was blocked. A TF-IDF n-gram logistic-regression detector is fitted on seven of eight RAID-derived families and scored on the eighth: mean AUROC 0.934 against 0.985 when fitted inside the family, worst on recipes (0.843), abstracts and wiki. Forty labelled target items close most of the gap on recipes. Held-out generators cost little (AUROC 0.90&ndash;1.00) and length does not explain it. Stylised: plain-prompt machine text only, one detector type; the prompt-optimising imitator is not tested."
+    },
+    {
+     "slug": "mimic-mauve",
+     "title": "Does MAUVE, a distribution-level score, rank human-vs-machine gaps the way a text detector does?",
+     "summary": "MAUVE between human and RAID chat-model text in 20 family &times; model cells (TF-IDF/SVD embedding, 5 draws of 48&ndash;100 texts), against a cross-fit n-gram detector on the same texts. Human-vs-human MAUVE is 0.92&ndash;0.99; every human-vs-model cell is at most 0.83. MAUVE and AUROC rank cells loosely alike (Spearman &minus;0.60, p = 0.005; wiki/mistral-chat is hardest for both), but disagree on recipes (AUROC 0.999, MAUVE 0.32) and news (0.97, 0.75), and MAUVE does not track the distinct-2 ratio (&rho; = 0.24, n.s.). Preliminary: the embedding is lexical, not MAUVE&rsquo;s usual GPT-2 features, so values are not comparable with the literature; plain-prompt text only, no LLM run."
     },
     {
      "slug": "mimic-genshift",
@@ -2792,6 +2832,21 @@
      "slug": "mimic-mmdmujoco",
      "title": "Does a kernel MMD test catch the same wrong MuJoCo digital twins as a classifier two-sample test?",
      "summary": "A MuJoCo hinge pendulum with Student-t sensor noise is the &lsquo;real&rsquo; system; twins change the integrator, friction or noise. Rejection uses the 95th percentile of the exact twin&rsquo;s own statistic. Boosted-tree C2ST power is 1.00 at <em>n</em>&nbsp;=&nbsp;200 for semi-implicit Euler at 0.02&nbsp;s and 0.90 at 0.01&nbsp;s, and 1.00 for a Gaussian-vs-Student-t noise-shape error, where MMD (raw or on second differences) stays at 0.00&ndash;0.07. MMD on second differences does catch a +25% noise-level error (0.95 at <em>n</em>&nbsp;=&nbsp;100). A 10&ndash;20% friction error is invisible to all three at <em>n</em>&nbsp;&le;&nbsp;200. Limitations: one toy system, 20 C2ST replicates, two sample sizes. Stylised."
+    },
+    {
+     "slug": "mimic-twinregret",
+     "title": "Does a digital twin that a classifier can tell apart from the real system also make a worse controller?",
+     "summary": "In the stylised pendulum of <code>mimic-twinc2st</code> with a torque input, a PD controller on noisy feedback is tuned on each wrong twin (48-point gain grid, 200 twin start angles) and scored on 2,000 held-out start angles on the &lsquo;real&rsquo; system. Regret is its real cost minus the best grid point&rsquo;s (0.259). Six of 15 wrong twins have regret exactly 0 in all 12 tuning seeds although the classifier two-sample test separates them from the real system with AUROC 0.58&ndash;0.999, among them g/L &minus;20%, whose paired error is the largest (0.25 rad). The largest regret, 0.0099 (3.8%), comes from a twin with no sensor noise at all, whose paired error is 0. Across the 15 twins AUROC and regret correlate only loosely (Spearman 0.46, p&nbsp;=&nbsp;0.08) and paired RMSE not at all (&minus;0.28). Detecting a twin is not the same as the twin mattering for the task. Limits: one system, one task, a coarse grid that quantises regret, 12 tuning seeds. Stylised, simulated, no LLM: a side piece of track 11."
+    },
+    {
+     "slug": "mimic-twinrand",
+     "title": "Does domain randomization over a wrong digital twin cut the controller regret of tuning on one wrong twin?",
+     "summary": "Follow-up to <code>mimic-twinregret</code> on the same stylised pendulum and noisy-feedback PD task. Gains are tuned on 200 start angles spread over 8 randomized twins (noise level, Coulomb and viscous friction, g/L each uniform on nominal &plusmn; <em>w</em>&times; the real value) and scored on 2,000 held-out real start angles, over 24 tuning seeds. For the no-noise twin, whose single-twin regret is 0.0098, randomization with <em>w</em>&nbsp;=&nbsp;0.5 brings it to 0.00006, the same as the exact twin. No-Coulomb and g/L +20% twins fall from 0.0014 to 0.00012 at <em>w</em>&nbsp;=&nbsp;1&ndash;2. It does not always help: for a doubled-noise twin regret stays about 0.003 for <em>w</em>&nbsp;&le;&nbsp;1 and at <em>w</em>&nbsp;=&nbsp;2 the mean rises to 0.0057 with a worst seed 7.5&times; the single-twin worst. Limits: one system and task, a 48-point grid that quantises regret, one randomization family with a shared width. Stylised, simulated, no LLM."
+    },
+    {
+     "slug": "mimic-twinnoiserand",
+     "title": "Does randomizing only the sensor-noise level of a wrong digital twin keep domain randomization's rescue without its blow-up?",
+     "summary": "Follow-up to <code>mimic-twinrand</code> on the same stylised pendulum PD task. Only the twin's noise sd is spread (uniform on nominal &plusmn; <em>w</em>&times;0.02); friction and g/L stay nominal. A no-noise twin's regret falls from 0.0098 to 0 at <em>w</em>=2 and stays at 0.00035 (worst seed 0.0015) at <em>w</em>=4, where randomizing all four parameters has a worst seed of 0.042. A doubled-noise twin improves monotonically (0.0038 to 0.0012), which all-four did not. Friction and gravity errors are untouched (0.00138 at every width). 24 seeds, 48-point grid; preliminary, one toy system, no LLM."
     }
    ]
   },
@@ -2854,6 +2909,11 @@
      "slug": "house-structure",
      "title": "Does a small wood-frame house have enough shear wall for wind and earthquakes once the windows and doors are cut out?",
      "summary": "Wind and seismic base shear on the <code>house-framing</code> house (28 &times; 40 ft, one storey) against the segmented shear-wall length its openings leave. At 115 mph and SDS 0.50 the worst case uses 19% of a gable-wall line's capacity at the loosest (6 in) nailing; wind must reach 264 mph before that nailing runs out. Lateral load does not govern this plan, but glazing does: four windows per gable wall cut the usable wall from 24 ft to 11 ft, six leave none. A 16 ft garage door in the gable wall raises the load share to 41% at 6 in nailing, and a centred 22 ft door needs tighter nailing. Advanced and conventional framing carry the same shear. <em>Stylised</em>: the nailing table and load coefficients are from memory and unchecked, and diaphragms, uplift and overturning are not modelled."
+    },
+    {
+     "slug": "house-open-design",
+     "title": "What does an open, reproducible plan set for a 480 sq ft backyard cottage look like when it is generated from code?",
+     "summary": "Composes the track's six earlier models on one concrete design, a 24 &times; 20 ft one-bedroom accessory dwelling unit, and writes a floor plan and south elevation (SVG), a framing bill of materials (CSV), an IFC4 model and a report. The plan passes every layout rule and member check and needs 2,614 board feet of framing (5.45 per sq ft). Under <code>house-structure</code>'s assumed coefficients the short walls carry 1,164 lb of wind per line at 6 in nailing; a tighter envelope cuts modelled heating and cooling cost 36&ndash;37% in every climate tested ($72&ndash;158 a year at assumed prices). The composition exposed rough edges (the lateral and energy models were built around a different house), the cost index is extrapolated far below its data, and nothing here is a buildable design: it needs a licensed review and a permit."
     },
     {
      "slug": "house-offsite",

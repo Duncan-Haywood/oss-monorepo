@@ -398,3 +398,58 @@ test("gap notices name the uncovered date ranges", () => {
   const noHome = analyze({ ...spec, homeState: null }).notices.find((x) => x.includes("not in any stay"));
   assert.ok(noHome.includes("Uncovered: 2026-01-01 to 2026-02-28"), noHome);
 });
+
+test("a home state that is not a two-letter code is ignored, so it never becomes a row of its own", () => {
+  const r = analyze(spec(["2025-03-01 to 2025-03-10 NY"], { homeState: "florida" }));
+  assert.deepEqual(r.states.map((s) => s.code), ["NY"]);
+});
+
+test("no 'may claim wages' notice when every workday was already spent in the employer's state", () => {
+  const r = analyze(spec(["2025-06-02 to 2025-06-06 NY"], { wages: 1000, employerState: "NY" }));
+  assert.equal(r.employer.remoteDays, 0);
+  assert.ok(!r.notices.some((n) => /may claim wages/.test(n)));
+});
+
+test("deviceTimelineToStays: coordinates resolve to states for the Android and iPhone exports", async () => {
+  const { STATE_RINGS } = await import("./state-boundaries.mjs");
+  const { stateAt, parseLatLng, isDeviceTimeline, deviceTimelineToStays } = await import("./calc.mjs");
+  const cities = [
+    [40.7128, -74.006, "NY"], [25.7617, -80.1918, "FL"], [34.0522, -118.2437, "CA"], [30.2672, -97.7431, "TX"],
+    [39.7392, -104.9903, "CO"], [47.6062, -122.3321, "WA"], [42.3601, -71.0589, "MA"], [39.9526, -75.1652, "PA"],
+    [38.9072, -77.0369, "DC"], [21.3069, -157.8583, "HI"], [61.2181, -149.9003, "AK"], [40.7357, -74.1724, "NJ"],
+    [41.7658, -72.6734, "CT"], [44.9778, -93.265, "MN"], [33.749, -84.388, "GA"],
+  ];
+  for (const [lat, lon, code] of cities) assert.equal(stateAt(lon, lat, STATE_RINGS), code, code);
+  assert.equal(stateAt(-40, 30, STATE_RINGS), "");
+  assert.equal(stateAt(NaN, 30, STATE_RINGS), "");
+  assert.deepEqual(parseLatLng("37.4220°, -122.0841°"), { lat: 37.422, lon: -122.0841 });
+  assert.deepEqual(parseLatLng("geo:40.7,-74.0"), { lat: 40.7, lon: -74 });
+  assert.equal(parseLatLng("nothing"), null);
+
+  const android = { semanticSegments: [
+    { startTime: "2025-03-01T09:00:00.000-05:00", endTime: "2025-03-04T10:00:00.000-05:00", visit: { topCandidate: { placeLocation: { latLng: "40.7128°, -74.0060°" } } } },
+    { startTime: "2025-03-04T12:00:00.000-05:00", endTime: "2025-03-05T12:00:00.000-05:00", activity: { start: { latLng: "40.7°, -74.0°" } } },
+    { startTime: "2025-05-10T10:00:00.000-04:00", endTime: "2025-05-10T20:00:00.000-04:00", visit: { topCandidate: { placeLocation: { latLng: "25.7617°, -80.1918°" } } } },
+    { startTime: "2025-06-01T10:00:00.000-04:00", endTime: "2025-06-01T11:00:00.000-04:00", visit: { topCandidate: { placeLocation: { latLng: "30.0°, -40.0°" } } } },
+    { startTime: "2024-12-31T10:00:00.000-05:00", endTime: "2024-12-31T11:00:00.000-05:00", visit: { topCandidate: { placeLocation: { latLng: "30.2672°, -97.7431°" } } } },
+  ] };
+  assert.equal(isDeviceTimeline(android), true);
+  assert.equal(isDeviceTimeline({ timelineObjects: [] }), false);
+  const r = deviceTimelineToStays(JSON.stringify(android), 2025, STATE_RINGS);
+  assert.deepEqual(r.lines, ["2025-03-01 to 2025-03-04 NY", "2025-05-10 FL"]);
+  assert.equal(r.imported, 2);
+  assert.equal(r.skipped, 3);
+  assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
+
+  const iphone = [{ startTime: "2025-07-04T08:00:00.000-07:00", endTime: "2025-07-06T08:00:00.000-07:00", visit: { topCandidate: { placeLocation: "geo:34.0522,-118.2437" } } }];
+  assert.deepEqual(deviceTimelineToStays(JSON.stringify(iphone), 2025, STATE_RINGS).lines, ["2025-07-04 to 2025-07-06 CA"]);
+
+  // Port Chester NY is within a kilometre of Connecticut: flagged for checking.
+  const edge = [{ startTime: "2025-07-04T08:00:00.000-04:00", endTime: "2025-07-04T09:00:00.000-04:00", visit: { topCandidate: { placeLocation: "geo:41.0,-73.66" } } }];
+  const e = deviceTimelineToStays(JSON.stringify(edge), 2025, STATE_RINGS);
+  assert.deepEqual(e.lines, ["2025-07-04 NY"]);
+  assert.equal(e.nearBorder, 1);
+  assert.equal(r.nearBorder, 0);
+  assert.equal(deviceTimelineToStays("nope", 2025, STATE_RINGS).error, "Not a JSON file.");
+  assert.match(deviceTimelineToStays("{}", 2025, STATE_RINGS).error, /phone/);
+});

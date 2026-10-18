@@ -24,6 +24,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Meal column and caterer sheet: a fourth column (`Name | party | group | meal`, e.g. "vegetarian") is tallied per table (`mealTally`) and shown in the report; "Print meal counts for the caterer" (`catererSheetHtml`) gives one total per meal plus a per-table grid, and the CSV gains a Meal column. Meals never appear on table signs or the find-your-table list.
 - Different-sized tables: the optional box `1: 12, 5: 6` gives table 1 twelve seats and table 5 six (a head table, a kids table); every other table keeps the seats-per-table figure, fill-evenly shares what the sized tables leave, and the table count grows to fit when left blank (`parseTableSizes`, `capacitiesOf`). Capacity checks, `verifyPlan` and late-RSVP `reseat` all use each table's own size.
 - Save and return: guests, wishes, settings and the last plan CSV are remembered on this device and can be saved to or loaded from a setup file, so a planner can come back as RSVPs arrive.
+- `importGuestSheet` in `calc.mjs` - paste rows from a spreadsheet or RSVP export (or choose a .csv): tab, comma or semicolon separated, header columns for name (or first and last), household/party, side/group, meal, RSVP and plus-one are recognised, declined RSVPs are dropped, and a named plus-one is seated in their host's party.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
   recomputed by the test suite.

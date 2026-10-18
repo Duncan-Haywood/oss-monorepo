@@ -1,0 +1,63 @@
+Percent error against the exact Markov chain (robofab-cell-ctmc's model), good parts/h.
+fesc = flow-equivalent-server decomposition; plain, held = mean value analysis as in robofab-cell-ctmc.
+states: exact chain size, and the largest subsystem chain the decomposition solved.
+
+print 20 P=2 N= 2 k=1  exact  3.653  fesc  +0.00  plain   -0.0  held  -12.2  states    11/    7
+print 20 P=2 N= 2 k=4  exact  3.653  fesc  -0.00  plain   -0.0  held  -12.2  states    29/   22
+print 20 P=2 N= 2 k=9  exact  3.653  fesc  +0.00  plain   -0.0  held  -12.2  states    79/   67
+print 20 P=2 N= 4 k=1  exact  4.125  fesc  -0.43  plain  +16.8  held   -0.6  states    25/    7
+print 20 P=2 N= 4 k=4  exact  4.133  fesc  -0.61  plain  +16.6  held   -0.8  states    73/   22
+print 20 P=2 N= 4 k=9  exact  4.134  fesc  -0.64  plain  +16.5  held   -0.8  states   213/   67
+print 20 P=4 N= 4 k=1  exact  6.716  fesc  -0.20  plain   +0.1  held  -10.3  states    45/   21
+print 20 P=4 N= 4 k=4  exact  6.708  fesc  -0.21  plain   +0.2  held  -10.2  states   238/  147
+print 20 P=4 N= 4 k=9  exact  6.703  fesc  -0.19  plain   +0.3  held  -10.2  states  1443/ 1067
+print 20 P=4 N= 6 k=1  exact  7.544  fesc  -1.06  plain  +10.9  held   -1.4  states    87/   21
+print 20 P=4 N= 6 k=4  exact  7.554  fesc  -1.38  plain  +10.7  held   -1.5  states   532/  147
+print 20 P=4 N= 6 k=9  exact  7.556  fesc  -1.49  plain  +10.7  held   -1.5  states  3577/ 1067
+print 20 P=4 N= 8 k=1  exact  7.630  fesc  -0.34  plain  +20.0  held   +5.3  states   129/   21
+print 20 P=4 N= 8 k=4  exact  7.620  fesc  -0.41  plain  +20.2  held   +5.4  states   826/  147
+print 20 P=4 N= 8 k=9  exact  7.614  fesc  -0.42  plain  +20.3  held   +5.5  states  5711/ 1067
+print 20 P=6 N= 6 k=1  exact  9.058  fesc  -0.58  plain   +0.1  held   -8.0  states   119/   43
+print 20 P=6 N= 6 k=4  exact  9.019  fesc  -0.63  plain   +0.6  held   -7.6  states  1134/  588
+print 20 P=6 N= 8 k=1  exact  9.949  fesc  -1.40  plain   +5.3  held   -2.1  states   205/   43
+print 20 P=6 N= 8 k=4  exact  9.903  fesc  -1.57  plain   +5.8  held   -1.7  states  2310/  588
+print 20 P=6 N=12 k=1  exact 10.183  fesc  -0.36  plain  +15.5  held   +8.4  states   377/   43
+print 20 P=6 N=12 k=4  exact 10.111  fesc  -0.38  plain  +16.4  held   +9.2  states  4662/  588
+print 60 P=2 N= 2 k=1  exact  1.514  fesc  +0.00  plain   +0.0  held   -5.6  states    11/    7
+print 60 P=2 N= 2 k=4  exact  1.514  fesc  +0.00  plain   +0.0  held   -5.6  states    29/   22
+print 60 P=2 N= 2 k=9  exact  1.514  fesc  -0.00  plain   -0.0  held   -5.6  states    79/   67
+print 60 P=2 N= 4 k=1  exact  1.587  fesc  -0.03  plain   +6.8  held   +0.2  states    25/    7
+print 60 P=2 N= 4 k=4  exact  1.588  fesc  -0.04  plain   +6.8  held   +0.1  states    73/   22
+print 60 P=2 N= 4 k=9  exact  1.588  fesc  -0.04  plain   +6.8  held   +0.1  states   213/   67
+print 60 P=4 N= 4 k=1  exact  2.989  fesc  -0.01  plain   +0.0  held   -5.4  states    45/   21
+print 60 P=4 N= 4 k=4  exact  2.989  fesc  -0.01  plain   +0.0  held   -5.4  states   238/  147
+print 60 P=4 N= 4 k=9  exact  2.989  fesc  -0.01  plain   +0.0  held   -5.4  states  1443/ 1067
+print 60 P=4 N= 6 k=1  exact  3.143  fesc  -0.09  plain   +6.9  held   +0.4  states    87/   21
+print 60 P=4 N= 6 k=4  exact  3.144  fesc  -0.13  plain   +6.9  held   +0.4  states   532/  147
+print 60 P=4 N= 6 k=9  exact  3.144  fesc  -0.13  plain   +6.9  held   +0.4  states  3577/ 1067
+print 60 P=4 N= 8 k=1  exact  3.145  fesc  -0.00  plain   +8.0  held   +1.3  states   129/   21
+print 60 P=4 N= 8 k=4  exact  3.145  fesc  -0.01  plain   +8.0  held   +1.3  states   826/  147
+print 60 P=4 N= 8 k=9  exact  3.145  fesc  -0.01  plain   +8.0  held   +1.3  states  5711/ 1067
+print 60 P=6 N= 6 k=1  exact  4.415  fesc  -0.05  plain   +0.1  held   -5.2  states   119/   43
+print 60 P=6 N= 6 k=4  exact  4.414  fesc  -0.05  plain   +0.1  held   -5.2  states  1134/  588
+print 60 P=6 N= 8 k=1  exact  4.650  fesc  -0.19  plain   +6.7  held   +0.5  states   205/   43
+print 60 P=6 N= 8 k=4  exact  4.652  fesc  -0.25  plain   +6.7  held   +0.5  states  2310/  588
+print 60 P=6 N=12 k=1  exact  4.659  fesc  -0.00  plain   +9.4  held   +2.6  states   377/   43
+print 60 P=6 N=12 k=4  exact  4.658  fesc  -0.00  plain   +9.4  held   +2.6  states  4662/  588
+
+all rows  (42 rows)  mean |err| / max |err|:  fesc 0.32/1.57  plain 6.77/20.29  held 4.34/12.20
+N = P     (16 rows)  mean |err| / max |err|:  fesc 0.12/0.63  plain 0.09/0.56  held 7.90/12.20
+N = P+2   (10 rows)  mean |err| / max |err|:  fesc 0.77/1.57  plain 7.74/10.87  held 1.03/2.12
+N = 2P    (16 rows)  mean |err| / max |err|:  fesc 0.23/0.64  plain 12.84/20.29  held 2.84/9.16
+k=1       (16 rows)  mean |err| / max |err|:  fesc 0.30/1.40  plain 6.66/20.04  held 4.34/12.20
+k=9       (10 rows)  mean |err| / max |err|:  fesc 0.29/1.49  plain 6.95/20.29  held 4.30/12.20
+
+Largest settings (exact chain > 1000 states, 12 rows): exact solve 0.8 s in total, decomposition 0.8 s; largest chain 5711 states against 1067 for the decomposition.
+Sign of the decomposition's error: 4 rows over, 38 under, mean signed -0.32%.
+
+Larger cells (print 20 min, N = 2P), where the exact chain is still solvable here but is much bigger than the subsystems:
+P= 8 N=16 k=2  exact 11.635  fesc  -0.31%  states   2697/  249  seconds 0.1/0.0
+P= 8 N=16 k=4  exact 11.569  fesc  -0.30%  states  17919/ 1749  seconds 0.7/0.3
+P=10 N=20 k=1  exact 12.395  fesc  -0.20%  states   1561/  111  seconds 0.0/0.0
+P=12 N=24 k=1  exact 12.653  fesc  -0.09%  states   2625/  157  seconds 0.1/0.0
+P=12 N=24 k=2  exact 12.629  fesc  -0.09%  states  11713/  741  seconds 0.6/0.2

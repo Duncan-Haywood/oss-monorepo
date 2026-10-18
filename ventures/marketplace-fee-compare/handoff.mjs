@@ -268,9 +268,9 @@ export const HANDOFFS = [
 /**
  * The same courtesy for the channels this page deliberately does *not* rank.
  *
- * `EXCLUDED_CHANNELS` in `calc.mjs` names three marketplaces that would be an
+ * `EXCLUDED_CHANNELS` in `calc.mjs` names four marketplaces that would be an
  * unfair row here — Faire is wholesale, Whatnot is a livestream auction,
- * Reverb is category-restricted — and gives each "a pointer instead of a row".
+ * Reverb and StockX are category-restricted — and gives each "a pointer instead of a row".
  * That pointer was a bare `../<slug>/`, so it walked a seller into exactly the
  * empty form this module was written to stop: the fix above reached the six
  * ranked channels and left the same defect on the way out to these three.
@@ -324,6 +324,28 @@ export const EXCLUDED_HANDOFFS = [
       monthlyOrders:
         'Reverb has no monthly plan fee, so there is nothing for an order count '
         + 'to spread across, and the calculator offers no input for it.',
+    },
+  },  {
+    slug: 'stockx-seller-payout-calculator',
+    label: 'StockX seller payout calculator',
+    // Names match `where-to-sell-calculator`'s vetted StockX mapping, which the
+    // sibling-agreement test asserts rather than trusts. The sale is one item
+    // at one price; what the deep tool adds is the Seller Level fee band and
+    // Fast Shipping, which no single preset rate can express.
+    fields: {
+      price: 'salePrice',
+      shippingCost: 'shippingCost',
+      itemCost: 'itemCostBasis',
+      otherCost: 'otherCost',
+    },
+    drops: {
+      shippingCharged:
+        'StockX is a bid/ask marketplace where the buyer pays StockX for '
+        + 'delivery, so no postage a buyer pays ever reaches the seller. '
+        + 'Sending it would credit revenue StockX never pays out.',
+      monthlyOrders:
+        'StockX has no monthly plan fee, so there is nothing for an order '
+        + 'count to spread across, and the calculator offers no input for it.',
     },
   },
 ];

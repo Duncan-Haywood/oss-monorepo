@@ -1417,7 +1417,7 @@ function roundName(matchesInRound) {
  * field gives the top seeds a first-round bye. Later-round slots name the match they come
  * from. Optional dates continue after `afterDay` on the league's weekdays.
  */
-export function playoffBracket(seedNames, { afterDay = null, weekdays = [], skipDays = [] } = {}) {
+export function playoffBracket(seedNames, { afterDay = null, weekdays = [], skipDays = [], thirdPlace = false } = {}) {
   const k = seedNames.length;
   if (k < 2) throw new Error("A play-off needs at least two teams.");
   const size = nextPow2(k);
@@ -1453,6 +1453,10 @@ export function playoffBracket(seedNames, { afterDay = null, weekdays = [], skip
       r.day = d;
       d++;
     }
+  }
+  if (thirdPlace && k >= 4) {
+    const semis = rounds[rounds.length - 2].matches;
+    rounds[rounds.length - 1].matches.push({ id: "3P", a: { loserOf: semis[0].id }, b: { loserOf: semis[1].id }, bye: false });
   }
   const games = rounds.reduce((s, r) => s + r.matches.filter((m) => !m.bye).length, 0);
   return { size, teams: k, rounds, games };
@@ -1557,7 +1561,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "rainouts", "withdrawals", "officials", "grounds"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -1585,6 +1589,7 @@ export function decodeFields(text) {
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
+      playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
       rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds),
     };
   } catch { return null; }
@@ -1624,9 +1629,9 @@ export function parseSwissResults(text, players) {
   return { games, byes, errors };
 }
 
-/** Score table: win 1, draw 0.5, bye counts as a win. Buchholz = sum of opponents' scores. */
+/** Score table: win 1, draw 0.5, bye counts as a win. Buchholz = sum of opponents' scores, then Sonneborn-Berger breaks ties. */
 export function swissStandings(players, games, byes = [], { win = 1, draw = 0.5 } = {}) {
-  const rows = players.map((name, i) => ({ index: i, name, score: 0, played: 0, opponents: [], whites: 0, blacks: 0, last: [] }));
+  const rows = players.map((name, i) => ({ index: i, name, score: 0, played: 0, opponents: [], whites: 0, blacks: 0, last: [], beaten: [], drawn: [] }));
   for (const g of games) {
     const A = rows[g.a];
     const B = rows[g.b];
@@ -1634,16 +1639,20 @@ export function swissStandings(players, games, byes = [], { win = 1, draw = 0.5 
     A.opponents.push(g.b); B.opponents.push(g.a);
     A.whites++; B.blacks++;
     A.last.push("W"); B.last.push("B");
-    if (g.ga > g.gb) A.score += win;
-    else if (g.ga < g.gb) B.score += win;
-    else { A.score += draw; B.score += draw; }
+    if (g.ga > g.gb) { A.score += win; A.beaten.push(g.b); }
+    else if (g.ga < g.gb) { B.score += win; B.beaten.push(g.a); }
+    else { A.score += draw; B.score += draw; A.drawn.push(g.b); B.drawn.push(g.a); }
   }
   for (const i of byes) rows[i].score += win;
-  for (const r of rows) r.buchholz = r.opponents.reduce((s, o) => s + rows[o].score, 0);
+  for (const r of rows) {
+    r.buchholz = r.opponents.reduce((s, o) => s + rows[o].score, 0);
+    // Sonneborn-Berger: full opponent score for each win, half for each draw. Rewards beating the strong.
+    r.sonnebornBerger = r.beaten.reduce((s, o) => s + rows[o].score, 0) + r.drawn.reduce((s, o) => s + rows[o].score, 0) * (draw / win);
+  }
   const byeSet = new Map();
   for (const i of byes) byeSet.set(i, (byeSet.get(i) ?? 0) + 1);
   for (const r of rows) r.byes = byeSet.get(r.index) ?? 0;
-  rows.sort((x, y) => y.score - x.score || y.buchholz - x.buchholz || x.index - y.index);
+  rows.sort((x, y) => y.score - x.score || y.buchholz - x.buchholz || y.sonnebornBerger - x.sonnebornBerger || x.index - y.index);
   rows.forEach((r, i) => { r.rank = i + 1; });
   return rows;
 }

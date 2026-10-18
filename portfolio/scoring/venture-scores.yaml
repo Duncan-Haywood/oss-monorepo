@@ -24768,6 +24768,30 @@ ventures:
       ethical_robustness: pass
     gate_note: >-
       Liability: arithmetic on user-typed dates, never states anyone's tax residency, rule table labelled as commonly published and overridable, no tax filing, nothing stored. Ethics: helps people keep an honest record of where they were.
+  - slug: s-corp-basis-tracker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Algorithmic, browser-local (S corporation stock and debt basis roll-forward in Form 7203 order); no language model and no paid API.
+    basis: >-
+      Scored 2026-10-17 in the session that added the venture; see its VENTURE.yaml comment for the
+      screening. Distribution 6: shareholders and preparers searching "S corp basis calculator" and "Form 7203 worksheet"
+      (volume not measured with an external tool). Defensibility 5: basis modules are bundled in paid preparer software and
+      spreadsheets often get the ordering wrong; a free private roll-forward with suspended-loss flags is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed K-1 figures, never files a form or says a figure is right for a return, unmodelled limits named on the page, nothing stored. Ethics: helps owners avoid losing deductions to unnoticed suspension and avoid unreported excess distributions.
   - slug: nsa-idr-offer-calculator
     scores:
       ai_leverage: 4
