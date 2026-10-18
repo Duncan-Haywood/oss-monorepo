@@ -103,3 +103,9 @@ test("--prices adds the harvesting and wait views, and rejects bad prices", () =
   assert.equal(j.harvest.taxSaved, 1950.33);
   assert.ok(Array.isArray(j.wait.lots));
 });
+
+test("--donate prints a gift plan and rejects missing inputs", async () => {
+  const { main, parseArgs } = await import("./cli.mjs");
+  assert.equal(parseArgs(["--donate", "btc", "--price", "9", "--qty", "1", "x.csv"]).donate, "BTC");
+  assert.equal(await main(["--example", "--donate", "BTC"]), 2);
+});

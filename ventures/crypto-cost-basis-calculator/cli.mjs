@@ -14,7 +14,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
-import { analyze, planSale, parsePrices, harvestPlan, waitPlan, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
+import { analyze, planSale, donationPlan, parsePrices, harvestPlan, waitPlan, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
@@ -35,7 +35,9 @@ Options:
   --short-rate <pct>  short-term rate for the tax estimate (default 24)
   --long-rate <pct>   long-term rate for the tax estimate (default 15)
   --sell <COIN>       sell planner: compare the five methods for selling COIN; needs --price and --qty or --cash
-  --price <usd>       price per coin for --sell
+  --donate <COIN>     gift planner: which long-held lots of COIN to give to a public charity, and the gain tax avoided; needs --price and --qty
+  --deduction-rate <r> your rate (0-1) to value the deduction in --donate (default 0: deduction ignored)
+  --price <usd>       price per coin for --sell or --donate
   --qty <coins>       coins to sell with --sell
   --cash <usd>        dollars to raise with --sell (used when --qty is absent)
   --sale-date <date>  date of the planned sale or price check (default: today)
@@ -88,6 +90,8 @@ export function parseArgs(argv) {
       opts.filing = f;
     }
     else if (arg === "--sell") opts.sell = need(++i, arg).toUpperCase();
+    else if (arg === "--donate") opts.donate = need(++i, arg).toUpperCase();
+    else if (arg === "--deduction-rate") opts.deductionRate = Number(need(++i, arg));
     else if (arg === "--price" || arg === "--qty" || arg === "--cash") {
       const v = Number(need(++i, arg));
       if (!(v > 0)) throw new Error(`${arg} needs a number above zero`);
@@ -176,6 +180,15 @@ export function renderPrices(h, w) {
   return out.join("\n") + "\n";
 }
 
+export function renderDonation(d) {
+  if (!d.qty) return `\nGift plan: no ${d.asset} held over a year on record. Short-term lots are not valued at market for a gift.\n`;
+  const out = ["", `Gift plan: ${d.qty} ${d.asset} at ${usd(d.price)} on ${d.asOf}${d.capped ? ` (asked for ${d.requested}; only ${d.longQty} held over a year)` : ""}`];
+  for (const l of d.lots) out.push(`  ${l.acquired}  ${String(l.qty).padStart(12)}  value ${usd(l.value).padStart(12)}  basis ${usd(l.basis).padStart(12)}  gain ${usd(l.gain).padStart(12)}`);
+  out.push(`  Value ${usd(d.value)}, gain never taxed ${usd(d.gain)}, long-term tax avoided ${usd(d.taxAvoided)}` + (d.deductionValue ? `, deduction worth ${usd(d.deductionValue)}` : "") + ".");
+  out.push("  Estimate only: deduction limits, appraisal rules and itemizing decide the rest; ask a tax professional.");
+  return out.join("\n") + "\n";
+}
+
 function totalsLine(result) {
   const f = form8949Totals(result.rows);
   const bt = result.rows.some((r) => r.reported) ? "\n" + form8949BoxTotals(result.rows).map((b) => `Box ${b.box}: ${b.rows} row(s), proceeds ${usd(b.proceeds)}, basis ${usd(b.basis)}, gain ${usd(b.gain)}`).join("\n") : "";
@@ -203,6 +216,7 @@ export async function main(argv) {
   if (opts.sell) {
     if (!opts.price || (!opts.qty && !opts.cash)) { process.stderr.write("--sell needs --price and --qty or --cash\n"); return 2; }
   }
+  if (opts.donate && (!opts.price || !opts.qty)) { process.stderr.write("--donate needs --price and --qty\n"); return 2; }
   if (opts.incomeCsv) await writeFile(opts.incomeCsv, toIncomeCsv(r.result.incomeReport));
   if (opts.form8949) await writeFile(opts.form8949, toForm8949Csv(r.result.rows));
   const plan = opts.sell ? planSale(r.result.openLots, { asset: opts.sell, price: opts.price, asOf: opts.saleDate || new Date().toISOString().slice(0, 10), qty: opts.qty ?? null, cash: opts.qty ? null : opts.cash ?? null, summary: r.result.summary, shortRate: opts.shortRate, longRate: opts.longRate }) : null;
@@ -212,8 +226,9 @@ export async function main(argv) {
     const common = { asOf, summary: r.result.summary, shortRate: opts.shortRate, longRate: opts.longRate };
     pr = { harvest: harvestPlan(r.result.openLots, opts.prices, common), wait: waitPlan(r.result.openLots, opts.prices, common) };
   }
-  if (opts.json) process.stdout.write(JSON.stringify({ ...r.result, ...(plan ? { plan } : {}), ...(pr ? { harvest: pr.harvest, wait: pr.wait } : {}) }, null, 2) + "\n");
-  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : "") + (pr ? renderPrices(pr.harvest, pr.wait) : ""));
+  const gift = opts.donate ? donationPlan(r.result.openLots, { asset: opts.donate, price: opts.price, asOf: opts.saleDate || new Date().toISOString().slice(0, 10), qty: opts.qty, longRate: opts.longRate, deductionRate: opts.deductionRate || 0 }) : null;
+  if (opts.json) process.stdout.write(JSON.stringify({ ...r.result, ...(plan ? { plan } : {}), ...(pr ? { harvest: pr.harvest, wait: pr.wait } : {}), ...(gift ? { gift } : {}) }, null, 2) + "\n");
+  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : "") + (pr ? renderPrices(pr.harvest, pr.wait) : "") + (gift ? renderDonation(gift) : ""));
   return 0;
 }
 
