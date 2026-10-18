@@ -356,7 +356,7 @@ def clip_path(seq: Asset, cfg: Config, fps: int, start: int, end: int,
 def ffmpeg_args(frames_pattern: str | Path, fps: int, out_path: str | Path, cfg: Config) -> list[str]:
     """The ffmpeg command that plays numbered JPEGs at fps, deflickered, into H.264 (pure)."""
     vf = (f"deflicker=size={DEFLICKER_FRAMES}:mode=am,"
-          "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p")
+          "scale=out_color_matrix=bt709:out_range=tv:flags=accurate_rnd+full_chroma_int,format=yuv420p")
     return [cfg.ffmpeg, "-nostdin", "-hide_banner", "-v", "error", "-y",
             "-framerate", str(fps), "-start_number", "0", "-i", str(frames_pattern),
             "-vf", vf, "-an", "-c:v", "libx264", "-preset", CLIP_PRESET, "-crf", str(CLIP_CRF),
@@ -434,7 +434,12 @@ def render_clip(seq: Asset, members: list[Asset], cfg: Config, fps: int, start: 
 
 def reel_source(seq: Asset, store, cfg: Config, keep_aspect: bool = False) -> dict:
     """What a reel shows for a sequence: the clip Claude asked for when it judged the run a
-    timelapse or stop-motion ({"kind": "video"}), else its sharpest frame as a still."""
+    timelapse or stop-motion ({"kind": "video"}), else its sharpest frame as a still. A night run
+    the astro stage made a stack, star trails or a trail timelapse of uses that instead."""
+    from . import astro
+    made = astro.reel_source(seq, store)
+    if made is not None and not (keep_aspect and made["kind"] == "video"):
+        return made
     score = store.get("scores", seq.id, Score)
     members = [store.get("assets", m, Asset) for m in seq.members]
     if any(m is None for m in members) or not members:

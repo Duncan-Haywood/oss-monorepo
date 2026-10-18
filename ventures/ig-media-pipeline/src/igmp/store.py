@@ -10,8 +10,10 @@ from typing import Iterator, TypeVar
 
 from pydantic import BaseModel
 
-# edit_plans: director settings and critic rounds of edits still in progress
-TABLES = ("assets", "metrics", "scores", "curation", "edit_plans", "edits", "reels", "meta", "geo", "jobs")
+# edit_plans: director settings and critic rounds of edits still in progress; reel_plans: story-pass
+# plans of reels as they arrive; reel_rounds: every draft, check and critic round of a reel
+TABLES = ("assets", "metrics", "scores", "curation", "edit_plans", "edits", "reels", "reel_plans", "reel_rounds",
+          "meta", "geo", "carousels", "astro", "jobs")
 M = TypeVar("M", bound=BaseModel)
 
 

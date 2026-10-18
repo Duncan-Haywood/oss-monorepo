@@ -409,7 +409,8 @@ def test_build_args_fit(tmp_path):
     assert seg[2].endswith(",scale=1080:720:flags=lanczos[fit0v0fg]")
     # composited a little above centre in RGB, then the usual tail
     assert seg[3].startswith("[fit0v0bg][fit0v0fg]overlay=x=0:y=524:format=gbrp,"
-                             "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p")
+                             "scale=flags=accurate_rnd+full_chroma_int:out_color_matrix=bt709:out_range=tv,"
+                             "format=yuv420p")
     assert seg[3].endswith("trim=end_frame=60,setsar=1[s0]")
     # a foreground that does not move is shrunk once, before the loop
     assert seg[6] == "[fit1v0f]scale=1080:720:flags=lanczos,loop=loop=29:size=1:start=0,settb=1/30,setpts=N[fit1v0fg]"
@@ -444,14 +445,16 @@ def test_build_args_pan(tmp_path):
                                 "settb=1/30,setpts=N,crop=w=2164:h=3840:x='clip(2*floor(((clip(1080.0000+"
                                 "(2160.0000)*(min(1,n/59))*")
     assert "perspective=x0='(clip(1080.0000+(2160.0000)*(min(1,(in-1)/59))*" in chains[0]
-    assert ",crop=2160:3840:0:0,scale=1080:1920:flags=lanczos,scale=out_color_matrix=bt709" in chains[0]
+    assert (",crop=2160:3840:0:0,scale=1080:1920:flags=lanczos,"
+            "scale=flags=accurate_rnd+full_chroma_int:out_color_matrix=bt709") in chains[0]
     assert "pow(" not in chains[0] and "trim=end_frame=60" in chains[0]
     # with the default push-in the zoom is part of the same expressions
     assert "max(1.0005,1.000000*pow(1.08000000,min(1,(in-1)/29)))" in chains[1]
     # video: cover-scaled at output size, the same moving crop + perspective, no integer crop
     assert chains[2].startswith("[2:v:0]setpts=PTS-STARTPTS,fps=30,scale=3414:1920:flags=lanczos,"
                                 "crop=w=1084:h=1920:x='clip(2*floor(")
-    assert ",crop=1080:1920:0:0,scale=out_color_matrix=bt709" in chains[2] and "pow(" not in chains[2]
+    assert ",crop=1080:1920:0:0,scale=flags=accurate_rnd+full_chroma_int:out_color_matrix=bt709" in chains[2]
+    assert "pow(" not in chains[2]
     assert "-ss 2.000 -t 2.500 -i /v.mp4" in " ".join(args)
 
 

@@ -141,11 +141,15 @@ class Shot(BaseModel):
     focus_to: Point | None = Field(
         None, description="fill only: the crop centre moves from focus to here over the shot (a slow pan "
                           "across a wide landscape); null keeps it still")
-    transition: Literal["cut", "crossfade", "whip-left", "whip-right", "zoom-in", "dip-black", "wipe"] = Field(
+    transition: Literal["cut", "crossfade", "whip-left", "whip-right", "zoom-in", "dip-black", "wipe", "morph",
+                        "zoom-through", "flash", "ramp-cut"] = Field(
         "cut", description="How this shot arrives from the previous one; mostly cuts on the beat, a few motivated "
                            "transitions (a whip on a fast move, a crossfade on a mood change, zoom-in through to "
                            "a new place, dip-black between chapters of a long reel; 'wipe' is the before/after "
-                           "reveal from a camera version to the edit of the same frame). Ignored on shot 1")
+                           "reveal from a camera version to the edit of the same frame; 'morph' melts one frame "
+                           "into a similar one (match cut on shape), 'zoom-through' pushes through the depth of "
+                           "the outgoing shot into the next place, 'flash' is a white luma dip on a hit, "
+                           "'ramp-cut' speeds the outgoing clip into the cut). Ignored on shot 1")
     speed: float = Field(1.0, ge=0.25, le=4.0, description="Video only: 1 normal, below 1 slow motion, above 1 "
                                                           "faster (speed ramps); stills ignore it")
     speed_to: float | None = Field(
@@ -183,6 +187,16 @@ class ReelPlan(BaseModel):
     cover_asset_id: str
     caption: str = Field(description="One or two lines; no hashtags, no names of people")
     music: MusicChoice | None = Field(None, description="Null when music is added later in the app")
+
+
+class SlotPlan(BaseModel):
+    slot: str = Field(description="The slot this plan fills, exactly as named in the request, e.g. 'short-02'")
+    plan: ReelPlan
+
+
+class ReelSet(BaseModel):
+    """One story pass for several reels of an event: the main edit and the cut-downs derived from it."""
+    reels: list[SlotPlan] = Field(description="One plan per requested slot, in the order requested")
 
 
 class Critique(BaseModel):

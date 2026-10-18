@@ -699,7 +699,10 @@ def test_soft_draft_held_frame(soft, soft4, cfg):
     by = {f.rule: f for f in qc.check_reel(soft4("hold"), cfg, draft=True).findings}
     assert not by["frozen"].ok and by["frozen"].value[-1][1] == 3.0
     by = {f.rule: f for f in qc.check_reel(soft("hold"), cfg, draft=True).findings}
-    assert by["frozen"].ok and by["hook_motion"].ok
+    # whether the encoder keeps refining the dark blocks at 2 Mb/s depends on the x264 build (it does
+    # with ffmpeg 6 on Linux, not with ffmpeg 8 on macOS): the split is allowed, never required
+    assert by["hook_motion"].ok
+    assert by["frozen"].ok or by["frozen"].value[-1][1] == 3.0
 
 
 # --------------------------------------------------------------------------- command line

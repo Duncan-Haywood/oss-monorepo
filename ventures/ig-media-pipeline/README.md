@@ -1,12 +1,12 @@
 # ig-media-pipeline (`igmp`)
 
-Turns an organised photo and video library into edited Instagram photos and 15-second vertical
-reels, with no human steps. Code does the mechanical work the same way every time; Claude makes
+Turns an organised photo and video library into edited Instagram photos and vertical reels
+(short, medium and long), with no human steps. Code does the mechanical work the same way every time; Claude makes
 the judgment calls against a written [style guide](style/STYLE_GUIDE.md).
 
 ```
 library ──scan──> catalog ──prefilter──> candidates ──score──> keepers ──edit──> IG photos
-                                                         └──────reels──> 15 s reels + captions
+                                                         └──────reels──> reels + captions + covers
 ```
 
 | Stage | What happens | Who decides |
@@ -15,8 +15,9 @@ library ──scan──> catalog ──prefilter──> candidates ──score�
 | geo | Matches shots to a phone's GPS track (Apple Photos, an exported folder, GPX/CSV, Google Timeline) by time; suggests place labels for unlabelled days | code |
 | prefilter | Sharpness, exposure, dHash bursts, usable video stretches; on macOS a free Apple Vision pass (aesthetics, face capture quality incl. blinks in groups, feature prints for near-duplicates across cameras); intervalometer runs become one timelapse/stop-motion **sequence** | code, local, free |
 | score | Each candidate is scored 0-10 with a role, 9:16 and feed crop centres, the best stretch of a clip, a 360 view direction, or (for sequences) timelapse vs stop-motion, fps and frame range | Claude |
+| astro | Night-sky runs (night intervalometer sequences, and 3+ dark tripod frames close in time) with a long exposure are measured locally (exposure, stars, sky drift); Claude picks the outputs - a star-aligned **stack**, **star trails**, a **timelapse** or a **trail timelapse** - the frames to use and drop, the horizon, the foreground and the grade; code aligns the sky on the stars and stacks it with sigma clipping, holds the foreground still, and grades; a critic ships, revises (up to twice) or rejects each still | Claude + numpy |
 | edit | A curator drops near-repeats per event; every frame >= 6.5 plus each event's best 15% get RAW edit settings and a feed shape (4:5, 1:1 or 1.91:1); RawTherapee renders; a checklist critic ships, revises (up to twice) or rejects | Claude + RawTherapee |
-| reels | Per event (thin consecutive days merge into one trip), a story pass picks 6-10 shots and a licensed track, cuts land on its beats; ffmpeg renders 1080x1920 with the mix at -14 LUFS; a stricter critic (hook, sharpness, redundancy, UI-safe crops, pacing, ending) ships it or revises up to three times, else it waits in `reels/_needs-attention/` | Claude + ffmpeg |
+| reels | Per event (thin consecutive days merge into one trip) ONE creative pass plans the main edit and the cut-downs derived from it: a long recap (60 s-3 min, per trip), a medium arc (30-60 s), several shorts (7-15 s) each with its own hook, and a B version of the first short for an A/B trial. Code holds each plan to the hard rules (beat grid, length band, the first second moves, every still moves, at most one bordered shot); each shot renders once as a cached segment, a transition director picks the cuts from measurements of them; automatic checks (`qc`) send a faulty draft straight back for a fix; a per-class critic ships it or revises up to three times; shipped reels are rendered final with a 3:4-safe cover, the rest wait in `reels/_needs-attention/` | Claude + ffmpeg |
 | tag | After every stage, XMP sidecars carry what was learned | code |
 
 Every decision is stored, so a stopped run resumes where it left off and a re-render is exact.
@@ -42,8 +43,12 @@ uv venv && uv pip install -e '.[dev]'
 ```
 
 Settings live in `~/.config/igmp/config.toml` (or `$IGMP_CONFIG`), outside this repository,
-because they name your drives. Outputs go to `output_dir`: `photos/<event>/`, `reels/<event>.mp4`
-with a `.caption.txt`, and `state/` (database, previews, logs).
+because they name your drives. Outputs go to `output_dir`: `photos/<event>/`,
+`reels/{short,medium,long}/<event>__<class>-NN.mp4` with a `.caption.txt` (the caption, then the
+track it was cut to) and a `.jpg` cover (reels of `review_events` wait in `reels/_review/` for your
+approval), `ready/index.jpg` + `index.csv` (everything shipped, as a posting queue of about three a
+week), and `state/` (database, previews, cached segments, logs). Every story plan and critic round is
+saved as it happens, so a stopped run continues where it was.
 
 ## Two ways to pay for Claude
 
@@ -70,10 +75,11 @@ Both send downscaled previews (about 1024 px), never the original files.
 
 ## Commands
 
-`igmp run` runs every stage. `igmp scan | geo | prefilter | score | edit | reels | tag | status` run one.
+`igmp run` runs every stage. `igmp scan | geo | prefilter | score | astro | edit | reels | tag | status` run one.
 `igmp music` lists the analysed music library. `igmp backup manifest | verify | copy --to DEST` keeps
 checksums for the library and makes verified copies. `--only TEXT` limits a run to matching events;
-`--limit N` scores at most N new candidates.
+`--limit N` scores at most N new candidates (`reels`: makes at most N reels); `--mix short=3,medium=1,long=1`
+sets how many reels of each length an event gets (default: scaled by its keepers).
 
 ## Reel QC
 

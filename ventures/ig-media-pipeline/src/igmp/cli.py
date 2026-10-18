@@ -1,8 +1,8 @@
-"""igmp: library -> Instagram photos and reels.
+"""igmp: library -> Instagram photos, reels and carousels.
 
   igmp init        write a settings template (~/.config/igmp/config.toml)
   igmp run         every stage below, resuming where the last run stopped
-  igmp scan | prefilter | score | edit | reels | status
+  igmp scan | prefilter | score | edit | reels | carousels | status
 """
 from __future__ import annotations
 
@@ -87,8 +87,8 @@ def measure(cfg: config.Config, store: Store, assets: list[Asset]) -> None:
 
 
 def status(store: Store) -> None:
-    for table in ("assets", "metrics", "scores", "edits", "reels", "jobs"):
-        print(f"{table:8} {sum(1 for _ in store.all(table))}")
+    for table in ("assets", "metrics", "scores", "edits", "reels", "carousels", "jobs"):
+        print(f"{table:9} {sum(1 for _ in store.all(table))}")
 
 
 def run_backup(cfg: config.Config, args) -> int:
@@ -97,7 +97,8 @@ def run_backup(cfg: config.Config, args) -> int:
     from . import backup
     # the library plus finished outputs; previews and the live database are rebuildable caches
     roots = [r for r in cfg.library_roots if r.exists()]
-    roots += [d for d in (cfg.output_dir / "photos", cfg.output_dir / "reels") if d.exists()]
+    roots += [d for d in (cfg.output_dir / "photos", cfg.output_dir / "reels", cfg.output_dir / "carousels")
+              if d.exists()]
     bad = 0
     for root in roots:
         if args.action == "verify":
@@ -120,12 +121,15 @@ def run_backup(cfg: config.Config, args) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="igmp", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("command", choices=["init", "run", "scan", "prefilter", "score", "edit", "reels", "tag",
-                                       "backup", "geo", "music", "status"])
+    p.add_argument("command", choices=["init", "run", "scan", "prefilter", "score", "astro", "edit", "reels", "carousels",
+                                       "tag", "backup", "geo", "music", "status"])
     p.add_argument("action", nargs="?", choices=["manifest", "verify", "copy"], help="backup only")
     p.add_argument("--to", type=str, default=None, help="backup copy destination")
     p.add_argument("--only", type=str, default=None, help="limit to events whose key contains this text")
-    p.add_argument("--limit", type=int, default=None, help="score at most this many candidates")
+    p.add_argument("--limit", type=int, default=None,
+                   help="score at most this many candidates (reels, carousels: make at most this many)")
+    p.add_argument("--mix", type=str, default=None,
+                   help="reels per event by length, e.g. short=3,medium=1,long=1 (default: scaled by its keepers)")
     p.add_argument("--config", type=str, default=None)
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -170,20 +174,28 @@ def main(argv: list[str] | None = None) -> int:
                 and not store.has("scores", a.id)][:args.limit]
         ids = {a.id for a in keep} | {a.id for a in assets if store.has("scores", a.id)}
         assets = [a for a in assets if a.id in ids]
-    if args.command in ("score", "edit", "reels", "run"):
+    if args.command in ("score", "astro", "edit", "reels", "carousels", "run"):
         from .judge import backend
         judge = backend(cfg)
         if args.command in ("score", "run"):
             from . import taste
             taste.score_all(cfg, store, judge, assets)
             assets = refresh()
+        if args.command in ("astro", "run"):
+            # before edit: a stack becomes the edit of its run's lead frame, so editing skips it
+            from . import astro
+            astro.run(cfg, store, judge, assets, only=args.only)
         if args.command in ("edit", "run"):
             from . import editing
             editing.edit_all(cfg, store, judge, assets)
             assets = refresh()
         if args.command in ("reels", "run"):
             from . import reels
-            reels.build_all(cfg, store, judge, assets)
+            reels.build_all(cfg, store, judge, assets, mix=reels.Mix.parse(args.mix) if args.mix else None,
+                            only=args.only, limit=args.limit if args.command == "reels" else None)
+        if args.command in ("carousels", "run"):
+            from . import carousels
+            carousels.build_all(cfg, store, judge, assets, limit=args.limit if args.command == "carousels" else None)
     if args.command in ("scan", "prefilter", "reels", "tag", "geo", "run"):
         refresh()
     status(store)

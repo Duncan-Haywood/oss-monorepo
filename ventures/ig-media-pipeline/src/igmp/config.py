@@ -47,6 +47,9 @@ natural_sound = true    # keep the clips' own sound under the music; loud moment
 # Events whose key contains one of these go to reels/_review/ (they feature other people), even
 # when the critic shipped them; you approve them by hand.
 # review_events = ["Wedding"]
+# reel_workers = 4        # reels in progress at once (Claude calls stay within `parallel`)
+# reel_render_slots = 2   # reels rendering at once (each render uses every core for its segments)
+# posts_per_week = 3      # the posting queue in ready/index.csv
 """
 
 REEL_CLASSES = ("short", "medium", "long")
