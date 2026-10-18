@@ -200,7 +200,8 @@
     <h2>Swiss system: pair the next round</h2>
     <p class="note">For chess, darts, board-game and esports events where a full round robin takes too long. List the players best seed first (the Teams box above), type finished games below as <code>Ana 1 - 0 Ben</code> (equal numbers are a draw) or <code>Cy bye</code>, and get the next round's boards: players with the same score meet, nobody meets twice, the bye goes to someone who has not had one, and colours alternate. The table ranks by score, then Buchholz (the sum of your opponents' scores).</p>
     <label for="swiss-results">Finished games so far (all rounds)</label>
-    <textarea id="swiss-results" rows="4" placeholder="Ana 1 - 0 Ben&#10;Cy 1 - 1 Dee"></textarea>
+    <textarea id="swiss-results" rows="4" placeholder="Ana 1 - 0 Ben&#10;Cy 1 - 1 Dee&#10;Eve out"></textarea>
+    <p class="note">A line like <code>Eve out</code> removes a player who has left: their games stay in the table and nobody is paired with them again.</p>
     <button type="button" id="build-swiss">Pair next round</button>
     <button type="button" class="secondary" id="dl-swiss">Download pairings (text)</button>
     <p id="swiss-status" role="status" class="note"></p>
@@ -641,15 +642,15 @@
       const parsed = parseSwissResults($("#swiss-results").value, players);
       if (parsed.errors.length) { out.textContent = parsed.errors.join(" "); return; }
       let round;
-      try { round = swissPairings(players, parsed.games, parsed.byes); } catch (e) { out.textContent = e.message; return; }
-      const problems = validateSwiss(players, parsed.games, parsed.byes, round);
+      try { round = swissPairings(players, parsed.games, parsed.byes, parsed.withdrawn); } catch (e) { out.textContent = e.message; return; }
+      const problems = validateSwiss(players, parsed.games, parsed.byes, round, parsed.withdrawn);
       if (problems.length) { out.textContent = problems.join(" "); return; }
       const played = Math.max(0, ...swissStandings(players, parsed.games, parsed.byes).map((r) => r.played + r.byes));
       const table = swissStandings(players, parsed.games, parsed.byes);
       swissOut = swissText(players, round, played + 1) + "\n\nStandings\n" +
         table.map((r) => `  ${r.rank}. ${r.name}  ${r.score} pts  Buchholz ${r.buchholz}  SB ${r.sonnebornBerger}`).join("\n");
       $("#swiss-out").textContent = swissOut;
-      out.textContent = `Round ${played + 1} of about ${swissRounds(players.length)} for ${players.length} players. The pairing passed the check.`;
+      out.textContent = `Round ${played + 1} of about ${swissRounds(players.length)} for ${players.length - parsed.withdrawn.length} players${parsed.withdrawn.length ? ` (${parsed.withdrawn.length} left the event)` : ""}. The pairing passed the check.`;
       record("swiss_paired");
     }));
     $("#dl-swiss").addEventListener("click", () => { if (swissOut) download("swiss-pairings.txt", swissOut, "text/plain"); });
