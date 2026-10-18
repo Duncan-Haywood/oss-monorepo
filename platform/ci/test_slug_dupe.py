@@ -47,7 +47,19 @@ class T(unittest.TestCase):
         self.assertFalse(on_main)
         self.assertEqual(commits, [])
         self.assertEqual(branches, ["claude/bar-tool-1"])
-        self.assertEqual(slug_dupe.main(["bar-tool"]), 0)
+        import contextlib, io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(slug_dupe.main(["bar-tool"]), 0)
+        self.assertIn("notice: branch claude/bar-tool-1", out.getvalue())
+        self.assertNotIn("no duplicate found", out.getvalue())
+
+    def test_unknown_slug_says_no_duplicate(self):
+        import contextlib, io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(slug_dupe.main(["nope-zzz"]), 0)
+        self.assertIn("nope-zzz: no duplicate found", out.getvalue())
 
     def test_default_window_is_14_days(self):
         seen = []
