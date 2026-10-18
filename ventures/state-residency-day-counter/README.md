@@ -33,6 +33,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `maryland-utah-182-day-limit.html` - guide for the two states whose test
   reads "183 days or more", so the safe maximum is 182; figures recomputed by
   the test suite.
+- `georgia-new-mexico-louisiana-days-only-residency.html` - guide for the three states whose day test needs no place of abode; figures recomputed by the test suite.
 - `california-nine-month-residency-presumption.html` - guide on why California
   has a nine-month presumption rather than a 183-day test; figures recomputed by
   the test suite.
