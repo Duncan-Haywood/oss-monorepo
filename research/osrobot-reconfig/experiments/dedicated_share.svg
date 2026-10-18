@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the share of random job mixes in which one robot per job is the cheapest option, against how far apart the trays sit, for 2, 4 and 8 jobs">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">A robot per job is cheapest only when trays are spread out</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="261.6" y2="261.6" stroke="#ddd"/><text x="58" y="265.6" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="199.1" y2="199.1" stroke="#ddd"/><text x="58" y="203.1" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="136.7" y2="136.7" stroke="#ddd"/><text x="58" y="140.7" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="74.3" y2="74.3" stroke="#ddd"/><text x="58" y="78.3" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">tray scatter radius (m)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">share of mixes</text>
+<polyline points="64.0,324.0 250.7,311.5 437.3,146.1 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="311.5" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="146.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">2 jobs</text>
+<polyline points="64.0,324.0 250.7,324.0 437.3,324.0 624.0,274.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="274.1" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">4 jobs</text>
+<polyline points="64.0,324.0 250.7,324.0 437.3,324.0 624.0,111.7" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="111.7" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">8 jobs</text>
+</svg>
