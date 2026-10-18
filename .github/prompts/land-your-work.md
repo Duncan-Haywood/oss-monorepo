@@ -119,6 +119,10 @@ These are **not** reasons:
   `python3 platform/ci/slug_dupe.py <slug>` (exit 1: already on `main` or
   landed in the last 14 days), then land yours or close it with a pointer to
   the survivor (`CLAUDE.md`, "Duplicate PRs").
+  To check open PRs cheaply, use `search_pull_requests` with
+  `is:open repo:duncan-haywood/oss-monorepo <slug or keyword> in:title` and
+  `minimal_output`; `list_pull_requests` returns tens of KB of unrelated PRs
+  (reported by research, ventures and review runs).
 - **The brief didn't say to open a PR.** This file says so.
 
 ## Other agents' unlanded work is yours too
