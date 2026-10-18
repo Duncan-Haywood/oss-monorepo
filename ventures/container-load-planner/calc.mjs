@@ -758,7 +758,7 @@ export function sampleCargo(sys = SYSTEMS.metric) {
     ["Carton A (spare parts)", 60, 40, 40, 18, 300, "upright", "", ""],
     ["Carton B (boxed fittings)", 50, 40, 30, 12, 450, "upright", "", ""],
     ["Fragile glassware", 45, 35, 35, 9, 100, "upright", 2, 5],
-    ["Euro pallet, floor only", 120, 80, 110, 420, 10, "upright", 1, 0],
+    ["Euro pallet (floor only)", 120, 80, 110, 420, 10, "upright", 1, 0],
     ["Long tube bundle", 200, 25, 25, 20, 10, "any", "", ""],
   ];
   const f = (n, k) => (sys.id === "metric" ? n : +(n / k).toFixed(2));

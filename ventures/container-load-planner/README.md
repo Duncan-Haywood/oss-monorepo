@@ -20,6 +20,19 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   checker.
 - Printable load plan: one self-contained HTML file (no script) with a to-scale top and side SVG per container, the ordered-versus-packed table, the balance check, the loading list and the disclaimer, to print to PDF for the warehouse or the forwarder (`planReportHtml`).
 - Share link: `encodeShare`/`decodeShare` put the whole form in the URL hash (`#plan=...`) so a plan can be sent to a forwarder or colleague; nothing is stored on a server.
+- Command line: `cli.mjs` runs the same packer on a cargo CSV with no browser and no network, for forwarders and ops scripts that plan many shipments. Zero dependencies.
+
+  ```
+  node cli.mjs cargo.csv                       # containers needed, fit, balance (40 ft by default)
+  node cli.mjs --container 20ft cargo.csv      # 20ft, 40ft, 40hc, 53ft, truck26
+  node cli.mjs --container 589x235x239@28200 cargo.csv   # your own inside size (cm) and payload (kg)
+  node cli.mjs --compare cargo.csv             # every standard size, loose and on pallets
+  node cli.mjs --csv cargo.csv > loading.csv   # loading list
+  node cli.mjs --html cargo.csv > plan.html    # printable to-scale plan
+  node cli.mjs --json cargo.csv                # for scripts; add --imperial for inches and pounds
+  ```
+
+  Cargo lines are `name, length, width, height, weight, quantity[, rotation, highest layer, weight on top]`; `--example` runs the invented sample.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-plan-a-container-load.html` - guide with a worked example that the
   test suite recomputes.
