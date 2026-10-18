@@ -37,6 +37,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Recent form: the standings table ends with each team's last five results in the order you typed them (`W D L`, oldest first), so a hot or sliding team shows at a glance (`formString` in `calc.mjs`).
 - Standings CSV: once results are typed, "Download standings CSV" saves the ranked table (`standingsCsv` in `calc.mjs`).
 - Rest report: the fairness note shows the shortest and longest days between each team's games and counts games that follow within a day (`restReport` in `calc.mjs`).
+- Home/away runs: the fairness note flags any team stuck with three or more home or away games in a row and names it (`homeAwayReport` in `calc.mjs`).
 - Rematch spacing: for a double round-robin the fairness note shows the shortest and longest days between a pair's two meetings and names the pairs that replay soonest (`rematchReport` in `calc.mjs`).
 - Shared grounds (`Net Ninjas, Dink Dynasty`): teams that share one pitch or court are moved so they are not both at home the same night where that can be avoided. Only venues flip (a double round robin flips both meetings), the validator must still pass, and clashes that cannot be avoided are listed (`parseGrounds`, `groundClashes`, `applyGroundSharing`).
 - Print: "Print or save as PDF" prints only the schedule, standings and bracket (a print stylesheet hides the form and buttons), for the clubhouse wall.
