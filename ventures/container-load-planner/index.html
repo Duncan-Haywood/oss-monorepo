@@ -150,6 +150,8 @@
     <p class="note" id="lt-note"></p>
     <button type="button" id="download">Download the loading list (CSV)</button>
     <button type="button" class="secondary" id="download-packet">Download a printable load plan (HTML)</button>
+    <button type="button" class="secondary" id="share-link">Copy a link to this plan</button>
+    <p class="note" id="share-note">The link holds your cargo and container in its address, so anyone who opens it sees the same inputs. It is never sent to a server by this tool; whoever you send it to can read it.</p>
 
     <h3>What if I swap?</h3>
     <p class="note">The same cargo through every standard size, loose and on pallets. Container counts and fill only; it prices nothing, so weigh it against your own quotes.</p>
@@ -197,7 +199,7 @@
   </footer>
 
   <script type="module">
-    import { SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, finishLines, planLoad, verifyPacking, balanceReport, compareOptions, viewRects, loadingOrder, suggestRestarts, reportCsv, sampleCargo, planReportHtml, fmtNum, fmtInt, pct, lenText, wtText, dimsText, toMm, toKg } from "./calc.mjs";
+    import { SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, finishLines, planLoad, verifyPacking, balanceReport, compareOptions, viewRects, loadingOrder, suggestRestarts, reportCsv, sampleCargo, planReportHtml, encodeShare, decodeShare, fmtNum, fmtInt, pct, lenText, wtText, dimsText, toMm, toKg } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -509,6 +511,29 @@
       a.click();
       record("packet_downloaded");
     });
+    $("#share-link").addEventListener("click", async () => {
+      const c = readContainer();
+      const r = encodeShare({ units: sys.id, preset: $("#preset").value, container: { l: $("#cL").value, w: $("#cW").value, h: $("#cH").value, payload: $("#cP").value }, rows: readRows() });
+      if (c.error || r.error) { status.textContent = c.error || r.error; return; }
+      const url = location.href.split("#")[0] + "#plan=" + r.token;
+      history.replaceState(null, "", url);
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It is also in the address bar."; }
+      catch { status.textContent = "Copy the link from the address bar."; }
+      record("share_link_copied");
+    });
+    function loadFromHash() {
+      if (!location.hash.startsWith("#plan=")) return false;
+      const s = decodeShare(location.hash);
+      if (s.error) { status.textContent = s.error; return false; }
+      document.querySelector(`input[name="units"][value="${s.units}"]`).checked = true;
+      sys = SYSTEMS[s.units]; applyUnitsLabels();
+      $("#preset").value = s.preset; showPresetNote();
+      $("#cL").value = s.container.l; $("#cW").value = s.container.w; $("#cH").value = s.container.h; $("#cP").value = s.container.payload;
+      body.innerHTML = "";
+      for (const row of s.rows) addRow(row);
+      if (!s.rows.length) addRow({ qty: 1 });
+      return true;
+    }
     window.addEventListener("resize", () => { if (plan && plan.containers[shown] && !report.hidden) renderContainer(shown); });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
@@ -519,6 +544,7 @@
     showPresetNote();
     setPalletFields({ ...DEFAULTS.pallet });
     addRow({ qty: 1 });
+    if (loadFromHash()) later(() => { if (run()) { record("share_link_opened"); status.textContent = "Opened from a shared link. Check the figures, they are the sender's."; } });
   </script>
 </body>
 </html>
