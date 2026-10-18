@@ -71,11 +71,12 @@
     <input id="soffer" type="text">
     <label for="saddr">Your postal address (required in the footer by CAN-SPAM and similar laws)</label>
     <input id="saddr" type="text" autocomplete="street-address">
+    <p class="note">To keep everything on your own computer, run a model locally with Ollama, LM Studio or llama.cpp and pick it below: no key, no cost per use, and the text goes only to your machine. Name a model you have downloaded (for Ollama, <code>ollama list</code> shows them). The local server must allow this page: start Ollama with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code> set, or switch on CORS in LM Studio's server settings. Your browser may ask whether this site may reach devices on your network.</p>
     <div class="grid">
       <div><label for="prov">AI provider (optional)</label>
-        <select id="prov"><option value="">None: use the template</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">Other (OpenAI-compatible URL)</option></select></div>
+        <select id="prov"><option value="">None: use the template</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="ollama">Ollama (on your computer, no key)</option><option value="lmstudio">LM Studio (on your computer, no key)</option><option value="llamacpp">llama.cpp server (on your computer, no key)</option><option value="openai-compatible">Other (OpenAI-compatible URL)</option></select></div>
       <div><label for="model">Model (required except for Anthropic)</label><input id="model" type="text"></div>
-      <div><label for="base">Base URL (OpenAI-compatible only)</label><input id="base" type="text" placeholder="https://openrouter.ai/api/v1"></div>
+      <div><label for="base">Base URL (OpenAI-compatible, or a local server on another port)</label><input id="base" type="text" placeholder="https://openrouter.ai/api/v1"></div>
       <div><label for="key">Your API key</label><input id="key" type="password" autocomplete="off"></div>
     </div>
     <p id="who" class="note">No prospect chosen yet.</p>
@@ -137,7 +138,7 @@ node cli.mjs leads.csv &gt; ranked.json  // same thing from a terminal, CSV in, 
     function choose(p) { chosen = p; $("who").textContent = `Drafting for: ${p.name}`; $("draft").value = ""; $("issues").replaceChildren(); $("draftnote").textContent = "Press Write draft below."; writeButton?.remove(); const b = el("button", "Write draft", ""); writeButton = b; b.type = "button"; b.addEventListener("click", write); $("draftnote").before(b); $("s2").scrollIntoView({ behavior: "smooth" }); }
     const sender = () => ({ name: $("sname").value.trim(), company: $("scompany").value.trim(), offer: $("soffer").value.trim(), address: $("saddr").value.trim() });
     function llm() {
-      const provider = $("prov").value; if (!provider || !$("key").value) return {};
+      const provider = $("prov").value; if (!provider) return {};  // a local server needs no key; normalise() checks the rest
       return { provider, apiKey: $("key").value, model: $("model").value.trim() || undefined, baseUrl: $("base").value.trim() || undefined, browser: true };
     }
     async function write() {
