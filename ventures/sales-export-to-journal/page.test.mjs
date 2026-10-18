@@ -42,7 +42,7 @@ test("page states it is independent of the platforms and accounting vendors", ()
 
 test("every platform the hub reads is named on the page and links to its own tool", () => {
   const html = page("index.html");
-  for (const slug of ["airbnb-payout", "amazon-settlement", "ebay-payout", "etsy-statement", "gumroad-sales", "kdp-royalty", "paypal-activity", "shopify-payout", "square-sales", "stripe-payout"]) {
+  for (const slug of ["airbnb-payout", "amazon-settlement", "ebay-payout", "etsy-statement", "distrokid-royalty", "gumroad-sales", "kdp-royalty", "paypal-activity", "shopify-payout", "square-sales", "stripe-payout"]) {
     assert.match(html, new RegExp(`href="\\.\\./${slug}-to-journal/"`), slug);
   }
 });
