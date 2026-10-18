@@ -5,6 +5,10 @@ import { SPECIALIST_CHANNELS, specialistRows, specialistPriceForProfit } from ".
 import { feeFor as grailedFee } from "../grailed-fee-calculator/calc.mjs";
 import { feeFor as tcgFee } from "../tcgplayer-fee-calculator/calc.mjs";
 import { calculateReverbSale } from "../reverb-fee-calculator/calc.mjs";
+import { calculateSale as whatnotSale } from "../whatnot-seller-payout/calc.mjs";
+import { calculate as stockxSale } from "../stockx-seller-payout-calculator/calc.mjs";
+
+const ids = (categoryId) => specialistRows(item({ categoryId })).map((r) => r.id).sort();
 
 const item = (over) =>
   loadItem({ price: 100, shippingCharged: 10, itemCost: 40, shippingCost: 8, otherCost: 2, categoryId: "everything_else", ...over });
@@ -15,8 +19,8 @@ test("no specialist appears for a category none accepts", () => {
 
 test("each specialist appears only for its own category", () => {
   assert.deepEqual(specialistRows(item({ categoryId: "music_gear" })).map((r) => r.id), ["reverb"]);
-  assert.deepEqual(specialistRows(item({ categoryId: "clothing" })).map((r) => r.id), ["grailed"]);
-  assert.deepEqual(specialistRows(item({ categoryId: "trading_cards" })).map((r) => r.id), ["tcgplayer"]);
+  assert.deepEqual(ids("clothing"), ["grailed", "stockx"]);
+  assert.deepEqual(ids("trading_cards"), ["tcgplayer", "whatnot"]);
 });
 
 test("fees agree with the sibling calculators", () => {
@@ -39,16 +43,36 @@ test("reverb fee matches the sibling, including the $500 cap", () => {
 
 test("break-even price nets zero and the gap to the best general channel is reported", () => {
   const it = item({ categoryId: "clothing" });
-  const [row] = specialistRows(it, 12);
+  const row = specialistRows(it, 12).find((r) => r.id === "grailed");
   assert.ok(Math.abs(specialistPriceForProfit(SPECIALIST_CHANNELS[1], it, 0) - row.breakEvenPrice) < 1e-9);
-  const atBE = specialistRows({ ...it, price: row.breakEvenPrice })[0];
+  const atBE = specialistRows({ ...it, price: row.breakEvenPrice }).find((r) => r.id === "grailed");
   assert.ok(Math.abs(atBE.profit) < 0.01);
   assert.ok(Math.abs(row.vsBestGeneral - (row.profit - 12)) < 1e-9);
   assert.ok(compareChannels(it).length === 10, "the general ranking is unchanged");
 });
 
 test("Grailed shows its $120 cliff", () => {
-  const below = specialistRows(item({ categoryId: "clothing", price: 119.99, shippingCharged: 0 }))[0];
-  const at = specialistRows(item({ categoryId: "clothing", price: 120, shippingCharged: 0 }))[0];
+  const below = specialistRows(item({ categoryId: "clothing", price: 119.99, shippingCharged: 0 })).find((r) => r.id === "grailed");
+  const at = specialistRows(item({ categoryId: "clothing", price: 120, shippingCharged: 0 })).find((r) => r.id === "grailed");
   assert.ok(at.profit < below.profit);
+});
+
+test("Whatnot fee matches the sibling's trading-card preset, including the $1,500 commission cap", () => {
+  const ch = SPECIALIST_CHANNELS.find((c) => c.id === "whatnot");
+  for (const [price, ship] of [[20, 5], [250, 8], [1500, 10], [2400, 15]]) {
+    const sib = whatnotSale({ salePrice: price, shippingCharged: ship, commissionRate: 8, commissionCap: 1500 });
+    const mine = ch.fee(item({ price, shippingCharged: ship }));
+    const sibFees = price - sib.payout;
+    assert.ok(Math.abs(mine - sibFees) < 1e-6, `whatnot ${price}: ${mine} vs ${sibFees}`);
+  }
+});
+
+test("StockX fee matches the sibling and the buyer's shipping never reaches the seller", () => {
+  const ch = SPECIALIST_CHANNELS.find((c) => c.id === "stockx");
+  for (const [price, ship] of [[90, 0], [150, 12], [600, 14]]) {
+    const sib = stockxSale({ salePrice: price, itemCostBasis: 0, sellerFeePct: 9, fastShippingDiscountPct: 0, paymentProcessingFeePct: 3, shippingCost: 0 });
+    const it = item({ price, shippingCharged: ship, itemCost: 0, shippingCost: 0, otherCost: 0, categoryId: "clothing" });
+    const row = specialistRows(it).find((r) => r.id === "stockx");
+    assert.ok(Math.abs(row.profit - sib.netPayout) < 1e-9, `stockx ${price}`);
+  }
 });

@@ -83,13 +83,16 @@ pointer instead of a row.
 livestream auction: commission is on the hammer and processing is on the
 checkout total (item plus buyer-paid shipping and tax), with published category
 caps a flat retail referral rate cannot express. It gets a pointer to
-`whatnot-seller-payout` instead of a row.
+`whatnot-seller-payout` instead of a row in the ranking. For trading cards it
+appears in the specialist section (below) with the $1,500 commission cap modelled.
 
 **StockX is excluded like Reverb, on category grounds.** It lists only sneakers,
 streetwear and graded cards, the buyer pays StockX for delivery (so no postage
 reaches you), and the fee rate falls with your own Seller Level. It gets a
 pointer to `stockx-seller-payout-calculator` with price, cost basis, shipping
-and other cost already filled in.
+and other cost already filled in. For clothing and sneakers it also appears in
+the specialist section, at the 9% + 3% default with the buyer's shipping kept
+out of your revenue.
 
 **The own-store row carries a caveat attached to the win, not to the footnotes.**
 A Shopify checkout charges no referral fee and therefore tops the table on
@@ -170,8 +173,8 @@ not tax, financial, or business advice.
 
 ## Specialist marketplaces
 
-Reverb (musical gear), Grailed (menswear and streetwear) and TCGplayer (trading
-cards) only take one kind of item, so they are not in the ten-row ranking.
+Reverb (musical gear), Grailed (menswear and streetwear), StockX (sneakers and
+streetwear), TCGplayer and Whatnot (trading cards) only take one kind of item, so they are not in the ten-row ranking.
 When the category is *Musical instruments & gear*, *Clothing & accessories* or
 *Trading cards & collectibles*, a separate section (`specialists.mjs`) shows
 what the item nets there and how that compares with the best general channel.

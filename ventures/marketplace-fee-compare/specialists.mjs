@@ -66,6 +66,33 @@ export const SPECIALIST_CHANNELS = [
       return Math.min(subtotal * 0.1075, 75) + subtotal * 0.025 + 0.3;
     },
   },
+  {
+    id: "whatnot",
+    label: "Whatnot",
+    categories: ["trading_cards"],
+    accepts: "cards, comics, coins, toys and other collectibles sold in live shows",
+    rateLabel: "8% on the first $1,500 of the sale + 2.9% and $0.30 on what the buyer pays",
+    deepTool: "whatnot-seller-payout",
+    deepToolLabel: "Whatnot seller payout calculator",
+    notCovered: "Other category rates (coins 4%, pallets 4%), giveaway lots, sales tax in the processing base, and show-level roll-ups.",
+    // Commission is on the hammer (nothing above $1,500 for this category);
+    // processing is on item plus buyer-paid shipping.
+    fee: ({ price, shippingCharged }) =>
+      Math.min(price, 1500) * 0.08 + (price + shippingCharged) * 0.029 + 0.3,
+  },
+  {
+    id: "stockx",
+    label: "StockX",
+    categories: ["clothing"],
+    accepts: "sneakers, streetwear and other authenticated resale goods",
+    rateLabel: "9% seller fee + 3% processing on the sale price",
+    deepTool: "stockx-seller-payout-calculator",
+    deepToolLabel: "StockX seller payout calculator",
+    notCovered: "Your own Seller Level rate (it falls as you sell more), the Fast Shipping discount, and the cost of shipping to a verification centre.",
+    // The buyer pays StockX for shipping, so none of `shippingCharged` reaches
+    // the seller: the fee adds it back to cancel it out of revenue.
+    fee: ({ price, shippingCharged }) => price * 0.12 + shippingCharged,
+  },
 ];
 
 function costOf(item) {
