@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, planCsv, groceryList, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, planCsv, groceryList, breakEvenPrices, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -190,4 +190,29 @@ test("groceryList rounds up to whole packs and prices the leftover", () => {
   assert.ok(Math.abs(g.extra - (8 + 4.2 - 1.2 * 7)) < 1e-9);
   spec.foods[0].pack = 21; // exact multiple: no float round-up
   assert.equal(groceryList(spec, res).lines[0].packs, 1);
+});
+
+test("breakEvenPrices finds the price at which a left-out food starts to win", () => {
+  // Need 100 g protein. Egg: 10 g for 1.00. Bean: 10 g for 1.50 now; it wins below 1.00.
+  const spec = { ...DEFAULTS, kcalMin: "", kcalMax: "", fatMin: "", fatMax: "", fiberMin: "", step: 0, defaultMax: 20, foods: foods([["Egg", 1, [100, 10, 0, 0, 0]], ["Bean", 1.5, [100, 10, 0, 0, 0]]]) };
+  const res = solve(spec);
+  assert.equal(res.items[0].name, "Egg");
+  const be = breakEvenPrices(spec, res);
+  assert.equal(be.length, 1);
+  assert.equal(be[0].name, "Bean");
+  assert.ok(Math.abs(be[0].price - 1) < 1e-6);
+  assert.ok(Math.abs(be[0].drop - 1 / 3) < 1e-6);
+  const cheaper = { ...spec, foods: spec.foods.map((f) => (f.name === "Bean" ? { ...f, price: 0.99 } : f)) };
+  assert.equal(solve(cheaper).items[0].name, "Bean");
+});
+
+test("breakEvenPrices on the starter menu: every answer re-solves to a plan that uses the food", () => {
+  const spec = { ...sampleSpec(), step: 0 };
+  const res = solve(spec);
+  for (const b of breakEvenPrices(spec, res)) {
+    if (b.price === null) continue;
+    assert.ok(b.price < b.current);
+    const foodsLow = spec.foods.map((f, j) => (j === b.index ? { ...f, price: b.price * 0.98 } : f));
+    assert.ok(solve({ ...spec, foods: foodsLow }).servings[b.index] > 1e-6, b.name);
+  }
 });

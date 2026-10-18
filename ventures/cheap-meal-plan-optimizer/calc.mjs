@@ -333,6 +333,32 @@ export function proteinFrontier(spec, targets) {
   });
 }
 
+/**
+ * For each food the cheapest plan leaves out: the highest price per serving at which the continuous optimum would
+ * start using it (bisection on the price, re-solving each time), and how far below today's price that is. `price`
+ * is null when no price, even free, earns it a place (it breaks a maximum or adds nothing the menu lacks).
+ */
+export function breakEvenPrices(spec, res) {
+  if (res.status !== "optimal") return [];
+  const { lo, hi } = stepBounds(spec);
+  const base = relaxed(spec, lo, hi);
+  if (base.status !== "optimal") return [];
+  const used = (i, price) => {
+    const foods = spec.foods.map((f, j) => (j === i ? { ...f, price } : f));
+    const r = relaxed({ ...spec, foods }, lo, hi);
+    return r.status === "optimal" && r.y[i] > 1e-6 && r.cost < base.cost - 1e-9;
+  };
+  const out = [];
+  spec.foods.forEach((f, i) => {
+    if (res.servings[i] > 1e-6 || !(f.price > 0)) return;
+    if (!used(i, 0)) { out.push({ index: i, name: f.name, current: f.price, price: null, drop: null }); return; }
+    let a = 0, b = f.price; // used at a, not used at b
+    for (let k = 0; k < 40; k++) { const m = (a + b) / 2; if (used(i, m)) a = m; else b = m; }
+    out.push({ index: i, name: f.name, current: f.price, price: a, drop: 1 - a / f.price });
+  });
+  return out.sort((x, y) => (x.price === null) - (y.price === null) || (x.drop ?? 0) - (y.drop ?? 0));
+}
+
 /** Independent check of a result. */
 export function verifyPlan(spec, res) {
   const problems = [];
