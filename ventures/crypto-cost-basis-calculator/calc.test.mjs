@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseCsv, parseDate, parseTransactions, normalizeType, holdingTerm, matchLots, analyze, estimateTax,
-  toForm8949Csv, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan,
+  toForm8949Csv, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan, planSale,
 } from "./calc.mjs";
 
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.005, `${msg ?? ""} ${a} != ${b}`);
@@ -440,4 +440,33 @@ test("SAMPLE_CSV dates are zero-padded ISO and the sample sells land on the date
   for (const d of dates) assert.match(d, /^\d{4}-\d{2}-\d{2}$/, d);
   const r = analyze(SAMPLE_CSV, { method: "FIFO", year: 2024 });
   assert.ok(r.rows.some((x) => x.sold === "2024-11-02"));
+});
+
+test("planSale: methods pick different lots and the extra tax differs by hand calculation", () => {
+  const lots = [
+    { asset: "BTC", wallet: "", acquired: "2024-01-01", qty: 1, basis: 20000 }, // long, cheap
+    { asset: "BTC", wallet: "", acquired: "2026-03-01", qty: 1, basis: 60000 }, // short, dear
+    { asset: "ETH", wallet: "", acquired: "2026-03-01", qty: 5, basis: 100 },   // other asset, ignored
+  ];
+  const p = planSale(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 1, shortRate: 0.3, longRate: 0.2 });
+  const by = Object.fromEntries(p.options.map((o) => [o.method, o]));
+  assert.equal(p.capped, false);
+  assert.equal(by.FIFO.longGain, 30000);        // sells the 2024 lot
+  assert.equal(by.FIFO.extraTax, 6000);
+  assert.equal(by.HIFO.shortGain, -10000);      // sells the 60k lot at a loss
+  assert.equal(by.HIFO.extraTax, 0);
+  assert.equal(by[p.bestMethod].extraTax, 0);   // LIFO ties HIFO here; the first lowest is named
+  assert.equal(by.HIFO.keep, 50000);
+});
+
+test("planSale: a loss offsets the year's realized gain, cash target converts to coins, over-asking is capped", () => {
+  const lots = [{ asset: "BTC", wallet: "w", acquired: "2026-03-01", qty: 2, basis: 120000 }];
+  const p = planSale(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", cash: 25000, summary: { shortGain: 10000, longGain: 0 }, shortRate: 0.3, longRate: 0.2 });
+  assert.equal(p.qty, 0.5);
+  assert.equal(p.options[0].gain, -5000);        // 0.5 coin: 25000 proceeds - 30000 basis
+  assert.equal(p.options[0].extraTax, -1500);    // the loss cancels 5000 of the 10000 short gain: 5000 * 0.3 less tax
+  const big = planSale(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 5 });
+  assert.equal(big.capped, true);
+  assert.equal(big.qty, 2);
+  assert.equal(planSale(lots, { asset: "SOL", price: 1, asOf: "2026-10-16", qty: 1 }).qty, 0);
 });

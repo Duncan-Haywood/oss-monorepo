@@ -14,7 +14,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
-import { analyze, toForm8949Csv, form8949Totals, METHODS, METHOD_LABELS, SAMPLE_CSV } from "./calc.mjs";
+import { analyze, planSale, toForm8949Csv, form8949Totals, METHODS, METHOD_LABELS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
@@ -31,6 +31,11 @@ Options:
   --mfs                $1,500 annual loss deduction (married filing separately)
   --short-rate <pct>  short-term rate for the tax estimate (default 24)
   --long-rate <pct>   long-term rate for the tax estimate (default 15)
+  --sell <COIN>       sell planner: compare the five methods for selling COIN; needs --price and --qty or --cash
+  --price <usd>       price per coin for --sell
+  --qty <coins>       coins to sell with --sell
+  --cash <usd>        dollars to raise with --sell (used when --qty is absent)
+  --sale-date <date>  date of the planned sale (default: today)
   --form8949 <file>   also write Form 8949 style rows to this file
   --json              print the full analysis as JSON
   --example           use the built-in sample instead of a file
@@ -68,7 +73,16 @@ export function parseArgs(argv) {
       if (!Number.isFinite(v) || v < 0) throw new Error(`${arg} needs a positive dollar amount`);
       opts[arg === "--carry-short" ? "carryShort" : "carryLong"] = v;
     } else if (arg === "--mfs") opts.lossLimit = 1500;
-    else if (arg === "--form8949") opts.form8949 = need(++i, arg);
+    else if (arg === "--sell") opts.sell = need(++i, arg).toUpperCase();
+    else if (arg === "--price" || arg === "--qty" || arg === "--cash") {
+      const v = Number(need(++i, arg));
+      if (!(v > 0)) throw new Error(`${arg} needs a number above zero`);
+      opts[arg.slice(2)] = v;
+    } else if (arg === "--sale-date") {
+      const d = need(++i, arg);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) throw new Error("--sale-date needs yyyy-mm-dd");
+      opts.saleDate = d;
+    } else if (arg === "--form8949") opts.form8949 = need(++i, arg);
     else if (arg.startsWith("-") && arg !== "-") throw new Error(`unknown option: ${arg}`);
     else opts.files.push(arg);
   }
@@ -111,6 +125,14 @@ export function render({ result, formats, notes }, opts = {}) {
   return out.join("\n") + "\n";
 }
 
+export function renderPlan(p) {
+  if (!p.qty) return `\nSell plan: no ${p.asset} on record to sell.\n`;
+  const out = ["", `Sell plan: ${p.qty} ${p.asset} at ${usd(p.price)} on ${p.asOf}${p.capped ? ` (asked for ${p.requested}; only ${p.heldQty} on record)` : ""}`];
+  for (const o of p.options) out.push(`  ${o.label.padEnd(24)} proceeds ${usd(o.proceeds).padStart(12)}   gain ${usd(o.gain).padStart(12)}   extra tax ${usd(o.extraTax).padStart(11)}${o.method === p.bestMethod ? "   <- least extra tax" : ""}`);
+  out.push("  A negative extra tax means the sale lowers the year's estimated tax. Estimate only; which lots you may sell depends on your records.");
+  return out.join("\n") + "\n";
+}
+
 function totalsLine(result) {
   const f = form8949Totals(result.rows);
   return f.total.noBasis ? `${f.total.noBasis} row(s) have no purchase on record (zero basis); fix before filing.` : "";
@@ -134,8 +156,13 @@ export async function main(argv) {
   catch (e) { process.stderr.write(`cannot read input: ${e.message}\n`); return 2; }
   const r = run(files, opts);
   if (r.error) { process.stderr.write(`${r.error}\n`); return 1; }
+  if (opts.sell) {
+    if (!opts.price || (!opts.qty && !opts.cash)) { process.stderr.write("--sell needs --price and --qty or --cash\n"); return 2; }
+  }
   if (opts.form8949) await writeFile(opts.form8949, toForm8949Csv(r.result.rows));
-  process.stdout.write(opts.json ? JSON.stringify(r.result, null, 2) + "\n" : render(r, opts));
+  const plan = opts.sell ? planSale(r.result.openLots, { asset: opts.sell, price: opts.price, asOf: opts.saleDate || new Date().toISOString().slice(0, 10), qty: opts.qty ?? null, cash: opts.qty ? null : opts.cash ?? null, summary: r.result.summary, shortRate: opts.shortRate, longRate: opts.longRate }) : null;
+  if (opts.json) process.stdout.write(JSON.stringify(plan ? { ...r.result, plan } : r.result, null, 2) + "\n");
+  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : ""));
   return 0;
 }
 
