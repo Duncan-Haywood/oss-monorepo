@@ -68,3 +68,15 @@ test("buildLeague on the sample returns a table once results are typed", () => {
   f.results = "Net Ninjas 2 - 2 Lob Squad";
   assert.equal(buildLeague(f).table.length, 6);
 });
+
+test("repeated wrong links from one address are locked out, right links from another still work", async () => {
+  const s = await boot();
+  for (let i = 0; i < 10; i++) assert.equal((await fetch(s.base + "/admin?key=guess" + i)).status, 401);
+  const locked = await fetch(s.base + "/admin?key=adm");
+  assert.equal(locked.status, 429);
+  assert.ok(Number(locked.headers.get("retry-after")) > 0);
+  assert.equal((await fetch(s.base + "/healthz")).status, 200);
+  const other = await fetch(s.base + "/admin?key=adm", { headers: { "x-forwarded-for": "203.0.113.9" } });
+  assert.equal(other.status, 200);
+  s.close();
+});
