@@ -1195,6 +1195,18 @@ export function laborPercent(payroll, sales, targetPct = null) {
   return { pct, target: t, maxPayroll, headroom: maxPayroll - c, over: pct > t + 1e-9 };
 }
 
+// Dollar budget check for a built roster: payroll against a weekly labor budget you set in dollars (no sales figure
+// needed). Returns null when budget is not a positive number. When over, `cutHours` is the paid hours that would
+// have to go at the roster's average cost per hour (payroll / hours) to reach the budget; a guide, since the
+// real saving depends on whose hours go (see trimOptions).
+export function budgetCheck(r, budget) {
+  const b = Number(budget), c = Number(r && r.cost);
+  if (!(b > 0) || !Number.isFinite(c) || c < 0) return null;
+  const headroom = b - c, over = c > b + 1e-9;
+  const perHour = r.hours > 0 ? c / r.hours : null;
+  return { budget: b, payroll: c, headroom, over, pct: (c / b) * 100, perHour, cutHours: over && perHour ? (c - b) / perHour : 0 };
+}
+
 // Per-day view of a built roster: scheduled hours, payroll at each person's base wage (plus the burden %), and, when
 // `salesText` holds up to seven daily sales figures (Mon first, comma or space separated, blank or 0 = unknown), each
 // day's labor share of sales. Overtime premiums are priced weekly, so they are not spread over days here; the

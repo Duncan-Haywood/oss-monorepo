@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placeBreaks, laborPercent, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
+import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -1148,4 +1148,17 @@ test("planWeeks drops a stale prev: for people who did not work last week", () =
   assert.ok(p.ok);
   assert.equal(p.weeks.length, 2);
   assert.equal(planWeeks(staff, shifts, { weeks: 99 }).weeks.length, 8);
+});
+
+test("budgetCheck: headroom, overage in hours at average cost, bad input", () => {
+  const under = budgetCheck({ cost: 900, hours: 60 }, 1000);
+  assert.equal(under.over, false);
+  assert.equal(under.headroom, 100);
+  assert.equal(under.cutHours, 0);
+  const over = budgetCheck({ cost: 1200, hours: 80 }, 1000);
+  assert.equal(over.over, true);
+  assert.equal(over.perHour, 15);
+  assert.ok(Math.abs(over.cutHours - 200 / 15) < 1e-9);
+  assert.equal(budgetCheck({ cost: 900, hours: 60 }, 0), null);
+  assert.equal(budgetCheck({ cost: 900, hours: 60 }, "x"), null);
 });
