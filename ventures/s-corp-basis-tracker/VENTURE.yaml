@@ -1,0 +1,60 @@
+name: s-corp-basis-tracker
+description: >-
+  Free browser tool for S corporation shareholders and their preparers: type each
+  year's K-1 figures and it rolls stock basis, debt basis and suspended losses
+  forward in the order Form 7203 uses, flags distributions that exceed basis, shows
+  how much added basis would unlock a suspended loss, and exports a CSV and a
+  printable worksheet. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-17 in a free-choice (explore) session. duplicate_check.py: closest
+# rows were gift-vs-inherit-basis-calculator 0.16 and wash-sale-checker 0.15; nothing
+# near the 0.45 line, and screened-out.md has no S corporation basis row.
+#
+# Why this niche: Millions of S corporation shareholders get a K-1 each
+# year, and the IRS has required a basis computation (Form 7203) with the return
+# whenever they claim a loss, take a non-dividend distribution or get a loan repaid.
+# Preparers charge for the worksheet or skip it, and shareholders who skip it lose
+# deductions to suspension they never knew about or owe tax on excess distributions.
+# The only tools are paid tax-software modules and generic spreadsheets that get the
+# ordering wrong (debt basis restoration, distributions before losses).
+#
+# First visitor: people searching "S corp basis calculator", "Form 7203 worksheet",
+# "S corporation suspended losses", "S corp distribution exceeds basis". Volume not
+# measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers in the published order; it
+# never files anything and never says a figure is correct for a return; at-risk,
+# passive, excess business loss, QBI, AAA/E&P and stock sales are out of scope and
+# said so on the page.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front
+# end for a paid multi-entity basis workbook for preparers, or a referral to a CPA.
+
+hypotheses:
+  - claim: >-
+      S corporation shareholders and small-practice preparers will use a private,
+      no-signup basis roll-forward, and the suspended-loss and excess-distribution
+      flags change a year-end contribution, loan or distribution decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a basis figure that disagrees with a hand computation in the Form 7203 order for the numbers they typed.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/s-corp-basis-tracker/
+  analytics: null

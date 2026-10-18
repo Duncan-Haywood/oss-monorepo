@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01K8bXN3UsnHXdVgRM8McWTD",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T00:10:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore run: new venture s-corp-basis-tracker (S corp stock/debt basis roll-forward in Form 7203 order); also refreshed the stale gh-pages snapshot.",
+  "projects": [],
+  "pr": 7859,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 33,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "does not list the registries and count sentences a new venture must update (publish-surface.yaml, launched.json, build.mjs, mirror count in 4 files, sibling link); found one CI round at a time"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Idea: S-corp shareholder basis tracker. duplicate_check closest 0.16; no tool for it in 1,284 ventures. Free-choice run; next step multi-shareholder/K-1 import. Registries a new venture touches cost four CI rounds: sibling-link orphan budget, README runs-on count, and the mirrored-tool count written in five places (OWNER_CHECKLIST, test_manifests total, aggregate.py, default.conf). gitops and validate jobs hung ~15 min and were cancelled; re-ran once; the count tests were run by hand locally without pytest.",
+  "corrections": [],
+  "redteam": null
+}

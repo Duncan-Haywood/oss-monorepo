@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>S-Corp Shareholder Basis Tracker — stock basis, debt basis and Form 7203 worksheet</title>
+  <meta name="description" content="Free S corporation shareholder basis calculator. Enter each year's K-1 figures and get stock basis, debt basis and suspended losses carried forward in Form 7203 order, with taxable excess distributions flagged. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="S-Corp Shareholder Basis Tracker — free, private, in your browser">
+  <meta property="og:description" content="Track S corporation stock and debt basis year by year, see which losses are suspended and how much basis would unlock them.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "S-Corp Shareholder Basis Tracker", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free S corporation shareholder basis worksheet. Enter each year's K-1 figures and it carries stock basis, debt basis and suspended losses forward in Form 7203 order, flags taxable excess distributions and shows how much basis would unlock a suspended loss. Runs in your browser; nothing is uploaded.", "featureList": "S corp stock basis tracker, shareholder debt basis, suspended loss carryforward, Form 7203 worksheet, excess distribution check, multi-year basis roll-forward"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is S corporation shareholder basis?", "acceptedAnswer": {"@type": "Answer", "text": "It is your running tax investment in the S corporation: the stock basis (what you paid or contributed, plus your share of income, minus distributions and losses) and, separately, debt basis (money you lent the company directly). Basis decides how much of a K-1 loss you can deduct and how much of a distribution is tax free."}}, {"@type": "Question", "name": "Do I need to file Form 7203?", "acceptedAnswer": {"@type": "Answer", "text": "Form 7203 generally goes with your return when you claim a deduction for an S corporation loss, receive a non-dividend distribution, dispose of stock, or receive a loan repayment, among other cases. Read the current instructions or ask your preparer; this tool only does the arithmetic in the same order."}}, {"@type": "Question", "name": "What happens when my losses are bigger than my basis?", "acceptedAnswer": {"@type": "Answer", "text": "The excess is suspended, not lost. It carries forward indefinitely and becomes deductible in a later year when you add basis, through a stock purchase, a capital contribution, a direct loan from you to the company, or the company's own income."}}, {"@type": "Question", "name": "Does a loan I personally guaranteed give me debt basis?", "acceptedAnswer": {"@type": "Answer", "text": "No. Debt basis comes from loans you made to the corporation yourself. Guaranteeing the company's bank loan, or lending through another entity, generally does not create it until you actually pay on the guarantee."}}, {"@type": "Question", "name": "What if my distributions exceed my stock basis?", "acceptedAnswer": {"@type": "Answer", "text": "The excess is generally taxed as gain, capital gain if you held the stock more than a year. Distributions reduce stock basis before losses do, so a loss in the same year cannot make a distribution tax free."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The tracker runs in your browser. Nothing is sent to a server, there are no accounts, and entries are only kept on your device if you tick the box or save a file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f4f2ee; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1b5e7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.1; margin: 0 0 14px; color: #3b3a2e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b3a2e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #ddd8cc; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b3a2e12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7b7862; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { font-family: ui-monospace, monospace; font-size: 13px; min-height: 150px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1b5e7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ebe8dd; color: #3b3a2e; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #ece8dc; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f6f3ea; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.4rem; color: #3b3a2e; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd8cc; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">S-CORP SHAREHOLDER BASIS TRACKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is my S corporation loss deductible, and is that distribution tax free?</h1>
+    <p>Type in each year's <strong>K-1 figures</strong>. The tracker carries your <strong>stock basis</strong>, <strong>debt basis</strong> and <strong>suspended losses</strong> forward in the order Form 7203 uses, flags any <strong>distribution that exceeds basis</strong>, and shows how much basis would unlock a suspended loss.</p>
+    <p class="note">An organising aid, not tax or legal advice, and not a filed form. Read <a href="./form-7203-basis-order.html">the order basis is adjusted in, with a worked example</a> or <a href="./s-corp-distributions-over-basis.html">what happens when distributions exceed basis</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Where you start</h2>
+    <p class="note">Use the closing figures from your last basis worksheet, or what you paid for the stock if you are starting from the beginning. Leave blank for zero.</p>
+    <div class="row4">
+      <div><label for="o-stock">Stock basis at start ($)</label><input id="o-stock" inputmode="decimal"></div>
+      <div><label for="o-debtbasis">Debt basis at start ($)</label><input id="o-debtbasis" inputmode="decimal"></div>
+      <div><label for="o-debtface">Loans you made to the company, balance owed ($)</label><input id="o-debtface" inputmode="decimal"></div>
+      <div><label for="o-susp">Suspended losses brought forward ($)</label><input id="o-susp" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. One line per year</h2>
+    <p class="note">Columns, comma or tab separated: year, capital contributions and stock purchases, loans you made, loan repayments you received, income (negative is a loss), tax-exempt income, distributions, nondeductible expenses, losses and deductions. Amounts may use $, commas, (parentheses) or 1.5k.</p>
+    <label for="years">Years</label>
+    <textarea id="years" spellcheck="false" aria-describedby="yerr"></textarea>
+    <p id="yerr" class="warn" hidden></p>
+    <button type="button" id="run">Roll my basis forward</button>
+    <button type="button" class="secondary" id="example">Load an invented example</button>
+    <button type="button" class="secondary" id="clear">Clear</button>
+  </section>
+
+  <section class="card" id="out" hidden>
+    <h2>3. Result</h2>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="tbl"></table></div>
+    <div id="notes"></div>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="dl-sheet">Download printable worksheet</button>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is S corporation shareholder basis?</h3>
+    <p>It is your running tax investment in the S corporation: the stock basis (what you paid or contributed, plus your share of income, minus distributions and losses) and, separately, debt basis (money you lent the company directly). Basis decides how much of a K-1 loss you can deduct and how much of a distribution is tax free.</p>
+    <h3>Do I need to file Form 7203?</h3>
+    <p>Form 7203 generally goes with your return when you claim a deduction for an S corporation loss, receive a non-dividend distribution, dispose of stock, or receive a loan repayment, among other cases. Read the current instructions or ask your preparer; this tool only does the arithmetic in the same order.</p>
+    <h3>What happens when my losses are bigger than my basis?</h3>
+    <p>The excess is suspended, not lost. It carries forward indefinitely and becomes deductible in a later year when you add basis, through a stock purchase, a capital contribution, a direct loan from you to the company, or the company's own income.</p>
+    <h3>Does a loan I personally guaranteed give me debt basis?</h3>
+    <p>No. Debt basis comes from loans you made to the corporation yourself. Guaranteeing the company's bank loan, or lending through another entity, generally does not create it until you actually pay on the guarantee.</p>
+    <h3>What if my distributions exceed my stock basis?</h3>
+    <p>The excess is generally taxed as gain, capital gain if you held the stock more than a year. Distributions reduce stock basis before losses do, so a loss in the same year cannot make a distribution tax free.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The tracker runs in your browser. Nothing is sent to a server, there are no accounts, and entries are only kept on your device if you tick the box or save a file.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or accounting advice and does not replace a tax professional or the instructions to Form 7203. It follows the commonly published ordering of basis adjustments and does not model at-risk limits, passive activity rules, the excess business loss limit, the qualified business income deduction, accumulated adjustments account or earnings and profits from C corporation years, stock sales, or state rules. Check every figure against your K-1 and your return.</p>
+    <p><strong>Independent.</strong> Not affiliated with the IRS, any tax authority, or any tax software company, and none is named or ranked here. The example is invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved, so download the CSV.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>basis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>worksheet_downloaded</code>) are counted only in local storage on your device, never sent anywhere. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../s-corp-reasonable-compensation-calculator/">S corporation reasonable compensation calculator</a>, the <a href="../excess-business-loss-calculator/">excess business loss calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
+    <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseMoney, parseYears, run, SAMPLE, csv, packetHtml, fmt } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function opening() {
+      const v = (id) => parseMoney($(id).value);
+      const o = { stock: v("#o-stock"), debtBasis: v("#o-debtbasis"), debtFace: v("#o-debtface"), suspended: v("#o-susp"), ndCarry: 0 };
+      for (const k of Object.keys(o)) if (Number.isNaN(o[k]) || o[k] < 0) return null;
+      return o;
+    }
+
+    function show(res) {
+      $("#big").innerHTML = [
+        ["Stock basis at end", fmt(res.closing.stock)], ["Debt basis at end", fmt(res.closing.debtBasis)],
+        ["Suspended losses", fmt(res.closing.suspended)],
+        ["Taxable excess distributions", fmt(res.rows.reduce((a, r) => a + r.lines.excessDistributions, 0))],
+      ].map(([k, v]) => `<div>${esc(k)}<strong>${esc(v)}</strong></div>`).join("");
+      const cols = [["Year", (r) => r.year], ["Stock start", (r) => fmt(r.open.stock)], ["Income + exempt", (r) => fmt(r.lines.income + r.lines.taxExempt)],
+        ["Distributions", (r) => fmt(r.lines.distributions)], ["Excess dist.", (r) => fmt(r.lines.excessDistributions)],
+        ["Loss deducted", (r) => fmt(r.deductedLosses)], ["Suspended", (r) => fmt(r.close.suspended)],
+        ["Stock end", (r) => fmt(r.close.stock)], ["Debt basis end", (r) => fmt(r.close.debtBasis)]];
+      $("#tbl").innerHTML = `<tr>${cols.map(([h], i) => `<th${i ? ' class="n"' : ""}>${esc(h)}</th>`).join("")}</tr>` +
+        res.rows.map((r) => `<tr>${cols.map(([, f], i) => `<td${i ? ' class="n"' : ""}>${esc(f(r))}</td>`).join("")}</tr>`).join("");
+      $("#notes").innerHTML = res.rows.filter((r) => r.notes.length).map((r) => `<div class="warn"><strong>${r.year}</strong><ul>${r.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div>`).join("") +
+        (res.closing.suspended > 0 ? `<div class="warn"><strong>To deduct the ${esc(fmt(res.closing.suspended))} still suspended</strong> you would need to add that much basis (a stock purchase, a contribution, or a loan from you directly to the company) or have the company earn it, before the year in which you want the deduction. Ask your preparer how and when to document it.</div>` : "") +
+        res.problems.map((p) => `<div class="warn">${esc(p)}</div>`).join("");
+      $("#out").hidden = false;
+    }
+
+    $("#run").addEventListener("click", () => {
+      const o = opening();
+      const err = $("#yerr");
+      if (!o) { err.textContent = "Starting figures must be amounts of zero or more."; err.hidden = false; return; }
+      const p = parseYears($("#years").value);
+      if (p.errors.length || !p.years.length) { err.textContent = p.errors.join(" ") || "Add at least one year."; err.hidden = false; return; }
+      err.hidden = true;
+      last = run(o, p.years);
+      show(last);
+      record("basis_run");
+    });
+    $("#example").addEventListener("click", () => {
+      $("#o-stock").value = SAMPLE.opening.stock; $("#o-debtbasis").value = ""; $("#o-debtface").value = ""; $("#o-susp").value = "";
+      $("#years").value = SAMPLE.text;
+      $("#run").click();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => { for (const id of ["#o-stock", "#o-debtbasis", "#o-debtface", "#o-susp", "#years"]) $(id).value = ""; $("#out").hidden = true; $("#yerr").hidden = true; last = null; });
+    const save = (text, type, name) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+    $("#dl-csv").addEventListener("click", () => { if (last) { save(csv(last), "text/csv", "s-corp-basis.csv"); record("csv_downloaded"); } });
+    $("#dl-sheet").addEventListener("click", () => { if (last) { save(packetHtml(last), "text/html", "s-corp-basis-worksheet.html"); record("worksheet_downloaded"); } });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>
