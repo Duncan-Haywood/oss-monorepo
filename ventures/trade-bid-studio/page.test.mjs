@@ -32,6 +32,15 @@ test('page wires the trade takeoff into the bid and says where its rates come fr
   assert.deepEqual(visible, ld);
 });
 
+test('page offers a printable customer proposal that prints nothing else', () => {
+  const html = page('index.html');
+  assert.match(html, /from '\.\/proposal\.mjs'/);
+  assert.match(html, /from '\.\/quote\.mjs'/);
+  assert.match(html, /id="printProposal"/);
+  assert.match(html, /id="proposalDoc"/);
+  assert.match(html, /body > :not\(#proposalDoc\) \{ display: none !important/);
+});
+
 test('SEO page gives the formulas and links back', () => {
   const html = page('markup-vs-margin.html');
   assert.match(html, /cost &divide; \(1 &minus; margin\)/);

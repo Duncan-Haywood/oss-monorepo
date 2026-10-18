@@ -8,7 +8,7 @@
   <meta property="og:title" content="Trade Bid Studio">
   <meta property="og:description" content="Markup is not margin. Find the price that keeps your margin, the number below which the job loses money, and what a cheaper quote leaves you.">
   <link rel="canonical" href="./">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Trade Bid Studio","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Universal bid build-up from labor hours, burden, materials, subcontractors and overhead, price at a target margin, walk-away price, markup versus margin converter, competitor-quote check, labor-overrun cushion, line-item takeoffs for 119 trades with starting rates from each trade's own calculator, directory of 121 trade-specific bid calculators"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Trade Bid Studio","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Universal bid build-up from labor hours, burden, materials, subcontractors and overhead, price at a target margin, walk-away price, markup versus margin converter, competitor-quote check, labor-overrun cushion, line-item takeoffs for 119 trades with starting rates from each trade's own calculator, directory of 121 trade-specific bid calculators, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the difference between markup and margin?","acceptedAnswer":{"@type":"Answer","text":"Markup is profit as a percentage of your cost; margin is profit as a percentage of the price. A 25% markup is only a 20% margin, so a contractor who adds 25% to cost and believes they earn a 25% margin is under-pricing every job."}},{"@type":"Question","name":"What is a walk-away price?","acceptedAnswer":{"@type":"Answer","text":"It is your full cost: labor, payroll burden, materials, subcontractors, other costs and a share of overhead. Any price below it loses money before you earn a dollar of profit."}},{"@type":"Question","name":"How do I price a job at a target margin?","acceptedAnswer":{"@type":"Answer","text":"Divide the full cost by one minus the margin. A job costing $2,750 at a 20% margin is $2,750 / 0.8 = $3,437.50, not $2,750 x 1.20."}},{"@type":"Question","name":"Where do the trade starting rates come from?","acceptedAnswer":{"@type":"Answer","text":"Each trade's takeoff is taken from that trade's own calculator in this collection: its production rates, coverage and default prices, with the source of every figure recorded in the open-source preset file. They are examples so the form is not blank, not industry standards and not a statement of what your crew does. Replace them with your own hours and supplier prices."}},{"@type":"Question","name":"Is my pricing uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The page runs in your browser with no account and no network requests."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2230; background: #eaeef5; }
@@ -54,6 +54,51 @@
     .takeoff-sum { background: #fff; border: 1px solid #c6d0e3; border-radius: 9px; padding: 10px 12px; font-size: .87rem; }
     .error { color: #8a2517; font-weight: 650; }
     #directory .start { margin-left: 8px; font-size: .8rem; font-weight: 650; }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #a3b0ca; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .82rem; color: #4a5470; }
+    .summary-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+    /* The customer's copy: one block of rules for the screen preview and the
+       printed sheet. Document-coloured, not site-coloured. */
+    .pr-shell { --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #1b2838; --pr-accent: #2b4f9e;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-bottom: 18px; }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+    @media (max-width: 600px) { .pr-shell { padding: 18px; } .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; } .pr-meta { text-align: left; } }
+    /* Printing sends the proposal and nothing else: no studio, no costs, no
+       wages. Handing the customer a sheet with your loaded labor rate on it is
+       the one failure this feature must not have. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      body > :not(#proposalDoc) { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
     @media (max-width: 780px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -141,6 +186,46 @@
     </aside>
   </div>
 
+  <section id="proposalSection" aria-labelledby="prop">
+    <h2 id="prop">3. Hand the customer a proposal</h2>
+    <p class="note">The numbers above are for you. This prints (or saves as a PDF) the page you give the customer: your details, theirs, the scope, the price, the deposit split and a line to sign. Your costs, wages and margin are not on it. Your business details are saved on this device so you type them once; the customer's details are never saved.</p>
+    <div class="fields">
+      <label>Your business name<input id="companyName" type="text" autocomplete="organization" placeholder="Novak Roofing LLC"></label>
+      <label>Phone<input id="companyPhone" type="tel" autocomplete="tel" placeholder="(651) 555-0134"></label>
+      <label>Email<input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+      <label>Licence number (optional)<input id="companyLicense" type="text" placeholder="MN-BC-661204"></label>
+      <label>Your address (optional)<input id="companyAddress" type="text" autocomplete="street-address" placeholder="1465 Grand Ave, St Paul MN"></label>
+      <label>Customer name<input id="clientName" type="text" placeholder="R. Lindgren"></label>
+      <label>Job address<input id="clientAddress" type="text" placeholder="918 Fairmount Ave"></label>
+      <label>Job title<input id="jobTitle" type="text" placeholder="Re-roof, 24 squares"></label>
+      <label>Quote this price instead ($, optional)<input id="quotePrice" type="number" min="0" step="any" placeholder="blank = the price above"></label>
+      <label>Deposit (%)<input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+      <label>Hold this price for (days)<input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+    </div>
+    <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+      <label>Scope lines: one per line, edit freely
+        <textarea id="proposalScope" rows="4" placeholder="Tear off and re-roof: 24 sq&#10;Site protection and clean-up on completion"></textarea>
+      </label>
+      <label>Not included: one per line (optional)
+        <textarea id="proposalExclusions" rows="2" placeholder="Decking repair beyond 2 sheets&#10;Gutter replacement"></textarea>
+      </label>
+      <label>Payment terms, in your own words (optional)
+        <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+      </label>
+      <label>Notes (optional)
+        <textarea id="proposalNotes" rows="2" placeholder="Start date depends on weather."></textarea>
+      </label>
+    </div>
+    <div class="summary-actions">
+      <button type="button" class="btn" id="printProposal">Print proposal / Save as PDF</button>
+      <button type="button" class="linkish" id="forgetCompany">Forget my business details</button>
+      <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+    </div>
+    <p class="note" style="margin-bottom:0">Everything on the printed page is text you typed or a number worked out above. It contains no warranty, lien or cancellation wording: those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+  </section>
+
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+
   <section aria-labelledby="dir">
     <h2 id="dir">Need hours and quantities worked out? Pick your trade (<span id="count">121</span>)</h2>
     <label>Search trades<input id="search" type="search" placeholder="roofing, tile, HVAC, paving…"></label>
@@ -174,6 +259,8 @@
     import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { takeoffTotals, fromPreset } from './takeoff.mjs';
     import { PRESETS, GROUPS } from './presets.mjs';
+    import { COMPANY_FIELDS, buildProposal, loadCompany, saveCompany, forgetCompany, renderProposalHtml } from './proposal.mjs';
+    import { draftScope, quotedPrice } from './quote.mjs';
     const el = id => document.getElementById(id);
     const ids = ['laborHours', 'wage', 'burdenPct', 'materials', 'subs', 'other', 'overheadPct', 'marginPct', 'materialMarkupPct', 'subMarkupPct', 'offeredPrice'];
     let counted = false;
@@ -349,6 +436,70 @@
     fromHash();
     ['convMarkup', 'convMarginIn'].forEach(i => el(i).addEventListener('input', convert));
     update(); convert();
+
+    // ---- Customer-facing proposal (shared module: platform/proposal) --------
+    const COMPANY_KEY = 'trade-bid-studio-company';
+    const PROPOSAL_IDS = [...COMPANY_FIELDS, 'clientName', 'clientAddress', 'jobTitle', 'depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for the work, its scope, and any permit, licence or inspection it requires. The calculator that produced the figure performs arithmetic on that business\u2019s own inputs; it is not an engineering, code-compliance or legal determination.';
+    const currentBid = () => calculateBid(Object.fromEntries(ids.map(i => [i, el(i).value])));
+    const tradeName = () => (byId.get(el('trade').value)?.name || '');
+    try {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(f => { if (saved[f]) el(f).value = saved[f]; });
+    } catch {}
+
+    function suggestScope() {
+      const box = el('proposalScope');
+      if (box.dataset.edited) return;   // never overwrite wording meant for a customer
+      box.value = draftScope(tradeName(), lines).join('\n');
+      if (!el('jobTitle').dataset.edited) el('jobTitle').value = tradeName();
+    }
+
+    function refreshProposal(event) {
+      if (event?.target?.closest?.('#proposalSection')) {
+        if (event.target.id !== 'quotePrice') return;
+      }
+      suggestScope();
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed: print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        const bid = currentBid();
+        proposal = buildProposal({
+          ...Object.fromEntries(PROPOSAL_IDS.map(id => [id, el(id).value])),
+          price: quotedPrice(bid.price, el('quotePrice').value),
+          scope: el('proposalScope').value,
+        });
+        try { saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(COMPANY_FIELDS.map(f => [f, el(f).value]))); } catch {}
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalDoc').innerHTML = '<p class="pr-print-hint note">This is the customer\u2019s copy. Your costs, wages and margin are not on it and are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    el('jobTitle').addEventListener('input', () => { el('jobTitle').dataset.edited = '1'; });
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      try { forgetCompany(localStorage, COMPANY_KEY); } catch {}
+      COMPANY_FIELDS.forEach(f => { el(f).value = ''; });
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+    });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    suggestScope();
 
     try {
       el('usageOptOut').checked = readOptOut(localStorage);
