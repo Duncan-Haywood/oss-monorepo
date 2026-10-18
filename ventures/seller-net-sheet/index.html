@@ -163,6 +163,13 @@
         <tbody id="compare"></tbody>
       </table>
       <p id="verdict" class="verdict"></p>
+      <p id="breakEven" class="note"></p>
+      <h2>What each half point costs</h2>
+      <p class="note">Offer A's net at nearby prices (rows) and buyer-broker rates (columns), everything else as entered.</p>
+      <table>
+        <thead id="gridHead"></thead>
+        <tbody id="gridBody"></tbody>
+      </table>
       <div class="actions">
         <button type="button" id="copySheet">Copy Offer A worksheet</button>
         <button type="button" id="copyCompare">Copy comparison</button>
@@ -218,8 +225,10 @@
   <script type="module">
     import {
       applyCommissionPreset,
+      breakEvenBuyerBrokerRate,
       calculateNetSheet,
       compareOffers,
+      netGrid,
       estimateTaxProration,
       formatNetSheetSummary,
       formatOfferComparison,
@@ -327,7 +336,23 @@
         } else {
           el("verdict").textContent = `Offer B leaves ${money(-comparison.delta)} more cash than Offer A — the higher price is not the higher net.`;
         }
+        const be = breakEvenBuyerBrokerRate(readShared(), readA(), readB());
+        if (be.rate === null) {
+          el("breakEven").textContent = "";
+        } else if (be.rate < 0) {
+          el("breakEven").textContent = `Offer A trails Offer B even if it asked for no buyer-broker pay (needs ${be.rate.toFixed(2)}%).`;
+        } else {
+          el("breakEven").textContent = `Offer A can ask up to ${be.rate.toFixed(2)}% buyer-broker pay before it leaves less cash than Offer B (it asks ${be.askedRate.toFixed(2)}%).`;
+        }
+        const grid = netGrid(readA());
+        el("gridHead").innerHTML = `<tr><th>Price</th>${grid.buyerRates.map((r) => `<th>${r}%</th>`).join("")}</tr>`;
+        el("gridBody").innerHTML = grid.rows.map((row) =>
+          `<tr><td>${money(row.salePrice)}</td>${row.nets.map((n) => `<td>${money(n)}</td>`).join("")}</tr>`
+        ).join("");
       } catch (error) {
+        el("breakEven").textContent = "";
+        el("gridHead").innerHTML = "";
+        el("gridBody").innerHTML = "";
         el("net").textContent = error.message;
         el("net").className = "hero-number error";
         el("label").textContent = "fix the inputs to see a result";
