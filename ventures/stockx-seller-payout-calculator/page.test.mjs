@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculate, computeMonthProfit, DEFAULTS } from './calc.mjs';
+import { calculate, computeMonthProfit, priceForProfit, DEFAULTS } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const guideHtml = readFileSync(new URL('./how-much-does-stockx-take-from-sellers.html', import.meta.url), 'utf8');
@@ -13,7 +13,7 @@ test('every DEFAULTS field has a matching input on the page', () => {
 });
 
 test('the page imports calculate, computeMonthProfit, and incomeGap from calc.mjs', () => {
-  assert.match(html, /import \{ calculate, computeMonthProfit, incomeGap, DEFAULTS \} from '\.\/calc\.mjs'/);
+  assert.match(html, /import \{ calculate, computeMonthProfit, incomeGap, priceForProfit, DEFAULTS \} from '\.\/calc\.mjs'/);
 });
 
 test('the page wires usage counting for both the sale and month calculators', () => {

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculate, computeMonthProfit, incomeGap, DEFAULTS } from './calc.mjs';
+import { calculate, computeMonthProfit, incomeGap, priceForProfit, DEFAULTS } from './calc.mjs';
 
 function close(actual, expected, eps = 0.01) {
   assert.ok(Math.abs(actual - expected) < eps, `expected ${actual} to be close to ${expected}`);
@@ -157,4 +157,23 @@ test('incomeGap cannot compute additional sales needed when the average profit p
   const gap = incomeGap(1000, 0, 0);
   assert.equal(gap.additionalSalesNeeded, null);
   assert.equal(gap.meetsTarget, false);
+});
+
+test('priceForProfit() inverts calculate(): selling at the returned price nets the target', () => {
+  for (const extra of [{}, { otherCost: 2.5 }, { fastShippingDiscountPct: 1.5, sellerFeePct: 8 }]) {
+    const input = { ...DEFAULTS, ...extra };
+    for (const target of [0, 20, 75.5]) {
+      const price = priceForProfit(input, target);
+      close(calculate({ ...input, salePrice: price }).netProfit, target, 0.0001);
+    }
+  }
+});
+
+test('priceForProfit() default break-even on the default inputs is (100 + 6) / 0.88', () => {
+  close(priceForProfit(DEFAULTS), 106 / 0.88, 0.0001);
+});
+
+test('priceForProfit() is null when the percentage fees take the whole price', () => {
+  assert.equal(priceForProfit({ ...DEFAULTS, sellerFeePct: 100, fastShippingDiscountPct: 0 }, 10), null);
+  assert.equal(priceForProfit({ ...DEFAULTS, sellerFeePct: 60, paymentProcessingFeePct: 40, fastShippingDiscountPct: 0 }), null);
 });

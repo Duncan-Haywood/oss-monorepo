@@ -16,6 +16,13 @@ A pair that "sold for $150" can land a lot less in your account once the real de
 - **Shipping to the verification center** is closer to a flat dollar cost than a percentage, so it eats a much bigger share of a cheap item's payout than an expensive one's.
 - **Other per-sale costs** — the box, tape, a replacement lace bag, label stock, the drive to the drop-off — behave exactly the same way, and this calculator had no field for any of them until 2026-09-22. Every sibling in this portfolio has carried such a bucket since it shipped. It defaults to `0`, so nothing about a saved draft, an existing shared link, or the worked example on the guide page moves.
 
+## What price do I list at?
+
+The page also runs the arithmetic backwards (`priceForProfit` in `calc.mjs`): the break-even sale price, and the price
+that leaves the profit you type, given the same level, Fast Shipping, processing, shipping and supplies. Percentage
+fees scale with the price and shipping does not, so the answer is `(cost + flat costs + wanted profit) / (1 - fee
+share)`, and the tests sell at the returned price and check the profit comes out as asked.
+
 ## Comparing this pair against another channel
 
 A seller who arrives here from a search for "how much does StockX take from sellers" usually has a second question: would the same pair net more on eBay, or in a local sale? Until now the only route to that answer was retyping the item into another tool, and most people do not — so the link under the buttons carries the price, cost basis, shipping and other costs straight into [`../where-to-sell-calculator/`](../where-to-sell-calculator/) with StockX already switched on, and that page hands numbers back the other way. Nothing is uploaded: the values ride in the URL fragment, which browsers never send to a server.

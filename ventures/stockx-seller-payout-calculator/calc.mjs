@@ -141,6 +141,26 @@ export function calculate(input) {
 }
 
 /**
+ * The sale price that leaves exactly `targetProfit` after the percentage fees
+ * (which scale with the price) and the flat costs (which do not): the
+ * calculation run backwards. `targetProfit` 0 is the break-even price.
+ * Returns null when the percentage fees take the whole price or more, since
+ * no price can then reach the target.
+ */
+export function priceForProfit(input, targetProfit = 0) {
+  const itemCostBasis = number(input.itemCostBasis, 'Item cost basis');
+  const sellerFeePct = number(input.sellerFeePct, 'Seller fee percentage', { max: 100 });
+  const fastShippingDiscountPct = number(input.fastShippingDiscountPct, 'Fast Shipping discount percentage', { max: 100 });
+  const paymentProcessingFeePct = number(input.paymentProcessingFeePct, 'Payment processing fee percentage', { max: 100 });
+  const shippingCost = number(input.shippingCost, 'Shipping cost');
+  const otherCost = number(input.otherCost ?? 0, 'Other per-sale costs');
+  const target = number(targetProfit, 'Target profit');
+  const keep = 1 - (Math.max(0, sellerFeePct - fastShippingDiscountPct) + paymentProcessingFeePct) / 100;
+  if (keep <= 0) return null;
+  return (itemCostBasis + shippingCost + otherCost + target) / keep;
+}
+
+/**
  * Roll a list of sales' net profit up into total profit for the month.
  * @param {{netProfit: number}[]} sales
  */
