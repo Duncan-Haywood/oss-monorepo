@@ -13,7 +13,11 @@ import unittest
 from decimal import Decimal
 from pathlib import Path
 
-from check_input_bounds import check_input, check_venture, guards, percent_scaled
+import contextlib
+import io
+import os
+
+from check_input_bounds import check_input, check_venture, guards, main, percent_scaled
 
 
 class GuardParsing(unittest.TestCase):
@@ -140,6 +144,54 @@ class VentureScan(unittest.TestCase):
             '<input id="pct" type="number" value="2">', encoding="utf-8"
         )
         self.assertEqual(check_venture(directory), [])
+
+
+class MainExitCodes(unittest.TestCase):
+    """The exit code is what CI reads: 0 clean, 1 problems, 2 bad root."""
+
+    def _run(self, argv):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            return main(argv), out.getvalue(), err.getvalue()
+
+    def _tree(self, module: str, page: str) -> Path:
+        root = Path(tempfile.mkdtemp())
+        venture = root / "v"
+        venture.mkdir()
+        (venture / "calc.mjs").write_text(module, encoding="utf-8")
+        (venture / "index.html").write_text(page, encoding="utf-8")
+        return root
+
+    def test_missing_root_exits_2(self):
+        code, _, err = self._run(["check", str(Path(tempfile.mkdtemp()) / "nope")])
+        self.assertEqual(code, 2)
+        self.assertIn("does not exist", err)
+
+    def test_problem_exits_1(self):
+        root = self._tree(
+            'if (pct < 0 || pct >= 100) throw new Error("x");',
+            '<input id="pct" type="number" min="0">',
+        )
+        code, out, _ = self._run(["check", str(root)])
+        self.assertEqual(code, 1)
+        self.assertIn("pct", out)
+
+    def test_clean_tree_exits_0(self):
+        root = self._tree(
+            'if (pct < 0 || pct >= 100) throw new Error("x");',
+            '<input id="pct" type="number" min="0" max="99">',
+        )
+        self.assertEqual(self._run(["check", str(root)])[0], 0)
+
+    def test_no_argument_defaults_to_ventures_in_cwd(self):
+        cwd = Path.cwd()
+        work = Path(tempfile.mkdtemp())
+        (work / "ventures").mkdir()
+        os.chdir(work)
+        try:
+            self.assertEqual(self._run(["check"])[0], 0)
+        finally:
+            os.chdir(cwd)
 
 
 if __name__ == "__main__":
