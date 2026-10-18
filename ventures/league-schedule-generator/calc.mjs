@@ -1307,6 +1307,22 @@ export function parseResults(text, teams, { walkover = [3, 0] } = {}) {
 }
 
 /**
+ * League points per win, draw and loss, written "3-1-0" (also "2/1/0" or "3 1 0"). Blank means 3-1-0.
+ * Returns { win, draw, loss, error }; a bad entry gives the default plus an `error` to show. A win must
+ * be worth more than a draw and a draw more than a loss, or the table would reward losing.
+ */
+export function parsePointSystem(text) {
+  const def = { win: 3, draw: 1, loss: 0, error: null };
+  const t = String(text ?? "").trim();
+  if (!t) return def;
+  const m = t.match(/^(-?\d+(?:\.\d+)?)\s*[-\/,\s]\s*(-?\d+(?:\.\d+)?)\s*[-\/,\s]\s*(-?\d+(?:\.\d+)?)$/);
+  if (!m) return { ...def, error: `Points system "${t}": write wins, draws and losses like "3-1-0" or "2-1-0". Using 3-1-0.` };
+  const [win, draw, loss] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  if (!(win > draw && draw > loss)) return { ...def, error: `Points system "${t}": a win must be worth more than a draw, and a draw more than a loss. Using 3-1-0.` };
+  return { win, draw, loss, error: null };
+}
+
+/**
  * Points, then goal difference, then goals for, then the order the teams were entered.
  * With `headToHead: true`, teams level on points are first split by a mini-table of only the
  * matches among them (points, goal difference, goals for), then by the overall tiebreaks.
@@ -1762,7 +1778,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds", "scoring"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -1791,7 +1807,7 @@ export function decodeFields(text) {
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
       playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
-      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds),
+      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds), scoring: str(o.scoring),
     };
   } catch { return null; }
 }
