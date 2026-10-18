@@ -4,6 +4,8 @@ A project of track 12, open-source residential construction (`PROJECTS.md`, mile
 **Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-diaphragm/
 
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-diaphragm/
+
 **Headline (stylised, negative for the worry).** In this toy model the half-and-half split is *not* flattering to the garage wall. With a rigid roof diaphragm, the weak garage line carries **less** than half: at a centred 22 ft door and 115 mph its demand-to-capacity at 6 in nailing falls from 1.05 (flexible split, which fails) to 0.18 to 0.63 depending on how softly the piers bend, while the stiff partner wall rises only to 0.26 to 0.35, with the long walls restraining the twist. The rigid split matters most for the biggest doors. The split cannot be used to pass a design: a flexible roof diaphragm is a real case, and it is the governing one here.
 
 **Builds on.** [`house-structure`](../house-structure) (wind demand, the segmented-wall capacities and the garage-door walls, imported unchanged) and [`house-framing`](../house-framing). Rigid-versus-flexible diaphragm idealisation is standard structural-engineering practice (ASCE 7 and SDPWS discuss it; not consulted in this run). It builds on none of the CU Boulder groups in `prompt.md`.

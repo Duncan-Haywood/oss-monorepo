@@ -1,0 +1,64 @@
+model: house-energy unchanged (640 packages, exact optimum at every climate); climate is the axis, (HDD65, CDD65) continuous
+optimum is found exactly as min over 640 linear functions of (HDD, CDD); scan step 25 degree-days, switches bisected to 0.5
+
+A. every upgrade switch along heating degree-days, CDD fixed at 500 (HDD 0 to 12,000)
+gas furnace + AC:   HDD    upgrade
+    3,271  slab edge R-10  0 -> 10
+    4,029  attic           19 -> 30
+    4,485  air tightness   7.0 -> 5.0
+    5,769  air tightness   5.0 -> 3.0
+    8,368  attic           30 -> 38
+heat pump:   HDD    upgrade
+    2,386  slab edge R-10  0 -> 10
+    2,939  attic           19 -> 30
+    3,272  air tightness   7.0 -> 5.0
+    4,209  air tightness   5.0 -> 3.0
+    6,105  attic           30 -> 38
+   10,074  attic           38 -> 49
+   11,446  wall            adv 2x6 -> adv 2x6 + R5 foam
+
+B. every upgrade switch along cooling degree-days, HDD fixed at 500 (CDD 0 to 6,000)
+gas furnace + AC:   CDD    upgrade
+    3,203  attic           19 -> 30
+    3,552  air tightness   7.0 -> 5.0
+    4,536  air tightness   5.0 -> 3.0
+heat pump:   CDD    upgrade
+    3,061  attic           19 -> 30
+    3,410  air tightness   7.0 -> 5.0
+    4,394  air tightness   5.0 -> 3.0
+
+C. saving of the cost-optimal package over the house-energy baseline, CDD 500 (USD, 30-year NPC)
+   HDD      gas  heat_pump
+     0     2583       2583
+  1000     2473       2432
+  2000     2363       2281
+  3000     2252       2242
+  4000     2233       2466
+  5000     2377       2803
+  6000     2579       3163
+  7000     2842       3565
+  8000     3104       3972
+  9000     3388       4379
+ 10000     3685       4787
+ 11000     3982       5232
+ 12000     4279       5718
+
+D. the same switches against the price of energy (gas furnace, CDD 500, HDD axis): HDD at which each switch happens
+ energy x    slab ed 0>10 air tig 7.0>5.0 air tig 5.0>3.0     attic 19>30     attic 30>38
+      0.5           6,541           9,622           never           8,710           never
+      1.0           3,271           4,485           5,769           4,029           8,368
+      2.0           1,636           1,916           2,558           1,688           3,857
+      4.0             818             632             953             518           1,602
+
+E. consistency: the sweep's optimum equals house-energy's exhaustive search in all 16 city/system cases
+  16 of 16 identical (package and NPC)
+
+F. where the eight cities sit: upgrades each city's optimum already has (gas furnace)
+  Miami (1A)         HDD   100 CDD  4400  attic R-30, 5 ACH50, slab bare, wall adv 2x6, window U 0.50
+  Houston (2A)       HDD  1400 CDD  2900  attic R-30, 5 ACH50, slab bare, wall adv 2x6, window U 0.50
+  Atlanta (3A)       HDD  2900 CDD  1800  attic R-30, 5 ACH50, slab bare, wall adv 2x6, window U 0.50
+  Albuquerque (4B)   HDD  4300 CDD  1300  attic R-30, 5 ACH50, slab R-10, wall adv 2x6, window U 0.50
+  Baltimore (4A)     HDD  4700 CDD  1200  attic R-30, 5 ACH50, slab R-10, wall adv 2x6, window U 0.50
+  Chicago (5A)       HDD  6200 CDD   900  attic R-30, 3 ACH50, slab R-10, wall adv 2x6, window U 0.50
+  Minneapolis (6A)   HDD  7600 CDD   800  attic R-30, 3 ACH50, slab R-10, wall adv 2x6, window U 0.50
+  Duluth (7)         HDD  9500 CDD   400  attic R-38, 3 ACH50, slab R-10, wall adv 2x6, window U 0.50

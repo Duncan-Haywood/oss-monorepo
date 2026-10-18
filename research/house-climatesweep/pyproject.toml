@@ -1,0 +1,13 @@
+[project]
+name = "house-climatesweep"
+version = "0.1.0"
+description = "Where does each envelope upgrade switch on? Sweeps heating and cooling degree-days continuously over house-energy's net-present-cost model and finds the climate threshold of every upgrade"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-energy/src", "../house-framing/src"]
