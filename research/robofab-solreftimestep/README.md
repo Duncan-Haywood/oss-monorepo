@@ -34,6 +34,10 @@ As in `robofab-solrefmap`: a free-body part held between two force-driven pad bo
 
 See the bullets above and `experiments/results.txt` (grid: 3 `solref` x 4 timesteps x 2 accelerations; ladder: 8 timesteps x 3 pairs).
 
+![Cover held by MuJoCo against timestep for three solref settings; the held cells form a window, not a monotone trend](experiments/timestep_ladder.svg)
+
+Regenerate with `python experiments/figure.py` (parses `results.txt`).
+
 ## Limitations
 
 - One part (cover), upward acceleration only, constant for 0.05 s; no sideways load, no arm, no vibration. Rigid box pads, assumed density, one friction value, a 2 mm slip criterion.

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 250" role="img" aria-label="Grid of timesteps against solref settings; MuJoCo holds the cover only in a window of timesteps, not at the smallest ones">
+<rect width="640" height="250" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cover held by MuJoCo vs timestep (ratio to analytic bound)</text>
+<text x="320.0" y="40" text-anchor="middle" font-family="sans-serif" font-size="11">green = held, number = MuJoCo/bound; grey = not held</text>
+<text x="178.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="234.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="290.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">0.15</text>
+<text x="346.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="402.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">0.07</text>
+<text x="458.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="514.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">0.035</text>
+<text x="570.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">0.025;</text>
+<text x="626.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">second</text>
+<text x="682.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">line</text>
+<text x="738.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">effective</text>
+<text x="794.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">solref</text>
+<text x="850.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">ms</text>
+<text x="906.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">=</text>
+<text x="962.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">max(solref,</text>
+<text x="1018.0" y="62" text-anchor="middle" font-family="sans-serif" font-size="11">2*dt)</text>
+<text x="598.0" y="236" text-anchor="middle" font-family="sans-serif" font-size="12">timestep (ms)</text>
+<text x="142" y="94.0" text-anchor="end" font-family="sans-serif" font-size="11">a=400 solref 0.3 ms</text>
+<rect x="150" y="70" width="54" height="38" fill="#e3e3e3"/>
+<rect x="206" y="70" width="54" height="38" fill="#2e8b57"/>
+<text x="233.0" y="94.0" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#fff">1.01</text>
+<rect x="262" y="70" width="54" height="38" fill="#2e8b57"/>
+<text x="289.0" y="94.0" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#fff">1.01</text>
+<rect x="318" y="70" width="54" height="38" fill="#2e8b57"/>
+<text x="345.0" y="94.0" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#fff">1.02</text>
+<rect x="374" y="70" width="54" height="38" fill="#e3e3e3"/>
+<rect x="430" y="70" width="54" height="38" fill="#e3e3e3"/>
+<rect x="486" y="70" width="54" height="38" fill="#e3e3e3"/>
+<rect x="542" y="70" width="54" height="38" fill="#e3e3e3"/>
+<text x="142" y="134.0" text-anchor="end" font-family="sans-serif" font-size="11">a=800 solref 0.2 ms</text>
+<rect x="150" y="110" width="54" height="38" fill="#e3e3e3"/>
+<rect x="206" y="110" width="54" height="38" fill="#e3e3e3"/>
+<rect x="262" y="110" width="54" height="38" fill="#e3e3e3"/>
+<rect x="318" y="110" width="54" height="38" fill="#2e8b57"/>
+<text x="345.0" y="134.0" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#fff">1.01</text>
+<rect x="374" y="110" width="54" height="38" fill="#e3e3e3"/>
+<rect x="430" y="110" width="54" height="38" fill="#e3e3e3"/>
+<rect x="486" y="110" width="54" height="38" fill="#e3e3e3"/>
+<rect x="542" y="110" width="54" height="38" fill="#e3e3e3"/>
+<text x="142" y="174.0" text-anchor="end" font-family="sans-serif" font-size="11">a=800 solref 0.1 ms</text>
+<rect x="150" y="150" width="54" height="38" fill="#e3e3e3"/>
+<rect x="206" y="150" width="54" height="38" fill="#e3e3e3"/>
+<rect x="262" y="150" width="54" height="38" fill="#e3e3e3"/>
+<rect x="318" y="150" width="54" height="38" fill="#2e8b57"/>
+<text x="345.0" y="174.0" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#fff">1.01</text>
+<rect x="374" y="150" width="54" height="38" fill="#2e8b57"/>
+<text x="401.0" y="174.0" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#fff">1.01</text>
+<rect x="430" y="150" width="54" height="38" fill="#2e8b57"/>
+<text x="457.0" y="174.0" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#fff">1.01</text>
+<rect x="486" y="150" width="54" height="38" fill="#2e8b57"/>
+<text x="513.0" y="174.0" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#fff">1.01</text>
+<rect x="542" y="150" width="54" height="38" fill="#2e8b57"/>
+<text x="569.0" y="174.0" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#fff">1.02</text>
+</svg>
