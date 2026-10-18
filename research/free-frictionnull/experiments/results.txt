@@ -1,0 +1,10 @@
+entries 714; classified 418; distinct pairs 125; days 4
+permutation null: shuffle pairs across entry slots, per-day sizes fixed, 2000 draws, seed 0
+
+day         observed/entries   null median [2.5%, 97.5%]   p(null<=obs)
+2026-10-15     0/87               0      [0, 0]        1.000
+2026-10-16    60/157            103      [88, 114]        0.000
+2026-10-17    73/128             99      [89, 107]        0.000
+2026-10-18    38/46              37      [32, 42]        0.726
+
+all days    171/418  null median 238 [224, 250]  p(null<=obs) 0.000
