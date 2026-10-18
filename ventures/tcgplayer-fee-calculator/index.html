@@ -175,11 +175,12 @@
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Card prices, costs, and payouts are never uploaded and never appear in a usage count — those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget saved numbers</em> deletes them.</p>
     <p>Not affiliated with, endorsed by, or sponsored by TCGplayer. TCGplayer is a trademark of its owner, named here only to describe the fee schedule this tool computes against. The rates come from TCGplayer's published fee table as relayed by search results on 18 October 2026, not from a direct read of its help centre, and TCGplayer can change them at any time — check one real payout against this tool before you reprice a binder. TCGplayer Direct is not modelled.</p>
     <p>Free and open source. If it changes how you price a binder, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
-    <p>Selling cards on other platforms too? See the <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> or the <a href="../ebay-fee-calculator/">eBay fee calculator</a>, rank channels with the <a href="../where-to-sell-calculator/">where-to-sell calculator</a>, or use the <a href="../marketplace-fee-compare/">marketplace fee compare</a>. Waiting for a card to drop in price? The <a href="../price-drop-watcher/">price drop watcher</a> alerts you when a product page's price falls or it is back in stock.</p>
+    <p>Selling cards on other platforms too? See the <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> or the <a href="../ebay-fee-calculator/">eBay fee calculator</a>, rank channels with the <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> (it opens with this sale's price, shipping and cost filled in and your TCGplayer rates on its &ldquo;Other channel&rdquo; row; the $75 commission cap does not carry over, so check slabs and sealed boxes here, and for a multi-card order it carries the rates only), or use the <a href="../marketplace-fee-compare/">marketplace fee compare</a>. Waiting for a card to drop in price? The <a href="../price-drop-watcher/">price drop watcher</a> alerts you when a product page's price falls or it is back in stock.</p>
   </footer>
 
   <script type="module">
     import { calculateSale, compareSchedules, INPUT_IDS, TOGGLE_IDS, SELECT_IDS, SCHEDULES } from './calc.mjs';
+    import { whereToSellUrl } from './to-where-to-sell.mjs';
     import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { encodeInputs, decodeInputs, formValues } from './share.mjs';
     
@@ -333,6 +334,14 @@
         el('saveStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
       }
       count('link_copied');
+    });
+
+    // Refreshed at click time as well as on render, so the link carries the
+    // form as it stands even if the last edit has not been calculated yet.
+    el('whereToSellLink').addEventListener('click', () => {
+      el('whereToSellLink').href = whereToSellUrl(readInput());
+      // Records only that the handoff happened, never the sale.
+      count('handoff_where_to_sell');
     });
 
     let restored = false;

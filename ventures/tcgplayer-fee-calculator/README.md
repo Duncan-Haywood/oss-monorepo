@@ -83,6 +83,11 @@ across eBay, Etsy, Whatnot and others; see also
 [`../ebay-fee-calculator`](../ebay-fee-calculator/). A TCGplayer row in the
 where-to-sell ranking is a natural follow-up.
 
+The footer link opens where-to-sell with this sale's price, shipping and cost
+filled in and your TCGplayer commission and transaction fee on its "Other
+channel" row, switched on (`to-where-to-sell.mjs`). The $75 commission cap does
+not carry over, and an order of more than one card sends the rates only.
+
 ## Privacy
 
 Everything runs in your browser. Card prices, costs, and payouts are never
