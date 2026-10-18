@@ -1271,3 +1271,16 @@ test("deadlineCheck: last game against a must-finish date, counting the rounds a
   assert.equal(deadlineCheck(sch, NaN), null);
   assert.equal(deadlineCheck({ rounds: [] }, 5), null);
 });
+
+test("standings show each team's last five results, oldest first", async () => {
+  const { formString, standings: st } = await import("./calc.mjs");
+  const teams = ["A", "B", "C"];
+  const results = [
+    { a: 0, b: 1, ga: 2, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 1 }, { a: 2, b: 0, ga: 3, gb: 1 },
+    { a: 0, b: 1, ga: 0, gb: 0 }, { a: 0, b: 2, ga: 4, gb: 0 }, { a: 1, b: 0, ga: 0, gb: 1 }, { a: 0, b: 2, ga: 2, gb: 1 },
+  ];
+  assert.equal(formString(0, results, 5), "LDWWW");
+  assert.equal(formString(1, results, 5), "LDDL");
+  const rows = st(teams, results);
+  assert.equal(rows.find((r) => r.name === "A").form, "LDWWW");
+});
