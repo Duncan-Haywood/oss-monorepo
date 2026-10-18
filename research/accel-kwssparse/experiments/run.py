@@ -1,4 +1,4 @@
-"""Sweep accel-sparse's 14 designs on Speech Commands MFCC features from accel-kws.
+"""Sweep accel-sparse's 13 designs on Speech Commands MFCC features from accel-kws.
 
 usage: python3 experiments/run.py <features.npz> [--report]
   features.npz comes from research/accel-kws/experiments/prepare_features.py (not committed).

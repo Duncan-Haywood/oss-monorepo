@@ -14,9 +14,9 @@ def toy(n=600, d=20, seed=0):
 
 class T(unittest.TestCase):
     def test_designs_match_accel_sparse(self):
-        import accel_sparse.model  # same 14 designs as the digits sweep
-        self.assertEqual(len(S.DESIGNS), 14)
-        self.assertEqual(len({d[0] for d in S.DESIGNS}), 14)
+        import accel_sparse.model  # same designs (13 in code; its README says 14) as the digits sweep
+        self.assertEqual(len(S.DESIGNS), 13)
+        self.assertEqual(len({d[0] for d in S.DESIGNS}), 13)
 
     def test_dims_and_energy(self):
         self.assertEqual(S.dims(70, 64), [(70, 64), (64, 11)])
@@ -40,7 +40,7 @@ class T(unittest.TestCase):
 
     def test_pruned_design_hits_sparsity_and_learns(self):
         x, y = toy()
-        params, masks, quant = S.train_design(x, y, 'int8', 0.75, 0, 16, 6, 64)
+        params, masks, quant = S.train_design(x, y, 'int8', 0.75, 0, 16, 20, 64)
         nnz = M.nnz_per_layer(params, quant, masks)
         total = 20 * 16 + 16 * 11
         self.assertLessEqual(sum(nnz), 0.27 * total)

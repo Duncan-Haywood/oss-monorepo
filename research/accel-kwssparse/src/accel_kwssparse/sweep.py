@@ -1,4 +1,4 @@
-"""Pruning / low-bit sweep of accel-sparse's 14 designs on accel-kws's Speech Commands features.
+"""Pruning / low-bit sweep of accel-sparse's 13 designs on accel-kws's Speech Commands features.
 
 Model code and cost constants are accel-sparse's, imported unchanged; only the layer sizes
 (70-H-11 instead of 64-32-10), the input standardisation and the data are new.
