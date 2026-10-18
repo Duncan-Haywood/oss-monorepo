@@ -145,3 +145,11 @@ test("the food list is remembered on this device only, with a way to forget it",
   assert.match(html, /cheap-meal-plan-setup-v1/);
   assert.doesNotMatch(html, /nothing is saved when you close the page/);
 });
+
+test("index page wires the week-menu section to weekMenu and weekText", () => {
+  const html = page("index.html");
+  assert.match(html, /id="week-var"/);
+  assert.match(html, /id="week"/);
+  assert.match(html, /id="copy-week"/);
+  assert.match(html, /import \{[^}]*weekMenu[^}]*weekText[^}]*\} from "\.\/calc\.mjs"/);
+});

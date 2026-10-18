@@ -317,7 +317,7 @@ export function loadItem(input = {}) {
  * (their own negotiated rate, a category this table does not carry) is a
  * first-class input rather than a fork of the model.
  */
-export function resolveChannels(item, overrides = {}) {
+export function resolveChannels(item, overrides = {}, adRates = {}) {
   const category = CATEGORY_PRESETS[item.categoryId];
   return CHANNELS.map((channel) => {
     const fallback = channel.categoryKey ? category[channel.categoryKey] : channel.percentRate;
@@ -329,7 +329,15 @@ export function resolveChannels(item, overrides = {}) {
     if (percentRate >= 100) {
       throw new Error(`${channel.label} rate must be below 100%`);
     }
-    return { ...channel, percentRate };
+    const adOverride = adRates?.[channel.id];
+    const adPercent =
+      adOverride === undefined || adOverride === null || adOverride === ""
+        ? 0
+        : number(adOverride, `${channel.label} advertising rate`);
+    if (percentRate + adPercent >= 100) {
+      throw new Error(`${channel.label} fee rate plus advertising rate must be below 100%`);
+    }
+    return { ...channel, percentRate, adPercent };
   });
 }
 
@@ -345,21 +353,24 @@ function landedCost(channel, item) {
 function breakEvenPrice(channel, item, subscriptionPerOrder, cashInvested, targetProfit = 0) {
   const need = subscriptionPerOrder + cashInvested + targetProfit;
   const rate = channel.percentRate / 100;
+  // Advertising is a further percentage of the same base the fee is charged on
+  // (the whole order, or the price alone where the buyer pays the label).
+  const ad = (channel.adPercent ?? 0) / 100;
   if (channel.buyerPaysLabel) {
     // The fee sits on the price alone and is flat under the threshold, so the
     // answer is the cheaper consistent branch: the flat one when it lands
     // below the threshold, otherwise the percentage one, which cannot go
     // below the threshold without dropping back onto the flat fee.
     if (channel.flatBelow) {
-      const flatPrice = need + channel.flatBelow.fee;
+      const flatPrice = (need + channel.flatBelow.fee) / (1 - ad);
       if (flatPrice < channel.flatBelow.threshold) return flatPrice;
     }
-    const percentPrice = (need + channel.fixedFee) / (1 - rate);
+    const percentPrice = (need + channel.fixedFee) / (1 - rate - ad);
     return Math.max(0, channel.flatBelow ? Math.max(percentPrice, channel.flatBelow.threshold) : percentPrice);
   }
-  let order = (channel.fixedFee + need) / (1 - rate);
+  let order = (channel.fixedFee + need) / (1 - rate - ad);
   if (channel.minFee && order * rate + channel.fixedFee < channel.minFee) {
-    order = channel.minFee + need;
+    order = (channel.minFee + need) / (1 - ad);
   }
   return Math.max(0, order - item.shippingCharged);
 }
@@ -384,7 +395,13 @@ export function calculateChannel(channel, item) {
   const orderFee = channel.flatBelow && feeBase < channel.flatBelow.threshold
     ? Math.min(channel.flatBelow.fee, feeBase)
     : Math.max(percentFee + channel.fixedFee, channel.minFee ?? 0);
-  const channelFees = orderFee + subscriptionPerOrder;
+  // Advertising the seller pays to win this channel's sales (Etsy Offsite Ads,
+  // eBay Promoted Listings, Amazon sponsored products), as a share of revenue.
+  // Zero unless the seller supplies it: no rate here is a default because the
+  // spend differs by seller far more than any fee does.
+  const adPercent = channel.adPercent ?? 0;
+  const adFee = (feeBase * adPercent) / 100;
+  const channelFees = orderFee + adFee + subscriptionPerOrder;
   const cashInvested = landedCost(channel, item);
   const profit = revenue - channelFees - cashInvested;
   return {
@@ -400,6 +417,8 @@ export function calculateChannel(channel, item) {
     monthlyFeeNote: channel.monthlyFeeNote ?? null,
     revenue,
     percentFee,
+    adPercent,
+    adFee,
     fixedFee: channel.fixedFee,
     subscriptionPerOrder,
     channelFees,
@@ -439,8 +458,8 @@ export function priceForProfit(channel, item, targetProfit) {
  * two identical-fee channels sees a stable table across recalculations instead
  * of two rows that swap places while they read.
  */
-export function compareChannels(item, overrides = {}) {
-  const channels = resolveChannels(item, overrides);
+export function compareChannels(item, overrides = {}, adRates = {}) {
+  const channels = resolveChannels(item, overrides, adRates);
   const rows = channels.map((channel) => calculateChannel(channel, item));
   // Parity target: the best channel that actually sends buyers, so an own-store
   // row that "wins" on fees alone does not set the bar nobody can clear.

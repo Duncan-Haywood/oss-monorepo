@@ -371,6 +371,46 @@ export function varietyFrontier(spec, shares) {
 }
 
 /**
+ * A week of different daily menus. The cheapest plan is the same bag of rice every day, so this plans day by day:
+ * each day gets the cheapest plan that meets every bound, but every earlier day a food appeared on raises the price
+ * the solver sees for it by `penalty` (0.5 = 50% per day), so the staples rotate out while every bound still holds.
+ * Costs shown are at the real prices. Greedy in day order, so it is a variety aid, not the cheapest possible week;
+ * `extra` is what the variety costs against eating the cheapest plan every day.
+ */
+export function weekMenu(spec, { penalty = 0.5, days = 7, nodeLimit = 1500 } = {}) {
+  const used = spec.foods.map(() => 0);
+  const exact = Number(spec.step) > 0;
+  const out = [];
+  let base = null;
+  for (let d = 0; d < days; d++) {
+    const s = { ...spec, foods: spec.foods.map((f, i) => ({ ...f, price: f.price * (1 + penalty * used[i]) })) };
+    const { lo, hi } = stepBounds(s);
+    const root = relaxed(s, lo, hi);
+    let servings = null;
+    if (root.status === "optimal") {
+      if (exact) { const bb = branchAndBound(s, nodeLimit); if (bb.status === "optimal") servings = bb.best.y.map((v) => v * Number(spec.step)); }
+      else servings = root.y;
+    }
+    if (!servings) { out.push({ day: d + 1, servings: null, cost: null, items: [] }); continue; }
+    if (base === null) base = planCost(spec, servings);
+    servings.forEach((v, i) => { if (v > 1e-6) used[i]++; });
+    const items = spec.foods.map((f, i) => ({ name: f.name, servings: servings[i], cost: f.price * servings[i] })).filter((x) => x.servings > 1e-6).sort((a, b) => b.cost - a.cost);
+    out.push({ day: d + 1, servings, cost: planCost(spec, servings), items });
+  }
+  const planned = out.filter((x) => x.servings);
+  const cost = planned.reduce((t, x) => t + x.cost, 0);
+  const extra = base === null ? null : cost - base * planned.length;
+  const foodsUsed = new Set(planned.flatMap((x) => x.items.map((i) => i.name))).size;
+  return { days: out, cost, extra, foodsUsed, distinct: new Set(planned.map((x) => x.items.map((i) => i.name).sort().join("|"))).size, complete: planned.length === days };
+}
+
+/** The week's menu as plain text, one line per day, for a notes or messaging app. */
+export function weekText(week) {
+  const lines = week.days.map((d) => `Day ${d.day}: ${d.servings ? d.items.map((i) => `${i.name} ${fmt(i.servings, 2)}`).join(", ") : "no plan meets the bounds"}`);
+  return `Menu for the week\n${lines.join("\n")}\nEstimated cost: ${money2(week.cost)}\n`;
+}
+
+/**
  * For each food the cheapest plan leaves out: the highest price per serving at which the continuous optimum would
  * start using it (bisection on the price, re-solving each time), and how far below today's price that is. `price`
  * is null when no price, even free, earns it a place (it breaks a maximum or adds nothing the menu lacks).

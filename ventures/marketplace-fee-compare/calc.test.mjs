@@ -327,3 +327,27 @@ test("parity price honours a minimum-fee floor", () => {
   const price = priceForProfit(channel, item, 0.5);
   assert.ok(Math.abs(calculateChannel(channel, { ...item, price }).profit - 0.5) < 1e-9);
 });
+
+test("advertising spend is charged on the order and lowers net profit", () => {
+  const item = loadItem({ price: 40, shippingCharged: 5, itemCost: 10, shippingCost: 5, otherCost: 1 });
+  const plain = compareChannels(item).find((row) => row.id === "etsy");
+  const ads = compareChannels(item, {}, { etsy: 15 }).find((row) => row.id === "etsy");
+  assert.equal(plain.adFee, 0);
+  assert.ok(Math.abs(ads.adFee - 45 * 0.15) < 1e-9);
+  assert.ok(Math.abs(plain.profit - ads.profit - ads.adFee) < 1e-9);
+});
+
+test("price to match and break-even include advertising", () => {
+  const item = loadItem({ price: 40, shippingCharged: 5, itemCost: 10, shippingCost: 5, otherCost: 1 });
+  for (const id of ["ebay", "etsy", "facebook", "poshmark"]) {
+    const channel = resolveChannels(item, {}, { [id]: 12 }).find((c) => c.id === id);
+    const at = (price) => calculateChannel(channel, { ...item, price }).profit;
+    assert.ok(Math.abs(at(calculateChannel(channel, item).breakEvenPrice)) < 1e-6, `${id} break-even`);
+    assert.ok(Math.abs(at(priceForProfit(channel, item, 7)) - 7) < 1e-6, `${id} target`);
+  }
+});
+
+test("fee plus advertising at or above 100% is rejected", () => {
+  const item = loadItem({ price: 40 });
+  assert.throws(() => compareChannels(item, { ebay: 90 }, { ebay: 10 }), /below 100%/);
+});

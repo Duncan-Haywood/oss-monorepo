@@ -66,6 +66,15 @@ Three modelling decisions worth knowing about:
   proceeds, not out of pocket, so counting them would understate ROI by a
   different amount on every channel and make the ranking meaningless.
 
+## Advertising spend (optional)
+
+An "Advertising you pay on each channel" box takes a percentage of sales per
+channel (Etsy Offsite Ads, eBay Promoted Listings, sponsored products). It is
+blank by default because ad spend differs by seller far more than any fee, and
+when filled it is charged on the same base as the channel's fee, shown inside
+the fees column, carried into break-even and price-to-match, and encoded in the
+share link.
+
 ## What it deliberately does not model
 
 Each row names what its number leaves out and links to the tool that carries
