@@ -35,7 +35,7 @@ the share small and the experiment short. If Smart Retries is still on in Stripe
 it applies to both groups, so the comparison is "us on top of Stripe" against
 "Stripe alone".
 
-Honest limits: the dashboard at `/admin` is read-only, there is no in-app cancellation flow (see the sibling
+Honest limits: the dashboard at `/admin` only lets you stop chasing an invoice (button, or `POST /v1/cases/<invoice>/stop` with your admin key; the case is kept as "stopped" and a repeat failure does not restart it), there is no in-app cancellation flow (see the sibling
 `cancel-flow` venture) and no card-account-updater network access (the expiry
 notice asks the customer instead). It does not claim a recovery uplift over
 Stripe's own retries; measure that on your own data (`/v1/summary` reports what
@@ -77,7 +77,7 @@ Reference pages: [which Stripe decline codes to retry and which never to](https:
 
 ```sh
 cd ventures/dunning-engine
-node --test        # 83 tests, no network
+node --test        # 85 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://dunning.example.com node server.mjs

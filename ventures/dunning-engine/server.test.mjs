@@ -88,3 +88,19 @@ test("/admin serves a data-free page with a locked-down CSP; data still needs th
   assert.equal((await fetch(`${s.base}/v1/cases`)).status, 401);
   s.close();
 });
+
+test("POST /v1/cases/:id/stop needs the admin key, stops the case and persists", async () => {
+  const s = await boot();
+  await fetch(`${s.base}/webhook/stripe`, { method: "POST", body: evt, headers: signed() });
+  const before = s.saves.length;
+  assert.equal((await fetch(`${s.base}/v1/cases/in_1/stop`, { method: "POST" })).status, 401);
+  assert.equal(s.cfg.state.cases.in_1.status, "open");
+  const h = { authorization: "Bearer adm" };
+  const ok = await fetch(`${s.base}/v1/cases/in_1/stop`, { method: "POST", headers: h });
+  assert.equal(ok.status, 200);
+  assert.equal(s.cfg.state.cases.in_1.status, "stopped");
+  assert.equal(s.saves.length, before + 1);
+  assert.equal((await fetch(`${s.base}/v1/cases/in_1/stop`, { method: "POST", headers: h })).status, 409);
+  assert.equal((await fetch(`${s.base}/v1/cases/zzz/stop`, { method: "POST", headers: h })).status, 404);
+  s.close();
+});
