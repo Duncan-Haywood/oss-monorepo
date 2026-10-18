@@ -284,7 +284,7 @@ export function analyze(rows, opts = {}) {
     subs.push({
       merchant: key, sample: last.desc, kind: kindOf(key), site: identifyService(key)?.site ?? null, via: storeBiller(last.desc), cadence: cadence.id, cadenceLabel: cadence.label, fixed,
       count: cycle.length, first: days[0], last: last.day, amount: r2(current), perMonth: r2(perYear / 12), perYear: r2(perYear),
-      total: r2(amounts.reduce((a, b) => a + b, 0)), rises, riseImpactYear: r2(rises.length ? (current - amounts[0]) * cadence.perYear : 0),
+      total: r2(amounts.reduce((a, b) => a + b, 0)), history: cycle.map((r) => ({ day: r.day, amount: r2(r.spend) })), rises, riseImpactYear: r2(rises.length ? (current - amounts[0]) * cadence.perYear : 0),
       next, nextInDays: next - asOf, status,
     });
   }
@@ -315,6 +315,23 @@ export function analyze(rows, opts = {}) {
 
   const totals = { perMonth: r2(active.reduce((a, s) => a + s.perMonth, 0)), perYear: r2(active.reduce((a, s) => a + s.perYear, 0)), active: active.length, ended: ended.length };
   return { subs, active, ended, doubleCharges, overlaps, upcoming, findings, totals, range: { first: firstDay, last: lastDay, asOf, days: spanDays }, charges: rows.length, merchants: groups.size, shortFile: spanDays < 75 };
+}
+
+// Recurring money actually charged in each calendar month of the file, from the
+// detected subscriptions only (ended ones included: they were paid then). The
+// first and last months are partial when the export starts or stops mid-month.
+export function monthlyTimeline(a) {
+  const by = new Map();
+  for (const s of a.subs) for (const h of s.history) {
+    const m = isoDay(h.day).slice(0, 7);
+    const e = by.get(m) || { month: m, total: 0, charges: 0 };
+    e.total = r2(e.total + h.amount); e.charges++;
+    by.set(m, e);
+  }
+  const rows = [...by.values()].sort((x, y) => (x.month < y.month ? -1 : 1));
+  const first = isoDay(a.range.first).slice(0, 7), lastM = isoDay(a.range.last).slice(0, 7);
+  for (const r of rows) r.partial = (r.month === first && isoDay(a.range.first).slice(8) !== "01") || (r.month === lastM && r.month !== first && new Date(Date.UTC(+r.month.slice(0, 4), +r.month.slice(5, 7), 0)).getUTCDate() > +isoDay(a.range.last).slice(8));
+  return rows;
 }
 
 // What cancelling a set of merchants saves. Names come from analyze().
