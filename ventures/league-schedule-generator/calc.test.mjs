@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
+  applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
@@ -366,7 +366,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", officials: "Pat (A): Tue max 4", grounds: "A, B" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", lateTeams: "2026-11-10 New FC", timeLimits: "A: 18:00", courtLimits: "A: Court 1", officials: "Pat (A): Tue max 4", grounds: "A, B" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "" });
@@ -1384,4 +1384,30 @@ test("a 2-1-0 points system changes the table and the play-off race", async () =
 test("the points system survives a share link", () => {
   const f = { ...sampleFields(), scoring: "2-1-0" };
   assert.equal(decodeFields(encodeFields(f)).scoring, "2-1-0");
+});
+
+test("a late team plays everyone once, nothing else moves, and the schedule stays valid", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const key = (sc) => sc.rounds.flatMap((r) => r.matches.map((m) => `${r.day}|${m.home}|${m.away}|${m.court}|${m.time}`));
+  const before = key(s);
+  const r = applyLateTeams(s, "2026-10-20 Late Owls");
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.joined[0].placed.length, 4);
+  assert.ok(r.joined[0].placed.every((p) => p.day >= parseDate("2026-10-20")));
+  assert.equal(new Set(r.joined[0].placed.map((p) => p.day)).size, 4, "one match per night");
+  for (const k of before) assert.ok(key(r.schedule).includes(k), "existing fixture kept: " + k);
+  const v = validateSchedule(r.schedule);
+  assert.equal(v.ok, true, v.errors.join(" "));
+  assert.equal(key(s).length, before.length, "input is not mutated");
+});
+
+test("a late team in a double round robin hosts each opponent once; bad lines are reported", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC", start: "2026-10-06", weekdays: "Tue", double: true, courts: "Court 1", times: "18:00" });
+  const s = buildSchedule(spec);
+  const r = applyLateTeams(s, "New FC\nA\n2026-13-45 Z");
+  assert.equal(r.errors.length, 2);
+  assert.equal(r.joined[0].placed.length, 6);
+  const v = validateSchedule(r.schedule);
+  assert.equal(v.ok, true, v.errors.join(" "));
 });

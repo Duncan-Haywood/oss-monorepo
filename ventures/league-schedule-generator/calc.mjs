@@ -913,6 +913,87 @@ export function applyWithdrawals(schedule, text) {
   return { schedule: s, withdrawals: fresh, errors };
 }
 
+// ---------------------------------------------------------------- late joiners
+
+/**
+ * A team joins mid-season. Each line of `text` is a team name, optionally led by the first date it
+ * can play: `Late Owls` starts after the last night already played in the schedule's first round,
+ * `2026-11-03 Late Owls` starts on or after that night. The newcomer is given one match against
+ * every team still in the league (two, one home and one away, in a double round robin), each on the
+ * earliest playable night where both teams are free and a court and time slot are open; nothing
+ * already scheduled moves. Venues alternate so home and away stay balanced. A match that cannot be
+ * placed within the scan window is reported, never hidden. Returns a new schedule (the input is not
+ * mutated) plus `joined` ({ team, name, from, placed[], lastDay }) and `errors`.
+ */
+export function applyLateTeams(schedule, text) {
+  const s = JSON.parse(JSON.stringify(schedule));
+  const cfg = s.config;
+  const weekdaySet = new Set(cfg.weekdays);
+  const skipSet = new Set(cfg.skipDays);
+  const want = cfg.double ? 2 : 1;
+  const errors = [];
+  const joined = [];
+  const total = cfg.courts.length * cfg.times.length;
+  const slotName = (k) => ({ court: cfg.courts[k % cfg.courts.length], time: cfg.times[Math.floor(k / cfg.courts.length)] });
+  for (const raw of String(text ?? "").split(/\n+/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(\d{4}-\d{1,2}-\d{1,2})\s*[:,-]?\s*(.*)$/);
+    const from = m ? parseDate(m[1]) : null;
+    if (m && from === null) { errors.push(`"${line}": that is not a real date.`); continue; }
+    const name = (m ? m[2] : line).trim();
+    if (!name) { errors.push(`"${line}": give the new team a name.`); continue; }
+    if (s.teams.some((t) => t.toLowerCase() === name.toLowerCase())) { errors.push(`${name} is already a team.`); continue; }
+    const withdrawn = new Set((s.withdrawals || []).map((w) => w.team));
+    const opponents = s.teams.map((_, i) => i).filter((i) => !withdrawn.has(i));
+    if (!opponents.length) { errors.push(`${name}: nobody is left to play.`); continue; }
+    const team = s.teams.length;
+    s.teams.push(name);
+    const firstDay = s.rounds.length ? s.rounds[0].day : null;
+    let startDay = from !== null ? from : (s.rounds.length > 1 ? s.rounds[1].day : (firstDay === null ? 0 : firstDay + 1));
+    const placed = [];
+    let homeCount = 0;
+    let awayCount = 0;
+    const fixtures = [];
+    for (const o of opponents) for (let k = 0; k < want; k++) fixtures.push({ o, k });
+    let cursor = startDay;
+    for (const { o, k } of fixtures) {
+      // The first meeting of a pair goes to whichever side has hosted less, the second flips it.
+      const newcomerHome = want === 2 ? k === 0 : homeCount <= awayCount;
+      let d = cursor;
+      let done = null;
+      for (let guard = 0; guard < 400 && !done; guard++, d++) {
+        d = nextPlayDay(d, weekdaySet, skipSet);
+        if (d === null) break;
+        if ((cfg.blackouts[o] || []).includes(d)) continue;
+        const target = s.rounds.find((r) => r.day === d);
+        if (target && target.matches.some((x) => [x.home, x.away].some((t) => t === o || t === team))) continue;
+        const taken = new Set((target ? target.matches : []).map((x) => x.slot));
+        const free = Array.from({ length: total }, (_, j) => j).find((j) => !taken.has(j) && (!(cfg.timeLimits || {})[o] || cfg.timeLimits[o].includes(slotName(j).time)) && (!(cfg.courtLimits || {})[o] || cfg.courtLimits[o].includes(slotName(j).court)));
+        if (free === undefined) continue;
+        done = { d, target, free };
+      }
+      if (!done) { errors.push(`${name} v ${s.teams[o]}: no free night found on or after ${dayIso(cursor)}.`); continue; }
+      const home = newcomerHome ? team : o;
+      const away = newcomerHome ? o : team;
+      const match = { home, away, homeName: s.teams[home], awayName: s.teams[away], ...slotName(done.free), slot: done.free, moved: true };
+      if (done.target) done.target.matches.push(match);
+      else s.rounds.push({ number: null, label: "Rescheduled", makeup: true, day: done.d, bye: null, matches: [match] });
+      if (newcomerHome) homeCount++; else awayCount++;
+      placed.push({ day: done.d, home: match.homeName, away: match.awayName, court: match.court, time: match.time });
+      cursor = done.d + 1;
+    }
+    joined.push({ team, name, from: startDay, placed, lastDay: placed.length ? placed[placed.length - 1].day : null });
+    s.notices = [...s.notices, `${name} joined${from === null ? "" : " from " + dayIso(from)}: ${placed.length} of ${fixtures.length} fixture(s) added. Results and standings for teams already playing are unchanged; decide in your league rules how ${name} is ranked against teams with more games.`];
+  }
+  s.rounds = s.rounds.sort((a, b) => a.day - b.day);
+  for (const r of s.rounds) r.matches.sort((a, b) => a.slot - b.slot);
+  let mk = 0;
+  for (const r of s.rounds) if (r.makeup) r.label = `Makeup ${++mk}`;
+  s.stats = scheduleStats(s);
+  return { schedule: s, joined, errors };
+}
+
 // ---------------------------------------------------------------- shared grounds
 
 /** Lines like "Hawks, Owls" (teams that share one ground, rink or pitch). Two or more known teams per line. */
@@ -1787,7 +1868,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds", "scoring"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "lateTeams", "officials", "grounds", "scoring"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -1816,7 +1897,7 @@ export function decodeFields(text) {
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
       playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
-      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds), scoring: str(o.scoring),
+      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), lateTeams: str(o.lateTeams), officials: str(o.officials), grounds: str(o.grounds), scoring: str(o.scoring),
     };
   } catch { return null; }
 }
