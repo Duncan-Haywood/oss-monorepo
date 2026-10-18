@@ -1,0 +1,116 @@
+inputs: research/ambient-pipeline/experiments/results.json (4 threads, clean audio, one run; copied so this project is self-contained)
+chain ASR+LLM+TTS per utterance (ms): [803, 768, 531, 531, 688, 677]  median 682  mean 666
+endpoint offset delta (mean of 4 measured): 61.0 ms
+
+baseline reply latency (median over 6 measured utterances), ms
+  H:    200    300    400    500    650    800   1000   1200
+        944   1044   1144   1244   1394   1544   1744   1944
+
+== pause model: short (median 150 ms) ==
+  P(turn is cut off) by hangover H: H200:0.513  H300:0.320  H400:0.198  H500:0.124  H650:0.065  H800:0.036  H1000:0.018  H1200:0.009
+  cut-off budget 2% -> smallest H = 1000 ms (cut-off 0.018); baseline median 1744 ms
+    hold  S=   0: median  1061 ms (saves  682), extra runs/turn 1.982
+    hold  S= 100: median  1061 ms (saves  682), extra runs/turn 1.370
+    hold  S= 150: median  1061 ms (saves  682), extra runs/turn 0.982
+    hold  S= 200: median  1061 ms (saves  682), extra runs/turn 0.701
+    hold  S= 300: median  1061 ms (saves  682), extra runs/turn 0.369
+    hold  just-in-time S= 197: median  1061 ms (saves  682), extra runs/turn 0.716
+    eager S=   0: median   744 ms, talk-over 0.815 per turn
+    eager S= 100: median   844 ms, talk-over 0.591 per turn
+    eager S= 150: median   894 ms, talk-over 0.473 per turn
+    eager S= 200: median   944 ms, talk-over 0.371 per turn
+    eager S= 300: median  1044 ms, talk-over 0.225 per turn
+  cut-off budget 5% -> smallest H = 800 ms (cut-off 0.036); baseline median 1544 ms
+    hold  S=   0: median   861 ms (saves  682), extra runs/turn 1.964
+    hold  S= 100: median   861 ms (saves  682), extra runs/turn 1.351
+    hold  S= 150: median   894 ms (saves  650), extra runs/turn 0.964
+    hold  S= 200: median   944 ms (saves  600), extra runs/turn 0.683
+    hold  S= 300: median  1044 ms (saves  500), extra runs/turn 0.350
+    hold  just-in-time S=   0: median   861 ms (saves  682), extra runs/turn 1.964
+    eager S=   0: median   744 ms, talk-over 0.815 per turn
+    eager S= 100: median   844 ms, talk-over 0.591 per turn
+    eager S= 150: median   894 ms, talk-over 0.473 per turn
+    eager S= 200: median   944 ms, talk-over 0.371 per turn
+    eager S= 300: median  1044 ms, talk-over 0.225 per turn
+  cut-off budget 10% -> smallest H = 650 ms (cut-off 0.065); baseline median 1394 ms
+    hold  S=   0: median   744 ms (saves  650), extra runs/turn 1.933
+    hold  S= 100: median   844 ms (saves  550), extra runs/turn 1.321
+    hold  S= 150: median   894 ms (saves  500), extra runs/turn 0.933
+    hold  S= 200: median   944 ms (saves  450), extra runs/turn 0.652
+    hold  S= 300: median  1044 ms (saves  350), extra runs/turn 0.319
+    hold  just-in-time S=   0: median   744 ms (saves  650), extra runs/turn 1.933
+    eager S=   0: median   744 ms, talk-over 0.815 per turn
+    eager S= 100: median   844 ms, talk-over 0.591 per turn
+    eager S= 150: median   894 ms, talk-over 0.473 per turn
+    eager S= 200: median   944 ms, talk-over 0.371 per turn
+    eager S= 300: median  1044 ms, talk-over 0.225 per turn
+
+== pause model: medium (median 250 ms) ==
+  P(turn is cut off) by hangover H: H200:0.705  H300:0.559  H400:0.427  H500:0.320  H650:0.207  H800:0.136  H1000:0.080  H1200:0.049
+  cut-off budget 2%: no H in the grid meets it
+  cut-off budget 5% -> smallest H = 1200 ms (cut-off 0.049); baseline median 1944 ms
+    hold  S=   0: median  1261 ms (saves  682), extra runs/turn 1.950
+    hold  S= 100: median  1261 ms (saves  682), extra runs/turn 1.698
+    hold  S= 150: median  1261 ms (saves  682), extra runs/turn 1.427
+    hold  S= 200: median  1261 ms (saves  682), extra runs/turn 1.170
+    hold  S= 300: median  1261 ms (saves  682), extra runs/turn 0.770
+    hold  just-in-time S= 397: median  1261 ms (saves  682), extra runs/turn 0.513
+    eager S=   0: median   744 ms, talk-over 0.822 per turn
+    eager S= 100: median   844 ms, talk-over 0.720 per turn
+    eager S= 150: median   894 ms, talk-over 0.648 per turn
+    eager S= 200: median   944 ms, talk-over 0.573 per turn
+    eager S= 300: median  1044 ms, talk-over 0.432 per turn
+  cut-off budget 10% -> smallest H = 1000 ms (cut-off 0.080); baseline median 1744 ms
+    hold  S=   0: median  1061 ms (saves  682), extra runs/turn 1.917
+    hold  S= 100: median  1061 ms (saves  682), extra runs/turn 1.665
+    hold  S= 150: median  1061 ms (saves  682), extra runs/turn 1.394
+    hold  S= 200: median  1061 ms (saves  682), extra runs/turn 1.137
+    hold  S= 300: median  1061 ms (saves  682), extra runs/turn 0.737
+    hold  just-in-time S= 197: median  1061 ms (saves  682), extra runs/turn 1.151
+    eager S=   0: median   744 ms, talk-over 0.822 per turn
+    eager S= 100: median   844 ms, talk-over 0.720 per turn
+    eager S= 150: median   894 ms, talk-over 0.648 per turn
+    eager S= 200: median   944 ms, talk-over 0.573 per turn
+    eager S= 300: median  1044 ms, talk-over 0.432 per turn
+
+== pause model: long (median 400 ms) ==
+  P(turn is cut off) by hangover H: H200:0.801  H300:0.722  H400:0.632  H500:0.542  H650:0.420  H800:0.320  H1000:0.223  H1200:0.156
+  cut-off budget 2%: no H in the grid meets it
+  cut-off budget 5%: no H in the grid meets it
+  cut-off budget 10%: no H in the grid meets it
+
+== pause model: medium, 4 pauses/turn ==
+  P(turn is cut off) by hangover H: H200:0.913  H300:0.806  H400:0.672  H500:0.538  H650:0.372  H800:0.253  H1000:0.153  H1200:0.095
+  cut-off budget 2%: no H in the grid meets it
+  cut-off budget 5%: no H in the grid meets it
+  cut-off budget 10% -> smallest H = 1200 ms (cut-off 0.095); baseline median 1944 ms
+    hold  S=   0: median  1261 ms (saves  682), extra runs/turn 3.900
+    hold  S= 100: median  1261 ms (saves  682), extra runs/turn 3.396
+    hold  S= 150: median  1261 ms (saves  682), extra runs/turn 2.854
+    hold  S= 200: median  1261 ms (saves  682), extra runs/turn 2.340
+    hold  S= 300: median  1261 ms (saves  682), extra runs/turn 1.540
+    hold  just-in-time S= 397: median  1261 ms (saves  682), extra runs/turn 1.027
+    eager S=   0: median   744 ms, talk-over 0.968 per turn
+    eager S= 100: median   844 ms, talk-over 0.922 per turn
+    eager S= 150: median   894 ms, talk-over 0.876 per turn
+    eager S= 200: median   944 ms, talk-over 0.817 per turn
+    eager S= 300: median  1044 ms, talk-over 0.677 per turn
+
+== pause model: medium, wide (sigma 1.2) ==
+  P(turn is cut off) by hangover H: H200:0.683  H300:0.585  H400:0.501  H500:0.431  H650:0.347  H800:0.283  H1000:0.220  H1200:0.174
+  cut-off budget 2%: no H in the grid meets it
+  cut-off budget 5%: no H in the grid meets it
+  cut-off budget 10%: no H in the grid meets it
+
+== latency vs speculative start S (hangover H = 1000 ms, medium pauses) ==
+  S_ms  hold_ms  eager_ms  baseline_ms  extra_runs_per_turn  talkover_eager
+     0     1061       744         1744                1.917           0.822
+   100     1061       844         1744                1.665           0.720
+   200     1061       944         1744                1.137           0.573
+   300     1061      1044         1744                0.737           0.432
+   400     1144      1144         1744                0.474           0.317
+   500     1244      1244         1744                0.303           0.232
+   600     1344      1344         1744                0.191           0.170
+   700     1444      1444         1744                0.115           0.125
+   800     1544      1544         1744                0.063           0.093
+   900     1644      1644         1744                0.026           0.070
