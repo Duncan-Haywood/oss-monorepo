@@ -1,0 +1,16 @@
+[project]
+name = "house-open-design"
+version = "0.1.0"
+description = "An open plan set for a 480 sq ft accessory dwelling unit, generated from code: drawings, bill of materials, lateral check, envelope energy, cost index and IFC"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+ifc = ["ifcopenshell"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-plan/src", "../house-spans/src", "../house-framing/src", "../house-structure/src", "../house-energy/src", "../house-cost/src"]
