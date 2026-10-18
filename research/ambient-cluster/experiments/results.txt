@@ -1,0 +1,27 @@
+world: prevalence=0.03 episode share=0.1 mean episode=12.0 windows d'=2.0 wake=0.15/0.002; 10 seeds, train 30 h, test 100 h
+policy parameters (k, delta) are chosen on the training hours by best recall at the budget; numbers are on fresh test hours; +- is the sd over seeds
+
+== recall at 1.0 false interruptions per hour (test fp/h in brackets) ==
+P(need|episode)                      plain                  cooldown                     boost                   backoff
+0.03                   0.268+-0.025 (1.12)       0.266+-0.023 (1.14)       0.268+-0.023 (1.15)       0.267+-0.023 (1.11)
+  most chosen                     (0, 0.0)                  (3, 0.0)                  (6, 0.5)                  (6, 0.5)
+  paired diff                                      -0.002 (se 0.001)         -0.000 (se 0.004)         -0.001 (se 0.001)
+0.15                   0.275+-0.024 (1.12)       0.268+-0.021 (1.14)       0.287+-0.027 (1.17)       0.277+-0.024 (1.15)
+  most chosen                     (0, 0.0)                  (3, 0.0)                  (6, 0.5)                  (6, 0.5)
+  paired diff                                      -0.007 (se 0.002)         +0.012 (se 0.004)         +0.001 (se 0.001)
+0.25                   0.271+-0.023 (1.11)       0.256+-0.020 (1.12)       0.310+-0.031 (1.19)       0.273+-0.024 (1.12)
+  most chosen                     (0, 0.0)                  (3, 0.0)                 (12, 0.5)                  (6, 0.5)
+  paired diff                                      -0.015 (se 0.002)         +0.039 (se 0.006)         +0.002 (se 0.002)
+
+== recall at 4.0 false interruptions per hour (test fp/h in brackets) ==
+P(need|episode)                      plain                  cooldown                     boost                   backoff
+0.03                   0.456+-0.025 (4.14)       0.445+-0.024 (4.21)       0.447+-0.025 (4.05)       0.453+-0.026 (4.19)
+  most chosen                     (0, 0.0)                  (3, 0.0)                  (6, 0.5)                  (6, 0.5)
+  paired diff                                      -0.011 (se 0.002)         -0.010 (se 0.003)         -0.003 (se 0.002)
+0.15                   0.466+-0.022 (4.12)       0.433+-0.019 (4.15)       0.474+-0.023 (4.10)       0.460+-0.021 (4.18)
+  most chosen                     (0, 0.0)                  (3, 0.0)                 (12, 0.5)                  (6, 0.5)
+  paired diff                                      -0.034 (se 0.002)         +0.008 (se 0.003)         -0.007 (se 0.002)
+0.25                   0.467+-0.020 (4.11)       0.401+-0.014 (4.12)       0.521+-0.026 (4.03)       0.462+-0.023 (4.16)
+  most chosen                     (0, 0.0)                  (3, 0.0)                  (6, 1.0)                  (6, 0.5)
+  paired diff                                      -0.066 (se 0.003)         +0.054 (se 0.006)         -0.005 (se 0.003)
+
