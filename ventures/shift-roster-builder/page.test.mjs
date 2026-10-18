@@ -234,3 +234,9 @@ test("index links the collect-availability flow to existing elements", () => {
   for (const id of ["collect-biz", "collect-name", "collect-link", "replies", "merge-replies", "merge-status", "collect-copy"]) assert.ok(html.includes(`id="${id}"`), id);
   assert.match(html, /availability\.html/);
 });
+
+test("links to the meeting-action-items sibling", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const html = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/meeting-action-items\/"/);
+});
