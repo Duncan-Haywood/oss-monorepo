@@ -111,7 +111,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const publicUrl = (env.PUBLIC_URL || "").replace(/\/$/, "");
   const deps = {
     stripe, policy, dryRun, alert, sendEmail: sendResend, company: env.COMPANY_NAME, address: env.COMPANY_ADDRESS,
-    cancelOnExpire: env.CANCEL_ON_EXPIRE === "true",
+    cancelOnExpire: env.CANCEL_ON_EXPIRE === "true", digestTo: env.DIGEST_TO || null,
     expiryNotices: env.EXPIRY_NOTICES !== "false", expiryDays: Number(env.EXPIRY_DAYS || 30),
     updateUrl: (c) => (publicUrl ? `${publicUrl}/update/${linkToken(env.LINK_SECRET, c.customer)}` : c.hostedUrl || ""),
   };
