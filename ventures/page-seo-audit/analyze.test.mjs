@@ -79,3 +79,27 @@ test("nofollow and a description that repeats the title are notes", () => {
   const ids = r.findings.map((f) => f.id);
   assert.ok(ids.includes("nofollow") && ids.includes("title-eq-description"));
 });
+
+test("hex entities (including 0-containing and a-f digits) decode in titles", () => {
+  const p = parse(`<html><head><title>Caf&#xE9; &#x1F600; &#x30;&#x41;</title></head><body></body></html>`);
+  assert.equal(p.title, "Café 😀 0A");
+});
+
+test("unquoted attribute values are read", () => {
+  const p = parse(`<html><head><title>T</title><meta name=description content=plainvalue></head><body></body></html>`);
+  assert.equal(p.description, "plainvalue");
+});
+
+test("findings are sorted critical, then warning, then info", () => {
+  const r = audit(`<html><head><title>x</title><meta name="robots" content="noindex"></head><body><p>hi</p></body></html>`);
+  const rank = { critical: 0, warning: 1, info: 2 };
+  const ranks = r.findings.map((f) => rank[f.severity]);
+  assert.ok(r.findings.some((f) => f.severity === "warning") && r.findings.some((f) => f.severity === "info"));
+  assert.deepEqual(ranks, [...ranks].sort((a, b) => a - b));
+  assert.equal(r.findings[0].severity, "critical");
+});
+
+test("single-quoted attribute values are read", () => {
+  const p = parse(`<html><head><title>T</title><meta name='description' content='single quoted'></head><body></body></html>`);
+  assert.equal(p.description, "single quoted");
+});
