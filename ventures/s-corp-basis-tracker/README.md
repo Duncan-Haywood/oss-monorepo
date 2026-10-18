@@ -13,6 +13,10 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - `step` (one year), `run` (roll forward), tolerant `parseYears` /
   `parseMoney`, `csv`, `packetHtml`.
+- `parseBatch` / `runBatch` / `batchSummary` / `batchCsv` / `batchPacketHtml` - the
+  preparer view: paste many shareholders at once (a `shareholder` column, plus an
+  `opening` row for starting figures), get one summary with the shareholders needing
+  attention first, a combined CSV and one printable file with a worksheet each.
 - `form-7203-basis-order.html` - the order basis is adjusted in, with a three-year
   worked example the test suite recomputes.
 - `s-corp-distributions-over-basis.html` - when a distribution becomes taxable, three
