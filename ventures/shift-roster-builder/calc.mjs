@@ -142,6 +142,7 @@ const AVOID_CELL = /^(avoid|rather[ -]?not)\s*:/i;
 // "prefer: Sat; Fri 5pm-close" = the mirror image: hours the person would like. Each hour worked inside them earns a small
 // bonus in the search, so they are used first among otherwise equal choices, and never at the cost of a shift left open.
 const PREFER_CELL = /^(prefer|would[ -]?like|extra[ -]?hours)\s*:/i;
+const SUPERVISED_CELL = /^(minor|supervised|needs[ -]?supervision)$/i;
 const TOUGH_CELL = /^(tough|recent[ -]?tough)\s*:/i;
 function parseAvoid(text, label = "avoid") {
   const errors = [], avoid = Array.from({ length: 7 }, () => []);
@@ -258,7 +259,7 @@ export function parseStaff(text, { weekStart = null } = {}) {
       toughBefore = Number(toughCell.replace(TOUGH_CELL, "").trim());
       if (!Number.isFinite(toughBefore) || toughBefore < 0) { errors.push(`${where} (${c[0]}): could not read "${toughCell}"; write it like "tough: 3" (weekend, closing and opening shifts worked recently)`); toughBefore = 0; }
     }
-    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x);
+    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x);
     const avoidCells = tail.filter((x) => AVOID_CELL.test(x));
     const av2 = parseAvoid(avoidCells.map((x) => x.replace(AVOID_CELL, "")).join(";"));
     av2.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
@@ -270,7 +271,7 @@ export function parseStaff(text, { weekStart = null } = {}) {
     for (const cell of tail.filter((x) => OFF_CELL.test(x))) {
       applyTimeOff(av.days, cell.replace(OFF_CELL, ""), weekStart, notes).forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     }
-    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore });
+    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
@@ -1306,6 +1307,33 @@ export function scheduleFlags(r, { dailyLimit = 8, splitGap = 1, mealAfter = 5, 
   }
   const order = (a, b) => a.person.localeCompare(b.person) || DAYS.indexOf(a.day) - DAYS.indexOf(b.day);
   return { overDaily: overDaily.sort(order), splits: splits.sort(order), longStretches: longStretches.sort(order), sevenDays, notice };
+}
+
+// Stretches where someone marked `minor` (or `supervised`) is on shift and nobody who is not marked is. A rule many
+// places set for under-18s and trainees: never the only one in. Counts only people on this roster; the search does not
+// enforce it, so this is a heads-up to fix by hand (swap in an adult, or pin one with `fixed:`). Returns
+// [{ people, day, startMin, endMin }] in week order, adjacent minutes merged; an overnight stretch ends the next morning.
+export function unsupervisedStretches(r, staff) {
+  const sup = new Set((staff || []).filter((p) => p.supervised).map((p) => p.name));
+  if (!sup.size) return [];
+  const spans = [];
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const base = a.slot.day * 1440, end = a.slot.endMin <= a.slot.startMin ? a.slot.endMin + 1440 : a.slot.endMin;
+    spans.push({ person: a.person, s: base + a.slot.startMin, e: base + end });
+  }
+  const cuts = [...new Set(spans.flatMap((x) => [x.s, x.e]))].sort((a, b) => a - b);
+  const out = [];
+  for (let i = 0; i + 1 < cuts.length; i++) {
+    const [lo, hi] = [cuts[i], cuts[i + 1]];
+    const here = spans.filter((x) => x.s <= lo && x.e >= hi).map((x) => x.person);
+    if (!here.length || here.some((n) => !sup.has(n))) continue;
+    const people = [...new Set(here)].sort();
+    const last = out[out.length - 1];
+    if (last && last.end === lo && last.people.join() === people.join()) last.end = hi;
+    else out.push({ people, start: lo, end: hi });
+  }
+  return out.map((x) => { const d = Math.floor(x.start / 1440); return { people: x.people, day: DAYS[d % 7], startMin: x.start - d * 1440, endMin: (x.end - d * 1440) % 1440 || 1440 }; });
 }
 
 // What a seventh-consecutive-day premium would add for each person who works all seven days of the week (the last day

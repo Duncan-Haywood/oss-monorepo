@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
+import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -1161,4 +1161,16 @@ test("budgetCheck: headroom, overage in hours at average cost, bad input", () =>
   assert.ok(Math.abs(over.cutHours - 200 / 15) < 1e-9);
   assert.equal(budgetCheck({ cost: 900, hours: 60 }, 0), null);
   assert.equal(budgetCheck({ cost: 900, hours: 60 }, "x"), null);
+});
+
+test("unsupervisedStretches: a minor is never the only one in", () => {
+  const st = staffOf("Name, Wage\nKit, 12, , , minor\nAna, 15\nSam, 15");
+  assert.equal(st[0].supervised, true);
+  assert.equal(st[1].supervised, false);
+  const a = (person, day, startMin, endMin) => ({ slot: { day, startMin, endMin }, person });
+  const r = { assignments: [a("Kit", 0, 540, 900), a("Ana", 0, 600, 840), a("Kit", 1, 600, 720), a("Kit", 2, 1260, 120)] };
+  const got = unsupervisedStretches(r, st);
+  assert.deepEqual(got.map((x) => [x.people.join(), x.day, x.startMin, x.endMin]), [["Kit", "Mon", 540, 600], ["Kit", "Mon", 840, 900], ["Kit", "Tue", 600, 720], ["Kit", "Wed", 1260, 120]]);
+  assert.deepEqual(unsupervisedStretches({ assignments: [a("Kit", 0, 540, 600), a("Ana", 0, 540, 600)] }, st), []);
+  assert.deepEqual(unsupervisedStretches(r, staffOf("Ana, 15")), []);
 });
