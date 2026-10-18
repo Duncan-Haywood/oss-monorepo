@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01Emdf2i2WRXSUegntAdi5DU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T10:18:04Z",
+  "ended": "2026-10-18T11:22:53Z",
+  "wall_minutes": 64.96,
+  "tokens_in": 6039090,
+  "tokens_out": 13765,
+  "cost_usd": 1.7312,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": 7964,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "shell sleep blocked; pytest not importable so gitops manifest tests not run locally"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "catch-all bound of 5 was already exceeded (8) by other sessions' ventures; merged PRs break each other's build check, found only by running the 22-min suite"
+    },
+    {
+      "file": "platform/pages/publish-branch.sh",
+      "issue": "refuses to publish from an unmerged checkout, so the session gate's refresh-first advice conflicts with landing work first"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "routed to ventures but spent the run landing stalled PR 7964 and fixing the catch-all rather than a new venture; shipping an existing finished venture is cheaper than a new one"
+    }
+  ],
+  "goal": null,
+  "notes": "Merged main into PR 7964's branch, re-synced counts, fixed pre-existing catch-all test failure (build.mjs category filing).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ec9a3696-6c68-5da0-9228-63f407115a3a",
+    "transcripts": 1,
+    "first": "2026-10-18T10:18:04Z",
+    "last": "2026-10-18T11:23:01Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 57,
+        "input": 115,
+        "output": 13765,
+        "thinking": 2571,
+        "cache_read": 5937516,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101459,
+        "api_equivalent_usd": 1.7312,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 115,
+      "output": 13765,
+      "thinking": 2571,
+      "cache_read": 5937516,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101459,
+      "api_equivalent_usd": 1.7312,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 51,
+      "mcp__github__pull_request_read": 5,
+      "Read": 1,
+      "mcp__github__list_pull_requests": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 64.96,
+      "active_minutes": 54.71,
+      "model_minutes": 2.58,
+      "tool_minutes": 52.12,
+      "waiting_on_human_minutes": 10.25,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "merge conflict resolution, CI diagnosis, taxonomy fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 173.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
