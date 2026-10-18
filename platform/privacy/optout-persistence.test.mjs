@@ -2038,6 +2038,75 @@ test("a module the driver cannot reach is reported, not passed", async () => {
   assert.equal(result.status, "undrivable", JSON.stringify(result));
 });
 
+test("a plainly named switch is tried before an unrelated export that silences the recorder", async () => {
+  // Candidates run in export order after the sort, and the first one that
+  // silences the recorder decides the verdict. `hush` forgets on reload but is
+  // exported first; the module is sound because `setUsageOptOut` persists.
+  // Without the promised-names-first sort the unrelated export answers for it.
+  const result = await statusOf(`
+const KEY = "fixture-usage";
+const OPT_OUT = "fixture-usage-opt-out";
+function optedOut() {
+  if (globalThis.__usageOptOut) return true;
+  try { return localStorage.getItem(OPT_OUT) === "1"; } catch { return false; }
+}
+export function record(event) {
+  if (typeof localStorage === "undefined" || optedOut()) return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function hush() { globalThis.__usageOptOut = true; }
+export function setUsageOptOut(value) {
+  globalThis.__usageOptOut = Boolean(value);
+  if (value) localStorage.setItem(OPT_OUT, "1"); else localStorage.removeItem(OPT_OUT);
+}
+`);
+  assert.equal(result.status, "pass", JSON.stringify(result));
+  assert.match(result.via, /setUsageOptOut/);
+});
+
+test("a candidate that throws is skipped, not judged as a switch", async () => {
+  // `disableUsage` flips the in-memory flag and then throws on every call
+  // shape. Treating a throw as acceptance would fail the module on that
+  // function's reload even though the real switch after it keeps the choice.
+  const result = await statusOf(`
+const KEY = "fixture-usage";
+const OPT_OUT = "fixture-usage-opt-out";
+function optedOut() {
+  if (globalThis.__usageOptOut) return true;
+  try { return localStorage.getItem(OPT_OUT) === "1"; } catch { return false; }
+}
+export function record(event) {
+  if (typeof localStorage === "undefined" || optedOut()) return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function disableUsage() { globalThis.__usageOptOut = true; throw new Error("not a switch"); }
+export function setUsageOptOut(value) {
+  globalThis.__usageOptOut = Boolean(value);
+  if (value) localStorage.setItem(OPT_OUT, "1"); else localStorage.removeItem(OPT_OUT);
+}
+`);
+  assert.equal(result.status, "pass", JSON.stringify(result));
+  assert.match(result.via, /setUsageOptOut/);
+});
+
+test("a check puts back a global it overwrote or deleted", async () => {
+  // restoreGlobals must reinstate pre-existing globals a module changed, not
+  // only delete the ones it added.
+  globalThis.__optoutChanged = "original";
+  globalThis.__optoutRemoved = "original";
+  try {
+    await statusOf(`
+globalThis.__optoutChanged = "module";
+delete globalThis.__optoutRemoved;
+${REMEMBERS}`);
+    assert.equal(globalThis.__optoutChanged, "original");
+    assert.equal(globalThis.__optoutRemoved, "original");
+  } finally {
+    delete globalThis.__optoutChanged;
+    delete globalThis.__optoutRemoved;
+  }
+});
+
 test("every venture that offers the switch keeps it across a reload", async () => {
   // The catalogue-wide assertion. 2026-09-12: 37 of the 69 ventures then
   // visible failed this, all of them keeping the choice only in
