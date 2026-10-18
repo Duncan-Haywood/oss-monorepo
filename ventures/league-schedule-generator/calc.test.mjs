@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, resultsCheck, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1444,4 +1444,18 @@ test("late joiner respects blackouts, time limits and double round robins", () =
   assert.deepEqual(validateSchedule(r.schedule).errors, []);
   for (const round of r.schedule.rounds) for (const m of round.matches) if (m.home === 3 || m.away === 3) assert.equal(m.time, "19:00");
   assert.equal(r.schedule.rounds.flatMap((x) => x.matches).filter((m) => m.home === 3 || m.away === 3).length, 6);
+});
+
+test("overdueResults lists played-date matches with no typed result, earliest meeting first", () => {
+  const s = buildSchedule(baseSpec(4, { double: true }));
+  const flat = s.rounds.flatMap((r) => r.matches.map((m) => ({ ...m, day: r.day }))).sort((a, b) => a.day - b.day);
+  const lastDay = flat[flat.length - 1].day;
+  assert.equal(overdueResults(s, [], lastDay + 1).length, flat.length);
+  assert.equal(overdueResults(s, [], flat[0].day).length, 0);
+  const { results } = parseResults("Team 1 2 - 1 Team 2", s.teams);
+  const od = overdueResults(s, results, lastDay + 1);
+  assert.equal(od.length, flat.length - 1);
+  const firstMeeting = flat.find((m) => [m.home, m.away].sort().join() === "0,1");
+  assert.ok(!od.some((m) => m.day === firstMeeting.day && [m.home, m.away].sort().join() === "0,1"));
+  assert.ok(od.every((m, i) => i === 0 || od[i - 1].day <= m.day));
 });
