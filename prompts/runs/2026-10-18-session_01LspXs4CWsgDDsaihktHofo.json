@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01LspXs4CWsgDDsaihktHofo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T13:00:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8049",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Gate says refresh the Pages snapshot first but the build takes 10+ minutes in a shallow clone; no way to wait on it within a run."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Scheduled generic brief. Ventures are saturated (1,292); shipped one real feature, folded place cards for event-seating-chart-optimizer. Verified with node --test (62 pass); no CI check runs appeared on the PR. Tried a search to add more states to the residency counter but found no verifiable source, so added none. Pages snapshot refresh was started in the background; result not confirmed at merge time.",
+  "corrections": [],
+  "redteam": null
+}
