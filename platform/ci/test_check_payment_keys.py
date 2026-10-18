@@ -68,6 +68,39 @@ class Check(unittest.TestCase):
     def test_repo_is_clean(self):
         self.assertEqual(guard.check(), [])
 
+    def test_default_root_is_the_real_ventures_tree(self):
+        self.assertTrue(guard.VENTURES.is_dir())
+        self.assertEqual(guard.VENTURES.name, "ventures")
+        self.assertTrue((guard.REPO_ROOT / "platform" / "ci").is_dir())
+
+    def test_check_reports_violations_sorted(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "b.html").write_text('<a href="https://buy.stripe.com/aBcDeF123456">', encoding="utf-8")
+            (root / "a.py").write_text(f'K = "{LIVE}"\n', encoding="utf-8")
+            out = guard.check(root)
+        self.assertEqual(len(out), 2)
+        self.assertEqual(out, sorted(out))
+        self.assertTrue(out[0].endswith("a.py: live Stripe key"))
+
+    def test_missing_root_is_clean(self):
+        self.assertEqual(guard.check(Path("/nonexistent/ventures")), [])
+
+
+class Main(unittest.TestCase):
+    def run_main(self, violations):
+        from io import StringIO
+        from unittest import mock
+        with mock.patch.object(guard, "check", return_value=violations), \
+                mock.patch("sys.stdout", new_callable=StringIO):
+            return guard.main()
+
+    def test_exit_zero_when_clean(self):
+        self.assertEqual(self.run_main([]), 0)
+
+    def test_exit_one_on_violation(self):
+        self.assertEqual(self.run_main(["x.py: live Stripe key"]), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
