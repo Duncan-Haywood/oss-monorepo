@@ -1141,6 +1141,47 @@ export function carryOverStaff(staffText, lastWeekCsv) {
   return { text: out.join("\n"), changed };
 }
 
+// Monday date + 7 * k days, as YYYY-MM-DD (null when weekStart is not a date).
+function addWeeks(weekStart, k) {
+  const m = ISO_DATE.exec(weekStart || "");
+  if (!m) return null;
+  return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3] + 7 * k)).toISOString().slice(0, 10);
+}
+
+// Several weeks in a row from one setup. Each week is built with the rest gap and the running tough-shift tally carried
+// over from the week before (the same arithmetic as "carry over last week"), and dated `off:` entries apply in the week
+// they fall in. People who had no shift last week lose a stale `prev:` so it cannot block Monday. Returns one entry per
+// week with its roster and CSV; a parse error stops the plan.
+export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, ...options } = {}) {
+  const n = Math.max(1, Math.min(8, Math.floor(weeks) || 1));
+  const sh = parseShifts(shiftsText);
+  if (sh.errors.length) return { error: sh.errors[0] };
+  let text = String(staffText || "");
+  const out = [];
+  for (let k = 0; k < n; k++) {
+    const ws = addWeeks(weekStart, k);
+    const st = parseStaff(text, { weekStart: ws });
+    if (st.errors.length) return { error: st.errors[0] };
+    const roster = buildRoster(st.staff, sh.slots, options);
+    if (roster.error) return { error: roster.error };
+    const csv = rosterCsv(roster);
+    out.push({ week: k + 1, weekStart: ws, roster, csv });
+    if (k < n - 1) {
+      const worked = lastShiftEnds(csv);
+      const cleaned = text.split(/\r?\n/).map((raw) => {
+        const line = raw.trim();
+        if (!line || line.startsWith("#")) return raw;
+        const cells = splitLine(line);
+        if (worked.has((cells[0] || "").toLowerCase())) return raw;
+        const kept = cells.filter((x) => !PREV_CELL.test(x));
+        return kept.length === cells.length ? raw : kept.join(line.includes("\t") ? "\t" : ", ");
+      }).join("\n");
+      text = carryOverStaff(cleaned, csv).text;
+    }
+  }
+  return { ok: true, weeks: out, totalCost: out.reduce((t, w) => t + w.roster.cost, 0), totalOpenHours: out.reduce((t, w) => t + w.roster.unfilledHours, 0) };
+}
+
 // Labor cost as a share of projected sales, against an optional target.
 // Returns null when sales is not a positive number. maxPayroll is the payroll
 // that would hit the target exactly; headroom is how much of it is unspent.
