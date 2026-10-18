@@ -42,3 +42,11 @@ test('opens a sealed box produced by real libsodium', () => {
   const opened = open(fromBase64(LIBSODIUM_SEALED), kp.publicKey, kp.secretKey);
   assert.equal(new TextDecoder().decode(opened), 'libsodium says hello');
 });
+
+// The PRNG hook must fill every byte. Skipping index 0 leaves a fixed zero
+// byte in every ephemeral key, and nothing else here would notice.
+test('the PRNG hook fills the first byte too', () => {
+  let nonzero = 0;
+  for (let i = 0; i < 64; i++) if (nacl.randomBytes(32)[0] !== 0) nonzero++;
+  assert.ok(nonzero > 0, 'byte 0 was zero in 64 draws');
+});
