@@ -36,6 +36,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Must-finish date: type the date the season has to end by (end of term, lease) and the fairness note says how many days spare the last game leaves, or how many rounds and matches fall after it (`deadlineCheck` in `calc.mjs`).
 - Recent form: the standings table ends with each team's last five results in the order you typed them (`W D L`, oldest first), so a hot or sliding team shows at a glance (`formString` in `calc.mjs`).
 - Games left: the standings table ends with each team's unplayed fixtures before the Form column, so an organiser sees who has played more than who (`gamesLeft` in `calc.mjs`).
+- Run-in strength: the standings table shows, per team, the average points per game so far of the opponents it still has to play (`Opp. pts/g`), so an organiser sees who has the harder run-in (`scheduleStrength` in `calc.mjs`). A guide, not a forecast.
 - Results grid: under the standings, a team-by-team grid of every score so far (row team's goals first), in table order, so an organiser sees at a glance who has not yet met (`crossTable` in `calc.mjs`).
 - Standings CSV: once results are typed, "Download standings CSV" saves the ranked table (`standingsCsv` in `calc.mjs`).
 - Rest report: the fairness note shows the shortest and longest days between each team's games and counts games that follow within a day (`restReport` in `calc.mjs`).
