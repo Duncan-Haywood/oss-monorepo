@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 260" role="img" aria-label="Strip plot of the absolute cell-count change of each of the survivors by label; the nine undecided survivors cluster at 0 to 2 cells apart from one at 37, equivalent ones range from 0 to 178" font-family="sans-serif" font-size="12">
+<title>Cell-count change of survivors, by Yosys verdict</title>
+<text x="100" y="22" font-size="14" font-weight="bold" fill="currentColor">Cell-count change of a survivor, by Yosys verdict</text>
+<text x="100" y="40" fill="currentColor" opacity="0.7">each dot is one mutant that passed simulation (equivalent 16, undecided 9)</text>
+<line x1="100.0" x2="100.0" y1="56" y2="204" stroke="currentColor" opacity="0.2"/>
+<text x="100.0" y="220" text-anchor="middle" fill="currentColor">0</text>
+<line x1="169.5" x2="169.5" y1="56" y2="204" stroke="currentColor" opacity="0.2"/>
+<text x="169.5" y="220" text-anchor="middle" fill="currentColor">1</text>
+<line x1="340.4" x2="340.4" y1="56" y2="204" stroke="currentColor" opacity="0.2"/>
+<text x="340.4" y="220" text-anchor="middle" fill="currentColor">10</text>
+<line x1="562.6" x2="562.6" y1="56" y2="204" stroke="currentColor" opacity="0.2"/>
+<text x="562.6" y="220" text-anchor="middle" fill="currentColor">100</text>
+<text x="360" y="248" text-anchor="middle" fill="currentColor">|cells(mutant) &#8722; cells(golden)|, log10(x+1) scale</text>
+<text x="90" y="100" text-anchor="end" fill="currentColor">equivalent</text>
+<circle cx="100.0" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="100.0" cy="85" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="100.0" cy="74" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="261.3" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="295.1" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="295.1" cy="85" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="308.4" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="320.3" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="330.8" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="330.8" cy="85" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="527.3" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="535.4" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="560.6" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="610.0" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="616.6" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="620.0" cy="96" r="5" fill="#2e8b57" fill-opacity="0.75"/>
+<text x="90" y="180" text-anchor="end" fill="currentColor">undecided</text>
+<circle cx="100.0" cy="176" r="5" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="100.0" cy="165" r="5" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="100.0" cy="154" r="5" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="100.0" cy="143" r="5" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="100.0" cy="132" r="5" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="100.0" cy="121" r="5" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="169.5" cy="176" r="5" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="210.1" cy="176" r="5" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="464.6" cy="176" r="5" fill="#c0392b" fill-opacity="0.75"/>
+</svg>
