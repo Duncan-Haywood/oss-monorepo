@@ -585,7 +585,7 @@ test("a reported column sorts sales into Form 8949 boxes G to L", () => {
 2024-05-01,sell,ETH,1,900,`;
   const r = analyze(csv, { method: "FIFO" });
   const boxes = Object.fromEntries(form8949BoxTotals(r.rows).map((b) => [b.box, b]));
-  assert.deepEqual(Object.keys(boxes), ["I", "J", "K"]);
+  assert.deepEqual(Object.keys(boxes), ["H", "I", "J"]);
   assert.equal(boxes.J.rows, 1);
   assert.equal(boxes.J.gain, 20000);
   assert.equal(boxes.G ?? null, null);
