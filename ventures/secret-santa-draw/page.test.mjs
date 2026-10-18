@@ -5,6 +5,7 @@ import { buildAllowed, countDraws, draw, mulberry32 } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "secret-santa-rules-for-couples-and-no-repeats.html";
+const GUIDES = [GUIDE, "how-many-people-do-you-need-for-secret-santa.html", "secret-santa-for-remote-teams-without-email.html"];
 
 test("index page carries the disclaimer, privacy line, honor-system caveat and sponsor link", () => {
   const html = page("index.html");
@@ -19,7 +20,7 @@ test("index page carries the disclaimer, privacy line, honor-system caveat and s
 });
 
 test("JSON-LD blocks parse and every FAQ question is on the page", () => {
-  for (const name of ["index.html", GUIDE]) {
+  for (const name of ["index.html", ...GUIDES]) {
     const html = page(name);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
     const faq = blocks.find((b) => b["@type"] === "FAQPage");
@@ -77,4 +78,25 @@ test("the guide's last-year numbers are the engine's numbers", () => {
   const fmt = (x) => x.toLocaleString("en-US");
   const text = `a group of five goes from ${fmt(countDraws(buildAllowed(5), "any"))} valid draws to ${fmt(countDraws(buildAllowed(5, [], ring(5)), "any"))}, and a group of eight from ${fmt(countDraws(buildAllowed(8), "any"))} to ${fmt(countDraws(buildAllowed(8, [], ring(8)), "any"))}`;
   assert.ok(html.includes(text), text);
+});
+
+test("group-size guide: every table row is recomputed from the engine", () => {
+  const html = page("how-many-people-do-you-need-for-secret-santa.html");
+  for (let n = 3; n <= 8; n++) {
+    const a = buildAllowed(n);
+    const cells = ["swap", "noswap", "loop"].map((m) => countDraws(a, m).toLocaleString("en-US"));
+    assert.ok(html.includes(`<tr><td>${n}</td><td>${cells[0]}</td><td>${cells[1]}</td><td>${cells[2]}</td></tr>`), `row ${n}`);
+  }
+  const t = buildAllowed(6, [[0, 1], [2, 3], [4, 5]]);
+  assert.deepEqual(["swap", "noswap", "loop"].map((m) => countDraws(t, m)), [80, 48, 32]);
+  assert.match(html, /80 valid draws with swaps allowed, 48 with no swaps and 32 as one big loop/);
+});
+
+test("new guides are linked from the index and listed in the sitemap, with the disclaimer", () => {
+  for (const g of GUIDES.slice(1)) {
+    assert.match(page("index.html"), new RegExp(g.replace(/\./g, "\\.")));
+    assert.match(page("sitemap.xml"), new RegExp(g.replace(/\./g, "\\.")));
+    assert.match(page(g), /No warranty/);
+    assert.match(page(g), /<link rel="canonical" href="\.\/[^"]+">/);
+  }
 });
