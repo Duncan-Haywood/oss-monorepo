@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01Rdhe1TDzNEWqeWorTxLjHy",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T10:44:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "swe-errfix"
+  ],
+  "pr": 8017,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "first refit run too slow (uncompiled regex, all words as candidates); capped candidates to words in >=2 entries and cached compiled patterns",
+    "pkill -f matched my own shell and killed it; re-applied the patch"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Track 8 next steps all need the 3.3 GB Speech Commands download, which is blocked in cloud sessions; no note says so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "Drew track 8 but did a track 10 follow-up because the track 8 data host is unreachable."
+    }
+  ],
+  "goal": null,
+  "notes": "Drew track 8; accel-kwssparse next step needs Speech Commands from huggingface.co, which the egress proxy refuses (403), so switched to the swe-errlabel next step (local data only). Result is small and reported as such.",
+  "corrections": [],
+  "redteam": null,
+  "build_ok": true
+}
