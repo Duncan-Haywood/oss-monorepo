@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_012cLEmwWxi2Wa2aLobqtEti",
+  "track": "review",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T01:07:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 7885,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Step 2 audit again unrunnable; derive.py fetch got 25 of 39 PRs in the time limit."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure's friction 'latest' lines for research/CLAUDE.md described pyenv.py failures already fixed; cost a check."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Lean review: derived regenerated, drift report, E35; no prompt change.",
+  "corrections": [],
+  "redteam": null
+}

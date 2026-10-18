@@ -686,3 +686,13 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   run (recent outputs mirrored or doc-only).
 - Drift: `prompts/drift/2026-10-17f.md`.
 - Result: (next review)
+
+## E35: review 2026-10-18
+
+- Change: none to prompts or docs. Candidates unchanged (ventures 2 / research
+  1 overlap their champions; review/2 has 5 runs, fewer than 10). `derived/`
+  regenerated; `pyenv.py` friction checked and already fixed on `main`.
+- Metric: friction reports naming `research/CLAUDE.md` about `pyenv.py`, next
+  40 runs; expect none.
+- Drift: `prompts/drift/2026-10-18.md`.
+- Result: (next review)
