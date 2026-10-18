@@ -1,0 +1,43 @@
+Predictors vs simulation (hold semantics, 20 seeds, 24 h, 4 h warm-up). Rates in good parts/h.
+plain = MVA on plain demands; held = printer demand incl. load+unload; stall = held + 0.5*(arm wait) fixed point;
+stall_full = same with the whole arm wait added (share 1.0, a sensitivity check). err = (prediction - sim)/sim in percent.
+
+cv 1.0
+   P= 4 wip  2 sim   2.14+/-0.10  err plain   -2.5  held   -9.8  stall  -10.1  stall_full  -10.3
+   P= 4 wip  4 sim   4.17+/-0.12  err plain   -2.4  held   -9.4  stall  -10.2  stall_full  -11.0
+   P= 4 wip  6 sim   4.32+/-0.10  err plain  +10.5  held   +1.5  stall   -0.3  stall_full   -2.0
+   P= 4 wip  8 sim   4.45+/-0.14  err plain  +10.4  held   +0.8  stall   -1.4  stall_full   -3.4
+   P= 8 wip  4 sim   4.17+/-0.12  err plain   -2.4  held   -9.4  stall  -10.2  stall_full  -11.0
+   P= 8 wip  8 sim   7.82+/-0.10  err plain   -3.1  held   -8.9  stall  -11.1  stall_full  -13.1
+   P= 8 wip 10 sim   8.31+/-0.12  err plain   +3.7  held   -2.8  stall   -6.3  stall_full   -9.2
+   P= 8 wip 16 sim   8.53+/-0.12  err plain  +12.9  held   +4.2  stall   -2.8  stall_full   -7.7
+   P=12 wip  6 sim   5.93+/-0.12  err plain   -0.2  held   -6.9  stall   -8.4  stall_full   -9.9
+   P=12 wip 12 sim  10.28+/-0.11  err plain   -0.7  held   -5.1  stall   -8.6  stall_full  -11.5
+   P=12 wip 14 sim  11.08+/-0.10  err plain   -0.6  held   -4.3  stall   -8.6  stall_full  -12.1
+   P=12 wip 24 sim  11.36+/-0.13  err plain   +9.1  held   +6.6  stall   -3.9  stall_full  -10.4
+   P=16 wip  8 sim   7.82+/-0.10  err plain   -3.1  held   -8.9  stall  -11.1  stall_full  -13.1
+   P=16 wip 16 sim  11.76+/-0.10  err plain   -0.3  held   -2.7  stall   -6.6  stall_full   -9.9
+   P=16 wip 18 sim  12.27+/-0.13  err plain   -1.1  held   -2.8  stall   -6.6  stall_full  -10.0
+   P=16 wip 32 sim  12.56+/-0.14  err plain   +1.1  held   +1.0  stall   -3.8  stall_full   -9.7
+
+cv 0.3
+   P= 4 wip  2 sim   2.09+/-0.05  err plain   -0.2  held   -7.7  stall   -8.0  stall_full   -8.3
+   P= 4 wip  4 sim   4.19+/-0.07  err plain   -2.7  held   -9.7  stall  -10.5  stall_full  -11.3
+   P= 4 wip  6 sim   4.45+/-0.07  err plain   +7.2  held   -1.6  stall   -3.3  stall_full   -5.0
+   P= 4 wip  8 sim   4.40+/-0.06  err plain  +11.6  held   +1.9  stall   -0.3  stall_full   -2.3
+   P= 8 wip  4 sim   4.19+/-0.07  err plain   -2.7  held   -9.7  stall  -10.5  stall_full  -11.3
+   P= 8 wip  8 sim   8.07+/-0.08  err plain   -6.0  held  -11.7  stall  -13.8  stall_full  -15.7
+   P= 8 wip 10 sim   8.41+/-0.10  err plain   +2.5  held   -3.9  stall   -7.3  stall_full  -10.3
+   P= 8 wip 16 sim   8.48+/-0.10  err plain  +13.6  held   +4.8  stall   -2.2  stall_full   -7.1
+   P=12 wip  6 sim   6.26+/-0.09  err plain   -5.5  held  -11.9  stall  -13.3  stall_full  -14.6
+   P=12 wip 12 sim  11.06+/-0.11  err plain   -7.7  held  -11.8  stall  -15.0  stall_full  -17.7
+   P=12 wip 14 sim  11.62+/-0.10  err plain   -5.2  held   -8.8  stall  -12.8  stall_full  -16.2
+   P=12 wip 24 sim  11.70+/-0.11  err plain   +6.0  held   +3.5  stall   -6.7  stall_full  -13.0
+   P=16 wip  8 sim   8.07+/-0.08  err plain   -6.0  held  -11.7  stall  -13.8  stall_full  -15.7
+   P=16 wip 16 sim  12.43+/-0.08  err plain   -5.7  held   -7.9  stall  -11.7  stall_full  -14.8
+   P=16 wip 18 sim  12.61+/-0.09  err plain   -3.8  held   -5.4  stall   -9.1  stall_full  -12.4
+   P=16 wip 32 sim  12.58+/-0.09  err plain   +0.9  held   +0.8  stall   -3.9  stall_full   -9.8
+
+Mean absolute error over all rows (percent): plain 4.7, held 6.2, stall 7.9, stall_full 10.6  (32 rows)
+Mean absolute error, saturated rows (wip = 2P): plain 8.2, held 2.9, stall 3.1, stall_full 7.9  (8 rows)
+Mean absolute error, other rows (wip < 2P): plain 3.6, held 7.3, stall 9.5, stall_full 11.5  (24 rows)
