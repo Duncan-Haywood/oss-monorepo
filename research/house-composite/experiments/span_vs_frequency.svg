@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the longest clear span of a 2x10 floor joist at 16 inches against a minimum natural frequency in hertz, for a bare joist and three levels of subfloor composite action; the composite lines stay flat to higher limits">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">2x10 at 16 in: span against a frequency limit, with and without subfloor action</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="241.2" y2="241.2" stroke="#ddd"/><text x="58" y="245.2" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="158.3" y2="158.3" stroke="#ddd"/><text x="58" y="162.3" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="75.5" y2="75.5" stroke="#ddd"/><text x="58" y="79.5" text-anchor="end" font-family="sans-serif" font-size="11">15</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="512.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">minimum natural frequency (Hz)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">max clear span (ft)</text>
+<polyline points="64.0,71.2 120.0,71.2 176.0,71.2 232.0,71.2 288.0,71.2 344.0,71.2 400.0,92.2 456.0,109.4 512.0,123.5 568.0,135.1 624.0,144.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="232.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="92.2" r="3" fill="#c0392b"/>
+<circle cx="456.0" cy="109.4" r="3" fill="#c0392b"/>
+<circle cx="512.0" cy="123.5" r="3" fill="#c0392b"/>
+<circle cx="568.0" cy="135.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="144.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">joist alone</text>
+<polyline points="64.0,71.2 120.0,71.2 176.0,71.2 232.0,71.2 288.0,71.2 344.0,71.2 400.0,92.0 456.0,109.4 512.0,123.4 568.0,135.0 624.0,144.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="232.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="92.0" r="3" fill="#1f6fb2"/>
+<circle cx="456.0" cy="109.4" r="3" fill="#1f6fb2"/>
+<circle cx="512.0" cy="123.4" r="3" fill="#1f6fb2"/>
+<circle cx="568.0" cy="135.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="144.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">gamma 0 (loose panel)</text>
+<polyline points="64.0,71.2 120.0,71.2 176.0,71.2 232.0,71.2 288.0,71.2 344.0,71.2 400.0,71.2 456.0,88.4 512.0,103.6 568.0,116.4 624.0,127.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="120.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="232.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="288.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="456.0" cy="88.4" r="3" fill="#2e8b57"/>
+<circle cx="512.0" cy="103.6" r="3" fill="#2e8b57"/>
+<circle cx="568.0" cy="116.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="127.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">gamma 0.5</text>
+<polyline points="64.0,71.2 120.0,71.2 176.0,71.2 232.0,71.2 288.0,71.2 344.0,71.2 400.0,71.2 456.0,75.3 512.0,91.5 568.0,105.0 624.0,116.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="120.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="176.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="232.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="288.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="400.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="456.0" cy="75.3" r="3" fill="#8e44ad"/>
+<circle cx="512.0" cy="91.5" r="3" fill="#8e44ad"/>
+<circle cx="568.0" cy="105.0" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="116.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">gamma 1 (glued T-beam)</text>
+</svg>

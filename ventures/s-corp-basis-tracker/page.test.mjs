@@ -83,3 +83,11 @@ test("the distribution guide's three cases are recomputed", () => {
   const c3 = step(open, { ...z, distributions: 10000, losses: 5000 });
   assert.equal(c3.close.suspended, 5000); assert.ok(html.includes("$5,000 loss is suspended"));
 });
+
+test("the year-end planner is on the page and its event is disclosed", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /id="plan"/);
+  assert.match(html, /Year-end planner/);
+  assert.match(html, /<code>plan_viewed<\/code>/);
+});

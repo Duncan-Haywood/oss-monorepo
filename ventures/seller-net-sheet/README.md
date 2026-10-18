@@ -36,6 +36,8 @@ those lines separate and shows both nets on one page.
 
 [Compare multiple offers](compare-multiple-offers.html) ranks up to twelve offers on net cash, then charges each for its days to close (at your daily cost of owning the house) and weighs it by your own chance that it falls through (`rankOffers` in `calc.mjs`; the chances are yours; the page's example rows are invented). Each offer also gets the exact fall-through chance at which it still beats the rest.
 
+[Who pays transfer tax, state by state](transfer-tax-by-state.html) lists the statewide starting rates behind the calculator's state menu (`transfer-tax.mjs`).
+
 [Higher offer vs cleaner offer](offer-comparison.html) answers that search
 question directly, and
 [this calculator vs. Zillow's Home Sale Calculator](vs-zillows-home-sale-calculator.html)
