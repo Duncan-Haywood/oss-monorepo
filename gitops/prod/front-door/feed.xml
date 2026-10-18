@@ -56,6 +56,14 @@
     <summary type="text">Free TCGplayer seller fee calculator: 10.75% marketplace commission (capped at $75 per product, charged on cards plus shipping) and 2.5% + $0.30 per-order transaction fee. See your payout, profit per order, the price for a target profit, and Pro or pre-February-2026 rates side by side. Nothing leaves your browser.</summary>
   </entry>
   <entry>
+    <title>UK Statutory Residence Test Checker — Days, Ties and Automatic Tests</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-statutory-residence-test-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-statutory-residence-test-checker</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="UK tax, pay &amp; benefits"/>
+    <summary type="text">Free UK Statutory Residence Test checker: enter your UK stays and ties to see which test decides, whether you are UK resident, and how many more days you can spend in the UK before that changes. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Youth Lineup Rotator — fair playing time for every kid, free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/youth-lineup-rotator/"/>
     <id>tag:marisstella.dev,2026:tool/youth-lineup-rotator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">One zero-dependency command that runs your repository through 23 open-source DevSecOps checks: GitHub Actions injection and poisoning, Docker and Compose, Kubernetes, dependency confusion, JWT misuse, ReDoS, AI-agent permissions. One report, SARIF for code scanning, baselines. MIT licensed, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Error Keeper — Free Self-Hosted Error Tracking (Sentry Alternative)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/error-keeper/"/>
-    <id>tag:marisstella.dev,2026:tool/error-keeper</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">A free, open-source alternative to Sentry and Rollbar for small teams: groups the same bug together, alerts on new errors, regressions and spikes, one Node process and one JSON file. Paste stack traces and see the grouping in your browser first.</summary>
   </entry>
 </feed>

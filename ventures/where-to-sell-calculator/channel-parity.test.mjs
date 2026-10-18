@@ -33,6 +33,12 @@ import assert from 'node:assert/strict';
 import { CHANNEL_PRESETS, calculateChannel } from './calc.mjs';
 import { HANDOFFS } from './handoff.mjs';
 import { REVERB_DEFAULTS, calculateReverbSale } from '../reverb-fee-calculator/calc.mjs';
+import {
+  SCHEDULES as TCG_SCHEDULES,
+  TRANSACTION_RATE as TCG_TRANSACTION_RATE,
+  TRANSACTION_FIXED as TCG_TRANSACTION_FIXED,
+  calculateSale as calculateTcgSale,
+} from '../tcgplayer-fee-calculator/calc.mjs';
 import { FEE_SCHEDULE_PRESETS, calculateOrder } from '../tiktok-shop-fee-calculator/calc.mjs';
 import {
   CATEGORY_PRESETS,
@@ -707,12 +713,35 @@ test('the Walmart row matches the dedicated calculator\'s seller-fulfilled profi
   );
 });
 
+test('the TCGplayer row matches the dedicated calculator\'s one-card order profit', () => {
+  const tcg = CHANNEL_PRESETS.find((preset) => preset.id === 'tcgplayer');
+  assert.ok(tcg, 'no channel with id "tcgplayer" in CHANNEL_PRESETS');
+  assert.equal(tcg.commissionRate, TCG_SCHEDULES.standard.lines[0].rate, 'commission disagrees with tcgplayer-fee-calculator');
+  assert.equal(tcg.paymentRate, TCG_TRANSACTION_RATE);
+  assert.equal(tcg.paymentFixed, TCG_TRANSACTION_FIXED);
+  assert.equal(tcg.commissionBase, 'order');
+  assert.equal(tcg.monthlyFee, 0);
+  assert.equal(tcg.enabled, false);
+  const shared = { price: 40, shippingCharged: 1.31, shippingCost: 1.1, itemCost: 15, packagingCost: 0.4, otherCost: 0.6, monthlyOrders: 1 };
+  const here = calculateChannel({ ...tcg, enabled: true }, shared);
+  const there = calculateTcgSale({
+    itemPrice: shared.price,
+    quantity: 1,
+    buyerShipping: shared.shippingCharged,
+    shippingCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost + shared.packagingCost,
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `TCGplayer profit: this page ${here.profit}, dedicated ${there.profit}`);
+});
+
 test('every channel with a handoff has a parity assertion in this file', () => {
   // The check that stops this file going stale the way it just did. A new
   // channel that can hand an item to a dedicated calculator is a new chance
   // for the two to disagree, so it must be named here -- and if it is not,
   // this fails naming it, instead of waiting for a seller to find the gap.
-  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari', 'depop', 'grailed', 'facebook-marketplace', 'walmart']);
+  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari', 'depop', 'grailed', 'facebook-marketplace', 'walmart', 'tcgplayer']);
   const missing = HANDOFFS.map((entry) => entry.channel).filter((channel) => !asserted.has(channel));
   assert.deepEqual(
     missing,
