@@ -23,6 +23,10 @@ class T(unittest.TestCase):
     def test_slug_matches_and_case(self):
         self.assertEqual([x[1] for x in r.search(["SYBIL"], FOUND)], ["sybil-stake"])
 
+    def test_ties_sort_by_slug_not_description(self):
+        found = {"b-slug": "aaa topic", "a-slug": "zzz topic"}
+        self.assertEqual([x[1] for x in r.search(["topic"], found)], ["a-slug", "b-slug"])
+
     def test_no_hit(self):
         self.assertEqual(r.search(["quantum"], FOUND), [])
 
@@ -91,6 +95,16 @@ class Repo(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("1/2  research/alpha-one", out)
         self.assertNotIn("TAKEN?", out)
+
+    def test_default_limit_is_twelve(self):
+        with open("research/README.md", "a") as f:
+            for i in range(15):
+                f.write(f"- [`research/zz-{i:02d}`](zz) \u2014 flooding corpus\n")
+        subprocess.run(["git", "add", "-A"], check=True, capture_output=True)
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "y"],
+                       check=True, capture_output=True)
+        _, out, _ = self.run_main("flooding", "--ref", "HEAD")
+        self.assertEqual(out.count("research/zz-"), 12)
 
     def test_exit_2_when_ref_unreadable(self):
         code, _, err = self.run_main("x", "--ref", "no-such-ref")
