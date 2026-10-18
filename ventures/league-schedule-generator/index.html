@@ -119,6 +119,9 @@
     <h2 style="margin-top:18px">5b. A team drops out (optional)</h2>
     <label for="withdrawals">One per line: a team name removes all of its matches, a date plus a team name removes only the matches on or after that night. Nothing else moves, and the warnings list how many fixtures each opponent loses. <code>Lob Squad</code> or <code>2026-11-03 Lob Squad</code></label>
     <textarea id="withdrawals" rows="2" placeholder="2026-11-03 Lob Squad"></textarea>
+    <h2 style="margin-top:18px">5b-2. A team joins late (optional)</h2>
+    <label for="lateTeams">List the new team with the others, then one line per late team with the first night it can play. Its matches before that night move to the earliest night on or after it when both teams are free and a court is open (a makeup night is added if none fits); nothing else moves. <code>2026-11-03 Newbies</code></label>
+    <textarea id="lateTeams" rows="2" placeholder="2026-11-03 Newbies"></textarea>
 
     <h2 style="margin-top:18px">5c. Teams that share a ground (optional)</h2>
     <label for="grounds">One line per ground, teams separated by commas. Teams on a line are not both at home on the same night where that can be avoided; only venues are flipped, so dates, courts, times and opponents stay put. The same lines keep clubmates in different pools when you build pool play. <code>Net Ninjas, Dink Dynasty</code></label>
@@ -268,7 +271,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, raceText, crossTable, seasonRecords, remainingFixtures, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -296,6 +299,7 @@
       $("#results").value = f.results;
       $("#rainouts").value = f.rainouts || "";
       $("#withdrawals").value = f.withdrawals || "";
+      $("#lateTeams").value = f.lateTeams || "";
       $("#officials").value = f.officials || "";
       $("#grounds").value = f.grounds || "";
       $("#scoring").value = f.scoring || "";
@@ -308,7 +312,7 @@
         teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value,
-        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, officials: $("#officials").value, grounds: $("#grounds").value, scoring: $("#scoring").value,
+        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, officials: $("#officials").value, grounds: $("#grounds").value, scoring: $("#scoring").value,
       };
     }
 
@@ -426,6 +430,11 @@
         s = wr.schedule;
         warnings.push(...wr.errors, ...wr.withdrawals.map((w) => s.teams[w.team] + " withdrew" + (w.from === null ? "" : " as of " + dayLabel(w.from)) + ": " + w.removed.length + " fixture(s) removed; short: " + (w.opponentsShort.map((o) => o.team + " " + o.fixtures).join(", ") || "none") + "."));
       }
+      if ($("#lateTeams").value.trim()) {
+        const lr = applyLateTeams(s, $("#lateTeams").value);
+        s = lr.schedule;
+        warnings.push(...lr.errors, ...lr.joins.map((j) => s.teams[j.team] + " starts on " + dayLabel(j.from) + ": " + j.moved.length + " match(es) moved to later nights."));
+      }
       if ($("#grounds").value.trim()) {
         const pg = parseGrounds($("#grounds").value, s.teams);
         warnings.push(...pg.errors);
@@ -459,6 +468,7 @@
         const pr = parseResults(resText, s.teams);
         warnings.push(...pr.errors);
         pres = pr.results;
+        warnings.push(...resultsCheck(s, pr.results));
         table = standings(s.teams, pr.results, { ...pts, headToHead: $("#h2h").checked, adjustments: pr.adjustments });
         seeds = table.map((r) => r.name);
         const gl = gamesLeft(s.teams.length, remainingFixtures(s, pr.results));
@@ -501,7 +511,7 @@
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample league: invented teams, not a real league."; } });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "results", "rainouts", "withdrawals", "officials", "grounds"]) $("#" + id).value = "";
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "results", "rainouts", "withdrawals", "lateTeams", "officials", "grounds"]) $("#" + id).value = "";
       $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });

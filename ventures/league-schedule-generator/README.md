@@ -26,6 +26,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   earliest later night both teams are free and a court is open, nothing else
   changes), and an independent validator that re-checks a finished schedule.
 - A team drops out mid-season (`Lob Squad` or `2026-11-03 Lob Squad`): its remaining matches are removed, matches already played stay, nothing else moves, and the page lists how many fixtures each opponent loses so the league can decide how earlier results count (`applyWithdrawals`).
+- A team joins late (`2026-11-03 Newbies`): list the team with the others; its matches dated before its first night move to the earliest later night when both teams are free and a court and slot are open (respecting blackouts and per-team time and court limits), with a makeup night added if none fits. Nothing else moves, and a match that cannot be placed stays put and is named in the warnings (`applyLateTeams`).
 - Named make-up date: end a rainout line with `-> 2026-10-16` (or `→`) to put the match on a day you already agreed, even outside the league weekday; it is refused with the reason if either team is blacked out or already playing, or no court and slot is free (`applyRainouts`).
 - Per-team time limits (`Team: 17:00`): a youth team that can only play early is only given those slots, rainout moves respect them, and the validator flags any breach; an unsatisfiable limit is reported, never hidden.
 - Per-team court limits (`Team: Field 2`): a team that can only use one pitch (a youth side on the small field) is only given those courts, rainout moves respect them, and the validator flags any breach (`parseCourtLimits`, `courtLimits` in `calc.mjs`).
@@ -40,6 +41,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Run-in strength: the standings table shows, per team, the average points per game so far of the opponents it still has to play (`Opp. pts/g`), so an organiser sees who has the harder run-in (`scheduleStrength` in `calc.mjs`). A guide, not a forecast.
 - Season highlights: a line under the results grid names the biggest win, the highest-scoring game, the best attack and the best defence (walkovers excluded from the match records) (`seasonRecords` in `calc.mjs`).
 - Results grid: under the standings, a team-by-team grid of every score so far (row team's goals first), in table order, so an organiser sees at a glance who has not yet met (`crossTable` in `calc.mjs`).
+- Result check: a warning when a pair has more typed results than meetings in the schedule (a duplicated line that would count twice in the table) or a result for a pair that never meets (`resultsCheck` in `calc.mjs`).
 - Standings CSV: once results are typed, "Download standings CSV" saves the ranked table (`standingsCsv` in `calc.mjs`).
 - Rest report: the fairness note shows the shortest and longest days between each team's games and counts games that follow within a day (`restReport` in `calc.mjs`).
 - Home/away runs: the fairness note flags any team stuck with three or more home or away games in a row and names it (`homeAwayReport` in `calc.mjs`).
