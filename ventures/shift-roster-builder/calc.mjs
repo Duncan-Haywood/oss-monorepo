@@ -142,6 +142,7 @@ const AVOID_CELL = /^(avoid|rather[ -]?not)\s*:/i;
 // "prefer: Sat; Fri 5pm-close" = the mirror image: hours the person would like. Each hour worked inside them earns a small
 // bonus in the search, so they are used first among otherwise equal choices, and never at the cost of a shift left open.
 const PREFER_CELL = /^(prefer|would[ -]?like|extra[ -]?hours)\s*:/i;
+const AGE_CELL = /^age\s*:/i;
 const SUPERVISED_CELL = /^(minor|supervised|needs[ -]?supervision)$/i;
 const TOUGH_CELL = /^(tough|recent[ -]?tough)\s*:/i;
 function parseAvoid(text, label = "avoid") {
@@ -259,7 +260,7 @@ export function parseStaff(text, { weekStart = null } = {}) {
       toughBefore = Number(toughCell.replace(TOUGH_CELL, "").trim());
       if (!Number.isFinite(toughBefore) || toughBefore < 0) { errors.push(`${where} (${c[0]}): could not read "${toughCell}"; write it like "tough: 3" (weekend, closing and opening shifts worked recently)`); toughBefore = 0; }
     }
-    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x);
+    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x) || AGE_CELL.test(x);
     const avoidCells = tail.filter((x) => AVOID_CELL.test(x));
     const av2 = parseAvoid(avoidCells.map((x) => x.replace(AVOID_CELL, "")).join(";"));
     av2.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
@@ -271,7 +272,27 @@ export function parseStaff(text, { weekStart = null } = {}) {
     for (const cell of tail.filter((x) => OFF_CELL.test(x))) {
       applyTimeOff(av.days, cell.replace(OFF_CELL, ""), weekStart, notes).forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     }
-    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) });
+    let age = null, maxHoursEff = maxH, maxDailyEff = maxDaily, youth = false;
+    const ageCell = tail.find((x) => AGE_CELL.test(x));
+    if (ageCell) {
+      const m = ageCell.replace(AGE_CELL, "").trim().match(/^(\d{1,2})(?:\s+(school|summer|break))?$/i);
+      if (!m) errors.push(`${where} (${c[0]}): could not read "${ageCell}"; write it like "age: 15" or "age: 15 summer"`);
+      else {
+        age = Number(m[1]);
+        if (age < 14) errors.push(`${where} (${c[0]}): US federal law bars most non-farm work under 14, so this tool will not schedule an age-${age} worker`);
+        else if (age < 16) {
+          // FLSA youth rules for 14-15: 7am-7pm (9pm 1 Jun-Labor Day); school weeks 3 h on a school day and 18 h a week, otherwise 8 h a day and 40 h a week.
+          const summer = /^(summer|break)$/i.test(m[2] || "");
+          const [lo, hi] = [420, summer ? 1260 : 1140];
+          for (let d = 0; d < 7; d++) av.days[d] = av.days[d].map(([x, y]) => [Math.max(x, lo), Math.min(y, hi)]).filter(([x, y]) => y > x);
+          maxHoursEff = Math.min(maxH, summer ? 40 : 18);
+          maxDailyEff = maxDaily ? Math.min(maxDaily, summer ? 8 : 3) : (summer ? 8 : 3);
+          youth = true;
+          notes.push(`${c[0]} (age ${age}): limited to 7am-${summer ? "9pm" : "7pm"}, ${maxDailyEff} h a day and ${maxHoursEff} h a week (US federal rules for 14-15). ${summer ? "" : "The 3 h day applies on school days; add off: for school hours. "}State and local rules can be stricter; check yours.`);
+        }
+      }
+    }
+    staff.push({ age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);

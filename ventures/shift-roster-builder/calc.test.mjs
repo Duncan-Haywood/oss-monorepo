@@ -1234,3 +1234,26 @@ test("shortShifts: assigned shifts under the minimum, overnight aware", () => {
   assert.deepEqual(shortShifts(r, 4).map((x) => [x.person, x.day, x.hours]), [["Ana", "Mon", 2], ["Cy", "Wed", 2]]);
   assert.deepEqual(shortShifts(r, 2), []);
 });
+
+test("age: 15 applies the federal youth-hour limits as hard rules", () => {
+  const { staff, errors, notes } = parseStaff("Name, Wage\nKit, 12, 40, , age: 15\nVic, 12, , , age: 15 summer\nAna, 15\nLou, 12, , , age: 17");
+  assert.deepEqual(errors, []);
+  const [kit, vic, ana, lou] = staff;
+  assert.equal(kit.maxHours, 18);
+  assert.equal(kit.maxDaily, 3);
+  assert.deepEqual(kit.days[0], [[420, 1140]]);
+  assert.equal(vic.maxHours, 40);
+  assert.equal(vic.maxDaily, 8);
+  assert.deepEqual(vic.days[2], [[420, 1260]]);
+  assert.equal(kit.supervised, true);
+  assert.equal(lou.supervised, true);
+  assert.equal(lou.maxHours, 40);
+  assert.equal(ana.age, null);
+  assert.equal(notes.length, 2);
+  // the solver cannot give a 15-year-old a closing shift or a 6-hour school-week day
+  const sh = parseShifts("Mon, 5pm, 10pm, 1\nTue, 3pm, 9pm, 1");
+  const r = buildRoster([kit], sh.slots);
+  assert.equal(r.assignments.filter((a) => a.person === "Kit").length, 0);
+  assert.equal(parseStaff("Name, Wage\nTy, 12, , , age: 12").errors.length, 1);
+  assert.equal(parseStaff("Name, Wage\nTy, 12, , , age: old").errors.length, 1);
+});

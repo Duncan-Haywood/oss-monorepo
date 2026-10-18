@@ -39,6 +39,7 @@ zero dependencies, one JSON file on a disk you own.
 - People: `name, wage, max hours, min hours, availability, roles: cook|server, prev: Sun 10pm` (`prev:` is when their last shift last week ended, so the rest rule holds across the week boundary; `Mon-Fri 9-17; Sat 10am-2pm; Sun off`; blank = any time; roles optional).
 - Time off this week: add an `off:` cell, e.g. `off: Wed; Fri 5pm-close`, to remove whole days or hours from a person's standing availability without rewriting it (`applyTimeOff` in `calc.mjs`).
 - Dated time off: `off:` also takes dates, `off: 2026-11-04..2026-11-06; 2026-11-09 5pm-close`. A date applies only when it falls in the week you give as "Week starting", so one staff list holds a whole month of vacations and each week uses its own (`datedDays` in `calc.mjs`). Without a week start the page says the dated entry was not applied.
+- Youth hours: add `age: 15` (or `age: 15 summer`) to a 14-15 year old's row and the search treats the US federal limits as hard rules: only 7am-7pm (9pm in summer), at most 3 h a day and 18 h a week in a school week (8 h and 40 h in summer). Any `age:` under 18 also marks the person `minor` for the never-alone check; under 14 is refused. Add `off:` for school hours. State and local rules can be stricter, so check yours (`parseStaff` in `calc.mjs`).
 - Never alone: mark a person `minor` (or `supervised`) in their row and the page flags every stretch where only marked people are on shift, so a minor or trainee is never the only one in. A heads-up, not a search constraint: swap in an adult or pin one with `fixed:` (`unsupervisedStretches` in `calc.mjs`).
 - Alone on shift: type a number of hours in "Warn when one person is alone for more than" and the page flags every stretch where exactly one person is on and nobody else, longer than that (`loneStretches` in `calc.mjs`). A heads-up, not a search constraint.
 - Short shifts: type a number of hours in "Warn about shifts shorter than" and the page lists every assigned shift under it (`shortShifts` in `calc.mjs`). A heads-up, not a search constraint.
@@ -90,7 +91,7 @@ Guide pages, each with figures a test re-derives from the engine: [how to make a
 
 ## Limits
 
-Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), paid rest breaks (unpaid meal breaks are deducted from paid time; a suggested meal-break time is shown but not enforced by the search), minor-labor limits beyond the per-person daily cap, union rules, seniority, time-off across weeks. A
+Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), paid rest breaks (unpaid meal breaks are deducted from paid time; a suggested meal-break time is shown but not enforced by the search), minor-labor limits other than the federal 14-15 rules in `age:` (state rules, work permits), union rules, seniority, time-off across weeks. A
 heuristic search, not a proof of optimality on large problems. Verified only against exhaustive search and invented data.
 Not legal, tax, or financial advice.
 
