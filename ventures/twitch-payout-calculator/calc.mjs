@@ -17,10 +17,12 @@
 //     reach 300 Plus Points move to 70%, under Twitch's Plus Program (a
 //     2024 overhaul that also opened the program to Affiliates, not just
 //     Partners, and removed the earlier $100k annual cap on the 70% tier).
-//     Plus Points come from paid recurring subs only — 1 point per Tier 1,
-//     2 per Tier 2, 6 per Tier 3; gifted and Prime subs earn none. That is
-//     the one lever that actually changes take-home per sub, and it is a
-//     three-way choice, not a binary one.
+//     Plus Points are 1 per Tier 1 sub, 2 per Tier 2, 6 per Tier 3, and
+//     Prime subs earn none. Public sources disagree on whether gifted subs
+//     count, so `plusPlan` takes the point-earning sub counts as their own
+//     input instead of assuming; read your real total off your Twitch
+//     dashboard. That is the one lever that actually changes take-home per
+//     sub, and it is a three-way choice, not a binary one.
 //   - **Purchase platform (web vs. the iOS/Android app) does not.** Twitch
 //     charges a higher price for a mobile subscription specifically to
 //     absorb Apple's and Google's in-app-purchase cut, so a streamer's
@@ -55,6 +57,9 @@ export const DEFAULTS = {
   bitsCheered: 8000,
   otherMonthlyIncome: 0,
   targetMonthlyPayout: 1500,
+  pointTier1Subs: 40,
+  pointTier2Subs: 10,
+  pointTier3Subs: 3,
 };
 
 function number(value, label, { min = 0, max = null, exclusiveMax = false } = {}) {
@@ -134,4 +139,45 @@ export function payoutGap(targetMonthlyPayout, totalPayout, tier1PayoutPerSub) {
   const gap = Math.max(0, target - payout);
   const additionalTier1SubsNeeded = gap === 0 ? 0 : (perSub > 0 ? Math.ceil(gap / perSub) : null);
   return { gap, additionalTier1SubsNeeded, meetsTarget: payout >= target };
+}
+
+export const PLUS_POINTS = { tier1: 1, tier2: 2, tier3: 6 };
+export const PLUS_LEVELS = [
+  { points: 100, splitPct: 60 },
+  { points: 300, splitPct: 70 },
+];
+
+/**
+ * Plus Points from the subs you believe earn them, the split they reach, how
+ * far the next level is, and what the identical month would pay at each split.
+ * The point-earning counts are supplied, not derived from the tier counts,
+ * because sources differ on gifted subs; Prime subs belong in neither count.
+ *
+ * @param {object} input Same shape as `calculate`, plus `pointTier1Subs`,
+ *   `pointTier2Subs`, `pointTier3Subs` (subs that earn Plus Points).
+ */
+export function plusPlan(input) {
+  const t1 = number(input.pointTier1Subs, 'Point-earning Tier 1 subs');
+  const t2 = number(input.pointTier2Subs, 'Point-earning Tier 2 subs');
+  const t3 = number(input.pointTier3Subs, 'Point-earning Tier 3 subs');
+  const points = t1 * PLUS_POINTS.tier1 + t2 * PLUS_POINTS.tier2 + t3 * PLUS_POINTS.tier3;
+  const base = calculate({ ...input, splitPct: 50 });
+  const scenarios = [{ points: 0, splitPct: 50 }, ...PLUS_LEVELS].map((lvl) => {
+    const subPayout = base.grossSubRevenue * (lvl.splitPct / 100);
+    return { ...lvl, reached: points >= lvl.points, subPayout, totalPayout: subPayout + base.bitsPayout + Number(input.otherMonthlyIncome || 0) };
+  });
+  const reachedLevel = [...scenarios].reverse().find((s) => s.reached);
+  const next = PLUS_LEVELS.find((l) => points < l.points) || null;
+  return {
+    points,
+    splitPct: reachedLevel.splitPct,
+    scenarios,
+    next: next && {
+      ...next,
+      pointsNeeded: next.points - points,
+      tier1SubsNeeded: next.points - points,
+      tier3SubsNeeded: Math.ceil((next.points - points) / PLUS_POINTS.tier3),
+      monthlyUplift: base.grossSubRevenue * ((next.splitPct - reachedLevel.splitPct) / 100),
+    },
+  };
 }

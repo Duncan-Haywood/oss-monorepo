@@ -1,0 +1,55 @@
+name: price-drop-watcher
+description: >-
+  Free price drop and back-in-stock alerts for any product page. Test a page in
+  the browser, then copy the zero-dependency watcher and a scheduled workflow
+  into your own GitHub repository; alerts go to your phone via ntfy or Discord.
+  Reads schema.org, Open Graph and microdata, honours robots.txt, no account.
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-10-18. duplicate_check.py: nothing near it (closest
+# actions-self-hosted-exposure-check 0.29, unrelated). Paid/free alternatives:
+# CamelCamelCamel, Keepa, Honey (fixed retailers, affiliate-funded), Visualping and
+# Distill (any page, capped free tier, list kept on their servers). Angle: runs in the
+# user's own repository on their own Actions minutes, so the owner hosts nothing and
+# holds no watch list; no affiliate links.
+# Distribution: searches such as "price drop alert any website", "back in stock alert
+# free", "monitor product page price github actions". Volume not measured.
+# Liability boundary: fetches happen in the user's own Actions run, identified by
+# user agent, robots.txt honoured, rate limited; the hosted page makes no network calls.
+# Path to revenue (payment rails stay off): lead magnet and donations. A later tier
+# could add a hosted checker with price history on the deployer's own keys; not built.
+
+hypotheses:
+  - claim: >-
+      People waiting on a purchase will copy a watcher into their own repository
+      to get alerts on any shop, because the big trackers cover only fixed retailers
+      and the page-change services cap the free tier.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Most small-shop product pages publish schema.org Product data, so the
+      extractor reads a price without a per-site pattern.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct users engage with the tester within 90 days of it being reachable from the published site.
+  - No external repository is found using watch.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/price-drop-watcher/
+  analytics: null

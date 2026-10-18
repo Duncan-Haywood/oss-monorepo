@@ -16,6 +16,10 @@ Open `index.html` directly, or serve this directory with `python3 -m http.server
 
 This tool deliberately does not estimate ad revenue — Twitch publishes no standard ad CPM a static calculator could model honestly — so any ad, sponsorship, or other income is a single figure the streamer supplies, never computed here.
 
+## Plus Points plan
+
+Enter how many of your subs earn Plus Points (1 per Tier 1, 2 per Tier 2, 6 per Tier 3; Prime earns none) and the page shows your points, the next split level (100 points for 60%, 300 for 70%), how many more Tier 1 or Tier 3 subs reach it, and what the identical month pays at 50%, 60% and 70% (`plusPlan` in `calc.mjs`). Sources disagree on whether gifted subs count, so the counts are your input, not an assumption. Twitch also requires a level to be sustained; check your dashboard.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your sub counts, split, Bits, and income figures are never uploaded, and there is no account. We count anonymous local feature events only (`month-priced`, `gap-checked`), with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. No sub counts, Bits totals, or income figures are recorded. The counter is not sent to the maintainers.

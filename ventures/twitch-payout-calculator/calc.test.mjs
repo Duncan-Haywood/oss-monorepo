@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculate, payoutGap, DEFAULTS } from './calc.mjs';
+import { calculate, payoutGap, plusPlan, DEFAULTS } from './calc.mjs';
 
 function close(actual, expected, eps = 0.01) {
   assert.ok(Math.abs(actual - expected) < eps, `expected ${actual} to be close to ${expected}`);
@@ -93,4 +93,29 @@ test('payoutGap cannot compute additional subs needed when payout per sub is zer
   const gap = payoutGap(1000, 0, 0);
   assert.equal(gap.additionalTier1SubsNeeded, null);
   assert.equal(gap.meetsTarget, false);
+});
+
+test('plusPlan() counts 1/2/6 points per tier and reports the next level', () => {
+  const p = plusPlan(DEFAULTS); // 40 + 20 + 18 = 78 points
+  assert.equal(p.points, 78);
+  assert.equal(p.splitPct, 50);
+  assert.equal(p.next.splitPct, 60);
+  assert.equal(p.next.pointsNeeded, 22);
+  assert.equal(p.next.tier3SubsNeeded, 4);
+  close(p.next.monthlyUplift, 414.47 * 0.1);
+  assert.deepEqual(p.scenarios.map((s) => s.reached), [true, false, false]);
+  close(p.scenarios[2].totalPayout, 414.47 * 0.7 + 80);
+});
+
+test('plusPlan() at 300 points is at the top level and has no next step', () => {
+  const p = plusPlan({ ...DEFAULTS, pointTier1Subs: 300, pointTier2Subs: 0, pointTier3Subs: 0 });
+  assert.equal(p.splitPct, 70);
+  assert.equal(p.next, null);
+  const mid = plusPlan({ ...DEFAULTS, pointTier1Subs: 100, pointTier2Subs: 0, pointTier3Subs: 0 });
+  assert.equal(mid.splitPct, 60);
+  assert.equal(mid.next.pointsNeeded, 200);
+});
+
+test('plusPlan() rejects negative point counts', () => {
+  assert.throws(() => plusPlan({ ...DEFAULTS, pointTier1Subs: -1 }), /Tier 1/);
 });

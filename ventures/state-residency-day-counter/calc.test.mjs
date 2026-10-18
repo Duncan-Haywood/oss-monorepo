@@ -490,6 +490,12 @@ test("Louisiana six-month test is a no-abode statutory limit of 182", () => {
   assert.equal(RULES.LA.kind, "statutory");
 });
 
+test("Indiana: more than 183 days with a permanent place of residence", () => {
+  assert.equal(RULES.IN.limit, 183);
+  assert.equal(RULES.IN.requiresAbode, true);
+  assert.equal(RULES.IN.kind, "statutory");
+});
+
 test("Delaware and New Mexico day tests", () => {
   assert.equal(RULES.DE.limit, 183);
   assert.equal(RULES.DE.requiresAbode, true);
