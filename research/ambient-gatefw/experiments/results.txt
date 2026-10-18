@@ -1,0 +1,34 @@
+synthetic audio: 20 seeds x 120 s per room, k = 4, hangover 10 frames (20 ms each)
+gate = the C in firmware/adaptive_gate.c compiled for the host with gcc -O2; audio from ambient-gateroc/sim.py
+
+== footprint and cost per block size (host build; comparisons counted, not cycles) ==
+block  window(frames)  struct bytes  floor compares/frame (steady state)
+    1  250-250         1020         249 (mean over run 243.8)
+    2  249-250          520         124 (mean over run 121.4)
+    5  246-250          220          49 (mean over run 48.0)
+   10  241-250          120          24 (mean over run 23.5)
+   25  226-250           60           9 (mean over run 8.8)
+   50  201-250           40           4 (mean over run 3.9)
+
+== per room, mean over seeds: recall / open fraction / battery hours; and gate disagreement with block 1 ==
+block  1:  [-60] 1.000/0.531/ 82.4h/dis 0.0000  [-50] 1.000/0.513/ 83.8h/dis 0.0000  [-40] 0.982/0.498/ 85.0h/dis 0.0000  [-30] 0.885/0.439/ 90.0h/dis 0.0000
+block  2:  [-60] 1.000/0.531/ 82.4h/dis 0.0000  [-50] 1.000/0.513/ 83.8h/dis 0.0000  [-40] 0.982/0.498/ 85.0h/dis 0.0000  [-30] 0.885/0.439/ 90.0h/dis 0.0001
+block  5:  [-60] 1.000/0.531/ 82.4h/dis 0.0003  [-50] 1.000/0.513/ 83.8h/dis 0.0000  [-40] 0.982/0.498/ 85.0h/dis 0.0001  [-30] 0.885/0.439/ 90.0h/dis 0.0001
+block 10:  [-60] 1.000/0.530/ 82.5h/dis 0.0005  [-50] 1.000/0.513/ 83.8h/dis 0.0002  [-40] 0.982/0.498/ 85.0h/dis 0.0002  [-30] 0.885/0.438/ 90.1h/dis 0.0008
+block 25:  [-60] 1.000/0.530/ 82.5h/dis 0.0011  [-50] 1.000/0.512/ 83.9h/dis 0.0009  [-40] 0.981/0.497/ 85.0h/dis 0.0008  [-30] 0.884/0.437/ 90.2h/dis 0.0017
+block 50:  [-60] 1.000/0.529/ 82.6h/dis 0.0021  [-50] 1.000/0.511/ 83.9h/dis 0.0020  [-40] 0.981/0.497/ 85.1h/dis 0.0015  [-30] 0.883/0.435/ 90.4h/dis 0.0037
+
+== worst-room difference from block 1 ==
+block  2: max |recall diff| 0.0000, max |hours diff| 0.01 h
+block  5: max |recall diff| 0.0001, max |hours diff| 0.02 h
+block 10: max |recall diff| 0.0002, max |hours diff| 0.07 h
+block 25: max |recall diff| 0.0006, max |hours diff| 0.15 h
+block 50: max |recall diff| 0.0018, max |hours diff| 0.33 h
+
+== a stepped room: -60 dBFS for 60 s, then -35 dBFS for 60 s (rises 25 dB); open fraction in the first 10 s after the step ==
+block  1: open fraction 0.736 (20 seeds)
+block  2: open fraction 0.735 (20 seeds)
+block  5: open fraction 0.732 (20 seeds)
+block 10: open fraction 0.727 (20 seeds)
+block 25: open fraction 0.711 (20 seeds)
+block 50: open fraction 0.683 (20 seeds)
