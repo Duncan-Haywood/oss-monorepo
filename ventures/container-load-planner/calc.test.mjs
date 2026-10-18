@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, parseRotation, orientations, resolveContainer,
   packPass, bestPack, planLoad, verifyPacking, palletise, compareOptions, viewRects, loadingOrder,
-  mulberry32, balanceReport, lineFits, suggestRestarts, reportCsv, sampleCargo, toMm, fromMm, MAX_UNITS,
+  mulberry32, balanceReport, lineFits, suggestRestarts, reportCsv, planReportHtml, sampleCargo, toMm, fromMm, MAX_UNITS,
 } from "./calc.mjs";
 
 const M = SYSTEMS.metric, IMP = SYSTEMS.imperial;
@@ -440,4 +440,19 @@ test("balance: a planned load's weight matches the container weight", () => {
   const r = balanceReport(plan.container, ln, c.placements);
   assert.equal(r.weight, c.weight);
   assert.ok(r.x > 0 && r.x < 1);
+});
+
+test("printable load plan: one section per container, escaped names, disclaimer, no script", () => {
+  const lines = [mk("<b>a</b> & co", 50, 50, 50, 1, 30), mk("b", 40, 40, 40, 2, 5)];
+  const plan = planLoad(lines, { l: 2000, w: 1000, h: 1000, payload: 1e6 });
+  const html = planReportHtml(plan, lines, M, { notes: ["A note <x>"], when: "2026-10-18" });
+  assert.equal((html.match(/<h2>Container \d+ of/g) || []).length, plan.containers.length);
+  assert.ok(plan.containers.length >= 1);
+  assert.match(html, /&lt;b&gt;a&lt;\/b&gt; &amp; co/);
+  assert.match(html, /A note &lt;x&gt;/);
+  assert.match(html, /No warranty/);
+  assert.doesNotMatch(html, /<script/i);
+  const total = plan.containers.reduce((s, c) => s + c.count, 0);
+  assert.equal((html.match(/<tr><td>\d+<\/td><td>[AB] ·/g) || []).length, total);
+  assert.equal((html.match(/<svg /g) || []).length, 2 * plan.containers.length);
 });
