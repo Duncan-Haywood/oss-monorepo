@@ -398,3 +398,24 @@ test("the rainout guide's worked example matches buildSchedule and applyRainouts
   assert.match(page("sitemap.xml"), /how-to-reschedule-a-rained-out-league-game\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-reschedule-a-rained-out-league-game\.html"/);
 });
+
+test("the bracket-by-teams page's rows match playoffBracket and doubleEliminationBracket and it is linked", async () => {
+  const { playoffBracket, doubleEliminationBracket } = await import("./calc.mjs");
+  const html = page("tournament-bracket-by-number-of-teams.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/tournament-bracket-by-number-of-teams\.html">/);
+  assert.match(page("sitemap.xml"), /tournament-bracket-by-number-of-teams\.html/);
+  assert.match(page("index.html"), /href="\.\/tournament-bracket-by-number-of-teams\.html"/);
+  assert.match(page("round-robin-schedule-by-number-of-teams.html"), /href="\.\/tournament-bracket-by-number-of-teams\.html"/);
+  for (let n = 3; n <= 32; n++) {
+    const t = Array.from({ length: n }, (_, i) => `T${i + 1}`);
+    const s = playoffBracket(t);
+    const d = doubleEliminationBracket(t);
+    assert.equal(s.games, n - 1);
+    assert.equal(d.games, 2 * n - 2);
+    const row = `<tr><td>${n}</td><td>${s.size}</td><td>${s.size - n}</td><td>${s.rounds.length}</td><td>${s.games}</td><td>${d.games}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  }
+  for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)) JSON.parse(m[1]);
+});
