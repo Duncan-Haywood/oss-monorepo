@@ -227,7 +227,7 @@
   </footer>
 
   <script type="module">
-    import { parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -290,7 +290,7 @@
         ...sf.overDaily.map((x) => `${x.person} works ${num(x.hours)} hours on ${x.day}, ${num(x.overBy)} over 8 in a day. Some states pay daily overtime; check yours.`),
         ...sf.splits.map((x) => `${x.person} has a split shift on ${x.day} with a ${num(x.gapHours)}-hour gap. Some places owe split-shift pay.`),
         ...sf.longStretches.map((x) => `${x.person} works ${num(x.hours)} hours straight on ${x.day} (${fmtClock(x.startMin)}–${fmtClock(x.endMin)}). Many places require an unpaid or paid meal break after about 5 hours; a suggested break time is in the last notice below.`),
-        ...sf.sevenDays.map((x) => `${x.person} works all seven days. Some states (California, for one) owe a premium for the seventh consecutive day in a workweek; the search does not price it.`),
+        ...sf.sevenDays.map((x) => { const e = seventhDayPay(r, { burdenPct: r.options.burdenPct }).rows.find((y) => y.person === x.person); return `${x.person} works all seven days. Some states (California, for one) owe a premium for the seventh consecutive day in a workweek; the search does not price it.` + (e ? ` For scale: if the premium were 1.5x for the first 8 hours and 2x after, Sunday would add about ${money(e.extra)} for ${x.person} (assumes the workweek starts Monday; check your state's rule).` : ""); }),
         ...(sf.notice && sf.notice.short ? [`The week starts in ${sf.notice.days} days. Fair-workweek rules in some cities require ${sf.notice.required} days of notice, so changes after posting may owe premium pay.`] : []),
       ];
       const brk = placeBreaks(r);
