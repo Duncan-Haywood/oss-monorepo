@@ -273,6 +273,24 @@ export const HANDOFFS = [
     combine: { otherCost: ['otherCost', 'packagingCost'] },
   },
   {
+    channel: 'grailed',
+    slug: 'grailed-fee-calculator',
+    label: 'Grailed fee calculator',
+    // What it adds: the $1.99 minimum commission, international buyers, the
+    // old flat 9% for comparison, and the $120 cliff worked out for the
+    // shipping on screen. `schedule` is not sent: the receiving page
+    // defaults to the domestic tiered schedule this page's row prices.
+    // Packaging folds into `otherCost`.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
     channel: 'facebook-marketplace',
     slug: 'facebook-marketplace-fee-calculator',
     label: 'Facebook Marketplace fee calculator',
