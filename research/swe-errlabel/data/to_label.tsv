@@ -1,0 +1,60 @@
+112.0	apt python3-numpy shadowed pip numpy; used a venv
+112.1	generator bug found and fixed: index width and activation buffer assumed H<=F
+118.0	scan.txt written from the logged exploratory solves, scan.py not re-run end to end (disclosed in README)
+125.0	no open PRs; 420 old claude/* branches share no history with rewritten main
+126.2	remote branch claude/shellconverge could not be deleted (proxy hung up); same commit as PR branch
+128.0	pip and python3 pointed at different interpreters; mujoco install needed python3 -m pip
+132.0	Track number collided: another session merged track 10 (swe) after this run read PROJECTS.md, so this became track 11.
+133.0	scan window above w=16.0 mm unusable (slenderness rule skips FE); found after the scan ran
+133.1	one README table value initially mis-transcribed, caught and regenerated from JSON before commit
+137.0	shallow clone gave false no-merge-base on branch scan; unshallowed
+142.0	one bug caught pre-push: local variable j shadowed the new j parameter
+143.0	pip installed mujoco for python3.13 while python3 is 3.11; reinstalled
+146.0	main was force-updated; old claude/* branches have no merge base
+164.0	apt numpy shadowed pip numpy; used a venv
+166.0	queue had only superseded duplicate branches (gaugepockets closed 7 times; others already on main); 3D eigen solve initially slow/incorrect eigenvalue selection, fixed
+181.0	slug collision: built a full swe-orgs batch 1 while a parallel run's swe-orgs (claim pushed one minute before mine) landed first; closed my PR #603 as superseded and extended theirs with batch 2
+182.0	run_workflow_locally.py --for-changes exceeded 550s and was killed
+195.0	first draft of the report had unverified counts (31 vs 33, 5 vs 3 pairs); corrected before merge
+208.0	build check red on main too: platform/pages secondary-schema.test.mjs, mileage-log/privacy.html lacks JSON-LD (not this PR's)
+215.0	first pass overwrote two existing figure.py files because a glob check was wrong; restored from git before commit
+219.0	14 pre-existing vendor-watch tests fail in this sandbox (same count on clean main; network-dependent)
+222.1	First check_money_sign campaign mutated docstring lines; discarded, redteam.py fixed to skip docstrings and block comments, campaign re-run with the same seed.
+234.0	yosys/openroad not installable in container, so chip track milestone (random draw) was swapped for swe-audit
+245.1	garmin page's png broke the front-door mirror fixpoint and cascaded ~100 ventures; removed the image
+26.0	default python3 lacked numpy; used /usr/bin/python3
+298.0	main history was force-updated; ~400 old claude/* branches share no merge base with main and were left alone
+360.0	pkill -f 'node --test' killed my own shell; full platform/pages suite exceeds 120s so ran 5 relevant suites (175 pass)
+389.1	git fetch --unshallow origin main took several minutes and the first command timed out
+407.0	PR #534 (eda-flowtune, other run, draft, failing check) left alone: claimed 6 min earlier
+417.0	Overwrote the existing eda-harness project in the working tree by building eda-harness before checking research/; caught before committing and restored with git checkout; switched to eda-proposers (milestone 2)
+420.0	A first concatenation of CLAUDE.md left a stray line ('in the PR what they said:') above the checklist fence
+44.0	two bugs fixed during development (interior facets in traction load; mask shape)
+501.0	First measurement command piped a 10-minute run through tail, so no progress was visible and it overran the foreground timeout
+52.0	pip numpy/pytest missing at start
+534.0	IfcOpenShell has no wheel for the default python3 (3.11); used python3.13, which also had pytest
+54.1	stall counter first missed nonlocal declaration
+541.0	publish-branch.sh artifact check failed: actions-runtime-deprecation-check had no launch date
+551.0	meter-keeper/engine.mjs campaign was killed by the tool timeout mid-run; file restored via git checkout, campaign not recorded
+58.0	main history was force-updated; ~300 old claude/* branches share no merge base with main and could not be landed
+590.0	test_devsec fixture-coverage guard failed once (actions-runtime-deprecation had no fixture case); fixed by adding one.
+590.1	gitops/tests failed twice on derived counts (runs-on README, mirrored tool total); fixed with the named sync scripts.
+6.0	OpenROAD nixpkgs build failed its own regression test dbSta.report_cell_usage_file.tcl; rebuilt with doCheck=false (about 3 h of compile in total)
+611.0	first experiment run rejected at p<alpha on a k/40 permutation grid (effective level 0.025); fixed and rerun
+619.0	PR links were rendered without https:// (regex match lacked the scheme); check.mjs caught 13 dead links on the first full build.
+619.1	First version counted only merge commits; most PRs land as squash merges, so it read 16 of 66 first-parent commits. Now reads both.
+651.0	First push broke gitops publish-branch stub, sibling-links and pages tests (apps/CLIs removed from searchable categories)
+68.0	Queue triage: unmerged claude/* branches for chip-systolic-batch, robofab-selfparts, ambient-pipeline duplicate work already on main; left alone
+7.1	own first cycle-formula test values were wrong; fixed from the formula
+71.0	one self-written unit test had a wrong expectation, fixed before commit
+765.0	first no-figure scan used ls with two globs and gave a wrong list; a figure regex missed a comma; a hand conflict resolution dropped lines (restored from origin/main)
+77.0	first min_time test used an infeasible torque limit; fixed
+78.0	stray python3 without mujoco on PATH; used /usr/bin/python3
+808.0	CSV row with unquoted commas broke validation once; fixed before commit
+808.1	Python rewrite of the CSVs normalised mixed line endings; restored by appending to the originals
+84.2	fifo4 formal at depth 20 timed out; reduced to 10
+886.0	first scan for figure-less projects used a failing ls glob and wrongly listed projects that have a png; overwrote accel-lut/experiments/figure.py, caught by git status and reverted before commit
+906.0	first experiment launch without OMP_NUM_THREADS=1 oversubscribed CPUs and did not finish in 30 min; relaunched
+957.0	sibling-links CI job failed on first head (orphan budget); 0 orphans locally before and after merging main; re-run checks on merged head were green
+976.0	cherry-pick of stranded PR #7650 conflicted in generated gitops mirror files; re-applied venture files by hand and regenerated
+983.0	first experiment run (24 reps, n up to 320) exceeded the 10 minute tool timeout and was discarded; reran smaller
