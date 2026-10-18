@@ -1,0 +1,808 @@
+{
+ "float32 dense": [
+  {
+   "seed": 0,
+   "test": 0.7252162341982701,
+   "val": 0.7517140058765915,
+   "nnz": [
+    4480,
+    704
+   ],
+   "energy_nj": 37.71360000000001,
+   "storage_kbit": 165.888,
+   "multiplier_free": false
+  },
+  {
+   "seed": 1,
+   "test": 0.723663783544023,
+   "val": 0.7502448579823702,
+   "nnz": [
+    4480,
+    704
+   ],
+   "energy_nj": 37.71360000000001,
+   "storage_kbit": 165.888,
+   "multiplier_free": false
+  },
+  {
+   "seed": 2,
+   "test": 0.7298735861610113,
+   "val": 0.7534280117531832,
+   "nnz": [
+    4480,
+    704
+   ],
+   "energy_nj": 37.71360000000001,
+   "storage_kbit": 165.888,
+   "multiplier_free": false
+  },
+  {
+   "seed": 3,
+   "test": 0.7336438234641828,
+   "val": 0.7556317335945152,
+   "nnz": [
+    4480,
+    704
+   ],
+   "energy_nj": 37.71360000000001,
+   "storage_kbit": 165.888,
+   "multiplier_free": false
+  },
+  {
+   "seed": 4,
+   "test": 0.7178975382568197,
+   "val": 0.7615083251714005,
+   "nnz": [
+    4480,
+    704
+   ],
+   "energy_nj": 37.71360000000001,
+   "storage_kbit": 165.888,
+   "multiplier_free": false
+  }
+ ],
+ "int8 dense": [
+  {
+   "seed": 0,
+   "test": 0.7314260368152584,
+   "val": 0.7519588638589618,
+   "nnz": [
+    4398,
+    696
+   ],
+   "energy_nj": 14.69664,
+   "storage_kbit": 41.472,
+   "multiplier_free": false
+  },
+  {
+   "seed": 1,
+   "test": 0.7241073408738079,
+   "val": 0.7504897159647405,
+   "nnz": [
+    4389,
+    701
+   ],
+   "energy_nj": 14.69664,
+   "storage_kbit": 41.472,
+   "multiplier_free": false
+  },
+  {
+   "seed": 2,
+   "test": 0.7305389221556886,
+   "val": 0.7490205680705191,
+   "nnz": [
+    4379,
+    697
+   ],
+   "energy_nj": 14.69664,
+   "storage_kbit": 41.472,
+   "multiplier_free": false
+  },
+  {
+   "seed": 3,
+   "test": 0.7300953648259038,
+   "val": 0.7485308521057786,
+   "nnz": [
+    4397,
+    697
+   ],
+   "energy_nj": 14.69664,
+   "storage_kbit": 41.472,
+   "multiplier_free": false
+  },
+  {
+   "seed": 4,
+   "test": 0.718562874251497,
+   "val": 0.7580803134182175,
+   "nnz": [
+    4393,
+    700
+   ],
+   "energy_nj": 14.69664,
+   "storage_kbit": 41.472,
+   "multiplier_free": false
+  }
+ ],
+ "int4 dense": [
+  {
+   "seed": 0,
+   "test": 0.6912840984697272,
+   "val": 0.7262487757100882,
+   "nnz": [
+    2822,
+    593
+   ],
+   "energy_nj": 10.860479999999999,
+   "storage_kbit": 20.736,
+   "multiplier_free": false
+  },
+  {
+   "seed": 1,
+   "test": 0.6950543357728987,
+   "val": 0.7220861900097943,
+   "nnz": [
+    3001,
+    604
+   ],
+   "energy_nj": 10.860479999999999,
+   "storage_kbit": 20.736,
+   "multiplier_free": false
+  },
+  {
+   "seed": 2,
+   "test": 0.7032601463739189,
+   "val": 0.7247796278158668,
+   "nnz": [
+    2983,
+    605
+   ],
+   "energy_nj": 10.860479999999999,
+   "storage_kbit": 20.736,
+   "multiplier_free": false
+  },
+  {
+   "seed": 3,
+   "test": 0.6974939010867155,
+   "val": 0.7220861900097943,
+   "nnz": [
+    2893,
+    577
+   ],
+   "energy_nj": 10.860479999999999,
+   "storage_kbit": 20.736,
+   "multiplier_free": false
+  },
+  {
+   "seed": 4,
+   "test": 0.6830782878687071,
+   "val": 0.7166993143976493,
+   "nnz": [
+    2908,
+    612
+   ],
+   "energy_nj": 10.860479999999999,
+   "storage_kbit": 20.736,
+   "multiplier_free": false
+  }
+ ],
+ "ternary": [
+  {
+   "seed": 0,
+   "test": 0.5318252384120647,
+   "val": 0.5548481880509305,
+   "nnz": [
+    1572,
+    388
+   ],
+   "energy_nj": 8.461,
+   "storage_kbit": 10.368,
+   "multiplier_free": true
+  },
+  {
+   "seed": 1,
+   "test": 0.5316034597471723,
+   "val": 0.5741919686581782,
+   "nnz": [
+    1583,
+    388
+   ],
+   "energy_nj": 8.461935,
+   "storage_kbit": 10.368,
+   "multiplier_free": true
+  },
+  {
+   "seed": 2,
+   "test": 0.5322687957418496,
+   "val": 0.5536238981390793,
+   "nnz": [
+    1552,
+    375
+   ],
+   "energy_nj": 8.458195000000002,
+   "storage_kbit": 10.368,
+   "multiplier_free": true
+  },
+  {
+   "seed": 3,
+   "test": 0.5528942115768463,
+   "val": 0.5688050930460333,
+   "nnz": [
+    1575,
+    382
+   ],
+   "energy_nj": 8.460745000000001,
+   "storage_kbit": 10.368,
+   "multiplier_free": true
+  },
+  {
+   "seed": 4,
+   "test": 0.5404746063428698,
+   "val": 0.5825171400587659,
+   "nnz": [
+    1515,
+    382
+   ],
+   "energy_nj": 8.455645,
+   "storage_kbit": 10.368,
+   "multiplier_free": true
+  }
+ ],
+ "binary": [
+  {
+   "seed": 0,
+   "test": 0.3816810822798847,
+   "val": 0.39397649363369247,
+   "nnz": [
+    4480,
+    704
+   ],
+   "energy_nj": 7.905600000000001,
+   "storage_kbit": 5.184,
+   "multiplier_free": true
+  },
+  {
+   "seed": 1,
+   "test": 0.3688179197161233,
+   "val": 0.3893241919686582,
+   "nnz": [
+    4480,
+    704
+   ],
+   "energy_nj": 7.905600000000001,
+   "storage_kbit": 5.184,
+   "multiplier_free": true
+  },
+  {
+   "seed": 2,
+   "test": 0.371701042359725,
+   "val": 0.38393731635651324,
+   "nnz": [
+    4480,
+    704
+   ],
+   "energy_nj": 7.905600000000001,
+   "storage_kbit": 5.184,
+   "multiplier_free": true
+  },
+  {
+   "seed": 3,
+   "test": 0.3628298957640275,
+   "val": 0.38712047012732614,
+   "nnz": [
+    4480,
+    704
+   ],
+   "energy_nj": 7.905600000000001,
+   "storage_kbit": 5.184,
+   "multiplier_free": true
+  },
+  {
+   "seed": 4,
+   "test": 0.3896651142160124,
+   "val": 0.40083251714005874,
+   "nnz": [
+    4480,
+    704
+   ],
+   "energy_nj": 7.905600000000001,
+   "storage_kbit": 5.184,
+   "multiplier_free": true
+  }
+ ],
+ "int8 pruned 50%": [
+  {
+   "seed": 0,
+   "test": 0.7214459968950987,
+   "val": 0.7544074436826641,
+   "nnz": [
+    2238,
+    352
+   ],
+   "energy_nj": 10.187130000000002,
+   "storage_kbit": 38.498,
+   "multiplier_free": false
+  },
+  {
+   "seed": 1,
+   "test": 0.720558882235529,
+   "val": 0.7446131243878551,
+   "nnz": [
+    2240,
+    352
+   ],
+   "energy_nj": 10.19504,
+   "storage_kbit": 38.528,
+   "multiplier_free": false
+  },
+  {
+   "seed": 2,
+   "test": 0.7218895542248835,
+   "val": 0.7519588638589618,
+   "nnz": [
+    2239,
+    352
+   ],
+   "energy_nj": 10.191085000000001,
+   "storage_kbit": 38.513,
+   "multiplier_free": false
+  },
+  {
+   "seed": 3,
+   "test": 0.7210024395653138,
+   "val": 0.7517140058765915,
+   "nnz": [
+    2240,
+    352
+   ],
+   "energy_nj": 10.19504,
+   "storage_kbit": 38.528,
+   "multiplier_free": false
+  },
+  {
+   "seed": 4,
+   "test": 0.7267686848525172,
+   "val": 0.7593046033300686,
+   "nnz": [
+    2238,
+    352
+   ],
+   "energy_nj": 10.187130000000002,
+   "storage_kbit": 38.498,
+   "multiplier_free": false
+  }
+ ],
+ "int8 pruned 75%": [
+  {
+   "seed": 0,
+   "test": 0.6757595919272567,
+   "val": 0.7162095984329089,
+   "nnz": [
+    1120,
+    176
+   ],
+   "energy_nj": 5.09752,
+   "storage_kbit": 19.264,
+   "multiplier_free": false
+  },
+  {
+   "seed": 1,
+   "test": 0.6806387225548902,
+   "val": 0.7142507345739472,
+   "nnz": [
+    1120,
+    176
+   ],
+   "energy_nj": 5.09752,
+   "storage_kbit": 19.264,
+   "multiplier_free": false
+  },
+  {
+   "seed": 2,
+   "test": 0.6915058771346196,
+   "val": 0.7140058765915769,
+   "nnz": [
+    1119,
+    176
+   ],
+   "energy_nj": 5.093565000000001,
+   "storage_kbit": 19.249,
+   "multiplier_free": false
+  },
+  {
+   "seed": 3,
+   "test": 0.6915058771346196,
+   "val": 0.7137610186092067,
+   "nnz": [
+    1119,
+    176
+   ],
+   "energy_nj": 5.093565000000001,
+   "storage_kbit": 19.249,
+   "multiplier_free": false
+  },
+  {
+   "seed": 4,
+   "test": 0.6941672211133288,
+   "val": 0.7193927522037218,
+   "nnz": [
+    1120,
+    176
+   ],
+   "energy_nj": 5.09752,
+   "storage_kbit": 19.264,
+   "multiplier_free": false
+  }
+ ],
+ "int8 pruned 90%": [
+  {
+   "seed": 0,
+   "test": 0.5340430250609891,
+   "val": 0.5538687561214496,
+   "nnz": [
+    448,
+    71
+   ],
+   "energy_nj": 2.0412850000000002,
+   "storage_kbit": 7.714,
+   "multiplier_free": false
+  },
+  {
+   "seed": 1,
+   "test": 0.5373697050343756,
+   "val": 0.5546033300685602,
+   "nnz": [
+    448,
+    71
+   ],
+   "energy_nj": 2.0412850000000002,
+   "storage_kbit": 7.714,
+   "multiplier_free": false
+  },
+  {
+   "seed": 2,
+   "test": 0.5382568196939455,
+   "val": 0.5460333006856023,
+   "nnz": [
+    448,
+    71
+   ],
+   "energy_nj": 2.0412850000000002,
+   "storage_kbit": 7.714,
+   "multiplier_free": false
+  },
+  {
+   "seed": 3,
+   "test": 0.5446884009758262,
+   "val": 0.5617042115572968,
+   "nnz": [
+    448,
+    71
+   ],
+   "energy_nj": 2.0412850000000002,
+   "storage_kbit": 7.714,
+   "multiplier_free": false
+  },
+  {
+   "seed": 4,
+   "test": 0.5320470170769572,
+   "val": 0.5528893241919687,
+   "nnz": [
+    448,
+    71
+   ],
+   "energy_nj": 2.0412850000000002,
+   "storage_kbit": 7.714,
+   "multiplier_free": false
+  }
+ ],
+ "int8 pruned 95%": [
+  {
+   "seed": 0,
+   "test": 0.39942337547127965,
+   "val": 0.4020568070519099,
+   "nnz": [
+    224,
+    36
+   ],
+   "energy_nj": 1.02254,
+   "storage_kbit": 3.864,
+   "multiplier_free": false
+  },
+  {
+   "seed": 1,
+   "test": 0.3741406076735418,
+   "val": 0.38148873653281096,
+   "nnz": [
+    224,
+    36
+   ],
+   "energy_nj": 1.02254,
+   "storage_kbit": 3.864,
+   "multiplier_free": false
+  },
+  {
+   "seed": 2,
+   "test": 0.3819028609447771,
+   "val": 0.3763467189030362,
+   "nnz": [
+    224,
+    36
+   ],
+   "energy_nj": 1.02254,
+   "storage_kbit": 3.864,
+   "multiplier_free": false
+  },
+  {
+   "seed": 3,
+   "test": 0.3561765358172544,
+   "val": 0.35896180215475026,
+   "nnz": [
+    224,
+    36
+   ],
+   "energy_nj": 1.02254,
+   "storage_kbit": 3.864,
+   "multiplier_free": false
+  },
+  {
+   "seed": 4,
+   "test": 0.3830117542692393,
+   "val": 0.4000979431929481,
+   "nnz": [
+    224,
+    36
+   ],
+   "energy_nj": 1.02254,
+   "storage_kbit": 3.864,
+   "multiplier_free": false
+  }
+ ],
+ "int8 pruned 98%": [
+  {
+   "seed": 0,
+   "test": 0.21423819028609448,
+   "val": 0.21718903036238982,
+   "nnz": [
+    90,
+    15
+   ],
+   "energy_nj": 0.412875,
+   "storage_kbit": 1.56,
+   "multiplier_free": false
+  },
+  {
+   "seed": 1,
+   "test": 0.23242404080727433,
+   "val": 0.2509794319294809,
+   "nnz": [
+    90,
+    15
+   ],
+   "energy_nj": 0.412875,
+   "storage_kbit": 1.56,
+   "multiplier_free": false
+  },
+  {
+   "seed": 2,
+   "test": 0.20714127300953647,
+   "val": 0.22526934378060726,
+   "nnz": [
+    90,
+    15
+   ],
+   "energy_nj": 0.412875,
+   "storage_kbit": 1.56,
+   "multiplier_free": false
+  },
+  {
+   "seed": 3,
+   "test": 0.20204036371701042,
+   "val": 0.21474045053868757,
+   "nnz": [
+    90,
+    15
+   ],
+   "energy_nj": 0.412875,
+   "storage_kbit": 1.56,
+   "multiplier_free": false
+  },
+  {
+   "seed": 4,
+   "test": 0.23530716345087602,
+   "val": 0.24461312438785504,
+   "nnz": [
+    90,
+    15
+   ],
+   "energy_nj": 0.412875,
+   "storage_kbit": 1.56,
+   "multiplier_free": false
+  }
+ ],
+ "ternary pruned 50%": [
+  {
+   "seed": 0,
+   "test": 0.534486582390774,
+   "val": 0.5602350636630754,
+   "nnz": [
+    1249,
+    267
+   ],
+   "energy_nj": 4.2096599999999995,
+   "storage_kbit": 13.377,
+   "multiplier_free": true
+  },
+  {
+   "seed": 1,
+   "test": 0.5402528276779773,
+   "val": 0.5697845249755142,
+   "nnz": [
+    1198,
+    278
+   ],
+   "energy_nj": 4.0957,
+   "storage_kbit": 13.006,
+   "multiplier_free": true
+  },
+  {
+   "seed": 2,
+   "test": 0.5404746063428698,
+   "val": 0.5590107737512243,
+   "nnz": [
+    1225,
+    261
+   ],
+   "energy_nj": 4.12647,
+   "storage_kbit": 13.113,
+   "multiplier_free": true
+  },
+  {
+   "seed": 3,
+   "test": 0.5422488356620093,
+   "val": 0.5702742409402547,
+   "nnz": [
+    1215,
+    270
+   ],
+   "energy_nj": 4.122225,
+   "storage_kbit": 13.095,
+   "multiplier_free": true
+  },
+  {
+   "seed": 4,
+   "test": 0.5178531825238412,
+   "val": 0.5394221351616063,
+   "nnz": [
+    1237,
+    271
+   ],
+   "energy_nj": 4.18658,
+   "storage_kbit": 13.301,
+   "multiplier_free": true
+  }
+ ],
+ "ternary pruned 75%": [
+  {
+   "seed": 0,
+   "test": 0.5245065424706143,
+   "val": 0.5440744368266406,
+   "nnz": [
+    757,
+    146
+   ],
+   "energy_nj": 2.5095549999999998,
+   "storage_kbit": 7.981,
+   "multiplier_free": true
+  },
+  {
+   "seed": 1,
+   "test": 0.541583499667332,
+   "val": 0.5705190989226249,
+   "nnz": [
+    773,
+    154
+   ],
+   "energy_nj": 2.5755950000000003,
+   "storage_kbit": 8.189,
+   "multiplier_free": true
+  },
+  {
+   "seed": 2,
+   "test": 0.5316034597471723,
+   "val": 0.5396669931439765,
+   "nnz": [
+    786,
+    146
+   ],
+   "energy_nj": 2.5909,
+   "storage_kbit": 8.242,
+   "multiplier_free": true
+  },
+  {
+   "seed": 3,
+   "test": 0.5251718784652917,
+   "val": 0.5345249755142018,
+   "nnz": [
+    737,
+    153
+   ],
+   "energy_nj": 2.47197,
+   "storage_kbit": 7.857,
+   "multiplier_free": true
+  },
+  {
+   "seed": 4,
+   "test": 0.5389221556886228,
+   "val": 0.5631733594515181,
+   "nnz": [
+    759,
+    154
+   ],
+   "energy_nj": 2.5363249999999997,
+   "storage_kbit": 8.063,
+   "multiplier_free": true
+  }
+ ],
+ "ternary pruned 90%": [
+  {
+   "seed": 0,
+   "test": 0.4067420714127301,
+   "val": 0.4145445641527914,
+   "nnz": [
+    366,
+    63
+   ],
+   "energy_nj": 1.1932649999999998,
+   "storage_kbit": 3.798,
+   "multiplier_free": true
+  },
+  {
+   "seed": 1,
+   "test": 0.39986693280106456,
+   "val": 0.40572967678746324,
+   "nnz": [
+    383,
+    67
+   ],
+   "energy_nj": 1.25153,
+   "storage_kbit": 3.983,
+   "multiplier_free": true
+  },
+  {
+   "seed": 2,
+   "test": 0.3821246396096695,
+   "val": 0.393486777668952,
+   "nnz": [
+    391,
+    69
+   ],
+   "energy_nj": 1.27926,
+   "storage_kbit": 4.071,
+   "multiplier_free": true
+  },
+  {
+   "seed": 3,
+   "test": 0.34952317587048126,
+   "val": 0.366307541625857,
+   "nnz": [
+    386,
+    65
+   ],
+   "energy_nj": 1.254655,
+   "storage_kbit": 3.994,
+   "multiplier_free": true
+  },
+  {
+   "seed": 4,
+   "test": 0.38434242625859394,
+   "val": 0.37438785504407446,
+   "nnz": [
+    381,
+    61
+   ],
+   "energy_nj": 1.2300499999999999,
+   "storage_kbit": 3.917,
+   "multiplier_free": true
+  }
+ ]
+}
