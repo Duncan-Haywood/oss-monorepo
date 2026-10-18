@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01RhrbZqeX6wphG9B3qSoDjK",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "scheduled: follow prompt.md",
+  "input_sha256": "3e54a4671d69cc91f71654788cc0aa9420c6093cc023245b58cf4de88920f85c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T20:39:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": 0,
+  "integrity_issues": 0,
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Full review (derive fetch, audit, drift report) is far larger than one scheduled run warrants; did a reduced pass and said so."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure lists the already-fixed yosys/apt-get friction as latest for CLAUDE.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Skipped derive fetch, audit and drift report; shipped one doc fix plus experiments entry."
+    }
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
