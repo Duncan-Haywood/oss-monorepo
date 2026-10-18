@@ -1,6 +1,10 @@
 {
  "area_sqft": 480.0,
  "framing_bf": 2613.8,
+ "roof": {
+  "stick_bf": 1070.4,
+  "truss_bf": 666.7
+ },
  "problems": [],
  "wrote": [
   "floor-plan.svg",

@@ -4,7 +4,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 for sib in ("src", "../../house-plan/src", "../../house-spans/src", "../../house-framing/src",
-            "../../house-structure/src", "../../house-energy/src", "../../house-cost/src"):
+            "../../house-structure/src", "../../house-energy/src", "../../house-cost/src", "../../house-truss/src"):
     sys.path.insert(0, str((HERE / sib).resolve()) if sib != "src" else str((HERE.parent / "src")))
 
 from house_open_design.plan_set import write  # noqa: E402

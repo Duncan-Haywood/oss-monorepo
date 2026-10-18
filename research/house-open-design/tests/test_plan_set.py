@@ -91,3 +91,26 @@ def test_ifc_has_the_plan_walls(tmp_path):
     write(tmp_path)
     m = ifcopenshell.open(str(tmp_path / "adu.ifc"))
     assert len(m.by_type("IfcWall")) == len(facts()["plan"].walls)
+
+
+def test_roof_option_stick_lumber_matches_takeoff_members(f):
+    r, t, p = f["roof"], f["takeoff"], f["plan"].params
+    from house_plan.takeoff import _bf
+    ceil = _bf(t["sizes"]["ceiling"], p.width * 12, t["members"][(t["sizes"]["ceiling"], p.width * 12)])
+    assert r["stick"]["ceiling"] == pytest.approx(ceil)
+    assert r["stick_bf"] > r["stick"]["ceiling"] > 0
+    assert r["stick"]["rafter"] > 0 and r["stick"]["ridge"] > 0
+
+
+def test_roof_option_truss_is_lighter_and_counted_per_bay(f):
+    r, p = f["roof"], f["plan"].params
+    assert r["truss"] is not None and r["truss"].span_ft == p.width
+    assert r["n_trusses"] == int(p.depth * 12 / p.rafter_oc) + 1
+    assert r["truss_bf"] == pytest.approx(r["n_trusses"] * r["truss_bf_each"])
+    assert r["truss_bf"] < r["stick_bf"]
+
+
+def test_roof_option_in_report_and_summary(tmp_path):
+    f2, summary = write(tmp_path, ifc=False)
+    assert "Roof option" in (tmp_path / "report.md").read_text()
+    assert summary["roof"]["truss_bf"] < summary["roof"]["stick_bf"]

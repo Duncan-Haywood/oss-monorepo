@@ -10,6 +10,8 @@ from house_energy.model import (AIR_HEAT_CAP, ANNUITY, BTU_PER_KWH, BTU_PER_THER
 from house_framing.model import (ADVANCED_2X6, CONVENTIONAL_2X4, House as FrameHouse, Opening as FrameOpening,
                                  Wall as FrameWall, takeoff as wall_takeoff)
 from house_structure.model import demands, line_capacity, segments
+from house_plan.takeoff import _bf as nominal_bf
+from house_truss.model import board_feet as truss_bf, lightest as lightest_truss
 
 PLATE_FT = 8.0
 EDGES = (6, 4, 3, 2)
@@ -105,3 +107,30 @@ def cost_index(plan):
         out[name] = {"price_index": r["price"], "construction_index": r["construction"],
                      "per_sqft_vs_reference": per_sqft_index(h)}
     return out
+
+
+def roof_option(plan, takeoff, snow_psf=30.0):
+    """Stick roof (rafters, ceiling joists, ridge) against the lightest passing house-truss W truss at the plan's span.
+
+    Trusses span the plan's width at the rafter spacing along its depth, one more than the bays so both end walls have
+    one. The stick figure is the plan's own takeoff; the truss figure is house-truss's pin-jointed NDS check at a
+    ground-snow roof load of `snow_psf` on plan (the plan states no snow load). Neither includes waste, hangers, plates
+    or bracing, and a truss would be a sealed manufacturer's design."""
+    p = plan.params
+    sz, W, D = takeoff["sizes"], p.width * 12, p.depth * 12
+    roof = {k: 0.0 for k in ("rafter", "ceiling", "ridge")}
+    for (size, length), n in takeoff["members"].items():
+        bf = nominal_bf(size, length, n)
+        if size == sz["rafter"] and length not in (W, D):
+            roof["rafter"] += bf  # on the slope; the same size at 24 ft is the girder
+        elif size == sz["ceiling"] and length == W:
+            roof["ceiling"] += bf
+        elif size == sz["ridge"] and length == D:
+            roof["ridge"] += bf
+    stick_bf = sum(roof.values())
+    best = lightest_truss(p.width, float(p.pitch), float(p.rafter_oc), snow_psf=snow_psf)
+    if best is None:
+        return {"stick": roof, "stick_bf": stick_bf, "truss": None}
+    t, per = best
+    n = math.ceil(p.depth * 12 / p.rafter_oc) + 1
+    return {"stick": roof, "stick_bf": stick_bf, "truss": t, "n_trusses": n, "truss_bf_each": per, "truss_bf": per * n}
