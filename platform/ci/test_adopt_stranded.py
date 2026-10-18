@@ -42,6 +42,34 @@ class TestPlan(PlanFixture):
         cand = self.plan(min_age_hours=6, now=later)["claude/old"]
         self.assertEqual(cand.skip, "")
 
+    def test_age_is_in_whole_hours_of_3600_seconds(self):
+        self.stranded("claude/old", "ventures/x/index.html")
+        tip = int(run(self.clone, "log", "-1", "--format=%ct", "origin/claude/old"))
+        cand = self.plan(now=tip + 7200)["claude/old"]
+        self.assertEqual(cand.age_hours, 2.0)
+
+    def contested_skip(self, count):
+        paths = [f"platform/pages/c{n}.mjs" for n in range(count)]
+        for p in paths:
+            self.squash_merge(p, "v1\n", f"base {p}")
+        self.branch("claude/stale")
+        for p in paths:
+            self.commit(p, "mine\n", f"tweak {p}")
+        self.push("claude/stale")
+        for p in paths:
+            self.squash_merge(p, "v2\n", f"other {p}")
+        return self.plan()["claude/stale"].skip
+
+    def test_three_contested_files_are_all_named_without_an_ellipsis(self):
+        skip = self.contested_skip(3)
+        self.assertIn("c2.mjs", skip)
+        self.assertNotIn("...", skip)
+
+    def test_more_than_three_contested_files_end_in_an_ellipsis(self):
+        skip = self.contested_skip(4)
+        self.assertNotIn("c3.mjs", skip)
+        self.assertIn("...", skip)
+
     def test_run_log_only_branch_is_skipped(self):
         self.stranded("claude/log", "prompts/runs.jsonl", '{"run": 1}\n', "Log run")
         self.assertIn("derived", self.plan()["claude/log"].skip)
