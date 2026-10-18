@@ -24,8 +24,14 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote
 
-LINK_RE = re.compile(r"(?<!\!)\[[^\]\n]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
-IMG_RE = re.compile(r"!\[[^\]\n]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
+_TARGET_BODY = r"(?:[^()\s>]|\([^()\s]*\))+"
+_TITLE = r"(?:\s+\"[^\"]*\")?"
+_TARGET = r"<?(" + _TARGET_BODY + r")>?" + _TITLE
+_IMG = r"!\[[^\]\n]*\]\(\s*" + _TARGET + r"\s*\)"
+# Link text may hold one nested image (a badge): [![alt](img)](href).
+_NESTED_IMG = r"!\[[^\]\n]*\]\(\s*<?" + _TARGET_BODY + r">?" + _TITLE + r"\s*\)"
+LINK_RE = re.compile(r"(?<!\!)\[(?:[^\[\]\n]|" + _NESTED_IMG + r")*\]\(\s*" + _TARGET + r"\s*\)")
+IMG_RE = re.compile(_IMG)
 CODE_SPAN_RE = re.compile(r"``.*?``|`[^`\n]*`")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 SKIP = ("http://", "https://", "//", "mailto:", "tel:", "data:", "#", "/")
