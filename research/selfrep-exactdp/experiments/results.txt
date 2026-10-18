@@ -1,0 +1,43 @@
+assumed inputs: a=1.0; W=50.0 h per copy (selfrep-growth); T=600 h; fleet starts at 1; failure 0; cash never binds; Euler step 1 h
+table = exact optimum over the control set u_j = (r^(j/m)-1)/(k dt), j=0..m (no interpolation); J = Euler value of that policy run through selfrep_satmarket.run
+bb = best bang-bang switch (1 h grid); table/J_bb >= 1 is the certified gain over bang-bang on this control set
+
+== c=10000, s=50: best bang-bang ts=600, J_bb=7228914.1
+  m=1: table=    7228914.1 J=    7228914.1 |table-J|/J=1.1e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=2: table=    7228914.1 J=    7228914.1 |table-J|/J=1.1e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=4: table=    7228914.1 J=    7228914.1 |table-J|/J=1.1e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=8: table=    7228914.1 J=    7228914.1 |table-J|/J=1.1e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   1s)
+
+== c=1000, s=12.5: best bang-bang ts=600, J_bb=1807228.5
+  m=1: table=    1807228.5 J=    1807228.5 |table-J|/J=1.0e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=2: table=    1807228.5 J=    1807228.5 |table-J|/J=1.0e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=4: table=    1807228.5 J=    1807228.5 |table-J|/J=1.0e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=8: table=    1807228.5 J=    1807228.5 |table-J|/J=1.0e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   1s)
+
+== c=1000, s=50: best bang-bang ts=600, J_bb=7228914.1
+  m=1: table=    7228914.1 J=    7228914.1 |table-J|/J=1.1e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=2: table=    7228914.1 J=    7228914.1 |table-J|/J=1.1e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=4: table=    7228914.1 J=    7228914.1 |table-J|/J=1.1e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=8: table=    7228914.1 J=    7228914.1 |table-J|/J=1.1e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   1s)
+
+== c=10000, s=0: best bang-bang ts=485, J_bb=888949.3
+  m=1: table=     888949.3 J=     888949.3 |table-J|/J=7.3e-15  table/J_bb= 100.000%  steps full/mid/off=485/0/115  (   0s)
+  m=2: table=     922505.5 J=     922505.5 |table-J|/J=5.0e-16  table/J_bb= 103.775%  steps full/mid/off=469/50/81  (   0s)
+  m=4: table=     928926.7 J=     928926.7 |table-J|/J=5.5e-15  table/J_bb= 104.497%  steps full/mid/off=462/74/64  (   0s)
+  m=8: table=     930442.3 J=     930442.3 |table-J|/J=1.4e-15  table/J_bb= 104.668%  steps full/mid/off=459/84/57  (   1s)
+  m=16: table=     930815.4 J=     930815.4 |table-J|/J=4.4e-15  table/J_bb= 104.710%  steps full/mid/off=458/88/54  (   3s)
+
+== c=1000, s=0: best bang-bang ts=393, J_bb=188185.7
+  m=1: table=     188185.7 J=     188185.7 |table-J|/J=1.5e-15  table/J_bb= 100.000%  steps full/mid/off=393/0/207  (   0s)
+  m=2: table=     199220.2 J=     199220.2 |table-J|/J=2.3e-15  table/J_bb= 105.864%  steps full/mid/off=363/99/138  (   0s)
+  m=4: table=     201095.1 J=     201095.1 |table-J|/J=2.5e-15  table/J_bb= 106.860%  steps full/mid/off=355/159/86  (   0s)
+  m=8: table=     201482.6 J=     201482.6 |table-J|/J=1.6e-15  table/J_bb= 107.066%  steps full/mid/off=351/184/65  (   1s)
+  m=16: table=     201579.1 J=     201579.1 |table-J|/J=3.8e-15  table/J_bb= 107.117%  steps full/mid/off=349/194/57  (   3s)
+
+== c=10000, s=12.5: best bang-bang ts=600, J_bb=1807228.5
+  m=1: table=    1807228.5 J=    1807228.5 |table-J|/J=1.0e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=2: table=    1807228.5 J=    1807228.5 |table-J|/J=1.0e-14  table/J_bb= 100.000%  steps full/mid/off=600/0/0  (   0s)
+  m=4: table=    1837275.8 J=    1837275.8 |table-J|/J=7.5e-15  table/J_bb= 101.663%  steps full/mid/off=555/45/0  (   0s)
+  m=8: table=    1920940.0 J=    1920940.0 |table-J|/J=1.3e-14  table/J_bb= 106.292%  steps full/mid/off=542/58/0  (   1s)
+  m=16: table=    1924321.7 J=    1924321.7 |table-J|/J=1.1e-14  table/J_bb= 106.479%  steps full/mid/off=535/65/0  (   3s)
+
