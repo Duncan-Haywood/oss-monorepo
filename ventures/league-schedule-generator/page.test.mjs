@@ -434,3 +434,15 @@ test("the schedule can be printed: a print stylesheet keeps only the report", ()
   assert.match(html, /id="print-page"/);
   assert.match(html, /\$\("#print-page"\)\.addEventListener\("click", \(\) => \{ if \(!last\) return; window\.print\(\)/);
 });
+
+test("the standings row template has one cell for every header column", () => {
+  const html = page("index.html");
+  const head = html.match(/<table id="standings"><thead><tr>(.*?)<\/tr>/s)[1];
+  const row = html.match(/\$\("#standings tbody"\)\.innerHTML = extra\.table\.map\(\(r\) => `<tr>(.*?)<\/tr>`\)/s)[1];
+  const heads = [...head.matchAll(/<th\b/g)].length;
+  const cells = [...row.matchAll(/<td\b/g)].length;
+  assert.equal(cells, heads, "a header without a cell (or the reverse) shifts every later column");
+  // Each value the table shows is rendered, in header order.
+  const order = [...row.matchAll(/\$\{(?:esc\()?r\.(\w+)/g)].map((m) => m[1]);
+  assert.deepEqual(order, ["rank", "name", "played", "won", "drawn", "lost", "gd", "points", "left", "oppAvg", "form"]);
+});
