@@ -1,0 +1,241 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01XqpfCvttFRvXqfniH352d7",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T11:07:33Z",
+  "ended": "2026-10-18T11:07:55Z",
+  "wall_minutes": 0.96,
+  "tokens_in": 853068,
+  "tokens_out": 3256,
+  "cost_usd": 0.3887,
+  "tool_calls": 14,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_form_defaults.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_form_defaults  (in platform/ci)",
+        "seed": 725397686,
+        "commit": "9c98d24469",
+        "sites": 26,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_form_defaults.py",
+            "line": 102,
+            "col": 37,
+            "operator": "neq-flip",
+            "before": "if attrs.get(\"type\", \"\").lower() != \"number\":",
+            "after": "if attrs.get(\"type\", \"\").lower() == \"number\":",
+            "line_text": "    if attrs.get(\"type\", \"\").lower() != \"number\":",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_form_defaults.py",
+            "line": 141,
+            "col": 27,
+            "operator": "and-to-or",
+            "before": "if maximum is not None and value > maximum:",
+            "after": "if maximum is not None or value > maximum:",
+            "line_text": "    if maximum is not None and value > maximum:",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_form_defaults.py",
+            "line": 145,
+            "col": 24,
+            "operator": "eq-flip",
+            "before": "if raw_step.lower() == \"any\":",
+            "after": "if raw_step.lower() != \"any\":",
+            "line_text": "    if raw_step.lower() == \"any\":",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_form_defaults.py",
+            "line": 148,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "if step is None or step <= 0:",
+            "after": "if step is None or step <= 1:",
+            "line_text": "    if step is None or step <= 0:",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_form_defaults.py",
+            "line": 154,
+            "col": 21,
+            "operator": "neq-flip",
+            "before": "if offset % step != 0:",
+            "after": "if offset % step == 0:",
+            "line_text": "    if offset % step != 0:",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_form_defaults.py",
+            "line": 173,
+            "col": 65,
+            "operator": "or-to-and",
+            "before": "field = attrs.get(\"id\") or attrs.get(\"name\") or \"(unnamed input)\"",
+            "after": "field = attrs.get(\"id\") or attrs.get(\"name\") and \"(unnamed input)\"",
+            "line_text": "                    field = attrs.get(\"id\") or attrs.get(\"name\") or \"(unnamed input)\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_form_defaults.py",
+            "line": 179,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "after": "root = Path(argv[1]) if len(argv) > 2 else Path(\"ventures\")",
+            "line_text": "    root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main() ignored an explicit root argument untested; added test_an_explicit_root_is_the_one_checked"
+          },
+          {
+            "file": "platform/ci/check_form_defaults.py",
+            "line": 182,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 2",
+            "after": "return 3",
+            "line_text": "        return 2",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [],
+    "notes": "One of 8 mutants escaped (main() ignoring explicit root argument); guarded by a new test. No real defects found in this small run."
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "abe94a04-a4cd-5569-9146-fb7d5f5f35f7",
+    "transcripts": 1,
+    "first": "2026-10-18T11:07:33Z",
+    "last": "2026-10-18T11:08:31Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 12,
+        "input": 24,
+        "output": 3256,
+        "thinking": 176,
+        "cache_read": 804227,
+        "cache_write_5m": 0,
+        "cache_write_1h": 48817,
+        "api_equivalent_usd": 0.3887,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 12,
+      "input": 24,
+      "output": 3256,
+      "thinking": 176,
+      "cache_read": 804227,
+      "cache_write_5m": 0,
+      "cache_write_1h": 48817,
+      "api_equivalent_usd": 0.3887,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.943,
+    "tool_calls": 14,
+    "tools": {
+      "Bash": 10,
+      "Read": 3,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 0.96,
+      "active_minutes": 0.96,
+      "model_minutes": 0.64,
+      "tool_minutes": 0.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "small mutation campaign plus one test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 128.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
