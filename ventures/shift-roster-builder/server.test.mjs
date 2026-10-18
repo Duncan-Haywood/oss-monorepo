@@ -76,3 +76,29 @@ test("oversized bodies are rejected", async () => {
   assert.equal(r.status, 413);
   s.close();
 });
+
+test("a call-out reaches the manager with who could cover, and staff never see wages", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, Mon 9-17\nBen, 19.43, 40, 0, any\nCy, 17.10, 40, 0, Tue-Fri 9-17";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon, 9, 17, 1, day" });
+  const team = await (await fetch(s.base + "/team?t=tm")).text();
+  assert.match(team, /Cannot make a shift\?/);
+  const shift = s.state.published.assignments.find((a) => a.person);
+  const val = [shift.person, shift.slot.day, shift.slot.startMin, shift.slot.endMin].join("|");
+  assert.equal((await post(s.base + "/team/callout?t=tm", { shift: "Nobody|0|1|2" })).status, 400);
+  assert.equal((await post(s.base + "/team/callout?t=wrong", { shift: val })).status, 401);
+  const ok = await post(s.base + "/team/callout?t=tm", { shift: val, note: "<b>sick</b>\nbad" });
+  assert.equal(ok.status, 200);
+  assert.equal(s.state.callouts.length, 1);
+  assert.doesNotMatch(s.state.callouts[0].note, /\n/);
+  const admin = await (await fetch(s.base + "/admin?key=adm")).text();
+  assert.match(admin, /Call-outs \(1\)/);
+  assert.match(admin, /&lt;b&gt;sick/);
+  assert.doesNotMatch(admin, /<b>sick/);
+  assert.match(admin, /Could cover/);
+  const other = shift.person === "Ana" ? "Ben" : "Ana";
+  assert.match(admin, new RegExp(`${other} \\(`));
+  await post(s.base + "/admin/clear-callouts?key=adm", {});
+  assert.equal(s.state.callouts.length, 0);
+  s.close();
+});
