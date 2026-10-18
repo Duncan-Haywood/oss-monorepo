@@ -217,6 +217,15 @@ class LiveRepository(unittest.TestCase):
         # make the assertion above pass for the wrong reason.
         self.assertGreater(len(cds.tracked_python_files()), 50)
 
+    def test_a_failing_git_listing_is_an_error_not_an_empty_survey(self):
+        # Outside a work tree `git ls-files` exits non-zero. Without
+        # check=True the survey would see no files and report all clear.
+        import subprocess
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(subprocess.CalledProcessError):
+                cds.tracked_python_files(Path(d))
+
 
 if __name__ == "__main__":
     unittest.main()
