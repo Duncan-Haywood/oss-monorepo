@@ -91,6 +91,19 @@ test("--magi adds the 3.8% surtax line and per-method column; bad --filing is re
   assert.doesNotMatch(render(run([{ name: "a.csv", text: csv }], {}), {}), /Net investment income tax/);
 });
 
+test("--prices adds the harvesting and wait views, and rejects bad prices", () => {
+  const o = parseArgs(["--prices", "BTC=20000, ETH 1000", "--example"]);
+  assert.deepEqual(o.prices, { BTC: 20000, ETH: 1000 });
+  assert.throws(() => parseArgs(["--prices", "BTC=abc"]), /--prices: Could not read/);
+  const out = spawnSync("node", [CLI, "--example", "--prices", "BTC=20000,ETH=1000", "--sale-date", "2024-12-20"], { encoding: "utf8" });
+  assert.equal(out.status, 0);
+  assert.match(out.stdout, /Tax-loss harvesting on 2024-12-20/);
+  assert.match(out.stdout, /saves \$1,950\.33/);
+  const j = JSON.parse(spawnSync("node", [CLI, "--example", "--json", "--prices", "BTC=20000,ETH=1000", "--sale-date", "2024-12-20"], { encoding: "utf8" }).stdout);
+  assert.equal(j.harvest.taxSaved, 1950.33);
+  assert.ok(Array.isArray(j.wait.lots));
+});
+
 test("--donate prints a gift plan and rejects missing inputs", async () => {
   const { main, parseArgs } = await import("./cli.mjs");
   assert.equal(parseArgs(["--donate", "btc", "--price", "9", "--qty", "1", "x.csv"]).donate, "BTC");

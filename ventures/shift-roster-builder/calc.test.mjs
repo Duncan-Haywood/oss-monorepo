@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches,
+import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -1226,4 +1226,11 @@ test("loneStretches: one person alone for longer than the limit", () => {
   assert.deepEqual(got.map((x) => [x.person, x.day, x.startMin, x.endMin, x.hours]), [["Ana", "Wed", 1260, 120, 5]]);
   assert.deepEqual(loneStretches(r, 1).map((x) => x.day + x.person), ["MonAna", "MonAna", "WedAna"]);
   assert.deepEqual(loneStretches({ assignments: [a("Ana", 0, 540, 600), a("Ben", 0, 540, 600)] }, 0), []);
+});
+
+test("shortShifts: assigned shifts under the minimum, overnight aware", () => {
+  const a = (person, day, startMin, endMin) => ({ slot: { day, startMin, endMin }, person });
+  const r = { assignments: [a("Ana", 0, 540, 660), a("Ben", 1, 540, 840), a("Cy", 2, 1380, 60), { slot: { day: 3, startMin: 0, endMin: 60 }, person: null }] };
+  assert.deepEqual(shortShifts(r, 4).map((x) => [x.person, x.day, x.hours]), [["Ana", "Mon", 2], ["Cy", "Wed", 2]]);
+  assert.deepEqual(shortShifts(r, 2), []);
 });

@@ -14,7 +14,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
-import { analyze, planSale, donationPlan, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
+import { analyze, planSale, donationPlan, parsePrices, harvestPlan, waitPlan, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
@@ -40,7 +40,8 @@ Options:
   --price <usd>       price per coin for --sell or --donate
   --qty <coins>       coins to sell with --sell
   --cash <usd>        dollars to raise with --sell (used when --qty is absent)
-  --sale-date <date>  date of the planned sale (default: today)
+  --sale-date <date>  date of the planned sale or price check (default: today)
+  --prices <list>     prices you type, e.g. "BTC=65000,ETH=3200": adds tax-loss harvesting and wait-for-long-term (90 days) views of the lots you still hold
   --form8949 <file>   also write Form 8949 style rows to this file
   --income-csv <file> also write the year's staking/mining/airdrop income by coin to this file
   --json              print the full analysis as JSON
@@ -99,6 +100,12 @@ export function parseArgs(argv) {
       const d = need(++i, arg);
       if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) throw new Error("--sale-date needs yyyy-mm-dd");
       opts.saleDate = d;
+    }
+    else if (arg === "--prices") {
+      const { prices, errors } = parsePrices(need(++i, arg));
+      if (errors.length) throw new Error(`--prices: ${errors[0]}`);
+      if (!Object.keys(prices).length) throw new Error("--prices needs at least one coin, e.g. BTC=65000");
+      opts.prices = prices;
     }
     else if (arg === "--form8949") opts.form8949 = need(++i, arg);
     else if (arg === "--income-csv") opts.incomeCsv = need(++i, arg);
@@ -161,6 +168,18 @@ export function renderPlan(p) {
   return out.join("\n") + "\n";
 }
 
+export function renderPrices(h, w) {
+  const out = ["", `Tax-loss harvesting on ${h.asOf} (prices you typed; no wash-sale rule applied)`];
+  if (!h.losers.length) out.push("  No priced lot is under water.");
+  for (const l of h.losers) out.push(`  ${l.asset.padEnd(8)} bought ${l.acquired}  ${String(l.qty).padStart(12)}   loss ${usd(l.gain).padStart(12)}   ${l.term}-term   tax saved ${usd(l.taxSaved).padStart(10)}`);
+  if (h.losers.length) out.push(`  Selling all of them: estimated tax ${usd(h.taxBefore)} -> ${usd(h.taxAfter)} (saves ${usd(h.taxSaved)})${h.unusedLoss ? `; ${usd(h.unusedLoss)} of loss is left over` : ""}.`);
+  if (h.unpriced.length) out.push(`  No price given for: ${h.unpriced.join(", ")}.`);
+  out.push("", `Wait for long-term: gains that turn long-term within ${w.windowDays} days of ${w.asOf}`);
+  if (!w.lots.length) out.push("  None.");
+  for (const l of w.lots) out.push(`  ${l.asset.padEnd(8)} bought ${l.acquired}  gain ${usd(l.gain).padStart(12)}   long-term from ${l.longFrom} (${l.days} days)   saves ${usd(l.taxSaved).padStart(10)}   price may fall ${l.breakEvenFallPct}% first`);
+  return out.join("\n") + "\n";
+}
+
 export function renderDonation(d) {
   if (!d.qty) return `\nGift plan: no ${d.asset} held over a year on record. Short-term lots are not valued at market for a gift.\n`;
   const out = ["", `Gift plan: ${d.qty} ${d.asset} at ${usd(d.price)} on ${d.asOf}${d.capped ? ` (asked for ${d.requested}; only ${d.longQty} held over a year)` : ""}`];
@@ -201,9 +220,15 @@ export async function main(argv) {
   if (opts.incomeCsv) await writeFile(opts.incomeCsv, toIncomeCsv(r.result.incomeReport));
   if (opts.form8949) await writeFile(opts.form8949, toForm8949Csv(r.result.rows));
   const plan = opts.sell ? planSale(r.result.openLots, { asset: opts.sell, price: opts.price, asOf: opts.saleDate || new Date().toISOString().slice(0, 10), qty: opts.qty ?? null, cash: opts.qty ? null : opts.cash ?? null, summary: r.result.summary, shortRate: opts.shortRate, longRate: opts.longRate }) : null;
+  let pr = null;
+  if (opts.prices) {
+    const asOf = opts.saleDate || new Date().toISOString().slice(0, 10);
+    const common = { asOf, summary: r.result.summary, shortRate: opts.shortRate, longRate: opts.longRate };
+    pr = { harvest: harvestPlan(r.result.openLots, opts.prices, common), wait: waitPlan(r.result.openLots, opts.prices, common) };
+  }
   const gift = opts.donate ? donationPlan(r.result.openLots, { asset: opts.donate, price: opts.price, asOf: opts.saleDate || new Date().toISOString().slice(0, 10), qty: opts.qty, longRate: opts.longRate, deductionRate: opts.deductionRate || 0 }) : null;
-  if (opts.json) process.stdout.write(JSON.stringify({ ...r.result, ...(plan ? { plan } : {}), ...(gift ? { gift } : {}) }, null, 2) + "\n");
-  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : "") + (gift ? renderDonation(gift) : ""));
+  if (opts.json) process.stdout.write(JSON.stringify({ ...r.result, ...(plan ? { plan } : {}), ...(pr ? { harvest: pr.harvest, wait: pr.wait } : {}), ...(gift ? { gift } : {}) }, null, 2) + "\n");
+  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : "") + (pr ? renderPrices(pr.harvest, pr.wait) : "") + (gift ? renderDonation(gift) : ""));
   return 0;
 }
 
