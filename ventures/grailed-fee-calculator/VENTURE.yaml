@@ -1,0 +1,36 @@
+name: grailed-fee-calculator
+description: A private browser calculator for Grailed sellers that prices one sale against the tiered commission in force since 20 May 2026 (6% under $120 with a $1.99 minimum, 9% from $120) plus 3.49% + $0.49 payment processing, shows profit after item, label and prep cost, solves for the listing price that hits a target profit on the correct side of the step, and computes the $120 cliff where the whole sale jumps to 9% and a $120 sale pays less than a $119.99 one. Compares the current schedule with an international buyer and the old flat 9%, and hands the item to the where-to-sell calculator.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Grailed sellers will use a calculator that models the 6% / 9% step and the $120 cliff, because the flat "Grailed takes 9%" figure in older guides and most calculators overstates the fee under $120 and hides that $120.00 pays less than $119.99.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers pricing near $120 will change their listing price after seeing the dead zone between $120 and about $124, because no other tool shows it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/grailed, r/streetwear and the search phrases "grailed fee calculator", "grailed seller fees" and "how much does grailed take" are a reachable, free channel -- measurable only once the tool is live in the apex catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified Grailed sellers run a real sale twice within 90 days of the tool being discoverable.
+  - A real Grailed payout statement disagrees with the calculator's constants (the tiers are from third-party fee guides, not Grailed's own help centre) and the schedule is not corrected within a week.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/grailed-fee-calculator/
+  analytics: null
