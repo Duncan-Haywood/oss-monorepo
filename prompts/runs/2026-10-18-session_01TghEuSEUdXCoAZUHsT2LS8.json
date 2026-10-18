@@ -41,7 +41,7 @@
   ],
   "deviations": [],
   "goal": null,
-  "notes": "arm-none-eabi-gcc absent, so used clang thumbv7em plus Unicorn (pip) for instruction counts; says so in README. Cost fields not attached: runcost not run.",
+  "notes": "arm-none-eabi-gcc absent, so used clang thumbv7em plus Unicorn (pip) for instruction counts; says so in README.",
   "corrections": [],
   "redteam": null,
   "usage": {
