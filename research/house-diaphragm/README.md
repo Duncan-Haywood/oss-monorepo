@@ -1,6 +1,8 @@
 # house-diaphragm: does the half-and-half load split understate the demand on a garage-front wall?
 
 A project of track 12, open-source residential construction (`PROJECTS.md`, milestone 6, a next step of [`house-structure`](../house-structure): "a rigid-diaphragm load split so the garage-front line carries its stiffness-based share"). It re-asks one question of `house-structure`, experiment G, whose note said a stiff partner wall would attract more load. Stylised and not a code check. Produced with AI assistance (Claude).
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-diaphragm/
+
 
 **Headline (stylised, negative for the worry).** In this toy model the half-and-half split is *not* flattering to the garage wall. With a rigid roof diaphragm, the weak garage line carries **less** than half: at a centred 22 ft door and 115 mph its demand-to-capacity at 6 in nailing falls from 1.05 (flexible split, which fails) to 0.18 to 0.63 depending on how softly the piers bend, while the stiff partner wall rises only to 0.26 to 0.35, with the long walls restraining the twist. The rigid split matters most for the biggest doors. The split cannot be used to pass a design: a flexible roof diaphragm is a real case, and it is the governing one here.
 
