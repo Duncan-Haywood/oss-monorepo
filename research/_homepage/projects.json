@@ -3096,6 +3096,11 @@
      "summary": "Wind and seismic base shear on the <code>house-framing</code> house (28 &times; 40 ft, one storey) against the segmented shear-wall length its openings leave. At 115 mph and SDS 0.50 the worst case uses 19% of a gable-wall line's capacity at the loosest (6 in) nailing; wind must reach 264 mph before that nailing runs out. Lateral load does not govern this plan, but glazing does: four windows per gable wall cut the usable wall from 24 ft to 11 ft, six leave none. A 16 ft garage door in the gable wall raises the load share to 41% at 6 in nailing, and a centred 22 ft door needs tighter nailing. Advanced and conventional framing carry the same shear. <em>Stylised</em>: the nailing table and load coefficients are from memory and unchecked, and diaphragms, uplift and overturning are not modelled."
     },
     {
+     "slug": "house-torsion",
+     "title": "How much does accidental torsion add to the garage-front wall's demand in a rigid-diaphragm wind split?",
+     "summary": "Offsets the wind load by up to 15% of the house length in <code>house-nailedwall</code>'s rigid roof-diaphragm split. The relief survives but shrinks: for a centred 22 ft garage door, demand over capacity at 6 in nailing rises from 0.36&ndash;0.59 (load at the centre) to 0.44&ndash;0.71 at a 15% offset, still below the flexible split's 1.05, while the partner wall moves only from 0.27&ndash;0.31 to 0.29&ndash;0.33. Stylised: placeholder offset, unverified stiffness constants, along-ridge wind only, not a code check."
+    },
+    {
      "slug": "house-nailedwall",
      "title": "Does the rigid-diaphragm relief for a garage-front wall survive a nailed-wall stiffness model?",
      "summary": "Replaces the toy pier stiffness of <code>house-diaphragm</code> with a four-term deflection (chord bending, panel shear, nail slip, hold-down slip) and reruns the rigid roof-diaphragm split. The sign holds: a centred 22 ft garage door leaves the wall at 0.05&ndash;0.19 of its partner's stiffness, and its demand over capacity at 6 in nailing falls from 1.05 (flexible split) to 0.36, 0.48 and 0.59 at 100, 250 and 500 plf. Stylised: every constant is from memory and unchecked, stiffness is a secant at a fixed shear, and the flexible split still governs."
