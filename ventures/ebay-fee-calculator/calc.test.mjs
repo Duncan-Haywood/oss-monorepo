@@ -1823,6 +1823,27 @@ test('break-even claim rate and you-ship sell-through match GSP', () => {
   assert.ok(comparison.breakEvenSelfShipSellThroughPct > 55, 'default 55% you-ship ST is below the floor');
 });
 
+test('break-even you-ship postage ties GSP when claims leave fees unrefunded', () => {
+  // The claim branch of the postage re-pricing must refund fees at the typed
+  // rate, or the floor drifts from the table the page shows.
+  for (const feeRefundOnReturnPercent of [100, 0]) {
+    const comparison = compareGlobalShipping({
+      ...agBase,
+      selfShipClaimRatePercent: 8,
+      feeRefundOnReturnPercent,
+    });
+    assert.ok(Number.isFinite(comparison.breakEvenSelfShipPostage), 'a finite postage floor');
+    const atFloor = compareGlobalShipping({
+      ...agBase,
+      selfShipClaimRatePercent: 8,
+      feeRefundOnReturnPercent,
+      selfShipShippingCost: comparison.breakEvenSelfShipPostage,
+    });
+    near(atFloor.selfShip.expectedProfit, atFloor.gsp.expectedProfit,
+      `postage floor ties GSP at ${feeRefundOnReturnPercent}% fee refund`);
+  }
+});
+
 test('matching 40% sell-through already loses on you-ship', () => {
   const comparison = compareGlobalShipping({ ...agBase, selfShipSellThroughPct: 40 });
   assert.equal(comparison.winner, 'gsp');
