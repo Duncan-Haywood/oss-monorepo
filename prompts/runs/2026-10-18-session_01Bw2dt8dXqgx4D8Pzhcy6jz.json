@@ -37,7 +37,7 @@
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Router candidates (where-to-sell, league-schedule, state-residency, event-seating) are already deep (hundreds of README features each); no worthwhile feature gap found in the time spent. Run refreshed the Pages snapshot from origin/main in a separate worktree instead.",
+  "notes": "Router candidates (where-to-sell, league-schedule, state-residency, event-seating) are already deep (hundreds of README features each); no worthwhile feature gap found in the time spent. Run refreshed the Pages snapshot from origin/main in a separate worktree instead. Published gh-pages e123508c from origin/main 01ff4485 (3518 URLs). The IndexNow ping failed with fetch failed (egress), so search engines were not notified.",
   "corrections": [],
   "redteam": null
 }
