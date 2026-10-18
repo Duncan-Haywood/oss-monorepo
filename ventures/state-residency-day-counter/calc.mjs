@@ -600,6 +600,34 @@ export function tripImpact(spec, trip) {
   return { trip: { ...trip }, changes, newlyOver: changes.filter((c) => c.crossed).map((c) => c.code), maxSafeDays, tripLimit: tripRule ? tripRule.limit : null };
 }
 
+// Calendar reminders: for each state with a published test that you have not
+// crossed, an all-day event on the last day you can be there and still stay at
+// or under the limit, assuming you are there every day from the as-of date on.
+// A planning aid built from `analyze`'s triggerDate, not a residency finding.
+export function deadlinesIcs(result, { name = "State residency day counter" } = {}) {
+  const esc = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  const compact = (n) => dayIso(n).replace(/-/g, "");
+  const events = result.states
+    .filter((s) => s.rule && s.triggerDate !== null && s.triggerDate !== undefined && s.status !== "over")
+    .map((s) => ({ s, last: s.triggerDate - 1 }))
+    .filter((e) => e.last >= 0);
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", `PRODID:-//${esc(name)}//EN`, "CALSCALE:GREGORIAN"];
+  for (const { s, last } of events) {
+    lines.push(
+      "BEGIN:VEVENT",
+      `UID:${result.year}-${s.code}-last-safe-day@state-residency-day-counter`,
+      `DTSTAMP:${compact(last)}T000000Z`,
+      `DTSTART;VALUE=DATE:${compact(last)}`,
+      `DTEND;VALUE=DATE:${compact(last + 1)}`,
+      `SUMMARY:${esc(`Last safe day in ${s.name} (${s.rule.limit}-day limit)`)}`,
+      `DESCRIPTION:${esc(`If you are in ${s.name} every day from your as-of date, ${dayIso(s.triggerDate)} would be day ${s.rule.limit + 1} and cross the commonly published ${s.rule.limit}-day test. Counted ${s.days} days so far. A planning aid, not a determination of residency.`)}`,
+      "END:VEVENT",
+    );
+  }
+  lines.push("END:VCALENDAR");
+  return { ics: lines.join("\r\n") + "\r\n", count: events.length };
+}
+
 // ---- output ------------------------------------------------------------------
 
 export function fmtNum(n, digits = 0) {
