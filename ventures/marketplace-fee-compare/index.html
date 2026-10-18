@@ -276,6 +276,19 @@
       </details>
 
       <details>
+        <summary>Advertising you pay on each channel (optional)</summary>
+        <p class="fine">
+          Fees are not the whole cost of a sale: Etsy Offsite Ads (12–15% when
+          they fire), eBay Promoted Listings, and Amazon or Walmart sponsored
+          products all come off the same order. Enter what you actually pay,
+          as a percentage of sales, on the channels where you advertise. Blank
+          means none, and it is blank by default because the spend differs by
+          seller far more than any fee does.
+        </p>
+        <div id="adRates" class="fields"></div>
+      </details>
+
+      <details>
         <summary>What each channel's number leaves out</summary>
         <ul id="notCovered" class="fine"></ul>
         <p class="fine" id="excluded"></p>
@@ -411,6 +424,14 @@
              placeholder="default">
     </div>`).join("");
 
+  el("adRates").innerHTML = CHANNELS.map((channel) => `
+    <div>
+      <label for="ad-${escapeHtml(channel.id)}">${escapeHtml(channel.label)}
+        <span class="hint">advertising, % of sales</span></label>
+      <input id="ad-${escapeHtml(channel.id)}" type="number" min="0" max="99.9" step="0.1"
+             placeholder="0">
+    </div>`).join("");
+
   // The two pointer lists, rebuilt on every render for the same reason the
   // "continue with these numbers" list is.
   //
@@ -466,6 +487,10 @@
     return Object.fromEntries(CHANNELS.map((channel) => [channel.id, el(`rate-${channel.id}`).value]));
   }
 
+  function readAdRates() {
+    return Object.fromEntries(CHANNELS.map((channel) => [channel.id, el(`ad-${channel.id}`).value]));
+  }
+
   // A shared link only ever fills in fields it carries and leaves every other
   // field at the page's own default, so an old link missing a field this page
   // has since added degrades to "use the default" rather than to a blank or a
@@ -478,6 +503,9 @@
     for (const [id, value] of Object.entries(shared.overrides)) {
       if (el(`rate-${id}`)) el(`rate-${id}`).value = value;
     }
+    for (const [id, value] of Object.entries(shared.adRates ?? {})) {
+      if (el(`ad-${id}`)) el(`ad-${id}`).value = value;
+    }
   }
 
   let lastRun = null;
@@ -487,7 +515,7 @@
     let rows;
     try {
       item = loadItem(readItem());
-      rows = compareChannels(item, readOverrides());
+      rows = compareChannels(item, readOverrides(), readAdRates());
     } catch (error) {
       el("errors").textContent = error.message;
       el("resultSection").classList.add("hidden");
@@ -509,7 +537,7 @@
       return `<tr class="${index === 0 ? "best" : ""}">
         <th scope="row">${escapeHtml(row.label)}${row.demandIncluded ? "" : '<span class="row-note"><br>you bring the buyer</span>'}</th>
         <td>${row.percentRate}%<span class="row-note"><br>${escapeHtml(row.rateLabel)}</span></td>
-        <td>${money(row.channelFees)}${subscription}</td>
+        <td>${money(row.channelFees)}${row.adFee > 0 ? `<span class="row-note"><br>includes ${money(row.adFee)} advertising (${row.adPercent}%)</span>` : ""}${subscription}</td>
         <td class="${row.profit >= 0 ? "profit-good" : "profit-bad"}">${money(row.profit)}</td>
         <td>${row.margin.toFixed(1)}%</td>
         <td>${money(row.breakEvenPrice)}</td>
@@ -615,6 +643,7 @@
   }
   for (const channel of CHANNELS) {
     el(`rate-${channel.id}`).addEventListener("input", onInput);
+    el(`ad-${channel.id}`).addEventListener("input", onInput);
   }
 
   // Whether anyone actually follows the handoff is the one thing worth
@@ -662,7 +691,7 @@
   });
 
   el("copyShare").addEventListener("click", async () => {
-    const hash = encodeShare(readItem(), readOverrides());
+    const hash = encodeShare(readItem(), readOverrides(), readAdRates());
     const url = `${location.origin}${location.pathname}#${hash}`;
     try {
       await navigator.clipboard.writeText(url);

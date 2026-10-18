@@ -36,11 +36,14 @@ function pick(object, keys) {
 /**
  * @param {object} item - the raw form values (strings), same shape `readItem()` builds.
  * @param {object} overrides - `{ [channelId]: rateString }`, same shape `readOverrides()` builds.
+ * @param {object} adRates - `{ [channelId]: adPercentString }`, same shape `readAdRates()` builds.
  */
-export function encodeShare(item, overrides = {}) {
+export function encodeShare(item, overrides = {}, adRates = {}) {
   const payload = { item: pick(item || {}, ITEM_FIELDS) };
   const rates = pick(overrides || {}, CHANNEL_IDS);
   if (Object.keys(rates).length > 0) payload.overrides = rates;
+  const ads = pick(adRates || {}, CHANNEL_IDS);
+  if (Object.keys(ads).length > 0) payload.adRates = ads;
   return encodeURIComponent(JSON.stringify(payload));
 }
 
@@ -62,6 +65,7 @@ export function decodeShare(fragment) {
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
   const item = pick(parsed.item ?? {}, ITEM_FIELDS);
   const overrides = pick(parsed.overrides ?? {}, CHANNEL_IDS);
-  if (Object.keys(item).length === 0 && Object.keys(overrides).length === 0) return null;
-  return { item, overrides };
+  const adRates = pick(parsed.adRates ?? {}, CHANNEL_IDS);
+  if (Object.keys(item).length === 0 && Object.keys(overrides).length === 0 && Object.keys(adRates).length === 0) return null;
+  return { item, overrides, adRates };
 }
