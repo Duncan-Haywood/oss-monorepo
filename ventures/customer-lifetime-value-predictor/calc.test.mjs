@@ -169,3 +169,20 @@ test("sample data parses and analyzes end to end", () => {
   assert.ok(r.backtest);
   assert.ok(r.findings.length >= 2);
 });
+
+test("paybackCurve: month-by-month return on an acquisition cost", async () => {
+  const { paybackCurve } = await import("./calc.mjs");
+  const res = analyze(simulateOrders({ n: 1200, seed: 2 }), { horizonMonths: 12, margin: 0.5, annualDiscount: 0.1 });
+  const pb = paybackCurve(res, 20);
+  // the curve at the horizon is the new-customer value shown elsewhere
+  near(pb.ltv, res.newCustomer.value, 1e-6);
+  near(pb.ltvToCac, res.newCustomer.value / 20, 1e-9);
+  near(pb.maxCacForTarget * pb.target, pb.ltv, 1e-9);
+  for (let i = 1; i < pb.months.length; i++) assert.ok(pb.months[i].cumulative >= pb.months[i - 1].cumulative);
+  // a cost under the first order's margin pays back immediately; an absurd one never does
+  assert.equal(paybackCurve(res, res.newCustomer.firstOrder * 0.5 * 0.9).paybackMonth, 0);
+  assert.equal(paybackCurve(res, 1e9).paybackMonth, null);
+  const mid = paybackCurve(res, res.newCustomer.value * 0.9).paybackMonth;
+  assert.ok(mid > 0 && mid <= 12);
+  assert.match(paybackCurve(res, 0).error, /above zero/);
+});

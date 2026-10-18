@@ -15,7 +15,7 @@
 
 import { readFile } from "node:fs/promises";
 import process from "node:process";
-import { parseOrders, analyze, reportCsv, sampleText, money, pct, dayToIso } from "./calc.mjs";
+import { parseOrders, analyze, paybackCurve, reportCsv, sampleText, money, pct, dayToIso } from "./calc.mjs";
 
 const USAGE = `Predicted customer lifetime value from an order export (customer, date, amount).
 
@@ -26,6 +26,8 @@ Options:
   --horizon <months>   value horizon, 1 to 60 (default 12)
   --margin <pct>       gross margin applied to revenue, 1 to 100 (default 100)
   --discount <pct>     annual discount rate, 0 to 99 (default 10)
+  --cac <amount>       what you pay to acquire a customer: adds payback month and
+                       the value-to-cost ratio for a new customer
   --top <n>            customers to list in the text report (default 10)
   --segment <name>     keep only one segment: "Top 20% value", "Active",
                        "At risk, high spend" or "Likely lost" (--csv and --json too)
@@ -42,7 +44,7 @@ repeat buyers. Estimates, not financial advice.
 const SEGMENTS = ["Top 20% value", "Active", "At risk, high spend", "Likely lost"];
 
 export function parseArgs(argv) {
-  const opts = { file: null, horizon: 12, margin: 100, discount: 10, top: 10, segment: null, csv: false, json: false, example: false, help: false };
+  const opts = { file: null, horizon: 12, margin: 100, discount: 10, top: 10, cac: null, segment: null, csv: false, json: false, example: false, help: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "-h" || arg === "--help") opts.help = true;
@@ -54,7 +56,7 @@ export function parseArgs(argv) {
       const match = SEGMENTS.find((s) => s.toLowerCase() === String(v ?? "").toLowerCase());
       if (!match) throw new Error(`--segment must be one of: ${SEGMENTS.join("; ")}`);
       opts.segment = match;
-    } else if (arg === "--horizon" || arg === "--margin" || arg === "--discount" || arg === "--top") {
+    } else if (arg === "--horizon" || arg === "--margin" || arg === "--discount" || arg === "--top" || arg === "--cac") {
       const v = Number(argv[++i]);
       if (!Number.isFinite(v) || v < 0) throw new Error(`${arg} needs a non-negative number`);
       opts[arg.slice(2)] = arg === "--top" ? Math.max(1, Math.floor(v)) : v;
@@ -90,6 +92,10 @@ export function render(res, parsed, opts = {}) {
   out.push(`  Top 20% share       ${pct(s.topShare, 0)} of predicted value`);
   out.push(`  Still active        about ${Math.round(s.expectedActive)} of ${s.customers} customers`);
   out.push(`  New customer        ${money(res.newCustomer.value)} over ${s.horizonMonths} months: the ceiling on what to pay to acquire one`, "");
+  if (opts.cac > 0) {
+    const pb = paybackCurve(res, opts.cac);
+    out.push(`  Acquisition         ${money(pb.cac)} paid pays back ${pb.verdict}; ${pb.ltvToCac.toFixed(1)}:1 over ${pb.horizonMonths} months; up to ${money(pb.maxCacForTarget)} for ${pb.target}:1`, "");
+  }
   out.push("Segments", "-".repeat(64));
   for (const name of SEGMENTS) {
     const g = res.segments[name];

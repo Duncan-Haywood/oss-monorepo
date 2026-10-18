@@ -22,6 +22,7 @@ and know what a new customer is worth before you buy one**.
 - Value: monthly expected purchases x predicted order value x margin, discounted. Horizon 6 to 36 months.
 - Back-test: refit on data ending 8 to 26 weeks before the last order, predict those weeks, compare, total and by
   repeat-count bucket.
+- Acquisition payback (`paybackCurve`, `--cac` in the CLI, an optional box on the page): type what you pay to win a customer and it shows the month the new-customer running total passes it, the value-to-cost ratio over your horizon, and the most you can pay for a 3:1 return.
 - Checked in unit tests by parameter recovery on simulated data, prediction against a simulated holdout (0.2% off
   with true parameters), and closed-form identities for the special functions.
 
