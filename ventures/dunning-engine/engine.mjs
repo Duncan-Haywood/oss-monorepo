@@ -22,6 +22,18 @@ function closeCase(state, c, outcome, now) {
   } else if (outcome === "lost") state.stats.lost += 1;
 }
 
+// Operator action: stop chasing one invoice (customer phoned, goodwill, dispute).
+// The case stays on record as "stopped" and later failures of the same invoice
+// do not restart it. It is not counted as recovered or lost.
+export function stopCase(state, invoiceId, now) {
+  const c = state.cases[invoiceId];
+  if (!c) return { error: "no such case", code: 404 };
+  if (c.status !== "open") return { error: `case is already ${c.status}`, code: 409 };
+  closeCase(state, c, "stopped", now);
+  c.log.push(`${new Date(now).toISOString()} stopped by operator`);
+  return { stopped: invoiceId };
+}
+
 // Feed one verified Stripe event in. `declineCode` is resolved by the caller
 // (it needs an API call) and only used for payment_failed.
 export function applyEvent(state, event, { now, policy, declineCode, holdoutPct = 0 }) {
@@ -34,6 +46,7 @@ export function applyEvent(state, event, { now, policy, declineCode, holdoutPct 
       if (!obj.id) return { ignored: "no invoice id" };
       if (obj.paid || obj.status === "paid") return { ignored: "already paid" };
       const existing = state.cases[obj.id];
+      if (existing && existing.status === "stopped") return { ignored: "stopped by operator" };
       if (existing && existing.status === "open") {
         existing.attempts = obj.attempt_count ?? existing.attempts + 1;
         existing.lastDecline = declineCode || existing.lastDecline;
