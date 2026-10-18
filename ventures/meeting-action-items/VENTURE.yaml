@@ -1,0 +1,58 @@
+name: meeting-action-items
+description: >-
+  Free meeting notes to action items. Paste notes or a transcript and get who
+  committed to what and by when, decisions, open questions, a follow-up email
+  grouped by person, CSV and a calendar file. Items nobody owns are flagged, not
+  guessed. Runs in the browser, nothing is uploaded; zero-dependency CLI whose
+  exit code fails while an action has no owner.
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-10-19. duplicate_check.py: nothing near the line (closest
+# llm-spend-guard 0.19, unrelated). Paid alternatives: Otter, Fireflies, Fathom
+# (recording bots, audio on their servers, paid beyond free minutes). Angle: a
+# private, rules-based extractor for notes people already have, that refuses to
+# guess an owner.
+# Distribution: searches such as "meeting notes to action items", "action item
+# extractor", "meeting follow-up email template", "how to write action items".
+# Volume not measured. The CLI exit code is a hook for teams that want "every
+# action has an owner" as a check.
+# Liability boundary: pattern matching on text the user pastes; no recording, no
+# fetching, no storage, no accounts. Not a record of what anyone agreed.
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# paid or bring-your-own-key tier could add an LLM pass for messy transcripts
+# (platform/llm/byok.mjs), shared action boards and Slack/Notion export; not built.
+
+hypotheses:
+  - claim: >-
+      People who already take rough notes in meetings will paste them into a
+      private extractor and send the follow-up email it drafts, because
+      writing the who-does-what-by-when list is the step they skip.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Teams will run cli.mjs on notes files so a meeting with an unowned action
+      item fails a check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/meeting-action-items/
+  analytics: null

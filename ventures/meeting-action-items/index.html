@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Meeting Notes to Action Items Extractor (Free)</title>
+  <meta name="description" content="Paste meeting notes or a transcript and get action items with owner and due date, decisions and open questions, plus a follow-up email. Free, private, no upload.">
+  <meta property="og:title" content="Turn meeting notes into owned, dated action items">
+  <meta property="og:description" content="Private, no-signup extractor: who does what by when, decisions, open questions, follow-up email, CSV and calendar file.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Meeting Action Items", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste meeting notes or a transcript and get action items with owners and due dates, decisions, open questions, a follow-up email, CSV and calendar file. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I turn meeting notes into action items for free without uploading them?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Paste the notes or transcript and the tool finds who committed to what, with due dates, decisions and open questions. It runs in your browser and makes no network calls, so a confidential call never leaves your device."}}, {"@type": "Question", "name": "How does it decide who owns an action item?", "acceptedAnswer": {"@type": "Answer", "text": "From the words: a named person with will or to (\"Cleo will book the venue\"), a speaker saying I'll, a request to a named person (\"John, can you check the contract?\"), or an explicit ACTION line with a name. If nobody is named it says so and lists the item under needs an owner instead of guessing."}}, {"@type": "Question", "name": "How are dates like \"by Friday\" or \"next week\" worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Against the meeting date you enter. A bare weekday means the next one after the meeting, \"next Friday\" means Friday of next week, \"end of the week\" is Friday, and \"in 2 weeks\" is fourteen days on. Without a meeting date it leaves the phrase as written and tells you."}}, {"@type": "Question", "name": "Is this as good as an AI note-taker like Otter or Fireflies?", "acceptedAnswer": {"@type": "Answer", "text": "No, and it does not try to be. Those record and transcribe the call. This starts from notes or a transcript you already have and uses fixed rules you can read, so it misses a commitment phrased in an unusual way. It never invents one, and it costs nothing."}}, {"@type": "Question", "name": "What can I export?", "acceptedAnswer": {"@type": "Answer", "text": "A markdown checklist, a CSV, a follow-up email grouped by person, and a calendar file with all-day entries for every dated item. The command-line version can fail a CI step while any item still has no owner."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 110px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 9px 11px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px ui-monospace, monospace; margin-bottom: 6px; }
+    label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 5px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .verdict { font-size: 1.3rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    .urlrow { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-size: .88rem; margin-bottom: 4px; }
+    .urlrow code { overflow-wrap: anywhere; word-break: break-word; }
+    .urlrow .tag { color: #55606f; font-size: .78rem; white-space: nowrap; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.critical { background: #fde8e8; color: #9a3412; }
+    .pill.warning { background: #fff4d6; color: #7a5b00; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    .pill.pass { background: #dcefe4; color: #14532d; }
+    .finding { border-bottom: 1px solid #e6eaf0; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 6px 0 4px; }
+    .finding .fix { font-size: .88rem; color: #17324a; background: #f7f9fb; border-left: 3px solid #17604a; padding: 8px 10px; border-radius: 0 6px 6px 0; margin-top: 8px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; font-size: .9rem; font-weight: 600; color: #17324a; }
+    .own-miss { color: #9a3412; font-weight: 600; }
+    input[type=date] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px system-ui; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .row { grid-template-columns: 1fr; } body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MEETING ACTION ITEMS · RUNS IN YOUR BROWSER</p>
+    <h1>Turn meeting notes into action items with an owner and a date</h1>
+    <p>Paste your notes or a transcript. You get who agreed to do what and by when, the decisions made, the questions still open, and a follow-up email grouped by person. Anything nobody owns is flagged, not guessed.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this page makes no network calls.</p>
+  </header>
+  <section class="card">
+    <h2>1. Paste the notes</h2>
+    <label for="notes">Meeting notes or transcript</label>
+    <textarea id="notes" style="min-height:220px" spellcheck="false" placeholder="Ben: I'll fix the Safari toggle by Wednesday.&#10;Cleo will book the venue next Friday.&#10;ACTION: Ana to draft the launch email by Nov 3"></textarea>
+    <div class="row">
+      <div><label for="date">Meeting date (to turn &ldquo;by Friday&rdquo; into a date)</label><input id="date" type="date"></div>
+      <div><label for="people">People in the meeting (optional, comma separated)</label><input id="people" type="text" placeholder="Ana, Ben, Cleo, Dev"></div>
+    </div>
+    <p>
+      <button type="button" id="run">Find the action items</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste notes above and click the button.</p>
+  </section>
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap"><table id="actions"><thead><tr><th>Owner</th><th>Action</th><th>Due</th><th>Sure?</th></tr></thead><tbody></tbody></table></div>
+    <div id="decisions"></div>
+    <div id="questions"></div>
+    <h3>Take it with you</h3>
+    <button type="button" class="secondary" id="copy-email">Copy follow-up email</button>
+    <button type="button" class="secondary" id="dl-md">Download checklist (.md)</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="dl-ics">Download calendar (.ics)</button>
+    <p class="note" id="export-status" role="status"></p>
+    <details><summary>Preview the follow-up email</summary><pre class="cmd" id="email"></pre></details>
+  </section>
+  <section class="card">
+    <h2>What you use today, and what this does differently</h2>
+    <p class="note"><strong>Recording note-takers</strong> (Otter, Fireflies, Fathom and similar) join your call, transcribe it and send the audio to their servers, usually on a paid plan once the free minutes run out. <strong>Doing it by hand</strong> is free but is the step people skip. This tool works from notes or a transcript you already have, applies fixed rules you can read, runs offline in your browser, and flags the items that have no owner instead of guessing.</p>
+  </section>
+  <section class="card">
+    <h2>Run it from the command line</h2>
+    <p class="note">Zero dependencies, Node 18+.</p>
+    <pre class="cmd">node cli.mjs notes.txt --date 2026-10-19 --attendees "Ana,Ben,Cleo" --format email
+node cli.mjs notes.txt --date 2026-10-19 --format csv</pre>
+    <p class="note">The exit code is 1 while any action item has no owner, so a team can make "every action has an owner" a check.</p>
+  </section>
+  <section class="card">
+    <h2>Questions people actually ask</h2>
+    <h3>Can I turn meeting notes into action items for free without uploading them?</h3>
+    <p>Yes. Paste the notes or transcript and the tool finds who committed to what, with due dates, decisions and open questions. It runs in your browser and makes no network calls, so a confidential call never leaves your device.</p>
+    <h3>How does it decide who owns an action item?</h3>
+    <p>From the words: a named person with will or to ("Cleo will book the venue"), a speaker saying I'll, a request to a named person ("John, can you check the contract?"), or an explicit ACTION line with a name. If nobody is named it says so and lists the item under needs an owner instead of guessing.</p>
+    <h3>How are dates like "by Friday" or "next week" worked out?</h3>
+    <p>Against the meeting date you enter. A bare weekday means the next one after the meeting, "next Friday" means Friday of next week, "end of the week" is Friday, and "in 2 weeks" is fourteen days on. Without a meeting date it leaves the phrase as written and tells you.</p>
+    <h3>Is this as good as an AI note-taker like Otter or Fireflies?</h3>
+    <p>No, and it does not try to be. Those record and transcribe the call. This starts from notes or a transcript you already have and uses fixed rules you can read, so it misses a commitment phrased in an unusual way. It never invents one, and it costs nothing.</p>
+    <h3>What can I export?</h3>
+    <p>A markdown checklist, a CSV, a follow-up email grouped by person, and a calendar file with all-day entries for every dated item. The command-line version can fail a CI step while any item still has no owner.</p>
+    <p class="note">Longer version: <a href="how-to-write-meeting-action-items.html">how to write meeting action items that get done</a>.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reads patterns in text, so it can miss or misread a commitment, and it is not a record of what anyone agreed to. <strong>You are responsible for reviewing and verifying its output before you send or rely on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="extract.mjs" rel="noopener">extract.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the page makes no network calls. Anonymous feature events (<code>extract_run</code>, <code>export_used</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { extract, actionsCsv, actionsMarkdown, actionsIcs, followUpEmail, SAMPLE } from "./extract.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+    let last = null;
+    function run() {
+      const people = $("people").value.split(",").map((x) => x.trim()).filter(Boolean);
+      const r = extract($("notes").value, { date: $("date").value || null, attendees: people });
+      const status = $("status");
+      if (!r.ok) { $("results").hidden = true; last = null; status.textContent = r.error; status.className = "error"; return; }
+      last = r;
+      record("extract_run");
+      $("results").hidden = false;
+      const c = r.counts;
+      const v = $("verdict");
+      v.textContent = c.actions ? `${c.actions} action item${c.actions === 1 ? "" : "s"}, ${c.unowned} without an owner, ${c.undated} without a date` : "No action items found";
+      v.className = c.unowned ? "verdict risk" : "verdict";
+      const tb = $("actions").querySelector("tbody");
+      tb.replaceChildren();
+      for (const a of r.actions) {
+        const tr = el("tr");
+        tr.appendChild(a.owner ? el("td", null, a.owner) : el("td", "own-miss", "needs an owner"));
+        const t = el("td", null, a.task);
+        if (a.note) t.appendChild(el("div", "note", a.note));
+        tr.appendChild(t);
+        tr.appendChild(el("td", null, a.due || a.dueText || "none given"));
+        tr.appendChild(el("td", null, a.confidence));
+        tb.appendChild(tr);
+      }
+      const list = (id, title, items) => {
+        const box = $(id); box.replaceChildren();
+        if (!items.length) return;
+        box.appendChild(el("h3", null, title));
+        const ul = el("ul"); for (const i of items) ul.appendChild(el("li", null, i.text)); box.appendChild(ul);
+      };
+      list("decisions", "Decisions", r.decisions);
+      list("questions", "Open questions", r.questions);
+      $("email").textContent = followUpEmail(r);
+      status.textContent = r.date ? "Dates are worked out from the meeting date. Check each row against your notes." : "No meeting date given, so relative dates (Friday, next week) are left as written.";
+      status.className = "note";
+    }
+    const save = (name, type, body) => {
+      const a = el("a"); a.href = URL.createObjectURL(new Blob([body], { type })); a.download = name; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("export_used");
+    };
+    $("run").addEventListener("click", run);
+    $("load-example").addEventListener("click", () => { $("notes").value = SAMPLE; $("date").value = "2026-10-19"; $("people").value = "Ana, Ben, Cleo, Dev"; record("example_loaded"); run(); });
+    $("clear").addEventListener("click", () => { $("notes").value = ""; $("results").hidden = true; last = null; $("status").textContent = "Paste notes above and click the button."; $("status").className = "note"; });
+    $("dl-md").addEventListener("click", () => last && save("action-items.md", "text/markdown", actionsMarkdown(last)));
+    $("dl-csv").addEventListener("click", () => last && save("action-items.csv", "text/csv", actionsCsv(last)));
+    $("dl-ics").addEventListener("click", () => last && save("action-items.ics", "text/calendar", actionsIcs(last)));
+    $("copy-email").addEventListener("click", async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText(followUpEmail(last)); $("export-status").textContent = "Copied."; record("export_used"); }
+      catch { $("export-status").textContent = "Could not copy here: open the preview below and copy it by hand."; }
+    });
+    const optout = $("optout");
+    const paint = () => { optout.textContent = usageOptedOut() ? "Usage counting is off — turn it back on" : "Turn usage counting off"; };
+    optout.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+    paint();
+  </script>
+</body>
+</html>
