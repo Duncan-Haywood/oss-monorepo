@@ -591,7 +591,7 @@ test('the itemised calculators are offered the control once they declare their r
 // flipping a comparison in them passed every test. This runs the emitted module
 // itself in a `vm` with the smallest document it needs.
 
-function runLinkModule(hash, formIds, { storage = {} } = {}) {
+function runLinkModule(hash, formIds, { storage = {}, repeatPrefix = '' } = {}) {
   const note = { textContent: '', hidden: true, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; },
     removeAttribute(k) { delete this.attrs[k]; } };
   const nodes = formIds.map((id) => ({
@@ -601,7 +601,13 @@ function runLinkModule(hash, formIds, { storage = {} } = {}) {
   const document = {
     querySelector: () => null,
     getElementById: (id) => (id === 'pf-link-note' ? note : null),
-    querySelectorAll: (sel) => (sel.startsWith('input[id]') ? nodes : []),
+    querySelectorAll: (sel) => {
+      if (sel.startsWith('input[id]')) return nodes;
+      if (repeatPrefix && sel.includes('data-pf-repeat')) {
+        return [{ getAttribute: () => repeatPrefix, click() {} }];
+      }
+      return [];
+    },
   };
   const store = { ...storage };
   const context = {
@@ -642,6 +648,16 @@ test('the page script names both kinds of mismatch together', () => {
   const { note } = runLinkModule(hash, ['a', 'c']);
   assert.match(note.textContent,
     /carries 1 this form does not have, and 1 this form has that the link never priced, so/);
+});
+
+test('a refusal says to reload only on a page with generated rows, else to ask the sender', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1', b: '2' } });
+  const plain = runLinkModule(hash, ['a']);
+  assert.match(plain.note.textContent, /ask whoever sent it for the tool they used, because/);
+  assert.doesNotMatch(plain.note.textContent, /reload this page/);
+  const rows = runLinkModule(hash, ['a'], { repeatPrefix: 'zzrow' });
+  assert.match(rows.note.textContent, /reload this page and open the link again before adding rows of your own, because/);
+  assert.doesNotMatch(rows.note.textContent, /ask whoever/);
 });
 
 test('a refused link counts once in the usage counter', () => {
