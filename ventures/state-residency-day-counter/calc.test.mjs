@@ -101,13 +101,13 @@ test("the limit is 'more than 183 days' and needs an abode", () => {
 });
 
 test("a user override changes the limit; a state with no rule is just counted", () => {
-  const r = analyze(spec(["2025-01-01 to 2025-02-10 OH", "2025-03-01 to 2025-03-10 TX"], { overrides: { OH: { limit: 30 } } }));
-  assert.equal(by(r, "OH").days, 41);
-  assert.equal(by(r, "OH").status, "over");
+  const r = analyze(spec(["2025-01-01 to 2025-02-10 WI", "2025-03-01 to 2025-03-10 TX"], { overrides: { WI: { limit: 30 } } }));
+  assert.equal(by(r, "WI").days, 41);
+  assert.equal(by(r, "WI").status, "over");
   assert.equal(by(r, "TX").status, "no-wage-tax");
-  const g = analyze(spec(["2025-01-01 to 2025-02-10 OH"]));
-  assert.equal(by(g, "OH").status, "none");
-  assert.equal(by(g, "OH").rule, null);
+  const g = analyze(spec(["2025-01-01 to 2025-02-10 WI"]));
+  assert.equal(by(g, "WI").status, "none");
+  assert.equal(by(g, "WI").rule, null);
 });
 
 test("trigger date is the first day the limit would be crossed if present every day from tomorrow", () => {
@@ -508,6 +508,22 @@ test("Hawaii 200-day presumption", () => {
   assert.equal(RULES.HI.limit, 200);
   assert.equal(RULES.HI.kind, "presumption");
   assert.equal(RULES.HI.requiresAbode, false);
+});
+
+test("Ohio 212 contact-period safe harbor is a presumption that needs no Ohio abode", () => {
+  assert.equal(RULES.OH.limit, 212);
+  assert.equal(RULES.OH.kind, "presumption");
+  assert.equal(RULES.OH.requiresAbode, false);
+  assert.match(RULES.OH.note, /contact period/);
+});
+
+test("Ohio: 212 days is inside the safe harbor and 213 crosses it", () => {
+  for (const [days, over] of [[212, false], [213, true]]) {
+    const end = dayIso(toDay(Y, 1, 1) + days - 1);
+    const oh = by(analyze(spec([`OH ${Y}-01-01 to ${end}`], { homeState: "FL" })), "OH");
+    assert.equal(oh.days, days);
+    assert.equal(oh.status === "over", over, `${days} days`);
+  }
 });
 
 test("Nebraska six-month test needs an abode and crosses at 183 days", () => {
