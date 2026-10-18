@@ -477,3 +477,9 @@ test("Iowa and DC day tests", () => {
   assert.equal(RULES.DC.requiresAbode, true);
   assert.equal(RULES.DC.kind, "statutory");
 });
+
+test("West Virginia: more than 183 days with a permanent place of abode", () => {
+  assert.equal(RULES.WV.limit, 183);
+  assert.equal(RULES.WV.requiresAbode, true);
+  assert.equal(RULES.WV.kind, "statutory");
+});

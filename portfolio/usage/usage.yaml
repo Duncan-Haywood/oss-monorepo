@@ -7009,6 +7009,22 @@ products:
           sellers who only knew the old flat 9% use the side-by-side view,
           and the `handoff_where_to_sell` count shows whether the item
           travels on to the channel ranking.
+  - slug: tcgplayer-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-10-18
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          schedules_compared: 0
+          numbers_saved: 0
+        note: >-
+          Baseline at publication. The visitor signal is null rather than
+          zero because GitHub Pages exposes no server-side analytics and the
+          local counters are opt-out and never leave the device.
+          `sale_calculated` runs with a quantity above one are not
+          separately counted; `schedules_compared` shows whether sellers
+          weigh a Pro account against the standard rate.
   - slug: salary-range-posting-check
     surface: github-pages
     readings:

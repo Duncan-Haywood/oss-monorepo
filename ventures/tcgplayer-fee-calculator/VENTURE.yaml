@@ -1,0 +1,32 @@
+name: tcgplayer-fee-calculator
+description: A private browser calculator for TCGplayer sellers that prices one marketplace order against the published fee table (10.75% commission on cards plus buyer-paid shipping capped at $75 per product, plus 2.5% of the order total including tax and a flat $0.30 per order), shows profit after postage, card cost and supplies, solves for the card price that hits a target profit, and shows Pro and pre-February-2026 rates side by side. Makes the per-order $0.30 visible by taking a quantity, which is what decides the margin on cheap singles.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Sellers of cheap singles will use a calculator that takes order size, because the flat "TCGplayer takes about 13%" figure hides that a one-card $1 order pays 43% in fees and a 20-card order pays under 15%.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/mtgfinance, TCG seller communities and the searches "tcgplayer fee calculator", "tcgplayer seller fees 2026" and "how much does tcgplayer take" are a reachable, free channel -- measurable only once the tool is live in the apex catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified TCGplayer sellers run a real order twice within 90 days of the tool being discoverable.
+  - A real TCGplayer payout statement disagrees with the calculator's constants (taken from search results relaying the fee table, not a direct read of the help centre) and the schedule is not corrected within a week.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tcgplayer-fee-calculator/
+  analytics: null

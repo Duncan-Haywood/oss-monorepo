@@ -396,12 +396,39 @@ export function yearOf(iso) {
   return Number(iso.slice(0, 4));
 }
 
+// Ordinary income received (staking, mining, airdrops, rewards) in a tax year, by coin and
+// by month, valued at the USD amounts the user entered. Each row is also a lot, so the
+// same figures are the basis of the coins when they are later sold.
+export function incomeReport(txs, year = null) {
+  const rows = txs.filter((t) => t.kind === "income" && (year === null || yearOf(t.date) === year));
+  const byAsset = new Map(), byMonth = new Map();
+  for (const t of rows) {
+    const a = byAsset.get(t.asset) || { asset: t.asset, count: 0, qty: 0, usd: 0, first: t.date, last: t.date };
+    a.count++; a.qty += t.qty; a.usd += t.usd;
+    if (t.date < a.first) a.first = t.date;
+    if (t.date > a.last) a.last = t.date;
+    byAsset.set(t.asset, a);
+    const m = t.date.slice(0, 7);
+    byMonth.set(m, (byMonth.get(m) || 0) + t.usd);
+  }
+  const assets = [...byAsset.values()].map((a) => ({ ...a, qty: Number(a.qty.toFixed(8)), usd: cents(a.usd) })).sort((a, b) => b.usd - a.usd);
+  const months = [...byMonth].map(([month, usd]) => ({ month, usd: cents(usd) })).sort((a, b) => (a.month < b.month ? -1 : 1));
+  return { year, count: rows.length, total: cents(rows.reduce((n, t) => n + t.usd, 0)), assets, months };
+}
+
+export function toIncomeCsv(report) {
+  const lines = [["Asset", "Receipts", "Quantity", "First received", "Last received", "Fair market value (USD)"].join(",")];
+  for (const a of report.assets) lines.push([a.asset, a.count, a.qty, a.first, a.last, a.usd.toFixed(2)].map(q).join(","));
+  lines.push(["Total", report.count, "", "", "", report.total.toFixed(2)].map(q).join(","));
+  return lines.join("\n") + "\n";
+}
+
 export function analyze(text, options = {}) {
   const { method = "FIFO", year = null, perWallet = false, shortRate = 0.24, longRate = 0.15, carryShort = 0, carryLong = 0, lossLimit = 3000 } = options;
   const parsed = parseTransactions(text);
   const result = {
     errors: parsed.errors, skipped: parsed.skipped, warnings: [], years: [], year: null,
-    rows: [], summary: null, tax: null, netting: null, carryChain: [], comparison: [], holdings: [], openLots: [], income: 0, method, count: parsed.transactions.length,
+    rows: [], summary: null, tax: null, netting: null, carryChain: [], comparison: [], holdings: [], openLots: [], income: 0, incomeReport: null, method, count: parsed.transactions.length,
   };
   if (parsed.errors.length && parsed.transactions.length === 0) return result;
   const txs = parsed.transactions;
@@ -465,6 +492,7 @@ export function analyze(text, options = {}) {
     asset: l.asset, wallet: l.wallet, acquired: l.date, qty: Number(l.qty.toFixed(8)), basis: cents((l.basis / l.qtyOriginal) * l.qty),
   }));
   result.income = cents(txs.filter((t) => t.kind === "income" && (chosen === null || yearOf(t.date) === chosen)).reduce((a, t) => a + t.usd, 0));
+  result.incomeReport = incomeReport(txs, chosen);
   return result;
 }
 
@@ -517,6 +545,81 @@ export function harvestPlan(openLots, prices, { asOf, summary = null, shortRate 
     shortLoss, longLoss, taxBefore, taxAfter, taxSaved: cents(taxBefore - taxAfter),
     unusedLoss: cents(Math.max(0, -(base.shortGain + shortLoss + base.longGain + longLoss))),
   };
+}
+
+function addDays(iso, n) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+
+// Wait-for-long-term view: lots you hold at a gain that are still short-term on `asOf` but
+// turn long-term within `windowDays`. A lot is long-term from the day after its first
+// anniversary (holdingTerm). For each: the first long-term sale date, days to wait, the
+// estimated tax saved by selling then instead of on `asOf` at the same price (against the
+// year's result in `summary`), and `breakEvenFall`, how far the lot's value can drop while
+// waiting before waiting leaves you with less cash after tax than selling now. Prices are
+// yours; fees, state tax and the year the sale lands in are not modelled.
+export function waitPlan(openLots, prices, { asOf, windowDays = 90, summary = null, shortRate = 0.24, longRate = 0.15 } = {}) {
+  const base = summary || { shortGain: 0, longGain: 0 };
+  const rates = { shortRate, longRate };
+  const unpriced = new Set();
+  const lots = [];
+  for (const l of openLots) {
+    const price = prices[l.asset];
+    if (!price) { unpriced.add(l.asset); continue; }
+    if (holdingTerm(l.acquired, asOf) !== "Short") continue;
+    const longFrom = addDays(addOneYear(l.acquired), 1);
+    const days = Math.round((Date.parse(longFrom) - Date.parse(asOf)) / 86400000);
+    if (days > windowDays) continue;
+    const value = cents(l.qty * price);
+    const gain = cents(value - l.basis);
+    if (gain <= 0) continue;
+    const taxNow = estimateTax({ shortGain: base.shortGain + gain, longGain: base.longGain }, rates) - estimateTax(base, rates);
+    const taxLater = estimateTax({ shortGain: base.shortGain, longGain: base.longGain + gain }, rates) - estimateTax(base, rates);
+    const taxSaved = cents(taxNow - taxLater);
+    if (taxSaved <= 0) continue;
+    const fall = cents(Math.max(0, gain * (shortRate - longRate) / (1 - longRate)));
+    lots.push({ asset: l.asset, wallet: l.wallet, acquired: l.acquired, qty: l.qty, basis: l.basis, value, gain, longFrom, days, taxSaved, breakEvenFall: fall, breakEvenFallPct: value > 0 ? Number((fall / value * 100).toFixed(1)) : 0 });
+  }
+  lots.sort((a, b) => a.days - b.days || b.taxSaved - a.taxSaved);
+  return { asOf, windowDays, lots, unpriced: [...unpriced].sort(), taxSaved: cents(lots.reduce((a, l) => a + l.taxSaved, 0)) };
+}
+
+// Sell planner: which of the lots you still hold to sell for `asset` at a price you typed,
+// under each method, and what each choice adds to the year's estimated tax. Give `qty`
+// (coins) or `cash` (dollars of proceeds wanted, before the fee). `summary` is the year's
+// realized result so far, so a sale of losing lots can offset it and a sale of gains stacks on it.
+// A request larger than the holding is cut to the holding and flagged, never invented.
+export function planSale(openLots, { asset, price, asOf, qty = null, cash = null, feeRate = 0, summary = null, shortRate = 0.24, longRate = 0.15 }) {
+  const rates = { shortRate, longRate };
+  const base = summary || { shortGain: 0, longGain: 0 };
+  const held = openLots.filter((l) => l.asset === asset && l.qty > EPS)
+    .map((l, i) => ({ date: l.acquired, seq: i, wallet: l.wallet, qty: l.qty, qtyOriginal: l.qty, basis: l.basis }));
+  const heldQty = held.reduce((a, l) => a + l.qty, 0);
+  const wanted = qty !== null ? qty : cash !== null ? cash / (price * (1 - feeRate)) : 0;
+  const target = Math.min(wanted, heldQty);
+  const taxBefore = estimateTax(base, rates);
+  const sale = { date: asOf };
+  const options = METHODS.map((method) => {
+    const lots = held.map((l) => ({ ...l }));
+    let left = target;
+    const taken = [];
+    for (const lot of orderLots(lots, method, sale, price * (1 - feeRate), rates)) {
+      if (left <= EPS) break;
+      const take = Math.min(lot.qty, left);
+      const proceeds = take * price * (1 - feeRate);
+      const basis = (lot.basis / lot.qtyOriginal) * take;
+      taken.push({ wallet: lot.wallet, acquired: lot.date, qty: Number(take.toFixed(8)), proceeds: cents(proceeds), basis: cents(basis), gain: cents(proceeds - basis), term: holdingTerm(lot.date, asOf) });
+      left -= take;
+    }
+    const sum = (term) => cents(taken.filter((t) => t.term === term).reduce((a, t) => a + t.gain, 0));
+    const shortGain = sum("Short"), longGain = sum("Long");
+    const proceeds = cents(taken.reduce((a, t) => a + t.proceeds, 0));
+    const extraTax = cents(estimateTax({ shortGain: base.shortGain + shortGain, longGain: base.longGain + longGain }, rates) - taxBefore);
+    return { method, label: METHOD_LABELS[method], lots: taken, proceeds, basis: cents(taken.reduce((a, t) => a + t.basis, 0)), shortGain, longGain, gain: cents(shortGain + longGain), extraTax, keep: cents(proceeds - extraTax) };
+  });
+  const best = options.reduce((a, b) => (b.extraTax < a.extraTax ? b : a));
+  return { asset, price, asOf, requested: Number(wanted.toFixed(8)), qty: Number(target.toFixed(8)), heldQty: Number(heldQty.toFixed(8)), capped: wanted > heldQty + EPS, taxBefore, options, bestMethod: best.method };
 }
 
 const q = (v) => {

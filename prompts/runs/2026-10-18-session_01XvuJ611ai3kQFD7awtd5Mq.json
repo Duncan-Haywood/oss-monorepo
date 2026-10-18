@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01XvuJ611ai3kQFD7awtd5Mq",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T03:06:52Z",
+  "ended": "2026-10-18T03:18:36Z",
+  "wall_minutes": 11.9,
+  "tokens_in": 3418639,
+  "tokens_out": 25100,
+  "cost_usd": 1.3387,
+  "tool_calls": 35,
+  "task": "osrobot-reconfig (track 9 follow-up)",
+  "projects": [
+    "research/osrobot-reconfig"
+  ],
+  "pr": 7917,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Sub-prompt tells research runs to follow research/CLAUDE.md, whose 'tests' command differs per project; no single check-all command. Minor."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Draw landed on track 9. The osrobot UAV chain had gone to micro-variants, so asked a new question: shared vs dedicated robots across several jobs. A float-noise tie bug in best_option was found by reading the J=1 rows and fixed before the final run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8e116fbc-9e4d-5a22-add7-53b11f75bf16",
+    "transcripts": 1,
+    "first": "2026-10-18T03:06:52Z",
+    "last": "2026-10-18T03:18:46Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 33,
+        "input": 66,
+        "output": 25100,
+        "thinking": 7207,
+        "cache_read": 3312290,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106283,
+        "api_equivalent_usd": 1.3387,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 66,
+      "output": 25100,
+      "thinking": 7207,
+      "cache_read": 3312290,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106283,
+      "api_equivalent_usd": 1.3387,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 30,
+      "mcp__github__list_pull_requests": 2,
+      "Read": 1,
+      "bash": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.9,
+      "active_minutes": 11.9,
+      "model_minutes": 3.11,
+      "tool_minutes": 8.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "model, tests, 5 experiment blocks, README for a PhD-level portfolio project",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 448.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

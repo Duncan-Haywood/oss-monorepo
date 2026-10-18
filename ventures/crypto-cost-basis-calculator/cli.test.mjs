@@ -70,3 +70,11 @@ test("command line: file in, Form 8949 rows out, exit codes", async () => {
   const json = JSON.parse(execFileSync("node", [CLI, "--json", "--example"], { encoding: "utf8" }));
   assert.equal(json.year, 2024);
 });
+
+test("--sell prints a sell plan that agrees with planSale and rejects missing inputs", async () => {
+  const { main, parseArgs } = await import("./cli.mjs");
+  assert.equal(parseArgs(["--sell", "btc", "--price", "9", "--qty", "1", "x.csv"]).sell, "BTC");
+  assert.throws(() => parseArgs(["--price", "0"]), /above zero/);
+  assert.throws(() => parseArgs(["--sale-date", "tomorrow"]), /yyyy-mm-dd/);
+  assert.equal(await main(["--example", "--sell", "BTC"]), 2);
+});
