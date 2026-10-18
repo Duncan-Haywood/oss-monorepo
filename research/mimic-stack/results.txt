@@ -1,0 +1,19 @@
+mimic-stack: held-out-family AUROC of single detectors and stacks (zero-shot subset)
+
+train rows 1200, held rows 720
+
+detector                          AUROC [95% CI]               poetry  reviews     wiki   llama-chat mistral-chat     mpt-chat
+ngram                             0.926 [0.909,0.943]       0.946    0.976    0.892        0.941        0.888        0.955
+-logppl                           0.760 [0.727,0.792]       0.835    0.902    0.805        0.811        0.797        0.590
+-bino                             0.802 [0.772,0.830]       0.717    0.853    0.879        0.869        0.806        0.652
+mean of z (ngram, bino)           0.935 [0.916,0.951]       0.901    0.977    0.935        0.978        0.914        0.877
+stack LR (ngram, bino)            0.923 [0.905,0.941]       0.882    0.968    0.931        0.972        0.906        0.846
+stack LR (ngram, logppl, bino)    0.907 [0.883,0.927]       0.920    0.972    0.930        0.951        0.918        0.797
+
+weights (z-scored ngram, logppl, bino): 1.73, 2.07, 0.86
+weights (z-scored ngram, bino): 1.41, 1.85
+within-class correlation ngram vs bino on held rows: human=-0.02, llm=0.02
+
+AUROC(mean of z (ngram, bino)) - AUROC(ngram): +0.009 [-0.010,+0.026] (paired bootstrap)
+AUROC(stack LR (ngram, bino)) - AUROC(ngram): -0.003 [-0.024,+0.018] (paired bootstrap)
+AUROC(stack LR (ngram, logppl, bino)) - AUROC(ngram): -0.019 [-0.046,+0.008] (paired bootstrap)
