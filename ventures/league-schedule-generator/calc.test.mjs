@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, resultsCheck, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, gamesLeft, scheduleStrength, raceText, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -498,6 +498,42 @@ test("pool advancers seed winners, then runners-up, best record first", () => {
   const A = standings(["a1", "a2", "a3"], [{ a: 0, b: 1, ga: 2, gb: 0 }, { a: 0, b: 2, ga: 1, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 0 }]);
   const B = standings(["b1", "b2", "b3"], [{ a: 0, b: 1, ga: 5, gb: 0 }, { a: 0, b: 2, ga: 5, gb: 0 }, { a: 1, b: 2, ga: 0, gb: 0 }]);
   assert.deepEqual(poolAdvancers([A, B], 2), ["b1", "a1", "a2", "b2"]);
+});
+
+// ---- playoff odds
+test("playoff odds: a finished table gives 1 or 0, race verdicts agree, and chances add up to the number of spots", () => {
+  const teams = ["A", "B", "C", "D"];
+  const res = [[0,1],[0,2],[1,2],[1,3],[2,3],[0,3]].map(([a, b]) => ({ a, b, ga: 1, gb: 0 }));
+  assert.deepEqual(playoffOdds(teams, res, [], 2).map((r) => r.chance), [1, 1, 0, 0]);
+  const rnd = mulberry32(11);
+  for (let trial = 0; trial < 30; trial++) {
+    const n = 3 + Math.floor(rnd() * 4);
+    const fixtures = [];
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) fixtures.push([a, b]);
+    const played = fixtures.filter(() => rnd() < 0.5);
+    const results = played.map(([a, b]) => ({ a, b, ga: Math.floor(rnd() * 3), gb: Math.floor(rnd() * 3) }));
+    const remaining = fixtures.filter((f) => !played.includes(f));
+    const spots = 1 + Math.floor(rnd() * (n - 1));
+    const odds = playoffOdds(names(n), results, remaining, spots, { runs: 500 });
+    assert.ok(Math.abs(odds.reduce((s, r) => s + r.chance, 0) - spots) < 1e-9);
+    const race = playoffRace(names(n), results, remaining, spots);
+    race.forEach((row) => {
+      if (row.status === "clinched") assert.equal(odds[row.index].chance, 1);
+      if (row.status === "eliminated") assert.ok(odds[row.index].chance <= 0.5);
+    });
+    assert.deepEqual(odds, playoffOdds(names(n), results, remaining, spots, { runs: 500 }));
+  }
+});
+
+test("playoff odds: a leader with a points cushion is likelier than a team that has lost every game", () => {
+  const teams = ["Strong", "Mid", "Weak", "Mid2"];
+  const results = [
+    { a: 0, b: 1, ga: 3, gb: 0 }, { a: 0, b: 2, ga: 2, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 0 },
+  ];
+  const remaining = [[0, 3], [1, 3], [2, 3]];
+  const o = playoffOdds(teams, results, remaining, 2);
+  assert.ok(o[0].chance > o[2].chance + 0.3, JSON.stringify(o));
+  assert.ok(o[0].expected > o[2].expected);
 });
 
 // ---- playoff race
