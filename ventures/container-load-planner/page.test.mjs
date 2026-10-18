@@ -177,3 +177,11 @@ test("the guide page carries the clauses, links both ways, and its worked exampl
   assert.ok(floor(121.9, 101.6, "20ft") >= 10);
   assert.ok(floor(121.9, 101.6, "40ft") >= 20);
 });
+
+test("page wires the share link to the encoder and reads it back on load", () => {
+  const html = page("index.html");
+  assert.match(html, /id="share-link"/);
+  assert.match(html, /encodeShare\(/);
+  assert.match(html, /decodeShare\(location\.hash\)/);
+  assert.match(html, /never sent to a server/);
+});

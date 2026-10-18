@@ -456,3 +456,26 @@ test("printable load plan: one section per container, escaped names, disclaimer,
   assert.equal((html.match(/<tr><td>\d+<\/td><td>[AB] ·/g) || []).length, total);
   assert.equal((html.match(/<svg /g) || []).length, 2 * plan.containers.length);
 });
+
+import { encodeShare, decodeShare } from "./calc.mjs";
+
+test("share link round-trips the form, including non-ASCII names", () => {
+  const state = { units: "imperial", preset: "40ft", container: { l: "473", w: "92.5", h: "93.8", payload: "58,000" }, rows: [{ name: "Gläser «A»", l: "24", w: "16", h: "16", weight: "40", qty: "90", rotation: "upright", maxLayers: "", maxTop: "" }, { name: "Tiles", l: "20", w: "20", h: "10", weight: "55", qty: "30", rotation: "fixed", maxLayers: "3", maxTop: "200" }] };
+  const { token, error } = encodeShare(state);
+  assert.ok(!error);
+  assert.match(token, /^[A-Za-z0-9_-]+$/);
+  assert.deepEqual(decodeShare("#plan=" + token), state);
+});
+
+test("share link rejects garbage and falls back on unknown values", () => {
+  for (const t of ["", "not base64!!", "e30", btoa("[1,2]"), btoa(JSON.stringify({ v: 2 }))]) assert.ok(decodeShare(t).error, t);
+  const { token } = encodeShare({ units: "metric", preset: "nope", container: { l: "1", w: "1", h: "1", payload: "1" }, rows: [{ name: "x", l: "1", w: "1", h: "1", weight: "1", qty: "1", rotation: "sideways" }] });
+  const d = decodeShare(token);
+  assert.equal(d.preset, "custom");
+  assert.equal(d.rows[0].rotation, "upright");
+});
+
+test("share link refuses a plan too long for a URL", () => {
+  const rows = Array.from({ length: 40 }, (_, i) => ({ name: "n".repeat(190) + i, l: "1", w: "1", h: "1", weight: "1", qty: "1", rotation: "any" }));
+  assert.ok(encodeShare({ units: "metric", preset: "40hc", container: { l: "1", w: "1", h: "1", payload: "1" }, rows }).error);
+});

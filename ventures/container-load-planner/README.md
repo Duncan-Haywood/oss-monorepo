@@ -19,6 +19,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   the container comparison, view geometry, and an independent `verifyPacking`
   checker.
 - Printable load plan: one self-contained HTML file (no script) with a to-scale top and side SVG per container, the ordered-versus-packed table, the balance check, the loading list and the disclaimer, to print to PDF for the warehouse or the forwarder (`planReportHtml`).
+- Share link: `encodeShare`/`decodeShare` put the whole form in the URL hash (`#plan=...`) so a plan can be sent to a forwarder or colleague; nothing is stored on a server.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-plan-a-container-load.html` - guide with a worked example that the
   test suite recomputes.
