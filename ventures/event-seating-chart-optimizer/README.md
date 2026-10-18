@@ -32,6 +32,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
   recomputed by the test suite.
+- `how-to-handle-late-wedding-rsvps-and-drop-outs.html` - third guide (late RSVPs and drop-outs: a fresh run moves 9 of 22 returning guests, a re-seat moves 1), recomputed by the tests.
 - `how-to-seat-divorced-parents-at-a-wedding.html` - second guide (divorced
   parents, new partners, a never-together pair), also recomputed by the tests.
 

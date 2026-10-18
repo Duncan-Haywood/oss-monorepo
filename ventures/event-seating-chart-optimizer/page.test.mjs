@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { parseGuests, parseRules, sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe } from "./calc.mjs";
+import { parseGuests, parseRules, sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe, reseat, parsePlanCsv, planCsv } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-wedding-seating-chart.html";
@@ -169,3 +169,39 @@ test("the divorced-parents guide is linked, carries the clauses, and its worked 
   assert.equal(res.rulesTotal, 10);
   assert.deepEqual(res.tables.map((t) => t.size), [8, 8, 8]);
 });
+
+test("the late-RSVP guide is linked, carries the clauses, and its worked example matches reseat", () => {
+  const name = "how-to-handle-late-wedding-rsvps-and-drop-outs.html";
+  const guide = page(name);
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /not a guarantee that any guest will be content/i);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(".", "\\.")}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(".", "\\.")}"`));
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(".", "\\.")));
+  const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
+  for (const l of [...guide.matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)].map((m) => m[1])) assert.ok(existsSync(new URL(`../${l}/index.html`, import.meta.url)), l);
+
+  const spec = sampleSpec();
+  const { prev } = parsePlanCsv(planCsv(spec, optimize(spec)));
+  const gone = new Set(["Joy Okafor", "Carlos Mendes"]);
+  const guests = spec.guests.filter((g) => !gone.has(g.name)).concat([{ name: "Hana Ortiz", party: "Ortiz family" }, { name: "Milo Ortiz", party: "Ortiz family" }]);
+  const at = (n) => guests.findIndex((g) => g.name === n);
+  const rules = spec.rules
+    .filter((r) => !gone.has(spec.guests[r.a].name) && !(r.b != null && gone.has(spec.guests[r.b].name)))
+    .map((r) => ({ ...r, a: at(spec.guests[r.a].name), b: r.b == null ? r.b : at(spec.guests[r.b].name) }));
+  const s2 = { ...spec, guests, rules, tableCount: 3 };
+  const fresh = optimize(s2);
+  let freshMoves = 0;
+  guests.forEach((g, i) => { const o = prev.get(g.name.toLowerCase()); if (o !== undefined && fresh.table[i] !== o) freshMoves++; });
+  const res = reseat(s2, prev, "medium");
+  assert.deepEqual(verifyPlan(s2, res), []);
+  assert.equal(res.retained, 22);
+  const row = (label, moved, met, total) => `<tr><td>${label}</td><td class="n">${moved} of 22</td><td class="n">${met} of ${total}</td></tr>`;
+  assert.ok(guide.includes(row("Fresh optimized run", freshMoves, fresh.rulesMet, fresh.rulesTotal)), "fresh row");
+  assert.ok(guide.includes(row("Re-seat (medium stickiness)", res.moved.length, res.rulesMet, res.rulesTotal)), "reseat row");
+  assert.deepEqual(res.tables.map((t) => t.size), [8, 8, 8]);
+  assert.equal(guest_wishes(guide), `${res.rulesTotal + 1}`);
+});
+function guest_wishes(g) { return String(Number(g.match(/with (\d+) wishes/)[1])); }
