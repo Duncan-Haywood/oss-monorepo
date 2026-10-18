@@ -675,8 +675,9 @@ def report(
             "platform/ci/pages_state.py --require-current` to confirm. It needs "
             "no runner, no cluster and no credential beyond the push you "
             "already have. Cloud harnesses may deny that push as a production "
-            "deploy, and the script takes minutes in a shallow clone: if it is "
-            "denied or times out, say so in your reply and carry on with the "
+            "deploy, and the script takes 10+ minutes in a shallow clone: start it "
+            "with `run_in_background` (a foreground call times out). If it is "
+            "denied or fails, say so in your reply and carry on with the "
             "work below instead of retrying. "
             f"Reason: {snap_reason}"
         ] + reasons
