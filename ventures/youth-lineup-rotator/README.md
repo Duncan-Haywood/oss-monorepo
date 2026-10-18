@@ -17,6 +17,7 @@ playing time and the substitutions spelled out. No sign-up, nothing uploaded.
   allowed in goal the page says who must repeat.
 - **Strength balance:** with skills entered, total skill on the field is kept even
   across periods.
+- **League minimum play:** pick "at least half the game", "three quarters" or "every period they are there" and the page flags any child who falls short (a late arrival is only held to the periods they are there for).
 - **Season fairness:** "Copy next game's roster" writes `sat:` for every child who
   sat; pasted into the next game they are first in line to play.
 - **Outputs:** copy as text for the team chat, CSV, a printable sideline sheet, a
@@ -34,7 +35,7 @@ step, no dependencies. `node --test` runs the suite.
 Tests validate every lineup against the hard rules, check fairness on a range of
 roster sizes, and compare the search with an exhaustive search on small teams.
 
-**Not modelled:** minute-level rotations, league minimum-play rules, formations
+**Not modelled:** minute-level rotations, league-specific rule sets (minimum play is checked, not enforced by the search), formations
 that change mid-game. **No warranty.** Free and as-is; not league-rules, safety
 or legal advice.
 

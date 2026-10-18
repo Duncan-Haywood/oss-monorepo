@@ -85,6 +85,10 @@
         <select id="balance"><option value="1" selected>Yes (uses the skill numbers)</option><option value="0">No</option></select>
       </div>
       <div>
+        <label for="minplay">League minimum play</label>
+        <select id="minplay"><option value="0" selected>No rule</option><option value="0.5">At least half the game</option><option value="0.75">At least three quarters</option><option value="1">Every period they are there</option></select>
+      </div>
+      <div>
         <label for="title">Game name (optional)</label>
         <input type="text" id="title" maxlength="80" placeholder="Saturday vs Falcons">
       </div>
@@ -118,7 +122,7 @@
     <p><strong>Fair time.</strong> The planner counts how many periods each child is there for and how many they sit. It then searches thousands of arrangements and keeps the one where bench turns are spread most evenly, counting a child who sat last game as already owed some time on the field.</p>
     <p><strong>Rules that always hold.</strong> Nobody is in two places in one period, nobody plays while absent, and nobody is put in a position you ruled out. Beyond that it prefers, in order: every position filled, equal time, no one benched twice running, one period at most in goal, a change of position, and balanced strength.</p>
     <p><strong>Checked.</strong> The test suite validates every lineup against those rules and compares the search with an exhaustive search of every possible lineup on small teams.</p>
-    <p><strong>Limits.</strong> It plans whole periods, not minute-by-minute rotations. It does not know your league's rules, such as minimum play requirements, so check them yourself. The skill numbers are only the ones you type.</p>
+    <p><strong>Limits.</strong> It plans whole periods, not minute-by-minute rotations. It does not know your league's rules, but you can pick a minimum-play rule (half the game, three quarters, every period) and the page flags any child who falls short. Check the rule itself with your league. The skill numbers are only the ones you type.</p>
   </section>
 
   <section class="card">
@@ -149,7 +153,7 @@
   </footer>
 
   <script type="module">
-    import { PRESETS, EXAMPLE, parseSlots, parsePlayers, buildLineup, periodTable, lineupText, lineupCsv, carryOverText, playerMessages, encodeSetup, decodeSetup } from "./calc.mjs";
+    import { PRESETS, EXAMPLE, parseSlots, parsePlayers, buildLineup, minPlayCheck, minPlayWarning, periodTable, lineupText, lineupCsv, carryOverText, playerMessages, encodeSetup, decodeSetup } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -186,7 +190,9 @@
       const minutes = Math.max(0, Number($("#minutes").value) || 0);
       $("#out").hidden = false;
       $("#out-title").textContent = $("#title").value.trim() || "Lineup";
-      $("#warnings").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const mp = Number($("#minplay").value);
+      const mpWarn = minPlayWarning(minPlayCheck(r, mp), mp);
+      $("#warnings").innerHTML = (mpWarn ? [...r.warnings, mpWarn] : r.warnings).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const tables = periodTable(r);
       $("#periods-out").innerHTML = tables.map((cells, t) => {
         const bench = r.stats.filter((s) => s.slots[t] === "bench").map((s) => s.name);
@@ -225,7 +231,7 @@
     $("#copy-msgs").addEventListener("click", () => { if (!current) return; record("messages_copied"); copy(playerMessages(current.result, { minutes: Number($("#minutes").value) || 0 }).join("\n"), "Copied one note per family."); });
     $("#copy-next").addEventListener("click", () => { if (!current) return; record("roster_carried"); copy(carryOverText(current.players, current.result), "Copied. Paste it into next game's player box: kids who sat will be first in line."); });
     $("#make-link").addEventListener("click", () => {
-      const setup = { preset: $("#preset").value, slots: $("#slots").value, periods: Number($("#periods").value), minutes: Number($("#minutes").value) || 0, players: $("#players").value, title: $("#title").value.trim(), keepermax: $("#keepermax").value, balance: $("#balance").value };
+      const setup = { preset: $("#preset").value, slots: $("#slots").value, periods: Number($("#periods").value), minutes: Number($("#minutes").value) || 0, players: $("#players").value, title: $("#title").value.trim(), keepermax: $("#keepermax").value, minplay: $("#minplay").value, balance: $("#balance").value };
       const url = location.href.split("#")[0] + "#s=" + encodeSetup(setup);
       record("link_made");
       $("#link-box").innerHTML = `<label for="link-out">Link to this setup (it contains your roster, so share it only with your team)</label><input type="text" id="link-out" readonly value="${esc(url)}">`;
@@ -238,7 +244,7 @@
       if (d.error) { $("#status").textContent = d.error; return; }
       const s = d.setup;
       if (PRESETS[s.preset] || s.preset === "custom") $("#preset").value = s.preset;
-      $("#slots").value = s.slots ?? $("#slots").value; $("#periods").value = s.periods ?? 4; $("#minutes").value = s.minutes ?? 0;
+      $("#minplay").value = s.minplay ?? "0"; $("#slots").value = s.slots ?? $("#slots").value; $("#periods").value = s.periods ?? 4; $("#minutes").value = s.minutes ?? 0;
       $("#players").value = s.players; $("#title").value = s.title ?? ""; $("#keepermax").value = s.keepermax ?? "1"; $("#balance").value = s.balance ?? "1";
       record("link_opened");
       make("lineup_made");
