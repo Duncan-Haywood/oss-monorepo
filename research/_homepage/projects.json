@@ -2917,6 +2917,11 @@
      "summary": "A two-fold held-out check of a mechanical refit (best rule order, then up to six greedily added keywords) of the <code>swe-errors</code> rules against <code>swe-errlabel</code>&rsquo;s 60 hand labels. Averaged over 200 random run-level splits the refit agrees with the hand label on 68.5% of entries against 66.7% for the shipped rules (+1.1 entries, range &minus;4 to +7), while fitted and scored on all 60 it reaches 85%: most of an in-sample improvement is memorisation. Preliminary: one labeller, 60 entries."
     },
     {
+     "slug": "swe-briefab",
+     "title": "Did research brief v1 change how runs go?",
+     "summary": "Research runs on prompt v0 (342) and v1 (67) from the same four days, 15&ndash;18 October 2026. Cost, wall time and output tokens do not differ detectably (median cost $0.835 vs $0.820, p = 0.72). v1 records fewer errors (7.5% vs 17.0%, p = 0.058), but v0 drew far more <code>extend</code> and <code>new-project</code> tasks, and among runs with no task label the rates are 8.3% vs 9.6%. v1 runs list more documentation friction (1.24 vs 0.72 entries per run, p = 0.0001; 1.28 vs 1.02 among unlabelled runs). Observational and preliminary: task labels differ between arms and seven metrics were tested uncorrected."
+    },
+    {
      "slug": "swe-modelmix",
      "title": "Does Opus pay for itself on this portfolio's runs? Cost ratio by track, and the sample needed to find out",
      "summary": "An Opus run costs about 8&ndash;9&times; a Sonnet run in the same track (process 7.9&times;, bootstrap 6.7&ndash;11.7; research 9.1&times;, 3.7&ndash;12.1 on only 3 Opus runs). The ledger holds 12 priced Opus runs against 342 Sonnet runs, confounded with date and task, so value per dollar cannot be compared yet: detecting a 50% difference in projects per run needs about 129 runs per arm. Preliminary; cost only."
