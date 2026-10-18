@@ -467,6 +467,8 @@ on microcontrollers. Horowitz (2014), energy per operation, ISSCC.
 **Milestones.**
 1. `accel-kws`: a keyword-spotting accelerator for track 2's wake word. Train small quantised
    models (an MLP, or a depthwise-separable CNN on MFCC features) on Speech Commands, on a CPU.
+   (The 3.3 GB download is unreachable from cloud sessions, so every step here that needs the
+   real data is blocked there; use the substitute-task pattern of `accel-sparse` or pick another track.)
    Sweep model size and bit width. Map each model to RTL, checked bit for bit against an integer
    NumPy reference. Report accuracy against cycles, cell area and estimated energy per inference,
    and compare the always-on power with `ambient-wearable`'s budget.
