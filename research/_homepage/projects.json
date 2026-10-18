@@ -1888,6 +1888,11 @@
      "summary": "A stylised follow-up to <em>ambient-labelmatch</em> and the reweighting and doubly robust fixes after it. The deployed learner already draws a random sample for free: the windows it spoke on only because its &epsilon; coin came up. Fitting on those windows alone, unweighted, reaches 11.99 utility/h at &epsilon; = 0.02 and 12.25 at 0.05 with an uninformed prior, against &minus;13.08 and &minus;71.85 for the fit on every spoken window (oracle 12.71; 20 seeds), and as a learner it earns 6.49/h online at &epsilon; = 0.005 against &minus;2.04. Exploration costs dismissals (online utility falls at larger &epsilon;), and with an informed prior the plain fit is better at small &epsilon;. Stylised simulation only."
     },
     {
+     "slug": "ambient-gatesimd",
+     "title": "Do a dual-MAC energy loop and a divide-free threshold make the Cortex-M4 voice gate cheaper?",
+     "summary": "A stylised follow-up to <em>ambient-gatem4</em>. With the block-minimum floor the SMLALD energy loop cuts executed instructions per frame by 17% at -Os and 37% at -O2, but without it the gate gets slower (64-bit ring entries), RAM doubles and code grows by about 60%. A divide-free sum-domain threshold matched the original decision on all 36,000 frames per configuration and removes the only library call; the divide itself is not counted, so its saving is unmeasured. Emulator instruction counts on synthetic audio, not cycles and not hardware."
+    },
+    {
      "slug": "ambient-gatem4",
      "title": "What does the adaptive voice gate cost on a Cortex-M4, in flash and instructions per frame, and is the block-minimum floor worth it?",
      "summary": "A stylised follow-up to <em>ambient-gatefw</em>. Its C gate is built with clang for Cortex-M4 (Thumb-2, soft float) and run frame by frame in an emulator on <em>ambient-gateroc</em>&rsquo;s synthetic audio. It is bit-exact with the Python reference, takes 236&ndash;258 bytes of code at -Os, and its only library call is the 64-bit divide, once per frame. The exact gate executes 3237 instructions per 20 ms frame at -Os; the block-10 floor executes 2096, a 35% cut, because the 320-sample energy sum (about 1980 instructions) is the floor under the saving. Instructions are not cycles, the divide is not counted, and nothing ran on hardware. Stylised."
