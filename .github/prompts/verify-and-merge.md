@@ -76,7 +76,9 @@ What the lines are for, and the traps in running them:
 - **Long suites**: the `platform/pages`, `marketing` and `deploy` node suites
   can run past the tool limit (10 min; `git fetch --unshallow` and
   `publish-branch.sh` too). Start each with `run_in_background` and read the
-  result when it finishes; do not chain them.
+  result when it finishes; do not chain them. Foreground `sleep` is blocked in
+  cloud sessions, so wait with Monitor and an `until` loop on the output file,
+  never `pgrep -f` (it matches its own command line and never ends).
 - **`platform/ci` suites** import by bare module name, so run them from
   inside that directory as the line does. `python3 -m pytest platform/ci`
   from the root fails collection.
