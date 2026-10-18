@@ -2737,6 +2737,11 @@
    "blurb": "Measuring and optimising the agent loop that builds this portfolio: what the run log records, what a run costs, and which work is worth the budget.",
    "projects": [
     {
+     "slug": "swe-friction",
+     "title": "Where do agent runs say the documentation hurts, and do the same complaints keep coming back?",
+     "summary": "A stdlib analysis of the <code>doc_friction</code> field in 1,015 dated run records (1 to 18 October 2026): 575 runs (57%) report at least one problem, 714 entries in all. They concentrate: <code>CLAUDE.md</code> and <code>research/PROJECTS.md</code> hold 39% of entries and the top ten files 70% (Gini 0.75 over 115 files). Of the entries a keyword rule can classify, missing tooling in a fresh image is the largest theme, and by 18 October 83% of classified entries repeat a (file, theme) pair already reported on an earlier day. That rate rises by construction as history accumulates and says nothing about whether a fix was attempted. Keyword themes, self-reported field, 18 days. Preliminary."
+    },
+    {
      "slug": "swe-ledger",
      "title": "What can the run log measure about the agent loop today?",
      "summary": "A stdlib reader of a snapshot of <code>prompts/runs.jsonl</code> (189 runs, 184 listed projects) reports coverage and throughput proxies. Token, cost and tool-call fields are present in at most 1% of runs and wall time is derivable for only 15, so no cost-per-project figure is possible yet. About a third of listed projects sit in follow-up families of three or more, and 24 slugs appear in more than one run. All 143 recorded CI-failure counts are zero, which looks like a success-only field, not a clean record. Preliminary: first step of the ledger milestone; no git-history backfill, no value or correctness scoring."
