@@ -675,7 +675,7 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
         "by_model": {f"{t} {m}": summarise(r) for (t, m), r in sorted(by_model.items())},
         "by_input": {k: summarise(r) for k, r in sorted(by_input.items())},
         "candidates": candidates,
-        "doc_friction": {f: {"reports": len(v), "recent": v[-3:]}
+        "doc_friction": {f: {"reports": len(v), "recent": _newest(v, 8)}
                          for f, v in sorted(friction.items(), key=lambda kv: -len(kv[1]))},
         "deviations": {f: {"reports": len(v), "recent": v[-3:]}
                        for f, v in sorted(deviations.items(), key=lambda kv: -len(kv[1]))},
@@ -728,8 +728,12 @@ def print_measure(m: dict[str, Any]) -> None:
         print("None reported.\n")
     for path, f in m["doc_friction"].items():
         note, changed = _changed_note(path)
-        print(f"- `{path}`{note}: {f['reports']} report(s); latest: "
-              + " | ".join(_flag_stale(r, changed) for r in f["recent"]))
+        tagged = [_flag_stale(r, changed) for r in f["recent"]]
+        live = [r for r in tagged if not r.startswith("[file changed since]")]
+        shown = (live or tagged)[-3:]
+        hidden = len(tagged) - len(shown)
+        tail = f" (+{hidden} older or since-changed, not shown)" if hidden > 0 else ""
+        print(f"- `{path}`{note}: {f['reports']} report(s); latest: " + " | ".join(shown) + tail)
     print("\n## Deviations by file (judgment calls; prompts/steering.md)\n")
     if not m["deviations"]:
         print("None recorded.\n")
@@ -791,6 +795,12 @@ def _when(text: str) -> datetime | None:
     except ValueError:
         return None
     return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+
+
+def _newest(reports: list[str], n: int) -> list[str]:
+    """The n latest reports, oldest first. Run records are read in file-name order, not time order."""
+    floor = datetime.min.replace(tzinfo=timezone.utc)
+    return sorted(reports, key=lambda r: _when(r) or floor)[-n:]
 
 
 def _flag_stale(report: str, changed: str) -> str:
