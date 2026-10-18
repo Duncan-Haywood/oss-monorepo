@@ -158,6 +158,7 @@
       <p class="note">Each row is a team's score against the team in the column (its own goals first), in table order.</p>
       <div class="scroll"><table id="crosstable"></table></div>
       <p id="records" class="note"></p>
+      <p><button type="button" class="secondary" id="copy-week">Copy weekly update as text</button> <span class="note">Last round's scores, the table and the next round's fixtures, ready for the group chat.</span></p>
     </div>
     <div id="race-wrap" hidden>
       <h2 style="margin-top:22px">Play-off race</h2>
@@ -271,7 +272,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -539,6 +540,13 @@
       if (!last) return;
       download("league-page.html", leaguePageHtml(last.s, { title: "League schedule", table: last.table, bracket: last.bracket }), "text/html");
       record("page_downloaded");
+    });
+    $("#copy-week").addEventListener("click", async () => {
+      if (!last || !last.table) return;
+      const pr = parseResults($("#results").value, last.s.teams);
+      const text = weeklyUpdate(last.s, pr.results, { adjustments: pr.adjustments, points: parsePointSystem($("#scoring").value), headToHead: $("#h2h").checked });
+      try { await navigator.clipboard.writeText(text); status.textContent = "Copied the weekly update. Paste it into your group chat."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying."; }
     });
     $("#copy-race").addEventListener("click", async () => {
       if (!last || !last.race) return;

@@ -1445,3 +1445,26 @@ test("late joiner respects blackouts, time limits and double round robins", () =
   for (const round of r.schedule.rounds) for (const m of round.matches) if (m.home === 3 || m.away === 3) assert.equal(m.time, "19:00");
   assert.equal(r.schedule.rounds.flatMap((x) => x.matches).filter((m) => m.home === 3 || m.away === 3).length, 6);
 });
+
+test("weeklyUpdate: last round's scores, the table and the next round; handles no results and a finished season", async () => {
+  const { weeklyUpdate, buildSchedule: bs, readSpec: rs } = await import("./calc.mjs");
+  const spec = baseSpec(4);
+  const s = buildSchedule(spec);
+  const [r0, r1] = s.rounds;
+  const res = r0.matches.map((m, i) => ({ a: m.away, b: m.home, ga: i + 1, gb: 0 }));
+  const text = weeklyUpdate(s, res);
+  assert.match(text, /Round 1 results/);
+  const m0 = r0.matches[0];
+  assert.ok(text.includes(`${m0.homeName} 0 - 1 ${m0.awayName}`), "score is shown home first even when typed away first");
+  assert.match(text, /Table\n {2}1\./);
+  assert.match(text, new RegExp(`Next up: ${r1.label}`));
+  assert.ok(!text.includes("That was the last round"));
+  assert.match(weeklyUpdate(s, []), /^Next up: Round 1/);
+  assert.ok(!weeklyUpdate(s, []).includes("Table"));
+  const all = [];
+  for (const r of s.rounds) for (const m of r.matches) all.push({ a: m.home, b: m.away, ga: 1, gb: 1 });
+  const done = weeklyUpdate(s, all);
+  assert.match(done, /That was the last round/);
+  assert.ok(!done.includes("Next up"));
+  assert.equal(weeklyUpdate({ ...s, rounds: [] }, []), "");
+});

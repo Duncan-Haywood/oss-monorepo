@@ -1621,6 +1621,52 @@ export function remainingFixtures(schedule, results) {
 }
 
 /**
+ * The weekly group-chat post: last round's scores, the table, and the next round's fixtures, as plain text.
+ * Typed results are matched to the schedule pair by pair in round order (the way `remainingFixtures` does),
+ * so a round counts as played once every one of its matches has a result. The "next round" is the first
+ * round with a match still unplayed. Returns "" when there is nothing to post (no rounds).
+ */
+export function weeklyUpdate(schedule, results, { adjustments = {}, points = {}, headToHead = false, maxRows = 8 } = {}) {
+  const key = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
+  const pool = new Map();
+  for (const r of results) { const k = key(r.a, r.b); pool.set(k, [...(pool.get(k) ?? []), r]); }
+  const rounds = schedule.rounds.map((round) => ({
+    round,
+    matches: round.matches.map((m) => {
+      const found = pool.get(key(m.home, m.away))?.shift();
+      return { m, score: found ? (found.a === m.home ? [found.ga, found.gb] : [found.gb, found.ga]) : null, walkover: !!found?.walkover };
+    }),
+  }));
+  const next = rounds.findIndex((r) => r.matches.some((x) => !x.score));
+  const lastDone = (next < 0 ? rounds.length : next) - 1;
+  if (!rounds.length) return "";
+  const out = [];
+  if (lastDone >= 0) {
+    const r = rounds[lastDone];
+    out.push(`${r.round.label} results (${dayLabel(r.round.day)})`);
+    for (const x of r.matches) out.push(`  ${x.m.homeName} ${x.score[0]} - ${x.score[1]} ${x.m.awayName}${x.walkover ? " (walkover)" : ""}`);
+    if (r.round.bye !== null && r.round.bye !== undefined) out.push(`  Bye: ${schedule.teams[r.round.bye]}`);
+    out.push("");
+  }
+  if (results.length) {
+    const rows = standings(schedule.teams, results, { ...points, headToHead, adjustments });
+    out.push("Table");
+    for (const r of rows.slice(0, maxRows)) out.push(`  ${r.rank}. ${r.name} - ${r.points} pts (${r.played} played, GD ${r.gd >= 0 ? "+" : ""}${r.gd})`);
+    if (rows.length > maxRows) out.push(`  ...and ${rows.length - maxRows} more`);
+    out.push("");
+  }
+  if (next >= 0) {
+    const r = rounds[next];
+    out.push(`Next up: ${r.round.label} - ${dayLabel(r.round.day)}`);
+    for (const x of r.matches.filter((y) => !y.score)) out.push(`  ${x.m.time ? x.m.time + " " : ""}${x.m.court}: ${x.m.homeName} (home) vs ${x.m.awayName}`);
+    if (r.round.bye !== null && r.round.bye !== undefined) out.push(`  Bye: ${schedule.teams[r.round.bye]}`);
+  } else {
+    out.push("That was the last round of the schedule.");
+  }
+  return out.join("\n").trim();
+}
+
+/**
  * Heads-ups about typed results that the schedule cannot account for: a pair entered more times than
  * they meet (a duplicated line, which counts twice in the table), or a pair that is not scheduled to
  * meet at all (a typo'd name, or a result from another pool). Returns an array of messages.
