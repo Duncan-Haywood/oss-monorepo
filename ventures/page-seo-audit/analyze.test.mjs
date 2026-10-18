@@ -11,7 +11,7 @@ const GOOD = `<!doctype html><html lang="en"><head><title>Free Round Robin Sched
 <meta name="viewport" content="width=device-width,initial-scale=1"><link rel="canonical" href="https://example.com/"><link rel="icon" href="/f.ico">
 <meta property="og:title" content="x"><meta property="og:description" content="y"><meta property="og:image" content="https://example.com/i.png"><meta name="twitter:card" content="summary">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"x"}</script></head>
-<body><h1>Round robin schedule generator</h1><h2>How it works</h2><p>${"word ".repeat(200)}</p><img src="a.png" alt="a"><a href="/guide">Guide to scheduling</a></body></html>`;
+<body><h1>Round robin schedule generator</h1><h2>How it works</h2><p>${"word ".repeat(200)}</p><img src="a.png" alt="a" width="10" height="10"><a href="/guide">Guide to scheduling</a></body></html>`;
 
 test("a complete page scores 100 with nothing found", () => {
   const r = audit(GOOD);
@@ -61,4 +61,21 @@ test("cli: exit codes follow --min-score and unreadable files", async () => {
   assert.equal(await main(["audit", bad, "--min-score", "90"], io), 1);
   assert.equal(await main(["audit", join(dir, "nope.html")], io), 2);
   assert.equal(await main([], io), 2);
+});
+
+test("duplicate titles and canonicals, relative og:image, unsized images, bare JSON-LD and dead links are reported", () => {
+  const r = audit(GOOD.replace("<head>", "<head><title>Second title tag here</title><link rel=\"canonical\" href=\"https://example.com/x\">")
+    .replace("https://example.com/i.png", "/i.png")
+    .replace(' width="10" height="10"', "")
+    .replace('"@context":"https://schema.org",', "")
+    .replace('href="/guide"', 'href="#"'));
+  const ids = r.findings.map((f) => f.id);
+  for (const id of ["title-many", "canonical-many", "og-image-relative", "img-size", "jsonld-context", "empty-href"]) assert.ok(ids.includes(id), id);
+  assert.equal(r.findings.find((f) => f.id === "canonical-many").severity, "critical");
+});
+
+test("nofollow and a description that repeats the title are notes", () => {
+  const r = audit(GOOD.replace("<head>", '<head><meta name="robots" content="nofollow">').replace(/content="Paste[^"]*"/, 'content="Free Round Robin Schedule Generator for Leagues"'));
+  const ids = r.findings.map((f) => f.id);
+  assert.ok(ids.includes("nofollow") && ids.includes("title-eq-description"));
 });
