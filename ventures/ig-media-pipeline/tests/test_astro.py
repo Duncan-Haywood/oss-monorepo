@@ -274,10 +274,12 @@ def test_trail_timelapse_and_reel_source(tmp_path, monkeypatch):
                 members=[a.id for a in assets], interval_s=25, date_label="2026-10-03")
     store.put("assets", seq.id, seq)
     monkeypatch.setattr(astro, "_exif", lambda paths, cfg: [{"ExposureTime": 20}])
-    judge = FakeJudge(plan_for(outputs=["trail-timelapse", "timelapse"], fps=12), [])
+    judge = FakeJudge(plan_for(outputs=["trail-timelapse", "timelapse"], fps=12),
+                      [astro.AstroReview(verdict="ship", notes="trails grow, sky steady")])
     assert astro.run(cfg, store, judge, assets + [seq]) == 2
     src = astro.reel_source(seq, store)
     assert src["kind"] == "video" and Path(src["path"]).exists() and src["denoise"]
+    assert "four frames" in judge.tasks[-1].instructions and judge.tasks[-1].images[0].name.endswith(".sheet.jpg")
 
 
 def test_gradient_removal_takes_a_colour_cast_out_of_the_sky_only():
@@ -296,3 +298,37 @@ def test_gradient_removal_takes_a_colour_cast_out_of_the_sky_only():
     band = slice(int(h * 0.55), int(h * 0.7))
     cast = lambda img: float((img[band, :, 1] - img[band, :, 0]).mean())
     assert cast(with_removal) < cast(without) * 0.5
+
+
+def test_bright_foreground_leaves_no_halo_in_the_sky():
+    h, w = 960, 640
+    lin = np.full((h, w, 3), 0.03, np.float32)
+    lin[..., 2] += 0.01                                  # a blue night sky
+    land = int(h * 0.6)
+    lin[land:] = (0.6, 0.55, 0.2)                        # a moonlit yellow rock face
+    lin += np.random.default_rng(4).normal(0, 0.002, lin.shape).astype(np.float32)
+    lin[20, 20] = 0.9
+    alpha = core.feather(core.horizon_mask([(0, 0.6), (1, 0.6)], (h, w)), 4)
+    out = astro.grade(lin, astro.AstroGrade(gradient_removal=1, foreground_lift=0, saturation=1, warmth=0), alpha)
+    near, far = out[land - 40:land - 15], out[100:300]
+    blue = lambda x: float((x[..., 2] - x[..., 0]).mean())
+    assert abs(blue(near) - blue(far)) < 0.05            # the sky beside the rock is the same colour as above
+
+
+def test_star_signal_keeps_stars_and_drops_noise():
+    f = sky_frame(0, noise=0.02)
+    mask = core.horizon_mask([(0, HORIZON_Y), (1, HORIZON_Y)], (H, W))
+    bg, stars = core.star_signal(f, mask)
+    assert (stars[mask].max(axis=-1) > 0).mean() < 0.05   # almost all sky pixels carry no signal
+    assert stars.max() > 0.3                              # the bright stars do
+    # the running max of signal does not lift the sky the way a running max of pixels does
+    frames = [sky_frame(k, noise=0.02) for k in range(30)]
+    raw_max = core.lighten(frames)
+    sig = None
+    for fr in frames:
+        _, s = core.star_signal(fr, mask)
+        sig = s if sig is None else np.maximum(sig, s)
+    empty = (slice(5, 60), slice(5, 60))
+    lifted_raw = float(np.median(raw_max[empty]) - np.median(frames[0][empty]))
+    lifted_sig = float(np.median((bg + sig)[empty]) - np.median(bg[empty]))
+    assert lifted_sig < lifted_raw / 4

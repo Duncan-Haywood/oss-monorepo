@@ -432,8 +432,13 @@ def sky_layers(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Co
             warped.append(core.warp(f, fit[0]))
             cover.append(core.warp(np.ones(f.shape[:2], np.float32), fit[0]))
         sky = _clip_strips(warped, cover)
-    else:
-        sky = core.lighten(frames)
+    else:      # star trails: the median sky plus the brightest star signal each pixel ever had
+        sky_mask = core.horizon_mask([(p.x, p.y) for p in plan.horizon], frames[0].shape[:2])
+        trails = None
+        for f in frames:
+            _, stars = core.star_signal(f, sky_mask)
+            trails = stars if trails is None else np.maximum(trails, stars)
+        sky = _strip_apply(_median, frames) + trails
     fg = frames[min(max((plan.foreground_frame or 0) - idx[0], 0), len(frames) - 1)] \
         if plan.foreground == "frame" else _strip_apply(_median, frames)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -461,18 +466,28 @@ def levels(lin: np.ndarray, g: AstroGrade, sky: np.ndarray | None = None) -> tup
     return black, max(white, black + 1e-4)
 
 
-def grade(lin: np.ndarray, g: AstroGrade, sky_alpha: np.ndarray, lv: tuple[float, float] | None = None) -> np.ndarray:
-    """Linear layers -> display RGB 0..1."""
+def gradient_model(lin: np.ndarray, sky_alpha: np.ndarray) -> np.ndarray:
+    """Per-channel excess of the sky background over its own floor: what gradient removal takes
+    out. Built from sky pixels only, so a bright foreground cannot bleed a halo into the sky."""
+    sky = sky_alpha > 0.5
+    out = np.empty_like(lin)
+    for c in range(lin.shape[2]):
+        bg = core.background(lin[..., c], mask=sky)
+        floor = np.percentile(bg[sky], 5) if sky.any() else np.percentile(bg, 5)
+        out[..., c] = np.clip(bg - floor, 0, None)
+    return out
+
+
+def grade(lin: np.ndarray, g: AstroGrade, sky_alpha: np.ndarray, lv: tuple[float, float] | None = None,
+          model: np.ndarray | None = None) -> np.ndarray:
+    """Linear layers -> display RGB 0..1. A video passes one fixed `model` and `lv` for every
+    frame, so its sky neither flickers nor pumps."""
     x = lin.copy()
     if g.gradient_removal > 0:
         # per channel, so a coloured glow (teal airglow, orange town light, a magenta corner) goes
         # with its brightness; each channel keeps its own floor, so the white balance stays put
-        sky = sky_alpha > 0.5
-        for c in range(3):
-            bg = core.background(x[..., c])
-            floor = np.percentile(bg[sky], 5) if sky.any() else np.percentile(bg, 5)
-            x[..., c] -= g.gradient_removal * np.clip(bg - floor, 0, None) * sky_alpha
-        x = np.clip(x, 0, None)
+        m = gradient_model(x, sky_alpha) if model is None else model
+        x = np.clip(x - g.gradient_removal * m * sky_alpha[..., None], 0, None)
     fg_alpha = (1.0 - sky_alpha)[..., None]
     x = x * (1.0 + 3.0 * g.foreground_lift * fg_alpha)
     black, white = lv or levels(x, g, sky_alpha > 0.5)
@@ -517,27 +532,41 @@ def render_still(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: 
     return {"full": str(full), "ig": str(ig)}
 
 
+def _plan_tag(plan: AstroPlan) -> str:
+    """Short stable hash of what changes a render, for cache names."""
+    import hashlib
+    key = plan.model_dump_json(include={"grade", "horizon", "foreground", "foreground_frame", "trail_decay",
+                                        "fps", "vertical_focus", "drop_frames", "frame_from", "frame_to"})
+    return hashlib.sha1(key.encode()).hexdigest()[:10]
+
+
 def render_trail_timelapse(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config) -> dict:
+    """One video frame per input frame: the current background and land, with every star's
+    trail so far laid over it. Grade levels and the gradient model are fixed from the first
+    frame so the sky does not pump."""
     from . import sequences
     idx = chosen(plan, len(members))
     d = cfg.state_dir / "astro" / group.id
-    clip = d / f"trails_{plan.fps}_{idx[0]}-{idx[-1]}_{len(idx)}_{int(plan.trail_decay * 1000)}.mp4"
+    clip = d / f"trails_{plan.fps}_{idx[0]}-{idx[-1]}_{len(idx)}_{_plan_tag(plan)}.mp4"
     if clip.exists():
         return {"video": str(clip)}
-    edge = 1920 * 2
+    edge = int(cfg.extra.get("astro_video_long_edge", 2400))
     first = load_linear(members[idx[0]], edge)
     mask = core.horizon_mask([(p.x, p.y) for p in plan.horizon], first.shape[:2])
     alpha = core.feather(mask, 0.004 * max(first.shape[:2])) if plan.foreground != "none" \
         else np.ones(mask.shape, np.float32)
-    lv = levels(first, plan.grade, mask)
+    model = gradient_model(first, alpha)
+    lv = levels(np.clip(first - plan.grade.gradient_removal * model * alpha[..., None], 0, None), plan.grade, mask)
     tmp = Path(tempfile.mkdtemp(prefix="igmp-astro-"))
     try:
         acc = None
         for k, i in enumerate(idx):
             cur = first if k == 0 else load_linear(members[i], edge)[: first.shape[0], : first.shape[1]]
-            acc = cur if acc is None else np.maximum(acc * plan.trail_decay, cur)
-            lin = acc * alpha[..., None] + cur * (1 - alpha[..., None])
-            _crop(_to_image(grade(lin, plan.grade, alpha, lv)), (1080, 1920), plan.vertical_focus) \
+            bg, stars = core.star_signal(cur, mask)
+            acc = stars if acc is None else np.maximum(acc * plan.trail_decay, stars)
+            sky = np.maximum(cur, bg + acc)
+            lin = sky * alpha[..., None] + cur * (1 - alpha[..., None])
+            _crop(_to_image(grade(lin, plan.grade, alpha, lv, model)), (1080, 1920), plan.vertical_focus) \
                 .save(tmp / f"{k:06d}.jpg", quality=93)
         clip.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(sequences.ffmpeg_args(tmp / "%06d.jpg", plan.fps, clip, cfg), check=True,
@@ -545,6 +574,20 @@ def render_trail_timelapse(group: AstroGroup, members: list[Asset], plan: AstroP
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return {"video": str(clip)}
+
+
+def video_sheet(video: Path, cfg: Config, n: int = 4) -> Path:
+    """n evenly spaced frames side by side, for the critic."""
+    out = video.with_suffix(".sheet.jpg")
+    if not out.exists():
+        frames = int(subprocess.run([cfg.ffprobe, "-v", "error", "-count_packets", "-select_streams", "v:0",
+                                     "-show_entries", "stream=nb_read_packets", "-of", "csv=p=0", str(video)],
+                                    capture_output=True, text=True, check=True).stdout.strip() or 1)
+        step = max(1, (frames - 1) // max(n - 1, 1))
+        subprocess.run([cfg.ffmpeg, "-v", "error", "-y", "-i", str(video), "-vf",
+                        f"select='not(mod(n\\,{step}))',scale=360:-2,tile={n}x1", "-frames:v", "1", str(out)],
+                       check=True, capture_output=True)
+    return out
 
 
 # --- the stage ---------------------------------------------------------------------------
@@ -556,7 +599,10 @@ def plan_task(group: AstroGroup, members: list[Asset], facts: dict, cfg: Config)
 def review(group: AstroGroup, plan: AstroPlan, mode: str, still: dict, cfg: Config, judge: Backend,
            notes: list[str]) -> AstroReview:
     text = (f"You planned this {mode} from {len(group.members)} night frames with: {plan.model_dump_json()}. "
-            "The image is the result, full frame. Check it as a demanding astro photographer would: stars round "
+            + ("The image is four frames of the result, start to end, left to right: the trails should grow "
+               "smoothly while the sky's tone stays steady (no brightening or colour shift over the clip). "
+               if mode == "trail-timelapse" else "The image is the result, full frame. ") +
+            "Check it as a demanding astro photographer would: stars round "
             "and sharp (not doubled or trailed in a stack), no seam or halo along the horizon, land not smeared, "
             "no leftover light-pollution gradient or colour cast, a foreground that is sharp and not ghosted (if a "
             "median of moving plants ghosted it, switch to foreground='frame'), core not clipped, background not crushed to "
@@ -653,7 +699,7 @@ def finish(group: AstroGroup, members: list[Asset], rec: dict, cfg: Config, stor
         elif mode == "trail-timelapse":
             if len(members) < 10:
                 continue
-            outputs[mode] = {"status": "shipped", **render_trail_timelapse(group, members, plan, cfg)}
+            outputs[mode] = _video_rounds(group, members, plan, cfg, judge)
         else:
             outputs[mode] = _still_rounds(group, members, plan, mode, cfg, judge)
         made += outputs[mode]["status"] == "shipped"
@@ -669,6 +715,24 @@ def finish(group: AstroGroup, members: list[Asset], rec: dict, cfg: Config, stor
             store.put("edits", lead, {"status": "shipped", "full": best["full"], "ig": best["ig"],
                                       "astro": group.id, "single_frame_edit": prev})
     return made
+
+
+def _video_rounds(group, members, plan: AstroPlan, cfg: Config, judge: Backend) -> dict:
+    notes: list[str] = []
+    for round_ in range(REVISIONS + 1):
+        video = render_trail_timelapse(group, members, plan, cfg)
+        sheet = video_sheet(Path(video["video"]), cfg)
+        verdict = review(group, plan, "trail-timelapse", {"full": str(sheet)}, cfg, judge, notes)
+        notes.append(verdict.notes)
+        done = {**video, "plan": plan.model_dump(), "notes": notes, "rounds": round_ + 1}
+        if verdict.verdict == "ship":
+            return {"status": "shipped", **done}
+        if verdict.verdict == "reject" or verdict.revised is None or round_ == REVISIONS:
+            return {"status": "rejected" if verdict.verdict == "reject" else "held", **done}
+        revised = verdict.revised
+        revised.outputs = plan.outputs
+        plan = revised
+    raise AssertionError("unreachable")
 
 
 def _still_rounds(group, members, plan: AstroPlan, mode: str, cfg: Config, judge: Backend) -> dict:

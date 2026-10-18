@@ -49,11 +49,31 @@ def luminance(rgb: np.ndarray) -> np.ndarray:
     return (rgb[..., 0] * 0.2126 + rgb[..., 1] * 0.7152 + rgb[..., 2] * 0.0722).astype(np.float32)
 
 
-def background(gray: np.ndarray, scale: int = 8, size: int = 9) -> np.ndarray:
-    """Smooth sky background (gradient, airglow, Milky Way glow) at full size."""
+def background(gray: np.ndarray, scale: int = 8, size: int = 9, mask: np.ndarray | None = None) -> np.ndarray:
+    """Smooth sky background (gradient, airglow, Milky Way glow) at full size.
+
+    With `mask` (True = sky) the model is built from sky pixels only and carried flat across the
+    land: otherwise a bright foreground (a moonlit rock, a lit tent) bleeds into the sky beside
+    it, and subtracting that model leaves a halo of the opposite colour along the skyline.
+    """
     h, w = gray.shape
-    small = gray[: h - h % scale, : w - w % scale]
-    small = small.reshape(small.shape[0] // scale, scale, small.shape[1] // scale, scale).mean(axis=(1, 3))
+    hh, ww = h - h % scale, w - w % scale
+
+    def blocks(x):
+        return x[:hh, :ww].reshape(hh // scale, scale, ww // scale, scale)
+
+    if mask is not None and mask.any() and not mask.all():
+        m = blocks(mask.astype(np.float32))
+        cover = m.mean(axis=(1, 3))
+        small = (blocks(gray) * m).sum(axis=(1, 3)) / np.maximum(m.sum(axis=(1, 3)), 1)
+        holes = cover < 0.5
+        if holes.all():
+            small = np.full(cover.shape, float(np.median(gray[mask])), np.float32)
+        elif holes.any():   # nearest sky value: the model continues flat beneath the horizon
+            idx = ndimage.distance_transform_edt(holes, return_distances=False, return_indices=True)
+            small = small[tuple(idx)]
+    else:
+        small = blocks(gray).mean(axis=(1, 3))
     small = ndimage.median_filter(small, size=size, mode="nearest")
     small = ndimage.gaussian_filter(small, 1.5)
     zoom = (h / small.shape[0], w / small.shape[1])
@@ -229,6 +249,18 @@ def sigma_clip_mean(frames: Sequence[np.ndarray], kappa: float = 2.5,
     num = np.where(keep, cube, 0).sum(0)
     den = keep.sum(0)
     return np.where(den > 0, num / np.maximum(den, 1), med if not np.isnan(med).all() else 0).astype(np.float32)
+
+
+def star_signal(frame: np.ndarray, mask: np.ndarray | None = None, k: float = 2.5) -> tuple[np.ndarray, np.ndarray]:
+    """(background, stars) of one linear RGB frame: the per-channel sky model and what stands
+    above it by more than k x the noise. Trails are the running maximum of the second, so the
+    maximum of the noise - which grows with every frame and lifts a whole sky - never enters."""
+    bg = np.stack([background(frame[..., c], mask=mask) for c in range(frame.shape[2])], axis=-1)
+    res = frame - bg
+    lum = luminance(res)
+    sample = lum[mask] if mask is not None and mask.any() else lum.ravel()
+    sig = robust_sigma(sample[:: max(1, sample.size // 200_000)])
+    return bg, np.where((lum > k * sig)[..., None], np.clip(res, 0, None), 0).astype(np.float32)
 
 
 def lighten(frames: Iterable[np.ndarray]) -> np.ndarray:
