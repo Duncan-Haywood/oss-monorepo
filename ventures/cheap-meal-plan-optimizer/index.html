@@ -85,6 +85,9 @@
     <ul id="marginal"></ul>
     <h3>Cost as the protein minimum rises</h3>
     <div style="overflow-x:auto"><table class="t" id="frontier"><thead><tr><th class="n">Protein minimum</th><th class="n">Cheapest cost / day</th></tr></thead><tbody></tbody></table></div>
+    <h3>What a budget buys</h3>
+    <p class="note">The other way round: the most protein each daily budget can reach while calories, fat, fiber and your other bounds still hold (your protein minimum is set aside here).</p>
+    <div style="overflow-x:auto"><table class="t" id="budget"><thead><tr><th class="n">Budget / day</th><th class="n">Most protein</th></tr></thead><tbody></tbody></table></div>
     <h3>What variety costs</h3>
     <p class="note">The cheapest plan is often a few foods. This caps the share of the day's calories any one food may supply and shows the cost and the number of foods used, with your other bounds unchanged.</p>
     <div style="overflow-x:auto"><table class="t" id="variety"><thead><tr><th class="n">Most calories from one food</th><th class="n">Cheapest cost / day</th><th class="n">Foods used</th></tr></thead><tbody></tbody></table></div>
@@ -135,7 +138,7 @@
   </footer>
 
   <script type="module">
-    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, breakEvenPrices, planCsv, groceryList, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
+    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, breakEvenPrices, planCsv, groceryList, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -160,7 +163,7 @@
         $("#report").hidden = false;
         $("#notices").innerHTML = `<div class="bad"><strong>Fix these first:</strong><ul>${all.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
         for (const id of ["#big", "#marginal"]) $(id).innerHTML = "";
-        for (const id of ["#plan", "#totals", "#frontier", "#variety"]) $(id + " tbody").innerHTML = "";
+        for (const id of ["#plan", "#totals", "#frontier", "#budget", "#variety"]) $(id + " tbody").innerHTML = "";
         $("#verdict").textContent = "";
         last = null;
         return false;
@@ -170,7 +173,7 @@
       if (res.status !== "optimal") {
         $("#notices").innerHTML = `<div class="bad">No plan meets every bound with these foods and caps. Loosen a minimum, raise the serving caps, finer servings, or add foods.</div>`;
         for (const id of ["#big", "#marginal"]) $(id).innerHTML = "";
-        for (const id of ["#plan", "#totals", "#frontier", "#variety"]) $(id + " tbody").innerHTML = "";
+        for (const id of ["#plan", "#totals", "#frontier", "#budget", "#variety"]) $(id + " tbody").innerHTML = "";
         $("#verdict").textContent = "";
         last = null; status.textContent = "No feasible plan."; return false;
       }
@@ -197,6 +200,7 @@
       const pm = spec.proteinMin === "" ? 100 : Number(spec.proteinMin);
       const fr = proteinFrontier(spec, [0.6, 0.8, 1, 1.25, 1.5].map((m) => Math.round(pm * m)));
       $("#frontier tbody").innerHTML = fr.map((r) => `<tr><td class="n">${r.protein} g</td><td class="n">${r.cost === null ? "not possible" : money2(r.cost)}</td></tr>`).join("");
+      $("#budget tbody").innerHTML = budgetFrontier(spec, [0.9, 1, 1.25, 1.5, 2].map((m) => res.bound * m)).map((r) => `<tr><td class="n">${money2(r.budget)}</td><td class="n">${r.protein === null ? "not possible" : fmt(r.protein, 0) + " g"}</td></tr>`).join("");
       $("#variety tbody").innerHTML = varietyFrontier(spec, [100, 50, 40, 30, 25, 20]).map((r) => `<tr><td class="n">${r.share >= 100 ? "no limit" : r.share + "%"}</td><td class="n">${r.cost === null ? "not possible" : money2(r.cost)}</td><td class="n">${r.cost === null ? "—" : r.foods}</td></tr>`).join("");
       const be = breakEvenPrices(spec, res);
       $("#breakeven tbody").innerHTML = be.length ? be.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${money2(r.current)}</td><td class="n">${r.price === null ? "never" : money2(r.price)}</td><td class="n">${r.drop === null ? "no price helps" : fmt(r.drop * 100, 0) + "%"}</td></tr>`).join("") : `<tr><td colspan="4">Every food on your list is already in the plan.</td></tr>`;

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, planCsv, groceryList, breakEvenPrices, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, planCsv, groceryList, breakEvenPrices, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -225,4 +225,17 @@ test("tightening the variety limit never makes the plan cheaper, and matches a d
   assert.ok(Math.abs(direct.cost - fr[2].cost) < 1e-6);
   assert.ok(fr[2].foods >= 4); // 30% per food needs at least 4 foods
   assert.equal(varietyFrontier({ ...base, foods: base.foods.slice(0, 3) }, [20])[0].cost, null);
+});
+
+test("budgetFrontier: protein rises with the budget, and agrees with the cost frontier", () => {
+  const base = sampleSpec();
+  const min = solve({ ...base, step: 0 }).cost;
+  const fr = budgetFrontier(base, [min * 0.5, min, min * 1.5, min * 3]);
+  assert.equal(fr[0].protein, null); // half the cheapest feasible cost cannot meet calories and fiber
+  assert.ok(fr[1].protein >= base.proteinMin - 1e-6);
+  for (let i = 2; i < fr.length; i++) assert.ok(fr[i].protein >= fr[i - 1].protein - 1e-9);
+  // the cheapest way to reach the protein the budget buys costs no more than the budget
+  const p = fr[2].protein;
+  const back = proteinFrontier({ ...base, step: 0 }, [p * 0.999])[0].cost;
+  assert.ok(back <= min * 1.5 + 1e-6);
 });
