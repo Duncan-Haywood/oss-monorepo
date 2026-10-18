@@ -1,5 +1,7 @@
 # What do agent runs record going wrong, and does it relate to partial outcomes or cost?
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-errors/
+
 Pure Python standard library. Track 10 (the software-engineering loop), a new question rather than a listed milestone: the run records' `errors` field (222 entries across 1,027 records) had not been read as a dataset. Produced with AI assistance (Claude). **Preliminary: keyword classification, self-reported errors, and the cost comparison rests on 30 priced runs with an error.**
 
 - **17.0% of runs record at least one error** (175 of 1,027; 95% Wilson 14.9% to 19.5%). Research runs record them far more than any other track: 24.5% (131 of 534) against 12.4% for ventures and under 9% for process, red-team, explore and review. That gap is probably partly a recording habit, not only a difference in what goes wrong.

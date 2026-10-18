@@ -1,0 +1,13 @@
+[project]
+name = "house-composite"
+version = "0.1.0"
+description = "How much of a floor-vibration penalty does subfloor composite (T-beam) action recover? Partial-composite stiffness on top of house-vibration"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-spans/src", "../house-vibration/src"]
