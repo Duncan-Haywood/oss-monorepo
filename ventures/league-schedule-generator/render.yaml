@@ -1,0 +1,21 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# Starter plan on purpose: the free plan has no disk, so the published league would vanish on restart.
+# Render generates ADMIN_KEY and LEAGUE_TOKEN; read them in the service's Environment tab.
+services:
+  - type: web
+    name: league-hub
+    runtime: docker
+    dockerContext: ventures/league-schedule-generator
+    dockerfilePath: ventures/league-schedule-generator/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: LEAGUE_TOKEN
+        generateValue: true
