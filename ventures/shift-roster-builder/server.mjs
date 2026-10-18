@@ -9,14 +9,14 @@ import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { parseStaff, parseShifts, buildRoster, rosterIcs, rosterMessages, coverOptions, checkTrade, parseAvailabilityReply, mergeAvailabilityReplies, scheduleFlags, fmtClock, money, num, DAYS, sampleStaff, sampleShifts } from "./calc.mjs";
 
-const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100;
+const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:.35rem .5rem;text-align:left}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:9rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/">Shift Roster Builder</a> (MIT). Not legal advice: check breaks, minors and predictive-scheduling rules yourself.</p></body></html>`;
 
-export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], callouts: [], trades: [] }; }
+export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], callouts: [], trades: [], claims: [] }; }
 
 // What staff may see: who works when. Never wages, hour caps or the cost of the week.
 function publish(state, now) {
@@ -26,7 +26,7 @@ function publish(state, now) {
   const r = buildRoster(st.staff, sh.slots);
   if (r.error) return { error: r.error };
   const flags = state.weekStart ? scheduleFlags(r, { weekStart: state.weekStart, today: new Date(now).toISOString().slice(0, 10) }) : null;
-  state.callouts = []; state.trades = [];
+  state.callouts = []; state.trades = []; state.claims = [];
   state.published = {
     at: new Date(now).toISOString(), weekStart: state.weekStart || null, unfilled: r.unfilledSlots,
     people: r.people.map((p) => ({ name: p.name, hours: p.hours })),
@@ -46,10 +46,14 @@ function teamPage(state, token) {
   const others = p ? mine.filter(({ a }) => a.person) : [];
   const shiftOpt = ({ a }) => `<option value="${esc(a.person + "|" + a.slot.day + "|" + a.slot.startMin + "|" + a.slot.endMin)}">${esc(a.person)}: ${esc(dl(a.slot.day))} ${esc(fmtClock(a.slot.startMin))}-${esc(fmtClock(a.slot.endMin))}</option>`;
   const trade = p && new Set(others.map(({ a }) => a.person)).size > 1 ? `<h2>Want to trade shifts?</h2><form method="post" action="/team/trade?t=${esc(token)}"><label>Your shift<select name="mine" required>${others.map(shiftOpt).join("")}</select></label><label>Their shift<select name="theirs" required>${others.map(shiftOpt).join("")}</select></label><label>Note (optional)<input name="note" maxlength="140"></label><button>Ask my manager</button></form><p class="note">Agree it with your colleague first. Your manager sees whether the trade keeps both weeks inside the rules and decides; both shifts stay as they are until then.</p>` : "";
+  const openKey = (a) => `${a.slot.day}|${a.slot.startMin}|${a.slot.endMin}`;
+  const openSeen = new Set();
+  const openUnique = (p ? p.assignments.filter((a) => !a.person) : []).filter((a) => !openSeen.has(openKey(a)) && openSeen.add(openKey(a)));
+  const claim = p && openUnique.length && p.people.length ? `<h2>Open shifts you can pick up</h2><form method="post" action="/team/claim?t=${esc(token)}"><label>Shift<select name="shift" required>${openUnique.map((a) => `<option value="${esc(openKey(a))}">${esc(dl(a.slot.day))} ${esc(fmtClock(a.slot.startMin))}-${esc(fmtClock(a.slot.endMin))}${a.slot.label ? " (" + esc(a.slot.label) + ")" : ""}</option>`).join("")}</select></label><label>Who are you?<select name="name" required>${p.people.map((q) => `<option>${esc(q.name)}</option>`).join("")}</select></label><label>Note (optional)<input name="note" maxlength="140"></label><button>Ask to take it</button></form><p class="note">This only asks. Your manager sees whether it fits your availability, rest and hour limits and decides; the shift stays open until they approve.</p>` : "";
   if (!p) return page("Team schedule", `<p>No schedule has been published yet.</p>${form}`);
   const msgs = rosterMessages({ assignments: p.assignments, people: p.people }, p.weekStart);
   const rows = msgs.map((m) => `<tr><td><strong>${esc(m.person)}</strong></td><td>${esc(m.text.split("\n").slice(1, -1).join(" · ") || "no shifts")}</td><td>${p.weekStart && m.shifts ? `<a href="/team/ics?t=${esc(token)}&person=${encodeURIComponent(m.person)}">Add to calendar</a>` : ""}</td></tr>`).join("");
-  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${callout}${trade}${form}`);
+  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${claim}${callout}${trade}${form}`);
 }
 
 // Who could take each reported shift without moving anyone else, cheapest first. Rebuilt from the current staff and
@@ -88,6 +92,35 @@ export function tradeRows(state) {
   });
 }
 
+// Each pick-up request for an open shift, checked against the same hard rules as the sick-call finder.
+export function claimRows(state) {
+  if (!state.claims.length) return [];
+  const ctx = rosterCtx(state);
+  return state.claims.map((c) => {
+    if (!ctx) return { c, note: "Staff or shifts no longer build; fix them, then publish again." };
+    const i = ctx.sh.slots.findIndex((s, k) => ctx.r.owner[k] < 0 && s.day === c.day && s.startMin === c.startMin && s.endMin === c.endMin);
+    if (i < 0) return { c, note: "That shift is not open in the current roster (it changed since it was published)." };
+    const o = coverOptions(ctx.st.staff, ctx.sh.slots, ctx.r, i);
+    if (o.error) return { c, note: o.error };
+    const fit = o.fits.find((f) => f.name === c.person);
+    if (fit) return { c, fit };
+    const bl = o.blocked.find((f) => f.name === c.person);
+    return { c, blocked: bl ? bl.reason : "is not eligible for this shift" };
+  });
+}
+
+const sameShift = (x, y) => x.day === y.day && x.startMin === y.startMin && x.endMin === y.endMin;
+
+// Give the first still-open copy of the shift to the claimant and keep the per-person hours in step.
+function applyClaim(state, c) {
+  const p = state.published;
+  const a = p && p.assignments.find((x) => !x.person && sameShift({ day: x.slot.day, startMin: x.slot.startMin, endMin: x.slot.endMin }, c));
+  const q = p && p.people.find((x) => x.name === c.person);
+  if (!a || !q) return false;
+  a.person = c.person; q.hours += (a.slot.endMin - a.slot.startMin) / 60; p.unfilled = Math.max(0, p.unfilled - 1);
+  return true;
+}
+
 // Swap the two people on the published roster and keep the per-person hours in step.
 function applyTrade(state, t) {
   const p = state.published;
@@ -109,6 +142,8 @@ function adminPage(state, key, note = "") {
   const callBlock = state.callouts.length ? `<h2>Call-outs (${state.callouts.length})</h2><table><thead><tr><th>Request</th><th>Could cover, cheapest first</th></tr></thead><tbody>${calls}</tbody></table><form method="post" action="/admin/clear-callouts?key=${k}"><button>Clear call-outs</button></form>` : "";
   const tr = tradeRows(state).map(({ t, v, note: n }, i) => `<tr><td><strong>${esc(t.a.person)}</strong> gives ${slotText(t.a)}<br><strong>${esc(t.b.person)}</strong> gives ${slotText(t.b)}${t.note ? `<br><span class="note">"${esc(t.note)}"</span>` : ""}</td><td>${n ? esc(n) : v.ok ? `<span class="ok">Keeps both weeks inside the rules</span> (payroll ${v.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(v.extraCost)))})` : `<span class="err">Blocked:</span> ${v.problems.map((x) => `${esc(x.name)} ${esc(x.reason)}`).join("; ")}`}</td><td><form method="post" action="/admin/trade?key=${k}"><input type="hidden" name="i" value="${i}"><button name="act" value="approve" ${v && v.ok ? "" : "disabled"}>Approve</button><button name="act" value="decline">Decline</button></form></td></tr>`).join("");
   const tradeBlock = state.trades.length ? `<h2>Trade requests (${state.trades.length})</h2><table><thead><tr><th>Request</th><th>Check</th><th></th></tr></thead><tbody>${tr}</tbody></table>` : "";
+  const cl = claimRows(state).map(({ c, fit, blocked, note: n }, i) => `<tr><td><strong>${esc(c.person)}</strong> asks to take ${slotText(c)}${c.note ? `<br><span class="note">"${esc(c.note)}"</span>` : ""}</td><td>${n ? esc(n) : fit ? `<span class="ok">Fits inside the rules</span> (payroll ${fit.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(fit.extraCost)))}${fit.overtimeAfter > 0 ? ", overtime" : ""})` : `<span class="err">Blocked:</span> ${esc(c.person)} ${esc(blocked)}`}</td><td><form method="post" action="/admin/claim?key=${k}"><input type="hidden" name="i" value="${i}">${fit ? `<button name="act" value="approve">Approve</button>` : blocked ? `<button name="act" value="override">Approve anyway</button>` : ""}<button name="act" value="decline">Decline</button></form></td></tr>`).join("");
+  const claimBlock = state.claims.length ? `<h2>Open-shift requests (${state.claims.length})</h2><p class="note">A shift is open because nobody on the staff list was free for it. A request that breaks a standing rule can still be approved, as your decision, once you have agreed it with the person (they said yes to a one-off). It is the rule shown, not a check, that you are overriding.</p><table><thead><tr><th>Request</th><th>Check</th><th></th></tr></thead><tbody>${cl}</tbody></table>` : "";
   const replies = state.replies.map((r) => esc(r.line)).join("\n");
   return page("Roster admin", `${note}
 <form method="post" action="/admin/save?key=${k}"><label>Week starting (a Monday, YYYY-MM-DD)<input name="weekStart" value="${esc(state.weekStart)}" placeholder="2026-10-19"></label>
@@ -117,6 +152,7 @@ function adminPage(state, key, note = "") {
 <button name="act" value="save">Save</button><button name="act" value="publish">Build and publish</button></form>
 ${callBlock}
 ${tradeBlock}
+${claimBlock}
 <h2>Availability replies (${state.replies.length})</h2>
 <form method="post" action="/admin/merge?key=${k}"><textarea name="replies" readonly>${replies}</textarea><button ${state.replies.length ? "" : "disabled"}>Merge into staff list</button></form>
 <p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p>`);
@@ -179,6 +215,21 @@ export function handler(state, save, env = process.env, now = Date.now) {
         save();
         return send(200, page("Thanks", `<p class="ok">Your manager has been asked. Both shifts stay as they are until they approve.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
       }
+      if (req.method === "POST" && url.pathname === "/team/claim") {
+        const p = state.published, [day, startMin, endMin] = String(form.get("shift") || "").split("|"), person = String(form.get("name") || "");
+        const bad = (m) => send(400, page("Could not read that", `<p class="err">${esc(m)}</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
+        const hit = p && p.assignments.find((a) => !a.person && String(a.slot.day) === day && String(a.slot.startMin) === startMin && String(a.slot.endMin) === endMin);
+        if (!hit) return bad("That shift is not open on the published schedule.");
+        if (!p.people.some((q) => q.name === person)) return bad("Pick your name from the list.");
+        const ref = { person, day: hit.slot.day, startMin: hit.slot.startMin, endMin: hit.slot.endMin };
+        if (!state.claims.some((c) => c.person === person && sameShift(c, ref))) {
+          const note = String(form.get("note") || "").replace(/[\r\n]+/g, " ").trim().slice(0, 140);
+          state.claims.push({ ...ref, note, at: new Date(now()).toISOString() });
+          if (state.claims.length > MAX_CLAIMS) state.claims.shift();
+          save();
+        }
+        return send(200, page("Thanks", `<p class="ok">Your manager has been asked. The shift stays open until they approve.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
+      }
       return send(404, "not found\n", "text/plain");
     }
     const here = `/admin?key=${encodeURIComponent(adminKey)}`;
@@ -215,6 +266,22 @@ export function handler(state, save, env = process.env, now = Date.now) {
       state.trades.splice(i, 1);
       save();
       return back(here, "Trade declined.");
+    }
+    if (req.method === "POST" && url.pathname === "/admin/claim") {
+      const i = Number(form.get("i")), row = claimRows(state)[i];
+      if (!row) return back(here, "That request is gone.");
+      const act = form.get("act");
+      if (act === "approve" || act === "override") {
+        if (!(act === "approve" ? row.fit : row.blocked) || !applyClaim(state, row.c)) return back(here, "Not approved: the shift is no longer open or the check changed.");
+        // The other asks were checked against the week as it was: that person's, and any for a shift with no open copy left, must be asked again.
+        const stillOpen = (c) => state.published.assignments.some((a) => !a.person && sameShift({ day: a.slot.day, startMin: a.slot.startMin, endMin: a.slot.endMin }, c));
+        state.claims = state.claims.filter((c, k) => k !== i && c.person !== row.c.person && stillOpen(c));
+        save();
+        return back(here, "Shift approved. The staff page shows it. Other open-shift requests from that person were cleared: they should ask again.");
+      }
+      state.claims.splice(i, 1);
+      save();
+      return back(here, "Request declined.");
     }
     if (req.method === "POST" && url.pathname === "/admin/clear-callouts") {
       state.callouts = [];

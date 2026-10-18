@@ -149,3 +149,38 @@ test("a declined trade changes nothing and a blocked one cannot be approved", as
   assert.equal(A.person, before);
   s.close();
 });
+
+test("an open-shift request shows the rule it breaks and is applied only when the manager approves", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 20, 40, 0, Mon 9-17\nBen, 20, 40, 0, Tue 9-17";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon, 9, 17, 2, mon" });
+  const open = s.state.published.assignments.find((a) => !a.person);
+  assert.ok(open, "one Monday copy has nobody free");
+  const val = [open.slot.day, open.slot.startMin, open.slot.endMin].join("|");
+  assert.match(await (await fetch(s.base + "/team?t=tm")).text(), /Open shifts you can pick up/);
+  assert.equal((await post(s.base + "/team/claim?t=wrong", { shift: val, name: "Ben" })).status, 401);
+  assert.equal((await post(s.base + "/team/claim?t=tm", { shift: "0|1|2", name: "Ben" })).status, 400);
+  assert.equal((await post(s.base + "/team/claim?t=tm", { shift: val, name: "Nobody" })).status, 400);
+  assert.equal((await post(s.base + "/team/claim?t=tm", { shift: val, name: "Ben", note: "<b>x</b>" })).status, 200);
+  assert.equal((await post(s.base + "/team/claim?t=tm", { shift: val, name: "Ben" })).status, 200);
+  assert.equal(s.state.claims.length, 1, "a repeat ask is not queued twice");
+  const admin = await (await fetch(s.base + "/admin?key=adm")).text();
+  assert.match(admin, /Open-shift requests \(1\)/);
+  assert.match(admin, /Blocked:/);
+  assert.doesNotMatch(admin, /<b>x/);
+  assert.doesNotMatch(admin, /value="approve"/, "a ask that breaks a rule has no plain Approve");
+  await post(s.base + "/admin/claim?key=adm", { i: "0", act: "approve" });
+  assert.equal(open.person, null, "plain approve cannot override");
+  await post(s.base + "/admin/claim?key=adm", { i: "0", act: "decline" });
+  assert.equal(s.state.claims.length, 0);
+  await post(s.base + "/team/claim?t=tm", { shift: val, name: "Ben" });
+  const unfilled = s.state.published.unfilled, hours = s.state.published.people.find((p) => p.name === "Ben").hours;
+  const r = await post(s.base + "/admin/claim?key=adm", { i: "0", act: "override" });
+  assert.equal(r.status, 303);
+  assert.equal(open.person, "Ben");
+  assert.equal(s.state.published.unfilled, unfilled - 1);
+  assert.equal(s.state.published.people.find((p) => p.name === "Ben").hours, hours + 8);
+  assert.equal(s.state.claims.length, 0);
+  assert.doesNotMatch(await (await fetch(s.base + "/team?t=tm")).text(), /Open shifts you can pick up/);
+  s.close();
+});
