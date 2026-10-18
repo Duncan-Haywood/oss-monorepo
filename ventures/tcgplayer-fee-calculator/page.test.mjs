@@ -84,3 +84,7 @@ test('every published page carries Open Graph tags and a robots/canonical pair',
     assert.match(source, /<link rel="canonical" href="[^"]+">/, `${name} is missing a canonical link`);
   }
 });
+
+test('index links to the Whatnot seller payout calculator it is paired with', () => {
+  assert.match(markup, /href="\.\.\/whatnot-seller-payout\/"/);
+});

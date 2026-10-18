@@ -384,3 +384,7 @@ test('the $2,400 graded-lot guide matches the arithmetic', () => {
   assert.match(page('index.html'), /whatnot-fees-on-a-graded-card-over-1500\.html/);
   assert.match(page('sitemap.xml'), /whatnot-fees-on-a-graded-card-over-1500\.html/);
 });
+
+test('footer links to the TCGplayer fee calculator', () => {
+  assert.match(markup, /href="\.\.\/tcgplayer-fee-calculator\/"/);
+});
