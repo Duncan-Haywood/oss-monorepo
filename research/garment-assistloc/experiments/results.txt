@@ -1,0 +1,21 @@
+Net whole-body change (%) at gain 0.3, 4 h battery, 8 N m/kg motor, by shank/waist penalty ratio
+ratio  shank  waist
+    1    +1.0    +1.5
+    2   +10.9    +2.4
+    3   +20.7    +3.3
+    5   +40.5    +5.1
+    8   +70.0    +7.8
+
+Break-even ratio (waist layout wins above it), by cable efficiency and motor density (gain 0.3, 4 h)
+bowden       8      20      40
+   0.6    1.10    1.22    1.39
+   0.7    1.07    1.17    1.30
+   0.8    1.06    1.13    1.23
+   0.9    1.04    1.10    1.18
+   1.0    1.03    1.08    1.13
+
+Net change (%) at density 40, cable 0.8, by ratio: does either layout beat no suit-mass penalty at all?
+ratio  shank  waist
+    1    -5.7    -5.2
+    3    +0.6    -3.4
+    5    +6.9    -1.6
