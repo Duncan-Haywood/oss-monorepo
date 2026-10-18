@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01NUt3HzmkS7LsVoV7ZTqA19",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T06:06:31Z",
+  "ended": "2026-10-18T06:17:05Z",
+  "wall_minutes": 10.67,
+  "tokens_in": 2329958,
+  "tokens_out": 13649,
+  "cost_usd": 0.8749,
+  "tool_calls": 28,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7956",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight first failed with 'regen.mjs --verify could not answer (exit 2)' (likely concurrent state); rerunning it after a manual --verify passed. The message gives no cause."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Deepened meeting-action-items with a quote-verified BYOK AI pass (page + CLI --ai). 27 tests pass; venture-preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bb9956ce-20e9-5b59-b579-04e68e46e94e",
+    "transcripts": 1,
+    "first": "2026-10-18T06:06:31Z",
+    "last": "2026-10-18T06:17:12Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 27,
+        "input": 54,
+        "output": 13649,
+        "thinking": 1186,
+        "cache_read": 2258236,
+        "cache_write_5m": 0,
+        "cache_write_1h": 71668,
+        "api_equivalent_usd": 0.8749,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 54,
+      "output": 13649,
+      "thinking": 1186,
+      "cache_read": 2258236,
+      "cache_write_5m": 0,
+      "cache_write_1h": 71668,
+      "api_equivalent_usd": 0.8749,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 25,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.67,
+      "active_minutes": 10.67,
+      "model_minutes": 1.74,
+      "tool_minutes": 8.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "design, vetting logic, tests, page UI and docs for an AI pass",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 457.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
