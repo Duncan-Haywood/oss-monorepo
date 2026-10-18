@@ -670,15 +670,18 @@ def report(
         # DIRECTION.md ranks it above the work the verdict is about to name.
         reasons = [
             "THE LIVE SITE IS BEHIND `main`. Refresh the published snapshot "
-            "before anything else — `CONFIRM=publish-pages-branch PUSH=1 "
+            "— `CONFIRM=publish-pages-branch PUSH=1 "
             "./platform/pages/publish-branch.sh`, then `python3 "
             "platform/ci/pages_state.py --require-current` to confirm. It needs "
             "no runner, no cluster and no credential beyond the push you "
-            "already have. Cloud harnesses may deny that push as a production "
-            "deploy, and the script takes 10+ minutes in a shallow clone: start it "
-            "with `run_in_background` (a foreground call times out). If it is "
-            "denied or fails, say so in your reply and carry on with the "
-            "work below instead of retrying. "
+            "already have. The script refuses a HEAD that is not on "
+            "`origin/main`, so from a work branch run it after your PR merges "
+            "(`git fetch origin main && git checkout origin/main`), not first. "
+            "It takes 10+ minutes in a shallow clone: start it with "
+            "`run_in_background` (a foreground call times out) and do not wait "
+            "on it. Cloud harnesses may deny the push as a production deploy; "
+            "if it is denied or fails, say so in your reply and carry on "
+            "instead of retrying. "
             f"Reason: {snap_reason}"
         ] + reasons
     elif snap != "current":
