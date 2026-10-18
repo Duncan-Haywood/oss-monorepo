@@ -7,16 +7,16 @@
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { parseStaff, parseShifts, buildRoster, rosterIcs, rosterMessages, parseAvailabilityReply, mergeAvailabilityReplies, scheduleFlags, fmtClock, money, num, DAYS, sampleStaff, sampleShifts } from "./calc.mjs";
+import { parseStaff, parseShifts, buildRoster, rosterIcs, rosterMessages, coverOptions, parseAvailabilityReply, mergeAvailabilityReplies, scheduleFlags, fmtClock, money, num, DAYS, sampleStaff, sampleShifts } from "./calc.mjs";
 
-const MAX_BODY = 64 * 1024, MAX_REPLIES = 200;
+const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:.35rem .5rem;text-align:left}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:9rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/">Shift Roster Builder</a> (MIT). Not legal advice: check breaks, minors and predictive-scheduling rules yourself.</p></body></html>`;
 
-export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [] }; }
+export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], callouts: [] }; }
 
 // What staff may see: who works when. Never wages, hour caps or the cost of the week.
 function publish(state, now) {
@@ -26,6 +26,7 @@ function publish(state, now) {
   const r = buildRoster(st.staff, sh.slots);
   if (r.error) return { error: r.error };
   const flags = state.weekStart ? scheduleFlags(r, { weekStart: state.weekStart, today: new Date(now).toISOString().slice(0, 10) }) : null;
+  state.callouts = [];
   state.published = {
     at: new Date(now).toISOString(), weekStart: state.weekStart || null, unfilled: r.unfilledSlots,
     people: r.people.map((p) => ({ name: p.name, hours: p.hours })),
@@ -34,23 +35,49 @@ function publish(state, now) {
   return { ok: true, cost: r.cost, flags };
 }
 
+const dayDate = (ws, d) => { const t = new Date(ws + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + d); return t.toISOString().slice(5, 10); };
+
 function teamPage(state, token) {
   const p = state.published;
   const form = `<h2>Send your availability</h2><form method="post" action="/team/reply?t=${esc(token)}"><label>One line: <code>Your name | Mon-Fri 9-17; Sat off | max: 30</code><input name="line" required maxlength="300"></label><button>Send</button></form><p class="note">Your manager sees it and decides. Nothing changes until they merge it.</p>`;
+  const mine = (p ? p.assignments.filter((a) => a.person) : []).map((a, i) => ({ a, i })).sort((x, y) => x.a.person.localeCompare(y.a.person) || x.a.slot.day - y.a.slot.day || x.a.slot.startMin - y.a.slot.startMin);
+  const dl = (d) => (p.weekStart ? dayDate(p.weekStart, d) + " " : "") + DAYS[d];
+  const callout = p && mine.length ? `<h2>Cannot make a shift?</h2><form method="post" action="/team/callout?t=${esc(token)}"><label>Your shift<select name="shift" required>${mine.map(({ a }) => `<option value="${esc(a.person + "|" + a.slot.day + "|" + a.slot.startMin + "|" + a.slot.endMin)}">${esc(a.person)}: ${esc(dl(a.slot.day))} ${esc(fmtClock(a.slot.startMin))}-${esc(fmtClock(a.slot.endMin))}</option>`).join("")}</select></label><label>Note (optional)<input name="note" maxlength="140"></label><button>Tell my manager</button></form><p class="note">This only asks. Your manager sees who could cover it and decides; your shift stays yours until they change it.</p>` : "";
   if (!p) return page("Team schedule", `<p>No schedule has been published yet.</p>${form}`);
   const msgs = rosterMessages({ assignments: p.assignments, people: p.people }, p.weekStart);
   const rows = msgs.map((m) => `<tr><td><strong>${esc(m.person)}</strong></td><td>${esc(m.text.split("\n").slice(1, -1).join(" · ") || "no shifts")}</td><td>${p.weekStart && m.shifts ? `<a href="/team/ics?t=${esc(token)}&person=${encodeURIComponent(m.person)}">Add to calendar</a>` : ""}</td></tr>`).join("");
-  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${form}`);
+  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${callout}${form}`);
+}
+
+// Who could take each reported shift without moving anyone else, cheapest first. Rebuilt from the current staff and
+// shifts (the search is deterministic), so after editing either, publish again before trusting the names.
+export function calloutRows(state) {
+  if (!state.callouts.length) return [];
+  let ctx = null;
+  try {
+    const st = parseStaff(state.staff, { weekStart: state.weekStart || null }), sh = parseShifts(state.shifts);
+    if (!(st.errors || []).length && !(sh.errors || []).length) { const r = buildRoster(st.staff, sh.slots); if (!r.error) ctx = { st, sh, r }; }
+  } catch { ctx = null; }
+  return state.callouts.map((c) => {
+    if (!ctx) return { c, note: "Staff or shifts no longer build; fix them, then publish again." };
+    const i = ctx.sh.slots.findIndex((s, k) => ctx.r.owner[k] >= 0 && ctx.st.staff[ctx.r.owner[k]].name === c.person && s.day === c.day && s.startMin === c.startMin && s.endMin === c.endMin);
+    if (i < 0) return { c, note: "That shift is not in the current roster (it changed since it was published)." };
+    const o = coverOptions(ctx.st.staff, ctx.sh.slots, ctx.r, i);
+    return o.error ? { c, note: o.error } : { c, fits: o.fits.slice(0, 5) };
+  });
 }
 
 function adminPage(state, key, note = "") {
   const k = esc(key), p = state.published;
+  const calls = calloutRows(state).map(({ c, fits, note: n }) => `<tr><td><strong>${esc(c.person)}</strong> cannot make ${esc(DAYS[c.day])} ${esc(fmtClock(c.startMin))}-${esc(fmtClock(c.endMin))}${c.note ? `<br><span class="note">"${esc(c.note)}"</span>` : ""}</td><td>${n ? esc(n) : fits.length ? fits.map((f) => `${esc(f.name)} (${f.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(f.extraCost)))}${f.overtimeAfter > 0 ? ", overtime" : ""})`).join("; ") : "nobody free can take it without changing someone else's week"}</td></tr>`).join("");
+  const callBlock = state.callouts.length ? `<h2>Call-outs (${state.callouts.length})</h2><table><thead><tr><th>Request</th><th>Could cover, cheapest first</th></tr></thead><tbody>${calls}</tbody></table><form method="post" action="/admin/clear-callouts?key=${k}"><button>Clear call-outs</button></form>` : "";
   const replies = state.replies.map((r) => esc(r.line)).join("\n");
   return page("Roster admin", `${note}
 <form method="post" action="/admin/save?key=${k}"><label>Week starting (a Monday, YYYY-MM-DD)<input name="weekStart" value="${esc(state.weekStart)}" placeholder="2026-10-19"></label>
 <label>Staff<textarea name="staff">${esc(state.staff || sampleStaff())}</textarea></label>
 <label>Shifts to cover<textarea name="shifts">${esc(state.shifts || sampleShifts())}</textarea></label>
 <button name="act" value="save">Save</button><button name="act" value="publish">Build and publish</button></form>
+${callBlock}
 <h2>Availability replies (${state.replies.length})</h2>
 <form method="post" action="/admin/merge?key=${k}"><textarea name="replies" readonly>${replies}</textarea><button ${state.replies.length ? "" : "disabled"}>Merge into staff list</button></form>
 <p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p>`);
@@ -90,6 +117,16 @@ export function handler(state, save, env = process.env, now = Date.now) {
         save();
         return send(200, page("Thanks", `<p class="ok">Sent to your manager.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
       }
+      if (req.method === "POST" && url.pathname === "/team/callout") {
+        const p = state.published, [person, day, startMin, endMin] = String(form.get("shift") || "").split("|");
+        const hit = p && p.assignments.find((a) => a.person === person && String(a.slot.day) === day && String(a.slot.startMin) === startMin && String(a.slot.endMin) === endMin);
+        if (!hit) return send(400, page("Could not read that", `<p class="err">That shift is not on the published schedule.</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
+        const note = String(form.get("note") || "").replace(/[\r\n]+/g, " ").trim().slice(0, 140);
+        state.callouts.push({ person, day: hit.slot.day, startMin: hit.slot.startMin, endMin: hit.slot.endMin, note, at: new Date(now()).toISOString() });
+        if (state.callouts.length > MAX_CALLOUTS) state.callouts.shift();
+        save();
+        return send(200, page("Thanks", `<p class="ok">Your manager has been told. Your shift stays yours until they change it.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
+      }
       return send(404, "not found\n", "text/plain");
     }
     const here = `/admin?key=${encodeURIComponent(adminKey)}`;
@@ -113,6 +150,11 @@ export function handler(state, save, env = process.env, now = Date.now) {
       state.staff = m.text; state.replies = [];
       save();
       return back(here, `Merged: ${m.updated.length} updated, ${m.added.length} added${m.errors.length ? ", " + m.errors.length + " unreadable" : ""}.`);
+    }
+    if (req.method === "POST" && url.pathname === "/admin/clear-callouts") {
+      state.callouts = [];
+      save();
+      return back(here, "Call-outs cleared.");
     }
     return send(404, "not found\n", "text/plain");
   };
