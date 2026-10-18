@@ -3072,6 +3072,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `us-freelancer-tax-set-aside-calculator` graduated (browser US freelancer SE tax, federal tax with QBI, state tax and 1040-ES set-aside). #6981 and #6982 each wrote 1223 against a base without the other; re-synced after both merged.
     # +1: `cancel-flow` graduated (self-hosted Stripe cancellation flow: reason-matched save offers, browser simulator plus zero-dependency server).
     # +1: `dunning-engine` graduated (self-hosted Stripe failed-payment recovery: browser plan simulator plus zero-dependency server).
+    # +1: `uk-statutory-residence-test-checker` graduated (UK Statutory Residence Test rules engine, in-browser).
     # +1: `webhook-relay` graduated (self-hosted webhook relay: verify, store, retry, replay; browser outage simulator plus zero-dependency server).
     # +1: `visit-keeper` graduated (self-hosted cookie-free web analytics: snippet, daily-rotating visitor hashes, goals credited to source; browser setup page plus zero-dependency server).
     # +1: `rev-rec` graduated (self-hosted Stripe revenue recognition: deferred revenue schedule and journal CSV, browser demo plus zero-dependency server).
@@ -3084,7 +3085,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `trade-bid-studio` graduated (browser trade-agnostic bid engine: price at a target margin, walk-away price, competitor-quote check, markup/margin converter, directory of the 121 bid calculators).
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
     # +1: `s-corp-basis-tracker` graduated (browser S corporation stock and debt basis roll-forward in Form 7203 order, suspended losses and excess distributions).
-    total = 1288  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1288 tools" wording.
+    total = 1289  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1289 tools" wording.
     # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
     # +1: `actions-schedule-check` graduated (browser + CLI lint of GitHub Actions schedule crons: invalid, faster than 5 minutes, minute 0).
     # +1: `liability-audit` graduated (zero-dependency repository scanner for legal and financial exposure: consent, auto-renewal, disclosures, leaked keys, open LLM endpoints, cloud budgets; CLI, SARIF, monorepo sweep, browser page, agent playbook).
