@@ -49,6 +49,23 @@ class T(unittest.TestCase):
         self.assertEqual(branches, ["claude/bar-tool-1"])
         self.assertEqual(slug_dupe.main(["bar-tool"]), 0)
 
+    def test_default_window_is_14_days(self):
+        seen = []
+        orig = slug_dupe.check
+        slug_dupe.check = lambda slug, days, remote: seen.append((days, remote)) or (False, [], [])
+        try:
+            slug_dupe.main(["x"])
+        finally:
+            slug_dupe.check = orig
+        self.assertEqual(seen, [(14, "origin")])
+
+    def test_help_uses_summary_line(self):
+        import contextlib, io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+            slug_dupe.main(["--help"])
+        self.assertIn("Has someone already shipped", out.getvalue())
+
     def test_unknown(self):
         self.assertEqual(slug_dupe.check("nope-zzz"), (False, [], []))
 
