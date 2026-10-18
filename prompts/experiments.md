@@ -718,10 +718,22 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 
 ## E38: review 2026-10-18 (fourth)
 
+- Change: `research/_shared/pick_track.py` does the track draw that
+  `research/PROJECTS.md` "Picking work" step 1 describes (a report said no
+  script did it); the step is now one line plus the command.
+- Metric: friction reports about the track draw, next 40 research runs; expect none.
+- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 6 runs).
+  `derived/` regenerated (25 of 29 PRs). Audit not run (recent outputs
+  mirrored or doc-only).
+- Drift: `prompts/drift/2026-10-18d.md`.
+- Result: (next review)
+
+## E39: review 2026-10-18 (fifth)
+
 - Change: no prompt or doc change. Audit sample (recent venture PRs) found
   one shipped regression (#8038, fixed by #8041); added a header/row cell-count
   test to `league-schedule-generator`.
 - Metric: audit runs that find a defect in a recent venture PR; the audit is
   runnable when it names a venture with `node --test`.
-- Candidates: unchanged. Drift: `prompts/drift/2026-10-18d.md`.
+- Candidates: unchanged. Drift: `prompts/drift/2026-10-18e.md`.
 - Result: (next review)
