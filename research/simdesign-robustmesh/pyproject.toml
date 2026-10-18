@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-robustradius"
+version = "0.1.0"
+description = "Is the minimum feature of a robust topology-optimised beam set by the filter radius in elements or as a share of the beam?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
