@@ -23,6 +23,7 @@ zero dependencies, one JSON file on a disk you own.
   guest list for you behind their accounts. This is only the optimise-and-look-up loop, MIT-licensed, on your box.
 - **Deploy:** `docker compose up -d` with `ADMIN_KEY` and `GUEST_TOKEN` set (`openssl rand -hex 16`), `fly.toml` for Fly.io,
   or `render.yaml` for Render, each in your own account. Keep `STATE` on a persistent disk. Put it behind HTTPS.
+- **Meal picks (optional):** type your choices in the admin box ("Chicken, Fish, Vegetarian"); after finding their table each guest can pick a meal, you see the tally in `/admin` and download `/admin/meals.csv` (name, table, meal) for the caterer. Republishing drops picks for guests you removed. Anyone holding the guest link can set any listed guest's meal, so share it only with guests.
 - Anyone with the guest link sees every guest name; share it only with the guests. `node --test` covers it.
 
 - `calc.mjs` - parsing, the pair-weight matrix, simulated annealing with a

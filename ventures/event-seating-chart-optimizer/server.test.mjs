@@ -66,3 +66,34 @@ test("buildPlan seats the sample and reports table sizes", () => {
   assert.ok(!out.error, out.error);
   assert.ok(out.tables.length >= 2);
 });
+
+test("guests pick a meal after finding their table; admin sees the tally and a CSV", async () => {
+  const s = await boot();
+  await post(s.base + "/admin/save?key=adm", { ...s.state.fields, guests: "Ana Lopez\nBen Ortiz\nCy Dunn", rules: "", seats: "4", meals: "Chicken, Fish", act: "publish" });
+  assert.match(await (await fetch(s.base + "/find?t=tok&q=lopez")).text(), /<select name="meal">/);
+  const ok = await post(s.base + "/find/meal?t=tok", { name: "Ana Lopez", meal: "Fish", q: "lopez" });
+  assert.equal(ok.status, 200);
+  assert.match(await ok.text(), /Saved Ana Lopez: Fish/);
+  assert.equal(s.state.choices["Ana Lopez"], "Fish");
+  assert.equal((await post(s.base + "/find/meal?t=tok", { name: "Ana Lopez", meal: "Steak" })).status, 400);
+  assert.equal((await post(s.base + "/find/meal?t=tok", { name: "Nobody", meal: "Fish" })).status, 400);
+  assert.equal((await post(s.base + "/find/meal?t=wrong", { name: "Ana Lopez", meal: "Fish" })).status, 401);
+  assert.match(await (await fetch(s.base + "/admin?key=adm")).text(), /1 of 3 guests have chosen\. Fish: 1/);
+  const csv = await (await fetch(s.base + "/admin/meals.csv?key=adm")).text();
+  assert.match(csv, /Ana Lopez,\d,Fish/);
+  assert.match(csv, /Ben Ortiz,\d,\n/);
+  assert.equal((await fetch(s.base + "/admin/meals.csv?key=tok")).status, 401);
+  // republishing without a guest drops their pick
+  await post(s.base + "/admin/save?key=adm", { ...s.state.fields, guests: "Ben Ortiz\nCy Dunn", act: "publish" });
+  assert.deepEqual(s.state.choices, {});
+  s.close();
+});
+
+test("meal picks are off when no choices are configured", async () => {
+  const s = await boot();
+  await post(s.base + "/admin/save?key=adm", { ...s.state.fields, guests: "Ana Lopez\nBen Ortiz", rules: "", seats: "4", act: "publish" });
+  assert.ok(s.state.plan);
+  assert.doesNotMatch(await (await fetch(s.base + "/find?t=tok&q=lopez")).text(), /<select/);
+  assert.equal((await post(s.base + "/find/meal?t=tok", { name: "Ana Lopez", meal: "Fish" })).status, 400);
+  s.close();
+});
