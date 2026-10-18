@@ -1,0 +1,13 @@
+[project]
+name = "house-nailedwall"
+version = "0.1.0"
+description = "Four-term nailed shear-wall deflection stiffness in the house-diaphragm rigid load split"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-diaphragm/src", "../house-structure/src", "../house-framing/src"]
