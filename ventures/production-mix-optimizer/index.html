@@ -127,7 +127,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace your accountant or a production planner. Results are arithmetic on the figures you type; prices, costs and capacities change and every one of them is yours to check. You are responsible for reviewing and verifying its output before acting on it.</p>
     <p><strong>Independent.</strong> Not affiliated with any bakery supplier, equipment maker, planning software or marketplace, and none is named or ranked here. The example products, prices and hours are invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>plan_run_new_week</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../restaurant-pos-menu-mix-analyzer/">restaurant menu mix analyzer</a>, the <a href="../dog-grooming-profit-calculator/">dog grooming profit calculator</a>, the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a> and the <a href="../seasonal-buy-quantity-optimizer/">seasonal buy quantity optimizer</a>. and, for a household rather than a business, the <a href="../cheap-meal-plan-optimizer/">cheapest meal plan optimizer</a>, the same cost-minimising linear program</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -182,7 +182,11 @@
     }
 
     const later = (fn) => { status.textContent = "Solving…"; setTimeout(fn, 20); };
-    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) { record("plan_run"); noteWeek(); } }));
+    // Return measurement (hypothesis: makers re-plan each week). Counts a plan run in a different calendar week from the last one, on this device only.
+    const WEEK_KEY = "production-mix-optimizer:last-plan-week";
+    const weekId = () => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().slice(0, 10); };
+    function noteWeek() { try { const w = weekId(), last = localStorage.getItem(WEEK_KEY); if (last && last !== w) record("plan_run_new_week"); localStorage.setItem(WEEK_KEY, w); } catch (e) {} }
     $("#load-example").addEventListener("click", () => {
       $("#resources").value = sampleResources();
       $("#products").value = sampleProducts();
