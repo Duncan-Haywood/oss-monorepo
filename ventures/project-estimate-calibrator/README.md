@@ -12,6 +12,8 @@ missed, and know the chance it still loses money**, which used to take a gut fee
 ## Model
 
 - Input: rows of `estimate,actual[,type]` (a header may reorder the columns by name). Hours or dollars, one unit.
+  Time-tracker exports work as they are: a budget/estimate column against a `Hours`, `Tracked` or `Duration` column
+  (Harvest, Toggl, Clockify), with durations like `52:30:00`, `11h 30m` or `90m` read as hours.
 - `ln(actual) = a + b·ln(estimate) + noise`. `b = 1` (a plain overrun ratio, `a` = median log ratio) unless n >= 20
   and the slope differs from 1 by more than two standard errors, in which case overruns are allowed to grow with size.
 - Quantiles at 70/80/90/95%: the `ceil((n+1)p)`-th smallest residual (split-conformal correction), no normality assumed.

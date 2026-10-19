@@ -141,3 +141,12 @@ test("a price without a rate is explained rather than silently ignored", () => {
   assert.equal(r.proposal, null);
   assert.ok(r.warnings.some((w) => /hourly cost or rate/.test(w)));
 });
+
+test("parseRows reads time-tracker exports: budget hours vs tracked hours, h:mm:ss and 1h 30m durations", () => {
+  const p = parseRows("Project,Client,Budget hours,Hours tracked\nSite,Acme,40,52.5\nAudit,Beta,12,11");
+  assert.deepEqual(p.rows.map((r) => [r.est, r.act]), [[40, 52.5], [12, 11]]);
+  const d = parseRows("Budget,Duration\n40:00:00,52:30:00\n10h,11h 30m\n8,90m");
+  assert.deepEqual(d.rows.map((r) => [r.est, r.act]), [[40, 52.5], [10, 11.5], [8, 1.5]]);
+  const q = parseRows("Estimate,Actual\n10,12\n20,25");
+  assert.deepEqual(q.rows.map((r) => [r.est, r.act]), [[10, 12], [20, 25]]);
+});

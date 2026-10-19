@@ -26,7 +26,19 @@ function mulberry32(seed) {
   };
 }
 
+// Time-tracker durations: 1:30:00, 12:45 (h:mm), 1h 30m, 90m.
+const durationHours = (s) => {
+  const t = String(s).trim().toLowerCase();
+  let m = t.match(/^(\d+):([0-5]\d)(?::([0-5]\d))?$/);
+  if (m) return Number(m[1]) + Number(m[2]) / 60 + Number(m[3] || 0) / 3600;
+  m = t.match(/^(?:(\d+(?:\.\d+)?)\s*h(?:rs?|ours?)?)?\s*(?:(\d+)\s*m(?:in(?:s|utes?)?)?)?$/);
+  if (m && (m[1] || m[2]) && (m[2] || /\d\s*h/.test(t)) && /m/.test(t.replace(/hours?|hrs?/g, ""))) return Number(m[1] || 0) + Number(m[2] || 0) / 60;
+  return NaN;
+};
+
 const moneyNum = (s) => {
+  const d = durationHours(s);
+  if (Number.isFinite(d)) return d;
   const t = String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£,\s]/g, "").replace(/h(rs?|ours?)?$/i, "");
   if (t === "" || !/^-?\d*\.?\d+$/.test(t)) return NaN;
   return Number(t);
@@ -55,7 +67,11 @@ export function parseRows(text) {
   if (hasHeader) {
     const head = rows[0].map((h) => h.toLowerCase());
     const find = (re) => head.findIndex((h) => re.test(h));
-    const e = find(/estimat|quote|budget|planned|bid|expected/), a = find(/actual|spent|final|real|took|worked|logged/), t = find(/type|categor|kind|service|client|project type|job type/);
+    const e = find(/estimat|quote|budget|planned|bid|expected/);
+    // Time-tracker exports (Harvest, Toggl, Clockify) name the tracked column "Hours", "Tracked", "Duration" or "Total".
+    let a = find(/actual|spent|final|real|took|worked|logged/);
+    if (a < 0 || a === e) a = head.findIndex((h, i) => i !== e && /track|duration|total.*(hours|time)|^(hours|time)\b|hours$/.test(h) && !/budget|remain|billable|rate/.test(h));
+    const t = find(/type|categor|kind|service|client|project type|job type/);
     ci = { est: e >= 0 ? e : 0, act: a >= 0 ? a : 1, type: t >= 0 ? t : head.length >= 3 ? 2 : -1 };
     if (ci.est === ci.act) ci.act = ci.est === 0 ? 1 : 0;
     if (ci.type === ci.est || ci.type === ci.act) ci.type = -1;
