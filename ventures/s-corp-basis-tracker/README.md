@@ -18,6 +18,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   `opening` row for starting figures), get one summary with the shareholders needing
   attention first, a combined CSV and one printable file with a worksheet each.
 - `saleOutlook` - selling all your stock: gain on the shares against year-adjusted basis, the suspended loss a full sale would forfeit and the contribution that would deduct it first, and any loan face above its basis (section 5 on the page).
+- `aaa` - the company's accumulated adjustments account year by year (section 6 on the page): income in, losses and nondeductible expenses out in the year they reduce basis, distributions paid from it, and the part paid beyond it. Tax-exempt income is left out.
 - `form-7203-basis-order.html` - the order basis is adjusted in, with a three-year
   worked example the test suite recomputes.
 - `s-corp-distributions-over-basis.html` - when a distribution becomes taxable, three
@@ -50,6 +51,6 @@ server only hands out files and never sees a figure you type.
 
 **No warranty.** Free and as-is; an organising aid, not tax or legal advice and not a
 filed form. At-risk and passive-activity limits, the excess business loss limit, QBI,
-AAA and earnings and profits from C corporation years, stock sales and state rules
+the other adjustments account and earnings and profits from C corporation years, stock sales and state rules
 are not modelled; a sale of stock is figured on the shares only. Check every figure against your K-1 and the Form 7203 instructions.
 MIT licensed.

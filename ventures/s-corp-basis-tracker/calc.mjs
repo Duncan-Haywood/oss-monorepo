@@ -286,6 +286,37 @@ export function saleOutlook(result, { proceeds, expenses = 0 } = {}) {
   return { year: base.year, proceeds: cents(pr), expenses: cents(ex), netProceeds: net, stockBasis: c.stock, gain, suspendedLost: lost, contributionToUseLosses: need, loanAboveBasis, advice };
 }
 
+// ---- Accumulated adjustments account (AAA) ----------------------------------
+// The corporation-level account (IRC 1368(e)) that says how much it can still
+// distribute without touching C-corporation earnings. It follows the same
+// income, losses and nondeductible expenses as stock basis, with two rules:
+// tax-exempt income is not in it, and a year's net NEGATIVE adjustment is taken
+// off after distributions, so it never shrinks the amount a distribution can
+// come out of. Distributions cannot take it below zero or deepen a negative
+// balance. Losses and nondeductible expenses count in the year they reduce
+// basis, so this reads them from `run`'s rows. `result` is the output of run().
+export function aaa(result, opening = 0) {
+  const open0 = Number.isFinite(Number(opening)) ? Number(opening) : 0;
+  let cur = open0;
+  const rows = [];
+  for (const r of result.rows) {
+    const income = r.lines.income;
+    const reductions = cents(r.deductedLosses + r.lines.nondeductibleUsed);
+    const net = cents(income - reductions);
+    const available = cents(cur + pos(net));
+    const dist = r.lines.distributions;
+    const fromAAA = cents(Math.min(dist, pos(available)));
+    const beyond = cents(dist - fromAAA);
+    const close = cents(cur + net - fromAAA);
+    const notes = [];
+    if (beyond > 0) notes.push("Distributions of " + fmt(beyond) + " came from more than the account holds. With no earnings from C corporation years they are a return of stock basis (and gain above it); with such earnings, part can be a dividend. The account is not changed by that part.");
+    if (close < 0) notes.push("The account is negative at year end: losses have outrun cumulative income. Distributions cannot deepen it.");
+    rows.push({ year: r.year, open: cents(cur), income, reductions, net, distributedFromAAA: fromAAA, distributedBeyondAAA: beyond, close, notes });
+    cur = close;
+  }
+  return { opening: cents(open0), rows, closing: cents(cur), taxExemptIncomeExcluded: cents(result.rows.reduce((t, r) => t + r.lines.taxExempt, 0)) };
+}
+
 // ---- Several shareholders (preparers) --------------------------------------
 // One paste for a whole client list. Columns: shareholder, then the FIELDS of
 // parseYears (year first). A row whose year is "opening" (or "start") carries a
