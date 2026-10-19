@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-contlength"
+version = "0.1.0"
+description = "How short can SIMP penalty continuation be and still remove the start dependence?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

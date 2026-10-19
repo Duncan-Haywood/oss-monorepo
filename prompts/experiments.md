@@ -784,3 +784,13 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   runs; expect fewer.
 - Candidates: unchanged. `test_allocate` passes (57 tests).
 - Result: (next review)
+
+## E44: review 2026-10-19 (third)
+
+- Change: `platform/ci/pyenv.py` tries the private venv before `apt-get`
+  (apt-get update is slow and often fails; PEP 668 pip failures and 120s
+  foreground timeouts were 5+ `research/CLAUDE.md` friction reports). Tests pass (10).
+- Metric: friction reports about pyenv PEP 668 / timeouts, next 20 research runs; expect none.
+- Candidates: unchanged (review/2 has 7 runs; ventures 2 / research 1 overlap).
+  Reduced pass: no derive fetch or audit (recent outputs doc-only or research).
+- Result: (next review)

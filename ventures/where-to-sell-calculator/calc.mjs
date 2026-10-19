@@ -515,7 +515,7 @@ export const CHANNEL_PRESETS = [
   {
     id: "discogs",
     label: "Discogs (records, CDs & music media)",
-    note: "Off by default because it only suits vinyl, CDs, tapes and other music media. Prices an 8% seller commission plus 2.7% + $0.25 Discogs Payments processing on the item price. Neither figure was confirmed against Discogs' own fee page (the 8% is from a seller guide, the processing rate from trade press at the Discogs Payments launch), so check one real payout before repricing a crate. Discogs's listing grading, shipping-rate rules and per-country payout differences are not modelled. Sell-through and days to sell are illustrative starting points, not a claim about Discogs velocity.",
+    note: "Off by default because it only suits vinyl, CDs, tapes and other music media. Prices an 8% seller commission plus 2.7% + $0.25 Discogs Payments processing on the item price. Neither figure was confirmed against Discogs' own fee page (the 8% is from a seller guide, the processing rate from trade press at the Discogs Payments launch), so check one real payout before repricing a crate. A 2026 third-party fee calculator instead lists 9% on item plus shipping and 3.49% + $0.49 processing; the two sources disagree and neither is Discogs' own page, so treat the true take as possibly higher than shown. Discogs's listing grading, shipping-rate rules and per-country payout differences are not modelled. Sell-through and days to sell are illustrative starting points, not a claim about Discogs velocity.",
     commissionRate: 8,
     commissionBase: "item",
     paymentRate: 2.7,
