@@ -1,0 +1,13 @@
+[project]
+name = "house-overhang"
+version = "0.1.0"
+description = "Roof-overhang shading of south glass added to the house-solar degree-day window model, from first-principles solar geometry"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-solar/src", "../house-energy/src", "../house-framing/src"]
