@@ -3494,6 +3494,11 @@
      "slug": "house-overhang",
      "title": "Does a roof overhang over south windows pay for itself, and in which climates does it cost energy instead of saving it?",
      "summary": "Adds overhang shading (profile angle, shadow depth on the glass, beam radiation only) to <code>house-solar</code>&rsquo;s south windows and searches projection from 0 to 4&nbsp;ft with the 640 envelope packages. At an assumed $12 per foot of width per foot of projection no overhang is cost-optimal in any of 8 climates or 2 systems. Its gross energy value is at most $280 of 30-year net present cost (Miami, 4&nbsp;ft); in cold and mixed climates anything deeper than about 1&nbsp;ft loses more winter gain than it saves in summer. It would be chosen only below roughly $0.60 to $4.20 per foot per foot. Stylised degree-day model; height, gap and price are assumptions; not EnergyPlus."
+    },
+    {
+     "slug": "house-dewpoint",
+     "title": "Where in a wall does water vapor condense, and does a vapor retarder or exterior foam fix it, by climate?",
+     "summary": "A steady-state Glaser check of a 2x6 batt wall (gypsum, optional retarder, OSB, optional 1 or 2&nbsp;in XPS, housewrap, siding) in four assumed climates. In winter nothing condenses in Miami or Atlanta. In Chicago painted drywall gives about 6&nbsp;g/m<sup>2</sup>/day at the sheathing; 2&nbsp;in of exterior XPS removes it and a kraft facing cuts it to 0.05. In Duluth only polyethylene reaches zero (painted drywall about 11&nbsp;g/m<sup>2</sup>/day). The summer case shows no condensation because the model has no wet-cladding reservoir. Stylised: steady state, unsourced permeances and climate values, no moisture storage, not WUFI."
     }
    ]
   },
