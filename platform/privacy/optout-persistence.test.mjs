@@ -1707,7 +1707,7 @@ const RELATIVE_SELF = relative(
 // +1: `us-substantial-presence-test-calculator` graduated.
 // +1: `discogs-fee-calculator` graduated.
 // +2: `hands-free-language-coach` and `listen-and-learn-audio` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1268;
+const SWITCHES_IN_THE_CATALOGUE = 1269;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
@@ -1753,6 +1753,7 @@ const SWITCHES_IN_THE_CATALOGUE = 1268;
 // +1: `csv-to-sql-generator` graduated.
 // +1: `eu-dsa-obligations-checker` graduated.
 // +1: `uk-mtd-income-tax-checker` graduated.
+// +1: `tutoring-group-schedule-optimizer` graduated.
 
 let counter = 0;
 function fixture(source) {
