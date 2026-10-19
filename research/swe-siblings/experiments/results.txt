@@ -1,0 +1,36 @@
+projects with a title and Question section: 665
+cross-family pairs: 213181; mean Jaccard 0.008
+within-family pairs (families with >=5 projects: 14): 7552; mean Jaccard 0.078
+
+family            projects  pairs  mean   max
+twin                   15    105  0.142 0.364
+eda                    16    120  0.135 0.562
+accel                  23    253  0.109 0.611
+selfrep                36    630  0.098 0.417
+chip                   32    496  0.088 0.667
+simdesign              58   1653  0.081 0.615
+ambient                46   1035  0.080 0.579
+garment                45    990  0.077 0.538
+mimic                  22    231  0.075 0.917
+house                  26    325  0.069 0.438
+robofab                49   1176  0.057 0.474
+free                   14     91  0.055 0.316
+osrobot                19    171  0.051 0.600
+swe                    24    276  0.036 0.333
+
+closest 15 sibling pairs (Jaccard of title+Question words):
+  0.917  mimic-mmd  mimic-mmdmujoco
+  0.667  chip-systolic-hidewide  chip-systolic-p32
+  0.647  chip-systolic-batch  chip-systolic-fanin
+  0.615  simdesign-gaugepockets  simdesign-pocketmesh
+  0.611  accel-surrogate  accel-surrogate2d
+  0.600  osrobot-lean  osrobot-leannoise
+  0.588  chip-systolic-fanin  chip-systolic-small
+  0.579  ambient-hlrtlevel  ambient-hlrtmis
+  0.571  simdesign-gaugebudget  simdesign-gaugescatter
+  0.562  eda-conefeat  eda-conehash
+  0.562  chip-systolic-batch  chip-systolic-small
+  0.538  garment-twonodepen  garment-twonodeprop
+  0.526  ambient-dscorr  ambient-dshard
+  0.524  garment-twonodemet  garment-twonodestep
+  0.500  simdesign-gaugefine  simdesign-gaugepatch
