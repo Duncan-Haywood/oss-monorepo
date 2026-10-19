@@ -1672,6 +1672,29 @@ ${brk}
 `;
 }
 
+/**
+ * Printable game-night score sheets: one page per round with every match, blank score boxes, a
+ * forfeit tick and a signature line, so the person at the table can write results down and the
+ * organiser can type them in afterwards (lines like "Hawks 3 - 2 Owls"). Self-contained, every
+ * typed name escaped, no external requests.
+ */
+export function scoreSheetsHtml(schedule, { title = "League score sheets" } = {}) {
+  const t = htmlEsc(title);
+  const pages = schedule.rounds.map((r) => {
+    const rows = r.matches.map((m) => `<tr><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td class="n">${htmlEsc(m.homeName)}</td><td class="b"></td><td class="b"></td><td class="n">${htmlEsc(m.awayName)}</td><td class="f">&#9744;</td><td>${htmlEsc(m.official ?? "")}</td></tr>`);
+    const bye = r.bye !== null && r.bye !== undefined ? `<p class="bye">Bye: ${htmlEsc(schedule.teams[r.bye])}</p>` : "";
+    return `<section class="sheet"><h2>${htmlEsc(r.label)} <span>${htmlEsc(dayLabel(r.day))}</span></h2><table><thead><tr><th>Time</th><th>Court</th><th>Home</th><th colspan="2">Score</th><th>Away</th><th>Forfeit</th><th>Official</th></tr></thead><tbody>${rows.join("")}</tbody></table>${bye}<p class="sig">Scorekeeper: ____________________ &nbsp; Notes (injuries, protests, rainouts): ______________________________________</p></section>`;
+  }).join("\n");
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${t}</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}h2 span{font-weight:400;color:#555}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.5rem;text-align:left}td.b{width:3.5rem;height:2.4rem}td.n{font-weight:600}td.f{text-align:center;font-size:1.3rem}.sheet{page-break-after:always;margin-bottom:2rem}.sig{margin-top:1.5rem}.bye{color:#555;font-style:italic}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}h2 span,.bye{color:#aaa}}@media print{body{background:#fff;color:#000}}</style></head>
+<body><h1>${t}</h1>
+${pages}
+</body></html>
+`;
+}
+
 // ---------------------------------------------------------------- results, standings, play-offs
 
 /**
