@@ -4167,6 +4167,8 @@ export const GUIDES_PATH = 'guides/';
 // door. Not a venture: no launch date, no card, linked from the hub footer.
 export const RESEARCH_PATH = 'research/';
 export const RESEARCH_BUILDER = path.join('research', '_homepage', 'build.py');
+// One page per research theme, written by the same builder (`TOPICS_DIR` there).
+export const RESEARCH_TOPICS_DIR = 'topics';
 
 async function buildResearchPage(outDir, baseUrl) {
   // The site header and footer, handed to the Python builder as data so the
@@ -5322,7 +5324,10 @@ export function isPublishable(name) {
  * charset declaration so that stays the first thing the parser sees.
  */
 export function injectFavicon(html, toRoot) {
-  if (/<link[^>]+rel=["'][^"']*icon/i.test(html)) return html;
+  // `icon` as a whole rel token (`icon`, `shortcut icon`, `alternate icon`):
+  // an `apple-touch-icon` is a home-screen tile, not the tab icon, and treating
+  // it as one left bid-price-engine with no favicon.
+  if (/<link[^>]+rel=["'](?:[^"']*\s)?icon(?:\s[^"']*)?["']/i.test(html)) return html;
   const link = `\n  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">`;
   if (/<meta[^>]+charset/i.test(html)) {
     return html.replace(/<meta[^>]+charset[^>]*>/i, (meta) => `${meta}${link}`);
@@ -7173,7 +7178,7 @@ ${featured
     : '';
   const themesHtml = themes.length
     ? `      <p class="research-themes">${themes
-        .map((t) => `<a href="${escapeHtml(`${RESEARCH_PATH}#${t.id}`)}">${escapeHtml(decodeEntities(t.name))} <span>${t.count}</span></a>`)
+        .map((t) => `<a href="${escapeHtml(`${RESEARCH_PATH}${RESEARCH_TOPICS_DIR}/${t.id}/`)}">${escapeHtml(decodeEntities(t.name))} <span>${t.count}</span></a>`)
         .join(' ')}</p>`
     : '';
   return `    <section class="band" id="research" aria-labelledby="research-h">
@@ -10406,6 +10411,13 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   for (const slug of researchSlugs) {
     if (await fs.stat(path.join(outDir, RESEARCH_PATH, slug, 'app', 'index.html')).catch(() => null)) researchApps.push(`${slug}/app`);
   }
+  // The topic pages, research/topics/<id>/, for the sitemap.
+  const researchTopics = (
+    await fs.readdir(path.join(outDir, RESEARCH_PATH, RESEARCH_TOPICS_DIR), { withFileTypes: true }).catch(() => [])
+  )
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => `${RESEARCH_TOPICS_DIR}/${entry.name}`)
+    .sort();
 
   // The engineering status page: what the agent fleet shipped, is working on,
   // spent and is blocked on, read from the committed run records and history.
@@ -10478,7 +10490,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
         ...audiencePages.map(({ audience }) => audiencePageId(audience)),
       ],
       compareProducts.map((group) => group.key),
-      [...researchSlugs, ...researchApps],
+      [...researchSlugs, ...researchTopics, ...researchApps],
       posts.map((post) => post.slug),
     ),
   );

@@ -1337,6 +1337,11 @@
      "summary": "Simulation of the classical cutoff rule for hiring the best of <em>n</em> = 50 candidates when only a noisy score is seen (noise sd 0 to 4 times the quality sd, 40,000 trials per cell, checked against the exact noiseless formula). The best cutoff barely moves, 19 with no noise and 16&ndash;17 at every noise level; the chance of picking the true best falls from 0.373 to 0.145 at noise 1 and 0.043 at noise 4 (lottery: 0.02). Keeping the classical cutoff costs at most 0.006. A high mean true rank wants a much earlier cutoff (7&ndash;9). Cutoff rules only, Gaussian, one setting; the optimal noisy policy is not computed."
     },
     {
+     "slug": "free-sprtcert",
+     "title": "How many simulator rollouts does a sequential test save when certifying a failure rate?",
+     "summary": "Exact dynamic-programming comparison (no sampling) of Wald&rsquo;s sequential probability ratio test with the smallest fixed-size binomial test, both at 5% error, for deciding between an acceptable and an unacceptable failure rate. At either rate the sequential test uses about half the rollouts (for 1% vs 5%: 79 and 113 on average against 181). Between the two rates the saving shrinks to 6&ndash;17% at its worst point in the four cases tried. Assumes iid rollouts that match reality, so it says nothing about the sim-to-real gap."
+    },
+    {
      "slug": "free-secretarymargin",
      "title": "With noisy scores, does a \"beat the record by a margin\" rule pick the best candidate more often than the best cutoff?",
      "summary": "Simulation (<em>n</em> = 50 candidates, parameters tuned on 8,000 training trials, scored on 60,000 fresh paired trials) of a two-parameter margin rule: skip <em>r</em>&minus;1 candidates, then take the first whose noisy score beats the earlier maximum by at least <em>d</em>. P(pick the true best) rises from 0.2334 to 0.2444 at noise 0.5 (+0.0111, se 0.0014) and from 0.1429 to 0.1491 at noise 1 (+0.0062, se 0.0015); at noise 2 the gain (+0.0018, se 0.0011) is not distinguishable from zero, and with no noise the tuning picks the plain cutoff. One setting, one seed pair, a coarse grid; the Bayes-optimal policy is not computed."
@@ -2938,6 +2943,11 @@
      "summary": "On the 80-design accelerator table from <code>eda-proposers</code>, a screen that synthesises 4 spread designs, fits a log-linear cell-count model, and then synthesises designs in order of predicted Pareto rank finds 0.990 of the true front&rsquo;s hypervolume at 12 syntheses (random 0.860, TPE 0.878; 100 seeds) and the whole front on 87% of seeds by 20. The screen reads cycles and error for free, which the baselines do not: with no cell-count model that alone gives 0.908, so the surrogate adds the rest. Stylised: one small smooth space, the surrogate fitted inside one family, no place and route."
     },
     {
+     "slug": "eda-refpoint",
+     "title": "Does the ranking of design-search proposers survive a change of hypervolume reference point or quality indicator?",
+     "summary": "The 100-seed proposer runs of <code>eda-proposers</code> re-scored under five hypervolume reference points, front recall, IGD+, an epsilon indicator and log-scaled cell counts. The winner (TPE at budgets 16 and 30) is the same under all of them, but its lead over random at budget 30 shrinks from +0.045 (reference 1.01) to +0.002 (reference 5.0), while recall shows +0.279. At budget 8 the order is decided by annealing and flips with the indicator. Stylised: one 80-design space, generic-gate counts, no place and route."
+     },
+    {
      "slug": "eda-cheapaware",
      "title": "How much of a surrogate screen&rsquo;s lead over random search comes from the free objectives?",
      "summary": "A follow-up to <code>eda-screen</code> on the same 80-design accelerator table. A random search that uses the free cycles and error objectives (no cell-count model) finds 0.901 of the true front&rsquo;s hypervolume at 12 syntheses, against 0.860 for plain random, 0.878 for TPE and 0.990 for the 4-fit screen (100 seeds). So +0.041 of the screen&rsquo;s +0.130 lead comes from the free objectives and +0.089 from the surrogate. The baseline stalls once the free-objective layer is spent and falls below random and TPE by 30 syntheses. Stylised: one 80-design space, generic-gate cell counts, no place and route."
@@ -3516,6 +3526,11 @@
      "summary": "Splits the exterior walls of the <code>house-framing</code> house into panels, nests the sheathing, loads the trailers and runs a Monte Carlo of the shell crew's days with weather. Panelised took 2.17 calendar days against 1.96 on site and cost 38% more at assumed rates; factory productivity does not change the days because the factory runs behind the foundation, and panelised is faster only from about 58 ft long (78 with no weather, 44 at 30% loss). Factory nesting saved 1 sheet in 33 (bound 26): a 97 in wall on a 108 in sheet wastes the same strip either way. Stylised: wall shell only, every labour rate and price is my assumption."
     },
     {
+     "slug": "house-shellvalue",
+     "title": "Does a factory-built shell pay once the interest on the days it saves is counted?",
+     "summary": "Joins <code>house-offsite</code>'s extra cost of panelising the walls ($1,373 at assumed rates) to <code>house-schedule</code>'s interest on working days saved, comparing a factory shell with a site-built house ordered on the same day. The shell alone saves 15.5 days (0.22% of price at 8%) when ordered at day 0 and only 6.4 days when ordered at the foundation start with a 25-day lead; it breaks even at a house price of about $629,000 at a $1,500 crane day and pays throughout at $750. Most of <code>house-schedule</code>'s 78-day saving is the ordering date, not the shell. Stylised: house prices are parameters and every rate is assumed."
+    },
+    {
      "slug": "house-schedule",
      "title": "How much do fewer handoffs, parallel trades, early ordering and a factory shell cut the time to build a house?",
      "summary": "A Monte Carlo discrete-event model of one house build (20 tasks, a crew per trade, failing inspections, weather, material lead times; 4,000 builds per scenario with common random numbers). The zero-noise critical path is 100 working days but the baseline takes 214: the schedule is driven by waiting. Ordering long-lead materials at day 0 saves 63 days, fewer handoffs 21, parallel rough-in 12.5, faster inspections 11. A factory wall-and-roof shell saves only 6 days if ordered when the foundation starts and 78 if ordered at day 0. All levers together: 96 days, about 1.7% of the price in interest at 8%. <em>Stylised</em>: every duration and rate is my assumption and nothing is calibrated; the 63-day figure rests on a late-ordering baseline."
@@ -3581,6 +3596,11 @@
       "slug": "capture-edit",
       "title": "How much of a multi-camera shoot can an automatic edit recover, and what stops it?",
       "summary": "A synthetic model of four cameras whose true angle quality changes every 2&ndash;8 s, seen through a noisy detector. At noise 0.3 a fixed 3 s rotation shows mean true quality 0.546; an offline Viterbi edit that maximises detected quality minus a cost per cut reaches 0.802 against 0.815 for the same search on true scores, while picking the best score every frame gives 0.723 with 345 cuts a minute and every shot under 1.5 s. The cut cost matters more than detector accuracy (best near 1.0, about 14 cuts a minute). Clock sync from a shared loudness envelope fails first on short clips: a 5 s clip at noise 0.25 is off by over 40 ms in 25% of trials, 15 s in 5%. No real footage, reframing or film-look grade; quality is a made-up random process."
+   },
+   {
+    "slug": "capture-bystander",
+    "title": "When does automatic blurring miss a bystander's face, and which filming platform is conspicuous?",
+    "summary": "An assumed size-to-recall model of blurring strangers' faces while filming in public. A face detector that is 50% reliable at 20&nbsp;px leaves a face-on face of at least 32&nbsp;px unblurred 5% of the time per frame (8% at 5&nbsp;m on an 8K 360 camera); blurring the head region of any detected body instead drops it under 0.1%, because a body is 11&times; taller than a face. A telephoto frame resolves about 10 identifiable people at once against 2.5 for an 8K 360 view. Per-frame blur is worse than it looks: with independent misses a person filmed for 5&nbsp;s at the edge of range shows unblurred in some frame 100% of the time, 25% if misses last the whole shot, and an offline edit that blurs a whole track after one detection is left with 0&ndash;5%. Size alone does not separate the tall platforms. All detector curves, sizes and angles are assumptions; no real detector or footage; blurring is not legal compliance."
    }
   ]
  },
