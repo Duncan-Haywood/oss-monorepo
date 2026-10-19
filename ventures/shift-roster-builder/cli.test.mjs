@@ -67,3 +67,23 @@ test("the executable runs --example and --help", () => {
   const bad = spawnSync(process.execPath, ["cli.mjs"], { cwd: import.meta.dirname, encoding: "utf8" });
   assert.equal(bad.status, 2);
 });
+
+test("--ics and --messages export the week for calendars and chat", () => {
+  const staff = "name, wage, max hours, min hours, availability\nAna, 15, 40, 0, any";
+  const shifts = "day, start, end, people needed\nMon, 9, 13, 1";
+  const o = parseArgs(["--ics", "Ana", "s.txt", "h.txt"]);
+  assert.equal(o.icsPerson, "Ana");
+  assert.deepEqual(o.files, ["s.txt", "h.txt"]);
+  assert.equal(parseArgs(["--ics", "s.txt", "h.txt"]).icsPerson, undefined);
+  assert.deepEqual(parseArgs(["s.txt", "h.txt", "--ics"]).files, ["s.txt", "h.txt"]);
+
+  const ics = run(staff, shifts, { mode: "ics", weekStart: "2026-10-19" });
+  assert.equal(ics.code, 0);
+  assert.match(ics.out, /DTSTART:20261019T090000/);
+  assert.equal(run(staff, shifts, { mode: "ics" }).code, 2);
+  assert.equal(run(staff, shifts, { mode: "ics", weekStart: "2026-10-20" }).code, 2);
+  assert.equal(run(staff, shifts, { mode: "ics", weekStart: "2026-10-19", icsPerson: "Zed" }).code, 2);
+
+  const msg = run(staff, shifts, { mode: "messages", weekStart: "2026-10-19" });
+  assert.match(msg.out, /Hi Ana, your shifts this week:\nMon 19 Oct: 9am-1pm/);
+});

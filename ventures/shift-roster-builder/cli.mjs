@@ -16,7 +16,7 @@ import { readFile } from "node:fs/promises";
 import process from "node:process";
 import {
   parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, carryOverStaff, sampleStaff, sampleShifts,
-  DAYS, fmtClock, money, num,
+  rosterIcs, rosterMessages, DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
 const USAGE = `Build a weekly roster that respects availability, hour limits and rest, covers as many shifts as it can, and avoids overtime.
@@ -34,6 +34,8 @@ Options:
   --week-start <date> Monday of the week, YYYY-MM-DD (lets time-off dates in the staff file apply)
   --last-week <csv>   last week's roster CSV, to carry shift end times into Monday
   --csv | --hours | --json   machine-readable output
+  --ics [name]        iCalendar file of the week (needs --week-start, a Monday); one person's shifts, or everyone's
+  --messages          one paste-ready text per person ("Hi Sam, your shifts this week: ..."); dated with --week-start
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
   -h, --help          this text
@@ -54,6 +56,8 @@ export function parseArgs(argv) {
     else if (a === "--csv") o.mode = "csv";
     else if (a === "--hours") o.mode = "hours";
     else if (a === "--json") o.mode = "json";
+    else if (a === "--ics") { o.mode = "ics"; if (argv[i + 1] !== undefined && !argv[i + 1].startsWith("-") && argv.length - i - 1 > 2 - o.files.length) o.icsPerson = argv[++i]; }
+    else if (a === "--messages") o.mode = "messages";
     else if (a === "--check") o.check = true;
     else if (a === "--example") o.example = true;
     else if (a === "--last-week") { o.lastWeek = argv[++i]; if (!o.lastWeek) throw new Error("--last-week needs a CSV file"); }
@@ -91,6 +95,12 @@ export function run(staffText, shiftsText, opts = {}) {
   const code = opts.check && open ? 1 : 0;
   if (opts.mode === "csv") return { code, out: rosterCsv(r) };
   if (opts.mode === "hours") return { code, out: hoursCsv(r) };
+  if (opts.mode === "ics") {
+    if (!opts.weekStart) return { code: 2, out: "--ics needs --week-start <Monday as YYYY-MM-DD>\n" };
+    if (opts.icsPerson && !r.people.some((p) => p.name === opts.icsPerson)) return { code: 2, out: `No one named ${opts.icsPerson} in the staff file.\n` };
+    try { return { code, out: rosterIcs(r, opts.weekStart, opts.icsPerson || null) }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
+  }
+  if (opts.mode === "messages") return { code, out: rosterMessages(r, opts.weekStart || null).map((m) => m.text).join("\n\n") + "\n" };
   if (opts.mode === "json") {
     return {
       code,
