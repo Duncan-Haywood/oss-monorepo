@@ -164,7 +164,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or event-planning advice, is not a guarantee that any guest will be content with their seat, and does not replace your own judgement or your planner's. Results come from the wishes you type; real people and venues differ. You are responsible for reviewing and verifying its output before you print place cards.</p>
     <p><strong>Independent.</strong> Not affiliated with any venue, caterer, planner or software company, and none is named or ranked here. The example guests are invented, and no price is stated or implied.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your guest list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>reseat_run</code>, <code>move_checked</code>, <code>table_counts_compared</code>, <code>signs_printed</code>, <code>floorplan_printed</code>, <code>board_printed</code>, <code>cards_printed</code>, <code>caterer_printed</code>, <code>guest_sheet_imported</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your guest list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>reseat_run</code>, <code>move_checked</code>, <code>table_counts_compared</code>, <code>signs_printed</code>, <code>floorplan_printed</code>, <code>board_printed</code>, <code>cards_printed</code>, <code>caterer_printed</code>, <code>guest_sheet_imported</code>, <code>saved_list_restored</code>, <code>plan_run_new_day</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../bounce-house-rental-calculator/">bounce house rental calculator</a>, the <a href="../container-load-planner/">container load planner</a>, the <a href="../cut-list-optimizer/">cut list optimizer</a> and the <a href="../secret-santa-draw/">Secret Santa draw</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -235,7 +235,7 @@
     }
 
     const later = (fn) => setTimeout(fn, 0);
-    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) { record("plan_run"); noteDay(); } }));
     $("#reseat").addEventListener("click", () => later(() => {
       const prev = parsePlanCsv($("#prevplan").value);
       if (prev.errors.length) { status.textContent = prev.errors[0]; return; }
@@ -380,8 +380,11 @@
     function persist() { if (saveOff) return; try { localStorage.setItem(KEY, setupJson(snapshot())); } catch (e) {} }
     try {
       const saved = parseSetup(localStorage.getItem(KEY) || "null").state;
-      if (saved && saved.guests) { apply(saved); status.textContent = "Restored your last guest list from this device. Click Seat my guests to rebuild."; }
+      if (saved && saved.guests) { apply(saved); status.textContent = "Restored your last guest list from this device. Click Seat my guests to rebuild."; record("saved_list_restored"); }
     } catch (e) {}
+    // Return measurement (hypothesis: people come back as the guest list changes). Counts a plan on a different calendar day from the last one, on this device only.
+    const DAY_KEY = "event-seating-setup-v1:last-plan-day";
+    function noteDay() { try { const d = new Date().toISOString().slice(0, 10), last = localStorage.getItem(DAY_KEY); if (last && last !== d) record("plan_run_new_day"); localStorage.setItem(DAY_KEY, d); } catch (e) {} }
     for (const sel of [...Object.values(FIELDS), "#balance"]) $(sel).addEventListener("input", persist);
     $("#forget").addEventListener("click", () => { saveOff = true; try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device. Nothing more is saved until you reload."; });
     $("#save-setup").addEventListener("click", () => {
