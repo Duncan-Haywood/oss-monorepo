@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, planCsv, groceryList, groceryText, breakEvenPrices, encodeShare, decodeShare, sampleSpec, filterByStyle, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, planCsv, groceryList, groceryText, breakEvenPrices, stayInPrices, encodeShare, decodeShare, sampleSpec, filterByStyle, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -413,4 +413,31 @@ test("parseFoods reads the minimum column and validateSpec refuses a minimum abo
   assert.match(parseFoods("Eggs | 0.4 | 70 | 6 | 0.5 | 5 | 0 | 4 | | | | | | -1").errors[0], /minimum servings/);
   const bad = { ...sampleSpec(), foods: [{ ...sampleSpec().foods[0], max: 2, min: 3 }, ...sampleSpec().foods.slice(1)] };
   assert.ok(validateSpec(bad).some((e) => /minimum of 3/.test(e)));
+});
+
+test("stayInPrices finds the price above which a used food is dropped", () => {
+  // Need 100 g protein. Egg: 10 g for 1.00 is used; Bean: 10 g for 1.50 is not. Egg is dropped above 1.50.
+  const spec = { ...DEFAULTS, kcalMin: "", kcalMax: "", fatMin: "", fatMax: "", fiberMin: "", step: 0, defaultMax: 20, foods: foods([["Egg", 1, [100, 10, 0, 0, 0]], ["Bean", 1.5, [100, 10, 0, 0, 0]]]) };
+  const res = solve(spec);
+  const st = stayInPrices(spec, res);
+  assert.equal(st.length, 1);
+  assert.equal(st[0].name, "Egg");
+  assert.ok(Math.abs(st[0].price - 1.5) < 1e-6);
+  assert.ok(Math.abs(st[0].rise - 0.5) < 1e-6);
+  const dearer = { ...spec, foods: spec.foods.map((f) => (f.name === "Egg" ? { ...f, price: 1.51 } : f)) };
+  assert.equal(solve(dearer).items[0].name, "Bean");
+});
+
+test("stayInPrices on the starter menu: raising a price 2% past the limit drops the food, 2% under keeps it", () => {
+  const spec = { ...sampleSpec(), step: 0 };
+  const res = solve(spec);
+  const st = stayInPrices(spec, res);
+  assert.ok(st.length > 0);
+  for (const b of st) {
+    if (b.price === null) continue;
+    assert.ok(b.price > b.current, b.name);
+    const at = (m) => solve({ ...spec, foods: spec.foods.map((f, j) => (j === b.index ? { ...f, price: b.price * m } : f)) }).servings[b.index];
+    assert.ok(at(0.98) > 1e-6, b.name + " kept");
+    assert.ok(at(1.02) < at(0.98), b.name + " reduced");
+  }
 });
