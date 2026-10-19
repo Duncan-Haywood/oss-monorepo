@@ -723,7 +723,7 @@ export function buildRoster(staff, slots, options = {}) {
   // Covering shifts outranks everything else, so while any shift is open spend as many extra restarts again on finding a roster that
   // covers more. A balance of 50 on the sample week left 8 coverable hours open after four restarts; twelve found them.
   if (scoreOwner(ctx, best.owner).unfilled > 0) {
-    const more = search(ctx, o.restarts * 2, iterations, o.restarts);
+    const more = search(ctx, o.restarts * 6, iterations, o.restarts);
     if (more.score < best.score - 1e-9) best = more;
   }
   const res = summarise(ctx, best.owner);
