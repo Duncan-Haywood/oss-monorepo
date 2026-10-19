@@ -34,6 +34,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -496,6 +497,30 @@ def decisions_by_merit(ventures: list[Venture]) -> list[dict]:
     return rows
 
 
+def recent_commits(days: int = 7) -> dict[str, int]:
+    """Commits in the last `days` days touching each ventures/<slug>/.
+
+    Display-only: a venture with many recent commits is usually already deep,
+    and its Explore task needs visitors more than code (run-record doc_friction,
+    2026-10-18/19). Empty when git history is unavailable."""
+    try:
+        out = subprocess.run(
+            ["git", "log", f"--since={days}.days", "--name-only", "--format=%x00"],
+            capture_output=True, text=True, timeout=120, cwd=Path(__file__).resolve().parent,
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return {}
+    counts: dict[str, int] = {}
+    for commit in out.split("\0"):
+        slugs = {
+            parts[1] for line in commit.splitlines()
+            if len(parts := line.split("/", 2)) > 2 and parts[0] == "ventures"
+        }
+        for slug in slugs:
+            counts[slug] = counts.get(slug, 0) + 1
+    return counts
+
+
 def print_table(ventures: list[Venture], queue: list[dict]) -> None:
     later_cap = sum(v.monthly_cap for v in ventures if v.later_stage)
     early_cap = sum(v.monthly_cap for v in ventures if not v.later_stage)
@@ -529,15 +554,17 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
     print()
     print(
         f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'merit':>7}"
-        f"{'ledger':>8}{'mentions':>10}  task"
+        f"{'ledger':>8}{'mentions':>10}{'7d-commits':>12}  task"
     )
+    recent = recent_commits()
     for i, item in enumerate(queue, 1):
         merit = f"{item['merit']:.2f}" if item["merit"] is not None else "-"
         print(
             f"{i:<3}{item['venture']:<32}{item['stage']:<12}"
             f"{item['spend_ceiling_usd']:>6.0f}{merit:>7}"
             f"{item['ledger_entries_this_period']:>8}"
-            f"{item['portfolio_mentions_this_period']:>10}  {item['task']}"
+            f"{item['portfolio_mentions_this_period']:>10}"
+            f"{recent.get(item['venture'], 0):>12}  {item['task']}"
         )
 
     decisions = decisions_by_merit(ventures)
