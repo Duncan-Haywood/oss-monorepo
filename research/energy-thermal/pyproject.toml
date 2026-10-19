@@ -1,0 +1,13 @@
+[project]
+name = "energy-thermal"
+version = "0.1.0"
+description = "Transient model of a sand heat store: standing losses, size and insulation, and whether resistance-charged heat can beat a heat pump"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
