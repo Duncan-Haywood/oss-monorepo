@@ -50,7 +50,7 @@ record: `{"file", "issue", "patched": false}`.
 
 ## 3. Blue: triage, guard, patch
 
-For every mutant with `"caught": false`, set `triage`:
+For every mutant with `"caught": false` (in the record at `redteam.campaigns[N].mutants`), set `triage`:
 
 - `"equivalent"`: the mutant cannot change behaviour a user can see, such as
   dead code, an unreachable branch or a log line. Say why in `note`. Be strict.
