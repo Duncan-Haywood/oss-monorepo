@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_013SEedAfabB6cjZorVqzBU5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T21:12:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "eda-refpoint (track 7, new question: indicator sensitivity)",
+  "projects": [
+    "eda-refpoint"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first shell call hung on a stray stdin cat; first experiment run failed on an import path (fixed in package __init__)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "track 7 milestones 1-6 are all done and the Next-steps chain is micro-variants; had to invent a new question"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py output printed an extra line on stdout when stderr was dropped; used /usr/bin/python3.13 directly"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Data-only re-scoring of eda-proposers runs; no new synthesis. Run cost not attached (transcript tooling not run).",
+  "corrections": [],
+  "redteam": null
+}
