@@ -39,7 +39,7 @@ zero dependencies, one JSON file on a disk you own.
 - Tests: `node --test server.test.mjs`.
 
 - **Share link:** "Copy share link" puts the whole setup (staff, wages, shifts, rules) in the URL fragment, so a co-manager opens the same setup in one click. The fragment is never sent to a server; it still shows pay, so share it only with people who may see wages.
-- **Command line:** `cli.mjs` builds the same roster from a staff file and a shifts file with no browser and no network, for owners and bookkeepers who keep the week in text files and want a Sunday cron or a script: `node cli.mjs staff.txt shifts.txt`, `--last-week roster.csv` to carry end times over Monday, `--csv`, `--hours`, `--json`, `--ics` (with `--week-start`, and `--person` for one person's calendar), `--messages` (a paste-ready text per person), and `--check` (exit 1 if any shift stays open). `node cli.mjs --example` runs an invented week. Zero dependencies; names and wages never leave the machine.
+- **Command line:** `cli.mjs` builds the same roster from a staff file and a shifts file with no browser and no network, for owners and bookkeepers who keep the week in text files and want a Sunday cron or a script: `node cli.mjs staff.txt shifts.txt`, `--last-week roster.csv` to carry end times over Monday, `--csv`, `--hours`, `--json`, `--ics` (with `--week-start`, and `--person` for one person's calendar), `--messages` (a paste-ready text per person), `--open-post` (a group message listing the shifts left open and who could take each), and `--check` (exit 1 if any shift stays open). `node cli.mjs --example` runs an invented week. Zero dependencies; names and wages never leave the machine.
 
 ## Model
 

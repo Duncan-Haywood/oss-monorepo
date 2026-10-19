@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { parseArgs, run } from "./cli.mjs";
-import { sampleStaff, sampleShifts, buildRoster, parseStaff, parseShifts, rosterCsv, rosterIcs, rosterMessages } from "./calc.mjs";
+import { sampleStaff, sampleShifts, buildRoster, parseStaff, parseShifts, rosterCsv, rosterIcs, rosterMessages, openShiftPost } from "./calc.mjs";
 
 test("parseArgs reads options, files and modes", () => {
   const o = parseArgs(["--rest", "11", "--balance", "250", "--check", "--csv", "a.txt", "b.txt"]);
@@ -86,4 +86,17 @@ test("--ics and --messages match the library exports", () => {
   const o = parseArgs(["--ics", "--person", "Sam", "a", "b"]);
   assert.equal(o.mode, "ics");
   assert.equal(o.person, "Sam");
+});
+
+test("--open-post matches the library's group message for open shifts", () => {
+  assert.equal(parseArgs(["--open-post", "a", "b"]).mode, "open-post");
+  const st = parseStaff(sampleStaff()).staff;
+  const sl = parseShifts(sampleShifts()).slots;
+  const lib = buildRoster(st, sl, {});
+  const post = openShiftPost(st, sl, lib, "2026-10-19");
+  const r = run(sampleStaff(), sampleShifts(), { mode: "open-post", weekStart: "2026-10-19" });
+  assert.equal(r.code, 0);
+  assert.equal(r.out, post.count ? post.text + "\n" : "");
+  const none = run("name, wage, max hours, min hours, availability\nAna, 18, 40, 0, Mon-Sun 0-24", "Mon, 9am, 5pm, 1, desk", { mode: "open-post" });
+  assert.equal(none.out, "");
 });

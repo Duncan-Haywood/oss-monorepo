@@ -7,6 +7,7 @@
 //   node cli.mjs --csv staff.txt shifts.txt > roster.csv    # also --hours, --json
 //   node cli.mjs --week-start 2026-10-19 --ics [--person Sam] staff.txt shifts.txt > week.ics   # calendar file, all or one person
 //   node cli.mjs --messages [--week-start 2026-10-19] staff.txt shifts.txt   # one paste-ready text per person
+//   node cli.mjs --open-post [--week-start 2026-10-19] staff.txt shifts.txt   # group message for shifts left open, with who could take each
 //   node cli.mjs --check staff.txt shifts.txt               # exit 1 if any shift stays open (cron, CI, a Sunday reminder)
 //   node cli.mjs --example                                  # run on the built-in invented week
 //
@@ -17,7 +18,7 @@
 import { readFile } from "node:fs/promises";
 import process from "node:process";
 import {
-  parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs, rosterMessages, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -38,6 +39,7 @@ Options:
   --csv | --hours | --json   machine-readable output
   --ics [--person <name>]    calendar file for the week (needs --week-start, a Monday); one person's shifts with --person
   --messages                 a paste-ready text per person
+  --open-post                a group message for the shifts left open and who could take each (empty when none)
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
   -h, --help          this text
@@ -60,6 +62,7 @@ export function parseArgs(argv) {
     else if (a === "--json") o.mode = "json";
     else if (a === "--ics") o.mode = "ics";
     else if (a === "--messages") o.mode = "messages";
+    else if (a === "--open-post") o.mode = "open-post";
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--check") o.check = true;
     else if (a === "--example") o.example = true;
@@ -101,6 +104,9 @@ export function run(staffText, shiftsText, opts = {}) {
     if (!opts.weekStart) return { code: 2, out: "--ics needs --week-start (the Monday, YYYY-MM-DD)\n" };
     if (opts.person && !r.people.some((p) => p.name === opts.person)) return { code: 2, out: `No one named ${opts.person} in the staff file\n` };
     try { return { code, out: rosterIcs(r, opts.weekStart, opts.person || null) }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
+  }
+  if (opts.mode === "open-post") {
+    try { const p = openShiftPost(st.staff, sh.slots, r, opts.weekStart || null); return { code, out: p.text ? p.text + "\n" : "" }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
   }
   if (opts.mode === "messages") {
     try { return { code, out: rosterMessages(r, opts.weekStart || null).map((m) => m.text).join("\n\n") + "\n" }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
