@@ -102,6 +102,17 @@ python3 -m http.server 8877 --directory ventures/invoice-payment-terms-calculato
 
 Then open `http://localhost:8877`. There is no build step.
 
+## Host your own copy
+
+Your data stays in your browser either way, but you can serve the page from an address you control. It is a static
+site: the server only hands out files and never sees a figure you type.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`, `schedule_compared`, `schedule_copied`, `calendar_exported`, `reminders_copied`, `reminders_downloaded`) and can be disabled in the footer. Saved drafts stay on this device.
