@@ -276,7 +276,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
       3. Unmeasured ventures -- still owed their protected explore budget;
          null MRR is "not yet measured", not "measured and failing".
       4. Everything else: later stage before earlier stage, then by merit
-         score descending, then monthly_cap descending, then name for a
+         score descending, then monthly_cap descending, then least-worked (ledger + mentions), then name for a
          stable order.
 
     Merit (portfolio/scoring/) sits below dispatchability deliberately. The
@@ -297,6 +297,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             0 if v.later_stage else 1,
             -(v.merit if v.merit is not None else 0.0),
             -v.monthly_cap,
+            v.ledger_entries + v.portfolio_mentions,
             v.name,
         )
 

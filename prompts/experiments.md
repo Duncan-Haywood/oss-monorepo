@@ -772,3 +772,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   Audit not run (recent outputs doc-only or mirrored).
 - Drift: `prompts/drift/2026-10-19.md`.
 - Result: (next review)
+
+## E43: review 2026-10-19 (second)
+
+- Change: `allocate.py` `rank()` breaks merit ties by least-worked first
+  (ledger entries + portfolio mentions, ascending) before name. Top rows were a
+  merit tie sorted alphabetically, so every run met the same already-deep
+  ventures (reverb, where-to-sell; the top friction in `CLAUDE.md` and
+  `ventures/prompt-1.md`). Top 3 now include 0-ledger ventures.
+- Metric: "allocator top rows already deep" friction reports, next 20 ventures
+  runs; expect fewer.
+- Candidates: unchanged. `test_allocate` passes (57 tests).
+- Result: (next review)
