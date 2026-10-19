@@ -13,10 +13,10 @@ every python3 it can find, so the answer does not depend on the image.
 
 Order: an interpreter that already imports everything wins. Otherwise each
 candidate tries `<it> -m pip install` (pip then always targets that
-interpreter), then `apt-get install python3-<module>`, and the first one that
-imports everything afterwards is printed. Progress goes to stderr; stdout is
-only the path. If all of that fails, a private venv (`$PYENV_VENV`, default
-~/.cache/pyenv-venv) gets the pip install. Exit 1 when nothing works, with what
+interpreter). If none works, a private venv (`$PYENV_VENV`, default
+~/.cache/pyenv-venv) gets the pip install, and last `apt-get install
+python3-<module>` is tried; the first interpreter that imports everything is
+printed. Progress goes to stderr; stdout is only the path. Exit 1 when nothing works, with what
 was tried.
 """
 import glob
@@ -113,13 +113,18 @@ def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.std
         if pip_install(py, modules, run, log) and imports(py, modules, run):
             log(f"pyenv: installed with {py} -m pip")
             return py
+    if venv_dir and cands:
+        # Before apt: `apt-get update` is slow and often fails in these images,
+        # while a venv sidesteps PEP 668 (2026-10-19: pip hit the 120s foreground
+        # timeout, then a venv by hand worked).
+        vpy = venv_install(cands[0], modules, venv_dir, run, log)
+        if vpy:
+            return vpy
     if apt_install(modules, run):
         for py in cands:
             if imports(py, modules, run):
                 log(f"pyenv: installed with apt-get; {py} imports them")
                 return py
-    if venv_dir and cands:
-        return venv_install(cands[0], modules, venv_dir, run, log)
     return None
 
 
