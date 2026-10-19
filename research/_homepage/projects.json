@@ -3275,6 +3275,11 @@
      "title": "Does solar gain through windows change which envelope is cheapest over 30 years, and is the direction the windows face worth money?",
      "summary": "Adds window solar gain, computed from solar geometry by orientation, to <code>house-energy</code>&rsquo;s 640-package net-present-cost search. U&nbsp;0.50 windows stay the optimum in 15 of 16 climate and system cases (Miami moves to U&nbsp;0.35), and forcing U&nbsp;0.20 glass costs $5,300 to $5,700 whatever its solar heat gain coefficient, so the earlier window result was not an artifact of the missing solar term. Which way the windows face is free and worth $420 to $1,740 of 30-year cost per house, south-heavy glazing best except in Miami. <em>Stylised</em>: degree-day model, assumed prices, latitudes and clearness, trigonometry written from memory and not validated against weather data."
     }
+    ,{
+     "slug": "house-overhang",
+     "title": "Does a roof overhang over south windows pay for itself, and in which climates does it cost energy instead of saving it?",
+     "summary": "Adds overhang shading (profile angle, shadow depth on the glass, beam radiation only) to <code>house-solar</code>&rsquo;s south windows and searches projection from 0 to 4&nbsp;ft with the 640 envelope packages. At an assumed $12 per foot of width per foot of projection no overhang is cost-optimal in any of 8 climates or 2 systems. Its gross energy value is at most $280 of 30-year net present cost (Miami, 4&nbsp;ft); in cold and mixed climates anything deeper than about 1&nbsp;ft loses more winter gain than it saves in summer. It would be chosen only below roughly $0.60 to $4.20 per foot per foot. Stylised degree-day model; height, gap and price are assumptions; not EnergyPlus."
+    }
    ]
   }
  ],

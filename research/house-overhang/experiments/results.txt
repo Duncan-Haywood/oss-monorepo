@@ -1,0 +1,42 @@
+A. Share of a south window shaded at solar noon, by projection (ft), window height 4.0 ft, gap 0.5 ft, at 41.9 N (Chicago)
+  21 Dec: sun altitude 24.7 deg  P=0: 0.00  P=1: 0.00  P=2: 0.10  P=3: 0.22  P=4: 0.33
+  21 Mar: sun altitude 47.7 deg  P=0: 0.00  P=1: 0.15  P=2: 0.42  P=3: 0.70  P=4: 0.97
+  21 Jun: sun altitude 71.5 deg  P=0: 0.00  P=1: 0.62  P=2: 1.00  P=3: 1.00  P=4: 1.00
+
+B. Gross energy value of an overhang (baseline package, south-heavy glazing): 30-year NPC of energy saved vs no overhang, dollars, gas furnace + AC / heat pump (negative = the overhang costs energy)
+  Miami (1A)         gas furnace + AC: P1    +96 P2   +186 P3   +244 P4   +280 | heat pump: P1    +96 P2   +186 P3   +244 P4   +280
+  Houston (2A)       gas furnace + AC: P1    +56 P2    +45 P3     +7 P4    -26 | heat pump: P1    +46 P2    +12 P3    -49 P4    -99
+  Atlanta (3A)       gas furnace + AC: P1    +36 P2    -19 P3    -80 P4   -147 | heat pump: P1    +19 P2    -71 P3   -162 P4   -255
+  Albuquerque (4B)   gas furnace + AC: P1    +70 P2    -56 P3   -193 P4   -353 | heat pump: P1    +31 P2   -172 P3   -375 P4   -594
+  Baltimore (4A)     gas furnace + AC: P1    +34 P2     +2 P3    -47 P4   -104 | heat pump: P1    +21 P2    -40 P3   -114 P4   -194
+  Chicago (5A)       gas furnace + AC: P1    +12 P2    -25 P3    -77 P4   -125 | heat pump: P1     -1 P2    -65 P3   -140 P4   -207
+  Minneapolis (6A)   gas furnace + AC: P1    +10 P2    -31 P3    -95 P4   -156 | heat pump: P1     -5 P2    -77 P3   -170 P4   -254
+  Duluth (7)         gas furnace + AC: P1     +3 P2    -33 P3    -88 P4   -143 | heat pump: P1    -10 P2    -73 P3   -151 P4   -226
+
+C. Cost-optimal projection with the assumed price ($12 per ft of width per ft of projection; south glass 21 ft wide), exhaustive over 640 packages x 5 projections, south-heavy glazing
+  Miami (1A)         gas furnace + AC  projection 0 ft, window U0.35, NPC $16,711
+  Miami (1A)         heat pump         projection 0 ft, window U0.35, NPC $16,711
+  Houston (2A)       gas furnace + AC  projection 0 ft, window U0.5, NPC $14,800
+  Houston (2A)       heat pump         projection 0 ft, window U0.5, NPC $15,111
+  Atlanta (3A)       gas furnace + AC  projection 0 ft, window U0.5, NPC $14,649
+  Atlanta (3A)       heat pump         projection 0 ft, window U0.5, NPC $15,458
+  Albuquerque (4B)   gas furnace + AC  projection 0 ft, window U0.5, NPC $15,127
+  Albuquerque (4B)   heat pump         projection 0 ft, window U0.5, NPC $16,209
+  Baltimore (4A)     gas furnace + AC  projection 0 ft, window U0.5, NPC $16,267
+  Baltimore (4A)     heat pump         projection 0 ft, window U0.5, NPC $17,957
+  Chicago (5A)       gas furnace + AC  projection 0 ft, window U0.5, NPC $17,512
+  Chicago (5A)       heat pump         projection 0 ft, window U0.5, NPC $19,891
+  Minneapolis (6A)   gas furnace + AC  projection 0 ft, window U0.5, NPC $19,084
+  Minneapolis (6A)   heat pump         projection 0 ft, window U0.5, NPC $22,076
+  Duluth (7)         gas furnace + AC  projection 0 ft, window U0.5, NPC $21,150
+  Duluth (7)         heat pump         projection 0 ft, window U0.5, NPC $25,121
+
+D. Break-even overhang price: the highest price multiplier (x the assumed price) tried at which a non-zero projection becomes the cost optimum, in each climate (gas furnace + AC); 'never' = not below 0.01x
+  Miami (1A)         overhang pays at 0.35x the assumed price ($4.20/ft/ft)
+  Houston (2A)       overhang pays at 0.35x the assumed price ($4.20/ft/ft)
+  Atlanta (3A)       overhang pays at 0.15x the assumed price ($1.80/ft/ft)
+  Albuquerque (4B)   overhang pays at 0.35x the assumed price ($4.20/ft/ft)
+  Baltimore (4A)     overhang pays at 0.15x the assumed price ($1.80/ft/ft)
+  Chicago (5A)       overhang pays at 0.05x the assumed price ($0.60/ft/ft)
+  Minneapolis (6A)   overhang pays at 0.05x the assumed price ($0.60/ft/ft)
+  Duluth (7)         overhang pays at 0.01x the assumed price ($0.12/ft/ft)
