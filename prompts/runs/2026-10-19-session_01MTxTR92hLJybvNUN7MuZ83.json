@@ -14,7 +14,10 @@
   "errors": [],
   "doc_friction": [],
   "deviations": [
-    "gh-pages refresh (publish-branch.sh) was denied by the auto-mode classifier as a production deploy; not retried. Snapshot still stale."
+    {
+      "file": "platform/pages/publish-branch.sh",
+      "why": "gh-pages refresh (publish-branch.sh) was denied by the auto-mode classifier as a production deploy; not retried. Snapshot still stale."
+    }
   ],
   "notes": "Added cli.mjs + 8 tests + README line to shift-roster-builder (same solver as the page; --check exits 1 on open shifts, --last-week carries rest across Monday). All three top router rows were already deep; chose a deepening feature over a new niche.",
   "usage": {
