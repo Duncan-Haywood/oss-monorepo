@@ -62,3 +62,9 @@ test("module script imports only local files and parses", () => {
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
 });
+
+// One-hop sibling link (platform/pages/siblings.mjs): the related-tool strip
+// rotates and may never pair these two racquet-sport pages.
+test("index links one hop to the pickleball-facility-pro-forma sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/pickleball-facility-pro-forma\/"/);
+});
