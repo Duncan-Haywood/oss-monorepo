@@ -4111,3 +4111,22 @@ entries:
         mechanism, ~118 balls) after the ramp geometry could not drop balls into a hopper reliably.
         Feeder CAD is next.
     mrr_end: 0
+  - venture: ca-crypto-acb-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, 2026-10-19: Canadian crypto capital gains in the browser and a zero-dependency CLI.
+        The portfolio had a US lot matcher and a UK Section 104 calculator but nothing for Canada, whose
+        rules are neither: the CRA averages cost per coin across all wallets and denies a loss when the
+        same coin is bought back within 30 days either side and still held after day 30. calc.mjs
+        implements the average-cost ACB, the superficial loss rule in full and partial form (smallest of
+        units sold, units bought in the 61-day window and units held after day 30; the denied share goes
+        into the ACB of what was bought, or onto the next purchase), swaps, income at value received,
+        50% inclusion, net capital losses carried between years and an optional tax estimate at a
+        marginal rate the user types. Dates are year-first only so a day/month swap cannot move a sale
+        across a window. 41 Node tests, including conservation checks and a guide whose worked figures
+        the suite recomputes, plus a headless-Chromium run of the page on the sample file. Not checked
+        against a real return; the README says so. Importers for Canadian exchanges (Newton, Shakepay,
+        Coinsquare) are the next step if anyone uses it.
+    mrr_end: 0

@@ -1,0 +1,70 @@
+name: ca-crypto-acb-calculator
+description: >-
+  Free browser tool for Canadian crypto holders: paste or open a CSV of buys,
+  sales, swaps and staking income and it works out the average adjusted cost
+  base (ACB) of each coin, applies the CRA superficial loss rule to every loss
+  (full and partial, with the denied loss added back to ACB), shows each year's
+  taxable capital gain, and exports the working. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Gap found 2026-10-19: the portfolio holds a US lot matcher
+# (crypto-cost-basis-calculator, FIFO/HIFO/Form 8949) and a UK one
+# (uk-crypto-cgt-calculator, Section 104 pooling), but nothing implements
+# Canadian crypto rules, which are neither: the CRA averages cost per coin
+# across all wallets and denies losses on a buy-back within 30 days.
+#
+# Why this niche: Canadian crypto tax software (Koinly, CoinTracker, Awaken,
+# Cryptio, Waveapps-style spreadsheets) charges a yearly fee that rises with
+# transaction count and wants API keys or a full upload. The CRA has run crypto
+# compliance campaigns and exchanges report to it, and the filing deadline
+# (30 April, 15 June for the self-employed) is the same every year. The
+# superficial loss rule is the thing a spreadsheet gets wrong.
+#
+# First visitor: searches such as "crypto ACB calculator Canada", "superficial
+# loss rule crypto", "Canada crypto capital gains calculator", Canadian personal-finance and crypto threads in tax season. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed Canadian dollar values; no prices
+# fetched; omissions stated (affiliated persons, RRSP/TFSA, business income,
+# DeFi, NFTs, carryback, AMT); the inclusion rate is an input defaulting to 50%;
+# no payment code.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. If usage
+# appears, paid-tier candidates are exchange-format importers (Newton, Shakepay,
+# Coinsquare, Kraken, Coinbase) and a Schedule 3 summary, both local only; not
+# built.
+
+hypotheses:
+  - claim: >-
+      Canadian crypto holders with a few exchange exports will use a private,
+      no-signup ACB calculator at filing time instead of paying a
+      per-transaction tax service, because the averaging and the superficial
+      loss check are all they need.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The per-disposition working CSV (ACB used, and which losses were denied
+      and why) is what makes people keep and return to the tool, because it is
+      the artefact an accountant or a CRA review asks for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: CAD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a figure that differs from a hand calculation under the CRA's average-cost and superficial loss rules on the same rows and the difference is a bug in the engine.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ca-crypto-acb-calculator/
+  analytics: null
