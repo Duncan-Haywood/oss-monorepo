@@ -633,3 +633,25 @@ test("donationPlan: gives long-term lots with the most gain first, skips short-t
   assert.equal(big.capped, true);
   assert.equal(big.qty, 2);
 });
+
+test("washLookalike flags losses re-bought within 30 days and ignores the lot sold", async () => {
+  const { washLookalike, matchLots, parseTransactions, analyze } = await import("./calc.mjs");
+  const csv = `date,type,asset,quantity,total
+2024-01-01,buy,BTC,1,50000
+2024-06-01,sell,BTC,1,40000
+2024-06-15,buy,BTC,0.5,20000
+2024-08-01,buy,BTC,1,60000
+2024-09-01,sell,ETH,1,100
+`;
+  const txs = parseTransactions(csv).transactions;
+  const w = washLookalike(matchLots(txs).pieces, txs, 2024);
+  assert.equal(w.items.length, 1);
+  assert.equal(w.items[0].loss, 10000);
+  assert.equal(w.items[0].replacedQty, 0.5);
+  assert.equal(w.items[0].deferred, 5000);
+  assert.equal(w.deferred, 5000);
+  assert.deepEqual(analyze(csv, { year: 2024 }).washLookalike, w);
+  // a gain, or a repurchase outside 30 days, defers nothing
+  const none = parseTransactions("date,type,asset,quantity,total\n2024-01-01,buy,BTC,1,50000\n2024-06-01,sell,BTC,1,40000\n2024-07-02,buy,BTC,1,45000\n").transactions;
+  assert.equal(washLookalike(matchLots(none).pieces, none, 2024).items.length, 0);
+});

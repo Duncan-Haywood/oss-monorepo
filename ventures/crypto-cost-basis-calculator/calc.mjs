@@ -295,6 +295,53 @@ export function matchLots(transactions, { method = "FIFO", perWallet = false, sh
   return { pieces, openLots, shortfalls };
 }
 
+// ---- wash-sale lookalike ----------------------------------------------
+
+function dayNumber(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return Math.round(Date.UTC(y, m - 1, d) / 86400000);
+}
+
+// Crypto is not covered by the wash-sale rule today (IRC 1091 names stock and
+// securities), but bills to extend it recur. For each sale at a loss, find
+// coins of the same asset bought or received within 30 days either side (other
+// than the lots the sale itself used) and show how much loss a stock-style rule
+// would defer. Each replacement purchase is used once. Informational only.
+export function washLookalike(pieces, txs, year = null) {
+  const buys = txs.filter((t) => t.kind === "buy" || t.kind === "income").map((t) => ({ ...t, left: t.qty }));
+  const bySale = new Map();
+  for (const p of pieces) {
+    if (p.missingBasis || (year !== null && yearOf(p.sold) !== year)) continue;
+    const g = bySale.get(p.saleLine) || { saleLine: p.saleLine, asset: p.asset, sold: p.sold, lots: new Set(), pieces: [] };
+    g.lots.add(p.lotLine);
+    g.pieces.push(p);
+    bySale.set(p.saleLine, g);
+  }
+  const items = [];
+  for (const g of [...bySale.values()].sort((a, b) => (a.sold < b.sold ? -1 : a.sold > b.sold ? 1 : a.saleLine - b.saleLine))) {
+    const losing = g.pieces.filter((p) => p.proceeds < p.basis);
+    if (losing.length === 0) continue;
+    const lossQty = losing.reduce((a, p) => a + p.qty, 0);
+    const loss = losing.reduce((a, p) => a + (p.basis - p.proceeds), 0);
+    const sd = dayNumber(g.sold);
+    let replaced = 0;
+    const lines = [];
+    for (const b of buys) {
+      if (replaced >= lossQty - EPS) break;
+      if (b.asset !== g.asset || b.left <= EPS || g.lots.has(b.line)) continue;
+      if (Math.abs(dayNumber(b.date) - sd) > 30) continue;
+      const take = Math.min(b.left, lossQty - replaced);
+      b.left -= take;
+      replaced += take;
+      lines.push(b.line);
+    }
+    if (replaced <= EPS) continue;
+    const share = Math.min(1, replaced / lossQty);
+    items.push({ saleLine: g.saleLine, asset: g.asset, sold: g.sold, qty: Number(lossQty.toFixed(8)), replacedQty: Number(replaced.toFixed(8)), loss: cents(loss), deferred: cents(loss * share), buyLines: lines });
+  }
+  return { items, deferred: cents(items.reduce((a, i) => a + i.deferred, 0)) };
+}
+
 // ---- reporting ---------------------------------------------------------
 
 export function toRow(p) {
@@ -494,7 +541,7 @@ export function analyze(text, options = {}) {
   const parsed = parseTransactions(text);
   const result = {
     errors: parsed.errors, skipped: parsed.skipped, warnings: [], years: [], year: null,
-    rows: [], summary: null, tax: null, netting: null, niit: null, carryChain: [], comparison: [], holdings: [], openLots: [], income: 0, incomeReport: null, method, count: parsed.transactions.length,
+    rows: [], washLookalike: { items: [], deferred: 0 }, summary: null, tax: null, netting: null, niit: null, carryChain: [], comparison: [], holdings: [], openLots: [], income: 0, incomeReport: null, method, count: parsed.transactions.length,
   };
   if (parsed.errors.length && parsed.transactions.length === 0) return result;
   const txs = parsed.transactions;
@@ -554,6 +601,7 @@ export function analyze(text, options = {}) {
   }
   const best = result.comparison.reduce((a, b) => (b.tax < a.tax || (b.tax === a.tax && b.totalGain < a.totalGain) ? b : a));
   result.bestMethod = best.method;
+  result.washLookalike = washLookalike(matchLots(txs, { method, perWallet, shortRate, longRate }).pieces, txs, chosen);
 
   for (const s of main.shortfalls) {
     if (s.transfer) { result.warnings.push(`Line ${s.line} (${s.date}): transferred ${trimQty(s.qty)} ${s.asset} more than the lots on record in wallet "${s.wallet}". Only the coins on record were moved; add the missing buy, income or transfer-in history.`); continue; }
