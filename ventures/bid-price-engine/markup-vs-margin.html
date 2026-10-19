@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Markup vs Margin for Contractors — Conversion Table and Formula</title>
+  <meta name="description" content="Markup is added to cost; margin is the share of the price that is profit. A 25% markup is a 20% margin. Formulas, a conversion table and a worked job for contractors pricing a bid.">
+  <link rel="canonical" href="./markup-vs-margin.html">
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f5f4ef; }
+    body { max-width: 760px; margin: auto; padding: 24px; }
+    a { color: #8a4b0f; } h1 { color: #5c3208; line-height: 1.1; } p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0 20px; }
+    th, td { border-bottom: 1px solid #e0d9c8; padding: 7px 6px; text-align: right; } th:first-child, td:first-child { text-align: left; }
+    footer { margin-top: 30px; font-size: .86rem; color: #5a5448; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">← Bid Price Engine</a></p>
+  <h1>Markup vs margin for contractors</h1>
+  <p><strong>Markup</strong> is a percentage added on top of your cost. <strong>Margin</strong> is the share of the final price that is profit. They are not the same number, and mixing them up is the commonest reason a busy contractor is short at year end.</p>
+  <p>A job costs you $1,000 and you add 25%: the price is $1,250 and the profit is $250. But $250 is 20% of $1,250, so a 25% markup is a 20% margin. If your plan needs a 25% margin, the price is $1,000 ÷ (1 − 0.25) = $1,333.33, which is a 33.3% markup.</p>
+  <h2>Formulas</h2>
+  <ul><li>Price from cost and margin: <code>price = cost ÷ (1 − margin)</code></li>
+  <li>Price from cost and markup: <code>price = cost × (1 + markup)</code></li>
+  <li>Margin from markup: <code>margin = markup ÷ (1 + markup)</code></li>
+  <li>Markup from margin: <code>markup = margin ÷ (1 − margin)</code></li></ul>
+  <h2>Margin you want → markup you need</h2>
+  <table><thead><tr><th>Target margin</th><th>Markup on cost</th><th>Price on $100 cost</th></tr></thead><tbody><tr><td>10%</td><td>11.1%</td><td>$111.11</td></tr><tr><td>15%</td><td>17.6%</td><td>$117.65</td></tr><tr><td>20%</td><td>25.0%</td><td>$125.00</td></tr><tr><td>25%</td><td>33.3%</td><td>$133.33</td></tr><tr><td>30%</td><td>42.9%</td><td>$142.86</td></tr><tr><td>35%</td><td>53.8%</td><td>$153.85</td></tr><tr><td>40%</td><td>66.7%</td><td>$166.67</td></tr><tr><td>50%</td><td>100.0%</td><td>$200.00</td></tr></tbody></table>
+  <h2>Markup you apply → margin you get</h2>
+  <table><thead><tr><th>Markup</th><th>Real margin</th><th>Price on $100 cost</th></tr></thead><tbody><tr><td>10%</td><td>9.1%</td><td>$110.00</td></tr><tr><td>15%</td><td>13.0%</td><td>$115.00</td></tr><tr><td>20%</td><td>16.7%</td><td>$120.00</td></tr><tr><td>25%</td><td>20.0%</td><td>$125.00</td></tr><tr><td>30%</td><td>23.1%</td><td>$130.00</td></tr><tr><td>40%</td><td>28.6%</td><td>$140.00</td></tr><tr><td>50%</td><td>33.3%</td><td>$150.00</td></tr><tr><td>100%</td><td>50.0%</td><td>$200.00</td></tr></tbody></table>
+  <h2>Which cost to apply it to</h2>
+  <p>Apply the margin to your <em>full</em> cost: labor with payroll burden, materials with the waste you buy, subcontractors, equipment, a contingency, and your share of overhead. Applying it to materials alone, or to wages without burden, leaves overhead unpaid, so the margin you quote is not the margin you keep. <a href="./">The calculator</a> does the whole chain and shows the walk-away price.</p>
+  <footer><p>Arithmetic only; not legal, tax, or financial advice. No warranty. <a href="https://github.com/sponsors/Duncan-Haywood">Support the creator</a>.</p></footer>
+</main>
+</body>
+</html>

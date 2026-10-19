@@ -1,0 +1,61 @@
+name: bid-price-engine
+description: >-
+  Free browser job bid calculator for contractors and service trades, one engine
+  for 120+ trades: labor with payroll burden, materials with waste, subs,
+  equipment and travel, plus contingency and overhead, priced at the margin you
+  choose (not a markup). Shows the walk-away price, how far labor can overrun
+  before the job stops paying, the margin a rival's bid leaves, and a share link.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-19 as the Consolidate task for the 121 `*-bid-calculator`
+# ventures (docs/reports/2026-10-16-calculator-glut.md): one shared engine with
+# the trades as data, every old URL kept and linked from the trade picker. The
+# specialist calculators stay as the depth for their trade (dump weight, squares,
+# stair geometry); this is the common spine they each re-implemented.
+#
+# Alternatives a user has today: a spreadsheet with a markup percentage (wrong
+# whenever markup is typed as margin), Jobber / Housecall Pro / Joist estimates at
+# roughly $10-60 a month, and generic markup-margin calculators that stop at
+# one cost line. The gap: a full cost stack (burden, waste, contingency,
+# overhead) with the walk-away number and overrun headroom, private and free.
+#
+# First visitor: contractors searching "contractor bid calculator", "how to price
+# a job", "markup vs margin for contractors", "job pricing calculator".
+#
+# Liability boundary: arithmetic on typed numbers; defaults are labelled planning
+# starting points; no licensing, bonding, tax or prevailing-wage logic.
+
+hypotheses:
+  - claim: >-
+      Small contractors will use one shared bid calculator, with their trade picked
+      from a list, instead of a single-trade page, and will return for each new
+      bid because the walk-away and overrun numbers change what they quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The markup-versus-margin correction is the hook that brings searchers to
+      the tool, and a share link makes a second person look at it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong price, at which point the maths needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bid-price-engine/
+  analytics: null
