@@ -694,10 +694,15 @@ def bundle_task(key: str, opts: list[tuple[Asset, Score]], cfg: Config, sheets: 
 
 
 def fix_task(key: str, plan: ReelPlan, facts: str, opts: list[tuple[Asset, Score]], cfg: Config,
-             sheets: list[Path], notes: dict[str, list[str]] | None = None) -> JudgeTask:
+             sheets: list[Path], notes: dict[str, list[str]] | None = None,
+             openings: list[str] | None = None) -> JudgeTask:
     """A revision from measured facts alone (automatic checks failed): no critic call is spent on
     a reel that is not technically fit to post."""
     floor, target, cap = cfg.reel_length(plan.length_class)
+    avoid = ""
+    if openings:
+        avoid = ("These shots already open other shorts of this event: " + "; ".join(openings) + ". Do not open "
+                 "on any of them (shot 1 must be a different candidate with its own hook).\n\n")
     return JudgeTask(
         key=f"fix:{key}", output=ReelPlan, images=sheets, effort="medium", max_tokens=32000,
         instructions=(
@@ -705,7 +710,7 @@ def fix_task(key: str, plan: ReelPlan, facts: str, opts: list[tuple[Asset, Score
             f"facts, not opinions:\n{facts}\n\nRevise the plan so that every one is fixed, and keep everything that "
             "is not part of the problem (the story, the music track and start, the caption, length_class). "
             f"The plan:\n{plan.model_dump_json()}\n\nCandidates (the images show them, labelled #n):\n"
-            f"{listing(opts, cfg, notes)}\n\n" + HARD_RULES + "\nUse the candidate ids exactly."))
+            f"{listing(opts, cfg, notes)}\n\n" + avoid + HARD_RULES + "\nUse the candidate ids exactly."))
 
 
 # --------------------------------------------------------------------------- holding the plan to the rules
@@ -1398,8 +1403,9 @@ def plan_problems(plan: ReelPlan, valid: dict[str, Asset], taken: list[str] | tu
         except Exception as e:                          # a broken check must not lose the reel
             log.warning("reel %s: plan checks could not run: %s", plan.event_key, e)
     if plan.length_class == "short" and plan.shots and plan.shots[0].asset_id in set(taken):
+        others = ", ".join(f"id={t}" for t in dict.fromkeys(taken))
         msg = (f"opening: shot 1 (id={plan.shots[0].asset_id}) already opens another short of this event; open "
-               "with a different shot and a different hook")
+               f"with a different shot and a different hook (taken openers: {others})")
         fails.append(msg)
         facts.append(f"- FAIL {msg}")
     return fails, "\n".join(facts)
@@ -1724,6 +1730,17 @@ def _push_opening(p: ReelPlan, valid: dict[str, Asset], aspects=None) -> ReelPla
     return p.model_copy(update={"shots": [moved, *p.shots[1:]]})
 
 
+def _untaken(p: ReelPlan, taken) -> ReelPlan | None:
+    """The opening hard rule for a short: when shot 1 already opens another short of the event, the
+    plan's first shot that does not moves to the front. None when every shot is taken (the plan
+    checks then send it back)."""
+    taken = set(taken)
+    if not p.shots or p.shots[0].asset_id not in taken:
+        return p
+    free = next((s for s in p.shots if s.asset_id not in taken), None)
+    return None if free is None else _keep_opening(p, free)
+
+
 def _ids(p: ReelPlan) -> list[str]:
     return [s.asset_id for s in p.shots]
 
@@ -1787,8 +1804,15 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
             facts += (f"\nThe critic chose shot 1 (id={hold.asset_id}) in its last revision. Keep it as the opening "
                       "shot and fix the problems another way (a pan or a stronger push on it, or a cut inside the "
                       "first second).")
-        raw = judge.judge(fix_task(name, p, facts, ctx.opts, cfg, ctx.sheets, ctx.notes))
+        raw = judge.judge(fix_task(name, p, facts, ctx.opts, cfg, ctx.sheets, ctx.notes, openings=openings))
         what = [f"the automatic checks failed ({'; '.join(fails)}) and a fix pass revised the plan"]
+        if hold is None and raw.shots and raw.shots[0].asset_id in set(taken):
+            free = _untaken(raw, taken)
+            if free is not None:
+                what.append(f"the fix pass opened on id={raw.shots[0].asset_id}, which already opens another "
+                            f"short; the hard rule opens on id={free.shots[0].asset_id} instead")
+                told.extend(what[-1:])
+                raw = free
         if hold is not None and raw.shots and raw.shots[0].asset_id != hold.asset_id:
             what.append(f"the fix pass tried to open on id={raw.shots[0].asset_id}; your opening shot "
                         f"(id={hold.asset_id}) was put back first")
@@ -1836,6 +1860,12 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
     rendered_now = False
     while not done and round_ <= CRITIC_ROUNDS:
         final_round = round_ == CRITIC_ROUNDS
+        if final_round and taken and plan.shots and plan.shots[0].asset_id in set(taken):
+            free = _untaken(plan, taken)                # no round left for a fix: the hard rule, not a stop
+            if free is not None:
+                told.append(f"the plan opened on id={plan.shots[0].asset_id}, which already opens another short of "
+                            f"this event; the hard rule opens on id={free.shots[0].asset_id} instead")
+                plan = settle(free, plan)
         fails, facts = plan_problems(plan, ctx.valid, taken)
         if fails and not final_round:
             before = len(told)
@@ -1892,9 +1922,16 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
             reason = "the critic did not pass it"
             save_round(store, name, round_, stage="critic", outcome="stop", reason=reason, **common)
             break
-        new = settle(verdict.revised, plan, keep_opening=True)
-        want = [i for i in _ids(verdict.revised) if i in ctx.valid]
-        asked = next((s for s in verdict.revised.shots if s.asset_id in ctx.valid), new.shots[0])
+        revised = verdict.revised
+        if revised.shots and revised.shots[0].asset_id in set(taken):
+            free = _untaken(revised, taken)
+            if free is not None:
+                told.append(f"you asked to open on id={revised.shots[0].asset_id}, which already opens another "
+                            f"short of this event; the hard rule opens on id={free.shots[0].asset_id} instead")
+                revised = free
+        new = settle(revised, plan, keep_opening=revised.shots[0].asset_id not in set(taken))
+        want = [i for i in _ids(revised) if i in ctx.valid]
+        asked = next((s for s in revised.shots if s.asset_id in ctx.valid), new.shots[0])
         if _ids(new)[:1] != want[:1]:
             told.append(f"you asked to open on id={want[0] if want else '?'}; the hard rules open on "
                         f"id={new.shots[0].asset_id} (that shot could not be used as planned)")
@@ -1902,7 +1939,7 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
             told.append(f"the hard rules (known ids, before/after needs an edit, the length cap) changed your shot "
                         f"list from {want} to {_ids(new)}")
         else:
-            told.extend(framing_changes([s for s in verdict.revised.shots if s.asset_id in ctx.valid], new.shots))
+            told.extend(framing_changes([s for s in revised.shots if s.asset_id in ctx.valid], new.shots))
         save_round(store, name, round_, stage="critic", outcome="revise", next_plan=new.model_dump(mode="json"),
                    asked=asked.model_dump(mode="json"), told=list(told), **common)
         plan, round_ = new, round_ + 1

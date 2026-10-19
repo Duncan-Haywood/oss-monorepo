@@ -641,6 +641,93 @@ def test_a_critics_gentle_push_on_a_still_is_kept():
     assert story[1].zoom_to == 1.08
 
 
+class TakenJudge(FakeJudge):
+    """Erie Wedding short-04: every plan and fix opens on a shot another short already opens with,
+    alternating between the two (a1, a2); with `critic_taken` the critic's revision does it too."""
+
+    def __init__(self, verdicts=(), critic_taken=False):
+        super().__init__(verdicts)
+        self.n, self.critic_taken = 0, critic_taken
+        self.fix_prompts, self.critic_prompts = [], []
+
+    def _open_on(self, p, aid):
+        rest = [s for s in p.shots if s.asset_id not in ("a1", "a2")][:7]
+        return p.model_copy(update={"shots": [Shot(asset_id=aid, duration_s=1.0)] + rest})
+
+    def judge(self, task):
+        out = super().judge(task)
+        if task.output.__name__ == "ReelPlan":
+            if task.key.startswith("fix:"):
+                self.fix_prompts.append(task.instructions)
+            self.n += 1
+            return self._open_on(out, "a1" if self.n % 2 else "a2")
+        if task.output.__name__ == "Critique":
+            self.critic_prompts.append(task.instructions)
+            if out.revised is not None and self.critic_taken:
+                out = out.model_copy(update={"revised": self._open_on(out.revised, "a2")})
+        return out
+
+
+def _taken_stage(stage, monkeypatch):
+    c, store, assets, rendered = _opening_stage(stage, monkeypatch, [])
+    monkeypatch.setattr(reels, "_taken", lambda store, group, index, variant: ["a1", "a2"])
+    monkeypatch.setattr(reels, "_qc", lambda: None)     # only the opening rule is checked
+    return c, store, assets, rendered
+
+
+def test_a_fix_pass_that_reopens_on_a_taken_shot_is_overruled(stage, monkeypatch):
+    c, store, assets, rendered = _taken_stage(stage, monkeypatch)
+    judge = TakenJudge()
+    reels.build_all(c, store, judge, assets, mix=reels.Mix(short=1, medium=0, long=0, variants=False), only="Mesa")
+    name = "2026-10-03_Mesa__short-01"
+    r0 = store.get("reel_rounds", f"{name}#00")
+    assert r0["stage"] == "plan" and "taken openers: id=a1, id=a2" in r0["qc"][0]
+    # the fix pass is told every taken opener, not only the one shot 1 used
+    assert "already open other shorts of this event" in judge.fix_prompts[0]
+    assert "id=a1" in judge.fix_prompts[0] and "id=a2" in judge.fix_prompts[0]
+    # it opened on a2 anyway: the hard rule moved a free shot first, so round 1 renders and ships
+    assert r0["next_plan"]["shots"][0]["asset_id"] not in ("a1", "a2")
+    assert rendered and rendered[0].asset_id not in ("a1", "a2")
+    assert any("already opens another short" in t for t in r0["told"])
+    assert store.get("reels", name)["status"] == "shipped"
+
+
+def test_a_critic_revision_never_keeps_a_taken_opener_and_is_told(stage, monkeypatch):
+    c, store, assets, rendered = _taken_stage(stage, monkeypatch)
+    judge = TakenJudge(["revise", "ship"], critic_taken=True)
+    reels.build_all(c, store, judge, assets, mix=reels.Mix(short=1, medium=0, long=0, variants=False), only="Mesa")
+    name = "2026-10-03_Mesa__short-01"
+    assert "already open with: " in judge.critic_prompts[0] and "id=a2" in judge.critic_prompts[0]
+    crit = next(r for r in reels.load_rounds(store, name) if r.get("stage") == "critic")
+    assert crit["next_plan"]["shots"][0]["asset_id"] not in ("a1", "a2")
+    assert all(s.asset_id not in ("a1", "a2") for s in rendered)
+    assert "you asked to open on id=a2, which already opens another short" in judge.critic_prompts[1]
+    assert store.get("reels", name)["status"] == "shipped"
+
+
+def test_a_taken_opener_on_the_last_round_is_fixed_not_stopped(stage, monkeypatch):
+    # resumed on its last round with a plan that opens on a taken shot: the hard rule fixes it, no stop
+    c, store, assets, rendered = _taken_stage(stage, monkeypatch)
+    name = "2026-10-03_Mesa__short-01"
+    p = ReelPlan(event_key="2026-10-03_Mesa", length_class="short", title="t", caption="c", cover_asset_id="a1",
+                 shots=[Shot(asset_id=f"a{i}", duration_s=1.0) for i in (1, 5, 6, 7, 8, 9, 10, 11)])
+    for n in range(reels.CRITIC_ROUNDS):
+        reels.save_round(store, name, n, stage="plan", plan=p.model_dump(mode="json"), qc=["opening: x"],
+                         outcome="revise", next_plan=p.model_dump(mode="json"))
+    reels.save_plan(store, name, p, "story")
+    judge = TakenJudge()
+    reels.build_all(c, store, judge, assets, mix=reels.Mix(short=1, medium=0, long=0, variants=False), only="Mesa")
+    rec = store.get("reels", name)
+    assert rec["status"] == "shipped", rec["reason"]
+    assert rec["plan"]["shots"][0]["asset_id"] == "a5" and rendered[0].asset_id == "a5"
+
+
+def test_untaken_moves_the_first_free_shot_forward():
+    p = plan(Shot(asset_id="a1", duration_s=1), Shot(asset_id="a2", duration_s=1), Shot(asset_id="a3", duration_s=1))
+    assert [s.asset_id for s in reels._untaken(p, ["a1", "a2"]).shots] == ["a3", "a1", "a2"]
+    assert reels._untaken(p, ["a9"]) is p and reels._untaken(p, ["a1", "a2", "a3"]) is None
+
+
 def test_a_measured_still_opener_keeps_the_critics_framing():
     valid = {"a1": asset(1)}
     p = plan(Shot(asset_id="a1", duration_s=1, focus={"x": 0.37, "y": 0.5}, focus_to={"x": 0.42, "y": 0.5},
