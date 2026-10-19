@@ -258,6 +258,34 @@ export function plan(result) {
   return { year: y.year, maxTaxFreeDistribution: maxTaxFree, maxDistributionKeepingLosses: maxKeepLoss, contributionToDeductAll: conNeed, loanToDeductAll: loanNeed, contributionToCoverExcess: conCoverExcess, scenarios, advice };
 }
 
+// ---- Selling the stock -----------------------------------------------------
+// Stock basis is adjusted for the year's income, distributions and losses first
+// (Reg. 1.1367-1(d)) and the gain or loss on the shares is figured against what
+// is left. A loss still suspended when ALL the stock goes is, as far as it is
+// attributable to stock, gone for good: that is why a sale year is the year to
+// ask whether adding basis first would turn it into a deduction. `result` is
+// the output of run(); the sale is read against its last row, so enter the sale
+// year's income, distributions and losses (through the sale date) as that row.
+export function saleOutlook(result, { proceeds, expenses = 0 } = {}) {
+  const base = result.rows[result.rows.length - 1];
+  const pr = Number(proceeds), ex = Number(expenses);
+  if (!base || !Number.isFinite(pr) || pr < 0 || !Number.isFinite(ex) || ex < 0) return null;
+  const c = base.close;
+  const net = cents(pr - ex);
+  const gain = cents(net - c.stock);
+  const lost = c.suspended;
+  const need = lost > 0 ? plan(result).contributionToDeductAll : 0;
+  const loanAboveBasis = cents(pos(c.debtFace - c.debtBasis));
+  const advice = [];
+  advice.push(gain >= 0
+    ? "Selling for " + fmt(net) + " after expenses against " + fmt(c.stock) + " of stock basis is a gain of " + fmt(gain) + " (capital gain on the shares if held over a year; the corporation's own assets can change the character)."
+    : "Selling for " + fmt(net) + " after expenses against " + fmt(c.stock) + " of stock basis is a loss of " + fmt(-gain) + " on the shares (capital loss).");
+  if (lost > 0) advice.push(fmt(lost) + " of suspended loss would still be unused at the sale. If you sell all your stock, the part attributable to stock is lost, not carried. Adding " + fmt(need) + " of stock basis (a capital contribution) before the sale lets that loss be deducted against ordinary income instead. The contribution is consumed by the loss, so the gain on the shares does not change, but you have put in cash and the buyer is getting a company that holds it. Check timing and sale terms with a preparer.");
+  if (loanAboveBasis > 0) advice.push("Your loan to the company has a face of " + fmt(c.debtFace) + " but a basis of " + fmt(c.debtBasis) + ". Being repaid, or selling the note, makes about " + fmt(loanAboveBasis) + " of gain on top of the share sale.");
+  if (c.debtFace > 0 && lost > 0) advice.push("If the loan stays outstanding after the sale, the part of the suspended loss that belongs to debt basis stays with the debt; this tool does not split it.");
+  return { year: base.year, proceeds: cents(pr), expenses: cents(ex), netProceeds: net, stockBasis: c.stock, gain, suspendedLost: lost, contributionToUseLosses: need, loanAboveBasis, advice };
+}
+
 // ---- Several shareholders (preparers) --------------------------------------
 // One paste for a whole client list. Columns: shareholder, then the FIELDS of
 // parseYears (year first). A row whose year is "opening" (or "start") carries a
