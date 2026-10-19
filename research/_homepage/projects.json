@@ -1943,6 +1943,11 @@
      "summary": "A stylised follow-up to <em>ambient-falsewake</em>. On Gaussian AR(1) frame scores, wake counts per 1,000 s window are close to Poisson (Fano factor 1.05&ndash;1.5 at <em>&phi;</em> = 0.9&ndash;0.95). A window-to-window drift in the noise scale is what makes them bursty: a 5% lognormal drift lifts the Fano factor to about 9 for <em>m</em> = 3 while moving the mean only 4%, and 10% drift gives 38. A 10 s lockout cuts the Fano factor (9.8 to 2.5 with drift) but also cuts the mean by a third; a sub-second lockout changes little. The score is a model, not a real wake-word detector, and the drift is assumed. Stylised."
     },
     {
+     "slug": "ambient-driftwindow",
+     "title": "How does the burstiness of an always-on trigger's false-wake counts grow with the counting window when the noise level drifts for hours?",
+     "summary": "A stylised follow-up to <em>ambient-wakeburst</em>, which drew a fresh noise level per window. With a noise scale that drifts persistently (log-scale AR(1), 5% sd) the Fano factor of false-wake counts rises with the window instead of staying flat: about 1.9 at 100 s for any correlation time, then 14, 110 and 150 at 16, 256 and 1,024 blocks (28 h) for a 2.8 h correlation time, and 620 at 28 h for a 28 h correlation time, while the mean moves only 5%. A Poisson-given-scale (Cox) model, checked against a frame-level simulation (4.7 vs 4.7 and 44 vs 44), and a closed form (mean error 2% on the busy trigger, worst 11%) explain it. The drift is assumed, not measured, and the &lsquo;rare&rsquo; trigger is one wake per 500 s, not one a day. Stylised."
+    },
+    {
      "slug": "ambient-gatesimd",
      "title": "Do a dual-MAC energy loop and a divide-free threshold make the Cortex-M4 voice gate cheaper?",
      "summary": "A stylised follow-up to <em>ambient-gatem4</em>. With the block-minimum floor the SMLALD energy loop cuts executed instructions per frame by 17% at -Os and 37% at -O2, but without it the gate gets slower (64-bit ring entries), RAM doubles and code grows by about 60%. A divide-free sum-domain threshold matched the original decision on all 36,000 frames per configuration and removes the only library call; the divide itself is not counted, so its saving is unmeasured. Emulator instruction counts on synthetic audio, not cycles and not hardware."
