@@ -3408,6 +3408,18 @@
     "summary": "Pixel and perspective geometry for the simplest multi-angle rig, a 360 camera on a pole reframed in software. An 8K (7,680 px) equirect cropped into a 1080&times;1920 vertical reel is native only up to about 24 mm full-frame-equivalent; 50 mm is upscaled 2.1&times; and 85 mm 3.5&times;, and a native 85 mm crop would need a ~27,000 px equirect. Perspective is set by distance: from a stick at 0.8 m a feature 10 cm nearer the lens images 14% larger, against 7.6% from the 1.4 m an 85 mm head-and-shoulders shot is taken at, with the background 1.7&times; larger. So portrait and compressed-background shots need a camera standing back, whatever the resolution. Upper bounds from pixel counts (real cameras resolve less); framing distances and depths are stated assumptions."
    }
   ]
+ },
+ {
+  "id": "sensing",
+  "name": "Sensing, imaging and 3D",
+  "blurb": "Getting more from cheap sensors: fusing cheap IMUs and cameras, computational imaging, and 3D models from real captures, with the error floors that correlated errors set.",
+  "projects": [
+   {
+    "slug": "sensing-imuarray",
+    "title": "How many cheap gyros, fused, match one better gyro at the same cost?",
+    "summary": "Single-axis gyro model with angle random walk and rate random walk (Allan-variance terms) and a fraction <em>&rho;</em> of each shared between units. With independent errors an array of <em>n</em> cheap units ties a unit <em>k</em> times quieter only when the price ratio exceeds <em>k</em><sup>2</sup> (9 for <em>k</em>&nbsp;=&nbsp;3, 100 for <em>k</em>&nbsp;=&nbsp;10); shared error above 1/<em>k</em><sup>2</sup> means no array size ties (<em>k</em>&nbsp;=&nbsp;10, <em>&rho;</em>&nbsp;&ge;&nbsp;0.01). If the better unit improves white noise 10&times; but bias walk only 3&times;, the number of units needed falls from 100 at 1&nbsp;s to 10 beyond 300&nbsp;s, so the answer depends on integration time. Monte Carlo matches the closed form within 0.03. Stylised: illustrative grades, not datasheets; no real IMU data; no prices claimed."
+   }
+  ]
  }
  ],
  "featured": [
