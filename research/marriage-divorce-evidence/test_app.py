@@ -1,4 +1,4 @@
-"""Runs the browser app's JS tests (engine parity with scikit-learn, couple layer) under Node."""
+"""Runs the browser app's JS tests (engine parity with scikit-learn, couple and individual lenses) under Node."""
 from pathlib import Path
 import shutil, subprocess, unittest
 
@@ -16,6 +16,12 @@ class AppTests(unittest.TestCase):
 
     def test_couple_layer(self):
         self.run_node('couple.test.mjs')
+
+    def test_individual_engine_matches_sklearn(self):
+        self.run_node('individuals_engine.test.mjs')
+
+    def test_individual_lens(self):
+        self.run_node('individuals.test.mjs')
 
 
 if __name__ == '__main__':
