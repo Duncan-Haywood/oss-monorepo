@@ -541,6 +541,42 @@ export function groceryText(spec, res) {
   return `Shopping list (one week${people})\n${lines.join("\n")}\nEstimated total: ${money2(gl.spend)}\n`;
 }
 
+/**
+ * "What you eat now": lines like `Rice 3` or `Eggs, 2.5` (food name, then servings per day) are matched to the listed foods
+ * by exact name, else by a name that starts with or contains the text when only one food does. Returns the day's cost, its
+ * nutrition, which bounds it misses, and how much cheaper the solved plan is. Unmatched lines are reported, never guessed.
+ */
+export function comparePlan(spec, res, text) {
+  const servings = spec.foods.map(() => 0);
+  const unmatched = [];
+  const names = spec.foods.map((f) => f.name.toLowerCase());
+  String(text || "").split(/\r?\n/).forEach((raw) => {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) return;
+    const m = line.match(/^(.*?)[\s,|:=x×]*([0-9]*\.?[0-9]+)\s*$/i);
+    const q = m ? m[1].trim().replace(/[,|:=]+$/, "").trim().toLowerCase() : "";
+    const n = m ? Number(m[2]) : NaN;
+    if (!q || !Number.isFinite(n) || n < 0 || n > 100) { unmatched.push(line); return; }
+    let hits = names.flatMap((nm, i) => (nm === q ? [i] : []));
+    if (!hits.length) hits = names.flatMap((nm, i) => (nm.startsWith(q) ? [i] : []));
+    if (!hits.length) hits = names.flatMap((nm, i) => (nm.includes(q) ? [i] : []));
+    if (hits.length !== 1) { unmatched.push(line); return; }
+    servings[hits[0]] += n;
+  });
+  const used = servings.some((x) => x > 0);
+  const totals = nutrition(spec, servings);
+  const cost = planCost(spec, servings);
+  const b = bounds(spec);
+  const misses = [];
+  NUTRIENTS.forEach((k, ki) => {
+    const [mn, mx] = b[k];
+    if (mn !== null && totals[ki] < mn - 1e-6) misses.push({ k, kind: "below", value: totals[ki], bound: mn });
+    if (mx !== null && totals[ki] > mx + 1e-6) misses.push({ k, kind: "above", value: totals[ki], bound: mx });
+  });
+  const saving = used && res && res.status === "optimal" ? cost - res.cost : null;
+  return { servings, used, unmatched, cost, weekly: cost * (Number(spec.daysPerWeek) > 0 ? Number(spec.daysPerWeek) : 7), totals, misses, meets: used && misses.length === 0, saving };
+}
+
 export function planCsv(spec, res) {
   const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
   const rows = [["Food", "Servings per day", "Cost per day", "kcal", "Protein g", "Carbs g", "Fat g", "Fibre g", "Sodium mg", "Calcium mg", "Iron mg", "Potassium mg"].join(",")];
