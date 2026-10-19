@@ -27,6 +27,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   node cli.mjs --container 20ft cargo.csv      # 20ft, 40ft, 40hc, 53ft, truck26
   node cli.mjs --container 589x235x239@28200 cargo.csv   # your own inside size (cm) and payload (kg)
   node cli.mjs --compare cargo.csv             # every standard size, loose and on pallets
+  node cli.mjs --rates 20ft=2400,40ft=3800 cargo.csv   # freight at your quoted rates: total and cost per carton, cheapest complete option marked
   node cli.mjs --csv cargo.csv > loading.csv   # loading list
   node cli.mjs --html cargo.csv > plan.html    # printable to-scale plan
   node cli.mjs --json cargo.csv                # for scripts; add --imperial for inches and pounds
