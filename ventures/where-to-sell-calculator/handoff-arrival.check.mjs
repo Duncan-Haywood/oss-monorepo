@@ -20,9 +20,9 @@ const shared = { price: 40, shippingCharged: 6, shippingCost: 5.2, itemCost: 12,
 const browser = await chromium.launch(
   process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {},
 );
-const page = await browser.newPage();
 let failed = 0;
 for (const entry of HANDOFFS) {
+  const page = await (await browser.newContext()).newPage(); // fresh storage per target
   const url = `${base}/where-to-sell-calculator/${handoffUrl(entry.channel, shared)}`;
   await page.goto(url);
   await page.waitForTimeout(300);
