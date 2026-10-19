@@ -405,8 +405,12 @@ def test_star_signal_ignores_a_smooth_glow():
 def test_neutralize_removes_a_colour_cast_from_the_sky():
     f = sky_frame(0, noise=0.005) * np.array([1.6, 0.8, 1.4], np.float32)      # wine-red cast
     alpha = core.horizon_mask([(0, HORIZON_Y), (1, HORIZON_Y)], (H, W)).astype(np.float32)
-    g = astro.AstroGrade(gradient_removal=0, warmth=0, saturation=1)
+    g = astro.AstroGrade(gradient_removal=0, warmth=0, saturation=1, neutralize=1)
     out = astro.grade(f, g, alpha)
+    # the land keeps its own colour: the gains are for the sky
+    land = out[int(H * 0.8):].reshape(-1, 3).mean(axis=0)
+    plain = astro.grade(f, g.model_copy(update={"neutralize": 0}), alpha)[int(H * 0.8):].reshape(-1, 3).mean(axis=0)
+    assert np.allclose(land / land.sum(), plain / plain.sum(), atol=0.03)   # same colour balance
     sky = out[: int(H * 0.5)].reshape(-1, 3)
     med = np.median(sky, axis=0)
     assert med.max() - med.min() < 0.03                                      # grey background

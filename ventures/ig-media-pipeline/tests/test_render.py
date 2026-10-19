@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from PIL import Image
+from PIL import Image, ImageFilter
 
 from igmp import render
 from igmp.config import Config
@@ -767,3 +767,128 @@ def test_360_video_turn_renders_moving_frames(tmp_path):
     assert np.all(np.abs(np.diff(fr, axis=0)).mean(axis=(1, 2, 3)) > 0.3)
     red = fr[:, 90:102, 48:60, 0].mean(axis=(1, 2))
     assert abs(red[-1] - red[0]) == pytest.approx(90 * 255 / 360, abs=8)
+
+
+# --------------------------------------------------------------------------- before/after wipes
+
+SCENE = (3000, 4500)                       # the sensor frame both pictures of a pair come from
+CAMERA_BOX = (234.375, 0.0, 2765.625, 4500.0)   # a camera's 16:9 mode: the centred 9:16 box (portrait)
+EDIT_BOX = (20.0, 600.0, 2980.0, 4300.0)  # the RAW edit's 4:5 crop, wider than the JPEG's box
+MARK = (1500.0, 2400.0)                    # a white disc in the scene
+
+
+def _pair_files(tmp_path) -> tuple[Path, Path]:
+    """A camera JPEG and an edit of one synthetic scene: different crops (9:16 vs 4:5), sizes
+    (1500 vs 2000 px wide) and tone (the edit is brighter), like a camera JPEG and its RAW edit."""
+    rng = np.random.default_rng(7)
+    noise = Image.fromarray((rng.random((SCENE[1] // 10, SCENE[0] // 10)) * 255).astype(np.uint8))
+    tex = np.asarray(noise.resize(SCENE, Image.BICUBIC).filter(ImageFilter.GaussianBlur(6)), float)
+    scene = np.repeat((40 + tex * 0.6)[..., None], 3, -1)
+    scene[..., 0] *= 1.1
+    yy, xx = np.mgrid[:SCENE[1], :SCENE[0]]
+    scene[(xx - MARK[0]) ** 2 + (yy - MARK[1]) ** 2 < 45 ** 2] = 255
+    img = Image.fromarray(np.clip(scene, 0, 255).astype(np.uint8))
+    cam, edit = tmp_path / "cam.jpg", tmp_path / "edit.jpg"
+    img.resize((1500, 2667), Image.LANCZOS, box=CAMERA_BOX).save(cam, quality=95)
+    e = np.asarray(img.resize((2000, 2500), Image.LANCZOS, box=EDIT_BOX), float) / 255
+    Image.fromarray((e ** 0.8 * 255).astype(np.uint8)).save(edit, quality=95)
+    return cam, edit
+
+
+def test_register_pair_finds_the_shared_scene(tmp_path):
+    cam, edit = _pair_files(tmp_path)
+    got = render.register_pair(cam, edit)
+    assert got is not None
+    rb, ra, ncc = got
+    assert ncc > 0.8
+    # the scene both show: x from the JPEG's box, y from the edit's crop
+    shared = (max(CAMERA_BOX[0], EDIT_BOX[0]), max(CAMERA_BOX[1], EDIT_BOX[1]),
+              min(CAMERA_BOX[2], EDIT_BOX[2]), min(CAMERA_BOX[3], EDIT_BOX[3]))
+
+    def frac(box):
+        w, h = box[2] - box[0], box[3] - box[1]
+        return ((shared[0] - box[0]) / w, (shared[1] - box[1]) / h, (shared[2] - box[0]) / w, (shared[3] - box[1]) / h)
+    assert rb == pytest.approx(frac(CAMERA_BOX), abs=0.004)
+    assert ra == pytest.approx(frac(EDIT_BOX), abs=0.004)
+    other = tmp_path / "other.jpg"                    # an unrelated picture: no trusted match
+    Image.fromarray((np.random.default_rng(1).random((800, 600, 3)) * 255).astype(np.uint8)).save(other)
+    assert render.register_pair(other, edit) is None
+
+
+def test_register_wipes_rewrites_only_photo_wipe_pairs(tmp_path, monkeypatch):
+    cfg = cfg_for(tmp_path)
+    monkeypatch.setattr(render, "register_pair", lambda b, a: ((0.0, 0.1, 1.0, 0.9), (0.1, 0.0, 0.9, 1.0), 0.9))
+    for name in ("c.jpg", "e.jpg"):
+        Image.new("RGB", (1000, 1000)).save(tmp_path / name)
+    (tmp_path / "v.mp4").write_bytes(b"x")
+    sources = {"a@camera": {"kind": "photo", "path": str(tmp_path / "c.jpg")},
+               "a": {"kind": "photo", "path": str(tmp_path / "e.jpg")},
+               "v": {"kind": "video", "path": str(tmp_path / "v.mp4")}}
+    shots = [Shot(asset_id="a@camera", duration_s=1, focus=Point(x=0.5, y=0.3), focus_to=Point(x=0.9, y=0.3)),
+             Shot(asset_id="a", duration_s=1, focus=Point(x=0.9, y=0.3), transition="wipe"),
+             Shot(asset_id="a", duration_s=1, transition="cut"),          # the edit again, not in a wipe
+             Shot(asset_id="v", duration_s=1, transition="wipe")]         # a wipe into a video: untouched
+    plan, srcs = render.register_wipes(plan_of(*shots), sources, cfg)
+    s0, s1 = plan.shots[:2]
+    assert s0.asset_id == "a@camera~wipe1" and s1.asset_id == "a~wipe1"
+    assert srcs[s0.asset_id]["region"] == [0.0, 0.1, 1.0, 0.9] and srcs[s1.asset_id]["region"] == [0.1, 0.0, 0.9, 1.0]
+    # focus moved into the after's region (x: 0.1..0.9), the same way on both sides
+    assert (s0.focus.x, s0.focus.y, s0.focus_to.x) == pytest.approx((0.5, 0.3, 1.0))
+    assert (s1.focus.x, s1.focus.y) == pytest.approx((1.0, 0.3)) and s1.focus_to is None
+    assert plan.shots[2:] == shots[2:] and srcs["a"] == sources["a"]
+    off = cfg_for(tmp_path, reel_register_wipes=False)
+    assert render.register_wipes(plan_of(*shots), sources, off) == (plan_of(*shots), sources)
+
+
+def _mark_centre(frame: np.ndarray) -> tuple[float, float]:
+    ys, xs = np.nonzero(frame.min(axis=2) > 245)
+    assert len(xs) > 20, "the marker is not in the frame"
+    return float(xs.mean()), float(ys.mean())
+
+
+@needs_ffmpeg
+@pytest.mark.parametrize("pan", [False, True])
+def test_wipe_pair_lines_up_at_the_cut(tmp_path, pan):
+    """Regression: a before/after whose plan hands the framing over exactly (the camera shot ends
+    where the edit shot starts) showed the subject ~1.2x larger and shifted on the edit side, because
+    a camera JPEG (16:9 sensor crop) and its edit (4:5 crop) are different pictures of the frame.
+    Registered, the marker sits at the same place on both sides of the cut."""
+    cam, edit = _pair_files(tmp_path)
+    f0, f1 = Point(x=0.45, y=0.5), Point(x=0.55, y=0.48)
+    shots = [Shot(asset_id="a@camera", duration_s=0.5, focus=f0, focus_to=f1 if pan else None,
+                  zoom_from=1.0, zoom_to=1.1),
+             Shot(asset_id="a", duration_s=0.5, focus=f1 if pan else f0, zoom_from=1.1, zoom_to=1.15,
+                  transition="wipe")]
+    sources = {"a@camera": {"kind": "photo", "path": str(cam)}, "a": {"kind": "photo", "path": str(edit)}}
+    where = {}
+    for reg in (True, False):
+        cfg = cfg_for(tmp_path / str(reg), reel_autolevels=False, reel_register_wipes=reg)
+        segs = render.render_segments(plan_of(*shots), sources, cfg, draft=True)
+        last, first = _seg_frames(segs[0], OUT_W, OUT_H)[-1], _seg_frames(segs[1], OUT_W, OUT_H)[0]
+        where[reg] = _mark_centre(last), _mark_centre(first)
+    (bx, by), (ax, ay) = where[True]
+    assert abs(bx - ax) < 3 and abs(by - ay) < 3, where[True]
+    (bx, by), (ax, ay) = where[False]
+    assert abs(bx - ax) + abs(by - ay) > 30, where[False]          # what it was before
+
+
+def test_hand_over_starts_the_edit_where_a_clamped_pan_ends():
+    """A pan's ends are clamped for its largest window, so a pan to y 0.47 at zoom 1.0 -> 1.14 on a
+    picture whose 9:16 box is its full height ends at y 0.5; an edit planned to start at y 0.47 and
+    zoom 1.14 would jump. _hand_over moves its start onto the pan's actual end."""
+    w, h = 5490, 7935
+    cam = Shot(asset_id="c", duration_s=0.5, focus=Point(x=0.3, y=0.5), focus_to=Point(x=0.47, y=0.47),
+               zoom_from=1.0, zoom_to=1.14)
+    edit = Shot(asset_id="e", duration_s=2.0, focus=Point(x=0.47, y=0.47), focus_to=Point(x=0.44, y=0.48),
+                zoom_from=1.14, zoom_to=1.22, transition="wipe")
+    end = render.shot_centre(cam, w, h, frames_for(0.5) - 1)
+    assert end[1] == pytest.approx(0.5, abs=1e-3)                       # clamped short of 0.47
+    assert render.shot_centre(edit, w, h, 0)[1] == pytest.approx(0.47, abs=1e-3)
+    moved = render._hand_over(cam, edit, w, h)
+    assert render.shot_centre(moved, w, h, 0) == pytest.approx(end, abs=1e-6)
+    assert moved.focus_to == edit.focus_to and moved.zoom_from == edit.zoom_from
+    other = edit.model_copy(update={"zoom_from": 1.0})                   # no hand-over planned: kept
+    assert render._hand_over(cam, other, w, h) == other
+    held = edit.model_copy(update={"focus_to": None})
+    assert render.shot_centre(render._hand_over(cam.model_copy(update={"focus_to": None, "focus": Point(x=0.47, y=0.47)}),
+                                                held, w, h), w, h, 0)[1] == pytest.approx(0.47, abs=1e-3)

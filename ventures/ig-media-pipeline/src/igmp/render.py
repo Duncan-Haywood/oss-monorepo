@@ -346,6 +346,9 @@ class SegmentSource:
     fps: float = 0.0                            # video: frame rate (0 = unknown, taken as 30)
     denoise: bool = False                       # video: night/astro footage, hqdn3d in its segment
     origin: str = ""                            # the source file (photo: what the still was cut from)
+    # photo: the part of the origin the still was cut from, (x0, y0, x1, y1) fractions of the upright
+    # picture (a registered before/after pair, see register_pair); None: all of it
+    region: tuple[float, float, float, float] | None = None
 
 
 def _settings(cfg: Config) -> dict:
@@ -1113,9 +1116,28 @@ def _open_srgb(path: str | Path, need_scale: float | None = None) -> Image.Image
     return img.convert("RGB")
 
 
+Region = tuple[float, float, float, float]
+
+
+def _region_px(img: Image.Image, region: Region | None) -> tuple[float, float, float, float]:
+    """(x, y, width, height) in pixels of a fractional region of an opened picture (all of it: None)."""
+    W, H = img.size
+    x0, y0, x1, y1 = region or (0.0, 0.0, 1.0, 1.0)
+    return x0 * W, y0 * H, (x1 - x0) * W, (y1 - y0) * H
+
+
+def _region_share(region: Region | None) -> float:
+    """How much smaller than the whole picture a region is, at most, along either side: decoding
+    may shrink a picture this much less."""
+    if region is None:
+        return 1.0
+    return max(1e-3, min(region[2] - region[0], region[3] - region[1]))
+
+
 def prepare_still(path: str | Path, focus: tuple[float, float], out_path: Path,
-                  size: tuple[int, int]) -> tuple[Path, tuple[float, float]]:
-    """Cut the largest 9:16 box around focus out of a photo, resized to `size`.
+                  size: tuple[int, int], region: Region | None = None) -> tuple[Path, tuple[float, float]]:
+    """Cut the largest 9:16 box around focus out of a photo (or out of `region` of it, fractions of
+    the upright picture; focus is then a point of the region), resized to `size`.
     Returns the written file and where the focus point lands inside it (fractions)."""
     with Image.open(path) as probe:
         ow, oh = probe.size
@@ -1123,10 +1145,10 @@ def prepare_still(path: str | Path, focus: tuple[float, float], out_path: Path,
     # The box is smallest relative to the frame when the long side is horizontal, so this
     # bound holds whatever the EXIF orientation turns out to be.
     _, _, _, bh = fit_box(max(ow, oh), min(ow, oh), ASPECT, (0.5, 0.5))
-    img = _open_srgb(path, need_scale=size[1] / max(bh, 1.0) * 1.05)
-    W, H = img.size
+    img = _open_srgb(path, need_scale=size[1] / max(bh * _region_share(region), 1.0) * 1.05)
+    rx, ry, W, H = _region_px(img, region)
     x, y, w, h = fit_box(W, H, ASPECT, focus)
-    still = img.resize(size, Image.LANCZOS, box=(x, y, x + w, y + h), reducing_gap=3.0)
+    still = img.resize(size, Image.LANCZOS, box=(rx + x, ry + y, rx + x + w, ry + y + h), reducing_gap=3.0)
     still.save(out_path)
     inside = ((focus[0] * W - x) / w, (focus[1] * H - y) / h)
     return out_path, (min(max(inside[0], 0.0), 1.0), min(max(inside[1], 0.0), 1.0))
@@ -1141,19 +1163,20 @@ def _box_bound(path: str | Path) -> float:
 
 
 def prepare_pan_still(path: str | Path, focus: tuple[float, float], focus_to: tuple[float, float],
-                      out_path: Path, size: tuple[int, int]
+                      out_path: Path, size: tuple[int, int], region: Region | None = None
                       ) -> tuple[Path, tuple[int, int], tuple[float, float], tuple[float, float]]:
     """For a pan: cut the union of the 9:16 boxes around focus and focus_to (each clamped inside
-    the photo) at the scale that makes one box `size`. Returns the file, its size (even, at least
-    `size`) and where focus and focus_to land inside it (fractions)."""
-    img = _open_srgb(path, need_scale=size[1] / max(_box_bound(path), 1.0) * 1.05)
-    W, H = img.size
+    the photo, or inside `region` of it as for prepare_still) at the scale that makes one box
+    `size`. Returns the file, its size (even, at least `size`) and where focus and focus_to land
+    inside it (fractions)."""
+    img = _open_srgb(path, need_scale=size[1] / max(_box_bound(path) * _region_share(region), 1.0) * 1.05)
+    rx, ry, W, H = _region_px(img, region)
     ax, ay, bw, bh = fit_box(W, H, ASPECT, focus)
     ex, ey, _, _ = fit_box(W, H, ASPECT, focus_to)
     x0, y0, x1, y1 = min(ax, ex), min(ay, ey), max(ax, ex) + bw, max(ay, ey) + bh
     s = size[1] / bh
     out = (max(size[0], _even_round((x1 - x0) * s)), max(size[1], _even_round((y1 - y0) * s)))
-    img.resize(out, Image.LANCZOS, box=(x0, y0, x1, y1), reducing_gap=3.0).save(out_path)
+    img.resize(out, Image.LANCZOS, box=(rx + x0, ry + y0, rx + x1, ry + y1), reducing_gap=3.0).save(out_path)
 
     def inside(f: tuple[float, float]) -> tuple[float, float]:
         return (min(max((f[0] * W - x0) / (x1 - x0), 0.0), 1.0),
@@ -1161,18 +1184,199 @@ def prepare_pan_still(path: str | Path, focus: tuple[float, float], focus_to: tu
     return out_path, out, inside(focus), inside(focus_to)
 
 
-def prepare_fit_still(path: str | Path, out_path: Path, work_scale: float = 2.0
+def prepare_fit_still(path: str | Path, out_path: Path, work_scale: float = 2.0, region: Region | None = None
                       ) -> tuple[Path, tuple[int, int]]:
-    """For the fit layout: the whole photo, upright and sRGB, at work_scale times its size in the
-    reel (fit_placement), so the foreground needs no further resize. Returns the file and size."""
+    """For the fit layout: the whole photo (or `region` of it), upright and sRGB, at work_scale
+    times its size in the reel (fit_placement), so the foreground needs no further resize.
+    Returns the file and size."""
     with Image.open(path) as probe:
         ow, oh = probe.size
     need = max(min(OUT_W / ow, OUT_H / oh), min(OUT_W / oh, OUT_H / ow)) * work_scale * 1.05
-    img = _open_srgb(path, need_scale=need)
-    _, _, fw, fh = fit_placement(OUT_W, OUT_H, img.width / img.height)
+    img = _open_srgb(path, need_scale=need / _region_share(region))
+    rx, ry, rw, rh = _region_px(img, region)
+    _, _, fw, fh = fit_placement(OUT_W, OUT_H, rw / rh)
     out = (_even_round(fw * work_scale), _even_round(fh * work_scale))
-    img.resize(out, Image.LANCZOS, reducing_gap=3.0).save(out_path)
+    img.resize(out, Image.LANCZOS, box=(rx, ry, rx + rw, ry + rh), reducing_gap=3.0).save(out_path)
     return out_path, out
+
+
+# ------------------------------------------------------------------ before/after pairs
+
+PAIR_EDGE = 384                 # registration: coarse pass at about this long edge (fine pass at 2x)
+PAIR_MIN_NCC = 0.5              # ...trusts a match at least this good (band-passed luma)
+PAIR_MIN_SHARED = 0.5           # ...and only if the two share at least this much of the after picture
+PAIR_SIZES = (0.3, 1.8)         # the after's height, as a share of the before's: the range searched
+PAIR_VERSION = 1
+
+
+def register_pair(before: str | Path, after: str | Path) -> tuple[Region, Region, float] | None:
+    """Where two pictures of one frame show the same scene: the camera JPEG (before) and the RAW
+    edit (after) of a before/after are cut differently - a camera's 16:9 mode crops the sensor,
+    the edit is cropped to its feed aspect (4:5) - so one normalised focus/zoom frames them
+    differently. Finds the after on the before by normalised cross-correlation of band-passed luma
+    (any scale in PAIR_SIZES, any shift; the central half of the after is matched, so the two
+    may overlap only partly), refined at twice the resolution. Returns (before region, after
+    region, ncc): the scene both show, as (x0, y0, x1, y1) fractions of each upright picture.
+    None when no match is trusted (PAIR_MIN_NCC) or they share too little (PAIR_MIN_SHARED)."""
+    from . import colourmatch as cm
+    b_rgb = cm.load_reference(str(before), min_edge=2 * PAIR_EDGE)
+    a_rgb = cm.load_reference(str(after), min_edge=2 * PAIR_EDGE)
+
+    def work(rgb: np.ndarray, edge: int) -> np.ndarray:
+        h, w = rgb.shape[:2]
+        k = edge / max(h, w)
+        return cm._structure(cm._resize(rgb, (max(16, round(w * k)), max(16, round(h * k)))))
+
+    inner = 0.5
+    best = None
+    for edge, around in ((PAIR_EDGE, None), (2 * PAIR_EDGE, 0.04), (2 * PAIR_EDGE, 0.006)):
+        b_s, a_s = work(b_rgb, edge), work(a_rgb, edge)
+        if around is None:          # the after's height from PAIR_SIZES[0] to [1] of the before's
+            scales = np.geomspace(*PAIR_SIZES, 64) * b_s.shape[0] / a_s.shape[0]
+        else:                       # around the last answer (a ratio: the same at any resolution)
+            scales = best[1] * np.geomspace(1 - around, 1 + around, 17)
+        ncc, sc, x, y = cm._best_placement(b_s, a_s, scales, inner=inner)
+        if ncc <= -1.0:
+            return None
+        best = (ncc, sc, x, y)
+    ncc, sc, x, y = best
+    if ncc < PAIR_MIN_NCC:
+        return None
+    hb, wb = b_s.shape
+    ha, wa = a_s.shape
+    w, h = wa * sc, ha * sc                         # the whole after picture, in before-work px
+    u0, v0 = max(0.0, -x / w), max(0.0, -y / h)     # ...trimmed to what the before also shows
+    u1, v1 = min(1.0, (wb - x) / w), min(1.0, (hb - y) / h)
+    if u1 <= u0 or v1 <= v0 or (u1 - u0) * (v1 - v0) < PAIR_MIN_SHARED:
+        return None
+    rb = ((x + u0 * w) / wb, (y + v0 * h) / hb, (x + u1 * w) / wb, (y + v1 * h) / hb)
+    ra = (float(u0), float(v0), float(u1), float(v1))
+    return tuple(float(min(max(v, 0.0), 1.0)) for v in rb), ra, float(ncc)  # type: ignore[return-value]
+
+
+def _pair_regions(before: str, after: str, cfg: Config) -> tuple[Region, Region] | None:
+    """register_pair, cached in state_dir/pairs by both files (path, size, mtime)."""
+    key = hashlib.sha256(json.dumps([PAIR_VERSION, _file_id(before), _file_id(after)]).encode()).hexdigest()[:32]
+    path = cfg.state_dir / "pairs" / f"{key}.json"
+    try:
+        d = json.loads(path.read_text())
+        return (tuple(d["before"]), tuple(d["after"])) if d.get("before") else None  # type: ignore[return-value]
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    try:
+        got = register_pair(before, after)
+    except Exception as e:                                  # an unregistered pair still renders
+        log.warning("before/after %s -> %s: registration failed: %s", before, after, e)
+        return None
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.{uuid.uuid4().hex[:8]}")
+    tmp.write_text(json.dumps({"before": got[0], "after": got[1], "ncc": got[2]} if got else {}))
+    os.replace(tmp, path)
+    return (got[0], got[1]) if got else None
+
+
+def _in_region(p, r: Region):
+    """A point given as fractions of a whole picture -> fractions of region r of it (clamped)."""
+    if p is None:
+        return None
+    return type(p)(x=min(max((p.x - r[0]) / (r[2] - r[0]), 0.0), 1.0),
+                   y=min(max((p.y - r[1]) / (r[3] - r[1]), 0.0), 1.0))
+
+
+def _upright_size(path: str | Path) -> tuple[int, int]:
+    with Image.open(path) as im:
+        w, h = im.size
+        return (h, w) if im.getexif().get(0x0112) in (5, 6, 7, 8) else (w, h)
+
+
+def shot_centre(shot: Shot, width: float, height: float, k: int) -> tuple[float, float]:
+    """Centre of the window a fill photo shot shows on frame k, as fractions of the picture
+    (width x height, or of the region its still is cut from): the 9:16 cut of prepare_still /
+    prepare_pan_still, then kenburns_window / pan_window inside it."""
+    n = frames_for(shot.duration_s)
+    f0, zf, zt = (shot.focus.x, shot.focus.y), shot.zoom_from, shot.zoom_to
+    pan = _pan_target("photo", shot)
+
+    def inside(f, x0, y0, w, h):
+        return min(max((f[0] * width - x0) / w, 0.0), 1.0), min(max((f[1] * height - y0) / h, 0.0), 1.0)
+    if pan is None:
+        x, y, bw, bh = fit_box(width, height, ASPECT, f0)
+        wx, wy, ww, wh = kenburns_window(k, n, bw, bh, inside(f0, x, y, bw, bh), zf, zt)
+        return (x + wx + ww / 2) / width, (y + wy + wh / 2) / height
+    ax, ay, bw, bh = fit_box(width, height, ASPECT, f0)
+    ex, ey, _, _ = fit_box(width, height, ASPECT, pan)
+    x0, y0 = min(ax, ex), min(ay, ey)
+    cw, ch = max(ax, ex) + bw - x0, max(ay, ey) + bh - y0
+    wx, wy, ww, wh = pan_window(k, n, (cw, ch), (bw, bh), inside(f0, x0, y0, cw, ch),
+                                inside(pan, x0, y0, cw, ch), zf, zt)
+    return (x0 + wx + ww / 2) / width, (y0 + wy + wh / 2) / height
+
+
+HANDOFF_ZOOM = 0.02     # a wipe's plan hands the framing over when the zooms agree this closely...
+HANDOFF_FOCUS = 0.05    # ...and the edit starts this close to where the camera shot was meant to end
+
+
+def _hand_over(before: Shot, after: Shot, width: float, height: float) -> Shot:
+    """The after shot of a wipe, moved to start exactly where the before shot ends when the plan
+    hands the framing over (after.zoom_from = before.zoom_to, after.focus = before's last focus):
+    a pan's ends are clamped for its largest window (_pan_ends), so a pan can stop short of its
+    focus_to while a still at that focus and the closer zoom does not - a jump of a few percent
+    of the frame at the wipe. Unchanged when the plan does not hand over, or nothing improves."""
+    if before.layout == "fit" or after.layout == "fit" or abs(before.zoom_to - after.zoom_from) > HANDOFF_ZOOM:
+        return after
+    meant = before.focus_to or before.focus
+    if abs(meant.x - after.focus.x) > HANDOFF_FOCUS or abs(meant.y - after.focus.y) > HANDOFF_FOCUS:
+        return after
+    end = shot_centre(before, width, height, frames_for(before.duration_s) - 1)
+    start = shot_centre(after, width, height, 0)
+    if math.dist(end, start) < 1e-4:
+        return after
+    moved = after.model_copy(update={"focus": type(after.focus)(x=end[0], y=end[1])})
+    return moved if math.dist(shot_centre(moved, width, height, 0), end) < math.dist(start, end) else after
+
+
+def register_wipes(plan: ReelPlan, sources: dict[str, dict], cfg: Config) -> tuple[ReelPlan, dict[str, dict]]:
+    """Make the two photos of every wipe (the before/after reveal: a camera JPEG, then the edit of
+    the same frame) show the same scene, so that the plan's framing means the same on both sides.
+    Each side is cut to the scene both show (register_pair) under its own alias source, and both
+    shots' focus/focus_to - fractions of the after (edit) picture, as the plan sees the asset - are
+    moved into that shared region. A pair that cannot be registered renders as before (logged).
+    Then, where the plan hands the framing over at the wipe, the after shot starts exactly where the
+    before shot ends (_hand_over).
+    cfg.extra reel_register_wipes = False turns it off. Returns the plan and sources to render."""
+    if not (cfg.extra or {}).get("reel_register_wipes", True):
+        return plan, sources
+    shots, out = list(plan.shots), dict(sources)
+    done: set[int] = set()
+    for i in range(1, len(shots)):
+        b, a = shots[i - 1], shots[i]
+        eb, ea = sources.get(b.asset_id), sources.get(a.asset_id)
+        if a.transition != "wipe" or i - 1 in done or not eb or not ea:
+            continue
+        if eb.get("kind") != "photo" or ea.get("kind") != "photo" or eb.get("region") or ea.get("region"):
+            continue
+        try:
+            aw, ah = _upright_size(str(ea["path"]))
+        except OSError:
+            continue
+        if Path(str(eb["path"])).resolve() == Path(str(ea["path"])).resolve():
+            regions = None                              # one picture: already the same scene
+        else:
+            regions = _pair_regions(str(eb["path"]), str(ea["path"]), cfg)
+            if regions is None:
+                log.warning("before/after %s -> %s: no trusted registration; the wipe may not line up",
+                            b.asset_id, a.asset_id)
+        if regions is not None:
+            rb, ra = regions
+            for j, shot, entry, region in ((i - 1, b, eb, rb), (i, a, ea, ra)):
+                alias = f"{shot.asset_id}~wipe{i}"
+                out[alias] = {**entry, "region": [round(v, 6) for v in region]}
+                shots[j] = shot.model_copy(update={"asset_id": alias, "focus": _in_region(shot.focus, ra),
+                                                   "focus_to": _in_region(shot.focus_to, ra)})
+            aw, ah = aw * (ra[2] - ra[0]), ah * (ra[3] - ra[1])
+        shots[i] = _hand_over(shots[i - 1], shots[i], aw, ah)
+        done.update((i - 1, i))
+    return plan.model_copy(update={"shots": shots}), out
 
 
 def _luma_percentiles(rgb: np.ndarray) -> tuple[float, float]:
@@ -1228,13 +1432,15 @@ def prepare_sources(plan: ReelPlan, sources: dict[str, dict], workdir: Path, cfg
             raise FileNotFoundError(path)
         if kind == "photo":
             name, focus, pan_to = workdir / f"still_{i:02d}.ppm", (shot.focus.x, shot.focus.y), None
+            region = tuple(float(v) for v in entry["region"]) if entry.get("region") else None
             if _is_fit(kind, shot):
-                still, size = prepare_fit_still(path, name, st["work_scale"])
+                still, size = prepare_fit_still(path, name, st["work_scale"], region)
             elif (pan_to := _pan_target(kind, shot)) is not None:
-                still, size, focus, pan_to = prepare_pan_still(path, focus, pan_to, name, work)
+                still, size, focus, pan_to = prepare_pan_still(path, focus, pan_to, name, work, region)
             else:
-                (still, focus), size = prepare_still(path, focus, name, work), work
-            src = SegmentSource(kind, str(still), *size, focus=focus, focus_to=pan_to, origin=path)
+                (still, focus), size = prepare_still(path, focus, name, work, region), work
+            src = SegmentSource(kind, str(still), *size, focus=focus, focus_to=pan_to, origin=path,
+                                region=region)  # type: ignore[arg-type]
         elif kind == "photo360":
             with Image.open(path) as im:
                 w, h = im.size
@@ -1297,6 +1503,7 @@ def render_reel_single_pass(plan: ReelPlan, sources: dict[str, dict], out_path: 
     workdir = Path(tempfile.mkdtemp(prefix="igmp-reel-"))
     tmp_out = out_path.with_name(f".{out_path.stem}.{uuid.uuid4().hex[:8]}.mp4")
     try:
+        plan, sources = register_wipes(plan, sources, cfg)
         srcs = prepare_sources(plan, sources, workdir, cfg)
         audio = None
         if music is not None and plan.music is not None:
@@ -1593,7 +1800,7 @@ def segment_key(shot: Shot, src: SegmentSource, cfg: Config, *, draft: bool = Fa
          "focus": src.focus, "focus_to": src.focus_to,
          "levels": dataclasses.asdict(src.levels) if src.levels else None,
          "audio": src.audio, "fps": round(src.fps, 4), "denoise": src.denoise,
-         "path": "" if src.origin else src.path}
+         "path": "" if src.origin else src.path, "region": src.region}
     blob = {"v": RENDER_VERSION, "shot": fields, "src": s, "file": _file_id(src.origin or src.path),
             "draft": bool(draft), "settings": _segment_settings(c, draft)}
     return hashlib.sha256(json.dumps(blob, sort_keys=True, default=str).encode()).hexdigest()[:32]
@@ -1681,6 +1888,7 @@ def _load_meta(path: Path) -> SegmentSource | None:
         d["levels"] = Levels(**d["levels"]) if d.get("levels") else None
         d["focus"] = tuple(d["focus"])
         d["focus_to"] = tuple(d["focus_to"]) if d.get("focus_to") else None
+        d["region"] = tuple(d["region"]) if d.get("region") else None
         return SegmentSource(**d)
     except (OSError, ValueError, TypeError, KeyError):
         return None
@@ -1724,6 +1932,7 @@ def _render_segments(plan: ReelPlan, sources: dict[str, dict], cfg: Config, draf
                      ) -> tuple[list[Path], list[SegmentSource], dict]:
     c = _draft_cfg(cfg) if draft else cfg
     t0 = time.monotonic()
+    plan, sources = register_wipes(plan, sources, cfg)
     srcs = _sources_for(plan, sources, c, draft, workdir)
     t1 = time.monotonic()
     keys = [segment_key(s, src, c, draft=draft) for s, src in zip(plan.shots, srcs)]

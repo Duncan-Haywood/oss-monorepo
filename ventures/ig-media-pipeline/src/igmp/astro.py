@@ -97,6 +97,8 @@ REVISIONS = 2
 FEATHER = 0.001              # of the long edge: the skyline is snapped to the real edge, so a soft
                              # blend only smears land colour into the sky (or sky into the rock)
 DECODE_WORKERS = 8           # processes developing frames at once (each RAW decode is single-threaded)
+GRADIENT_EVERY = 10          # trail timelapse: refresh the gradient model every N frames...
+GRADIENT_EASE = 0.3          # ...easing towards it, so the sky follows slow change without flicker
 PREVIEW_EDGE = 640           # px, the cached frames trail timelapse critic rounds are made from
 LAYERS_VERSION = 3           # bump when how frames become layers changes: cached .npz files go stale
 FEED_SIZE = (1080, 1350)
@@ -117,10 +119,11 @@ class AstroGrade(BaseModel):
     warmth: float = Field(0, ge=-1, le=1, description="-1 cool/blue night, 0 camera white balance, +1 warm")
     foreground_lift: float = Field(0.3, ge=0, le=1, description="Brighten the land below the horizon so it reads "
                                                                "as a silhouette with detail (0) or a lit scene (1)")
-    neutralize: float = Field(1.0, ge=0, le=1, description="Background neutralization: 1 scales the colour "
-                                                          "channels so the empty sky background is neutral grey "
-                                                          "(removes light-pollution and white-balance casts) "
-                                                          "before warmth is applied; 0 keeps the camera's colour")
+    neutralize: float = Field(0.8, ge=0, le=1, description="Background neutralization of the sky (the land keeps "
+                                                          "the camera's white balance): 1 makes the empty sky "
+                                                          "background neutral grey (removes light-pollution and "
+                                                          "white-balance casts), 0 keeps its colour; lower it for "
+                                                          "a moonlit or twilight sky that should stay blue")
 
 
 class AstroPlan(BaseModel):
@@ -607,7 +610,10 @@ def grade(lin: np.ndarray, g: AstroGrade, sky_alpha: np.ndarray, lv: tuple[float
         m = gradient_model(x, sky_alpha) if model is None else model
         x = np.clip(x - g.gradient_removal * m * sky_alpha[..., None], 0, None)
     if g.neutralize > 0:
-        x = x * (neutral_gains(x, sky_alpha, g) if gains is None else gains)
+        # on the sky only: the land keeps the camera's white balance, which is right for it (a
+        # moonlit sky is genuinely blue, and balancing the whole frame on it turned rock gold)
+        k = neutral_gains(x, sky_alpha, g) if gains is None else gains
+        x = x * (1.0 + (k - 1.0) * sky_alpha[..., None])
     fg_alpha = (1.0 - sky_alpha)[..., None]
     x = x * (1.0 + 3.0 * g.foreground_lift * fg_alpha)
     black, white = lv or levels(x, g, sky_alpha > 0.5)
@@ -713,6 +719,8 @@ def _trail_images(frames, idx: list[int], plan: AstroPlan, size: tuple[int, int]
     lv = levels(flat * (gains if gains is not None else 1.0), plan.grade, mask)
     acc = None
     for k, i in enumerate(idx):
+        if k and k % GRADIENT_EVERY == 0:      # moonlight and glow move: let the model follow, slowly
+            model = (1 - GRADIENT_EASE) * model + GRADIENT_EASE * gradient_model(cur, alpha)
         if k:
             cur = core.match_colour(next(frames)[: first.shape[0], : first.shape[1]], ref_ratio, mask)
             # and its brightness: moonlight and airglow drift over an hour, and through a fixed
