@@ -162,12 +162,39 @@ class RandomProposer(Proposer):
         return {k: int(self.rng.choice(v)) for k, v in self.space.items()}
 
 
+def _farthest_order(sizes):
+    """Greedy maximin walk over an index grid: start at the centre-most point, then always take the point farthest (range-normalised L1) from all taken."""
+    import itertools
+    pts = list(itertools.product(*[range(n) for n in sizes]))
+    d = lambda a, b: sum(abs(x - y) / max(1, n - 1) for x, y, n in zip(a, b, sizes))
+    mid = tuple((n - 1) / 2 for n in sizes)
+    first = min(pts, key=lambda q: (d(q, mid), q))
+    out, rest = [first], [q for q in pts if q != first]
+    mind = {q: d(q, first) for q in rest}
+    while rest:
+        nxt = max(rest, key=lambda q: (mind[q], tuple(-v for v in q)))
+        rest.remove(nxt)
+        out.append(nxt)
+        for q in rest:
+            mind[q] = min(mind[q], d(q, nxt))
+    return out
+
+
 class GridProposer(Proposer):
-    def __init__(self, space, seed=0):
+    """Walks the full grid. `order="lexicographic"` (default) is the original itertools.product order; `"farthest"` visits a
+    space-filling order instead (see research/eda-gridorder, research/eda-gridxfer for when that helps)."""
+
+    def __init__(self, space, seed=0, order="lexicographic"):
         super().__init__(space, seed)
-        import itertools
         ks = list(space)
-        self.grid = [dict(zip(ks, map(int, c))) for c in itertools.product(*space.values())]
+        if order == "lexicographic":
+            import itertools
+            idx = list(itertools.product(*[range(len(space[k])) for k in ks]))
+        elif order == "farthest":
+            idx = _farthest_order([len(space[k]) for k in ks])
+        else:
+            raise ValueError(f"unknown grid order {order!r}")
+        self.grid = [{k: int(space[k][i]) for k, i in zip(ks, c)} for c in idx]
         self.i = 0
 
     def propose(self, history):

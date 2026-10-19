@@ -36,6 +36,16 @@ class T(unittest.TestCase):
         hist = H.run_loop(h, H.GridProposer({"p": [1, 4], "wb": [4]}), 2)
         f = H.pareto(hist)
         self.assertEqual(len(f), 2)                        # fewer cells vs fewer cycles: both non-dominated
+        sp = {"p": [1, 2, 4, 8], "wb": [4, 6, 8]}
+        lex, far = H.GridProposer(sp), H.GridProposer(sp, order="farthest")
+        a = [lex.propose([]) for _ in range(12)]
+        b = [far.propose([]) for _ in range(12)]
+        self.assertEqual(a[:3], [{"p": 1, "wb": 4}, {"p": 1, "wb": 6}, {"p": 1, "wb": 8}])   # default order unchanged
+        self.assertEqual(sorted(map(str, a)), sorted(map(str, b)))                          # same 12 designs, different order
+        self.assertNotEqual(a, b)
+        self.assertEqual(b[0], {"p": 2, "wb": 6})                                            # centre-most first
+        with self.assertRaises(ValueError):
+            H.GridProposer(sp, order="nope")
         r = H.RandomProposer(self.prob.space, 1).propose([])
         self.assertIn(r["p"], self.prob.space["p"])
 
