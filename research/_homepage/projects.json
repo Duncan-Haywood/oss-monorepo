@@ -3481,6 +3481,11 @@
     "slug": "capture-rig",
     "title": "How many cameras, and where, to film a person from every angle?",
     "summary": "A 2-D geometric model of N cameras on a ring or a 90&deg; front arc 3 m from a subject, scored on angle coverage and triangulation error. Cameras buy coverage, angle buys depth accuracy: a 30&deg; gap between neighbours needs 13 cameras (15&deg; needs 25), while centre depth error barely moves with count (0.52 mm for 3 on a ring, 0.23 mm for 16) but falls 11&times; as a pair&rsquo;s convergence angle goes from 5&deg; to 90&deg; (7.3 mm to 0.64 mm). Four cameras on a front arc are within 11% of four on a ring. Idealised lower bounds with assumed noise (0.5 px) and no occlusion; novel-view quality is not modelled."
+   },
+   {
+    "slug": "capture-follow",
+    "title": "Which platform can follow a travel creator through a crowd and keep the shot?",
+    "summary": "A 2-D crowd simulation of a tripod, a wheeled robot, a wheel-legged robot and a drone holding a camera 2.5 m behind a walking creator among pedestrians who do not react to it. A drone that ignores pedestrians frames the creator 99.9% of the time at any density, but steering around people drops it to 69% at 0.1 people/m<sup>2</sup> and 39% at 0.3; a ground robot on a plaza with curbs and one ramp is stopped 42&ndash;47% of the walk, and wheel-legs hold the frame 70% of the time in a thin crowd but 4.5% in a dense one. Avoidance and framing trade off: a flat-floor wheeled robot that ignores people frames 98% of the time while passing within 0.5 m of a pedestrian about 500 times an hour. All platform speeds, powers and masses are assumed; pedestrians do not avoid the platforms, and the drone is not limited by altitude, wind or regulation."
    }
   ]
  },
