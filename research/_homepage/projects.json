@@ -2132,6 +2132,11 @@
      "summary": "A 2D plane-stress scikit-fem model of an L-bracket with a filleted inner corner (arm width, fillet radius, depth) under a 100&nbsp;N tip load. Differential evolution reaches 19.6&nbsp;g against 25.6&nbsp;g for random search and 31.4&nbsp;g for a grid at 144&ndash;150 evaluations each, under a 20&nbsp;MPa stress and 4&nbsp;mm deflection limit. The design is exported as a binary STL and checked for minimum wall and overhang. Stylised: material properties and limits are assumed, the optimum stress rises about 7% on mesh refinement (just over the limit), the sharp-corner stress diverges, and the thin optimum was not checked for out-of-plane buckling."
     },
     {
+     "slug": "selfrep-coverscale",
+     "title": "Does greedy substitution search still work when the printer-redesign list grows past seven items?",
+     "summary": "A synthetic, preliminary test (100 instances per cell, assumed generator) of budgeted weighted coverage, the shape of the printer-redesign search, for 7 to 24 substitutions with 0 to 0.9 overlap. Greedy gain-per-penalty stays at 96&ndash;100% of the exact optimum on average but is exactly optimal in only 33&ndash;95 of 100 instances, with a worst case of 49.6%. Local search is best on average (about 99.5%); 64 random evaluations are perfect at 7 items and fall to about 89&ndash;90% at 24, so small-list random baselines flatter themselves. Nothing here uses the real bill of materials. Computed only."
+    },
+    {
      "slug": "selfrep-alusearch",
      "title": "Does an aluminium rod change which printer redesign the penalty-budget search picks?",
      "summary": "A stylised, preliminary search over 448 designs: a rod choice (steel, hardwood or aluminium at 8, 10 or 12&nbsp;mm) times subsets of six other part substitutions, with a rod penalty tied to mid-span sag by an assumed log curve. At every budget from 0.5 up the best mass-closure design uses the 12&nbsp;mm aluminium rod: 40.0% at budget 2.0 against 33.1% for the wooden-rod search of <em>selfrep-redesign</em>, and 41.4% against 35.8% at full budget. The choice sits at the assumed holder limit because the closure metric counts heavier bar stock as makeable, so it says little about the best rod. The pick held for penalty scales from 0.05 to 1. Computed only; nothing was built."
