@@ -83,7 +83,7 @@ test("page documents the rules and what it leaves out", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["roster_built", "example_loaded", "file_loaded", "report_downloaded"]) {
+  for (const e of ["roster_built", "example_loaded", "file_loaded", "report_downloaded", "share_link_copied", "share_link_opened"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
@@ -269,4 +269,12 @@ test("call-out page's table is what the engine returns for the sample cafe, with
   assert.match(page("index.html"), /how-to-cover-a-shift-when-someone-calls-out\.html/);
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
+
+test("share link keeps the setup in the URL fragment, never sent anywhere", () => {
+  const html = page("index.html");
+  assert.match(html, /id="share-link"/);
+  assert.match(html, /"#setup=" \+ b64\(/);
+  assert.match(html, /\^#setup=/);
+  assert.match(html, /wages included/);
 });

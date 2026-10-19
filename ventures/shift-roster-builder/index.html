@@ -121,8 +121,10 @@
       <span class="note">Each week starts from the one before: rest gaps and who closed lately carry over, and dated <code>off:</code> days land in their own week. Uses the settings above and the Monday in "Week starting".</span>
       <div id="plan-out" aria-live="polite"></div></div>
     <button type="button" class="secondary" id="load-example">Load an example</button>
+    <label for="template-pick">or start from a template</label> <select id="template-pick" aria-label="Start from a template"><option value="">Choose a business type</option></select>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <button type="button" class="secondary" id="save-setup">Save setup file</button>
+    <button type="button" class="secondary" id="share-link">Copy share link</button> <span class="note" id="share-note">The link holds the whole setup, wages included, in the part after # that no server receives. Send it only to people who may see pay.</span>
     <label for="setup-file">Load setup file</label> <input id="setup-file" type="file" accept=".json,application/json">
     <p><label for="lastweek-file">Carry over last week: choose last week's roster CSV</label> <input id="lastweek-file" type="file" accept=".csv,text/csv"> <span class="note">Sets each person's <code>prev:</code> (when their last shift ended) so rest rules hold across Monday.</span></p>
     <p class="note">Your people, shifts and settings are remembered on this device only (browser local storage), so next week you can open the page and click the button. <button type="button" class="secondary" id="forget">Forget saved data</button></p>
@@ -233,7 +235,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional or your own knowledge of the labor rules that apply to you. Results are planning estimates from the numbers you supply. You are responsible for reviewing and verifying its output before relying on it.</p>
     <p><strong>Independent.</strong> Not affiliated with any scheduling, payroll or point-of-sale vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your staff list and roster are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>roster_built</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your staff list and roster are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>roster_built</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>, <code>share_link_copied</code>, <code>share_link_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Next step: the <a href="../time-off-request-planner/">time-off request planner</a> decides which vacation requests fit your minimum cover.</p>
     <p>Once the roster is posted: the <a href="../fair-workweek-schedule-checker/">fair workweek schedule checker</a> prices the premium pay that late changes and short rests trigger under predictive scheduling laws.</p>
@@ -245,7 +247,7 @@
   </footer>
 
   <script type="module">
-    import { planWeeks, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { planWeeks, planFairness, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -309,7 +311,7 @@
         burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))), toughBalance: Math.min(100, Math.max(0, val("tough", 0))),
       });
       if (p.error) { out.innerHTML = `<div class="warn">${esc(p.error)}</div>`; return; }
-      out.innerHTML = `<div class="scroll"><table><thead><tr><th>Week</th><th class="n">Shifts open</th><th class="n">Overtime hours</th><th class="n">Payroll</th><th></th></tr></thead><tbody>${p.weeks.map((w) => `<tr><td>${w.weekStart ? esc(w.weekStart) : "Week " + w.week}</td><td class="n">${w.roster.unfilledSlots}</td><td class="n">${num(w.roster.otHours)}</td><td class="n">${money(w.roster.cost)}</td><td><button type="button" class="secondary plan-csv" data-k="${w.week - 1}">CSV</button></td></tr>`).join("")}</tbody><tfoot><tr><th>Total</th><th class="n">${num(p.totalOpenHours)} h open</th><th></th><th class="n">${money(p.totalCost)}</th><th></th></tr></tfoot></table></div><p class="note">Set the spread setting above 0 to rotate weekend and closing shifts across these weeks. Open the CSV for a week and use it with "Carry over last week" to publish and then adjust.</p>`;
+      out.innerHTML = `<div class="scroll"><table><thead><tr><th>Week</th><th class="n">Shifts open</th><th class="n">Overtime hours</th><th class="n">Payroll</th><th></th></tr></thead><tbody>${p.weeks.map((w) => `<tr><td>${w.weekStart ? esc(w.weekStart) : "Week " + w.week}</td><td class="n">${w.roster.unfilledSlots}</td><td class="n">${num(w.roster.otHours)}</td><td class="n">${money(w.roster.cost)}</td><td><button type="button" class="secondary plan-csv" data-k="${w.week - 1}">CSV</button></td></tr>`).join("")}</tbody><tfoot><tr><th>Total</th><th class="n">${num(p.totalOpenHours)} h open</th><th></th><th class="n">${money(p.totalCost)}</th><th></th></tr></tfoot></table></div>${(() => { const f = planFairness(p); if (f.rows.length < 2) return ""; return `<div class="scroll"><table><caption>Who gets the hard shifts, over these ${f.weeks} weeks</caption><thead><tr><th>Person</th><th class="n">Hours</th><th class="n">Weekend</th><th class="n">Closing</th><th class="n">Opening</th><th class="n">Hard shifts</th></tr></thead><tbody>${f.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours)}</td><td class="n">${x.weekend}</td><td class="n">${x.closing}</td><td class="n">${x.opening}</td><td class="n">${x.tough}</td></tr>`).join("")}</tbody></table></div>${f.flag ? `<div class="warn">${esc(f.most.name)} has ${f.spread} more weekend, closing or opening shifts than ${esc(f.least.name)} over these weeks. Raise the spread setting to rotate them.</div>` : ""}`; })()}<p class="note">Set the spread setting above 0 to rotate weekend and closing shifts across these weeks. Open the CSV for a week and use it with "Carry over last week" to publish and then adjust.</p>`;
       out.querySelectorAll(".plan-csv").forEach((b) => b.addEventListener("click", () => {
         const w = p.weeks[Number(b.dataset.k)];
         const a = document.createElement("a");
@@ -426,6 +428,12 @@
       $("#dotafter").value = String(p[0]); $("#ddtafter").value = String(p[1]); persist();
     });
     $("#analyze").addEventListener("click", () => { if (run()) record("roster_built"); });
+    $("#template-pick").insertAdjacentHTML("beforeend", Object.entries(TEMPLATES).map(([k, t]) => `<option value="${k}">${esc(t.label)}</option>`).join(""));
+    $("#template-pick").addEventListener("change", (e) => {
+      const t = TEMPLATES[e.target.value]; if (!t) return;
+      $("#staff").value = t.staff(); $("#shifts").value = t.shifts(); persist();
+      if (run()) { record("example_loaded"); status.textContent = "Template: " + t.label + " (invented people and wages; replace them with yours)."; }
+    });
     $("#load-example").addEventListener("click", () => {
       $("#staff").value = sampleStaff(); $("#shifts").value = sampleShifts(); persist();
       if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented café with seven people."; }
@@ -493,6 +501,19 @@
     for (const f of FIELDS) $("#" + f).addEventListener("input", persist);
     $("#forget").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device."; });
     $("#save-setup").addEventListener("click", () => download("roster-setup.json", JSON.stringify(snapshot(), null, 2), "application/json"));
+
+    // Share link: the setup rides in the URL fragment, which browsers never send to a server.
+    const b64 = (str) => btoa(String.fromCharCode(...new TextEncoder().encode(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const unb64 = (t) => new TextDecoder().decode(Uint8Array.from(atob(t.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0)));
+    $("#share-link").addEventListener("click", () => {
+      const url = location.href.split("#")[0] + "#setup=" + b64(JSON.stringify(snapshot()));
+      try { navigator.clipboard.writeText(url); } catch (e) { /* shown below */ }
+      status.textContent = url.length > 8000 ? "That link is very long and some apps will cut it; use Save setup file instead." : "Share link copied. Anyone who opens it gets this setup; click the button to build.";
+      try { history.replaceState(null, "", url); } catch (e) { /* optional */ }
+      record("share_link_copied");
+    });
+    const shareHash = /^#setup=([A-Za-z0-9_-]+)$/.exec(location.hash);
+    if (shareHash) { try { apply(JSON.parse(unb64(shareHash[1]))); status.textContent = "Loaded the setup from the link you opened. Click the button to build; check every name and wage."; record("share_link_opened"); } catch (e) { status.textContent = "That link's setup could not be read."; } }
 
     let postedCsv = "";
     function showChanges() {
