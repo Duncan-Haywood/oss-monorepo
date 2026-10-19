@@ -37,6 +37,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -510,12 +511,37 @@ def decisions_by_merit(ventures: list[Venture]) -> list[dict]:
     return rows
 
 
-def recent_commits(days: int = 7) -> dict[str, int]:
+def deepen_to_window(days: int) -> bool:
+    """In a shallow clone, fetch main back `days` days so commit counts mean something."""
+    try:
+        shallow = subprocess.run(
+            ["git", "rev-parse", "--is-shallow-repository"],
+            capture_output=True, text=True, timeout=30, cwd=Path(__file__).resolve().parent,
+        ).stdout.strip() == "true"
+        if not shallow:
+            return False
+        since = (datetime.now(timezone.utc) - timedelta(days=days + 1)).strftime("%Y-%m-%d")
+        print(f"(shallow clone: fetching main since {since} for 7-day commit counts)", file=sys.stderr)
+        return subprocess.run(
+            ["git", "fetch", "-q", f"--shallow-since={since}", "origin", "main"],
+            capture_output=True, timeout=600, cwd=Path(__file__).resolve().parent,
+        ).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+def recent_commits(days: int = 7, deepen: bool = True) -> dict[str, int]:
     """Commits in the last `days` days touching each ventures/<slug>/.
 
     Display-only: a venture with many recent commits is usually already deep,
     and its Explore task needs visitors more than code (run-record doc_friction,
-    2026-10-18/19). Empty when git history is unavailable."""
+    2026-10-18/19). Empty when git history is unavailable.
+
+    A shallow clone (every cloud session) holds a few hours of history, so
+    every count came out 1-2 and nothing was ever demoted; deepen it to the
+    window first (about a minute, far cheaper than --unshallow)."""
+    if deepen:
+        deepen_to_window(days)
     try:
         out = subprocess.run(
             ["git", "log", f"--since={days}.days", "--name-only", "--format=%x00"],

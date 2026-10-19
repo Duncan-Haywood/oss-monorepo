@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from allocate import (
+    deepen_to_window,
     recent_commits,
     Venture,
     count_ledger_entries,
@@ -111,6 +112,19 @@ class RankTests(unittest.TestCase):
         b = make("b-venture", stage="idea", mrr=None, monthly_cap=10)
         ordered = rank([b, a])
         self.assertEqual([v.name for v in ordered], ["a-venture", "b-venture"])
+
+
+class DeepenTests(unittest.TestCase):
+    def test_fetches_only_when_shallow(self):
+        from unittest import mock
+        def run(shallow):
+            def fake(cmd, **kw):
+                out = ("true" if shallow else "false\n") if "rev-parse" in cmd else ""
+                return mock.Mock(stdout=out, returncode=0)
+            with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
+                return deepen_to_window(7), m.call_count
+        self.assertEqual(run(False), (False, 1))
+        self.assertEqual(run(True), (True, 2))
 
 
 class NextTaskTests(unittest.TestCase):
@@ -590,5 +604,5 @@ class FamilyTests(unittest.TestCase):
 
 class RecentCommitsTest(unittest.TestCase):
     def test_returns_int_counts_by_slug(self):
-        counts = recent_commits(days=3650)
+        counts = recent_commits(days=3650, deepen=False)
         self.assertTrue(all(isinstance(k, str) and isinstance(n, int) and n > 0 for k, n in counts.items()))
