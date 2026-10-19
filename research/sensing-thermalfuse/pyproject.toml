@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-thermalfuse"
+version = "0.1.0"
+description = "RGB plus a low-resolution thermal camera for finding people in darkness or smoke: recall against light, smoke and thermal-RGB misalignment (synthetic scenes)"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
