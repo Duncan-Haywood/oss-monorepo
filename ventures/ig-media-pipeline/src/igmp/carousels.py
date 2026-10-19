@@ -817,7 +817,8 @@ def slide_path(cfg: Config, name: str, f: Frame, s: CarouselFrame) -> Path:
 
 
 def _destinations(cfg: Config, name: str) -> dict[str, Path]:
-    root, event = cfg.output_dir / "carousels", name.split("__")[0]
+    from .outputs import out_path
+    root, event = out_path(cfg, "carousels"), name.split("__")[0]   # the outbox while the drive is away
     return {"shipped": root / event / name, "review": root / "_review" / event / name,
             "needs-attention": root / "_needs-attention" / event / name}
 

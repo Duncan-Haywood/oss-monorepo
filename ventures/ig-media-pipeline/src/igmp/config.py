@@ -48,6 +48,8 @@ natural_sound = true    # keep the clips' own sound under the music; loud moment
 # Events whose key contains one of these go to reels/_review/ (they feature other people), even
 # when the critic shipped them; you approve them by hand.
 # review_events = ["Wedding"]
+# proxy_dir = "~/Library/Mobile Documents/com~apple~CloudDocs/igmp-proxies"   # default: <state_dir>/proxies
+#   `igmp stage` keeps reel-size copies there, so reels are made while the photo drives are away
 # reel_workers = 4        # reels in progress at once (Claude calls stay within `parallel`)
 # reel_render_slots = 2   # reels rendering at once (each render uses every core for its segments)
 # posts_per_week = 3      # the posting queue in ready/index.csv
@@ -86,6 +88,14 @@ class Config:
         connected (the Mac's own) while outputs go to an external drive that may drop off."""
         s = (self.extra or {}).get("state_dir")
         return Path(s).expanduser() if s else self.output_dir / "state"
+
+    @property
+    def proxy_dir(self) -> Path:
+        """Reel-resolution copies of everything reels draw on (`igmp stage`), so reels are made while
+        the photo drives are disconnected. Point `proxy_dir` at a cloud-synced folder to keep them
+        in cloud storage."""
+        s = (self.extra or {}).get("proxy_dir")
+        return Path(s).expanduser() if s else self.state_dir / "proxies"
 
     @property
     def db_path(self) -> Path:

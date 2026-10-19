@@ -33,7 +33,8 @@ def needs_review(cfg: Config, event_key: str) -> bool:
 
 
 def edit_dir(cfg: Config, a: Asset) -> Path:
-    base = cfg.output_dir / "photos"
+    from .outputs import out_path
+    base = out_path(cfg, "photos")      # the outbox while the output drive is away
     if needs_review(cfg, a.event_key):
         base = base / "_review"
     return base / (a.event_key or "undated")

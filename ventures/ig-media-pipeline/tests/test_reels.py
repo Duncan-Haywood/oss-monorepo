@@ -77,6 +77,7 @@ from igmp import ready, reels
 from igmp.judge import JudgeError as _JudgeError
 from igmp.models import Critique, MusicChoice, Point, ReelSet, Score, SlotPlan
 from igmp.store import Store
+import numpy as np
 
 
 def test_reel_lengths_per_class(tmp_path):
@@ -888,3 +889,118 @@ def test_finished_reel_moves_across_drives(tmp_path, monkeypatch):
     monkeypatch.setattr(reels.os, "replace", no_cross)
     reels._move_across(src, dst)
     assert dst.read_bytes() == b"video" and not src.exists() and not list(dst.parent.glob(".*"))
+
+
+# --------------------------------------------------------------------------- pace, length, people, repeats
+# (measured over the reel rounds of 2026-10-19; see the docstrings of the rules they pin)
+
+
+def test_a_still_asked_under_a_second_never_renders_a_full_second(tmp_path):
+    # the critic asked for 0.8 s stills 48 times and got 1.0 s, then failed pacing on "1.0 s stills" again
+    valid = {f"a{i}": asset(i) for i in range(3)} | {"v": Asset(id="v", kind="video", files=[], duration_s=9.0)}
+    shots = [Shot(asset_id="a0", duration_s=0.8), Shot(asset_id="a1", duration_s=0.75),
+             Shot(asset_id="v", duration_s=0.8), Shot(asset_id="a2", duration_s=0.9)]
+    p = snap(plan(*shots), cfg(tmp_path), valid)
+    assert [s.duration_s for s in p.shots] == [0.5, 0.5, 1.0, 1.0]   # a clip and a 0.9 s still still round
+
+
+def test_rounding_never_takes_a_reel_under_its_floor(tmp_path):
+    # Rome short-01b round 3: a ~7 s revision of 0.6-0.7 s stills rendered 6.5 s and stopped on the length band
+    valid = {f"a{i}": asset(i) for i in range(12)}
+    asked = [1.0, 0.7, 0.6, 0.7, 0.6, 0.7, 2.0, 0.6, 0.7, 0.6]           # 8.2 s as written
+    p = snap(plan(*[Shot(asset_id=f"a{i}", duration_s=d) for i, d in enumerate(asked)]), cfg(tmp_path), valid)
+    got = [s.duration_s for s in p.shots]
+    assert sum(got) >= 7.0 - 1e-6 and sum(got) <= 7.5 + 1e-6
+    assert all(g <= -(-a // 0.5) * 0.5 + 1e-6 for a, g in zip(asked, got))   # never past its own beat
+    # a plan too short to reach the floor anyway is left as rounded (the checks send it back)
+    p = snap(plan(Shot(asset_id="a1", duration_s=1.2)), cfg(tmp_path), valid)
+    assert p.shots[0].duration_s == 1.0
+
+
+def _short_stills(*durations):
+    return plan(*[Shot(asset_id=f"a{i}", duration_s=d) for i, d in enumerate(durations)])
+
+
+def test_a_story_short_holds_most_stills_one_beat(tmp_path):
+    # story passes held 290 of 531 short stills at 1.0 s; 15 of 21 first critiques of a short failed pacing
+    valid = {f"a{i}": asset(i) for i in range(14)}
+    asked = [1.0] + [1.0] * 10 + [2.0, 1.0, 1.0]                          # 15 s: opener, 10 stills, hero, 2 closing
+    roles = {"a3": "portrait", "a7": "moment"}
+    p = snap(_short_stills(*asked), cfg(tmp_path), valid, brisk=True, roles=roles)
+    got = {s.asset_id: s.duration_s for s in p.shots}
+    middle = [got[f"a{i}"] for i in range(1, 13) if f"a{i}" != "a11"]
+    assert sum(d >= 1.0 for d in middle) <= len(middle) // 3 + 1          # the hero is not counted
+    assert got["a11"] == 2.0 and got["a0"] == 1.0 and got["a13"] == 1.0   # hero, opener, closer kept
+    assert got["a3"] == 1.0 and got["a7"] == 1.0                          # faces keep their second first
+    assert 7.0 <= sum(got.values()) <= 15.0
+    # the critic's own revision is rendered as written
+    assert [s.duration_s for s in snap(_short_stills(*asked), cfg(tmp_path), valid).shots] == asked
+
+
+def test_brisk_leaves_a_paced_short_and_before_after_pairs_alone():
+    valid = {f"a{i}": asset(i) for i in range(8)}
+    paced = [(Shot(asset_id=f"a{i}", duration_s=d), valid[f"a{i}"]) for i, d in
+             enumerate([1.0, 0.5, 1.0, 0.5, 0.5, 2.0, 0.5, 1.0])]
+    assert reels.brisk_stills(paced) == paced
+    pair = [(Shot(asset_id="a0", duration_s=1.0), valid["a0"]),
+            (Shot(asset_id="a1", duration_s=1.0, version="camera"), valid["a1"]),
+            (Shot(asset_id="a1", duration_s=1.0), valid["a1"]),
+            (Shot(asset_id="a2", duration_s=1.0, version="camera"), valid["a2"]),
+            (Shot(asset_id="a2", duration_s=1.0), valid["a2"]),
+            (Shot(asset_id="a3", duration_s=1.0), valid["a3"])]
+    assert reels.brisk_stills(pair) == pair
+
+
+def test_a_pan_never_slides_a_person_out_of_the_frame():
+    # Amalfi short-01: the closer (the man, vertical_focus x 0.6) panned 0.6 -> 0.3 and left only his shoulder
+    valid = _valid("photo", "photo", "photo")
+    shots = [Shot(asset_id="a0", duration_s=1.0, focus={"x": 0.3, "y": 0.5}, focus_to={"x": 0.7, "y": 0.5}),
+             Shot(asset_id="a1", duration_s=1.0),
+             Shot(asset_id="a2", duration_s=2.0, focus={"x": 0.6, "y": 0.5}, focus_to={"x": 0.3, "y": 0.5},
+                  zoom_from=1.0, zoom_to=1.08)]
+    aspects = {f"a{i}": 1.5 for i in range(3)}
+    out = reels.enforce_rules(shots, valid, aspects, subjects={"a2": (0.6, 0.5)})
+    s = out[2]
+    for c, z in ((s.focus.x, s.zoom_from), (s.focus_to.x, s.zoom_to)):
+        x = reels.subject_x(0.6, c, 1.5, z)
+        assert reels.SUBJECT_SAFE[0] - 1e-6 <= x <= reels.SUBJECT_SAFE[1] + 1e-6
+    assert s.focus_to.x < s.focus.x                                      # still a pan, the same way
+    assert out[0] == reels.enforce_rules(shots, valid, aspects)[0]       # no person: a landscape pan is free
+    # a critic's revision keeps its own crop
+    kept = reels.enforce_rules(shots, valid, aspects, keep_opening=True, subjects={"a2": (0.6, 0.5)})
+    assert kept[2].focus_to.x == 0.3
+
+
+def test_subject_x_follows_the_renderers_clamp():
+    assert reels.subject_x(0.5, 0.5, 1.5) == pytest.approx(0.5)
+    assert reels.subject_x(0.1, 0.0, 1.5) == pytest.approx(0.1 / 0.375)   # crop held at the left edge
+    assert reels.subject_x(0.5, 0.5, 0.5) is None                         # narrower than 9:16: whole width
+
+
+def test_near_duplicate_candidates_are_marked(tmp_path):
+    from igmp.vision import encode_print
+    store = Store(tmp_path / "s.sqlite")
+    rng = np.random.default_rng(1)
+    base = rng.normal(size=768)
+    prints = {"a0": base, "a1": base + rng.normal(scale=0.2, size=768), "a2": rng.normal(size=768)}
+    for k, v in prints.items():
+        store.put("metrics", k, {"asset_id": k, "feature_print": encode_print(v)})
+    opts = [(_a(i), _score()) for i in range(4)]                          # a3 has no print
+    assert reels.near_duplicates(opts, store) == [(0, 1)]
+    notes = reels.candidate_notes(opts, store)
+    assert "near-duplicate of #1" in notes["a0"][0] and "near-duplicate of #0" in notes["a1"][0]
+    assert "a2" not in notes and "a3" not in notes
+
+
+def test_people_are_the_faces_vertical_focus(tmp_path):
+    store = Store(tmp_path / "s.sqlite")
+    store.put("metrics", "a0", {"asset_id": "a0", "faces": 2})
+    store.put("metrics", "a1", {"asset_id": "a1", "faces": 0})
+    s = _score().model_copy(update={"vertical_focus": Point(x=0.7, y=0.4)})
+    assert reels.people([(_a(0), s), (_a(1), s), (_a(2), s)], store) == {"a0": (0.7, 0.4)}
+
+
+def test_the_no_music_story_prompt_states_a_shorts_still_is_one_beat(tmp_path):
+    c = cfg(tmp_path)
+    assert "a short's still is one beat (0.5 s)" in reels._timing(c, "short", None, None)
+    assert "one beat" not in reels._timing(c, "medium", None, None)

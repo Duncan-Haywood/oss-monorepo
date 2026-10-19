@@ -52,6 +52,60 @@ approval), `ready/index.jpg` + `index.csv` (everything shipped, as a posting que
 week), and `state/` (database, previews, cached segments, logs). Every story plan and critic round is
 saved as it happens, so a stopped run continues where it was.
 
+## When the drives are away
+
+The photo drives and the output drive drop off often. The pipeline keeps making reels without them.
+
+**Staging.** `igmp stage` writes a reel-resolution proxy of every file reels may draw on: each
+keeper of every event with enough of them (exactly the reels pool), plus the shipped RAW edits of
+those photos. Stills become upright sRGB JPEGs (q90) just big enough for a 1080x1920 crop at 1.2x
+zoom (about 3630 px on the long edge for 3:2), RAW-only stills are developed as the reels do it
+(camera white balance, half size), Insta360 `.insp` stills are kept full size (they are reframed),
+clips become H.264 at 1920 px (360 clips: 1920 px per lens, both lens streams kept). Frame rate,
+length and sound are kept. Of a clip only the stretches reels can use are kept: the score's best
+window and the prefilter's usable segments, padded by 1.5 s and merged, at most 60 s a clip (best
+window first; settings `proxy_pad_s`, `proxy_clip_seconds`). The rest of the clip is black and
+silent but keeps its place, so the proxy has the clip's own timeline and every planned time lands
+on the same frame; a shot planned outside the staged stretches fails with a clear error (the reel
+is retried once the drive is back) instead of rendering black. Staging is incremental: a `manifest.json` next to the proxies records
+each source's size and mtime, so a re-run makes only what is new or changed, and a stopped run
+resumes. Run it while the drives are connected (`--only TEXT` and `--limit N` narrow it; the
+setting `stage_workers` bounds the parallel decoders, default a quarter of the cores up to 4).
+
+**`proxy_dir`.** Proxies go to `<state_dir>/proxies` unless `proxy_dir` says otherwise. To keep them
+in cloud storage, point it at a cloud-synced folder, for example
+`proxy_dir = "~/Library/Mobile Documents/com~apple~CloudDocs/igmp-proxies"` (iCloud Drive), a
+Google Drive or Dropbox folder under `~/Library/CloudStorage/`. Keep that folder downloaded
+("Keep Downloaded" / "Available offline"): a proxy evicted to the cloud is treated as missing.
+
+**Offline behaviour.** A drive that is not connected never removes anything: `scan` keeps every
+asset it knew, with its scores, edits and previews. Reels are planned from the catalog and the
+cached previews as usual (a missing preview is made from the proxy, and a clip's size, frame rate
+and length come from what staging recorded), and when a file's original path is missing the
+renderer is handed its proxy instead. Only stages that need the originals (prefilter measurements, RAW edits, astro)
+skip those shots until the drive is back.
+
+**The outbox.** When the volume holding `output_dir` is not mounted, finished reels, carousels,
+photos, astro outputs and `ready/` go to `<state_dir>/outbox/` under the same relative paths.
+`igmp sync-outputs`, which also runs at the start of every command, moves them onto `output_dir`
+once it is back (copied beside the destination, size-checked, then renamed into place) and
+rewrites the stored records to the new paths. Nothing is ever created under a missing
+`/Volumes/<drive>`.
+
+## Running in the cloud
+
+Nothing here is built, but this is what a cloud runner would need:
+
+- **The state**: `state_dir` (the database, previews, caches), copied up or synced.
+- **The proxies**: `proxy_dir` in cloud storage, so the runner reads the same paths through the
+  manifest. Reels can then be planned and rendered without the original library.
+- **A Claude backend**: `backend = "claude-code"` uses the Claude plan this Mac is signed into
+  and cannot move to another machine. A cloud machine would use `backend = "api"` with an
+  Anthropic API key, billed per token (batches at half price).
+- **Tools**: ffmpeg, exiftool and Python with this package. RawTherapee is only needed for RAW
+  edits, which need the originals anyway.
+- **Outputs**: written to the runner's `output_dir` (or its outbox) and synced back.
+
 ## Two ways to pay for Claude
 
 - `backend = "claude-code"` (default) runs Claude Code headlessly (`claude -p`) on the Claude plan
@@ -78,6 +132,7 @@ Both send downscaled previews (about 1024 px), never the original files.
 ## Commands
 
 `igmp run` runs every stage. `igmp scan | geo | prefilter | score | astro | edit | reels | tag | status` run one.
+`igmp stage` writes the proxy working set and `igmp sync-outputs` empties the outbox (see "When the drives are away").
 `igmp organize` files loose library shots into `<root>/<event>/RAW` (with each RAW's `.xmp` beside it, where
 Lightroom and Capture One read it), `JPG` and `VIDEO`; it shows the plan, `--apply` moves (same-drive
 renames, never overwriting, each logged to `<root>/_organize/*.jsonl` first), `--undo MANIFEST` moves

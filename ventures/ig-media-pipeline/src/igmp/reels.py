@@ -33,7 +33,7 @@ import time
 import uuid
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
@@ -59,6 +59,9 @@ MIN_SPEED = 0.35     # speed ramps stay gentle: never slower than this
 SCENE_PAIR_S = 600   # "the shot vs the scene": a clip and a still of the same spot within 10 min
 FIT_NOT_BEFORE_S = 3.0   # no bordered (fit) shot in the first seconds...
 FIT_MAX_SHARE = 0.2      # ...nor for more than this share of the reel, and at most one
+BRISK_STILL_S = 0.85     # a still asked to hold this long or less stays under a second on the grid
+BRISK_ASK_S = 0.7        # what brisk_stills() asks of a short's surplus one-second stills
+SUBJECT_SAFE = (0.2, 0.8)   # where a person's crop centre may sit across the 9:16 frame (button column right)
 VIDEO_KINDS = ("video", "video360", "sequence")
 STILL_KINDS = ("photo", "photo360")
 WHIPS = ("whip-left", "whip-right", "zoom-in")
@@ -353,16 +356,23 @@ def source_for(a: Asset, store: Store, cfg: Config | None = None, shot: Shot | N
             raise ValueError(f"sequence {a.id}: source_for needs cfg to render the clip")
         keep = shot is not None and (shot.layout == "fit" or shot.focus_to is not None)
         return sequences.reel_source(a, store, cfg, keep_aspect=keep)
+    # a file whose drive is away is read from its staged proxy (proxies.py, `igmp stage`); a clip's
+    # proxy keeps its timeline, and a shot outside its staged stretches raises OutsideStretches
+    from .proxies import available, video_for_shot
     edit = store.get("edits", a.id)
     if a.kind == "photo" and edit and edit.get("status") == "shipped":
-        return {"kind": "photo", "path": edit["full"]}
+        return {"kind": "photo", "path": available(edit["full"], cfg)}
     if a.kind in ("video", "video360"):
-        return {"kind": a.kind, "path": a.preview}
+        return {"kind": a.kind, "path": video_for_shot(a.preview, cfg, shot, a.kind)}
     return {"kind": a.kind, "path": _ffmpeg_readable(a.preview or a.raw, cfg)}
 
 
 def _developed(raw: Path, cfg: Config) -> Path:
     out = cfg.state_dir / "links" / (raw.stem + ".raw.jpg")
+    if not out.exists() and not raw.exists():      # its drive is away: the staged proxy, if any
+        from .proxies import proxy_for
+        if (px := proxy_for(cfg, raw)) is not None:
+            return px
     if not out.exists():
         import rawpy
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -377,15 +387,20 @@ def _developed(raw: Path, cfg: Config) -> Path:
 def _move_across(src: Path, dst: Path) -> None:
     """Move a finished file into place, also from the state disk to an output drive: a rename
     cannot cross drives (EXDEV), so it is copied next to its destination and renamed there, which
-    keeps the arrival atomic."""
+    keeps the arrival atomic. The copy is size-checked before the source goes."""
     try:
         os.replace(src, dst)
     except OSError as e:
         if e.errno != errno.EXDEV:
             raise
         tmp = dst.with_name(f".{dst.name}.{uuid.uuid4().hex[:8]}")
-        shutil.copyfile(src, tmp)
-        os.replace(tmp, dst)
+        try:
+            shutil.copyfile(src, tmp)
+            if tmp.stat().st_size != src.stat().st_size:
+                raise OSError(errno.EIO, f"short copy of {src} to {dst}")
+            os.replace(tmp, dst)
+        finally:
+            tmp.unlink(missing_ok=True)
         src.unlink(missing_ok=True)
 
 
@@ -393,12 +408,16 @@ def _ffmpeg_readable(path: str | None, cfg: Config | None) -> str | None:
     """A still ffmpeg and Pillow can read at reel size. An Insta360 .insp is a JPEG, but ffmpeg
     refuses the extension ("Operation not permitted"): it gets a .jpg-named link to the same file.
     A RAW-only shot (no camera JPG) is developed once - camera white balance, half size - into a
-    cached JPEG."""
+    cached JPEG. A still whose drive is away is read from its staged proxy (proxies.py)."""
     if not path or cfg is None:
         return path
     suffix = Path(path).suffix.lower()
     if suffix in (".arw", ".dng"):
         return str(_developed(Path(path), cfg))
+    if not Path(path).exists():
+        from .proxies import proxy_for
+        if (px := proxy_for(cfg, path)) is not None:
+            return str(px)
     if suffix != ".insp":
         return path
     link = cfg.state_dir / "links" / (Path(path).stem + ".jpg")
@@ -454,7 +473,7 @@ def _fps(a: Asset, cfg: Config | None) -> float | None:
 def candidate_notes(opts: list[tuple[Asset, Score]], store: Store) -> dict[str, list[str]]:
     """What formats each candidate allows: 'before/after' (it has a shipped RAW edit and the
     camera's own JPEG) and 'the shot vs the scene' pairs (a clip and a still from another camera
-    within 10 minutes of each other)."""
+    within 10 minutes of each other), and stills that look almost the same ('near-duplicate of #n')."""
     idx = {a.id: i for i, (a, _) in enumerate(opts)}
     notes: dict[str, list[str]] = defaultdict(list)
     for a, _ in opts:
@@ -471,7 +490,56 @@ def candidate_notes(opts: list[tuple[Asset, Score]], store: Store) -> dict[str, 
             mins = round((ts - tc).total_seconds() / 60)
             notes[c.id].append(f"scene: #{idx[s.id]} ({mins:+d} min)")
             notes[s.id].append(f"the shot of it: #{idx[c.id]}")
+    for i, j in near_duplicates(opts, store):
+        notes[opts[i][0].id].append(f"near-duplicate of #{j}: use one, or keep them far apart")
+        notes[opts[j][0].id].append(f"near-duplicate of #{i}: use one, or keep them far apart")
     return dict(notes)
+
+
+NEAR_DUPLICATE = 0.85   # feature-print cosine at or over which two stills read as the same frame
+
+
+def near_duplicates(opts: list[tuple[Asset, Score]], store: Store) -> list[tuple[int, int]]:
+    """Pairs of candidate stills (indices into opts) that look almost the same, by Apple Vision
+    feature prints (metrics.feature_print). Measured on the critic's own calls (2026-10-19): the
+    pairs it named near-identical had a median cosine of 0.86, and 0.85 flags half of them against
+    2.6% of the other pairs that shared a reel; no_redundancy failed 24 of 63 critiques."""
+    from .vision import decode_print
+
+    vecs: list[tuple[int, np.ndarray]] = []
+    for i, (a, _) in enumerate(opts):
+        m = store.get("metrics", a.id) if a.kind == "photo" else None
+        try:
+            v = decode_print((m or {}).get("feature_print") or "").astype(np.float64)
+        except (ValueError, TypeError):
+            continue
+        n = float(np.linalg.norm(v)) if v.size else 0.0
+        if n > 0:
+            vecs.append((i, v / n))
+    sizes = [len(v) for _, v in vecs]
+    if len(vecs) < 2:
+        return []
+    size = max(set(sizes), key=sizes.count)             # one feature-print revision per comparison
+    vecs = [(i, v) for i, v in vecs if len(v) == size]
+    if len(vecs) < 2:
+        return []
+    m = np.stack([v for _, v in vecs])
+    sim = m @ m.T
+    out = []
+    for p in range(len(vecs)):
+        for q in range(p + 1, len(vecs)):
+            if sim[p, q] >= NEAR_DUPLICATE:
+                out.append((vecs[p][0], vecs[q][0]))
+    return out
+
+
+def _offline_stretches(a: Asset, cfg: Config | None) -> list[tuple[float, float]] | None:
+    """The staged stretches of a clip whose original is not connected (None: it is, or not staged)."""
+    if cfg is None or not a.preview or Path(a.preview).exists():
+        return None
+    from . import proxies
+    e = proxies.entry_for(cfg, a.preview)
+    return [tuple(x) for x in e["stretches"]] if e and e.get("stretches") else None
 
 
 def listing(opts: list[tuple[Asset, Score]], cfg: Config | None = None,
@@ -484,6 +552,9 @@ def listing(opts: list[tuple[Asset, Score]], cfg: Config | None = None,
             fps = _fps(a, cfg)
             extra = (f", clip {a.duration_s or 0:.1f}s" + (f" at {fps:.0f} fps" if fps else "")
                      + f", best {s.best_in_s}-{s.best_out_s}s")
+            staged = _offline_stretches(a, cfg)
+            if staged is not None:      # the drive is away: only the staged stretches can render
+                extra += ", drive offline - use only " + ", ".join(f"{x:.1f}-{y:.1f}s" for x, y in staged)
         if a.kind.endswith("360"):
             extra += f", look yaw {s.view_yaw_deg}"
         if a.kind == "sequence":
@@ -581,8 +652,14 @@ def _timing(cfg: Config, length_class: str, tracks: dict[str, music.Track] | Non
             "Give shot durations in seconds, roughly whole numbers of the chosen track's beats: every cut is "
             "moved onto that track's nearest beat and the reel ends on a bar line; a transition is centred on "
             "its cut. ")
+    pace = ""
+    if length_class == "short":
+        b = cfg.beat_seconds
+        pace = (f"On this grid a short's still is one beat ({b:g} s); give {2 * b:g} s only to a face or a moment "
+                "that needs reading (at most a third of the stills) and about 2 s to the one hero hold - a "
+                "short whose stills mostly hold a second fails its pacing. ")
     return (f"Shot durations are multiples of {cfg.beat_seconds:g} s (the beat grid; music is added later, so "
-            "music is null). ")
+            "music is null). " + pace)
 
 
 def story_task(key: str, opts: list[tuple[Asset, Score]], cfg: Config, sheet_path: Path | list[Path],
@@ -762,18 +839,77 @@ def _before_after(kept: list[tuple[Shot, Asset]], editable: set[str] | None) -> 
     return out
 
 
-def _fixed_grid(kept: list[tuple[Shot, Asset]], cfg: Config, limit: float | None = None) -> list[Shot]:
+def _grid_beats(s: Shot, a: Asset, beat: float) -> int:
+    """Beats for a shot on the fixed grid: the nearest whole number, except that a still asked to
+    hold under a second (BRISK_STILL_S or less) never rounds up to a full second. Measured over the
+    reel rounds of 2026-10-19: 48 stills the critic asked for at 0.8 s rendered at 1.0 s, and the
+    next critique failed pacing on '1.0 s stills' again."""
+    n = s.duration_s / beat
+    if a.kind in STILL_KINDS and s.duration_s <= BRISK_STILL_S + 1e-9:
+        return max(1, math.floor(n + 1e-9))
+    return max(1, round(n))
+
+
+def _fixed_grid(kept: list[tuple[Shot, Asset]], cfg: Config, limit: float | None = None,
+                floor: float | None = None) -> list[Shot]:
+    """Durations on the cfg.beat_seconds grid, the reel within `limit` (default the short cap).
+    When rounding alone took the reel under `floor` (its class's shortest length) and giving the
+    rounded-off time back reaches it, the shots that lost the most get their time back, one beat at
+    a time: a 7 s critic revision of 0.6-0.7 s stills must not render 6.5 s and fail the length band."""
     beat, shots, total = cfg.beat_seconds, [], 0.0
     limit = cfg.reel_cap("short") if limit is None else limit
     for s, a in kept:
-        d = max(beat, round(s.duration_s / beat) * beat)
+        d = _grid_beats(s, a, beat) * beat
         if total + d > limit + 1e-6:
             d = math.floor((limit - total) / beat + 1e-9) * beat
             if d < beat:
                 break
         shots.append(_fit_clip(s, a, d))
         total += d
+    if floor is None or not shots or total >= floor - 1e-6:
+        return shots
+    ceil = [max(1, math.ceil(s.duration_s / beat - 1e-9)) * beat for s, _ in kept[:len(shots)]]
+    if total + sum(max(0.0, c - x.duration_s) for c, x in zip(ceil, shots)) < floor - 1e-6:
+        return shots                                    # too short a plan either way: the checks say so
+    order = sorted(range(len(shots)), key=lambda i: (-(kept[i][0].duration_s - shots[i].duration_s), i))
+    for i in order:
+        while total < floor - 1e-6 and shots[i].duration_s + beat <= ceil[i] + 1e-6 and total + beat <= limit + 1e-6:
+            s, a = kept[i]
+            shots[i] = _fit_clip(s, a, shots[i].duration_s + beat)
+            total += beat
     return shots
+
+
+def brisk_stills(kept: list[tuple[Shot, Asset]], roles: dict[str, str] | None = None) -> list[tuple[Shot, Asset]]:
+    """A short's pace, before the grid: at most a third of its middle stills (not the opener, the
+    closer, the longest hold, a before/after pair or a 360) hold a second or more; the rest are
+    asked for 0.7 s (one beat on the 0.5 s grid). Faces and moments (Score role portrait/moment)
+    keep their second first, then the longer holds. Measured 2026-10-19: story passes held 290 of
+    531 short stills at 1.0 s, and 15 of 21 first critiques of a short failed pacing, most citing
+    'every still 1.0 s' against the guide's 0.5-0.8 s; shorts that passed held one in three or fewer."""
+    n = len(kept)
+    if n < 4:
+        return kept
+    pair: set[int] = set()
+    for i in range(1, n):
+        if _is_pair(kept[i - 1][0], kept[i][0]):
+            pair |= {i - 1, i}
+    middle = [i for i, (s, a) in enumerate(kept) if a.kind == "photo" and 0 < i < n - 1 and i not in pair]
+    if not middle:
+        return kept
+    hero = max(middle, key=lambda i: (kept[i][0].duration_s, -i))
+    slow = [i for i in middle if i != hero and kept[i][0].duration_s >= 1.0 - 1e-9]
+    allow = len(middle) // 3
+    if len(slow) <= allow:
+        return kept
+    roles = roles or {}
+    keep = set(sorted(slow, key=lambda i: (roles.get(kept[i][1].id) not in ("portrait", "moment"),
+                                           -kept[i][0].duration_s, i))[:allow])
+    out = list(kept)
+    for i in slow:
+        if i not in keep:
+            out[i] = (kept[i][0].model_copy(update={"duration_s": BRISK_ASK_S}), kept[i][1])
+    return out
 
 
 def window_length(plan: ReelPlan, cfg: Config) -> float:
@@ -833,6 +969,9 @@ def _music_grid(kept: list[tuple[Shot, Asset]], cfg: Config, info: music.TrackIn
         options = [f for f in frames if lo <= f - prev <= hi]
         if not options:
             break
+        if a.kind in STILL_KINDS and s.duration_s <= BRISK_STILL_S + 1e-9:   # as _grid_beats: under a second
+            under = [f for f in options if f - prev < fps - 0.5]
+            options = under or options
         end = min(options, key=lambda f: (abs(f - want), f))
         cuts.append([s, a, prev, end])
         prev = end
@@ -913,20 +1052,69 @@ def _make_opening_move(s: Shot, kind: str, aspect: float | None) -> Shot:
     return s.model_copy(update=upd)
 
 
+def subject_x(px: float, centre: float, aspect: float, zoom: float = 1.0) -> float | None:
+    """Where a source point at x=px lands across the 9:16 frame (0 left edge, 1 right edge) for a
+    fill crop centred at `centre` (clamped inside the frame, as the renderer does). None when the
+    crop keeps the whole width (a frame no wider than 9:16)."""
+    w = (9 / 16) / aspect / max(1.0, zoom)
+    if w >= 1 - 1e-9:
+        return None
+    c = min(max(centre, w / 2), 1 - w / 2)
+    return (px - (c - w / 2)) / w
+
+
+def _keep_subject(s: Shot, subject: tuple[float, float], aspect: float | None) -> Shot:
+    """Hard rule 4 for a frame with a person in it (the Score's vertical_focus, where Apple Vision
+    found faces): each end of the crop (focus at zoom_from, focus_to at zoom_to) moves just enough
+    that the person sits inside SUBJECT_SAFE across the frame. Measured 2026-10-19: crops_safe was
+    the critic's most failed check (43 of 63 critiques), most often a pan that slid a face to the
+    edge or under the button column, e.g. focus 0.6 -> 0.3 on a portrait whose subject is at 0.6."""
+    if not aspect or s.layout != "fill":
+        return s
+    lo, hi = SUBJECT_SAFE
+    px = subject[0]
+
+    def safe(c: float, z: float) -> float:
+        x = subject_x(px, c, aspect, z)
+        if x is None or lo - 1e-9 <= x <= hi + 1e-9:
+            return c
+        w = (9 / 16) / aspect / max(1.0, z)
+        want = px + w / 2 - (hi if x > hi else lo) * w      # the centre that puts the subject on the bound
+        return round(min(max(want, 0.0), 1.0), 3)
+
+    upd: dict = {}
+    fx = safe(s.focus.x, s.zoom_from)
+    if fx != s.focus.x:
+        upd["focus"] = Point(x=fx, y=s.focus.y)
+    if s.focus_to is not None:
+        tx = safe(s.focus_to.x, s.zoom_to)
+        if tx != s.focus_to.x:
+            upd["focus_to"] = Point(x=tx, y=s.focus_to.y)
+    return s.model_copy(update=upd) if upd else s
+
+
 def enforce_rules(shots: list[Shot], valid: dict[str, Asset], aspects: dict[str, float | None] | None = None,
-                  keep_opening: bool = False) -> list[Shot]:
+                  keep_opening: bool = False, subjects: dict[str, tuple[float, float]] | None = None) -> list[Shot]:
     """The hard rules a plan is held to after its cuts are on the grid (durations unchanged):
     transitions (none into shot 1, never two in a row, at most one cut in four, wipe only for a
     before/after, which always gets one); stills never speed-ramp and always move; at most one
     bordered 'fit' shot, not in the first FIT_NOT_BEFORE_S, at most FIT_MAX_SHARE of the reel (the
     others become full-bleed pans); and the first second moves. With keep_opening (a critic's revision)
     every shot that already has its own move keeps its framing: the generic opening pan, and the
-    push every still gets, are added only where the critic gave no motion."""
+    push every still gets, are added only where the critic gave no motion. `subjects` (asset id ->
+    where its person is, see _keep_subject) keeps people inside the frame's safe band; a critic's
+    revision (keep_opening) keeps its own crops."""
     if not shots:
         return shots
     authored = [keep_opening and _any_move(s) for s in shots]
     authored_move = keep_opening and _moves(shots[0])
     aspects = aspects or {}
+    people = {} if keep_opening else (subjects or {})
+
+    def guard(s: Shot, kind: str) -> Shot:
+        if s.asset_id in people and kind in ("photo", "video"):
+            return _keep_subject(s, people[s.asset_id], aspects.get(s.asset_id))
+        return s
     out = list(shots)
     kinds = [valid[s.asset_id].kind if s.asset_id in valid else "photo" for s in out]
     # transitions
@@ -956,6 +1144,7 @@ def enforce_rules(shots: list[Shot], valid: dict[str, Asset], aspects: dict[str,
                 fit_used = True
             else:
                 s = _bleed(s, aspects.get(s.asset_id))
+        s = guard(s, a_kind)
         if a_kind in STILL_KINDS and not _moves(s) and not authored[i]:
             if s.zoom_from > s.zoom_to:
                 s = s.model_copy(update={"zoom_from": min(1.6, s.zoom_to + 0.08)})
@@ -966,30 +1155,35 @@ def enforce_rules(shots: list[Shot], valid: dict[str, Asset], aspects: dict[str,
         out[i] = s
         t += s.duration_s
     if not _opens_moving(out, kinds) and not authored_move:
-        out[0] = _make_opening_move(out[0], kinds[0], aspects.get(out[0].asset_id))
+        out[0] = guard(_make_opening_move(out[0], kinds[0], aspects.get(out[0].asset_id)), kinds[0])
     return out
 
 
 def snap(plan: ReelPlan, cfg: Config, valid: dict[str, Asset],
          tracks: dict[str, music.Track] | None = None, *, aspects: dict[str, float | None] | None = None,
-         editable: set[str] | None = None, keep_opening: bool = False) -> ReelPlan:
-    """Hold Claude's plan to the hard rules: known ids, beat grid, its class's length cap, clip
-    bounds and speeds, then enforce_rules(). With a music library (`tracks`) the plan always gets
-    a track and its cuts go on that track's beats; without one the fixed cfg.beat_seconds grid is
-    used and music is dropped. `aspects` (id -> width/height) and `editable` (ids with a shipped
-    edit, for before/after) refine the rules when known."""
-    _, _, cap = cfg.reel_length(plan.length_class)
+         editable: set[str] | None = None, keep_opening: bool = False, brisk: bool = False,
+         roles: dict[str, str] | None = None, subjects: dict[str, tuple[float, float]] | None = None) -> ReelPlan:
+    """Hold Claude's plan to the hard rules: known ids, beat grid, its class's length (cap, and the
+    floor where only rounding lost it), clip bounds and speeds, then enforce_rules(). With a music
+    library (`tracks`) the plan always gets a track and its cuts go on that track's beats; without
+    one the fixed cfg.beat_seconds grid is used and music is dropped. `aspects` (id -> width/height),
+    `editable` (ids with a shipped edit, for before/after) and `subjects` (id -> where its person is)
+    refine the rules when known. `brisk` (a story or fix pass, not the critic's own revision) holds a
+    short's stills to its pace (brisk_stills, preferring to keep `roles` portrait/moment at a second)."""
+    floor, _, cap = cfg.reel_length(plan.length_class)
     kept = [(_speeds(s, valid[s.asset_id]), valid[s.asset_id]) for s in plan.shots if s.asset_id in valid]
     kept = _before_after(kept, editable)
+    if brisk and plan.length_class == "short":
+        kept = brisk_stills(kept, roles)
     choice = pick_music(plan, cfg, tracks) if tracks else None
     if choice is None:
-        shots = _fixed_grid(kept, cfg, cap)
+        shots = _fixed_grid(kept, cfg, cap, floor)
     else:
         info = tracks[choice.track_id].info
         shots = _music_grid(kept, cfg, info, choice.start_s, min(cap, info.duration_s - choice.start_s - 0.2))
     if not shots:
         raise JudgeError("plan had no usable shots")
-    shots = enforce_rules(shots, valid, aspects, keep_opening=keep_opening)
+    shots = enforce_rules(shots, valid, aspects, keep_opening=keep_opening, subjects=subjects)
     cover = plan.cover_asset_id if plan.cover_asset_id in {s.asset_id for s in shots} else shots[0].asset_id
     return plan.model_copy(update={"shots": shots, "cover_asset_id": cover, "music": choice})
 
@@ -1359,7 +1553,8 @@ def render_inputs(plan: ReelPlan, valid: dict[str, Asset], store: Store, cfg: Co
         a = valid[s.asset_id]
         if s.version == "camera" and a.kind == "photo" and a.preview:
             alias = s.asset_id + CAMERA_ALIAS
-            sources[alias] = {"kind": "photo", "path": a.preview}
+            from . import proxies
+            sources[alias] = {"kind": "photo", "path": _ffmpeg_readable(proxies.available(a.preview, cfg), cfg)}
             shots.append(s.model_copy(update={"asset_id": alias}))
             continue
         src = source_for(a, store, cfg, s)
@@ -1439,8 +1634,10 @@ LEGACY_FOLDERS = (*REEL_CLASSES, "_review", "_needs-attention")   # before reels
 
 def out_folder(cfg: Config, key: str, length_class: str, shipped: bool) -> Path:
     """reels/<event>/, or reels/_review/<event>/ and reels/_needs-attention/<event>/: every reel of
-    an event sits together, its length class is in its name."""
-    base = cfg.output_dir / "reels"
+    an event sits together, its length class is in its name. While the output drive is away they
+    go to the outbox (outputs.py), which `igmp sync-outputs` moves over when it is back."""
+    from .outputs import out_path
+    base = out_path(cfg, "reels")
     if not shipped:
         return base / "_needs-attention" / key
     return (base / "_review" / key) if needs_review(key, cfg) else base / key
@@ -1627,6 +1824,8 @@ class Context:
     editable: set
     aspects: dict
     sheets: list
+    roles: dict = field(default_factory=dict)      # asset id -> Score.role
+    subjects: dict = field(default_factory=dict)   # asset id -> (x, y) of its person (faces measured)
 
 
 def make_context(key: str, opts: list[tuple[Asset, Score]], cfg: Config, store: Store, work: Path,
@@ -1640,7 +1839,22 @@ def make_context(key: str, opts: list[tuple[Asset, Score]], cfg: Config, store: 
         e = store.get("edits", a.id) if a.kind == "photo" else None
         if e and e.get("status") == "shipped" and e.get("full") and a.preview and str(a.preview) != str(e["full"]):
             editable.add(a.id)
-    return Context(key, list(opts), valid, notes, editable, _Aspects(valid, cfg), _sheets(opts, cfg, work))
+    roles = {a.id: s.role for a, s in every}
+    return Context(key, list(opts), valid, notes, editable, _Aspects(valid, cfg), _sheets(opts, cfg, work),
+                   roles, people(every, store))
+
+
+def people(items: list[tuple[Asset, Score]], store: Store) -> dict[str, tuple[float, float]]:
+    """Where the person is in each photo or clip with faces in it (Apple Vision's face count in
+    metrics): the Score's vertical_focus, the centre of its best 9:16 crop. For _keep_subject."""
+    out = {}
+    for a, s in items:
+        if a.kind not in ("photo", "video"):
+            continue
+        m = store.get("metrics", a.id)
+        if m and (m.get("faces") or 0) > 0:
+            out[a.id] = (s.vertical_focus.x, s.vertical_focus.y)
+    return out
 
 
 def _chapters(plan: ReelPlan, valid: dict[str, Asset]) -> list[bool]:
@@ -1786,12 +2000,16 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
     idx = {a.id: i for i, (a, _) in enumerate(ctx.opts)}
     openings = [f"#{idx[i]} (id={i})" if i in idx else f"id={i}" for i in dict.fromkeys(taken)]
 
-    def settle(p: ReelPlan, track_from: ReelPlan | None = None, keep_opening: bool = False) -> ReelPlan:
+    def settle(p: ReelPlan, track_from: ReelPlan | None = None, keep_opening: bool = False,
+               as_written: bool = False) -> ReelPlan:
+        """snap() with what is known of the event; as_written: the critic's own revision (or a plan
+        already settled once), whose durations and crops are not re-paced or re-framed."""
         p = _own(p, key, length_class)
         if track_from is not None and tracks and (p.music is None or p.music.track_id not in tracks):
             p = p.model_copy(update={"music": track_from.music})     # keep the track
         return snap(p, cfg, ctx.valid, tracks, aspects=ctx.aspects, editable=ctx.editable,
-                    keep_opening=keep_opening)
+                    keep_opening=keep_opening, brisk=not as_written, roles=ctx.roles,
+                    subjects=None if as_written else ctx.subjects)
 
     # The critic's latest revision as it asked for it (its opening shot), and what the critic must hear
     # about changes made to that revision before the next render (hard rules, automatic-check fixes).
@@ -1852,7 +2070,7 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
             plan = ReelPlan.model_validate(last["next_plan"])
             transitions = None
             if tracks and (plan.music is None or plan.music.track_id not in tracks):
-                plan = settle(plan)                     # the library changed since: a track it has
+                plan = settle(plan, as_written=True)    # the library changed since: a track it has
     else:
         plan = settle(plan)
     round_ = len(rounds)
@@ -1865,7 +2083,7 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
             if free is not None:
                 told.append(f"the plan opened on id={plan.shots[0].asset_id}, which already opens another short of "
                             f"this event; the hard rule opens on id={free.shots[0].asset_id} instead")
-                plan = settle(free, plan)
+                plan = settle(free, plan, as_written=True)
         fails, facts = plan_problems(plan, ctx.valid, taken)
         if fails and not final_round:
             before = len(told)
@@ -1929,7 +2147,7 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
                 told.append(f"you asked to open on id={revised.shots[0].asset_id}, which already opens another "
                             f"short of this event; the hard rule opens on id={free.shots[0].asset_id} instead")
                 revised = free
-        new = settle(revised, plan, keep_opening=revised.shots[0].asset_id not in set(taken))
+        new = settle(revised, plan, keep_opening=revised.shots[0].asset_id not in set(taken), as_written=True)
         want = [i for i in _ids(revised) if i in ctx.valid]
         asked = next((s for s in revised.shots if s.asset_id in ctx.valid), new.shots[0])
         if _ids(new)[:1] != want[:1]:

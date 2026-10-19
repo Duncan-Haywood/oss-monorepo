@@ -656,7 +656,8 @@ def _crop(im: Image.Image, size: tuple[int, int], focus: Point) -> Image.Image:
 
 # --- rendering ---------------------------------------------------------------------------
 def out_dir(group: AstroGroup, cfg: Config) -> Path:
-    return cfg.output_dir / "photos" / group.event_key / "astro"
+    from .outputs import out_path
+    return out_path(cfg, "photos", group.event_key, "astro")
 
 
 def render_still(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config, mode: str,

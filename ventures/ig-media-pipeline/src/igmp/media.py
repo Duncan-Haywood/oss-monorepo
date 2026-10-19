@@ -129,11 +129,17 @@ def _probe_cached(path: str, ffprobe: str, mtime: float) -> dict:
 def probe(path: str | Path, cfg: Config) -> dict:
     """Facts about a video: duration_s, width/height (as displayed, rotation applied), fps,
     video_streams (attached cover pictures excluded; 2 for an X5 .insv), video_indexes,
-    codec, rotation, has_audio. Raises MediaError for unreadable files."""
+    codec, rotation, has_audio. Raises MediaError for unreadable files. A clip whose drive is away
+    answers from what `igmp stage` recorded of it, or from its proxy (proxies.py)."""
     p = Path(path)
     try:
         mtime = p.stat().st_mtime
     except OSError as e:
+        from . import proxies
+        if (info := proxies.recorded_info(cfg, p)) is not None:
+            return info
+        if (px := proxies.proxy_for(cfg, p)) is not None:
+            return probe(px, cfg)
         raise MediaError(str(e)) from e
     return dict(_probe_cached(str(p), cfg.ffprobe, mtime))
 
@@ -152,8 +158,10 @@ def proxy_path(asset: Asset) -> Path | None:
 
 def _video_source(asset: Asset, cfg: Config) -> tuple[Path, dict, bool]:
     """(path, probe, is_proxy): the proxy when it exists, is readable and matches the clip's
-    length, else the original. Proxies decode 5-20x faster and are plenty for sampling."""
-    main = Path(asset.preview or "")
+    length, else the original. Proxies decode 5-20x faster and are plenty for sampling. With the
+    drive away, the staged proxy (proxies.py) stands in for the original."""
+    from .proxies import available
+    main = Path(available(asset.preview, cfg) or "")
     main_info = None
     try:
         main_info = probe(main, cfg)
@@ -633,6 +641,11 @@ def contact_sheet(asset: Asset, cfg: Config, size: int = PREVIEW_SIZE,
     src, info, _ = _video_source(asset, cfg)
     duration = info["duration_s"] or (asset.duration_s or 0.0)
     times = _sample_times(duration, n)
+    if asset.preview and not Path(asset.preview).exists():   # a staged proxy: only its stretches have frames
+        from .proxies import entry_for, stretch_times
+        e = entry_for(cfg, asset.preview)
+        if e and e.get("stretches"):
+            times = stretch_times(e["stretches"], n)
     if asset.kind == "video360":
         side = size // 8   # 2 columns x 4 views
 
@@ -684,7 +697,8 @@ def preview_image(asset: Asset, cfg: Config, size: int = PREVIEW_SIZE) -> Path:
         return _save_jpeg(_fit(sheet, size), dest)
     if not asset.preview:
         raise MediaError(f"asset {asset.id} has no preview file")
-    src = Path(asset.preview)
+    from .proxies import available
+    src = Path(available(asset.preview, cfg))       # the staged proxy while the drive is away
     if asset.kind == "photo":
         img = _fit(_load_still(src, size), size)
     elif asset.kind == "photo360":

@@ -3,6 +3,8 @@
   igmp init        write a settings template (~/.config/igmp/config.toml)
   igmp run         every stage below, resuming where the last run stopped
   igmp scan | prefilter | score | edit | reels | carousels | status
+  igmp stage         reel-size proxies of everything reels use, so reels are made with the drives away
+  igmp sync-outputs  move outputs written while the output drive was away (the outbox) onto it
 """
 from __future__ import annotations
 
@@ -20,6 +22,12 @@ log = logging.getLogger("igmp")
 
 
 def scan(cfg: config.Config, store: Store) -> list[Asset]:
+    """Add and refresh what the connected drives hold. Assets on a drive that isn't connected are
+    never dropped or marked gone: they stay in the store, and reels use their staged proxies."""
+    away = [r for r in cfg.library_roots if not Path(r).exists()]
+    if away:
+        log.info("catalog: %s not connected; their assets are kept as they were",
+                 ", ".join(str(r) for r in away))
     found = catalog.scan(cfg.library_roots)
     new = updated = 0
     for a in found:
@@ -44,7 +52,8 @@ def scan(cfg: config.Config, store: Store) -> list[Asset]:
 
 
 def online(a: Asset) -> bool:
-    """False when the shot's drive isn't connected: skip it now, pick it up next run."""
+    """False when the shot's drive isn't connected: measuring skips it now and picks it up next run.
+    (The asset itself stays in the catalog; reels read its staged proxy.)"""
     first = a.preview or a.raw or (a.files[0] if a.files else None)
     return a.kind == "sequence" or (first is not None and Path(first).exists())
 
@@ -140,10 +149,37 @@ def run_organize(cfg: config.Config, store: Store, args) -> int:
     return 0
 
 
+def sync_outputs(cfg: config.Config, store: Store) -> dict:
+    """Move the outbox (outputs made while the output drive was away) onto it; never fatal."""
+    from . import outputs
+    try:
+        res = outputs.sync(cfg, store)
+    except Exception as e:          # a sync problem must not stop the command that was asked for
+        log.warning("outbox: sync failed: %s", e)
+        return {"error": str(e)}
+    if res.get("waiting"):
+        log.info("outbox: %d file(s) wait for %s", res["waiting"], cfg.output_dir)
+    return res
+
+
+def run_stage(cfg: config.Config, store: Store, args) -> int:
+    """Reel-size proxies of every asset reels may use (proxies.py); incremental and resumable."""
+    from . import proxies
+    assets = scan(cfg, store)
+    if args.only:
+        assets = [a for a in assets if args.only in a.event_key]
+    res = proxies.stage(cfg, store, assets, limit=args.limit)
+    print(f"proxies in {cfg.proxy_dir}: {res['staged']} made, {res['current']} current, "
+          f"{res['offline']} waiting for their drive, {res['failed']} failed; "
+          f"{res['proxies']} in all, {res['bytes'] / 1e9:.1f} GB")
+    return 1 if res["failed"] else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="igmp", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("command", choices=["init", "run", "scan", "prefilter", "score", "astro", "edit", "reels", "carousels",
-                                       "tag", "backup", "geo", "music", "status", "organize"])
+                                       "tag", "backup", "geo", "music", "status", "organize", "stage",
+                                       "sync-outputs"])
     p.add_argument("action", nargs="?", choices=["manifest", "verify", "copy"], help="backup only")
     p.add_argument("--to", type=str, default=None, help="backup copy destination")
     p.add_argument("--apply", action="store_true", help="organize: move the files (default: show the plan)")
@@ -164,6 +200,12 @@ def main(argv: list[str] | None = None) -> int:
     cfg = config.load(path)
     store = Store(cfg.db_path)
     log.addHandler(logging.FileHandler(cfg.state_dir / "igmp.log"))
+    synced = sync_outputs(cfg, store)
+    if args.command == "sync-outputs":
+        print(synced)
+        return 1 if synced.get("failed") else 0
+    if args.command == "stage":
+        return run_stage(cfg, store, args)
     if args.command == "status":
         status(store)
         return 0

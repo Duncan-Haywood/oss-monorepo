@@ -188,7 +188,8 @@ CSV_FIELDS = ["queue", "post_date", *[f.name for f in fields(Piece)]]
 def write(cfg: Config, pieces: list[Piece], start: date | None = None) -> dict[str, list[Path] | Path]:
     """Write ready/index.jpg (more pages as index-2.jpg...) and ready/index.csv in queue order.
     Old pages are removed. Returns the files written."""
-    out = cfg.output_dir / "ready"
+    from .outputs import out_path
+    out = out_path(cfg, "ready")        # the outbox while the output drive is away
     out.mkdir(parents=True, exist_ok=True)
     per_week = int((cfg.extra or {}).get("posts_per_week", 3))
     start = start or date.today() + timedelta(days=1)

@@ -254,9 +254,12 @@ class ClaudeCodeBackend:
 
     def _once(self, task: JudgeTask[M]) -> M:
         # Run from the output folder so no repository CLAUDE.md is picked up as context.
-        self.cfg.output_dir.mkdir(parents=True, exist_ok=True)
+        # (the state disk while the output drive is away: never mkdir under a missing /Volumes/<drive>)
+        from .outputs import work_cwd
+        cwd = work_cwd(self.cfg)
+        cwd.mkdir(parents=True, exist_ok=True)
         proc = self.run(self._args(task), capture_output=True, text=True, timeout=900,
-                        cwd=self.cfg.output_dir, env=self.env)
+                        cwd=cwd, env=self.env)
         blob = proc.stdout.strip()
         try:
             result = json.loads(blob) if blob else {}

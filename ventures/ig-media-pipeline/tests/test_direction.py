@@ -87,8 +87,12 @@ def test_features_brightness_jump(segs):
     assert f.luma_a > 0.3 > 0.1 > f.luma_b and f.similarity < 0.4
     sl = direction.candidates(f)
     assert sl[1][0].kind == "luma_dip" and sl[1][0].color == "dark"
-    back = direction.candidates(direction.boundary_features(segs.stars, segs.land, segs.cfg))
+    up = direction.boundary_features(segs.stars, segs.land, segs.cfg)
+    back = direction.candidates(up, 1.0)                   # dark to bright on a hit
     assert back[1][0].kind == "flash"
+    # no hit (a silent reel, or between beats): the critic reads a flash as a gimmick, so none is offered
+    assert "flash" not in [s.kind for s, _ in direction.candidates(up)]
+    assert "flash" not in [s.kind for s, _ in direction.candidates(up, 0.6, chapter=True)]
 
 
 @needs_ffmpeg
@@ -140,6 +144,17 @@ def test_candidates_rules():
     focus = direction.candidates(feat(focus_a=(0.3, 0.4), focus_b=(0.6, 0.5)))
     md = next(s for s, _ in focus if s.kind == "match_dissolve")
     assert md.focus_a == (0.3, 0.4) and md.focus_b == (0.6, 0.5)
+
+
+def test_a_flash_only_on_a_hit():
+    # 2026-10-19: the critic failed transitions_ok on "a flash with no hit to motivate it" on silent reels
+    # (9 of the 11 flashes it remarked on); dark to dark-bright jumps still get a dip, never a flash
+    up = feat(luma_a=0.05, luma_b=0.5)
+    assert "flash" not in [s.kind for s, _ in direction.candidates(up)]          # no music
+    assert "flash" not in [s.kind for s, _ in direction.candidates(up, 0.6)]     # between beats
+    assert "flash" in [s.kind for s, _ in direction.candidates(up, 1.0)]         # on the downbeat
+    down = feat(luma_a=0.5, luma_b=0.05)
+    assert "luma_dip" in [s.kind for s, _ in direction.candidates(down)]
 
 
 # --------------------------------------------------------------------------- one call per reel

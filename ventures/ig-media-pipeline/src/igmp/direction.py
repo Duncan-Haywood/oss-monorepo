@@ -56,6 +56,9 @@ DURATIONS = {
     "depth_parallax_through": (0.8, 1.0, 1.27),
     "generative": (0.8, 1.07, 1.6),
 }
+# A flash is offered only on a hit in the music: without one the critic read it as a gimmick (9 of
+# 11 flashes it remarked on, 2026-10-19, most of them "no hit to motivate it" on a silent reel).
+FLASH_MIN_BEAT = 0.8
 # aitx's kinds and the renderer's own built-ins (crossfade, whip-left/right, zoom-in, dip-black)
 EffectKind = Literal["cut", "morph", "depth_parallax_through", "generative", "whip", "zoom_through",
                      "match_dissolve", "luma_dip", "flash", "speed_ramp_cut",
@@ -263,8 +266,9 @@ def candidates(f: CutFeatures, beat_strength: float | None = None, *, beat_s: fl
         if la > lb:
             add("luma_dip", f"bright to dark ({la:.2f} -> {lb:.2f}): dip through the dark, B's highlights first",
                 color="dark")
-        else:
-            add("flash", f"dark to bright ({la:.2f} -> {lb:.2f}): a warm light leak hides the jump", color="warm")
+        elif (beat_strength or 0) >= FLASH_MIN_BEAT:
+            add("flash", f"dark to bright ({la:.2f} -> {lb:.2f}) on a hit: a warm light leak hides the jump",
+                color="warm")
     if f.zoom_a > 0.0015:
         add("zoom_through", f"A is pushing in ({f.zoom_a * 100:.2f}%/frame): carry the push through the cut")
     if strong:
