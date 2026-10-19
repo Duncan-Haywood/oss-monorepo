@@ -6,8 +6,10 @@ route agents to each other by relative link. A moved or deleted file leaves a
 dead pointer that costs every later run a failed read. `check_pages_links.py`
 covers the served HTML; this covers the Markdown nobody serves.
 
-Checks local file targets only. Skipped: anchors, external URLs, site-absolute
-`/paths`, docs/history snapshots, fenced code blocks and inline code.
+Checks local file targets, and the `#anchor` on a link to a Markdown file
+(GitHub's heading slugs, duplicates numbered -1, -2). Skipped: external URLs,
+site-absolute `/paths`, docs/history snapshots, fenced code blocks and inline
+code, and anchors on non-Markdown targets.
 
 Usage:
     python3 platform/ci/check_md_links.py [--root DIR] [PATH ...]
@@ -34,7 +36,7 @@ LINK_RE = re.compile(r"(?<!\!)\[(?:[^\[\]\n]|" + _NESTED_IMG + r")*\]\(\s*" + _T
 IMG_RE = re.compile(_IMG)
 CODE_SPAN_RE = re.compile(r"``.*?``|`[^`\n]*`")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
-SKIP = ("http://", "https://", "//", "mailto:", "tel:", "data:", "#", "/")
+SKIP = ("http://", "https://", "//", "mailto:", "tel:", "data:", "/")
 # Verbatim snapshots of other files; their links were relative to the original.
 ARCHIVE_DIRS = ("docs/history/",)
 
@@ -62,6 +64,30 @@ def links_in(text: str):
                 yield n, m.group(1)
 
 
+HEADING_RE = re.compile(r"^ {0,3}#{1,6}\s+(.*?)(?:\s+#+)?\s*$")
+_LINK_TEXT_RE = re.compile(r"!?\[([^\]]*)\]\([^)]*\)")
+
+
+def heading_slugs(text: str) -> set[str]:
+    """GitHub's anchors for the headings in `text` (fenced code excluded)."""
+    slugs: set[str] = set()
+    seen: dict[str, int] = {}
+    in_fence = False
+    for line in text.split("\n"):
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        m = None if in_fence else HEADING_RE.match(line)
+        if not m:
+            continue
+        title = _LINK_TEXT_RE.sub(r"\1", m.group(1)).replace("`", "")
+        slug = re.sub(r"[^\w\- ]", "", title.lower()).replace(" ", "-")
+        n = seen.get(slug, 0)
+        seen[slug] = n + 1
+        slugs.add(slug if n == 0 else f"{slug}-{n}")
+    return slugs
+
+
 def dead_links(path: Path, root: Path):
     try:
         text = path.read_text(encoding="utf-8")
@@ -70,12 +96,21 @@ def dead_links(path: Path, root: Path):
     for n, target in links_in(text):
         if target.startswith(SKIP):
             continue
-        local = unquote(target.split("#", 1)[0].split("?", 1)[0])
-        if not local:
+        before, _, frag = target.partition("#")
+        local = unquote(before.split("?", 1)[0])
+        if not local and not frag:
             continue
         base = root if local.startswith("/") else path.parent
-        if not (base / local.lstrip("/")).exists():
+        dest = base / local.lstrip("/") if local else path
+        if not dest.exists():
             yield n, target
+        elif frag and dest.suffix == ".md" and dest.is_file():
+            try:
+                slugs = heading_slugs(dest.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError):
+                continue
+            if unquote(frag).lower() not in slugs:
+                yield n, target
 
 
 def main(argv: list[str] | None = None) -> int:
