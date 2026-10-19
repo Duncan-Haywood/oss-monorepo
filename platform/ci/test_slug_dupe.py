@@ -98,6 +98,18 @@ class T(unittest.TestCase):
             slug_dupe.check = orig
         self.assertEqual(seen, [(14, "origin")])
 
+    def test_check_default_window_is_14_days(self):
+        import inspect
+        self.assertEqual(inspect.signature(slug_dupe.check).parameters["days"].default, 14)
+
+    def test_current_and_archive_branches_are_not_notices(self):
+        run(self.clone, "checkout", "-b", "claude/qux-widget-1")
+        run(self.clone, "push", "origin", "claude/qux-widget-1")
+        run(self.clone, "push", "origin", "HEAD:refs/heads/archive/qux-widget-old")
+        run(self.clone, "push", "origin", "HEAD:refs/heads/claude/qux-widget-2")
+        _, _, branches = slug_dupe.check("qux-widget")
+        self.assertEqual(branches, ["claude/qux-widget-2"])
+
     def test_help_uses_summary_line(self):
         import contextlib, io
         out = io.StringIO()
