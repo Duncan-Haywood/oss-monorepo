@@ -66,8 +66,9 @@
     <textarea id="rows" spellcheck="false" placeholder="week,channel,spend,revenue&#10;2025-01-06,Search,4200,13800&#10;2025-01-06,Social,3100,6400"></textarea>
     <div class="grid">
       <div><label for="margin">Gross margin on revenue (%)</label><input id="margin" inputmode="decimal" value="60"></div>
+      <div><label for="skip">Weeks to leave out (promotions, stock-outs), optional</label><input id="skip" spellcheck="false" placeholder="2025-11-24..2025-12-07; 2025-12-26"></div>
     </div>
-    <p class="note">Margin sets the break-even: a channel needs a marginal return of 100 divided by your margin, so 1.67 per dollar at 60%. Daily rows are added up into Monday weeks. Use one currency, and the revenue you credit to each channel.</p>
+    <p class="note">Margin sets the break-even: a channel needs a marginal return of 100 divided by your margin, so 1.67 per dollar at 60%. A promotion week (Black Friday, a sale) sells more than its spend explains and tilts the curve, so list those dates as ranges and the fit ignores them while the carry-over still counts their spend. Daily rows are added up into Monday weeks. Use one currency, and the revenue you credit to each channel.</p>
     <button type="button" id="analyze">Fit the curves</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
@@ -162,7 +163,7 @@
     function run() {
       const parsed = parseSpend($("#rows").value);
       if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
-      const r = analyze(parsed.rows, { margin: Number($("#margin").value) / 100 });
+      const r = analyze(parsed.rows, { margin: Number($("#margin").value) / 100, skipWeeks: $("#skip").value });
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
       last = r;
       const s = r.summary;
@@ -186,7 +187,7 @@
         ? `${c.name}: S-shaped, ceiling ${money(c.fit.p[0])} a week, half-way at ${money(c.fit.p[1])}, steepness ${c.fit.p[2].toFixed(2)}, R2 ${c.fit.r2.toFixed(2)}`
         : `${c.name}: saturating, ceiling ${money(c.fit.p[0])} a week, scale ${money(c.fit.p[1])}, R2 ${c.fit.r2.toFixed(2)}`).join(". ") + `. Data: ${s.rows.toLocaleString("en-US")} rows, ${dayToIso(s.firstWeek)} to ${dayToIso(s.lastWeek + 6)}, ${Math.round(s.weeks)} weeks.`;
       report.hidden = false;
-      status.textContent = "Done. Scroll down for the result.";
+      status.textContent = "Done. Scroll down for the result." + (s.skippedWeeks ? ` ${s.skippedWeeks} channel-weeks you listed were left out of the fit.` : "") + (s.skipBad.length ? ` Could not read: ${s.skipBad.join(", ")}.` : "");
       report.scrollIntoView({ behavior: "smooth", block: "start" });
       return true;
     }

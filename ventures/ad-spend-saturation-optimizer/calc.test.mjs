@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   CURVES, curveValue, marginal, fitCurve, fitBest, frontier, allocate, parseSpend, parseDay, dayToIso, weekStart,
-  weekly, budgetPlan, budgetLadder, adstock, fitAdstock, analyze, backtestChannel, reportCsv, simulateSpend, sampleText, percentile, nelderMead, money,
+  weekly, parseSkipWeeks, budgetPlan, budgetLadder, adstock, fitAdstock, analyze, backtestChannel, reportCsv, simulateSpend, sampleText, percentile, nelderMead, money,
 } from "./calc.mjs";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ""} ${a} vs ${b}`);
@@ -344,4 +344,32 @@ test("budgetPlan: out-of-range or bad totals return null; ladder keeps only feas
   const l = budgetLadder(r);
   assert.ok(l.length >= 5);
   for (let i = 1; i < l.length; i++) assert.ok(l[i].total > l[i - 1].total);
+});
+
+test("parseSkipWeeks reads ranges, single days and reports what it cannot read", () => {
+  const { ranges, bad } = parseSkipWeeks("2025-11-24..2025-12-07; 2025-12-26, nonsense");
+  assert.equal(ranges.length, 2);
+  assert.equal(ranges[0].to - ranges[0].from, 13);
+  assert.equal(ranges[1].from, ranges[1].to);
+  assert.deepEqual(bad, ["nonsense"]);
+});
+
+test("leaving out promotion weeks removes their pull on the fitted curve", () => {
+  const sim = simulateSpend({ channels: [{ name: "X", type: "exp", p: [30000, 8000], mean: 7000, cv: 0.45, noise: 0.03 }], weeks: 78, seed: 9 });
+  const wk = [...weekly(sim).get("X")];
+  const promo = wk.filter((_, i) => i % 13 === 6).map((p) => p.week);
+  const rows = sim.map((r) => (promo.includes(weekStart(r.day)) ? { ...r, revenue: r.revenue * 2.2 } : r));
+  const skipText = promo.map((w) => dayToIso(w)).join("; ");
+  const plain = analyze(rows, { boots: 20 }).modelled[0];
+  const clean = analyze(rows, { boots: 20, skipWeeks: skipText });
+  const c = clean.modelled[0];
+  assert.equal(clean.summary.skippedWeeks, promo.length);
+  const err = (f) => Math.abs(curveValue(f, 7000) - CURVES.exp.f([30000, 8000], 7000));
+  assert.ok(err(c.fit) < err(plain.fit) / 2, `skipped ${err(c.fit)} vs plain ${err(plain.fit)}`);
+});
+
+test("a skip range that removes too many weeks says so", () => {
+  const sim = simulateSpend({ weeks: 30, seed: 2 });
+  const r = analyze(sim, { boots: 10, skipWeeks: "1990-01-01..2100-01-01" });
+  assert.ok(r.error && /after leaving out/.test(r.error), r.error);
 });
