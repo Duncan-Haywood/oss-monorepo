@@ -117,6 +117,8 @@ button { font: inherit; padding: 7px 12px; border-radius: 6px; border: 1px solid
 button:hover { background: var(--band); }
 :focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
 tr.ref td { font-weight: 600; }
+button.link { border: 0; padding: 0; background: none; color: var(--series-1); text-decoration: underline; cursor: pointer; }
+button.link:hover { background: none; }
 @media (max-width: 760px) {
   .facts { grid-template-columns: 1fr; }
   .facts dd { margin-bottom: 6px; }

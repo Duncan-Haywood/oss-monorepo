@@ -34,6 +34,12 @@ browser.
   a lens without one is listed but gives no number. `tests/lenses.test.mjs` fails if a bundle
   in `models/` is missing from the manifest. To add a lens, add its bundle and one manifest
   line.
+- **Adapters.** `couple.js` has one adapter per lens: it maps the form onto that bundle's
+  rows, lists the perspectives averaged, the refusals, the what-ifs and the partner search
+  grid. NLSY79 averages both partners as survey respondent; NSFG 2002 uses the wife's
+  report. A model marked as a baseline (the NSFG duration-only curve) is shown as a reference
+  row and kept out of averages, ranges and agreement counts. A couple a lens cannot speak to
+  gets no number from that lens and a link to any lens that can.
 - **Shareable scenarios.** Every input (and the lens) is mirrored into the URL fragment, e.g.
   `#a.sex=Woman&a.age=36&b.sex=Man&yearsMarried=3`. Browsers do not send the fragment to
   servers. Decoding accepts only known fields and allowed values.

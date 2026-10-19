@@ -1,5 +1,13 @@
 # Research log
 
+## 2026-10-19 · App: the NSFG lens scores young couples from the wedding day
+
+- The NSFG 2002 first-marriage bundle (workstream A) is now wired to the form through a per-lens adapter in `couple.js`, so the app can score couples NLSY79 cannot: newly-weds and wives who married at 15–39, for up to 24 years of marriage. New inputs: race-ethnicity, children from an earlier relationship, whether the wife grew up with both parents, and whether the couple lived together first.
+- Honest refusals: no number when the wife was married before (first marriages only), a wedding age is outside the data, or the wife's race-ethnicity or family of origin is missing (the model has no "unknown" group for them). The refusal links to any lens that can score the couple. Weddings after 2002 are scored as 2002 weddings, with a note on the page.
+- The duration-only curve is treated as a baseline, like the constant rate: it is shown, but not averaged into the estimate. For a 27/29 couple who lived together first, the two models give 74.8% no break-up by year 10 (74.2–75.4%), against 63.8% for all first marriages and 70.9% for wives who married at 25–29 in the survey's own weighted Kaplan–Meier curve.
+- Couple-level what-ifs (living together first, marrying 2 or 5 years later) show the model range and agreement. Not cohabiting and marrying 5 years later each add about 2 points on average, but only the additive model moves; the tree is flat.
+- Mortality: SSA, CDC and mortality.org still return HTTP 000, so "lifelong" stays labelled as no break-up through the horizon, if both partners live.
+
 ## 2026-10-19 · NSFG 2002 lens: first-marriage dissolution from the wedding day
 
 - New dataset: NSFG 2002 (Cycle 6) women's first marriages. These are 4,126 ever-married women aged 15–44 with month-exact wedding and dissolution dates, 1,492 divorces, annulments or separations, and 30,341 person-years. CDC is still blocked, so the file comes from Allen Downey's ThinkStats2 copy on GitHub, checked against the official record count (7,643) and weighted total (61.56 million) (`reproducibility/nsfg2002_first_marriage/`).

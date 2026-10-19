@@ -6,10 +6,10 @@
 <title>Divorce Odds Calculator for Couples — Explainable ML in Your Browser</title>
 <meta name="description" content="Estimate a couple's divorce odds for each year of marriage with explainable ML models that run privately in your browser, showing model agreement and limits.">
 <meta property="og:title" content="Divorce odds calculator for couples (explainable, in-browser)">
-<meta property="og:description" content="Year-by-year divorce odds from five interpretable models trained on U.S. longitudinal survey data, with explanations, model disagreement and honest limits.">
+<meta property="og:description" content="Year-by-year divorce odds from explainable models trained on U.S. survey data (NLSY79 couples, NSFG first marriages), with explanations, model disagreement and honest limits.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from five explainable models (additive Poisson regressions, spline model and Poisson decision trees) trained on NLSY79 data. Runs entirely in the browser.","featureList":["Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link"],"license":"https://opensource.org/licenses/MIT"}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from explainable models (additive and spline Poisson regressions and Poisson decision trees) trained on two U.S. surveys: NLSY79 married couples and NSFG 2002 first marriages from the wedding day. Runs entirely in the browser.","featureList":["Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link"],"license":"https://opensource.org/licenses/MIT"}
 </script>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -17,8 +17,8 @@
 <header class="wrap">
   <p class="crumb"><a href="../">Marriage &amp; divorce research</a> · <a href="../../">Research home</a></p>
   <h1>Divorce odds calculator for couples</h1>
-  <p class="lede">Enter two profiles to see what five explainable machine-learning models, trained on 20 years of U.S. survey data on married couples, estimate for your odds of divorce in each year of marriage — and which changes they associate with lower risk. Everything runs in your browser; nothing you type is sent anywhere.</p>
-  <p class="warn" role="note"><strong>Read this first.</strong> These are statistical associations in one older U.S. cohort (people born 1957–1964, observed 2000–2022), not a forecast for you and not causes. The best model beats a flat average rate by only about 3% on held-out people. Relationship quality, conflict, fidelity and commitment — which matter a great deal — are not in the data. Use it to explore the evidence, not to choose or judge a partner.</p>
+  <p class="lede">Enter two profiles to see what explainable machine-learning models, trained on U.S. survey data, estimate for your odds of divorce in each year of marriage — and which changes they associate with lower risk. Two evidence lenses: NLSY79 married couples (ages 35–64) and NSFG 2002 first marriages counted from the wedding day (wives married at 15–39). Everything runs in your browser; nothing you type is sent anywhere.</p>
+  <p class="warn" role="note"><strong>Read this first.</strong> These are statistical associations in past U.S. surveys (NLSY79: people born 1957–1964, observed 2000–2022; NSFG: first marriages begun up to 2002), not a forecast for you and not causes. The best models beat a flat average rate by only about 3% on held-out people. Relationship quality, conflict, fidelity and commitment — which matter a great deal — are not in the data. Use it to explore the evidence, not to choose or judge a partner.</p>
 </header>
 
 <main class="wrap">
@@ -39,6 +39,7 @@
   <fieldset class="couple"><legend>Your marriage</legend>
     <label>Years married so far <input name="yearsMarried" type="number" min="0" max="60" step="1" value="0"><small>0 if engaged, dating or just married</small></label>
     <label>Household income per year, $ <input name="familyIncome" type="number" min="0" step="1000" placeholder="defaults to both wages"></label>
+    <label>Lived together before marrying <select name="cohabitedFirst"><option value="">Not sure</option><option>Yes</option><option>No</option></select></label>
     <label>Projection horizon <select name="horizon"><option>20</option><option>30</option><option selected>40</option><option>50</option></select></label>
   </fieldset>
 </form>
@@ -48,7 +49,7 @@
 
 <section id="results" aria-live="polite">
   <h2>Chance of no divorce</h2>
-  <p class="sub">Average of the lens’s models; the range shows how much they disagree. Assumes both partners live through each year (mortality is not modelled).</p>
+  <p class="sub">Average of the lens’s models; the range shows how much they disagree. Assumes both partners live through each year (mortality is not modelled). <span id="outcomeNote"></span></p>
   <div id="tiles" class="tiles"></div>
   <p id="support" class="support"></p>
 
@@ -78,9 +79,10 @@
     <div><h3>If you changed…</h3><ol id="changesA" class="changes"></ol></div>
     <div><h3>If your partner changed…</h3><ol id="changesB" class="changes"></ol></div>
   </div>
+  <div id="changesCouple"><h3>If you did this together…</h3><ol id="changesC" class="changes"></ol></div>
 
   <h3>Partner profiles the models score highest for you</h3>
-  <p class="sub">Searches partner age (±6 years), degree and wages, holding everything else fixed. The gap between best and worst is small next to everything the data leaves out.</p>
+  <p class="sub" id="idealSearch"></p>
   <p id="idealNote" class="note"></p>
   <div class="table-wrap"><table id="idealTable"></table></div>
 </section>
@@ -88,11 +90,12 @@
 <section class="limits">
   <h2>How it works and what it cannot tell you</h2>
   <ul>
-    <li><strong>Data.</strong> National Longitudinal Survey of Youth 1979 (U.S. Bureau of Labor Statistics): 40,818 two-year intervals from 5,735 married respondents and 726 legal divorces, survey-weighted. Respondents were 35–64; marriages up to 49 years long.</li>
-    <li><strong>Models.</strong> Two additive Poisson regressions, a spline model with schooling-pair and earnings-role interactions, and two shallow Poisson decision trees — all trained in scikit-learn, exported to JSON and run here by a small JavaScript engine that reproduces scikit-learn’s predictions to 10<sup>−9</sup> (tested).</li>
+    <li><strong>NLSY79 lens.</strong> National Longitudinal Survey of Youth 1979 (U.S. Bureau of Labor Statistics): 40,818 two-year intervals from 5,735 married respondents and 726 legal divorces, survey-weighted. Respondents were 35–64; marriages up to 49 years long. Two additive Poisson regressions, a spline model with schooling-pair and earnings-role interactions, and two shallow Poisson decision trees.</li>
+    <li><strong>NSFG 2002 lens.</strong> National Survey of Family Growth, Cycle 6 (NCHS): 4,126 women’s first marriages followed from the wedding day, 1,492 ending in divorce, annulment or separation, 30,341 person-years. An additive spline Poisson model and a depth-3 Poisson tree, with a duration-only curve as the baseline. It covers newly-weds and young couples; it knows nothing about income or schooling.</li>
+    <li><strong>Exact in the browser.</strong> Every model was trained in scikit-learn, exported to JSON and runs here in a small JavaScript engine that reproduces scikit-learn’s predictions to 10<sup>−9</sup> (tested).</li>
     <li><strong>Per year.</strong> Each model gives an annual divorce <em>rate</em> for the couple at each marriage year (ages and duration advance; everything else stays as entered). A year’s divorce probability is 1 − e<sup>−rate</sup>, and the chance of still being married multiplies those years together.</li>
-    <li><strong>Couple.</strong> The survey interviewed one spouse. The app scores the couple from both partners’ points of view and averages them. Same-sex couples were not in the training data, so the app shows no number for them rather than guessing.</li>
-    <li><strong>Outside the data.</strong> Years where either partner is under 35 or over 64 are outside what the models saw; the chart shades them and the numbers there are extrapolation. Younger cohorts, recent marriages, wealth, occupation, children and relationship quality are not covered.</li>
+    <li><strong>Couple.</strong> Each survey interviewed one spouse. The NLSY79 lens scores the couple from both partners’ points of view and averages them; the NSFG lens uses the wife’s report, as the survey did. Same-sex couples were not in either survey, so the app shows no number for them rather than guessing.</li>
+    <li><strong>Outside the data.</strong> Years outside what a lens saw (NLSY79: ages under 35 or over 64; NSFG: beyond year 24 of marriage) are shaded, and the numbers there are extrapolation. A couple a lens cannot speak to at all (for NSFG: a wife married before, or a wedding age outside the data) gets no number from that lens. Wealth, occupation and relationship quality are not covered.</li>
     <li><strong>Not causal, not personal.</strong> Coefficients describe who divorced in one cohort. No validated “ideal partner”, safe anniversary or personal forecast is established. Full methods: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/reproducibility/ml_couples/METHODS.md">ml_couples/METHODS.md</a> and the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/MODEL_CARD.md">model card</a>.</li>
   </ul>
   <p class="small">Open source (MIT): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/research/marriage-divorce-evidence/app">source code</a>. Not advice of any kind.</p>
