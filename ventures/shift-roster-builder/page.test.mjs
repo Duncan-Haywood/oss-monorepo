@@ -301,3 +301,34 @@ test("14-15 year old page's table is what the engine returns for the sample cafe
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("free-alternative page is linked, disclaims affiliation, and states no competitor price", () => {
+  const html = page("free-alternative-to-7shifts-when-i-work-homebase.html");
+  assert.match(page("sitemap.xml"), /free-alternative-to-7shifts-when-i-work-homebase\.html/);
+  assert.match(page("index.html"), /free-alternative-to-7shifts-when-i-work-homebase\.html/);
+  assert.ok(html.includes("No warranty"));
+  assert.match(html, /Not affiliated with, endorsed by, or sponsored by 7shifts/);
+  assert.doesNotMatch(html, /\$\s?\d/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
+
+test("schedule template page's example grid is what the engine returns for the sample cafe", async () => {
+  const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts, DAYS, fmtClock } = await import("./calc.mjs");
+  const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
+  const r = buildRoster(staff, slots, {});
+  const html = page("employee-schedule-template.html");
+  assert.equal(r.hours, 216);
+  assert.equal(r.cost, 3622);
+  for (const s of staff) {
+    const cells = DAYS.map((_, d) => r.assignments.filter((a) => a.person === s.name && a.slot.day === d).map((a) => fmtClock(a.slot.startMin) + "-" + fmtClock(a.slot.endMin)).join(" ") || "off");
+    const hours = r.people.find((x) => x.name === s.name).hours;
+    const row = `<tr><td>${s.name}</td>${cells.map((c) => `<td>${c}</td>`).join("")}<td class="n">${hours}</td></tr>`;
+    assert.ok(html.includes(row), `${s.name} row`);
+  }
+  assert.match(page("sitemap.xml"), /employee-schedule-template\.html/);
+  assert.match(page("index.html"), /employee-schedule-template\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
