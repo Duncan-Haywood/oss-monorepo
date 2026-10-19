@@ -73,3 +73,5 @@ computes against.
 MIT licensed, see [`LICENSE`](LICENSE). Optional
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) support does not
 change what the tool does.
+
+- Crate view: paste one order per line (`label, price, shipping, cost`) to price a whole collection with the same processing rates and see which orders lose money (`calculateBatch` in `calc.mjs`).

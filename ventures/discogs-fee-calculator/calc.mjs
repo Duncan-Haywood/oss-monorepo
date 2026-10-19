@@ -208,3 +208,54 @@ export function feeLadder(input) {
   });
   return { ok: true, errors: [], rows };
 }
+
+/**
+ * A crate: one order per line, "label, price, shipping, cost" (the label is
+ * optional; fields split on commas or tabs, `$` and thousands commas are
+ * ignored, a line starting with # is a comment). Missing shipping and cost are
+ * 0. Each order is fee'd separately with the same processing rates, because
+ * the flat part is per order. Returns every priced row plus totals, so a
+ * seller clearing a collection can see which records lose money.
+ */
+export function calculateBatch(text, settings = {}) {
+  const rows = [];
+  const problems = [];
+  String(text ?? '').split(/\r?\n/).forEach((raw, index) => {
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) return;
+    const cells = line.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map((cell) => cell.trim().replace(/^"|"$/g, ''));
+    const numeric = (cell) => /^\$?-?[\d,]*\.?\d+$/.test(cell.replace(/\s/g, ''));
+    let label = '';
+    if (cells.length && !numeric(cells[0])) label = cells.shift();
+    if (!cells.length || cells.some((cell) => cell !== '' && !numeric(cell))) {
+      if (rows.length === 0 && /^(label|title|record|item|price)/i.test(line)) return; // header row
+      problems.push({ line: index + 1, message: `Line ${index + 1}: expected "label, price, shipping, cost"` });
+      return;
+    }
+    const [price, shipping = '', cost = ''] = cells.map((cell) => cell.replace(/[$,\s]/g, ''));
+    const result = calculateSale({
+      processingRate: settings.processingRate,
+      processingFixed: settings.processingFixed,
+      itemPrice: price,
+      buyerShipping: shipping,
+      itemCost: cost,
+    });
+    if (!result.ok) {
+      problems.push({ line: index + 1, message: `Line ${index + 1}: ${result.errors[0].message}` });
+      return;
+    }
+    rows.push({ line: index + 1, label: label || `Order ${rows.length + 1}`, ...result });
+  });
+  const sum = (key) => rows.reduce((total, row) => total + row[key], 0);
+  const gross = sum('itemPrice') + sum('buyerShipping');
+  const totals = {
+    orders: rows.length,
+    gross,
+    discogsFee: sum('discogsFee'),
+    payout: sum('payout'),
+    profit: sum('profit'),
+    losing: rows.filter((row) => row.profit < 0).length,
+    effectiveRate: gross > 0 ? (sum('discogsFee') / gross) * 100 : 0,
+  };
+  return { rows, problems, totals };
+}
