@@ -1,0 +1,13 @@
+[project]
+name = "accel-ihpprice"
+version = "0.1.0"
+description = "Second-node verdict for clock-gated weight-stationary scheduling, from IHP SG13G2 standard-cell and SRAM liberty files"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
