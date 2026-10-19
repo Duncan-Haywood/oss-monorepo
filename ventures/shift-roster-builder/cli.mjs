@@ -5,6 +5,8 @@
 //   node cli.mjs --last-week roster.csv staff.txt shifts.txt  # carry last week's end times over Monday (rest rule)
 //   node cli.mjs --ot-after 40 --rest 11 --balance 50 staff.txt shifts.txt
 //   node cli.mjs --csv staff.txt shifts.txt > roster.csv    # also --hours, --json
+//   node cli.mjs --week-start 2026-10-19 --ics [--person Sam] staff.txt shifts.txt > week.ics   # calendar file, all or one person
+//   node cli.mjs --messages [--week-start 2026-10-19] staff.txt shifts.txt   # one paste-ready text per person
 //   node cli.mjs --check staff.txt shifts.txt               # exit 1 if any shift stays open (cron, CI, a Sunday reminder)
 //   node cli.mjs --example                                  # run on the built-in invented week
 //
@@ -15,7 +17,7 @@
 import { readFile } from "node:fs/promises";
 import process from "node:process";
 import {
-  parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs, rosterMessages, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -34,6 +36,8 @@ Options:
   --week-start <date> Monday of the week, YYYY-MM-DD (lets time-off dates in the staff file apply)
   --last-week <csv>   last week's roster CSV, to carry shift end times into Monday
   --csv | --hours | --json   machine-readable output
+  --ics [--person <name>]    calendar file for the week (needs --week-start, a Monday); one person's shifts with --person
+  --messages                 a paste-ready text per person
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
   -h, --help          this text
@@ -47,13 +51,16 @@ const FLAGS = {
 };
 
 export function parseArgs(argv) {
-  const o = { options: {}, files: [], mode: "report", example: false, check: false, help: false, lastWeek: null, weekStart: null };
+  const o = { options: {}, files: [], mode: "report", example: false, check: false, help: false, lastWeek: null, weekStart: null, person: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "-h" || a === "--help") o.help = true;
     else if (a === "--csv") o.mode = "csv";
     else if (a === "--hours") o.mode = "hours";
     else if (a === "--json") o.mode = "json";
+    else if (a === "--ics") o.mode = "ics";
+    else if (a === "--messages") o.mode = "messages";
+    else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--check") o.check = true;
     else if (a === "--example") o.example = true;
     else if (a === "--last-week") { o.lastWeek = argv[++i]; if (!o.lastWeek) throw new Error("--last-week needs a CSV file"); }
@@ -90,6 +97,14 @@ export function run(staffText, shiftsText, opts = {}) {
   const open = r.unfilledSlots > 0;
   const code = opts.check && open ? 1 : 0;
   if (opts.mode === "csv") return { code, out: rosterCsv(r) };
+  if (opts.mode === "ics") {
+    if (!opts.weekStart) return { code: 2, out: "--ics needs --week-start (the Monday, YYYY-MM-DD)\n" };
+    if (opts.person && !r.people.some((p) => p.name === opts.person)) return { code: 2, out: `No one named ${opts.person} in the staff file\n` };
+    try { return { code, out: rosterIcs(r, opts.weekStart, opts.person || null) }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
+  }
+  if (opts.mode === "messages") {
+    try { return { code, out: rosterMessages(r, opts.weekStart || null).map((m) => m.text).join("\n\n") + "\n" }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
+  }
   if (opts.mode === "hours") return { code, out: hoursCsv(r) };
   if (opts.mode === "json") {
     return {
