@@ -117,14 +117,26 @@ class RankTests(unittest.TestCase):
 class DeepenTests(unittest.TestCase):
     def test_fetches_only_when_shallow(self):
         from unittest import mock
-        def run(shallow):
+        def run(shallow, oldest="9999999999"):
             def fake(cmd, **kw):
-                out = ("true" if shallow else "false\n") if "rev-parse" in cmd else ""
+                if "rev-parse" in cmd:
+                    out = "true" if shallow else "false\n"
+                else:
+                    out = oldest + "\n" if "log" in cmd else ""
                 return mock.Mock(stdout=out, returncode=0)
             with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
                 return deepen_to_window(7), m.call_count
         self.assertEqual(run(False), (False, 1))
-        self.assertEqual(run(True), (True, 2))
+        self.assertEqual(run(True), (True, 3))  # rev-parse, git log, fetch
+
+    def test_skips_fetch_when_history_already_reaches_window(self):
+        from unittest import mock
+        def fake(cmd, **kw):
+            out = "true" if "rev-parse" in cmd else "1000000000\n"
+            return mock.Mock(stdout=out, returncode=0)
+        with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
+            self.assertFalse(deepen_to_window(7))
+            self.assertEqual(m.call_count, 2)  # no fetch
 
 
 class NextTaskTests(unittest.TestCase):

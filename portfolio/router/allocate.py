@@ -511,6 +511,15 @@ def decisions_by_merit(ventures: list[Venture]) -> list[dict]:
     return rows
 
 
+def _history_reaches(cutoff: datetime, cwd: Path) -> bool:
+    """True when origin/main's oldest reachable commit is already near `cutoff`, so a fetch adds
+    nothing. --shallow-since leaves the clone shallow, so without this every run refetched
+    (3 min on 2026-10-19)."""
+    out = subprocess.run(["git", "log", "origin/main", "--format=%ct"], capture_output=True, text=True,
+                         timeout=60, cwd=cwd).stdout.split()
+    return bool(out) and int(out[-1]) <= cutoff.timestamp() + 2 * 86400
+
+
 def deepen_to_window(days: int) -> bool:
     """In a shallow clone, fetch main back `days` days so commit counts mean something."""
     try:
@@ -520,7 +529,10 @@ def deepen_to_window(days: int) -> bool:
         ).stdout.strip() == "true"
         if not shallow:
             return False
-        since = (datetime.now(timezone.utc) - timedelta(days=days + 1)).strftime("%Y-%m-%d")
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days + 1)
+        if _history_reaches(cutoff, Path(__file__).resolve().parent):
+            return False
+        since = cutoff.strftime("%Y-%m-%d")
         print(f"(shallow clone: fetching main since {since} for 7-day commit counts)", file=sys.stderr)
         return subprocess.run(
             ["git", "fetch", "-q", f"--shallow-since={since}", "origin", "main"],
