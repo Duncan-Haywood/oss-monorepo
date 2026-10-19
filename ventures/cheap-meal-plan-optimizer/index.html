@@ -61,6 +61,12 @@
     <h2>1. Foods</h2>
     <label for="foods">One per line: name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings (optional) | servings per pack (optional) | sodium mg (optional) | calcium mg (optional) | iron mg (optional) | potassium mg (optional)</label>
     <textarea id="foods" spellcheck="false" style="min-height:260px" placeholder="Rice, white, dry (50 g) | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7"></textarea>
+    <details id="library" style="margin-top:10px">
+      <summary>Add common foods to the list</summary>
+      <p class="note">Tick foods and add them: approximate generic nutrition with <strong>example prices</strong>. Replace each price with what you pay.</p>
+      <div id="library-groups"></div>
+      <button type="button" class="secondary" id="library-add">Add ticked foods</button>
+    </details>
     <h2 style="margin-top:18px">2. Daily targets</h2>
     <div class="row3"><div><label for="kmin">Calories, minimum</label><input id="kmin" inputmode="decimal" value="2000"></div><div><label for="kmax">Calories, maximum</label><input id="kmax" inputmode="decimal" value="2300"></div><div><label for="pmin">Protein minimum (g)</label><input id="pmin" inputmode="decimal" value="100"></div><div><label for="fmin">Fat minimum (g)</label><input id="fmin" inputmode="decimal" value="45"></div><div><label for="fmax">Fat maximum (g)</label><input id="fmax" inputmode="decimal" value="80"></div><div><label for="cmin">Carbs minimum (g)</label><input id="cmin" inputmode="decimal" value=""></div><div><label for="cmax">Carbs maximum (g)</label><input id="cmax" inputmode="decimal" value=""></div><div><label for="fibmin">Fibre minimum (g)</label><input id="fibmin" inputmode="decimal" value="28"></div><div><label for="nacmax">Sodium maximum (mg)</label><input id="nacmax" inputmode="decimal" value="" placeholder="no limit"></div><div><label for="camin">Calcium minimum (mg)</label><input id="camin" inputmode="decimal" value="" placeholder="e.g. 1000"></div><div><label for="femin">Iron minimum (mg)</label><input id="femin" inputmode="decimal" value="" placeholder="e.g. 8"></div><div><label for="potmin">Potassium minimum (mg)</label><input id="potmin" inputmode="decimal" value="" placeholder="e.g. 3400"></div><div><label for="dmax">Default max servings per food</label><input id="dmax" inputmode="decimal" value="4"></div><div><label for="share">Most calories from one food (%)</label><input id="share" inputmode="decimal" value="" placeholder="no limit"></div></div>
     <label for="style">Eating style (leaves out foods whose name is animal-derived)</label>
@@ -150,6 +156,7 @@
   <script type="module">
     import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, filterByStyle, STYLES, weekMenu, weekText, breakEvenPrices, planCsv, groceryList, groceryText, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { FOOD_LIBRARY, lineName, addLibraryFoods } from "./food-library.mjs";
 
     const $ = (s) => document.querySelector(s);
     const status = $("#form-status");
@@ -249,6 +256,16 @@
     $("#load-example").addEventListener("click", () => {
       $("#foods").value = SAMPLE_FOODS;
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Starter foods: approximate generic nutrition and example prices. Edit the prices to what you pay."; } });
+    });
+    $("#library-groups").innerHTML = FOOD_LIBRARY.map((g) => `<fieldset style="border:0;padding:0;margin:8px 0"><legend><strong>${esc(g.group)}</strong></legend>${g.foods.map((l) => `<label style="display:block;font-weight:normal"><input type="checkbox" name="lib" aria-label="${esc(lineName(l))}" value="${esc(lineName(l))}"> ${esc(lineName(l))}</label>`).join("")}</fieldset>`).join("");
+    $("#library-add").addEventListener("click", () => {
+      const picked = [...document.querySelectorAll('input[name="lib"]:checked')].map((b) => b.value);
+      if (!picked.length) { status.textContent = "Tick at least one food to add."; return; }
+      const r = addLibraryFoods($("#foods").value, picked);
+      $("#foods").value = r.text;
+      document.querySelectorAll('input[name="lib"]:checked').forEach((b) => { b.checked = false; });
+      status.textContent = `Added ${r.added.length} food${r.added.length === 1 ? "" : "s"}${r.skipped.length ? ` (${r.skipped.length} already listed)` : ""}. These prices are examples: edit them to what you pay, then click Find the cheapest plan.`;
+      if (r.added.length) { record("library_added"); persist(); }
     });
     $("#clear-all").addEventListener("click", () => {
       $("#foods").value = ""; last = null; $("#report").hidden = true; status.textContent = "Cleared."; persist();

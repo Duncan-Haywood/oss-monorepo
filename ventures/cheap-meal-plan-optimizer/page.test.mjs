@@ -54,7 +54,7 @@ test("every static input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./food-library.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   assert.doesNotMatch(page("calc.mjs"), /^\s*import\s/m);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
@@ -152,4 +152,11 @@ test("index page wires the week-menu section to weekMenu and weekText", () => {
   assert.match(html, /id="week"/);
   assert.match(html, /id="copy-week"/);
   assert.match(html, /import \{[^}]*weekMenu[^}]*weekText[^}]*\} from "\.\/calc\.mjs"/);
+});
+
+test("index page offers the common-foods picker from food-library.mjs", () => {
+  const html = page("index.html");
+  assert.match(html, /id="library-add"/);
+  assert.match(html, /from "\.\/food-library\.mjs"/);
+  assert.ok(existsSync(new URL("./food-library.mjs", import.meta.url)));
 });
