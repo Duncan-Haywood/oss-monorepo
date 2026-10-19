@@ -4,6 +4,9 @@
 r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * 17).
 Pass a number to map a draw you already have: pick_track.py 0.11
 
+A track with SATURATED or more projects is redrawn automatically among the
+tracks below that size, so a run does not spend its start on a finished chain.
+
 For a track it also lists that track's projects on this checkout (newest commit
 first), so the "Next steps" of the latest one is one `cat` away when the
 milestones in PROJECTS.md are all done. Fetch origin/main first: a stale
@@ -44,6 +47,11 @@ if __name__ == "__main__":
     r = float(sys.argv[1]) if len(sys.argv) > 1 else random.random()
     t = pick(r)
     print(f"draw {r:.3f} -> {'free-choice' if t == 'free' else 'track ' + str(t)}")
+    if t != "free" and projects(PREFIX[t - 1])[0] >= SATURATED:
+        open_tracks = [i + 1 for i, x in enumerate(PREFIX) if len(list(RESEARCH.glob(x + "-*"))) < SATURATED]
+        if open_tracks:
+            old, t = t, random.Random(r).choice(open_tracks)
+            print(f"track {old} has {SATURATED}+ projects; redrawn -> track {t}")
     if t != "free":
         n, newest = projects(PREFIX[t - 1])
         print(f"{n} `{PREFIX[t - 1]}-*` projects on this checkout; newest: {', '.join(newest) or 'none'}")
