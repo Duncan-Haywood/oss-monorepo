@@ -1,0 +1,31 @@
+replica trench: materials $43, experienced-operator minutes 76 (sewing 51 + cutting 25), from garment-teardown
+
+== A. coats until unit time <= 2x the experienced-operator minutes (floor = experienced time)
+first_coat_multiple  rate  coats_to_2x  first_coat_hours  coat_at_2x_hours
+4 0.80 9 5.1 2.5
+4 0.85 20 5.1 2.5
+4 0.90 96 5.1 2.5
+8 0.80 75 10.1 2.5
+8 0.85 370 10.1 2.5
+8 0.90 9138 10.1 2.5
+
+== B. own sewing time valued at a wage: total cost of the n-th coat, materials + labour (first coat 4x, rate 0.85)
+wage_per_hour  coat_1  coat_5  coat_20  coat_100
+0 43 43 43 43
+6 73 63 58 53
+15 119 95 80 68
+
+== C. wage at which the n-th coat still costs <= $50 (first coat 4x, rate 0.85; $0 if materials alone exceed $50)
+coat  unit_hours  max_wage_per_hour
+1 5.1 1.45
+5 3.5 2.12
+20 2.5 2.93
+100 1.7 4.28
+
+== D. factory view: mean sewing labour per coat over a production run, mid-wage ($6/h, efficiency 0.55), first coat 2x, rate 0.90
+run_length  mean_labour_per_coat  steady_state_labour
+1 27.6 13.8
+10 22.1 13.8
+50 17.8 13.8
+200 14.9 13.8
+1000 14.0 13.8
