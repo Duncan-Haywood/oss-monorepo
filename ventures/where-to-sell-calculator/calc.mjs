@@ -513,9 +513,35 @@ export const CHANNEL_PRESETS = [
     enabled: false,
   },
   {
+    id: "discogs",
+    label: "Discogs (records, CDs & music media)",
+    note: "Off by default because it only suits vinyl, CDs, tapes and other music media. Prices an 8% seller commission plus 2.7% + $0.25 Discogs Payments processing on the item price. Neither figure was confirmed against Discogs' own fee page (the 8% is from a seller guide, the processing rate from trade press at the Discogs Payments launch), so check one real payout before repricing a crate. Discogs's listing grading, shipping-rate rules and per-country payout differences are not modelled. Sell-through and days to sell are illustrative starting points, not a claim about Discogs velocity.",
+    commissionRate: 8,
+    commissionBase: "item",
+    paymentRate: 2.7,
+    paymentFixed: 0.25,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions: media is described by grade, so returns
+    // are mostly condition disputes.
+    returnRate: 4,
+    returnShippingCost: 6,
+    resellableRate: 80,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire, and a
+    // common record can sit while a sought-after pressing sells quickly.
+    sellThroughPct: 35,
+    daysToSell: 45,
+    listingRenewalDays: 0,
+    // Off until the seller says this is music media: enabled by default it
+    // would add a channel most sellers cannot list on.
+    enabled: false,
+  },
+  {
     id: "other",
     label: "Other channel",
-    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — GOAT, a craft fair, a wholesale account. Mercari, Poshmark, StockX, Depop, Grailed, Facebook Marketplace and Walmart have their own rows above.",
+    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — GOAT, a craft fair, a wholesale account. Mercari, Poshmark, StockX, Depop, Grailed, Discogs, Facebook Marketplace and Walmart have their own rows above.",
     commissionRate: 0,
     paymentRate: 0,
     paymentFixed: 0,
