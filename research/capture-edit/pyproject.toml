@@ -1,0 +1,13 @@
+[project]
+name = "capture-edit"
+version = "0.1.0"
+description = "Automated multi-camera edit: clock sync, angle selection and shot-length rules against a fixed-cut baseline, on a synthetic quality model"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
