@@ -140,6 +140,10 @@ def main(argv=None):
         print(f"pyenv: no interpreter imports {', '.join(modules)} after pip and apt; "
               f"tried {cands}", file=sys.stderr)
         return 1
+    default = shutil.which("python3")
+    if default and os.path.realpath(default) == os.path.realpath(py):
+        print(f"pyenv: {py} is the default python3; plain python3 imports them too",
+              file=sys.stderr)
     print(py)
     return 0
 

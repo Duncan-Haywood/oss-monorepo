@@ -1,0 +1,50 @@
+name: us-substantial-presence-test-calculator
+description: 'Free, zero-network browser calculator for the IRS substantial presence test: list your days in the US and get the 183-day weighted count (this year plus a third of last year plus a sixth of the year before), the most days you can spend this year and stay under, the date you crossed the line, and the effect of a planned trip. Arithmetic on the dates the user types, not tax advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, avoid-the-surprise: foreign nationals on the US side (remote workers, visiting
+# researchers, founders on visits, snowbirds from Canada, ex-students) who think "under 183 days" is safe and
+# find out at filing time that the three-year weighting made them US tax residents.
+# Checked 2026-10-19: no substantial-presence venture in ventures/ (grepped README and VENTURE.yaml);
+# closest are feie-physical-presence-calculator (the 330-day test for Americans abroad) and
+# state-residency-day-counter (state tests). Not in screened-out.md.
+#
+# Alternatives a user has today: the IRS Pub. 519 worksheet by hand, generic "183 day" web calculators that
+# take three year totals only (no dated stays, no exempt days, no room-left or planned-trip answer), and
+# tax-software questionnaires that need an account. This one takes dated stays, drops exempt days, and
+# answers the planning question: how many more days can I spend this year.
+#
+# First visitor: searches "substantial presence test calculator", "183 day rule calculator USA",
+# "how many days can I stay in the US without becoming a tax resident", "SPT calculator F-1 / Canadian snowbird".
+# Volume not measured with an external tool.
+# Liability boundary: arithmetic on typed dates; no treaty, closer-connection or first-year-choice logic beyond a pointer.
+hypotheses:
+  - claim: A foreign visitor or remote worker will list their US stays, see exactly how many days a planned trip leaves, and shorten or move the trip.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for the three-year weighting (why 120 days a year is not safe) more often than for the plain 183-day rule.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed dates in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - No user reports changing a trip or filing decision because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/us-substantial-presence-test-calculator/
+  analytics: null

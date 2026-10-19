@@ -82,6 +82,11 @@ session on a push to a merged PR's branch.
 branch cleanup just deleted (872 of 875 surviving merged-PR branches on
 2026-10-16). Push again only once it has a new commit, and open a new PR for it.
 
+If `git push --force-with-lease` is rejected with "stale info" after you reset
+the branch, the remote ref was deleted and your tracking ref is stale (reported
+by five runs). Don't retry the flag: `git fetch --prune origin`, then a plain
+`git push -u origin <branch>`.
+
 ## Not shipping something? Leave nothing to push
 
 Cloud sessions push their branch before stopping, so "leave `main` alone"
