@@ -38,6 +38,12 @@ from shootflow.ingest import (
     execute_copy_plan,
     plan_import,
 )
+from shootflow.local_pipeline import (
+    LocalPipelineError,
+    launchd_plist_bytes,
+    local_pipeline_result_to_dict,
+    run_local_pipeline,
+)
 from shootflow.production import ProductionPlan, ProductionPlanError, build_production_plan
 from shootflow.production_handoff import (
     ProductionHandoffError,
@@ -199,6 +205,10 @@ def main(
             _run_create_card_dump_demo_workspace_command(args, stdout=out)
         elif args.command == "create-pilot-cohort-demo":
             _run_create_pilot_cohort_demo_command(args, stdout=out)
+        elif args.command == "run-local-pipeline":
+            return _run_local_pipeline_command(args, stdout=out, stderr=err)
+        elif args.command == "write-launchd-plist":
+            _run_write_launchd_plist_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -224,10 +234,51 @@ def main(
         DemoWorkspaceError,
         StorageDiscoveryError,
         WorkflowAuthorityError,
+        LocalPipelineError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
     return 0
+
+
+def _run_local_pipeline_command(args: argparse.Namespace, *, stdout: TextIO, stderr: TextIO) -> int:
+    exit_code = 0
+    for manifest in args.ingest_manifest:
+        try:
+            result = run_local_pipeline(
+                manifest,
+                max_concurrency=args.max_concurrency,
+                max_iterations=args.max_iterations,
+                retry_retryable=args.retry_retryable,
+            )
+        except (ValueError, OSError) as exc:  # one bad shoot must not stop the rest of the queue
+            print(f"shootflow: {manifest}: {exc}", file=stderr)
+            exit_code = 1
+            continue
+        stdout.write(json.dumps(local_pipeline_result_to_dict(result), ensure_ascii=True, sort_keys=True) + "\n")
+        if result.needs_review_ids or not result.rendered:
+            exit_code = max(exit_code, 2)
+    return exit_code
+
+
+def _run_write_launchd_plist_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    content = launchd_plist_bytes(
+        ingest_manifests=args.ingest_manifest,
+        hour=args.hour,
+        minute=args.minute,
+        max_concurrency=args.max_concurrency,
+        log_path=args.log,
+        source_root=Path(__file__).resolve().parent.parent,
+    )
+    if args.output:
+        output = Path(args.output).expanduser()
+        if output.exists():
+            raise ShootFlowCliError(f"Refusing to overwrite existing plist: {output}")
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(content)
+        stdout.write(json.dumps({"plist_path": str(output)}, ensure_ascii=True) + "\n")
+        return
+    stdout.write(content.decode("utf-8"))
 
 
 def _run_init_render_status_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -810,6 +861,50 @@ def _build_parser() -> argparse.ArgumentParser:
         "--print-report",
         action="store_true",
         help="Print the persisted production scheduler report JSON to stdout.",
+    )
+
+    local_pipeline = subparsers.add_parser(
+        "run-local-pipeline",
+        help=(
+            "Run every local stage (ffmpeg proxies, analysis, grading, story, ffmpeg render) "
+            "unattended for one or more ingested shoots."
+        ),
+    )
+    local_pipeline.add_argument(
+        "--ingest-manifest",
+        action="append",
+        required=True,
+        help="Shoot ingest_manifest.json. Repeat to queue several shoots.",
+    )
+    local_pipeline.add_argument(
+        "--max-concurrency",
+        type=int,
+        default=2,
+        help="ffmpeg jobs to run side by side (2-4 suits most Macs).",
+    )
+    local_pipeline.add_argument("--max-iterations", type=int, default=10)
+    local_pipeline.add_argument(
+        "--retry-retryable",
+        action="store_true",
+        help="Retry production jobs left retryable by an earlier run (after you have reviewed them).",
+    )
+
+    launchd = subparsers.add_parser(
+        "write-launchd-plist",
+        help="Print or write a macOS LaunchAgent that runs run-local-pipeline nightly.",
+    )
+    launchd.add_argument("--ingest-manifest", action="append", required=True)
+    launchd.add_argument("--hour", type=int, default=1)
+    launchd.add_argument("--minute", type=int, default=30)
+    launchd.add_argument("--max-concurrency", type=int, default=2)
+    launchd.add_argument(
+        "--log",
+        default="~/Library/Logs/shootflow-local-pipeline.log",
+        help="File that receives the nightly run's JSON summary and errors.",
+    )
+    launchd.add_argument(
+        "--output",
+        help="Write the plist here (for example ~/Library/LaunchAgents/dev.shootflow.local-pipeline.plist).",
     )
 
     render_tasks = subparsers.add_parser(

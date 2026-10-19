@@ -249,7 +249,7 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
                     workspace,
                     trusted_plan=trusted_plan,
                     completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
-                    renderer_adapter="ffmpeg-local",
+                    renderer_adapter="resolve-local",
                     started_at="2026-05-07T15:02:52Z",
                     completed_at="2026-05-07T15:02:57Z",
                     max_concurrency=1,
