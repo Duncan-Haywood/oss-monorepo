@@ -386,3 +386,31 @@ test("people survives the share link and rejects non-numeric values", () => {
   assert.equal(decodeShare(frag).fields.people, "4");
   assert.equal(decodeShare("foods=x&people=4%3Cb%3E").fields.people, undefined);
 });
+
+test("minimum servings force a food into the plan, cost more, and survive every solver path", () => {
+  const base = sampleSpec();
+  const plain = solve(base);
+  assert.equal(plain.status, "optimal");
+  // pick a food the cheapest plan leaves out and require one serving of it
+  const idx = base.foods.findIndex((f, i) => plain.servings[i] < 1e-6 && f.price > 0);
+  assert.ok(idx >= 0);
+  for (const step of [0.5, 1, 0]) {
+    const spec = { ...base, step, foods: base.foods.map((f, i) => (i === idx ? { ...f, min: 1, max: Math.max(f.max ?? 0, 2) || null } : f)) };
+    const forced = solve(spec);
+    assert.equal(forced.status, "optimal");
+    assert.ok(forced.servings[idx] >= 1 - 1e-9, `step ${step}`);
+    assert.deepEqual(verifyPlan(spec, forced), []);
+    assert.ok(forced.cost >= solve({ ...spec, foods: base.foods }).cost - 1e-9);
+    assert.ok(greedyPlan(spec).servings[idx] >= 1 - 1e-9);
+  }
+});
+
+test("parseFoods reads the minimum column and validateSpec refuses a minimum above the maximum", () => {
+  const ok = parseFoods("Eggs | 0.4 | 70 | 6 | 0.5 | 5 | 0 | 4 | | | | | | 2");
+  assert.deepEqual(ok.errors, []);
+  assert.equal(ok.foods[0].min, 2);
+  assert.equal(parseFoods("Rice | 0.2 | 180 | 3 | 40 | 0 | 1").foods[0].min, 0);
+  assert.match(parseFoods("Eggs | 0.4 | 70 | 6 | 0.5 | 5 | 0 | 4 | | | | | | -1").errors[0], /minimum servings/);
+  const bad = { ...sampleSpec(), foods: [{ ...sampleSpec().foods[0], max: 2, min: 3 }, ...sampleSpec().foods.slice(1)] };
+  assert.ok(validateSpec(bad).some((e) => /minimum of 3/.test(e)));
+});

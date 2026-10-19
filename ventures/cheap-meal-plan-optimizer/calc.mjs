@@ -102,7 +102,7 @@ export function simplex(c, rows) {
 
 // ------------------------------------------------------------ parsing
 
-/** Foods, one per line: Name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings per day (optional) | servings per pack (optional, for the shopping list) | sodium mg | calcium mg | iron mg | potassium mg (the last four optional; blank counts as 0). */
+/** Foods, one per line: Name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings per day (optional) | servings per pack (optional, for the shopping list) | sodium mg | calcium mg | iron mg | potassium mg (those four optional; blank counts as 0) | minimum servings per day (optional: a food you must eat, or already own). */
 export function parseFoods(text) {
   const rows = [];
   const errors = [];
@@ -133,7 +133,10 @@ export function parseFoods(text) {
       micro.push(v);
     });
     if (microBad) return;
-    rows.push({ name, price: nums[0], n: [...nums.slice(1, 6), sodium, ...micro], sodiumKnown: c.length >= 10 && c[9] !== "", microKnown: [10, 11, 12].map((j) => c.length > j && c[j] !== ""), max: Number.isFinite(max) && max >= 0 ? max : null, pack: Number.isFinite(pack) ? pack : null });
+    const minCell = c[13];
+    const min = minCell === undefined || minCell === "" ? 0 : Number(minCell);
+    if (!Number.isFinite(min) || min < 0) { errors.push(`Food line ${i + 1} ("${name}"): minimum servings must be a number, zero or more (or leave it blank).`); return; }
+    rows.push({ name, price: nums[0], n: [...nums.slice(1, 6), sodium, ...micro], sodiumKnown: c.length >= 10 && c[9] !== "", microKnown: [10, 11, 12].map((j) => c.length > j && c[j] !== ""), max: Number.isFinite(max) && max >= 0 ? max : null, min, pack: Number.isFinite(pack) ? pack : null });
   });
   return { foods: rows, errors };
 }
@@ -171,6 +174,7 @@ export function validateSpec(spec) {
   if (spec.maxShare !== "" && spec.maxShare != null && !(share > 0 && share <= 1)) errs.push("Most calories from one food must be a percentage above 0 and up to 100, or blank.");
   if (share !== null && share < 1 && spec.foods.length * share < 1 - 1e-9) errs.push(`With ${spec.foods.length} foods no food can stay under ${Math.round(share * 100)}% of calories; raise the limit or add foods.`);
   if (!(Number(spec.defaultMax) > 0)) errs.push("Default maximum servings per food must be above zero.");
+  for (const f of spec.foods || []) if ((f.min || 0) > cap(spec, f) + 1e-9) errs.push(`"${f.name}" has a minimum of ${f.min} servings but a maximum of ${cap(spec, f)}.`);
   return errs;
 }
 
@@ -228,7 +232,8 @@ function stepBounds(spec) {
   const step = Number(spec.step) || 1;
   const exact = Number(spec.step) > 0;
   const hi = spec.foods.map((f) => (exact ? Math.floor(cap(spec, f) / step + 1e-9) : cap(spec, f)));
-  return { lo: spec.foods.map(() => 0), hi };
+  const lo = spec.foods.map((f) => (exact ? Math.ceil((f.min || 0) / step - 1e-9) : f.min || 0));
+  return { lo, hi };
 }
 
 export function nutrition(spec, servings) {
@@ -240,7 +245,7 @@ export function planFeasible(spec, servings) {
   const share = shareLimit(spec);
   if (share !== null && share < 1 && spec.foods.some((f, i) => f.n[0] * servings[i] > share * t[0] + 1e-6)) return false;
   return NUTRIENTS.every((k, ki) => (b[k][0] === null || t[ki] >= b[k][0] - 1e-6) && (b[k][1] === null || t[ki] <= b[k][1] + 1e-6)) &&
-    servings.every((s, i) => s >= -1e-9 && s <= cap(spec, spec.foods[i]) + 1e-9);
+    servings.every((s, i) => s >= (spec.foods[i].min || 0) - 1e-9 && s <= cap(spec, spec.foods[i]) + 1e-9);
 }
 
 export const planCost = (spec, servings) => spec.foods.reduce((s, f, i) => s + f.price * servings[i], 0);
@@ -293,7 +298,7 @@ function costWithRaised(spec, key, delta) {
 /** A shopper's rule of thumb: keep adding the food that closes the most of the remaining shortfall per dollar. */
 export function greedyPlan(spec) {
   const b = bounds(spec), foods = spec.foods, step = Number(spec.step) || 0.5;
-  const s = foods.map(() => 0);
+  const s = foods.map((f) => Math.ceil((f.min || 0) / step - 1e-9) * step);
   for (let it = 0; it < 4000; it++) {
     const t = nutrition(spec, s);
     const short = NUTRIENTS.map((k, ki) => (b[k][0] === null ? 0 : Math.max(0, b[k][0] - t[ki]) / Math.max(b[k][0], 1)));
