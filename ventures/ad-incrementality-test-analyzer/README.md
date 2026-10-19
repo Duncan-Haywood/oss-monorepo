@@ -30,6 +30,16 @@ to detect, and click **Plan a test instead**. It replays the placebo method for 
 shows the smallest lift each length could tell from noise, and the shortest length that reaches your target. Use history
 without a campaign in it; any past campaign inside it inflates the noise estimate.
 
+## Region-split designer (`plan.mjs`)
+
+Paste sales history with no campaign in it, say how many regions will run ads and for how many periods, and the
+planner ranks splits of regions into campaign and comparison groups. For each split it replays up to 12 fake campaigns
+of that length on the history (fit on earlier periods, predict forward, same non-negative regression as the analyzer)
+and reports the smallest lift that split could tell from noise (half the 5th-to-95th percentile spread of the fake
+lifts), the pre-fit R² and the split's share of sales. It also shows how that detectable lift changes with campaign
+length. Up to 120 splits are tried; beyond that it samples them with a fixed seed and says so. Needs 3+ regions and at
+least max(28, 2 x length) periods. Tested on simulated panels where one region is deliberately erratic.
+
 ## Limits
 
 Spillover between regions, region-specific promotions and stock-outs, slow-ramping effects and long-run brand effects

@@ -30,7 +30,7 @@ owner: duncan
 #
 # Path to revenue (payment rails stay off): lead magnet and donations only. A
 # later paid tier could be a test-design planner (region matching and power);
-# not built.
+# built 2026-10-19 as a free card on the page (plan.mjs), still no payment rails.
 # Liability: statistical estimate of supplied data, not advice; the page says
 # "unclear" or "unreliable" when the data cannot support a conclusion.
 # Unverified: tested on simulated panels with known lifts, not on a published
