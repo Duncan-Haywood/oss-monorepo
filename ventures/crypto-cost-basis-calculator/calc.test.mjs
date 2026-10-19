@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseCsv, parseDate, parseTransactions, normalizeType, holdingTerm, matchLots, analyze, estimateTax,
-  toForm8949Csv, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan, planSale, donationPlan, waitPlan,
+  toForm8949Csv, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan, planSale, idRecord, donationPlan, waitPlan,
 } from "./calc.mjs";
 
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.005, `${msg ?? ""} ${a} != ${b}`);
@@ -675,4 +675,19 @@ test("reconcile1099da compares per-coin proceeds and basis with the broker's fig
   assert.equal(by.SOL.status, "not in your sales");
   assert.equal(rec.mismatches, 2);
   assert.match(parse1099da("a,b\n1,2").errors[0], /asset column/);
+});
+
+test("idRecord lists exactly the lots planSale picks, with wallet, date, quantity and basis, and a matching CSV", () => {
+  const lots = [
+    { asset: "BTC", wallet: "A", acquired: "2022-01-10", qty: 1, basis: 20000 },
+    { asset: "BTC", wallet: "B", acquired: "2024-03-01", qty: 1, basis: 60000 },
+  ];
+  const p = planSale(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 1.5 });
+  const r = idRecord(p, "HIFO");
+  assert.match(r.text, /Planned quantity: 1\.5 BTC at an assumed 50000 USD/);
+  assert.match(r.text, /B; acquired 2024-03-01; 1 BTC; basis 60000\.00/);
+  assert.match(r.text, /A; acquired 2022-01-10; 0\.5 BTC; basis 10000\.00/);
+  assert.equal(r.csv.trim().split("\n").length, 3);
+  assert.equal(idRecord(p, "NOPE"), null);
+  assert.equal(idRecord(planSale(lots, { asset: "SOL", price: 1, asOf: "2026-10-16", qty: 1 }), "FIFO"), null);
 });
