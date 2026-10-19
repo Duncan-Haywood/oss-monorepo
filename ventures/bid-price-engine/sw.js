@@ -1,8 +1,8 @@
 // Offline shell for the installed app. Caches this directory's own files only;
 // there are no third-party requests and nothing is sent anywhere.
-const CACHE = "bid-price-engine-v1";
+const CACHE = "bid-price-engine-v2";
 const SHELL = [
-  "./", "./index.html", "./calc.mjs", "./closeout.mjs", "./trades.mjs", "./usage.mjs",
+  "./", "./index.html", "./calc.mjs", "./closeout.mjs", "./winrate.mjs", "./trades.mjs", "./usage.mjs",
   "./markup-vs-margin.html", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png",
 ];
