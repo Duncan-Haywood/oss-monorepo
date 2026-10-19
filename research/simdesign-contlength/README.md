@@ -2,6 +2,8 @@
 
 How many iterations of penalty continuation (p ramped 1 → 3) does a SIMP topology optimiser need before its result stops depending on the starting density field? `simdesign-starts` found that continuation over half the run removes the dependence, but tried only that one length. I chose this because it is that project's first "next step", and it answers a practical question: how much of an iteration budget must go to the low-penalty phase. Answer on this problem: **a ramp of 25 iterations or fewer leaves most of the start dependence; 50 of 150 removes nearly all of it; a 112-iteration ramp is the most repeatable but ends at a worse compliance.** Produced with AI assistance (Claude). Stylised: 2D, dimensionless compliance, exactly 150 iterations, one problem, two meshes; nothing was made or tested physically.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-contlength/
+
 **Builds on.** `simdesign-starts` (random starts, hole and disagreement measures, imported unchanged), `simdesign-topopt` (FE assembly, filter, half-MBB) and Sigmund (2001), "A 99 line topology optimization code written in Matlab", *Struct. Multidisc. Optim.* 21:120–127, <https://doi.org/10.1007/s001580050176>. Continuation: Sigmund and Petersson (1998), *Struct. Optim.* 16:68–75. It builds on none of the CU Boulder groups in `prompt.md`.
 
 ## Method
