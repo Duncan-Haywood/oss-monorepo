@@ -3621,6 +3621,11 @@
     "slug": "capture-trigger",
     "title": "Does recording only when something happens save a travel creator's battery, and what does it cost in missed moments?",
     "summary": "A synthetic 16&nbsp;h day with assumed device figures. With 6 interesting 30&nbsp;s moments an hour and a trigger that misses 10% and raises 2 false alarms an hour, a standby camera with a 10&nbsp;s pre-roll buffer uses 19.4&nbsp;Wh against 80&nbsp;Wh continuous (76% less) and captures 90% of the interesting seconds; a deep-sleep camera uses 7.7&nbsp;Wh but captures 69%, because it wakes too slowly to catch the start. Coverage is set by the trigger's miss rate and the wake latency, not the battery; energy decides only for a rig (four cameras: 320&nbsp;Wh continuous, 78&nbsp;Wh triggered). Stylised: every device figure is assumed and the trigger is a probability, not a detector."
+   },
+   {
+    "slug": "capture-wake",
+    "title": "When a camera rig records only on a trigger, should every camera have its own, or should one wake the rest?",
+    "summary": "A synthetic 16&nbsp;h day with assumed device figures and four standby cameras. With 6 thirty-second moments an hour and a 10% miss per detector, a trigger per camera uses 80&nbsp;Wh (of 320&nbsp;Wh continuous) but puts all four angles on only 68% of the interesting seconds, since independent misses differ by camera (&asymp;0.9<sup>4</sup>). One sentinel waking the rest costs the same 80&nbsp;Wh and gives 90.5%; waking all on any camera's trigger gives 100% for 92&nbsp;Wh but its false-alarm energy grows with the number of detectors (281 against 126&nbsp;Wh at 40 false alarms an hour). Sleeping the other cameras halves the rig to 41.5&nbsp;Wh at the cost of the first 7&nbsp;s of each moment. If the misses are shared, extra detectors buy nothing. Stylised: every figure assumed, not measured."
    }
   ]
  },
