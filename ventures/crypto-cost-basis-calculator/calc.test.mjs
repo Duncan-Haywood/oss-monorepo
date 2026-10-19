@@ -655,3 +655,24 @@ test("washLookalike flags losses re-bought within 30 days and ignores the lot so
   const none = parseTransactions("date,type,asset,quantity,total\n2024-01-01,buy,BTC,1,50000\n2024-06-01,sell,BTC,1,40000\n2024-07-02,buy,BTC,1,45000\n").transactions;
   assert.equal(washLookalike(matchLots(none).pieces, none, 2024).items.length, 0);
 });
+
+test("reconcile1099da compares per-coin proceeds and basis with the broker's figures", async () => {
+  const { analyze, parse1099da, reconcile1099da } = await import("./calc.mjs");
+  const csv = `date,type,asset,quantity,total
+2024-01-01,buy,BTC,1,50000
+2024-01-01,buy,ETH,10,20000
+2024-06-01,sell,BTC,1,60000
+2024-07-01,sell,ETH,10,25000
+`;
+  const rows = analyze(csv, { year: 2024 }).rows;
+  const b = parse1099da("Asset,Gross Proceeds,Cost Basis\nbtc,\"$60,000.00\",0\nETH,25000.50,20000\nSOL,10,\n");
+  assert.deepEqual(b.errors, []);
+  const rec = reconcile1099da(rows, b.entries);
+  const by = Object.fromEntries(rec.items.map((i) => [i.asset, i]));
+  assert.equal(by.BTC.status, "basis differs");
+  assert.equal(by.BTC.basisDiff, -50000);
+  assert.equal(by.ETH.status, "matches");
+  assert.equal(by.SOL.status, "not in your sales");
+  assert.equal(rec.mismatches, 2);
+  assert.match(parse1099da("a,b\n1,2").errors[0], /asset column/);
+});
