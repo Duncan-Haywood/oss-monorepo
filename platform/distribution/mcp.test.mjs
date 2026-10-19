@@ -124,3 +124,20 @@ test('manifests carry the free/no-advice framing and agree on name and version',
   assert.equal(r.packages[0].version, m.version);
   assert.equal(r.name, 'io.github.duncan-haywood/monorepo-projects-mcp');
 });
+
+test('run --pack writes the bundle to the named directory and does not publish', async () => {
+  const root = await fixture({ ...venture('ok'), LICENSE: MIT });
+  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'mcpout-'));
+  const calls = []; const logs = [];
+  const r = await run({ env: { DISTRIBUTE_MCP: 'true' }, log: (s) => logs.push(s), root, argv: ['--pack', out], execImpl: async (...a) => { calls.push(a); return { stdout: '' }; } });
+  assert.deepEqual(r, { wrote: true });
+  assert.equal(calls.length, 0);
+  assert.ok((await fs.stat(path.join(out, 'server.json'))).isFile());
+  assert.ok((await fs.stat(path.join(out, 'tools/ok/cli.mjs'))).isFile());
+  assert.ok(logs.some((l) => l.includes(`to ${out}`)));
+});
+
+test('registry description is capped at 100 characters', () => {
+  assert.ok(registryManifest({ count: 3 }).description.length <= 100);
+  assert.equal(registryManifest({ count: '9'.repeat(40) }).description.length, 100);
+});
