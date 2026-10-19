@@ -1,0 +1,42 @@
+== A. per-frame leak by distance, 360 8K, identifiable = face-on and >= 32 px (face detector 50% at 20 px, body detector 50% at 40 px)
+dist_m face_px face body both
+2 91.7 0.002 0.000 0.000
+5 36.7 0.081 0.000 0.000
+10 18.3 0.586 0.001 0.001
+15 12.2 0.878 0.007 0.006
+20 9.2 0.958 0.021 0.021
+25 7.3 0.982 0.051 0.050
+30 6.1 0.991 0.100 0.099
+38 4.8 0.997 0.223 0.222
+
+== B. share of identifiable bystanders left unblurred per frame, people spread uniformly from 1 m out, by camera (identifiable range in m; counts at 0.05 people/m2)
+camera range_m face body both identifiable_per_frame leaked_per_frame_face
+360_5.7K 4.3 0.049 0.000 0.000 1.37 0.067
+360_8K 5.7 0.048 0.000 0.000 2.50 0.120
+4K_ultrawide_120deg 8.6 0.047 0.000 0.000 1.91 0.090
+4K_85mm-eq_24deg 43.0 0.047 0.000 0.000 9.66 0.451
+
+== C. sensitivity, 360 8K, face-detector leak: identifiable size R (px) down, face-detector midpoint (px) across
+R mid10 mid20 mid30
+16 0.047 0.361 0.636
+24 0.010 0.128 0.364
+32 0.003 0.048 0.184
+48 0.001 0.010 0.050
+64 0.000 0.004 0.018
+
+== D. one person filmed 5 s (150 frames) at the edge of the identifiable range, 360 8K, face detector; 2000 trials per row
+(per-frame miss probability at 32 px: 0.128)
+miss_run_frames frame_share any_frame_unblurred never_detected
+1 0.128 1.000 0.000
+3 0.128 1.000 0.000
+10 0.130 0.916 0.000
+30 0.135 0.595 0.002
+150 0.134 0.249 0.052
+
+== E. apparent size of each platform (largest dimension, assumed)
+platform size_m deg_at_3m deg_at_10m dist_for_1deg_m
+phone_held_up 0.15 2.9 0.9 9
+360_camera_on_1.5_m_pole 1.5 28.1 8.6 86
+4-camera_tripod_rig 1.6 29.9 9.1 92
+wheeled_follow_robot_with_mast 1.8 33.4 10.3 103
+small_drone 0.35 6.7 2.0 20
