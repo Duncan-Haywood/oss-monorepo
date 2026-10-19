@@ -3112,6 +3112,11 @@
      "summary": "An Opus run costs about 8&ndash;9&times; a Sonnet run in the same track (process 7.9&times;, bootstrap 6.7&ndash;11.7; research 9.1&times;, 3.7&ndash;12.1 on only 3 Opus runs). The ledger holds 12 priced Opus runs against 342 Sonnet runs, confounded with date and task, so value per dollar cannot be compared yet: detecting a 50% difference in projects per run needs about 129 runs per arm. Preliminary; cost only."
     },
     {
+     "slug": "swe-fieldfill",
+     "title": "How complete are the agent run records, field by field?",
+     "summary": "Counts which fields are present on each of the 1,362 run records in <code>prompts/runs/</code> (1 to 19 October 2026). <code>cost_usd</code>, tokens and wall time are present on 47% of records (Wilson 45% to 50%), but on 0% to 7% of records on 13 to 15 October and 61% to 82% from 16 October, so the rate is a date effect. <code>merged</code> is filled on 4.6%, a pull request is named on 81.2%, and 237 of 1,279 records with outcome <code>success</code> (18.5%, 16% to 21%) name none. <em>Preliminary</em>: presence is measured, not correctness, and an empty list can mean a clean run."
+    },
+    {
      "slug": "swe-costpermerge",
      "title": "What does an agent run cost per merged pull request?",
      "summary": "Joins the 366 run records (14 to 18 October 2026) that carry an API-equivalent <code>cost_usd</code> to the pull-request numbers in the subject lines of <code>main</code>&#39;s first-parent history. 273 (75%, Wilson 70% to 79%) name a merged pull request, 1 names one not on <code>main</code> and 92 name none. A merged run costs $1.26 on average (bootstrap 1.08 to 1.49) against $0.94 per priced run, because 19% of spend sits on runs with no merged PR on record; process runs cost about 2.4 times a research run per merged run. All 34 red-team records omit their PR although red-team PRs are on <code>main</code>, so their 0% is a recording gap. <em>Preliminary</em>: five days, one model, API-equivalent cost, and cost per merge is not value per merge."
