@@ -11,6 +11,8 @@ After using this, you can now **build a week's schedule that nobody has to be mo
 unfillable before the week starts, and find the people the week depends on**, which used to be an hour of spreadsheet
 shuffling on Sunday night.
 
+**Start without typing:** pick a template (café or restaurant, hair salon, retail shop, clinic front office) from "or start from a template" and the page builds a roster for an invented team straight away; replace the names and wages with yours (`TEMPLATES` in `calc.mjs`).
+
 ## Run your own team schedule (self-hosted)
 
 The browser tool builds the roster; `server.mjs` is the part that gets it to your staff. You build and publish the

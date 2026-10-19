@@ -121,6 +121,7 @@
       <span class="note">Each week starts from the one before: rest gaps and who closed lately carry over, and dated <code>off:</code> days land in their own week. Uses the settings above and the Monday in "Week starting".</span>
       <div id="plan-out" aria-live="polite"></div></div>
     <button type="button" class="secondary" id="load-example">Load an example</button>
+    <label for="template-pick">or start from a template</label> <select id="template-pick" aria-label="Start from a template"><option value="">Choose a business type</option></select>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <button type="button" class="secondary" id="save-setup">Save setup file</button>
     <label for="setup-file">Load setup file</label> <input id="setup-file" type="file" accept=".json,application/json">
@@ -245,7 +246,7 @@
   </footer>
 
   <script type="module">
-    import { planWeeks, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { planWeeks, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -426,6 +427,12 @@
       $("#dotafter").value = String(p[0]); $("#ddtafter").value = String(p[1]); persist();
     });
     $("#analyze").addEventListener("click", () => { if (run()) record("roster_built"); });
+    $("#template-pick").insertAdjacentHTML("beforeend", Object.entries(TEMPLATES).map(([k, t]) => `<option value="${k}">${esc(t.label)}</option>`).join(""));
+    $("#template-pick").addEventListener("change", (e) => {
+      const t = TEMPLATES[e.target.value]; if (!t) return;
+      $("#staff").value = t.staff(); $("#shifts").value = t.shifts(); persist();
+      if (run()) { record("example_loaded"); status.textContent = "Template: " + t.label + " (invented people and wages; replace them with yours)."; }
+    });
     $("#load-example").addEventListener("click", () => {
       $("#staff").value = sampleStaff(); $("#shifts").value = sampleShifts(); persist();
       if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented café with seven people."; }

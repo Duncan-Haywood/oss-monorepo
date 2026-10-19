@@ -1270,3 +1270,17 @@ test("parseTimeOffRequest and addTimeOff build an off: entry", () => {
   assert.equal(addTimeOff(b, "Ben", "2026-11-04").text, b);
   assert.ok(addTimeOff(staff, "Zed", "2026-11-04").error);
 });
+
+import { TEMPLATES as _TPL, parseStaff as _ps2, parseShifts as _psh2, buildRoster as _br2 } from "./calc.mjs";
+test("every starter template parses cleanly and builds a roster that covers its shifts", () => {
+  assert.ok(Object.keys(_TPL).length >= 4);
+  for (const [k, t] of Object.entries(_TPL)) {
+    const st = _ps2(t.staff()), sh = _psh2(t.shifts());
+    assert.equal(st.errors?.length || 0, 0, k + " staff errors");
+    assert.equal(sh.errors?.length || 0, 0, k + " shift errors");
+    assert.ok(st.staff.length >= 5 && sh.slots.length > 0, k);
+    const r = _br2(st.staff, sh.slots, {});
+    assert.ok(r.ok && r.totalHours > 0, k);
+    if (k !== "cafe") assert.ok(r.unfilledHours <= 10, k + " leaves too much open: " + r.unfilledHours);
+  }
+});
