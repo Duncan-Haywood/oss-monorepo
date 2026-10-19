@@ -1,5 +1,14 @@
 # Research log
 
+## 2026-10-19 · NSFG 2002 lens: first-marriage dissolution from the wedding day
+
+- New dataset: NSFG 2002 (Cycle 6) women's first marriages. These are 4,126 ever-married women aged 15–44 with month-exact wedding and dissolution dates, 1,492 divorces, annulments or separations, and 30,341 person-years. CDC is still blocked, so the file comes from Allen Downey's ThinkStats2 copy on GitHub, checked against the official record count (7,643) and weighted total (61.56 million) (`reproducibility/nsfg2002_first_marriage/`).
+- Survey-weighted Kaplan–Meier: 78.0% of first marriages are still intact at 5 years, 63.8% at 10 and 49.3% at 20. Among wives who married under 20, 68.7% are intact at 5 years, against 87.2% for wives who married at 25–29.
+- Person-held-out (5-fold) Poisson deviance gain over a constant rate: duration-only curve 0.38%, additive spline Poisson 3.02% (folds 2.30–4.13%; 2.65% over the duration curve), depth-3 Poisson tree 0.91%. Held-out calibration runs from 1.3% to 9.5% a year observed, against 1.6% to 10.3% predicted.
+- Associations from the additive model, holding everything else fixed: wife married at 17 versus 22, rate ratio 1.63; premarital cohabitation 1.24; husband previously married 1.29; husband with children from a prior relationship 1.47; same race-ethnicity 0.72; wife from an intact family 0.70. These are not causes.
+- Exported as `app/models/nsfg2002_first_marriage.json`, in the same `poisson_glm`/`tree` schema as the NLSY79 bundle plus `inputs`, `abstain` and `weighted_survival` fields. The engine reproduces 180 of 180 Python predictions to 10<sup>-9</sup> (`app/tests/nsfg2002.test.mjs`). The husband's education was left out because it is recorded only for women still married to that husband, so it would leak the outcome.
+- Still blocked from cloud sessions today: CDC, NLS, ICPSR, UCI, Stanford (HCMST), GSS, Hugging Face, Zenodo and Dataverse. Next for workstream A: Fair's affairs (Rdatasets, reachable) and later NSFG cycles if a verifiable mirror turns up.
+
 ## 2026-10-19 · App: evidence lenses, shareable links, suggestions with model agreement
 
 - The app now loads every model bundle listed in `app/models/index.json` as an "evidence lens" and shows its population, target, training size and best held-out gain (NLSY79 couples: 5,735 people, 726 divorces, best gain 3.4%). Lenses are never pooled. New datasets plug in with one manifest line, and a test fails if a bundle is left out.
