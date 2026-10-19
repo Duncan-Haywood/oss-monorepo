@@ -147,6 +147,15 @@ test("the calendar file is valid iCalendar with three dated events and CRLF line
   assert.equal(calendar(deadlines({ plan: "medicaid", received: "2026-09-14", today: "2026-10-02" })), null);
 });
 
+test("bundling, coverage-ended and surprise-bill denials are recognised by code and by phrase", () => {
+  assert.equal(readDenial("Adjustment CO-97: benefit included in the allowance for another service").top, "bundled");
+  assert.equal(readDenial("The claim was downcoded to a lower level of service").top, "bundled");
+  assert.equal(readDenial("CO-27 expenses incurred after coverage terminated").top, "eligibility");
+  assert.equal(readDenial("Your coverage was terminated on 2026-03-31.").top, "eligibility");
+  assert.equal(readDenial("Emergency room visit; the anesthesiologist was out of network. Balance billing applies.").top, "surprise_bill");
+  assert.match(appealLetter({ plan: "commercial", reason: "surprise_bill" }), /in-network cost sharing/);
+});
+
 test("provider letter leaves clinical facts as placeholders and asks for peer-to-peer", () => {
   const l = providerLetter({ reason: "medical_necessity", patient: "Alex Rivera", provider: "Lee", insurer: "Acme", urgent: true });
   assert.match(l, /peer-to-peer/);
