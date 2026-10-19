@@ -49,3 +49,22 @@ class Audit(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BrokenMeta(unittest.TestCase):
+    def test_unescaped_quote_flagged(self):
+        h = '<meta name="description" content="says "8-10%" and stop">'
+        self.assertTrue(s.broken_meta(h))
+
+    def test_escaped_and_normal_ok(self):
+        self.assertFalse(s.broken_meta(page("T", "says &quot;8-10%&quot; ok")))
+        self.assertFalse(s.broken_meta('<meta name="a" content="x" />'))
+        self.assertFalse(s.broken_meta('<meta content="x"\n name="d">'))
+
+    def test_audit_lists_it(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "ventures/a").mkdir(parents=True)
+            (root / "ventures/a/x.html").write_text(
+                '<title>T</title><meta name="description" content="a "b" c">')
+            self.assertEqual(s.audit(root)["broken_meta"], ["ventures/a/x.html"])
