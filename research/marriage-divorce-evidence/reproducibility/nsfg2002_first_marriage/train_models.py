@@ -20,7 +20,9 @@ from sklearn.tree import DecisionTreeRegressor, export_text
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent))
 import nsfgdct  # noqa: E402
+from bundle_export import export  # noqa: E402
 
 warnings.simplefilter('ignore')
 SEED = 20261019
@@ -151,35 +153,6 @@ def km(m, years=(1, 2, 3, 5, 10, 15, 20)):
     while j < len(years):
         out[years[j]] = s if years[j] <= t.max() else np.nan
         j += 1
-    return out
-
-
-def export(pipe):
-    prep, est = pipe.named_steps['prep'], pipe.named_steps['fit']
-    num, cat = None, dict(columns=[], categories=[], drop_first=[])
-    for name, tr, cols in prep.transformers_:
-        if name == 'num':
-            steps = dict(tr.steps)
-            num = dict(columns=list(cols), impute=steps['impute'].statistics_.tolist())
-            if 'spline' in steps:
-                sp = steps['spline']
-                num['spline'] = dict(degree=int(sp.degree), extrapolation=sp.extrapolation,
-                                     knots=[b.t.tolist() for b in sp.bsplines_],
-                                     n_basis=int(sp.bsplines_[0].c.shape[0]) - (0 if sp.include_bias else 1),
-                                     include_bias=bool(sp.include_bias))
-            if 'scale' in steps:
-                num['scale'] = dict(mean=steps['scale'].mean_.tolist(), scale=steps['scale'].scale_.tolist())
-        elif name == 'cat':
-            cat = dict(columns=list(cols), categories=[list(map(str, c)) for c in tr.categories_],
-                       drop_first=[int(i) == 0 for i in tr.drop_idx_])
-    out = dict(numeric=num, categorical=cat, feature_names=prep.get_feature_names_out().tolist())
-    if hasattr(est, 'coef_'):
-        out.update(kind='poisson_glm', intercept=float(est.intercept_), coef=est.coef_.tolist())
-    else:
-        t = est.tree_
-        out.update(kind='tree', tree=dict(left=t.children_left.tolist(), right=t.children_right.tolist(),
-                                          feature=t.feature.tolist(), threshold=t.threshold.tolist(),
-                                          value=t.value[:, 0, 0].tolist(), n_node_samples=t.n_node_samples.tolist()))
     return out
 
 
