@@ -1,0 +1,13 @@
+[project]
+name = "house-orderlead"
+version = "0.1.0"
+description = "When should a builder order long-lead materials? A carrying-cost extension of the house-schedule Monte Carlo model: order timing against build time, interest, storage and damage"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-schedule/src"]
