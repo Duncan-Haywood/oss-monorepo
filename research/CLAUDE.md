@@ -57,7 +57,7 @@ Whenever you add, rename or remove a project under `research/`, or change its he
 results, in the same commit:
 
 1. Update its bullet in `research/README.md`: ``- [`research/<name>`](<name>) — one-line summary.``
-2. Add or edit its entry in `_homepage/projects.json`, in the theme it fits best:
+2. Add or edit its entry in `_homepage/projects.json`, appended to the `projects` list of the theme (an item of top-level `themes`) it fits best; entries carry no theme key:
    ```json
    {"slug": "<name>", "title": "Question the project answers?",
     "summary": "Plain-language abstract with the key quantitative results and the model's main limitations (e.g. Stylised.)."}
@@ -75,7 +75,7 @@ Tests and figures may need packages the image lacks. Skip this step when plain `
 imports what the project uses (stdlib-only projects need nothing; try `python3 -c "import numpy, pytest"` first; one run lost time to a missing pytest). Otherwise, from the repo root,
 `PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`, then use `"$PY"` instead of `python3`
 (stdout is only the interpreter path, and it can differ from the default `python3`).
-First use can build a venv and install packages: 20s to over 2 minutes (5 reports of a 120s foreground timeout), install chatter on stderr. Run it with `run_in_background` and read its stdout when it exits.
+First use can build a venv and install packages: 20s to over 2 minutes (5 reports of a 120s foreground timeout), install chatter on stderr. Run it with `run_in_background` and read its stdout when it exits. The same goes for any `run.py` or experiment that may pass 2 minutes (foreground calls time out at 120s).
 EDA/chip projects also need `yosys` and `iverilog`, which the image lacks:
 `apt-get update -qq && apt-get install -y yosys iverilog` (about a minute; checked 2026-10-18).
 
