@@ -14,7 +14,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
-import { analyze, planSale, donationPlan, parsePrices, parse1099da, reconcile1099da, harvestPlan, waitPlan, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
+import { analyze, planSale, idRecord, donationPlan, parsePrices, parse1099da, reconcile1099da, harvestPlan, waitPlan, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
@@ -37,6 +37,7 @@ Options:
   --sell <COIN>       sell planner: compare the five methods for selling COIN; needs --price and --qty or --cash
   --donate <COIN>     gift planner: which long-held lots of COIN to give to a public charity, and the gain tax avoided; needs --price and --qty
   --deduction-rate <r> your rate (0-1) to value the deduction in --donate (default 0: deduction ignored)
+  --id-record <METHOD> with --sell: print a written lot-identification record for that method's lots, to date and keep before selling
   --price <usd>       price per coin for --sell or --donate
   --qty <coins>       coins to sell with --sell
   --cash <usd>        dollars to raise with --sell (used when --qty is absent)
@@ -91,6 +92,7 @@ export function parseArgs(argv) {
       opts.filing = f;
     }
     else if (arg === "--sell") opts.sell = need(++i, arg).toUpperCase();
+    else if (arg === "--id-record") { opts.idRecord = need(++i, arg).toUpperCase(); if (!METHODS.includes(opts.idRecord)) throw new Error(`--id-record must be one of ${METHODS.join(", ")}`); }
     else if (arg === "--donate") opts.donate = need(++i, arg).toUpperCase();
     else if (arg === "--deduction-rate") opts.deductionRate = Number(need(++i, arg));
     else if (arg === "--price" || arg === "--qty" || arg === "--cash") {
@@ -228,6 +230,7 @@ export async function main(argv) {
   catch (e) { process.stderr.write(`cannot read input: ${e.message}\n`); return 2; }
   const r = run(files, opts);
   if (r.error) { process.stderr.write(`${r.error}\n`); return 1; }
+  if (opts.idRecord && !opts.sell) { process.stderr.write("--id-record needs --sell\n"); return 2; }
   if (opts.sell) {
     if (!opts.price || (!opts.qty && !opts.cash)) { process.stderr.write("--sell needs --price and --qty or --cash\n"); return 2; }
   }
@@ -251,7 +254,7 @@ export async function main(argv) {
   }
   const gift = opts.donate ? donationPlan(r.result.openLots, { asset: opts.donate, price: opts.price, asOf: opts.saleDate || new Date().toISOString().slice(0, 10), qty: opts.qty, longRate: opts.longRate, deductionRate: opts.deductionRate || 0 }) : null;
   if (opts.json) process.stdout.write(JSON.stringify({ ...r.result, ...(plan ? { plan } : {}), ...(pr ? { harvest: pr.harvest, wait: pr.wait } : {}), ...(gift ? { gift } : {}), ...(rec ? { reconcile: rec } : {}) }, null, 2) + "\n");
-  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : "") + (pr ? renderPrices(pr.harvest, pr.wait) : "") + (gift ? renderDonation(gift) : "") + (rec ? renderReconcile(rec) : ""));
+  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : "") + (plan && opts.idRecord ? "\n" + (idRecord(plan, opts.idRecord)?.text || "No lots to identify.\n") : "") + (pr ? renderPrices(pr.harvest, pr.wait) : "") + (gift ? renderDonation(gift) : "") + (rec ? renderReconcile(rec) : ""));
   return 0;
 }
 

@@ -109,3 +109,10 @@ test("--donate prints a gift plan and rejects missing inputs", async () => {
   assert.equal(parseArgs(["--donate", "btc", "--price", "9", "--qty", "1", "x.csv"]).donate, "BTC");
   assert.equal(await main(["--example", "--donate", "BTC"]), 2);
 });
+
+test("--id-record needs --sell and a known method", async () => {
+  const { main, parseArgs } = await import("./cli.mjs");
+  assert.equal(parseArgs(["--id-record", "hifo", "x.csv"]).idRecord, "HIFO");
+  assert.throws(() => parseArgs(["--id-record", "nope"]), /--id-record must be one of/);
+  assert.equal(await main(["--example", "--id-record", "HIFO"]), 2);
+});
