@@ -25,6 +25,13 @@ have already left**, which used to take a booking system's flat "lapsed" report 
   base rate and against ranking by recency alone. The page says so plainly when the ranking is no better than chance.
 - Refuses: fewer than 30 clients, fewer than 40 return gaps, or a history shorter than 180 days.
 
+## Contact plan
+
+Turns the list into a schedule: overdue clients ranked by chance back times average spend, then due clients, spread over
+N contacts a week. Shows expected bookings and revenue, fills a message template (`{name}`, `{last_visit}`,
+`{usual_weeks}`), and copies the messages or downloads a plan CSV. The tool sends nothing; message only clients who agreed
+to hear from you (CAN-SPAM, TCPA, GDPR).
+
 ## Limits
 
 Correlation with past behaviour, not an experiment: it cannot say a message will bring anyone back. Seasonality, price

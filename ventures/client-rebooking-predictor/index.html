@@ -93,6 +93,16 @@
     <h3>Probably lost</h3>
     <p class="note">Under a 20% chance of still being active. Biggest past customers first.</p>
     <div class="scroll"><table id="t-lost"><thead><tr><th>Client</th><th class="n">Visits</th><th>Last visit</th><th class="n">Usual gap</th><th class="n">Quiet for</th><th class="n">Still active</th><th class="n">Est. value a year</th></tr></thead><tbody></tbody></table></div>
+    <h3>Contact plan</h3>
+    <p class="note">The overdue clients worth the most first, then the due ones, spread over weeks so you can keep up. Lost clients are left out. The tool sends nothing: copy the messages and send them yourself, only to clients who agreed to hear from you.</p>
+    <div class="row3"><div><label for="per-week">Contacts per week</label><input id="per-week" inputmode="numeric" value="10"></div><div><label for="plan-weeks">Weeks</label><input id="plan-weeks" inputmode="numeric" value="4"></div></div>
+    <label for="tpl">Message ({name}, {last_visit} and {usual_weeks} are filled in)</label>
+    <textarea id="tpl" rows="3" style="min-height:70px">Hi {name}, it has been a while since your visit on {last_visit}. We'd love to see you again. Want me to find you a time this week?</textarea>
+    <p id="plan-summary" class="note"></p>
+    <div class="scroll"><table id="t-plan"><thead><tr><th class="n">Week</th><th>Client</th><th>Last visit</th><th class="n">Chance back</th><th class="n">Avg spend</th></tr></thead><tbody></tbody></table></div>
+    <textarea id="plan-out" readonly hidden style="min-height:120px" aria-label="Messages to copy"></textarea>
+    <button type="button" id="copy-plan">Copy messages</button>
+    <button type="button" id="download-plan">Download plan CSV</button>
     <h3>Back-test</h3>
     <div id="bt-note" class="note"></div>
     <div id="bt-table" class="scroll"></div>
@@ -127,14 +137,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the visits you supply; they do not guarantee that any client will return or that contacting a client will bring them back. You are responsible for reviewing and verifying its output before relying on it, and for complying with consent and opt-out rules when you contact clients.</p>
     <p><strong>Independent.</strong> Not affiliated with any booking, scheduling or CRM vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your client list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your client list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>, <code>plan_copied</code>, <code>plan_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../appointment-no-show-analyzer/">appointment no-show analyzer</a>, the <a href="../sales-seasonality-forecaster/">sales seasonality forecaster</a> and the <a href="../no-show-fee-calculator/">no-show fee calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseRows, parseDay, dayToIso, analyze, reportCsv, sampleText, num, money, pct } from "./calc.mjs";
+    import { parseRows, parseDay, dayToIso, analyze, reportCsv, contactPlan, fillTemplate, planCsv, sampleText, num, money, pct } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -148,6 +158,16 @@
       return list.slice(0, SHOW).map((c) => `<tr><td>${esc(c.client)}</td><td class="n">${c.visits}</td><td>${dayToIso(c.last)}</td><td class="n">${num(c.typicalGap)} d</td><td class="n">${num(c.quiet)} d</td><td class="n">${pct(kind === "due" ? c.pBack : c.pActive, 0)}</td><td class="n">${kind === "lost" ? (c.perYear === null ? "—" : money(c.perYear)) : (c.avg === null ? "—" : money(c.avg))}</td></tr>`).join("") +
         (list.length > SHOW ? `<tr><td colspan="7" class="note">and ${list.length - SHOW} more in the CSV</td></tr>` : "");
     }
+
+    function renderPlan() {
+      if (!last) return;
+      const plan = contactPlan(last, { perWeek: Number($("#per-week").value) || 10, weeks: Number($("#plan-weeks").value) || 4 });
+      plan.tpl = $("#tpl").value;
+      plan_ = plan;
+      $("#plan-summary").textContent = plan.items.length ? `${plan.items.length} contacts: about ${num(plan.expectedReturns, 1)} expected to book within the window${plan.expectedRevenue === null ? "" : `, roughly ${money(plan.expectedRevenue)} of one visit each`}. An estimate from past behaviour, not a promise.` : "Nobody is overdue or due, so there is nothing to plan.";
+      $("#t-plan tbody").innerHTML = plan.items.map((c) => `<tr><td class="n">${c.week}</td><td>${esc(c.client)}</td><td>${dayToIso(c.last)}</td><td class="n">${pct(c.pBack, 0)}</td><td class="n">${c.avg === null ? "—" : money(c.avg)}</td></tr>`).join("");
+    }
+    let plan_ = null;
 
     function run() {
       const parsed = parseRows($("#rows").value);
@@ -177,6 +197,7 @@
       const t = r.test;
       $("#bt-note").textContent = t ? `Refit using only visits up to ${dayToIso(t.cutoff)}, then scored on whether each of ${t.n} clients came back in the next ${s.horizon} days (${pct(t.backRate, 0)} did). Ranking quality (AUC, 50% is a coin flip): ${pct(t.auc, 0)} for this model, ${pct(t.aucRecency, 0)} for ranking by days since last visit alone. Brier score ${t.brier.toFixed(3)} against ${t.brierBase.toFixed(3)} for always guessing the base rate (lower is better).` : "Not enough history to hold out a test window.";
       $("#bt-table").innerHTML = t ? `<table><thead><tr><th>Group of clients</th><th class="n">Predicted to return</th><th class="n">Actually returned</th></tr></thead><tbody>${t.groups.map((g, i) => `<tr><td>${["Least likely third", "Middle third", "Most likely third"][i]} (${g.n})</td><td class="n">${pct(g.predicted, 0)}</td><td class="n">${pct(g.observed, 0)}</td></tr>`).join("")}</tbody></table>` : "";
+      renderPlan();
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
       report.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -202,6 +223,21 @@
       a.download = "client-rebooking-list.csv";
       a.click();
       record("report_downloaded");
+    });
+    for (const id of ["#per-week", "#plan-weeks", "#tpl"]) $(id).addEventListener("input", renderPlan);
+    $("#copy-plan").addEventListener("click", async () => {
+      if (!plan_) return;
+      const text = plan_.items.map((c) => `${c.client}: ${fillTemplate(plan_.tpl, c)}`).join("\n");
+      try { await navigator.clipboard.writeText(text); status.textContent = `Copied ${plan_.items.length} messages.`; } catch { const o = $("#plan-out"); o.value = text; o.hidden = false; o.select(); status.textContent = "Could not reach the clipboard; select and copy the messages from the box above the buttons."; }
+      record("plan_copied");
+    });
+    $("#download-plan").addEventListener("click", () => {
+      if (!plan_) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([planCsv(plan_)], { type: "text/csv" }));
+      a.download = "client-contact-plan.csv";
+      a.click();
+      record("plan_downloaded");
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
