@@ -92,6 +92,15 @@ class Drape(unittest.TestCase):
         self.assertGreater(wire, 1.5 * wood)
 
 
+class Objective(unittest.TestCase):
+    def test_crease_charge_only_above_the_allowance(self):
+        sc = dict(err=1.0, crease=M.CREASE_OK - 5, strain=0.0)
+        self.assertEqual(M.objective(sc), 1.0)
+        sc["crease"] = M.CREASE_OK + 10
+        self.assertAlmostEqual(M.objective(sc), 1.0 + 10 * M.CREASE_COST)
+        self.assertEqual(M.objective(sc, "shape"), 1.0)
+
+
 class Optimisers(unittest.TestCase):
     def test_box_maps_to_bounds(self):
         lo, hi = to_hanger(np.zeros(4)), to_hanger(np.ones(4))

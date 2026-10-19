@@ -270,3 +270,14 @@ def score(h, g, X=None, s=None):
     w = max(1, int(round(CM / l0)))
     crease = math.degrees(np.convolve(phi, np.ones(w), "valid").max())
     return dict(err=err, crease=crease, strain=float((L / l0 - 1).max()))
+
+
+CREASE_OK = 30.0     # deg per cm the cloth may turn before it counts as a crease (worn shape: ~14)
+CREASE_COST = 0.05   # cm of shape error charged per deg/cm above CREASE_OK
+
+
+def objective(sc, mode="penalised"):
+    """Design-loop score (lower is better): shape error, plus a crease charge unless mode == "shape"."""
+    if mode == "shape":
+        return sc["err"]
+    return sc["err"] + CREASE_COST * max(0.0, sc["crease"] - CREASE_OK)

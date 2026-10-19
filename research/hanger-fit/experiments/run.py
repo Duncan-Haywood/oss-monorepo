@@ -1,6 +1,7 @@
 """All experiments for hanger-fit; writes results.txt and drapes.json next to this file.
 
-PYTHONPATH=src python3 experiments/run.py   (about 10 min on 4 cores)
+PYTHONPATH=src python3 experiments/run.py          crease-penalised objective (about 15 min on 4 cores)
+PYTHONPATH=src python3 experiments/run.py shape    shape error only -> results_shape_only.txt
 """
 import itertools
 import json
@@ -12,16 +13,17 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from hanger_fit.model import CM, FABRICS, SIZES, STOCK, Hanger, drape, garment, score  # noqa: E402
+from hanger_fit.model import CM, FABRICS, SIZES, STOCK, Hanger, drape, garment, objective, score  # noqa: E402
 from hanger_fit.opt import BOUNDS, cmaes, random_search, to_hanger  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 SZ = list(SIZES)
 BUDGET = 150
+MODE = sys.argv[1] if len(sys.argv) > 1 else "penalised"
 
 
 def err(h, g):
-    return score(h, g)["err"]
+    return objective(score(h, g), MODE)
 
 
 def custom(args):
@@ -67,7 +69,8 @@ def fmt(h):
 
 
 def main():
-    out = []
+    out = [f"objective: {MODE} (shape error cm RMS" + ("" if MODE == "shape" else
+           " + 0.05 cm per deg/cm of crease above 30 deg/cm") + "); err columns in B-F are this objective"]
     P = mp.Pool()
     # A. stock hangers on every size and fabric
     cells = [(h, s, f) for h in STOCK.values() for f in FABRICS for s in SZ]
@@ -153,14 +156,16 @@ def main():
         out.append(f"{b:6d}  {np.median(rr):13.3f}  {max(rr):12.3f}  {np.median(cc):12.3f}  {max(cc):11.3f}")
     P.close()
 
-    (HERE / "results.txt").write_text("\n".join(out) + "\n")
+    (HERE / ("results_shape_only.txt" if MODE == "shape" else "results.txt")).write_text("\n".join(out) + "\n")
     print("\n".join(out))
+    if MODE == "shape":
+        return
     # drapes for the figure: M tee on the three stock hangers and its custom hanger
     g = garment("M", "tee")
     dd = {}
     for name, h in list(STOCK.items()) + [("custom", customs[("M", "tee")])]:
         X, s = drape(h, g)
-        dd[name] = dict(h=h.__dict__, X=(X / CM).round(3).tolist(), err=round(score(h, g, X, s)["err"], 3),
+        dd[name] = dict(h=h.__dict__, X=(X / CM).round(3).tolist(), err=round(score(h, g, X, s)["err"], 3), crease=round(score(h, g, X, s)["crease"], 1),
                         centre=(h.centreline() / CM).round(3).tolist())
     from hanger_fit.model import target
     dd["target"] = ((target(g, s) + X[0]) / CM).round(3).tolist()
