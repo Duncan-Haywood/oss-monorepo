@@ -1633,3 +1633,25 @@ test("swiss withdrawals: even field after a drop-out has no bye, and too few pla
   assert.equal(r.pairs.length, 2);
   assert.throws(() => swissPairings(["A", "B", "C"], [], [], [0, 1]), /at least 2/);
 });
+
+test("nextSeasonFields keeps the league, clears last season's dated inputs and moves the start", async () => {
+  const { nextSeasonFields } = await import("./calc.mjs");
+  const f = { ...sampleFields(), results: "Net Ninjas 3 - 2 Lob Squad", rainouts: "2026-10-13 Lob Squad", withdrawals: "2026-11-03 Lob Squad -> 2026-11-10", lateTeams: "2026-11-03 Newbies", finishBy: "2026-12-15", timeLimits: "Dink Dynasty: 18:00" };
+  const last = D("2026-12-08");
+  const r = nextSeasonFields(f, { lastDay: last, gapWeeks: 8 });
+  assert.equal(r.fields.start, "2027-02-02"); // 8 weeks on, already a Tuesday
+  assert.equal(dayOfWeek(D(r.fields.start)), 2);
+  assert.deepEqual(r.dropped, ["Lob Squad"]);
+  assert.deepEqual(r.added, ["Newbies"]);
+  assert.ok(!r.fields.teams.includes("Lob Squad") && r.fields.teams.endsWith("Newbies"));
+  for (const k of ["skip", "blackouts", "results", "rainouts", "withdrawals", "lateTeams", "finishBy"]) assert.equal(r.fields[k], "");
+  assert.equal(r.fields.seed, 2);
+  assert.equal(r.fields.courts, f.courts);
+  assert.equal(r.fields.timeLimits, "Dink Dynasty: 18:00");
+  // snaps forward to a chosen weekday; falls back to a year after the old start when unbuilt
+  assert.equal(nextSeasonFields({ ...f }, { lastDay: D("2026-12-09"), gapWeeks: 0 }).fields.start, "2026-12-15");
+  assert.equal(nextSeasonFields(f).fields.start, "2027-10-05");
+  // the rolled fields build a clean schedule
+  const spec = readSpec(r.fields);
+  assert.ok(buildSchedule(spec.spec ?? spec).rounds.length > 0);
+});
