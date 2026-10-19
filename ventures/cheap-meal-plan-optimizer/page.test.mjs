@@ -163,9 +163,10 @@ test("index page offers the common-foods picker from food-library.mjs", () => {
 
 const VEGAN = "cheap-vegan-high-protein-meal-plan.html";
 const BUDGET = "what-protein-does-a-grocery-budget-buy.html";
+const MARGINAL = "what-does-one-more-gram-of-protein-cost.html";
 
 test("the vegan and budget guides carry the clauses, link both ways, and match the solver", () => {
-  for (const file of [VEGAN, BUDGET]) {
+  for (const file of [VEGAN, BUDGET, MARGINAL]) {
     const g = page(file);
     assert.match(g, /No warranty/);
     assert.match(g, /not medical, dietary, nutrition, legal, tax or financial advice/i);
@@ -195,6 +196,11 @@ test("the vegan and budget guides carry the clauses, link both ways, and match t
   const b = page(BUDGET);
   for (const { budget, protein } of budgetFrontier(spec, [2, 3, 4, 5])) {
     assert.ok(b.includes(`<tr><td>${money2(budget)}</td><td class="n">${protein.toFixed(1)} g</td></tr>`), `${budget}`);
+  }
+  const m = page(MARGINAL);
+  for (const p of [80, 100, 120, 140, 160, 180]) {
+    const r = solve({ ...spec, proteinMin: p });
+    assert.ok(m.includes(`<tr><td>${p} g</td><td class="n">${money2(r.cost)}</td><td class="n">${money2(r.marginal.protein.extra)}</td></tr>`), `marginal row ${p}`);
   }
   const vb = budgetFrontier(vegan, [5])[0].protein;
   assert.ok(vb > 136 && vb < 138, "vegan ceiling quoted as near 137 g");

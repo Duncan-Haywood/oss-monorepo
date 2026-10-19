@@ -14,7 +14,8 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, a two-phase simplex (Bland's rule), branch and bound on
   whole batches, shadow prices and their range by re-solving, opportunity cost
-  per unit, and the greedy comparison plans.
+  per unit, price breaks (the price at which each product enters or leaves the
+  plan, found by re-solving), and the greedy comparison plans.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `why-your-best-margin-product-may-not-be-your-best-product.html` - guide with
   a worked example that the test suite recomputes.

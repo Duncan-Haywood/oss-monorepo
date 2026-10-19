@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, planCsv, groceryList, groceryText, breakEvenPrices, stayInPrices, encodeShare, decodeShare, sampleSpec, filterByStyle, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, planCsv, groceryList, groceryText, breakEvenPrices, stayInPrices, proteinPrices, encodeShare, decodeShare, sampleSpec, filterByStyle, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -440,4 +440,16 @@ test("stayInPrices on the starter menu: raising a price 2% past the limit drops 
     assert.ok(at(0.98) > 1e-6, b.name + " kept");
     assert.ok(at(1.02) < at(0.98), b.name + " reduced");
   }
+});
+
+test("proteinPrices ranks foods by dollars per 100 g of protein and marks the ones in the plan", () => {
+  const spec = { ...DEFAULTS, kcalMin: "", kcalMax: "", fatMin: "", fatMax: "", fiberMin: "", step: 0, defaultMax: 20, foods: foods([["Egg", 1, [100, 10, 0, 0, 0]], ["Bean", 1.2, [100, 15, 0, 0, 0]], ["Oil", 0.2, [120, 0, 0, 14, 0]]]) };
+  const res = solve(spec);
+  const pp = proteinPrices(spec, res);
+  assert.deepEqual(pp.map((r) => r.name), ["Bean", "Egg", "Oil"]);
+  assert.ok(Math.abs(pp[0].per100gProtein - 8) < 1e-9);
+  assert.ok(Math.abs(pp[1].per100gProtein - 10) < 1e-9);
+  assert.equal(pp[2].per100gProtein, null);
+  assert.ok(Math.abs(pp[2].per1000kcal - (0.2 / 120) * 1000) < 1e-9);
+  assert.equal(pp.find((r) => r.name === "Oil").inPlan, false);
 });

@@ -591,8 +591,61 @@ test("the youth soccer guide's 9-team example matches buildSchedule() and is lin
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });
 
+test("the rec basketball guide's 10-team example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "rec-basketball-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Hoopers", "Bruisers", "Skyhooks", "Fastbreak", "Pivots", "Rim Riders", "Buzzers", "Dunkers", "Zone D", "Net Gains"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-11-04", weekdays: ["Wed"], courts: "Court A\nCourt B", times: "18:00\n19:00\n20:00" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.length, 9);
+  const early = {};
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.number}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(r.matches.length, 5);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, 5);
+    for (const m of r.matches) if (m.time === "18:00") for (const t of [m.homeName, m.awayName]) early[t] = (early[t] || 0) + 1;
+  });
+  assert.ok(teams.every((t) => early[t] === 3));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the volleyball guide's closed-gym example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "volleyball-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Spikers", "Setters", "Diggers", "Blockers", "Aces", "Floaters"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-11-05", weekdays: ["Thu"], courts: "Gym 1\nGym 2", times: "19:00\n20:00", courtClosures: "Gym 2: 2026-11-19, 2026-11-26" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.ok(validateSchedule(s).ok);
+  let played = 0;
+  s.rounds.forEach((r) => {
+    const night = new Date(r.day * 864e5).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+    const row = `<tr><td>${r.label}</td><td>${night}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    played += r.matches.length;
+    if (night === "Thu 19 Nov" || night === "Thu 26 Nov") assert.ok(r.matches.every((m) => m.court === "Gym 1"));
+  });
+  assert.equal(played, 15);
+  assert.equal(s.rounds.filter((r) => r.makeup).length, 2);
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
 test("the fantasy football guide's 12-team, 14-week example matches buildSchedule() and is linked and in the sitemap", async () => {
-  const { readSpec, buildSchedule, validateSchedule, rematchReport } = await import("./calc.mjs");
+  const { rematchReport } = await import("./calc.mjs");
   const html = page("how-to-make-a-fantasy-football-schedule.html");
   assert.match(html, /No warranty/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);

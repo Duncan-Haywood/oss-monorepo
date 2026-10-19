@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: mean true quality of the camera chosen by each edit policy as the angle detector gets noisier">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Edit quality against detector noise</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="262.0" y2="262.0" stroke="#ddd"/><text x="58" y="266.0" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="199.9" y2="199.9" stroke="#ddd"/><text x="58" y="203.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="137.9" y2="137.9" stroke="#ddd"/><text x="58" y="141.9" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="75.8" y2="75.8" stroke="#ddd"/><text x="58" y="79.8" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="138.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.15</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">detector noise (sigma)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean true quality of chosen camera</text>
+<polyline points="64.0,154.6 138.7,154.6 250.7,154.6 400.0,154.6 624.0,154.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="154.6" r="3" fill="#c0392b"/>
+<circle cx="138.7" cy="154.6" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="154.6" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="154.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="154.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">fixed cut 3 s</text>
+<polyline points="64.0,158.0 138.7,158.0 250.7,158.0 400.0,158.0 624.0,158.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="158.0" r="3" fill="#1f6fb2"/>
+<circle cx="138.7" cy="158.0" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="158.0" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="158.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="158.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">fixed cut 6 s</text>
+<polyline points="64.0,71.8 138.7,81.4 250.7,99.7 400.0,116.5 624.0,129.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.8" r="3" fill="#2e8b57"/>
+<circle cx="138.7" cy="81.4" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="99.7" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="116.5" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="129.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">greedy per frame</text>
+<polyline points="64.0,84.2 138.7,84.2 250.7,87.0 400.0,92.3 624.0,105.9" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="84.2" r="3" fill="#8e44ad"/>
+<circle cx="138.7" cy="84.2" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="87.0" r="3" fill="#8e44ad"/>
+<circle cx="400.0" cy="92.3" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="105.9" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">hold rule</text>
+<polyline points="64.0,71.2 138.7,72.4 250.7,75.2 400.0,82.3 624.0,96.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="138.7" cy="72.4" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="75.2" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="82.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="96.9" r="3" fill="#c0392b"/>
+<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">viterbi</text>
+<polyline points="64.0,71.2 138.7,71.2 250.7,71.2 400.0,71.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="138.7" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="914" y="32" width="14" height="10" fill="#1f6fb2"/><text x="934" y="41" font-family="sans-serif" font-size="11">oracle (true scores)</text>
+</svg>
