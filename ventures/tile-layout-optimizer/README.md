@@ -31,6 +31,10 @@ optimality (a lower bound from the area to cover is shown). Prices are only what
 you type. Unverified on a real floor: tested on hand-computed rooms and on random
 rooms checked for coverage, overlap and cutting.
 
+**See also:** [tile-layout-planner](../tile-layout-planner/README.md) lays out diagonal
+tile and compares corner, centred and best-found starts; this one handles several
+tile sizes, box prices and brick-bond offsets.
+
 **Privacy.** Everything runs in your browser; your figures are never uploaded.
 Anonymous feature counts stay in local storage and can be switched off.
 
