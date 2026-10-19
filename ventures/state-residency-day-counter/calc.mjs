@@ -16,6 +16,13 @@ export const STATE_NAMES = {
   WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
 };
 
+// New York City taxes its own residents on top of New York State, with the same
+// two-part statutory test measured inside the five boroughs. It is tracked as a
+// pseudo-state: a stay marked NYC counts for NY and for NYC.
+export const CITY_CODE = "NYC";
+STATE_NAMES[CITY_CODE] = "New York City";
+const CITY_RE = /\b(nyc|new york city|manhattan|brooklyn|the bronx|bronx|staten island|queens)\b/i;
+
 // Commonly published day-count tests. `limit` is the most days you can spend
 // without crossing the test (the test is "more than limit"). These are a
 // starting point the user is told to check against the state's own guidance and
@@ -50,6 +57,7 @@ export const RULES = {
   DC: { limit: 182, requiresAbode: true, kind: "statutory", note: "Statutory resident: you keep a place of abode in the District for an aggregate of 183 days or more of the tax year, whether or not you are domiciled there (D.C. Code 47-1801.04), so the limit here is 182 and 183 days crosses it. Temporary absences are generally counted toward the 183 days." },
   HI: { limit: 200, requiresAbode: false, kind: "presumption", note: "Presumed a resident from arrival if you are in Hawaii more than 200 days of the taxable year in the aggregate (Haw. Admin. Rules 18-235-1.07). The presumption can be rebutted if you keep a permanent place of abode outside Hawaii and are there for a temporary or transitory purpose. Domicile can make you a resident at any day count." },
   OH: { limit: 212, requiresAbode: false, kind: "presumption", note: "Ohio counts contact periods, not days: a contact period is any stretch where you are away overnight from your out-of-state abode and spend some part of two consecutive days in Ohio (R.C. 5747.24). With 212 or fewer contact periods, an out-of-state abode and domicile, and a filed affidavit, you are treated as a nonresident under the bright-line safe harbor; at 213 or more you are presumed domiciled in Ohio and need clear and convincing evidence to rebut it. A day count only approximates contact periods, so use the nights convention and confirm with the Department of Taxation for a close year. Days you cannot show were not contact periods are presumed to be." },
+  NYC: { limit: 183, requiresAbode: true, kind: "statutory", note: "New York City resident tax applies to a statutory resident of the City: a permanent place of abode in the City plus more than 183 days in the City (NYC Admin. Code 11-1705; the same test as the State's, measured inside the five boroughs). A separate abode is needed for the City and for the State. Any part of a day usually counts. Domicile in the City makes you a resident at any day count." },
   CA: { limit: 270, requiresAbode: false, kind: "presumption", note: "Residency turns on domicile and where your ties are strongest. Time in the state beyond about nine months is commonly treated as a presumption of residency that you would have to rebut." },
 };
 
@@ -150,12 +158,14 @@ export function parseStays(text, year) {
     let rest = line;
     for (const m of found) rest = rest.replace(m[0], " ");
     const work = !/\b(off|vacation|holiday|pto|not working|no work)\b/i.test(rest);
-    const state = findState(rest);
+    const city = CITY_RE.test(rest);
+    const state = findState(rest.replace(CITY_RE, " ")) || (city ? "NY" : null);
     if (!state) return errors.push({ line: i + 1, message: `No state found in "${line}". Use a two-letter code like NY or a name like New York.` });
+    if (city && state !== "NY") return errors.push({ line: i + 1, message: `New York City is in New York, but this line says ${state}: "${line}".` });
     const start = days[0];
     const end = days.length === 2 ? days[1] : days[0];
     if (end < start) return errors.push({ line: i + 1, message: `The end date is before the start date: "${line}".` });
-    stays.push({ state, start, end, work });
+    stays.push(city ? { state, start, end, work, city: CITY_CODE } : { state, start, end, work });
   });
   return { stays, errors };
 }
@@ -394,6 +404,7 @@ export function analyze(spec, _alt = false) {
   const idx = (d) => d - y0;
 
   const codes = [...new Set(spec.stays.map((s) => s.state))];
+  if (spec.stays.some((s) => s.city === CITY_CODE)) codes.push(CITY_CODE);
   const home = spec.homeState && /^[A-Z]{2}$/.test(spec.homeState) ? spec.homeState : null;
   if (home && !codes.includes(home)) codes.push(home);
   const present = Object.fromEntries(codes.map((c) => [c, new Uint8Array(total)]));
@@ -406,7 +417,8 @@ export function analyze(spec, _alt = false) {
     if (convention === "nights" && b > a) b -= 1;
     for (let d = Math.max(a, y0); d <= Math.min(b, y1); d++) {
       present[s.state][idx(d)] = 1;
-      cover[idx(d)].push({ state: s.state, work: s.work !== false, boundary: d === s.start || d === s.end });
+      if (s.city === CITY_CODE) present[CITY_CODE][idx(d)] = 1;
+      cover[idx(d)].push({ state: s.state, city: s.city === CITY_CODE, work: s.work !== false, boundary: d === s.start || d === s.end });
     }
   }
 
@@ -438,6 +450,7 @@ export function analyze(spec, _alt = false) {
     if (cover[i].length === 0 && home && spec.homeWorks !== false) where = [home];
     if (!where.length) continue;
     for (const c of where) work[c] += 1 / where.length;
+    if (cover[i].some((c) => c.city && c.work)) work[CITY_CODE] += 1 / where.length;
     workTotal += 1;
   }
 
@@ -488,7 +501,7 @@ export function analyze(spec, _alt = false) {
   // also wages the physical state can tax (a double-tax exposure to credit).
   let employer = null;
   if (emp && empRule) {
-    const outside = states.filter((s) => s.code !== emp && s.workdays > 0);
+    const outside = states.filter((s) => s.code !== emp && s.code !== CITY_CODE && s.workdays > 0);
     const pulledDays = outside.reduce((n, s) => n + s.workdays, 0);
     const wageOf = (days) => (spec.wages != null && workTotal ? Math.round((spec.wages * days) / workTotal * 100) / 100 : null);
     const physical = (states.find((s) => s.code === emp) || { workdays: 0 }).workdays;
@@ -533,7 +546,7 @@ export function analyze(spec, _alt = false) {
     year: spec.year, totalDays: total, asOf, convention, states, conflicts,
     gaps: { toDate: gapsToDate, unplanned, ranges: gapRanges },
     workTotal, wages: spec.wages ?? null, employer, notices,
-    daysCounted: states.reduce((n, s) => n + s.days, 0),
+    daysCounted: states.filter((s) => s.code !== CITY_CODE).reduce((n, s) => n + s.days, 0),
   };
 }
 
@@ -548,7 +561,11 @@ export function bruteForceCounts(spec) {
     let any = false;
     for (const s of spec.stays) {
       const last = nights && s.end > s.start ? s.end - 1 : s.end;
-      if (n >= s.start && n <= last) { out[s.state] = (out[s.state] || new Set()).add(n); any = true; }
+      if (n >= s.start && n <= last) {
+        out[s.state] = (out[s.state] || new Set()).add(n);
+        if (s.city) out[s.city] = (out[s.city] || new Set()).add(n);
+        any = true;
+      }
     }
     // a stay still counts on its own boundary even when a neighbour covers it
     if (!any && home) out[home] = (out[home] || new Set()).add(n);

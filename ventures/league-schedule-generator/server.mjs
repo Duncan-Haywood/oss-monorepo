@@ -17,7 +17,18 @@ const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(Strin
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
-export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false }; }
+export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [] }; }
+
+const MAX_PENDING = 100;
+/** A score a team captain sends from the league page, as a pending request: team indexes and goals, nothing free-form. */
+export function parseScoreRequest(form, teams) {
+  const a = Number(form.get("home")), b = Number(form.get("away")), ga = Number(form.get("hs")), gb = Number(form.get("as"));
+  if (![a, b].every((i) => Number.isInteger(i) && i >= 0 && i < teams.length)) return { error: "Pick two teams from the list." };
+  if (a === b) return { error: "A team cannot play itself." };
+  if (![ga, gb].every((g) => Number.isInteger(g) && g >= 0 && g <= 999)) return { error: "Scores are whole numbers from 0 to 999." };
+  return { req: { a, b, ga, gb, at: Date.now() } };
+}
+const resultLine = (teams, r) => `${teams[r.a]} ${r.ga} - ${r.gb} ${teams[r.b]}`;
 
 /** Fields -> the same schedule, table and bracket the browser page shows. */
 export function buildLeague(f) {
@@ -48,13 +59,18 @@ function leaguePage(state, token) {
   if (out.error) return page("League", `<p>The organiser has not published a valid league yet.</p>`);
   const html = leaguePageHtml(out.schedule, { title: "League schedule", table: out.table, bracket: out.bracket });
   const cal = out.schedule.teams.map((n, i) => `<li><a href="/league/ics?t=${esc(token)}&amp;team=${i}">${esc(n)}</a></li>`).join("");
-  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("<footer>", `<h2>Add your team to your calendar</h2><ul>${cal}</ul><footer>`);
+  const opts = out.schedule.teams.map((n, i) => `<option value="${i}">${esc(n)}</option>`).join("");
+  const form = `<h2>Report a score</h2><form method="post" action="/league/result?t=${esc(token)}"><label>Home <select name="home">${opts}</select></label> <input name="hs" type="number" min="0" max="999" required style="width:5rem" aria-label="Home score"> - <input name="as" type="number" min="0" max="999" required style="width:5rem" aria-label="Away score"> <label>Away <select name="away">${opts}</select></label> <button>Send to organiser</button></form><p class="note">The organiser checks every score before it reaches the table.</p>`;
+  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("<footer>", `<h2>Add your team to your calendar</h2><ul>${cal}</ul>${form}<footer>`);
 }
 
 function adminPage(state, key, note = "") {
   const f = state.fields, k = esc(key);
+  const names = buildLeague(f).schedule?.teams ?? [];
+  const pending = (state.pending || []).map((r, i) => names[r.a] === undefined || names[r.b] === undefined ? "" : `<li>${esc(resultLine(names, r))} <form method="post" action="/admin/result?key=${k}" style="display:inline"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Approve</button><button name="act" value="decline">Decline</button></form></li>`).join("");
+  const waiting = pending ? `<h2>Scores waiting for you</h2><ul>${pending}</ul>` : "";
   const area = (name, label) => `<label>${label}<textarea name="${name}">${esc(f[name] ?? "")}</textarea></label>`;
-  return page("League admin", `${note}
+  return page("League admin", `${note}${waiting}
 <form method="post" action="/admin/save?key=${k}">
 <label>Season start (YYYY-MM-DD)<input name="start" value="${esc(f.start)}"></label>
 <label>Weekdays, comma separated (${WEEKDAYS.join(" ")})<input name="weekdays" value="${esc((f.weekdays || []).join(", "))}"></label>
@@ -63,6 +79,12 @@ function adminPage(state, key, note = "") {
 ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
 <p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code></p>`);
+}
+
+async function readForm(req) {
+  let size = 0; const chunks = [];
+  for await (const c of req) { size += c.length; if (size > MAX_BODY) return null; chunks.push(c); }
+  return new URLSearchParams(Buffer.concat(chunks).toString("utf8"));
 }
 
 export function handler(state, save, env = process.env) {
@@ -96,13 +118,25 @@ export function handler(state, save, env = process.env) {
         if (out.error || !Number.isInteger(i) || i < 0 || i >= out.schedule.teams.length) return send(404, "no such team\n", "text/plain");
         return send(200, scheduleIcs(out.schedule, i), "text/calendar; charset=utf-8", { "content-disposition": 'attachment; filename="schedule.ics"' });
       }
+      if (req.method === "POST" && url.pathname === "/league/result") {
+        const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
+        if (out.error) return send(404, "not found\n", "text/plain");
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const r = parseScoreRequest(body, out.schedule.teams);
+        if (r.error) return send(400, page("Score not sent", `<p class="err">${esc(r.error)}</p><p><a href="/league?t=${esc(t)}">Back</a></p>`));
+        state.pending = state.pending || [];
+        if (state.pending.length >= MAX_PENDING) return send(429, page("Score not sent", `<p class="err">The organiser has too many scores waiting. Try again later.</p>`), "text/html; charset=utf-8");
+        state.pending.push(r.req);
+        save();
+        return send(200, page("Score sent", `<p class="ok">Sent: ${esc(resultLine(out.schedule.teams, r.req))}. It shows in the table once the organiser approves it.</p><p><a href="/league?t=${esc(t)}">Back to the league</a></p>`));
+      }
       return send(404, "not found\n", "text/plain");
     }
     let form = new URLSearchParams();
     if (req.method === "POST") {
-      let size = 0; const chunks = [];
-      for await (const c of req) { size += c.length; if (size > MAX_BODY) return send(413, "too large\n", "text/plain"); chunks.push(c); }
-      form = new URLSearchParams(Buffer.concat(chunks).toString("utf8"));
+      form = await readForm(req);
+      if (!form) return send(413, "too large\n", "text/plain");
     }
     const here = `/admin?key=${encodeURIComponent(adminKey)}`;
     if (req.method === "GET" && url.pathname === "/admin") {
@@ -123,6 +157,21 @@ export function handler(state, save, env = process.env) {
       }
       save();
       return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(out.error ? "Saved, but: " + out.error : "Saved." + (out.warnings.length ? " " + out.warnings.length + " warning(s): " + out.warnings[0] : ""))}` });
+    }
+    if (req.method === "POST" && url.pathname === "/admin/result") {
+      const i = Number(form.get("i")), r = (state.pending || [])[i];
+      if (!Number.isInteger(i) || !r) return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent("That score is no longer waiting.")}` });
+      let note = "Declined.";
+      if (form.get("act") === "approve") {
+        const teams = buildLeague(state.fields).schedule?.teams;
+        if (!teams) return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent("Fix the league first, then approve.")}` });
+        const f = state.fields, prev = String(f.results || "").replace(/\s+$/, "");
+        f.results = (prev ? prev + "\n" : "") + resultLine(teams, r);
+        note = `Added to results: ${resultLine(teams, r)}`;
+      }
+      state.pending.splice(i, 1);
+      save();
+      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(note)}` });
     }
     return send(404, "not found\n", "text/plain");
   };

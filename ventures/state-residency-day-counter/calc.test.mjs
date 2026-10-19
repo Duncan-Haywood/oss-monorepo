@@ -568,3 +568,42 @@ test("deadline reminders: one all-day event per state still short of its limit, 
   const over = analyze({ ...base, stays: [{ state: "NY", start: toDay(Y, 1, 1), end: toDay(Y, 12, 31), work: true }] });
   assert.equal(deadlinesIcs(over).count, 0);
 });
+
+test("New York City: an NYC stay counts for NY and for the City's own test", () => {
+  const year = 2025;
+  const { stays, errors } = parseStays([
+    "2025-01-01 to 2025-03-31 NYC",
+    "2025-04-01 to 2025-06-30 New York",
+    "2025-07-01 to 2025-12-31 Brooklyn NY",
+  ].join("\n"), year);
+  assert.deepEqual(errors, []);
+  assert.deepEqual(stays.map((s) => [s.state, s.city || null]), [["NY", "NYC"], ["NY", null], ["NY", "NYC"]]);
+  const spec = { year, stays, abode: { NY: true, NYC: true }, convention: "inclusive", wages: 100000 };
+  const r = analyze(spec);
+  const ny = r.states.find((s) => s.code === "NY");
+  const nyc = r.states.find((s) => s.code === "NYC");
+  assert.equal(ny.days, 365);
+  assert.equal(nyc.days, 90 + 184);
+  assert.equal(nyc.status, "over");
+  assert.equal(nyc.rule.limit, 183);
+  assert.equal(r.daysCounted, 365, "the City is not an extra state-day");
+  assert.deepEqual(bruteForceCounts(spec), { NY: 365, NYC: 274 });
+  // Workdays inside the City get a share of the wages.
+  assert.ok(nyc.workdays > 0 && nyc.workdays < ny.workdays);
+});
+
+test("New York City: a Manhattan pied-a-terre can be over the City line while under the State's elsewhere", () => {
+  const year = 2025;
+  const { stays } = parseStays("2025-01-01 to 2025-07-15 NYC\n2025-07-16 to 2025-12-31 NJ", year);
+  const r = analyze({ year, stays, abode: { NYC: true, NY: true }, convention: "inclusive" });
+  assert.equal(r.states.find((s) => s.code === "NYC").status, "over");
+  assert.equal(r.states.find((s) => s.code === "NY").status, "over");
+  const noAbode = analyze({ year, stays, abode: { NY: true }, convention: "inclusive" });
+  assert.equal(noAbode.states.find((s) => s.code === "NYC").status, "no-abode");
+});
+
+test("New York City: a city word on a non-New-York line is an error", () => {
+  const { stays, errors } = parseStays("2025-02-01 to 2025-02-10 Brooklyn NJ", 2025);
+  assert.equal(stays.length, 0);
+  assert.equal(errors.length, 1);
+});

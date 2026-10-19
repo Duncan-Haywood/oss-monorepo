@@ -115,7 +115,8 @@ The finish line, every session:
 4. confirm `python3 platform/ci/unlanded_work.py` exits 0;
 5. end your reply with the merged PR's link.
 
-In cloud sessions there is no `gh`: open and merge with the GitHub MCP tools
+In cloud sessions `gh` may be installed but its token is invalid
+(`gh auth status` fails), so treat it as absent: open and merge with the GitHub MCP tools
 (`create_pull_request`, `merge_pull_request`; they start deferred, so load
 them with `ToolSearch` `select:` first). The full protocol is
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md). It
