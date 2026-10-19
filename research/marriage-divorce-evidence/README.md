@@ -6,6 +6,8 @@
 
 **Live page:** https://marriage-divorce-evidence.duncan1921.chatgpt.site/?view=1
 
+**Try it:** the [divorce odds calculator for couples](app/) ([live](https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/app/)) runs these models in your browser: enter two profiles to see year-by-year divorce odds, the chance of no divorce by year 40, per-input explanations and which changes the models link to lower risk.
+
 [Research homepage](../README.md) · [Claude Code handoff](CLAUDE.md) · [Portable report](Report.html) · [Data sources](DATA_SOURCES.md) · [Model card](MODEL_CARD.md)
 
 ## Open it immediately

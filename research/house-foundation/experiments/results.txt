@@ -1,0 +1,67 @@
+house: 28 x 40 ft, 1,120 sq ft footprint (house-framing); unit prices are stylised ranges from memory, not quotes
+foundation cost includes the ground floor surface (slab, or framed floor over the crawlspace or basement)
+
+A. Footing width (in) the bearing check asks for, by allowable soil bearing (minimum built: 16 in)
+ bearing psf  slab on grad  frost-protec    crawlspace  full basemen
+         600            20            20            34            52
+        1000            16            16            20            30
+        1500            16            16            16            20
+        2000            16            16            16            16
+        3000            16            16            16            16
+(unrounded need at 2,000 psf, in: slab on grade 4.9, frost-protected shallow 4.9, crawlspace 8.7, full basement 13.4)
+
+B. Midpoint first cost ($), concrete (cy) and excavation (cy) by frost depth, 2,000 psf soil
+ frost in  slab on grad  frost-protec    crawlspace  full basemen  cheapest
+       12        11,223        12,600        16,710        54,865  slab on grade
+       24        15,697        12,787        19,178        54,865  frost-protected shallow
+       36        18,166        12,983        21,647        54,865  frost-protected shallow
+       48        20,634        13,187        24,115        54,865  frost-protected shallow
+       60        23,102        13,399        26,583        54,865  frost-protected shallow
+
+   concrete cy (footing, wall, slab) and dig cy at 48 in frost:
+   slab on grade              struct  17.9  slab  13.8  dig   87.9  CO2e   9,204 kg  cost   20,634
+   frost-protected shallow    struct   6.7  slab  13.8  dig   43.1  CO2e   5,958 kg  cost   13,187
+   crawlspace                 struct  20.7  slab   0.0  dig   87.9  CO2e   6,005 kg  cost   24,115
+   full basement              struct  34.7  slab  13.8  dig  469.3  CO2e  14,073 kg  cost   54,865
+
+C. Cheapest foundation by frost depth at midpoints, 6 in steps (first cost)
+12in:slab  18in:fpsf  24in:fpsf  30in:fpsf  36in:fpsf  42in:fpsf  48in:fpsf  54in:fpsf  60in:fpsf
+slab minus frost-protected shallow, by frost depth ($): 12in -1,377, 18in +1,771, 24in +2,910, 30in +4,047, 36in +5,183, 48in +7,447, 60in +9,703
+
+D. Monte Carlo: 5,000 shared draws of every unit price (triangular, low to high); share of draws each type is cheapest
+ frost in  slab on grad  frost-protec    crawlspace  full basemen
+       12        100.0%          0.0%          0.0%          0.0%
+       24          0.0%        100.0%          0.0%          0.0%
+       36          0.0%        100.0%          0.0%          0.0%
+       48          0.0%        100.0%          0.0%          0.0%
+       60          0.0%        100.0%          0.0%          0.0%
+
+E. What a basement adds: basement minus crawlspace first cost per added sq ft of floor (10th, 50th, 90th percentile of the draws)
+   frost 12 in: $ 32.9 / $ 36.2 / $ 39.7 per sq ft (midpoints $34.1)
+   frost 24 in: $ 30.8 / $ 33.8 / $ 37.1 per sq ft (midpoints $31.9)
+   frost 36 in: $ 28.7 / $ 31.5 / $ 34.5 per sq ft (midpoints $29.7)
+   frost 48 in: $ 26.6 / $ 29.1 / $ 31.9 per sq ft (midpoints $27.5)
+   frost 60 in: $ 24.4 / $ 26.8 / $ 29.3 per sq ft (midpoints $25.3)
+
+F. One-at-a-time: swing in (basement minus crawlspace) at 48 in frost when each price goes low to high, others at midpoint ($)
+midpoint difference $30,750
+   dig             28,461 to    34,946
+   forms           28,483 to    34,150
+   slab            28,510 to    33,550
+   stairs          29,750 to    32,750
+   waterproof      29,617 to    32,450
+   drain           30,206 to    31,566
+
+G. Soil bearing: crawlspace at 48 in frost, midpoint first cost by allowable bearing
+     600 psf: footing 34 in, $25,847
+    1000 psf: footing 20 in, $24,500
+    1500 psf: footing 16 in, $24,115
+    2000 psf: footing 16 in, $24,115
+    3000 psf: footing 16 in, $24,115
+
+H. How wrong could the frost-protected shallow foundation's insulation be? Insulation quantity multiple at which it ties a conventional slab (midpoint prices)
+   frost 18 in: slab costs $+1,771 more; insulation is $582, so a tie needs 4.0x the modelled insulation
+   frost 24 in: slab costs $+2,910 more; insulation is $677, so a tie needs 5.3x the modelled insulation
+   frost 36 in: slab costs $+5,183 more; insulation is $873, so a tie needs 6.9x the modelled insulation
+   frost 48 in: slab costs $+7,447 more; insulation is $1,077, so a tie needs 7.9x the modelled insulation
+   frost 60 in: slab costs $+9,703 more; insulation is $1,289, so a tie needs 8.5x the modelled insulation

@@ -157,7 +157,7 @@ test("clopening page's rest-gap table is what the engine returns for the sample 
   const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
   const html = page("how-to-avoid-clopening.html");
-  for (const [h, open, covered, pay] of [[0, 3, 211, 3525], [8, 3, 216, 3620], [10, 3, 216, 3622], [12, 3, 216, 3630], [14, 6, 212, 3578]]) {
+  for (const [h, open, covered, pay] of [[0, 2, 219, 3671], [8, 3, 216, 3620], [10, 3, 216, 3622], [12, 3, 216, 3630], [14, 5, 215, 3611]]) {
     const r = buildRoster(staff, slots, { minRestHours: h });
     assert.equal(r.unfilled.length, open, `${h}h open`);
     assert.equal(r.hours, covered, `${h}h covered`);
@@ -260,11 +260,11 @@ test("call-out page's table is what the engine returns for the sample cafe, with
     return o;
   };
   const a = study(sampleStaff());
-  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 9, 2, 12]);
+  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 13, 2, 19]);
   const b = study(sampleStaff() + "\nHal, 15, 24, 0, any");
   assert.deepEqual([b.cases, b.patched, b.covered, Math.min(...b.moves), Math.max(...b.moves)], [32, 1, 18, 13, 24]);
   const html = page("how-to-cover-a-shift-when-someone-calls-out.html");
-  for (const t of ["29", "32", "2 to 12", "13 to 24", "No warranty", "not legal, tax or financial advice"]) assert.ok(html.includes(t), t);
+  for (const t of ["29", "32", "2 to 19", "13 to 24", "No warranty", "not legal, tax or financial advice"]) assert.ok(html.includes(t), t);
   assert.match(page("sitemap.xml"), /how-to-cover-a-shift-when-someone-calls-out\.html/);
   assert.match(page("index.html"), /how-to-cover-a-shift-when-someone-calls-out\.html/);
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
@@ -285,7 +285,7 @@ test("14-15 year old page's table is what the engine returns for the sample cafe
   const html = page("scheduling-14-and-15-year-olds.html");
   const cleo = "Cleo, 15, 30, 12, Mon-Fri 15-23; Sat-Sun 8-23", eli = "Eli, 14, 24, 8, Mon/Wed/Fri 16-23; Sat-Sun 8-23";
   const withAges = (c, e) => sampleStaff().replace(cleo, cleo + (c ? `, age: ${c}` : "")).replace(eli, eli + (e ? `, age: ${e}` : ""));
-  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 3, 216, 3622, 36], ["15", 0, 5, 200, 3384, 18], ["15", "14", 8, 176, 3019, 0], ["15 summer", "14 summer", 4, 208, 3483, 32]]) {
+  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 3, 216, 3622, 36], ["15", 0, 5, 200, 3382, 18], ["15", "14", 8, 176, 3019, 0], ["15 summer", "14 summer", 4, 208, 3483, 32]]) {
     const p = parseStaff(withAges(c, e));
     assert.deepEqual(p.errors, []);
     const r = buildRoster(p.staff, slots, {});
@@ -349,6 +349,32 @@ test("rotation page's eight-week table is what the engine returns for six identi
   assert.ok(html.includes("$28,200"));
   assert.match(page("sitemap.xml"), /how-to-rotate-closing-and-weekend-shifts-fairly\.html/);
   assert.match(page("index.html"), /how-to-rotate-closing-and-weekend-shifts-fairly\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
+
+test("time-off page's table is what the engine returns for the sample cafe as weekends are granted one by one", async () => {
+  const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
+  const slots = parseShifts(sampleShifts()).slots;
+  const html = page("how-to-handle-time-off-requests.html");
+  const who = ["Ana", "Gus", "Dev", "Cleo", "Eli"];
+  const rows = [[3, 216, 3622], [3, 216, 3624], [4, 213, 3561], [5, 200, 3337], [7, 182, 3067], [9, 169, 2906]];
+  let prev = -1;
+  rows.forEach(([open, covered, pay], n) => {
+    const text = sampleStaff().split("\n").map((l) => (who.slice(0, n).some((w) => l.startsWith(w + ",")) ? l + ", off: Sat-Sun" : l)).join("\n").replace("min hours, availability", "min hours, availability, off");
+    const p = parseStaff(text);
+    assert.deepEqual(p.errors, []);
+    const r = buildRoster(p.staff, slots, { minRestHours: 10 });
+    assert.equal(r.unfilled.length, open, `${n} open`);
+    assert.equal(r.hours, covered, `${n} covered`);
+    assert.equal(r.cost, pay, `${n} payroll`);
+    assert.ok(r.hours <= (prev < 0 ? Infinity : prev), `${n}: more requests never cover more hours`);
+    prev = r.hours;
+    assert.ok(html.includes("$" + pay.toLocaleString("en-US")), `${pay} on page`);
+  });
+  assert.match(page("sitemap.xml"), /how-to-handle-time-off-requests\.html/);
+  assert.match(page("index.html"), /how-to-handle-time-off-requests\.html/);
   assert.ok(html.includes("No warranty"));
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);

@@ -127,6 +127,8 @@ def main(argv: list[str] | None = None) -> int:
             bad += 1
     if bad:
         print(f"{bad} dead link(s)", file=sys.stderr)
+    else:
+        print(f"ok: no dead links in {len(files)} markdown file(s)")
     return 1 if bad else 0
 
 
