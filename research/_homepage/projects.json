@@ -3122,6 +3122,11 @@
      "summary": "Adds each of the 122 research pull requests&rsquo; first-commit time (GitHub API) to the <code>swe-prlifetime</code> data. Branch lifetime is almost the same as pull-request lifetime (median 1.1 vs 0.9 min, p90 16.1 vs 16.0), because sessions commit at the end of their work; commit dates cannot see the earlier working time. Replayed from the branch start, 3 of 58 shared-index-file PRs (5.2%, 95% Wilson 1.8&ndash;14.1%) conflict, versus 2 from pull-request creation. The larger finding: <code>research/PROJECTS.md</code>, not in the earlier shared-file list, was edited by 44 of 122 PRs and conflicts in 5 of them (11%). Preliminary: 1.5 days, one repository."
     },
     {
+     "slug": "swe-siblings",
+     "title": "Do sibling research projects ask different questions?",
+     "summary": "Scores the title and Question section of each project&rsquo;s README by word overlap (Jaccard index). Pairs in the same slug family overlap about ten times more than pairs across families: mean 0.078 over 7,552 within-family pairs in 14 families of five or more projects, against 0.008 over 213,181 cross-family pairs. The closest pairs, such as <code>mimic-mmd</code> and <code>mimic-mmdmujoco</code> (0.917), are mostly deliberate one-condition follow-ups. Preliminary: word overlap is not result overlap, and shared vocabulary is partly legitimate."
+    },
+    {
      "slug": "swe-sharedfiles",
      "title": "How often do research merges collide on the shared index files?",
      "summary": "Measured from git history (101 research merges, 2026-10-14 to 10-16): 64.4% edit both <code>README.md</code> and <code>projects.json</code>, the median gap between such merges is 30.6 min, and replaying a later merge against an earlier one within 30 min gives a textual conflict in 18.6% of 59 pairs (15.3% in a shared file). Branch times are assumed, not measured; textual conflicts only; preliminary."
