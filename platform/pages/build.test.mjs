@@ -746,11 +746,11 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Seven trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the research portfolio, the comparison index,
-  // the guides index, catalog.json, the sitemap and the Atom feed — so the
-  // count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 7);
+  // Eight trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the research portfolio, updates and the
+  // changelog, the comparison index, the guides index, catalog.json, the
+  // sitemap and the Atom feed — so the count is tools plus those.
+  assert.equal(bullets.length, surfaces.length + 8);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -1701,6 +1701,8 @@ test('every page type carries the one site header, with every nav item', async (
     researchProject: ['research', 'accel-kws', 'index.html'],
     engineering: ['engineering', 'index.html'],
     writing: ['writing', 'index.html'],
+    updates: ['updates', 'index.html'],
+    changelog: ['changelog', 'index.html'],
     venture: ['ebay-fee-calculator', 'index.html'],
     notFound: ['404.html'],
   };

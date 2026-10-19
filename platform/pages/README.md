@@ -170,7 +170,7 @@ header (Updates) and the hub sitemap:
   progress (open pull requests, the open process backlog, what waits on the
   owner), the owner's mission and direction summarised from
   `prompts/goals.md`, and how the development process works.
-- **`changelog/`**: every merge to `main` in the last 30 days, by day,
+- **`changelog/`**: every merge to `main` in the last 14 days, by day,
   filed as Tools, Research, Website or Platform & process, each linked to its
   pull request and to the live page it changed. Atom feed at
   `changelog/feed.xml`.
@@ -179,7 +179,7 @@ Nothing on either page is typed by hand. The open pull requests are the one
 live section: `publish-branch.sh` writes `dev/stats.json` (with
 `github.open_prs.recent`, same-repo PRs only) after this build, and the page
 reads it from its own origin when it loads. The publish workflow checks out
-3,000 commits so the changelog reaches back 30 days; a shallower checkout
+3,000 commits so the changelog reaches back 14 days with room to spare; a shallower checkout
 says how far back it could read.
 
 ```

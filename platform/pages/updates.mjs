@@ -47,9 +47,9 @@ export const UPDATES_PATH = 'updates/';
 export const CHANGELOG_PATH = 'changelog/';
 
 /** How far back the changelog reaches, when the history goes that far. */
-export const CHANGELOG_DAYS = 30;
-/** Enough first-parent commits for CHANGELOG_DAYS at ~100 merges a day. */
-export const CHANGELOG_MERGES = 4000;
+export const CHANGELOG_DAYS = 14;
+/** Enough first-parent commits for CHANGELOG_DAYS at ~100-150 merges a day. */
+export const CHANGELOG_MERGES = 2500;
 export const FEED_ENTRIES = 60;
 
 const DAY = 86400000;
@@ -117,9 +117,26 @@ export function changelogEntries(merges, { published = new Set(), researchSlugs 
         pages.push({ href: `research/${r[1]}/`, label: r[1], kind: 'research' });
       }
     }
-    out.push({ sha: m.sha, date: m.date, pr: m.pr, title: m.title, kind: kindOf(m.files), pages: pages.slice(0, 4) });
+    const projects = [...new Set(m.files.map((f) => /^research\/([^/_.][^/]*)\//.exec(f)?.[1]).filter(Boolean))];
+    out.push({ sha: m.sha, date: m.date, pr: m.pr, title: m.title, kind: kindOf(m.files), pages: pages.slice(0, 4), projects });
   }
   return out;
+}
+
+/**
+ * Research projects changed in the window, most recently active first: how
+ * many merges touched each, and the newest one's title.
+ */
+export function activeResearch(entries) {
+  const by = new Map();
+  for (const e of entries ?? []) {
+    for (const slug of e.projects ?? []) {
+      const row = by.get(slug);
+      if (row) row.changes += 1;
+      else by.set(slug, { slug, changes: 1, latest: e });
+    }
+  }
+  return [...by.values()];
 }
 
 /** Dated entries from every research/<slug>/LOG.md, newest first. */
@@ -231,10 +248,12 @@ function historyStart(root) {
 /** Everything the two pages read, in one object (the tests build their own). */
 export function loadUpdates(root = DEFAULT_ROOT, { published = new Set(), researchSlugs = new Set(), titles = new Map(), now = Date.now() } = {}) {
   const goals = existsSync(path.join(root, 'prompts', 'goals.md')) ? readFileSync(path.join(root, 'prompts', 'goals.md'), 'utf8') : null;
+  const merges = loadMerges(root, CHANGELOG_MERGES);
   return {
     now,
-    shallow: historyStart(root),
-    entries: changelogEntries(loadMerges(root, CHANGELOG_MERGES), { published, researchSlugs, titles, now }),
+    // History may end inside the window: a shallow checkout, or the merge cap.
+    shallow: historyStart(root) || (merges?.length ?? 0) >= CHANGELOG_MERGES,
+    entries: changelogEntries(merges, { published, researchSlugs, titles, now }),
     researchLog: loadResearchLog(root),
     researchSlugs,
     launched: readJson(path.join(root, 'platform', 'pages', 'launched.json'))?.launched ?? {},
@@ -264,7 +283,7 @@ export function summarise(data) {
   const runsWeek = data.runs.filter((r) => r.date > weekAgo && r.date <= today);
   const spend = runsWeek.reduce((sum, r) => sum + (runSpend(r) ?? 0), 0);
   const costed = runsWeek.filter((r) => runSpend(r) != null).length;
-  const researchWeek = data.researchLog.filter((l) => l.date > weekAgo && l.date <= today);
+  const researchWeek = activeResearch(week);
   const oldest = entries.length ? entries[entries.length - 1].date : null;
   return {
     today,
@@ -543,7 +562,7 @@ export function renderUpdates(data, { baseUrl = '', socialCard = '' } = {}) {
 ${tile(s.merges == null ? '—' : s.merges, s.merges == null ? 'merges this week (history not available)' : 'changes merged in the last 7 days')}
 ${tile(s.launchedWeek.length, 'new free tools launched this week')}
 ${tile(s.byKind.tools ?? 0, 'product changes this week')}
-${tile(s.researchWeek, 'research log entries this week')}
+${tile(s.merges == null ? '—' : s.researchWeek, 'research projects worked on this week')}
 ${tile(s.runsWeek, 'AI agent sessions recorded this week')}
 ${tile(s.costed ? money(s.spend) : '—', s.costed ? `measured compute cost of ${s.costed} recorded sessions` : 'compute cost (not measured this week)')}
 </div>`;
@@ -556,22 +575,32 @@ ${tile(s.costed ? money(s.spend) : '—', s.costed ? `measured compute cost of $
         .join('')}</ul>${s.launchedWeek.length > 15 ? `<p class="note">And ${s.launchedWeek.length - 15} more; see the <a href="../feed.xml">new tools feed</a>.</p>` : ''}`
     : '';
 
-  // At most two entries per project, so one busy project does not fill the list.
+  const active = activeResearch(entries);
+  const projectLink = (slug) =>
+    data.researchSlugs.has(slug)
+      ? `<a href="${esc(`${toRoot}research/${slug}/`)}">${esc(slug)}</a>`
+      : `<a href="${REPO_URL}/tree/main/research/${esc(slug)}">${esc(slug)}</a>`;
+  const activeHtml = !data.entries
+    ? unavailable('Merge history')
+    : active.length
+      ? `<ul class="log">${active
+          .slice(0, 16)
+          .map((r) => `<li><strong>${projectLink(r.slug)}</strong> <span class="meta">· ${r.changes} change${r.changes === 1 ? '' : 's'} · latest ${esc(shortDate(r.latest.date))}</span><br>${inline(r.latest.title, '', { linkPrs: false })}</li>`)
+          .join('')}</ul>${active.length > 16 ? `<p class="note">And ${active.length - 16} more in the <a href="../${CHANGELOG_PATH}#research">changelog</a>.</p>` : ''}`
+      : '<p class="note">No research projects changed in this window.</p>';
+  // At most two notebook entries per project, so one busy project does not fill the list.
   const perProject = new Map();
   const researchLog = data.researchLog
     .filter((l) => {
       perProject.set(l.slug, (perProject.get(l.slug) ?? 0) + 1);
       return perProject.get(l.slug) <= 2;
     })
-    .slice(0, 12);
+    .slice(0, 8);
   const researchLogHtml = researchLog.length
-    ? `<ul class="log">${researchLog
-        .map((l) => {
-          const name = data.researchSlugs.has(l.slug) ? `<a href="${esc(`${toRoot}research/${l.slug}/`)}">${esc(l.slug)}</a>` : `<a href="${REPO_BLOB}research/${esc(l.slug)}/LOG.md">${esc(l.slug)}</a>`;
-          return `<li><span class="pill k-research">${esc(shortDate(l.date))}</span>${name}: ${inline(l.title, `research/${l.slug}/LOG.md`, { linkPrs: false })}</li>`;
-        })
+    ? `<h3>Lab notebook entries</h3><p class="muted">The newest dated entries from projects that keep a <code>LOG.md</code>.</p><ul class="log">${researchLog
+        .map((l) => `<li><span class="pill k-research">${esc(shortDate(l.date))}</span>${projectLink(l.slug)}: ${inline(l.title, `research/${l.slug}/LOG.md`, { linkPrs: false })}</li>`)
         .join('')}</ul>`
-    : '<p class="note">No research log entries yet.</p>';
+    : '';
 
   const openBacklog = data.backlog.filter((p) => p.status === 'open');
   const decisions = data.decisions;
@@ -665,7 +694,7 @@ Free tools and open research, built in public by AI coding agents and checked by
 <a href="${REPO_URL}">repository</a> on each publish.</p>
 <ul class="jump">
 <li><a href="#week">This week</a></li><li><a href="#shipped">Recently shipped</a></li><li><a href="../${CHANGELOG_PATH}">Full changelog</a></li>
-<li><a href="#research-log">Research log</a></li><li><a href="#in-progress">In progress</a></li><li><a href="#direction">Direction</a></li>
+<li><a href="#research-log">Active research</a></li><li><a href="#in-progress">In progress</a></li><li><a href="#direction">Direction</a></li>
 <li><a href="#process">How it is built</a></li><li><a href="../${CHANGELOG_PATH}feed.xml">Atom feed</a></li>
 </ul>
 
@@ -689,8 +718,10 @@ ${other.length ? `<div class="card"><h3><span class="pill k-site">Website</span>
     : unavailable('Merge history')
 }
 
-<h2 id="research-log">Research log</h2>
-<p class="muted">The newest dated entries from each project's <code>LOG.md</code>. All projects are on the <a href="../research/">research page</a>.</p>
+<h2 id="research-log">Active research</h2>
+<p class="muted">Research projects changed in the last ${CHANGELOG_DAYS} days, most recently active first. All projects, with their write-ups,
+are on the <a href="../research/">research page</a>.</p>
+${activeHtml}
 ${researchLogHtml}
 
 <h2 id="in-progress">In progress</h2>

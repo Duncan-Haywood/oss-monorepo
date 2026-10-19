@@ -115,7 +115,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # Enough history for the engineering page's "landed on main" view
-          # and the changelog's 30 days (~100 merges a day). Depth 1 would
+          # and the changelog's 14 days (~100-150 merges a day). Depth 1 would
           # still build; both pages would say how far back history goes.
           fetch-depth: 3000
 

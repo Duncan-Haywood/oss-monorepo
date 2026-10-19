@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  activeResearch,
   CHANGELOG_PATH,
   UPDATES_PATH,
   byDay,
@@ -71,6 +72,7 @@ test('changelog entries: windowed, filed, and linked to the pages they changed',
   assert.deepEqual(entries.map((e) => e.kind), ['tools', 'research', 'site', 'platform']);
   assert.deepEqual(entries[0].pages, [{ href: 'roofing-calc/', label: 'Roofing Calculator', kind: 'tool' }]);
   assert.deepEqual(entries[1].pages, [{ href: 'research/kws/', label: 'kws', kind: 'research' }]);
+  assert.deepEqual(entries[1].projects, ['kws']);
   // An unpublished venture gets no link: it would be a 404.
   const unpublished = changelogEntries(MERGES, { now: NOW });
   assert.deepEqual(unpublished[0].pages, []);
@@ -87,6 +89,7 @@ test('summary counts only what was published, and says when cost is unmeasured',
   assert.deepEqual(s.launchedWeek, [['roofing-calc', '2026-10-15']]);
   assert.equal(s.runsWeek, 2);
   assert.equal(s.costed, 1);
+  assert.equal(s.researchWeek, 1);
   assert.equal(s.spend, 1.5);
   assert.equal(summarise(data({ entries: null })).merges, null);
 });
@@ -202,4 +205,14 @@ One repository:
     { name: 'Research', where: '', text: 'open studies.' },
   ]);
   assert.deepEqual(parseMission(''), []);
+});
+
+test('active research: one row per project, newest change first, counted', () => {
+  const rows = activeResearch([
+    { date: '2026-10-19', title: 'kws: newest', projects: ['kws'] },
+    { date: '2026-10-18', title: 'two at once', projects: ['kws', 'gyro'] },
+    { date: '2026-10-17', title: 'site', projects: [] },
+  ]);
+  assert.deepEqual(rows.map((r) => [r.slug, r.changes, r.latest.title]), [['kws', 2, 'kws: newest'], ['gyro', 1, 'two at once']]);
+  assert.deepEqual(activeResearch(null), []);
 });
