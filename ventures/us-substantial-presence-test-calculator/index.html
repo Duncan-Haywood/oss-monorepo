@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>US Substantial Presence Test Calculator — 183-Day Weighted Count</title>
+  <meta name="description" content="Free calculator for the IRS substantial presence test: enter your days in the US and see the 183-day weighted count (this year + a third of last year + a sixth of the year before), how many more days you can spend before you become a US tax resident, and when you crossed the line. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Are you a US tax resident yet? The 183-day weighted count">
+  <meta property="og:description" content="Weighted days, days to spare this year, the date you crossed the line. Your dates, not tax advice. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "US Substantial Presence Test Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free calculator for the IRS substantial presence test: enter your days in the US and see the 183-day weighted count (this year + a third of last year + a sixth of the year before), how many more days you can spend before you become a US tax resident, and when you crossed the line. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the substantial presence test?", "acceptedAnswer": {"@type": "Answer", "text": "You are a US resident for tax purposes if you were in the US at least 31 days this year and the weighted total is at least 183: all your days this year, plus one third of your days last year, plus one sixth of your days the year before. Any part of a day counts as a day. On the sample dates 91 days this year, 120 last year and 120 the year before weigh 151.0, so 31 more days stay under the test."}}, {"@type": "Question", "name": "Why can 120 days a year still make me a US resident?", "acceptedAnswer": {"@type": "Answer", "text": "Because earlier years count. 120 days each year weighs 120 + 40 + 20 = 180, just under 183; 123 days in the third year reaches 183. The calculator shows the most days you can spend this year and still stay under, given the two years before."}}, {"@type": "Question", "name": "Which days do not count?", "acceptedAnswer": {"@type": "Answer", "text": "Days as an exempt individual (for example F-1 or J-1 students, teachers and trainees within the allowed years), days you could not leave because of a medical condition that began here, crew members, Canada or Mexico commuters, and transit stops under 24 hours. Mark such a stay exempt and it is left out of the count."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It counts the days you type and nothing is uploaded. It does not decide whether you are an exempt individual, whether a treaty or the closer connection exception applies, or what you owe, and it is not a substitute for IRS Publication 519 or a qualified professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">US SUBSTANTIAL PRESENCE TEST CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Are you a US tax resident yet?</h1>
+    <p>List your days in the United States. You get the <strong>183-day weighted count</strong> (this year, plus a third of last year, plus a sixth of the year before), <strong>how many more days you can spend this year</strong> and stay under the test, the date you crossed it, and what a <strong>planned trip</strong> would do.</p>
+    <p class="note"><strong>Your dates, not tax advice.</strong> Every value is editable and nothing is uploaded: dates are used in this browser tab only.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your days in the United States</h2>
+    <p class="note">One stay per line, first and last day inclusive, <code>YYYY-MM-DD to YYYY-MM-DD</code>. Any part of a day counts. Add <code>exempt</code> to a line for days that do not count (student, teacher, medical, crew, commuter, transit). Know only a year's total? Write <code>2024: 120 days</code>.</p>
+    <textarea id="stays" aria-label="Days in the United States, one stay per line" spellcheck="false" placeholder="2024-03-01 to 2024-06-28&#10;2025-03-01 to present&#10;2022-08-15 to 2024-05-10 exempt"></textarea>
+    <p>
+      <label for="asof">As-of date</label><input type="text" id="asof" value="" placeholder="YYYY-MM-DD" size="11">
+      <label for="year">Test year</label><input type="number" id="year" value="2025" min="1990" max="2100" step="1">
+      <label for="planned">Planned extra days this year</label><input type="number" id="planned" value="0" min="0" max="366" step="1">
+    </p>
+    <p>
+      <button type="button" id="go">Count days</button>
+      <button type="button" class="secondary" id="load-example">Load an example: three-month client stints</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+      <button type="button" class="secondary" id="copy">Copy summary</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="result-card" hidden aria-live="polite">
+    <h2>Result</h2>
+    <p id="summary"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Line</th><th>Value</th></tr></thead>
+      <tbody id="totals-rows"></tbody>
+    </table></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Year</th><th>Days counted</th><th>Weight</th><th>Weighted days</th><th>Exempt days left out</th></tr></thead>
+      <tbody id="year-rows"></tbody>
+    </table></div>
+    <p id="warnings" class="note"></p>
+    <p class="note">The result says whether you meet the test, not whether you owe tax: a tax treaty, the closer connection exception (Form 8840), and the first-year choice can change the answer. Check with IRS Publication 519 or a tax professional before filing.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">More: <a href="substantial-presence-test-183-days-how-to-count.html">The substantial presence test: how the 183-day count works</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the substantial presence test?</h3>
+    <p>You are a US resident for tax purposes if you were in the US at least 31 days this year and the weighted total is at least 183: all your days this year, plus one third of your days last year, plus one sixth of your days the year before. Any part of a day counts as a day. On the sample dates 91 days this year, 120 last year and 120 the year before weigh 151.0, so 31 more days stay under the test.</p>
+    <h3>Why can 120 days a year still make me a US resident?</h3>
+    <p>Because earlier years count. 120 days each year weighs 120 + 40 + 20 = 180, just under 183; 123 days in the third year reaches 183. The calculator shows the most days you can spend this year and still stay under, given the two years before.</p>
+    <h3>Which days do not count?</h3>
+    <p>Days as an exempt individual (for example F-1 or J-1 students, teachers and trainees within the allowed years), days you could not leave because of a medical condition that began here, crew members, Canada or Mexico commuters, and transit stops under 24 hours. Mark such a stay exempt and it is left out of the count.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It counts the days you type and nothing is uploaded. It does not decide whether you are an exempt individual, whether a treaty or the closer connection exception applies, or what you owe, and it is not a substitute for IRS Publication 519 or a qualified professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal, immigration or financial advice, it does not decide whether you are a US resident for tax purposes, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the accuracy of the dates you enter. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by the IRS or any government agency or tax preparer; names are used only to say what the tool is about.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. The dates you enter are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../state-residency-day-counter/">State Residency Day Counter</a>, the <a href="../feie-physical-presence-calculator/">FEIE physical presence calculator</a> (the 330-day test for Americans abroad) and the <a href="../uk-statutory-residence-test-checker/">UK statutory residence test checker</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, summarize, fromDay, INPUT_NOTES, SAMPLE, SAMPLE_OPTIONS } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const f1 = (n) => (Math.round(n * 10) / 10).toFixed(1);
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+    $("#asof").value = new Date().toISOString().slice(0, 10);
+    $("#year").value = new Date().getFullYear();
+
+    let lastText = "";
+    function render() {
+      const status = $("#status");
+      let r;
+      try {
+        r = analyze({ stays: $("#stays").value, asOf: $("#asof").value.trim(), year: $("#year").value, planned: $("#planned").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.innerHTML = r.errors.length ? `<span class="error">${r.errors.map(escapeHtml).join("<br>")}</span>` : "";
+      const s = summarize(r);
+      lastText = s.text;
+      $("#summary").innerHTML = s.text.split("\n").map((l, i) => `<span class="${i === 0 ? (s.status === "meets" ? "error" : "gain") : ""}">${escapeHtml(l)}</span>`).join("<br>");
+      const rows = [
+        [`Days in ${r.year} (needs ${31}+)`, `${r.cur.days}${r.meetsCurrent ? "" : " (under 31)"}`],
+        ["Weighted total (needs 183)", f1(r.weighted)],
+        ["Test met", r.resident ? "yes" : "no"],
+        [`Most days you can spend in ${r.year} and stay under`, String(r.safeMax)],
+        [r.resident ? "Days past that" : "Days left before the test is met", String(r.resident ? r.over : r.roomLeft)],
+        ["Date the test was first met", r.crossing ? fromDay(r.crossing) : "not met on these dates"],
+        [`Most days next year if ${r.year} stays as entered`, String(r.nextRoom)],
+      ];
+      $("#totals-rows").innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${escapeHtml(v)}</td></tr>`).join("");
+      const yr = [[r.year, r.cur, 1, r.cur.days], [r.year - 1, r.p1, "1/3", r.p1.days / 3], [r.year - 2, r.p2, "1/6", r.p2.days / 6]];
+      $("#year-rows").innerHTML = yr.map(([y, d, w, wd]) => `<tr><td>${y}</td><td>${d.days}${d.source === "total" ? " (typed total)" : ""}</td><td>${w}</td><td>${f1(wd)}</td><td>${d.exempt}</td></tr>`).join("");
+      $("#warnings").innerHTML = r.warnings.map(escapeHtml).join("<br>");
+      $("#result-card").hidden = false;
+      record("count_run");
+    }
+
+    $("#go").addEventListener("click", render);
+    $("#load-example").addEventListener("click", () => {
+      $("#stays").value = SAMPLE; $("#asof").value = SAMPLE_OPTIONS.asOf; $("#year").value = SAMPLE_OPTIONS.year; $("#planned").value = SAMPLE_OPTIONS.planned;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
+    $("#copy").addEventListener("click", async () => {
+      if (!lastText) render();
+      try { await navigator.clipboard.writeText(lastText); $("#status").textContent = "Summary copied."; } catch { $("#status").textContent = "Could not copy; select the summary text instead."; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

@@ -2011,6 +2011,9 @@ const CATEGORY_RULES = [
       // `feie-physical-presence-calculator` joined 2026-10-03 on its first commit: the federal 330-day
       // count a US expat keeps, the same tax-obligation day-counting axis as `state-residency-day-counter`.
       || slug === 'feie-physical-presence-calculator'
+      // `us-substantial-presence-test-calculator` joined 2026-10-19 on its first commit: the inbound US
+      // residency day count, the counterpart of the 330-day FEIE count above.
+      || slug === 'us-substantial-presence-test-calculator'
       // `cheap-meal-plan-optimizer` joined 2026-10-01 on its first commit: a household's food budget as a
       // minimum-cost linear program -- a personal money decision rather than an operator pricing food, so it
       // sits here and not under `food-service`, which is for people who sell food.

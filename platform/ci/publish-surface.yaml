@@ -1532,6 +1532,9 @@ workflows:
 - workflow: used-car-lot-aging-planner-ci.yml
   classification: none
   publishes: []
+- workflow: us-substantial-presence-test-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: vector-db-cost-calculator-ci.yml
   classification: none
   publishes: []

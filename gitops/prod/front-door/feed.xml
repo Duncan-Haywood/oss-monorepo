@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1291 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1292 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-19T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free job bid calculator for contractors and service trades: labor with payroll burden, materials with waste, subs, contingency and overhead turned into a price at the profit margin you choose. Shows your walk-away price and how far labor can overrun. Private, no signup.</summary>
+  </entry>
+  <entry>
+    <title>US Substantial Presence Test Calculator — 183-Day Weighted Count</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/us-substantial-presence-test-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/us-substantial-presence-test-calculator</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the IRS substantial presence test: enter your days in the US and see the 183-day weighted count (this year + a third of last year + a sixth of the year before), how many more days you can spend before you become a US tax resident, and when you crossed the line. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Demand Forecast Back-Tester — safety stock and reorder points from your sales</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">Publish product updates on a public changelog page with Atom and JSON feeds and an embeddable What&#39;s new bell with an unread badge. Scheduled posts, drafts, Slack webhook. Open source, MIT, one-click self-deploy, no monthly fee.</summary>
-  </entry>
-  <entry>
-    <title>Churn Radar — Free Self-Hosted Churn Prediction for SaaS</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/churn-radar/"/>
-    <id>tag:marisstella.dev,2026:tool/churn-radar</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">A free, open-source alternative to ChurnZero and Gainsight for small SaaS: learn from your own usage events which accounts are about to cancel, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.</summary>
   </entry>
 </feed>
