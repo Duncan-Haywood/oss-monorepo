@@ -10,6 +10,8 @@ After using this, you know whether your own dates make you a US tax resident und
 
 The IRS worksheet in Pub. 519 and generic "183 day" web calculators take three yearly totals. Tax-software questionnaires need an account. This takes dated stays, leaves out exempt days (students, teachers, medical, crew, commuter, transit), accepts a year's total where you have no dates, and answers the planning question: **the most days you can spend this year**, and what a planned trip does. It runs in your browser and uploads nothing.
 
+**Plan ahead:** enter a planned trip start date and it gives the last day you can stay and remain under the test; a table shows the most days each of the next three years allows, and the most you can repeat every year indefinitely (121).
+
 ## Your dates, not tax advice
 
 Every value is something you type. Any part of a day in the US counts as a day. The calculator does not decide whether you are an exempt individual, whether a tax treaty or the closer connection exception (Form 8840) applies, whether the first-year choice is open to you, or what you owe. Check IRS Publication 519 or a tax professional. Not affiliated with the IRS or any tax preparer.
