@@ -11,7 +11,7 @@ you count that.
 
 **Live tool:** https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/
 
-**Discogs** (records and music media, added 2026-10-19, off by default; its 8% commission and 2.7% + $0.25 processing are from a seller guide and trade press, not Discogs' own fee page, and are flagged as such on the page) joins **TCGplayer** (trading cards, added 2026-10-18, off by default; it hands the
+**Discogs** (records and music media, added 2026-10-19, off by default; its 9% commission on item plus shipping is from Discogs' own fee page and hands the item to [`../discogs-fee-calculator`](../discogs-fee-calculator/); the 2.9% + $0.30 processing default is not a Discogs-published rate and is flagged as such on the page) joins **TCGplayer** (trading cards, added 2026-10-18, off by default; it hands the
 item to [`../tcgplayer-fee-calculator`](../tcgplayer-fee-calculator/) for order
 size and the Pro schedule, and `channel-parity.test.mjs` checks its profit
 against that calculator's one-card order) joins **Walmart Marketplace** (seller-fulfilled, added 2026-10-17, off by default;

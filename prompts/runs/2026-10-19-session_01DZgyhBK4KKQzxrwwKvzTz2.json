@@ -42,6 +42,10 @@
     {
       "file": "research/_homepage/projects.json",
       "issue": "Re-serialising with json.dumps reformats unrelated themes (the file has hand-placed ',{' separators); a new theme has to be spliced in as text to keep the diff small."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "A parallel session added tracks 14 and 15 while this run was adding 'track 14'; the track number is a shared counter with no claim step, so the PR conflicted and the new track was renumbered to 16."
     }
   ],
   "deviations": [
@@ -55,7 +59,7 @@
     }
   ],
   "goal": null,
-  "notes": "New research track 14 (energy supply and dense storage) at the owner's request, plus milestone 1 research/energy-density: first-principles theoretical ceilings (Wh/kg) reproducing 5 published values within 0.3%, and the per-atom identity Wh/kg = 26,801 x eV/atom / g/mol.",
+  "notes": "New research track 16 (energy supply and dense storage) at the owner's request, plus milestone 1 research/energy-density: first-principles theoretical ceilings (Wh/kg) reproducing 5 published values within 0.3%, and the per-atom identity Wh/kg = 26,801 x eV/atom / g/mol.",
   "corrections": [],
   "redteam": null,
   "usage": {

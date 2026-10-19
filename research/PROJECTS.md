@@ -1,7 +1,7 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16, track 13 on 2026-10-19 and track 14 on 2026-10-19. Runs
-started from `prompt.md` take their new work from here. There are fourteen tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19 and track 16 on 2026-10-19. Runs
+started from `prompt.md` take their new work from here. There are sixteen tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-14 and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-16 and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -111,7 +111,9 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 11. Adversarial human imitation | `mimic` |
 | 12. Open-source residential construction | `house` |
 | 13. Autonomous multi-angle capture | `capture` |
-| 14. Energy supply and dense energy storage | `energy` |
+| 14. Agentic co-design of low-cost robots | `codesign` |
+| 15. Sensor fusion, imaging and 3D from real captures | `sensing` |
+| 16. Energy supply and dense energy storage | `energy` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -955,7 +957,146 @@ ArduPilot (track 9).
 - *Lab tags.* `capture-follow` may build on RECUV and track 9's `osrobot-uav`; otherwise no group
   in `prompt.md` covers this, and the README says so.
 
-## 14. Energy supply and dense energy storage (`energy`)
+## 14. Agentic co-design of low-cost robots with simulated RL (`codesign`)
+
+Added on 2026-10-19 at the owner's request. The owner started from low-cost military robotics
+and chose civilian domains instead. Open-sourcing cheap military designs mostly helps people
+who could not build them otherwise, and military robot designs and their technical data can
+be export-controlled (ITAR, the EAR's 600 series). Search and rescue, manufacturing,
+agriculture, logistics and aerospace keep the same research question without those problems.
+
+**Goal.** A loop that designs a cheap robot and its controller together. An LLM agent proposes
+a design written as code (geometry, actuators, sensors, bill of materials). Reinforcement
+learning trains a policy for that body in simulation. The agent then reads what happened, not
+just the score: how each episode failed, contact and torque logs, energy, cost and print time.
+From that it proposes the next design. The question is whether this richer feedback finds
+better designs per evaluation than a proposer that sees only the score. The baselines are
+random search, CMA-ES and Bayesian optimisation at the same budget. A second question is
+whether the designs survive the move to a real 3D print. Tracks 5 and 9 already score
+proposers on fixed-controller tasks (`simdesign-llm`, `osrobot-morph`, `osrobot-bodysearch`).
+This track adds a learned policy per design and diagnostic feedback to the agent, and moves
+across domains.
+
+**Prior work.** Sims (1994), evolving virtual creatures, SIGGRAPH. Ha (2019) and Zhao et al.
+(2020), RoboGrammar (track 9). Gupta, Savarese, Ganguli and Fei-Fei (2021), learning and
+evolution of bodies, *Nature Communications*. Yuan et al. (2022), Transform2Act, ICLR. Lehman
+et al. (2022), evolution through large models (LLM-proposed Sodarace robots). Ma et al.
+(2024), Eureka, LLM-written reward functions, ICLR. Schulman et al. (2017), PPO. Tobin et al.
+(2017), domain randomisation, IROS. Rudin et al. (2022), massively parallel legged RL, CoRL.
+Ha, Xu and Song (2020), Fit2Form, gripper form design, CoRL. Calli et al. (2015), the YCB
+object set. Open tools: MuJoCo, Gymnasium, Stable-Baselines3 or CleanRL, CadQuery and
+build123d.
+
+**Milestones.**
+1. `codesign-gripper` (manufacturing): parametric 3D-printable fingers in CadQuery. A grasp
+   policy or controller is trained per design in MuJoCo on simple shapes and YCB-like objects.
+   Score grasp success, slip, print time and plastic cost. Compare the agent against random
+   search, CMA-ES and Bayesian optimisation at equal budget. Export the winner's STLs. This
+   builds on `robofab-grasp` and `simdesign-llm`, and the printable gripper is a useful
+   by-product.
+2. `codesign-diagnose`: the core ablation. Run the same agent with only the score, with the
+   score plus a failure summary, and with full rollout logs. Does diagnostic feedback earn its
+   tokens? Report evaluations to reach a target and the final quality, over several seeds.
+3. `codesign-sar` (search and rescue): a legged or wheel-legged robot for rubble and stairs,
+   on terrain from `terrain-twin`, carrying a sensor or radio-relay payload under a parts-cost
+   cap. Score distance covered, falls, recovery and energy per metre. Keep the RL budget small
+   enough to run on a CPU, and report the budget.
+4. `codesign-agri` (agriculture): an end effector or row-crop rover for one job, such as
+   weeding or picking soft fruit without bruising it. This builds on `osrobot-field`.
+5. `codesign-logistics`: a low-cost gripper or mobile base for mixed totes and boxes, compared
+   with a general-purpose arm at the same cost, as in `osrobot-specialise`.
+6. `codesign-aero` (aerospace): an airframe and a learned attitude controller sized together
+   for inspection or observation. This builds on `osrobot-uav` and `uav-energy-twin`, with
+   PX4 or ArduPilot software-in-the-loop if it installs.
+7. `codesign-transfer`: which designs are robust? Widen the domain randomisation (friction,
+   mass, motor strength, print tolerance) and measure how the ranking of designs changes. A
+   design that wins only in a narrow simulation is a weak candidate to print.
+8. Owner steps: print and test the top designs from milestones 1 and 7, with a priced bill of
+   materials, and record real against simulated success.
+
+**Guardrails.**
+- *Civilian only.* Build no weapons, no payloads meant to harm, no targeting, and no
+  anti-jamming or counter-detection features. Do not tune designs to military missions. The
+  methods are dual-use by nature, and that is acceptable. Military applications are not
+  developed or published here.
+- *Agent results are labelled.* Follow "LLMs in the loop": commit proposals as files, script
+  the scoring, and give the attempt count. Use three or more seeds per RL comparison, and
+  report the training budget.
+- *Simulation is not a safety case*, as in track 9. A search-and-rescue robot is a tool for
+  trained responders, and any field use is an owner step.
+- *Lab tags.* Milestones 3 and 4 may build on ARPG, milestone 6 on RECUV, and milestones 1
+  and 5 on HIRO. Otherwise say none fits.
+
+## 15. Sensor fusion, computational imaging and 3D models from real captures (`sensing`)
+
+Added on 2026-10-19 at the owner's request.
+
+**Goal.** Get more from cheap sensors. There are three parts. *Fusion:* when do several cheap
+sensors (MEMS IMUs, phone cameras, GNSS, wheel odometry, small thermal cameras), fused well,
+match one expensive sensor at the same cost, and where do correlated errors and calibration
+drift stop that? *Computational imaging:* burst denoising, HDR, deblurring and super-resolution
+that let a small sensor stand in for a large one. *Real to 3D:* turn photos, phone video or
+depth scans of real objects and places into accurate 3D models. That means meshes, Gaussian
+splats and editable parametric CAD, with measured accuracy against capture effort (number of
+views, baseline, lighting, sensor). Twin projects already cover parts of this (`fusion-twin`,
+`stereo-twin`, `lens-twin`, `gnss-twin`, `odometry-twin`), and track 13 needs it for
+multi-camera capture and novel views.
+
+**Prior work.** Kalman (1960). Julier and Uhlmann (1997), the unscented filter. Mourikis and
+Roumeliotis (2007), MSCKF, ICRA. Forster et al. (2017), IMU preintegration, *IEEE T-RO*. Qin,
+Li and Shen (2018), VINS-Mono, *IEEE T-RO*. Furgale, Rehder and Siegwart (2013), Kalibr, IROS.
+Zhang (2000), camera calibration, *IEEE TPAMI*. Hasinoff et al. (2016), HDR+ burst
+photography, *ACM TOG*. Gallego et al. (2022), event cameras, *IEEE TPAMI*. Schönberger and
+Frahm (2016), structure from motion revisited (COLMAP), CVPR. Mildenhall et al. (2020), NeRF,
+and Kerbl et al. (2023), 3D Gaussian splatting (track 13). Burri et al. (2016), the EuRoC MAV
+dataset, *IJRR*. Geiger et al. (2012), KITTI, CVPR. Open tools: OpenCV, GTSAM, COLMAP, Open3D,
+gsplat, rawpy (LibRaw) and OpenVINS.
+
+**Milestones.**
+1. `sensing-imuarray`: N cheap MEMS IMUs against one better unit at equal cost. Use Allan
+   variance models for each grade and errors correlated between units (as `fusion-twin`
+   found). Where is the break-even, and what does a shared mount or temperature drift do to
+   it?
+2. `sensing-vio`: visual-inertial odometry on a public dataset (EuRoC, if its licence
+   allows). Degrade the camera (resolution, frame rate, rolling shutter) and the IMU (noise,
+   bias) to draw a curve of drift against sensor cost. Which upgrade buys the most accuracy
+   per dollar?
+3. `sensing-timesync`: camera-to-IMU time offset and extrinsic error. How many milliseconds of
+   offset doubles the drift, and can online calibration recover it? This builds on
+   `lens-twin`.
+4. `sensing-burst`: burst denoising and HDR merge from a small sensor against one frame from a
+   larger one, on openly licensed raw images or synthetic ones with a known noise model. This
+   feeds track 13's sensor-size limit.
+5. `sensing-recon`: real to 3D. Reconstruct objects with structure from motion and multi-view
+   stereo, or with Gaussian splats, from openly licensed image sets. Score accuracy (Chamfer
+   distance against a reference scan) against the number of views, baseline and image
+   quality. How few photos make a usable model?
+6. `sensing-scan2cad`: from a scanned mesh to editable, printable CAD. Fit planes, cylinders
+   and a parametric model (CadQuery) to a reconstruction and measure dimensional error. Can a
+   phone scan of a broken part yield a replacement part to print? This feeds tracks 1 and 5.
+7. `sensing-thermalfuse`: RGB plus a low-resolution thermal camera for finding people in
+   darkness or smoke, for search and rescue (track 14's `codesign-sar`). Compare against each
+   sensor alone on open data, and measure how alignment error hurts.
+8. Owner steps: capture real scans and sensor logs on owned hardware, and measure printed
+   replacement parts against the originals.
+
+**Guardrails.**
+- *Real data, licensed.* Use datasets and image sets whose licence allows research use and
+  redistribution of results, and cite them. Never scrape personal photos.
+- *People are not targets.* Detecting people is for rescue and safety. Build no tracking or
+  identification of specific people and no covert surveillance, and blur bystanders as in
+  track 13.
+- *GPU work is scaled down.* Gaussian splatting and NeRF training usually need a GPU. Run a
+  reduced CPU version (few views, low resolution), report it as such, and list the full run
+  as an owner step.
+- *Code licences.* Some reference implementations are non-commercial (the original 3D
+  Gaussian splatting code) or GPL (ORB-SLAM3). Prefer permissive alternatives such as gsplat
+  (Apache-2.0), and never copy restricted code into this MIT tree.
+- *Simulated is not real.* Keep synthetic-noise results apart from results on real captures.
+- *Lab tags.* Milestones 2, 3 and 7 may build on ARPG (perception and mapping). Otherwise say
+  none fits.
+
+## 16. Energy supply and dense energy storage (`energy`)
 
 Added on 2026-10-19 at the owner's request, as a long-term track: "one of the more important
 things for humanity to progress on."
@@ -1016,7 +1157,7 @@ tools: PyBaMM, PyPSA, HiGHS, CoolProp, Cantera, pymatgen.
 
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; track 14's are listed in it and were not all re-checked on 2026-10-19 (`energy-density`'s README marks which it checked). Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked). Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
@@ -1195,3 +1336,9 @@ citing one, as `prompt.md` requires.
 **Track 13.**
 - FAA, PackSafe: Airline Passengers and Batteries (checked 2026-10-19): under 100 Wh no FAA limit for personal use; 101–160 Wh needs airline approval, at most two spares; over 160 Wh forbidden; spares carry-on only. <https://www.faa.gov/hazmat/packsafe/airline-passengers-and-batteries>
 - Not yet checked; check before citing: Kanade, Rander and Narayanan (1997), Virtualized Reality, *IEEE MultiMedia* 4(1); Joo et al. (2015), Panoptic Studio, ICCV; Snavely, Seitz and Szeliski (2006), Photo Tourism, *ACM TOG* 25(3); Mildenhall et al. (2020), NeRF, ECCV; Kerbl et al. (2023), 3D Gaussian Splatting, *ACM TOG* 42(4); Su and Grauman (2017), Making 360° video watchable in 2D, CVPR; Bonatti et al. (2020), Autonomous aerial cinematography in unstructured environments with learned artistic decision-making, *J. Field Robotics* 37(4); COLMAP <https://colmap.github.io>; PySceneDetect <https://www.scenedetect.com>.
+
+**Track 14.**
+- Not yet checked; check before citing: Sims (1994), Evolving virtual creatures, SIGGRAPH '94; Gupta, Savarese, Ganguli and Fei-Fei (2021), Embodied intelligence via learning and evolution, *Nature Communications* 12; Yuan et al. (2022), Transform2Act, ICLR; Lehman et al. (2022), Evolution through large models, arXiv:2206.08896; Ma et al. (2024), Eureka: human-level reward design via coding large language models, ICLR; Schulman et al. (2017), Proximal policy optimization algorithms, arXiv:1707.06347; Tobin et al. (2017), Domain randomization for transferring deep neural networks from simulation to the real world, IROS; Rudin et al. (2022), Learning to walk in minutes using massively parallel deep reinforcement learning, CoRL; Ha, Xu and Song (2020), Fit2Form, CoRL; Calli et al. (2015), the YCB object and model set, *IEEE Robotics & Automation Magazine* 22(3); 22 CFR parts 120–130 (ITAR) and 15 CFR parts 730–774 (EAR).
+
+**Track 15.**
+- Not yet checked; check before citing: Kalman (1960), A new approach to linear filtering and prediction problems, *J. Basic Eng.* 82(1); Julier and Uhlmann (1997), A new extension of the Kalman filter to nonlinear systems, Proc. SPIE 3068; Mourikis and Roumeliotis (2007), A multi-state constraint Kalman filter for vision-aided inertial navigation, ICRA; Forster et al. (2017), On-manifold preintegration for real-time visual-inertial odometry, *IEEE T-RO* 33(1); Qin, Li and Shen (2018), VINS-Mono, *IEEE T-RO* 34(4); Furgale, Rehder and Siegwart (2013), Unified temporal and spatial calibration for multi-sensor systems, IROS; Zhang (2000), A flexible new technique for camera calibration, *IEEE TPAMI* 22(11); Hasinoff et al. (2016), Burst photography for high dynamic range and low-light imaging on mobile cameras, *ACM TOG* 35(6); Gallego et al. (2022), Event-based vision: a survey, *IEEE TPAMI* 44(1); Schönberger and Frahm (2016), Structure-from-motion revisited, CVPR; Burri et al. (2016), The EuRoC micro aerial vehicle datasets, *IJRR* 35(10); Geiger, Lenz and Urtasun (2012), Are we ready for autonomous driving? The KITTI vision benchmark suite, CVPR; gsplat <https://github.com/nerfstudio-project/gsplat>; Open3D <https://www.open3d.org>; GTSAM <https://gtsam.org>; OpenVINS <https://github.com/rpng/open_vins>.

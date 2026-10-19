@@ -1,6 +1,6 @@
 # energy-density: how much energy can each storage technology hold per kilogram, at the most? Theoretical ceilings for batteries, hydrogen, flywheels, pumped hydro and thermal storage, from first principles
 
-First project of track 14, energy supply and dense energy storage (`PROJECTS.md`, milestone 1). Before anyone designs a denser battery, a lighter tank or a cheaper heat store, it helps to know the limit no engineering can beat: the energy that the active material itself can release. This project computes those ceilings in open code from thermodynamics and mechanics (cell voltage and reactant mass for batteries, Gibbs free energy for hydrogen, the strength-to-density ratio for flywheels and pressure vessels, specific heat and the Carnot limit for heat, and *gh* for pumped hydro), and reproduces published theoretical values as a check. Every number is a **ceiling for the active material only**. Real cells, tanks and stores weigh more and deliver less. Produced with AI assistance (Claude).
+First project of track 16, energy supply and dense energy storage (`PROJECTS.md`, milestone 1). Before anyone designs a denser battery, a lighter tank or a cheaper heat store, it helps to know the limit no engineering can beat: the energy that the active material itself can release. This project computes those ceilings in open code from thermodynamics and mechanics (cell voltage and reactant mass for batteries, Gibbs free energy for hydrogen, the strength-to-density ratio for flywheels and pressure vessels, specific heat and the Carnot limit for heat, and *gh* for pumped hydro), and reproduces published theoretical values as a check. Every number is a **ceiling for the active material only**. Real cells, tanks and stores weigh more and deliver less. Produced with AI assistance (Claude).
 
 **Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-density/
 
@@ -61,7 +61,7 @@ Standard library only.
 ## Next steps
 1. `energy-practical`: the gap between ceiling and product. Published cell-, pack- and system-level figures for each technology, each sourced and dated, and the ratio to these ceilings.
 2. Volumetric ceilings (Wh/L) for every row, from crystal and liquid densities.
-3. Feed the ceilings into a cost-per-kWh-delivered model (track 14, later milestones).
+3. Feed the ceilings into a cost-per-kWh-delivered model (track 16, later milestones).
 
 ## References
 - Bruce, P. G., Freunberger, S. A., Hardwick, L. J. and Tarascon, J.-M. (2012). Li–O<sub>2</sub> and Li–S batteries with high energy storage. *Nature Materials* 11, 19–29. doi:10.1038/nmat3191; erratum doi:10.1038/nmat3237 (corrected Table 1 voltages).

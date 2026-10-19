@@ -1,0 +1,36 @@
+name: discogs-fee-calculator
+description: A private browser calculator for Discogs sellers that prices one sale against Discogs' published 9% selling fee on item price plus buyer-paid shipping ($0.10 minimum, $150 maximum per order, effective May 22, 2023) and an editable payment processing fee (defaulting to 2.9% + $0.30, which Discogs does not publish as one rate), then reports what reaches the seller after postage, the cost of the record and packaging, the item price that hits a target profit even across the $150 cap, and a fee ladder from a $3 single to a $2,500 grail showing where the flat processing amount stops mattering.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Discogs sellers will use a calculator that puts buyer-paid shipping inside the 9% fee base and shows the per-order processing amount, because the "Discogs takes 9%" headline hides both and a seller pricing a crate by taking off ten percent misprices the cheap singles and the grails.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Record sellers will open the where-to-sell comparison from this page, and come back here from it, when the same record could go to eBay or Reverb, because the handoff carries the price, shipping and cost with no retyping.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/vinyl, r/VinylCollectors, r/discogs and the search phrases "discogs fee calculator", "discogs seller fees" and "how much does discogs take" are a reachable, free channel, measurable once the tool is live in the catalogue sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified Discogs sellers run a real sale twice within 90 days of the tool being discoverable.
+  - Discogs changes the published selling fee again, or a seller's payout statement shows the processing default is far off, and the constants no longer match a real payout.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/discogs-fee-calculator/
+  analytics: null
