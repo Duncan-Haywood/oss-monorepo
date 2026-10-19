@@ -2,6 +2,8 @@
 
 Follow-up to `osrobot-assist` (track 9, open-source purpose-built robots), taking the first "Next steps" item that stayed open there after `osrobot-lipsweep`: **anticipation by the user**. In the direction of the CAIRO Lab interest in human-robot collaboration; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Pure Python standard library. **Every constant is an assumed round number (ASSUMED in `model.py`), including the lean speed, which is swept rather than measured from any person. No robot was built and nobody was tested.** All numbers are from `experiments/results.txt`. Simulation only; a stylised, preliminary study.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-lean/
+
 ![Share of feeds with peak lip force at most 2 N against user lean speed](experiments/lean_safe.svg)
 
 - **In this model a user who leans fast enough replaces the camera.** At 30 mm sway and 0.20 m/s, the blind arm's safe share (fed with peak lip force at most the assumed 2 N) rises from 0.21 with a passive user to 0.28, 0.33, 0.69 and 1.00 at lean speeds of 10, 20, 50 and 100 mm/s; at 100 mm/s it never touches the lips. The camera arm goes from 0.71 to 0.75, 0.77, 0.86 and 0.97.
