@@ -60,12 +60,24 @@ test('gemini: generateContent with the key in a header, not the URL', async () =
   assert.equal(f.calls[0].body.systemInstruction.parts[0].text, 'S');
 });
 
+test('gemini: a reply without usageMetadata reports zero tokens', async () => {
+  const f = fakeFetch({ candidates: [{ content: { parts: [{ text: 'a' }] } }] });
+  const r = await complete({ provider: 'gemini', apiKey: 'k', model: 'g1' }, { prompt: 'P', fetch: f });
+  assert.deepEqual([r.usage.input, r.usage.output], [0, 0]);
+});
+
 test('config: missing key, model or base URL fails before any request', () => {
   assert.throws(() => normalise({ provider: 'anthropic' }), /API key/);
   assert.throws(() => normalise({ provider: 'openai', apiKey: 'k' }), /model name/);
   assert.throws(() => normalise({ provider: 'openai-compatible', model: 'm' }), /baseUrl/);
   assert.throws(() => normalise({ provider: 'nope' }), /unknown provider/);
   assert.equal(isConfigured(null), false);
+});
+
+test('config: null or a non-object is a ByokError, not a TypeError', () => {
+  for (const bad of [null, undefined, 'anthropic']) {
+    assert.throws(() => normalise(bad), err => err instanceof ByokError && /no model provider/.test(err.message));
+  }
 });
 
 test('configFromEnv: picks the provider from whichever key is set; nothing set means null', () => {
