@@ -22,6 +22,7 @@ and whether your data can answer the question at all**.
 - Refuses: fewer than 12 rows, fewer than 3 price levels, or a price that barely moved (sd of ln price under 3%).
 - Flags: a non-negative slope (price raised in busy periods), price and time moving in a line, zero-unit rows.
 - Back-test: fit on the first 75%, predict the last 25%, compare with the same model without price.
+- Return visits: the last elasticity and row count are kept in this browser only (localStorage, never sent) so a re-run after a price change shows the shift.
 
 ## Limits
 
