@@ -42,6 +42,13 @@ hypotheses:
     checked: null
     evidence: customer-contact
 
+  - claim: >-
+      Contractors who close out a few jobs will keep using the tool because it
+      turns their own overruns into a contingency figure no generic calculator has.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
 economics:
   currency: USD
   mrr: null
