@@ -426,6 +426,14 @@ class EgressGatewayTests(unittest.TestCase):
         self.assertEqual(payload["unmeasured"], 0)
 
 
+class ContentTypeTests(unittest.TestCase):
+    def test_run_probe_reports_the_content_type_served(self):
+        url = "https://example.test/"
+        probe = ps.Probe(url=url, expect="serves", why="test")
+        opener = StubOpener({url: served(ctype="text/html")})
+        self.assertEqual(ps.run_probe(probe, opener=opener).content_type, "text/html")
+
+
 class SampleTests(unittest.TestCase):
     def test_sample_is_deterministic(self):
         urls = [f"u{i}" for i in range(100)]
@@ -445,6 +453,14 @@ class SampleTests(unittest.TestCase):
         self.assertEqual(ps.DEFAULT_SAMPLE, 24)
         urls = [f"u{i}" for i in range(100)]
         self.assertEqual(len(ps.sitemap_probes(urls=urls)), 24)
+
+    def test_sample_at_exactly_the_limit_returns_everything(self):
+        urls = [f"u{i}" for i in range(5)]
+        self.assertEqual(ps.sample(urls, 5), urls)
+
+    def test_sample_steps_forward_through_the_list(self):
+        urls = [f"u{i}" for i in range(100)]
+        self.assertEqual(ps.sample(urls, 4), ["u0", "u25", "u50", "u75"])
 
     def test_sample_of_zero_returns_everything(self):
         """`--all` passes 0 through `limit or len(urls)`; guard the raw call."""
