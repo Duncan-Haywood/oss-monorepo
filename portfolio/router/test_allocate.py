@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from allocate import (
+    recent_commits,
     Venture,
     count_ledger_entries,
     count_portfolio_mentions,
@@ -573,3 +574,9 @@ class FamilyTests(unittest.TestCase):
         self.assertIn("5 '*-bid-calculator'", claimed[0]["task"])
         clones[2].consolidated_into = "host"
         self.assertFalse(any(r["task"].startswith("Consolidate") for r in work_queue(clones)))
+
+
+class RecentCommitsTest(unittest.TestCase):
+    def test_returns_int_counts_by_slug(self):
+        counts = recent_commits(days=3650)
+        self.assertTrue(all(isinstance(k, str) and isinstance(n, int) and n > 0 for k, n in counts.items()))
