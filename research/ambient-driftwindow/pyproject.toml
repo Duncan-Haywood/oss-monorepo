@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-driftwindow"
+version = "0.1.0"
+description = "Fano factor of an always-on trigger's false-wake counts against window length when the noise level drifts persistently (log-scale AR(1))"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
