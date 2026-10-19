@@ -14,7 +14,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
-import { analyze, planSale, donationPlan, parsePrices, harvestPlan, waitPlan, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
+import { analyze, planSale, donationPlan, parsePrices, parse1099da, reconcile1099da, harvestPlan, waitPlan, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
@@ -44,6 +44,7 @@ Options:
   --prices <list>     prices you type, e.g. "BTC=65000,ETH=3200": adds tax-loss harvesting and wait-for-long-term (90 days) views of the lots you still hold
   --form8949 <file>   also write Form 8949 style rows to this file
   --income-csv <file> also write the year's staking/mining/airdrop income by coin to this file
+  --reconcile <file>  compare each coin with the proceeds and basis your broker reported on Form 1099-DA (CSV: asset,proceeds,basis)
   --json              print the full analysis as JSON
   --example           use the built-in sample instead of a file
   -h, --help          this message
@@ -107,6 +108,7 @@ export function parseArgs(argv) {
       if (!Object.keys(prices).length) throw new Error("--prices needs at least one coin, e.g. BTC=65000");
       opts.prices = prices;
     }
+    else if (arg === "--reconcile") opts.reconcile = need(++i, arg);
     else if (arg === "--form8949") opts.form8949 = need(++i, arg);
     else if (arg === "--income-csv") opts.incomeCsv = need(++i, arg);
     else if (arg.startsWith("-") && arg !== "-") throw new Error(`unknown option: ${arg}`);
@@ -194,6 +196,14 @@ export function renderDonation(d) {
   return out.join("\n") + "\n";
 }
 
+export function renderReconcile(rec) {
+  const d = (v) => (v === null ? "-" : usd(v));
+  const out = ["", "Form 1099-DA check (your lot matching vs the broker's figures)"];
+  for (const i of rec.items) out.push(`  ${i.asset.padEnd(8)} proceeds ${d(i.myProceeds).padStart(12)} vs ${d(i.brokerProceeds).padStart(12)}  basis ${d(i.myBasis).padStart(12)} vs ${d(i.brokerBasis).padStart(12)}  ${i.status}`);
+  out.push(rec.mismatches ? `  ${rec.mismatches} coin(s) differ. A basis gap usually means the broker did not see purchases made elsewhere; keep your records and ask a tax professional how to report it.` : "  Everything matches.");
+  return out.join("\n") + "\n";
+}
+
 function totalsLine(result) {
   const f = form8949Totals(result.rows);
   const bt = result.rows.some((r) => r.reported) ? "\n" + form8949BoxTotals(result.rows).map((b) => `Box ${b.box}: ${b.rows} row(s), proceeds ${usd(b.proceeds)}, basis ${usd(b.basis)}, gain ${usd(b.gain)}`).join("\n") : "";
@@ -224,6 +234,14 @@ export async function main(argv) {
   if (opts.donate && (!opts.price || !opts.qty)) { process.stderr.write("--donate needs --price and --qty\n"); return 2; }
   if (opts.incomeCsv) await writeFile(opts.incomeCsv, toIncomeCsv(r.result.incomeReport));
   if (opts.form8949) await writeFile(opts.form8949, toForm8949Csv(r.result.rows));
+  let rec = null;
+  if (opts.reconcile) {
+    let bt;
+    try { bt = await readFile(opts.reconcile, "utf8"); } catch (e) { process.stderr.write(`cannot read ${opts.reconcile}: ${e.message}\n`); return 2; }
+    const b = parse1099da(bt);
+    if (b.errors.length) { process.stderr.write(`--reconcile: ${b.errors[0]}\n`); return 2; }
+    rec = reconcile1099da(r.result.rows, b.entries);
+  }
   const plan = opts.sell ? planSale(r.result.openLots, { asset: opts.sell, price: opts.price, asOf: opts.saleDate || new Date().toISOString().slice(0, 10), qty: opts.qty ?? null, cash: opts.qty ? null : opts.cash ?? null, summary: r.result.summary, shortRate: opts.shortRate, longRate: opts.longRate }) : null;
   let pr = null;
   if (opts.prices) {
@@ -232,8 +250,8 @@ export async function main(argv) {
     pr = { harvest: harvestPlan(r.result.openLots, opts.prices, common), wait: waitPlan(r.result.openLots, opts.prices, common) };
   }
   const gift = opts.donate ? donationPlan(r.result.openLots, { asset: opts.donate, price: opts.price, asOf: opts.saleDate || new Date().toISOString().slice(0, 10), qty: opts.qty, longRate: opts.longRate, deductionRate: opts.deductionRate || 0 }) : null;
-  if (opts.json) process.stdout.write(JSON.stringify({ ...r.result, ...(plan ? { plan } : {}), ...(pr ? { harvest: pr.harvest, wait: pr.wait } : {}), ...(gift ? { gift } : {}) }, null, 2) + "\n");
-  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : "") + (pr ? renderPrices(pr.harvest, pr.wait) : "") + (gift ? renderDonation(gift) : ""));
+  if (opts.json) process.stdout.write(JSON.stringify({ ...r.result, ...(plan ? { plan } : {}), ...(pr ? { harvest: pr.harvest, wait: pr.wait } : {}), ...(gift ? { gift } : {}), ...(rec ? { reconcile: rec } : {}) }, null, 2) + "\n");
+  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : "") + (pr ? renderPrices(pr.harvest, pr.wait) : "") + (gift ? renderDonation(gift) : "") + (rec ? renderReconcile(rec) : ""));
   return 0;
 }
 

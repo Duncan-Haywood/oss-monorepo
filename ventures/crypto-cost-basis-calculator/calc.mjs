@@ -782,6 +782,55 @@ export function donationPlan(openLots, { asset, price, asOf, qty, longRate = 0.1
   return { asset, price, asOf, requested: qty, qty: Number(target.toFixed(8)), longQty: Number(longQty.toFixed(8)), capped: qty > longQty + EPS, lots, value, basis, gain, taxAvoided, deductionValue, totalBenefit: cents(taxAvoided + deductionValue) };
 }
 
+// Reconcile against the broker's Form 1099-DA: type or paste the per-asset (or
+// per-sale) proceeds and basis the broker reported, and compare each coin with
+// what your own lot matching produced. A basis gap is the usual cause of an
+// inflated gain on a 1099-DA (the broker saw only its own purchases).
+const REC_ALIASES = {
+  asset: ["asset", "coin", "token", "symbol", "digital asset", "code"],
+  proceeds: ["proceeds", "gross proceeds", "proceeds usd", "amount received"],
+  basis: ["basis", "cost basis", "cost", "basis usd"],
+};
+export function parse1099da(text) {
+  const grid = parseCsv(text).filter((r) => r.some((c) => String(c).trim()));
+  const out = { entries: {}, errors: [] };
+  if (grid.length < 2) { out.errors.push("Need a header row and at least one coin."); return out; }
+  const head = grid[0].map((h) => String(h).trim().toLowerCase());
+  const col = {};
+  for (const [k, names] of Object.entries(REC_ALIASES)) col[k] = head.findIndex((h) => names.includes(h));
+  if (col.asset < 0 || col.proceeds < 0) { out.errors.push("Header needs an asset column and a proceeds column."); return out; }
+  const num = (v) => { const n = Number(String(v ?? "").replace(/[$,\s]/g, "")); return String(v ?? "").trim() === "" || !Number.isFinite(n) ? null : n; };
+  grid.slice(1).forEach((r, i) => {
+    const asset = String(r[col.asset] ?? "").trim().toUpperCase();
+    const proceeds = num(r[col.proceeds]);
+    if (!asset || proceeds === null) { out.errors.push(`Row ${i + 2}: needs an asset and a number for proceeds.`); return; }
+    const basis = col.basis >= 0 ? num(r[col.basis]) : null;
+    const e = (out.entries[asset] ||= { proceeds: 0, basis: null });
+    e.proceeds += proceeds;
+    if (basis !== null) e.basis = (e.basis ?? 0) + basis;
+  });
+  return out;
+}
+
+export function reconcile1099da(rows, broker, { tolerance = 1 } = {}) {
+  const mine = {};
+  for (const r of rows) {
+    const m = (mine[r.asset] ||= { proceeds: 0, basis: 0 });
+    m.proceeds += r.proceeds;
+    m.basis += r.basis;
+  }
+  const items = [];
+  for (const asset of [...new Set([...Object.keys(mine), ...Object.keys(broker)])].sort()) {
+    const m = mine[asset], b = broker[asset];
+    const it = { asset, myProceeds: m ? cents(m.proceeds) : null, myBasis: m ? cents(m.basis) : null, brokerProceeds: b ? cents(b.proceeds) : null, brokerBasis: b && b.basis !== null ? cents(b.basis) : null };
+    it.proceedsDiff = m && b ? cents(b.proceeds - m.proceeds) : null;
+    it.basisDiff = m && b && it.brokerBasis !== null ? cents(it.brokerBasis - m.basis) : null;
+    it.status = !b ? "not on 1099-DA" : !m ? "not in your sales" : Math.abs(it.proceedsDiff) > tolerance ? "proceeds differ" : it.basisDiff !== null && Math.abs(it.basisDiff) > tolerance ? "basis differs" : "matches";
+    items.push(it);
+  }
+  return { items, mismatches: items.filter((i) => i.status !== "matches").length };
+}
+
 export function toForm8949Csv(rows) {
   // Box column only when the file says which sales a broker reported on a 1099-DA.
   const boxes = rows.some((r) => r.reported);

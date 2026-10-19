@@ -3264,6 +3264,11 @@
      "summary": "The <code>mimic-contexts</code> n-gram detector is fit on seven RAID families and its threshold set so 5% of human text is flagged (out-of-fold), then applied to the eighth. Realised false-positive rates run from 0.00 to 0.54: abstracts 0.54, books 0.18, while news, poetry, recipes, reddit, reviews and wiki sit at 0.00&ndash;0.06. On recipes the cut-off is too strict instead: it catches 1.7% of machine text where a threshold set on recipes would catch 46%. AUROC does not show this (books has the best, 0.993, and the second-worst rate). Preliminary: plain-prompt RAID text, one detector type, one split, no LLM run."
     },
     {
+     "slug": "mimic-recalib",
+     "title": "How many human texts does it take to re-set a detector's threshold for a 5% false-positive rate on a new kind of text?",
+     "summary": "Follow-up to <code>mimic-threshold</code>. The n-gram detector is fit on seven RAID families; k human texts of the eighth set its cut-off, 500 random draws per cell. Taking the empirical 95th percentile, k = 20 gives a mean false-positive rate of 9% and a 36% chance of exceeding 10%; k = 80 gives 6.1% and 10%; k = 160 gives 5.5%. A conformal rank rule holds the mean at 4.7&ndash;4.9% from k = 20 but gives up recall (0.66 against 0.79 at k = 20) and cannot flag anything below 19 calibration texts. Even at k = 80 one draw lands anywhere from 1.7% to 8.8% (10th&ndash;90th percentile). Recalibration fixes the false-accusation rate, not the detector: recipes still catches under half of machine text. Preliminary: plain-prompt RAID text, one detector, calibration from the same population as the test, no LLM run."
+    },
+    {
      "slug": "mimic-twinc2st",
      "title": "Does a classifier two-sample test catch digital-twin errors that a paired trajectory error misses?",
      "summary": "A stylised pendulum with Coulomb friction and heavy-tailed (Student-t) sensor noise is the &lsquo;real&rsquo; system; twins differ in friction, noise shape or noise level. A classifier two-sample test (5-fold CV AUROC, 800 vs 800 trajectories, 3 seeds) separates real from twin trajectories with boosted trees: a friction error of 0.03 (10%) that moves the noise-free trajectory by only 0.006 rad RMSE &mdash; a quarter of the 0.02 rad noise sd &mdash; gives AUROC 0.72, and 0.91 at 20%. A twin with the right dynamics but Gaussian instead of Student-t noise of the same sd has paired error exactly 0 yet AUROC 0.92 once second-difference features are added (0.59 on raw angles). A logistic regression on raw angles stays at chance (0.51) throughout, because the start angles are symmetric. Limits: one toy system, two noise models, three seeds, a handful of classifier settings; simulated only, nothing about real hardware. Preliminary, no LLM involved: a side piece of track 11."
@@ -3456,6 +3461,11 @@
     "slug": "capture-kit",
     "title": "What should a travel creator pack to film from many angles under a weight budget and the 100 Wh battery limit?",
     "summary": "Exact search over 17,280 kits of cameras, lenses, mounts and battery packs (11,520 legal), scoring distinct focal-band &times; viewpoint shots (18 at most) and recording hours against carried weight. With a 4 h recording floor, exact search reaches 15 shots at 4 kg and all 18 at 5 kg, while a greedy best-gain-per-gram packer stalls at 12 from 3 kg because a lens is worthless without its body. Without a floor, variety-first search returns kits that record only ~2.2 h. Every device figure is assumed (round class-typical numbers, not datasheets); only the 100 Wh limit is sourced."
+   },
+   {
+    "slug": "capture-rig",
+    "title": "How many cameras, and where, to film a person from every angle?",
+    "summary": "A 2-D geometric model of N cameras on a ring or a 90&deg; front arc 3 m from a subject, scored on angle coverage and triangulation error. Cameras buy coverage, angle buys depth accuracy: a 30&deg; gap between neighbours needs 13 cameras (15&deg; needs 25), while centre depth error barely moves with count (0.52 mm for 3 on a ring, 0.23 mm for 16) but falls 11&times; as a pair&rsquo;s convergence angle goes from 5&deg; to 90&deg; (7.3 mm to 0.64 mm). Four cameras on a front arc are within 11% of four on a ring. Idealised lower bounds with assumed noise (0.5 px) and no occlusion; novel-view quality is not modelled."
    }
   ]
  },
@@ -3473,6 +3483,11 @@
     "slug": "sensing-burst",
     "title": "How many frames from a small sensor, merged, match one frame from a bigger one?",
     "summary": "Synthetic scenes with Poisson shot noise, Gaussian read noise and a full-well clip. A burst of <em>N</em> small-sensor frames (each at the large frame's exposure time) ties a sensor with <em>A</em>&times; the pixel area at <em>N</em>* = <em>A</em>&sup2;(<em>sx</em>+<em>r</em>&sup2;)/(<em>Asx</em>+<em>r</em>&sup2;): <em>A</em> frames when shot noise dominates, up to <em>A</em>&sup2; in the dark or at high read noise (simulation, <em>A</em>=4: 4.0 frames in bright light, 14.4 in dim light with 8 e<sup>&minus;</sup> read noise). Splitting the <em>same</em> total exposure into frames never ties: the burst has more variance than the large frame at every <em>N</em>. With hand shake and Fourier-shift registration, shifts are recovered to 0.09&ndash;0.8 px RMS in good light but fail in the dimmest case tested (3.1 px), and the registration blur means <em>A</em>=4 needs about 21 frames in bright light. A bracketed burst recovers clipped highlights (42 dB against 22 dB for one frame). Stylised: synthetic images, global translation only, no real raw files."
+   },
+   {
+    "slug": "sensing-timesync",
+    "title": "How many milliseconds of camera-to-gyro time offset double a fused attitude error, and can online calibration recover it?",
+    "summary": "Single-axis simulation: a 200&nbsp;Hz biased gyro and a 30&nbsp;Hz camera whose timestamps are late by <em>t<sub>d</sub></em>, fused by a complementary filter. At 30&nbsp;deg/s motion the error doubles at 12&ndash;14&nbsp;ms; the doubling offset is 32&ndash;34&nbsp;ms at 10&nbsp;deg/s and 8&ndash;10&nbsp;ms at 90&nbsp;deg/s, and grows with camera noise. A gyro-integral alignment fit recovers the offset to about 1&nbsp;ms rms and restores the zero-offset error, but fails on a nearly still platform. Stylised: one axis, constant offset, angle measurements only, synthetic noise."
    }
   ]
  },
