@@ -402,7 +402,8 @@ def test_build_all_one_story_call_per_event_saves_everything_and_routes(stage):
     judge = FakeJudge()
     made = reels.build_all(c, store, judge, assets)
     stories = [k for k in judge.keys if k.startswith(("bundle:", "story:"))]
-    assert stories == ["bundle:2026-10-03_Mesa", "story:2026-10-05_Harbor_Wedding"]    # one creative pass each
+    # one creative pass each (a one-reel unit's story call runs on a reel worker: order is not fixed)
+    assert sorted(stories) == ["bundle:2026-10-03_Mesa", "story:2026-10-05_Harbor_Wedding"]
     names = sorted(k for k, _ in store.all("reels"))
     mesa = [n for n in names if n.startswith("2026-10-03_Mesa__")]
     assert mesa == ["2026-10-03_Mesa__long-01", "2026-10-03_Mesa__medium-01", "2026-10-03_Mesa__short-01",
@@ -578,9 +579,74 @@ def test_a_fix_pass_cannot_undo_the_critics_opening_and_the_critic_is_told(stage
     assert r1["next_plan"]["shots"][0]["asset_id"] == "a21"
     assert [s.asset_id for s in rendered[:3]] == [rendered[0].asset_id, "a21", "a21"]
     assert reels._moves(rendered[2])                           # it moves now
-    assert any("put back first" in t for t in r1["told"]) and any("pan/push" in t for t in r1["told"])
+    assert any("put back first" in t for t in r1["told"]) and any("too still" in t for t in r1["told"])
     assert "Since your last critique" in judge.critic_prompts[1] and "id=a21" in judge.critic_prompts[1]
     assert "Since your last critique" not in judge.critic_prompts[0]
+
+
+class CropJudge(FakeJudge):
+    """The critic's revision sets the opener's crop: a gentle pan 0.37->0.42 (under the generic opening
+    rule's threshold), or, with `still`, no move at all."""
+
+    def __init__(self, verdicts, still=False):
+        super().__init__(verdicts)
+        self.still, self.critic_prompts = still, []
+
+    def judge(self, task):
+        out = super().judge(task)
+        if task.output.__name__ == "Critique":
+            self.critic_prompts.append(task.instructions)
+            if out.revised is not None:
+                first = Shot(asset_id="a21", duration_s=1.0, focus={"x": 0.37, "y": 0.5},
+                             focus_to=None if self.still else {"x": 0.42, "y": 0.5},
+                             zoom_from=1.0, zoom_to=1.0 if self.still else 1.06)
+                shots = [first] + [s for s in out.revised.shots if s.asset_id != "a21"][:7]
+                out = out.model_copy(update={"revised": out.revised.model_copy(update={"shots": shots})})
+        return out
+
+
+def test_the_critics_crop_on_the_opener_renders_as_written(stage, monkeypatch):
+    # Istanbul short-01b: the critic asked for focus 0.37->0.42 three rounds running and the opening-move
+    # rule rendered its generic 0.29->0.45 pan every time
+    c, store, assets, rendered = _opening_stage(stage, monkeypatch, [])
+    judge = CropJudge(["revise", "ship"])
+    reels.build_all(c, store, judge, assets, mix=reels.Mix(short=1, medium=0, long=0, variants=False), only="Mesa")
+    s = rendered[1]
+    assert s.asset_id == "a21"
+    assert (s.focus.x, s.focus_to.x, s.zoom_from, s.zoom_to, s.layout) == (0.37, 0.42, 1.0, 1.06, "fill")
+    assert "Since your last critique" not in judge.critic_prompts[1]          # nothing was changed
+
+
+def test_motion_is_added_only_when_the_critic_gave_none_and_the_critic_is_told(stage, monkeypatch):
+    c, store, assets, rendered = _opening_stage(stage, monkeypatch, [])
+    judge = CropJudge(["revise", "ship"], still=True)
+    reels.build_all(c, store, judge, assets, mix=reels.Mix(short=1, medium=0, long=0, variants=False), only="Mesa")
+    s = rendered[1]
+    assert s.asset_id == "a21" and reels._moves(s)                            # the first second moves
+    assert "shot 1 (id=a21): you asked for focus 0.37,0.5" in judge.critic_prompts[1]
+
+
+def test_a_critics_gentle_push_on_a_still_is_kept():
+    # Istanbul short-02: the critic matched zooms across a before/after (1.0->1.03, 1.03->1.07) and the
+    # every-still-moves rule rewrote them to 1.08 and 1.11
+    valid = {"a1": asset(1), "a2": asset(2)}
+    shots = [Shot(asset_id="a2", duration_s=1, focus={"x": 0.3, "y": 0.5}, focus_to={"x": 0.6, "y": 0.5}),
+             Shot(asset_id="a1", duration_s=1, zoom_from=1.0, zoom_to=1.03),
+             Shot(asset_id="a1", duration_s=1, zoom_from=1.03, zoom_to=1.07),
+             Shot(asset_id="a2", duration_s=1)]
+    kept = reels.enforce_rules(shots, valid, keep_opening=True)
+    assert [(s.zoom_from, s.zoom_to) for s in kept[1:3]] == [(1.0, 1.03), (1.03, 1.07)]
+    assert reels._moves(kept[3])                              # no motion given: the rule still adds one
+    story = reels.enforce_rules(shots, valid)                 # a story plan is held to the rule as before
+    assert story[1].zoom_to == 1.08
+
+
+def test_a_measured_still_opener_keeps_the_critics_framing():
+    valid = {"a1": asset(1)}
+    p = plan(Shot(asset_id="a1", duration_s=1, focus={"x": 0.37, "y": 0.5}, focus_to={"x": 0.42, "y": 0.5},
+                  zoom_from=1.0, zoom_to=1.06))
+    s = reels._push_opening(p, valid).shots[0]
+    assert (s.focus.x, s.focus_to.x, s.zoom_from) == (0.37, 0.42, 1.0) and s.zoom_to >= 1.15
 
 
 def test_no_music_library_never_ships_and_waits_for_music(stage, monkeypatch):

@@ -869,6 +869,15 @@ def _moves(s: Shot) -> bool:
     return abs(s.zoom_to - s.zoom_from) >= 0.06 - 1e-9
 
 
+def _any_move(s: Shot) -> bool:
+    """The shot has a move of its own, however gentle (a critic's 1.0->1.03 push is a choice)."""
+    if s.view_yaw_to is not None and abs(s.view_yaw_to - (s.view_yaw_deg or 0.0)) > 1e-6:
+        return True
+    if s.focus_to is not None and abs(s.focus_to.x - s.focus.x) + abs(s.focus_to.y - s.focus.y) > 1e-6:
+        return True
+    return abs(s.zoom_to - s.zoom_from) > 1e-6
+
+
 def _opens_moving(shots: list[Shot], kinds: list[str]) -> bool:
     s, kind = shots[0], kinds[0]
     if kind in VIDEO_KINDS:
@@ -899,15 +908,19 @@ def _make_opening_move(s: Shot, kind: str, aspect: float | None) -> Shot:
     return s.model_copy(update=upd)
 
 
-def enforce_rules(shots: list[Shot], valid: dict[str, Asset], aspects: dict[str, float | None] | None = None
-                  ) -> list[Shot]:
+def enforce_rules(shots: list[Shot], valid: dict[str, Asset], aspects: dict[str, float | None] | None = None,
+                  keep_opening: bool = False) -> list[Shot]:
     """The hard rules a plan is held to after its cuts are on the grid (durations unchanged):
     transitions (none into shot 1, never two in a row, at most one cut in four, wipe only for a
     before/after, which always gets one); stills never speed-ramp and always move; at most one
     bordered 'fit' shot, not in the first FIT_NOT_BEFORE_S, at most FIT_MAX_SHARE of the reel (the
-    others become full-bleed pans); and the first second moves."""
+    others become full-bleed pans); and the first second moves. With keep_opening (a critic's revision)
+    every shot that already has its own move keeps its framing: the generic opening pan, and the
+    push every still gets, are added only where the critic gave no motion."""
     if not shots:
         return shots
+    authored = [keep_opening and _any_move(s) for s in shots]
+    authored_move = keep_opening and _moves(shots[0])
     aspects = aspects or {}
     out = list(shots)
     kinds = [valid[s.asset_id].kind if s.asset_id in valid else "photo" for s in out]
@@ -938,7 +951,7 @@ def enforce_rules(shots: list[Shot], valid: dict[str, Asset], aspects: dict[str,
                 fit_used = True
             else:
                 s = _bleed(s, aspects.get(s.asset_id))
-        if a_kind in STILL_KINDS and not _moves(s):
+        if a_kind in STILL_KINDS and not _moves(s) and not authored[i]:
             if s.zoom_from > s.zoom_to:
                 s = s.model_copy(update={"zoom_from": min(1.6, s.zoom_to + 0.08)})
             else:
@@ -947,14 +960,14 @@ def enforce_rules(shots: list[Shot], valid: dict[str, Asset], aspects: dict[str,
                     s = s.model_copy(update={"zoom_from": max(1.0, s.zoom_to - 0.08)})
         out[i] = s
         t += s.duration_s
-    if not _opens_moving(out, kinds):
+    if not _opens_moving(out, kinds) and not authored_move:
         out[0] = _make_opening_move(out[0], kinds[0], aspects.get(out[0].asset_id))
     return out
 
 
 def snap(plan: ReelPlan, cfg: Config, valid: dict[str, Asset],
          tracks: dict[str, music.Track] | None = None, *, aspects: dict[str, float | None] | None = None,
-         editable: set[str] | None = None) -> ReelPlan:
+         editable: set[str] | None = None, keep_opening: bool = False) -> ReelPlan:
     """Hold Claude's plan to the hard rules: known ids, beat grid, its class's length cap, clip
     bounds and speeds, then enforce_rules(). With a music library (`tracks`) the plan always gets
     a track and its cuts go on that track's beats; without one the fixed cfg.beat_seconds grid is
@@ -971,7 +984,7 @@ def snap(plan: ReelPlan, cfg: Config, valid: dict[str, Asset],
         shots = _music_grid(kept, cfg, info, choice.start_s, min(cap, info.duration_s - choice.start_s - 0.2))
     if not shots:
         raise JudgeError("plan had no usable shots")
-    shots = enforce_rules(shots, valid, aspects)
+    shots = enforce_rules(shots, valid, aspects, keep_opening=keep_opening)
     cover = plan.cover_asset_id if plan.cover_asset_id in {s.asset_id for s in shots} else shots[0].asset_id
     return plan.model_copy(update={"shots": shots, "cover_asset_id": cover, "music": choice})
 
@@ -1701,12 +1714,39 @@ def _push_opening(p: ReelPlan, valid: dict[str, Asset], aspects=None) -> ReelPla
     s = p.shots[0]
     a = valid.get(base_id(s.asset_id))
     kind = a.kind if a is not None else "photo"
-    moved = _make_opening_move(s, kind, (aspects or {}).get(s.asset_id))
+    if s.focus_to is not None and kind != "photo360":  # a framing someone chose: keep it, push harder
+        if s.zoom_from > s.zoom_to:
+            moved = s.model_copy(update={"zoom_from": min(1.6, max(s.zoom_from, s.zoom_to + 0.15))})
+        else:
+            moved = s.model_copy(update={"zoom_to": min(1.6, max(s.zoom_to, s.zoom_from + 0.15))})
+    else:
+        moved = _make_opening_move(s, kind, (aspects or {}).get(s.asset_id))
     return p.model_copy(update={"shots": [moved, *p.shots[1:]]})
 
 
 def _ids(p: ReelPlan) -> list[str]:
     return [s.asset_id for s in p.shots]
+
+
+def _framing(s: Shot) -> str:
+    f = f"focus {s.focus.x:g},{s.focus.y:g}"
+    if s.focus_to is not None:
+        f += f"->{s.focus_to.x:g},{s.focus_to.y:g}"
+    f += f", zoom {s.zoom_from:g}->{s.zoom_to:g}, {s.layout}"
+    if s.view_yaw_deg is not None or s.view_yaw_to is not None:
+        f += f", yaw {s.view_yaw_deg}->{s.view_yaw_to}"
+    return f
+
+
+def framing_changes(asked: list[Shot], got: list[Shot]) -> list[str]:
+    """Where the hard rules changed the framing (crop, move, layout) of a shot the critic asked for,
+    in words for the critic's next prompt."""
+    out = []
+    for i, (a, b) in enumerate(zip(asked, got)):
+        if a.asset_id == b.asset_id and _framing(a) != _framing(b):
+            out.append(f"shot {i + 1} (id={a.asset_id}): you asked for {_framing(a)}; the hard rules render "
+                       f"{_framing(b)}")
+    return out
 
 
 def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: Backend, length_class: str,
@@ -1729,11 +1769,12 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
     idx = {a.id: i for i, (a, _) in enumerate(ctx.opts)}
     openings = [f"#{idx[i]} (id={i})" if i in idx else f"id={i}" for i in dict.fromkeys(taken)]
 
-    def settle(p: ReelPlan, track_from: ReelPlan | None = None) -> ReelPlan:
+    def settle(p: ReelPlan, track_from: ReelPlan | None = None, keep_opening: bool = False) -> ReelPlan:
         p = _own(p, key, length_class)
         if track_from is not None and tracks and (p.music is None or p.music.track_id not in tracks):
             p = p.model_copy(update={"music": track_from.music})     # keep the track
-        return snap(p, cfg, ctx.valid, tracks, aspects=ctx.aspects, editable=ctx.editable)
+        return snap(p, cfg, ctx.valid, tracks, aspects=ctx.aspects, editable=ctx.editable,
+                    keep_opening=keep_opening)
 
     # The critic's latest revision as it asked for it (its opening shot), and what the critic must hear
     # about changes made to that revision before the next render (hard rules, automatic-check fixes).
@@ -1752,12 +1793,12 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
             what.append(f"the fix pass tried to open on id={raw.shots[0].asset_id}; your opening shot "
                         f"(id={hold.asset_id}) was put back first")
             raw = _keep_opening(raw, hold)
-        new = settle(raw, p)
+        new = settle(raw, p, keep_opening=hold is not None)
         if (hold is not None and new.shots and new.shots[0].asset_id == hold.asset_id
                 and any(f.startswith("hook_motion") for f in fails)):
             new = _push_opening(new, ctx.valid, ctx.aspects)
             what.append(f"your opening shot (id={hold.asset_id}) measured too still in the first second, so it "
-                        "keeps its place with a pan/push added across its frame")
+                        f"keeps its place and now renders {_framing(new.shots[0])}")
         if hold is not None:
             told.extend(what)
         return new
@@ -1851,7 +1892,7 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
             reason = "the critic did not pass it"
             save_round(store, name, round_, stage="critic", outcome="stop", reason=reason, **common)
             break
-        new = settle(verdict.revised, plan)
+        new = settle(verdict.revised, plan, keep_opening=True)
         want = [i for i in _ids(verdict.revised) if i in ctx.valid]
         asked = next((s for s in verdict.revised.shots if s.asset_id in ctx.valid), new.shots[0])
         if _ids(new)[:1] != want[:1]:
@@ -1860,6 +1901,8 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
         elif _ids(new) != want:
             told.append(f"the hard rules (known ids, before/after needs an edit, the length cap) changed your shot "
                         f"list from {want} to {_ids(new)}")
+        else:
+            told.extend(framing_changes([s for s in verdict.revised.shots if s.asset_id in ctx.valid], new.shots))
         save_round(store, name, round_, stage="critic", outcome="revise", next_plan=new.model_dump(mode="json"),
                    asked=asked.model_dump(mode="json"), told=list(told), **common)
         plan, round_ = new, round_ + 1
