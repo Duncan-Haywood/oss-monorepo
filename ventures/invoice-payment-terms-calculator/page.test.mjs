@@ -352,3 +352,10 @@ test('index links one hop to the cash-flow-risk-forecaster sibling', () => {
   const html = readIndexForSiblingCheck(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(html, /href="\.\.\/cash-flow-risk-forecaster\/"/, 'index must link ../cash-flow-risk-forecaster/ in one hop');
 });
+
+test('calendar export button is wired and counted', () => {
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /id="downloadCalendar"/);
+  assert.match(html, /from '\.\/calendar\.mjs'/);
+  assert.match(html, /calendar_exported/);
+});
