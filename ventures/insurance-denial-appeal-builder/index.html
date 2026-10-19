@@ -99,7 +99,13 @@
     <div id="notes"></div>
     <h3>Before you send</h3>
     <ol id="checklist"></ol>
-    <label for="letter">Draft appeal letter</label>
+    <label for="doc">Document</label>
+    <select id="doc"><option value="appeal">Appeal letter to the insurer</option><option value="provider">Letter for your doctor to sign (medical necessity, peer-to-peer request)</option><option value="external">Request for independent external review (after the insurer upholds the denial)</option></select>
+    <div id="extra" hidden>
+      <div><label for="appealDate">Date you filed the internal appeal</label><input type="text" id="appealDate" autocomplete="off" placeholder="YYYY-MM-DD"></div>
+      <div><label for="finalDenialDate">Date of the final internal denial</label><input type="text" id="finalDenialDate" autocomplete="off" placeholder="YYYY-MM-DD"></div>
+    </div>
+    <label for="letter">Draft</label>
     <textarea id="letter" spellcheck="false" style="min-height:420px"></textarea>
     <p><button type="button" class="secondary" id="copy">Copy letter</button> <button type="button" class="secondary" id="download">Download letter (.txt)</button> <button type="button" class="secondary" id="ics">Download deadline reminders (.ics)</button></p>
   </section>
@@ -145,7 +151,7 @@
   </footer>
 
   <script type="module">
-    import { REASONS, readDenial, deadlines, appealLetter, checklist, calendar, sampleDenial } from "./engine.mjs";
+    import { REASONS, readDenial, deadlines, appealLetter, providerLetter, externalReviewLetter, checklist, calendar, sampleDenial } from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -165,7 +171,10 @@
     function letter() {
       if (!last) return;
       const s = state();
-      $("#letter").value = appealLetter({ ...s, date: today(), late: last.status === "passed" });
+      const doc = $("#doc").value;
+      $("#extra").hidden = doc !== "external";
+      const c = { ...s, date: today(), late: last.status === "passed", appealDate: $("#appealDate").value.trim(), finalDenialDate: $("#finalDenialDate").value.trim() };
+      $("#letter").value = doc === "provider" ? providerLetter(c) : doc === "external" ? externalReviewLetter(c) : appealLetter(c);
     }
 
     function readIt() {
@@ -205,6 +214,8 @@
     $("#read").addEventListener("click", () => { if (readIt()) record("denial_read"); });
     $("#build").addEventListener("click", () => { if (build()) record("appeal_built"); });
     for (const id of ["patient", "insurer", "memberId", "claimNumber", "serviceDate", "provider", "service", "phone", "why", "lateReason", "amount"]) $("#" + id).addEventListener("input", letter);
+    $("#doc").addEventListener("change", () => { letter(); record("doc_" + $("#doc").value); });
+    for (const id of ["appealDate", "finalDenialDate"]) $("#" + id).addEventListener("input", letter);
     $("#load-example").addEventListener("click", () => {
       $("#paste").value = sampleDenial();
       readIt();
@@ -220,7 +231,7 @@
       catch { box.select(); status.textContent = "Select the letter text and copy it."; }
     });
     const save = (name, type, body) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([body], { type })); a.download = name; a.click(); };
-    $("#download").addEventListener("click", () => { if (last) save("insurance-appeal-letter.txt", "text/plain", $("#letter").value); });
+    $("#download").addEventListener("click", () => { if (last) save("insurance-" + $("#doc").value + "-letter.txt", "text/plain", $("#letter").value); });
     $("#ics").addEventListener("click", () => {
       const s = state();
       const cal = last && calendar(last, { claim: s.claimNumber, stamp: new Date().toISOString().replace(/[-:]|\.\d+/g, "") });
