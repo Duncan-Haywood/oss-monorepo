@@ -80,6 +80,8 @@ zero dependencies, one JSON file on a disk you own.
 
 - Carry over last week: choose last week's roster CSV and every person who worked gets a `prev:` cell with when their last shift ended (overnight closes written as `Sun 25:00`), so the rest rule holds across Monday (`carryOverStaff`).
 
+- Fairness over the plan: "Plan several weeks" adds a table of each person's weekend, closing and opening shifts across all the weeks and warns when one person carries 2+ more per week than another (`planFairness` in `calc.mjs`). A report; the search balances through the tough-shift tally.
+
 - Returning each week: people, shifts and settings are remembered in this browser's local storage only ("Forget saved data" removes them), and can be saved to or loaded from a `roster-setup.json` file to move between devices.
 
 Guide pages, each with figures a test re-derives from the engine: [how to make an employee schedule](how-to-make-an-employee-schedule.html), [clopening](how-to-avoid-clopening.html), [overtime](how-to-reduce-overtime-in-a-schedule.html), [labor cost by day](labor-cost-percentage-by-day.html), [hiring test](do-i-need-to-hire-another-employee.html) and [covering a call-out](how-to-cover-a-shift-when-someone-calls-out.html).

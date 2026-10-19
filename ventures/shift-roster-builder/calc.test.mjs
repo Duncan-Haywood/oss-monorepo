@@ -1270,3 +1270,21 @@ test("parseTimeOffRequest and addTimeOff build an off: entry", () => {
   assert.equal(addTimeOff(b, "Ben", "2026-11-04").text, b);
   assert.ok(addTimeOff(staff, "Zed", "2026-11-04").error);
 });
+
+import { planFairness } from "./calc.mjs";
+
+test("planFairness adds each week's tough shifts per person and flags a lopsided month", () => {
+  const p = planWeeks(_ss(), _sh(), { weeks: 3, weekStart: "2026-11-02", toughBalance: 60, restarts: 1, iterations: 3000 });
+  const f = planFairness(p);
+  assert.equal(f.weeks, 3);
+  const total = f.rows.reduce((t, x) => t + x.tough, 0);
+  const perWeek = p.weeks.reduce((t, w) => t + fairnessReport(w.roster).rows.reduce((u, x) => u + x.tough, 0), 0);
+  assert.equal(total, perWeek);
+  assert.equal(f.spread, f.most.tough - f.least.tough);
+  const fake = (name, tough) => ({ roster: { people: [{ name }, { name: "Zed" }], assignments: Array.from({ length: tough }, () => ({ person: name, slot: { day: 5, startMin: 600, endMin: 900 } })).concat([{ person: "Zed", slot: { day: 1, startMin: 600, endMin: 900 } }]) } });
+  const lop = planFairness({ weeks: [fake("Ann", 4), fake("Ann", 4)] });
+  assert.equal(lop.most.name, "Ann");
+  assert.equal(lop.most.tough, 8);
+  assert.equal(lop.flag, true);
+  assert.deepEqual(planFairness(null), { weeks: 0, rows: [], spread: 0, flag: false, most: null, least: null });
+});
