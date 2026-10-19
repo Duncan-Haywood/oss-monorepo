@@ -3444,7 +3444,7 @@
    {
     "slug": "society-robotnorms",
     "title": "How many robots does it take to change how a crowd walks?",
-    "summary": "Robots as a committed minority in a passing-side convention. People take the side most of their last <em>M</em> partners used; robots hold a programmed side. The tipping share grows with memory: 16%, 22%, 28% and 32% of the crowd for <em>M</em>&nbsp;=&nbsp;5, 9, 17 and 25 in simulation, within 0.02 of a mean-field prediction (0.158, 0.217, 0.272, 0.302). Stylised: one binary choice per meeting, no geometry."
+    "summary": "Robots as a committed minority in a passing-side convention. Simulated people take the side most of their last <em>M</em> partners used; robots hold a programmed side. The tipping share grows with memory: 16%, 22%, 28% and 32% of the crowd for <em>M</em>&nbsp;=&nbsp;5, 9, 17 and 25, within 0.02 of a mean-field prediction. Just below it, robots that hold their side make people collide up to 14&times; as often as robots that adapt (0.27 vs 0.020 conflicts per meeting). When people meet only neighbours, evenly spread robots tip everyone from 12&ndash;14%, while one block of robots converts under 10% of people even at half the crowd. Stylised: one binary choice per meeting, no geometry."
    }
   ]
  }

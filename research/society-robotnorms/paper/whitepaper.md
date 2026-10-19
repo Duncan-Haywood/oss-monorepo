@@ -14,7 +14,9 @@ predicts a tipping share that rises with memory, from 0.158 of the crowd at *M* 
 0.02 and show a sharp switch. Below the tipping share, people do not switch and committed
 robots raise their conflict rate up to fourteenfold over adaptive robots (0.27 against 0.020
 head-on conflicts per meeting at a 20% robot share, *M* = 9), so the costliest fleet size is
-just short of the threshold.
+just short of the threshold. On a ring where people meet only neighbours, placement dominates:
+evenly spread robots tip everyone from a 12–14% share, while a single block converts under 10%
+of people even at a 50% share.
 
 ## 1. Introduction
 
@@ -80,6 +82,19 @@ person-person conflicts as well. Once the crowd tips (ρ = 0.22) the run-average
 and then to 0.028–0.048 for ρ between 0.26 and 0.48; what remains above the floor is the
 transition period inside the 500-round run.
 
+
+**Space (*M* = 9, ring, *k* = 2).** Mean final share of people on L at ρ = 0.04, 0.08, 0.12 and
+0.20: evenly spread robots 0.227, 0.628, 0.992 and 1.000; randomly placed 0.253, 0.546, 0.727
+and 0.908; one contiguous block 0.052, 0.062, 0.065 and 0.065 (and 0.099 at ρ = 0.50); the
+well-mixed crowd 0.000, 0.001, 0.003 and 0.037. With local meetings each person's threshold is
+crossed by the robots in their own neighbourhood, so spread robots need about half the
+well-mixed share. Random placement leaves robot-poor neighbourhoods unconverted, giving a
+gradual curve. A block meets people only at its two ends; in these runs the converted region
+stayed at those edges and did not grow.
+
+**Crowd size.** In the well-mixed case with *M* = 9, no run of *N* = 50, 100, 200 or 400 tipped
+at ρ ≤ 0.20 and every run tipped at ρ ≥ 0.22 (20 seeds each), so the threshold is not a
+small-population effect in this range.
 
 ## 4. Discussion
 

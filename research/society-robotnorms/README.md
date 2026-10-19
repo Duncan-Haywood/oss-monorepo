@@ -7,7 +7,9 @@ tipping share is 16% of the crowd when people remember 5 partners, 22% for 9, 28
 32% for 25, within 0.02 of a mean-field prediction. Below it, people never switch, and robots
 that hold their side make them collide up to 14 times as often as robots that adapt (0.27
 against 0.020 conflicts per meeting at a 20% robot share). The worst place for a robot fleet to
-be is just short of the tipping point.** Produced with AI assistance (Claude).
+be is just short of the tipping point. Where robots stand matters more than how many there
+are: when people meet only neighbours, evenly spread robots tip everyone from 12–14% of the
+crowd, while the same robots in one block convert under 10% of people even at half the crowd.** Produced with AI assistance (Claude).
 First project of research track 17 (`society`, `PROJECTS.md`, milestone 1). Every result is
 about simulated people following a stated rule, not about real crowds.
 
@@ -92,6 +94,26 @@ They stay a little above the floor because the run includes the transition.
 
 ![Conflicts per human meeting](experiments/robot_cost.svg)
 
+
+**E. Where the robots stand (`M = 9`).** When people meet only partners within two sites on a
+ring, placement decides the outcome:
+
+| robot share | well-mixed | ring, random | ring, evenly spread | ring, one block |
+|---|---|---|---|---|
+| 0.04 | 0.000 | 0.253 | 0.227 | 0.052 |
+| 0.08 | 0.001 | 0.546 | 0.628 | 0.062 |
+| 0.12 | 0.003 | 0.727 | 0.992 | 0.065 |
+| 0.20 | 0.037 | 0.908 | 1.000 | 0.065 |
+| 0.50 | 1.000 | 1.000 | 1.000 | 0.099 |
+
+(mean final share of people on the robots' side). Evenly spread robots tip the whole ring by
+0.12–0.14, well under the well-mixed 0.22, because each person's neighbourhood, not the whole
+crowd, has to pass the local threshold. Randomly placed robots convert people gradually, with
+no sharp threshold, since some neighbourhoods are robot-dense and others are not. A single
+block converts only the people at its two edges, 5–10% of people at every share up to 0.50.
+
+**F. Crowd size does not move the well-mixed threshold.** With `M = 9`, no crowd of 50, 100,
+200 or 400 tipped at 0.20 or below and every one tipped at 0.22 or above (20 seeds each).
 
 ## What this does and does not show
 
