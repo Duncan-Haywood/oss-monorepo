@@ -150,12 +150,14 @@ jobs:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # This job runs on every PR that touches any of the paths above and chains
     # roughly fifty checks and unit-test modules in sequence; it has taken
-    # 3-4 minutes in recent runs. Uncapped, a hung pip install or a stalled
+    # 3-4 minutes when the catalogue was small; with ~1,300 ventures the
+    # front-door tests alone take ~8 minutes (2026-10-19), so the cap is 35.
+    # Uncapped, a hung pip install or a stalled
     # step anywhere in that chain would ride GitHub's default 360-minute
     # ceiling instead of failing fast -- see hetzner-gitops-ci.yml's own
     # timeout-minutes addition for why that matters on a metered-minutes
     # account (CLAUDE.md's CI-starvation history, 2026-08-26 to 2026-09-01).
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:

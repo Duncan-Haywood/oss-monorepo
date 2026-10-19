@@ -922,7 +922,7 @@ export function validateSchedule(schedule) {
  * make-up date yourself (any day, not only a league weekday); it is refused, with the reason, if
  * either team is blacked out or already playing, or no court and slot is free, and the match stays put.
  */
-export function applyRainouts(schedule, text) {
+export function applyRainouts(schedule, text, opts = {}) {
   const s = JSON.parse(JSON.stringify(schedule));
   const cfg = s.config;
   const weekdaySet = new Set(cfg.weekdays);
@@ -958,7 +958,7 @@ export function applyRainouts(schedule, text) {
     for (const mt of cancelled) {
       let d = fixed !== null ? fixed : day + 1;
       let placed = null;
-      if (fixed !== null && fixed <= day) { errors.push(`${mt.homeName} v ${mt.awayName}: ${dayIso(fixed)} is not after ${dayIso(day)}.`); round.matches.push(mt); continue; }
+      if (fixed !== null && (opts.allowEarlier ? fixed === day : fixed <= day)) { errors.push(`${mt.homeName} v ${mt.awayName}: ${dayIso(fixed)} is not after ${dayIso(day)}.`); round.matches.push(mt); continue; }
       for (let guard = 0; guard < (fixed !== null ? 1 : 400) && !placed; guard++, d++) {
         if (fixed === null) { d = nextPlayDay(d, weekdaySet, skipSet); if (d === null) break; }
         const blocked = (t) => (cfg.blackouts[t] || []).includes(d);
@@ -986,7 +986,7 @@ export function applyRainouts(schedule, text) {
   for (const r of s.rounds) r.matches.sort((a, b) => a.slot - b.slot);
   let mk = 0;
   for (const r of s.rounds) if (r.makeup) r.label = `Makeup ${++mk}`;
-  if (moves.length) s.notices = [...s.notices, `${moves.length} match(es) moved after a rainout. Everything else is unchanged.`];
+  if (moves.length && !opts.quiet) s.notices = [...s.notices, `${moves.length} match(es) moved after a rainout. Everything else is unchanged.`];
   s.stats = scheduleStats(s);
   return { schedule: s, moves, errors };
 }
@@ -1015,6 +1015,53 @@ export function changeNotices(moves) {
     text: [`Hi ${team}, a change to your fixtures:`, ...ms.map((m) => `- ${m.home === team ? "vs " + m.away : "at " + m.home} (${m.home === team ? "home" : "away"}): was ${dayLabel(m.from)}, now ${where(m)}`), "Your other fixtures are unchanged."].join("\n"),
   }));
   return { group, teams };
+}
+
+// ---------------------------------------------------------------- pinned matches
+
+/**
+ * Pinned fixtures: a derby on opening night, a cup rematch the venue booked months ago. Each line of
+ * `text` is `Hawks v Owls -> 2026-11-03` (`vs`, `-` and `,` also split the names; `->`, `=>` or an
+ * arrow gives the date, which may be before or after the match's current night and need not be a
+ * league weekday). The pair's earliest meeting that is not already pinned moves there, using the same
+ * checks as a named rainout make-up date: refused, with the reason, if either team is blacked out or
+ * already playing that day, or no court and time slot is free, and the match stays put. Write a pair
+ * twice to pin both legs of a double round robin. Nothing else moves. Returns a new schedule (the
+ * input is not mutated) plus `pins` ({ from, to, home, away, court, time }) and `errors`.
+ */
+export function applyPinnedMatches(schedule, text) {
+  let s = JSON.parse(JSON.stringify(schedule));
+  const pins = [];
+  const errors = [];
+  for (const raw of String(text ?? "").split(/\n+/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(.*?)\s*(?:->|=>|\u2192)\s*(\d{4}-\d{1,2}-\d{1,2})\s*$/);
+    const to = m ? parseDate(m[2]) : null;
+    if (!m || to === null) { errors.push(`"${line}": write it as Hawks v Owls -> 2026-11-03 with a real date.`); continue; }
+    const names = m[1].split(/\s+(?:v|vs\.?|versus)\s+|\s*,\s*|\s+-\s+/i).map((x) => x.trim()).filter(Boolean);
+    const idx = names.map((nm) => s.teams.findIndex((t) => t.toLowerCase() === nm.toLowerCase()));
+    if (names.length !== 2 || idx.some((i) => i < 0) || idx[0] === idx[1]) {
+      errors.push(`"${line}": name two different teams from the list, like Hawks v Owls.`);
+      continue;
+    }
+    const mine = [];
+    for (const r of s.rounds) for (const x of r.matches) if (x.home + x.away === idx[0] + idx[1] && [x.home, x.away].every((t) => idx.includes(t))) mine.push({ r, x });
+    mine.sort((a, b) => a.r.day - b.r.day);
+    if (mine.some(({ r, x }) => r.day === to && x.pinned)) { errors.push(`${names[0]} v ${names[1]}: already pinned to ${dayIso(to)}.`); continue; }
+    const pick = mine.find(({ x }) => !x.pinned);
+    if (!pick) { errors.push(`${names[0]} v ${names[1]}: ${mine.length ? "every meeting is already pinned" : "these teams do not meet in the schedule"}.`); continue; }
+    if (pick.r.day === to) { pick.x.pinned = true; continue; }
+    const res = applyRainouts(s, `${dayIso(pick.r.day)} ${s.teams[idx[0]]}, ${s.teams[idx[1]]} -> ${dayIso(to)}`, { allowEarlier: true, quiet: true });
+    if (res.errors.length) { errors.push(...res.errors); continue; }
+    s = res.schedule;
+    for (const r of s.rounds) for (const x of r.matches) if (x.home + x.away === idx[0] + idx[1] && x.moved && !x.pinned && r.day === to) x.pinned = true;
+    pins.push(...res.moves.map((mv) => ({ from: mv.from, to: mv.to, home: mv.home, away: mv.away, court: mv.court, time: mv.time })));
+  }
+  if (pins.length) {
+    s.notices = [...s.notices, `${pins.length} match(es) pinned to a chosen date. Everything else is unchanged.`];
+  }
+  return { schedule: s, pins, errors };
 }
 
 // ---------------------------------------------------------------- withdrawals
@@ -2313,7 +2360,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -2343,7 +2390,7 @@ export function decodeFields(text) {
       rounds: o.rounds === undefined || o.rounds === "" ? "" : String(o.rounds).slice(0, 4),
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
       playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
-      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds), linked: str(o.linked), scoring: str(o.scoring),
+      pins: str(o.pins), rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds), linked: str(o.linked), scoring: str(o.scoring),
     };
   } catch { return null; }
 }
@@ -2839,7 +2886,7 @@ export function nextSeasonFields(fields, { lastDay = null, gapWeeks = 8 } = {}) 
     f.start = dayIso(day);
   }
   f.seed = (Number(f.seed) || 0) + 1;
-  for (const k of ["skip", "blackouts", "results", "rainouts", "withdrawals", "lateTeams", "finishBy"]) if (k in f) f[k] = "";
+  for (const k of ["skip", "blackouts", "results", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy"]) if (k in f) f[k] = "";
   const dropped = String(fields.teams || "").split(/\n+/).map((t) => t.trim()).filter((t) => t && gone.has(t.toLowerCase()));
   return { fields: f, dropped, added: late.filter((t) => kept.includes(t)) };
 }

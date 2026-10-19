@@ -1,7 +1,7 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14 and track 12 on 2026-10-16. Runs
-started from `prompt.md` take their new work from here. There are twelve tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 and track 13 on 2026-10-19. Runs
+started from `prompt.md` take their new work from here. There are thirteen tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-12 and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-13 and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -110,6 +110,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 10. The software-engineering loop | `swe` |
 | 11. Adversarial human imitation | `mimic` |
 | 12. Open-source residential construction | `house` |
+| 13. Autonomous multi-angle capture | `capture` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -890,9 +891,72 @@ step.
 - *Lab tags.* No group in `prompt.md` covers construction. Say so rather than stretching a
   connection; `house-offsite` and `house-schedule` may build on track 4's manufacturing loops.
 
+## 13. Autonomous multi-angle capture for travel creators (`capture`)
+
+Added on 2026-10-19 at the owner's request, from a problem the owner runs into.
+
+**Goal.** A travel creator filming for Instagram and similar platforms wants every angle of
+themselves at every moment: ultra-wide to telephoto, 360-degree, several viewpoints at once so
+post-production can pick the shot, track motion or rebuild the scene in 3D. Today that means
+packing and charging several cameras, lenses, batteries and tripods, or bringing people to film.
+The ideal is a box you open, from which cameras surround you, film without effort, avoid people,
+draw no negative attention, never run flat, and feed an automated edit that outputs reels. That
+ideal is far off: small cameras lose sensor size, batteries trade energy against weight and are
+capped at 100 Wh each in carry-on without airline approval (FAA PackSafe, checked 2026-10-19), and
+drones carry flight rules. This track asks which open hardware and software gets closest at a
+given weight, cost and energy, and proves each step in simulation first. Options span a 360
+camera on a telescoping pole with software reframing, rigs of several cameras (stereo and
+trinocular baselines for depth and parallax), a wheeled or legged follow robot with a mast or
+arm, and drones; and computational photography (a chosen "film look") in the edit.
+
+**Prior work.** Kanade, Rander and Narayanan (1997), Virtualized Reality, *IEEE MultiMedia*. Joo
+et al. (2015), the Panoptic Studio, ICCV. Snavely, Seitz and Szeliski (2006), Photo Tourism, *ACM
+TOG*. Mildenhall et al. (2020), NeRF, ECCV, and Kerbl et al. (2023), 3D Gaussian splatting, *ACM
+TOG*, for novel views from many cameras. Su and Grauman (2017), automatic reframing of 360 video
+into normal-field-of-view shots, CVPR. Bonatti et al. (2020), autonomous aerial cinematography,
+*Journal of Field Robotics*. Open tools: FFmpeg, OpenCV, COLMAP, PySceneDetect, ROS 2, PX4 and
+ArduPilot (track 9).
+
+**Milestones.**
+1. `capture-crop` (done 2026-10-19): the 360-on-a-pole baseline. How long a lens a 360 camera
+   can fake by cropping into a reel (an 8K equirect is native only to about 24 mm-equivalent at
+   1080x1920), and the perspective no crop can fake (the camera has to stand back).
+2. `capture-kit`: what to pack. A kit optimiser over camera classes, lenses, mounts and battery
+   packs: shot variety (focal-length bands times viewpoints) and recording hours against carried
+   weight, with every battery at or under 100 Wh and spares in carry-on. Exact search against a
+   greedy baseline, with every device figure sourced and dated or labelled assumed.
+3. `capture-rig`: how many cameras, where. Place N cameras on a ring, sphere or mast around a
+   subject in simulation and score angle coverage, stereo depth error by baseline, and the quality
+   of novel views reconstructed between them, against the pixel and perspective limits of
+   milestone 1.
+4. `capture-follow`: the platform. A follow robot (omnidirectional wheels or wheel-legs with a
+   telescoping mast) against a drone and against static tripods, in a crowd simulation: framing
+   distance held, pedestrians avoided, terrain crossed, energy per hour, packed size.
+5. `capture-edit`: the automated edit. An open pipeline from multi-camera raw footage to a reel
+   (sync, shot detection, reframing, angle selection, a film-look grade), scored on openly
+   licensed footage against a fixed-cut baseline.
+6. `capture-bystander`: filming in public without harm. Automatic blurring of bystanders' faces
+   and plates, and how conspicuous each platform is; a design input, not a way to hide filming.
+7. Owner steps: build the best kit from open hardware, with a priced bill of materials, and test
+   it on a trip.
+
+**Guardrails.**
+- *Discreet is not covert.* Design to be unobtrusive and safe around people, never to hide that
+  filming is happening. Respect recording, privacy and data-protection laws where filmed (the
+  GDPR covers identifiable people in the EU), and blur bystanders by default.
+- *Batteries.* Never design a pack over 160 Wh, or one between 100 and 160 Wh without saying it
+  needs airline approval. Spares go in carry-on, terminals protected. Lithium pack design that
+  will be built is an owner step with a certified cell and protection circuit.
+- *Flying is an owner step*, as in track 9: FAA 14 CFR Part 107 or 49 U.S.C. &sect; 44809 in the
+  US, and the local rules where the trip goes (many parks and cities ban drones).
+- *Simulated is not real.* Image-quality claims from geometry are upper bounds; say so, and
+  measure from footage where it matters.
+- *Lab tags.* `capture-follow` may build on RECUV and track 9's `osrobot-uav`; otherwise no group
+  in `prompt.md` covers this, and the README says so.
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 and track 12 on 2026-10-16. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
@@ -1067,3 +1131,7 @@ citing one, as `prompt.md` requires.
 - Carpenter and Schumacher (2003). Characterization of framing factors for wood-framed low-rise residential buildings. *ASHRAE Transactions* 109 (RP-904). <https://basc.pnnl.gov/library/characterization-framing-factors-wood-framed-low-rise-residential-buildings>
 - American Wood Council, *National Design Specification for Wood Construction* and Supplement; SPF values as reprinted by NELMA <https://www.nelma.org/wp-content/uploads/2022/06/Base-Design-Values-for-SPFs-and-SPF.pdf>
 - Not yet checked; check before citing: ASCE 7 (loads); EnergyPlus <https://energyplus.net>; OpenStudio <https://openstudio.net>; BEopt (NREL); OpenSees <https://opensees.berkeley.edu>; IfcOpenShell <https://ifcopenshell.org>; FreeCAD; WikiHouse <https://www.wikihouse.cc>; US Census Survey of Construction <https://www.census.gov/construction/soc/>
+
+**Track 13.**
+- FAA, PackSafe: Airline Passengers and Batteries (checked 2026-10-19): under 100 Wh no FAA limit for personal use; 101–160 Wh needs airline approval, at most two spares; over 160 Wh forbidden; spares carry-on only. <https://www.faa.gov/hazmat/packsafe/airline-passengers-and-batteries>
+- Not yet checked; check before citing: Kanade, Rander and Narayanan (1997), Virtualized Reality, *IEEE MultiMedia* 4(1); Joo et al. (2015), Panoptic Studio, ICCV; Snavely, Seitz and Szeliski (2006), Photo Tourism, *ACM TOG* 25(3); Mildenhall et al. (2020), NeRF, ECCV; Kerbl et al. (2023), 3D Gaussian Splatting, *ACM TOG* 42(4); Su and Grauman (2017), Making 360° video watchable in 2D, CVPR; Bonatti et al. (2020), Autonomous aerial cinematography in unstructured environments with learned artistic decision-making, *J. Field Robotics* 37(4); COLMAP <https://colmap.github.io>; PySceneDetect <https://www.scenedetect.com>.

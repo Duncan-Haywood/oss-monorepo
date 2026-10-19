@@ -429,3 +429,48 @@ export const BATCH_SAMPLE = [
   "Blake Example,2024,0,0,0,12000,0,30000,0,0",
   "Casey Example,2024,10000,0,0,25000,0,8000,0,0",
 ].join("\n");
+
+// ---- Schedule K-1 (Form 1120-S) box entry -----------------------------------
+// Shareholders hold a K-1, not the nine columns above. One line per year in K-1
+// box numbers, e.g. `2024: 1=90000, 4=200, 11=5000, 16A=500, 16C=2000, 16D=60000, 16E=15000`,
+// becomes a row for `parseYears`. Boxes 1-10 are income (loss); a positive amount is
+// income and a negative one a loss. Boxes 11 (section 179) and 12 (other deductions)
+// are deductions and reduce basis with the losses. 16A/16B are tax-exempt income,
+// 16C nondeductible expenses, 16D distributions, 16E loan repayments. A K-1 does not
+// show contributions or new loans, so `contrib=` and `loan=` take those. Credits
+// (13), K-3 (14) and AMT items (15) do not change basis here and are ignored.
+const K1_INCOME = ["1", "2", "3", "4", "5A", "6", "7", "8A", "9", "10"];
+const K1_BOXES = new Set([...K1_INCOME, "11", "12", "16A", "16B", "16C", "16D", "16E", "CONTRIB", "LOAN"]);
+
+export function fromK1Boxes(text) {
+  const rows = [], errors = [];
+  String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean).forEach((line, i) => {
+    const m = line.match(/^(\d{4})\s*[:,]?\s*(.*)$/);
+    if (!m || Number(m[1]) < 1958 || Number(m[1]) > 2100) { errors.push("Line " + (i + 1) + ": start with the tax year, then box=amount pairs."); return; }
+    const box = {};
+    let bad = false;
+    for (const part of m[2].split(/[,;]+|\s{2,}/).map((s) => s.trim()).filter(Boolean)) {
+      const kv = part.match(/^(?:box\s*)?([0-9]{1,2}[a-e]?|contrib|loan)\s*=\s*(.+)$/i);
+      const key = kv && kv[1].toUpperCase();
+      if (!kv || !K1_BOXES.has(key)) { errors.push("Line " + (i + 1) + ": '" + part + "' is not a box I read (use 1-10, 11, 12, 16A-16E, contrib, loan)."); bad = true; continue; }
+      const v = parseMoney(kv[2]);
+      if (Number.isNaN(v)) { errors.push("Line " + (i + 1) + ": '" + kv[2] + "' is not an amount."); bad = true; continue; }
+      box[key] = (box[key] || 0) + v;
+    }
+    if (bad) return;
+    let income = 0, losses = 0;
+    for (const k of K1_INCOME) { const v = box[k] || 0; if (v >= 0) income += v; else losses -= v; }
+    losses += Math.abs(box["11"] || 0) + Math.abs(box["12"] || 0);
+    const get = (k) => Math.abs(box[k] || 0);
+    rows.push({ year: Number(m[1]), contributions: get("CONTRIB"), loansMade: get("LOAN"), loansRepaid: get("16E"), income: cents(income), taxExempt: get("16A") + get("16B"),
+      distributions: get("16D"), nondeductible: get("16C"), losses: cents(losses) });
+  });
+  const text2 = rows.length ? [FIELDS.join(","), ...rows.map((r) => FIELDS.map((f) => r[f]).join(","))].join("\n") : "";
+  return { rows, errors, text: text2 };
+}
+
+export const K1_SAMPLE = [
+  "2022: 1=-70000, 16C=1500, loan=30000",
+  "2023: 1=40000, 16D=10000",
+  "2024: 1=88000, 4=2000, 16A=500, 16C=2000, 16D=60000, 16E=15000",
+].join("\n");

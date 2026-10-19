@@ -298,6 +298,7 @@ class BuildArtifact(unittest.TestCase):
         every hosted surface."""
         hub = (self.out / "index.html").read_text(encoding="utf-8")
         self.assertIn("No warranty", hub)
+        self.assertIn("provided free and as-is", " ".join(hub.split()))
         self.assertIn("no SLA", hub)
         self.assertIn("sponsors", hub)
 
@@ -493,6 +494,34 @@ class DescriptionTrimming(unittest.TestCase):
         self.assertLessEqual(len(trimmed), 62)
         self.assertTrue(trimmed.endswith("…"))
         self.assertFalse(trimmed[:-1].endswith(" "))
+
+    def test_clipped_text_never_exceeds_the_limit(self):
+        """A word boundary exactly at the limit must not pull in one more character."""
+        trimmed = bp._first_sentence("aaaa bbbb cc", limit=9)
+        self.assertEqual(trimmed, "aaaa…")
+
+
+class VentureYamlFolding(unittest.TestCase):
+    def test_folded_scalar_keeps_its_first_continuation_line(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp)
+        y = tmp / "VENTURE.yaml"
+        y.write_text("name: x\ndescription: one\n  two\n  three\nnext: y\n", encoding="utf-8")
+        self.assertEqual(bp._read_venture_field(y, "description"), "one two three")
+
+
+class NonUtf8Copy(unittest.TestCase):
+    def test_a_non_utf8_html_file_is_copied_and_counted(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp)
+        make_venture(tmp, "latin-calculator")
+        (tmp / "ventures" / "latin-calculator" / "legacy.html").write_bytes(b"caf\xe9")
+        out = tmp / "_site"
+        result = bp.build(
+            out_dir=out, base_url="https://host.example.com/repo", ventures_dir=tmp / "ventures"
+        )
+        files = [f for f in (out / "latin-calculator").rglob("*") if f.is_file()]
+        self.assertEqual(result["files"], len(files))
 
 
 if __name__ == "__main__":

@@ -131,7 +131,11 @@ export function digest(rows, t, sum = {}) {
   const ms = moneySummary(sum), total = ms.mrrAtRisk != null && rows.length ? `${money(ms.mrrAtRisk)}/mo of MRR is on flagged accounts${ms.expectedLoss30d != null ? `; expected loss over the next 30 days is about ${money(ms.expectedLoss30d)}` : ""}.` : null;
   return { mode: t.mode, count: rows.length, ...ms, text: [head, ...(total ? [total] : []), ...lines].join("\n"), accounts: rows };
 }
-const money = (n) => `$${Math.round(n).toLocaleString("en-US")}`;
+const money = (n) => {
+  const format = (n) => `$${Math.round(n).toLocaleString("en-US")}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const moneySummary = (sum) => (sum.mrrTracked == null ? {} : { mrrTracked: sum.mrrTracked, mrrAtRisk: sum.mrrAtRisk, expectedLoss30d: sum.expectedLoss30d });
 /** Monthly amount of a Stripe subscription: sum of item price x quantity, yearly/weekly/daily plans normalised to a month. Zero-decimal currencies are not special-cased: amounts are in the currency's minor unit /100. */
 export function stripeMrr(state, account, sub) {

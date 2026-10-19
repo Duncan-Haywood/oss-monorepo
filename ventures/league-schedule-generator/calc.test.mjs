@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  applyRainouts, changeNotices, dayLabel, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
+  applyRainouts, changeNotices, dayLabel, applyPinnedMatches, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
@@ -366,7 +366,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", pins: "A v B -> 2026-12-01", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "", rounds: "" });
@@ -1829,4 +1829,51 @@ test("changeNotices names each moved match once for the group and only own chang
 
 test("changeNotices is empty when nothing moved and tolerates junk input", () => {
   for (const x of [[], null, undefined, "x"]) assert.deepEqual(changeNotices(x), { group: "", teams: [] });
+});
+
+test("a pinned derby moves to a chosen later or earlier date and the schedule stays valid", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const count = (x) => x.rounds.reduce((a, r) => a + r.matches.length, 0);
+  const lastDay = s.rounds[s.rounds.length - 1].day;
+  const meet = (x, a, b) => x.rounds.flatMap((r) => r.matches.map((m) => ({ day: r.day, m }))).find(({ m }) => [m.homeName, m.awayName].sort().join() === [a, b].sort().join());
+  const later = applyPinnedMatches(s, `A v B -> ${dayIso(lastDay + 3)}`);
+  assert.deepEqual(later.errors, []);
+  assert.equal(later.pins.length, 1);
+  assert.equal(meet(later.schedule, "A", "B").day, lastDay + 3);
+  assert.equal(count(later.schedule), count(s));
+  assert.equal(validateSchedule(later.schedule).ok, true, validateSchedule(later.schedule).errors.join(" "));
+  const firstDay = s.rounds[0].day;
+  const opener = meet(s, "C", "D").day === firstDay ? ["A", "B"] : ["C", "D"];
+  const earlier = applyPinnedMatches(s, `${opener[0]} vs ${opener[1]} -> ${dayIso(firstDay - 7)}`);
+  assert.deepEqual(earlier.errors, []);
+  assert.equal(meet(earlier.schedule, ...opener).day, firstDay - 7);
+  assert.equal(earlier.schedule.rounds[0].day, firstDay - 7, "rounds stay in date order");
+  assert.equal(validateSchedule(earlier.schedule).ok, true, validateSchedule(earlier.schedule).errors.join(" "));
+  assert.equal(meet(s, "A", "B").day <= lastDay, true, "input is not mutated");
+});
+
+test("pinning both legs of a double round robin moves each once, and bad lines are named", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00", double: true });
+  const s = buildSchedule(spec);
+  const d1 = dayIso(s.rounds[s.rounds.length - 1].day + 7);
+  const d2 = dayIso(s.rounds[s.rounds.length - 1].day + 14);
+  const r = applyPinnedMatches(s, `A v B -> ${d1}\nB v A -> ${d2}\nA v B -> ${d1}`);
+  const days = r.schedule.rounds.flatMap((x) => x.matches.filter((m) => [m.homeName, m.awayName].sort().join() === "A,B").map(() => dayIso(x.day)));
+  assert.deepEqual(days.sort().slice(-2), [d1, d2]);
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0], /already pinned|every meeting/);
+  const bad = applyPinnedMatches(s, "A v A -> 2026-12-01\nA v Z -> 2026-12-01\nA v B\nA v B -> 2026-02-31");
+  assert.equal(bad.errors.length, 4);
+  assert.equal(bad.pins.length, 0);
+  assert.equal(validateSchedule(r.schedule).ok, true, validateSchedule(r.schedule).errors.join(" "));
+});
+
+test("a pin onto a night a team is blacked out is refused and the match stays put", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00", blackouts: "A: 2026-12-01" });
+  const s = buildSchedule(spec);
+  const r = applyPinnedMatches(s, "A v B -> 2026-12-01");
+  assert.equal(r.pins.length, 0);
+  assert.equal(r.errors.length, 1);
+  assert.deepEqual(r.schedule.rounds.map((x) => x.day), s.rounds.map((x) => x.day));
 });
