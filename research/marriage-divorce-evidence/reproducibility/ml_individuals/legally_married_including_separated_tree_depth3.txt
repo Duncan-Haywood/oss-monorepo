@@ -1,0 +1,16 @@
+|--- cat__baseline_status_Separated <= 0.50000
+|   |--- num__age <= 0.16447
+|   |   |--- cat__education_model_Bachelor <= 0.50000
+|   |   |   |--- value: [0.01332]
+|   |   |--- cat__education_model_Bachelor >  0.50000
+|   |   |   |--- value: [0.00857]
+|   |--- num__age >  0.16447
+|   |   |--- num__age <= 0.60306
+|   |   |   |--- value: [0.00831]
+|   |   |--- num__age >  0.60306
+|   |   |   |--- value: [0.00517]
+|--- cat__baseline_status_Separated >  0.50000
+|   |--- num__age <= -0.12792
+|   |   |--- value: [0.15766]
+|   |--- num__age >  -0.12792
+|   |   |--- value: [0.08664]

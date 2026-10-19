@@ -1,0 +1,29 @@
+{
+  "seed": 20261019,
+  "folds": 5,
+  "models": [
+    "constant",
+    "additive_poisson",
+    "tree_depth2",
+    "tree_depth3",
+    "spline_additive_poisson"
+  ],
+  "additive_alpha": 0.001,
+  "spline_alpha": 0.001,
+  "tree_min_rows_leaf": 500,
+  "tree_min_fraction_personyears_leaf": 0.02,
+  "categorical": [
+    "sex",
+    "education_model",
+    "work",
+    "income_quartile",
+    "religion_2000",
+    "baseline_status",
+    "start_wave"
+  ],
+  "numeric": [
+    "age",
+    "first_marriage_age"
+  ],
+  "target": "Future first legal divorce before widowhood or next interview; annual rate"
+}

@@ -1,0 +1,12 @@
+{
+  "baseline_additive_max_abs_coefficient_difference_from_original": 0.0,
+  "same_person_fold_count_max": 1,
+  "all_crossfit_predictions_complete": true,
+  "fold_respondents": {
+    "0": 1059,
+    "1": 1059,
+    "2": 1059,
+    "3": 1059,
+    "4": 1059
+  }
+}

@@ -139,6 +139,11 @@
      "slug": "skill-score-normalisation",
      "title": "Is a skill score normalised by the realised base rate safe to pay on?",
      "summary": "Ranking verifiers by the Brier skill score 1&minus;Brier/(<em>y</em>&#772;(1&minus;<em>y</em>&#772;)) divides a proper score by an outcome-dependent baseline, and that breaks properness. The optimal report is exactly the hit rate reweighted by the inverse baseline variance: it is &frac12; for any belief with two tasks, and for larger <em>n</em> is biased by about &minus;(1&minus;2<em>p</em>)/<em>n</em> (0.232 against a true 0.1 at <em>n</em>=5), with misreporting gaining 0.042 skill for a 0.017 true-Brier cost. Because the baseline pools all of a verifier&rsquo;s tasks, the report on one task type also shifts with beliefs on the others (0.090 vs 0.133 for the rare type). A leave-one-out or ex-ante baseline restores properness. Independent tasks, constant reports, Brier only; exact enumeration agrees with 200,000-trial simulation. Pure-Python, 9 tests."
+    },
+    {
+     "slug": "marriage-divorce-evidence",
+     "title": "Can interpretable models predict annual divorce incidence?",
+     "summary": "Original ACS, NSFG and NLSY79 microdata analyses separate annual incidence from prevalence. A respondent-held-out enriched additive couple model reduces Poisson loss by about 3.4%; more flexible trees do not improve on it. Includes schooling/earnings pairings, direct contrasts, duration and first-birth checks, trained models and a portable report. Older cohort; observational, not a personal or causal forecast."
     }
    ]
   },

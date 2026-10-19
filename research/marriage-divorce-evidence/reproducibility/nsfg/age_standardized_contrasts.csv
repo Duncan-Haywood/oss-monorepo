@@ -1,0 +1,12 @@
+sex,analysis,group,estimand,n,min_age_cell_n,estimate_pct_or_pp,se_pp,ci_low,ci_high,design_df
+female,religious_attendance,Never,age_standardized_prevalence,670.0,88.0,42.0404994755785,2.5384578422146498,37.05224672248995,47.19679089075211,54
+female,religious_attendance,Weekly or more,age_standardized_prevalence,787.0,109.0,26.348948753952108,2.0932501548666584,22.371174972983653,30.753803128702433,54
+female,religious_attendance,Never minus weekly or more,difference_percentage_points,,,15.69155072162639,3.1894668366699643,9.297054720424098,22.086046722828684,54
+female,female_first_spouse_pairing,Wife below BA / first husband below BA,age_standardized_prevalence,1417.0,222.0,41.51772711769512,2.4717524900780172,36.66304631943312,46.54285607451081,54
+female,female_first_spouse_pairing,Wife below BA / first husband BA+,age_standardized_prevalence,203.0,26.0,32.07091314241151,4.0829852717997905,24.485107890343972,40.73901631935601,54
+female,female_first_spouse_pairing,Wife BA+ / first husband below BA,age_standardized_prevalence,410.0,36.0,33.16302996187835,2.655565518150988,28.069407382389333,38.68387630318158,54
+female,female_first_spouse_pairing,Wife BA+ / first husband BA+,age_standardized_prevalence,558.0,59.0,14.36415422050758,1.9627471677944905,10.858564682411378,18.763271447428632,54
+female,female_first_spouse_pairing,Both BA+ minus both below BA,difference_percentage_points,,,-27.153572897187537,3.2009816148366137,-33.571154638644224,-20.735991155730854,54
+male,religious_attendance,Never,age_standardized_prevalence,576.0,57.0,40.901198800957346,3.027145436003215,34.9979755738324,47.078971487904774,54
+male,religious_attendance,Weekly or more,age_standardized_prevalence,449.0,62.0,28.203614891326,3.6981705254601165,21.40739203403963,36.16461335134494,54
+male,religious_attendance,Never minus weekly or more,difference_percentage_points,,,12.697583909631344,4.838113642231183,2.997750074421962,22.397417744840727,54

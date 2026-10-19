@@ -1,0 +1,52 @@
+{
+  "Same sample, original covariates": {
+    "intervals": 33434,
+    "respondents": 5150,
+    "events": 572,
+    "person_years": 67299.75000000001,
+    "rank": 31,
+    "parameters": 31,
+    "normalized_max_score": 9.663894710221243e-18,
+    "fitted_count": 534.9571968356051,
+    "observed_count": 534.9571968356056,
+    "iterations": 6,
+    "baseline_waves": [
+      2000,
+      2002,
+      2004,
+      2006,
+      2008,
+      2010,
+      2012,
+      2014,
+      2016,
+      2018,
+      2020
+    ]
+  },
+  "Same sample + own prior attendance": {
+    "intervals": 33434,
+    "respondents": 5150,
+    "events": 572,
+    "person_years": 67299.75000000001,
+    "rank": 33,
+    "parameters": 33,
+    "normalized_max_score": 1.7503097334447615e-17,
+    "fitted_count": 534.957196835606,
+    "observed_count": 534.9571968356056,
+    "iterations": 6,
+    "baseline_waves": [
+      2000,
+      2002,
+      2004,
+      2006,
+      2008,
+      2010,
+      2012,
+      2014,
+      2016,
+      2018,
+      2020
+    ]
+  }
+}

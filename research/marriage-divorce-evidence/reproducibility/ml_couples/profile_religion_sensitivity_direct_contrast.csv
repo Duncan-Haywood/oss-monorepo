@@ -1,0 +1,3 @@
+model,contrast,rate_ratio,ci_low,ci_high
+"Profile specification, same attendance-complete sample",Husband only vs husband-majority with both positive wages,1.3201762172354843,1.001919206344112,1.7395267338109104
+Profile specification + own prior attendance,Husband only vs husband-majority with both positive wages,1.319868296560323,1.0023524257516976,1.7379638892564413
