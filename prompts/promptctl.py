@@ -744,6 +744,10 @@ def print_measure(m: dict[str, Any]) -> None:
         hidden = len(tagged) - len(shown)
         tail = f" (+{hidden} older or since-changed, not shown)" if hidden > 0 else ""
         print(f"- `{path}`{note}: {f['reports']} report(s); latest: " + " | ".join(shown) + tail)
+    if m["doc_friction"]:
+        print("\nA report can predate its fix without the file changing (a new tool, a doc elsewhere). "
+              "Before building on one, grep `git log origin/main --since=<report time> -i --grep=<keyword>` "
+              "and the tree for the tool it asks for.")
     print("\n## Deviations by file (judgment calls; prompts/steering.md)\n")
     if not m["deviations"]:
         print("None recorded.\n")

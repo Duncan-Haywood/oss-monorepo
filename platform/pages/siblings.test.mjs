@@ -3,6 +3,8 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 import { findOrphans, outboundToolLinks, relatedness, surveyTools } from './siblings.mjs';
 
@@ -120,6 +122,48 @@ test('the suggested sibling prefers the same subcategory', async () => {
   const sealcoat = orphans.find((o) => o.slug === 'asphalt-sealcoat-bid-calculator');
   assert.equal(sealcoat.nearest.tool.slug, 'asphalt-driveway-pave-bid-calculator');
   await fs.rm(dir, { recursive: true, force: true });
+});
+
+test('same subcategory outranks a higher word score in another subcategory', async () => {
+  const dir = await fixtureTree({
+    'asphalt-sealcoat-bid-calculator': '<p>orphan</p>',
+    'asphalt-patch-bid-calculator': '<p>orphan</p>',
+    'paving-sealcoat-asphalt-bid-calculator': '<p>orphan</p>',
+  });
+  const orphans = findOrphans(await surveyTools(dir));
+  const sealcoat = orphans.find((o) => o.slug === 'asphalt-sealcoat-bid-calculator');
+  assert.equal(sealcoat.nearest.tool.slug, 'asphalt-patch-bid-calculator');
+  await fs.rm(dir, { recursive: true, force: true });
+});
+
+test('within a subcategory the most shared job words wins over alphabetical order', async () => {
+  const dir = await fixtureTree({
+    'asphalt-sealcoat-bid-calculator': '<p>orphan</p>',
+    'asphalt-driveway-pave-bid-calculator': '<p>orphan</p>',
+    'asphalt-sealcoat-driveway-bid-calculator': '<p>orphan</p>',
+  });
+  const orphans = findOrphans(await surveyTools(dir));
+  const sealcoat = orphans.find((o) => o.slug === 'asphalt-sealcoat-bid-calculator');
+  assert.equal(sealcoat.nearest.tool.slug, 'asphalt-sealcoat-driveway-bid-calculator');
+  await fs.rm(dir, { recursive: true, force: true });
+});
+
+const CLI = fileURLToPath(new URL('./siblings.mjs', import.meta.url));
+
+test('--json prints two-space-indented JSON of the survey', () => {
+  const out = execFileSync('node', [CLI, '--json'], { encoding: 'utf8' });
+  assert.ok(out.includes('\n  "tools": '), 'expected two-space indent');
+  assert.ok(Array.isArray(JSON.parse(out).orphans));
+});
+
+test('--check passes when the orphan count equals the committed budget', () => {
+  const budget = JSON.parse(execFileSync('cat', [fileURLToPath(new URL('./siblings-budget.json', import.meta.url))], { encoding: 'utf8' }));
+  const { orphans } = JSON.parse(execFileSync('node', [CLI, '--json'], { encoding: 'utf8' }));
+  // Meeting the budget exactly is within it; only exceeding it fails.
+  if (orphans.length === budget.orphanBudget) {
+    const out = execFileSync('node', [CLI, '--check'], { encoding: 'utf8' });
+    assert.match(out, /within the committed budget/);
+  }
 });
 
 test('the committed budget matches what the tree measures today', async () => {
