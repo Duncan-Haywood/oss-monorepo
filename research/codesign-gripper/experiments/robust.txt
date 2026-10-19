@@ -1,0 +1,7 @@
+Success rate (of 8 objects) of each method's best design, re-scored under harder conditions (no re-search).
+design (L, t, w, a) | nominal | pad mu 0.35 | offsets x3 | mu 0.35 and offsets x3
+session agent best: [20.0, 2.5, 30.0, 30.0] | 1.000 | 0.875 | 0.750 | 0.750
+random search best (any seed): [16.0, 2.0, 21.9, 1.0] | 1.000 | 1.000 | 0.875 | 0.875
+CMA-ES best (any seed): [15.1, 2.1, 10.2, 2.7] | 1.000 | 1.000 | 0.625 | 0.625
+Bayesian opt (GP-EI) best (any seed): [15.0, 1.7, 8.0, 0.0] | 1.000 | 0.875 | 0.625 | 0.500
+overall best: [15.0, 1.7, 8.0, 0.0] | 1.000 | 0.875 | 0.625 | 0.500

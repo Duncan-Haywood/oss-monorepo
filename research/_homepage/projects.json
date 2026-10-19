@@ -3470,6 +3470,18 @@
    }
   ]
  }
+ ,{
+  "id": "codesign",
+  "name": "Agentic co-design of low-cost robots",
+  "blurb": "Designing a cheap robot and its controller together in simulation, with an agent, CMA-ES, Bayesian optimisation and random search at equal budget, for civilian domains.",
+  "projects": [
+   {
+    "slug": "codesign-gripper",
+    "title": "Which printable two-finger gripper holds eight different objects for the least plastic, and can an agent beat CMA-ES and Bayesian optimisation at 40 simulations?",
+    "summary": "A parametric 3D-printable gripper finger (length, thickness, pad width, V angle) scored in MuJoCo on eight objects with a per-design grip force. At 40 evaluations the median best objective is 0.991 for Bayesian optimisation, 0.979 for CMA-ES, 0.965 for random search and 0.963 for a session agent&rsquo;s hand-written proposals (one run; Bayesian optimisation matched or beat it in 10 of 10 seeds). The best designs are tiny flat fingers (0.5&nbsp;g), but re-scored with object offsets tripled they hold 5 of 8 objects against 6 of 8 for the agent&rsquo;s wide V. Rigid, stylised, no learned policy, nothing printed."
+   }
+  ]
+ }
  ],
  "featured": [
   "decentralized-verification-markets",
