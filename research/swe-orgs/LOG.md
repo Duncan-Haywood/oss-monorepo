@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-19 · Batch 17: controlled experiments and Strathern on measures that become targets
+
+- Added 2 sources and 2 practices (55 practices, 54 sources): Kohavi, Tang and Xu's *Trustworthy Online Controlled Experiments* (Cambridge University Press, 2020; P54) and Strathern's 1997 *European Review* paper on audit in British universities (P55). Both bear on `swe-prompt` and the track's "guard the metric" rule, and P55 is the catalogue's first source from outside software and outside the US.
+- **P54 transfers `yes` and is `partly` adopted**: `prompt.md` has an experiment process and `swe-prompt` built a sequential stopping rule, but nothing asks whether a surprisingly large win is an artefact. **P55 transfers `partial`** and is `partly` adopted: correctness and value are scored from git and CI, but the ledger's error counts, which this study scores against, are written by the runs they describe.
+- **Still no proposal.** The ledger has 1211 rows (it had 1070); every class share is at or below 1.7% (tooling). The new rows rank at 0.7% (P54) and 0.3% (P55), far below the 5% bar. README evidence counts, stale since batch 13, were corrected from the CSV.
+- Verification was by web search only. Neither work was read; the book row rests on Cambridge Core chapter pages and the paper row on glossary and abstract pages. No figure and no quotation is used.
+
 ## 2026-10-18 · Batch 16: Etsy's day-one deploys and the Friday-freeze argument
 
 - Added 2 sources and 2 practices (53 practices, 52 sources): Etsy's practice of having new engineers deploy on their first day, as reported by CIO.com in 2011 (P52), and Majors's essays against calendar deploy freezes (P53). Both are early-stage or startup-flavoured, which the catalogue still lacks.
