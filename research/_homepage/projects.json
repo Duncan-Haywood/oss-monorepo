@@ -3518,6 +3518,11 @@
     "slug": "sensing-recon",
     "title": "How many photos does a usable 3-D reconstruction need?",
     "summary": "Synthetic bumpy-ellipsoid object, 800 features, pinhole cameras on an orbit with known poses and linear (DLT) triangulation. On a full orbit 12 views reconstruct every feature, 8 views 89%, 6 views 59% and 4 or fewer at most 13%, because a point must be seen by two cameras. Once triangulated, error is about 0.0028 object radii per pixel of image noise, a 1&deg; pose error does the damage of about 2&nbsp;px, and a narrow baseline (5&deg; span) raises error about 7&times; against a 40&deg; span. Triangulation stage only: matches and poses are given, there is no occlusion, mesh or splat, and no real images."
+   },
+   {
+    "slug": "sensing-thermalfuse",
+    "title": "Does a low-resolution thermal camera find people in darkness and smoke, and what does misalignment cost?",
+    "summary": "Synthetic 64&times;64 scenes with people, cold clutter and warm non-person decoys, seen by a grey RGB camera (shot and read noise, smoke airlight) and a 16&times;16 thermal camera (0.3&nbsp;K noise, 10% of the visible smoke extinction assumed). At 10% false alarms per image, RGB alone finds 36% of people in bright clear light, 13% at smoke transmittance 0.4 and none in the dark or dense smoke; thermal alone finds 65% in every condition, capped by the decoys; fusing them gives 94% in bright light and falls back to the thermal level otherwise. A thermal camera displaced by 2&nbsp;px costs the fused detector 7 points, 4&nbsp;px (one thermal pixel) 19, and 6&nbsp;px leaves it below RGB alone (0.12 vs 0.37); training with displacement jitter keeps 0.54 at 6&nbsp;px but loses 9 points when aligned. Stylised: synthetic scenes, logistic-regression detectors on local contrast, sideways shift only, no real data."
    }
   ]
  },
