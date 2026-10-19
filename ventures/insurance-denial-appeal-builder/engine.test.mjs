@@ -154,6 +154,7 @@ test("bundling, coverage-ended and surprise-bill denials are recognised by code 
   assert.equal(readDenial("Your coverage was terminated on 2026-03-31.").top, "eligibility");
   assert.equal(readDenial("Emergency room visit; the anesthesiologist was out of network. Balance billing applies.").top, "surprise_bill");
   assert.match(appealLetter({ plan: "commercial", reason: "surprise_bill" }), /in-network cost sharing/);
+});
 
 test("provider letter leaves clinical facts as placeholders and asks for peer-to-peer", () => {
   const l = providerLetter({ reason: "medical_necessity", patient: "Alex Rivera", provider: "Lee", insurer: "Acme", urgent: true });
