@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofab-tolstack"
+version = "0.1.0"
+description = "Assembly yield of a two-pin printed cover against nominal clearance: Monte Carlo, closed form, worst-case and RSS rules"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

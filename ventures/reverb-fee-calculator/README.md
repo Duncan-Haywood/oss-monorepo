@@ -61,6 +61,15 @@ The SEO page
 walks the default worked example ($800 list, $720 offer, $281.60 vs $208.15
 on Reverb, $230.60 on eBay at list, $744.45 crossover).
 
+## Offer inbox: answer several offers at once
+
+Paste one offer per line, `name, list price, offer, what you paid` (the last
+column is optional), and the page answers each: **accept** when the offer nets
+at least what eBay would at your list price, **counter** at the eBay-crossover
+price (rounded up, never above list) when it covers costs but leaves less, and
+**decline** when it loses money. It uses the same fee fields as the rest of the
+page; the lines stay in the browser. Logic: `inbox.mjs`, tests: `inbox.test.mjs`.
+
 ## Take the offer now, or wait for a better one?
 
 Every comparison above treats "wait for list" as a sure thing. It is not.
