@@ -14,7 +14,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:.35rem .5rem;text-align:left}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:9rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
-const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/">Shift Roster Builder</a> (MIT). Not legal advice: check breaks, minors and predictive-scheduling rules yourself.</p></body></html>`;
+const page = (title, body, head = "") => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${head}<title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/">Shift Roster Builder</a> (MIT). Not legal advice: check breaks, minors and predictive-scheduling rules yourself.</p></body></html>`;
 
 export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], callouts: [], trades: [], claims: [], offs: [] }; }
 
@@ -37,6 +37,18 @@ function publish(state, now) {
 
 const dayDate = (ws, d) => { const t = new Date(ws + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + d); return t.toISOString().slice(5, 10); };
 
+// Installable on a phone's home screen and readable offline: the staff page links a manifest and a small service
+// worker that keeps the last schedule the phone saw. Nothing but the schedule page is cached; forms are never replayed.
+const teamHead = (token) => `<link rel="manifest" href="/team/manifest.webmanifest?t=${esc(token)}"><meta name="theme-color" content="#176f2c"><link rel="icon" href="/team/icon.svg?t=${esc(token)}"><script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/team/sw.js?t=${esc(token)}",{scope:"/team"}).catch(function(){})</script>`;
+export const manifestFor = (token) => JSON.stringify({ name: "Team schedule", short_name: "Schedule", start_url: `/team?t=${encodeURIComponent(token)}`, scope: "/team", display: "standalone", background_color: "#ffffff", theme_color: "#176f2c", icons: [{ src: `/team/icon.svg?t=${encodeURIComponent(token)}`, sizes: "any", type: "image/svg+xml", purpose: "any" }] });
+export const ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#176f2c"/><path d="M14 22h36M14 34h36M14 46h22" stroke="#fff" stroke-width="6" stroke-linecap="round"/></svg>`;
+export const SW_JS = `const C="schedule-v1";
+self.addEventListener("install",()=>self.skipWaiting());
+self.addEventListener("activate",e=>e.waitUntil(self.clients.claim()));
+self.addEventListener("fetch",e=>{const r=e.request,u=new URL(r.url);
+if(r.method!=="GET"||u.pathname!=="/team")return;
+e.respondWith(fetch(r).then(x=>{if(x.ok){const c=x.clone();caches.open(C).then(k=>k.put(r.url,c))}return x}).catch(()=>caches.match(r.url).then(m=>m||new Response("Offline and no saved schedule yet.",{status:503,headers:{"content-type":"text/plain"}}))))});`;
+
 function teamPage(state, token) {
   const p = state.published;
   const form = `<h2>Send your availability</h2><form method="post" action="/team/reply?t=${esc(token)}"><label>One line: <code>Your name | Mon-Fri 9-17; Sat off | max: 30</code><input name="line" required maxlength="300"></label><button>Send</button></form><p class="note">Your manager sees it and decides. Nothing changes until they merge it.</p>`;
@@ -52,10 +64,10 @@ function teamPage(state, token) {
   const claim = p && openUnique.length && p.people.length ? `<h2>Open shifts you can pick up</h2><form method="post" action="/team/claim?t=${esc(token)}"><label>Shift<select name="shift" required>${openUnique.map((a) => `<option value="${esc(openKey(a))}">${esc(dl(a.slot.day))} ${esc(fmtClock(a.slot.startMin))}-${esc(fmtClock(a.slot.endMin))}${a.slot.label ? " (" + esc(a.slot.label) + ")" : ""}</option>`).join("")}</select></label><label>Who are you?<select name="name" required>${p.people.map((q) => `<option>${esc(q.name)}</option>`).join("")}</select></label><label>Note (optional)<input name="note" maxlength="140"></label><button>Ask to take it</button></form><p class="note">This only asks. Your manager sees whether it fits your availability, rest and hour limits and decides; the shift stays open until they approve.</p>` : "";
   const names = p ? p.people.map((q) => q.name) : [];
   const off = names.length ? `<h2>Need days off?</h2><form method="post" action="/team/timeoff?t=${esc(token)}"><label>Who are you?<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>First day<input type="date" name="from" required></label><label>Last day (leave blank for one day)<input type="date" name="to"></label><label>Note (optional)<input name="note" maxlength="140"></label><button>Ask my manager</button></form><p class="note">This only asks. If your manager agrees, the days come off your availability when they build that week.</p>` : "";
-  if (!p) return page("Team schedule", `<p>No schedule has been published yet.</p>${form}`);
+  if (!p) return page("Team schedule", `<p>No schedule has been published yet.</p>${form}`, teamHead(token));
   const msgs = rosterMessages({ assignments: p.assignments, people: p.people }, p.weekStart);
   const rows = msgs.map((m) => `<tr><td><strong>${esc(m.person)}</strong></td><td>${esc(m.text.split("\n").slice(1, -1).join(" · ") || "no shifts")}</td><td>${p.weekStart && m.shifts ? `<a href="/team/ics?t=${esc(token)}&person=${encodeURIComponent(m.person)}">Add to calendar</a>` : ""}</td></tr>`).join("");
-  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${claim}${callout}${trade}${off}${form}`);
+  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${claim}${callout}${trade}${off}${form}<p class="note">Tip: add this page to your home screen to open it like an app. It keeps the last schedule your phone saw, so you can read it with no signal.</p>`, teamHead(token));
 }
 
 // Who could take each reported shift without moving anyone else, cheapest first. Rebuilt from the current staff and
@@ -183,6 +195,9 @@ export function handler(state, save, env = process.env, now = Date.now) {
     const t = url.searchParams.get("t");
     if (isTeam) {
       if (req.method === "GET" && url.pathname === "/team") return send(200, teamPage(state, t));
+      if (req.method === "GET" && url.pathname === "/team/manifest.webmanifest") return send(200, manifestFor(t), "application/manifest+json");
+      if (req.method === "GET" && url.pathname === "/team/icon.svg") return send(200, ICON_SVG, "image/svg+xml");
+      if (req.method === "GET" && url.pathname === "/team/sw.js") return send(200, SW_JS, "text/javascript; charset=utf-8", { "service-worker-allowed": "/team" });
       if (req.method === "GET" && url.pathname === "/team/ics") {
         const p = state.published, person = url.searchParams.get("person");
         if (!p || !p.weekStart || !p.people.some((x) => x.name === person)) return send(404, "no such schedule\n", "text/plain");

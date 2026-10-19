@@ -707,6 +707,36 @@ export function escortBoardHtml(spec, result, title = "Find your table") {
 }
 
 /**
+ * A print-ready floor plan: every table drawn as a circle with its guests around
+ * it in seat order (the same order the signs and CSV use, so neighbours are the
+ * people the wishes put next to each other). Landscape, three tables across, one
+ * inline SVG per table. Meals never appear. Guest text is escaped; no script,
+ * nothing loaded.
+ */
+export function floorPlanHtml(spec, result, title = "Floor plan") {
+  const S = 360, C = S / 2, TR = 46, SR = 74, LR = 88;
+  const f = (x) => Math.round(x * 10) / 10;
+  const svgFor = (t) => {
+    const n = t.guests.length;
+    const seats = t.guests.map((name, i) => {
+      const a = -Math.PI / 2 + (2 * Math.PI * i) / Math.max(n, 1);
+      const cos = Math.cos(a), sin = Math.sin(a);
+      const anchor = Math.abs(cos) < 0.3 ? "middle" : cos > 0 ? "start" : "end";
+      const ly = sin < -0.3 ? sin * LR - 2 : sin > 0.3 ? sin * LR + 10 : sin * LR + 4;
+      return `<circle cx="${f(C + cos * SR)}" cy="${f(C + sin * SR)}" r="7"/>`
+        + `<text x="${f(C + cos * LR)}" y="${f(C + ly)}" text-anchor="${anchor}">${escHtml(name)}</text>`;
+    }).join("");
+    return `<figure><svg viewBox="0 0 ${S} ${S}" role="img" aria-label="Table ${t.number}, ${n} guest${n === 1 ? "" : "s"}">`
+      + `<circle class="t" cx="${C}" cy="${C}" r="${TR}"/><text class="n" x="${C}" y="${C + 9}" text-anchor="middle">${t.number}</text>${seats}</svg></figure>`;
+  };
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${escHtml(title)}</title>`
+    + `<style>@page{size:letter landscape;margin:0.4in}body{font-family:Georgia,serif;margin:0;padding:16px}h1{text-align:center;font-size:28px;margin:0 0 8px}`
+    + `main{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}figure{margin:0;break-inside:avoid}svg{width:100%;height:auto}`
+    + `circle{fill:#fff;stroke:#444;stroke-width:1.5}.t{fill:#f1ece2;stroke-width:2}text{font-size:12px;fill:#222}.n{font-size:30px;font-weight:700}</style></head>`
+    + `<body><h1>${escHtml(title)}</h1><main>${result.tables.map(svgFor).join("\n") || "<p>No guests to print.</p>"}</main></body></html>`;
+}
+
+/**
  * Folded tent place cards, 8 to a US Letter page (2 across, 4 down), cut and
  * fold on the dotted line. The name is printed upside down on the upper half and the right way up with
  * the table number on the lower half, so it reads from both sides once folded. Cards come out grouped by table, in seat order. Meals never appear.

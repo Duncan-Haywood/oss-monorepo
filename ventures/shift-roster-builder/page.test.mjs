@@ -278,3 +278,57 @@ test("share link keeps the setup in the URL fragment, never sent anywhere", () =
   assert.match(html, /\^#setup=/);
   assert.match(html, /wages included/);
 });
+
+test("14-15 year old page's table is what the engine returns for the sample cafe", async () => {
+  const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
+  const slots = parseShifts(sampleShifts()).slots;
+  const html = page("scheduling-14-and-15-year-olds.html");
+  const cleo = "Cleo, 15, 30, 12, Mon-Fri 15-23; Sat-Sun 8-23", eli = "Eli, 14, 24, 8, Mon/Wed/Fri 16-23; Sat-Sun 8-23";
+  const withAges = (c, e) => sampleStaff().replace(cleo, cleo + (c ? `, age: ${c}` : "")).replace(eli, eli + (e ? `, age: ${e}` : ""));
+  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 3, 216, 3622, 36], ["15", 0, 5, 200, 3384, 18], ["15", "14", 8, 176, 3019, 0], ["15 summer", "14 summer", 4, 208, 3483, 32]]) {
+    const p = parseStaff(withAges(c, e));
+    assert.deepEqual(p.errors, []);
+    const r = buildRoster(p.staff, slots, {});
+    assert.equal(r.unfilled.length, open, "open");
+    assert.equal(r.hours, covered, "covered");
+    assert.equal(r.cost, pay, "payroll");
+    assert.equal(r.people.filter((x) => x.name === "Cleo" || x.name === "Eli").reduce((a, x) => a + x.hours, 0), hrs, "teen hours");
+    assert.ok(html.includes("$" + pay.toLocaleString("en-US")), `${pay} on page`);
+  }
+  assert.match(page("sitemap.xml"), /scheduling-14-and-15-year-olds\.html/);
+  assert.match(page("index.html"), /scheduling-14-and-15-year-olds\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
+
+test("free-alternative page is linked, disclaims affiliation, and states no competitor price", () => {
+  const html = page("free-alternative-to-7shifts-when-i-work-homebase.html");
+  assert.match(page("sitemap.xml"), /free-alternative-to-7shifts-when-i-work-homebase\.html/);
+  assert.match(page("index.html"), /free-alternative-to-7shifts-when-i-work-homebase\.html/);
+  assert.ok(html.includes("No warranty"));
+  assert.match(html, /Not affiliated with, endorsed by, or sponsored by 7shifts/);
+  assert.doesNotMatch(html, /\$\s?\d/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
+
+test("schedule template page's example grid is what the engine returns for the sample cafe", async () => {
+  const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts, DAYS, fmtClock } = await import("./calc.mjs");
+  const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
+  const r = buildRoster(staff, slots, {});
+  const html = page("employee-schedule-template.html");
+  assert.equal(r.hours, 216);
+  assert.equal(r.cost, 3622);
+  for (const s of staff) {
+    const cells = DAYS.map((_, d) => r.assignments.filter((a) => a.person === s.name && a.slot.day === d).map((a) => fmtClock(a.slot.startMin) + "-" + fmtClock(a.slot.endMin)).join(" ") || "off");
+    const hours = r.people.find((x) => x.name === s.name).hours;
+    const row = `<tr><td>${s.name}</td>${cells.map((c) => `<td>${c}</td>`).join("")}<td class="n">${hours}</td></tr>`;
+    assert.ok(html.includes(row), `${s.name} row`);
+  }
+  assert.match(page("sitemap.xml"), /employee-schedule-template\.html/);
+  assert.match(page("index.html"), /employee-schedule-template\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});

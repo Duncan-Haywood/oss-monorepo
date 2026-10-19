@@ -24,6 +24,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   worked example the test suite recomputes.
 - `s-corp-distributions-over-basis.html` - when a distribution becomes taxable, three
   cases recomputed by the test suite.
+- `s-corp-suspended-losses.html` - why a loss is suspended and what frees it, with a three-year example (loss, income, loan repayment) the test suite recomputes.
 - `remember.mjs` - the opt-in "remember these entries on this device" box (off by default; browser storage only, erased by unticking or Clear), so next year's visit is one added line.
 - `usage.mjs` - local-only feature counters with an opt-out.
 

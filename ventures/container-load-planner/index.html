@@ -154,8 +154,11 @@
     <p class="note" id="share-note">The link holds your cargo and container in its address, so anyone who opens it sees the same inputs. It is never sent to a server by this tool; whoever you send it to can read it.</p>
 
     <h3>What if I swap?</h3>
-    <p class="note">The same cargo through every standard size, loose and on pallets. Container counts and fill only; it prices nothing, so weigh it against your own quotes.</p>
-    <div class="scroll"><table id="cmp"><thead><tr><th>Option</th><th class="n">Containers</th><th class="n">Average fill</th><th class="n">Last container</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">The same cargo through every standard size, loose and on pallets. Container counts and fill only; it states no rate of its own. Type the quotes you have been given (one container each) and the table adds what the whole load costs.</p>
+    <label for="rates">Your freight quotes per container, optional (<code>20ft=2400, 40ft=3800, 40hc=4100</code>; sizes: 20ft, 40ft, 40hc, 53ft, truck26)</label>
+    <input id="rates" spellcheck="false" autocomplete="off" placeholder="20ft=2400, 40ft=3800">
+    <p class="note" id="rates-note" role="status"></p>
+    <div class="scroll"><table id="cmp"><thead><tr><th>Option</th><th class="n">Containers</th><th class="n">Average fill</th><th class="n">Last container</th><th class="n">Your cost</th><th>Note</th></tr></thead><tbody></tbody></table></div>
     <p class="note" id="cmp-status"></p>
   </section>
 
@@ -192,14 +195,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or safety advice, is not a load-securing, axle-weight or regulatory compliance certificate, and does not replace your carrier, forwarder or a qualified loading supervisor. Results are a planning estimate from the figures you type; container sizes and payloads vary by equipment. You are responsible for reviewing and verifying its output.</p>
     <p><strong>Independent.</strong> Not affiliated with any shipping line, carrier, forwarder, marketplace or equipment maker, and none is named or ranked here. The example cargo is invented, and no freight rate is stated or implied.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>packet_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>packet_downloaded</code>, <code>rates_priced</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../shipping-box-size-optimizer/">shipping box size optimizer</a> for choosing carton sizes, the <a href="../warehouse-slotting-optimizer/">warehouse slotting optimizer</a> for deciding which shelf each SKU belongs on, the <a href="../parcel-dim-weight-calculator/">dimensional weight calculator</a> for one parcel, the <a href="../ltl-freight-class-estimator/">LTL freight class estimator</a> for pallets, the <a href="../import-landed-cost-calculator/">import landed cost calculator</a> and the <a href="../3pl-quote-normalizer/">3PL quote normalizer</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, finishLines, planLoad, verifyPacking, balanceReport, compareOptions, viewRects, loadingOrder, suggestRestarts, reportCsv, sampleCargo, planReportHtml, encodeShare, decodeShare, fmtNum, fmtInt, pct, lenText, wtText, dimsText, toMm, toKg } from "./calc.mjs";
+    import { SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, finishLines, planLoad, verifyPacking, balanceReport, compareOptions, priceOptions, parseRates, viewRects, loadingOrder, suggestRestarts, reportCsv, sampleCargo, planReportHtml, encodeShare, decodeShare, fmtNum, fmtInt, pct, lenText, wtText, dimsText, toMm, toKg } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -434,6 +437,32 @@
       report.hidden = false;
     }
 
+    let lastCmp = null;
+    function paintCompare() {
+      if (!lastCmp) return;
+      const { rows, best } = lastCmp;
+      let priced = [], rateErr = "";
+      const txt = $("#rates").value.trim();
+      if (txt) {
+        try { priced = priceOptions(rows, parseRates(txt), last ? last.units : null); }
+        catch (e) { rateErr = e.message.replace("--rates needs", "Quotes need"); }
+        if (!rateErr && !priced.length) rateErr = `No quote matched a size. Use ${[...new Set(rows.map((o) => o.id.replace(/\+pallets$/, "")))].join(", ")}.`;
+      }
+      const byId = new Map(priced.map((p) => [p.id, p]));
+      const money = (x) => Math.round(x).toLocaleString("en-US");
+      $("#cmp tbody").innerHTML = rows.map((o) => {
+        const p = o.plan, unfit = p.unfit.reduce((s, u) => s + u.qty, 0), q = byId.get(o.id);
+        const notes = [];
+        if (unfit) notes.push(`${unfit} unit${unfit === 1 ? "" : "s"} cannot go in at all`);
+        if (o === best) notes.push("fewest containers");
+        if (q && !q.complete) notes.push("leaves cargo behind, not a quote for the whole load");
+        if (q && q.cheapest) notes.push("cheapest complete option at your quotes");
+        const cost = q ? `${money(q.total)}${q.perUnit != null && q.complete ? `<br><span class="ghost">${q.perUnit.toFixed(2)} a unit</span>` : ""}` : "—";
+        return `<tr${q && q.cheapest ? ' class="rec"' : !priced.length && o === best ? ' class="rec"' : ""}><td>${esc(o.label)}</td><td class="n">${p.containersNeeded}</td><td class="n">${pct(p.avgUtil)}</td><td class="n">${p.containersNeeded ? pct(p.lastUtil) : "—"}</td><td class="n">${cost}</td><td>${esc(notes.join("; "))}</td></tr>`;
+      }).join("");
+      $("#rates-note").textContent = rateErr;
+      if (priced.length && !paintCompare.counted) { paintCompare.counted = true; record("rates_priced"); }
+    }
     function renderCompare(cmpr, pal) {
       const rows = cmpr.options;
       let best = null;
@@ -444,13 +473,8 @@
           if (!best || o.key[0] < best.key[0] || (o.key[0] === best.key[0] && (o.key[1] < best.key[1] || (o.key[1] === best.key[1] && o.key[2] < best.key[2])))) best = o;
         }
       }
-      $("#cmp tbody").innerHTML = rows.map((o) => {
-        const p = o.plan, unfit = p.unfit.reduce((s, u) => s + u.qty, 0);
-        const notes = [];
-        if (unfit) notes.push(`${unfit} unit${unfit === 1 ? "" : "s"} cannot go in at all`);
-        if (o === best) notes.push("fewest containers");
-        return `<tr${o === best ? ' class="rec"' : ""}><td>${esc(o.label)}</td><td class="n">${p.containersNeeded}</td><td class="n">${pct(p.avgUtil)}</td><td class="n">${p.containersNeeded ? pct(p.lastUtil) : "—"}</td><td>${esc(notes.join("; "))}</td></tr>`;
-      }).join("");
+      lastCmp = { rows, best };
+      paintCompare();
       $("#cmp-status").textContent = pal.pallets
         ? `On pallets: ${pal.pallets} loaded pallet${pal.pallets === 1 ? "" : "s"} carrying ${pal.plan.packedUnits} units${pal.loose.length ? `, plus ${pal.loose.length} line${pal.loose.length === 1 ? "" : "s"} that cannot go on a pallet and ship loose` : ""}. Each pallet deck takes ${$("#pDeck").value} ${sys.len} of height.`
         : "No cargo could be put on a pallet with these settings, so the pallet rows are omitted.";
@@ -488,6 +512,7 @@
 
     const later = (fn) => { status.textContent = "Packing…"; setTimeout(fn, 20); };
     $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#rates").addEventListener("input", paintCompare);
     $("#csel").addEventListener("change", (e) => renderContainer(Number(e.target.value)));
     $("#load-example").addEventListener("click", () => {
       $("#preset").value = "40ft"; setContainerFields(presetById("40ft")); showPresetNote();

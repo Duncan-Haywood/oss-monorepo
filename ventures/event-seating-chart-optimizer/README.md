@@ -34,6 +34,7 @@ zero dependencies, one JSON file on a disk you own.
   only moves worth their cost happen (stickiness low/medium/high). Pins and
   never-together rules still win.
 - `tableSignsHtml` in `calc.mjs` - a print-ready page, one sheet per table (big number, guest names), opened from the "Print table signs" button.
+- `floorPlanHtml` in `calc.mjs` - a print-ready floor plan, landscape, three tables across: each table is a circle with its guests around it in seat order (the order the signs and CSV use), so you see who sits next to whom. No meals shown; opened from "Print floor plan". It does not model the room itself, only the tables.
 - `escortBoardHtml` in `calc.mjs` - a print-ready "find your table" list, every guest by last name with their table number, for the welcome sign or escort cards.
 - `placeCardsHtml` in `calc.mjs` - folded tent place cards, 8 to a US Letter page: each guest's name upside down on the top half and the right way up with their table number below, so it reads from both sides once folded. Grouped by table, no meals shown; opened from "Print folded place cards".
 - Group column and mixing: a third column (`Name | party | group`, e.g. "Bride side", "Singles", "Kids") plus a spread / cluster setting. Spread nudges each group to different tables so sides of the family mingle; cluster seats a group together. Pairs, parties and pins still win; the report shows each group's head-count per table (`groupMix`).

@@ -29,6 +29,7 @@ zero dependencies, one JSON file on a disk you own.
 - **Run:** `ADMIN_KEY=a TEAM_TOKEN=b STATE=./state.json node server.mjs`, or one of:
   `docker compose up -d` (`docker-compose.yml`), Fly (`fly.toml`), or Render
   (`render.yaml`, deploy from your fork; it generates both secrets). Nothing runs on the author's accounts.
+- **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list).
 - **Shift trades:** staff pick their shift and a colleague's on the team page ("Want to trade shifts?"). `/admin` shows each request with the same check as the browser tool's trade checker (rest gaps, hour limits, availability, payroll change) and enables **Approve** only when both weeks stay inside the rules. Approving swaps the two people on the published schedule; declining changes nothing. Nobody is notified automatically.
 - **Open shifts:** shifts nobody on the list was free for appear on the team page as "Open shifts you can pick up". A staff member asks to take one; `/admin` shows the request with the rule it would break (availability, rest, hour limits), and lets you **Approve anyway** once you have agreed it with them, as your own decision. A request that fits is approved normally. Approving fills the shift on the published schedule and clears that person's other requests so they are re-checked.
@@ -88,7 +89,7 @@ zero dependencies, one JSON file on a disk you own.
 
 - Returning each week: people, shifts and settings are remembered in this browser's local storage only ("Forget saved data" removes them), and can be saved to or loaded from a `roster-setup.json` file to move between devices.
 
-Guide pages, each with figures a test re-derives from the engine: [how to make an employee schedule](how-to-make-an-employee-schedule.html), [clopening](how-to-avoid-clopening.html), [overtime](how-to-reduce-overtime-in-a-schedule.html), [labor cost by day](labor-cost-percentage-by-day.html), [hiring test](do-i-need-to-hire-another-employee.html) and [covering a call-out](how-to-cover-a-shift-when-someone-calls-out.html).
+Guide pages, each with figures a test re-derives from the engine: [how to make an employee schedule](how-to-make-an-employee-schedule.html), [clopening](how-to-avoid-clopening.html), [14 and 15 year olds](scheduling-14-and-15-year-olds.html), [overtime](how-to-reduce-overtime-in-a-schedule.html), [labor cost by day](labor-cost-percentage-by-day.html), [hiring test](do-i-need-to-hire-another-employee.html) and [covering a call-out](how-to-cover-a-shift-when-someone-calls-out.html).
 
 ## What you use today, and what this does differently
 

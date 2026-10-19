@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove, suggestFixes, compareTableCounts,
+  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, floorPlanHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove, suggestFixes, compareTableCounts,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -241,6 +241,16 @@ test("escort board: every guest once, sorted by last name, right table, names es
   assert.deepEqual(order, ["Zed Adams", "Cy Baker", "Bob &lt;i&gt; Lee", "Ann Zhu"]);
   for (const t of res.tables) for (const g of t.guests) assert.ok(html.includes(`<span>${g.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span><b>${t.number}</b>`), g);
   assert.ok(html.includes("<title>Find &lt;us&gt;</title>") && !/<script|<i>/i.test(html));
+});
+
+test("floorPlanHtml draws one svg per table with every guest once, escaped, no meals", () => {
+  const spec = specFrom("Zed <b> Adams | | | vegetarian\nAnn Zhu\nBob Lee\nCy Baker\nDee Fox", "", { seatsPerTable: 3 });
+  const res = optimize(spec);
+  const html = floorPlanHtml(spec, res, "Plan <1>");
+  assert.equal((html.match(/<svg /g) || []).length, res.tables.length);
+  assert.equal((html.match(/<circle cx=/g) || []).length, spec.guests.length);
+  for (const t of res.tables) for (const g of t.guests) assert.ok(html.includes(`>${g.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</text>`), g);
+  assert.ok(html.includes("<title>Plan &lt;1&gt;</title>") && !/<script|<b>|vegetarian/i.test(html));
 });
 
 test("group column: spread mixes a group across tables, cluster seats it together", () => {

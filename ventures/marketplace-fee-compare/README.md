@@ -24,6 +24,12 @@ the most in my pocket? Today that means opening six tabs, retyping the same
 item six times, and comparing six numbers by hand — which is the point at which
 most sellers stop and guess.
 
+[`where-to-sell-calculator`](../where-to-sell-calculator/) now answers the same
+question more deeply (returns, shelf time, 17 channels including Reverb,
+Discogs, StockX, Whatnot, Grailed and TCGplayer). This tool stays as the fast
+headline view and the only one with a bulk catalogue mode (`bulk.html`); reach
+for the other when returns or time-to-sell matter to the ranking.
+
 So this is a triage tool, not a seventh fee engine. It models each channel's
 **headline** fee structure and then points at the deep calculator for the parts
 a headline rate cannot carry.
