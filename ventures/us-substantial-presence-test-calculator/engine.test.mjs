@@ -174,3 +174,14 @@ test("I-94: two arrivals on one day never yield an end-before-start line", () =>
   assert.deepEqual(r.lines, ["2025-01-05 to present"]);
   assert.equal(analyze({ stays: r.lines.join("\n"), asOf: "2025-06-15", year: 2025 }).errors.length, 0);
 });
+
+test("I-94: a missing departure ends the first stay the day before the next arrival", () => {
+  const r = importI94("01/05/2025 Arrival JFK\n01/10/2025 Arrival EWR\n01/20/2025 Departure EWR");
+  assert.deepEqual(r.lines, ["2025-01-05 to 2025-01-09", "2025-01-10 to 2025-01-20"]);
+  assert.equal(r.notes.length, 1);
+});
+
+test("I-94: on a same-day tie the arrival sorts first, whatever the paste order", () => {
+  const r = importI94("01/05/2025 Departure JFK\n01/05/2025 Arrival JFK\n01/01/2025 Arrival LAX");
+  assert.deepEqual(r.lines, ["2025-01-01 to 2025-01-04", "2025-01-05 to 2025-01-05"]);
+});
