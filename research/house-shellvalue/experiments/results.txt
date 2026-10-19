@@ -1,0 +1,33 @@
+house-shellvalue: does a factory shell pay once the interest on the days it saves is counted?
+Days and interest % come from house-schedule (wall+roof shell); premium from house-offsite (wall panels only).
+House price is a parameter, not sourced. Every rate is an assumption of the sibling projects.
+
+A. Premium of panelising the walls, house-offsite defaults: $1,373
+   crane day $ 1500: $1,373
+   crane day $  750: $623
+   crane day $    0: $-127
+
+B. Interest saved by the factory shell (N=4000 builds, common random numbers), rate 8%
+ordering                     lead d days saved % of price   break-even price at $1,500 crane
+ordered at foundation start      25        6.4       0.09                         $1,512,222
+ordered at foundation start      10       12.0       0.17                           $810,188
+ordered at foundation start       5       12.0       0.17                           $807,465
+ordered at day 0                 25       15.5       0.22                           $629,094
+
+C. Net value of the shell (interest saved - premium), dollars, by house price; ordered at day 0, lead 25 d
+     price crane $ 1500 crane $  750 crane $    0
+    300000         -718           32          782
+    450000         -391          359         1109
+    600000          -63          687         1437
+    800000          373         1123         1873
+
+D. Same, ordered at foundation start (lead 25 d)
+    300000        -1100         -350          400
+    450000         -964         -214          536
+    600000         -828          -78          672
+    800000         -647          103          853
+
+E. Interest-rate sensitivity of the break-even price (ordered at day 0, $1,500 crane)
+   rate 0.04: saves 0.11% of price; break-even price $1,258,189
+   rate 0.08: saves 0.22% of price; break-even price $629,094
+   rate 0.12: saves 0.33% of price; break-even price $419,396
