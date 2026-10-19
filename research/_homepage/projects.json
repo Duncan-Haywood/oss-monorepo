@@ -2138,6 +2138,11 @@
      "slug": "selfrep-partpool",
      "title": "Does sharing part jobs across printers make a replicating printer shop double faster than one copy per printer?",
      "summary": "Tests the explanation given in selfrep-growth for the gap between its fluid (34.7 h) and discrete-event (about 53 h) doubling times. A part-level simulation of the Prusa Mendel's 44 printed parts plus assembly compares one copy per printer with a shared pool of part jobs. With no import limit the pool that always serves the oldest copy doubles in 43.2 h against 51.1 h (15% faster), closing about half of the gap; a pool that advances all copies together equals one-copy-per-printer, and under an import budget all three agree. Stylised: every input is assumed, parts are uniform, no plate packing or failed prints."
+    },
+    {
+     "slug": "selfrep-platepack",
+     "title": "How many parts should a replicating printer print per plate to double its shop fastest?",
+     "summary": "Groups the Prusa Mendel's 44 printed parts k to a plate in the selfrep-partpool simulator, with an assumed per-plate changeover of 0 to 1 h. With no changeover one part per plate is best (43.2 h effective doubling for a pooled fleet); at 0.25 h the best plate holds 4 parts (46.4 h), at 0.5 h and 1 h it holds 11 (47.8 h and 49.6 h). Pooling keeps an edge over one copy per printer (7.6&ndash;15.5&percnt;), and large plates cost it the pooling gain: at one plate per copy both policies coincide. Stylised: every input, including the changeover, is assumed, the BOM has no real part masses and plates are full and identical."
     }
    ]
   },
