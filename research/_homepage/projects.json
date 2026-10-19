@@ -3591,6 +3591,11 @@
       "slug": "capture-edit",
       "title": "How much of a multi-camera shoot can an automatic edit recover, and what stops it?",
       "summary": "A synthetic model of four cameras whose true angle quality changes every 2&ndash;8 s, seen through a noisy detector. At noise 0.3 a fixed 3 s rotation shows mean true quality 0.546; an offline Viterbi edit that maximises detected quality minus a cost per cut reaches 0.802 against 0.815 for the same search on true scores, while picking the best score every frame gives 0.723 with 345 cuts a minute and every shot under 1.5 s. The cut cost matters more than detector accuracy (best near 1.0, about 14 cuts a minute). Clock sync from a shared loudness envelope fails first on short clips: a 5 s clip at noise 0.25 is off by over 40 ms in 25% of trials, 15 s in 5%. No real footage, reframing or film-look grade; quality is a made-up random process."
+   },
+   {
+    "slug": "capture-bystander",
+    "title": "When does automatic blurring miss a bystander's face, and which filming platform is conspicuous?",
+    "summary": "An assumed size-to-recall model of blurring strangers' faces while filming in public. A face detector that is 50% reliable at 20&nbsp;px leaves a face-on face of at least 32&nbsp;px unblurred 5% of the time per frame (8% at 5&nbsp;m on an 8K 360 camera); blurring the head region of any detected body instead drops it under 0.1%, because a body is 11&times; taller than a face. A telephoto frame resolves about 10 identifiable people at once against 2.5 for an 8K 360 view. Per-frame blur is worse than it looks: with independent misses a person filmed for 5&nbsp;s at the edge of range shows unblurred in some frame 100% of the time, 25% if misses last the whole shot, and an offline edit that blurs a whole track after one detection is left with 0&ndash;5%. Size alone does not separate the tall platforms. All detector curves, sizes and angles are assumptions; no real detector or footage; blurring is not legal compliance."
    }
   ]
  },
