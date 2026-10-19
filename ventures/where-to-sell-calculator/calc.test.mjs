@@ -650,10 +650,10 @@ test("shelf-time worked example: eBay leads on turnover at the shipped defaults"
   close(etsy.sellThroughToMatchBest, 71.9179, "Etsy needs 71.9% sell-through to match eBay");
 });
 
-test("Discogs: 8% commission on the item only, processing on what the buyer pays, off by default", () => {
+test("Discogs: 9% commission on item plus shipping, processing on the same total, off by default", () => {
   const discogs = preset("discogs");
   assert.equal(discogs.enabled, false);
   const result = calculateChannel(discogs, shared);
-  close(result.fees.commission, 48 * 0.08, "commission excludes buyer-paid shipping");
-  close(result.fees.payment, 54 * 0.027 + 0.25, "processing on item plus shipping");
+  close(result.fees.commission, 54 * 0.09, "commission includes buyer-paid shipping");
+  close(result.fees.payment, 54 * 0.029 + 0.3, "processing on item plus shipping");
 });
