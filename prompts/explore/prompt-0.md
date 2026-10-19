@@ -34,6 +34,13 @@ What still holds:
   and passing tests.
 - **Say why.** In the PR description, give one or two sentences on why this
   seemed worth doing and what you would do next if it pays off.
+- **Skip audits that earlier explore runs already found clean.** Sitemap
+  coverage, duplicate titles and h1s, canonical and og tags, venture README
+  live links, `.md` links and anchors, and unnamed form controls have each been
+  swept (`platform/ci/check_*.py`, `serp_snippets.py`, `venture_live_links.py`,
+  `page-identity.mjs`, `page-seo-audit`); re-run the tool if you doubt one, but
+  do not rebuild the sweep. Still open per the run records: meta descriptions
+  over 320 characters (`serp_snippets.py`) and sweeps of a kind not listed.
 - **Not more admin.** A free-choice run that only writes plans, ledger prose
   or direction documents has wasted the slot. Build something.
 

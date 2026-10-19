@@ -1,0 +1,42 @@
+[
+  {
+    "model": "attendance_joint",
+    "n": 4222,
+    "events": 100,
+    "parameters": 12,
+    "iterations": 6,
+    "max_abs_score": 1.509903313490213e-14,
+    "rank": 12,
+    "condition_number": 149.71135021536918
+  },
+  {
+    "model": "weekly_pair",
+    "n": 4222,
+    "events": 100,
+    "parameters": 7,
+    "iterations": 6,
+    "max_abs_score": 1.2545520178264269e-14,
+    "rank": 7,
+    "condition_number": 34.004839193905404
+  },
+  {
+    "model": "coded_affiliation_mismatch",
+    "n": 4220,
+    "events": 100,
+    "parameters": 11,
+    "iterations": 6,
+    "max_abs_score": 4.063416270128073e-14,
+    "rank": 11,
+    "condition_number": 78.3861626595448
+  },
+  {
+    "model": "none_pair",
+    "n": 4220,
+    "events": 100,
+    "parameters": 6,
+    "iterations": 6,
+    "max_abs_score": 4.729550084903167e-14,
+    "rank": 6,
+    "condition_number": 28.321695972730826
+  }
+]

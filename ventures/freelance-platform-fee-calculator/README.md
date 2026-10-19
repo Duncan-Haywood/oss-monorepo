@@ -56,7 +56,9 @@ known rate for the same job price.
    self-employment and income tax, and both sides account for it. Leave it
    at 0 and every figure behaves as if no reserve existed.
 5. **Comparison.** Which platform nets more for this exact job price, and by
-   how much.
+   how much. It also shows the **break-even Upwork fee**: Upwork nets more
+   whenever its quoted percentage is below that figure, so you can decide
+   before you see the quote.
 6. **Target take-home.** Pick a platform and a take-home goal; the page
    solves backwards through that platform's fee, its withdrawal fee, and the
    tax reserve to the job price that would clear it.

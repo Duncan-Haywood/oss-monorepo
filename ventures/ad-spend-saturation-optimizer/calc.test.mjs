@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   CURVES, curveValue, marginal, fitCurve, fitBest, frontier, allocate, parseSpend, parseDay, dayToIso, weekStart,
-  weekly, parseSkipWeeks, budgetPlan, budgetLadder, adstock, fitAdstock, analyze, backtestChannel, reportCsv, simulateSpend, sampleText, percentile, nelderMead, money,
+  weekly, parseSkipWeeks, budgetPlan, budgetLadder, adstock, fitAdstock, analyze, backtestChannel, reportCsv, simulateSpend, sampleText, percentile, nelderMead, money, snapshot, parseSnapshot, compareSnapshot, describeComparison,
 } from "./calc.mjs";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ""} ${a} vs ${b}`);
@@ -372,4 +372,34 @@ test("a skip range that removes too many weeks says so", () => {
   const sim = simulateSpend({ weeks: 30, seed: 2 });
   const r = analyze(sim, { boots: 10, skipWeeks: "1990-01-01..2100-01-01" });
   assert.ok(r.error && /after leaving out/.test(r.error), r.error);
+});
+
+test("snapshot holds answers only and round-trips", () => {
+  const res = analyze(parseSpend(sampleText()).rows, { boots: 10 });
+  const snap = snapshot(res);
+  assert.equal(snap.channels.length, res.modelled.length);
+  const text = JSON.stringify(snap);
+  assert.ok(!/"pts"|"revenue"|"week"/.test(text), "no row data in a snapshot");
+  assert.deepEqual(parseSnapshot(text).snap, snap);
+  assert.ok(parseSnapshot("{").error);
+  assert.ok(parseSnapshot('{"tool":"x"}').error);
+  assert.ok(parseSnapshot(JSON.stringify({ ...snap, channels: [{ name: "a", current: "1" }] })).error);
+});
+
+test("compareSnapshot reads follow-through from last time's recommendation", () => {
+  const res = analyze(parseSpend(sampleText()).rows, { boots: 10 });
+  const prev = snapshot(res);
+  const mover = prev.channels.find((c) => Math.abs(c.recommended - c.current) > 0.05 * c.current);
+  assert.ok(mover, "sample has a channel with advice to move");
+  // Pretend last time spend was at half-way back toward the current figure: we then made 2x... use direct arithmetic.
+  const old = { ...prev, asOf: "2025-01-05", channels: prev.channels.map((c) => c.name === mover.name ? { ...c, current: c.current - 2 * (c.recommended - c.current), recommended: c.current } : c) };
+  const cmp = compareSnapshot(old, res);
+  const row = cmp.rows.find((r) => r.name === mover.name);
+  near(row.followed, 1, 1e-9, "full move made");
+  const same = compareSnapshot(prev, res).rows.find((r) => r.name === mover.name);
+  near(same.followed, 0, 1e-9, "no move since identical snapshot");
+  assert.equal(compareSnapshot(prev, res).dBudget, 0);
+  const gone = compareSnapshot({ ...prev, channels: [...prev.channels, { name: "Podcast", current: 1, mroas: 1, recommended: 1 }] }, res);
+  assert.deepEqual(gone.dropped, ["Podcast"]);
+  assert.ok(describeComparison(cmp).some((t) => t.startsWith(mover.name) && /You made 100%/.test(t)));
 });

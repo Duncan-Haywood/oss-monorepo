@@ -7,6 +7,8 @@
 //   node cli.mjs --budget 12000 spend.csv     # best split of a different weekly total
 //   node cli.mjs --csv spend.csv > report.csv # one row per channel
 //   node cli.mjs --json spend.csv             # machine-readable
+//   node cli.mjs --snapshot-out jan.json spend.csv   # save answers only (no rows) to compare later
+//   node cli.mjs --since jan.json spend.csv          # what moved since that snapshot
 //   node cli.mjs --example                    # run on the built-in simulated data
 //
 // Same model as the web page (calc.mjs). Zero dependencies, no network: the
@@ -15,7 +17,8 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
-import { parseSpend, analyze, reportCsv, sampleText, money, pct, budgetPlan, budgetLadder } from "./calc.mjs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { parseSpend, analyze, snapshot, parseSnapshot, compareSnapshot, describeComparison, reportCsv, sampleText, money, pct, budgetPlan, budgetLadder } from "./calc.mjs";
 
 const USAGE = `Find where the next advertising dollar still pays, from your own spend history.
 
@@ -32,6 +35,8 @@ Options:
   --budget <amount>    also print the best split of this weekly total
   --csv                print one CSV row per channel
   --json               print the full result as JSON
+  --snapshot-out <f>   write a snapshot (answers only, no data) to compare against next time
+  --since <file>       compare this run with an earlier snapshot: advice followed, marginal return change
   --example            use the built-in simulated data instead of a file
   -h, --help           this message
 
@@ -40,7 +45,7 @@ check the back-test line before moving budget.
 `;
 
 export function parseArgs(argv) {
-  const o = { file: null, margin: 60, skip: "", budget: null, csv: false, json: false, example: false, help: false };
+  const o = { file: null, margin: 60, skip: "", budget: null, snapshotOut: null, since: null, csv: false, json: false, example: false, help: false };
   const value = (i, name) => { if (argv[i] === undefined) throw new Error(name + " needs a value"); return argv[i]; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -52,6 +57,8 @@ export function parseArgs(argv) {
       o.margin = Number(value(++i, "--margin").replace(/%$/, ""));
       if (!(o.margin > 0 && o.margin <= 100)) throw new Error("--margin is a percent from 1 to 100");
     } else if (a === "--skip") o.skip = value(++i, "--skip");
+    else if (a === "--snapshot-out") o.snapshotOut = value(++i, "--snapshot-out");
+    else if (a === "--since") o.since = value(++i, "--since");
     else if (a === "--budget") {
       o.budget = Number(value(++i, "--budget").replace(/[$,\s]/g, ""));
       if (!(o.budget > 0)) throw new Error("--budget must be a weekly amount above zero");
@@ -75,6 +82,15 @@ export function render(opts, text) {
   if (res.error) return { out: "", errors: [res.error] };
   const errors = (res.summary.skipBad || []).map((b) => "could not read skip range: " + b);
   const plan = opts.budget ? budgetPlan(res, opts.budget) : null;
+  let cmpLines = [];
+  if (opts.since) {
+    let p;
+    try { p = parseSnapshot(readFileSync(opts.since, "utf8")); } catch (e) { p = { error: "cannot read " + opts.since + ": " + e.message }; }
+    if (p.error) errors.push(p.error); else cmpLines = ["", "Since " + p.snap.asOf + ":", ...describeComparison(compareSnapshot(p.snap, res))];
+  }
+  if (opts.snapshotOut) {
+    try { writeFileSync(opts.snapshotOut, JSON.stringify(snapshot(res), null, 1) + "\n"); } catch (e) { errors.push("cannot write " + opts.snapshotOut + ": " + e.message); }
+  }
   if (opts.csv) return { out: reportCsv(res), errors };
   if (opts.json) {
     const { frontier, ...summary } = res.summary;
@@ -91,6 +107,7 @@ export function render(opts, text) {
     `Contribution at a ${opts.margin}% margin peaks near ${money(res.optimum.weeklySpend)} a week in total.`];
   const t = res.backtestTotal;
   if (t) lines.push(`Back-test, last ${t.holdout} weeks: predicted ${money(t.curve)}, actual ${money(t.actual)} (curve error ${pct(t.wapeCurve, 0)}, flat-ROAS error ${pct(t.wapeLinear, 0)}).`);
+  lines.push(...cmpLines);
   for (const f of res.findings) lines.push(`[${f.severity}] ${f.title}: ${f.detail}`);
   if (opts.budget) {
     lines.push("");

@@ -750,6 +750,26 @@ export function planSale(openLots, { asset, price, asOf, qty = null, cash = null
   return { asset, price, asOf, requested: Number(wanted.toFixed(8)), qty: Number(target.toFixed(8)), heldQty: Number(heldQty.toFixed(8)), capped: wanted > heldQty + EPS, taxBefore, options, bestMethod: best.method };
 }
 
+// Written lot-identification record for one option of a sell plan: the units a sale is to
+// use, in a form to date and keep (or send to the platform) before selling. Specific
+// identification generally depends on the choice being made no later than the sale and being
+// provable, which is what this page is for; whether it is enough for you is for your preparer.
+export function idRecord(plan, method) {
+  const o = plan.options.find((x) => x.method === method);
+  if (!o || !o.lots.length) return null;
+  const lines = [
+    `Specific identification of units to be sold: ${plan.asset}`,
+    `Planned sale date: ${plan.asOf}`,
+    `Planned quantity: ${o.lots.reduce((a, l) => a + l.qty, 0).toFixed(8).replace(/\.?0+$/, "")} ${plan.asset} at an assumed ${plan.price} USD per coin`,
+    "",
+    "Units to be treated as sold (wallet / account, date acquired, quantity, cost basis in USD):",
+  ];
+  for (const l of o.lots) lines.push(`  - ${l.wallet || "(no wallet recorded)"}; acquired ${l.acquired}; ${l.qty} ${plan.asset}; basis ${l.basis.toFixed(2)}`);
+  lines.push("", "Written before the sale. Date and time it, and keep it with the exchange or wallet records. Lots chosen by the " + o.label + " rule from the transaction file as typed; prices are assumed, not fetched.", "Arithmetic on figures you typed, not tax advice: confirm with a tax professional that specific identification is available to you and that this record meets the rule.");
+  const csv = ["wallet,asset,date_acquired,quantity,cost_basis_usd"].concat(o.lots.map((l) => [q(l.wallet || ""), q(plan.asset), l.acquired, l.qty, l.basis.toFixed(2)].join(","))).join("\n") + "\n";
+  return { method, text: lines.join("\n") + "\n", csv };
+}
+
 const q = (v) => {
   const s = v === null || v === undefined ? "" : String(v);
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;

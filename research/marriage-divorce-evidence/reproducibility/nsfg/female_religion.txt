@@ -1,0 +1,1256 @@
+National Survey of Family Growth, 2017-2019                                                      Page 1 of 17
+
+
+
+Female Respondent File Codebook :: SECTION I: Insurance; Residence and place of birth; Religion; Past and
+current work (R and current H/P); Attitudes :: (IA) Access to Health Care
+
+USUALCAR(2624-2624)
+
+Variable Type : raw
+
+IA-0a : Is there a place that you usually go to when you are sick or need advice about health?
+
+  value     label       Total
+  1       Yes             5219
+  5       No                919
+  8       Refused             1
+  9       Don't know          2
+          Total          6141
+
+
+Universe : Applicable for all respondents
+
+USLPLACE(2625-2626)
+
+Variable Type : raw
+
+IA-0b : Please look at Card 25a. What kind of place is it?
+
+  value                                label                                Total
+  .       INAPPLICABLE                                                        922
+  1       Private doctor's office or HMO                                     3574
+  2       Community health clinic, community clinic, public health clinic     734
+  3       Family planning or Planned Parenthood Clinic                         45
+  4       Employer or company clinic                                           60
+  5       School or school-based clinic                                        49
+  6       Hospital outpatient clinic                                           88
+  7       Hospital emergency room                                             163
+  8       Hospital regular room                                                53
+  9       Urgent care center, urgi-care, or walk-in facility                  366
+  10      Sexually transmitted disease (STD) clinic                             5
+  11      In-store health clinic (like CVS, Target, or Walmart)                26
+  20      Some other place                                                     51
+  98      Refused                                                               1
+  99      Don't know                                                            4
+          Total                                                             6141
+
+
+Universe : Asked if R reported a usual source of care (IA-0a USUALCAR = 1)
+
+USL12MOS(2627-2627)
+
+Variable Type : raw
+
+IA-0c : Have you gone to this place in the last 12 months, that is, since [INTERVIEW MONTH, INTERVIEW
+YEAR - 1]?
+
+  value         label       Total
+  .       INAPPLICABLE         922
+  1       Yes                 4405
+  5       No                   811
+  8       Refused                 1
+  9       Don't know              2
+          Total              6141
+
+
+Universe : Asked if R reported a usual source of care (IA-0a USUALCAR = 1)
+
+CURRCOV(2628-2628)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                                                                    Page 2 of 17
+
+
+
+Variable Type : raw
+
+IA-1 : Are you currently covered by any kind of health insurance or some other kind of health care plan?
+
+  value     label      Total
+  1       Yes             5293
+  5       No               818
+  8       Refused            3
+  9       Don't know        27
+          Total          6141
+
+
+Universe : Applicable for all respondents
+
+COVERHOW01(2629-2630)
+
+Variable Type : raw
+
+IA-2 : Card 76 shows different types of health care coverage. Which of these are you covered by? (1st
+MENTIONED)
+
+  value                                                                       label                                                                  Total
+  .       INAPPLICABLE                                                                                                                                 848
+  1       Private health insurance plan (from employer or workplace; purchased directly; through a state or local government program or community     3385
+          program)
+  2       Medicaid-additional name(s) for Medicaid in this state: [MEDICAID_FILL]                                                                     1451
+  4       Medi-GAP                                                                                                                                       2
+  5       Military health care including: the VA, CHAMPUS, TRICARE, CHAMP-VA                                                                           112
+  6       Indian Health Service, or Single Service Plan                                                                                                  9
+  7       CHIP                                                                                                                                          34
+  8       State-sponsored health plan                                                                                                                   39
+  9       Medicare or other government health care                                                                                                     193
+  98      Refused                                                                                                                                        1
+  99      Don't know                                                                                                                                    67
+          Total                                                                                                                                      6141
+
+
+Universe : Applicable if R is currently covered by health insurance (IA-1 CURRCOV = 1)
+
+Notes : Use recode CURR_INS.
+This variable has been modified for public use, and the original variable is accessible by application to the
+NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+COVERHOW02(2631-2631)
+
+Variable Type : raw
+
+IA-2 : Card 76 shows different types of health care coverage. Which of these are you covered by? (2nd
+MENTIONED)
+
+  value                                                                       label                                                                  Total
+  .       INAPPLICABLE                                                                                                                                5528
+  1       Private health insurance plan (from employer or workplace; purchased directly; through a state or local government program or community       18
+          program)
+  2       Medicaid-additional name(s) for Medicaid in this state: [MEDICAID_FILL]                                                                       73
+  4       Medi-GAP                                                                                                                                       4
+  5       Military health care including: the VA, CHAMPUS, TRICARE, CHAMP-VA                                                                            14
+  6       Indian Health Service, or Single Service Plan                                                                                                426
+  7       CHIP                                                                                                                                           4
+  8       State-sponsored health plan                                                                                                                    8
+  9       Medicare or other government health care                                                                                                      66
+          Total                                                                                                                                      6141
+
+
+Universe : Applicable if R reported more than 1 type of insurance coverage (see IA-2 COVERHOW01)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                          Page 3 of 17
+
+
+
+Notes : Use recode CURR_INS.
+This variable has been modified for public use, and the original variable is accessible by application to the
+NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+COVERHOW03(2632-2632)
+
+Variable Type : raw
+
+IA-2 : Card 76 shows different types of health care coverage. Which of these are you covered by? (3rd
+MENTIONED)
+
+  value                                   label                                Total
+  .       INAPPLICABLE                                                          6127
+  4       Medi-GAP                                                                 3
+  5       Military health care including: the VA, CHAMPUS, TRICARE, CHAMP-VA       2
+  6       Indian Health Service, or Single Service Plan                            4
+  8       State-sponsored health plan                                              2
+  9       Medicare or other government health care                                 3
+          Total                                                                6141
+
+
+Universe : Applicable if R reported more than 2 types of insurance coverage (see IA-2 COVERHOW01)
+
+Notes : Use recode CURR_INS.
+This variable has been modified for public use, and the original variable is accessible by application to the
+NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+PARINSUR(2633-2633)
+
+Variable Type : raw
+
+IA-3 : Are you covered on your parents' private health insurance plan?
+
+  value         label      Total
+  .       INAPPLICABLE       5419
+  1       Yes                 548
+  5       No                  172
+  9       Don't know             2
+          Total             6141
+
+
+Universe : Applicable if R is between the ages of 18 and 25 (18 LE age_r LE 25) and she indicated she has
+private health insurance coverage (IA-2 COVERHOW01 -09=1)
+
+INS_EXCH(2634-2634)
+
+Variable Type : raw
+
+IA-4 : (Were any of / Was) your health insurance plan obtained through Healthcare.gov or the [DISPLAY
+STATE MARKETPLACE NAME]?
+
+  value         label      Total
+  .       INAPPLICABLE        848
+  1       Yes                 911
+  5       No                 3931
+  8       Refused                2
+  9       Don't know          449
+          Total             6141
+
+
+Universe : Applicable if R is currently covered by health insurance (IA-1 CURRCOV = 1)
+
+INS_PREM(2635-2635)
+
+Variable Type : raw
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                      Page 4 of 17
+
+
+
+IA-5 : A health insurance premium is the amount you or a family member pays each month for health care
+coverage. Do you or a family member pay a premium for (any of your / your) health insurance (plans / plan)?
+
+  value         label     Total
+  .       INAPPLICABLE      848
+  1       Yes              3118
+  5       No               1850
+  8       Refused                2
+  9       Don't know        323
+          Total            6141
+
+
+Universe : Applicable if R is currently covered by health insurance (IA-1 CURRCOV = 1)
+
+COVER12(2636-2636)
+
+Variable Type : raw
+
+IA-6 : Looking at Card 75 for examples of types of health coverage, in the past 12 months, that is, since
+[INTERVIEW MONTH, INTERVIEW YEAR - 1], was there any time that you did not have any health insurance
+or coverage?
+
+  value    label        Total
+  1       Yes            1142
+  5       No             4956
+  8       Refused           3
+  9       Don't know       40
+          Total          6141
+
+
+Universe : Applicable for all respondents
+
+NUMNOCOV(2637-2638)
+
+Variable Type : raw
+
+IA-7 : In how many of the past 12 months were you without coverage?
+
+  value         label     Total
+  .       INAPPLICABLE     4999
+  1       1 Month           107
+  2       2 Months          101
+  3       3 Months              76
+  4       4 Months              59
+  5       5 Months              40
+  6       6 Months              84
+  7       7 Months              42
+  8       8 Months              22
+  9       9 Months              26
+  10      10 Months             36
+  11      11 Months             23
+  12      12 Months         522
+  99      Don't know             4
+          Total            6141
+
+
+Universe : Applicable if R did not have insurance coverage for some portion of the last 12 months (IA-6
+COVER12 = 1)
+
+Female Respondent File Codebook :: SECTION I: Insurance; Residence and place of birth; Religion; Past and
+current work (R and current H/P); Attitudes :: (IB) Residence and place of birth
+
+SAMEADD(2639-2639)
+
+Variable Type : raw
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                      Page 5 of 17
+
+
+
+IB-1 : Now I have some questions about where you live. Were you living at this same address on April 1,
+2010?
+
+  value     label          Total
+  1       Yes               1732
+  5       No                4403
+  8       Refused              3
+  9       Don't know           3
+          Total            6141
+
+
+Universe : Applicable for all respondents
+
+BRNOUT(2640-2640)
+
+Variable Type : raw
+
+IB-8 : Were you born outside of the United States?
+
+  value     label          Total
+  1       Yes                964
+  5       No                5172
+  8       Refused              4
+  9       Don't know           1
+          Total            6141
+
+
+Universe : Applicable for all respondents
+
+Female Respondent File Codebook :: SECTION I: Insurance; Residence and place of birth; Religion; Past and
+current work (R and current H/P); Attitudes :: (IC) Religion
+
+RELRAISD(2641-2642)
+
+Variable Type : intermediate
+
+Description : IC-1/IC-2 Religion in which R was raised
+
+  value                       label                      Total
+  1       No religion                                       764
+  2       Catholic                                         2034
+  3       Baptist/Southern Baptist                         1187
+  4       Methodist, Lutheran, Presbyterian, Episcopal      541
+  5       Fundamentalist Protestant                         270
+  6       Other Protestant denomination                     140
+  7       Protestant - No specific denomination             710
+  8       Other religion                                    472
+  9       Refused                                            10
+  10      Don't know                                         13
+          Total                                            6141
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been created for public use, and the original source variables are accessible by
+application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+ATTND14(2643-2643)
+
+Variable Type : raw
+
+IC-4 : Please look at Card 79. When you were 14, about how often did you usually attend religious services?
+
+  value                     label                 Total
+  .       INAPPLICABLE                              4355
+  1       More than once a week                      302
+  2       Once a week                                605
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                       Page 6 of 17
+
+
+
+  3       2-3 times a month                        179
+  4       Once a month (about 12 times a             70
+          year)
+  5       3-11 times a year                          95
+  6       Once or twice a year                     168
+  7       Never                                    364
+  8       Refused                                        2
+  9       Don't know                                     1
+          Total                                   6141
+
+
+Universe : Applicable if R was less than 25 years of age at the time of the screener (agescrn < 25)
+
+RELCURR(2644-2645)
+
+Variable Type : intermediate
+
+Description : IC-5/IC-6 Religion R is now
+
+  value                       label                          Total
+  1       No religion                                         1564
+  2       Catholic                                            1363
+  3       Baptist/Southern Baptist                             923
+  4       Methodist, Lutheran, Presbyterian, Episcopal         322
+  5       Fundamentalist Protestant                            205
+  6       Other Protestant denomination                        152
+  7       Protestant - No specific denomination               1110
+  8       Other religion                                       478
+  9       Refused                                               11
+  10      Don't know                                            13
+          Total                                              6141
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been created for public use, and the original source variables are accessible by
+application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+RELTRAD(2646-2646)
+
+Variable Type : intermediate
+
+Description : Religion R is now with Protestant denominational detail
+
+  value           label              Total
+  1       Evangelical Prot            1050
+  2       Mainline Prot                750
+  3       Black Prot                   912
+  4       Catholic                    1363
+  5       Other religion               478
+  6       No religious affiilation    1564
+  8       Refused                       11
+  9       Don't know                    13
+          Total                      6141
+
+
+Universe : Applicable for all respondents
+
+Notes : see recode RELIGION
+
+FUNDAM1(2647-2647)
+
+Variable Type : raw
+
+IC-8 : Please look at Card 80. Which of these do you consider yourself to be, if any? (1st MENTIONED)
+
+  value           label              Total
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 7 of 17
+
+
+
+  .       INAPPLICABLE             1915
+  1       A born again             1460
+          Christian
+  2       A charismatic                 50
+  3       An evangelical                81
+  4       A fundamentalist              15
+  5       None of the above        2596
+  8       Refused                        2
+  9       Don't know                    22
+          Total                    6141
+
+
+Universe : Applicable if R reported a current Christian religious affiliation (IC-5 RELNOW = 2, 4-10 OR IC-6
+RELNOW1 = 12-25)
+
+FUNDAM2(2648-2648)
+
+Variable Type : raw
+
+IC-8 : Please look at Card 80. Which of these do you consider yourself to be, if any? (2nd MENTIONED)
+
+  value           label            Total
+  .       INAPPLICABLE                  6069
+  1       A born again Christian         12
+  2       A charismatic                  18
+  3       An evangelical                 36
+  4       A fundamentalist                   6
+          Total                     6141
+
+
+Universe : Applicable if R reported more than 1 fundamentalist characteristic (see IC-8 FUNDAM1)
+
+FUNDAM3(2649-2649)
+
+Variable Type : raw
+
+IC-8 : Please look at Card 80. Which of these do you consider yourself to be, if any? (3rd MENTIONED)
+
+  value       label           Total
+  .       INAPPLICABLE         6128
+  2       A charismatic            1
+  3       An evangelical           10
+  4       A fundamentalist          2
+          Total               6141
+
+
+Universe : Applicable if R reported more than 2 fundamentalist characteristics (see IC-8 FUNDAM1)
+
+FUNDAM4(2650-2650)
+
+Variable Type : raw
+
+IC-8 : Please look at Card 80. Which of these do you consider yourself to be, if any? (4th MENTIONED)
+
+  value       label           Total
+  .       INAPPLICABLE         6137
+  4       A fundamentalist          4
+          Total               6141
+
+
+Universe : Applicable if R reported more than 3 fundamentalist characteristics (see IC-8 FUNDAM1)
+
+RELDLIFE(2651-2651)
+
+Variable Type : raw
+
+IC-9 : Currently, how important is religion in your daily life? Would you say it is very important, somewhat
+important, or not important?
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                           Page 8 of 17
+
+
+
+  value           label            Total
+  .       INAPPLICABLE                 1564
+  1       Very important               2480
+  2       Somewhat important           1755
+  3       Not important                 335
+  8       Refused                         5
+  9       Don't know                      2
+          Total                        6141
+
+
+Universe : Applicable if R reports a current religious affiliation, or doesn't know or refuses to give a current
+religious affiliation (IC-5 RELNOW = 2-11 or DK/RF or IC-6 RELNOW1 = 12-29)
+
+ATTNDNOW(2652-2652)
+
+Variable Type : raw
+
+IC-10 : Please look at Card 79. About how often do you attend religious services?
+
+  value                    label                 Total
+  1       More than once a week                    507
+  2       Once a week                             1071
+  3       2-3 times a month                        658
+  4       Once a month (about 12 times a year)     442
+  5       3-11 times a year                        636
+  6       Once or twice a year                     939
+  7       Never                                   1876
+  8       Refused                                    9
+  9       Don't know                                 3
+          Total                                  6141
+
+
+Universe : Applicable for all respondents
+
+Female Respondent File Codebook :: SECTION I: Insurance; Residence and place of birth; Religion; Past and
+current work (R and current H/P); Attitudes :: (ID) Work and military service
+
+MILSVC(2653-2653)
+
+Variable Type : raw
+
+ID-1 : Have you ever been on active duty in the Armed Forces for a period of 6 months or more?
+
+  value         label      Total
+  .       INAPPLICABLE         594
+  1       Yes                     81
+  5       No                  5465
+  8       Refused                  1
+          Total               6141
+
+
+Universe : Applicable if R is 18 or older at the time of the screener (agescrn > 17)
+
+WRK12MOS(2654-2655)
+
+Variable Type : raw
+
+ID-4 : Now I'd like to ask about your work experience in the last 12 months. By work, I mean any job for pay
+that was regularly scheduled, that you were expected to perform. Please include full-time, part-time, and
+temporary or summer jobs.
+In the last 12 months, that is since [INTERVIEW MONTH, INTERVIEW YEAR-1], for how many months did you
+have any job for pay?
+
+  value     label       Total
+  0       No months        1337
+  1       1 Month          163
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                          Page 9 of 17
+
+
+
+  2       2 Months         92
+  3       3 Months        143
+  4       4 Months        122
+  5       5 Months         94
+  6       6 Months        179
+  7       7 Months         94
+  8       8 Months        107
+  9       9 Months        126
+  10      10              173
+          Months
+  11      11              108
+          Months
+  12      12             3396
+          Months
+  98      Refused          6
+  99      Don't            1
+          know
+          Total        6141
+
+
+Universe : Applicable for all respondents
+
+FPT12MOS(2656-2656)
+
+Variable Type : raw
+
+ID-5 : In the last 12 months, did you work all full-time, all part-time or some of each?
+
+  value       label        Total
+  .       INAPPLICABLE          1344
+  1       Full-time             2859
+  2       Part-time             1193
+  3       Some of each          744
+  9       Don't know              1
+          Total             6141
+
+
+Universe : Applicable if R worked for any portion of the last 12 months (ID-4 WRK12MOS >0 and ID-4
+WRK12MOS LE 12)
+
+Female Respondent File Codebook :: SECTION I: Insurance; Residence and place of birth; Religion; Past and
+current work (R and current H/P); Attitudes :: (IE) Current/last job series
+
+DOLASTWK1(2657-2657)
+
+Variable Type : raw
+
+IE-1 : Please look at Card 81. Last week, what were you doing? Were you working, keeping house, going to
+school, or something else? (1st MENTIONED)
+
+  value                    label                    Total
+  1       Working                                    3854
+  2       Working - Maternity leave or temp leave     195
+  3       Not working, looking for work               193
+  4       Keeping house or taking care of family     1057
+  5       In school                                   555
+  6       Other                                       282
+  8       Refused                                       4
+  9       Don't know                                    1
+          Total                                     6141
+
+
+Universe : Applicable for all respondents
+
+Notes : Use recode LABORFOR.
+This variable has been modified for public use, and the original variable is accessible by application to the
+NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 10 of 17
+
+
+
+DOLASTWK2(2658-2658)
+
+Variable Type : raw
+
+IE-1 : Please look at Card 81. Last week, what were you doing? Were you working, keeping house, going to
+school, or something else? (2nd MENTIONED)
+
+  value                   label                     Total
+  .       INAPPLICABLE                               1934
+  1       Working                                      91
+  2       Working - Maternity leave or temp leave     110
+  3       Not working, looking for work                52
+  4       Keeping house or taking care of family     3381
+  5       In school                                   422
+  6       Other                                       151
+          Total                                     6141
+
+
+Universe : Applicable if R reported more than 1 activity in the past week (see IE-1 DOLASTWK1)
+
+Notes : Use recode LABORFOR.
+This variable has been modified for public use, and the original variable is accessible by application to the
+NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+DOLASTWK3(2659-2659)
+
+Variable Type : raw
+
+IE-1 : Please look at Card 81. Last week, what were you doing? Were you working, keeping house, going to
+school, or something else? (3rd MENTIONED)
+
+  value                   label                     Total
+  .       INAPPLICABLE                               3659
+  1       Working                                      16
+  2       Working - Maternity leave or temp leave      23
+  3       Not working, looking for work                41
+  4       Keeping house or taking care of family     2003
+  5       In school                                   104
+  6       Other                                       295
+          Total                                     6141
+
+
+Universe : Applicable if R reported more than 2 activities in the past week (see IE-1 DOLASTWK1)
+
+Notes : Use recode LABORFOR.
+This variable has been modified for public use, and the original variable is accessible by application to the
+NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+DOLASTWK4(2660-2660)
+
+Variable Type : raw
+
+IE-1 : Please look at Card 81. Last week, what were you doing? Were you working, keeping house, going to
+school, or something else? (4th MENTIONED)
+
+  value                   label                     Total
+  .       INAPPLICABLE                               5565
+  1       Working                                       4
+  2       Working - Maternity leave or temp leave      12
+  3       Not working, looking for work                 4
+  4       Keeping house or taking care of family      118
+  5       In school                                    95
+  6       Other                                       343
+          Total                                     6141
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 11 of 17
+
+
+
+Universe : Applicable if R reported more than 3 activities in the past week (see IE-1 DOLASTWK1)
+
+Notes : Use recode LABORFOR.
+This variable has been modified for public use, and the original variable is accessible by application to the
+NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+DOLASTWK5(2661-2661)
+
+Variable Type : raw
+
+IE-1 : Please look at Card 81. Last week, what were you doing? Were you working, keeping house, going to
+school, or something else? (5th MENTIONED)
+
+  value                        label                Total
+  .       INAPPLICABLE                               6096
+  2       Working - Maternity leave or temp leave       1
+  3       Not working, looking for work                 2
+  4       Keeping house or taking care of family        6
+  5       In school                                     5
+  6       Other                                        31
+          Total                                     6141
+
+
+Universe : Applicable if R reported more than 4 activities in the past week (see IE-1 DOLASTWK1)
+
+Notes : Use recode LABORFOR.
+This variable has been modified for public use, and the original variable is accessible by application to the
+NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+DOLASTWK6(2662-2662)
+
+Variable Type : raw
+
+IE-1 : Please look at Card 81. Last week, what were you doing? Were you working, keeping house, going to
+school, or something else? (6th MENTIONED)
+
+  value         label          Total
+  .       INAPPLICABLE          6140
+  6       Other                    1
+          Total                 6141
+
+
+Universe : Applicable if R reported more than 5 activities in the past week (see IE-1 DOLASTWK1 )
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+rwrkst(2663-2663)
+
+Variable Type : computed
+
+Description : Whether R is currently employed (working or temporarily on leave from a job) (Computed in
+Flow Check I-14)
+
+  value label Total
+  1       YES           4191
+  5       NO            1950
+          Total       6141
+
+
+Universe : Applicable for all respondents
+
+workp12(2664-2664)
+
+Variable Type : computed
+
+Description : Whether R worked in the previous 12 months (computed variable)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 12 of 17
+
+
+
+  value label Total
+  1       YES           4797
+  5       NO            1344
+          Total       6141
+
+
+Universe : Applicable for all respondents
+
+RPAYJOB(2665-2665)
+
+Variable Type : raw
+
+IE-2 : Did you ever work at a job or business for pay on a regular basis?
+
+  value         label          Total
+  .       INAPPLICABLE          4953
+  1       Yes                    655
+  5       No                     530
+  8       Refused                  3
+          Total                6141
+
+
+Universe : Applicable if R didn't work in the last 12 months and wasn't working last week (rwrkst = 5 and
+workp12 = 5)
+
+RNUMJOB(2666-2666)
+
+Variable Type : raw
+
+IE-3 : How many jobs did you work (last week / during the last week you worked)?
+
+  value         label          Total
+  .       INAPPLICABLE           533
+  1       1 job                 5116
+  2       2 or more jobs         489
+  3       3                        2
+  8       Refused                  1
+          Total                6141
+
+
+Universe : Applicable if R is currently working (rwrkst = 1) or R is not currently working but has worked in
+the last 12 months (rwrkst = 5 and workp12 = 1) or R is not currently working (rwrkst = 5), has not worked
+in the last 12 months (workp12 = 5), but has worked on a regular basis (IE-2 RPAYJOB = 1).
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+RFTPTX(2667-2667)
+
+Variable Type : raw
+
+IE-4 : (Please think about the last week you worked on your (primary) job. Did / At your primary job, do /
+Do) you work part-time or full-time, or some of each? By full-time I mean 35 or more hours a week.
+
+  value         label          Total
+  .       INAPPLICABLE           532
+  1       Full-time             3684
+  2       Part-time             1646
+  3       Some of each           279
+          Total                6141
+
+
+Universe : Applicable if R is currently working (rwrkst = 1) or R is not currently working but has worked in
+the last 12 months (rwrkst = 5 and workp12 = 1) or R is not currently working (rwrkst = 5), has not worked
+in the last 12 months (workp12 = 5), but has worked on a regular basis (IE-2 RPAYJOB= 1)
+
+rearnty(2668-2668)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 13 of 17
+
+
+
+Variable Type : computed
+
+Description : Whether R is currently working or ever worked at all (Computed in Flow Check I-18)
+
+  value label Total
+  1       YES          5608
+  5       NO           533
+          Total     6141
+
+
+Universe : Applicable for all respondents
+
+Female Respondent File Codebook :: SECTION I: Insurance; Residence and place of birth; Religion; Past and
+current work (R and current H/P); Attitudes :: (IF) Spouse/partner's current/last job series
+
+SPLSTWK1(2669-2669)
+
+Variable Type : raw
+
+IF-1 : Please look at Card 82. Last week, what was [NAME OF CURRENT HUSBAND OR COHABITING
+PARTNER] doing? Was he working, keeping house, going to school, or something else? (1st MENTIONED)
+
+  value                       label                 Total
+  .       INAPPLICABLE                               3474
+  1       Working                                    2334
+  2       Working - Paternity leave or temp leave      66
+  3       Not working, looking for work                64
+  4       Keeping house or taking care of family      107
+  5       Other                                        94
+  8       Refused                                       1
+  9       Don't know                                    1
+          Total                                     6141
+
+
+Universe : Applicable if R is currently married or cohabiting (AD-7b MARSTAT = 1 or 2)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+SPLSTWK2(2670-2670)
+
+Variable Type : raw
+
+IF-1 : Please look at Card 82. Last week, what was [NAME OF CURRENT HUSBAND OR COHABITING
+PARTNER] doing? Was he working, keeping house, going to school, or something else? (2nd MENTIONED)
+
+  value                       label                 Total
+  .       INAPPLICABLE                               4673
+  1       Working                                      10
+  2       Working - Paternity leave or temp leave      32
+  3       Not working, looking for work                18
+  4       Keeping house or taking care of family     1300
+  5       Other                                       108
+          Total                                     6141
+
+
+Universe : Applicable if R's husband or partner was doing more than 1 activity last week (see IF-1
+SPLSTWK1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+SPLSTWK3(2671-2671)
+
+Variable Type : raw
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 14 of 17
+
+
+
+IF-1 : Please look at Card 82. Last week, what was [NAME OF CURRENT HUSBAND OR COHABITING
+PARTNER] doing? Was he working, keeping house, going to school, or something else? (3rd MENTIONED)
+
+  value                  label                      Total
+  .       INAPPLICABLE                               5271
+  1       Working                                       3
+  3       Not working, looking for work                 5
+  4       Keeping house or taking care of family      769
+  5       Other                                        93
+          Total                                     6141
+
+
+Universe : Applicable if R's husband or partner was doing more than 2 activities last week (see IF-1
+SPLSTWK1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+SPLSTWK4(2672-2672)
+
+Variable Type : raw
+
+IF-1 : Please look at Card 82. Last week, what was [NAME OF CURRENT HUSBAND OR COHABITING
+PARTNER] doing? Was he working, keeping house, going to school, or something else? (4th MENTIONED)
+
+  value                   label                     Total
+  .       INAPPLICABLE                                5964
+  2       Working - Paternity leave or temp leave           6
+  3       Not working, looking for work                     1
+  4       Keeping house or taking care of family        23
+  5       Other                                        147
+          Total                                      6141
+
+
+Universe : Applicable if R's husband or partner was doing more than 3 activities last week (see IF-1
+SPLSTWK1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+SPLSTWK5(2673-2673)
+
+Variable Type : raw
+
+IF-1 : Please look at Card 82. Last week, what was [NAME OF CURRENT HUSBAND OR COHABITING
+PARTNER] doing? Was he working, keeping house, going to school, or something else? (5th MENTIONED)
+
+  value      label        Total
+  .       INAPPLICABLE      6139
+  5       Other                  2
+          Total             6141
+
+
+Universe : Applicable if R's husband or partner was doing more than 4 activities last week (see IF-1
+SPLSTWK1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+spwrkst(2674-2674)
+
+Variable Type : computed
+
+Description : Whether R's husband/partner is currently employed (working or temporarily on leave from a
+job) (Computed in Flow Check I-20)
+
+  value      label        Total
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 15 of 17
+
+
+
+  .       INAPPLICABLE      3474
+  1       YES               2413
+  5       NO                 254
+          Total            6141
+
+
+Universe : Applicable if R is currently married or cohabiting (AD-7b MARSTAT = 1 or 2)
+
+SPPAYJOB(2675-2675)
+
+Variable Type : raw
+
+IF-2 : Did he ever work at a job or business for pay on a regular basis?
+
+  value         label      Total
+  .       INAPPLICABLE      5887
+  1       Yes                224
+  5       No                  29
+  8       Refused              1
+          Total            6141
+
+
+Universe : Applicable if R's husband or partner was not working last week (spwrkst = 5)
+
+SPNUMJOB(2676-2676)
+
+Variable Type : raw
+
+IF-3 : How many jobs did he work (last week / during the last week he worked)?
+
+  value         label      Total
+  .       INAPPLICABLE      3504
+  1       1 job             2431
+  2       2 or more jobs     202
+  9       Don't know           4
+          Total            6141
+
+
+Universe : Applicable if R's husband or partner was working last week (spwrkst = 1) or has worked for pay on
+a regular basis (IF-2 SPPAYJOB = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+SPFTPTX(2677-2677)
+
+Variable Type : raw
+
+IF-4 : (Please think about the last week he worked on his (primary) job. Did / At his primary job, does /
+Does) he work part-time or full-time, or some of each? By full-time I mean 35 or more hours a week.
+
+  value         label      Total
+  .       INAPPLICABLE      3504
+  1       Full-time         2372
+  2       Part-time          164
+  3       Some of each        96
+  8       Refused              1
+  9       Don't know           4
+          Total            6141
+
+
+Universe : Applicable if R's husband or partner was working last week (spwrkst = 1) or has worked for pay on
+a regular basis (IF-2 SPPAYJOB = 1)
+
+spearnty(2678-2678)
+
+Variable Type : computed
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                      Page 16 of 17
+
+
+
+Description : Whether R's husband/partner ever worked for pay (Computed in Flow Check I-23)
+
+  value         label        Total
+  .       INAPPLICABLE          3474
+  1       YES                   2637
+  5       NO                      30
+          Total                 6141
+
+
+Universe : Applicable if R is currently married or cohabiting (AD-7b MARSTAT = 1 or 2)
+
+Female Respondent File Codebook :: SECTION I: Insurance; Residence and place of birth; Religion; Past and
+current work (R and current H/P); Attitudes :: (IH/II) Attitudes
+
+SAMESEX(2679-2679)
+
+Variable Type : raw
+
+IH-1 : Sexual relations between two adults of the same sex are all right. Do you strongly agree, agree,
+disagree, or strongly disagree?
+
+  value                      label                   Total
+  1       Strongly agree                              2366
+  2       Agree                                       1981
+  3       Disagree                                     893
+  4       Strongly disagree                            714
+  5       If R insists: Neither agree nor disagree     172
+  8       Refused                                       13
+  9       Don't know                                     2
+          Total                                      6141
+
+
+Universe : Applicable for all respondents
+
+CHSUPPOR(2680-2680)
+
+Variable Type : raw
+
+IH-2 : It is okay for a young, unmarried woman to have and raise a child. Do you strongly agree, agree,
+disagree, or strongly disagree?
+
+  value                      label                   Total
+  1       Strongly agree                              2520
+  2       Agree                                       2602
+  3       Disagree                                     722
+  4       Strongly disagree                            213
+  5       If R insists: Neither agree nor disagree      69
+  8       Refused                                       11
+  9       Don't know                                     4
+          Total                                      6141
+
+
+Universe : Applicable for all respondents
+
+REACTSLF(2681-2681)
+
+Variable Type : raw
+
+IH-3 : If you got pregnant now how would you feel? Would you be very upset, a little upset, a little pleased,
+or very pleased?
+
+  value                 label              Total
+  .       INAPPLICABLE                       1599
+  1       Very upset                         1459
+  2       A little upset                     1286
+  3       A little pleased                    881
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                       Page 17 of 17
+
+
+
+  4       Very pleased                  853
+  5       If R insists: She wouldn't     35
+          care
+  8       Refused                         6
+  9       Don't know                     22
+          Total                        6141
+
+
+Universe : Applicable if neither the woman nor her husband/partner are sterile (rstrstat = 0 and pstrstat = (.
+or 0)) and she is not currently pregnant (currpreg NE 1)
+
+CHBOTHER(2682-2682)
+
+Variable Type : raw
+
+IH-4 : If it turns out that you do not have (any / any additional) children, would that bother you a great deal,
+some, a little, or not at all?
+
+  value      label       Total
+  1       A great deal      1145
+  2       Some              1024
+  3       A little           819
+  4       Not at all        3139
+  8       Refused              4
+  9       Don't know          10
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+ACASILANG(2683-2683)
+
+Variable Type : raw
+
+II-6 : Language to be used in ACASI.
+
+  value        label         Total
+  1       English              5711
+  2       Spanish               429
+  7       Not ascertained          1
+          Total               6141
+
+
+Universe : Applicable for all respondents
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15525?studyNumber=10002&fo... 11/18/2020
+

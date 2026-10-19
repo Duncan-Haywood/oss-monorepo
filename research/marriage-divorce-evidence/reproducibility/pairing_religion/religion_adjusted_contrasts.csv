@@ -1,0 +1,21 @@
+model,factor,contrast,difference_per_1000,ci95_low,ci95_high
+attendance_joint,respondent_attendance,More than weekly minus Weekly,9.396345712547163,-10.215919398450916,29.008610823545244
+attendance_joint,respondent_attendance,Monthly (1-3 times) minus Weekly,-3.2503224968339643,-14.247933790924437,7.747288797256507
+attendance_joint,respondent_attendance,Several times/year or less minus Weekly,-6.524236688938628,-17.255128739998145,4.206655362120888
+attendance_joint,respondent_attendance,Never minus Weekly,-4.297311994936055,-22.29939268510209,13.70476869522998
+attendance_joint,spouse_attendance,More than weekly minus Weekly,1.1750870294240032,-9.473019231012158,11.823193289860164
+attendance_joint,spouse_attendance,Monthly (1-3 times) minus Weekly,6.117186986408079,-7.420566164980082,19.65494013779624
+attendance_joint,spouse_attendance,Several times/year or less minus Weekly,3.8741807245876654,-9.735290002034308,17.48365145120964
+attendance_joint,spouse_attendance,Never minus Weekly,1.1623314476071467,-19.375979457241655,21.70064235245595
+weekly_pair,weekly_pair,Neither weekly+ minus Both weekly+,-5.21007789331072,-11.053973587262643,0.6338178006412053
+weekly_pair,weekly_pair,Only husband weekly+ minus Both weekly+,-0.7843204524682259,-10.739790204293547,9.171149299357095
+weekly_pair,weekly_pair,Only wife weekly+ minus Both weekly+,34.987365473105314,-12.030265246800418,82.00499619301105
+coded_affiliation_mismatch,coded_affiliation_match,Different coded affiliations minus Same coded affiliation,-0.1364670911092776,-6.379576245374231,6.106642063155676
+coded_affiliation_mismatch,respondent_broad,Roman Catholic minus Protestant/Christian,3.4496545738569773,-5.368158981381429,12.267468129095384
+coded_affiliation_mismatch,respondent_broad,None minus Protestant/Christian,8.347121675944015,-6.551800734214032,23.246044086102064
+coded_affiliation_mismatch,respondent_broad,Jewish/Other minus Protestant/Christian,6.029971526448359,-11.332012743571255,23.391955796467975
+coded_affiliation_mismatch,spouse_broad,Roman Catholic minus Protestant/Christian,-1.494476722696876,-9.709022733052148,6.720069287658395
+coded_affiliation_mismatch,spouse_broad,None minus Protestant/Christian,4.134706809973637,-9.639480504801051,17.908894124748326
+coded_affiliation_mismatch,spouse_broad,Jewish/Other minus Protestant/Christian,-1.034225739139973,-14.741861780892755,12.67341030261281
+none_pair,none_pair,Both none minus Both affiliated,11.101203975398859,-4.107268781793745,26.30967673259146
+none_pair,none_pair,Exactly one none minus Both affiliated,9.58535364386903,-2.920605354906106,22.09131264264417

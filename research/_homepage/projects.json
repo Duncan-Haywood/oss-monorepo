@@ -139,6 +139,11 @@
      "slug": "skill-score-normalisation",
      "title": "Is a skill score normalised by the realised base rate safe to pay on?",
      "summary": "Ranking verifiers by the Brier skill score 1&minus;Brier/(<em>y</em>&#772;(1&minus;<em>y</em>&#772;)) divides a proper score by an outcome-dependent baseline, and that breaks properness. The optimal report is exactly the hit rate reweighted by the inverse baseline variance: it is &frac12; for any belief with two tasks, and for larger <em>n</em> is biased by about &minus;(1&minus;2<em>p</em>)/<em>n</em> (0.232 against a true 0.1 at <em>n</em>=5), with misreporting gaining 0.042 skill for a 0.017 true-Brier cost. Because the baseline pools all of a verifier&rsquo;s tasks, the report on one task type also shifts with beliefs on the others (0.090 vs 0.133 for the rare type). A leave-one-out or ex-ante baseline restores properness. Independent tasks, constant reports, Brier only; exact enumeration agrees with 200,000-trial simulation. Pure-Python, 9 tests."
+    },
+    {
+     "slug": "marriage-divorce-evidence",
+     "title": "Can interpretable models predict annual divorce incidence?",
+     "summary": "Original ACS, NSFG and NLSY79 microdata analyses separate annual incidence from prevalence. A respondent-held-out enriched additive couple model reduces Poisson loss by about 3.4%; more flexible trees do not improve on it. Includes schooling/earnings pairings, direct contrasts, duration and first-birth checks, trained models and a portable report. Older cohort; observational, not a personal or causal forecast."
     }
    ]
   },
@@ -1330,6 +1335,11 @@
      "slug": "free-secretarynoise",
      "title": "How much does noisy scoring cost the secretary problem, and should the 1/e cutoff move?",
      "summary": "Simulation of the classical cutoff rule for hiring the best of <em>n</em> = 50 candidates when only a noisy score is seen (noise sd 0 to 4 times the quality sd, 40,000 trials per cell, checked against the exact noiseless formula). The best cutoff barely moves, 19 with no noise and 16&ndash;17 at every noise level; the chance of picking the true best falls from 0.373 to 0.145 at noise 1 and 0.043 at noise 4 (lottery: 0.02). Keeping the classical cutoff costs at most 0.006. A high mean true rank wants a much earlier cutoff (7&ndash;9). Cutoff rules only, Gaussian, one setting; the optimal noisy policy is not computed."
+    },
+    {
+     "slug": "free-sprtcert",
+     "title": "How many simulator rollouts does a sequential test save when certifying a failure rate?",
+     "summary": "Exact dynamic-programming comparison (no sampling) of Wald&rsquo;s sequential probability ratio test with the smallest fixed-size binomial test, both at 5% error, for deciding between an acceptable and an unacceptable failure rate. At either rate the sequential test uses about half the rollouts (for 1% vs 5%: 79 and 113 on average against 181). Between the two rates the saving shrinks to 6&ndash;17% at its worst point in the four cases tried. Assumes iid rollouts that match reality, so it says nothing about the sim-to-real gap."
     },
     {
      "slug": "free-secretarymargin",
@@ -3085,6 +3095,11 @@
      "summary": "A stdlib extension of <code>osrobot-assist</code>'s planar feeding-arm twin in which the user shifts the mouth toward the spoon tip at a swept lean speed (200 paired trials per row). At 30&nbsp;mm sway and 0.20&nbsp;m/s the blind arm's share of feeds with peak lip force at most 2&nbsp;N rises from 0.21 (passive user) to 0.69 at 50&nbsp;mm/s and 1.00 at 100&nbsp;mm/s, against 0.71 to 0.97 for the camera arm; at 50&nbsp;mm sway even 100&nbsp;mm/s gives only 0.62 for the blind arm. Leaning removes contacts but not the peak force of the ones that remain (4.0&nbsp;N at 0.20&nbsp;m/s). Stylised: every constant, including the lean speed, is assumed; no person was modelled or tested."
     },
     {
+     "slug": "osrobot-deadline",
+     "title": "When a pest window sets a deadline, is a scout-and-treater fleet or a fleet of inline weeding robots cheaper?",
+     "summary": "A stdlib extension of <code>osrobot-pipeline</code> that adds a hard finish deadline for 16 equal fields and searches up to four scouts, up to 16 treaters and up to 32 inline robots (no new simulation; every price an assumed round number). One scout cannot finish 16 fields faster than 5.3, 15.9 and 32.5&nbsp;h (0.18, 0.72, 1.62&nbsp;ha fields) however many treaters it feeds, against 0.7, 2.8 and 6.2&nbsp;h for 32 inline robots. Cheapest pipeline over cheapest inline: 1.06 to 1.12 at 0.72&nbsp;ha, rising as the deadline tightens, and 1.49 at 0.18&nbsp;ha; at 1.62&nbsp;ha the pipeline is cheaper (0.87 to 0.93) at every deadline it can meet but cannot meet 8&nbsp;h, where only inline robots can. Stylised: equal fields, hard cut-off, no late-yield curve."
+    },
+    {
      "slug": "osrobot-pipeline",
      "title": "If one scout drone feeds ground treaters in a pipeline, can a held fleet beat inline weeding robots?",
      "summary": "A stdlib scheduling follow-up to <code>osrobot-pairprice</code> using its fitted per-field minutes (no new simulation; every price an assumed round number). Set-up and battery swaps make the scout nearly as slow as the treater, so one scout keeps only 0.99 to 1.33 treaters busy and the cheapest pipeline is always one scout with one treater. Overlapping the stages cuts the held-pair penalty to 1.04 times the inline fleet at 0.72&nbsp;ha fields (32 fields) and 0.86 at 1.62&nbsp;ha, from 1.34 and 1.16; at 0.18&nbsp;ha it stays 1.48 to 1.81 times. Extra treaters finish sooner but raise cost per hectare (13.92 to 24.56 USD for 1 to 5). Stylised: deterministic, equal fields, no weather or failures."
@@ -3506,6 +3521,11 @@
      "summary": "Splits the exterior walls of the <code>house-framing</code> house into panels, nests the sheathing, loads the trailers and runs a Monte Carlo of the shell crew's days with weather. Panelised took 2.17 calendar days against 1.96 on site and cost 38% more at assumed rates; factory productivity does not change the days because the factory runs behind the foundation, and panelised is faster only from about 58 ft long (78 with no weather, 44 at 30% loss). Factory nesting saved 1 sheet in 33 (bound 26): a 97 in wall on a 108 in sheet wastes the same strip either way. Stylised: wall shell only, every labour rate and price is my assumption."
     },
     {
+     "slug": "house-shellvalue",
+     "title": "Does a factory-built shell pay once the interest on the days it saves is counted?",
+     "summary": "Joins <code>house-offsite</code>'s extra cost of panelising the walls ($1,373 at assumed rates) to <code>house-schedule</code>'s interest on working days saved, comparing a factory shell with a site-built house ordered on the same day. The shell alone saves 15.5 days (0.22% of price at 8%) when ordered at day 0 and only 6.4 days when ordered at the foundation start with a 25-day lead; it breaks even at a house price of about $629,000 at a $1,500 crane day and pays throughout at $750. Most of <code>house-schedule</code>'s 78-day saving is the ordering date, not the shell. Stylised: house prices are parameters and every rate is assumed."
+    },
+    {
      "slug": "house-schedule",
      "title": "How much do fewer handoffs, parallel trades, early ordering and a factory shell cut the time to build a house?",
      "summary": "A Monte Carlo discrete-event model of one house build (20 tasks, a crew per trade, failing inspections, weather, material lead times; 4,000 builds per scenario with common random numbers). The zero-noise critical path is 100 working days but the baseline takes 214: the schedule is driven by waiting. Ordering long-lead materials at day 0 saves 63 days, fewer handoffs 21, parallel rough-in 12.5, faster inspections 11. A factory wall-and-roof shell saves only 6 days if ordered when the foundation starts and 78 if ordered at day 0. All levers together: 96 days, about 1.7% of the price in interest at 8%. <em>Stylised</em>: every duration and rate is my assumption and nothing is calibrated; the 63-day figure rests on a late-ordering baseline."
@@ -3662,6 +3682,12 @@
     "slug": "society-commons",
     "title": "What does it cost robots to let people go first at a shared lift or narrow pavement?",
     "summary": "People and robots share a one-at-a-time crossing. At load 0.9, robots that always let waiting people go first cut people&rsquo;s mean wait from 4.60 to 0.71 time units and raise the robots&rsquo; from 4.61 to 7.21; the total waiting cost is the same for every share of deferential robots (4.14&ndash;4.15), so deference moves waiting rather than removing it, and pays exactly when a person&rsquo;s wait costs more than a robot&rsquo;s. A lone selfish robot waits 2.08 against 7.65 for deferential ones (the dilemma). Under overload (load 1.2) half the robots deferring costs them 10.5% of their crossings and gives people 20% more. Simulation within 2.7% of M/G/1 closed forms. Stylised: one server, Poisson arrivals, fixed crossing times."
+   }
+   
+   ,{
+    "slug": "society-llmtown",
+    "title": "Do robot agents keep the norms they state?",
+    "summary": "A harness for a small town of robot agents that state a door norm each day and then act among scripted people, scoring how often action matches statement and what it costs people. Any agent with <code>state_norm</code> and <code>act</code> plugs in; a deterministic stub is tested, and an optional model adapter is provided but was not run. With the stub, a robot stating &lsquo;always yield&rsquo; keeps it in 1 &minus; 0.4&times;pressure of meetings (1.00, 0.80, 0.60 at pressure 0, 0.5, 1; 20 seeds) and people&rsquo;s cost per meeting rises from 0.20 to 1.08. These follow from the stub&rsquo;s own rule: no language-model result is claimed. Stylised; non-adaptive scripted people."
    }
    ,{
     "slug": "society-twinfidelity",

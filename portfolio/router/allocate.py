@@ -159,9 +159,20 @@ def count_ledger_entries(ledger_dir: Path = LEDGER_DIR) -> dict[str, int]:
     return counts
 
 
+_WARNED_NO_LIBYAML = False
+
+
 def _load_yaml(path: Path) -> dict:
     """safe_load, through libyaml when installed (the pure-Python parser was 35s of a 60s run)."""
-    loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+    loader = getattr(yaml, "CSafeLoader", None)
+    if loader is None:
+        global _WARNED_NO_LIBYAML
+        if not _WARNED_NO_LIBYAML:
+            _WARNED_NO_LIBYAML = True
+            print("(this python's PyYAML has no libyaml: loading ~1,300 VENTURE.yaml takes ~35s. "
+                  "Another interpreter is ~15x faster, e.g. /usr/bin/python3.13 or a venv with "
+                  "`pip install pyyaml`.)", file=sys.stderr)
+        loader = yaml.SafeLoader
     return yaml.load(path.read_text(), Loader=loader) or {}
 
 

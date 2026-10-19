@@ -5324,7 +5324,10 @@ export function isPublishable(name) {
  * charset declaration so that stays the first thing the parser sees.
  */
 export function injectFavicon(html, toRoot) {
-  if (/<link[^>]+rel=["'][^"']*icon/i.test(html)) return html;
+  // `icon` as a whole rel token (`icon`, `shortcut icon`, `alternate icon`):
+  // an `apple-touch-icon` is a home-screen tile, not the tab icon, and treating
+  // it as one left bid-price-engine with no favicon.
+  if (/<link[^>]+rel=["'](?:[^"']*\s)?icon(?:\s[^"']*)?["']/i.test(html)) return html;
   const link = `\n  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">`;
   if (/<meta[^>]+charset/i.test(html)) {
     return html.replace(/<meta[^>]+charset[^>]*>/i, (meta) => `${meta}${link}`);

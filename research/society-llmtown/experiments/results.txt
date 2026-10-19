@@ -1,0 +1,17 @@
+== A. share of 'always_yield' meetings kept, and person cost per meeting, by urgency pressure (columns: kept at hurried 0.0 0.2 0.5; person cost at the same)
+0.00 1.000 1.000 1.000 0.200 0.420 0.749
+0.25 0.902 0.902 0.899 0.414 0.589 0.858
+0.50 0.799 0.800 0.797 0.639 0.769 0.971
+0.75 0.701 0.701 0.698 0.856 0.944 1.083
+1.00 0.601 0.601 0.598 1.077 1.123 1.206
+== B. # society-llmtown stub agents, 10 robots, 30 scripted people, 20 days, 20 meetings, 20 seeds
+pressure hurried | stated: always_yield yield_when_not_late first_come | kept: always_yield yield_when_not_late first_come | go_rate person_cost robot_cost
+0.0 0.0 | 1.000 0.000 0.000 | 1.000 nan nan | 0.000 0.200 0.000
+0.5 0.0 | 1.000 0.000 0.000 | 0.799 nan nan | 0.201 0.639 0.662
+1.0 0.0 | 0.993 0.008 0.000 | 0.601 1.000 nan | 0.399 1.077 1.190
+0.0 0.2 | 0.800 0.000 0.200 | 1.000 nan 1.000 | 0.100 0.420 0.241
+0.5 0.2 | 0.800 0.000 0.200 | 0.800 nan 1.000 | 0.260 0.769 0.793
+1.0 0.2 | 0.776 0.024 0.200 | 0.601 1.000 1.000 | 0.421 1.123 1.242
+0.0 0.5 | 0.500 0.000 0.500 | 1.000 nan 1.000 | 0.249 0.749 0.599
+0.5 0.5 | 0.500 0.000 0.500 | 0.797 nan 1.000 | 0.350 0.971 0.995
+1.0 0.5 | 0.417 0.082 0.500 | 0.598 1.000 1.000 | 0.458 1.206 1.331

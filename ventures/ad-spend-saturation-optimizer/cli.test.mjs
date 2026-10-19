@@ -67,3 +67,18 @@ test("too little data is an error, not a crash", () => {
   assert.equal(r.out, "");
   assert.equal(r.errors.length, 1);
 });
+
+test("--snapshot-out then --since compares against the saved answers", async () => {
+  const { mkdtempSync, readFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const dir = mkdtempSync(tmpdir() + "/snap-");
+  const f = dir + "/s.json";
+  const text = sampleText();
+  render(parseArgs(["--snapshot-out", f, "x.csv"]), text);
+  assert.equal(JSON.parse(readFileSync(f, "utf8")).tool, "ad-spend-saturation-optimizer");
+  const r = render(parseArgs(["--since", f, "x.csv"]), text);
+  assert.match(r.out, /Since \d{4}-\d{2}-\d{2}:/);
+  assert.match(r.out, /was not made/);
+  const bad = render(parseArgs(["--since", dir + "/missing.json", "x.csv"]), text);
+  assert.ok(bad.errors.some((e) => /cannot read/.test(e)));
+});

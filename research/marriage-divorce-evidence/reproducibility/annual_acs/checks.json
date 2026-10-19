@@ -1,0 +1,46 @@
+[
+  {
+    "denominator": "approx_current_married_separated_or_recent_divorce",
+    "sex": "Men",
+    "n": 475538,
+    "events": 6487,
+    "weighted_n": 47667048,
+    "weighted_events": 712621,
+    "cells": 9711,
+    "max_iterations": 6,
+    "max_abs_normalized_score": 5.234521489342423e-18
+  },
+  {
+    "denominator": "approx_current_married_separated_or_recent_divorce",
+    "sex": "Women",
+    "n": 502864,
+    "events": 7301,
+    "weighted_n": 48020739,
+    "weighted_events": 806574,
+    "cells": 8929,
+    "max_iterations": 7,
+    "max_abs_normalized_score": 5.539839781903013e-18
+  },
+  {
+    "denominator": "ever_married",
+    "sex": "Men",
+    "n": 559456,
+    "events": 6487,
+    "weighted_n": 56068918,
+    "weighted_events": 712621,
+    "cells": 10055,
+    "max_iterations": 6,
+    "max_abs_normalized_score": 2.1878092582707534e-18
+  },
+  {
+    "denominator": "ever_married",
+    "sex": "Women",
+    "n": 623141,
+    "events": 7301,
+    "weighted_n": 60181155,
+    "weighted_events": 806574,
+    "cells": 9457,
+    "max_iterations": 6,
+    "max_abs_normalized_score": 1.7681761027589553e-18
+  }
+]
