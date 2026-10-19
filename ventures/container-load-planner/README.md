@@ -20,6 +20,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   checker.
 - Printable load plan: one self-contained HTML file (no script) with a to-scale top and side SVG per container, the ordered-versus-packed table, the balance check, the loading list and the disclaimer, to print to PDF for the warehouse or the forwarder (`planReportHtml`).
 - Share link: `encodeShare`/`decodeShare` put the whole form in the URL hash (`#plan=...`) so a plan can be sent to a forwarder or colleague; nothing is stored on a server.
+- Freight quotes in the page: type what each container size was quoted (`20ft=2400, 40ft=3800`) under "What if I swap?" and the table adds the total and cost per unit for the whole load, marking the cheapest option that fits everything (`priceOptions`, same as the CLI's `--rates`). The tool ships no rates of its own.
 - Command line: `cli.mjs` runs the same packer on a cargo CSV with no browser and no network, for forwarders and ops scripts that plan many shipments. Zero dependencies.
 
   ```
