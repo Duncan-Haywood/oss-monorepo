@@ -1237,6 +1237,25 @@ export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, 
   return { ok: true, weeks: out, totalCost: out.reduce((t, w) => t + w.roster.cost, 0), totalOpenHours: out.reduce((t, w) => t + w.roster.unfilledHours, 0) };
 }
 
+// Fairness over a whole plan: the per-week fairnessReport counts added up per person across every planned week, so
+// "who keeps getting the closes and weekends" is visible over a month and not only week by week. `spread` is the largest
+// minus the smallest tough-shift total among people who work at all, `flag` when it is 2 per week or more on average.
+// A report only: the search balances recent weeks through the tough-shift tally, it does not guarantee equal totals.
+export function planFairness(plan, opts = {}) {
+  const weeks = (plan && plan.weeks) || [];
+  const by = new Map();
+  for (const w of weeks) {
+    for (const x of fairnessReport(w.roster, opts).rows) {
+      const t = by.get(x.name) || { name: x.name, weeks: 0, shifts: 0, hours: 0, weekend: 0, closing: 0, opening: 0, tough: 0 };
+      t.weeks++; t.shifts += x.shifts; t.hours += x.hours; t.weekend += x.weekend; t.closing += x.closing; t.opening += x.opening; t.tough += x.tough;
+      by.set(x.name, t);
+    }
+  }
+  const rows = [...by.values()].sort((a, b) => b.tough - a.tough || a.name.localeCompare(b.name));
+  const spread = rows.length ? rows[0].tough - rows[rows.length - 1].tough : 0;
+  return { weeks: weeks.length, rows, spread, flag: weeks.length > 0 && spread >= 2 * weeks.length, most: rows[0] || null, least: rows[rows.length - 1] || null };
+}
+
 // Labor cost as a share of projected sales, against an optional target.
 // Returns null when sales is not a positive number. maxPayroll is the payroll
 // that would hit the target exactly; headroom is how much of it is unspent.
