@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { parseArgs, parseLimits, buildSpec, run } from "./cli.mjs";
+import { parseArgs, parseLimits, buildSpec, run, parseTrip } from "./cli.mjs";
 import { analyze, sampleSpec } from "./calc.mjs";
 
 const cli = new URL("./cli.mjs", import.meta.url).pathname;
@@ -82,4 +82,20 @@ test("the script runs end to end: output, help, and a failing exit code", () => 
   const bad = spawnSync(process.execPath, [cli, "--nope"], { encoding: "utf8" });
   assert.equal(bad.status, 2);
   assert.match(bad.stderr, /unknown option/);
+});
+
+test("--trip reports what a planned trip changes, matching tripImpact", async () => {
+  const { out, code } = await run(["--example", "--trip", "NY 2025-11-01 14"]);
+  assert.equal(code, 0);
+  assert.match(out, /Planned trip: 14 day\(s\) in NY from 2025-11-01/);
+  assert.match(out, /NY {2}198 -> 212 days \(\+14\), limit 183/);
+  const json = JSON.parse((await run(["--example", "--trip", "NY 2025-11-01 14", "--json"])).out);
+  assert.equal(json.trip.days, 14);
+  assert.equal(json.changes[0].code, "NY");
+});
+
+test("--trip rejects malformed input with a reason", async () => {
+  assert.throws(() => parseTrip("NY 14", 2025), /needs a state, a start date/);
+  assert.throws(() => parseTrip("NY 2025-13-45 3", 2025), /not a real date/);
+  assert.equal(parseTrip("ny 2025-11-01 3", 2025).state, "NY");
 });
