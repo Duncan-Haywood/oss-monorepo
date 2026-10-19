@@ -1,0 +1,9 @@
+sample,model,reference,deviance_improvement_per_person_year,ci95_low,ci95_high,bootstrap
+legally_married_including_separated,additive_poisson,constant,0.01572719460027594,0.013964607354326624,0.01762026962324772,"2000personresamples of paired crossfit losses, fitted folds fixed"
+legally_married_including_separated,tree_depth2,constant,0.016355618746318235,0.014177158367899935,0.01870943724028686,"2000personresamples of paired crossfit losses, fitted folds fixed"
+legally_married_including_separated,tree_depth3,constant,0.016119827682660237,0.013878640605129217,0.01851634528980789,"2000personresamples of paired crossfit losses, fitted folds fixed"
+legally_married_including_separated,spline_additive_poisson,constant,0.015765621280564388,0.013970881634031509,0.017648034931349234,"2000personresamples of paired crossfit losses, fitted folds fixed"
+currently_married_only,additive_poisson,constant,0.0016924828080024498,0.0010688803764491363,0.0023128967302132896,"2000personresamples of paired crossfit losses, fitted folds fixed"
+currently_married_only,tree_depth2,constant,0.0005848336846801498,-5.070318137395766e-05,0.001186995894303357,"2000personresamples of paired crossfit losses, fitted folds fixed"
+currently_married_only,tree_depth3,constant,0.00032088128716588555,-0.00045365372225544565,0.0010460363974558384,"2000personresamples of paired crossfit losses, fitted folds fixed"
+currently_married_only,spline_additive_poisson,constant,0.001626991073276957,0.0009734121403753694,0.002281131924464333,"2000personresamples of paired crossfit losses, fitted folds fixed"

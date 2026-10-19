@@ -1,0 +1,49 @@
+denominator,sex,factor,level,reference,unit,estimate,se,ci95_low,ci95_high
+approx_current_married_separated_or_recent_divorce,Men,age_at_marriage,<22,22-26,percentage_points,0.3571113511513844,0.10207172828761506,0.1570507637076589,0.5571719385951099
+approx_current_married_separated_or_recent_divorce,Men,age_at_marriage,27-31,22-26,percentage_points,0.16289564177273363,0.06205164101080645,0.04127442539155299,0.28451685815391425
+approx_current_married_separated_or_recent_divorce,Men,age_at_marriage,32-36,22-26,percentage_points,0.20092030371653483,0.08359610620760373,0.03707193554963151,0.36476867188343814
+approx_current_married_separated_or_recent_divorce,Men,age_at_marriage,37+,22-26,percentage_points,0.05837303242351814,0.10081466081263361,-0.13922370276924373,0.25596976761628004
+approx_current_married_separated_or_recent_divorce,Men,duration,1-4,5-9,percentage_points,-0.4709915958595596,0.10602721982254476,-0.6788049467117473,-0.26317824500737186
+approx_current_married_separated_or_recent_divorce,Men,duration,10-19,5-9,percentage_points,-0.23634005819518217,0.08859995956038863,-0.4099959789335439,-0.06268413745682044
+approx_current_married_separated_or_recent_divorce,Men,duration,20+,5-9,percentage_points,-0.8904443255820763,0.07408602677283098,-1.0356529380568251,-0.7452357131073276
+approx_current_married_separated_or_recent_divorce,Men,education,Less than high school,Bachelor,percentage_points,0.032079741844471404,0.09829564530489428,-0.16057972295312137,0.22473920664206418
+approx_current_married_separated_or_recent_divorce,Men,education,High school/GED,Bachelor,percentage_points,0.44200060750670556,0.08658373218706389,0.2722964924200604,0.6117047225933507
+approx_current_married_separated_or_recent_divorce,Men,education,Some college,Bachelor,percentage_points,0.3266578117844402,0.07581838669284237,0.17805377386646917,0.47526184970241125
+approx_current_married_separated_or_recent_divorce,Men,education,Associate,Bachelor,percentage_points,0.16233352123831338,0.08434143102401519,-0.002975683568756382,0.32764272604538314
+approx_current_married_separated_or_recent_divorce,Men,education,Master,Bachelor,percentage_points,0.03439169864559114,0.09186695716662442,-0.14566753740099272,0.214450934692175
+approx_current_married_separated_or_recent_divorce,Men,education,Professional,Bachelor,percentage_points,0.23867562683327642,0.16818718310037353,-0.09097125204345569,0.5683225057100085
+approx_current_married_separated_or_recent_divorce,Men,education,Doctorate,Bachelor,percentage_points,-0.09387858492073027,0.12814396494376812,-0.3450407562105158,0.15728358636905526
+approx_current_married_separated_or_recent_divorce,Men,income_group,Zero/negative,"50,000-74,999",percentage_points,0.16554500383895668,0.1443603956445144,-0.11740137162429151,0.44849137930220484
+approx_current_married_separated_or_recent_divorce,Men,income_group,"1-24,999","50,000-74,999",percentage_points,0.38156227329792514,0.11713917644069008,0.15196948747417258,0.6111550591216777
+approx_current_married_separated_or_recent_divorce,Men,income_group,"25,000-49,999","50,000-74,999",percentage_points,0.08469525141007098,0.09109584923876203,-0.0938526130979026,0.26324311591804456
+approx_current_married_separated_or_recent_divorce,Men,income_group,"75,000-99,999","50,000-74,999",percentage_points,-0.172068657623568,0.08972219932709315,-0.34792416830467054,0.003786853057534567
+approx_current_married_separated_or_recent_divorce,Men,income_group,"100,000-149,999","50,000-74,999",percentage_points,-0.3562611082246234,0.09218268202600051,-0.5369391649955844,-0.17558305145366243
+approx_current_married_separated_or_recent_divorce,Men,income_group,"150,000-199,999","50,000-74,999",percentage_points,-0.2001718960856394,0.1210165490317642,-0.4373643321878973,0.03702054001661845
+approx_current_married_separated_or_recent_divorce,Men,income_group,"200,000+","50,000-74,999",percentage_points,-0.4627353139357403,0.09299878503887937,-0.6450129326119438,-0.28045769525953673
+approx_current_married_separated_or_recent_divorce,Men,employment,Unemployed,Employed,percentage_points,0.6265328953830409,0.21268637887737893,0.2096675927833782,1.0433981979827036
+approx_current_married_separated_or_recent_divorce,Men,employment,Not in labor force,Employed,percentage_points,0.26247562752187475,0.08698287415424814,0.0919891941795484,0.4329620608642011
+approx_current_married_separated_or_recent_divorce,Men,employment,Armed forces,Employed,percentage_points,0.37030521351911155,0.3167919111451478,-0.2506069323253782,0.9912173593636013
+approx_current_married_separated_or_recent_divorce,Women,age_at_marriage,<22,22-26,percentage_points,0.05934793649740779,0.08546887097757454,-0.1081710506186383,0.2268669236134539
+approx_current_married_separated_or_recent_divorce,Women,age_at_marriage,27-31,22-26,percentage_points,-0.20001797468298127,0.06953065493772374,-0.3362980583609198,-0.06373789100504273
+approx_current_married_separated_or_recent_divorce,Women,age_at_marriage,32-36,22-26,percentage_points,-0.13895642077170686,0.1036913896575537,-0.34219154450051215,0.0642787029570984
+approx_current_married_separated_or_recent_divorce,Women,age_at_marriage,37+,22-26,percentage_points,-0.12391318142446953,0.10452550336866223,-0.3287831680270475,0.08095680517810844
+approx_current_married_separated_or_recent_divorce,Women,duration,1-4,5-9,percentage_points,-0.7363660665435794,0.11881555709360715,-0.9692445584470494,-0.5034875746401094
+approx_current_married_separated_or_recent_divorce,Women,duration,10-19,5-9,percentage_points,-0.2744003686895681,0.0952606500277071,-0.461111242743874,-0.08768949463526216
+approx_current_married_separated_or_recent_divorce,Women,duration,20+,5-9,percentage_points,-1.0698270435413026,0.09480949831553545,-1.2556536602397521,-0.8840004268428532
+approx_current_married_separated_or_recent_divorce,Women,education,Less than high school,Bachelor,percentage_points,0.48684468125082675,0.13555086548059786,0.22116498490885494,0.7525243775927986
+approx_current_married_separated_or_recent_divorce,Women,education,High school/GED,Bachelor,percentage_points,0.6072797024792086,0.07844877349231445,0.45352010643427226,0.761039298524145
+approx_current_married_separated_or_recent_divorce,Women,education,Some college,Bachelor,percentage_points,0.5932521378778859,0.09261959830406621,0.4117177252019161,0.7747865505538557
+approx_current_married_separated_or_recent_divorce,Women,education,Associate,Bachelor,percentage_points,0.4665907608294873,0.1035130614485569,0.2637051603903158,0.6694763612686588
+approx_current_married_separated_or_recent_divorce,Women,education,Master,Bachelor,percentage_points,-0.17435793659814625,0.070306853287853,-0.3121593690423381,-0.03655650415395437
+approx_current_married_separated_or_recent_divorce,Women,education,Professional,Bachelor,percentage_points,-0.16378339829868532,0.13832785131378603,-0.4349059868737059,0.10733919027633526
+approx_current_married_separated_or_recent_divorce,Women,education,Doctorate,Bachelor,percentage_points,-0.15624835539411774,0.15796706407248623,-0.46586380097619073,0.15336709018795525
+approx_current_married_separated_or_recent_divorce,Women,income_group,Zero/negative,"50,000-74,999",percentage_points,-1.478070284075075,0.0948357979774568,-1.6639484481108904,-1.2921921200392597
+approx_current_married_separated_or_recent_divorce,Women,income_group,"1-24,999","50,000-74,999",percentage_points,-0.3448630891701781,0.1102872708242797,-0.5610261399857663,-0.12870003835458987
+approx_current_married_separated_or_recent_divorce,Women,income_group,"25,000-49,999","50,000-74,999",percentage_points,-0.0676318110216595,0.11054085448393344,-0.28429188581016906,0.14902826376685005
+approx_current_married_separated_or_recent_divorce,Women,income_group,"75,000-99,999","50,000-74,999",percentage_points,0.005045520194366104,0.11711285466911216,-0.22449567495709372,0.23458671534582592
+approx_current_married_separated_or_recent_divorce,Women,income_group,"100,000-149,999","50,000-74,999",percentage_points,-0.08493958456211072,0.13626824893207656,-0.35202535246898076,0.18214618334475935
+approx_current_married_separated_or_recent_divorce,Women,income_group,"150,000-199,999","50,000-74,999",percentage_points,-0.26422566197618136,0.20286647106337471,-0.6618439452603958,0.1333926213080331
+approx_current_married_separated_or_recent_divorce,Women,income_group,"200,000+","50,000-74,999",percentage_points,-0.2856910987966387,0.17743665472049236,-0.6334669420488037,0.062084744455526364
+approx_current_married_separated_or_recent_divorce,Women,employment,Unemployed,Employed,percentage_points,1.0914194461187525,0.25212885225317794,0.5972468957025238,1.5855919965349812
+approx_current_married_separated_or_recent_divorce,Women,employment,Not in labor force,Employed,percentage_points,-0.054280008270783144,0.09814074545893836,-0.24663586937030232,0.13807585282873605
+approx_current_married_separated_or_recent_divorce,Women,employment,Armed forces,Employed,percentage_points,0.15557034440797263,0.783700763436997,-1.3804831519285417,1.6916238407444868

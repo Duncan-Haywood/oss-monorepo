@@ -19,7 +19,7 @@ Daily rows are summed into Monday weeks. Amounts in one currency.
 
 ## In a terminal
 
-`node cli.mjs spend.csv` runs the same analysis from a file or `-` (stdin), with no dependencies and no network: `--margin 45`, `--skip "2025-11-24..2025-12-07"`, `--budget 12000` (best split of another weekly total), `--csv`, `--json`, `--example`. Tests in `cli.test.mjs`.
+`node cli.mjs spend.csv` runs the same analysis from a file or `-` (stdin), with no dependencies and no network: `--margin 45`, `--skip "2025-11-24..2025-12-07"`, `--budget 12000` (best split of another weekly total), `--csv`, `--json`, `--example`, `--snapshot-out jan.json` (save the answers only, no rows) and `--since jan.json` (next month: how much of the suggested move was made and how each channel's marginal return changed). The web page has the same Save snapshot / Compare buttons. Tests in `cli.test.mjs`.
 
 ## Model
 

@@ -1,0 +1,22 @@
+{
+  "all_adults_race_ethnicity_d_all_replicate_totals": true,
+  "all_adults_race_ethnicity_e_all_replicate_totals": true,
+  "all_adults_nativity_d_all_replicate_totals": true,
+  "all_adults_nativity_e_all_replicate_totals": true,
+  "all_adults_citizenship_d_all_replicate_totals": true,
+  "all_adults_citizenship_e_all_replicate_totals": true,
+  "all_adults_birth_region_d_foreign_all_replicates": true,
+  "all_adults_birth_region_e_foreign_all_replicates": true,
+  "all_adults_entry_duration_d_foreign_all_replicates": true,
+  "all_adults_entry_duration_e_foreign_all_replicates": true,
+  "at_risk_approx_race_ethnicity_d_all_replicate_totals": true,
+  "at_risk_approx_race_ethnicity_e_all_replicate_totals": true,
+  "at_risk_approx_nativity_d_all_replicate_totals": true,
+  "at_risk_approx_nativity_e_all_replicate_totals": true,
+  "at_risk_approx_citizenship_d_all_replicate_totals": true,
+  "at_risk_approx_citizenship_e_all_replicate_totals": true,
+  "at_risk_approx_birth_region_d_foreign_all_replicates": true,
+  "at_risk_approx_birth_region_e_foreign_all_replicates": true,
+  "at_risk_approx_entry_duration_d_foreign_all_replicates": true,
+  "at_risk_approx_entry_duration_e_foreign_all_replicates": true
+}

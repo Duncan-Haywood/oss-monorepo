@@ -1,0 +1,30 @@
+[
+  {
+    "sex": "Men",
+    "model": "income_group",
+    "max_abs_logodds_difference": 4.823919041996305e-14,
+    "max_abs_normalized_score_reported": 1.3213713977167085e-18,
+    "optimizer_success": true
+  },
+  {
+    "sex": "Men",
+    "model": "employment",
+    "max_abs_logodds_difference": 1.887379141862766e-14,
+    "max_abs_normalized_score_reported": 6.799980500557523e-18,
+    "optimizer_success": true
+  },
+  {
+    "sex": "Women",
+    "model": "income_group",
+    "max_abs_logodds_difference": 1.3438099522034008e-09,
+    "max_abs_normalized_score_reported": 4.86408669960782e-19,
+    "optimizer_success": true
+  },
+  {
+    "sex": "Women",
+    "model": "employment",
+    "max_abs_logodds_difference": 3.551214877717257e-12,
+    "max_abs_normalized_score_reported": 1.4035335936003757e-18,
+    "optimizer_success": true
+  }
+]

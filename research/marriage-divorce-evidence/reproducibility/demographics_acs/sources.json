@@ -1,0 +1,14 @@
+[
+  {
+    "relative_file": "../acs/csv_pus.zip",
+    "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2023/1-Year/csv_pus.zip",
+    "bytes": 597292173,
+    "sha256": "98b6ecb14b4830d1f2b54c265a5bd997828415c2dab14e17369c40e98b78d9d4"
+  },
+  {
+    "relative_file": "../acs/data_dictionary_2023.pdf",
+    "url": "https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2023.pdf",
+    "bytes": 390163,
+    "sha256": "7c48f195a561d63d07e928150795a930659b65ff36c89c21d43c806c0ffec22e"
+  }
+]

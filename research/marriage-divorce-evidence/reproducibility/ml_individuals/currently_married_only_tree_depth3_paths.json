@@ -1,0 +1,74 @@
+[
+  {
+    "leaf_id": 3,
+    "conditions": [
+      "age <= 49.5",
+      "cat__education_model_Bachelor <= 0.5",
+      "age <= 38.5"
+    ],
+    "training_fitted_rate_per_1000": 21.460563138886958
+  },
+  {
+    "leaf_id": 4,
+    "conditions": [
+      "age <= 49.5",
+      "cat__education_model_Bachelor <= 0.5",
+      "age > 38.5"
+    ],
+    "training_fitted_rate_per_1000": 12.43846054517259
+  },
+  {
+    "leaf_id": 6,
+    "conditions": [
+      "age <= 49.5",
+      "cat__education_model_Bachelor > 0.5",
+      "first_marriage_age <= 27.5"
+    ],
+    "training_fitted_rate_per_1000": 9.6645141105438
+  },
+  {
+    "leaf_id": 7,
+    "conditions": [
+      "age <= 49.5",
+      "cat__education_model_Bachelor > 0.5",
+      "first_marriage_age > 27.5"
+    ],
+    "training_fitted_rate_per_1000": 6.438645914076575
+  },
+  {
+    "leaf_id": 10,
+    "conditions": [
+      "age > 49.5",
+      "age <= 52.5",
+      "cat__sex_Women <= 0.5"
+    ],
+    "training_fitted_rate_per_1000": 10.111336940567071
+  },
+  {
+    "leaf_id": 11,
+    "conditions": [
+      "age > 49.5",
+      "age <= 52.5",
+      "cat__sex_Women > 0.5"
+    ],
+    "training_fitted_rate_per_1000": 6.432741356099996
+  },
+  {
+    "leaf_id": 13,
+    "conditions": [
+      "age > 49.5",
+      "age > 52.5",
+      "first_marriage_age <= 36.5"
+    ],
+    "training_fitted_rate_per_1000": 4.813865910358951
+  },
+  {
+    "leaf_id": 14,
+    "conditions": [
+      "age > 49.5",
+      "age > 52.5",
+      "first_marriage_age > 36.5"
+    ],
+    "training_fitted_rate_per_1000": 10.62360241920427
+  }
+]

@@ -1,0 +1,63 @@
+model,term,rate_ratio,ci_low,ci_high
+"Profile specification, same attendance-complete sample",Intercept,0.013559388064017153,0.007965353326726939,0.023082090288913764
+"Profile specification, same attendance-complete sample",husband_school: <12 years vs 12 years,0.833024588582327,0.5484963205778512,1.2651497177805802
+"Profile specification, same attendance-complete sample",husband_school: 13–15 years vs 12 years,0.9402581091532287,0.7354806188451956,1.2020511338783326
+"Profile specification, same attendance-complete sample",husband_school: 16–17 years vs 12 years,0.8744140100828085,0.6454200442329514,1.184654656856506
+"Profile specification, same attendance-complete sample",husband_school: 18+ years vs 12 years,0.5901835386042789,0.38417652771767014,0.9066577057915544
+"Profile specification, same attendance-complete sample",wife_school: <12 years vs 12 years,1.0953277073919339,0.7068533370437824,1.6973008737541797
+"Profile specification, same attendance-complete sample",wife_school: 13–15 years vs 12 years,1.247026389157678,0.9827554384502807,1.5823619533541868
+"Profile specification, same attendance-complete sample",wife_school: 16–17 years vs 12 years,0.7228080902478589,0.5250949307466479,0.9949658713803763
+"Profile specification, same attendance-complete sample",wife_school: 18+ years vs 12 years,0.9294587795272045,0.6338126345824173,1.3630110472779868
+"Profile specification, same attendance-complete sample",couple_wage_quartile: Q1 vs Q2,1.0777861443352126,0.8236564459893115,1.4103246305875903
+"Profile specification, same attendance-complete sample",couple_wage_quartile: Q3 vs Q2,1.0051673060773139,0.7638176817192935,1.3227781149717306
+"Profile specification, same attendance-complete sample",couple_wage_quartile: Q4 vs Q2,1.1187940126450282,0.8272172109428468,1.5131455513403778
+"Profile specification, same attendance-complete sample","earnings_pair: Husband majority, both positive vs Balanced 40–60% wife",0.7268522783484037,0.5694892938237415,0.9276982732949849
+"Profile specification, same attendance-complete sample",earnings_pair: Husband only vs Balanced 40–60% wife,0.9595730913189889,0.7143073545786339,1.2890536709182339
+"Profile specification, same attendance-complete sample","earnings_pair: Wife majority, both positive vs Balanced 40–60% wife",1.4311958884148828,1.0234905806703904,2.001309743050109
+"Profile specification, same attendance-complete sample",earnings_pair: Wife only vs Balanced 40–60% wife,1.0627222394366287,0.7110794840664362,1.5882592361329964
+"Profile specification, same attendance-complete sample",marriage_order_group: Subsequent vs First,1.1998805312641003,0.9540528272897613,1.5090498640379328
+"Profile specification, same attendance-complete sample",Age per 10 years,0.5671896845499645,0.3639293144400842,0.8839742375654442
+"Profile specification, same attendance-complete sample",Current marriage years per 10,0.6783669453942451,0.5927575100894075,0.7763405857719256
+"Profile specification, same attendance-complete sample",Women respondents vs men,0.8058205160732924,0.6612880999482202,0.9819422187930981
+"Profile specification, same attendance-complete sample",Wave 2002 vs 2000,1.4176756146400735,0.978776516738091,2.053384111669396
+"Profile specification, same attendance-complete sample",Wave 2004 vs 2000,1.2554989102511867,0.8381983834152842,1.880554227770388
+"Profile specification, same attendance-complete sample",Wave 2006 vs 2000,1.4490511786962683,0.9188924676091077,2.2850870939713346
+"Profile specification, same attendance-complete sample",Wave 2008 vs 2000,1.6843823719860278,1.038451732251223,2.732090367750394
+"Profile specification, same attendance-complete sample",Wave 2010 vs 2000,2.573289894725101,1.5614006880587534,4.2409491253184015
+"Profile specification, same attendance-complete sample",Wave 2012 vs 2000,1.717303458498636,0.8786346700217745,3.3564930558662005
+"Profile specification, same attendance-complete sample",Wave 2014 vs 2000,1.0968554610041075,0.4807316307437739,2.502626882431565
+"Profile specification, same attendance-complete sample",Wave 2016 vs 2000,2.0520522147532874,0.9013234343873575,4.671928113059761
+"Profile specification, same attendance-complete sample",Wave 2018 vs 2000,1.855926347073725,0.7474672813825979,4.608178433430776
+"Profile specification, same attendance-complete sample",Wave 2020 vs 2000,1.7925473318089615,0.6186826194387858,5.193658001400108
+Profile specification + own prior attendance,Intercept,0.014116482869780785,0.007876229738118575,0.025300822251080733
+Profile specification + own prior attendance,husband_school: <12 years vs 12 years,0.8281736760551028,0.5455637354004926,1.2571796716054289
+Profile specification + own prior attendance,husband_school: 13–15 years vs 12 years,0.9419896842384037,0.7367157087632632,1.20445994928107
+Profile specification + own prior attendance,husband_school: 16–17 years vs 12 years,0.8796033874646693,0.6491318698581129,1.1919028400322367
+Profile specification + own prior attendance,husband_school: 18+ years vs 12 years,0.5950823514071223,0.3867868900603415,0.915550692271354
+Profile specification + own prior attendance,wife_school: <12 years vs 12 years,1.090393095862511,0.7025589300860683,1.692323665089526
+Profile specification + own prior attendance,wife_school: 13–15 years vs 12 years,1.2535778432044713,0.9880623362895686,1.590443589697393
+Profile specification + own prior attendance,wife_school: 16–17 years vs 12 years,0.7262820827668225,0.5275694935228629,0.9998411019291706
+Profile specification + own prior attendance,wife_school: 18+ years vs 12 years,0.9366382195369759,0.6397389551215269,1.3713267689486612
+Profile specification + own prior attendance,couple_wage_quartile: Q1 vs Q2,1.0781999027682376,0.8238421616680905,1.4110895076984311
+Profile specification + own prior attendance,couple_wage_quartile: Q3 vs Q2,1.0097687094715335,0.766620422880397,1.3300361120002182
+Profile specification + own prior attendance,couple_wage_quartile: Q4 vs Q2,1.123395484637771,0.8293473490346523,1.5216994620812392
+Profile specification + own prior attendance,"earnings_pair: Husband majority, both positive vs Balanced 40–60% wife",0.726632939116244,0.5693466189148948,0.9273707978015326
+Profile specification + own prior attendance,earnings_pair: Husband only vs Balanced 40–60% wife,0.9590597795759779,0.7142422690132044,1.2877922529999675
+Profile specification + own prior attendance,"earnings_pair: Wife majority, both positive vs Balanced 40–60% wife",1.4325255497665355,1.0248400681222722,2.0023899480177993
+Profile specification + own prior attendance,earnings_pair: Wife only vs Balanced 40–60% wife,1.0607467170841767,0.7099010320455331,1.5849865643422378
+Profile specification + own prior attendance,marriage_order_group: Subsequent vs First,1.1975173941798296,0.9524381052437277,1.505659949416113
+Profile specification + own prior attendance,religion_refresh: Less than weekly vs Never,0.9006993315581623,0.6698173540262077,1.211164925771061
+Profile specification + own prior attendance,religion_refresh: Weekly or more vs Never,0.9944718123799201,0.7387960389445096,1.3386295181429417
+Profile specification + own prior attendance,Age per 10 years,0.5714388350782026,0.3668039689709718,0.8902366655181291
+Profile specification + own prior attendance,Current marriage years per 10,0.6796900582776397,0.5940001089062095,0.7777415667013052
+Profile specification + own prior attendance,Women respondents vs men,0.8080011662635952,0.6631074222906367,0.9845552360552255
+Profile specification + own prior attendance,Wave 2002 vs 2000,1.4155544713631287,0.9772403760410765,2.050462210243267
+Profile specification + own prior attendance,Wave 2004 vs 2000,1.2499223954981367,0.8344050403825004,1.8723592489944958
+Profile specification + own prior attendance,Wave 2006 vs 2000,1.4399452751796085,0.9138003003834786,2.2690322980217377
+Profile specification + own prior attendance,Wave 2008 vs 2000,1.6684099400438046,1.0291393084808709,2.7047764137450705
+Profile specification + own prior attendance,Wave 2010 vs 2000,2.5468447037133695,1.5453509276552597,4.197375384939003
+Profile specification + own prior attendance,Wave 2012 vs 2000,1.7032927337356603,0.8716153379181676,3.3285395639390205
+Profile specification + own prior attendance,Wave 2014 vs 2000,1.0852998488842336,0.4747371676937902,2.4811113225242156
+Profile specification + own prior attendance,Wave 2016 vs 2000,2.02724667898969,0.895176243161761,4.590972033573155
+Profile specification + own prior attendance,Wave 2018 vs 2000,1.8314506656846445,0.7343907167894258,4.5673392434758835
+Profile specification + own prior attendance,Wave 2020 vs 2000,1.7656135120013472,0.6109491270619217,5.102537896654974

@@ -1,0 +1,54 @@
+[
+  {
+    "leaf_id": 3,
+    "conditions": [
+      "cat__baseline_status_Separated <= 0.5",
+      "age <= 49.5",
+      "cat__education_model_Bachelor <= 0.5"
+    ],
+    "training_fitted_rate_per_1000": 13.324462842313745
+  },
+  {
+    "leaf_id": 4,
+    "conditions": [
+      "cat__baseline_status_Separated <= 0.5",
+      "age <= 49.5",
+      "cat__education_model_Bachelor > 0.5"
+    ],
+    "training_fitted_rate_per_1000": 8.57398732440705
+  },
+  {
+    "leaf_id": 6,
+    "conditions": [
+      "cat__baseline_status_Separated <= 0.5",
+      "age > 49.5",
+      "age <= 52.5"
+    ],
+    "training_fitted_rate_per_1000": 8.30630682595565
+  },
+  {
+    "leaf_id": 7,
+    "conditions": [
+      "cat__baseline_status_Separated <= 0.5",
+      "age > 49.5",
+      "age > 52.5"
+    ],
+    "training_fitted_rate_per_1000": 5.169006316203807
+  },
+  {
+    "leaf_id": 9,
+    "conditions": [
+      "cat__baseline_status_Separated > 0.5",
+      "age <= 47.5"
+    ],
+    "training_fitted_rate_per_1000": 157.658913413681
+  },
+  {
+    "leaf_id": 10,
+    "conditions": [
+      "cat__baseline_status_Separated > 0.5",
+      "age > 47.5"
+    ],
+    "training_fitted_rate_per_1000": 86.6358577031037
+  }
+]

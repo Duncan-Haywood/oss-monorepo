@@ -30,6 +30,8 @@ and know what a new customer is worth before you buy one**.
 Not modelled: subscriptions with fixed billing, one-off purchases, seasonality, promotions, returns, customers who
 pause and return, frequency-spend correlation (warned about). Unverified against a published customer dataset.
 
+Guide: [`predict-customer-lifetime-value-from-orders.html`](predict-customer-lifetime-value-from-orders.html) compares the model with the "orders per year" shortcut on a held-out 26 weeks (`compareForecasts` in `calc.mjs`); its numbers are recomputed by `page.test.mjs`.
+
 ## Alternatives, and what this does differently
 
 Today a shop owner gets lifetime value from a paid retention platform's dashboard (Klaviyo, Triple Whale, Lifetimely

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of cost per hectare for the cheapest scout-and-treater fleet and the cheapest inline fleet that finish sixteen 1.62 hectare fields by a deadline, from 12 to 48 hours; the pipeline is cheaper at every deadline it can meet">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cheapest fleet cost per hectare by deadline, 1.62 ha fields (assumed prices)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="282.8" y2="282.8" stroke="#ddd"/><text x="58" y="286.8" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="241.6" y2="241.6" stroke="#ddd"/><text x="58" y="245.6" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="200.4" y2="200.4" stroke="#ddd"/><text x="58" y="204.4" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<line x1="64" x2="624" y1="159.2" y2="159.2" stroke="#ddd"/><text x="58" y="163.2" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<line x1="64" x2="624" y1="117.9" y2="117.9" stroke="#ddd"/><text x="58" y="121.9" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="76.7" y2="76.7" stroke="#ddd"/><text x="58" y="80.7" text-anchor="end" font-family="sans-serif" font-size="11">12</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="126.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">24</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">48</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">deadline, hours</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">USD per hectare</text>
+<polyline points="64.0,88.5 126.2,88.5 250.7,99.2 624.0,104.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="88.5" r="3" fill="#c0392b"/>
+<circle cx="126.2" cy="88.5" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="99.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="104.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">scout + treaters (up to 4 scouts)</text>
+<polyline points="64.0,71.2 126.2,71.2 250.7,71.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="126.2" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">inline robots</text>
+</svg>

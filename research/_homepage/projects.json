@@ -139,6 +139,11 @@
      "slug": "skill-score-normalisation",
      "title": "Is a skill score normalised by the realised base rate safe to pay on?",
      "summary": "Ranking verifiers by the Brier skill score 1&minus;Brier/(<em>y</em>&#772;(1&minus;<em>y</em>&#772;)) divides a proper score by an outcome-dependent baseline, and that breaks properness. The optimal report is exactly the hit rate reweighted by the inverse baseline variance: it is &frac12; for any belief with two tasks, and for larger <em>n</em> is biased by about &minus;(1&minus;2<em>p</em>)/<em>n</em> (0.232 against a true 0.1 at <em>n</em>=5), with misreporting gaining 0.042 skill for a 0.017 true-Brier cost. Because the baseline pools all of a verifier&rsquo;s tasks, the report on one task type also shifts with beliefs on the others (0.090 vs 0.133 for the rare type). A leave-one-out or ex-ante baseline restores properness. Independent tasks, constant reports, Brier only; exact enumeration agrees with 200,000-trial simulation. Pure-Python, 9 tests."
+    },
+    {
+     "slug": "marriage-divorce-evidence",
+     "title": "Can interpretable models predict annual divorce incidence?",
+     "summary": "Original ACS, NSFG and NLSY79 microdata analyses separate annual incidence from prevalence. A respondent-held-out enriched additive couple model reduces Poisson loss by about 3.4%; more flexible trees do not improve on it. Includes schooling/earnings pairings, direct contrasts, duration and first-birth checks, trained models and a portable report. Older cohort; observational, not a personal or causal forecast."
     }
    ]
   },
@@ -2933,6 +2938,11 @@
      "summary": "On the 80-design accelerator table from <code>eda-proposers</code>, a screen that synthesises 4 spread designs, fits a log-linear cell-count model, and then synthesises designs in order of predicted Pareto rank finds 0.990 of the true front&rsquo;s hypervolume at 12 syntheses (random 0.860, TPE 0.878; 100 seeds) and the whole front on 87% of seeds by 20. The screen reads cycles and error for free, which the baselines do not: with no cell-count model that alone gives 0.908, so the surrogate adds the rest. Stylised: one small smooth space, the surrogate fitted inside one family, no place and route."
     },
     {
+     "slug": "eda-cheapaware",
+     "title": "How much of a surrogate screen&rsquo;s lead over random search comes from the free objectives?",
+     "summary": "A follow-up to <code>eda-screen</code> on the same 80-design accelerator table. A random search that uses the free cycles and error objectives (no cell-count model) finds 0.901 of the true front&rsquo;s hypervolume at 12 syntheses, against 0.860 for plain random, 0.878 for TPE and 0.990 for the 4-fit screen (100 seeds). So +0.041 of the screen&rsquo;s +0.130 lead comes from the free objectives and +0.089 from the surrogate. The baseline stalls once the free-objective layer is spent and falls below random and TPE by 30 syntheses. Stylised: one 80-design space, generic-gate cell counts, no place and route."
+    },
+    {
      "slug": "eda-flowtune",
      "title": "Does the best ABC recipe for one design transfer to another?",
      "summary": "All 400 ABC pass sequences (up to three passes of seven) mapped to SKY130 on eight small datapath designs, so every optimum is known. The best recipe differs per design and transfers badly: one design&rsquo;s best recipe scores a mean 1.31&times; (worst 2.06&times;) the other&rsquo;s optimum, and score rankings of recipes correlate only weakly across designs (Spearman &minus;0.51 to 0.46). A leave-one-out consensus recipe is only slightly better than a median sequence (1.22&times; against 1.26&times;), and warm-starting a hill climber with it helps one design (<em>mac4</em>) but is within noise of random search on average at budgets 10 to 40. Stylised: eight hand-picked toy designs, ABC&rsquo;s static delay, no place and route; the OpenROAD-settings half of the milestone is not done."
@@ -3078,6 +3088,11 @@
      "slug": "osrobot-lean",
      "title": "If the person being fed leans toward the spoon, can a blind feeding arm do without a camera?",
      "summary": "A stdlib extension of <code>osrobot-assist</code>'s planar feeding-arm twin in which the user shifts the mouth toward the spoon tip at a swept lean speed (200 paired trials per row). At 30&nbsp;mm sway and 0.20&nbsp;m/s the blind arm's share of feeds with peak lip force at most 2&nbsp;N rises from 0.21 (passive user) to 0.69 at 50&nbsp;mm/s and 1.00 at 100&nbsp;mm/s, against 0.71 to 0.97 for the camera arm; at 50&nbsp;mm sway even 100&nbsp;mm/s gives only 0.62 for the blind arm. Leaning removes contacts but not the peak force of the ones that remain (4.0&nbsp;N at 0.20&nbsp;m/s). Stylised: every constant, including the lean speed, is assumed; no person was modelled or tested."
+    },
+    {
+     "slug": "osrobot-deadline",
+     "title": "When a pest window sets a deadline, is a scout-and-treater fleet or a fleet of inline weeding robots cheaper?",
+     "summary": "A stdlib extension of <code>osrobot-pipeline</code> that adds a hard finish deadline for 16 equal fields and searches up to four scouts, up to 16 treaters and up to 32 inline robots (no new simulation; every price an assumed round number). One scout cannot finish 16 fields faster than 5.3, 15.9 and 32.5&nbsp;h (0.18, 0.72, 1.62&nbsp;ha fields) however many treaters it feeds, against 0.7, 2.8 and 6.2&nbsp;h for 32 inline robots. Cheapest pipeline over cheapest inline: 1.06 to 1.12 at 0.72&nbsp;ha, rising as the deadline tightens, and 1.49 at 0.18&nbsp;ha; at 1.62&nbsp;ha the pipeline is cheaper (0.87 to 0.93) at every deadline it can meet but cannot meet 8&nbsp;h, where only inline robots can. Stylised: equal fields, hard cut-off, no late-yield curve."
     },
     {
      "slug": "osrobot-pipeline",
@@ -3657,6 +3672,12 @@
     "slug": "society-commons",
     "title": "What does it cost robots to let people go first at a shared lift or narrow pavement?",
     "summary": "People and robots share a one-at-a-time crossing. At load 0.9, robots that always let waiting people go first cut people&rsquo;s mean wait from 4.60 to 0.71 time units and raise the robots&rsquo; from 4.61 to 7.21; the total waiting cost is the same for every share of deferential robots (4.14&ndash;4.15), so deference moves waiting rather than removing it, and pays exactly when a person&rsquo;s wait costs more than a robot&rsquo;s. A lone selfish robot waits 2.08 against 7.65 for deferential ones (the dilemma). Under overload (load 1.2) half the robots deferring costs them 10.5% of their crossings and gives people 20% more. Simulation within 2.7% of M/G/1 closed forms. Stylised: one server, Poisson arrivals, fixed crossing times."
+   }
+   
+   ,{
+    "slug": "society-llmtown",
+    "title": "Do robot agents keep the norms they state?",
+    "summary": "A harness for a small town of robot agents that state a door norm each day and then act among scripted people, scoring how often action matches statement and what it costs people. Any agent with <code>state_norm</code> and <code>act</code> plugs in; a deterministic stub is tested, and an optional model adapter is provided but was not run. With the stub, a robot stating &lsquo;always yield&rsquo; keeps it in 1 &minus; 0.4&times;pressure of meetings (1.00, 0.80, 0.60 at pressure 0, 0.5, 1; 20 seeds) and people&rsquo;s cost per meeting rises from 0.20 to 1.08. These follow from the stub&rsquo;s own rule: no language-model result is claimed. Stylised; non-adaptive scripted people."
    }
    ,{
     "slug": "society-twinfidelity",
