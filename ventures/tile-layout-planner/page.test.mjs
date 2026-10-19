@@ -164,3 +164,13 @@ test("the guide page carries the clauses, links both ways, and its worked exampl
   assert.equal(best.boxes, 9);
   assert.equal(planMode(spec, "best").tilesNoReuse, 48);
 });
+
+test("page wires the grout and thinset estimate, saved setup and share link", () => {
+  const html = page("index.html");
+  assert.match(html, /id="mat"/);
+  assert.match(html, /materials\(spec, res/);
+  assert.match(html, /id="notch"/);
+  assert.match(html, /#setup=/);
+  assert.match(html, /saved_setup_restored/);
+  assert.match(html, /How much grout and thinset do I need/);
+});
