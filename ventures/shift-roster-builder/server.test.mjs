@@ -213,3 +213,26 @@ test("time-off request: staff ask, manager approves into the staff list's off: c
   assert.doesNotMatch(s.state.staff, /2026-12-01/);
   s.close();
 });
+
+test("staff page installs as an app and works offline; assets need the team token", async () => {
+  const s = await boot();
+  const html = await (await fetch(s.base + "/team?t=tm")).text();
+  assert.match(html, /rel="manifest" href="\/team\/manifest\.webmanifest\?t=tm"/);
+  assert.match(html, /serviceWorker/);
+  for (const p of ["manifest.webmanifest", "icon.svg", "sw.js"]) {
+    assert.equal((await fetch(s.base + "/team/" + p)).status, 401, p);
+    assert.equal((await fetch(s.base + "/team/" + p + "?t=adm")).status, 401, p);
+  }
+  const m = await fetch(s.base + "/team/manifest.webmanifest?t=tm");
+  assert.match(m.headers.get("content-type"), /manifest\+json/);
+  const j = await m.json();
+  assert.equal(j.start_url, "/team?t=tm");
+  assert.equal(j.display, "standalone");
+  const sw = await fetch(s.base + "/team/sw.js?t=tm");
+  assert.equal(sw.headers.get("service-worker-allowed"), "/team");
+  const code = await sw.text();
+  assert.match(code, /pathname!=="\/team"/); // only the schedule page is cached, never admin or POSTs
+  assert.doesNotMatch(code, /admin/);
+  assert.equal((await fetch(s.base + "/team/icon.svg?t=tm")).headers.get("content-type"), "image/svg+xml");
+  s.close();
+});
