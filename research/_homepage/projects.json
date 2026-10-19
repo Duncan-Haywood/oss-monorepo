@@ -3456,6 +3456,11 @@
     "slug": "capture-kit",
     "title": "What should a travel creator pack to film from many angles under a weight budget and the 100 Wh battery limit?",
     "summary": "Exact search over 17,280 kits of cameras, lenses, mounts and battery packs (11,520 legal), scoring distinct focal-band &times; viewpoint shots (18 at most) and recording hours against carried weight. With a 4 h recording floor, exact search reaches 15 shots at 4 kg and all 18 at 5 kg, while a greedy best-gain-per-gram packer stalls at 12 from 3 kg because a lens is worthless without its body. Without a floor, variety-first search returns kits that record only ~2.2 h. Every device figure is assumed (round class-typical numbers, not datasheets); only the 100 Wh limit is sourced."
+   },
+   {
+    "slug": "capture-rig",
+    "title": "How many cameras, and where, to film a person from every angle?",
+    "summary": "A 2-D geometric model of N cameras on a ring or a 90&deg; front arc 3 m from a subject, scored on angle coverage and triangulation error. Cameras buy coverage, angle buys depth accuracy: a 30&deg; gap between neighbours needs 13 cameras (15&deg; needs 25), while centre depth error barely moves with count (0.52 mm for 3 on a ring, 0.23 mm for 16) but falls 11&times; as a pair&rsquo;s convergence angle goes from 5&deg; to 90&deg; (7.3 mm to 0.64 mm). Four cameras on a front arc are within 11% of four on a ring. Idealised lower bounds with assumed noise (0.5 px) and no occlusion; novel-view quality is not modelled."
    }
   ]
  },
