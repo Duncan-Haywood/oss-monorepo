@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   lgamma, hyp2f1, parseOrders, parseDay, summarize, fitBgnbd, fitGammaGamma, probAlive,
-  expectedPurchases, expectedNewCustomer, backtest, analyze, reportCsv, simulateOrders, sampleText, dayToIso,
+  expectedPurchases, expectedNewCustomer, backtest, analyze, reportCsv, simulateOrders, sampleText, dayToIso, cohortRetention,
 } from "./calc.mjs";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ""} ${a} vs ${b}`);
@@ -185,4 +185,28 @@ test("paybackCurve: month-by-month return on an acquisition cost", async () => {
   const mid = paybackCurve(res, res.newCustomer.value * 0.9).paybackMonth;
   assert.ok(mid > 0 && mid <= 12);
   assert.match(paybackCurve(res, 0).error, /above zero/);
+});
+
+test("cohortRetention: repeat share and revenue by first-order month, unobserved windows are null", () => {
+  const d = (s) => parseDay(s);
+  const orders = [
+    { id: "a", day: d("2025-01-02"), amount: 10 }, { id: "a", day: d("2025-01-20"), amount: 20 },
+    { id: "b", day: d("2025-01-10"), amount: 30 },
+    { id: "c", day: d("2025-03-01"), amount: 50 }, { id: "c", day: d("2025-06-01"), amount: 5 },
+    { id: "z", day: d("2025-06-30"), amount: 1 },
+  ];
+  const { cohorts } = cohortRetention(orders);
+  assert.deepEqual(cohorts.map((c) => c.month), ["2025-01", "2025-03", "2025-06"]);
+  const jan = cohorts[0];
+  assert.equal(jan.customers, 2);
+  assert.equal(jan.firstOrder, 20);
+  assert.equal(jan.repeat[30], 0.5);
+  assert.equal(jan.revenue[30], 30);
+  assert.equal(jan.repeat[90], 0.5);
+  assert.equal(jan.repeat[180], null);
+  assert.equal(jan.repeat[365], null);
+  assert.equal(cohorts[1].repeat[90], 1);
+  assert.equal(cohorts[1].repeat[30], 0);
+  assert.equal(cohorts[2].repeat[30], null);
+  assert.deepEqual(cohortRetention([]).cohorts, []);
 });
