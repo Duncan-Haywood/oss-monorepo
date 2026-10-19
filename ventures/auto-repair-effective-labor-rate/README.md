@@ -15,6 +15,8 @@ Open `index.html` in a browser to use it — there is no build step.
 
 **Start from your repair orders.** Paste the month's labor lines (CSV, or cells copied from a spreadsheet) with columns for pay type, hours billed and labor sales; `ro-import.mjs` totals them into the customer-pay, warranty and internal boxes, and shows each technician's rate over sold hours. Lines it cannot classify are listed and left out, never guessed. Nothing is uploaded.
 
+**From a terminal.** `node cli.mjs ros.csv --posted 165 --overhead 42000 --parts-gp 18000 --techs 4 --tech-pay 21000` runs the same import and arithmetic on a repair-order CSV (`--json` for scripts, `--example` for a sample file, `-` for stdin). No dependencies, no network.
+
 ## Why it exists
 
 Every shop has a posted door rate and almost none of them collects it. The rate

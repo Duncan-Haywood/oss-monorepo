@@ -3488,6 +3488,11 @@
     "slug": "sensing-timesync",
     "title": "How many milliseconds of camera-to-gyro time offset double a fused attitude error, and can online calibration recover it?",
     "summary": "Single-axis simulation: a 200&nbsp;Hz biased gyro and a 30&nbsp;Hz camera whose timestamps are late by <em>t<sub>d</sub></em>, fused by a complementary filter. At 30&nbsp;deg/s motion the error doubles at 12&ndash;14&nbsp;ms; the doubling offset is 32&ndash;34&nbsp;ms at 10&nbsp;deg/s and 8&ndash;10&nbsp;ms at 90&nbsp;deg/s, and grows with camera noise. A gyro-integral alignment fit recovers the offset to about 1&nbsp;ms rms and restores the zero-offset error, but fails on a nearly still platform. Stylised: one axis, constant offset, angle measurements only, synthetic noise."
+   },
+   {
+    "slug": "sensing-scan2cad",
+    "title": "How accurate must a scan be to rebuild a part as parametric CAD?",
+    "summary": "Synthetic point-cloud scans of an 80&times;40&times;10&nbsp;mm plate with two 8&nbsp;mm holes, fitted by RANSAC planes and circle fits. With scan noise of 0.2&nbsp;mm or less every scan gives all five dimensions within 0.2&nbsp;mm at 2&thinsp;000 points or more (worst RMS 0.09&nbsp;mm). At 0.5&nbsp;mm noise only 0&ndash;50% of scans are usable at any point count because the error is a bias: thickness reads 0.20&nbsp;mm low and the bias grows with the inlier band (&minus;0.07 to &minus;0.38&nbsp;mm for 1.5&sigma; to 4&sigma;). A scale error of 0.5% from a reconstruction with no scale reference already moves an 80&nbsp;mm length by 0.40&nbsp;mm. Stylised: one shape, assumed Gaussian noise, pre-registered scan, generated CadQuery script not run."
    }
   ]
  },
