@@ -105,3 +105,11 @@ test("the stock-sale outlook is on the page and its event is disclosed", () => {
   assert.match(html, /<code>sale_viewed<\/code>/);
   assert.match(html, /saleOutlook/);
 });
+
+test("the AAA section is on the page and its event is disclosed", () => {
+  const html = page("index.html");
+  assert.match(html, /id="aaa-card"/);
+  assert.match(html, /Accumulated adjustments account/);
+  assert.match(html, /<code>aaa_viewed<\/code>/);
+  assert.match(html, /aaa\(last/);
+});

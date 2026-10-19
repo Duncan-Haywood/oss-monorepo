@@ -233,3 +233,42 @@ test("sale: loan above basis is flagged and bad input is refused", () => {
   assert.equal(saleOutlook(r, { proceeds: "x" }), null);
   assert.equal(saleOutlook(r, { proceeds: -1 }), null);
 });
+
+import { aaa } from "./calc.mjs";
+
+test("aaa: income raises it, distributions come out of it, tax-exempt income stays out", () => {
+  const r = run({ stock: 50000, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, year: 2024, income: 30000, taxExempt: 5000, distributions: 12000 }]);
+  const a = aaa(r, 1000);
+  assert.equal(a.rows[0].net, 30000);
+  assert.equal(a.rows[0].distributedFromAAA, 12000);
+  assert.equal(a.rows[0].close, 19000);
+  assert.equal(a.taxExemptIncomeExcluded, 5000);
+});
+
+test("aaa: a net negative year does not shrink what a distribution can come out of", () => {
+  const r = run({ stock: 50000, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, year: 2024, losses: 10000, distributions: 4000 }]);
+  const a = aaa(r, 6000);
+  assert.equal(a.rows[0].distributedFromAAA, 4000);
+  assert.equal(a.rows[0].distributedBeyondAAA, 0);
+  assert.equal(a.rows[0].close, -8000);
+});
+
+test("aaa: distributions beyond the balance are flagged and leave it unchanged", () => {
+  const r = run({ stock: 50000, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, year: 2024, income: 2000, distributions: 5000 }]);
+  const a = aaa(r, 0);
+  assert.equal(a.rows[0].distributedFromAAA, 2000);
+  assert.equal(a.rows[0].distributedBeyondAAA, 3000);
+  assert.equal(a.rows[0].close, 0);
+  assert.ok(a.rows[0].notes.length);
+});
+
+test("aaa: losses count in the year they reduce basis, not the year they are suspended", () => {
+  const r = run({ stock: 0, debtBasis: 0, debtFace: 0, suspended: 0 }, [
+    { ...Z, year: 2023, losses: 9000 },
+    { ...Z, year: 2024, contributions: 9000 },
+  ]);
+  const a = aaa(r, 0);
+  assert.equal(a.rows[0].reductions, 0);
+  assert.equal(a.rows[1].reductions, 9000);
+  assert.equal(a.closing, -9000);
+});
