@@ -69,6 +69,8 @@ class Venture:
     ledger_entries: int = 0
     portfolio_mentions: int = 0
     merit: Optional[float] = None
+    # Commits in the last 7 days; filled by main() so rank() stays pure.
+    recent_commits: int = 0
     # Set from VENTURE.yaml `consolidated_into: <host>` once this venture's
     # calculation lives in a shared engine; the family task skips it.
     consolidated_into: Optional[str] = None
@@ -263,6 +265,12 @@ def load_ventures(
     return ventures
 
 
+# A venture with this many commits in 7 days is usually already deep; its
+# Explore task needs visitors more than code, so it yields to a shallow one
+# (5+ run-record doc_friction reports, 2026-10-18/19: "top rows all saturated").
+HOT_COMMITS = 3
+
+
 def rank(ventures: list[Venture]) -> list[Venture]:
     """Order ventures for the next unit of agent effort.
 
@@ -276,8 +284,9 @@ def rank(ventures: list[Venture]) -> list[Venture]:
          can drive", each in prose, none of it reaching the router.
       3. Unmeasured ventures -- still owed their protected explore budget;
          null MRR is "not yet measured", not "measured and failing".
-      4. Everything else: later stage before earlier stage, then by merit
-         score descending, then monthly_cap descending, then least-worked (ledger + mentions), then name for a
+      4. Everything else: later stage before earlier stage, then ventures not
+         worked heavily this week (HOT_COMMITS+ commits in 7 days) before
+         those that were, then by merit score descending, then monthly_cap descending, then least-worked (ledger + mentions), then name for a
          stable order.
 
     Merit (portfolio/scoring/) sits below dispatchability deliberately. The
@@ -296,6 +305,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             0 if v.dispatchable else 1,
             0 if not v.measured else 1,
             0 if v.later_stage else 1,
+            1 if v.recent_commits >= HOT_COMMITS else 0,
             -(v.merit if v.merit is not None else 0.0),
             -v.monthly_cap,
             v.ledger_entries + v.portfolio_mentions,
@@ -607,6 +617,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(json.dumps(decisions_by_merit(ventures), indent=2))
         return 0
 
+    recent = recent_commits()
+    for v in ventures:
+        v.recent_commits = recent.get(v.name, 0)
     queue = work_queue(ventures)
 
     if args.json:

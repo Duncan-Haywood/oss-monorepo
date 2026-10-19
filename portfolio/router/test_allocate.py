@@ -94,6 +94,12 @@ class RankTests(unittest.TestCase):
         ordered = rank([early, later])
         self.assertEqual(ordered[0].name, "later")
 
+    def test_heavily_worked_venture_yields_to_a_shallow_one(self):
+        hot = make("hot", merit=7.0)
+        hot.recent_commits = 5
+        cold = make("cold", merit=6.0)
+        self.assertEqual(rank([hot, cold])[0].name, "cold")
+
     def test_stable_name_tiebreak(self):
         a = make("a-venture", stage="idea", mrr=None, monthly_cap=10)
         b = make("b-venture", stage="idea", mrr=None, monthly_cap=10)
