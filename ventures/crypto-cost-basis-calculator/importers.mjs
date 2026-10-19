@@ -11,7 +11,7 @@
 // Formats are written from the column layouts the exchanges publish and have
 // not been checked against a real account; the notes say so where it matters.
 
-import { parseCsv } from "./calc.mjs";
+import { parseCsv, mapHeaders, normalizeType, parseDate } from "./calc.mjs";
 
 const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const num = (raw) => {
@@ -529,4 +529,70 @@ export function convertMany(files) {
     }
   }
   return { formats, csv: lines.join("\n") + "\n", notes };
+}
+
+// ---- map your own columns -------------------------------------------------
+//
+// For an export none of the readers above recognise (a broker, a wallet app,
+// a spreadsheet of your own): the person says which column is which and what
+// each value in the type column means, and this writes the same plain CSV.
+// No exchange layout is assumed, so nothing here can be wrong about one.
+
+export const MAP_FIELDS = ["date", "type", "asset", "quantity", "total", "price", "fee", "wallet"];
+export const MAP_KINDS = ["buy", "sell", "income", "transfer", "skip"];
+
+// Guess a mapping from the first row that has a date and a quantity column.
+// Returns { headers, cols, typeValues, typeMap } or null when there is no
+// header row to work from. typeCol overrides the guessed type column. typeMap holds only the guesses calc.mjs already knows.
+export function suggestMapping(text, typeCol) {
+  const grid = parseCsv(text);
+  if (grid.length < 2) return null;
+  const headers = grid[0];
+  const cols = mapHeaders(headers);
+  if (typeCol !== undefined) cols.type = typeCol;
+  const typeValues = [];
+  if (cols.type !== undefined) {
+    const seen = new Set();
+    for (const r of grid.slice(1)) { const v = (r[cols.type] ?? "").trim(); if (v && !seen.has(v)) { seen.add(v); typeValues.push(v); } }
+  }
+  const typeMap = {};
+  for (const v of typeValues) typeMap[v] = normalizeType(v) ?? "skip";
+  return { headers, cols, typeValues, typeMap };
+}
+
+// mapping: { cols: { field: columnIndex }, typeMap: { rawValue: kind }, asset?: "BTC" }.
+// A fixed `asset` is for a single-coin file with no asset column. Amounts are
+// read as magnitudes (a sale exported as a negative quantity still sells); a
+// missing total is price times quantity. Rows that cannot be read are listed in
+// notes with their line number, never written as zero.
+export function applyMapping(text, mapping) {
+  const grid = parseCsv(text);
+  const { cols = {}, typeMap = {} } = mapping || {};
+  const notes = [];
+  const rows = [];
+  const need = ["date", "type", "quantity"].filter((f) => cols[f] === undefined);
+  if (cols.asset === undefined && !mapping?.asset) need.push("asset");
+  if (cols.total === undefined && cols.price === undefined) need.push("total or price");
+  if (need.length) return { csv: toCsv([]), rows, notes: [`Pick a column for: ${need.join(", ")}.`] };
+  const typeKey = new Map(Object.entries(typeMap).map(([k, v]) => [norm(k), v]));
+  const at = (r, f) => (cols[f] === undefined ? "" : (r[cols[f]] ?? ""));
+  let skipped = 0;
+  for (let i = 1; i < grid.length; i++) {
+    const r = grid[i], line = i + 1;
+    const kind = typeKey.get(norm(at(r, "type")));
+    if (kind === undefined) { notes.push(`Line ${line}: type "${at(r, "type")}" has no meaning assigned, row left out.`); continue; }
+    if (kind === "skip") { skipped++; continue; }
+    const date = parseDate(at(r, "date"));
+    const qty = num(at(r, "quantity"));
+    const asset = (mapping.asset || at(r, "asset")).trim().toUpperCase();
+    if (!date || qty === null || qty === 0 || !asset) { notes.push(`Line ${line}: date, asset or quantity could not be read, row left out.`); continue; }
+    const q = Math.abs(qty);
+    let total = num(at(r, "total"));
+    if (total === null) { const p = num(at(r, "price")); if (p !== null) total = p * q; }
+    if (total === null && kind !== "transfer") notes.push(`Line ${line}: no USD value, left empty for you to fill in.`);
+    const fee = num(at(r, "fee"));
+    rows.push([date, kind, asset, fmt(q), fmt(total === null ? null : Math.abs(total)), fmt(fee === null ? null : Math.abs(fee)), at(r, "wallet")]);
+  }
+  if (skipped) notes.push(`${skipped} row${skipped > 1 ? "s" : ""} marked "skip" left out.`);
+  return { csv: toCsv(rows), rows, notes };
 }
