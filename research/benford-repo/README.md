@@ -2,6 +2,8 @@
 
 An explore-track project (free choice). Benford's law says leading digits of many naturally occurring quantities follow P(d) = log10(1 + 1/d), so a 1 leads about 30% of the time. Software file sizes are a commonly cited example, and this checks it on one repository, this one. **Descriptive, one commit, one unusually templated repository; not a test of Benford's law and not evidence about any other codebase.** Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/benford-repo/
+
 **Result.** At commit `7a3a915`, over 35,648 non-empty tracked files, the first digits of byte sizes are nonconforming (Nigrini MAD 0.0183, chi-square 1,646 on 8 df) and so are line counts (MAD 0.0278). The cause is repetition, not shape: 1,297 files are exactly 1,071 bytes, 993 are 47 bytes, 685 are 147 bytes, and 1,822 files have 4 lines, so digits 1 and 4 are inflated. Counting each distinct size once (12,429 sizes) gives MAD 0.0068, "acceptable" on Nigrini's bands, though chi-square still rejects exact fit (90.8) because n is large. By extension, `.json` (MAD 0.064 distinct) and `.html` (0.050) stay far from Benford even deduplicated: JSON has a spike at 4 (27%), HTML at 1 (47%). Distinct Python line counts are acceptable (MAD 0.0103, n = 476); distinct Markdown byte sizes are not (0.0285). Full table in `results.txt`, machine-readable in `results.json`.
 
 ```bash
