@@ -351,7 +351,22 @@ def source_for(a: Asset, store: Store, cfg: Config | None = None, shot: Shot | N
         return {"kind": "photo", "path": edit["full"]}
     if a.kind in ("video", "video360"):
         return {"kind": a.kind, "path": a.preview}
-    return {"kind": a.kind, "path": a.preview or a.raw}
+    return {"kind": a.kind, "path": _ffmpeg_readable(a.preview or a.raw, cfg)}
+
+
+def _ffmpeg_readable(path: str | None, cfg: Config | None) -> str | None:
+    """An Insta360 .insp is a JPEG, but ffmpeg refuses the extension ("Operation not permitted"):
+    hand it a .jpg-named link to the same file instead."""
+    if not path or cfg is None or Path(path).suffix.lower() != ".insp":
+        return path
+    link = cfg.state_dir / "links" / (Path(path).stem + ".jpg")
+    if not link.exists():
+        link.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            link.symlink_to(path)
+        except FileExistsError:
+            pass
+    return str(link)
 
 
 def _dims(a: Asset, cfg: Config | None) -> tuple[int, int] | None:

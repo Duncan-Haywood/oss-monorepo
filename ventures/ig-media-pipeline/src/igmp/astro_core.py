@@ -251,16 +251,24 @@ def sigma_clip_mean(frames: Sequence[np.ndarray], kappa: float = 2.5,
     return np.where(den > 0, num / np.maximum(den, 1), med if not np.isnan(med).all() else 0).astype(np.float32)
 
 
-def star_signal(frame: np.ndarray, mask: np.ndarray | None = None, k: float = 2.5) -> tuple[np.ndarray, np.ndarray]:
-    """(background, stars) of one linear RGB frame: the per-channel sky model and what stands
-    above it by more than k x the noise. Trails are the running maximum of the second, so the
-    maximum of the noise - which grows with every frame and lifts a whole sky - never enters."""
+def star_signal(frame: np.ndarray, mask: np.ndarray | None = None, k: float = 2.5,
+                point_px: int = 7) -> tuple[np.ndarray, np.ndarray]:
+    """(background, stars) of one linear RGB frame: the per-channel sky model and the stars above
+    it. Trails are the running maximum of the second, so only stars may be in it: not the noise
+    (whose maximum grows with every frame and lifts a whole sky - hence the k x noise threshold),
+    and not smooth light that changes through a run, like halation around moonlit rock or a
+    passing glow (hence a pixel must also stand out against a `point_px` local median, which a
+    star does and a smooth glow does not)."""
     bg = np.stack([background(frame[..., c], mask=mask) for c in range(frame.shape[2])], axis=-1)
     res = frame - bg
     lum = luminance(res)
-    sample = lum[mask] if mask is not None and mask.any() else lum.ravel()
+    point = lum - ndimage.median_filter(lum, size=point_px)
+    sample = point[mask] if mask is not None and mask.any() else point.ravel()
     sig = robust_sigma(sample[:: max(1, sample.size // 200_000)])
-    return bg, np.where((lum > k * sig)[..., None], np.clip(res, 0, None), 0).astype(np.float32)
+    keep = point > k * sig
+    if mask is not None:
+        keep &= mask
+    return bg, np.where(keep[..., None], np.clip(res, 0, None), 0).astype(np.float32)
 
 
 def lighten(frames: Iterable[np.ndarray]) -> np.ndarray:

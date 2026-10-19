@@ -117,6 +117,10 @@ class AstroGrade(BaseModel):
     warmth: float = Field(0, ge=-1, le=1, description="-1 cool/blue night, 0 camera white balance, +1 warm")
     foreground_lift: float = Field(0.3, ge=0, le=1, description="Brighten the land below the horizon so it reads "
                                                                "as a silhouette with detail (0) or a lit scene (1)")
+    neutralize: float = Field(1.0, ge=0, le=1, description="Background neutralization: 1 scales the colour "
+                                                          "channels so the empty sky background is neutral grey "
+                                                          "(removes light-pollution and white-balance casts) "
+                                                          "before warmth is applied; 0 keeps the camera's colour")
 
 
 class AstroPlan(BaseModel):
@@ -582,16 +586,28 @@ def gradient_model(lin: np.ndarray, sky_alpha: np.ndarray) -> np.ndarray:
     return out
 
 
+def neutral_gains(lin: np.ndarray, sky_alpha: np.ndarray, g: AstroGrade) -> np.ndarray:
+    """Per-channel gains that make the sky background neutral grey (its median, which is
+    background: stars are a tiny share of pixels), blended by g.neutralize."""
+    sky = sky_alpha > 0.5
+    px = lin[sky] if sky.any() else lin.reshape(-1, lin.shape[2])
+    med = np.median(px[:: max(1, len(px) // 300_000)], axis=0) + 1e-6
+    gains = med.mean() / med
+    return (1.0 + g.neutralize * (gains - 1.0)).astype(np.float32)
+
+
 def grade(lin: np.ndarray, g: AstroGrade, sky_alpha: np.ndarray, lv: tuple[float, float] | None = None,
-          model: np.ndarray | None = None) -> np.ndarray:
-    """Linear layers -> display RGB 0..1. A video passes one fixed `model` and `lv` for every
-    frame, so its sky neither flickers nor pumps."""
+          model: np.ndarray | None = None, gains: np.ndarray | None = None) -> np.ndarray:
+    """Linear layers -> display RGB 0..1. A video passes one fixed `model`, `gains` and `lv` for
+    every frame, so its sky neither flickers, pumps nor shifts colour."""
     x = lin.copy()
     if g.gradient_removal > 0:
         # per channel, so a coloured glow (teal airglow, orange town light, a magenta corner) goes
         # with its brightness; each channel keeps its own floor, so the white balance stays put
         m = gradient_model(x, sky_alpha) if model is None else model
         x = np.clip(x - g.gradient_removal * m * sky_alpha[..., None], 0, None)
+    if g.neutralize > 0:
+        x = x * (neutral_gains(x, sky_alpha, g) if gains is None else gains)
     fg_alpha = (1.0 - sky_alpha)[..., None]
     x = x * (1.0 + 3.0 * g.foreground_lift * fg_alpha)
     black, white = lv or levels(x, g, sky_alpha > 0.5)
@@ -692,7 +708,9 @@ def _trail_images(frames, idx: list[int], plan: AstroPlan, size: tuple[int, int]
     alpha = core.feather(mask, FEATHER * max(first.shape[:2])) if plan.foreground != "none" \
         else np.ones(mask.shape, np.float32)
     model = gradient_model(first, alpha)
-    lv = levels(np.clip(first - plan.grade.gradient_removal * model * alpha[..., None], 0, None), plan.grade, mask)
+    flat = np.clip(first - plan.grade.gradient_removal * model * alpha[..., None], 0, None)
+    gains = neutral_gains(flat, alpha, plan.grade) if plan.grade.neutralize > 0 else None
+    lv = levels(flat * (gains if gains is not None else 1.0), plan.grade, mask)
     acc = None
     for k, i in enumerate(idx):
         if k:
@@ -706,9 +724,12 @@ def _trail_images(frames, idx: list[int], plan: AstroPlan, size: tuple[int, int]
         acc = stars if acc is None else np.maximum(acc * plan.trail_decay, stars)
         if keep is not None and k not in keep:
             continue
-        sky = np.maximum(cur, bg + acc)
+        # the trails so far, laid on this frame: only the trail light this frame does not already
+        # have is added. (A max against the smoothed background model showed the model itself
+        # wherever it ran brighter than the real sky - beside bright rock, as a glow.)
+        sky = cur + np.clip(acc - stars, 0, None)
         lin = sky * alpha[..., None] + cur * (1 - alpha[..., None])
-        yield k, _crop(_to_image(grade(lin, plan.grade, alpha, lv, model)), size, plan.vertical_focus)
+        yield k, _crop(_to_image(grade(lin, plan.grade, alpha, lv, model, gains)), size, plan.vertical_focus)
 
 
 def render_trail_timelapse(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config) -> dict:

@@ -20,7 +20,7 @@ M = TypeVar("M", bound=BaseModel)
 class Store:
     def __init__(self, path: Path):
         path.parent.mkdir(parents=True, exist_ok=True)
-        self.db = sqlite3.connect(path, check_same_thread=False)
+        self.db = sqlite3.connect(path, check_same_thread=False, timeout=60)   # astro and reels may run at once
         self.lock = threading.Lock()      # stages write from worker threads
         self.db.execute("PRAGMA journal_mode=WAL")
         for t in TABLES:

@@ -609,3 +609,13 @@ def test_real_render_end_to_end(tmp_path, monkeypatch):
     v = next(s for s in probe["streams"] if s["codec_type"] == "video")
     assert (v["width"], v["height"]) == (1080, 1920) and int(v["nb_read_frames"]) == frames
     assert (c.output_dir / "ready" / "index.csv").exists()
+
+
+def test_insta360_stills_reach_ffmpeg_as_jpg(tmp_path):
+    from igmp.models import Asset
+    c = Config(library_roots=[], output_dir=tmp_path / "out")
+    src = tmp_path / "IMG_20260516_002404_00_198.insp"
+    src.write_bytes(b"\xff\xd8jpeg")
+    a = Asset(id="i", kind="photo360", files=[str(src)], preview=str(src))
+    path = Path(reels.source_for(a, Store(c.db_path), c)["path"])
+    assert path.suffix == ".jpg" and path.resolve() == src.resolve()

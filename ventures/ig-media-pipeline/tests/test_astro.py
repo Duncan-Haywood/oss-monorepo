@@ -388,3 +388,28 @@ def test_skyline_reach_measures_how_far_alignment_moves_the_land():
     reach = core.skyline_reach(stars[1], [stars[0], stars[2]], [(0, HORIZON_Y), (1, HORIZON_Y)], (H, W))
     # 10 steps of 0.08 deg about a pole 1.5 frame-heights up: the skyline corners move several px
     assert reach is not None and 5 < reach < 60
+
+
+def test_star_signal_ignores_a_smooth_glow():
+    f = sky_frame(0, noise=0.01)
+    yy, xx = np.mgrid[0:H, 0:W]
+    glow = 0.15 * np.exp(-((xx - W / 2) ** 2 + (yy - H * 0.6) ** 2) / (2 * 30 ** 2))   # halation over a summit
+    mask = core.horizon_mask([(0, HORIZON_Y), (1, HORIZON_Y)], (H, W))
+    _, plain = core.star_signal(f, mask)
+    _, glowing = core.star_signal(f + glow[..., None].astype(np.float32), mask)
+    near = (np.abs(xx - W / 2) < 25) & (np.abs(yy - H * 0.6) < 25) & mask
+    assert (glowing[near].max(axis=-1) > 0).mean() < 0.1         # the glow itself is not "stars"
+    assert (plain.max(axis=-1) > 0).sum() > 100                   # stars still are
+
+
+def test_neutralize_removes_a_colour_cast_from_the_sky():
+    f = sky_frame(0, noise=0.005) * np.array([1.6, 0.8, 1.4], np.float32)      # wine-red cast
+    alpha = core.horizon_mask([(0, HORIZON_Y), (1, HORIZON_Y)], (H, W)).astype(np.float32)
+    g = astro.AstroGrade(gradient_removal=0, warmth=0, saturation=1)
+    out = astro.grade(f, g, alpha)
+    sky = out[: int(H * 0.5)].reshape(-1, 3)
+    med = np.median(sky, axis=0)
+    assert med.max() - med.min() < 0.03                                      # grey background
+    kept = astro.grade(f, g.model_copy(update={"neutralize": 0}), alpha)
+    med0 = np.median(kept[: int(H * 0.5)].reshape(-1, 3), axis=0)
+    assert med0[0] - med0[1] > 0.05                                         # the cast, when asked to keep it
