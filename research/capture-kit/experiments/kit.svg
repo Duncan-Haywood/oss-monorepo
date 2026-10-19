@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" font-family="system-ui,sans-serif" font-size="12" role="img" aria-label="Shot variety against carried weight, exact search and greedy">
+<rect width="640" height="320" fill="#fff"/>
+<text x="56" y="22" font-size="15" font-weight="600">Shot variety a travel kit reaches, by weight carried</text>
+<text x="56" y="40" fill="#555">exact search (dark) vs greedy (pink; hollow = misses the 4 h floor); 18 = every band at every viewpoint</text>
+<line x1="56" y1="270.0" x2="620" y2="270.0" stroke="#ddd"/><text x="48" y="274.0" text-anchor="end">0</text>
+<line x1="56" y1="200.0" x2="620" y2="200.0" stroke="#ddd"/><text x="48" y="204.0" text-anchor="end">6</text>
+<line x1="56" y1="130.0" x2="620" y2="130.0" stroke="#ddd"/><text x="48" y="134.0" text-anchor="end">12</text>
+<line x1="56" y1="60.0" x2="620" y2="60.0" stroke="#ddd"/><text x="48" y="64.0" text-anchor="end">18</text>
+<polyline points="56.0,223.3 136.6,176.7 217.1,176.7 297.7,153.3 378.3,130.0 458.9,95.0 539.4,60.0 620.0,60.0" fill="none" stroke="#8f5b2e" stroke-width="2"/>
+<circle cx="56.0" cy="223.3" r="4" fill="#8f5b2e" stroke="#8f5b2e" stroke-width="2"/>
+<circle cx="136.6" cy="176.7" r="4" fill="#8f5b2e" stroke="#8f5b2e" stroke-width="2"/>
+<circle cx="217.1" cy="176.7" r="4" fill="#8f5b2e" stroke="#8f5b2e" stroke-width="2"/>
+<circle cx="297.7" cy="153.3" r="4" fill="#8f5b2e" stroke="#8f5b2e" stroke-width="2"/>
+<circle cx="378.3" cy="130.0" r="4" fill="#8f5b2e" stroke="#8f5b2e" stroke-width="2"/>
+<circle cx="458.9" cy="95.0" r="4" fill="#8f5b2e" stroke="#8f5b2e" stroke-width="2"/>
+<circle cx="539.4" cy="60.0" r="4" fill="#8f5b2e" stroke="#8f5b2e" stroke-width="2"/>
+<circle cx="620.0" cy="60.0" r="4" fill="#8f5b2e" stroke="#8f5b2e" stroke-width="2"/>
+<polyline points="56.0,223.3 136.6,176.7 217.1,176.7 297.7,130.0 378.3,130.0 458.9,130.0 539.4,130.0 620.0,130.0" fill="none" stroke="#c2255c" stroke-width="2"/>
+<circle cx="56.0" cy="223.3" r="4" fill="#c2255c" stroke="#c2255c" stroke-width="2"/>
+<circle cx="136.6" cy="176.7" r="4" fill="#c2255c" stroke="#c2255c" stroke-width="2"/>
+<circle cx="217.1" cy="176.7" r="4" fill="#c2255c" stroke="#c2255c" stroke-width="2"/>
+<circle cx="297.7" cy="130.0" r="4" fill="#fff" stroke="#c2255c" stroke-width="2"/>
+<circle cx="378.3" cy="130.0" r="4" fill="#c2255c" stroke="#c2255c" stroke-width="2"/>
+<circle cx="458.9" cy="130.0" r="4" fill="#c2255c" stroke="#c2255c" stroke-width="2"/>
+<circle cx="539.4" cy="130.0" r="4" fill="#c2255c" stroke="#c2255c" stroke-width="2"/>
+<circle cx="620.0" cy="130.0" r="4" fill="#c2255c" stroke="#c2255c" stroke-width="2"/>
+<text x="56.0" y="288" text-anchor="middle">0.5 kg</text>
+<text x="136.6" y="288" text-anchor="middle">1 kg</text>
+<text x="217.1" y="288" text-anchor="middle">1.5 kg</text>
+<text x="297.7" y="288" text-anchor="middle">2 kg</text>
+<text x="378.3" y="288" text-anchor="middle">3 kg</text>
+<text x="458.9" y="288" text-anchor="middle">4 kg</text>
+<text x="539.4" y="288" text-anchor="middle">5 kg</text>
+<text x="620.0" y="288" text-anchor="middle">7 kg</text>
+<text x="56" y="310" fill="#555" font-size="11">Assumed device figures; see README. Variety counts shots, not their quality.</text></svg>
