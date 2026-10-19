@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean wait against the share of deferential robots at load 0.9; people wait falls from 4.6 to 0.7 time units as the share rises from 0 to 1, robot wait rises from 4.6 to 7.2">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Mean wait at load 0.9, by share of robots that defer</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="253.9" y2="253.9" stroke="#ddd"/><text x="58" y="257.9" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="183.7" y2="183.7" stroke="#ddd"/><text x="58" y="187.7" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="113.6" y2="113.6" stroke="#ddd"/><text x="58" y="117.6" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="120.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.75</text>
+<text x="568.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.9</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">share of robots that let waiting people go first</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean wait before crossing (time units)</text>
+<polyline points="64.0,162.7 120.0,198.5 204.0,230.4 344.0,260.9 484.0,282.3 568.0,292.8 624.0,299.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="162.7" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="198.5" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="230.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="260.9" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="282.3" r="3" fill="#c0392b"/>
+<circle cx="568.0" cy="292.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="299.1" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">people</text>
+<polyline points="64.0,162.3 120.0,138.5 204.0,117.1 344.0,96.8 484.0,82.4 568.0,75.4 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="162.3" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="138.5" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="117.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="96.8" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="82.4" r="3" fill="#1f6fb2"/>
+<circle cx="568.0" cy="75.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">robots (all)</text>
+</svg>
