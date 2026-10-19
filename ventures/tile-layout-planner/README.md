@@ -28,6 +28,9 @@ reused, so diagonal counts are conservative. Unverified against a real
 installation: tested on hand-computed layouts and on random rooms whose pieces
 are checked to add up to the floor.
 
+**See also:** [tile-layout-optimizer](../tile-layout-optimizer/README.md) compares
+several tile sizes by box cost and searches brick-bond offsets.
+
 **Privacy.** Everything runs in your browser; your figures are never uploaded.
 Anonymous feature counts stay in local storage and can be switched off.
 
