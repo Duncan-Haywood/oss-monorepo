@@ -479,3 +479,21 @@ test("share link refuses a plan too long for a URL", () => {
   const rows = Array.from({ length: 40 }, (_, i) => ({ name: "n".repeat(190) + i, l: "1", w: "1", h: "1", weight: "1", qty: "1", rotation: "any" }));
   assert.ok(encodeShare({ units: "metric", preset: "40hc", container: { l: "1", w: "1", h: "1", payload: "1" }, rows }).error);
 });
+
+test("priceOptions totals freight, divides by ordered units and never names an incomplete option cheapest", async () => {
+  const { priceOptions, parseRates, compareOptions, parseCargo } = await import("./calc.mjs");
+  const { lines } = parseCargo("Carton,60,40,40,15,300");
+  const cmp = compareOptions(lines, { restarts: 2 });
+  const priced = priceOptions(cmp.options, { "20ft": 2400, "40ft": 3800 }, 300);
+  const forty = priced.find((p) => p.id === "40ft");
+  assert.equal(forty.total, 3800 * forty.containers);
+  assert.equal(forty.perUnit, forty.total / 300);
+  assert.equal(priced.filter((p) => p.cheapest).length, 1);
+  assert.ok(priced.find((p) => p.cheapest).complete);
+  assert.ok(priced.every((p) => !p.id.startsWith("53ft")));
+  const none = priceOptions([{ id: "20ft", label: "x", plan: { containersNeeded: 1, packedUnits: 5, unfit: [{ qty: 2 }], unplaced: [0] } }], { "20ft": 100 }, 7);
+  assert.equal(none[0].complete, false);
+  assert.equal(none[0].cheapest, false);
+  assert.deepEqual(parseRates("20ft=2400, 40HC=4000.5"), { "20ft": 2400, "40hc": 4000.5 });
+  assert.throws(() => parseRates("40ft"), /40ft=3800/);
+});

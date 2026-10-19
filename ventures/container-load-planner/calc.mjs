@@ -647,6 +647,41 @@ export function compareOptions(lines, opts = {}) {
   return { options, pallet: pal };
 }
 
+// Price each comparison option from per-container rates the user types
+// (`rates` maps a preset id such as "40ft" to what one such container costs).
+// An option that leaves cargo behind is not a quote for the whole shipment, so
+// it is marked incomplete and never named cheapest. Cost per unit divides by `units`, the
+// cartons you ordered (pallet options pack pallets, not cartons).
+export function priceOptions(options, rates, units = null) {
+  const priced = [];
+  for (const o of options) {
+    const base = String(o.id).replace(/\+pallets$/, "");
+    const rate = rates[base];
+    if (!Number.isFinite(rate) || rate < 0) continue;
+    const left = o.plan.unfit.reduce((s, u) => s + u.qty, 0) + o.plan.unplaced.reduce((s, n) => s + n, 0);
+    const total = rate * o.plan.containersNeeded;
+    priced.push({
+      id: o.id, label: o.label, containers: o.plan.containersNeeded, rate, total,
+      perUnit: (units || o.plan.packedUnits) ? total / (units || o.plan.packedUnits) : null,
+      complete: left === 0 && o.plan.containersNeeded > 0, unitsLeftOut: left, cheapest: false,
+    });
+  }
+  const best = priced.filter((p) => p.complete).reduce((a, p) => (!a || p.total < a.total ? p : a), null);
+  if (best) best.cheapest = true;
+  return priced.sort((a, b) => (b.complete - a.complete) || a.total - b.total);
+}
+
+export function parseRates(text) {
+  const rates = {};
+  for (const part of String(text).split(",").map((p) => p.trim()).filter(Boolean)) {
+    const m = /^([a-z0-9]+)\s*=\s*([0-9]+(?:\.[0-9]+)?)$/i.exec(part);
+    if (!m) throw new Error(`rate "${part}" should look like 40ft=3800`);
+    rates[m[1].toLowerCase()] = Number(m[2]);
+  }
+  if (!Object.keys(rates).length) throw new Error("--rates needs at least one id=cost pair");
+  return rates;
+}
+
 // ----- views ----------------------------------------------------------------
 
 // Rectangles for a to-scale view, in painter's order (draw first to last).
