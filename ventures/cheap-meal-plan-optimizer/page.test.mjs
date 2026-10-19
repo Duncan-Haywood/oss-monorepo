@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { sampleSpec, solve, verifyPlan, validateSpec, money2 } from "./calc.mjs";
+import { sampleSpec, solve, verifyPlan, validateSpec, money2, filterByStyle, budgetFrontier } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-eat-high-protein-on-a-budget.html";
@@ -159,4 +159,43 @@ test("index page offers the common-foods picker from food-library.mjs", () => {
   assert.match(html, /id="library-add"/);
   assert.match(html, /from "\.\/food-library\.mjs"/);
   assert.ok(existsSync(new URL("./food-library.mjs", import.meta.url)));
+});
+
+const VEGAN = "cheap-vegan-high-protein-meal-plan.html";
+const BUDGET = "what-protein-does-a-grocery-budget-buy.html";
+
+test("the vegan and budget guides carry the clauses, link both ways, and match the solver", () => {
+  for (const file of [VEGAN, BUDGET]) {
+    const g = page(file);
+    assert.match(g, /No warranty/);
+    assert.match(g, /not medical, dietary, nutrition, legal, tax or financial advice/i);
+    assert.match(g, /github\.com\/sponsors\/Duncan-Haywood/);
+    assert.match(g, new RegExp(`<link rel="canonical" href="\\./${file.replace(".", "\\.")}">`));
+    assert.match(g, /<meta name="description" content="[^"]{80,}/);
+    assert.match(g, /href="\.\/"/);
+    assert.match(page("sitemap.xml"), new RegExp(file.replace(".", "\\.")));
+    assert.match(page("index.html"), new RegExp(`href="\\./${file.replace(".", "\\.")}"`));
+    assert.match(page(GUIDE), new RegExp(`href="\\./${file.replace(".", "\\.")}"`));
+    const ld = JSON.parse(g.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+    assert.equal(ld["@type"], "FAQPage");
+    for (const q of ld.mainEntity) assert.ok(g.includes(`<h3>${q.name}</h3>`), q.name);
+  }
+  const spec = sampleSpec();
+  const vegan = { ...spec, foods: filterByStyle(spec.foods, "vegan").foods };
+  assert.equal(vegan.foods.length, 13);
+  const g = page(VEGAN);
+  for (const p of [80, 100, 120, 130]) {
+    const s = { ...vegan, proteinMin: p };
+    const res = solve(s);
+    assert.deepEqual(verifyPlan(s, res), []);
+    const row = `<tr><td>${p} g</td><td class="n">${money2(res.cost)}</td><td class="n">${money2(res.cost * 7)}</td></tr>`;
+    assert.ok(g.includes(row), row);
+  }
+  assert.notEqual(solve({ ...vegan, proteinMin: 140 }).status, "optimal");
+  const b = page(BUDGET);
+  for (const { budget, protein } of budgetFrontier(spec, [2, 3, 4, 5])) {
+    assert.ok(b.includes(`<tr><td>${money2(budget)}</td><td class="n">${protein.toFixed(1)} g</td></tr>`), `${budget}`);
+  }
+  const vb = budgetFrontier(vegan, [5])[0].protein;
+  assert.ok(vb > 136 && vb < 138, "vegan ceiling quoted as near 137 g");
 });
