@@ -538,3 +538,33 @@ test("the referees guide's worked example matches assignOfficials() and is linke
   assert.match(page("sitemap.xml"), /how-to-assign-referees-to-a-league-schedule\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-assign-referees-to-a-league-schedule\.html"/);
 });
+
+test("the fantasy football guide's 12-team, 14-week example matches buildSchedule() and is linked and in the sitemap", async () => {
+  const { readSpec, buildSchedule, validateSchedule, rematchReport } = await import("./calc.mjs");
+  const html = page("how-to-make-a-fantasy-football-schedule.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-make-a-fantasy-football-schedule\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const names = "Ace,Bolt,Colt,Dash,Echo,Fox,Gale,Hawk,Iris,Jinx,Kite,Lynx".split(",");
+  assert.ok(html.includes(names.join(", ")));
+  const { errors, spec } = readSpec({ teams: names.join("\n"), start: "2026-09-10", weekdays: "Thu", double: true, rounds: "14" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(validateSchedule(s).ok, true);
+  assert.equal(s.rounds.length, 14);
+  const meets = new Map();
+  for (const r of s.rounds) for (const m of r.matches) {
+    const k = Math.min(m.home, m.away) + "-" + Math.max(m.home, m.away);
+    meets.set(k, (meets.get(k) || 0) + 1);
+  }
+  assert.equal(meets.size, 66);
+  assert.equal([...meets.values()].filter((v) => v === 2).length, 18);
+  const rematches = Array(12).fill(0);
+  for (const [k, v] of meets) if (v === 2) for (const t of k.split("-")) rematches[t]++;
+  assert.ok(rematches.every((x) => x === 3));
+  assert.equal(rematchReport(s).shortest, 77);
+  assert.match(page("sitemap.xml"), /how-to-make-a-fantasy-football-schedule\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-make-a-fantasy-football-schedule\.html"/);
+});
