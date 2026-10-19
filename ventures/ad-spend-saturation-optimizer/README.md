@@ -17,6 +17,10 @@ One row per date and channel: a date, a channel (or source, platform, campaign),
 credit to that channel. Columns are found by header name; a file without a channel column is treated as one channel.
 Daily rows are summed into Monday weeks. Amounts in one currency.
 
+## In a terminal
+
+`node cli.mjs spend.csv` runs the same analysis from a file or `-` (stdin), with no dependencies and no network: `--margin 45`, `--skip "2025-11-24..2025-12-07"`, `--budget 12000` (best split of another weekly total), `--csv`, `--json`, `--example`. Tests in `cli.test.mjs`.
+
 ## Model
 
 - Per channel, two response curves are fitted by least squares (Nelder-Mead in log space, multiple starts):
