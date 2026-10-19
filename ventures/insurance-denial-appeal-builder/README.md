@@ -16,7 +16,9 @@ used to mean reading a dense notice, guessing the window and writing the letter 
 - **Reads the denial.** Adjustment reason codes (CO-50, CO-197, CO-96, CO-18 and others) and
   phrases ("not medically necessary", "prior authorization", "out of network", "investigational")
   are scored. The best match is suggested with the evidence for it; the user can change it. It
-  also picks up the notice date, a stated appeal window, claim number, member ID and urgency.
+  Bundled or downcoded lines (CO-97), coverage-ended denials (CO-27) and out-of-network bills after
+  emergency care or at an in-network facility (No Surprises Act) get their own letters and checklists.
+  It also picks up the notice date, a stated appeal window, claim number, member ID and urgency.
 - **Computes deadlines** from plan type and the date the notice was received: 180 days for employer
   and individual plans, 60 for Medicare Advantage, 120 for Original Medicare; Medicaid varies by
   state, so the days from the notice are entered. A number stated in the notice always wins. Shows

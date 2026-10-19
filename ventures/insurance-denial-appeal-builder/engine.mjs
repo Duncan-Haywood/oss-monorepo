@@ -60,6 +60,14 @@ export const CARC = {
   22: "cob",
   109: "cob",
   119: "benefit_limit",
+  97: "bundled",
+  59: "bundled",
+  234: "bundled",
+  236: "bundled",
+  26: "eligibility",
+  27: "eligibility",
+  31: "eligibility",
+  32: "eligibility",
 };
 
 export const REASONS = {
@@ -216,6 +224,54 @@ export const REASONS = {
     argument:
       "I ask the plan to confirm how the limit was counted and to review whether an exception applies given my clinician's recommendation.",
   },
+  bundled: {
+    label: "Bundled or paid at a lower level of service",
+    firstStep: "Ask the provider's billing office whether the codes were billed correctly (a missing modifier is the usual cause) before you appeal.",
+    asks: [
+      "the payment policy or coding edit that combined or reduced these lines",
+      "which line was treated as the primary service and which as included in it",
+      "whether the claim can be reprocessed with the modifier or documentation the provider can supply",
+    ],
+    evidence: [
+      "the provider's operative or visit note showing the services were separate and distinct",
+      "a corrected claim or a note from billing about the modifier used",
+      "the explanation of benefits showing which lines were bundled or reduced",
+    ],
+    argument:
+      "The services on this claim were separate and each was medically necessary. I ask the plan to show the policy it applied in combining or reducing them and to reprocess the claim on review of the enclosed records.",
+  },
+  eligibility: {
+    label: "Coverage not active or patient not eligible",
+    firstStep: "Confirm the coverage dates with your employer's benefits office or the plan before anything else; terminations backdated in error and late premium processing are common and quick to fix.",
+    asks: [
+      "the coverage dates the plan has on file and the reason any coverage was ended",
+      "the date and notice by which the plan told you coverage had ended",
+      "that the claim be reprocessed if coverage is shown to have been active on the date of service",
+    ],
+    evidence: [
+      "proof of coverage on the date of service (insurance card, premium payment record, employer confirmation)",
+      "any notice of termination or reinstatement, and the dates you received it",
+      "the denial letter and the explanation of benefits",
+    ],
+    argument:
+      "My coverage was in force on the date of service. I ask the plan to check its enrollment records against the enclosed proof and, if coverage was active, to reprocess the claim for payment.",
+  },
+  surprise_bill: {
+    label: "Out-of-network bill after emergency or at an in-network facility",
+    firstStep: "Do not pay the balance yet. For emergency care, and for out-of-network clinicians at an in-network hospital, federal law generally limits what you can be charged to your in-network cost sharing; ask the provider to bill again at that level.",
+    asks: [
+      "whether the claim was processed under the No Surprises Act protections for emergency or facility-based care",
+      "the in-network cost-sharing amount the plan says applies and how it was calculated",
+      "the qualifying payment amount the plan used for this service",
+    ],
+    evidence: [
+      "proof the care was an emergency or took place at an in-network facility (admission record, facility name)",
+      "the provider's bill and the explanation of benefits showing the balance you were asked to pay",
+      "any notice and consent form you were given before treatment, if there was one",
+    ],
+    argument:
+      "This care was an emergency, or was provided by an out-of-network clinician at an in-network facility. I did not choose the out-of-network provider. I ask the plan to reprocess the claim with in-network cost sharing as federal surprise-billing protections generally require, and to tell me how that amount was calculated.",
+  },
   other: {
     label: "Other or unclear",
     firstStep: "Ask the plan in writing which specific rule it applied; an appeal is stronger once you know.",
@@ -240,6 +296,9 @@ const PHRASES = [
   ["duplicate", /duplicate\s+(?:claim|service|charge)|already\s+(?:been\s+)?(?:paid|processed)/i, 3],
   ["cob", /coordination\s+of\s+benefits|other\s+(?:insurance|coverage)|primary\s+(?:payer|insurance)|wrong\s+payer/i, 3],
   ["benefit_limit", /benefit\s+(?:maximum|limit)|visit\s+limit|(?:limit|maximum)\s+(?:has\s+been\s+)?reached|annual\s+maximum/i, 3],
+  ["bundled", /bundl(?:ed|ing)|(?:included|incidental)\s+(?:in|to)\s+(?:another|the\s+primary)\s+(?:service|procedure)|downcod|unbundl|reduced\s+to\s+a\s+lower\s+level/i, 3],
+  ["eligibility", /coverage\s+(?:was\s+)?(?:not\s+(?:in\s+effect|active)|terminated|cancel+ed|ended|lapsed)|not\s+eligible\s+(?:on|for\s+benefits)|patient\s+not\s+(?:covered|eligible)|policy\s+(?:was\s+)?(?:terminated|inactive)|no\s+active\s+coverage/i, 3],
+  ["surprise_bill", /no\s+surprises\s+act|surprise\s+(?:bill|billing)|balance\s+bill|emergency\s+(?:room|services?|care)[^.]{0,80}out[\s-]of[\s-]network|out[\s-]of[\s-]network[^.]{0,80}(?:in[\s-]network\s+(?:hospital|facility)|emergency)/i, 4],
 ];
 
 const MONEY = /\$\s?([\d,]+(?:\.\d{2})?)/g;
