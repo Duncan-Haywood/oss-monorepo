@@ -4053,3 +4053,24 @@ entries:
         2025-26 federal values and the page tells the user to replace them. Also refreshed the gh-pages
         snapshot, which the session gate reported stale.
     mrr_end: 0
+  - venture: open-tennis-robots
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Built open-tennis-robots at the owner's request (2026-10-19): open-source hardware and software
+        for a tennis ball machine that tracks the player's return and slides a catch net to catch it,
+        and a ball-collecting rover. Python package tennisbots (stdlib only): flight model with drag,
+        spin lift and a friction-limited bounce; launcher aiming and wheel-rpm solving with calibration;
+        drag-aware per-axis Kalman tracker; catch planner and a closed-loop study; collector routing
+        (visibility-graph detours, nearest-neighbour + 2-opt, hopper dump trips, blind lawn-mower
+        sweep); pure pursuit; homography; a serial protocol shared with MicroPython ESP32 firmware
+        (role filter, clamps, 300 ms watchdog, latched e-stop, bumper rule); and an Amazon SP-API
+        listing tool on the seller's own credentials, dry run by default and refusing --live until
+        compliance items are confirmed (owner asked that people can sell it, on Amazon in one step).
+        Design docs, pin maps, BOMs (~$1,200 / ~$600, estimates), safety and a seller's guide. The
+        browser page ports the model to JS, tested against Python fixtures to 1e-6. Simulation result
+        (300 returns per cell): a fixed 3 m net catches 31% of club-level returns; on a 2.5 m/s base it
+        catches 91%, 97% at 4 m/s, so drive speed matters more than net width. Nothing built yet; the
+        page and README say so. 38 Python + 17 Node tests.
+    mrr_end: 0

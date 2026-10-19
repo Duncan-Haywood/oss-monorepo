@@ -1,0 +1,22 @@
+# Ball-collecting rover, v0.1. Prices are rough USD planning estimates, not quotes: check current suppliers.
+item,qty,spec,est_unit_usd,notes
+Raspberry Pi 5 (4 GB) or Pi 4,1,with cooler,60,vision + planning
+Wide-angle camera module,1,~120 deg FOV,30,on 1 m mast
+ESP32 dev board,1,ESP32-WROOM-32,10,motor control + safety
+DC gearmotor with encoder,2,"24 V, ~150-200 rpm",35,drive
+Dual H-bridge driver,1,"Cytron MDD10A or similar",30,
+Non-marking drive wheel,2,150-200 mm,12,
+Rear caster,1,non-marking,8,
+Roller gearmotor,1,"12-24 V, 150-250 rpm",20,pickup
+Logic-level MOSFET module,1,,5,roller switch
+Rubber paddles + 45 cm shaft + bearings,1,,25,pickup rotor
+Polycarbonate sheet,1,"for the ramp and hopper, ~0.5 m^2",30,
+Microswitch,2,with lever,3,bumper skirt
+IR break-beam pair,1,,5,hopper full
+IMU,1,BNO085 or similar,25,yaw
+Aluminium extrusion or plywood chassis,1,,40,
+LiFePO4 battery,1,"24 V (8S) 10-20 Ah with BMS",150,
+E-stop switch + contactor,1,NC mushroom + 24 V contactor,30,
+5 V 5 A buck converter,1,for the Pi,12,
+Fuse holder + fuses,1,15 A,10,
+Wiring + connectors + fasteners,1,,30,

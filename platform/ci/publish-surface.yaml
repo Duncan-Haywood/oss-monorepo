@@ -998,6 +998,9 @@ workflows:
 - workflow: oidc-trust-policy-check-ci.yml
   classification: none
   publishes: []
+- workflow: open-tennis-robots-ci.yml
+  classification: none
+  publishes: []
 - workflow: openapi-breaking-change-check-ci.yml
   classification: none
   publishes: []
