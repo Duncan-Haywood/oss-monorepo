@@ -3408,6 +3408,18 @@
     "summary": "Pixel and perspective geometry for the simplest multi-angle rig, a 360 camera on a pole reframed in software. An 8K (7,680 px) equirect cropped into a 1080&times;1920 vertical reel is native only up to about 24 mm full-frame-equivalent; 50 mm is upscaled 2.1&times; and 85 mm 3.5&times;, and a native 85 mm crop would need a ~27,000 px equirect. Perspective is set by distance: from a stick at 0.8 m a feature 10 cm nearer the lens images 14% larger, against 7.6% from the 1.4 m an 85 mm head-and-shoulders shot is taken at, with the background 1.7&times; larger. So portrait and compressed-background shots need a camera standing back, whatever the resolution. Upper bounds from pixel counts (real cameras resolve less); framing distances and depths are stated assumptions."
    }
   ]
+ },
+ {
+  "id": "energy",
+  "name": "Energy supply and dense energy storage",
+  "blurb": "How densely, cheaply and durably energy can be stored, and what mix of supply and storage meets demand at least cost: the physical limits first, then devices, costs and grids, in open code.",
+  "projects": [
+   {
+    "slug": "energy-density",
+    "title": "How much energy can each storage technology hold per kilogram, at the most?",
+    "summary": "Theoretical ceilings from first principles for batteries, hydrogen, flywheels, pumped hydro and heat, reproducing five published values to within 0.3% (lead-acid 170, Zn-air 1,086, Li-S 2,567, Li-O<sub>2</sub> 3,458 Wh/kg; Al-air 8,100 on Al). No battery couple releases more than 1.65 eV per reactant atom, so the spread comes from atomic mass: Wh/kg = 26,801 &times; eV per atom / mean g/mol. A carbon-fibre flywheel holds at most 756 Wh/kg (0.34 eV per atom), sand at 500 &deg;C 107 Wh/kg of heat (41% recoverable as electricity) and water lifted 300 m 0.82 Wh/kg. Ceilings for the active material only, with some voltages and material properties assumed."
+   }
+  ]
  }
  ],
  "featured": [

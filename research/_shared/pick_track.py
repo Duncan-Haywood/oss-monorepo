@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Draw a research track the way research/PROJECTS.md "Picking work" says.
 
-r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * 13).
+r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * 14).
 Pass a number to map a draw you already have: pick_track.py 0.11
 
 For a track it also lists that track's projects on this checkout (newest commit
@@ -16,14 +16,14 @@ import sys
 from pathlib import Path
 
 PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
-          "eda", "accel", "osrobot", "swe", "mimic", "house", "capture"]
+          "eda", "accel", "osrobot", "swe", "mimic", "house", "capture", "energy"]
 RESEARCH = Path(__file__).resolve().parents[1]
 
 
 def pick(r):
     if r < 0.05:
         return "free"
-    return min(13, 1 + math.floor((r - 0.05) / 0.95 * 13))
+    return min(14, 1 + math.floor((r - 0.05) / 0.95 * 14))
 
 
 def projects(prefix, limit=5):
