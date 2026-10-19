@@ -18,6 +18,7 @@ from pathlib import Path
 PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
           "eda", "accel", "osrobot", "swe", "mimic", "house", "capture",
           "codesign", "sensing", "energy"]
+SATURATED = 40
 RESEARCH = Path(__file__).resolve().parents[1]
 
 
@@ -50,4 +51,8 @@ if __name__ == "__main__":
             shallow = subprocess.run(["git", "rev-parse", "--is-shallow-repository"],
                                      cwd=RESEARCH, capture_output=True, text=True).stdout.strip() == "true"
             note = " (shallow clone: order is not by date; unshallow first)" if shallow else ""
+            if n >= SATURATED:
+                counts = sorted(((len(list(RESEARCH.glob(x + "-*"))), i + 1) for i, x in enumerate(PREFIX)))
+                print(f"track {t} has {n} projects (>= {SATURATED}); redrawing is fine. Fewest: "
+                      + ", ".join(f"track {i} ({c})" for c, i in counts[:3]))
             print(f"next step if milestones are done: research/{newest[0]}/README.md, 'Next steps'{note}")
