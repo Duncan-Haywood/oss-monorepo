@@ -97,5 +97,6 @@
     "claude-sonnet-5-5"
   ],
   "started": "2026-10-19T17:56:05Z",
-  "tool_calls": 21
+  "tool_calls": 21,
+  "integrity_issues": []
 }
