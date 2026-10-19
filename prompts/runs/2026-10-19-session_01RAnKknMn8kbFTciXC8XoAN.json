@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01RAnKknMn8kbFTciXC8XoAN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T05:09:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "where-to-sell-calculator: Discogs fee correction",
+  "projects": [
+    "where-to-sell-calculator"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    "Discogs help/FAQ pages returned 403 to WebFetch; figures come from search summaries"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Top Explore task (where-to-sell handoff) was already built across 15 channels; the hypothesis needs customers, not code, so the queue pointed at finished work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Built no new venture or depth; made a small accuracy fix to a live channel instead of a new product, since the queue had no code-testable work."
+    }
+  ],
+  "goal": null,
+  "notes": "Discogs fee updated from 8% item-only to 9% item+shipping (since 2023-05-22); processing 3.49%+0.49 flagged as estimate. Live-site snapshot refresh not attempted.",
+  "corrections": [],
+  "redteam": null
+}
