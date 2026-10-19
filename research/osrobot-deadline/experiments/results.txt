@@ -1,0 +1,38 @@
+# osrobot-deadline results: cheapest fleet that finishes 16 equal fields by a deadline (no new simulation)
+# Held fleets, all prices ASSUMED (see osrobot-pairprice/econ.py). Pipeline = s scouts + k treaters; inline = n robots.
+
+# Sweep 1: fastest possible finish (hours) for 16 fields. Pipeline floor = scout-serial time, unlimited treaters
+      ha  pipe_1scout_h  pipe_2scouts_h  pipe_4scouts_h  inline_h(32 robots)
+    0.18            5.3             2.8             1.6                  0.7
+    0.72           15.9             8.5             4.8                  2.8
+    1.62           32.5            17.5            10.0                  6.2
+
+# Sweep 2: cheapest fleet by deadline, 16 fields of 0.18 ha (USD per hectare; '-' = cannot finish)
+  deadline_h  pipe(1 scout)  s,k   pipe(<=4 scouts)  s,k   inline   n   pipe1/inl  pipe4/inl
+           4            -    -             27.51  2,2    18.18   4         -      1.51
+           6        27.12  1,1             27.12  1,1    18.18   2      1.49      1.49
+           8        27.12  1,1             27.12  1,1    18.18   2      1.49      1.49
+          12        27.12  1,1             27.12  1,1    18.18   1      1.49      1.49
+          16        27.12  1,1             27.12  1,1    18.18   1      1.49      1.49
+          24        27.12  1,1             27.12  1,1    18.18   1      1.49      1.49
+          48        27.12  1,1             27.12  1,1    18.18   1      1.49      1.49
+
+# Sweep 2: cheapest fleet by deadline, 16 fields of 0.72 ha (USD per hectare; '-' = cannot finish)
+  deadline_h  pipe(1 scout)  s,k   pipe(<=4 scouts)  s,k   inline   n   pipe1/inl  pipe4/inl
+           4            -    -                 -    -    13.19  16         -         -
+           6            -    -             14.78  4,4    13.19   8         -      1.12
+           8            -    -             14.78  4,4    13.19   8         -      1.12
+          12            -    -             14.21  2,2    13.19   4         -      1.08
+          16        15.85  1,2             14.21  2,2    13.19   4      1.20      1.08
+          24        13.92  1,1             13.92  1,1    13.19   2      1.06      1.06
+          48        13.92  1,1             13.92  1,1    13.19   1      1.06      1.06
+
+# Sweep 2: cheapest fleet by deadline, 16 fields of 1.62 ha (USD per hectare; '-' = cannot finish)
+  deadline_h  pipe(1 scout)  s,k   pipe(<=4 scouts)  s,k   inline   n   pipe1/inl  pipe4/inl
+           4            -    -                 -    -        -   -         -         -
+           6            -    -                 -    -        -   -         -         -
+           8            -    -                 -    -    12.27  16         -         -
+          12            -    -             11.43  4,4    12.27  16         -      0.93
+          16            -    -             11.43  4,4    12.27   8         -      0.93
+          24            -    -             10.91  2,2    12.27   8         -      0.89
+          48        10.65  1,1             10.65  1,1    12.27   4      0.87      0.87
