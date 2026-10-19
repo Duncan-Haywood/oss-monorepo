@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   applyRainouts, changeNotices, dayLabel, applyPinnedMatches, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
-  scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  scheduleText, teamMessages, officialMessages, leaguePageHtml, scoreSheetsHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
 } from "./calc.mjs";
 
@@ -1941,4 +1941,16 @@ test("late joiner: a saved schedule without courtLimits still places the moved m
   delete s.config.courtLimits;
   const r = applyLateTeams(s, "2026-10-20 Team 6");
   assert.deepEqual(r.errors, []);
+});
+
+test("score sheets give every round its own page, escape names and stay self-contained", () => {
+  const { spec } = readSpec({ ...sampleFields(), teams: "Fish <b>&Chips\nOwls\nHawks\nWolves\nBears" });
+  const s = buildSchedule(spec);
+  const html = scoreSheetsHtml(s, { title: "Spring <League>" });
+  assert.ok(html.startsWith("<!doctype html>") && html.includes("Spring &lt;League&gt;"));
+  assert.ok(!html.includes("<b>&Chips") && html.includes("Fish &lt;b&gt;&amp;Chips"));
+  assert.equal((html.match(/class="sheet"/g) || []).length, s.rounds.length);
+  assert.equal((html.match(/class="f"/g) || []).length, s.rounds.reduce((n, r) => n + r.matches.length, 0));
+  assert.equal((html.match(/class="bye"/g) || []).length, s.rounds.filter((r) => r.bye !== null && r.bye !== undefined).length);
+  assert.ok(!/(src|href)=["']https?:/.test(html));
 });

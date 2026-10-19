@@ -20,6 +20,9 @@ class AppTests(unittest.TestCase):
     def test_nsfg2002_bundle_matches_sklearn(self):
         self.run_node('nsfg2002.test.mjs')
 
+    def test_lenses_and_scenarios(self):
+        self.run_node('lenses.test.mjs')
+
 
 class Nsfg2002BundleTests(unittest.TestCase):
     def test_bundle_agrees_with_audit_and_beats_baseline(self):
