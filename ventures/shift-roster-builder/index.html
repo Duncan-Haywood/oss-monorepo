@@ -235,7 +235,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional or your own knowledge of the labor rules that apply to you. Results are planning estimates from the numbers you supply. You are responsible for reviewing and verifying its output before relying on it.</p>
     <p><strong>Independent.</strong> Not affiliated with any scheduling, payroll or point-of-sale vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your staff list and roster are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>roster_built</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>, <code>share_link_copied</code>, <code>share_link_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your staff list and roster are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>roster_built</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>, <code>share_link_copied</code>, <code>share_link_opened</code>, <code>saved_setup_restored</code>, <code>roster_built_new_week</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Next step: the <a href="../time-off-request-planner/">time-off request planner</a> decides which vacation requests fit your minimum cover.</p>
     <p>Once the roster is posted: the <a href="../fair-workweek-schedule-checker/">fair workweek schedule checker</a> prices the premium pay that late changes and short rests trigger under predictive scheduling laws.</p>
@@ -427,7 +427,7 @@
       const p = OT_PRESETS[$("#otrule").value] || [0, 0];
       $("#dotafter").value = String(p[0]); $("#ddtafter").value = String(p[1]); persist();
     });
-    $("#analyze").addEventListener("click", () => { if (run()) record("roster_built"); });
+    $("#analyze").addEventListener("click", () => { if (run()) { record("roster_built"); noteWeek(); } });
     $("#template-pick").insertAdjacentHTML("beforeend", Object.entries(TEMPLATES).map(([k, t]) => `<option value="${k}">${esc(t.label)}</option>`).join(""));
     $("#template-pick").addEventListener("change", (e) => {
       const t = TEMPLATES[e.target.value]; if (!t) return;
@@ -497,7 +497,11 @@
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };
     function persist() { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) {} }
-    try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved) { apply(saved); status.textContent = "Restored your last setup from this device. Click the button to rebuild."; } } catch (e) {}
+    try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved) { apply(saved); status.textContent = "Restored your last setup from this device. Click the button to rebuild."; record("saved_setup_restored"); } } catch (e) {}
+    // Return measurement (hypothesis: owners come back each week). Counts a build in a different calendar week from the last one, on this device only.
+    const WEEK_KEY = "shift-roster-builder:last-build-week";
+    const weekId = () => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().slice(0, 10); };
+    function noteWeek() { try { const w = weekId(), last = localStorage.getItem(WEEK_KEY); if (last && last !== w) record("roster_built_new_week"); localStorage.setItem(WEEK_KEY, w); } catch (e) {} }
     for (const f of FIELDS) $("#" + f).addEventListener("input", persist);
     $("#forget").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device."; });
     $("#save-setup").addEventListener("click", () => download("roster-setup.json", JSON.stringify(snapshot(), null, 2), "application/json"));
