@@ -1,0 +1,61 @@
+society-twinfidelity results. society-plaza's corridor (60 agents, 30 m x 6 m periodic, 300 s, second half measured, 10 seeds per cell, people memory M=9) with four crowds of simulated people: plaza (the society-plaza people), hetero (speed spread +-25% instead of +-8%, sideways-push weight N(0.6, 0.3)), delay (people react to others' positions 0.4 s old), stubborn (30% of people never change side), humanlike (all three).
+
+== A. people preferring the robots' side (last quarter), committed left robots
+rho   plaza      hetero     delay      stubborn   humanlike
+0.0   0.042      0.000      0.060      0.028      0.014    
+0.05  0.196      0.123      0.225      0.132      0.119    
+0.1   0.174      0.358      0.319      0.115      0.160    
+0.15  0.182      0.496      0.352      0.084      0.191    
+0.2   0.245      0.563      0.343      0.095      0.269    
+0.3   0.398      0.584      0.393      0.271      0.340    
+0.4   0.468      0.528      0.556      0.353      0.358    
+0.5   0.455      0.495      0.472      0.293      0.419    
+
+== B. people's speed / desired speed, committed left robots
+rho   plaza      hetero     delay      stubborn   humanlike
+0.0   0.907      0.851      0.808      0.911      0.753    
+0.05  0.807      0.772      0.736      0.824      0.736    
+0.1   0.744      0.615      0.674      0.773      0.693    
+0.15  0.672      0.548      0.650      0.727      0.660    
+0.2   0.625      0.511      0.609      0.688      0.626    
+0.3   0.416      0.531      0.555      0.425      0.582    
+0.4   0.399      0.531      0.537      0.364      0.525    
+0.5   0.409      0.518      0.467      0.321      0.499    
+
+== C. lane separation (m), committed left robots
+rho   plaza      hetero     delay      stubborn   humanlike
+0.0   2.743      2.771      2.561      2.763      2.640    
+0.05  2.511      2.525      1.865      2.623      2.078    
+0.1   2.424      1.343      1.314      2.523      1.937    
+0.15  2.116      0.702      1.159      2.472      1.839    
+0.2   1.779      0.283      1.341      2.407      1.303    
+0.3   1.338      0.117      1.344      1.790      1.365    
+0.4   1.374      0.538      0.864      1.803      1.345    
+0.5   1.473      0.762      1.543      2.414      1.318    
+
+== D. personal-space time (share of agent time), committed left robots
+rho   plaza      hetero     delay      stubborn   humanlike
+0.0   0.000      0.001      0.087      0.000      0.085    
+0.05  0.021      0.033      0.237      0.010      0.276    
+0.1   0.030      0.129      0.268      0.026      0.307    
+0.15  0.030      0.157      0.251      0.022      0.324    
+0.2   0.033      0.179      0.165      0.012      0.356    
+0.3   0.028      0.138      0.130      0.028      0.351    
+0.4   0.019      0.124      0.059      0.031      0.296    
+0.5   0.006      0.110      0.044      0.025      0.259    
+
+== E. adaptive robots: speed / desired (and people preferring left)
+rho   plaza            hetero           delay            stubborn         humanlike      
+0.2   0.906 (0.04)     0.844 (0.02)     0.813 (0.07)     0.907 (0.02)     0.763 (0.01)   
+0.5   0.902 (0.03)     0.810 (0.07)     0.836 (0.05)     0.907 (0.03)     0.781 (0.01)   
+
+== F. standard errors over seeds (speed, tipped_late), committed robots
+rho   plaza            hetero           delay            stubborn         humanlike      
+0.0   0.007,0.020      0.005,0.000      0.007,0.020      0.007,0.018      0.004,0.005    
+0.05  0.016,0.011      0.011,0.016      0.010,0.035      0.009,0.011      0.012,0.033    
+0.1   0.010,0.008      0.029,0.063      0.008,0.051      0.008,0.005      0.009,0.030    
+0.15  0.036,0.040      0.015,0.048      0.007,0.068      0.007,0.005      0.006,0.021    
+0.2   0.030,0.068      0.016,0.022      0.005,0.079      0.008,0.007      0.009,0.031    
+0.3   0.028,0.067      0.011,0.015      0.011,0.077      0.034,0.066      0.005,0.026    
+0.4   0.034,0.030      0.014,0.019      0.013,0.017      0.018,0.043      0.007,0.024    
+0.5   0.030,0.027      0.015,0.026      0.014,0.020      0.028,0.022      0.009,0.031    

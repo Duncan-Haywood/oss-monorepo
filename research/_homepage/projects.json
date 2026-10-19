@@ -3538,6 +3538,12 @@
     "title": "What does it cost robots to let people go first at a shared lift or narrow pavement?",
     "summary": "People and robots share a one-at-a-time crossing. At load 0.9, robots that always let waiting people go first cut people&rsquo;s mean wait from 4.60 to 0.71 time units and raise the robots&rsquo; from 4.61 to 7.21; the total waiting cost is the same for every share of deferential robots (4.14&ndash;4.15), so deference moves waiting rather than removing it, and pays exactly when a person&rsquo;s wait costs more than a robot&rsquo;s. A lone selfish robot waits 2.08 against 7.65 for deferential ones (the dilemma). Under overload (load 1.2) half the robots deferring costs them 10.5% of their crossings and gives people 20% more. Simulation within 2.7% of M/G/1 closed forms. Stylised: one server, Poisson arrivals, fixed crossing times."
    }
+   ,{
+    "slug": "society-twinfidelity",
+    "title": "Does the robots-in-a-corridor conclusion survive a more humanlike crowd?",
+    "summary": "The <code>society-plaza</code> corridor rerun with four crowds of simulated people: varied speeds and sideways-push weights, a 0.4&nbsp;s reaction delay, 30% stubborn walkers, and all three (10 seeds per cell). Adaptive robots stay free and committed robots never flip the crowd (at most 58% prefer their side) in every crowd. The size of the slowdown (a loss of 0.17 to 0.49 of desired speed at 30% robots) and of personal-space intrusions (0.03 to 0.36 of agent time; reaction delay alone gives 0.087 with no robots) depends strongly on the crowd. Hand-chosen perturbations, not fitted to data; simulated walkers only."
+   }
+  
   ]
  }
  ,{
