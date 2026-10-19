@@ -9,6 +9,17 @@ month. Then it asks the question a fee table cannot: **how often does it
 actually sell there**, and what is one listing worth per month of shelf once
 you count that.
 
+**Sourcing and mobile.** Standing at a thrift-store shelf, the question is the
+reverse of the table: *what is the most I can pay?* The "Sourcing" section
+(`sourcing.mjs`) takes the expected sale price and the profit you want and
+searches the real fee engine for the highest purchase price each channel
+tolerates after returns. The tool is also an installable offline app (Add to
+Home Screen), and `mobile/` packages the same files with Capacitor for Android
+and iOS builds under your own developer account. Alternatives today: the
+marketplaces' own calculators (one channel at a time), and cross-listing tools
+such as Vendoo or List Perfectly (subscriptions that do not tell you the
+buy-side ceiling).
+
 **Live tool:** https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/
 
 **Discogs** (records and music media, added 2026-10-19, off by default; its 9% commission on item plus shipping is from Discogs' own fee page and hands the item to [`../discogs-fee-calculator`](../discogs-fee-calculator/); the 2.9% + $0.30 processing default is not a Discogs-published rate and is flagged as such on the page) joins **TCGplayer** (trading cards, added 2026-10-18, off by default; it hands the
@@ -437,7 +448,7 @@ device.
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
 `channel_volume_edited`, `returns_compared`, `shelf_time_compared`,
-`share_link_copied`, `comparison_csv_downloaded`, `handoff_ebay`, `handoff_etsy`,
+`share_link_copied`, `comparison_csv_downloaded`, `max_buy_price_checked`, `handoff_ebay`, `handoff_etsy`,
 `handoff_amazon`, `handoff_reverb`, `handoff_own-store`, `handoff_tiktok`,
 `handoff_whatnot`, `handoff_poshmark`, `handoff_stockx`, `handoff_mercari`, `handoff_depop`, `handoff_grailed`, `handoff_facebook-marketplace`, `handoff_walmart`, `handoff_tcgplayer`, `handoff_discogs`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
