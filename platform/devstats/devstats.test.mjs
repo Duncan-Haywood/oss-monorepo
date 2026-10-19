@@ -76,7 +76,10 @@ test('github: cycle time, reviews, CI pass rates and iterations before green', a
   const iso = (h) => new Date(NOW - h * 3_600_000).toISOString();
   const routes = [
     [/\/pulls\?state=closed/, [{ number: 1, created_at: iso(10), merged_at: iso(8) }, { number: 2, created_at: iso(6), merged_at: iso(2) }, { number: 3, created_at: iso(5), merged_at: null }]],
-    [/\/pulls\?state=open/, [{ created_at: iso(24 * 9) }, { created_at: iso(1) }]],
+    [/\/pulls\?state=open/, [
+      { number: 7, title: 'Old work', created_at: iso(24 * 9), head: { repo: { full_name: 'o/r' } } },
+      { number: 8, title: 'A fork says hi', created_at: iso(1), head: { repo: { full_name: 'stranger/r' } } },
+    ]],
     [/\/pulls\/1\/reviews/, [{ submitted_at: iso(9) }]],
     [/\/pulls\/2\/reviews/, []],
     [/event=push/, { workflow_runs: [{ name: 'A', conclusion: 'success' }, { name: 'B', conclusion: 'failure' }, { name: 'A', conclusion: 'cancelled' }] }],
@@ -98,6 +101,8 @@ test('github: cycle time, reviews, CI pass rates and iterations before green', a
   assert.equal(gh.pr_cycle_hours.p50, 3);
   assert.deepEqual([gh.first_review_hours.reviewed, gh.first_review_hours.p50], [1, 1]);
   assert.deepEqual([gh.open_prs.count, gh.open_prs.older_than_7d], [2, 1]);
+  // Only this repository's branches are listed by title: a fork's title is anyone's text.
+  assert.deepEqual(gh.open_prs.recent, [{ number: 7, title: 'Old work', draft: false, created_at: iso(24 * 9) }]);
   assert.equal(gh.ci_main.green_share, 0.5);
   assert.deepEqual(gh.ci_main.failing_workflows, [['B', 1]]);
   assert.equal(gh.ci_pr.first_try_green_share, 0.5);

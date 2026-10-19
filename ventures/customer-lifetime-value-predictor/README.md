@@ -20,6 +20,7 @@ and know what a new customer is worth before you buy one**.
   (Gauss hypergeometric series).
 - Gamma-Gamma (Fader & Hardie 2013): shrinks each customer's average repeat order toward the population.
 - Value: monthly expected purchases x predicted order value x margin, discounted. Horizon 6 to 36 months.
+- Cohorts (`cohortRetention`, shown on the page and in the CLI): customers grouped by month of first order, with the share who bought again within 30, 90, 180 and 365 days and revenue per customer in each window. A window is blank until every customer in the cohort has been observable that long.
 - Back-test: refit on data ending 8 to 26 weeks before the last order, predict those weeks, compare, total and by
   repeat-count bucket.
 - Acquisition payback (`paybackCurve`, `--cac` in the CLI, an optional box on the page): type what you pay to win a customer and it shows the month the new-customer running total passes it, the value-to-cost ratio over your horizon, and the most you can pay for a 3:1 return.

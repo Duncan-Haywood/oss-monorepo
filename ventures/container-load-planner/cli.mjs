@@ -11,14 +11,14 @@
 //   node cli.mjs --example                         # run on the built-in invented cargo
 //
 // Cargo file: one line per cargo type, as on the web page:
-//   name, length, width, height, weight, quantity, rotation, highest layer, weight allowed on top
+//   name, length, width, height, weight, quantity, rotation, highest layer, weight allowed on top, delivery stop
 // (only the first five columns are required). Zero dependencies, no network.
 // Same packer as the web page (calc.mjs); a planning aid, not a load-securing certificate.
 
 import { readFile } from "node:fs/promises";
 import process from "node:process";
 import {
-  SYSTEMS, PRESETS, parseCargo, planLoad, verifyPacking, balanceReport, compareOptions, priceOptions, parseRates, fmtInt,
+  SYSTEMS, PRESETS, parseCargo, planLoad, verifyPacking, balanceReport, stopReport, compareOptions, priceOptions, parseRates, fmtInt,
   suggestRestarts, reportCsv, planReportHtml, sampleCargo, pct, fmtNum, wtText, lenText, dimsText,
 } from "./calc.mjs";
 
@@ -42,7 +42,7 @@ Options:
   -h, --help           this message
 
 Cargo lines: name, length, width, height, weight, quantity[, rotation (upright|any|fixed),
-highest layer, weight allowed on top]. Container sizes are nominal; override them.
+highest layer, weight allowed on top, delivery stop]. Container sizes are nominal; override them.
 A heuristic packing for planning, not a load-securing, axle-weight or compliance certificate.
 `;
 
@@ -129,6 +129,8 @@ export function render(res) {
     const bal = balanceReport(cont, lines, c.placements);
     out.push(`  ${String(i + 1).padStart(3)}.  ${String(c.count).padStart(5)} units  ${pct(c.util, 1).padStart(6)} volume  ${wtText(c.weight, sys).padStart(7)} ${sys.wt} (${pct(c.payloadPct)} of payload)`);
     if (!bal.ok) for (const w of bal.warnings) out.push(`         balance: ${w}`);
+    const st = stopReport(lines, c.placements);
+    if (st.used && !st.ok) out.push(`         stops: ${st.blockedUnits} unit${st.blockedUnits === 1 ? "" : "s"} for an earlier stop sit behind cargo for a later one; they cannot come out first.`);
   });
   if (comparison) {
     out.push("", "Other sizes, same cargo", "-".repeat(72), "Option".padEnd(46) + "Containers".padStart(11) + "Avg fill".padStart(9) + "Left out".padStart(10));
@@ -176,7 +178,7 @@ export async function main(argv) {
       packedUnits: plan.packedUnits,
       totalUnits: plan.totalUnits,
       lines: lines.map((l, k) => ({ name: l.name, ordered: l.qty, packed: plan.containers.reduce((s, c) => s + c.counts[k], 0) })),
-      containers: plan.containers.map((c) => ({ units: c.count, utilisation: c.util, weightKg: c.weight, payloadShare: c.payloadPct, balance: balanceReport(plan.container, lines, c.placements), placements: c.placements })),
+      containers: plan.containers.map((c) => ({ units: c.count, utilisation: c.util, weightKg: c.weight, payloadShare: c.payloadPct, balance: balanceReport(plan.container, lines, c.placements), stops: stopReport(lines, c.placements).used ? { blockedUnits: stopReport(lines, c.placements).blockedUnits } : null, placements: c.placements })),
       notices,
       pricing,
       comparison: comparison && comparison.options.map((o) => ({ option: o.label, containers: o.plan.containersNeeded, avgUtilisation: o.plan.avgUtil, unitsLeftOut: o.plan.unfit.reduce((s, u) => s + u.qty, 0) })),

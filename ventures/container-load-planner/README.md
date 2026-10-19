@@ -34,7 +34,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   node cli.mjs --json cargo.csv                # for scripts; add --imperial for inches and pounds
   ```
 
-  Cargo lines are `name, length, width, height, weight, quantity[, rotation, highest layer, weight on top]`; `--example` runs the invented sample.
+  Cargo lines are `name, length, width, height, weight, quantity[, rotation, highest layer, weight on top, delivery stop]`; give lines a stop number (1 is unloaded first) for a multi-drop run and the packer loads the last stop deepest, then reports any unit left behind cargo for a later stop (`stopReport`); `--example` runs the invented sample.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-plan-a-container-load.html` - guide with a worked example that the
   test suite recomputes.

@@ -401,7 +401,10 @@ def test_every_published_tool_is_reachable_by_slug_for() -> None:
             # post counts toward the one `writing` row.
             # `c` is the Tools index at `c/` (every category, plus the
             # browse-by-type pages `c/apps` and `c/cli`).
-            | {"_hub", "c", "c/apps", "c/cli", "about", "compare", "guides", "research", "engineering", "writing", "404", "offline"}
+            # `updates` and `changelog` are the open-book pages (updates.mjs):
+            # what shipped, what is in progress and the direction, each a row.
+            | {"_hub", "c", "c/apps", "c/cli", "about", "compare", "guides", "research", "engineering", "writing",
+               "updates", "changelog", "404", "offline"}
         )
         for page in sorted(out.rglob("*.html")):
             uri = "/" + page.relative_to(out).as_posix()

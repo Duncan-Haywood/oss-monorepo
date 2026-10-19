@@ -32,6 +32,7 @@ export const SITE_NAV = Object.freeze([
   Object.freeze({ id: 'tools', label: 'Tools', href: 'c/' }),
   Object.freeze({ id: 'research', label: 'Research', href: 'research/' }),
   Object.freeze({ id: 'writing', label: 'Writing', href: 'writing/' }),
+  Object.freeze({ id: 'updates', label: 'Updates', href: 'updates/' }),
   Object.freeze({ id: 'deploy', label: 'Deploy your own', href: 'deploy/' }),
   Object.freeze({ id: 'about', label: 'About', href: 'about/' }),
 ]);
@@ -118,6 +119,8 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ['c/', 'All tools by category'],
     ['research/', 'Research'],
     ['writing/', 'Writing'],
+    ['updates/', 'Updates &amp; roadmap'],
+    ['changelog/', 'Changelog'],
     ['guides/', 'Guides'],
     ['compare/', 'Comparisons'],
     ['deploy/', 'Deploy your own copy'],
@@ -128,6 +131,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ['llms.txt', 'llms.txt'],
     ['sitemap.xml', 'Sitemap'],
     ['feed.xml', 'New tools feed'],
+    ['changelog/feed.xml', 'Changelog feed'],
   ];
   return `<p class="pfs-foot">${links
     .map(([href, label]) => `<a href="${esc(`${toRoot}${href}`)}">${label}</a>`)

@@ -27,7 +27,7 @@ test('the header carries every nav item, in order, relative to the page', () => 
   assert.deepEqual(navHrefs(html), SITE_NAV.map((i) => `../../${i.href}`));
   assert.deepEqual(
     SITE_NAV.map((i) => i.label),
-    ['Tools', 'Research', 'Writing', 'Deploy your own', 'About'],
+    ['Tools', 'Research', 'Writing', 'Updates', 'Deploy your own', 'About'],
   );
   // One landmark, labelled, and the section the page is in is marked current.
   assert.equal(html.match(/<nav\b/g).length, 1);
