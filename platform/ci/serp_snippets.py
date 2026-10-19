@@ -12,7 +12,8 @@ Usage:
     python3 platform/ci/serp_snippets.py [--root DIR] [--title-max N]
                                          [--desc-max N] [--top N] [--json]
 
-Exit 0: every page has both. Exit 1: pages missing one (listed).
+Exit 0: every page has both. Exit 1: pages missing one, or with an unescaped
+double quote in a meta content value (listed).
 """
 
 from __future__ import annotations
@@ -29,6 +30,16 @@ TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.S | re.I)
 DESC_RE = re.compile(r"<meta\b(?:[^>\"']|\"[^\"]*\"|'[^']*')*>", re.S | re.I)
 NAME_RE = re.compile(r"\bname=[\"']description[\"']", re.I)
 CONTENT_RE = re.compile(r"content=(\"([^\"]*)\"|'([^']*)')", re.S | re.I)
+
+
+# A closing quote followed by more attribute text means a raw quote inside the
+# value ended it early, and the snippet is cut off at that quote.
+BROKEN_META_RE = re.compile(r"<meta\b[^>]*\bcontent=\"[^\"]*\"[^\s>/][^>]*>", re.I)
+
+
+def broken_meta(page: str) -> bool:
+    """True when a meta tag holds an unescaped double quote in its content."""
+    return bool(BROKEN_META_RE.search(page))
 
 
 def _clean(text: str) -> str:
@@ -55,8 +66,12 @@ def audit(root: Path, title_max: int = 60, desc_max: int = 160) -> dict:
     pages = missing = long_title = long_desc = 0
     per: dict[str, int] = {}
     missing_list: list[str] = []
+    broken_list: list[str] = []
     for f in sorted(ventures.glob("*/*.html")):
-        title, desc = snippet_of(f.read_text(errors="ignore"))
+        text = f.read_text(errors="ignore")
+        if broken_meta(text):
+            broken_list.append(f.relative_to(root).as_posix())
+        title, desc = snippet_of(text)
         pages += 1
         rel = f.relative_to(root).as_posix()
         if title is None or desc is None:
@@ -71,6 +86,7 @@ def audit(root: Path, title_max: int = 60, desc_max: int = 160) -> dict:
     return {
         "pages": pages,
         "missing": missing_list,
+        "broken_meta": broken_list,
         "long_titles": long_title,
         "long_descriptions": long_desc,
         "worst_ventures": sorted(per.items(), key=lambda kv: (-kv[1], kv[0])),
@@ -97,7 +113,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"    {k:3d}  {slug}")
         for m in r["missing"]:
             print(f"MISSING title or description: {m}")
-    return 1 if r["missing"] else 0
+        for m in r["broken_meta"]:
+            print(f"BROKEN meta (unescaped quote, use &quot;): {m}")
+    return 1 if r["missing"] or r["broken_meta"] else 0
 
 
 if __name__ == "__main__":
