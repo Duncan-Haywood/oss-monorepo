@@ -235,6 +235,10 @@
         const winner = result.comparison.betterPlatform === 'upwork' ? 'Upwork' : 'Fiverr';
         verdict.innerHTML = `<strong>${winner}</strong> nets you ${money(Math.abs(result.comparison.gap))} more for this job.`;
       }
+      const breakEven = result.comparison.breakEvenUpworkFeePercent;
+      if (breakEven !== null) {
+        verdict.append(` Upwork nets more whenever its quoted fee is below ${percent(breakEven)} for this job price.`);
+      }
 
       const target = el('target');
       if (result.target === null) {
@@ -257,6 +261,9 @@
       if (result.comparison.betterPlatform !== null) {
         const winner = result.comparison.betterPlatform === 'upwork' ? 'Upwork' : 'Fiverr';
         lines.push(`${winner} nets ${money(Math.abs(result.comparison.gap))} more.`);
+      }
+      if (result.comparison.breakEvenUpworkFeePercent !== null) {
+        lines.push(`Break-even: Upwork nets more whenever its quoted fee is below ${percent(result.comparison.breakEvenUpworkFeePercent)}.`);
       }
       if (result.target) {
         const platformLabel = result.target.targetPlatform === 'upwork' ? 'Upwork' : 'Fiverr';
