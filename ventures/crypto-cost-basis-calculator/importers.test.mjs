@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { detectFormat, convertExchangeCsv, convertMany, krakenAsset, OUT_HEADER } from "./importers.mjs";
+import { detectFormat, convertExchangeCsv, convertMany, krakenAsset, OUT_HEADER, suggestMapping, applyMapping } from "./importers.mjs";
 import { analyze, parseTransactions } from "./calc.mjs";
 
 const COINBASE = `Transactions
@@ -326,4 +326,42 @@ test("Cash App: detected, buys/sales mapped, boost unpriced, failed and cash row
 test("Cash App export feeds the lot matcher end to end", () => {
   const a = analyze(convertExchangeCsv(CASHAPP).csv, { method: "FIFO", year: 2023 });
   assert.ok(a.rows.length > 0);
+});
+
+const BROKER = `Trade Date,Action,Ticker,Coins Moved,Unit Price,Fees
+2023-01-10,Bought,btc,0.5,20000,10
+2023-06-15,Bought,BTC,0.5,30000,15
+2024-09-20,Dividend,BTC,0.01,60000,0
+2024-09-21,Disposed,BTC,-0.6,60000,36
+2024-10-01,Gift,BTC,0.1,60000,0
+`;
+
+test("map your own columns: suggests what it can, applies what the person assigns", () => {
+  assert.equal(detectFormat(BROKER), "generic");
+  const s = suggestMapping(BROKER);
+  assert.equal(s.cols.quantity, undefined); // "Units" is not a known alias
+  assert.deepEqual(s.typeValues, ["Bought", "Dividend", "Disposed", "Gift"]);
+  const mapping = {
+    cols: { date: 0, type: 1, asset: 2, quantity: 3, price: 4, fee: 5 },
+    typeMap: { Bought: "buy", Dividend: "income", Disposed: "sell", Gift: "skip" },
+  };
+  const r = applyMapping(BROKER, mapping);
+  assert.equal(r.csv.split("\n")[0], OUT_HEADER);
+  assert.equal(r.rows.length, 4);
+  assert.deepEqual(r.rows[3], ["2024-09-21", "sell", "BTC", "0.6", "36000", "36", ""]);
+  assert.match(r.notes.join(" "), /1 row marked "skip"/);
+  const a = analyze(r.csv, { method: "FIFO", year: 2024 });
+  assert.deepEqual(a.errors, []);
+  // 0.6 sold at 36000 less 36 fee; basis is the whole first lot (10010) and 0.1 of the second (0.2 x 15015)
+  assert.equal(a.summary.totalGain, 35964 - 10010 - 3003);
+});
+
+test("map your own columns: unassigned types, unreadable rows and missing fields are reported, never zeroed", () => {
+  const r = applyMapping(BROKER, { cols: { date: 0, type: 1, asset: 2, quantity: 3, price: 4 }, typeMap: { Bought: "buy" } });
+  assert.equal(r.rows.length, 2);
+  assert.match(r.notes.join("\n"), /Line 4: type "Dividend" has no meaning/);
+  const bad = applyMapping("d,t,q\nnot a date,b,1\n", { cols: { date: 0, type: 1, quantity: 2, total: 2 }, typeMap: { b: "buy" }, asset: "ETH" });
+  assert.equal(bad.rows.length, 0);
+  assert.match(bad.notes[0], /could not be read/);
+  assert.match(applyMapping(BROKER, { cols: { date: 0 } }).notes[0], /Pick a column for: type, quantity, asset, total or price/);
 });

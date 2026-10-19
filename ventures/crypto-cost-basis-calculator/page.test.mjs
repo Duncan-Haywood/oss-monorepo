@@ -131,3 +131,10 @@ test("the guide page carries the clauses, links both ways, and its worked exampl
 test("the importers make no network calls", () => {
   assert.doesNotMatch(page("importers.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
 });
+
+test("an unrecognised export opens the column mapper, wired to the importers", () => {
+  const html = page("index.html");
+  assert.match(html, /id="mapper"/);
+  assert.match(html, /import \{[^}]*suggestMapping[^}]*applyMapping[^}]*\} from "\.\/importers\.mjs"/);
+  assert.match(html, /Header row is missing/);
+});

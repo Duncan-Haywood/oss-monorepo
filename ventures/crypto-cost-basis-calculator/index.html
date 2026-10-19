@@ -85,6 +85,13 @@
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <p id="form-status" role="status" class="note">Paste or open your transactions, then click Match my lots.</p>
+    <div id="mapper" hidden>
+      <h3>Map your columns</h3>
+      <p class="note">This file is not one of the exchange layouts the page reads. Say which column is which and what each type value means; it is rewritten as the plain format below on this device. Rows you do not map are left out, and a missing USD value is left empty, never zero.</p>
+      <div id="map-cols"></div>
+      <div id="map-types"></div>
+      <button type="button" id="map-apply">Use this mapping</button>
+    </div>
   </section>
 
   <section id="report" class="card" hidden>
@@ -176,7 +183,7 @@
 
   <script type="module">
     import { analyze, form8949Totals, form8949BoxTotals, parsePrices, harvestPlan, waitPlan, planSale, toForm8949Csv, toIncomeCsv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
-    import { convertMany, FORMAT_LABELS } from "./importers.mjs";
+    import { convertMany, FORMAT_LABELS, suggestMapping, applyMapping, MAP_FIELDS, MAP_KINDS } from "./importers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -185,6 +192,50 @@
     const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const rate = (id) => { const v = Number($(id).value); return Number.isFinite(v) && v >= 0 && v <= 100 ? v / 100 : null; };
     let last = null;
+
+    // Column mapper for a file no exchange reader recognises.
+    const mapper = $("#mapper");
+    let mapSource = "";
+    const FIELD_LABELS = { date: "Date", type: "Type (buy, sell...)", asset: "Asset / coin", quantity: "Quantity", total: "Total USD", price: "Price per coin USD", fee: "Fee USD", wallet: "Wallet / account" };
+    const KIND_LABELS = { buy: "Buy", sell: "Sell", income: "Income (staking, airdrop...)", transfer: "Transfer between wallets", skip: "Leave out" };
+    function drawMapper(sug) {
+      const opts = (sel) => '<option value="">(none)</option>' + sug.headers.map((h, i) => `<option value="${i}"${sel === i ? " selected" : ""}>${esc(h || "column " + (i + 1))}</option>`).join("");
+      $("#map-cols").innerHTML = MAP_FIELDS.map((f) => `<div><label for="map-${f}">${FIELD_LABELS[f]}</label><select id="map-${f}" data-field="${f}">${opts(sug.cols[f])}</select></div>`).join("");
+      $("#map-types").innerHTML = sug.typeValues.length
+        ? "<h4>What each type value means</h4>" + sug.typeValues.map((v, i) => `<div><label for="map-type-${i}">${esc(v)}</label><select id="map-type-${i}" data-value="${esc(v)}">${MAP_KINDS.map((k) => `<option value="${k}"${sug.typeMap[v] === k ? " selected" : ""}>${KIND_LABELS[k]}</option>`).join("")}</select></div>`).join("")
+        : '<p class="note">Pick the Type column above and its values appear here.</p>';
+    }
+    function openMapper(text) {
+      const sug = suggestMapping(text);
+      if (!sug) return false;
+      mapSource = text;
+      drawMapper(sug);
+      mapper.hidden = false;
+      return true;
+    }
+    $("#map-cols").addEventListener("change", (e) => {
+      if (e.target.dataset.field !== "type") return;
+      const cur = {};
+      for (const el of document.querySelectorAll("#map-cols select")) if (el.value !== "") cur[el.dataset.field] = Number(el.value);
+      const sug = suggestMapping(mapSource, e.target.value === "" ? undefined : Number(e.target.value));
+      if (!sug) return;
+      sug.cols = cur;
+      drawMapper(sug);
+    });
+    $("#map-apply").addEventListener("click", () => {
+      const cols = {};
+      for (const el of document.querySelectorAll("#map-cols select")) if (el.value !== "") cols[el.dataset.field] = Number(el.value);
+      const typeMap = {};
+      for (const el of document.querySelectorAll("#map-types select")) typeMap[el.dataset.value] = el.value;
+      const r = applyMapping(mapSource, { cols, typeMap });
+      if (!r.rows.length) { status.textContent = r.notes[0] || "No rows could be read with this mapping."; return; }
+      $("#csv").value = r.csv;
+      mapper.hidden = true;
+      $("#notices").innerHTML = r.notes.slice(0, 8).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      report.hidden = !r.notes.length;
+      record("columns_mapped");
+      status.textContent = `Mapped ${r.rows.length} rows on this device. Check them, then click Match my lots.`;
+    });
 
     function run() {
       const shortRate = rate("#shortRate"), longRate = rate("#longRate");
@@ -201,6 +252,7 @@
       if ((magi !== null && (!Number.isFinite(magi) || magi < 0)) || !Number.isFinite(otherNii)) { status.textContent = "Enter other income as a dollar amount, or leave it blank."; return false; }
       const r = analyze($("#csv").value, { method: $("#method").value, year, perWallet: $("#perWallet").checked, shortRate, longRate, carryShort, carryLong, lossLimit: Number($("#lossLimit").value), magi, otherNii, filing: $("#filing").value });
       const notices = [...(pre.formats[0] !== "generic" ? pre.notes : []), ...r.errors, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`);
+      if (!r.summary && pre.formats[0] === "generic" && r.errors.some((e) => e.startsWith("Header row is missing")) && openMapper($("#csv").value)) { status.textContent = "This layout is not recognised: map its columns below."; return false; }
       if (!r.summary) { $("#notices").innerHTML = notices.join(""); report.hidden = false; $("#big").innerHTML = ""; $("#verdict").textContent = ""; for (const t of ["#ct", "#nt", "#rt", "#tt", "#it", "#ht"]) $(t + " tbody").innerHTML = ""; status.textContent = "Fix the rows listed in the result and run it again."; return false; }
       last = r;
       const years = r.years.map((y) => `<option value="${y}"${y === r.year ? " selected" : ""}>${y}</option>`).join("");
@@ -293,9 +345,11 @@
       const found = conv.formats.filter((f) => f !== "generic").map((f) => FORMAT_LABELS[f]);
       $("#notices").innerHTML = conv.notes.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       report.hidden = !conv.notes.length;
+      mapper.hidden = true;
+      if (conv.formats.length === 1 && conv.formats[0] === "generic" && analyze(conv.csv, {}).errors.some((e) => e.startsWith("Header row is missing")) && openMapper(conv.csv)) { status.textContent = "Read the file on this device, but its layout is not recognised: map its columns below."; return; }
       status.textContent = `Read ${list.length} file${list.length > 1 ? "s" : ""} on this device` + (found.length ? ` (converted: ${found.join(", ")})` : "") + ". Check the rows, then click Match my lots.";
     });
-    $("#clear-all").addEventListener("click", () => { $("#csv").value = ""; report.hidden = true; last = null; status.textContent = "Paste or open your transactions, then click Match my lots."; });
+    $("#clear-all").addEventListener("click", () => { $("#csv").value = ""; mapper.hidden = true; report.hidden = true; last = null; status.textContent = "Paste or open your transactions, then click Match my lots."; });
     $("#download").addEventListener("click", () => {
       if (!last) return;
       const a = document.createElement("a");
