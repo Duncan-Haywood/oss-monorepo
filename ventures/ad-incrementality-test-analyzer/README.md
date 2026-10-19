@@ -23,6 +23,13 @@ spend paid back**, which used to take a marketing-science vendor or an analyst w
 - Refuses: fewer than 14 pre or 3 post periods, unknown test names, no comparison region. Flags poor pre-fit
   (R² under 0.5) as unreliable, one region carrying over 80% of the counterfactual, and few placebo windows.
 
+## Test planner
+
+Before you spend: paste your history (no campaign yet), name the planned test regions, optionally enter the lift you hope
+to detect, and click **Plan a test instead**. It replays the placebo method for campaign lengths of 7 to 42 periods and
+shows the smallest lift each length could tell from noise, and the shortest length that reaches your target. Use history
+without a campaign in it; any past campaign inside it inflates the noise estimate.
+
 ## Limits
 
 Spillover between regions, region-specific promotions and stock-outs, slow-ramping effects and long-run brand effects

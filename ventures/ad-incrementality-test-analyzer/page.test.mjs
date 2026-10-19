@@ -84,7 +84,7 @@ test("page documents the rules and what it leaves out", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["analysis_run", "example_loaded", "file_loaded", "report_downloaded"]) {
+  for (const e of ["analysis_run", "example_loaded", "file_loaded", "report_downloaded", "plan_run"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }

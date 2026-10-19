@@ -74,13 +74,22 @@
       <div><label for="start">Campaign start date</label><input id="start" placeholder="YYYY-MM-DD"></div>
       <div><label for="spend">Ad spend in the test regions (optional)</label><input id="spend" inputmode="decimal" placeholder="total over the campaign"></div>
       <div><label for="margin">Gross margin % (optional)</label><input id="margin" inputmode="decimal" placeholder="e.g. 40"></div>
+      <div><label for="target">Lift you hope to detect, % (test planning only)</label><input id="target" inputmode="decimal" placeholder="e.g. 5"></div>
       <div><label for="kind">What are the values?</label><select id="kind"><option value="revenue">Revenue (dollars)</option><option value="orders">Orders or conversions (counts)</option></select></div>
     </div>
     <p class="note">Every region needs a value on every date (use 0 when nothing sold). Use one period length throughout, daily or weekly. Regions not named as test regions are the comparison group and should have had no campaign. At least 14 periods before the start, 3 after, and one comparison region are needed.</p>
     <button type="button" id="analyze">Measure lift</button>
+    <button type="button" class="secondary" id="plan">Plan a test instead</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <p id="form-status" role="status" class="note">Upload or paste your table, name the test regions and the start date, then click Measure lift.</p>
+  </section>
+
+  <section id="plan-report" class="card" hidden>
+    <h2>Test plan: how long must the campaign run?</h2>
+    <p class="note">Uses only your history, as if no campaign had run. Name the test regions above (no start date needed). For each campaign length it shows the smallest lift the test could tell from noise.</p>
+    <div id="plan-note" class="warn"></div>
+    <div class="scroll"><table id="plan-table"><thead><tr><th class="n">Campaign length (periods)</th><th class="n">Smallest detectable lift</th><th class="n">Placebo windows</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <section id="report" class="card" hidden>
@@ -127,14 +136,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the data you supply; they do not guarantee what a future campaign will earn. You are responsible for reviewing and verifying its output before you act on it.</p>
     <p><strong>Independent.</strong> Not affiliated with any advertising, analytics or e-commerce vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>, <code>plan_run</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>, the <a href="../customer-lifetime-value-predictor/">customer lifetime value predictor</a> and the <a href="../sales-seasonality-forecaster/">sales seasonality forecaster</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseTable, analyze, reportCsv, sampleText, num, money, pct } from "./calc.mjs";
+    import { parseTable, analyze, planTest, reportCsv, sampleText, num, money, pct } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -190,7 +199,24 @@
       return true;
     }
 
-    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#analyze").addEventListener("click", () => { $("#plan-report").hidden = true; if (run()) record("analysis_run"); });
+    function plan() {
+      const panel = parseTable($("#rows").value);
+      if (panel.error) { status.textContent = panel.error; return false; }
+      const p = planTest(panel, { testUnits: $("#tests").value.split(","), targetLift: $("#target").value.trim() === "" ? null : $("#target").value });
+      if (p.error) { status.textContent = p.error; $("#plan-report").hidden = true; return false; }
+      report.hidden = true;
+      $("#plan-table tbody").innerHTML = p.rows.map((r) => `<tr><td class="n">${r.periods}</td><td class="n">${pct(r.mde)}</td><td class="n">${r.windows}</td></tr>`).join("");
+      $("#plan-note").textContent = p.target === null
+        ? "Enter a target lift to see the shortest campaign that could detect it."
+        : p.shortest !== null ? `A campaign of ${p.shortest} periods is the shortest that could detect a ${pct(p.target)} lift on this history. Run it at least that long.`
+        : `None of the lengths tried could detect a ${pct(p.target)} lift on this history. Use more or steadier comparison regions, run the campaign longer, or aim for a bigger effect.`;
+      $("#plan-report").hidden = false;
+      status.textContent = "Test plan ready.";
+      $("#plan-report").scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#plan").addEventListener("click", () => { if (plan()) record("plan_run"); });
     $("#load-example").addEventListener("click", () => {
       $("#rows").value = sampleText();
       $("#tests").value = "Austin, Denver"; $("#start").value = "2026-03-02"; $("#spend").value = "20000"; $("#margin").value = "35"; $("#kind").value = "revenue";
@@ -202,7 +228,7 @@
       rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Name the test regions and start date, then click Measure lift.`; };
       rd.readAsText(f);
     });
-    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your table, name the test regions and the start date, then click Measure lift."; });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; $("#plan-report").hidden = true; last = null; status.textContent = "Upload or paste your table, name the test regions and the start date, then click Measure lift."; });
     $("#download").addEventListener("click", () => {
       if (!last) return;
       const a = document.createElement("a");
