@@ -1798,6 +1798,11 @@
      "summary": "Using the measured ASR, LLM and TTS times from <em>ambient-pipeline</em> (a 682 ms median chain on one server CPU, six synthetic utterances), the reply pipeline starts after S ms of silence instead of after the full end-of-speech hangover H and the reply is held until H confirms the turn is over. Holding saves exactly min(chain, H &minus; S): at H = 1000 ms the median reply falls from 1744 to 1061 ms, at the price of 0.7 to 1.9 extra pipeline runs per turn depending on S, and the just-in-time start S = H &minus; chain is the cheapest that hides everything. Pause durations inside a turn are <strong>assumed</strong> (five lognormal settings, not data); with median 400 ms pauses no hangover up to 1.2 s keeps cut-offs under 10%. Closed forms agree with a Monte Carlo check."
     },
     {
+     "slug": "ambient-semend",
+     "title": "Can a sentence-completeness cue let an always-on assistant stop waiting so long before it replies?",
+     "summary": "A stylised signal-detection model: the endpointer waits a short hangover Hs after a sentence the cue calls complete and a longer Hl otherwise. With medium pauses (2 per turn, median 250 ms, assumed) and a 10% cut-off budget, a fixed hangover is 913 ms; a cue of quality d = 2 cuts the mean wait to 574 ms if no pause sits at a complete point, but only to 837 ms if half of them do, because the cue is blind to those. With long or widely spread pauses, where a fixed hangover is 1.9 to 2.6 s at a 5% budget, d = 3 gives 571 to 873 ms. The cue, the pause model and the share of clause-boundary pauses are <strong>assumed</strong>, not measured; only the 682 ms reply chain is measured. Closed forms agree with a Monte Carlo check."
+    },
+    {
      "slug": "ambient-rechime",
      "title": "When is a second or third earbud tone worth it before a glance?",
      "summary": "A stylised extension of the urgency model lets the assistant repeat a tone up to four times, 3 s apart, each noticed independently and cancelled once the wearer looks. Choosing the number of tones per context raises mean utility per message from 0.387 (plain glance or one tone) to 0.409; two tones give most of it, and the gain is nil for low urgency and 0.062 for high urgency (partly built in by the weights). Always repeating is barely better than one tone. A Monte Carlo check agrees with the closed form to 0.002. Tones are assumed independent and annoyance flat per tone, and every parameter is a round figure of mine: nothing is fitted or measured."
@@ -2220,6 +2225,11 @@
      "slug": "simdesign-retry",
      "title": "Does rolling back a robust topology-optimisation step that spikes compliance, and redoing it at half the move, beat shrinking the move afterwards?",
      "summary": "Follow-up to <code>simdesign-robustadapt</code>. The same nine robust half-MBB cases are run with five move-limit rules (45 deterministic runs): fixed 0.2, 0.1, 0.05, the earlier adaptive rule, and reject-and-retry, which discards a step whose worst-case compliance jumps more than 3&times; and redoes it at half the move. Blueprint failures: fixed 0.2, 5 of 9; adaptive, 2; retry, 1; fixed 0.1 and 0.05, none. Retry costs at most 2% more evaluations but never beat fixed 0.05, and on eroded-design quality it is 1.22&times; the best on average (fixed 0.1 hides one eroded design 25&times; worse that the blueprint test passes). Stylised: 2D dimensionless, one problem, one run per cell."
+    },
+    {
+     "slug": "simdesign-stuck",
+     "title": "Can penalty continuation free SIMP topology-optimisation starts that stay stuck in a different local optimum?",
+     "summary": "Follow-up to <code>simdesign-startsconverge</code>. Half-MBB 60&times;20, p = 3: after 1200 iterations 5 of 20 random starts still differ from the uniform-start design in at least 1% of elements. Penalty continuation (p = 1, 2, 3) frees none of them: all five collapse onto one design, 20.4% different from the uniform-start one, with compliance 204.01 versus 203.29 for the uniform start. Simply running 1200 more iterations at p = 3 takes three of them to 202.83, about 0.6% better than continuation. Stylised: 2D, dimensionless compliance, one mesh, 20 seeds."
     },
     {
      "slug": "simdesign-startsconverge",
@@ -3182,6 +3192,11 @@
      "slug": "mimic-blackbox",
      "title": "How many detector queries does an imitator need to evade a human-vs-machine text detector it cannot read?",
      "summary": "The word 1-2 gram detector of <code>mimic-whitebox</code> (held-out AUROC 0.948) is attacked by an imitator that sees only the score of each text it submits. It deletes each of Q candidate word types in turn, reads the score drop and removes the k largest. With k=20, 25 queries per text give AUROC 0.873, 50 give 0.722 and about 95 give 0.520, against 0.487 for the white-box attack that reads the weights; blind deletion (0 queries) changes nothing. Stylised and preliminary: a linear detector, one seed, no fluency check on the edited text, and no retraining of the detector against the attack."
+    },
+    {
+     "slug": "mimic-retrain",
+     "title": "Does refitting a human-vs-machine text detector on attacked text stop a black-box evader?",
+     "summary": "A black-box attacker with 50 score queries per text takes the <code>mimic-whitebox</code> word 1-2 gram detector from held-out AUROC 0.948 to 0.719. Refitting the detector on attacked training texts and letting the attacker re-attack settles after one round: AUROC on freshly attacked text stays near 0.81 over four rounds, while clean-text AUROC falls to about 0.90. Edits made against the original detector transfer to the refit ones at 0.85. Stylised: linear detector, one seed, no fluency check, no LLM run."
     },
     {
      "slug": "mimic-genshift",

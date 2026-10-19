@@ -47,6 +47,7 @@ export function detectFormat(text) {
   if (findHeader(grid, ["trade id", "product", "side", "created at", "size", "price", "fee"]) >= 0) return "coinbasepro";
   if (findHeader(grid, ["txid", "refid", "time", "type", "asset", "amount", "fee"]) >= 0) return "kraken";
   if (findHeader(grid, ["time", "operation", "primary asset"]) >= 0) return "binanceus";
+  if (findHeader(grid, ["date utc", "pair", "side", "price", "executed", "amount", "fee"]) >= 0) return "binance";
   if (findHeader(grid, ["type", "datetime", "account", "amount", "value", "rate", "fee", "sub type"]) >= 0) return "bitstamp";
   return "generic";
 }
@@ -545,16 +546,82 @@ function importRobinhood(grid) {
   return { format: "robinhood", rows: out, notes };
 }
 
+// ---- Binance (global spot trade history) -------------------------------------
+//
+// Columns: Date(UTC), Pair, Side, Price, Executed, Amount, Fee. Executed, Amount
+// and Fee carry the coin as a suffix ("0.5BTC", "30000USDT"). A pair quoted in a
+// dollar stablecoin is priced 1:1 with USD (disclosed in the notes); a pair
+// quoted in another coin is a coin-for-coin swap, written as a sale of one and a
+// purchase of the other with the total left empty, as for Kraken. A fee paid in
+// BNB or any coin that is neither side of the pair is left at 0 and counted.
+
+const BN_USD = new Set(["USD", "USDT", "USDC", "BUSD", "FDUSD", "TUSD", "USDP", "DAI"]);
+const BN_QUOTES = ["FDUSD", "USDT", "USDC", "BUSD", "TUSD", "USDP", "DAI", "USD", "BTC", "ETH", "BNB", "EUR", "GBP", "TRY", "BRL", "AUD", "JPY"];
+const bnSplit = (raw) => {
+  const m = String(raw ?? "").replace(/,/g, "").trim().match(/^(-?[0-9]*\.?[0-9]+(?:e[+-]?[0-9]+)?)\s*([A-Za-z0-9]+)$/i);
+  return m ? { n: Number(m[1]), coin: m[2].toUpperCase() } : null;
+};
+
+function importBinance(grid) {
+  const h = findHeader(grid, ["date utc", "pair", "side", "price", "executed", "amount", "fee"]);
+  const names = grid[h].map(norm);
+  const ix = (n) => names.indexOf(n);
+  const c = { date: ix("date utc"), pair: ix("pair"), side: ix("side"), exec: ix("executed"), amt: ix("amount"), fee: ix("fee") };
+  const out = [], notes = [];
+  let stable = 0, swaps = 0, feeLeft = 0, fiat = 0;
+  for (let i = h + 1; i < grid.length; i++) {
+    const r = grid[i];
+    const g = (k) => r[c[k]] ?? "";
+    if (!g("pair") || !g("date")) continue;
+    const side = norm(g("side"));
+    const date = parseDate(g("date"));
+    const exec = bnSplit(g("exec")), amt = bnSplit(g("amt"));
+    const pair = g("pair").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const quote = BN_QUOTES.find((q) => pair.endsWith(q) && pair.length > q.length);
+    const base = quote ? pair.slice(0, -quote.length) : "";
+    if (!date || !exec || !amt || (side !== "buy" && side !== "sell") || !quote || exec.coin !== base || amt.coin !== quote) {
+      notes.push(`Line ${i + 1}: Binance row for "${g("pair")}" could not be read and was skipped.`);
+      continue;
+    }
+    const qty = Math.abs(exec.n), cost = Math.abs(amt.n);
+    const fee = bnSplit(g("fee"));
+    let feeUsd = 0;
+    if (fee && fee.n) {
+      if (BN_USD.has(fee.coin) && BN_USD.has(quote)) feeUsd = Math.abs(fee.n);
+      else if (fee.coin === base && BN_USD.has(quote)) feeUsd = Math.abs(fee.n) * (qty ? cost / qty : 0);
+      else if (fee.coin === quote && BN_USD.has(quote)) feeUsd = Math.abs(fee.n);
+      else feeLeft++;
+    }
+    if (BN_USD.has(quote)) {
+      stable++;
+      out.push([date, side, base, fmt(qty), fmt(cost), fmt(feeUsd), "Binance"]);
+    } else if (["EUR", "GBP", "TRY", "BRL", "AUD", "JPY"].includes(quote)) {
+      fiat++;
+      out.push([date, side, base, fmt(qty), "", "0", "Binance"]);
+    } else {
+      swaps++;
+      out.push([date, side, base, fmt(qty), "", "0", "Binance"]);
+      out.push([date, side === "buy" ? "sell" : "buy", quote, fmt(cost), "", "0", "Binance"]);
+    }
+  }
+  if (stable) notes.push(`${stable} Binance row${stable > 1 ? "s" : ""} quoted in a dollar stablecoin (USDT, USDC, BUSD and similar) were priced at $1 per coin. A stablecoin that traded off its peg will be slightly off; check the dates that matter.`);
+  if (swaps) notes.push(`${swaps} Binance coin-for-coin trade${swaps > 1 ? "s" : ""} became a sale and a purchase with an empty total. Fill each in with the USD value that day.`);
+  if (fiat) notes.push(`${fiat} Binance row${fiat > 1 ? "s" : ""} quoted in a non-USD currency left with an empty total. Fill each in with the USD value that day.`);
+  if (feeLeft) notes.push(`${feeLeft} Binance row${feeLeft > 1 ? "s" : ""} paid a fee in BNB or another coin; the fee was left at 0 because the export carries no USD value for it.`);
+  notes.push("Binance: written from the published column layout, not checked against a real account. Binance.com is not open to US residents; the tool estimates US-style gains.");
+  return { format: "binance", rows: out, notes };
+}
+
 // ---- entry points ---------------------------------------------------------
 
-export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", coinbasepro: "Coinbase Pro / Advanced Trade fills", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", koinly: "Koinly universal CSV", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", bitstamp: "Bitstamp transaction export", cashapp: "Cash App account activity", robinhood: "Robinhood account activity", generic: "plain CSV" };
+export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", coinbasepro: "Coinbase Pro / Advanced Trade fills", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", binance: "Binance spot trade history", koinly: "Koinly universal CSV", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", bitstamp: "Bitstamp transaction export", cashapp: "Cash App account activity", robinhood: "Robinhood account activity", generic: "plain CSV" };
 
 // Returns { format, csv, notes }. A generic file comes back unchanged.
 export function convertExchangeCsv(text) {
   const format = detectFormat(text);
   if (format === "generic") return { format, csv: String(text ?? ""), notes: [] };
   const grid = parseCsv(text);
-  const r = format === "coinbase" ? importCoinbase(grid) : format === "coinbasepro" ? importCoinbasePro(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "koinly" ? importKoinly(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : format === "bitstamp" ? importBitstamp(grid) : format === "cashapp" ? importCashApp(grid) : format === "robinhood" ? importRobinhood(grid) : importKraken(grid);
+  const r = format === "coinbase" ? importCoinbase(grid) : format === "coinbasepro" ? importCoinbasePro(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "binance" ? importBinance(grid) : format === "koinly" ? importKoinly(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : format === "bitstamp" ? importBitstamp(grid) : format === "cashapp" ? importCashApp(grid) : format === "robinhood" ? importRobinhood(grid) : importKraken(grid);
   return { format, csv: toCsv(r.rows), notes: r.notes, count: r.rows.length };
 }
 

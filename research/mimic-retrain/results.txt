@@ -1,0 +1,7 @@
+train 3000, held-out 1800 (900 machine); attacker Q=50 queries/text, k=20 types deleted
+round   clean  attacked  stale r0 attack  mean queries
+    0   0.948     0.719            0.719          50.9
+    1   0.925     0.809            0.862          50.9
+    2   0.899     0.798            0.854          50.9
+    3   0.897     0.805            0.853          50.9
+    4   0.898     0.809            0.852          50.9

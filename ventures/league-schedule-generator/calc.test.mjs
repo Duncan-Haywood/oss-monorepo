@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
-  scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
 } from "./calc.mjs";
 
@@ -366,7 +366,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "", rounds: "" });
@@ -1766,4 +1766,46 @@ test("parseLinkedTeams and share link", () => {
   assert.deepEqual(r.groups, [[0, 1]]);
   assert.match(r.errors[0], /^Linked teams:/);
   assert.equal(decodeFields(encodeFields({ ...sampleFields(), linked: "Team 1, Team 2" })).linked, "Team 1, Team 2");
+});
+
+// ---------------------------------------------------------------- court closures
+
+test("parseCourtClosures reads dates and ranges per court and reports bad lines", () => {
+  const r = parseCourtClosures("court 2: 2026-11-03, 2026-11-10 to 2026-11-12\nCourt 9: 2026-11-03\nCourt 1: soon\nnonsense", ["Court 1", "Court 2"]);
+  assert.deepEqual(r.closures, { "Court 2": [D("2026-11-03"), D("2026-11-10"), D("2026-11-11"), D("2026-11-12")] });
+  assert.equal(r.errors.length, 3);
+});
+
+test("a closed court is never used that night, the schedule stays valid, and a share link keeps it", () => {
+  const closedDay = D("2026-10-13");
+  const { spec, errors } = readSpec({ ...LIMIT_BASE, courtClosures: "Court 2: 2026-10-13" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  const night = s.rounds.find((r) => r.day === closedDay);
+  assert.ok(night.matches.length > 0);
+  for (const m of night.matches) assert.notEqual(m.court, "Court 2");
+  assert.equal(validateSchedule(s).ok, true, validateSchedule(s).errors.join(" "));
+  const f = { ...sampleFields(), courtClosures: "Court 2: 2026-10-13" };
+  assert.equal(decodeFields(encodeFields(f)).courtClosures, "Court 2: 2026-10-13");
+});
+
+test("when too few courts are open, the overflow moves to a makeup round and every pair still meets once", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD\nE\nF", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2, Court 3", courtClosures: "Court 2: 2026-10-13\nCourt 3: 2026-10-13" });
+  const s = buildSchedule(spec);
+  const night = s.rounds.find((r) => r.day === D("2026-10-13"));
+  assert.equal(night.matches.length, 1);
+  assert.ok(s.rounds.some((r) => r.makeup));
+  assert.ok(s.notices.some((n) => n.includes("court slot")));
+  assert.equal(validateSchedule(s).ok, true, validateSchedule(s).errors.join(" "));
+});
+
+test("a rainout is never moved onto a closed court, and the validator flags a booking on one", () => {
+  const { spec } = readSpec({ ...LIMIT_BASE, courtClosures: "Court 1: 2026-10-20\nCourt 2: 2026-10-20" });
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.find((r) => r.day === D("2026-10-20")), undefined);
+  const r = applyRainouts(s, `${dayIso(s.rounds[0].day)} Team`.replace("Team", "A"));
+  assert.ok(r.moves.every((m) => m.to !== D("2026-10-20")));
+  const bad = buildSchedule(readSpec({ ...LIMIT_BASE, courtClosures: "Court 2: 2026-10-13" }).spec);
+  bad.rounds.find((x) => x.day === D("2026-10-13")).matches[0].court = "Court 2";
+  assert.ok(validateSchedule(bad).errors.some((e) => e.includes("is closed")));
 });

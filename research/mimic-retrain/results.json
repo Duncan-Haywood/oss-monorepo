@@ -1,0 +1,44 @@
+{
+ "n_train": 3000,
+ "n_held": 1800,
+ "n_machine_held": 900,
+ "q": 50,
+ "k": 20,
+ "rows": [
+  {
+   "round": 0,
+   "clean": 0.9478024691358026,
+   "attacked": 0.7190543209876543,
+   "stale_round0_attack": 0.7190543209876543,
+   "queries_mean": 50.91555555555556
+  },
+  {
+   "round": 1,
+   "clean": 0.9252641975308642,
+   "attacked": 0.8085481481481481,
+   "stale_round0_attack": 0.8619395061728395,
+   "queries_mean": 50.91555555555556
+  },
+  {
+   "round": 2,
+   "clean": 0.8992320987654321,
+   "attacked": 0.7977888888888889,
+   "stale_round0_attack": 0.8536962962962962,
+   "queries_mean": 50.91555555555556
+  },
+  {
+   "round": 3,
+   "clean": 0.896853086419753,
+   "attacked": 0.805367901234568,
+   "stale_round0_attack": 0.8531716049382715,
+   "queries_mean": 50.91555555555556
+  },
+  {
+   "round": 4,
+   "clean": 0.8982592592592592,
+   "attacked": 0.8087555555555554,
+   "stale_round0_attack": 0.8524950617283951,
+   "queries_mean": 50.91555555555556
+  }
+ ]
+}
