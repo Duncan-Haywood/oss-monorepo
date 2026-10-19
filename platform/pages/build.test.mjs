@@ -4524,7 +4524,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, /compare/, /research/ and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, /compare/, /research/, updates, the changelog and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4538,6 +4538,8 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, /co
     `${BASE}about/`,
     `${BASE}${COMPARE_PATH}`,
     `${BASE}${RESEARCH_PATH}`,
+    `${BASE}updates/`,
+    `${BASE}changelog/`,
     `${BASE}${GUIDES_PATH}`,
   ]);
 
