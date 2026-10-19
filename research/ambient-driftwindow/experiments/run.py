@@ -5,7 +5,7 @@ from ambient_driftwindow import (block_counts, rate_curve, log_rate_fit, drift_p
                                  fano, fano_ci, fano_theory, framelevel_window_counts)
 
 PHI, M, BLOCK = 0.9, 3, 10_000            # AR(1) score correlation, frames in a row, frames per block (100 s of 10 ms)
-GRID = np.linspace(-0.45, 0.45, 19)       # log-scale grid for the rate curve
+GRID = np.linspace(-0.45, 0.45, 19)       # log-scale grid for the rate curve; drift beyond it is clipped (4.5 sigma at 0.1)
 KS = (1, 4, 16, 64, 256, 1024)            # blocks per window
 NB = 2_000_000                            # Cox-level blocks per cell
 

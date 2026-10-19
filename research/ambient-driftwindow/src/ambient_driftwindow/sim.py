@@ -7,7 +7,7 @@ frames, with x an AR(1) process across blocks (marginal sd sigma, lag-1 correlat
 Two levels of model:
   * frame level (`framelevel_window_counts`): simulate every frame. Exact for the model, slow.
   * Cox level (`cox_counts`): measure the mean wakes per block as a function of the scale once at frame level
-    (`rate_curve`), fit log-rate as a quadratic in log-scale, then draw each block's count as Poisson(rate(scale)).
+    (`rate_curve`), interpolate log-rate in log-scale, then draw each block's count as Poisson(rate(scale)).
     This assumes counts are Poisson given the scale; the frame-level run is the check on that assumption.
 """
 import math
@@ -66,10 +66,13 @@ def rate_curve(theta, phi, m, block, grid, blocks_per_point, seed, group=400):
     return np.asarray(out)
 
 
-def log_rate_fit(grid, rates):
-    """Quadratic fit of log(rate) in log-scale. Returns a function rate(x)."""
-    c = np.polyfit(grid, np.log(rates), 2)
-    return lambda x: np.exp(np.polyval(c, x))
+def log_rate_fit(grid, rates, floor=1e-5):
+    """Piecewise-linear interpolation of log(rate) in log-scale, held constant beyond the grid (a quadratic fit was
+    tried first: the log-rate is not quadratic over +-0.45 and it extrapolated to absurd rates in the tails).
+    Returns a function rate(x)."""
+    grid = np.asarray(grid, dtype=float)
+    lr = np.log(np.maximum(np.asarray(rates, dtype=float), floor))
+    return lambda x: np.exp(np.interp(x, grid, lr))
 
 
 def drift_path(n, sigma, tau, rng):
