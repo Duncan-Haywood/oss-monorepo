@@ -129,6 +129,16 @@ class DeepenTests(unittest.TestCase):
         self.assertEqual(run(False), (False, 1))
         self.assertEqual(run(True), (True, 3))  # rev-parse, git log, fetch
 
+    def test_fetch_timeout_returns_false_instead_of_blocking(self):
+        import subprocess
+        from unittest import mock
+        def fake(cmd, **kw):
+            if "fetch" in cmd:
+                raise subprocess.TimeoutExpired(cmd, kw["timeout"])
+            return mock.Mock(stdout="true" if "rev-parse" in cmd else "9999999999\n", returncode=0)
+        with mock.patch("allocate.subprocess.run", side_effect=fake):
+            self.assertFalse(deepen_to_window(7))
+
     def test_skips_fetch_when_history_already_reaches_window(self):
         from unittest import mock
         def fake(cmd, **kw):

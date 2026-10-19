@@ -26,7 +26,7 @@
     <div class="eyebrow">FOR FREELANCERS AND SMALL SERVICE FIRMS</div>
     <h1>Price the wait, not just the work.</h1>
     <p>Calculate an invoice due date, see when the cash actually lands once your client's payment run is taken into account, what 30, 60, or 90 days of delay costs, whether a 2/10 Net 30 discount still beats waiting, and whether factoring still beats waiting after your carrying cost. Before the first invoice, it also prices the billing schedule.</p>
-    <p class="fine"><a href="should-i-offer-2-10-net-30.html">Should I offer 2/10 Net 30?</a> · <a href="should-i-factor-this-invoice.html">Should I factor this invoice?</a> · <a href="chasing-a-late-invoice.html">Already overdue? Wait, chase, settle, or collections</a> &middot; <a href="should-i-ask-for-a-deposit.html">Should I ask for a deposit?</a> &middot; <a href="vs-quickbooks-online-invoicing.html">vs. QuickBooks Online invoicing</a> &middot; <a href="vs-spreadsheet.html">vs. a spreadsheet</a> &middot; <a href="vs-freshbooks.html">vs. FreshBooks</a></p>
+    <p class="fine"><a href="should-i-offer-2-10-net-30.html">Should I offer 2/10 Net 30?</a> · <a href="should-i-factor-this-invoice.html">Should I factor this invoice?</a> · <a href="chasing-a-late-invoice.html">Already overdue? Wait, chase, settle, or collections</a> &middot; <a href="should-i-ask-for-a-deposit.html">Should I ask for a deposit?</a> &middot; <a href="vs-quickbooks-online-invoicing.html">vs. QuickBooks Online invoicing</a> &middot; <a href="uk-late-payment-interest.html">UK late payment interest</a> &middot; <a href="vs-spreadsheet.html">vs. a spreadsheet</a> &middot; <a href="vs-freshbooks.html">vs. FreshBooks</a></p>
   </header>  <main class="layout">
     <section>
       <h2>Invoice and cash-flow assumptions</h2>
@@ -116,6 +116,7 @@
       <p id="copyText"></p>
       <div class="actions">
         <button id="copy" type="button">Copy payment terms</button>
+        <button id="downloadCalendar" type="button">Add dates to calendar (.ics)</button>
         <button id="reset" type="button">Reset</button>
       </div>
       <p id="status" class="note" role="status" aria-live="polite"></p>
@@ -216,6 +217,7 @@
     import { reminderSchedule, reminderIcs } from './reminders.mjs';
     import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
+    import { buildCalendar } from './calendar.mjs';
     const ids = ['amount','invoiceDate','termsDays','annualLateRate','graceDays','monthlyBurn','outstanding','earlyPayDays','earlyPayDiscountPct','annualCarryRate','takeRatePct','factorFeePct','advancePct','reserveDays','payRun','payRunDay','payRunWeekday'];
     // Schedule inputs are collected separately so a change here never re-counts
     // the single-invoice calculation as a use of the early-pay comparison.
@@ -468,6 +470,20 @@
       URL.revokeObjectURL(a.href);
       $('reminderStatus').textContent = 'Calendar file downloaded. Nothing was uploaded.';
       recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'reminders_downloaded');
+    });
+    $('downloadCalendar').addEventListener('click', () => {
+      try {
+        const input = Object.fromEntries(ids.map(id => [id, $(id).value]));
+        const terms = calculateTerms(input);
+        const landing = projectSettlement(input);
+        const ics = buildCalendar({ invoiceDate: input.invoiceDate, dueDate: terms.dueDate, settlementDate: landing.settlementDate, graceDays: terms.graceDays, amount: terms.amount });
+        const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+        const a = document.createElement('a');
+        a.href = url; a.download = `invoice-${terms.dueDate}.ics`; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        $('status').textContent = 'Calendar file downloaded: due date, expected cash date and end of grace period.';
+        recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'calendar_exported');
+      } catch (error) { $('status').textContent = error.message; }
     });
     $('reset').addEventListener('click', () => {
       const defaults = { amount: '1200', termsDays: '30', annualLateRate: '18', graceDays: '10', monthlyBurn: '3000', outstanding: '3', earlyPayDays: '10', earlyPayDiscountPct: '2', annualCarryRate: '24', takeRatePct: '100', factorFeePct: '3', advancePct: '90', reserveDays: '35', payRun: 'weekdays', payRunDay: '1', payRunWeekday: '5', projectValue: '6000', projectDays: '30', avgDaysLate: '12', depositCollectionDays: '5', depositPct: '30', exposureCeiling: '2000' };      Object.entries(defaults).forEach(([id, value]) => $(id).value = value);

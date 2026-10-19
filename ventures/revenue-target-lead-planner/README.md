@@ -22,6 +22,11 @@ half the time**, which used to mean dividing the target by your average deal and
   win count is inside the predicted 80% range. Misses produce a warning.
 - Refuses: fewer than 6 periods, 60 leads or 10 wins, or a history with no variation.
 
+## Coming back
+
+Tick "Remember my history" and the pasted periods, target and planned leads are kept in this browser's local storage
+(never uploaded). Next period, add one row with "Add this period" and click Plan again. Unticking or Clear deletes it.
+
 ## Limits
 
 Sales-cycle lag, seasonality, lead source or quality, capacity limits and price changes are not modelled. Verified

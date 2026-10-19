@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { hasContract, actionYaml, plan, stale, USES_PREFIX } from './ghaction.mjs';
 
 const SRC = 'p.add_argument("path", nargs="?")\np.add_argument("--format")\np.add_argument(\n    "--fail-on-risk",\n)\n';
@@ -23,4 +25,15 @@ test('every qualifying venture has a current committed action', async () => {
   assert.ok(ok.length >= 15);
   assert.deepEqual(await stale(), []);
   assert.ok(USES_PREFIX.endsWith('platform/distribution/actions'));
+});
+
+test('CLI: --check reports currency read-only, no flag only lists', () => {
+  const script = fileURLToPath(new URL('./ghaction.mjs', import.meta.url));
+  const run = (...args) => spawnSync(process.execPath, [script, ...args], { encoding: 'utf8' });
+  const check = run('--check');
+  assert.equal(check.status, 0);
+  assert.match(check.stdout, /^actions are current/);
+  const list = run();
+  assert.equal(list.status, 0);
+  assert.match(list.stdout, /venture CLIs qualify as GitHub Actions/);
 });

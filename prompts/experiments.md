@@ -822,3 +822,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Candidates: unchanged. Reduced pass: no audit or drift report (hours-old
   report, recent outputs research/doc-only). `pyenv.py` re-checked: works now.
 - Result: (next review)
+
+## E47: review 2026-10-19 (sixth)
+
+- Change: none to prompts or docs. `derived/` regenerated (1372 runs). The
+  "due counter ignores same-day reviews" friction on `prompts/review/prompt-1.md`
+  is already fixed in `promptctl.py` (`route` comment near line 147), so no
+  edit; the reports are from runs before that fix.
+- Metric: unchanged from E45/E46.
+- Candidates: unchanged (ventures 2 / research 1 intervals overlap; review/2 has
+  7 runs). Reduced pass: no audit or drift report (hours-old report).
+- Result: (next review)

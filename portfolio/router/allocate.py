@@ -511,6 +511,9 @@ def decisions_by_merit(ventures: list[Venture]) -> list[dict]:
     return rows
 
 
+FETCH_TIMEOUT_S = 120
+
+
 def _history_reaches(cutoff: datetime, cwd: Path) -> bool:
     """True when origin/main's oldest reachable commit is already near `cutoff`, so a fetch adds
     nothing. --shallow-since leaves the clone shallow, so without this every run refetched
@@ -536,8 +539,13 @@ def deepen_to_window(days: int) -> bool:
         print(f"(shallow clone: fetching main since {since} for 7-day commit counts)", file=sys.stderr)
         return subprocess.run(
             ["git", "fetch", "-q", f"--shallow-since={since}", "origin", "main"],
-            capture_output=True, timeout=600, cwd=Path(__file__).resolve().parent,
+            capture_output=True, timeout=FETCH_TIMEOUT_S, cwd=Path(__file__).resolve().parent,
         ).returncode == 0
+    except subprocess.TimeoutExpired:
+        # Runs reported 10+ minutes of silence here (2026-10-19); rank on what is local instead.
+        print(f"(fetch exceeded {FETCH_TIMEOUT_S}s; 7-day commit counts are partial. "
+              "Run `git fetch --unshallow origin main` in the background for full ones.)", file=sys.stderr)
+        return False
     except (OSError, subprocess.SubprocessError):
         return False
 

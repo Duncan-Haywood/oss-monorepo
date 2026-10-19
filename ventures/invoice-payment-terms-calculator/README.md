@@ -32,6 +32,8 @@ when batching actually gives leverage — where every shift is one-for-one, as
 on a weekdays-only schedule, there is nothing useful to report and it stays
 quiet.
 
+**Add the dates to your calendar.** One button downloads an `.ics` file with the due date, the expected cash date and the day the grace period ends, so the chase reminder is in your calendar before the invoice is late. It is built in your browser and works in Google, Apple and Outlook calendars.
+
 This models the schedule you tell it. It does not predict whether a client
 pays on time.
 Open [`index.html`](index.html) in a browser. The calculation is local and works without an account, network request, or API key.
@@ -45,6 +47,10 @@ They match at about 36.1%. At 50%, the discount flips ahead.
 answers the third-party fee question. On 24% money, waiting still leaves
 $1,176.33 against $1,161.24 after a 3% fee and 90% advance. They match
 at a 1.74% fee. At 50%, factoring flips ahead.
+
+[UK late payment interest](uk-late-payment-interest.html) works out the statutory
+interest (8% over the Bank of England reference rate) and £40/£70/£100 fixed
+compensation you can add to a late UK business-to-business invoice.
 
 [Already overdue? Wait, chase, settle, or collections](chasing-a-late-invoice.html)
 picks up where the due date runs out. The same invoice, 15 days late, scored
@@ -98,7 +104,7 @@ Then open `http://localhost:8877`. There is no build step.
 
 ## Privacy and usage
 
-Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`, `schedule_compared`, `schedule_copied`, `reminders_copied`, `reminders_downloaded`) and can be disabled in the footer. Saved drafts stay on this device.
+Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`, `schedule_compared`, `schedule_copied`, `calendar_exported`, `reminders_copied`, `reminders_downloaded`) and can be disabled in the footer. Saved drafts stay on this device.
 ## Safety
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. It does not determine whether a late-fee term is permitted or enforceable, and it does not tell you to offer or withhold an early-pay discount or to factor an invoice. **You are responsible for reviewing and verifying its output before relying on it.** To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
