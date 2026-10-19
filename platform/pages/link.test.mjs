@@ -244,6 +244,9 @@ test('a page that builds its fields in script is left alone', () => {
   assert.equal(pageBuildsFieldsAtRuntime('<input id="${prefix}-lengthFt">'), true);
   assert.equal(pageBuildsFieldsAtRuntime("html += `<input id='${p}-x'>`"), true);
   assert.equal(pageBuildsFieldsAtRuntime('<input id="lengthFt">'), false);
+  // Not markup at all: nothing builds fields at runtime, so nothing is refused.
+  assert.equal(pageBuildsFieldsAtRuntime(undefined), false);
+  assert.equal(pageBuildsFieldsAtRuntime(null), false);
   assert.equal(pageTakesBidLink(page('<input id="${row}-lengthFt">')), false);
 });
 
@@ -283,6 +286,14 @@ test('a page with no saved-bids line gets nothing rather than an orphaned button
   // future change to one gate and not the other. It should fail closed.
   const out = injectBidLink(page(), { slug: 'deck-bid-calculator', toRoot: './' });
   assert.equal(out, page());
+});
+
+test('a source that is not a string falls back to the page being written', () => {
+  // `source` is optional; a caller passing null or nothing still gets the gate
+  // answered from `html`, so an ordinary page keeps its button.
+  const html = built();
+  const out = injectBidLink(html, { slug: 'deck-bid-calculator', toRoot: './', source: null });
+  assert.match(out, /id="pf-link-copy"/);
 });
 
 test('the pass is safe to run twice', () => {
