@@ -292,7 +292,7 @@ One short section. If everything is client-side, say so — it is a feature:
 > Everything runs in your browser. Your data is never uploaded, and we don't
 > have accounts, tracking cookies, or an analytics vendor. We count anonymous
 > events (which features get used, nothing about who used them) — see
-> [Usage](#usage) to turn it off.
+> [Usage counting](#d-usage-counting) to turn it off.
 
 If anything does leave the machine, name what, where it goes, and how long it
 lives. Never write a privacy claim you haven't checked against the code.
