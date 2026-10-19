@@ -90,6 +90,9 @@
     </div>
     <h3>Customer segments</h3>
     <div class="scroll"><table id="segments"><thead><tr><th>Segment</th><th class="n">Customers</th><th class="n">Predicted value</th><th>What to do</th></tr></thead><tbody></tbody></table></div>
+    <h3>Cohorts: who comes back, by month of first order</h3>
+    <p class="note">Share of each month's new customers who bought again within 30, 90, 180 and 365 days. A dash means some of that cohort has not been around that long yet, so the cell is left blank instead of understating it.</p>
+    <div class="scroll"><table id="cohorts"><thead></thead><tbody></tbody></table></div>
     <h3>Back-test: predicted vs actual purchases in your last weeks</h3>
     <div id="bt-note" class="note"></div>
     <div class="scroll"><table id="bt"><thead><tr><th>Repeat orders before</th><th class="n">Customers</th><th class="n">Predicted</th><th class="n">Actual</th></tr></thead><tbody></tbody></table></div>
@@ -135,7 +138,7 @@
   </footer>
 
   <script type="module">
-    import { parseOrders, analyze, paybackCurve, reportCsv, sampleText, money, pct, dayToIso } from "./calc.mjs";
+    import { parseOrders, analyze, paybackCurve, cohortRetention, reportCsv, sampleText, money, pct, dayToIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -180,6 +183,9 @@
         ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       }
       $("#segments tbody").innerHTML = ["Top 20% value", "Active", "At risk, high spend", "Likely lost"].filter((k) => r.segments[k]).map((k) => `<tr><td>${esc(k)}</td><td class="n">${r.segments[k].customers.toLocaleString("en-US")}</td><td class="n">${esc(money(r.segments[k].clv))}</td><td>${esc(ACTIONS[k])}</td></tr>`).join("");
+      const coh = cohortRetention(parsed.orders);
+      $("#cohorts thead").innerHTML = `<tr><th>First order</th><th class="n">Customers</th>${coh.windows.map((w) => `<th class="n">${w} d</th>`).join("")}</tr>`;
+      $("#cohorts tbody").innerHTML = coh.cohorts.slice(-18).map((c) => `<tr><td>${esc(c.month)}</td><td class="n">${c.customers.toLocaleString("en-US")}</td>${coh.windows.map((w) => `<td class="n">${c.repeat[w] === null ? "–" : pct(c.repeat[w], 0)}</td>`).join("")}</tr>`).join("");
       const bt = r.backtest;
       $("#bt-note").textContent = bt ? `Model fitted on orders up to ${bt.holdoutWeeks} weeks before your last order (${bt.customers.toLocaleString("en-US")} customers), then asked to predict those final weeks. Total predicted ${bt.predicted.toFixed(0)}, actual ${bt.actual}.` : "Not enough history (under about 30 weeks) to hold out a test period.";
       $("#bt tbody").innerHTML = bt ? bt.buckets.filter((b) => b.customers).map((b) => `<tr><td>${esc(b.label)}</td><td class="n">${b.customers.toLocaleString("en-US")}</td><td class="n">${b.predicted.toFixed(0)}</td><td class="n">${b.actual}</td></tr>`).join("") : "";

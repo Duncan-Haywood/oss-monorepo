@@ -746,11 +746,11 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Seven trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the research portfolio, the comparison index,
-  // the guides index, catalog.json, the sitemap and the Atom feed — so the
-  // count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 7);
+  // Eight trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the research portfolio, updates and the
+  // changelog, the comparison index, the guides index, catalog.json, the
+  // sitemap and the Atom feed — so the count is tools plus those.
+  assert.equal(bullets.length, surfaces.length + 8);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -1350,7 +1350,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 12, 'the eleven named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 13, 'the twelve named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1701,6 +1701,8 @@ test('every page type carries the one site header, with every nav item', async (
     researchProject: ['research', 'accel-kws', 'index.html'],
     engineering: ['engineering', 'index.html'],
     writing: ['writing', 'index.html'],
+    updates: ['updates', 'index.html'],
+    changelog: ['changelog', 'index.html'],
     venture: ['ebay-fee-calculator', 'index.html'],
     notFound: ['404.html'],
   };
@@ -4522,7 +4524,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, /compare/, /research/ and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, /compare/, /research/, updates, the changelog and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4536,6 +4538,8 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, /co
     `${BASE}about/`,
     `${BASE}${COMPARE_PATH}`,
     `${BASE}${RESEARCH_PATH}`,
+    `${BASE}updates/`,
+    `${BASE}changelog/`,
     `${BASE}${GUIDES_PATH}`,
   ]);
 

@@ -15,7 +15,7 @@
 
 import { readFile } from "node:fs/promises";
 import process from "node:process";
-import { parseOrders, analyze, paybackCurve, reportCsv, sampleText, money, pct, dayToIso } from "./calc.mjs";
+import { parseOrders, analyze, paybackCurve, cohortRetention, reportCsv, sampleText, money, pct, dayToIso } from "./calc.mjs";
 
 const USAGE = `Predicted customer lifetime value from an order export (customer, date, amount).
 
@@ -101,6 +101,15 @@ export function render(res, parsed, opts = {}) {
     const g = res.segments[name];
     if (g) out.push(`  ${name.padEnd(22)} ${String(g.customers).padStart(6)} customers  ${money(g.clv).padStart(12)} predicted`);
   }
+  const coh = cohortRetention(opts.orders ?? []);
+  if (coh.cohorts.length) {
+    out.push("", "Cohorts: share who bought again within N days of their first order", "-".repeat(64));
+    out.push("First order".padEnd(13) + "Customers" + coh.windows.map((w) => `${w}d`.padStart(7)).join(""));
+    for (const c of coh.cohorts.slice(-12)) {
+      out.push(c.month.padEnd(13) + String(c.customers).padStart(9) + coh.windows.map((w) => (c.repeat[w] === null ? "–" : pct(c.repeat[w], 0)).padStart(7)).join(""));
+    }
+    out.push("  – = some customers in that cohort have not been observable that long yet.");
+  }
   out.push("", "Findings", "-".repeat(64));
   for (const f of res.findings) out.push(`  [${f.severity.toUpperCase()}] ${f.title}`, `      ${f.detail}`);
   const top = res.sorted.slice(0, opts.top ?? 10);
@@ -132,7 +141,7 @@ export async function main(argv) {
   if (opts.csv) process.stdout.write(reportCsv(result));
   else if (opts.json) {
     console.log(JSON.stringify({ summary: result.summary, params: result.params, newCustomer: result.newCustomer, segments: result.segments, backtest: result.backtest, findings: result.findings, customers: result.sorted }, null, 2));
-  } else console.log(render(result, parsed, opts));
+  } else console.log(render(result, parsed, { ...opts, orders: parsed.orders }));
   return 0;
 }
 

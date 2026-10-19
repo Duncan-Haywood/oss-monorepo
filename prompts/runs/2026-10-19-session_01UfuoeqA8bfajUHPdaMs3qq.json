@@ -17,9 +17,9 @@
   "tokens_out": 57138,
   "cost_usd": 2.8491,
   "tool_calls": 73,
-  "task": "codesign-gripper (track 14, milestone 1)",
+  "task": "codesign-forcefresh (track 14, milestone 1 companion)",
   "projects": [
-    "codesign-gripper"
+    "codesign-forcefresh"
   ],
   "pr": 8332,
   "repo": "duncan-haywood/oss-monorepo",
@@ -33,7 +33,8 @@
   "outcome": "success",
   "errors": [
     "Pool.map under multiprocessing hung on the first full experiment run (forked workers with threaded BLAS); fixed with single-thread env vars and ProcessPoolExecutor, cost ~25 min.",
-    "A second run lost ~11 min of baseline results to a TypeError (generator in json.dump) because raw results were only saved at the end."
+    "A second run lost ~11 min of baseline results to a TypeError (generator in json.dump) because raw results were only saved at the end.",
+    "Another run landed research/codesign-gripper (#8339) while my claim PR #8332 was open, so I renamed mine to codesign-forcefresh and cross-referenced; ~15 min of merge work."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "research/PROJECTS.md",
       "issue": "Track 14 asks for RL per design and CadQuery STLs; neither is cheap in a CPU-only run (CadQuery not installed). I used grid-plus-refine force search and a hand-written prism STL and said so in the README."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "The 'claim' step (open a PR with research/<slug> in title) did not stop a parallel run picking the same milestone and slug; my draft PR was open ~1.5 h before theirs landed and they did not see it, or did not defer."
     }
   ],
   "deviations": [

@@ -161,6 +161,33 @@ export function priceForProfit(input, targetProfit = 0) {
 }
 
 /**
+ * What a Seller Level change (or Fast Shipping enrollment) is worth: the same
+ * sale re-priced at each candidate seller-fee percentage, with the profit
+ * difference against the sale as entered, per sale and over a month.
+ * The rates are the seller's own to read off the dashboard; none is assumed.
+ *
+ * @param {object} input The same fields `calculate` takes (the baseline).
+ * @param {number[]} feeRates Candidate seller-fee percentages (before the
+ *   Fast Shipping discount, which stays as entered).
+ * @param {number} salesPerMonth Sales a month at this price, for the
+ *   monthly figure. 0 gives a per-sale view only.
+ */
+export function levelLadder(input, feeRates, salesPerMonth = 0) {
+  const sales = number(salesPerMonth, 'Sales per month');
+  const base = calculate(input).netProfit;
+  return feeRates.map((rate) => {
+    const r = calculate({ ...input, sellerFeePct: rate });
+    const deltaPerSale = r.netProfit - base;
+    return {
+      sellerFeePct: rate,
+      netProfit: r.netProfit,
+      deltaPerSale,
+      deltaPerMonth: deltaPerSale * sales,
+    };
+  });
+}
+
+/**
  * Roll a list of sales' net profit up into total profit for the month.
  * @param {{netProfit: number}[]} sales
  */

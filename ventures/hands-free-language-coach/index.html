@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hands-Free Language Coach — voice-only language practice while you drive or walk</title>
+  <meta name="description" content="Learn a language by voice alone: the coach says a phrase, you say it back, it listens and scores you, and moves on. No tapping, no screen. Streaks, XP and spaced review like a language game, free in your browser, plus a skill for Claude and ChatGPT voice mode.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./">
+  <meta property="og:title" content="Hands-Free Language Coach">
+  <meta property="og:description" content="Voice-only, hands-free language practice with streaks and XP. Say it back, get scored, keep walking.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hands-Free Language Coach","applicationCategory":"EducationalApplication","operatingSystem":"Any (Chrome, Edge or Safari for speech recognition)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A voice-only, hands-free language practice drill: the coach speaks a phrase, listens to you repeat it, scores your pronunciation against the expected words, and schedules weak phrases for review. Streaks, XP and spaced repetition, entirely in the browser.","featureList":"Voice-only practice loop; speech-recognition scoring; spoken commands (repeat, skip, stop); spaced review with Leitner boxes; daily streaks and XP; Spanish, French, German, Italian and Brazilian Portuguese starter packs; Claude and ChatGPT voice-mode skill"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I really learn a language without looking at a screen?","acceptedAnswer":{"@type":"Answer","text":"For speaking and listening practice, yes: every step of a session is spoken, and you answer out loud. Press Start once and the coach runs the session by voice. Say repeat, skip or stop at any time. Reading and writing still need a screen or a book."}},{"@type":"Question","name":"Is it safe to use while driving?","acceptedAnswer":{"@type":"Answer","text":"Start the session before you set off, mount the phone, and never look at or touch it while moving. Follow your local laws on phone use in vehicles. If the conversation competes with the road for your attention, say stop."}},{"@type":"Question","name":"How is my speaking scored?","acceptedAnswer":{"@type":"Answer","text":"Your browser's speech recogniser transcribes what you said, and the coach compares those words with the expected phrase, ignoring accents and punctuation. It is a check of whether the recogniser understood you, not a phonetic assessment by a teacher."}},{"@type":"Question","name":"Does my voice get uploaded?","acceptedAnswer":{"@type":"Answer","text":"This page sends nothing to us. Speech recognition is done by your browser, and some browsers (Chrome, for example) send the audio to their own speech service to transcribe it. Your progress is stored only in this browser."}},{"@type":"Question","name":"Can I use it with ChatGPT or Claude voice mode?","acceptedAnswer":{"@type":"Answer","text":"Yes. The project ships a ready-made skill for Claude and instructions for a custom GPT that run the same hands-free lesson protocol in any language, in the assistant's voice mode."}}]}</script>
+  <style>
+    :root{font:17px/1.5 system-ui,sans-serif;color:#14202e;background:#f4f7f5;--muted:#566472;--line:#d6e0da;--panel:#fff;--accent:#127a4b;--warn:#8a5a00}
+    *{box-sizing:border-box}body{margin:0;background:#f4f7f5}main{max-width:860px;margin:auto;padding:28px 16px 56px}
+    h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;margin:.2rem 0 .6rem}h2{font-size:1.15rem;margin:0 0 10px}
+    p,li{color:var(--muted)}.lede{max-width:680px;font-size:1.05rem}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin:18px 0}
+    label{color:var(--muted);font-size:.9rem;display:inline-flex;gap:8px;align-items:center;margin-right:14px}
+    select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid #b5c4bb}
+    button{border:0;border-radius:12px;background:var(--accent);color:#fff;padding:14px 22px;font:inherit;font-weight:700;cursor:pointer}
+    button.secondary{background:#e8efe9;color:#14202e}
+    button:focus,select:focus{outline:3px solid #8fd1ad;outline-offset:2px}
+    #startBtn{font-size:1.3rem;padding:20px 34px;width:100%;margin-top:14px}
+    .stats{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+    .stat{background:#f6faf7;border:1px solid var(--line);border-radius:10px;padding:8px 16px;text-align:center;min-width:96px}
+    .stat strong{display:block;font-size:1.5rem;color:#14202e}
+    #now{font-size:1.5rem;color:#14202e;min-height:2.2em;margin:10px 0 2px}
+    #heard{min-height:1.5em}
+    .notice{background:#fff8e5;border-left:4px solid #d49a00;padding:10px 13px;color:#5f4900;font-size:.92rem;border-radius:6px}
+    footer{border-top:1px solid var(--line);padding-top:16px;font-size:.88rem}footer p{color:var(--muted)}
+    a{color:var(--accent)}
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="https://duncan-haywood.github.io/monorepo-projects/">Free tools</a> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/hands-free-language-coach">Source</a></p>
+  <h1>Hands-Free Language Coach</h1>
+  <p class="lede">Language practice you do with your ears and voice only. Press Start once, put the phone away, and the coach runs the session: it says a phrase, you say it back, it scores you and moves on. Streaks, XP and spaced review, like a language game, without the tapping.</p>
+  <p class="notice"><strong>Driving?</strong> Start before you set off, mount the phone, never look at or touch it while moving, and follow your local laws. Say <em>stop</em> whenever the road needs your attention. This browser version needs the page to stay open with the screen on.</p>
+
+  <section class="panel" aria-labelledby="drillH">
+    <h2 id="drillH">Practise now</h2>
+    <label>Language <select id="pack"></select></label>
+    <label>Phrases per session <select id="size"><option>5</option><option selected>8</option><option>12</option></select></label>
+    <label>Speed <select id="rate"><option value="0.75">Slow</option><option value="0.9" selected>Normal</option><option value="1.05">Fast</option></select></label>
+    <button id="startBtn">▶ Start hands-free session</button>
+    <p id="now" aria-live="polite"></p>
+    <p id="heard" aria-live="polite"></p>
+    <div class="stats">
+      <div class="stat"><strong id="streak">0</strong>day streak</div>
+      <div class="stat"><strong id="xp">0</strong>XP</div>
+      <div class="stat"><strong id="mastered">0</strong>mastered</div>
+    </div>
+    <p id="mode" class="small"></p>
+    <button id="shareBtn" class="secondary">Share my streak</button> <span id="shareStatus"></span>
+    <p>Say <strong>repeat</strong>, <strong>skip</strong> or <strong>stop</strong> at any time (or the same word in the language you're learning).</p>
+  </section>
+
+  <section class="panel">
+    <h2>Use it in ChatGPT or Claude voice mode</h2>
+    <p>Want open conversation in any language, not just drills? The same hands-free lesson protocol ships as a <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/hands-free-language-coach/skill/SKILL.md">Claude skill</a> and as <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/hands-free-language-coach/gpt/instructions.md">custom GPT instructions</a>. Add it to your assistant, switch on voice mode, and say "start my language lesson". It runs on your own assistant subscription; nothing goes through us.</p>
+  </section>
+
+  <section class="panel">
+    <h2>How it works</h2>
+    <ul>
+      <li><strong>Voice only.</strong> Every prompt, correction and score is spoken. You never need to read the screen.</li>
+      <li><strong>Scored speaking.</strong> Your browser's speech recogniser transcribes you; the coach compares the words with the target phrase, ignoring accents and punctuation. It checks whether you were understood, not your accent in detail.</li>
+      <li><strong>Spaced review.</strong> Phrases you miss come back first; phrases you nail move up a box and appear less often.</li>
+      <li><strong>Streaks and XP.</strong> One finished session a day keeps your streak. Share it with a friend.</li>
+    </ul>
+    <p>Coming next: a native iOS app (then Android) that keeps going with the screen locked and through CarPlay and headphones, open conversation practice, friends' leagues, and listen-only stories (see the sibling project, <a href="../listen-and-learn-audio/">Listen &amp; Learn Audio</a>).</p>
+  </section>
+
+  <section class="panel" aria-labelledby="faqH">
+    <h2 id="faqH">Questions</h2>
+    <h3>Can I really learn a language without looking at a screen?</h3>
+    <p>For speaking and listening practice, yes: every step of a session is spoken, and you answer out loud. Press Start once and the coach runs the session by voice. Say repeat, skip or stop at any time. Reading and writing still need a screen or a book.</p>
+    <h3>Is it safe to use while driving?</h3>
+    <p>Start the session before you set off, mount the phone, and never look at or touch it while moving. Follow your local laws on phone use in vehicles. If the conversation competes with the road for your attention, say stop.</p>
+    <h3>How is my speaking scored?</h3>
+    <p>Your browser's speech recogniser transcribes what you said, and the coach compares those words with the expected phrase, ignoring accents and punctuation. It is a check of whether the recogniser understood you, not a phonetic assessment by a teacher.</p>
+    <h3>Does my voice get uploaded?</h3>
+    <p>This page sends nothing to us. Speech recognition is done by your browser, and some browsers (Chrome, for example) send the audio to their own speech service to transcribe it. Your progress is stored only in this browser.</p>
+    <h3>Can I use it with ChatGPT or Claude voice mode?</h3>
+    <p>Yes. The project ships a ready-made skill for Claude and instructions for a custom GPT that run the same hands-free lesson protocol in any language, in the assistant's voice mode.</p>
+  </section>
+
+  <footer>
+    <p><strong>Privacy.</strong> Your progress (XP, streak, which phrases you know) is stored only in this browser. This page uploads nothing to us and has no accounts, tracking cookies or analytics vendor. Speech recognition is performed by your browser, and some browsers send the audio to their own speech service to transcribe it. We count anonymous events in this browser only (sessions started and finished, nothing about you). <button id="usageToggle" class="secondary"></button></p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not professional language instruction or a certified assessment, and it does not replace a qualified teacher. You are responsible for reviewing and verifying its output before relying on it, and for using it safely and lawfully, including while driving. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>MIT licensed. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a>.</p>
+  </footer>
+</main>
+<script type="module">
+  import { PACKS, grade, parseCommand, newProgress, updateStreak, recordAnswer, planSession, mastered, shareText } from "./drill.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const STORE = "hands-free-language-coach:progress";
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const canSpeak = "speechSynthesis" in window;
+
+  for (const [id, pack] of Object.entries(PACKS)) $("pack").add(new Option(pack.name, id));
+
+  function load() {
+    try { return { ...newProgress(), ...JSON.parse(localStorage.getItem(STORE) || "{}") }; } catch { return newProgress(); }
+  }
+  function save(p) { try { localStorage.setItem(STORE, JSON.stringify(p)); } catch { /* storage denied: progress lasts this page only */ } }
+  let progress = load();
+
+  function render() {
+    $("streak").textContent = progress.streak;
+    $("xp").textContent = progress.xp;
+    $("mastered").textContent = `${mastered(progress, $("pack").value)}/${PACKS[$("pack").value].phrases.length}`;
+  }
+  $("pack").addEventListener("change", render);
+  render();
+  $("mode").textContent = Recognition
+    ? "Scored mode: the coach listens and scores each answer."
+    : "Listen-and-repeat mode: this browser has no speech recognition (try Chrome, Edge or Safari for scoring). The coach leaves a pause for you to repeat each phrase.";
+
+  let voices = canSpeak ? speechSynthesis.getVoices() : [];
+  if (canSpeak) speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); };
+
+  function say(text, lang) {
+    return new Promise((resolve) => {
+      if (!canSpeak) return resolve();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      u.rate = lang.startsWith("en") ? 1 : Number($("rate").value);
+      u.voice = voices.find((v) => v.lang === lang) || voices.find((v) => v.lang.startsWith(lang.slice(0, 2))) || null;
+      u.onend = u.onerror = () => resolve();
+      speechSynthesis.speak(u);
+    });
+  }
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  function listen(lang) {
+    return new Promise((resolve) => {
+      const rec = new Recognition();
+      rec.lang = lang;
+      rec.maxAlternatives = 3;
+      rec.interimResults = false;
+      let done = false;
+      const finish = (alts) => { if (!done) { done = true; resolve(alts); } };
+      rec.onresult = (e) => finish(Array.from(e.results[0], (r) => r.transcript));
+      rec.onerror = rec.onend = () => finish([]);
+      setTimeout(() => { try { rec.stop(); } catch { /* already stopped */ } }, 8000);
+      rec.start();
+    });
+  }
+
+  let running = false;
+  let wakeLock = null;
+
+  async function session() {
+    const packId = $("pack").value;
+    const pack = PACKS[packId];
+    running = true;
+    $("startBtn").textContent = "■ Stop";
+    countUsage("session_started");
+    try { wakeLock = await navigator.wakeLock?.request("screen"); } catch { /* not granted: fine */ }
+    await say(`${pack.name} practice. Repeat after me.`, "en-US");
+    const plan = planSession(progress, packId, Number($("size").value));
+    let answered = 0;
+    for (let k = 0; k < plan.length && running; k++) {
+      const i = plan[k];
+      const phrase = pack.phrases[i];
+      let tries = 0;
+      for (;;) {
+        if (!running) break;
+        $("now").textContent = `${phrase.tl}  (${phrase.en})`;
+        $("heard").textContent = "";
+        await say(phrase.en, "en-US");
+        await say(phrase.tl, pack.voiceLang);
+        if (!Recognition) {
+          await wait(1200 + phrase.tl.length * 90);
+          await say(phrase.tl, pack.voiceLang);
+          await wait(1000 + phrase.tl.length * 90);
+          progress = recordAnswer(progress, packId, i, "close");
+          answered++;
+          break;
+        }
+        const alts = await listen(pack.voiceLang);
+        if (!running) break;
+        const command = parseCommand(alts[0] || "", packId);
+        if (command === "stop") { running = false; break; }
+        if (command === "repeat") continue;
+        if (command === "skip") break;
+        const result = grade(alts, phrase.tl);
+        $("heard").textContent = alts[0] ? `Heard: "${alts[0]}" (${Math.round(result.score * 100)}%)` : "Didn't catch that.";
+        if (result.verdict === "pass") {
+          await say("Great.", "en-US");
+        } else if (tries === 0) {
+          tries++;
+          await say(result.verdict === "close" ? "Close. Once more." : "Let's try that again.", "en-US");
+          continue;
+        } else {
+          await say("We'll come back to that one.", "en-US");
+        }
+        progress = recordAnswer(progress, packId, i, result.verdict);
+        answered++;
+        break;
+      }
+      save(progress);
+      render();
+    }
+    if (answered > 0) {
+      progress = updateStreak(progress, new Date().toLocaleDateString("en-CA"));
+      save(progress);
+      render();
+      countUsage("session_finished");
+      await say(`Session done. You have ${progress.xp} XP and a ${progress.streak} day streak.`, "en-US");
+    }
+    stop();
+  }
+
+  function stop() {
+    running = false;
+    if (canSpeak) speechSynthesis.cancel();
+    try { wakeLock?.release(); } catch { /* already released */ }
+    $("startBtn").textContent = "▶ Start hands-free session";
+    $("now").textContent = "";
+  }
+
+  $("startBtn").addEventListener("click", () => (running ? stop() : session()));
+
+  $("shareBtn").addEventListener("click", async () => {
+    const text = shareText(progress, $("pack").value);
+    const url = location.href.split("#")[0];
+    try {
+      if (navigator.share) await navigator.share({ text, url });
+      else { await navigator.clipboard.writeText(`${text} ${url}`); $("shareStatus").textContent = "Copied."; }
+      countUsage("streak_shared");
+    } catch { $("shareStatus").textContent = ""; }
+  });
+
+  function renderToggle() { $("usageToggle").textContent = usageAllowed() ? "Turn off counting" : "Turn on counting"; }
+  $("usageToggle").addEventListener("click", () => { setUsageEnabled(!usageAllowed()); renderToggle(); });
+  renderToggle();
+</script>
+</body>
+</html>

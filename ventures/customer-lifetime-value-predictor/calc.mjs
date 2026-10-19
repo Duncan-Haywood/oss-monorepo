@@ -425,6 +425,50 @@ export function paybackCurve(res, cac, { maxMonths = 36, target = 3 } = {}) {
   };
 }
 
+// Cohort view: customers grouped by the month of their first order. For each
+// window (days after the first order) it gives the share who bought again within
+// it, and revenue per customer in it, first order included. A window is reported
+// only when every customer in the cohort has been observable for all of it;
+// otherwise it is null, so a young cohort is never compared with an old one.
+export const COHORT_WINDOWS = [30, 90, 180, 365];
+export function cohortRetention(orders, windows = COHORT_WINDOWS) {
+  if (!orders?.length) return { cohorts: [], windows };
+  const lastDay = Math.max(...orders.map((o) => o.day));
+  const by = new Map();
+  for (const o of orders) {
+    let c = by.get(o.id);
+    if (!c) by.set(o.id, (c = []));
+    c.push(o);
+  }
+  const groups = new Map();
+  for (const list of by.values()) {
+    list.sort((a, b) => a.day - b.day);
+    const first = list[0].day;
+    const key = dayToIso(first).slice(0, 7);
+    let g = groups.get(key);
+    if (!g) groups.set(key, (g = []));
+    g.push({ first, list });
+  }
+  const cohorts = [...groups.keys()].sort().map((month) => {
+    const members = groups.get(month);
+    const latestFirst = Math.max(...members.map((m) => m.first));
+    const out = { month, customers: members.length, firstOrder: 0, repeat: {}, revenue: {} };
+    out.firstOrder = members.reduce((s, m) => s + m.list.filter((o) => o.day === m.first).reduce((t, o) => t + o.amount, 0), 0) / members.length;
+    for (const w of windows) {
+      if (latestFirst + w > lastDay) { out.repeat[w] = null; out.revenue[w] = null; continue; }
+      let rep = 0, rev = 0;
+      for (const m of members) {
+        if (m.list.some((o) => o.day > m.first && o.day - m.first <= w)) rep++;
+        rev += m.list.filter((o) => o.day - m.first <= w).reduce((t, o) => t + o.amount, 0);
+      }
+      out.repeat[w] = rep / members.length;
+      out.revenue[w] = rev / members.length;
+    }
+    return out;
+  });
+  return { cohorts, windows };
+}
+
 function correlation(xs, ys) {
   const n = xs.length; if (n < 3) return 0;
   const mx = xs.reduce((s, v) => s + v, 0) / n, my = ys.reduce((s, v) => s + v, 0) / n;
