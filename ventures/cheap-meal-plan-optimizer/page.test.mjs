@@ -73,7 +73,7 @@ test("every element the script looks up exists on the page", () => {
   const used = [...html.matchAll(/\$\("#([\w-]+)"\)|getElementById\("([\w-]+)"\)/g)].map((m) => m[1] || m[2]);
   assert.ok(used.length > 15);
   for (const id of used) assert.ok(ids.has(id), `#${id} is used by the script but missing from the markup`);
-  for (const id of ["foods", "kmin", "kmax", "pmin", "fmin", "fmax", "cmin", "cmax", "fibmin", "dmax", "share", "step", "analyze", "download", "optout"]) assert.ok(ids.has(id), id);
+  for (const id of ["foods", "kmin", "kmax", "pmin", "fmin", "fmax", "cmin", "cmax", "fibmin", "dmax", "share", "step", "people", "analyze", "download", "optout"]) assert.ok(ids.has(id), id);
 });
 
 test("page documents the method, the limits and the safety floor", () => {
