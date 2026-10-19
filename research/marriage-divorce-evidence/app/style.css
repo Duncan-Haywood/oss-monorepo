@@ -90,6 +90,7 @@ summary { cursor: pointer; color: var(--series-1); }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .changes { padding-left: 1.3em; }
 .changes li { margin: 4px 0; }
+.changes li.note { list-style: none; margin-left: -1.3em; }
 .changes .d { font-variant-numeric: tabular-nums; font-weight: 600; }
 .up { color: var(--good); }
 .down { color: var(--bad); }
@@ -103,7 +104,22 @@ summary { cursor: pointer; color: var(--series-1); }
 .limits li { margin: 6px 0; }
 .tip { position: fixed; pointer-events: none; background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 0.82rem; box-shadow: 0 4px 14px rgba(0,0,0,.15); font-variant-numeric: tabular-nums; z-index: 10; }
 .tip b { font-weight: 600; }
+.lens { margin-top: 8px; }
+.lens h2 { margin-top: 1em; }
+.lens-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-top: 10px; }
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; font-size: 0.9rem; }
+.facts dt { color: var(--text-secondary); font-weight: 600; }
+.facts dd { margin: 0; }
+.note { font-size: 0.9rem; color: var(--text-secondary); }
+.share { margin: 12px 0 0; }
+.share small { margin-top: 4px; }
+button { font: inherit; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--series-1); background: var(--surface-1); color: var(--series-1); cursor: pointer; }
+button:hover { background: var(--band); }
+:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+tr.ref td { font-weight: 600; }
 @media (max-width: 760px) {
+  .facts { grid-template-columns: 1fr; }
+  .facts dd { margin-bottom: 6px; }
   .grid, .two { grid-template-columns: 1fr; }
   .grid .couple { grid-template-columns: 1fr; }
   .tiles { grid-template-columns: repeat(2, 1fr); }

@@ -6,6 +6,13 @@
 - New `app/individuals.js` scores both partners from their own traits, averages the rates, and gives exact explanations (tree splits now shown in years, e.g. age 49.5 and 52.5, with each leaf's training support) and what-if changes with model agreement. For a 40/38-year-old couple married 5 years it gives 90.7% no divorce over the next 10 years (model range 89.5–92.1%), close to the couple models' 90.1%.
 - Held out by person, among currently married people the additive models beat a constant rate by 1.9% (95% CI 1.2–2.7%) and the trees by 0.4–0.7%, with intervals that include zero. Including already-separated people lifts every model to 12.6–13.1%, which reflects separation, not partner traits. Next: wire the lens into the page (workstream C) and an out-of-distribution score.
 
+## 2026-10-19 · App: evidence lenses, shareable links, suggestions with model agreement
+
+- The app now loads every model bundle listed in `app/models/index.json` as an "evidence lens" and shows its population, target, training size and best held-out gain (NLSY79 couples: 5,735 people, 726 divorces, best gain 3.4%). Lenses are never pooled. New datasets plug in with one manifest line, and a test fails if a bundle is left out.
+- Scenarios can be shared as a link: inputs live in the URL `#` fragment (never sent to a server), and decoding accepts only known fields and allowed values.
+- Suggestions now show uncertainty. For the default couple (woman 36 with a bachelor's degree, man 38 with some college, newly married), the 10-year chance of no divorce is 88.6% (models 84.9–92.4%). All 150 searched partner profiles overlap the top one's model range (91.6% top, 84.0% lowest), and the models put two different profiles first, so the app says plainly there is no single ideal partner. The man's largest self-change, a professional degree, averages +2.6 points, but the models range from 0.0 to 4.6 and both trees give 0.
+- Lifelong estimate: SSA and CDC life tables were still unreachable (HTTP 000 from this session), so mortality stays explicitly unmodelled.
+
 ## 2026-10-19 · Browser app: couple divorce odds from five explainable models
 
 - Exported the five saved NLSY79 couple models (two additive Poisson GLMs, a spline + pair-interaction GLM, depth-2 and depth-3 Poisson trees) to JSON and wrote a dependency-free JavaScript engine that reproduces scikit-learn's predictions to 10<sup>-9</sup> on 300 test predictions.

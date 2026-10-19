@@ -85,6 +85,8 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `how-to-run-a-mexicano-tournament.html` - guide to Mexicano draws (1 & 4 against 2 & 3 from the table) with a worked 8-player, 2-court example that the test suite recomputes from `mexicanoNextRound`.
 - `rec-basketball-league-schedule.html` - guide to a 10-team, 2-court, 3-tip-off-time Wednesday league with a worked table that the test suite recomputes from `buildSchedule`.
 - `volleyball-league-schedule.html` - guide to a 6-team, 2-gym Thursday league where Gym 2 is closed two nights, with a worked table (overflow games moved to makeup nights) that the test suite recomputes from `buildSchedule`.
+- `darts-league-schedule.html` - guide to a 6-pub, home-and-away double round robin over 10 Thursdays (5 home, 5 away each), table recomputed by the test suite.
+- `chess-club-round-robin-schedule.html` - guide to a 7-player club round robin on 3 boards with one bye each, table recomputed by the test suite.
 - `how-to-run-a-double-elimination-tournament.html` - guide to winners/losers brackets, byes and the grand final reset with a worked 6-team example that the test suite recomputes from `doubleEliminationBracket`.
 - `how-to-run-a-single-elimination-bracket.html` - guide to seeding, byes and game counts with a worked 6-team example that the test suite recomputes from `playoffBracket`.
 - `how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html` - guide to byes with 5, 7 or 9 teams and a worked 5-team example that the test suite recomputes from `roundRobin`.
@@ -112,6 +114,8 @@ MIT licence, see `LICENSE`.
 **Returning each season.** The last setup is remembered in this browser's local storage only (Clear forgets it); share-by-link still carries a setup inside the URL.
 
 **League web page.** "Download league web page" writes one self-contained `.html` file (schedule with a pick-your-team filter, standings and play-off bracket when you gave results, dark mode and print styles, no external requests). Upload it to any static host (GitHub Pages, Netlify, a school site) or email it, so parents and players get a link instead of a spreadsheet (`leaguePageHtml` in `calc.mjs`).
+
+**Score sheets.** "Download printable score sheets" writes one self-contained `.html` file with a page per round: every match with time, court, blank score boxes, a forfeit tick, the official and a signature and notes line, so the person at the table writes results down and the organiser types them in later as `Hawks 3 - 2 Owls` (`scoreSheetsHtml` in `calc.mjs`).
 
 **Pool play.** For a tournament, "Build pool play" splits the teams (listed best seed first) into 2 or more pools by snake draft, builds a validated round robin for each pool on your dates, courts, blackouts and time slots, and, when you type results, ranks each pool and seeds the play-off winners first, then runners-up (`splitPools`, `buildPoolPlay`, `poolAdvancers` in `calc.mjs`). Each pool uses its own courts, so pools never compete for a court. Lines in the shared-grounds box double as clubs: teams on one line are kept in different pools where possible by swapping teams within the same snake row, so pool sizes and the seed spread are unchanged (`splitPools(teams, k, clubs)`, `clubPairsInPools`).
 

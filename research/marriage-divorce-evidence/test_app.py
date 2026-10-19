@@ -23,6 +23,9 @@ class AppTests(unittest.TestCase):
     def test_individual_lens(self):
         self.run_node('individuals.test.mjs')
 
+    def test_lenses_and_scenarios(self):
+        self.run_node('lenses.test.mjs')
+
 
 if __name__ == '__main__':
     unittest.main()

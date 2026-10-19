@@ -26,6 +26,24 @@ browser.
   (0–49 years) are flagged and shaded. Same-sex couples get no number: they were not in the
   training data.
 
+## Evidence lenses, sharing and suggestions
+
+- **Lenses.** `models/index.json` lists every model bundle in `models/`; the app loads them
+  all and shows each one's population, target, training size and best held-out gain. A
+  bundle's `adapter` names the form mapping that scores it (`FORM_ADAPTERS` in `couple.js`);
+  a lens without one is listed but gives no number. `tests/lenses.test.mjs` fails if a bundle
+  in `models/` is missing from the manifest. To add a lens, add its bundle and one manifest
+  line.
+- **Shareable scenarios.** Every input (and the lens) is mirrored into the URL fragment, e.g.
+  `#a.sex=Woman&a.age=36&b.sex=Man&yearsMarried=3`. Browsers do not send the fragment to
+  servers. Decoding accepts only known fields and allowed values.
+- **Suggestions with uncertainty.** Each what-if change shows the average change in the
+  10-year chance of no divorce, the smallest-to-largest change across models, and how many
+  models move the same way. The partner search shows how many models score each profile
+  above the partner as entered, how many of the 150 searched profiles the models cannot
+  tell apart from the top one, and how many different profiles the models put first on
+  their own. It never presents one ideal person.
+
 ## Models
 
 | Model | Held-out deviance improvement vs a constant rate |
