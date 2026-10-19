@@ -25,6 +25,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `s-corp-distributions-over-basis.html` - when a distribution becomes taxable, three
   cases recomputed by the test suite.
 - `s-corp-suspended-losses.html` - why a loss is suspended and what frees it, with a three-year example (loss, income, loan repayment) the test suite recomputes.
+- `s-corp-loan-or-contribution-to-deduct-losses.html` - loan or capital contribution to unlock a suspended loss: same deduction, different repayment gain, with an example the test suite recomputes.
 - `remember.mjs` - the opt-in "remember these entries on this device" box (off by default; browser storage only, erased by unticking or Clear), so next year's visit is one added line.
 - `cli.mjs` - the same roll-forward in a terminal, for preparers who keep clients' K-1 figures in text files: `node cli.mjs years.csv`, `--k1` for K-1 box lines, `--batch` for many shareholders (needs-attention first), `--csv`, `--html`, `--json`, `--opening 20000,0,0,0`, `--example`. Zero dependencies, no network; tests in `cli.test.mjs`.
 - `usage.mjs` - local-only feature counters with an opt-out.
