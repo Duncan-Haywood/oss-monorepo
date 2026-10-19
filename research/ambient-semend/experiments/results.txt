@@ -1,0 +1,89 @@
+inputs: research/ambient-pipeline/experiments/results.json (4 threads, clean audio, one run; copied so this project is self-contained)
+median chain 682 ms, endpoint offset 61.0 ms; reply latency = mean wait + offset + chain
+cue: end ~ N(+d/2,1), mid-clause pause ~ N(-d/2,1), a share q of pauses sits at a complete point (cue blind)
+wait = expected silence before the assistant decides the turn is over, minimised over Hs<=Hl and threshold
+
+== wait vs d, short (median 150 ms), cut-off budget 5% (fixed hangover 713 ms) ==
+  d    q=0.0   q=0.25  q=0.5    (mean wait ms; fixed in header)
+  0.0      715      715      715
+  0.5      700      710      711
+  1.0      658      687      706
+  2.0      485      603      663
+  3.0      232      520      614
+  4.0       76      461      601
+
+== wait vs d, short (median 150 ms), cut-off budget 10% (fixed hangover 548 ms) ==
+  d    q=0.0   q=0.25  q=0.5    (mean wait ms; fixed in header)
+  0.0      549      549      549
+  0.5      538      540      548
+  1.0      500      524      534
+  2.0      347      448      503
+  3.0      135      376      462
+  4.0       60      325      451
+
+== wait vs d, medium (median 250 ms), cut-off budget 5% (fixed hangover 1189 ms) ==
+  d    q=0.0   q=0.25  q=0.5    (mean wait ms; fixed in header)
+  0.0     1192     1192     1192
+  0.5     1171     1180     1190
+  1.0     1085     1139     1175
+  2.0      799      995     1100
+  3.0      379      856     1023
+  4.0       99      769      968
+
+== wait vs d, medium (median 250 ms), cut-off budget 10% (fixed hangover 913 ms) ==
+  d    q=0.0   q=0.25  q=0.5    (mean wait ms; fixed in header)
+  0.0      915      915      915
+  0.5      893      904      910
+  1.0      825      868      892
+  2.0      574      745      834
+  3.0      198      623      769
+  4.0       67      541      718
+
+== wait vs d, long (median 400 ms), cut-off budget 5% (fixed hangover 1902 ms) ==
+  d    q=0.0   q=0.25  q=0.5    (mean wait ms; fixed in header)
+  0.0     1937     1937     1937
+  0.5     1908     1924     1927
+  1.0     1795     1908     1925
+  2.0     1274     1830     1925
+  3.0      571     1722     1933
+  4.0      142     1722     2010
+
+== wait vs d, long (median 400 ms), cut-off budget 10% (fixed hangover 1461 ms) ==
+  d    q=0.0   q=0.25  q=0.5    (mean wait ms; fixed in header)
+  0.0     1480     1480     1480
+  0.5     1447     1463     1474
+  1.0     1321     1415     1463
+  2.0      909     1190     1449
+  3.0      298     1004     1421
+  4.0       79      876     1417
+
+== wait vs d, medium, wide (sigma 1.2), cut-off budget 5% (fixed hangover 2592 ms) ==
+  d    q=0.0   q=0.25  q=0.5    (mean wait ms; fixed in header)
+  0.0     2598     2598     2598
+  0.5     2590     2595     2627
+  1.0     2431     2607     2627
+  2.0     1653     2547     2654
+  3.0      873     2535     2680
+  4.0      244     2535     none
+
+== wait vs d, medium, wide (sigma 1.2), cut-off budget 10% (fixed hangover 1745 ms) ==
+  d    q=0.0   q=0.25  q=0.5    (mean wait ms; fixed in header)
+  0.0     1748     1748     1748
+  0.5     1733     1745     1747
+  1.0     1542     1689     1745
+  2.0      976     1363     1747
+  3.0      385     1080     1725
+  4.0      101      946     1722
+
+== chosen settings, medium pauses, budget 10%: d, q, Hs, Hl, tau, cutoff, wait, reply latency ==
+  d=1.0 q=0.0: Hs=550 Hl=1100 tau=+0.50 cutoff=0.100 wait=825 reply=1568
+  d=2.0 q=0.0: Hs=250 Hl=1300 tau=+0.50 cutoff=0.098 wait=574 reply=1317
+  d=4.0 q=0.0: Hs=50 Hl=1450 tau=-0.25 cutoff=0.100 wait=67 reply=811
+  d=1.0 q=0.5: Hs=850 Hl=1250 tau=-0.75 cutoff=0.100 wait=892 reply=1636
+  d=2.0 q=0.5: Hs=800 Hl=1650 tau=-0.75 cutoff=0.100 wait=834 reply=1578
+  d=4.0 q=0.5: Hs=700 Hl=2150 tau=-0.25 cutoff=0.100 wait=718 reply=1461
+
+== Monte Carlo check of the closed forms (200,000 turns), medium pauses ==
+  d=2.0 tau=0.0 q=0.0 Hs=300 Hl=900: cutoff mc 0.1989 closed 0.1991; wait mc 396.3 closed 395.2
+  d=2.0 tau=0.5 q=0.25 Hs=200 Hl=1000: cutoff mc 0.2870 closed 0.2858; wait mc 447.2 closed 446.8
+  d=4.0 tau=0.0 q=0.5 Hs=150 Hl=800: cutoff mc 0.5575 closed 0.5558; wait mc 165.0 closed 164.8
