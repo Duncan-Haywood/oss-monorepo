@@ -2197,6 +2197,11 @@
      "summary": "A stylised, preliminary re-scoring of the 448-design search of <code>selfrep-alusearch</code>: the score is the mass (or cost) the shop must still import per printer copy, vitamins plus raw stock at an assumed 0.8 yield. The import-mass minimiser reaches 5.85&nbsp;kg against 6.72&nbsp;kg for the steel-rod baseline, with the light 8&nbsp;mm hardwood rod; the earlier closure-maximising pick (12&nbsp;mm aluminium) imports 6.79&nbsp;kg, no better than baseline. By import cost the 12&nbsp;mm aluminium rod stays best (147.5 against 173.3). Yield, stock price and penalties are assumed; computed only."
     },
     {
+     "slug": "selfrep-learnfirst",
+     "title": "Which imported part should a printer-replicating shop learn to make first?",
+     "summary": "A stylised, preliminary ranking of the 29 parts the printer + router + laser shop of <code>selfrep-closure</code> still imports, by the closure gained if that one part became makeable (free and certain, so an upper bound). By mass or cost the NEMA17 stepper motor is first (+22 and +26 points) and stays first in 90% and 76% of 2,000 draws with every assumed mass and cost scaled 0.5&times; to 2&times;; by unit count the M8 nut leads, and by distinct lines every vitamin ties. Three lines buy +52 points of cost closure but +39 of mass. Masses, costs and makers are assumed; difficulty of learning is not modelled."
+    },
+    {
      "slug": "simdesign-topopt",
      "title": "Can Sigmund's 99-line topology optimisation be reproduced in Python and carried through to a printable part?",
      "summary": "A Q4 plane-stress SIMP code with the 99-line sensitivity filter and optimality-criteria update, tested against Hooke's law and finite-difference sensitivities. It gives truss-like cantilever (compliance 351.9&nbsp;&rarr;&nbsp;52.4) and half-MBB (1007.0&nbsp;&rarr;&nbsp;203.3) designs. Without the filter 11.5% of 2&times;2 cells are checkerboards; with it none, at the same compliance within 0.03%. The thresholded MBB design is one connected body and is written as an extruded, mirrored STL. Stylised: dimensionless 2D compliance only, no stress or 3D check, not compared with the published codes."
