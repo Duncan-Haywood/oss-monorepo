@@ -1,0 +1,13 @@
+[project]
+name = "garment-learning"
+version = "0.1.0"
+description = "Wright learning curve for sewing labour: how many replica coats until the labour cost per coat settles"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
