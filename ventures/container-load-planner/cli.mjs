@@ -18,7 +18,7 @@
 import { readFile } from "node:fs/promises";
 import process from "node:process";
 import {
-  SYSTEMS, PRESETS, parseCargo, planLoad, verifyPacking, balanceReport, compareOptions,
+  SYSTEMS, PRESETS, parseCargo, planLoad, verifyPacking, balanceReport, compareOptions, priceOptions, parseRates, fmtInt,
   suggestRestarts, reportCsv, planReportHtml, sampleCargo, pct, fmtNum, wtText, lenText, dimsText,
 } from "./calc.mjs";
 
@@ -32,6 +32,8 @@ Options:
                        or your own inside size and payload, e.g. 589x235x239@28200
   --imperial           sizes in inches and weights in pounds (default cm and kg)
   --compare            also run every standard size, loose and on pallets
+  --rates <id=cost,...>  what one container of each size costs, e.g. 20ft=2400,40ft=3800;
+                       adds total and cost per unit to the comparison (implies --compare)
   --restarts <n>       packing attempts per container (default scales with unit count)
   --csv                print the loading list as CSV (one row per unit)
   --html               print a self-contained printable plan
@@ -45,7 +47,7 @@ A heuristic packing for planning, not a load-securing, axle-weight or compliance
 `;
 
 export function parseArgs(argv) {
-  const opts = { file: null, container: "40ft", imperial: false, compare: false, restarts: null, csv: false, json: false, html: false, example: false, help: false };
+  const opts = { file: null, container: "40ft", imperial: false, compare: false, rates: null, restarts: null, csv: false, json: false, html: false, example: false, help: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "-h" || arg === "--help") opts.help = true;
@@ -55,7 +57,12 @@ export function parseArgs(argv) {
     else if (arg === "--json") opts.json = true;
     else if (arg === "--html") opts.html = true;
     else if (arg === "--example") opts.example = true;
-    else if (arg === "--container") {
+    else if (arg === "--rates") {
+      const v = argv[++i];
+      if (!v) throw new Error("--rates needs id=cost pairs, e.g. 20ft=2400,40ft=3800");
+      opts.rates = parseRates(v);
+      opts.compare = true;
+    } else if (arg === "--container") {
       const v = argv[++i];
       if (!v) throw new Error("--container needs a preset id or LxWxH@payload");
       opts.container = v;
@@ -101,11 +108,13 @@ export function run(text, opts = {}) {
   const comparison = opts.compare
     ? compareOptions(lines, { restarts: Math.max(2, Math.floor(restarts / 3)), custom: cr.container.id === "custom" ? cr.container : null })
     : null;
-  return { sys, lines, plan, notices, comparison };
+  const pricing = comparison && opts.rates ? priceOptions(comparison.options, opts.rates, plan.totalUnits) : null;
+  if (opts.rates && !pricing.length) notices.push(`No rate matched a size (${comparison.options.map((o) => o.id).join(", ")}).`);
+  return { sys, lines, plan, notices, comparison, pricing };
 }
 
 export function render(res) {
-  const { sys, lines, plan, notices, comparison } = res, cont = plan.container, out = [];
+  const { sys, lines, plan, notices, comparison, pricing } = res, cont = plan.container, out = [];
   out.push(`Container load plan   ${cont.name}: ${dimsText([cont.l, cont.w, cont.h], sys)} ${sys.len}, payload ${wtText(cont.payload, sys)} ${sys.wt}`, "=".repeat(72), "");
   out.push(`  Containers needed   ${plan.containersNeeded}   (volume and weight lower bound ${plan.lowerBound})`);
   out.push(`  Units packed        ${plan.packedUnits} of ${plan.totalUnits}`);
@@ -126,6 +135,13 @@ export function render(res) {
     for (const o of comparison.options) {
       const unfit = o.plan.unfit.reduce((s, u) => s + u.qty, 0);
       out.push(o.label.slice(0, 44).padEnd(46) + String(o.plan.containersNeeded).padStart(11) + pct(o.plan.avgUtil).padStart(9) + String(unfit).padStart(10));
+    }
+  }
+  if (pricing && pricing.length) {
+    out.push("", "Freight cost at your rates (cheapest complete option marked *)", "-".repeat(72), "Option".padEnd(40) + "Containers".padStart(11) + "Total".padStart(10) + "Per unit".padStart(11));
+    for (const p of pricing) {
+      const tag = p.cheapest ? "*" : p.complete ? " " : "!";
+      out.push(`${tag} ${p.label.slice(0, 37)}`.padEnd(40) + String(p.containers).padStart(11) + fmtInt(p.total).padStart(10) + (p.perUnit == null ? "—" : p.perUnit.toFixed(2)).padStart(11) + (p.complete ? "" : `   (${p.unitsLeftOut} left out)`));
     }
   }
   if (notices.length) { out.push("", "Notices", "-".repeat(72)); for (const n of notices) out.push(`  ${n}`); }
@@ -151,7 +167,7 @@ export async function main(argv) {
   if (opts.csv) process.stdout.write(reportCsv(res.plan, res.lines, res.sys));
   else if (opts.html) process.stdout.write(planReportHtml(res.plan, res.lines, res.sys, { notes: res.notices, when: new Date().toISOString().slice(0, 10) }));
   else if (opts.json) {
-    const { plan, lines, sys, notices, comparison } = res;
+    const { plan, lines, sys, notices, comparison, pricing } = res;
     console.log(JSON.stringify({
       units: sys.id,
       container: plan.container,
@@ -162,6 +178,7 @@ export async function main(argv) {
       lines: lines.map((l, k) => ({ name: l.name, ordered: l.qty, packed: plan.containers.reduce((s, c) => s + c.counts[k], 0) })),
       containers: plan.containers.map((c) => ({ units: c.count, utilisation: c.util, weightKg: c.weight, payloadShare: c.payloadPct, balance: balanceReport(plan.container, lines, c.placements), placements: c.placements })),
       notices,
+      pricing,
       comparison: comparison && comparison.options.map((o) => ({ option: o.label, containers: o.plan.containersNeeded, avgUtilisation: o.plan.avgUtil, unitsLeftOut: o.plan.unfit.reduce((s, u) => s + u.qty, 0) })),
     }, null, 2));
   } else console.log(render(res));

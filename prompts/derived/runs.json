@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-19T00:07:57Z",
+ "generated": "2026-10-19T00:23:03Z",
  "rows": [
   {
    "date": "2026-10-01",
@@ -25375,6 +25375,83 @@
    "prompt_version": 0,
    "record": "2026-10-18-session_01YQYvS6KwNxNKsq9aCpSNh5.json",
    "track": "research"
+  },
+  {
+   "date": "2026-10-19",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8212",
+   "prompt_version": 1,
+   "record": "2026-10-19-session_018tT8z7ZsZVhKEqqo9Pkhm9.json",
+   "track": "process"
+  },
+  {
+   "date": "2026-10-19",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8210",
+   "prompt_version": 1,
+   "record": "2026-10-19-session_01BxRLP2RQYmi2HF6ysitrx1.json",
+   "track": "review"
+  },
+  {
+   "date": "2026-10-19",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8214",
+   "prompt_version": 0,
+   "record": "2026-10-19-session_01H6fS26VNNchM3QRd3eQDPy.json",
+   "track": "redteam"
+  },
+  {
+   "date": "2026-10-19",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8209",
+   "prompt_version": 0,
+   "record": "2026-10-19-session_01MNYganFejgHHYUJY6hxcKs.json",
+   "track": "explore"
+  },
+  {
+   "date": "2026-10-19",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8211",
+   "prompt_version": 1,
+   "record": "2026-10-19-session_01MPRrBPKeGoPMkED1MTiApR.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-19",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8207",
+   "prompt_version": 1,
+   "record": "2026-10-19-session_01MtdEZAW3C3XDfh7efSZkRM.json",
+   "track": "review"
+  },
+  {
+   "date": "2026-10-19",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8213",
+   "prompt_version": 0,
+   "record": "2026-10-19-session_01SiDVZ8DHmddzjgdExGPCeV.json",
+   "track": "redteam"
   },
   {
    "date": null,

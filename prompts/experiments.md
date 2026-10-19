@@ -763,15 +763,24 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 
 ## E42: review 2026-10-19
 
-- Change: `allocate.py` `rank()` now breaks ties by least-worked first
+- Change: `research/CLAUDE.md` pyenv note now says first use can take over 2
+  minutes and to run it with `run_in_background` (E41 said ~20s; 5 reports
+  of a 120s foreground timeout since). `derived/` regenerated (53 PRs).
+- Metric: friction reports about pyenv foreground timeouts, next 20 research
+  runs; expect none.
+- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 7 runs).
+  Audit not run (recent outputs doc-only or mirrored).
+- Drift: `prompts/drift/2026-10-19.md`.
+- Result: (next review)
+
+## E43: review 2026-10-19 (second)
+
+- Change: `allocate.py` `rank()` breaks merit ties by least-worked first
   (ledger entries + portfolio mentions, ascending) before name. Top rows were a
   merit tie sorted alphabetically, so every run met the same already-deep
-  ventures (reverb, where-to-sell: ~20 friction reports across
-  `CLAUDE.md`, `ventures/prompt-1.md`, `allocate.py`). Top 3 now include
-  ventures with 0 ledger entries.
+  ventures (reverb, where-to-sell; the top friction in `CLAUDE.md` and
+  `ventures/prompt-1.md`). Top 3 now include 0-ledger ventures.
 - Metric: "allocator top rows already deep" friction reports, next 20 ventures
   runs; expect fewer.
-- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 7 runs).
-  `derived/` regenerated. Audit not run (recent outputs are venture deepenings
-  and research already audited).
+- Candidates: unchanged. `test_allocate` passes (57 tests).
 - Result: (next review)

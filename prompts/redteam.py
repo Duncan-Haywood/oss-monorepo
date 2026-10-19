@@ -34,6 +34,7 @@ import json
 import os
 import random
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -275,9 +276,16 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
                          "That is a real defect: fix it (blue team) before measuring.")
 
     pool = sites(text, lang)
+    n = min(mutants, len(pool))
+    print(f"baseline green in {base_seconds}s; {n} mutants will take about "
+          f"{round(base_seconds * n / 60, 1)} min. If a slow suite makes you kill this, "
+          "run `git status` afterwards: a suite may rewrite tracked files outside the target.",
+          file=sys.stderr)
     rng = random.Random(seed)
     chosen = sorted(rng.sample(pool, min(mutants, len(pool))), key=lambda s: (s.line, s.col))
     results = []
+    # A tool-timeout kill is SIGTERM, which skips `finally` unless it raises.
+    old_term = signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
     try:
         for i, site in enumerate(chosen, 1):
             target.write_text(apply(text, site))
@@ -293,6 +301,7 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
             print(f"  [{i}/{len(chosen)}] line {site.line} {site.operator}: "
                   f"{'caught' if not passed else 'ESCAPED'} ({seconds}s)", file=sys.stderr)
     finally:
+        signal.signal(signal.SIGTERM, old_term)
         target.write_bytes(original)
     if target.read_bytes() != original:
         raise SystemExit(f"{target}: could not restore the original; check `git diff`")
