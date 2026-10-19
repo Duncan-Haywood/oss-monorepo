@@ -103,3 +103,15 @@ test("single-quoted attribute values are read", () => {
   const p = parse(`<html><head><title>T</title><meta name='description' content='single quoted'></head><body></body></html>`);
   assert.equal(p.description, "single quoted");
 });
+
+test("empty h1, og:url mismatch, hreflang without self and meta refresh are reported", () => {
+  const r = audit(GOOD.replace("<h1>Round robin schedule generator</h1>", "<h1><img src=l.png alt=''></h1>")
+    .replace('<meta name="twitter:card"', '<meta property="og:url" content="https://example.com/other"><meta http-equiv="refresh" content="0;url=/x"><link rel="alternate" hreflang="fr" href="https://example.com/fr/"><meta name="twitter:card"'));
+  const ids = r.findings.map((f) => f.id);
+  for (const id of ["h1-empty", "og-url-mismatch", "hreflang-no-self", "meta-refresh"]) assert.ok(ids.includes(id), id);
+});
+
+test("matching og:url and a self-referencing hreflang set stay clean", () => {
+  const r = audit(GOOD.replace('<meta name="twitter:card"', '<meta property="og:url" content="https://example.com"><link rel="alternate" hreflang="en" href="https://example.com/"><link rel="alternate" hreflang="fr" href="https://example.com/fr/"><meta name="twitter:card"'));
+  assert.deepEqual(r.findings.map((f) => f.id), []);
+});
