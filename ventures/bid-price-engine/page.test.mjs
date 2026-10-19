@@ -26,7 +26,7 @@ test("JSON-LD parses and the FAQ matches the visible FAQ", () => {
 
 test("every form control has a label and user text is escaped before innerHTML", () => {
   const html = page("index.html");
-  for (const id of ["trade", "labor", "materials", "burden", "waste", "subs", "equip", "miles", "mile-rate", "cont", "over", "margin", "rival", "deposit", "oh-annual", "oh-direct"]) {
+  for (const id of ["trade", "labor", "materials", "burden", "waste", "subs", "equip", "miles", "mile-rate", "cont", "over", "margin", "rival", "deposit", "oh-annual", "oh-direct", "co-name", "co-hours", "co-materials", "co-subs", "co-equip", "co-revenue"]) {
     assert.match(html, new RegExp(`<label for="${id}">`), id);
   }
   assert.match(html, /const esc = /);
