@@ -26,18 +26,22 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/process/prompt-1.md",
       "issue": "Backlog had only owner rows; took Critique from measure's friction list as written."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Critique pick from measure friction list collided with a sibling run fixing the same research/CLAUDE.md lines minutes earlier; no claim step for process runs."
     }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Backlog ids touched: none. Fixed research/CLAUDE.md friction: projects.json theme placement, long run.py background.",
+  "notes": "Backlog ids touched: none. Sibling run landed the identical research/CLAUDE.md fix first; PR carries only this record (conflict resolved to main's wording).",
   "corrections": [],
   "redteam": null
 }
