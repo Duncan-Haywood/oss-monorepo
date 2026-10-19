@@ -37,6 +37,8 @@ zero dependencies, one JSON file on a disk you own.
   per request. Read them in `/admin` before merging.
 - Tests: `node --test server.test.mjs`.
 
+- **Share link:** "Copy share link" puts the whole setup (staff, wages, shifts, rules) in the URL fragment, so a co-manager opens the same setup in one click. The fragment is never sent to a server; it still shows pay, so share it only with people who may see wages.
+
 ## Model
 
 - People: `name, wage, max hours, min hours, availability, roles: cook|server, prev: Sun 10pm` (`prev:` is when their last shift last week ended, so the rest rule holds across the week boundary; `Mon-Fri 9-17; Sat 10am-2pm; Sun off`; blank = any time; roles optional).

@@ -124,6 +124,7 @@
     <label for="template-pick">or start from a template</label> <select id="template-pick" aria-label="Start from a template"><option value="">Choose a business type</option></select>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <button type="button" class="secondary" id="save-setup">Save setup file</button>
+    <button type="button" class="secondary" id="share-link">Copy share link</button> <span class="note" id="share-note">The link holds the whole setup, wages included, in the part after # that no server receives. Send it only to people who may see pay.</span>
     <label for="setup-file">Load setup file</label> <input id="setup-file" type="file" accept=".json,application/json">
     <p><label for="lastweek-file">Carry over last week: choose last week's roster CSV</label> <input id="lastweek-file" type="file" accept=".csv,text/csv"> <span class="note">Sets each person's <code>prev:</code> (when their last shift ended) so rest rules hold across Monday.</span></p>
     <p class="note">Your people, shifts and settings are remembered on this device only (browser local storage), so next week you can open the page and click the button. <button type="button" class="secondary" id="forget">Forget saved data</button></p>
@@ -234,7 +235,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional or your own knowledge of the labor rules that apply to you. Results are planning estimates from the numbers you supply. You are responsible for reviewing and verifying its output before relying on it.</p>
     <p><strong>Independent.</strong> Not affiliated with any scheduling, payroll or point-of-sale vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your staff list and roster are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>roster_built</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your staff list and roster are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>roster_built</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>, <code>share_link_copied</code>, <code>share_link_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Next step: the <a href="../time-off-request-planner/">time-off request planner</a> decides which vacation requests fit your minimum cover.</p>
     <p>Once the roster is posted: the <a href="../fair-workweek-schedule-checker/">fair workweek schedule checker</a> prices the premium pay that late changes and short rests trigger under predictive scheduling laws.</p>
@@ -500,6 +501,19 @@
     for (const f of FIELDS) $("#" + f).addEventListener("input", persist);
     $("#forget").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device."; });
     $("#save-setup").addEventListener("click", () => download("roster-setup.json", JSON.stringify(snapshot(), null, 2), "application/json"));
+
+    // Share link: the setup rides in the URL fragment, which browsers never send to a server.
+    const b64 = (str) => btoa(String.fromCharCode(...new TextEncoder().encode(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const unb64 = (t) => new TextDecoder().decode(Uint8Array.from(atob(t.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0)));
+    $("#share-link").addEventListener("click", () => {
+      const url = location.href.split("#")[0] + "#setup=" + b64(JSON.stringify(snapshot()));
+      try { navigator.clipboard.writeText(url); } catch (e) { /* shown below */ }
+      status.textContent = url.length > 8000 ? "That link is very long and some apps will cut it; use Save setup file instead." : "Share link copied. Anyone who opens it gets this setup; click the button to build.";
+      try { history.replaceState(null, "", url); } catch (e) { /* optional */ }
+      record("share_link_copied");
+    });
+    const shareHash = /^#setup=([A-Za-z0-9_-]+)$/.exec(location.hash);
+    if (shareHash) { try { apply(JSON.parse(unb64(shareHash[1]))); status.textContent = "Loaded the setup from the link you opened. Click the button to build; check every name and wage."; record("share_link_opened"); } catch (e) { status.textContent = "That link's setup could not be read."; } }
 
     let postedCsv = "";
     function showChanges() {
