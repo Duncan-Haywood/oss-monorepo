@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, floorPlanHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove, suggestFixes, compareTableCounts,
+  setupJson, parseSetup, shareFragment, parseShareFragment, baselinePlan, sampleSpec, planCsv, tableSignsHtml, floorPlanHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove, suggestFixes, compareTableCounts,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -534,4 +534,21 @@ test("compareTableCounts runs the optimiser at each table count and applies noth
   // A pin to table 5 rules out smaller counts.
   const pinned = specFrom("A\nB\nC\nD\nE\nF", "A @ 5", { seatsPerTable: 3, tableCount: "" });
   assert.deepEqual(compareTableCounts(pinned, 4).map((r) => r.tables), [5, 6]);
+});
+
+test("share link round-trips a setup, including non-ASCII names", () => {
+  const state = { guests: "Zoë Müller | fam\nJosé Núñez", rules: "Zoë Müller + José Núñez", seats: "8", tcount: "", sizes: "", access: "", balance: true, mix: "spread", prevplan: "" };
+  const frag = shareFragment(state);
+  assert.match(frag, /^s=[A-Za-z0-9_-]+$/);
+  const { state: back, error } = parseShareFragment("#" + frag);
+  assert.equal(error, null);
+  assert.equal(back.guests, state.guests);
+  assert.equal(back.mix, "spread");
+});
+
+test("share link ignores other hashes and rejects damaged ones", () => {
+  assert.deepEqual(parseShareFragment(""), { state: null, error: null });
+  assert.deepEqual(parseShareFragment("#top"), { state: null, error: null });
+  assert.ok(parseShareFragment("#s=%%%").state === null);
+  assert.ok(parseShareFragment("#s=AAAA").error);
 });
