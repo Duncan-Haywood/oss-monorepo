@@ -128,6 +128,18 @@
     <div id="bt-note" class="note"></div>
     <div class="scroll"><table id="bt" hidden><thead><tr><th>Season</th><th class="n">Actual</th><th class="n">Tool ordered</th><th class="n">Profit</th><th class="n">Average rule</th><th class="n">Profit</th><th class="n">Best-ever rule</th><th class="n">Profit</th></tr></thead><tbody></tbody></table></div>
     <button type="button" id="download">Download profit curve CSV</button>
+    <button type="button" class="secondary" id="add-basket">Add this product to a cash-limited basket</button>
+  </section>
+
+  <section id="basket-card" class="card" hidden>
+    <h2>Cash-limited basket</h2>
+    <p class="note">Buying several products from one pot of cash? Analyse each one above and add it here. The tool spreads your cash to where each dollar earns most expected profit, and says what the limit costs you against ordering every best quantity. Heuristic: price breaks make the true optimum lumpy, so the upper bound shown is the best any plan could do.</p>
+    <label for="budget">Cash you can spend on this buy (all products together)</label>
+    <input id="budget" inputmode="decimal" placeholder="e.g. 5000">
+    <div class="scroll"><table id="basket"><thead><tr><th>Product</th><th class="n">Best order alone</th><th class="n">Order within cash limit</th><th class="n">Cash used</th><th class="n">Expected profit</th></tr></thead><tbody></tbody></table></div>
+    <div id="basket-summary" class="note"></div>
+    <button type="button" id="alloc">Split my cash</button>
+    <button type="button" class="secondary" id="basket-clear">Empty basket</button>
   </section>
 
   <section class="card">
@@ -158,14 +170,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the numbers you supply; they do not guarantee what you will sell. You are responsible for reviewing and verifying its output before relying on it.</p>
     <p><strong>Independent.</strong> Not affiliated with any accounting, point-of-sale, inventory or e-commerce vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>optimize_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>optimize_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>budget_split</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../sales-seasonality-forecaster/">sales seasonality forecaster</a>, the <a href="../clearance-markdown-planner/">clearance markdown planner</a> and the <a href="../shopify-inventory-reorder-planner/">reorder planner</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseSeasons, parseBreaks, analyze, reportCsv, sampleText, sampleBreaks, num, money, pct } from "./calc.mjs";
+    import { parseSeasons, parseBreaks, analyze, allocateBudget, reportCsv, sampleText, sampleBreaks, num, money, pct } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -251,6 +263,27 @@
       if (run()) { record("example_loaded"); status.textContent = "Sample data: seven invented seasons for one product, not a real business."; }
     });
     $("#clear-all").addEventListener("click", () => { ["#seasons", "#breaks", "#price", "#low", "#likely", "#high"].forEach((s) => { $(s).value = ""; }); report.hidden = true; last = null; status.textContent = "Enter demand and money, then click Find the best order."; });
+    const basket = [];
+    function drawBasket() {
+      $("#basket-card").hidden = !basket.length;
+      $("#basket tbody").innerHTML = basket.map((b) => `<tr><td>${esc(b.name)}</td><td class="n">${num(b.best.q)}</td><td class="n">–</td><td class="n">${money(b.best.outlay)}</td><td class="n">${money(b.best.expProfit)}</td></tr>`).join("");
+      $("#basket-summary").textContent = `${basket.length} product(s) in the basket. Ordering every best quantity would need ${money(basket.reduce((a, b) => a + b.best.outlay, 0))}.`;
+    }
+    $("#add-basket").addEventListener("click", () => {
+      if (!last) return;
+      basket.push({ name: `Product ${basket.length + 1}`, curve: last.curve, best: last.best });
+      drawBasket(); $("#basket-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    $("#basket-clear").addEventListener("click", () => { basket.length = 0; drawBasket(); });
+    $("#alloc").addEventListener("click", () => {
+      const r = allocateBudget(basket, val("#budget", NaN));
+      if (r.error) { $("#basket-summary").textContent = r.error; return; }
+      $("#basket tbody").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${num(x.unconstrainedQ)}</td><td class="n">${num(x.q)}</td><td class="n">${money(x.outlay)}</td><td class="n">${money(x.expProfit)}</td></tr>`).join("");
+      $("#basket-summary").textContent = r.binding
+        ? `Spending ${money(r.spent)} of your limit earns an expected ${money(r.total)}, against ${money(r.unconstrainedProfit)} if cash were unlimited (it would need ${money(r.unconstrainedOutlay)}). No plan can beat ${money(r.bound)}.`
+        : `Your cash covers every best order (${money(r.unconstrainedOutlay)}), so the limit costs you nothing. Expected profit ${money(r.total)}.`;
+      record("budget_split");
+    });
     $("#download").addEventListener("click", () => {
       if (!last) return;
       const a = document.createElement("a");
