@@ -1,0 +1,245 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01MbUCFujUDp389BqQEPZ7UF",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-19T09:07:50Z",
+  "ended": "2026-10-19T09:08:03Z",
+  "wall_minutes": 1.08,
+  "tokens_in": 876462,
+  "tokens_out": 4545,
+  "cost_usd": 0.3961,
+  "tool_calls": 14,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "record has redteam.campaigns[].mutants, not a top-level mutants list; snippets assuming otherwise KeyError"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/rates.mjs",
+        "test": "node --test platform/pages/rates.test.mjs  (in .)",
+        "seed": 1043437273,
+        "commit": "970a599ef7",
+        "sites": 151,
+        "baseline_seconds": 1.1,
+        "mutants": [
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 645,
+            "col": 41,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isFinite(result) || result < 0) return null;",
+            "after": "if (!Number.isFinite(result) || result <= 0) return null;",
+            "line_text": "  if (!Number.isFinite(result) || result < 0) return null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 683,
+            "col": 31,
+            "operator": "neq-flip",
+            "before": "if (!parsed || typeof parsed !== 'object') return null;",
+            "after": "if (!parsed || typeof parsed === 'object') return null;",
+            "line_text": "  if (!parsed || typeof parsed !== 'object') return null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 750,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": ".pf-rates-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}",
+            "after": ".pf-rates-line{margin:1;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}",
+            "line_text": ".pf-rates-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "unitless margin:1 is invalid CSS and is dropped; the div has no default margin"
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 900,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (var i = 0; i < FIELDS.length; i++) {",
+            "after": "for (var i = 1; i < FIELDS.length; i++) {",
+            "line_text": "  for (var i = 0; i < FIELDS.length; i++) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "source-pinning assertion added in rates.test.mjs"
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 910,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "if (!isFinite(value) || value < 0 || value > max) return null;",
+            "after": "if (!isFinite(value) || value < 1 || value > max) return null;",
+            "line_text": "    if (!isFinite(value) || value < 0 || value > max) return null;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "source-pinning assertion added in rates.test.mjs"
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 932,
+            "col": 16,
+            "operator": "gt-to-ge",
+            "before": "return kept > 0 ? out : null;",
+            "after": "return kept >= 0 ? out : null;",
+            "line_text": "    return kept > 0 ? out : null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 945,
+            "col": 30,
+            "operator": "and-to-or",
+            "before": "var source = parsed.rates && typeof parsed.rates === 'object' ? parsed.rates : parsed;",
+            "after": "var source = parsed.rates || typeof parsed.rates === 'object' ? parsed.rates : parsed;",
+            "line_text": "    var source = parsed.rates && typeof parsed.rates === 'object' ? parsed.rates : parsed;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": false,
+            "note": "source-pinning assertion added in rates.test.mjs"
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 1029,
+            "col": 31,
+            "operator": "true-to-false",
+            "before": "button('clear').hidden = true;",
+            "after": "button('clear').hidden = false;",
+            "line_text": "      button('clear').hidden = true;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "source-pinning assertion added in rates.test.mjs"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7857e078-7e34-551f-bd4a-6d7da1669f68",
+    "transcripts": 1,
+    "first": "2026-10-19T09:07:50Z",
+    "last": "2026-10-19T09:08:55Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 13,
+        "input": 26,
+        "output": 4545,
+        "thinking": 593,
+        "cache_read": 830309,
+        "cache_write_5m": 0,
+        "cache_write_1h": 46127,
+        "api_equivalent_usd": 0.3961,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 13,
+      "input": 26,
+      "output": 4545,
+      "thinking": 593,
+      "cache_read": 830309,
+      "cache_write_5m": 0,
+      "cache_write_1h": 46127,
+      "api_equivalent_usd": 0.3961,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.947,
+    "tool_calls": 14,
+    "tools": {
+      "Bash": 10,
+      "Read": 3,
+      "bash": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.08,
+      "active_minutes": 1.08,
+      "model_minutes": 0.89,
+      "tool_minutes": 0.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "read target, write guard tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 252.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
