@@ -1,0 +1,13 @@
+[project]
+name = "capture-wake"
+version = "0.1.0"
+description = "One shared trigger for a multi-camera rig against a trigger per camera: rig energy, coverage and false-alarm cost on a synthetic day"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
