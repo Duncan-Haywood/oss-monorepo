@@ -3270,6 +3270,11 @@
      "title": "Does the month a house build starts change how long it takes and the interest paid?",
      "summary": "Reruns the <code>house-schedule</code> Monte Carlo (3,000 builds per cell) with a monthly weather calendar and a slower concrete cure in the cold, starting in each month. In an assumed cold-winter climate a December start takes 231 working days against 211 for July (about 20 days, 0.3 points of the price in interest); in an assumed mild climate the swing is 4 days. Ordering all materials at day 0 saves about 63 days in every month, so the two levers add. A flat climate reproduces <code>house-schedule</code> exactly (tested). <em>Stylised</em>: the monthly loss fractions are my assumptions, not weather data, and seasonal prices are ignored."
     }
+    ,{
+     "slug": "house-solar",
+     "title": "Does solar gain through windows change which envelope is cheapest over 30 years, and is the direction the windows face worth money?",
+     "summary": "Adds window solar gain, computed from solar geometry by orientation, to <code>house-energy</code>&rsquo;s 640-package net-present-cost search. U&nbsp;0.50 windows stay the optimum in 15 of 16 climate and system cases (Miami moves to U&nbsp;0.35), and forcing U&nbsp;0.20 glass costs $5,300 to $5,700 whatever its solar heat gain coefficient, so the earlier window result was not an artifact of the missing solar term. Which way the windows face is free and worth $420 to $1,740 of 30-year cost per house, south-heavy glazing best except in Miami. <em>Stylised</em>: degree-day model, assumed prices, latitudes and clearness, trigonometry written from memory and not validated against weather data."
+    }
    ]
   }
  ],
