@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -366,7 +366,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", officials: "Pat (A): Tue max 4", grounds: "A, B" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "", rounds: "" });
@@ -1722,4 +1722,48 @@ test("one-day timetable: clock times step by match plus changeover, double doubl
   assert.throws(() => oneDayTimetable(["A", "B"], {}), /three teams/);
   assert.throws(() => oneDayTimetable(names(4), { start: "soon" }), /Start time/);
   assert.throws(() => oneDayTimetable(names(4), { courts: 0 }), /Courts/);
+});
+
+test("separateLinkedTeams: linked teams are moved to different times, only the time changes, schedule stays valid", () => {
+  for (const double of [false, true]) {
+    const sch = buildSchedule(baseSpec(8, { double, courts: ["A"], times: ["18:00", "19:00", "20:00", "21:00"] }));
+    const groups = [[0, 1], [2, 3]];
+    const before = linkedClashes(sch, groups);
+    const r = separateLinkedTeams(sch, groups);
+    // recount independently from the output rounds
+    let clash = 0;
+    for (const rd of r.schedule.rounds) for (const g of groups) {
+      const times = rd.matches.filter((m) => g.includes(m.home) || g.includes(m.away)).map((m) => m.time);
+      const ms = rd.matches.filter((m) => g.includes(m.home) || g.includes(m.away));
+      if (ms.length === 2 && ms[0].time === ms[1].time && !(g.includes(ms[0].home) && g.includes(ms[0].away))) clash++;
+      void times;
+    }
+    assert.equal(clash, r.remainingCount);
+    assert.equal(r.remainingCount, 0);
+    assert.ok(before.count > 0 || r.moves.length === 0);
+    assert.equal(validateSchedule(r.schedule).ok, true);
+    assert.equal(linkedClashes(sch, groups).count, before.count);
+    const pairs = (s) => s.rounds.map((rd) => rd.day + ":" + rd.matches.map((m) => m.home + "-" + m.away + "@" + m.court).sort().join(",")).join("|");
+    assert.equal(pairs(r.schedule), pairs(sch));
+  }
+});
+
+test("separateLinkedTeams: one time slot cannot be fixed and is reported; two linked teams who meet are no clash", () => {
+  const sch = buildSchedule(baseSpec(4, { courts: ["A", "B"], times: [] }));
+  const r = separateLinkedTeams(sch, [[0, 1]]);
+  assert.equal(r.moves.length, 0);
+  assert.equal(r.remainingCount, linkedClashes(sch, [[0, 1]]).count);
+  assert.equal(r.schedule.rounds.every((rd) => rd.matches.length === 2), true);
+  const both = linkedClashes(sch, [[0, 1]]);
+  for (const c of both.clashes) assert.ok(c.teams.length >= 2);
+  // teams 0 and 1 meet once; that round is not a clash for them alone
+  const meet = sch.rounds.find((rd) => rd.matches.some((m) => [m.home, m.away].sort().join() === "0,1"));
+  assert.ok(!both.clashes.some((c) => c.round === meet.label));
+});
+
+test("parseLinkedTeams and share link", () => {
+  const r = parseLinkedTeams("Team 1, Team 2\nTeam 3, Nobody", names(4));
+  assert.deepEqual(r.groups, [[0, 1]]);
+  assert.match(r.errors[0], /^Linked teams:/);
+  assert.equal(decodeFields(encodeFields({ ...sampleFields(), linked: "Team 1, Team 2" })).linked, "Team 1, Team 2");
 });

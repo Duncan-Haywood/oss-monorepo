@@ -50,7 +50,7 @@ test("inputs are labelled and nothing is sent anywhere", () => {
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
   assert.doesNotMatch(page("calc.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|import\(/);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./remember.mjs", "./usage.mjs"]);
 });
 
 test("the inline script uses only names calc.mjs exports", async () => {

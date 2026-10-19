@@ -108,6 +108,7 @@
       <div class="actions">
         <button id="copyLink" type="button">Copy shareable link</button>
         <button id="copyCounterOffer" type="button">Copy counter-offer message</button>
+        <button id="preferredSeller" type="button">I'm a Preferred Seller (2.99% processing)</button>
         <button id="reset" type="button">Reset to defaults</button>
       </div>
       <p id="status" class="note" role="status" aria-live="polite"></p>
@@ -559,6 +560,13 @@
         flash(message);
       }
       recordUsage(undefined, field('usageOptOut').checked, 'reverb_counter_offer_copied');
+    });
+    field('preferredSeller').addEventListener('click', () => {
+      // Reverb's billing page lists 2.99% + $0.49 for Preferred Sellers; the
+      // fixed fee is unchanged, so only the percentage moves.
+      field('paymentRate').value = '2.99';
+      paint();
+      flash('Payment processing set to 2.99%. Check it against your payout statement.');
     });
     field('reset').addEventListener('click', () => {
       apply(REVERB_DEFAULTS);

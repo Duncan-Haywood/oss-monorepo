@@ -1155,6 +1155,92 @@ export function applyGroundSharing(schedule, groups) {
   return { schedule: s, flips, remaining: left.clashes, remainingCount: left.count };
 }
 
+// ---------------------------------------------------------------- linked teams (shared coach or players)
+
+/** Lines like "Hawks U12, Hawks U14" (teams that share a coach or players and cannot play at the same time). */
+export function parseLinkedTeams(text, teams) {
+  const { groups, errors } = parseGrounds(text, teams);
+  return { groups, errors: errors.map((e) => e.replace(/^Shared grounds:/, "Linked teams:")) };
+}
+
+/**
+ * Nights where two or more linked teams play in different matches at the same time slot, so one coach or
+ * player cannot be at both. Returns { clashes: [{ round, day, time, teams[] }], count } where count is the
+ * number of surplus teams (three linked teams at one time count as 2). Two linked teams who meet each other
+ * are not a clash.
+ */
+export function linkedClashes(schedule, groups) {
+  const clashes = [];
+  let count = 0;
+  for (const r of schedule.rounds) {
+    for (const g of groups) {
+      const byTime = new Map();
+      r.matches.forEach((m, mi) => {
+        for (const t of [m.home, m.away]) if (g.includes(t)) {
+          const k = m.time ?? "";
+          if (!byTime.has(k)) byTime.set(k, []);
+          byTime.get(k).push({ t, mi });
+        }
+      });
+      for (const [time, at] of byTime) {
+        const matchesAt = new Set(at.map((x) => x.mi));
+        if (matchesAt.size > 1) {
+          clashes.push({ round: r.label, day: r.day, time, teams: at.map((x) => schedule.teams[x.t]) });
+          count += matchesAt.size - 1;
+        }
+      }
+    }
+  }
+  return { clashes, count };
+}
+
+/**
+ * Moves matches to another time slot on the same court and night so linked teams are not on at the same time.
+ * A move or swap is kept only when it lowers the clash count and the independent validator still passes (so
+ * dates, courts, opponents, venues and every team's time and court limits are untouched). Returns a new schedule
+ * (input untouched), the moves made, and the clashes left, which a league with one time slot, or more linked
+ * teams than slots, cannot avoid.
+ */
+export function separateLinkedTeams(schedule, groups) {
+  const s = JSON.parse(JSON.stringify(schedule));
+  const cfg = s.config;
+  const moves = [];
+  let best = linkedClashes(s, groups).count;
+  const nT = cfg.times.length;
+  if (nT > 1) {
+    for (let pass = 0; pass < 3 && best > 0; pass++) {
+      let changed = false;
+      for (const r of s.rounds) {
+        for (const m of [...r.matches]) {
+          if (best === 0) break;
+          for (let ti = 0; ti < nT && best > 0; ti++) {
+            if (cfg.times[ti] === m.time) continue;
+            const other = r.matches.find((x) => x !== m && x.court === m.court && x.time === cfg.times[ti]);
+            const oldTime = m.time;
+            const set = (x, time) => { x.time = time; x.slot = cfg.courts.indexOf(x.court) + cfg.courts.length * cfg.times.indexOf(time); };
+            const before = best;
+            set(m, cfg.times[ti]);
+            if (other) set(other, oldTime);
+            const after = linkedClashes(s, groups).count;
+            if (after < before && validateSchedule(s).ok) {
+              best = after; changed = true;
+              moves.push({ round: r.label, day: r.day, match: `${m.homeName} v ${m.awayName}`, from: oldTime, to: m.time });
+              break;
+            }
+            set(m, oldTime);
+            if (other) set(other, cfg.times[ti]);
+          }
+        }
+        r.matches.sort((a, b) => a.slot - b.slot);
+      }
+      if (!changed) break;
+    }
+  }
+  const left = linkedClashes(s, groups);
+  s.stats = scheduleStats(s);
+  return { schedule: s, moves, remaining: left.clashes, remainingCount: left.count };
+}
+
 // ---------------------------------------------------------------- views and exports
 
 // ---------------------------------------------------------------- officials (referees, umpires, scorers)
@@ -2145,7 +2231,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds", "scoring"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -2175,7 +2261,7 @@ export function decodeFields(text) {
       rounds: o.rounds === undefined || o.rounds === "" ? "" : String(o.rounds).slice(0, 4),
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
       playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
-      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds), scoring: str(o.scoring),
+      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds), linked: str(o.linked), scoring: str(o.scoring),
     };
   } catch { return null; }
 }

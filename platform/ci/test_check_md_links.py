@@ -32,10 +32,10 @@ class DeadLinks(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             (root / "sub").mkdir()
-            (root / "real.md").write_text("x")
+            (root / "real.md").write_text("# h\n")
             doc = root / "sub" / "a.md"
             doc.write_text(
-                "[ok](../real.md#h) [bad](nope.md) [web](https://x.y) [anc](#a) [site](/page)\n"
+                "[ok](../real.md#h) [bad](nope.md) [web](https://x.y) [site](/page)\n"
             )
             self.assertEqual([t for _, t in c.dead_links(doc, root)], ["nope.md"])
 
@@ -47,6 +47,27 @@ class DeadLinks(unittest.TestCase):
             doc = root / "a.md"
             doc.write_text("[q](real.md?raw=1) [n](nope.md)\n")
             self.assertEqual(list(c.dead_links(doc, root)), [(1, "nope.md")])
+
+
+class Anchors(unittest.TestCase):
+    def test_slugs_follow_github(self):
+        text = "# Usage counting\n## d. `Foo` [bar](x.md)?\n## Same\n## Same\n```\n# not a heading\n```\n"
+        self.assertEqual(
+            c.heading_slugs(text),
+            {"usage-counting", "d-foo-bar", "same", "same-1"},
+        )
+
+    def test_dead_anchor_same_and_other_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "real.md").write_text("## Real Part\n")
+            (root / "pic.png").write_text("x")
+            doc = root / "a.md"
+            doc.write_text(
+                "# Top\n[ok](#top) [dead](#gone) [ok2](real.md#real-part) "
+                "[dead2](real.md#nope) [img](pic.png#x)\n"
+            )
+            self.assertEqual([t for _, t in c.dead_links(doc, root)], ["#gone", "real.md#nope"])
 
 
 class Main(unittest.TestCase):

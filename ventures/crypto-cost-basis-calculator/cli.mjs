@@ -150,6 +150,11 @@ export function render({ result, formats, notes }, opts = {}) {
     out.push("", `Income received in ${ir.year} (staking, mining, airdrops; ordinary income, not in the gains above): ${usd(ir.total)} from ${ir.count} receipt(s)`);
     for (const a of ir.assets) out.push(`  ${a.asset.padEnd(8)} ${String(a.qty).padStart(14)}   ${usd(a.usd).padStart(12)}   ${a.count} receipt(s), ${a.first} to ${a.last}`);
   }
+  const wl = result.washLookalike;
+  if (wl && wl.items.length) {
+    out.push("", `Wash-sale lookalike (crypto is not covered by the wash-sale rule today; a stock-style rule would defer ${usd(wl.deferred)} of ${result.year} losses):`);
+    for (const i of wl.items) out.push(`  line ${String(i.saleLine).padEnd(4)} ${i.sold}  ${i.asset.padEnd(8)} loss ${usd(i.loss).padStart(11)}   re-bought ${i.replacedQty} of ${i.qty} within 30 days   would defer ${usd(i.deferred).padStart(10)}`);
+  }
   out.push("", "Method comparison (same sales):");
   for (const c of result.comparison) out.push(`  ${c.label.padEnd(24)} gain ${usd(c.totalGain).padStart(14)}   tax ${usd(c.tax).padStart(12)}${c.niit !== undefined ? `   NIIT ${usd(c.niit).padStart(10)}` : ""}${c.method === result.bestMethod ? "   <- lowest estimated tax" : ""}`);
   if (result.holdings.length) {

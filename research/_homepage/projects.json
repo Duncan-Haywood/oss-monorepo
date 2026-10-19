@@ -1938,6 +1938,11 @@
      "summary": "A stylised new question for track 2. A trigger fires after <em>m</em> consecutive 10 ms frames at or above a threshold, on Gaussian AR(1) background scores. Setting the threshold so that <em>P</em><sup>m</sup> = 1 per day (independent frames) is nearly right for <em>m</em> = 1 (0.78 wakes a day at &phi; = 0.9) but wrong and unsafe for <em>m</em> &ge; 2: at &phi; = 0.9 it gives 613, 4,793 and 20,993 wakes a day for <em>m</em> = 2, 3, 5. Exact rates from a grid Markov chain match Monte Carlo (largest |z| 1.69), and the threshold that really gives one a day is 2.0&ndash;2.5 sd higher. The score is a model, not a real wake-word detector, and no audio was used. Stylised."
     },
     {
+     "slug": "ambient-wakeburst",
+     "title": "How bursty are an always-on trigger's false-wake counts, and does a lockout help?",
+     "summary": "A stylised follow-up to <em>ambient-falsewake</em>. On Gaussian AR(1) frame scores, wake counts per 1,000 s window are close to Poisson (Fano factor 1.05&ndash;1.5 at <em>&phi;</em> = 0.9&ndash;0.95). A window-to-window drift in the noise scale is what makes them bursty: a 5% lognormal drift lifts the Fano factor to about 9 for <em>m</em> = 3 while moving the mean only 4%, and 10% drift gives 38. A 10 s lockout cuts the Fano factor (9.8 to 2.5 with drift) but also cuts the mean by a third; a sub-second lockout changes little. The score is a model, not a real wake-word detector, and the drift is assumed. Stylised."
+    },
+    {
      "slug": "ambient-gatesimd",
      "title": "Do a dual-MAC energy loop and a divide-free threshold make the Cortex-M4 voice gate cheaper?",
      "summary": "A stylised follow-up to <em>ambient-gatem4</em>. With the block-minimum floor the SMLALD energy loop cuts executed instructions per frame by 17% at -Os and 37% at -O2, but without it the gate gets slower (64-bit ring entries), RAM doubles and code grows by about 60%. A divide-free sum-domain threshold matched the original decision on all 36,000 frames per configuration and removes the only library call; the divide itself is not counted, so its saving is unmeasured. Emulator instruction counts on synthetic audio, not cycles and not hardware."
@@ -2200,6 +2205,11 @@
      "slug": "simdesign-retry",
      "title": "Does rolling back a robust topology-optimisation step that spikes compliance, and redoing it at half the move, beat shrinking the move afterwards?",
      "summary": "Follow-up to <code>simdesign-robustadapt</code>. The same nine robust half-MBB cases are run with five move-limit rules (45 deterministic runs): fixed 0.2, 0.1, 0.05, the earlier adaptive rule, and reject-and-retry, which discards a step whose worst-case compliance jumps more than 3&times; and redoes it at half the move. Blueprint failures: fixed 0.2, 5 of 9; adaptive, 2; retry, 1; fixed 0.1 and 0.05, none. Retry costs at most 2% more evaluations but never beat fixed 0.05, and on eroded-design quality it is 1.22&times; the best on average (fixed 0.1 hides one eroded design 25&times; worse that the blueprint test passes). Stylised: 2D dimensionless, one problem, one run per cell."
+    },
+    {
+     "slug": "simdesign-starts",
+     "title": "How much does a SIMP topology optimisation depend on its starting density field, and does penalty continuation remove it?",
+     "summary": "Half-MBB, volume 0.5, p = 3, 150 sensitivity-filtered OC iterations, 30 random starting fields at each of three noise levels on two meshes, with and without penalty continuation (1 &rarr; 3). With a fixed penalty the final compliance spreads by 1.4&ndash;2.8% (max/min &minus; 1) and the 0/1 design differs from the uniform-start design in a median 2&ndash;23% of elements, with 2&ndash;10 enclosed holes. With continuation the spread is 0.0% on 60&times;20 (identical topology from every start) and at most 0.4% on 90&times;30. On 90&times;30 the uniform start, which the 99-line code uses, is worse than 25&ndash;28 of 30 random starts at fixed penalty. Stylised: 2D, dimensionless, 150 iterations (not run to convergence), one problem, two meshes."
     },
     {
      "slug": "simdesign-fidelity",
@@ -2935,6 +2945,11 @@
      "summary": "A stdlib sweep of <code>osrobot-assist</code>'s feeding-arm twin over lip stiffness, loop stiffness and forward lead (200 paired trials per row, 30&nbsp;mm sway, camera arm at 0.20&nbsp;m/s). Mean peak lip force rises from 0.32&nbsp;N at 100&nbsp;N/m to 1.15&nbsp;N at 800 and 2.02&nbsp;N at 6400; the worst trial reaches 6.7&nbsp;N, above the controller's 4.0&nbsp;N stall push, so that push is a ceiling only for soft and medium lips. At 0.05&nbsp;m/s every stiffness stays under 2&nbsp;N. Stylised: assumed constants, a point mass and a passive user."
     },
     {
+     "slug": "osrobot-lean",
+     "title": "If the person being fed leans toward the spoon, can a blind feeding arm do without a camera?",
+     "summary": "A stdlib extension of <code>osrobot-assist</code>'s planar feeding-arm twin in which the user shifts the mouth toward the spoon tip at a swept lean speed (200 paired trials per row). At 30&nbsp;mm sway and 0.20&nbsp;m/s the blind arm's share of feeds with peak lip force at most 2&nbsp;N rises from 0.21 (passive user) to 0.69 at 50&nbsp;mm/s and 1.00 at 100&nbsp;mm/s, against 0.71 to 0.97 for the camera arm; at 50&nbsp;mm sway even 100&nbsp;mm/s gives only 0.62 for the blind arm. Leaning removes contacts but not the peak force of the ones that remain (4.0&nbsp;N at 0.20&nbsp;m/s). Stylised: every constant, including the lean speed, is assumed; no person was modelled or tested."
+    },
+    {
      "slug": "osrobot-field",
      "title": "For a weeding robot with a cheap camera, is it better to treat weeds as it drives or to scout first and come back, and what does a weak sensor cost?",
      "summary": "A stdlib simulation of a lane-following weeding robot on a 60&times;30&nbsp;m field with clustered weeds, a motion-blurred noisy detector and muddy squares. Scouting then touring the targets kills the same share of weeds as treating inline (0.399 against 0.401 at 1&nbsp;m/s) and is slower in all 23 paired rows, by 2.8 to 7.8&nbsp;min. Lane overlap repays a weak sensor at a steep price: 0 to 0.75 overlap raises the kill share from 0.40 to 0.86 and the time from 52 to 178&nbsp;min; no grid configuration reaches a 0.9 kill share at a 0.5 hit rate. Stylised: every constant is assumed, the speed results move with the blur assumption, and the planner comparison is a statement about this cost model."
@@ -3117,6 +3132,11 @@
      "slug": "mimic-whitebox",
      "title": "How many words must an imitator change to evade a word n-gram human-vs-machine detector that it can read?",
      "summary": "A word 1-2 gram logistic-regression detector (held-out AUROC 0.948 on poetry, reviews and wiki) is attacked by an imitator that knows its weights and deletes or swaps the k most machine-ward word types in each of its own texts. Deleting 10 word types drops AUROC to 0.738, 20 to 0.487 (chance) and 40 to 0.150; swapping 20 gives 0.317. A detector refit on text attacked the same way recovers to 0.94&ndash;1.00. <em>Stylised:</em> scripted edits with no fluency check, one seed, one detector family, no LLM run."
+    },
+    {
+     "slug": "mimic-blackbox",
+     "title": "How many detector queries does an imitator need to evade a human-vs-machine text detector it cannot read?",
+     "summary": "The word 1-2 gram detector of <code>mimic-whitebox</code> (held-out AUROC 0.948) is attacked by an imitator that sees only the score of each text it submits. It deletes each of Q candidate word types in turn, reads the score drop and removes the k largest. With k=20, 25 queries per text give AUROC 0.873, 50 give 0.722 and about 95 give 0.520, against 0.487 for the white-box attack that reads the weights; blind deletion (0 queries) changes nothing. Stylised and preliminary: a linear detector, one seed, no fluency check on the edited text, and no retraining of the detector against the attack."
     },
     {
      "slug": "mimic-genshift",
@@ -3304,6 +3324,11 @@
      "slug": "house-solar",
      "title": "Does solar gain through windows change which envelope is cheapest over 30 years, and is the direction the windows face worth money?",
      "summary": "Adds window solar gain, computed from solar geometry by orientation, to <code>house-energy</code>&rsquo;s 640-package net-present-cost search. U&nbsp;0.50 windows stay the optimum in 15 of 16 climate and system cases (Miami moves to U&nbsp;0.35), and forcing U&nbsp;0.20 glass costs $5,300 to $5,700 whatever its solar heat gain coefficient, so the earlier window result was not an artifact of the missing solar term. Which way the windows face is free and worth $420 to $1,740 of 30-year cost per house, south-heavy glazing best except in Miami. <em>Stylised</em>: degree-day model, assumed prices, latitudes and clearness, trigonometry written from memory and not validated against weather data."
+    }
+    ,{
+     "slug": "house-orderlead",
+     "title": "When should a builder order long-lead materials once holding them costs money?",
+     "summary": "Extends the <code>house-schedule</code> Monte Carlo (3,000 builds per row) with the cost of material that arrives before it is used: a financed deposit, storage and handling, and damage or theft. Ordering each material about two lead times before its planned start cuts the build from 214 to 182 working days and interest plus holding cost from 3.34% to 2.91% of price. Ordering everything on day 0 saves more days (151) but costs 4.00%, worse than the baseline. The cheapest order time moves from three lead times (free to hold) to 1.5 (expensive to hold). Stylised: every cost is assumed and the order plan is fixed from the baseline schedule."
     }
     ,{
      "slug": "house-overhang",
