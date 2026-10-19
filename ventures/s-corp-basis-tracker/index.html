@@ -9,7 +9,7 @@
   <meta property="og:description" content="Track S corporation stock and debt basis year by year, see which losses are suspended and how much basis would unlock them.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "S-Corp Shareholder Basis Tracker", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free S corporation shareholder basis worksheet. Enter each year's K-1 figures and it carries stock basis, debt basis and suspended losses forward in Form 7203 order, flags taxable excess distributions and shows how much basis would unlock a suspended loss. Runs in your browser; nothing is uploaded.", "featureList": "S corp stock basis tracker, shareholder debt basis, suspended loss carryforward, Form 7203 worksheet, excess distribution check, multi-year basis roll-forward"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is S corporation shareholder basis?", "acceptedAnswer": {"@type": "Answer", "text": "It is your running tax investment in the S corporation: the stock basis (what you paid or contributed, plus your share of income, minus distributions and losses) and, separately, debt basis (money you lent the company directly). Basis decides how much of a K-1 loss you can deduct and how much of a distribution is tax free."}}, {"@type": "Question", "name": "Do I need to file Form 7203?", "acceptedAnswer": {"@type": "Answer", "text": "Form 7203 generally goes with your return when you claim a deduction for an S corporation loss, receive a non-dividend distribution, dispose of stock, or receive a loan repayment, among other cases. Read the current instructions or ask your preparer; this tool only does the arithmetic in the same order."}}, {"@type": "Question", "name": "What happens when my losses are bigger than my basis?", "acceptedAnswer": {"@type": "Answer", "text": "The excess is suspended, not lost. It carries forward indefinitely and becomes deductible in a later year when you add basis, through a stock purchase, a capital contribution, a direct loan from you to the company, or the company's own income."}}, {"@type": "Question", "name": "Does a loan I personally guaranteed give me debt basis?", "acceptedAnswer": {"@type": "Answer", "text": "No. Debt basis comes from loans you made to the corporation yourself. Guaranteeing the company's bank loan, or lending through another entity, generally does not create it until you actually pay on the guarantee."}}, {"@type": "Question", "name": "What if my distributions exceed my stock basis?", "acceptedAnswer": {"@type": "Answer", "text": "The excess is generally taxed as gain, capital gain if you held the stock more than a year. Distributions reduce stock basis before losses do, so a loss in the same year cannot make a distribution tax free."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The tracker runs in your browser. Nothing is sent to a server, there are no accounts, and entries are only kept on your device if you tick the box or save a file."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is S corporation shareholder basis?", "acceptedAnswer": {"@type": "Answer", "text": "It is your running tax investment in the S corporation: the stock basis (what you paid or contributed, plus your share of income, minus distributions and losses) and, separately, debt basis (money you lent the company directly). Basis decides how much of a K-1 loss you can deduct and how much of a distribution is tax free."}}, {"@type": "Question", "name": "Do I need to file Form 7203?", "acceptedAnswer": {"@type": "Answer", "text": "Form 7203 generally goes with your return when you claim a deduction for an S corporation loss, receive a non-dividend distribution, dispose of stock, or receive a loan repayment, among other cases. Read the current instructions or ask your preparer; this tool only does the arithmetic in the same order."}}, {"@type": "Question", "name": "What happens when my losses are bigger than my basis?", "acceptedAnswer": {"@type": "Answer", "text": "The excess is suspended, not lost. It carries forward indefinitely and becomes deductible in a later year when you add basis, through a stock purchase, a capital contribution, a direct loan from you to the company, or the company's own income."}}, {"@type": "Question", "name": "Does a loan I personally guaranteed give me debt basis?", "acceptedAnswer": {"@type": "Answer", "text": "No. Debt basis comes from loans you made to the corporation yourself. Guaranteeing the company's bank loan, or lending through another entity, generally does not create it until you actually pay on the guarantee."}}, {"@type": "Question", "name": "What if my distributions exceed my stock basis?", "acceptedAnswer": {"@type": "Answer", "text": "The excess is generally taxed as gain, capital gain if you held the stock more than a year. Distributions reduce stock basis before losses do, so a loss in the same year cannot make a distribution tax free."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The tracker runs in your browser. Nothing is sent to a server, there are no accounts, and entries are only kept on your device, in this browser's own storage, if you tick the remember box, or in a file you save."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f4f2ee; }
     body { max-width: 1040px; margin: auto; padding: 28px; }
@@ -68,6 +68,7 @@
     <button type="button" id="run">Roll my basis forward</button>
     <button type="button" class="secondary" id="example">Load an invented example</button>
     <button type="button" class="secondary" id="clear">Clear</button>
+    <p class="note"><input type="checkbox" id="remember"> <label for="remember">Remember these entries on this device, so next year I only add a line.</label> Off by default. Kept only in this browser's own storage, never uploaded; untick it to erase them.</p>
   </section>
 
   <section class="card" id="out" hidden>
@@ -140,15 +141,15 @@
     <h3>What if my distributions exceed my stock basis?</h3>
     <p>The excess is generally taxed as gain, capital gain if you held the stock more than a year. Distributions reduce stock basis before losses do, so a loss in the same year cannot make a distribution tax free.</p>
     <h3>Is my data uploaded anywhere?</h3>
-    <p>No. The tracker runs in your browser. Nothing is sent to a server, there are no accounts, and entries are only kept on your device if you tick the box or save a file.</p>
+    <p>No. The tracker runs in your browser. Nothing is sent to a server, there are no accounts, and entries are only kept on your device, in this browser's own storage, if you tick the remember box, or in a file you save.</p>
   </section>
   </main>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or accounting advice and does not replace a tax professional or the instructions to Form 7203. It follows the commonly published ordering of basis adjustments and does not model at-risk limits, passive activity rules, the excess business loss limit, the qualified business income deduction, earnings and profits from C corporation years, the other adjustments account, stock sales, or state rules. Check every figure against your K-1 and your return.</p>
     <p><strong>Independent.</strong> Not affiliated with the IRS, any tax authority, or any tax software company, and none is named or ranked here. The example is invented.</p>
-    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved, so download the CSV.</p>
-    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>basis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>worksheet_downloaded</code>, <code>plan_viewed</code>, <code>sale_viewed</code>, <code>aaa_viewed</code>, <code>batch_run</code>, <code>batch_example_loaded</code>, <code>batch_csv_downloaded</code>, <code>batch_worksheets_downloaded</code>) are counted only in local storage on your device, never sent anywhere. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved unless you tick the remember box, and that copy lives only in this browser, so download the CSV.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>basis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>worksheet_downloaded</code>, <code>plan_viewed</code>, <code>sale_viewed</code>, <code>aaa_viewed</code>, <code>batch_run</code>, <code>batch_example_loaded</code>, <code>batch_csv_downloaded</code>, <code>batch_worksheets_downloaded</code>, <code>remember_on</code>) are counted only in local storage on your device, never sent anywhere. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../s-corp-reasonable-compensation-calculator/">S corporation reasonable compensation calculator</a>, the <a href="../excess-business-loss-calculator/">excess business loss calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
     <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -157,6 +158,7 @@
   <script type="module">
     import { parseMoney, parseYears, run, plan, SAMPLE, csv, packetHtml, fmt, runBatch, saleOutlook, aaa, batchSummary, batchCsv, batchPacketHtml, BATCH_SAMPLE } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { saveEntries, loadEntries, forgetEntries } from "./remember.mjs";
 
     const $ = (s) => document.querySelector(s);
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -251,7 +253,32 @@
       $("#run").click();
       record("example_loaded");
     });
-    $("#clear").addEventListener("click", () => { for (const id of ["#o-stock", "#o-debtbasis", "#o-debtface", "#o-susp", "#years"]) $(id).value = ""; $("#out").hidden = true; $("#sale").hidden = true; $("#aaa-card").hidden = true; $("#plan").hidden = true; $("#yerr").hidden = true; last = null; });
+    const store = () => { try { return localStorage; } catch { return null; } };
+    const IDS = { stock: "#o-stock", debtBasis: "#o-debtbasis", debtFace: "#o-debtface", suspended: "#o-susp" };
+    function remember() {
+      const st = store();
+      if (!st || !$("#remember").checked) return;
+      const opening = {};
+      for (const [k, id] of Object.entries(IDS)) opening[k] = $(id).value;
+      saveEntries(st, { opening, years: $("#years").value });
+    }
+    $("#remember").addEventListener("change", () => {
+      const st = store();
+      if (!st) { $("#remember").checked = false; return; }
+      if ($("#remember").checked) { remember(); record("remember_on"); } else forgetEntries(st);
+    });
+    for (const id of [...Object.values(IDS), "#years"]) $(id).addEventListener("input", remember);
+    {
+      const st = store(), saved = st && loadEntries(st);
+      if (saved) {
+        for (const [k, id] of Object.entries(IDS)) $(id).value = saved.opening[k];
+        $("#years").value = saved.years;
+        $("#remember").checked = true;
+        if (saved.years.trim()) $("#run").click();
+      }
+    }
+    $("#clear").addEventListener("click", () => {
+      const st = store(); if (st) forgetEntries(st); $("#remember").checked = false; for (const id of ["#o-stock", "#o-debtbasis", "#o-debtface", "#o-susp", "#years"]) $(id).value = ""; $("#out").hidden = true; $("#sale").hidden = true; $("#aaa-card").hidden = true; $("#plan").hidden = true; $("#yerr").hidden = true; last = null; });
     const save = (text, type, name) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([text], { type }));
