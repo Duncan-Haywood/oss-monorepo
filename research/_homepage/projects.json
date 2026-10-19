@@ -2943,6 +2943,11 @@
      "summary": "On the 80-design accelerator table from <code>eda-proposers</code>, a screen that synthesises 4 spread designs, fits a log-linear cell-count model, and then synthesises designs in order of predicted Pareto rank finds 0.990 of the true front&rsquo;s hypervolume at 12 syntheses (random 0.860, TPE 0.878; 100 seeds) and the whole front on 87% of seeds by 20. The screen reads cycles and error for free, which the baselines do not: with no cell-count model that alone gives 0.908, so the surrogate adds the rest. Stylised: one small smooth space, the surrogate fitted inside one family, no place and route."
     },
     {
+     "slug": "eda-refpoint",
+     "title": "Does the ranking of design-search proposers survive a change of hypervolume reference point or quality indicator?",
+     "summary": "The 100-seed proposer runs of <code>eda-proposers</code> re-scored under five hypervolume reference points, front recall, IGD+, an epsilon indicator and log-scaled cell counts. The winner (TPE at budgets 16 and 30) is the same under all of them, but its lead over random at budget 30 shrinks from +0.045 (reference 1.01) to +0.002 (reference 5.0), while recall shows +0.279. At budget 8 the order is decided by annealing and flips with the indicator. Stylised: one 80-design space, generic-gate counts, no place and route."
+     },
+    {
      "slug": "eda-cheapaware",
      "title": "How much of a surrogate screen&rsquo;s lead over random search comes from the free objectives?",
      "summary": "A follow-up to <code>eda-screen</code> on the same 80-design accelerator table. A random search that uses the free cycles and error objectives (no cell-count model) finds 0.901 of the true front&rsquo;s hypervolume at 12 syntheses, against 0.860 for plain random, 0.878 for TPE and 0.990 for the 4-fit screen (100 seeds). So +0.041 of the screen&rsquo;s +0.130 lead comes from the free objectives and +0.089 from the surrogate. The baseline stalls once the free-objective layer is spent and falls below random and TPE by 30 syntheses. Stylised: one 80-design space, generic-gate cell counts, no place and route."
