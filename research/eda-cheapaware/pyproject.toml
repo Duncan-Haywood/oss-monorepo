@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eda-cheapaware"
+version = "0.1.0"
+description = "A cheap-aware random baseline for the screen in a three-objective chip-design search"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
