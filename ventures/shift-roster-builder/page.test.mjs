@@ -301,3 +301,14 @@ test("14-15 year old page's table is what the engine returns for the sample cafe
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("free-alternative page is linked, disclaims affiliation, and states no competitor price", () => {
+  const html = page("free-alternative-to-7shifts-when-i-work-homebase.html");
+  assert.match(page("sitemap.xml"), /free-alternative-to-7shifts-when-i-work-homebase\.html/);
+  assert.match(page("index.html"), /free-alternative-to-7shifts-when-i-work-homebase\.html/);
+  assert.ok(html.includes("No warranty"));
+  assert.match(html, /Not affiliated with, endorsed by, or sponsored by 7shifts/);
+  assert.doesNotMatch(html, /\$\s?\d/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
