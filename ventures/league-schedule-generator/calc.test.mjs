@@ -1912,3 +1912,24 @@ test("redteam: weeklyUpdate table ignores head-to-head unless asked (default is 
   assert.deepEqual(order(weeklyUpdate(s, results)), [t[0], t[3], t[1]]);
   assert.deepEqual(order(weeklyUpdate(s, results, { headToHead: true })), [t[3], t[1], t[0]]);
 });
+
+// red team 2026-10-19: guards for mutants the suite let through
+test("parseTeams: exactly two teams is enough, one is not", () => {
+  assert.deepEqual(parseTeams("Reds\nBlues"), { teams: ["Reds", "Blues"], errors: [] });
+  assert.match(parseTeams("Reds").errors[0], /at least two teams/);
+});
+
+test("americano: each round lists its byes in ascending player order", () => {
+  const plan = americano(names(10), { courts: 2, rounds: 6, seed: 4 });
+  for (const round of plan.rounds) {
+    assert.ok(round.byes.length > 0);
+    assert.deepEqual(round.byes, [...round.byes].sort((x, y) => x - y));
+  }
+});
+
+test("late joiner: a saved schedule without courtLimits still places the moved matches", () => {
+  const s = buildSchedule(baseSpec(6, { courts: ["A", "B", "C"] }));
+  delete s.config.courtLimits;
+  const r = applyLateTeams(s, "2026-10-20 Team 6");
+  assert.deepEqual(r.errors, []);
+});

@@ -12,6 +12,16 @@ from pathlib import Path
 from typing import TypeVar
 
 from shootflow.analysis import AnalysisLoaderError, load_asset_analyses
+from shootflow.ffmpeg_media import (
+    SHOOT_LOOK_LUT_PATH,
+    FfmpegMediaError,
+    encode_new_output,
+    find_ffmpeg_tools,
+    grade_command,
+    media_kind_for_path,
+    proxy_command,
+    require_workspace_file,
+)
 from shootflow.production import ProductionJob, ProductionPlan
 from shootflow.production_status import (
     ProductionJobStatus,
@@ -39,6 +49,8 @@ _LOOK_PRODUCTION_ADAPTER = "look-production-local"
 _GRADE_PRODUCTION_ADAPTER = "grade-production-local"
 _STORY_PRODUCTION_ADAPTER = "story-production-local"
 _PACKAGE_PRODUCTION_ADAPTER = "package-production-local"
+_FFMPEG_PROXY_PRODUCTION_ADAPTER = "ffmpeg-proxy-production-local"
+_FFMPEG_GRADE_PRODUCTION_ADAPTER = "ffmpeg-grade-production-local"
 _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _DRY_RUN_PRODUCTION_ADAPTER: None,
     _METADATA_PRODUCTION_ADAPTER: None,
@@ -49,6 +61,8 @@ _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _GRADE_PRODUCTION_ADAPTER: ("graded_photo", "graded_video"),
     _STORY_PRODUCTION_ADAPTER: ("storyline_selection",),
     _PACKAGE_PRODUCTION_ADAPTER: ("instagram_reel", "instagram_carousel", "instagram_photo_set"),
+    _FFMPEG_PROXY_PRODUCTION_ADAPTER: ("proxy_media",),
+    _FFMPEG_GRADE_PRODUCTION_ADAPTER: ("graded_photo", "graded_video"),
 }
 
 
@@ -248,6 +262,28 @@ def run_production_adapter_batch(
             started_at=started_at,
             completed_at=completed_at,
             max_concurrency=max_concurrency,
+        )
+    if action_plan.worker_adapter == _FFMPEG_PROXY_PRODUCTION_ADAPTER:
+        return _run_adapter_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+            expected_adapter=_FFMPEG_PROXY_PRODUCTION_ADAPTER,
+            run_action=run_ffmpeg_proxy_production_action,
+        )
+    if action_plan.worker_adapter == _FFMPEG_GRADE_PRODUCTION_ADAPTER:
+        return _run_adapter_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+            expected_adapter=_FFMPEG_GRADE_PRODUCTION_ADAPTER,
+            run_action=run_ffmpeg_grade_production_action,
         )
     supported_adapters = ", ".join(supported_production_adapter_names())
     raise ProductionAdapterError(
@@ -735,6 +771,66 @@ def run_grade_production_action(
     )
 
 
+def run_ffmpeg_proxy_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> ProxyProductionAdapterResult:
+    """Encode one small review/selection proxy with ffmpeg.
+
+    Photos become JPEG/PNG/TIFF proxies at most 1024 px on the long edge and
+    videos become H.264 proxies at most 960 px, so review, selection, and any
+    later off-machine step move a fraction of the original bytes.
+    """
+
+    _validate_proxy_action_shape(action, expected_adapter=_FFMPEG_PROXY_PRODUCTION_ADAPTER)
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_FFMPEG_PROXY_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_ffmpeg_proxy_production_outputs,
+        retryable_error_message=_proxy_retryable_error_message,
+        result_type=ProxyProductionAdapterResult,
+    )
+
+
+def run_ffmpeg_grade_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> GradeProductionAdapterResult:
+    """Encode one full-resolution graded master with ffmpeg.
+
+    When the workspace holds ``color/shoot_look.cube`` the adapter applies that
+    3D LUT; otherwise it writes an ungraded master and leaves color untouched.
+    MOV masters are ProRes 422 HQ, MP4 masters high-bitrate H.264, and photos
+    keep their own format. Analysis and look dependencies are verified first,
+    exactly as for the deterministic grade adapter.
+    """
+
+    _validate_grade_action_shape(action, expected_adapter=_FFMPEG_GRADE_PRODUCTION_ADAPTER)
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_FFMPEG_GRADE_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_ffmpeg_grade_production_outputs,
+        retryable_error_message=_grade_retryable_error_message,
+        result_type=GradeProductionAdapterResult,
+    )
+
+
 def run_story_production_action(
     workspace_root: Path | str,
     *,
@@ -1025,6 +1121,91 @@ def _materialize_grade_production_outputs(
     return tuple(materialized)
 
 
+def _materialize_ffmpeg_proxy_production_outputs(
+    action: ProductionWorkerAction,
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
+) -> tuple[str, ...]:
+    """Encode a downscaled proxy for each declared output."""
+
+    _validate_proxy_action_shape(action, expected_adapter=_FFMPEG_PROXY_PRODUCTION_ADAPTER)
+    root = _workspace_root(workspace_root)
+    source_path = _ffmpeg_source_path(root, action.inputs[0], label="proxy production input")
+    materialized: list[str] = []
+    try:
+        tools = find_ffmpeg_tools()
+        for output in action.outputs:
+            _validate_ffmpeg_output(root, output)
+            encode_new_output(
+                root,
+                output,
+                build_command=lambda temp_path: proxy_command(tools, source_path, temp_path),
+            )
+            materialized.append(output)
+    except FfmpegMediaError as exc:
+        raise ProductionAdapterError(str(exc)) from exc
+    return tuple(materialized)
+
+
+def _materialize_ffmpeg_grade_production_outputs(
+    action: ProductionWorkerAction,
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
+) -> tuple[str, ...]:
+    """Encode a graded master, applying the shoot LUT when one is present."""
+
+    _validate_grade_action_shape(action, expected_adapter=_FFMPEG_GRADE_PRODUCTION_ADAPTER)
+    if trusted_plan is None:
+        raise ProductionAdapterError("ffmpeg grade production adapter requires a trusted plan")
+    root = _workspace_root(workspace_root)
+    source_path = _ffmpeg_source_path(root, action.inputs[0], label="grade production source input")
+    _verify_grade_dependency_outputs(root, action=action, trusted_plan=trusted_plan)
+    materialized: list[str] = []
+    try:
+        lut_path: str | None = None
+        if (root / SHOOT_LOOK_LUT_PATH).exists() or (root / SHOOT_LOOK_LUT_PATH).is_symlink():
+            require_workspace_file(root, SHOOT_LOOK_LUT_PATH, label="shoot look LUT")
+            lut_path = SHOOT_LOOK_LUT_PATH
+        tools = find_ffmpeg_tools()
+        for output in action.outputs:
+            _validate_ffmpeg_output(root, output)
+            encode_new_output(
+                root,
+                output,
+                build_command=lambda temp_path: grade_command(
+                    tools,
+                    source_path,
+                    temp_path,
+                    lut_path=lut_path,
+                ),
+            )
+            materialized.append(output)
+    except FfmpegMediaError as exc:
+        raise ProductionAdapterError(str(exc)) from exc
+    return tuple(materialized)
+
+
+def _ffmpeg_source_path(root: Path, input_ref: str, *, label: str) -> Path:
+    input_path = _workspace_input_path(root, input_ref, label=label)
+    _reject_symlink_path(input_path.parent, root, f"{label} directory")
+    _reject_symlink_path(input_path, root, label)
+    if not input_path.is_file():
+        raise ProductionAdapterError(f"Missing {label}: {input_ref}")
+    try:
+        media_kind_for_path(input_path.name)
+    except FfmpegMediaError as exc:
+        raise ProductionAdapterError(str(exc)) from exc
+    return input_path
+
+
+def _validate_ffmpeg_output(root: Path, output: str) -> None:
+    if output.endswith("/"):
+        raise ProductionAdapterError(f"ffmpeg production adapters do not write directory outputs: {output}")
+    _workspace_output_path(root, output)
+
+
 def _materialize_story_production_outputs(
     action: ProductionWorkerAction,
     workspace_root: Path | str,
@@ -1075,8 +1256,12 @@ def _materialize_package_production_outputs(
     return tuple(materialized)
 
 
-def _validate_proxy_action_shape(action: ProductionWorkerAction) -> None:
-    _validate_action(action, expected_adapter=_PROXY_PRODUCTION_ADAPTER)
+def _validate_proxy_action_shape(
+    action: ProductionWorkerAction,
+    *,
+    expected_adapter: str = _PROXY_PRODUCTION_ADAPTER,
+) -> None:
+    _validate_action(action, expected_adapter=expected_adapter)
     if action.output_kind != "proxy_media":
         raise ProductionAdapterError(
             "Proxy production adapter only materializes proxy_media jobs: "
@@ -1143,8 +1328,12 @@ def _validate_look_action_shape(action: ProductionWorkerAction) -> None:
         )
 
 
-def _validate_grade_action_shape(action: ProductionWorkerAction) -> None:
-    _validate_action(action, expected_adapter=_GRADE_PRODUCTION_ADAPTER)
+def _validate_grade_action_shape(
+    action: ProductionWorkerAction,
+    *,
+    expected_adapter: str = _GRADE_PRODUCTION_ADAPTER,
+) -> None:
+    _validate_action(action, expected_adapter=expected_adapter)
     if action.output_kind not in {"graded_photo", "graded_video"}:
         raise ProductionAdapterError(
             "Grade production adapter only materializes graded_photo or graded_video jobs: "

@@ -52,7 +52,7 @@ class DryRunRenderAdapterTests(unittest.TestCase):
             )
             loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
 
-        self.assertEqual(supported_render_adapter_names(), ("dry-run-local",))
+        self.assertEqual(supported_render_adapter_names(), ("dry-run-local", "ffmpeg-local"))
         self.assertIsInstance(result, DryRunRenderBatchResult)
         self.assertEqual(result.renderer_adapter, "dry-run-local")
         self.assertEqual([status.state for status in loaded_manifest.task_statuses], ["succeeded", "succeeded"])
@@ -68,7 +68,7 @@ class DryRunRenderAdapterTests(unittest.TestCase):
                 "grade_asset_00000",
                 "grade_asset_00001",
             },
-            renderer_adapter="ffmpeg-local",
+            renderer_adapter="resolve-local",
         )
 
         with tempfile.TemporaryDirectory() as tmpdir:

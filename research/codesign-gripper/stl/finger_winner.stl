@@ -1,0 +1,170 @@
+solid finger_winner
+ facet normal 1.000000 0.000000 -0.000000
+  outer loop
+   vertex 0.00000 1.70274 0.00000
+   vertex 0.00000 1.70274 15.00000
+   vertex 0.00000 0.00000 15.00000
+  endloop
+ endfacet
+ facet normal 1.000000 0.000000 0.000000
+  outer loop
+   vertex 0.00000 1.70274 0.00000
+   vertex 0.00000 0.00000 15.00000
+   vertex 0.00000 0.00000 0.00000
+  endloop
+ endfacet
+ facet normal -1.000000 0.000000 0.000000
+  outer loop
+   vertex -4.00000 1.70274 0.00000
+   vertex -4.00000 -0.00000 0.00000
+   vertex -4.00000 -0.00000 15.00000
+  endloop
+ endfacet
+ facet normal -1.000000 0.000000 0.000000
+  outer loop
+   vertex -4.00000 1.70274 0.00000
+   vertex -4.00000 -0.00000 15.00000
+   vertex -4.00000 1.70274 15.00000
+  endloop
+ endfacet
+ facet normal -0.000000 1.000000 0.000000
+  outer loop
+   vertex 0.00000 1.70274 0.00000
+   vertex -4.00000 1.70274 0.00000
+   vertex -4.00000 1.70274 15.00000
+  endloop
+ endfacet
+ facet normal -0.000000 1.000000 0.000000
+  outer loop
+   vertex 0.00000 1.70274 0.00000
+   vertex -4.00000 1.70274 15.00000
+   vertex 0.00000 1.70274 15.00000
+  endloop
+ endfacet
+ facet normal 0.000000 -1.000000 0.000000
+  outer loop
+   vertex 0.00000 0.00000 0.00000
+   vertex 0.00000 0.00000 15.00000
+   vertex -4.00000 -0.00000 15.00000
+  endloop
+ endfacet
+ facet normal 0.000000 -1.000000 0.000000
+  outer loop
+   vertex 0.00000 0.00000 0.00000
+   vertex -4.00000 -0.00000 15.00000
+   vertex -4.00000 -0.00000 0.00000
+  endloop
+ endfacet
+ facet normal 0.000000 -0.000000 -1.000000
+  outer loop
+   vertex 0.00000 1.70274 0.00000
+   vertex 0.00000 0.00000 0.00000
+   vertex -4.00000 -0.00000 0.00000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 -1.000000
+  outer loop
+   vertex 0.00000 1.70274 0.00000
+   vertex -4.00000 -0.00000 0.00000
+   vertex -4.00000 1.70274 0.00000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 1.000000
+  outer loop
+   vertex 0.00000 1.70274 15.00000
+   vertex -4.00000 1.70274 15.00000
+   vertex -4.00000 -0.00000 15.00000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 1.000000
+  outer loop
+   vertex 0.00000 1.70274 15.00000
+   vertex -4.00000 -0.00000 15.00000
+   vertex 0.00000 0.00000 15.00000
+  endloop
+ endfacet
+ facet normal -1.000000 0.000000 0.000000
+  outer loop
+   vertex 0.00000 0.00000 0.00000
+   vertex 0.00000 0.00000 15.00000
+   vertex 0.00000 1.70274 15.00000
+  endloop
+ endfacet
+ facet normal -1.000000 0.000000 0.000000
+  outer loop
+   vertex 0.00000 0.00000 0.00000
+   vertex 0.00000 1.70274 15.00000
+   vertex 0.00000 1.70274 0.00000
+  endloop
+ endfacet
+ facet normal 1.000000 0.000000 0.000000
+  outer loop
+   vertex 4.00000 0.00000 0.00000
+   vertex 4.00000 1.70274 0.00000
+   vertex 4.00000 1.70274 15.00000
+  endloop
+ endfacet
+ facet normal 1.000000 0.000000 0.000000
+  outer loop
+   vertex 4.00000 0.00000 0.00000
+   vertex 4.00000 1.70274 15.00000
+   vertex 4.00000 0.00000 15.00000
+  endloop
+ endfacet
+ facet normal 0.000000 -1.000000 0.000000
+  outer loop
+   vertex 0.00000 0.00000 0.00000
+   vertex 4.00000 0.00000 0.00000
+   vertex 4.00000 0.00000 15.00000
+  endloop
+ endfacet
+ facet normal 0.000000 -1.000000 0.000000
+  outer loop
+   vertex 0.00000 0.00000 0.00000
+   vertex 4.00000 0.00000 15.00000
+   vertex 0.00000 0.00000 15.00000
+  endloop
+ endfacet
+ facet normal 0.000000 1.000000 0.000000
+  outer loop
+   vertex 0.00000 1.70274 0.00000
+   vertex 0.00000 1.70274 15.00000
+   vertex 4.00000 1.70274 15.00000
+  endloop
+ endfacet
+ facet normal 0.000000 1.000000 0.000000
+  outer loop
+   vertex 0.00000 1.70274 0.00000
+   vertex 4.00000 1.70274 15.00000
+   vertex 4.00000 1.70274 0.00000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 -1.000000
+  outer loop
+   vertex 0.00000 0.00000 0.00000
+   vertex 0.00000 1.70274 0.00000
+   vertex 4.00000 1.70274 0.00000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 -1.000000
+  outer loop
+   vertex 0.00000 0.00000 0.00000
+   vertex 4.00000 1.70274 0.00000
+   vertex 4.00000 0.00000 0.00000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 1.000000
+  outer loop
+   vertex 0.00000 0.00000 15.00000
+   vertex 4.00000 0.00000 15.00000
+   vertex 4.00000 1.70274 15.00000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 1.000000
+  outer loop
+   vertex 0.00000 0.00000 15.00000
+   vertex 4.00000 1.70274 15.00000
+   vertex 0.00000 1.70274 15.00000
+  endloop
+ endfacet
+endsolid finger_winner

@@ -815,3 +815,25 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   conservative: blocked routes require review, preview completion points at
   human review before a copy-capable confirmed run, and post-ingest reports
   point at production-plan review rather than downstream AI writes.
+
+### Decision: faster local processing before any cloud worker
+
+- **Status:** accepted (2026-10-19)
+- **Rationale:** The owner weighed uploading shoots to Google Drive or object
+  storage so editing could continue while the computer is off, against getting
+  more done on the local machine. Locally the media is already on a fast SSD,
+  while uploading a 100 GB shoot at 20 Mbps takes about 11 hours. Drive also
+  caps uploads at about 750 GB a day and has no compare-and-swap for the
+  render-status lease. Every stage was still a JSON stand-in, so the bottleneck
+  was the missing real media steps, not where they ran.
+- **Consequence:** `shootflow.ffmpeg_media` is the only place ffmpeg commands
+  are built. It is registered behind the existing contracts as
+  `ffmpeg-proxy-production-local`, `ffmpeg-grade-production-local` (applies
+  `color/shoot_look.cube` when present) and the `ffmpeg-local` renderer. These
+  use VideoToolbox encoders on a Mac and run one process per job under the
+  schedulers' `max_concurrency`. Outputs are staged as hidden temp files and
+  hard-linked into place, so a deliverable is never overwritten and a part-way
+  failure commits nothing. `run-local-pipeline` chains the stages with real
+  UTC timestamps, and `write-launchd-plist` schedules it nightly under
+  `caffeinate`. A cloud worker stays possible on the same task/status files,
+  but it would still need storage-native compare-and-swap for leases.

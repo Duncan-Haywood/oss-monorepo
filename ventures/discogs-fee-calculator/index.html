@@ -192,6 +192,20 @@
     </section>
   </main>
 
+  <section id="crate">
+    <h2>Price a crate</h2>
+    <p class="hint">Clearing a collection? One order per line: <code>label, price, shipping, cost</code>. The label is optional; shipping and cost default to 0. Each order is fee'd separately with the processing rates above, since the flat part is per order. Postage you pay is not included, so profit here is before your labels.</p>
+    <textarea id="crateInput" spellcheck="false" aria-label="Orders, one per line" style="width:100%;box-sizing:border-box;min-height:120px;border:1px solid #8ba3c4;border-radius:7px;padding:10px;font:.86rem ui-monospace,monospace">Kind of Blue (Columbia 6-eye), 45, 5, 20
+Rumours (Warner), 18, 4.5, 6
+Blue Train, 32, 5, 40
+Rare Private Press 12", 1800, 12, 400</textarea>
+    <div class="actions"><button type="button" id="crateBtn" class="primary">Price the crate</button></div>
+    <ul class="errors" id="crateProblems" style="margin-top:8px"></ul>
+    <p class="hint" id="crateSummary" role="status"></p>
+    <div style="overflow-x:auto"><table class="ladder" id="crateTable"></table></div>
+  </section>
+
+
   <section class="faq">
     <h2>Common questions</h2>
     <h3>How much does Discogs take per sale?</h3>
@@ -217,7 +231,7 @@
   </footer>
 
   <script type="module">
-    import { calculateSale, feeLadder, INPUT_IDS, TOGGLE_IDS } from './calc.mjs';
+    import { calculateSale, calculateBatch, feeLadder, INPUT_IDS, TOGGLE_IDS } from './calc.mjs';
     import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { FIELD_IDS, encodeInputs, decodeInputs, formValues } from './share.mjs';
     import { whereToSellUrl } from './to-where-to-sell.mjs';
@@ -283,6 +297,52 @@
         return tr;
       }));
     }
+
+    function renderCrate() {
+      const { rows, problems, totals } = calculateBatch(el('crateInput').value, {
+        processingRate: el('processingRate').value,
+        processingFixed: el('processingFixed').value,
+      });
+      el('crateProblems').replaceChildren(...problems.map(p => {
+        const li = document.createElement('li');
+        li.textContent = p.message;
+        return li;
+      }));
+      const head = document.createElement('tr');
+      for (const text of ['Order', 'Total paid', 'Discogs takes', 'You keep', 'Profit']) {
+        const th = document.createElement('th');
+        th.scope = 'col';
+        th.textContent = text;
+        head.append(th);
+      }
+      const body = rows.map(row => {
+        const tr = document.createElement('tr');
+        [row.label, money(row.itemPrice + row.buyerShipping), money(row.discogsFee), money(row.payout), money(row.profit)].forEach((text, i) => {
+          const td = document.createElement('td');
+          td.textContent = text;
+          if (i === 4 && row.profit < 0) td.style.color = '#9b2c1f';
+          tr.append(td);
+        });
+        return tr;
+      });
+      if (rows.length) {
+        const tr = document.createElement('tr');
+        [`Total (${totals.orders} orders)`, money(totals.gross), money(totals.discogsFee), money(totals.payout), money(totals.profit)].forEach(text => {
+          const th = document.createElement('th');
+          th.textContent = text;
+          tr.append(th);
+        });
+        body.push(tr);
+      }
+      el('crateTable').replaceChildren(head, ...body);
+      el('crateSummary').textContent = rows.length
+        ? `${totals.orders} orders: Discogs takes ${money(totals.discogsFee)} (${pct(totals.effectiveRate)} of ${money(totals.gross)}). ${totals.losing ? `${totals.losing} lose money after what you paid.` : 'None lose money after what you paid.'}`
+        : 'Paste one order per line to price a crate.';
+    }
+
+    el('crateInput').addEventListener('input', renderCrate);
+    el('crateBtn').addEventListener('click', () => { renderCrate(); count('crate_priced'); });
+    for (const id of ['processingRate', 'processingFixed']) el(id).addEventListener('input', renderCrate);
 
     function render(result) {
       markFields(INPUT_IDS, []);
@@ -390,6 +450,7 @@
       render(example);
       el('exampleNote').hidden = restored;
     })();
+    renderCrate();
 
     // Remember the visitor's usage-counting choice between visits.
     {

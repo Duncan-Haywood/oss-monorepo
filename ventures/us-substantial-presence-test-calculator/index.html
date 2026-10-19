@@ -54,6 +54,7 @@
       <label for="asof">As-of date</label><input type="text" id="asof" value="" placeholder="YYYY-MM-DD" size="11">
       <label for="year">Test year</label><input type="number" id="year" value="2025" min="1990" max="2100" step="1">
       <label for="planned">Planned extra days this year</label><input type="number" id="planned" value="0" min="0" max="366" step="1">
+      <label for="tripstart">Planned trip starts (optional)</label><input type="text" id="tripstart" value="" placeholder="YYYY-MM-DD" size="11">
     </p>
     <p>
       <button type="button" id="go">Count days</button>
@@ -62,6 +63,14 @@
       <button type="button" class="secondary" id="copy">Copy summary</button>
     </p>
     <p class="note" id="status"></p>
+  </section>
+
+  <section class="card">
+    <h2>Have your I-94 travel history?</h2>
+    <p class="note">At i94.cbp.dhs.gov, "Get Most Recent I-94", then "Travel History", lists every arrival and departure. Select the table, paste it here, and it turns into stays above. Matching and the arithmetic happen in this tab; the paste is never uploaded.</p>
+    <textarea id="i94" aria-label="Pasted I-94 travel history" spellcheck="false" placeholder="03/04/2024 Arrival JFK&#10;06/28/2024 Departure JFK"></textarea>
+    <p><button type="button" class="secondary" id="i94-go">Turn travel history into stays</button></p>
+    <p class="note" id="i94-status"></p>
   </section>
 
   <section class="card" id="result-card" hidden aria-live="polite">
@@ -74,6 +83,12 @@
     <div class="tablewrap"><table>
       <thead><tr><th>Year</th><th>Days counted</th><th>Weight</th><th>Weighted days</th><th>Exempt days left out</th></tr></thead>
       <tbody id="year-rows"></tbody>
+    </table></div>
+    <h3>Staying under in the years ahead</h3>
+    <p class="note" id="outlook-note"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Year</th><th>Most days that stay under</th></tr></thead>
+      <tbody id="outlook-rows"></tbody>
     </table></div>
     <p id="warnings" class="note"></p>
     <p class="note">The result says whether you meet the test, not whether you owe tax: a tax treaty, the closer connection exception (Form 8840), and the first-year choice can change the answer. Check with IRS Publication 519 or a tax professional before filing.</p>
@@ -111,7 +126,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, summarize, fromDay, INPUT_NOTES, SAMPLE, SAMPLE_OPTIONS } from "./engine.mjs";
+    import { analyze, summarize, importI94, fromDay, STEADY_DAYS, INPUT_NOTES, SAMPLE, SAMPLE_OPTIONS } from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -126,7 +141,7 @@
       const status = $("#status");
       let r;
       try {
-        r = analyze({ stays: $("#stays").value, asOf: $("#asof").value.trim(), year: $("#year").value, planned: $("#planned").value });
+        r = analyze({ stays: $("#stays").value, asOf: $("#asof").value.trim(), year: $("#year").value, planned: $("#planned").value, tripStart: $("#tripstart").value });
       } catch (e) {
         status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
         return;
@@ -147,6 +162,8 @@
       $("#totals-rows").innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${escapeHtml(v)}</td></tr>`).join("");
       const yr = [[r.year, r.cur, 1, r.cur.days], [r.year - 1, r.p1, "1/3", r.p1.days / 3], [r.year - 2, r.p2, "1/6", r.p2.days / 6]];
       $("#year-rows").innerHTML = yr.map(([y, d, w, wd]) => `<tr><td>${y}</td><td>${d.days}${d.source === "total" ? " (typed total)" : ""}</td><td>${w}</td><td>${f1(wd)}</td><td>${d.exempt}</td></tr>`).join("");
+      $("#outlook-rows").innerHTML = r.outlook.map((o) => `<tr><td>${r.year + o.offset}</td><td>${o.max}</td></tr>`).join("");
+      $("#outlook-note").textContent = `If you spend the most allowed days each year, the next years follow the weighting. The most you can repeat every year, indefinitely, is ${STEADY_DAYS} days.`;
       $("#warnings").innerHTML = r.warnings.map(escapeHtml).join("<br>");
       $("#result-card").hidden = false;
       record("count_run");
@@ -157,6 +174,16 @@
       $("#stays").value = SAMPLE; $("#asof").value = SAMPLE_OPTIONS.asOf; $("#year").value = SAMPLE_OPTIONS.year; $("#planned").value = SAMPLE_OPTIONS.planned;
       render();
       record("example_loaded");
+    });
+    $("#i94-go").addEventListener("click", () => {
+      const r = importI94($("#i94").value);
+      const st = $("#i94-status");
+      if (!r.lines.length) { st.innerHTML = '<span class="error">No arrival or departure rows found. Paste the Travel History table, one crossing per line with a date and the word Arrival or Departure.</span>'; return; }
+      const cur = $("#stays").value.trim();
+      $("#stays").value = (cur ? cur + "\n" : "") + r.lines.join("\n");
+      st.innerHTML = `${r.lines.length} stay${r.lines.length === 1 ? "" : "s"} from ${r.rows} rows added above. Mark any exempt-individual stays (student, J-1) with the word exempt.` + (r.notes.length ? '<br><span class="error">' + r.notes.map(escapeHtml).join("<br>") + "</span>" : "");
+      record("i94_imported");
+      render();
     });
     $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
     $("#copy").addEventListener("click", async () => {

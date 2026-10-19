@@ -69,6 +69,7 @@ results, in the same commit:
    `research/` project is missing from `projects.json` or `README.md`, or if either lists one
    that no longer exists. `.github/workflows/research-ci.yml` runs the same build on every
    pull request that touches `research/`. Open `research/_homepage/_site/index.html` to preview.
+4. Run `python3 platform/ci/research_live_links.py --write` (a project README needs a `**Live page:**` line) and `python3 platform/ci/check_md_links.py` (README links to figures or files not yet generated fail it). Both fail a PR in CI.
 
 Tests and figures may need packages the image lacks. Skip this step when plain `python3` already
 imports what the project uses (stdlib-only projects need nothing; try `python3 -c "import numpy"` first). Otherwise, from the repo root,

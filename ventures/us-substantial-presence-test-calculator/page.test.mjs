@@ -23,7 +23,7 @@ test("both pages carry no-warranty and FAQ data; index carries sponsor, privacy,
   assert.match(idx, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(idx, /never uploaded/i);
   assert.match(idx, /id="optout"/);
-  for (const e of ["count_run", "example_loaded"]) assert.ok(idx.includes(`record("${e}")`), e);
+  for (const e of ["count_run", "example_loaded", "i94_imported"]) assert.ok(idx.includes(`record("${e}")`), e);
 });
 
 test("every .html file is in the sitemap", async () => {

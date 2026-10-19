@@ -4053,6 +4053,31 @@ entries:
         2025-26 federal values and the page tells the user to replace them. Also refreshed the gh-pages
         snapshot, which the session gate reported stale.
     mrr_end: 0
+  - venture: hands-free-language-coach
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner's idea, added as two ventures. hands-free-language-coach: voice-only, hands-free language
+        practice with streaks, XP and spaced review. Ships a Claude skill and custom-GPT instructions that
+        run the lesson in assistant voice mode in any language ($0 per learner: it runs on the learner's
+        own plan), and a browser drill on the Web Speech API (five starter packs, speech-recognition
+        scoring, spoken repeat/skip/stop commands, Leitner review, streak share card). 11 logic tests plus
+        usage tests; a mocked-speech session ran end to end in headless Chromium. iOS-first native app is
+        on the roadmap with on-device speech; Apple account and GPT Store listing are owner steps later.
+    mrr_end: 0
+  - venture: listen-and-learn-audio
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Sibling venture for listening: a Claude skill and GPT instructions for long-form stories,
+        two-host podcast-style episodes and serials on any topic, pitched to the listener's language
+        level, plus a browser player of five graded A1-A2 bilingual stories (Spanish, French, German,
+        Italian) written for the project and read by device voices, with three interleave modes and
+        shadowing pauses. Playlist tests plus usage tests; a mocked-speech playthrough ran in headless
+        Chromium. Volume for "learn by listening" searches unmeasured.
+    mrr_end: 0
   - venture: open-tennis-robots
     agent_spend_usd: 0
     human_hours: 0

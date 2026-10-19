@@ -23,6 +23,13 @@ that leaves the profit you type, given the same level, Fast Shipping, processing
 fees scale with the price and shipping does not, so the answer is `(cost + flat costs + wanted profit) / (1 - fee
 share)`, and the tests sell at the returned price and check the profit comes out as asked.
 
+## What is a Seller Level change worth?
+
+The "What a Seller Level change is worth" table (`levelLadder` in `calc.mjs`) re-prices the sale you entered at each
+seller-fee rate you list (read off your own dashboard; none is assumed) and shows the profit difference per sale and
+per month at the sales volume you type. It answers "is reaching the next level worth chasing" without retyping the
+sale for each rate. Fast Shipping, processing, shipping and supplies stay as entered.
+
 ## Comparing this pair against another channel
 
 A seller who arrives here from a search for "how much does StockX take from sellers" usually has a second question: would the same pair net more on eBay, or in a local sale? Until now the only route to that answer was retyping the item into another tool, and most people do not — so the link under the buttons carries the price, cost basis, shipping and other costs straight into [`../where-to-sell-calculator/`](../where-to-sell-calculator/) with StockX already switched on, and that page hands numbers back the other way. Nothing is uploaded: the values ride in the URL fragment, which browsers never send to a server.

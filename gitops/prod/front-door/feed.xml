@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1294 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1296 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,22 @@
     <updated>2026-10-19T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Discogs seller fee calculator: the 9% selling fee on item price plus shipping ($0.10 minimum, $150 maximum), editable payment processing, your payout and profit after postage and cost, the price that hits a target profit, and a fee ladder from $3 singles to $2,500 grails. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Hands-Free Language Coach — voice-only language practice while you drive or walk</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hands-free-language-coach/"/>
+    <id>tag:marisstella.dev,2026:tool/hands-free-language-coach</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Learning &amp; practice"/>
+    <summary type="text">Learn a language by voice alone: the coach says a phrase, you say it back, it listens and scores you, and moves on. No tapping, no screen. Streaks, XP and spaced review like a language game, free in your browser, plus a skill for Claude and ChatGPT voice mode.</summary>
+  </entry>
+  <entry>
+    <title>Listen &amp; Learn Audio — bilingual audio stories for language learners, hands-free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/listen-and-learn-audio/"/>
+    <id>tag:marisstella.dev,2026:tool/listen-and-learn-audio</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Learning &amp; practice"/>
+    <summary type="text">Short graded stories read aloud in Spanish, French, German and Italian, each line followed by English. Press play and listen while you walk or commute. Free in your browser, plus an AI skill for Claude and ChatGPT voice mode that tells new stories and podcast-style episodes on any topic, at your level.</summary>
   </entry>
   <entry>
     <title>Open Tennis Robots — open-source tennis ball machine with a catch net, and a ball pickup robot</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-17T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free S corporation shareholder basis calculator. Enter each year&#39;s K-1 figures and get stock basis, debt basis and suspended losses carried forward in Form 7203 order, with taxable excess distributions flagged. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Sales Call Notes Desk — turn call notes into CRM fields and a follow-up email, free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sales-call-notes-desk/"/>
-    <id>tag:marisstella.dev,2026:tool/sales-call-notes-desk</id>
-    <updated>2026-10-17T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free sales call notes to CRM tool. Paste your notes or transcript and get the CRM fields, what BANT and MEDDIC still miss, dated next steps and a checked follow-up email. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Survey Keeper — Self-Hosted NPS and Surveys, a Typeform and Delighted Alternative</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/survey-keeper/"/>
-    <id>tag:marisstella.dev,2026:tool/survey-keeper</id>
-    <updated>2026-10-17T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">Run surveys and Net Promoter Score on a server you own: NPS with a 95% range, the words detractors use, results by source, CSV export and an alert on every detractor. Open source, MIT, no per-response fee. Try the NPS calculator in your browser.</summary>
   </entry>
 </feed>

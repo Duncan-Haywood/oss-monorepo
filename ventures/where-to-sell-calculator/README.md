@@ -373,12 +373,14 @@ behaviour.
 each target's *own* field list imported from that venture — so a rename
 there fails a test here rather than silently dropping a number there.
 
-`handoff-arrival.check.mjs` is the browser half: it opens each of the 13
+`handoff-arrival.check.mjs` is the browser half: it opens each of the 16
 target calculators with a handoff link in Chromium and reads the inputs back,
 so a target that renames an input id or stops reading the URL fragment fails
-there. Not part of `node --test` (it needs a browser and a local server; usage
-is in the file header). Last run 2026-10-18: 13 of 13 arrive with the values
-sent.
+there. `handoff-return.check.mjs` does the reverse: it takes each of those 16
+calculators' own `to-where-to-sell.mjs` link, opens it here, and checks the
+item arrives and that channel's "Compare this channel" box is on. Neither is
+part of `node --test` (they need a browser and a local server; usage is in each
+file header). Last run 2026-10-19: 16 of 16 in each direction.
 
 `page.test.mjs` adds structural checks on `index.html` itself, because
 `calc.test.mjs` imports `calc.mjs` directly and never looks at the page. It

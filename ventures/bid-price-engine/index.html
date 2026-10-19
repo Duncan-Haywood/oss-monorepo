@@ -79,6 +79,22 @@
 
   <section class="card" id="result" aria-live="polite"></section>
 
+  <section class="card" id="closeout">
+    <h2>Close out the job: what it really left</h2>
+    <p class="note">When the job is done, enter what it actually took. The bid above is the comparison. Closed jobs are kept on this device only; after three, the page shows how far your jobs run over and the contingency that would have covered it.</p>
+    <div class="grid">
+      <div><label for="co-name">Job name (optional)</label><input id="co-name" type="text" maxlength="60"></div>
+      <div><label for="co-hours">Actual paid labor hours</label><input id="co-hours" type="number" min="0" step="any"></div>
+      <div><label for="co-materials">Actual materials $</label><input id="co-materials" type="number" min="0" step="any"></div>
+      <div><label for="co-subs">Actual subcontractors $</label><input id="co-subs" type="number" min="0" step="any" value="0"></div>
+      <div><label for="co-equip">Actual equipment, dump, permits $</label><input id="co-equip" type="number" min="0" step="any" value="0"></div>
+      <div><label for="co-revenue">Revenue collected $ (blank = the bid price)</label><input id="co-revenue" type="number" min="0" step="any"></div>
+    </div>
+    <button type="button" id="co-save">Close out against this bid</button> <span id="co-msg" class="note" role="status"></span>
+    <div id="co-result" aria-live="polite"></div>
+    <div id="co-record"></div>
+  </section>
+
   <section class="card">
     <h2>Questions</h2>
     <h3>What is the difference between markup and margin?</h3>
@@ -105,6 +121,7 @@
 </main>
 <script type="module">
   import { priceJob, parseLabor, parseCosts, overheadPctFrom, priceLadder } from "./calc.mjs";
+  import { closeoutJob, trackRecord } from "./closeout.mjs";
   import { TRADES, CATEGORIES } from "./trades.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   const $ = (s) => document.querySelector(s);
@@ -195,6 +212,39 @@
     loadTrade(known ? slug : "");
   }
   render(false);
+
+  // Closed jobs stay on this device. Storage may be blocked; the tool still works without it.
+  const JOBS_KEY = "bid-price-engine-closed-jobs";
+  const loadJobs = () => { try { const a = JSON.parse(localStorage.getItem(JOBS_KEY) || "[]"); return Array.isArray(a) ? a : []; } catch { return []; } };
+  const saveJobs = (a) => { try { localStorage.setItem(JOBS_KEY, JSON.stringify(a.slice(-200))); return true; } catch { return false; } };
+  const signed = (n) => (n > 0 ? "+" : "") + n;
+  function renderRecord() {
+    const jobs = loadJobs(); const t = trackRecord(jobs); const el = $("#co-record");
+    if (!t.jobs) { el.innerHTML = ""; return; }
+    const advice = !t.ready ? `<p class="note">${t.jobs} closed so far. Close out ${3 - t.jobs} more and the page will say how far your jobs run over.</p>` :
+      `<p>Across <b>${t.jobs}</b> closed jobs your direct cost ran <b>${signed(t.directOverPct)}%</b> against the bids${t.laborOverPct === null ? "" : ` (labor hours ${signed(t.laborOverPct)}%)`}, and you kept <b>${t.realizedMarginPct}%</b> against a ${t.targetMarginPct}% target. ${t.underTarget} of ${t.jobs} landed under target${t.losers ? `, ${t.losers} lost money` : ""}.</p>
+      ${t.suggestedContingencyPct > t.currentContingencyPct ? `<div class="warn">Your bids held ${t.currentContingencyPct}% contingency; the typical overrun was ${t.directOverPct}%. <button type="button" class="secondary" id="co-apply">Set contingency to ${t.suggestedContingencyPct}%</button></div>` : `<div class="ok">Your contingency (${t.currentContingencyPct}%) covers the typical overrun (${t.directOverPct}%).</div>`}`;
+    el.innerHTML = `<h3>Your track record</h3>${advice}<button type="button" class="secondary" id="co-csv">Copy jobs as CSV</button> <button type="button" class="secondary" id="co-clear">Delete this history</button>`;
+    const ap = $("#co-apply"); if (ap) ap.onclick = () => { $("#cont").value = t.suggestedContingencyPct; render(false); $("#co-msg").textContent = "Contingency updated. Your bid price above has changed."; };
+    $("#co-csv").onclick = () => copy(["name,date,bid_price,revenue,profit,margin_pct,target_margin_pct,labor_hours_bid,labor_hours_actual"].concat(jobs.map((j) => [`"${String(j.name || "").replace(/"/g, '""')}"`, j.date, j.bidPrice, j.revenue, j.profit, j.marginPct, j.targetMarginPct, j.bidLaborHours, j.actualHours].join(","))).join("\n"), "CSV copied.");
+    $("#co-clear").onclick = () => { if (confirm("Delete every closed job saved on this device?")) { saveJobs([]); renderRecord(); $("#co-result").innerHTML = ""; } };
+  }
+  $("#co-save").onclick = () => {
+    if (!last) { $("#co-msg").textContent = "Fix the bid above first."; return; }
+    try {
+      const inp = read();
+      const bid = { ...last, burdenPct: Number($("#burden").value) || 0, overheadPct: Number($("#over").value) || 0 };
+      const c = closeoutJob(bid, { hours: $("#co-hours").value, materials: $("#co-materials").value, subs: $("#co-subs").value, equipment: $("#co-equip").value, revenue: $("#co-revenue").value });
+      const stored = saveJobs(loadJobs().concat([{ name: $("#co-name").value.trim(), date: new Date().toISOString().slice(0, 10), bidPrice: bid.price, bidDirect: bid.direct, bidContingencyPct: Number(inp.contingencyPct) || 0,
+        bidLaborHours: bid.hours, actualHours: Number($("#co-hours").value), actualDirect: c.direct, revenue: c.revenue, profit: c.profit, marginPct: c.marginPct, targetMarginPct: bid.marginPct }]));
+      record("job_closed");
+      $("#co-msg").textContent = stored ? "Saved on this device." : "Could not save (storage is blocked); the result below still holds.";
+      const good = c.marginPct >= c.targetMarginPct;
+      $("#co-result").innerHTML = `<div class="${good ? "ok" : "warn"}">The job left <b>${usd(c.profit)}</b>, a <b>${c.marginPct}%</b> margin against the ${c.targetMarginPct}% you bid (${usd(c.profitVsBid)} vs the bid's profit). Labor hours ${c.laborHoursOverPct === null ? "" : signed(c.laborHoursOverPct) + "%"}, materials ${c.materialsOverPct === null ? "n/a" : signed(c.materialsOverPct) + "%"}${c.profitPerLaborHour === null ? "" : `; ${usd2(c.profitPerLaborHour)} profit per labor hour`}.${c.coveredCash ? "" : " Revenue did not even cover the cash you spent."}</div>`;
+      renderRecord();
+    } catch (e) { $("#co-msg").textContent = e.message; }
+  };
+  renderRecord();
 </script>
 </body>
 </html>

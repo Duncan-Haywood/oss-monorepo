@@ -285,6 +285,8 @@ def rank(ventures: list[Venture]) -> list[Venture]:
       3. Unmeasured ventures -- still owed their protected explore budget;
          null MRR is "not yet measured", not "measured and failing".
       4. Everything else: later stage before earlier stage, then ventures not
+         already folded into another (consolidated_into) before those that
+         were (their Explore task has no product left to test), then ventures not
          worked heavily this week (HOT_COMMITS+ commits in 7 days) before
          those that were, then by merit score descending, then monthly_cap descending, then least-worked (ledger + mentions), then name for a
          stable order.
@@ -305,6 +307,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             0 if v.dispatchable else 1,
             0 if not v.measured else 1,
             0 if v.later_stage else 1,
+            1 if v.consolidated_into else 0,
             1 if v.recent_commits >= HOT_COMMITS else 0,
             -(v.merit if v.merit is not None else 0.0),
             -v.monthly_cap,

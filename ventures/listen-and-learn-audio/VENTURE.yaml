@@ -1,0 +1,58 @@
+name: listen-and-learn-audio
+description: >-
+  Listen-first AI audio for learning and entertainment: graded bilingual
+  stories and podcast-style episodes on any topic, built for voice mode
+  while walking, driving or doing chores. Ships as a Claude skill and
+  custom-GPT instructions plus a browser player of graded stories read by
+  the device's own voices; becomes the "listen" side of the
+  hands-free-language-coach app.
+stage: prototype
+
+owner: duncan
+
+# Origin (2026-10-19): the owner's own idea, asked for in the same message
+# as hands-free-language-coach ("ai voice conversations to listen to like
+# podcasts or stories ... primarily to listen learn and be entertained").
+# Kept as its own venture because its audience is wider than language
+# learners (episodes on any topic) and its interaction model is the
+# opposite of a drill: the assistant talks, the listener mostly doesn't.
+# duplicate_check.py on "AI-generated listen-and-learn language podcasts
+# and stories" found nothing above 0.07.
+#
+# Shape: $0 per listener. The skill runs on the listener's own assistant
+# plan; the player uses on-device speech synthesis. Generated episodes in
+# the app go behind the listener's own key (PRODUCT_PLAYBOOK.md section 3).
+hypotheses:
+  - claim: People who listen to podcasts on commutes will choose an AI episode or graded story pitched at their level over a fixed podcast when it is one tap or one voice command away.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Language learners finish a graded bilingual story read by device voices often enough (story_finished / story_started) to justify pre-rendering more stories to audio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 3
+  protected: true
+
+kill_criteria:
+  - Fewer than ten stories finished (story_finished) within 90 days of the page being public.
+  - Device text-to-speech proves too poor for learners in the target languages and pre-rendered audio cannot be produced at $0.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/listen-and-learn-audio/
+  analytics: null
+
+channel_notes: >-
+  First visitors: organic search for "spanish stories for beginners audio",
+  "graded readers audio free", "learn french by listening" and "AI podcast
+  on any topic"; r/languagelearning and comprehensible-input communities;
+  the cross-link from hands-free-language-coach; the skill and GPT shared
+  as files.
