@@ -3687,6 +3687,18 @@
     "summary": "Companion to <code>codesign-gripper</code> with a different objective and a searched grasp force. Five parameters of a 3D-printable two-finger gripper (width, thickness, length, V-groove depth, TPU pad) are searched under a print-time cap; for each design a grasp force is tuned in MuJoCo and the design is scored on 40 held-out scenes (cylinders, spheres, boxes of 100&ndash;900&nbsp;g). With 40 designs each, the best seeds of all three baselines reach 0.93&ndash;0.95 test success (medians 0.875, 0.887, 0.900 over 8 seeds) and one session-agent trajectory (n&nbsp;=&nbsp;1, hand-written proposals) reaches 0.95 after 20 designs. On 100 fresh scenes every method&rsquo;s best design drops 0.06&ndash;0.07 on average and the agent&rsquo;s falls to 0.81, level with the baseline median: the task is nearly saturated and the ranking is within noise (standard error about 0.05). Stylised: assumed costs and strengths, rigid fingers, grid-plus-refine policy search rather than deep RL, nothing printed."
    }
   ]
+ },
+ {
+  "id": "hanger",
+  "name": "Laundry-hanging robots",
+  "blurb": "A robot that takes clothes from a dryer or a loader and hangs every item, with hangers designed in a simulation feedback loop: drape models, hanger shapes, hang-or-fold decisions and the robot cell.",
+  "projects": [
+   {
+    "slug": "hanger-fit",
+    "title": "What hanger shape keeps a shirt in shape, and can one hanger fit every size?",
+    "summary": "A 2D cloth-drape model (discrete elastic chain with penalty contact, solved by L-BFGS) scores how far a garment hangs from its worn shape, and CMA-ES designs the hanger. Over seven sizes from a child&rsquo;s tee to XXL, the best single fixed hanger averages 2.1&nbsp;cm RMS shape error (5.4&nbsp;cm worst). One adjustable-width hanger set per garment averages 0.18&nbsp;cm (0.22 worst), 12&times; better, and a rack of four widths keeps every size within 1&nbsp;cm. Wire and plastic hangers fold the cloth at the tip (about 65&deg;/cm against 14&deg; worn); a 2&ndash;3&nbsp;cm round end removes it, but a loop scored on shape alone converges on wire-thin ends. CMA-ES beats random search (0.19 vs 0.44&nbsp;cm at 150 drapes). Stylised: 2D, no friction, assumed fabric constants."
+   }
+  ]
  }
  ],
  "featured": [

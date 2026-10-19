@@ -18,10 +18,10 @@ COL = {"wire": "#c0392b", "plastic": "#8e44ad", "wood-shaped": "#b08900", "custo
 
 
 def drape_svg(d):
-    W, H, pad = 760, 420, 40
+    W, H, pad = 800, 380, 24
     names = ["wire", "plastic", "wood-shaped", "custom"]
     pw = (W - pad) / len(names)
-    sc = 9.0  # px per cm
+    sc = 6.5  # px per cm
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" '
              'aria-labelledby="t d" font-family="system-ui, sans-serif" font-size="13">',
              '<title id="t">Size-M tee draped on four hangers</title>',
@@ -31,7 +31,7 @@ def drape_svg(d):
              '<style>text{fill:#333}@media (prefers-color-scheme:dark){text{fill:#ddd}.bg{fill:#1e1e1e}}</style>',
              f'<rect class="bg" width="{W}" height="{H}" fill="#fff"/>']
     for k, n in enumerate(names):
-        ox, oy = pad / 2 + k * pw + 10, 70
+        ox, oy = pad / 2 + k * pw + 8, 76
         tr = lambda p: f"{ox + p[0] * sc:.1f},{oy - p[1] * sc:.1f}"
         h = d[n]["h"]
         cl = " ".join(tr(p) for p in d[n]["centre"])
@@ -43,7 +43,8 @@ def drape_svg(d):
                      f'stroke="{COL[n]}" stroke-width="2.5"/>')
         parts.append(f'<text x="{ox}" y="28" font-weight="600">{n}</text>')
         parts.append(f'<text x="{ox}" y="46">w {h["w"]:.1f} cm, end r {h["r"]:.2f} cm</text>')
-        parts.append(f'<text x="{ox}" y="{H - 14}">error {d[n]["err"]:.2f} cm RMS</text>')
+        parts.append(f'<text x="{ox}" y="{H - 50}">shape error {d[n]["err"]:.2f} cm RMS</text>')
+        parts.append(f'<text x="{ox}" y="{H - 30}">sharpest bend {d[n]["crease"]:.0f}°/cm</text>')
     parts.append("</svg>")
     return "\n".join(parts)
 

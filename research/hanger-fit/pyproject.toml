@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-fit"
+version = "0.1.0"
+description = "Designing clothes hangers in a simulation loop: a 2D cloth drape model scores how well a hanger holds a garment in its worn shape, and CMA-ES designs custom, universal, adjustable and rack-of-k hangers for a laundry-hanging robot"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
