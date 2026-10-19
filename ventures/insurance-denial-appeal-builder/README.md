@@ -26,6 +26,9 @@ used to mean reading a dense notice, guessing the window and writing the letter 
   request when they apply. Missing facts are shown as `[placeholders]`, never invented.
 - **Lists what to do first.** For billing, authorization and filing problems it says to call the
   provider before appealing, since a corrected claim is often quicker.
+- **Writes the other two documents an appeal usually needs.** A letter for your doctor to review and
+  sign (clinical facts left as placeholders, with a peer-to-peer request), and, once the insurer
+  upholds the denial, a request for independent external review that cites your internal appeal.
 - **Exports** the letter as text and the deadline plus two reminders as an `.ics` file.
 
 Not checked: whether the plan covers the service, whether the denial is right, state-specific
@@ -50,7 +53,7 @@ Independent of any insurer, health plan, hospital, clinic or government agency.
 
 **Privacy.** Nothing is uploaded; a denial letter contains health information and stays in the
 browser. Anonymous feature counts (`denial_read`, `appeal_built`, `letter_copied`,
-`example_loaded`) are kept only in local storage, can be switched off on the page, and honour Do
+`example_loaded`, `doc_provider`, `doc_external`) are kept only in local storage, can be switched off on the page, and honour Do
 Not Track.
 
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken,

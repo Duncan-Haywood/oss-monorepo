@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readDenial, deadlines, appealLetter, checklist, calendar, sampleDenial, addMonths, parseDate, REASONS, CARC, PLAN_TYPES } from "./engine.mjs";
+import { readDenial, deadlines, appealLetter, providerLetter, externalReviewLetter, checklist, calendar, sampleDenial, addMonths, parseDate, REASONS, CARC, PLAN_TYPES } from "./engine.mjs";
 
 test("the sample denial is read as a medical-necessity denial with its details", () => {
   const r = readDenial(sampleDenial());
@@ -145,4 +145,21 @@ test("the calendar file is valid iCalendar with three dated events and CRLF line
   assert.ok(ics.split("\r\n").every((l) => l.length <= 75));
   assert.doesNotMatch(ics.replace(/\r\n/g, ""), /\n/);
   assert.equal(calendar(deadlines({ plan: "medicaid", received: "2026-09-14", today: "2026-10-02" })), null);
+});
+
+test("provider letter leaves clinical facts as placeholders and asks for peer-to-peer", () => {
+  const l = providerLetter({ reason: "medical_necessity", patient: "Alex Rivera", provider: "Lee", insurer: "Acme", urgent: true });
+  assert.match(l, /peer-to-peer/);
+  assert.match(l, /\[diagnosis, ICD-10 code\(s\)\]/);
+  assert.match(l, /EXPEDITED/);
+  assert.match(l, /clinician must review and sign/);
+  assert.doesNotMatch(providerLetter({ reason: "duplicate" }), /EXPEDITED/);
+});
+
+test("external review letter carries the internal appeal dates or placeholders", () => {
+  const l = externalReviewLetter({ reason: "experimental", patient: "Alex Rivera", appealDate: "2026-10-01", finalDenialDate: "2026-11-02" });
+  assert.match(l, /dated 2026-11-02/);
+  assert.match(l, /filed an internal appeal on 2026-10-01/);
+  assert.match(l, /four months/);
+  assert.match(externalReviewLetter({ reason: "other" }), /\[date of the final internal denial\]/);
 });

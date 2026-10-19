@@ -420,6 +420,117 @@ export function appealLetter(c) {
   return lines.join("\n");
 }
 
+const phold = (v, hint) => (v && String(v).trim() ? String(v).trim() : `[${hint}]`);
+
+/**
+ * Letter for the treating clinician to review, edit and sign. Written from the
+ * patient's side as a starting draft; clinical facts are placeholders because
+ * only the clinician can state them.
+ */
+export function providerLetter(c) {
+  const reason = REASONS[c.reason] || REASONS.other;
+  const L = [];
+  L.push(`Dr. ${phold(c.provider, "clinician name")}`);
+  L.push("");
+  L.push(c.date || "[date]");
+  L.push("");
+  L.push(`To: Appeals Department, ${phold(c.insurer, "insurer name")}`);
+  L.push(`Re: ${c.urgent ? "URGENT / EXPEDITED " : ""}${reason.label.toLowerCase()} denial. Patient: ${phold(c.patient, "patient name")}, Member ID ${phold(c.memberId, "member ID")}, claim ${phold(c.claimNumber, "claim number")}`);
+  L.push(`Service: ${phold(c.service, "service or treatment")}   Date of service: ${phold(c.serviceDate, "date of service")}`);
+  L.push("");
+  L.push("To the Appeals Department:");
+  L.push("");
+  L.push(`I am the treating clinician for ${phold(c.patient, "patient name")}. I write in support of the appeal of the denial of the service above and ask that it be reviewed by a clinician in the same or a similar specialty.`);
+  L.push("");
+  L.push("Diagnosis and history (clinician to complete):");
+  L.push(`- Diagnosis and codes: [diagnosis, ICD-10 code(s)]`);
+  L.push(`- Symptoms and findings: [what the patient presents with and what the exam or tests show]`);
+  L.push(`- Treatments already tried and the result: [for example therapy, medication, dates and outcomes]`);
+  L.push("");
+  L.push("Why this service is needed (clinician to complete):");
+  if (c.reason === "medical_necessity") {
+    L.push("- [Explain why this service is appropriate for this patient and how it changes management.]");
+    L.push("- [Cite the guideline or study relied on, and say how the patient meets it.]");
+    L.push("- [State the risk of not providing it or of a less costly alternative that was considered.]");
+  } else if (c.reason === "experimental") {
+    L.push("- [Explain why standard treatments are not suitable or have failed for this patient.]");
+    L.push("- [Cite the published evidence for this use and any professional society position.]");
+  } else if (c.reason === "prior_auth") {
+    L.push("- [State whether authorization was requested, when and by whom, with the reference number.]");
+    L.push("- [If emergent or time-sensitive, state why the service could not wait for authorization.]");
+  } else {
+    L.push("- [Explain why this service was needed for this patient.]");
+  }
+  if (c.why && c.why.trim()) {
+    L.push("");
+    L.push("Facts the patient has given for this letter (confirm before relying on them):");
+    L.push(c.why.trim());
+  }
+  L.push("");
+  if (c.urgent) {
+    L.push("In my professional judgment, waiting for the standard review timeframe could seriously jeopardize this patient's life, health or ability to regain maximum function. I request an expedited review.");
+    L.push("");
+  }
+  L.push("I am available for a peer-to-peer discussion with the plan's reviewing physician and ask that the plan call my office at [office phone] to arrange one before a final decision is made.");
+  L.push("");
+  L.push("Sincerely,");
+  L.push("[clinician name, credentials, specialty]");
+  L.push("[practice, address, phone, NPI]");
+  L.push("");
+  L.push("[The clinician must review and sign this draft. It states no clinical fact for them.]");
+  return L.join("\n");
+}
+
+/**
+ * Request for independent external review after the plan has upheld its
+ * denial on internal appeal. Dates and outcome come from the user.
+ */
+export function externalReviewLetter(c) {
+  const reason = REASONS[c.reason] || REASONS.other;
+  const L = [];
+  L.push(phold(c.patient, "your name"));
+  L.push("");
+  L.push(c.date || "[date]");
+  L.push("");
+  L.push(`To: External Review Request, ${phold(c.insurer, "insurer name, or the external review organization named on your final denial")}`);
+  L.push(`Re: ${c.urgent ? "EXPEDITED " : ""}request for independent external review`);
+  L.push(`Member: ${phold(c.patient, "name")}   Member ID: ${phold(c.memberId, "member ID")}`);
+  L.push(`Claim number: ${phold(c.claimNumber, "claim number")}   Date of service: ${phold(c.serviceDate, "date of service")}`);
+  if (c.service) L.push(`Service: ${c.service}`);
+  L.push("");
+  L.push("To whom it may concern:");
+  L.push("");
+  L.push(`I request an independent external review of the plan's final internal denial dated ${phold(c.finalDenialDate, "date of the final internal denial")}. The plan's stated reason was: ${reason.label.toLowerCase()}.`);
+  L.push("");
+  L.push(`I filed an internal appeal on ${phold(c.appealDate, "date you filed the internal appeal")} and the plan upheld its decision. A copy of the original denial, my internal appeal and the final denial are enclosed.`);
+  L.push("");
+  L.push(reason.argument);
+  if (c.why && c.why.trim()) {
+    L.push("");
+    L.push("Details specific to my case:");
+    L.push(c.why.trim());
+  }
+  L.push("");
+  L.push("I ask the reviewer to decide the case on the enclosed medical records and the clinician's letter, and to require the plan to cover the service. I also ask that the plan send the reviewer the complete claim file and the criteria it relied on.");
+  if (c.urgent) {
+    L.push("");
+    L.push("I request an expedited review. My clinician has indicated that waiting for the standard timeframe could seriously jeopardize my health or my ability to regain function.");
+  }
+  L.push("");
+  L.push("Enclosed:");
+  L.push("- the original denial letter and explanation of benefits");
+  L.push("- my internal appeal and the plan's final internal denial");
+  reason.evidence.filter((e) => !/denial letter/.test(e)).forEach((e) => L.push(`- ${e}`));
+  L.push("- the external review request form, if your state or plan uses one");
+  L.push("");
+  L.push("Sincerely,");
+  L.push(phold(c.patient, "your name"));
+  L.push(`Phone: ${phold(c.phone, "phone")}`);
+  L.push("");
+  L.push("[Check the final denial for the exact address, form and deadline. For most commercial plans the request is due four months after that notice, and the review is free to you. Keep a copy and send by a method that records the date.]");
+  return L.join("\n");
+}
+
 /** What to collect before sending, in the order that matters. */
 export function checklist(reasonId, { urgent = false } = {}) {
   const r = REASONS[reasonId] || REASONS.other;
