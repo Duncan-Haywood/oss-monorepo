@@ -563,6 +563,34 @@ test("the pickleball guide's worked example matches buildSchedule() and is linke
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });
 
+test("the youth soccer guide's 9-team example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "youth-soccer-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Rockets", "Falcons", "Tigers", "Comets", "Rangers", "Strikers", "Blazers", "Wolves", "Sharks"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-10-24", weekdays: ["Sat"], courts: "Field 1\nField 2", times: "09:00\n10:30" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.length, 9);
+  const byes = {};
+  s.rounds.forEach((r) => {
+    const playing = new Set(r.matches.flatMap((m) => [m.homeName, m.awayName]));
+    const bye = teams.filter((t) => !playing.has(t));
+    assert.equal(bye.length, 1);
+    byes[bye[0]] = (byes[bye[0]] || 0) + 1;
+    const row = `<tr><td>${r.number}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td><td>${bye[0]}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, r.matches.length);
+  });
+  assert.ok(teams.every((t) => byes[t] === 1));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
 test("the fantasy football guide's 12-team, 14-week example matches buildSchedule() and is linked and in the sitemap", async () => {
   const { readSpec, buildSchedule, validateSchedule, rematchReport } = await import("./calc.mjs");
   const html = page("how-to-make-a-fantasy-football-schedule.html");
