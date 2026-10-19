@@ -3438,6 +3438,11 @@
     "slug": "sensing-imuarray",
     "title": "How many cheap gyros, fused, match one better gyro at the same cost?",
     "summary": "Single-axis gyro model with angle random walk and rate random walk (Allan-variance terms) and a fraction <em>&rho;</em> of each shared between units. With independent errors an array of <em>n</em> cheap units ties a unit <em>k</em> times quieter only when the price ratio exceeds <em>k</em><sup>2</sup> (9 for <em>k</em>&nbsp;=&nbsp;3, 100 for <em>k</em>&nbsp;=&nbsp;10); shared error above 1/<em>k</em><sup>2</sup> means no array size ties (<em>k</em>&nbsp;=&nbsp;10, <em>&rho;</em>&nbsp;&ge;&nbsp;0.01). If the better unit improves white noise 10&times; but bias walk only 3&times;, the number of units needed falls from 100 at 1&nbsp;s to 10 beyond 300&nbsp;s, so the answer depends on integration time. Monte Carlo matches the closed form within 0.03. Stylised: illustrative grades, not datasheets; no real IMU data; no prices claimed."
+   },
+   {
+    "slug": "sensing-burst",
+    "title": "How many frames from a small sensor, merged, match one frame from a bigger one?",
+    "summary": "Synthetic scenes with Poisson shot noise, Gaussian read noise and a full-well clip. A burst of <em>N</em> small-sensor frames (each at the large frame's exposure time) ties a sensor with <em>A</em>&times; the pixel area at <em>N</em>* = <em>A</em>&sup2;(<em>sx</em>+<em>r</em>&sup2;)/(<em>Asx</em>+<em>r</em>&sup2;): <em>A</em> frames when shot noise dominates, up to <em>A</em>&sup2; in the dark or at high read noise (simulation, <em>A</em>=4: 4.0 frames in bright light, 14.4 in dim light with 8 e<sup>&minus;</sup> read noise). Splitting the <em>same</em> total exposure into frames never ties: the burst has more variance than the large frame at every <em>N</em>. With hand shake and Fourier-shift registration, shifts are recovered to 0.09&ndash;0.8 px RMS in good light but fail in the dimmest case tested (3.1 px), and the registration blur means <em>A</em>=4 needs about 21 frames in bright light. A bracketed burst recovers clipped highlights (42 dB against 22 dB for one frame). Stylised: synthetic images, global translation only, no real raw files."
    }
   ]
  },
