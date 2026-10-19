@@ -275,6 +275,70 @@ export function analyze(rows, o = {}) {
   };
 }
 
+// A project made of several tasks. Each task estimate is scaled by the fitted
+// miss, and the project total is simulated two ways because the truth sits
+// between them: "independent" draws a separate past residual per task (misses
+// cancel out, so the total looks tighter); "shared" applies one residual to
+// every task (a bad project is bad everywhere, e.g. unclear scope). Price from
+// the shared figure unless your tasks are truly unrelated.
+export function parseTasks(text) {
+  const out = [], bad = [];
+  String(text || "").split(/\r?\n/).forEach((line, i) => {
+    if (!line.trim()) return;
+    const parts = line.split(/[,\t;]/);
+    // "name, 12" or "12": the last numeric field is the estimate.
+    let v = NaN;
+    for (let k = parts.length - 1; k >= 0 && !(v > 0); k--) v = moneyNum(parts[k]);
+    if (v > 0) out.push({ name: parts.length > 1 ? parts.slice(0, -1).join(",").trim() : `Task ${out.length + 1}`, est: v });
+    else if (i > 0 || /\d/.test(line)) bad.push(i + 1);
+  });
+  return { tasks: out, skipped: bad.length };
+}
+
+export function analyzeTasks(rows, tasks, o = {}) {
+  if (!tasks || !tasks.length) return { error: "Add at least one task estimate." };
+  const n = rows.length;
+  if (n < MIN_N) return { error: `Only ${n} finished projects in your history. At least ${MIN_N} are needed.` };
+  const est = rows.map((r) => r.est), act = rows.map((r) => r.act);
+  if (sd(act.map((v, i) => Math.log(v / est[i]))) < 0.01) return { error: "Your actuals matched your estimates almost exactly, so there is no miss to measure." };
+  const m = fitModel(est, act);
+  const mus = tasks.map((t) => predictLn(m, t.est));
+  const rate = Number.isFinite(o.rate) && o.rate > 0 ? o.rate : null;
+  const price = Number.isFinite(o.price) && o.price > 0 ? o.price : null;
+  const sumEst = tasks.reduce((a, t) => a + t.est, 0);
+  const levels = [0.5, 0.8, 0.9];
+  const warnings = [];
+  const lo = Math.min(...est), hi = Math.max(...est);
+  const out = tasks.filter((t) => t.est < lo * 0.999 || t.est > hi * 1.001).length;
+  if (out) warnings.push(`${out} task estimate${out === 1 ? " is" : "s are"} outside the ${num(lo, 1)} to ${num(hi, 1)} range of the projects in your history, so those are extrapolations. Tasks are usually smaller than whole projects: for best results, put your history at task size.`);
+
+  // Shared: one residual for all tasks.
+  const totals = m.res.map((r) => mus.reduce((a, mu) => a + Math.exp(mu + r), 0));
+  const sT = sortedNum(totals);
+  const shared = levels.map((p) => (p === 0.5 ? quantileSorted(sT, 0.5) : conformalQuantile(sT, p).value));
+  // Independent: Monte Carlo over the same residual set.
+  const rnd = mulberry32(o.seed ?? 20261019), TRIALS = 20000, ind = new Array(TRIALS);
+  for (let t = 0; t < TRIALS; t++) {
+    let tot = 0;
+    for (let k = 0; k < mus.length; k++) tot += Math.exp(mus[k] + m.res[Math.floor(rnd() * n)]);
+    ind[t] = tot;
+  }
+  const sI = sortedNum(ind);
+  const independent = levels.map((p) => quantileSorted(sI, p));
+  const sumOfP80 = tasks.reduce((a, t) => a + quantilesFor(m, t.est, [0.8])[0].value, 0);
+  const lossOf = (arr, pr) => (arr.filter((v) => v * rate > pr).length + 1) / (arr.length + 1);
+  const proposal = price && rate ? { price, rate, sharedLoss: lossOf(totals, price), independentLoss: lossOf(ind, price), breakEvenUnits: price / rate } : null;
+  if (price && !rate) warnings.push("Enter your hourly cost or rate as well to see the chance a fixed price loses money.");
+  if (tasks.length === 1) warnings.push("With one task the two views are the same.");
+  return {
+    n, count: tasks.length, sumEst, warnings, rate,
+    shared: levels.map((p, i) => ({ p, units: shared[i], buffer: shared[i] / sumEst - 1, price: rate ? shared[i] * rate : null })),
+    independent: levels.map((p, i) => ({ p, units: independent[i], buffer: independent[i] / sumEst - 1, price: rate ? independent[i] * rate : null })),
+    sumOfP80, sumOfP80Buffer: sumOfP80 / sumEst - 1, proposal,
+    tasks: tasks.map((t, i) => ({ name: t.name, est: t.est, median: Math.exp(mus[i]), p80: quantilesFor(m, t.est, [0.8])[0].value })),
+  };
+}
+
 // Deterministic invented history: 60 finished projects, median overrun about 25%.
 export function sampleText() {
   let s = 4242;

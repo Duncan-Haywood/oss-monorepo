@@ -23,6 +23,14 @@ missed, and know the chance it still loses money**, which used to take a gut fee
 - Back-test: fit on the first 75% in the order given, score the last 25% (share under the predicted 80% level; log error
   versus assuming actual = estimate).
 
+## Pricing a whole project from its tasks
+
+Paste a task list (`name, estimate` per line) and the tool sums the tasks two ways, both from your own residuals: **shared miss**
+(one past residual applied to every task, because a bad project is bad everywhere) and **independent** (20,000 seeded draws, one
+residual per task, so misses cancel). Price from the shared view unless the tasks are unrelated. A flat buffer on every task only matches the
+shared view; the page shows how much it over-pads if tasks miss independently. Your history should be at task size for this to be reliable; it warns when
+a task falls outside the range seen.
+
 ## Limits
 
 Correlation with your own past. Scope changes, new kinds of work, changed estimating habits and client effects are not

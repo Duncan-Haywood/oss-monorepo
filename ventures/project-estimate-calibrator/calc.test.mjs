@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseRows, conformalQuantile, fitModel, lossChance, analyze, sampleText, reportCsv } from "./calc.mjs";
+import { parseRows, conformalQuantile, fitModel, lossChance, analyze, parseTasks, analyzeTasks, sampleText, reportCsv } from "./calc.mjs";
 
 // Deterministic simulated history: actual = estimate * exp(mu + sigma * z) [* size drift].
 function history({ n = 400, mu = 0.22, sigma = 0.3, seed = 9, drift = 0 } = {}) {
@@ -140,6 +140,28 @@ test("a price without a rate is explained rather than silently ignored", () => {
   const r = analyze(history({ n: 60 }), { estimate: 40, price: 4000 });
   assert.equal(r.proposal, null);
   assert.ok(r.warnings.some((w) => /hourly cost or rate/.test(w)));
+});
+
+test("parseTasks reads names, bare numbers, and skips junk", () => {
+  const p = parseTasks("Design, 10\nBuild;24\n8\nnotes\n");
+  assert.deepEqual(p.tasks.map((t) => t.est), [10, 24, 8]);
+  assert.equal(p.tasks[0].name, "Design");
+  assert.equal(p.tasks[2].name, "Task 3");
+});
+
+test("analyzeTasks: shared-miss total is wider than independent, both above plain sum for an overrunning history", () => {
+  const rows = history({ n: 200 });
+  const tasks = [10, 20, 30, 40, 25, 15].map((e, i) => ({ name: `t${i}`, est: e }));
+  const r = analyzeTasks(rows, tasks, { rate: 100, price: 20000 });
+  assert.ok(!r.error);
+  assert.equal(r.sumEst, 140);
+  assert.ok(r.shared[1].units > r.independent[1].units, "shared P80 should exceed independent P80");
+  assert.ok(r.independent[1].units > r.sumEst);
+  assert.ok(r.shared[1].units < r.sumOfP80 * 1.001, "shared P80 cannot exceed summing task P80s");
+  assert.ok(r.proposal.sharedLoss >= 0 && r.proposal.sharedLoss <= 1);
+  assert.ok(r.proposal.sharedLoss >= r.proposal.independentLoss - 0.02);
+  assert.ok(analyzeTasks(rows.slice(0, 5), tasks).error);
+  assert.ok(analyzeTasks(rows, []).error);
 });
 
 test("parseRows reads time-tracker exports: budget hours vs tracked hours, h:mm:ss and 1h 30m durations", () => {
