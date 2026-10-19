@@ -750,7 +750,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Drift: `prompts/drift/2026-10-18f.md`.
 - Result: (next review)
 
-## E41: review 2026-10-18 (seventh)
+## E41: review 2026-10-18 (eighth)
 
 - Change: `research/CLAUDE.md` now says the first `pyenv.py` call takes ~20s and
   prints install chatter on stderr (3 friction reports). The yosys/apt-get
@@ -834,7 +834,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   7 runs). Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
 
-## E48: review 2026-10-19 (seventh)
+## E48: review 2026-10-19 (eighth)
 
 - Change: `research/CLAUDE.md` pyenv step now tells runs to test-import `pytest`
   along with the project's libraries before skipping the venv (friction: a plain
@@ -843,4 +843,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Metric: "pyenv/pytest detour" friction reports on `research/CLAUDE.md`, next 20 research runs.
 - Candidates: unchanged (review/2 has 7 runs; ventures 2 / research 1 overlap).
   Reduced pass: no audit or drift report (hours-old report).
+- Result: (next review)
+
+## E49: review 2026-10-19 (ninth)
+
+- Change: `prompt.md` step 2 says to retry `create_pull_request` on HTTP 500
+  (`prompt.md` friction: two 500s before success, no doc mentioned retrying).
+- Metric: "create_pull_request 500" friction reports on `prompt.md`, next 20 runs; expect none.
+- Candidates: unchanged (ventures 2 / research 1 intervals overlap; review/2 has
+  7 runs). Reduced pass: no audit, drift report or `derived/` regeneration
+  (reports hours old, recent outputs research/doc-only).
 - Result: (next review)
