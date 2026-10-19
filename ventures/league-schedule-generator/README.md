@@ -84,6 +84,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `how-to-run-an-americano-tournament.html` - guide to Americano rotations with a worked 8-player, 2-court example that the test suite recomputes from `americano`.
 - `how-to-run-a-mexicano-tournament.html` - guide to Mexicano draws (1 & 4 against 2 & 3 from the table) with a worked 8-player, 2-court example that the test suite recomputes from `mexicanoNextRound`.
 - `rec-basketball-league-schedule.html` - guide to a 10-team, 2-court, 3-tip-off-time Wednesday league with a worked table that the test suite recomputes from `buildSchedule`.
+- `volleyball-league-schedule.html` - guide to a 6-team, 2-gym Thursday league where Gym 2 is closed two nights, with a worked table (overflow games moved to makeup nights) that the test suite recomputes from `buildSchedule`.
 - `how-to-run-a-double-elimination-tournament.html` - guide to winners/losers brackets, byes and the grand final reset with a worked 6-team example that the test suite recomputes from `doubleEliminationBracket`.
 - `how-to-run-a-single-elimination-bracket.html` - guide to seeding, byes and game counts with a worked 6-team example that the test suite recomputes from `playoffBracket`.
 - `how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html` - guide to byes with 5, 7 or 9 teams and a worked 5-team example that the test suite recomputes from `roundRobin`.

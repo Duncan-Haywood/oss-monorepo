@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks } from "./calc.mjs";
+import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, validateSchedule } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-round-robin-schedule.html";
@@ -617,8 +617,35 @@ test("the rec basketball guide's 10-team example matches buildSchedule() and is 
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });
 
+test("the volleyball guide's closed-gym example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "volleyball-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Spikers", "Setters", "Diggers", "Blockers", "Aces", "Floaters"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-11-05", weekdays: ["Thu"], courts: "Gym 1\nGym 2", times: "19:00\n20:00", courtClosures: "Gym 2: 2026-11-19, 2026-11-26" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.ok(validateSchedule(s).ok);
+  let played = 0;
+  s.rounds.forEach((r) => {
+    const night = new Date(r.day * 864e5).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+    const row = `<tr><td>${r.label}</td><td>${night}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    played += r.matches.length;
+    if (night === "Thu 19 Nov" || night === "Thu 26 Nov") assert.ok(r.matches.every((m) => m.court === "Gym 1"));
+  });
+  assert.equal(played, 15);
+  assert.equal(s.rounds.filter((r) => r.makeup).length, 2);
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
 test("the fantasy football guide's 12-team, 14-week example matches buildSchedule() and is linked and in the sitemap", async () => {
-  const { readSpec, buildSchedule, validateSchedule, rematchReport } = await import("./calc.mjs");
+  const { rematchReport } = await import("./calc.mjs");
   const html = page("how-to-make-a-fantasy-football-schedule.html");
   assert.match(html, /No warranty/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
