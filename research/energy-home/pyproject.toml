@@ -1,0 +1,13 @@
+[project]
+name = "energy-home"
+version = "0.1.0"
+description = "Hourly solar-plus-battery sizing for a home on synthetic weather: self-sufficiency, cost, and the battery price at which storage pays"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

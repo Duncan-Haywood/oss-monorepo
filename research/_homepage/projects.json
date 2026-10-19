@@ -1399,6 +1399,11 @@
      "summary": "Provably equivalent rewrites of generated adder and multiplier RTL (random wire names, shuffled statements, shuffled order of added operands; 864 scored variants, every text proved equivalent to its reference) are scored under three ABC scripts. Names and statement order never change cells&times;depth. Operand order changes one carry-select adder by up to 1.43&times; within a script, and its best variant under <code>dch</code> is 17% better than the best adder <code>chip-abc-sweep</code> reported, so that earlier best was one draw from a distribution the text controls. Five other structures are unaffected. Stylised: two designs, one Yosys version, 12 seeds, generic-gate counts, cause not yet traced."
     },
     {
+     "slug": "chip-abc-orderpass",
+     "title": "Which Yosys pass makes the operand order of a + b + constant change the synthesised adder?",
+     "summary": "A follow-up to <code>chip-abc-order</code>. All 36 operand orders of a 16-bit carry-select adder's <code>a + b + const</code> chains (each proved equivalent to the reference) are run through <code>synth</code> one pass at a time. The cell counts first diverge in <code>opt_merge</code>: when a block's two sums both start with <code>a</code> and <code>b</code>, one shared <code>a + b</code> is kept (7 adders instead of 10), which happens in 4 of 36 orders. Cells&times;depth then takes only two values per ABC script, and the shared netlist is 1.20&ndash;1.28&times; larger under <code>dch_map</code> and <code>resyn2_map</code> but 0.92&times; under Yosys's default script. Removing <code>opt_merge</code> does not remove the dependence: the spread over orders widens to 1.44&ndash;3.17&times;. Stylised: one adder, Yosys 0.33, generic-gate cells&times;depth, no place and route."
+    },
+    {
      "slug": "chip-ppa-script",
      "title": "Does a rewritten adder or multiplier still beat the reference once the ABC script is allowed to vary?",
      "summary": "A follow-up to <code>chip-abc-sweep</code> and <code>chip-ppa-loop</code>: the earlier proposer files and a 16-adder and 8-multiplier sweep are scored under five ABC scripts, and every mapped netlist is proved equivalent to its reference (none failed). For the adder the best rewrite is 0.80&ndash;0.86&times; the reference under the same script, but the reference under its best script is already 0.61&times; its default score, so much of the headline gain was the script. For the multiplier no rewrite beats <code>a * b</code> under any script; the only gain (0.90&times;) is from the script. Stylised: two designs, one Yosys version, a session-written proposer, generic-gate counts rather than layout."
@@ -2741,6 +2746,11 @@
      "summary": "A one-hidden-layer MLP on pooled MFCC features of Speech Commands v0.02 (10 keywords plus unknown), quantised to 2&ndash;8 bit weights, mapped to a serial-MAC RTL engine that matches an integer NumPy reference bit for bit on all 40 swept configurations. Test accuracy saturates near 75% (0.752 at 128 hidden units, 4 bits); 4-bit weights are within 0.4 points of 8-bit at 64 and 128 units, 2 bits collapses at small width, and a 64-unit 4-bit design (0.722) uses about 31% of the best design&rsquo;s modelled energy. Modelled classifier energy is 0.0045&ndash;0.19&nbsp;&micro;W at 4 inferences per second, far below the 1.8&nbsp;mW microphone floor in <em>ambient-wearable</em>. Stylised: assumed 45&nbsp;nm energy constants not re-checked, generic-gate area without memories, no front end, a third-party dataset mirror, and a weak feature set."
     },
     {
+     "slug": "accel-ttfit",
+     "title": "Does a keyword-spotting accelerator fit in a Tiny Tapeout tile, and how accurate can it be?",
+     "summary": "A streaming serial-MAC engine with no weight memory (the host feeds one operand pair per clock over the 16 input pins; hidden activations sit in a rotating shift register), bit- and cycle-exact against an integer reference in Icarus on 32 geometries, synthesised to SKY130 HD with Yosys. Area is 6,300&ndash;24,500 &micro;m<sup>2</sup> (661&ndash;2,090 cells) for 8&ndash;64 hidden units and 2&ndash;8 bit weights; flops are 33&ndash;53% of it, and 8-bit weights cost about 3,000 &micro;m<sup>2</sup> more than 4-bit. Against an assumed 161&times;112 &micro;m 1x1 tile (18,032 &micro;m<sup>2</sup>), the best model by <em>accel-kws</em> test accuracy that fits one tile at 70% utilisation is 16 hidden units, 8-bit weights, 120 inputs (0.616); two tiles take 64 units at 4 bits (0.738), a 1.7&times; area step for 12 points. Stylised: synthesis only (no placement, routing or timing), random weights in the RTL check, accuracies carried over from <em>accel-kws</em> models that were not re-run through this engine, and the tile area is from a search-result snippet of a Tiny Tapeout guide, not the tile table."
+    },
+    {
      "slug": "accel-codesign",
      "title": "Under a latency deadline, how much engine area does picking the most accurate model first cost, compared with choosing model and lane count together?",
      "summary": "Exhaustive joint search over the 40 measured <em>accel-kws</em> keyword-spotting models and six MAC lane counts (240 designs), against a model-first flow, at deadlines of 2,000&ndash;20,000 cycles. The most accurate model (validation 0.775, test 0.752) needs 16 lanes at 2,000 cycles and 7,667 generic cells; accepting 2 validation points less (test 0.738) cuts area by 31&ndash;42%, and 3 points by 35&ndash;56%. Stylised and only partly the milestone: models are a fixed measured table (the dataset was unreachable), cycles for more than one lane are analytic and not RTL-simulated, memory bandwidth is not counted, area is generic gates, and no NSGA-II or Bayesian search was run (the space is small enough to enumerate)."
@@ -2749,6 +2759,11 @@
      "slug": "accel-nsga",
      "title": "Does NSGA-II find a keyword-spotting accelerator's Pareto front faster than random search at equal budgets?",
      "summary": "NSGA-II against random sampling, 30 seeds each, on a 3,840-design space (40 measured <em>accel-kws</em> models &times; 6 lane counts &times; 4 memory-bank counts &times; 4 supply levels) under a latency deadline, scored against the exact front from exhaustive search. At 20.8% of the space NSGA-II finds 54% and 89% of the exact front's designs (50 and 200 &micro;s deadlines) against 19% and 21% for random search, yet hypervolume is 0.97&ndash;1.00 for both, so random search is already good enough if only a near-front is needed. Stylised: bank and supply models are assumptions and no multi-lane RTL was simulated."
+    },
+    {
+     "slug": "accel-nsgatune",
+     "title": "Was accel-nsga's NSGA-II win a tuning accident? Does population size, mutation rate or crossover change how much of the exact front it finds?",
+     "summary": "A sweep of NSGA-II population size (10&ndash;80), per-gene mutation rate (0.02&ndash;0.5) and crossover on the 3,840-design keyword-spotting accelerator space of <em>accel-nsga</em>, at 400 evaluated designs, 30 seeds, scored against the exact front. The earlier setting (population 20, mutation 0.25) was under-tuned: mutation 0.02&ndash;0.1 finds about 0.38 of the front at 50 &micro;s (was 0.28) and 0.71&ndash;0.77 at 200 &micro;s (was 0.59), against 0.13 and 0.12 for random search. Population 80 with mutation 0.5 is no better than random. Removing crossover changes little. Stylised: one budget, four genes, tuned on the score it is reported with."
     },
     {
      "slug": "accel-dataflow",
@@ -2908,6 +2923,11 @@
      "summary": "A follow-up to <code>eda-adapt</code> on the same 133 designs in four generator families. Choosing the k adaptation designs by farthest-point spread in feature space, instead of at random, roughly halves the linear model&rsquo;s held-out median error at k&nbsp;=&nbsp;5 (5.3% against 8.5%, new-family weight 5); picking the smallest designs is worst (15.2%). Upweighting the new family&rsquo;s points helps the linear and ridge models from k&nbsp;=&nbsp;5 but hurt boosted trees. Stylised: four small clean families, a synthesis-only cell-count target, deterministic choosers scored on different remaining sets, no confidence intervals."
     },
     {
+     "slug": "eda-screen",
+     "title": "Does a cell-count surrogate used as a screen find a chip design&rsquo;s Pareto front with fewer syntheses than random search or TPE?",
+     "summary": "On the 80-design accelerator table from <code>eda-proposers</code>, a screen that synthesises 4 spread designs, fits a log-linear cell-count model, and then synthesises designs in order of predicted Pareto rank finds 0.990 of the true front&rsquo;s hypervolume at 12 syntheses (random 0.860, TPE 0.878; 100 seeds) and the whole front on 87% of seeds by 20. The screen reads cycles and error for free, which the baselines do not: with no cell-count model that alone gives 0.908, so the surrogate adds the rest. Stylised: one small smooth space, the surrogate fitted inside one family, no place and route."
+    },
+    {
      "slug": "eda-flowtune",
      "title": "Does the best ABC recipe for one design transfer to another?",
      "summary": "All 400 ABC pass sequences (up to three passes of seven) mapped to SKY130 on eight small datapath designs, so every optimum is known. The best recipe differs per design and transfers badly: one design&rsquo;s best recipe scores a mean 1.31&times; (worst 2.06&times;) the other&rsquo;s optimum, and score rankings of recipes correlate only weakly across designs (Spearman &minus;0.51 to 0.46). A leave-one-out consensus recipe is only slightly better than a median sequence (1.22&times; against 1.26&times;), and warm-starting a hill climber with it helps one design (<em>mac4</em>) but is within noise of random search on average at budgets 10 to 40. Stylised: eight hand-picked toy designs, ABC&rsquo;s static delay, no place and route; the OpenROAD-settings half of the milestone is not done."
@@ -3053,6 +3073,11 @@
      "slug": "osrobot-lean",
      "title": "If the person being fed leans toward the spoon, can a blind feeding arm do without a camera?",
      "summary": "A stdlib extension of <code>osrobot-assist</code>'s planar feeding-arm twin in which the user shifts the mouth toward the spoon tip at a swept lean speed (200 paired trials per row). At 30&nbsp;mm sway and 0.20&nbsp;m/s the blind arm's share of feeds with peak lip force at most 2&nbsp;N rises from 0.21 (passive user) to 0.69 at 50&nbsp;mm/s and 1.00 at 100&nbsp;mm/s, against 0.71 to 0.97 for the camera arm; at 50&nbsp;mm sway even 100&nbsp;mm/s gives only 0.62 for the blind arm. Leaning removes contacts but not the peak force of the ones that remain (4.0&nbsp;N at 0.20&nbsp;m/s). Stylised: every constant, including the lean speed, is assumed; no person was modelled or tested."
+    },
+    {
+  "slug": "osrobot-scoutpair",
+  "title": "Does a fast scout platform plus a ground treater beat one weeding robot, and does a mud-aware tour matter?",
+  "summary": "A stdlib follow-up to <code>osrobot-fieldtour</code> that makes the scout a second platform with its own swath and detector, then compares at matched kill because both platforms lose detections as they speed up. With a 3&nbsp;m scout swath at 1&nbsp;m/s the pair kills 0.343 in 26.6&nbsp;min against about 42&nbsp;min for one inline robot interpolated to the same kill; with the scout's swath cut to the ground robot's 1&nbsp;m the same kill takes 47.3&nbsp;min and the pair loses by about 13%. The saving is the swath ratio, not the second vehicle. A mud-aware tour changes the total by 0.1&nbsp;min or less at 0 to 80% mud. Assumed constants, no registration error and no pipelining or capital cost: stylised, simulation only."
     },
     {
      "slug": "osrobot-fieldtour",
@@ -3294,6 +3319,11 @@
      "summary": "Follow-up to <code>mimic-threshold</code>. The n-gram detector is fit on seven RAID families; k human texts of the eighth set its cut-off, 500 random draws per cell. Taking the empirical 95th percentile, k = 20 gives a mean false-positive rate of 9% and a 36% chance of exceeding 10%; k = 80 gives 6.1% and 10%; k = 160 gives 5.5%. A conformal rank rule holds the mean at 4.7&ndash;4.9% from k = 20 but gives up recall (0.66 against 0.79 at k = 20) and cannot flag anything below 19 calibration texts. Even at k = 80 one draw lands anywhere from 1.7% to 8.8% (10th&ndash;90th percentile). Recalibration fixes the false-accusation rate, not the detector: recipes still catches under half of machine text. Preliminary: plain-prompt RAID text, one detector, calibration from the same population as the test, no LLM run."
     },
     {
+     "slug": "mimic-batch",
+     "title": "How many texts from one source does a weak human-vs-machine text detector need before a batch verdict is reliable?",
+     "summary": "The <code>mimic-contexts</code> n-gram detector scores a held-out RAID family; a batch is k independent texts and its statistic is their mean score. One text separates people from a plainly prompted LLM at AUROC 0.935 (mean of 8 families); four all-machine texts reach 0.997 and eight reach 1.00. If only half the batch is machine, k = 8 gives 0.98; a quarter needs about 32 (0.985); at 10% machine 32 texts give only 0.82. The catch is calibration: with a threshold set on 150 human texts, the share of human batches flagged drifts from 7.4% at k = 1 to 15% on average at k = 32 (books 60%), because the batch mean's spread shrinks while the calibration error does not. Preliminary: plain-prompt text, i.i.d. batches, one detector, no LLM run."
+    },
+    {
      "slug": "mimic-twinc2st",
      "title": "Does a classifier two-sample test catch digital-twin errors that a paired trajectory error misses?",
      "summary": "A stylised pendulum with Coulomb friction and heavy-tailed (Student-t) sensor noise is the &lsquo;real&rsquo; system; twins differ in friction, noise shape or noise level. A classifier two-sample test (5-fold CV AUROC, 800 vs 800 trajectories, 3 seeds) separates real from twin trajectories with boosted trees: a friction error of 0.03 (10%) that moves the noise-free trajectory by only 0.006 rad RMSE &mdash; a quarter of the 0.02 rad noise sd &mdash; gives AUROC 0.72, and 0.91 at 20%. A twin with the right dynamics but Gaussian instead of Student-t noise of the same sd has paired error exactly 0 yet AUROC 0.92 once second-difference features are added (0.59 on raw angles). A logistic regression on raw angles stays at chance (0.51) throughout, because the start angles are symmetric. Limits: one toy system, two noise models, three seeds, a handful of classifier settings; simulated only, nothing about real hardware. Preliminary, no LLM involved: a side piece of track 11."
@@ -3396,6 +3426,11 @@
      "summary": "A degree-day net-present-cost search (not EnergyPlus) over 640 envelope packages of the <code>house-framing</code> house in eight US climates and two heating systems. The advanced 2x6 wall builds for $42 less than a conventional 2x4 and loses 40% less heat through the opaque wall, and is in every cost-optimal package: 13&ndash;15% lower 30-year cost than the baseline ($2,100&ndash;4,600). Past the wall the optimum is modest (attic R-30&ndash;38, 3 ACH50 air sealing, slab-edge insulation from about 3,000 degree-days); R-49 attics and better windows pay back in 23&ndash;190 years. At the assumed window prices the optimum picks U 0.50 windows, which a code floor of U 0.35 costs $440&ndash;1,270 to avoid; that result does not survive 4&times; energy prices. Stylised: every price is an assumption, climates are rounded from memory, and there is no solar gain."
     },
     {
+     "slug": "house-wallsystems",
+     "title": "Does any alternative to a wood-framed wall beat it on cost, carbon or heat loss for a small house?",
+     "summary": "Prices six exterior wall systems (wood 2x6, steel stud, ICF, SIPs, CLT, 3D-printed concrete) on the 927 sq ft of net wall of the <code>house-framing</code> house, then runs 20,000 Monte Carlo draws over stylised cost, carbon and R-value ranges. Wood is cheapest in 96.8% of draws, lowest in product-stage carbon in 100% and lowest in first cost plus 30-year heat-loss cost in 99.9%; ICF and SIP save only about $500 of heat-loss present value against $5,500&ndash;8,300 more first cost, and SIP would need a 39% price cut to tie. SIPs and CLT take about half the crew hours. <em>Stylised</em>: every input is a range from memory, the result largely follows from them, biogenic carbon, avoided trades and strength are not credited or compared."
+    },
+    {
      "slug": "house-structure",
      "title": "Does a small wood-frame house have enough shear wall for wind and earthquakes once the windows and doors are cut out?",
      "summary": "Wind and seismic base shear on the <code>house-framing</code> house (28 &times; 40 ft, one storey) against the segmented shear-wall length its openings leave. At 115 mph and SDS 0.50 the worst case uses 19% of a gable-wall line's capacity at the loosest (6 in) nailing; wind must reach 264 mph before that nailing runs out. Lateral load does not govern this plan, but glazing does: four windows per gable wall cut the usable wall from 24 ft to 11 ft, six leave none. A 16 ft garage door in the gable wall raises the load share to 41% at 6 in nailing, and a centred 22 ft door needs tighter nailing. Advanced and conventional framing carry the same shear. <em>Stylised</em>: the nailing table and load coefficients are from memory and unchecked, and diaphragms, uplift and overturning are not modelled."
@@ -3469,6 +3504,11 @@
      "slug": "house-overhang",
      "title": "Does a roof overhang over south windows pay for itself, and in which climates does it cost energy instead of saving it?",
      "summary": "Adds overhang shading (profile angle, shadow depth on the glass, beam radiation only) to <code>house-solar</code>&rsquo;s south windows and searches projection from 0 to 4&nbsp;ft with the 640 envelope packages. At an assumed $12 per foot of width per foot of projection no overhang is cost-optimal in any of 8 climates or 2 systems. Its gross energy value is at most $280 of 30-year net present cost (Miami, 4&nbsp;ft); in cold and mixed climates anything deeper than about 1&nbsp;ft loses more winter gain than it saves in summer. It would be chosen only below roughly $0.60 to $4.20 per foot per foot. Stylised degree-day model; height, gap and price are assumptions; not EnergyPlus."
+    },
+    {
+     "slug": "house-dewpoint",
+     "title": "Where in a wall does water vapor condense, and does a vapor retarder or exterior foam fix it, by climate?",
+     "summary": "A steady-state Glaser check of a 2x6 batt wall (gypsum, optional retarder, OSB, optional 1 or 2&nbsp;in XPS, housewrap, siding) in four assumed climates. In winter nothing condenses in Miami or Atlanta. In Chicago painted drywall gives about 6&nbsp;g/m<sup>2</sup>/day at the sheathing; 2&nbsp;in of exterior XPS removes it and a kraft facing cuts it to 0.05. In Duluth only polyethylene reaches zero (painted drywall about 11&nbsp;g/m<sup>2</sup>/day). The summer case shows no condensation because the model has no wet-cladding reservoir. Stylised: steady state, unsourced permeances and climate values, no moisture storage, not WUFI."
     }
    ]
   },
@@ -3542,6 +3582,11 @@
   "blurb": "How densely, cheaply and durably energy can be stored, and what mix of supply and storage meets demand at least cost: the physical limits first, then devices, costs and grids, in open code.",
   "projects": [
    {
+    "slug": "energy-home",
+    "title": "How big should a home's solar array and battery be, and at what installed price does the battery pay?",
+    "summary": "An hourly simulation of rooftop solar plus a battery on an 8,000 kWh/yr home, over 20 seeded synthetic weather years (Haurwitz clear sky, a three-state cloud chain, an invented load) with assumed round-number prices. A 6 kW array alone meets 35% of the load; 5, 10 and 15 kWh of battery lift that to 49%, 59% and 62%, then returns diminish fast. With import at $0.30 and export at $0.05 per kWh a 10 kWh battery pays only below about $451/kWh installed (assumed $800), $143 at $0.20 export, and never when export is paid at the import price. Stylised: synthetic weather, flat tariff, no incentives or degradation; not installation advice."
+   },
+   {
     "slug": "energy-density",
     "title": "How much energy can each storage technology hold per kilogram, at the most?",
     "summary": "Theoretical ceilings from first principles for batteries, hydrogen, flywheels, pumped hydro and heat, reproducing five published values to within 0.3% (lead-acid 170, Zn-air 1,086, Li-S 2,567, Li-O<sub>2</sub> 3,458 Wh/kg; Al-air 8,100 on Al). No battery couple releases more than 1.65 eV per reactant atom, so the spread comes from atomic mass: Wh/kg = 26,801 &times; eV per atom / mean g/mol. A carbon-fibre flywheel holds at most 756 Wh/kg (0.34 eV per atom), sand at 500 &deg;C 107 Wh/kg of heat (41% recoverable as electricity) and water lifted 300 m 0.82 Wh/kg. Ceilings for the active material only, with some voltages and material properties assumed."
@@ -3550,6 +3595,11 @@
     "slug": "energy-thermal",
     "title": "Can a house-sized sand heat store carry summer heat into winter, and how does its electricity use compare with a heat pump?",
     "summary": "A transient finite-volume model of a spherical sand store in mineral wool (a hot-water tank run through the same code), checked against analytic cases. A store sized to still give 10 MWh after 120 days needs 222 m<sup>3</sup> (against 70 if lossless) and returns only 26% of the electricity put in as heat, so a COP-4 heat pump wins unless its electricity costs 15&times; more, before capital cost. After a day or a week the same store returns 79% and 73%: a days-scale store at house size, seasonal only near 1,000 m<sup>3</sup> (43% left after 180 days). Stylised: assumed properties, a sphere, instant uniform charging, no pipes or ground."
+    },
+    {
+    "slug": "energy-lcos",
+    "title": "Which energy-storage technology is cheapest per MWh delivered at 1 hour, 1 day and 3 weeks?",
+    "summary": "Levelised cost of storage for lithium-ion, vanadium flow, pumped hydro, cavern compressed air and cavern hydrogen, from capital cost, round-trip efficiency, life, fade and charging power. With round assumed inputs Li-ion is cheapest to about 4 hours ($116/MWh at 4 h) and costs about 3&times; a cavern store at 24 hours ($337 vs $109); cavern hydrogen beats Li-ion above 11 hours but cavern compressed air only above 308 hours. Li-ion would need an energy cost of $43/kWh instead of $200 to win at 24 hours. The 8&ndash;10 hour winner flips with the discount rate and charging price. Stylised: every input is assumed and unsourced, caverns need geology, one fixed use pattern."
     }
    ]
   },
