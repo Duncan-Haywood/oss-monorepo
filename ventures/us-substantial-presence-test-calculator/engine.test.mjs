@@ -145,3 +145,32 @@ test("analyze reports the latest departure and it keeps the total under the test
   assert.equal(meets(days, r.p1.days, r.p2.days), false);
   assert.equal(meets(days + 1, r.p1.days, r.p2.days), true);
 });
+
+test("boundaries: a full year total is accepted, one day more is not", () => {
+  assert.equal(parseStays("2025: 365 days", "2025-12-31").errors.length, 0);
+  assert.equal(parseStays("2024: 366 days", "2025-12-31").errors.length, 0);
+  assert.equal(parseStays("2025: 366 days", "2025-12-31").errors.length, 1);
+});
+
+test("one day of room left is still room; none left is none", () => {
+  assert.deepEqual(latestDeparture("2025-03-01", 1, 2025), { last: toDay("2025-03-01") });
+  const over = run("2025-01-01 to 2025-07-31");
+  assert.equal(over.roomLeft, 0);
+  assert.ok(summarize({ ...over, tripStart: "2025-07-01", trip: latestDeparture("2025-07-01", over.roomLeft, 2025) }).text.includes("no room left"));
+});
+
+test("a single planned day is reported", () => {
+  assert.match(summarize(run("2025-01-01 to 2025-01-10", { planned: 1 })).text, /planned 1 day makes 11 in 2025/);
+});
+
+test("I-94: a 'Port of Entry' in a departure row does not turn it into an arrival", () => {
+  const r = importI94("03/01/2025 Arrival JFK\n03/10/2025 Departure Port of Entry JFK");
+  assert.deepEqual(r.lines, ["2025-03-01 to 2025-03-10"]);
+  assert.equal(r.notes.length, 0);
+});
+
+test("I-94: two arrivals on one day never yield an end-before-start line", () => {
+  const r = importI94("01/05/2025 Arrival JFK\n01/05/2025 Arrival EWR");
+  assert.deepEqual(r.lines, ["2025-01-05 to present"]);
+  assert.equal(analyze({ stays: r.lines.join("\n"), asOf: "2025-06-15", year: 2025 }).errors.length, 0);
+});
