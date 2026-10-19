@@ -2,6 +2,8 @@
 
 **Question.** `garment-teardown` priced a $20 to $50 replica trench coat at about $43 in materials plus sewing labour at an *experienced operator's* speed (76 minutes). A first-time sewer is far slower. Using a Wright learning curve, how many coats does it take to get within 2x of an experienced operator, and what does your own time have to be worth for the n-th coat to still cost $50?
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-learning/
+
 **Headline (assumed inputs, see Limitations).** With a first coat 4x an experienced operator (5.1 h) and an 85% learning rate, it takes 20 coats to get within 2x of experienced time; with a first coat 8x and a 90% rate it takes about 9,100, so the answer is dominated by the two assumed parameters, not by the model. At those 4x / 85% inputs, with $43 in materials, the first coat stays under $50 only if your time is valued at $1.45/h or less, and the 100th coat at $4.28/h or less. At a $15/h valuation the first coat costs about $119. Produced with AI assistance (Claude).
 
 **Why this one.** The garment track's recent chain was variants of one two-node thermal model; this asks a different question, the volume and learning effect that `garment-teardown`'s limitations list as ignored.
