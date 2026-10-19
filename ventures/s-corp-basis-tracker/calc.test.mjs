@@ -201,3 +201,35 @@ test("batch: CSV has one row per shareholder-year and quotes commas in names; wo
   assert.ok(html.includes("&lt;b&gt;X&lt;/b&gt;"));
   assert.equal(parseBatch("").holders.length, 0);
 });
+
+import { saleOutlook } from "./calc.mjs";
+
+test("sale: gain is net proceeds over year-adjusted stock basis", () => {
+  const r = run({ stock: 20000, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, income: 10000, distributions: 4000 }]);
+  const s = saleOutlook(r, { proceeds: 50000, expenses: 2000 });
+  assert.equal(s.stockBasis, 26000);
+  assert.equal(s.netProceeds, 48000);
+  assert.equal(s.gain, 22000);
+  assert.equal(s.suspendedLost, 0);
+  assert.equal(s.contributionToUseLosses, 0);
+});
+
+test("sale: a loss over basis is lost on a full sale, and the contribution that saves it leaves the gain unchanged", () => {
+  const r = run({ stock: 5000, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, losses: 20000 }]);
+  const s = saleOutlook(r, { proceeds: 3000 });
+  assert.equal(s.suspendedLost, 15000);
+  assert.equal(s.contributionToUseLosses, 15000);
+  assert.equal(s.gain, 3000);
+  const after = run({ stock: 5000, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, contributions: 15000, losses: 20000 }]);
+  assert.equal(after.closing.suspended, 0);
+  assert.equal(saleOutlook(after, { proceeds: 3000 }).gain, 3000);
+  assert.match(s.advice.join(" "), /lost, not carried/);
+});
+
+test("sale: loan above basis is flagged and bad input is refused", () => {
+  const r = run({ stock: 0, debtBasis: 0, debtFace: 0, suspended: 0 }, [{ ...Z, loansMade: 10000, losses: 6000 }]);
+  const s = saleOutlook(r, { proceeds: 1000 });
+  assert.equal(s.loanAboveBasis, 6000);
+  assert.equal(saleOutlook(r, { proceeds: "x" }), null);
+  assert.equal(saleOutlook(r, { proceeds: -1 }), null);
+});
