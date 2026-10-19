@@ -35,6 +35,7 @@
 </div></fieldset>
 <fieldset><legend>Fees &amp; overhead</legend><div class="fields">
 <label>Holiday / last-minute surcharge (%)<input id="holidaySurchargePct" type="number" min="0" max="200" step="1" value="0"></label>
+<label>Late cancellations you don't bill (% of bookings)<input id="unbilledCancellationPct" type="number" min="0" max="99.9" step="1" value="0"></label>
 <label>Payment processing fee (%)<input id="paymentProcessingFeePct" type="number" min="0" max="99.9" step="0.1" value="0"></label>
 <label>Monthly overhead (insurance, app, supplies)<input id="monthlyOverhead" type="number" min="0" step="1" value="45"></label>
 <label>Expected visits per month<input id="expectedVisitsPerMonth" type="number" min="0" step="1" value="60"></label>
@@ -58,6 +59,7 @@
 <dt>Overhead allocated</dt><dd id="overheadOut"></dd>
 <dt>Margin</dt><dd id="marginOut"></dd>
 <dt>Holiday surcharge</dt><dd id="holidayOut"></dd>
+<dt>Cancellation cushion</dt><dd id="cancelOut"></dd>
 <dt>Processing fee</dt><dd id="processingOut"></dd>
 </dl>
 <p class="note">This is a planning floor from the numbers you typed, not a market rate. It does not add taxes, bad debt, or slow seasons unless you fold those into overhead yourself.</p>
@@ -151,11 +153,12 @@ function updateVisit(count = false) {
     el('overheadOut').textContent = money(r.overheadPerVisit);
     el('marginOut').textContent = money(r.marginAmount);
     el('holidayOut').textContent = money(r.holidayAmount);
+    el('cancelOut').textContent = money(r.cancellationAmount);
     el('processingOut').textContent = money(r.processingFeeAmount);
     if (count && !counted) { recordEvent('estimate'); counted = true; }
   } catch (e) {
     el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
-    for (const id of ['rateLine', 'hoursOut', 'laborOut', 'mileageOut', 'petOut', 'overheadOut', 'marginOut', 'holidayOut', 'processingOut']) el(id).textContent = '';
+    for (const id of ['rateLine', 'hoursOut', 'laborOut', 'mileageOut', 'petOut', 'overheadOut', 'marginOut', 'holidayOut', 'cancelOut', 'processingOut']) el(id).textContent = '';
   }
 }
 
