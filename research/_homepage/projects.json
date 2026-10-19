@@ -3435,6 +3435,18 @@
     "summary": "Single-axis gyro model with angle random walk and rate random walk (Allan-variance terms) and a fraction <em>&rho;</em> of each shared between units. With independent errors an array of <em>n</em> cheap units ties a unit <em>k</em> times quieter only when the price ratio exceeds <em>k</em><sup>2</sup> (9 for <em>k</em>&nbsp;=&nbsp;3, 100 for <em>k</em>&nbsp;=&nbsp;10); shared error above 1/<em>k</em><sup>2</sup> means no array size ties (<em>k</em>&nbsp;=&nbsp;10, <em>&rho;</em>&nbsp;&ge;&nbsp;0.01). If the better unit improves white noise 10&times; but bias walk only 3&times;, the number of units needed falls from 100 at 1&nbsp;s to 10 beyond 300&nbsp;s, so the answer depends on integration time. Monte Carlo matches the closed form within 0.03. Stylised: illustrative grades, not datasheets; no real IMU data; no prices claimed."
    }
   ]
+ },
+ {
+  "id": "society",
+  "name": "Robot societies among people",
+  "blurb": "Simulated societies of AI-driven robots living among simulated people: the conventions that emerge, who sets them, what they cost people, and watchable episodes made from seeded runs.",
+  "projects": [
+   {
+    "slug": "society-robotnorms",
+    "title": "How many robots does it take to change how a crowd walks?",
+    "summary": "Robots as a committed minority in a passing-side convention. People take the side most of their last <em>M</em> partners used; robots hold a programmed side. The tipping share grows with memory: 16%, 22%, 28% and 32% of the crowd for <em>M</em>&nbsp;=&nbsp;5, 9, 17 and 25 in simulation, within 0.02 of a mean-field prediction (0.158, 0.217, 0.272, 0.302). Stylised: one binary choice per meeting, no geometry."
+   }
+  ]
  }
  ],
  "featured": [
