@@ -3287,6 +3287,16 @@
      "summary": "Joins 660 run records that have a start time (1 to 19 October 2026) to how many other runs started within 5, 10 or 30 minutes. Raw, crowded starts look better (error recorded in 9.8% against 21.0%), but that is a day effect: 13 to 15 October had 47&ndash;50% error records and few concurrent starts, 16 October on 6&ndash;9% and many. Shuffling the crowded label within calendar days finds no detectable difference (12 tests, one p&nbsp;=&nbsp;0.018 on a 50-run group, not counted), and six-hour blocks of the day show nothing. Preliminary and low power: association only, <code>errors</code> is self-reported, and duplicate work, the cost <code>swe-schedule</code> models, is not in the records."
     },
     {
+     "slug": "swe-reccover",
+     "title": "Do the agent run records match git? Does every landed session leave one?",
+     "summary": "Checks the run records against the commit history on main. All 522 records that name a pull request in this repository name one that landed (Wilson 95% 99.3&ndash;100%). But only 79.8% of sessions that landed commits from 13 October have a record (1,465 of 1,836; 77.9&ndash;81.6%): 89.8% of sessions that followed the master prompt, 4.2% of those that did not, and by track research 92.2%, process 93.2%, red team 100% and ventures 79.2% (75.5&ndash;82.5%). Coverage rose from about 60% on 13&ndash;14 October to 82&ndash;88% afterwards. Preliminary: seven days; sessions are identified by a commit trailer, so sessions without one are invisible; landed is a git fact, not a quality one."
+    },
+    {
+     "slug": "swe-ventgap",
+     "title": "Why do landed ventures sessions leave fewer run records than research sessions?",
+     "summary": "Splits the 515 ventures sessions that landed commits from 13 October by prompt version, scope, size, subject and day. 79.6% have a run record against 92.2% for research, and no feature of what the session built separates the unrecorded ones (one venture 80.2%, 1&ndash;5 files 78.9%, single commit 80.3%). The one structural difference is in the prompts: every other track's sub-prompt tells the reader to write the record, and the three ventures sub-prompts do not; but <code>ventures/2</code>, which also omits it, reaches 85.4%, and coverage rose from 53% on 14 October to 84&ndash;89% on 18&ndash;19 October. Preliminary and observational: six days, landed sessions only, no intervals on the day-matched odds ratios."
+    },
+    {
      "slug": "swe-nullrate",
      "title": "How often does this portfolio report a negative or mixed result?",
      "summary": "A hand-labelled census of 80 randomly sampled project summaries (of 711): 51% descriptive, 20% positive, 18% mixed and 11% negative. Among the 39 that test a claim against an alternative, 59% (Wilson 95% 43&ndash;73%) report a negative or mixed result, so the portfolio is not a list of wins. A keyword rule for negative or mixed has precision 0.60 and recall 0.65 in-sample and should not be used for by-theme shares. Preliminary: one labeller, one pass, rubric fixed while labelling, summaries truncated when long, no inter-rater agreement."

@@ -1,0 +1,22 @@
+|--- num__wife_age_at_marriage <= 20.7917
+|   |--- num__marriage_years <= 5.5000
+|   |   |--- cat__wife_race_ethnicity_Hispanic <= 0.5000
+|   |   |   |--- value: [0.0852]
+|   |   |--- cat__wife_race_ethnicity_Hispanic >  0.5000
+|   |   |   |--- value: [0.0413]
+|   |--- num__marriage_years >  5.5000
+|   |   |--- num__marriage_years <= 12.5000
+|   |   |   |--- value: [0.0476]
+|   |   |--- num__marriage_years >  12.5000
+|   |   |   |--- value: [0.0308]
+|--- num__wife_age_at_marriage >  20.7917
+|   |--- cat__wife_intact_family_Yes <= 0.5000
+|   |   |--- num__wife_age_at_marriage <= 25.7917
+|   |   |   |--- value: [0.0568]
+|   |   |--- num__wife_age_at_marriage >  25.7917
+|   |   |   |--- value: [0.0271]
+|   |--- cat__wife_intact_family_Yes >  0.5000
+|   |   |--- num__marriage_years <= 7.5000
+|   |   |   |--- value: [0.0330]
+|   |   |--- num__marriage_years >  7.5000
+|   |   |   |--- value: [0.0173]
