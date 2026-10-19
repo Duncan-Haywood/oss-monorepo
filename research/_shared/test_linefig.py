@@ -14,6 +14,11 @@ class LineFig(unittest.TestCase):
         xs, ys = linefig.table(TEXT, "== A", 0, [1])
         self.assertEqual((xs, ys), ([1.0, 2.0, 3.0], [[2.0, 4.0, 8.0]]))
 
+    def test_table_splits_on_custom_separator(self):
+        rows = ["== P", "| n | v |", "|---|---|", "| 1 | 2.5 |", "| 2 | 3.5 |"]
+        xs, ys = linefig.table(rows, "== P", 0, [1], sep="|")
+        self.assertEqual((xs, ys), ([1.0, 2.0], [[2.5, 3.5]]))
+
     def test_table_without_rows_exits(self):
         with self.assertRaises(SystemExit):
             linefig.table(TEXT, "== missing", 0, [1])
