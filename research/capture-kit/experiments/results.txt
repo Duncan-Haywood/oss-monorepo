@@ -1,0 +1,31 @@
+kits enumerated: 17280; legal: 11520; max variety 18
+A. exact vs greedy (variety = distinct band x viewpoint shots; hours = Wh / draw of cameras running at once)
+budget_g  exact_var exact_h exact_g  greedy_var greedy_h greedy_g   (exact: variety first, no hours floor)
+500       4         4.44    470      4          4.44     470
+1000      8         4.71    920      8          4.71     920
+1500      8         14.00   1370     8          14.00    1370
+2000      12        2.43    1950     12         2.35     1870
+3000      15        2.26    2950     12         16.35    2820
+4000      18        2.21    3970     12         25.65    3270
+5000      18        16.76   4970     12         25.65    3270
+7000      18        20.48   5170     12         25.65    3270
+B. same search with a floor of 4 h of recording
+budget_g  exact_var exact_h exact_g  greedy_var greedy_h greedy_g  greedy_meets_floor
+500       4         4.44    470      4          4.44     470       True
+1000      8         4.71    920      8          4.71     920       True
+1500      8         14.00   1370     8          14.00    1370      True
+2000      10        4.95    1920     12         2.35     1870      False
+3000      12        16.47   2870     12         16.35    2820      True
+4000      15        11.05   3770     12         25.65    3270      True
+5000      18        16.76   4970     12         25.65    3270      True
+7000      18        20.48   5170     12         25.65    3270      True
+C. kits chosen under the floor
+500 g exact: action camera, phone telephoto, mini tripod | greedy: phone telephoto, action camera, mini tripod
+1000 g exact: action camera, phone telephoto, selfie pole, mini tripod, 20 Wh pack | greedy: phone telephoto, action camera, mini tripod, selfie pole, 20 Wh pack
+1500 g exact: action camera, phone telephoto, selfie pole, mini tripod, 99 Wh pack | greedy: phone telephoto, action camera, mini tripod, selfie pole, 99 Wh pack
+2000 g exact: action camera, phone telephoto, mirrorless body, 24-70 zoom, selfie pole, mini tripod, 20 Wh pack | greedy: phone telephoto, action camera, mini tripod, selfie pole, telescoping mast
+3000 g exact: action camera, phone telephoto, selfie pole, mini tripod, telescoping mast, 60 Wh pack, 60 Wh pack | greedy: phone telephoto, action camera, mini tripod, selfie pole, telescoping mast, 99 Wh pack, 20 Wh pack
+4000 g exact: action camera, mirrorless body, 24-70 zoom, 85 prime, selfie pole, mini tripod, telescoping mast, 99 Wh pack | greedy: phone telephoto, action camera, mini tripod, selfie pole, telescoping mast, 99 Wh pack, 99 Wh pack
+5000 g exact: action camera, mirrorless body, 24-70 zoom, 70-200 zoom, selfie pole, mini tripod, telescoping mast, 60 Wh pack, 99 Wh pack | greedy: phone telephoto, action camera, mini tripod, selfie pole, telescoping mast, 99 Wh pack, 99 Wh pack
+7000 g exact: action camera, mirrorless body, 24-70 zoom, 70-200 zoom, selfie pole, mini tripod, telescoping mast, 99 Wh pack, 99 Wh pack | greedy: phone telephoto, action camera, mini tripod, selfie pole, telescoping mast, 99 Wh pack, 99 Wh pack
+D. packs over 100 Wh in catalogue: ['160 Wh pack']; any chosen by exact search: False
