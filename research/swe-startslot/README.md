@@ -2,6 +2,8 @@
 
 Pure Python standard library. A new question for track 10 (the software-engineering loop), not a milestone from the list: `swe-schedule` simulated what happens when runs start together under assumed timings, and this project asks what the run records show. It uses the 660 records in `prompts/runs/` that have a start time (1 to 19 October 2026). Produced with AI assistance (Claude). **Preliminary and mostly negative.** All numbers are from `experiments/results.txt`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-startslot/
+
 ![Share of runs recording an error, by day](experiments/errors_by_day.svg)
 
 - **The raw comparison is a trap.** Runs with at least 2 other starts within 10 minutes record an error in 9.8% of cases, against 21.0% for the rest. That looks like a benefit of crowded starts. It is not: on 13 to 15 October (before concurrent routines were common) 47% to 50% of runs recorded an error and few started alongside others; from 16 October the rate is 6% to 9% and the mean number of neighbours is 2.2 to 3.1. Time, not crowding, separates the groups.
