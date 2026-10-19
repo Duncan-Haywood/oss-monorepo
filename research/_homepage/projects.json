@@ -1744,6 +1744,11 @@
      "slug": "robofab-barimpratio",
      "title": "Does a stiffer friction cone make the held-bar result in robofab-liftload threshold-free?",
      "summary": "A follow-up to <code>robofab-sliprate</code>, which traced the bar&rsquo;s creep to MuJoCo&rsquo;s contact settings. Raising the <code>impratio</code> option from 1 to 1000 cuts the creep of a 10&times;10&times;40&nbsp;mm bar held at one end from 3.66 to 0.004&nbsp;deg/s, roughly as 1/<code>impratio</code>. From <code>impratio</code> 10 the minimum holding forces for 1&deg; and 5&deg; tolerances agree within 26% in all 12 cases, so the answer no longer depends on the threshold. The simulated force is below the uniform-pressure torque bracket in 10 of 12 cases (0.67&ndash;1.17&times; its lower bound) and 1.15&ndash;1.67&times; a point-contact bound built on the five contacts per pad MuJoCo reports. One engine, one bar section, no torsional friction. Stylised and preliminary."
+    },
+    {
+     "slug": "robofab-tolstack",
+     "title": "How much clearance does a printed two-pin cover need to assemble, and how wasteful is worst-case stacking?",
+     "summary": "Monte Carlo of a printed base with two pins and a cover with two holes, each centre with a Gaussian position error and each diameter a Gaussian size error, translation-only assembly (exact two-disk test). With exact sizes, yield is <code>1 &minus; exp(&minus;c<sup>2</sup>/(8&sigma;<sub>p</sub><sup>2</sup>))</code> (tested against simulation). For position sd 0.10 mm and size sd 0.05 mm, 99% yield needs 0.62 mm nominal diametral clearance and 99.9% needs 0.77 mm, while a &plusmn;3&sigma; worst-case stack asks for 2.0 mm (3.0&ndash;3.4&times; the 99% requirement and 2.5&ndash;2.8&times; the 99.9% one across the six unbiased cases); a 3&sigma; root-sum-square rule lands at 0.9990&ndash;0.9998 yield where the holes are unbiased. A hole bias adds to the needed clearance one for one. Assumed process spreads, not measured; two pins, no rotation, stylised."
     }
    ]
   },
