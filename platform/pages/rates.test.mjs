@@ -546,6 +546,17 @@ test('the injected script skips an unusable field instead of storing it', () => 
   assert.match(script, /if \(value === null\) return;\s+out\[f\.id\] = value; kept\+\+;/);
 });
 
+test('the injected script keeps zero, checks every field, reads both stored shapes and hides Clear when empty', () => {
+  // Seeded faults that escaped (redteam 2026-10-19): a field loop starting at 1
+  // skips the first field's presence check; `value < 1` rejects a saved 0%
+  // overhead; `||` for `&&` reads a bare `{rates: null}` as a rates map; and
+  // `hidden = false` shows a Clear button when nothing is saved.
+  assert.match(script, /for \(var i = 0; i < FIELDS\.length; i\+\+\) \{\s+if \(!fieldFor\(FIELDS\[i\]\)\)/);
+  assert.match(script, /if \(!isFinite\(value\) \|\| value < 0 \|\| value > max\) return null;/);
+  assert.match(script, /var source = parsed\.rates && typeof parsed\.rates === 'object' \? parsed\.rates : parsed;/);
+  assert.match(script, /button\('apply'\)\.hidden = true;\s+button\('clear'\)\.hidden = true;/);
+});
+
 test('the page that produces the rates does not also receive the bar', () => {
   // `shop-rate-calculator` carries hourlyWage and targetMargin as inputs and
   // computes the other two, so it clears MIN_CARRIED_FIELDS on the letter of the
