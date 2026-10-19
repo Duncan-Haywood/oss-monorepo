@@ -80,3 +80,39 @@ test("repeated wrong links from one address are locked out, right links from ano
   assert.equal(other.status, 200);
   s.close();
 });
+
+test("a captain's score waits for the organiser, and only approval puts it in the table", async () => {
+  const s = await boot();
+  s.state.published = true;
+  assert.match(await (await fetch(s.base + "/league?t=tok")).text(), /Report a score/);
+  assert.equal((await post(s.base + "/league/result?t=wrong", { home: "0", away: "1", hs: "2", as: "1" })).status, 401);
+  for (const bad of [{ home: "0", away: "0", hs: "1", as: "1" }, { home: "0", away: "99", hs: "1", as: "1" }, { home: "0", away: "1", hs: "-1", as: "1" }, { home: "0", away: "1", hs: "1.5", as: "1" }]) {
+    assert.equal((await post(s.base + "/league/result?t=tok", bad)).status, 400);
+  }
+  assert.equal(s.state.pending.length, 0);
+  const ok = await post(s.base + "/league/result?t=tok", { home: "0", away: "1", hs: "4", as: "2" });
+  assert.equal(ok.status, 200);
+  assert.equal(s.state.pending.length, 1);
+  assert.equal(s.state.fields.results, "");
+  const [a, b] = buildLeague(s.state.fields).schedule.teams;
+  assert.match(await (await fetch(s.base + "/admin?key=adm")).text(), new RegExp(`Scores waiting.*${a} 4 - 2 ${b}`, "s"));
+  assert.equal((await post(s.base + "/admin/result?key=adm", { i: "0", act: "approve" })).status, 303);
+  assert.equal(s.state.pending.length, 0);
+  assert.equal(s.state.fields.results, `${a} 4 - 2 ${b}`);
+  assert.equal(buildLeague(s.state.fields).table.length, 6);
+  await post(s.base + "/league/result?t=tok", { home: "1", away: "0", hs: "0", as: "0" });
+  await post(s.base + "/admin/result?key=adm", { i: "0", act: "decline" });
+  assert.equal(s.state.pending.length, 0);
+  assert.equal(s.state.fields.results, `${a} 4 - 2 ${b}`);
+  s.close();
+});
+
+test("unpublished leagues take no scores; the waiting list is capped", async () => {
+  const s = await boot();
+  assert.equal((await post(s.base + "/league/result?t=tok", { home: "0", away: "1", hs: "1", as: "0" })).status, 404);
+  s.state.published = true;
+  for (let i = 0; i < 100; i++) await post(s.base + "/league/result?t=tok", { home: "0", away: "1", hs: "1", as: "0" });
+  assert.equal((await post(s.base + "/league/result?t=tok", { home: "0", away: "1", hs: "1", as: "0" })).status, 429);
+  assert.equal(s.state.pending.length, 100);
+  s.close();
+});
