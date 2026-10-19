@@ -6,7 +6,8 @@ demand, how long rentals last, what you charge and what a unit costs to own. It
 computes the yearly profit of every fleet size from one upward, two ways (the
 Erlang loss formula and a repeatable day-by-day simulation), and recommends how
 many units to own, with the share of customers turned away, a bad year, an
-optional turn-away cap, and how the answer moves if demand does. Nothing is
+optional turn-away cap, an optional sub-rent-from-a-partner margin for
+turned-away requests (so you can see how owning fewer units pays), and how the answer moves if demand does. Nothing is
 uploaded.
 
 **Live tool:** https://duncan-haywood.github.io/monorepo-projects/rental-fleet-size-optimizer/
