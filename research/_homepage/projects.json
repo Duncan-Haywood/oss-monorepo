@@ -3611,6 +3611,11 @@
     "slug": "capture-bystander",
     "title": "When does automatic blurring miss a bystander's face, and which filming platform is conspicuous?",
     "summary": "An assumed size-to-recall model of blurring strangers' faces while filming in public. A face detector that is 50% reliable at 20&nbsp;px leaves a face-on face of at least 32&nbsp;px unblurred 5% of the time per frame (8% at 5&nbsp;m on an 8K 360 camera); blurring the head region of any detected body instead drops it under 0.1%, because a body is 11&times; taller than a face. A telephoto frame resolves about 10 identifiable people at once against 2.5 for an 8K 360 view. Per-frame blur is worse than it looks: with independent misses a person filmed for 5&nbsp;s at the edge of range shows unblurred in some frame 100% of the time, 25% if misses last the whole shot, and an offline edit that blurs a whole track after one detection is left with 0&ndash;5%. Size alone does not separate the tall platforms. All detector curves, sizes and angles are assumptions; no real detector or footage; blurring is not legal compliance."
+   },
+   {
+    "slug": "capture-trigger",
+    "title": "Does recording only when something happens save a travel creator's battery, and what does it cost in missed moments?",
+    "summary": "A synthetic 16&nbsp;h day with assumed device figures. With 6 interesting 30&nbsp;s moments an hour and a trigger that misses 10% and raises 2 false alarms an hour, a standby camera with a 10&nbsp;s pre-roll buffer uses 19.4&nbsp;Wh against 80&nbsp;Wh continuous (76% less) and captures 90% of the interesting seconds; a deep-sleep camera uses 7.7&nbsp;Wh but captures 69%, because it wakes too slowly to catch the start. Coverage is set by the trigger's miss rate and the wake latency, not the battery; energy decides only for a rig (four cameras: 320&nbsp;Wh continuous, 78&nbsp;Wh triggered). Stylised: every device figure is assumed and the trigger is a probability, not a detector."
    }
   ]
  },
