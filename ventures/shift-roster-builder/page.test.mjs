@@ -332,3 +332,24 @@ test("schedule template page's example grid is what the engine returns for the s
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("rotation page's eight-week table is what the engine returns for six identical staff", async () => {
+  const { sampleShifts, planWeeks, planFairness } = await import("./calc.mjs");
+  const staff = ["name, wage, max hours, min hours, availability", ..."Ana Ben Cleo Dev Eli Fay".split(" ").map((n) => `${n}, 15, 40, 0, any`)].join("\n");
+  const html = page("how-to-rotate-closing-and-weekend-shifts-fairly.html");
+  for (const [t, most, least, gap] of [[0, 40, 32, 8], [10, 37, 35, 2], [30, 37, 34, 3]]) {
+    const p = planWeeks(staff, sampleShifts(), { weeks: 8, weekStart: "2026-11-02", toughBalance: t });
+    const f = planFairness(p);
+    assert.equal(f.rows[0].tough, most, `${t} most`);
+    assert.equal(f.rows[f.rows.length - 1].tough, least, `${t} least`);
+    assert.equal(f.spread, gap, `${t} gap`);
+    assert.equal(p.totalCost, 28200, `${t} payroll`);
+    assert.equal(p.totalOpenHours, 0, `${t} open hours`);
+  }
+  assert.ok(html.includes("$28,200"));
+  assert.match(page("sitemap.xml"), /how-to-rotate-closing-and-weekend-shifts-fairly\.html/);
+  assert.match(page("index.html"), /how-to-rotate-closing-and-weekend-shifts-fairly\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
