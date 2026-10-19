@@ -1,0 +1,156 @@
+Bounded LRU activation buffer of K 8-bit words (K=0: accel-dataflow's one-cycle register only). Buffer read = rb x SRAM energy/bit (ASSUMED).
+Layer shapes: (hidden x inputs) and (11 x hidden); a full-vector buffer needs B x inputs words (B x 70 here for the first layer).
+
+rb=0.1 B=1 P=8: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=40, IS=0, RT=0 | OS 1.11, WS 1.11, IS 1.98, RT 2.37
+  K=  4: OS=40, WS=40, IS=0, RT=0 | OS 1.11, WS 1.11, IS 1.98, RT 2.37
+  K=  8: OS=40, WS=40, IS=0, RT=0 | OS 1.11, WS 1.11, IS 1.98, RT 2.37
+  K= 16: OS=40, WS=40, IS=0, RT=0 | OS 1.10, WS 1.10, IS 1.98, RT 2.35
+  K= 32: OS=40, WS=40, IS=0, RT=0 | OS 1.10, WS 1.10, IS 1.98, RT 2.35
+  K= 64: OS=40, WS=40, IS=0, RT=0 | OS 1.10, WS 1.10, IS 1.98, RT 2.30
+  K=128: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.98, RT 1.12
+  K=256: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.98, RT 1.12
+  K=512: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.98, RT 1.12
+
+rb=0.1 B=1 P=16: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=40, IS=0, RT=0 | OS 1.03, WS 1.03, IS 1.48, RT 2.37
+  K=  4: OS=40, WS=40, IS=0, RT=0 | OS 1.03, WS 1.03, IS 1.48, RT 2.37
+  K=  8: OS=40, WS=40, IS=0, RT=0 | OS 1.03, WS 1.03, IS 1.48, RT 2.37
+  K= 16: OS=40, WS=40, IS=0, RT=0 | OS 1.03, WS 1.03, IS 1.48, RT 2.37
+  K= 32: OS=40, WS=40, IS=0, RT=0 | OS 1.03, WS 1.03, IS 1.48, RT 2.37
+  K= 64: OS=40, WS=40, IS=0, RT=0 | OS 1.03, WS 1.03, IS 1.48, RT 2.31
+  K=128: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.48, RT 1.13
+  K=256: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.48, RT 1.13
+  K=512: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.48, RT 1.13
+
+rb=0.1 B=1 P=32: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.23, RT 2.38
+  K=  4: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.23, RT 2.38
+  K=  8: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.23, RT 2.38
+  K= 16: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.23, RT 2.38
+  K= 32: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.23, RT 2.38
+  K= 64: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.23, RT 2.32
+  K=128: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.23, RT 1.14
+  K=256: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.23, RT 1.14
+  K=512: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.23, RT 1.14
+
+rb=0.1 B=4 P=8: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=0, IS=0, RT=0 | OS 1.11, WS 9.26, IS 2.85, RT 2.85
+  K=  4: OS=40, WS=0, IS=0, RT=0 | OS 1.11, WS 9.26, IS 2.85, RT 2.85
+  K=  8: OS=40, WS=0, IS=0, RT=0 | OS 1.11, WS 9.26, IS 2.85, RT 2.85
+  K= 16: OS=40, WS=0, IS=0, RT=0 | OS 1.11, WS 9.26, IS 2.85, RT 2.85
+  K= 32: OS=30, WS=0, IS=10, RT=0 | OS 1.11, WS 9.26, IS 1.60, RT 2.85
+  K= 64: OS=30, WS=0, IS=10, RT=0 | OS 1.10, WS 9.26, IS 1.60, RT 2.85
+  K=128: OS=30, WS=0, IS=10, RT=0 | OS 1.10, WS 9.26, IS 1.60, RT 2.85
+  K=256: OS=30, WS=0, IS=10, RT=0 | OS 1.10, WS 9.26, IS 1.60, RT 2.81
+  K=512: OS=37, WS=0, IS=3, RT=3 | OS 1.00, WS 9.11, IS 1.60, RT 1.60
+
+rb=0.1 B=4 P=16: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=0, IS=0, RT=0 | OS 1.06, WS 9.25, IS 2.37, RT 2.37
+  K=  4: OS=40, WS=0, IS=0, RT=0 | OS 1.06, WS 9.25, IS 2.37, RT 2.37
+  K=  8: OS=40, WS=0, IS=0, RT=0 | OS 1.06, WS 9.25, IS 2.37, RT 2.37
+  K= 16: OS=40, WS=0, IS=0, RT=0 | OS 1.06, WS 9.25, IS 2.37, RT 2.37
+  K= 32: OS=40, WS=0, IS=0, RT=0 | OS 1.06, WS 9.25, IS 2.29, RT 2.37
+  K= 64: OS=30, WS=0, IS=10, RT=0 | OS 1.06, WS 9.25, IS 1.15, RT 2.35
+  K=128: OS=30, WS=0, IS=10, RT=0 | OS 1.06, WS 9.25, IS 1.15, RT 2.35
+  K=256: OS=30, WS=0, IS=10, RT=0 | OS 1.06, WS 9.25, IS 1.15, RT 2.34
+  K=512: OS=30, WS=0, IS=10, RT=10 | OS 1.00, WS 9.18, IS 1.15, RT 1.15
+
+rb=0.1 B=4 P=32: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=0, IS=0, RT=0 | OS 1.20, WS 11.14, IS 2.51, RT 2.51
+  K=  4: OS=40, WS=0, IS=0, RT=0 | OS 1.20, WS 11.14, IS 2.51, RT 2.51
+  K=  8: OS=40, WS=0, IS=0, RT=0 | OS 1.20, WS 11.14, IS 2.51, RT 2.51
+  K= 16: OS=40, WS=0, IS=0, RT=0 | OS 1.20, WS 11.14, IS 2.51, RT 2.51
+  K= 32: OS=40, WS=0, IS=0, RT=0 | OS 1.20, WS 11.14, IS 2.41, RT 2.49
+  K= 64: OS=40, WS=0, IS=0, RT=0 | OS 1.20, WS 11.14, IS 2.39, RT 2.45
+  K=128: OS=10, WS=0, IS=30, RT=0 | OS 1.20, WS 11.14, IS 1.00, RT 2.42
+  K=256: OS=10, WS=0, IS=30, RT=0 | OS 1.20, WS 11.14, IS 1.00, RT 2.38
+  K=512: OS=10, WS=0, IS=30, RT=30 | OS 1.19, WS 11.14, IS 1.00, RT 1.00
+
+rb=0.5 B=1 P=8: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=40, IS=0, RT=0 | OS 1.06, WS 1.06, IS 1.88, RT 2.25
+  K=  4: OS=40, WS=40, IS=0, RT=0 | OS 1.06, WS 1.06, IS 1.88, RT 2.25
+  K=  8: OS=40, WS=40, IS=0, RT=0 | OS 1.06, WS 1.06, IS 1.88, RT 2.25
+  K= 16: OS=40, WS=40, IS=0, RT=0 | OS 1.05, WS 1.05, IS 1.88, RT 2.25
+  K= 32: OS=40, WS=40, IS=0, RT=0 | OS 1.05, WS 1.05, IS 1.88, RT 2.25
+  K= 64: OS=40, WS=40, IS=0, RT=0 | OS 1.05, WS 1.05, IS 1.88, RT 2.23
+  K=128: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.88, RT 1.59
+  K=256: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.88, RT 1.59
+  K=512: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.88, RT 1.59
+
+rb=0.5 B=1 P=16: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=40, IS=0, RT=0 | OS 1.02, WS 1.02, IS 1.46, RT 2.33
+  K=  4: OS=40, WS=40, IS=0, RT=0 | OS 1.02, WS 1.02, IS 1.46, RT 2.33
+  K=  8: OS=40, WS=40, IS=0, RT=0 | OS 1.02, WS 1.02, IS 1.46, RT 2.33
+  K= 16: OS=40, WS=40, IS=0, RT=0 | OS 1.02, WS 1.02, IS 1.46, RT 2.33
+  K= 32: OS=40, WS=40, IS=0, RT=0 | OS 1.02, WS 1.02, IS 1.46, RT 2.33
+  K= 64: OS=40, WS=40, IS=0, RT=0 | OS 1.02, WS 1.02, IS 1.46, RT 2.30
+  K=128: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.46, RT 1.65
+  K=256: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.46, RT 1.65
+  K=512: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.46, RT 1.65
+
+rb=0.5 B=1 P=32: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.22, RT 2.36
+  K=  4: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.22, RT 2.36
+  K=  8: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.22, RT 2.36
+  K= 16: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.22, RT 2.36
+  K= 32: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.22, RT 2.36
+  K= 64: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.22, RT 2.35
+  K=128: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.22, RT 1.68
+  K=256: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.22, RT 1.68
+  K=512: OS=40, WS=40, IS=0, RT=0 | OS 1.00, WS 1.00, IS 1.22, RT 1.68
+
+rb=0.5 B=4 P=8: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=0, IS=0, RT=0 | OS 1.06, WS 8.85, IS 2.71, RT 2.71
+  K=  4: OS=40, WS=0, IS=0, RT=0 | OS 1.06, WS 8.85, IS 2.71, RT 2.71
+  K=  8: OS=40, WS=0, IS=0, RT=0 | OS 1.06, WS 8.85, IS 2.71, RT 2.71
+  K= 16: OS=40, WS=0, IS=0, RT=0 | OS 1.06, WS 8.85, IS 2.71, RT 2.71
+  K= 32: OS=40, WS=0, IS=0, RT=0 | OS 1.06, WS 8.84, IS 2.05, RT 2.71
+  K= 64: OS=40, WS=0, IS=0, RT=0 | OS 1.05, WS 8.84, IS 2.05, RT 2.71
+  K=128: OS=40, WS=0, IS=0, RT=0 | OS 1.05, WS 8.84, IS 2.05, RT 2.71
+  K=256: OS=40, WS=0, IS=0, RT=0 | OS 1.05, WS 8.84, IS 2.05, RT 2.71
+  K=512: OS=40, WS=0, IS=0, RT=0 | OS 1.00, WS 8.84, IS 2.05, RT 2.05
+
+rb=0.5 B=4 P=16: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=0, IS=0, RT=0 | OS 1.02, WS 8.98, IS 2.33, RT 2.33
+  K=  4: OS=40, WS=0, IS=0, RT=0 | OS 1.02, WS 8.98, IS 2.33, RT 2.33
+  K=  8: OS=40, WS=0, IS=0, RT=0 | OS 1.02, WS 8.98, IS 2.33, RT 2.33
+  K= 16: OS=40, WS=0, IS=0, RT=0 | OS 1.02, WS 8.98, IS 2.33, RT 2.33
+  K= 32: OS=40, WS=0, IS=0, RT=0 | OS 1.02, WS 8.98, IS 2.27, RT 2.31
+  K= 64: OS=39, WS=0, IS=1, RT=0 | OS 1.02, WS 8.98, IS 1.65, RT 2.31
+  K=128: OS=39, WS=0, IS=1, RT=0 | OS 1.02, WS 8.98, IS 1.65, RT 2.31
+  K=256: OS=39, WS=0, IS=1, RT=0 | OS 1.02, WS 8.98, IS 1.65, RT 2.31
+  K=512: OS=39, WS=0, IS=1, RT=1 | OS 1.00, WS 8.95, IS 1.65, RT 1.65
+
+rb=0.5 B=4 P=32: winners over 40 models (ties count for each) | median energy x best-over-dataflows-at-K=512
+  K=  0: OS=40, WS=0, IS=0, RT=0 | OS 1.01, WS 9.13, IS 2.09, RT 2.09
+  K=  4: OS=40, WS=0, IS=0, RT=0 | OS 1.01, WS 9.13, IS 2.09, RT 2.09
+  K=  8: OS=40, WS=0, IS=0, RT=0 | OS 1.01, WS 9.13, IS 2.09, RT 2.09
+  K= 16: OS=40, WS=0, IS=0, RT=0 | OS 1.01, WS 9.13, IS 2.09, RT 2.09
+  K= 32: OS=40, WS=0, IS=0, RT=0 | OS 1.01, WS 9.13, IS 2.07, RT 2.08
+  K= 64: OS=40, WS=0, IS=0, RT=0 | OS 1.01, WS 9.13, IS 2.07, RT 2.08
+  K=128: OS=30, WS=0, IS=10, RT=0 | OS 1.01, WS 9.13, IS 1.44, RT 2.08
+  K=256: OS=30, WS=0, IS=10, RT=0 | OS 1.01, WS 9.13, IS 1.44, RT 2.08
+  K=512: OS=30, WS=0, IS=10, RT=10 | OS 1.00, WS 9.11, IS 1.44, RT 1.44
+
+Smallest K at which each dataflow is within 5% of its own K=512 energy, median over 40 models:
+  rb=0.1 B=1 P= 8: OS=128, WS=128, IS=0, RT=128
+  rb=0.1 B=1 P=16: OS=0, WS=0, IS=0, RT=128
+  rb=0.1 B=1 P=32: OS=0, WS=0, IS=0, RT=128
+  rb=0.1 B=4 P= 8: OS=512, WS=0, IS=32, RT=512
+  rb=0.1 B=4 P=16: OS=0, WS=0, IS=64, RT=512
+  rb=0.1 B=4 P=32: OS=0, WS=0, IS=128, RT=512
+  rb=0.5 B=1 P= 8: OS=128, WS=128, IS=0, RT=128
+  rb=0.5 B=1 P=16: OS=0, WS=0, IS=0, RT=128
+  rb=0.5 B=1 P=32: OS=0, WS=0, IS=0, RT=128
+  rb=0.5 B=4 P= 8: OS=512, WS=0, IS=32, RT=512
+  rb=0.5 B=4 P=16: OS=0, WS=0, IS=64, RT=512
+  rb=0.5 B=4 P=32: OS=0, WS=0, IS=128, RT=512
+
+Smallest K at which OS is no longer the sole winner (some other dataflow is within 1e-9 or better), models where it flips, B=4:
+  rb=0.1 P= 8: first K where OS loses or ties -> never: 30, 32: 10
+  rb=0.1 P=16: first K where OS loses or ties -> never: 30, 64: 10
+  rb=0.1 P=32: first K where OS loses or ties -> never: 10, 128: 30
+  rb=0.5 P= 8: first K where OS loses or ties -> never: 40
+  rb=0.5 P=16: first K where OS loses or ties -> never: 39, 64: 1
+  rb=0.5 P=32: first K where OS loses or ties -> never: 30, 128: 10
