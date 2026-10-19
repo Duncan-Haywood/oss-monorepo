@@ -298,6 +298,29 @@ eBay and `materialCost` on Etsy), and a name the receiver does not recognise is
 imports each target's own field list and fails if a name stops matching, so
 that drift breaks a test here instead of a number there.
 
+## A whole inventory at once: the command-line version
+
+Resellers rarely have one item. `cli.mjs` runs a spreadsheet of items through the
+same channel presets and the same arithmetic as the page, and prints the best
+channel for each item, how far ahead it is of the runner-up, and what routing
+every item to its own best channel is worth against listing everything on the
+single best channel.
+
+```
+node cli.mjs items.csv                       # columns: item, price, cost (or itemCost), shippingCharged, shippingCost, packagingCost, otherCost
+node cli.mjs items.csv --also poshmark,depop # add channels that are off by default
+node cli.mjs items.csv --channels ebay,etsy  # compare exactly these
+node cli.mjs items.csv --csv > routed.csv    # one row per item and channel
+node cli.mjs --example                       # try it on invented items
+node cli.mjs --list-channels
+```
+
+Zero dependencies and no network, so prices and costs never leave the machine. A
+fee-free direct sale is left out unless you ask for it with `--also local`,
+because it would win every item. The fee and return rates are the page's
+illustrative presets, not your account's: treat the output as a ranking to
+check, not a forecast. Tests: `cli.test.mjs`.
+
 ## Rates are inputs, not a published schedule
 
 Every rate ships with an **illustrative** US default and is editable. This
