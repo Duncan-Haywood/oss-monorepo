@@ -813,3 +813,12 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   Reduced pass: no audit (recent outputs doc-only or research); no new drift report
   (`prompts/drift/2026-10-19.md` is hours old).
 - Result: (next review)
+
+## E46: review 2026-10-19 (fifth)
+
+- Change: `prompts/research/prompt-0.md` claim step greps `git ls-tree` for a
+  keyword instead of reading the ~670-line listing (`research/CLAUDE.md` friction).
+- Metric: "ls-tree prints ~670 lines" friction reports, next 20 research runs; expect none.
+- Candidates: unchanged. Reduced pass: no audit or drift report (hours-old
+  report, recent outputs research/doc-only). `pyenv.py` re-checked: works now.
+- Result: (next review)
