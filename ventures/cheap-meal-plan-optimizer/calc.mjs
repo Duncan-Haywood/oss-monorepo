@@ -465,11 +465,13 @@ export const fmt = (x, d = 0) => (Number.isFinite(x) ? x.toLocaleString("en-US",
 
 /**
  * Weekly shopping list: the plan's servings times the days per week, rounded up to whole packs for foods that
- * list "servings per pack". Pack price is price per serving times servings per pack, so the optimum is unchanged;
+ * list "servings per pack". `spec.people` (whole number, 1 to 20) multiplies the list for a household that eats the same
+ * plan; the plan itself stays per person. Pack price is price per serving times servings per pack, so the optimum is unchanged;
  * this shows what the till charges and what is left over. Foods without a pack size are bought exactly.
  */
 export function groceryList(spec, res) {
-  const days = Number(spec.daysPerWeek) > 0 ? Number(spec.daysPerWeek) : 7;
+  const people = Number(spec.people) >= 1 ? Math.min(Math.floor(Number(spec.people)), 20) : 1;
+  const days = (Number(spec.daysPerWeek) > 0 ? Number(spec.daysPerWeek) : 7) * people;
   const lines = res.items.map((it) => {
     const f = spec.foods[it.index];
     const need = it.servings * days;
@@ -478,14 +480,15 @@ export function groceryList(spec, res) {
     return { name: it.name, servings: need, packs, pack: f.pack, spend: packs * f.pack * f.price, leftover: packs * f.pack - need };
   });
   const spend = lines.reduce((t, l) => t + l.spend, 0);
-  return { lines, spend, extra: spend - res.cost * days };
+  return { lines, spend, extra: spend - res.cost * days, people };
 }
 
 /** The weekly shopping list as plain text, one line per food, ready to paste into a notes or messaging app. */
 export function groceryText(spec, res) {
   const gl = groceryList(spec, res);
   const lines = gl.lines.map((l) => (l.packs === null ? `${l.name}: ${fmt(l.servings, 1)} servings` : `${l.name}: ${l.packs} x ${fmt(l.pack, 1)}-serving pack`));
-  return `Shopping list (one week)\n${lines.join("\n")}\nEstimated total: ${money2(gl.spend)}\n`;
+  const people = Number(spec.people) >= 2 ? ` for ${Math.min(Math.floor(Number(spec.people)), 20)} people` : "";
+  return `Shopping list (one week${people})\n${lines.join("\n")}\nEstimated total: ${money2(gl.spend)}\n`;
 }
 
 export function planCsv(spec, res) {
@@ -555,7 +558,7 @@ export function sampleSpec() {
 }
 
 // Share link: the food list and targets as a URL fragment (never sent to a server).
-export const SHARE_FIELDS = ["kmin", "kmax", "pmin", "fmin", "fmax", "cmin", "cmax", "fibmin", "nacmax", "camin", "femin", "potmin", "dmax", "share", "step"];
+export const SHARE_FIELDS = ["kmin", "kmax", "pmin", "fmin", "fmax", "cmin", "cmax", "fibmin", "nacmax", "camin", "femin", "potmin", "dmax", "share", "step", "people"];
 const SHARE_VALUE = /^[0-9.]*$/;
 
 export function encodeShare(foodsText, fields) {
