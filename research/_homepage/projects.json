@@ -3526,6 +3526,11 @@
      "summary": "Splits the exterior walls of the <code>house-framing</code> house into panels, nests the sheathing, loads the trailers and runs a Monte Carlo of the shell crew's days with weather. Panelised took 2.17 calendar days against 1.96 on site and cost 38% more at assumed rates; factory productivity does not change the days because the factory runs behind the foundation, and panelised is faster only from about 58 ft long (78 with no weather, 44 at 30% loss). Factory nesting saved 1 sheet in 33 (bound 26): a 97 in wall on a 108 in sheet wastes the same strip either way. Stylised: wall shell only, every labour rate and price is my assumption."
     },
     {
+     "slug": "house-foundation",
+     "title": "Which foundation is cheapest for a small house as the frost line gets deeper?",
+     "summary": "Sizes and prices four foundations for the <code>house-framing</code> house: slab on grade, frost-protected shallow, crawlspace and full basement, from roof and floor loads, soil bearing and frost depth. At 48 in frost the midpoint first costs are $13.2k (frost-protected shallow), $20.6k (slab), $24.1k (crawlspace) and $54.9k (basement); the frost-protected shallow foundation is cheapest in all 5,000 price draws from about 18 in of frost down, a basement adds $25&ndash;36 per sq ft over a crawlspace, and soil matters only below about 1,500 psf. Stylised: prices from memory, an invented insulation-wing rule, no soil-pressure, drainage or energy checks, and not a design."
+    },
+    {
      "slug": "house-shellvalue",
      "title": "Does a factory-built shell pay once the interest on the days it saves is counted?",
      "summary": "Joins <code>house-offsite</code>'s extra cost of panelising the walls ($1,373 at assumed rates) to <code>house-schedule</code>'s interest on working days saved, comparing a factory shell with a site-built house ordered on the same day. The shell alone saves 15.5 days (0.22% of price at 8%) when ordered at day 0 and only 6.4 days when ordered at the foundation start with a 25-day lead; it breaks even at a house price of about $629,000 at a $1,500 crane day and pays throughout at $750. Most of <code>house-schedule</code>'s 78-day saving is the ordering date, not the shell. Stylised: house prices are parameters and every rate is assumed."
