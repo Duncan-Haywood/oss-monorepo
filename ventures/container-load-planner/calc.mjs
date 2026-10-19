@@ -111,8 +111,14 @@ export function buildLine(f, sys, index = 0) {
     if (!Number.isFinite(m) || m < 0) return { error: `${name}: weight allowed on top must be zero or more.` };
     maxTop = toKg(m, sys);
   }
+  let stop = null;
+  if (f.stop !== "" && f.stop !== undefined && f.stop !== null) {
+    const m = num(f.stop, NaN);
+    if (!Number.isFinite(m) || m < 1 || Math.floor(m) !== m) return { error: `${name}: delivery stop must be a whole number of at least 1 (1 is unloaded first).` };
+    stop = m;
+  }
   return {
-    line: { name, dims: [toMm(l, sys), toMm(w, sys), toMm(h, sys)], weight: toKg(weight, sys), qty, rotation, maxLayers, maxTop },
+    line: { name, dims: [toMm(l, sys), toMm(w, sys), toMm(h, sys)], weight: toKg(weight, sys), qty, rotation, maxLayers, maxTop, stop },
   };
 }
 
@@ -132,7 +138,7 @@ export function parseCargo(text, sys = SYSTEMS.metric) {
       if (lines.length || !/name|length|weight|qty|quantity/i.test(row)) skipped++;
       continue;
     }
-    const r = buildLine({ name: c[0], l: c[1], w: c[2], h: c[3], weight: c[4], qty: c[5], rotation: c[6], maxLayers: c[7], maxTop: c[8] }, sys, lines.length);
+    const r = buildLine({ name: c[0], l: c[1], w: c[2], h: c[3], weight: c[4], qty: c[5], rotation: c[6], maxLayers: c[7], maxTop: c[8], stop: c[9] }, sys, lines.length);
     if (r.error) { warnings.push(r.error); skipped++; continue; }
     lines.push(r.line);
   }
@@ -409,9 +415,14 @@ function buildSeq(lines, remaining, attempt, rng) {
     const noisy = idx.map((i) => [i, key(lines[i]) / mx + rng() * (0.2 + 0.6 * rng())]);
     order = noisy.sort((a, b) => a[1] - b[1]).map((p) => p[0]);
   }
+  // Multi-drop: the last stop is loaded first (deepest, at the back wall), so
+  // the first stop ends up nearest the doors. Lines with no stop count as stop 1.
+  const stops = lines.some((l) => l.stop != null);
+  const stopOf = (i) => lines[i].stop ?? 1;
+  if (stops) order = order.slice().sort((a, b) => stopOf(b) - stopOf(a));
   let seq = [];
   for (const i of order) for (let k = 0; k < remaining[i]; k++) seq.push(i);
-  if (attempt >= 30 && attempt % 5 === 4) {
+  if (!stops && attempt >= 30 && attempt % 5 === 4) {
     // Fully interleave: a different packing family from line-by-line blocks.
     for (let i = seq.length - 1; i > 0; i--) {
       const j = Math.floor(rng() * (i + 1));
@@ -595,6 +606,26 @@ export function balanceReport(cont, lines, placements, { longTol = 0.1, latTol =
   if (Math.abs(y - 0.5) > latTol) warnings.push(`The centre of gravity is ${Math.round(Math.abs(y - 0.5) * 100)}% of the width off the middle, toward the ${dir(y, "left", "right")} wall.`);
   if (z > maxHeight) warnings.push(`The centre of gravity is ${Math.round(z * 100)}% of the way up the container; put heavy lines on the floor.`);
   return { weight: w, x, y, z, backShare: back / w, leftShare: left / w, ok: warnings.length === 0, warnings };
+}
+
+// Multi-drop check. A unit is blocked when a unit for a later stop sits nearer
+// the doors (larger x) in front of it, overlapping its width and height range,
+// so it cannot come out first. Returns the blocked pairs; empty when no line
+// has a stop or the plan is clean.
+export function stopReport(lines, placements) {
+  if (!lines.some((l) => l.stop != null)) return { used: false, blocked: [], blockedUnits: 0, ok: true };
+  const stopOf = (p) => lines[p.line].stop ?? 1;
+  const blocked = [];
+  const hit = new Set();
+  for (const a of placements) {
+    for (const b of placements) {
+      if (stopOf(b) <= stopOf(a) || b.x < a.x + a.l) continue;
+      if (b.y >= a.y + a.w || b.y + b.w <= a.y || b.z >= a.z + a.h || b.z + b.h <= a.z) continue;
+      blocked.push({ unit: a, by: b });
+      hit.add(a);
+    }
+  }
+  return { used: true, blocked, blockedUnits: hit.size, ok: blocked.length === 0 };
 }
 
 // ----- pallets and comparison ---------------------------------------------

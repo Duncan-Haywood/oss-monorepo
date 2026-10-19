@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, parseRotation, orientations, resolveContainer,
   packPass, bestPack, planLoad, verifyPacking, palletise, compareOptions, viewRects, loadingOrder,
-  mulberry32, balanceReport, lineFits, suggestRestarts, reportCsv, planReportHtml, sampleCargo, toMm, fromMm, MAX_UNITS,
+  mulberry32, balanceReport, stopReport, lineFits, suggestRestarts, reportCsv, planReportHtml, sampleCargo, toMm, fromMm, MAX_UNITS,
 } from "./calc.mjs";
 
 const M = SYSTEMS.metric, IMP = SYSTEMS.imperial;
@@ -496,4 +496,26 @@ test("priceOptions totals freight, divides by ordered units and never names an i
   assert.equal(none[0].cheapest, false);
   assert.deepEqual(parseRates("20ft=2400, 40HC=4000.5"), { "20ft": 2400, "40hc": 4000.5 });
   assert.throws(() => parseRates("40ft"), /40ft=3800/);
+});
+
+test("delivery stops: the first stop is loaded nearest the doors and a clean plan reports nothing blocked", () => {
+  const { lines } = parseCargo("Stop A, 100, 100, 100, 50, 6, upright,,, 1\nStop B, 100, 100, 100, 50, 6, upright,,, 2\nStop C, 100, 100, 100, 50, 6, upright,,, 3", M);
+  assert.deepEqual(lines.map((l) => l.stop), [1, 2, 3]);
+  const plan = planLoad(lines, PRESETS.find((p) => p.id === "20ft"), { restarts: 6 });
+  const c = plan.containers[0];
+  assert.equal(c.count, 18);
+  const mean = (li) => { const ps = c.placements.filter((p) => p.line === li); return ps.reduce((s, p) => s + p.x, 0) / ps.length; };
+  assert.ok(mean(0) > mean(1) && mean(1) > mean(2), "earlier stops sit nearer the doors");
+  assert.equal(stopReport(lines, c.placements).ok, true);
+});
+
+test("delivery stops: invalid stop is rejected, none means not used, a reversed layout is flagged", () => {
+  assert.match(parseCargo("A,1,1,1,1,1,,,,0", M).warnings[0], /delivery stop/);
+  const { lines } = parseCargo("A,1,1,1,1,1\nB,1,1,1,1,1", M);
+  assert.equal(stopReport(lines, [{ line: 0, x: 0, y: 0, z: 0, l: 1, w: 1, h: 1 }]).used, false);
+  const two = parseCargo("A,1,1,1,1,1,,,,1\nB,1,1,1,1,1,,,,2", M).lines;
+  const rev = [{ line: 0, x: 0, y: 0, z: 0, l: 1000, w: 1000, h: 1000 }, { line: 1, x: 1000, y: 0, z: 0, l: 1000, w: 1000, h: 1000 }];
+  const r = stopReport(two, rev);
+  assert.equal(r.ok, false);
+  assert.equal(r.blockedUnits, 1);
 });
