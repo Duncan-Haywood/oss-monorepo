@@ -24,6 +24,16 @@ server only hands out files and never sees a date you type.
 - Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
   so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
 
+- Command line: `cli.mjs` runs the same counter on a stays file with no browser and no network, for preparers who keep many clients' years in text files and for anyone who wants the numbers in a script. Zero dependencies; your dates never leave the machine.
+
+  ```
+  node cli.mjs --year 2025 --home FL --abode NY,FL stays.txt   # days per state, limit, room left, crossing date
+  node cli.mjs --asof 2025-09-30 --nights stays.txt             # as of a date, counting nights
+  node cli.mjs --wages 140000 --employer NY stays.txt           # split wages by workday
+  node cli.mjs --csv stays.txt > totals.csv                     # totals; also --daily-log, --html, --ics, --json
+  node cli.mjs --example                                        # the built-in invented year
+  ```
+
 - `calc.mjs` - tolerant stay parser (ISO, US and month-name dates, state codes
   or names), day-grid analysis with travel-day and overlap handling, gap
   assumption, nights-vs-inclusive counting, crossing-date search, workday wage
