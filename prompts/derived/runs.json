@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-19T07:39:12Z",
+ "generated": "2026-10-19T07:42:31Z",
  "rows": [
   {
    "date": "2026-10-01",
@@ -25715,6 +25715,17 @@
   {
    "date": "2026-10-19",
    "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8320",
+   "prompt_version": 1,
+   "record": "2026-10-19-session_015QuLPiPmNCTDLe1RTPtQfz.json",
+   "track": "review"
+  },
+  {
+   "date": "2026-10-19",
+   "measured": {
     "additions": 214,
     "changed_files": 9,
     "ci_head": "green",
@@ -26946,6 +26957,17 @@
    "prompt_version": 1,
    "record": "2026-10-19-session_01NEhynbu6Hm9AzeBoVoSZpi.json",
    "track": "ventures"
+  },
+  {
+   "date": "2026-10-19",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8319",
+   "prompt_version": 1,
+   "record": "2026-10-19-session_01PEkuMLJmd1ZETYkKyN2KSB.json",
+   "track": "review"
   },
   {
    "date": "2026-10-19",
