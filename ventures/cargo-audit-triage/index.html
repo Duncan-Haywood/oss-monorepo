@@ -48,10 +48,10 @@
 
   <section class="card">
     <h2>1. Paste <code>cargo audit --json</code></h2>
-    <textarea id="audit" spellcheck="false" placeholder='{"vulnerabilities":{"list":[ ... ]},"warnings":{}}'></textarea>
+    <textarea aria-label="Audit JSON output" id="audit" spellcheck="false" placeholder='{"vulnerabilities":{"list":[ ... ]},"warnings":{}}'></textarea>
     <h2 style="margin-top:14px">2. Paste your source (optional but it is the point)</h2>
     <p class="note">Concatenate files, or put a line <code>// file: src/main.rs</code> before each so test files are recognised. In the CLI the directory is scanned for you.</p>
-    <textarea id="src" spellcheck="false" placeholder="// file: src/main.rs&#10;use serde_json::Value;"></textarea>
+    <textarea aria-label="Source code to match against" id="src" spellcheck="false" placeholder="// file: src/main.rs&#10;use serde_json::Value;"></textarea>
     <p>
       <button type="button" id="check">Triage</button>
       <button type="button" class="secondary" id="load-example">Load worked example</button>

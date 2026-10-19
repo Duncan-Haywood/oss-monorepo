@@ -56,12 +56,12 @@
       <div>
         <h2>1. Actual settings</h2>
         <p class="note">Run <code>gh api repos/:owner/:repo/branches/:branch/protection</code> and paste the JSON output here.</p>
-        <textarea id="actual" spellcheck="false" placeholder='{"required_pull_request_reviews": {"required_approving_review_count": 2}, "enforce_admins": {"enabled": true}, ...}'></textarea>
+        <textarea aria-label="Actual branch protection JSON" id="actual" spellcheck="false" placeholder='{"required_pull_request_reviews": {"required_approving_review_count": 2}, "enforce_admins": {"enabled": true}, ...}'></textarea>
       </div>
       <div>
         <h2>2. Declared policy</h2>
         <p class="note">JSON, or plain <code>key: value</code> lines — see the field list below the results.</p>
-        <textarea id="policy" spellcheck="false" placeholder="required_approving_review_count: 2
+        <textarea aria-label="Policy to compare against" id="policy" spellcheck="false" placeholder="required_approving_review_count: 2
 require_code_owner_reviews: true
 enforce_admins: true
 allow_force_pushes: false

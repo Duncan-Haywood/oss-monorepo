@@ -398,6 +398,15 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_form_defaults
 
+      # A placeholder is not an accessible name: every input, select and
+      # textarea on a served page needs a label, aria-label or title.
+      - name: Check every form control has an accessible name
+        run: python3 platform/ci/check_control_labels.py
+
+      - name: Control-label checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_control_labels
+
       # A calculator with both a saved draft and a shareable link restores the
       # draft first and lets the link win. That only works if the link REPLACES
       # the form: encode omits a blank, decode omits the missing key, and a
