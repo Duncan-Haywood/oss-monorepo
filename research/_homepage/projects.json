@@ -3565,6 +3565,11 @@
     "slug": "energy-thermal",
     "title": "Can a house-sized sand heat store carry summer heat into winter, and how does its electricity use compare with a heat pump?",
     "summary": "A transient finite-volume model of a spherical sand store in mineral wool (a hot-water tank run through the same code), checked against analytic cases. A store sized to still give 10 MWh after 120 days needs 222 m<sup>3</sup> (against 70 if lossless) and returns only 26% of the electricity put in as heat, so a COP-4 heat pump wins unless its electricity costs 15&times; more, before capital cost. After a day or a week the same store returns 79% and 73%: a days-scale store at house size, seasonal only near 1,000 m<sup>3</sup> (43% left after 180 days). Stylised: assumed properties, a sphere, instant uniform charging, no pipes or ground."
+    },
+    {
+    "slug": "energy-lcos",
+    "title": "Which energy-storage technology is cheapest per MWh delivered at 1 hour, 1 day and 3 weeks?",
+    "summary": "Levelised cost of storage for lithium-ion, vanadium flow, pumped hydro, cavern compressed air and cavern hydrogen, from capital cost, round-trip efficiency, life, fade and charging power. With round assumed inputs Li-ion is cheapest to about 4 hours ($116/MWh at 4 h) and costs about 3&times; a cavern store at 24 hours ($337 vs $109); cavern hydrogen beats Li-ion above 11 hours but cavern compressed air only above 308 hours. Li-ion would need an energy cost of $43/kWh instead of $200 to win at 24 hours. The 8&ndash;10 hour winner flips with the discount rate and charging price. Stylised: every input is assumed and unsourced, caverns need geology, one fixed use pattern."
     }
    ]
   },

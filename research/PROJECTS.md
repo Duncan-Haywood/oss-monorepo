@@ -1132,7 +1132,7 @@ tools: PyBaMM, PyPSA, HiGHS, CoolProp, Cantera, pymatgen.
    loading, N/P ratio) scored on energy density at a required power and on modelled
    degradation, with an LLM or session proposer against random search and Bayesian optimisation
    at the same budget.
-4. `energy-lcos`: levelised cost of storage. Cost per kWh delivered over a lifetime for each
+4. `energy-lcos` (first version done 2026-10-19, assumed inputs): levelised cost of storage. Cost per kWh delivered over a lifetime for each
    technology and duration (hours to weeks), from capital cost, efficiency, cycle life and
    degradation, every price sourced and dated. Which technology wins at which duration?
 5. `energy-mix`: supply design. The least-cost mix of solar, wind, firm supply and storage that
