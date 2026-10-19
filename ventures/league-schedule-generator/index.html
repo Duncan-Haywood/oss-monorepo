@@ -128,6 +128,10 @@
     <label for="grounds">One line per ground, teams separated by commas. Teams on a line are not both at home on the same night where that can be avoided; only venues are flipped, so dates, courts, times and opponents stay put. The same lines keep clubmates in different pools when you build pool play. <code>Net Ninjas, Dink Dynasty</code></label>
     <textarea id="grounds" rows="2" placeholder="Net Ninjas, Dink Dynasty"></textarea>
 
+    <h2 style="margin-top:18px">5d. Teams that share a coach or players (optional)</h2>
+    <label for="linked">One line per group, teams separated by commas. Teams on a line are moved to different time slots on the same night where that can be avoided (needs two or more time slots); only the time changes, on the same court, so dates, opponents, venues and team time limits stay put. <code>Hawks U12, Hawks U14</code></label>
+    <textarea id="linked" rows="2" placeholder="Hawks U12, Hawks U14"></textarea>
+
     <h2 style="margin-top:18px">6. Referees and officials (optional)</h2>
     <label for="officials">One per line. Every match gets one official, shared out evenly. Put a team in brackets if they belong to it (they never work its matches), weekdays after a colon, and <code>max 4</code> to cap their matches. <code>Pat (Hawks): Tue, Thu max 4</code></label>
     <textarea id="officials" rows="3" placeholder="Pat (Hawks): Tue, Thu max 4&#10;Sam"></textarea>
@@ -312,7 +316,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -344,6 +348,7 @@
       $("#lateTeams").value = f.lateTeams || "";
       $("#officials").value = f.officials || "";
       $("#grounds").value = f.grounds || "";
+      $("#linked").value = f.linked || "";
       $("#scoring").value = f.scoring || "";
     }
 
@@ -354,7 +359,7 @@
         teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value,
-        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, officials: $("#officials").value, grounds: $("#grounds").value, scoring: $("#scoring").value,
+        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
       };
     }
 
@@ -501,6 +506,17 @@
           if (gr.remaining.length > 5) warnings.push(`${gr.remaining.length - 5} more shared-ground clashes.`);
         }
       }
+      if ($("#linked").value.trim()) {
+        const pl = parseLinkedTeams($("#linked").value, s.teams);
+        warnings.push(...pl.errors);
+        if (pl.groups.length) {
+          const lr = separateLinkedTeams(s, pl.groups);
+          s = lr.schedule;
+          if (lr.moves.length) warnings.push(`Linked teams: moved ${lr.moves.length} match(es) to another time slot so a shared coach or player is not needed twice at once (dates, courts and opponents unchanged).`);
+          warnings.push(...lr.remaining.slice(0, 5).map((c) => `Linked-team clash: ${c.teams.join(" and ")} are both on at ${c.time || "the one time slot"} in ${c.round} (${dayLabel(c.day)}).`));
+          if (lr.remaining.length > 5) warnings.push(`${lr.remaining.length - 5} more linked-team clashes.`);
+        }
+      }
       if ($("#officials").value.trim()) {
         const po = parseOfficials($("#officials").value, s.teams);
         warnings.push(...po.errors);
@@ -583,7 +599,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "results", "rainouts", "withdrawals", "lateTeams", "officials", "grounds"]) $("#" + id).value = "";
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "results", "rainouts", "withdrawals", "lateTeams", "officials", "grounds", "linked"]) $("#" + id).value = "";
       $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
