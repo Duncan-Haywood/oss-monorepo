@@ -538,3 +538,27 @@ test("the referees guide's worked example matches assignOfficials() and is linke
   assert.match(page("sitemap.xml"), /how-to-assign-referees-to-a-league-schedule\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-assign-referees-to-a-league-schedule\.html"/);
 });
+
+test("the pickleball guide's worked example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "pickleball-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const { errors, spec } = readSpec({ teams: "Dinkers\nSpinners\nLobbers\nVolleys\nBangers\nDrop Shots\nKitchen Crew\nPaddle Pals", start: "2026-10-07", weekdays: ["Wed"], courts: "Court 1\nCourt 2", times: "18:00\n19:00" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.length, 7);
+  const early = {};
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.number}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, r.matches.length);
+    for (const m of r.matches) if (m.time === "18:00") for (const t of [m.homeName, m.awayName]) early[t] = (early[t] || 0) + 1;
+  });
+  assert.ok(Object.values(early).every((c) => c === 3 || c === 4));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
