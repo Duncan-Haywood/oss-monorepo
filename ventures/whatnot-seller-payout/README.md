@@ -110,3 +110,14 @@ this as a system of record.
 MIT licensed — see [`LICENSE`](LICENSE). Optional
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) support does
 not change what the tool does.
+
+## Host your own copy
+
+Your data stays in your browser either way, but you can serve the page from an address you control. It is a static
+site: the server only hands out files and never sees a figure you type.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.

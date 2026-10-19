@@ -325,6 +325,22 @@ export const HANDOFFS = [
     combine: { otherCost: ['otherCost', 'packagingCost'] },
   },
   {
+    channel: 'discogs',
+    slug: 'discogs-fee-calculator',
+    label: 'Discogs fee calculator',
+    // What it adds: the processing rate as an input, the $0.10 floor and $150
+    // cap on the selling fee, the price that hits a target profit, and a fee
+    // ladder from a $3 single to a $2,500 grail. Packaging folds into
+    // `otherCost`, which that page documents as the packaging bucket.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
     channel: 'walmart',
     slug: 'walmart-marketplace-calculator',
     label: 'Walmart Marketplace calculator',
