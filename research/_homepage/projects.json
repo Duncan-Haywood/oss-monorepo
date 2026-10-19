@@ -3055,6 +3055,11 @@
      "summary": "A stdlib extension of <code>osrobot-assist</code>'s planar feeding-arm twin in which the user shifts the mouth toward the spoon tip at a swept lean speed (200 paired trials per row). At 30&nbsp;mm sway and 0.20&nbsp;m/s the blind arm's share of feeds with peak lip force at most 2&nbsp;N rises from 0.21 (passive user) to 0.69 at 50&nbsp;mm/s and 1.00 at 100&nbsp;mm/s, against 0.71 to 0.97 for the camera arm; at 50&nbsp;mm sway even 100&nbsp;mm/s gives only 0.62 for the blind arm. Leaning removes contacts but not the peak force of the ones that remain (4.0&nbsp;N at 0.20&nbsp;m/s). Stylised: every constant, including the lean speed, is assumed; no person was modelled or tested."
     },
     {
+     "slug": "osrobot-fieldtour",
+     "title": "Does a better tour rescue scout-then-treat weeding?",
+     "summary": "A stdlib follow-up to <code>osrobot-field</code> that swaps nearest neighbour for 2-opt as the second stage of scout-then-treat. 2-opt cuts the straight-line tour over about 232 detections from 539&nbsp;m to 468&nbsp;m (random order: 5,403&nbsp;m), but a field still takes 56.1&nbsp;min against 51.7&nbsp;min treating inline (nearest neighbour: 57.0), and scouting is slower at every weed density from 0.05 to 1.2 per m&sup2;. Stylised: assumed constants, a mud-blind planner, 30 fields per row; no robot was built."
+    },
+    {
      "slug": "osrobot-field",
      "title": "For a weeding robot with a cheap camera, is it better to treat weeds as it drives or to scout first and come back, and what does a weak sensor cost?",
      "summary": "A stdlib simulation of a lane-following weeding robot on a 60&times;30&nbsp;m field with clustered weeds, a motion-blurred noisy detector and muddy squares. Scouting then touring the targets kills the same share of weeds as treating inline (0.399 against 0.401 at 1&nbsp;m/s) and is slower in all 23 paired rows, by 2.8 to 7.8&nbsp;min. Lane overlap repays a weak sensor at a steep price: 0 to 0.75 overlap raises the kill share from 0.40 to 0.86 and the time from 52 to 178&nbsp;min; no grid configuration reaches a 0.9 kill share at a 0.5 hit rate. Stylised: every constant is assumed, the speed results move with the blur assumption, and the planner comparison is a statement about this cost model."

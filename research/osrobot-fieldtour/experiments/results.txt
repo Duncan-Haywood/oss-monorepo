@@ -1,0 +1,47 @@
+# osrobot-fieldtour results: 60 x 30 m field, 30 seeds per row (fields and random draws shared across rows)
+# Reference: weeds 0.3/m2 clustered, 20% muddy blocks, p_max 0.7, false positives 0.01/m2, overlap 0, scout v 1.0, tour v 1.5
+
+# Sweep 1: tour rule, scout v=1.0
+                             kill      min       Wh  treats
+inline v=1.0                0.401     51.7      189     231
+scout tour=random           0.399    121.7      504     232
+scout tour=nn               0.399     57.0      220     232
+scout tour=nn2opt           0.399     56.1      216     232
+scout tour=lane             0.399     69.8      276     232
+
+# Sweep 2: weed density, scout v=1.0
+                             kill      min       Wh  treats
+inline d=0.05               0.411     41.8      133      54
+scout nn d=0.05             0.409     44.6      147      53
+scout nn2opt d=0.05         0.409     44.3      145      53
+scout lane d=0.05           0.409     51.4      176      53
+inline d=0.15               0.399     46.2      157     124
+scout nn d=0.15             0.412     50.4      179     125
+scout nn2opt d=0.15         0.412     49.7      176     125
+scout lane d=0.15           0.412     61.7      229     125
+inline d=0.3                0.401     51.7      189     231
+scout nn d=0.3              0.399     57.0      220     232
+scout nn2opt d=0.3          0.399     56.1      216     232
+scout lane d=0.3            0.399     69.8      276     232
+inline d=0.6                0.403     64.6      261     447
+scout nn d=0.6              0.400     71.0      304     446
+scout nn2opt d=0.6          0.400     69.6      298     446
+scout lane d=0.6            0.400     83.1      357     446
+inline d=1.2                0.405     90.0      404     880
+scout nn d=1.2              0.402     96.8      462     874
+scout nn2opt d=1.2          0.402     95.0      454     874
+scout lane d=1.2            0.402    106.5      505     874
+
+# Sweep 3: tour speed (scout v=1.0), nn2opt against inline v=1.0
+                             kill      min       Wh  treats
+scout nn2opt vt=1.0         0.399     59.2      218     232
+scout nn2opt vt=1.5         0.399     56.1      216     232
+scout nn2opt vt=2.0         0.399     54.5      215     232
+scout nn2opt vt=3.0         0.399     53.0      214     232
+
+# Sweep 4: mean straight-line tour length (m) over the same detections, 30 fields, reference setting
+# mean targets per field 232.3
+random                         5403
+nn                              539
+nn2opt                          468
+lane                           1514
