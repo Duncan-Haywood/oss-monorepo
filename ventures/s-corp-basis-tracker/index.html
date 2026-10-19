@@ -59,6 +59,16 @@
     </div>
   </section>
 
+  <section class="card" id="k1-card">
+    <h2>Have the Schedule K-1 in front of you?</h2>
+    <p class="note">Type each year's K-1 (Form 1120-S) box numbers instead of the columns below, one line per year, for example <code>2024: 1=90000, 4=200, 11=5000, 16A=500, 16C=2000, 16D=60000, 16E=15000</code>. Boxes 1 to 10 are income, and a negative amount is a loss; boxes 11 and 12 are deductions; 16A and 16B tax-exempt income, 16C nondeductible expenses, 16D distributions, 16E loan repayments. The K-1 does not show what you contributed or lent, so add <code>contrib=</code> and <code>loan=</code>. Box numbers follow the current form; check them against yours.</p>
+    <label for="k1-in">K-1 boxes by year</label>
+    <textarea id="k1-in" rows="4" spellcheck="false" aria-describedby="k1err"></textarea>
+    <p id="k1err" class="warn" hidden></p>
+    <button type="button" id="k1-go">Fill the year table from my K-1 boxes</button>
+    <button type="button" class="secondary" id="k1-example">Load an invented example</button>
+  </section>
+
   <section class="card">
     <h2>2. One line per year</h2>
     <p class="note">Columns, comma or tab separated: year, capital contributions and stock purchases, loans you made, loan repayments you received, income (negative is a loss), tax-exempt income, distributions, nondeductible expenses, losses and deductions. Amounts may use $, commas, (parentheses) or 1.5k.</p>
@@ -149,14 +159,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or accounting advice and does not replace a tax professional or the instructions to Form 7203. It follows the commonly published ordering of basis adjustments and does not model at-risk limits, passive activity rules, the excess business loss limit, the qualified business income deduction, earnings and profits from C corporation years, the other adjustments account, stock sales, or state rules. Check every figure against your K-1 and your return.</p>
     <p><strong>Independent.</strong> Not affiliated with the IRS, any tax authority, or any tax software company, and none is named or ranked here. The example is invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved unless you tick the remember box, and that copy lives only in this browser, so download the CSV.</p>
-    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>basis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>worksheet_downloaded</code>, <code>plan_viewed</code>, <code>sale_viewed</code>, <code>aaa_viewed</code>, <code>batch_run</code>, <code>batch_example_loaded</code>, <code>batch_csv_downloaded</code>, <code>batch_worksheets_downloaded</code>, <code>remember_on</code>) are counted only in local storage on your device, never sent anywhere. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>basis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>worksheet_downloaded</code>, <code>plan_viewed</code>, <code>sale_viewed</code>, <code>aaa_viewed</code>, <code>batch_run</code>, <code>batch_example_loaded</code>, <code>batch_csv_downloaded</code>, <code>batch_worksheets_downloaded</code>, <code>remember_on</code>, <code>k1_converted</code>) are counted only in local storage on your device, never sent anywhere. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../s-corp-reasonable-compensation-calculator/">S corporation reasonable compensation calculator</a>, the <a href="../excess-business-loss-calculator/">excess business loss calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
     <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseMoney, parseYears, run, plan, SAMPLE, csv, packetHtml, fmt, runBatch, saleOutlook, aaa, batchSummary, batchCsv, batchPacketHtml, BATCH_SAMPLE } from "./calc.mjs";
+    import { parseMoney, parseYears, run, plan, SAMPLE, csv, packetHtml, fmt, runBatch, saleOutlook, aaa, batchSummary, batchCsv, batchPacketHtml, BATCH_SAMPLE, fromK1Boxes, K1_SAMPLE } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { saveEntries, loadEntries, forgetEntries } from "./remember.mjs";
 
@@ -210,6 +220,17 @@
       record("plan_viewed");
     }
 
+    $("#k1-go").addEventListener("click", () => {
+      const err = $("#k1err");
+      const r = fromK1Boxes($("#k1-in").value);
+      if (r.errors.length || !r.rows.length) { err.textContent = r.errors.join(" ") || "Add at least one year."; err.hidden = false; return; }
+      err.hidden = true;
+      $("#years").value = r.text;
+      $("#years").dispatchEvent(new Event("input"));
+      $("#run").click();
+      record("k1_converted");
+    });
+    $("#k1-example").addEventListener("click", () => { $("#k1-in").value = K1_SAMPLE; $("#o-stock").value = SAMPLE.opening.stock; $("#k1-go").click(); });
     $("#aaa-run").addEventListener("click", () => {
       const err = $("#aaa-err");
       const op = $("#aaa-open").value.trim() === "" ? 0 : parseMoney($("#aaa-open").value);

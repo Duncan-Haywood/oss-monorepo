@@ -19,6 +19,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   attention first, a combined CSV and one printable file with a worksheet each.
 - `saleOutlook` - selling all your stock: gain on the shares against year-adjusted basis, the suspended loss a full sale would forfeit and the contribution that would deduct it first, and any loan face above its basis (section 5 on the page).
 - `aaa` - the company's accumulated adjustments account year by year (section 6 on the page): income in, losses and nondeductible expenses out in the year they reduce basis, distributions paid from it, and the part paid beyond it. Tax-exempt income is left out.
+- `fromK1Boxes` - type the Schedule K-1 (Form 1120-S) box numbers (`2024: 1=90000, 16D=60000, 16E=15000`, plus `contrib=` and `loan=`, which a K-1 does not show) and it fills the year table: boxes 1-10 split into income and loss by sign, 11 and 12 as deductions, 16A-16E as tax-exempt income, nondeductible expenses, distributions and loan repayments.
 - `form-7203-basis-order.html` - the order basis is adjusted in, with a three-year
   worked example the test suite recomputes.
 - `s-corp-distributions-over-basis.html` - when a distribution becomes taxable, three
