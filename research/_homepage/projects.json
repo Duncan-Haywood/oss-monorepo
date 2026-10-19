@@ -3468,6 +3468,11 @@
     "title": "Do robots that keep to one side make people walk on it, or jam the corridor?",
     "summary": "The 1D <code>society-robotnorms</code> passing-side model rebuilt as a social-force corridor (60 simulated walkers, 30&nbsp;m &times; 6&nbsp;m). Robots that adapt to people change nothing. Robots that hold the left slow people from 0.91 to 0.81 of desired speed at 5% of the crowd and to 0.39 at 30%, halve the lane separation (2.75&nbsp;m to 1.43&nbsp;m), and move people to their side only gradually (at most 54% of people at memory&nbsp;9), with no sharp tipping in 300&nbsp;s. Includes a seeded browser replay. Stylised: 8 seeds, one parameter set, simulated walkers only."
    }
+   ,{
+    "slug": "society-trust",
+    "title": "Can a robot fleet's reputation survive one bad incident?",
+    "summary": "Simulated people hold trust in a robot fleet, updated by their own encounters and by gossip in which bad news may travel further than good. Trust that is only dented recovers in every case. What sinks a reputation is avoidance: if people stop using robots below a trust threshold of 0.30, an incident at error rate 0.8 is recovered in 20/20 crowds with neutral gossip, 18/20 when bad news counts 2&times;, and 0/20 at 4&times; (final mean trust 0.947, 0.871, 0.282). Robots that explain failures (each costing 0.3&times; the trust) recovered in every setting. Stylised: 100 simulated people, one shared reputation, a hard avoidance threshold, no fitted parameters."
+   }
   ]
  }
  ,{

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of final mean trust against the trust level below which people avoid robots; trust returns to about 0.9 when people avoid robots only below 0.25 but ends near 0.4 when they avoid below 0.4, while explained failures keep it near 0.97 throughout">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Does the fleet’s reputation come back? (after a bad incident)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="272.1" y2="272.1" stroke="#ddd"/><text x="58" y="276.1" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="220.2" y2="220.2" stroke="#ddd"/><text x="58" y="224.2" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="168.3" y2="168.3" stroke="#ddd"/><text x="58" y="172.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="116.3" y2="116.3" stroke="#ddd"/><text x="58" y="120.3" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="64.4" y2="64.4" stroke="#ddd"/><text x="58" y="68.4" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.15</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.35</text>
+<text x="530.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.45</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">trust below which people stop using robots</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean trust at the end</text>
+<polyline points="64.0,77.9 157.3,77.9 250.7,78.2 344.0,78.2 437.3,109.3 530.7,209.5 624.0,212.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="77.9" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="77.9" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="78.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="78.2" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="109.3" r="3" fill="#c0392b"/>
+<circle cx="530.7" cy="209.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="212.1" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">gossip neutral</text>
+<polyline points="64.0,80.5 157.3,80.8 250.7,81.0 344.0,97.9 437.3,206.2 530.7,225.6 624.0,213.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="80.5" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="80.8" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="81.0" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="97.9" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="206.2" r="3" fill="#1f6fb2"/>
+<circle cx="530.7" cy="225.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="213.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">bad news counts 2×</text>
+<polyline points="64.0,86.2 157.3,86.2 250.7,254.2 344.0,250.8 437.3,238.9 530.7,226.7 624.0,214.7" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="86.2" r="3" fill="#2e8b57"/>
+<circle cx="157.3" cy="86.2" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="254.2" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="250.8" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="238.9" r="3" fill="#2e8b57"/>
+<circle cx="530.7" cy="226.7" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="214.7" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">bad news counts 4×</text>
+<polyline points="64.0,71.2 157.3,71.2 250.7,71.2 344.0,71.2 437.3,71.2 530.7,71.2 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="157.3" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="437.3" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="530.7" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">4× with explained failures</text>
+</svg>
