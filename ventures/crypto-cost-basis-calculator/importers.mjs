@@ -38,6 +38,7 @@ function findHeader(grid, needles) {
 
 export function detectFormat(text) {
   const grid = parseCsv(text);
+  if (findHeader(grid, ["activity date", "instrument", "trans code", "quantity", "price", "amount"]) >= 0) return "robinhood";
   if (findHeader(grid, ["transaction id", "transaction type", "asset type", "asset amount", "net amount"]) >= 0) return "cashapp";
   if (findHeader(grid, ["sent amount", "sent currency", "received amount", "received currency"]) >= 0) return "koinly";
   if (findHeader(grid, ["timestamp utc", "transaction kind", "native amount in usd"]) >= 0) return "cryptocom";
@@ -501,16 +502,59 @@ function importCashApp(grid) {
   return { format: "cashapp", rows: out, notes };
 }
 
+// ---- Robinhood (account activity report) ------------------------------------
+//
+// Columns: Activity Date, Instrument, Description, Trans Code, Quantity, Price,
+// Amount (buys in parentheses). The report mixes stocks and options with crypto,
+// so only rows whose Instrument is a coin ticker listed below are read; every
+// other instrument is counted and ignored. Buy and Sell codes become trades;
+// the dollars come from Amount (what actually moved), not Quantity x Price.
+
+const RH_COINS = new Set(["BTC", "ETH", "DOGE", "SOL", "LTC", "BCH", "ETC", "XRP", "ADA", "AVAX", "LINK", "XLM", "UNI", "SHIB", "MATIC", "POL", "AAVE", "COMP", "XTZ", "USDC", "DOT", "ATOM", "HBAR", "PEPE", "ARB", "SUI", "TON", "NEAR", "APT"]);
+
+function importRobinhood(grid) {
+  const h = findHeader(grid, ["activity date", "instrument", "trans code", "quantity", "price", "amount"]);
+  const names = grid[h].map(norm);
+  const ix = (n) => names.indexOf(n);
+  const c = { date: ix("activity date"), sym: ix("instrument"), code: ix("trans code"), qty: ix("quantity"), price: ix("price"), amt: ix("amount") };
+  const out = [], notes = [];
+  let other = 0, unpriced = 0;
+  for (let i = h + 1; i < grid.length; i++) {
+    const r = grid[i];
+    const g = (k) => r[c[k]] ?? "";
+    const sym = g("sym").toUpperCase().trim();
+    const code = norm(g("code"));
+    if (!sym || !code) continue;
+    if (!RH_COINS.has(sym)) { other++; continue; }
+    const date = parseDate(g("date"));
+    const qty = num(g("qty"));
+    if (code === "buy" || code === "sell") {
+      if (!date || qty === null || qty === 0) { notes.push(`Line ${i + 1}: Robinhood ${g("code")} of ${sym} had no usable date or quantity and was skipped.`); continue; }
+      let usd = num(g("amt"));
+      if (usd === null) {
+        const price = num(g("price"));
+        usd = price === null ? null : price * Math.abs(qty);
+        if (usd === null) unpriced++;
+      }
+      out.push([date, code, sym, fmt(Math.abs(qty)), fmt(usd === null ? null : Math.abs(usd)), "0", "Robinhood"]);
+    } else notes.push(`Line ${i + 1}: Robinhood transaction code "${g("code")}" for ${sym} was skipped; enter it by hand if it is taxable.`);
+  }
+  if (unpriced) notes.push(`${unpriced} Robinhood row${unpriced > 1 ? "s" : ""} had no USD value and were left with an empty total. Fill each in from that day's price.`);
+  if (other) notes.push(`${other} row${other > 1 ? "s" : ""} for stocks, options, cash or coins not on the reader's list ignored.`);
+  notes.push("Robinhood: any spread is already inside the price, so fees are read as 0. Check one row against the app, and skim the file for coins missing from the list, before relying on the basis.");
+  return { format: "robinhood", rows: out, notes };
+}
+
 // ---- entry points ---------------------------------------------------------
 
-export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", coinbasepro: "Coinbase Pro / Advanced Trade fills", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", koinly: "Koinly universal CSV", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", bitstamp: "Bitstamp transaction export", cashapp: "Cash App account activity", generic: "plain CSV" };
+export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", coinbasepro: "Coinbase Pro / Advanced Trade fills", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", koinly: "Koinly universal CSV", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", bitstamp: "Bitstamp transaction export", cashapp: "Cash App account activity", robinhood: "Robinhood account activity", generic: "plain CSV" };
 
 // Returns { format, csv, notes }. A generic file comes back unchanged.
 export function convertExchangeCsv(text) {
   const format = detectFormat(text);
   if (format === "generic") return { format, csv: String(text ?? ""), notes: [] };
   const grid = parseCsv(text);
-  const r = format === "coinbase" ? importCoinbase(grid) : format === "coinbasepro" ? importCoinbasePro(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "koinly" ? importKoinly(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : format === "bitstamp" ? importBitstamp(grid) : format === "cashapp" ? importCashApp(grid) : importKraken(grid);
+  const r = format === "coinbase" ? importCoinbase(grid) : format === "coinbasepro" ? importCoinbasePro(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "koinly" ? importKoinly(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : format === "bitstamp" ? importBitstamp(grid) : format === "cashapp" ? importCashApp(grid) : format === "robinhood" ? importRobinhood(grid) : importKraken(grid);
   return { format, csv: toCsv(r.rows), notes: r.notes, count: r.rows.length };
 }
 

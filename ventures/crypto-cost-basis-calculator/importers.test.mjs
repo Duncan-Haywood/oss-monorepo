@@ -328,6 +328,27 @@ test("Cash App export feeds the lot matcher end to end", () => {
   assert.ok(a.rows.length > 0);
 });
 
+const ROBINHOOD = `Activity Date,Process Date,Settle Date,Instrument,Description,Trans Code,Quantity,Price,Amount
+1/10/2023,1/10/2023,1/10/2023,BTC,Bitcoin Market Buy,Buy,0.5,"$20,000.00","($10,000.00)"
+9/10/2023,9/10/2023,9/10/2023,BTC,Bitcoin Market Sell,Sell,0.5,"$30,000.00","$15,000.00"
+9/11/2023,9/11/2023,9/11/2023,AAPL,Apple,Buy,2,$180.00,($360.00)
+9/12/2023,9/12/2023,9/12/2023,ETH,Ethereum,STAKE,0.01,,
+`;
+
+test("Robinhood: detected, crypto buys/sells mapped, stocks and unknown codes skipped", () => {
+  assert.equal(detectFormat(ROBINHOOD), "robinhood");
+  const r = convertExchangeCsv(ROBINHOOD);
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines[0], OUT_HEADER);
+  assert.ok(lines.includes("2023-01-10,buy,BTC,0.5,10000,0,Robinhood"));
+  assert.ok(lines.includes("2023-09-10,sell,BTC,0.5,15000,0,Robinhood"));
+  assert.equal(lines.length, 1 + 2);
+  assert.ok(r.notes.some((n) => /STAKE/.test(n)));
+  assert.ok(r.notes.some((n) => /1 row for stocks/.test(n)));
+  const a = analyze(r.csv, { method: "FIFO", year: 2023 });
+  assert.ok(a.rows.length > 0);
+});
+
 const BROKER = `Trade Date,Action,Ticker,Coins Moved,Unit Price,Fees
 2023-01-10,Bought,btc,0.5,20000,10
 2023-06-15,Bought,BTC,0.5,30000,15
