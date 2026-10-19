@@ -87,6 +87,19 @@
     <div class="scroll"><table id="plan-tbl"></table></div>
   </section>
 
+  <section class="card" id="sale" hidden>
+    <h2>5. Selling your stock?</h2>
+    <p class="note">Reads the last year you entered as the sale year (enter its income, distributions and losses through the sale date). Shows the gain on the shares and whether a loss would be lost.</p>
+    <div class="row">
+      <div><label for="sale-proceeds">Sale price for your stock ($)</label><input id="sale-proceeds" inputmode="decimal"></div>
+      <div><label for="sale-exp">Selling expenses ($)</label><input id="sale-exp" inputmode="decimal"></div>
+    </div>
+    <button type="button" id="sale-run">Show the sale outlook</button>
+    <p id="sale-err" class="warn" hidden></p>
+    <div class="big" id="sale-big"></div>
+    <div id="sale-advice"></div>
+  </section>
+
   <section class="card" id="batch">
     <h2>Preparing for several shareholders?</h2>
     <p class="note">Paste a whole client list. Columns, comma or tab separated: shareholder, then the same columns as above starting with the year. A row with <code>opening</code> in the year column gives that shareholder's starting stock basis, debt basis, loan balance and suspended losses. You get one summary that puts the shareholders needing attention first, a combined CSV, and one printable file with a worksheet per shareholder.</p>
@@ -123,14 +136,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or accounting advice and does not replace a tax professional or the instructions to Form 7203. It follows the commonly published ordering of basis adjustments and does not model at-risk limits, passive activity rules, the excess business loss limit, the qualified business income deduction, accumulated adjustments account or earnings and profits from C corporation years, stock sales, or state rules. Check every figure against your K-1 and your return.</p>
     <p><strong>Independent.</strong> Not affiliated with the IRS, any tax authority, or any tax software company, and none is named or ranked here. The example is invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved, so download the CSV.</p>
-    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>basis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>worksheet_downloaded</code>, <code>plan_viewed</code>, <code>batch_run</code>, <code>batch_example_loaded</code>, <code>batch_csv_downloaded</code>, <code>batch_worksheets_downloaded</code>) are counted only in local storage on your device, never sent anywhere. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>basis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>worksheet_downloaded</code>, <code>plan_viewed</code>, <code>sale_viewed</code>, <code>batch_run</code>, <code>batch_example_loaded</code>, <code>batch_csv_downloaded</code>, <code>batch_worksheets_downloaded</code>) are counted only in local storage on your device, never sent anywhere. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../s-corp-reasonable-compensation-calculator/">S corporation reasonable compensation calculator</a>, the <a href="../excess-business-loss-calculator/">excess business loss calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
     <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseMoney, parseYears, run, plan, SAMPLE, csv, packetHtml, fmt, runBatch, batchSummary, batchCsv, batchPacketHtml, BATCH_SAMPLE } from "./calc.mjs";
+    import { parseMoney, parseYears, run, plan, SAMPLE, csv, packetHtml, fmt, runBatch, saleOutlook, batchSummary, batchCsv, batchPacketHtml, BATCH_SAMPLE } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -165,7 +178,7 @@
 
     function showPlan(res) {
       const p = plan(res);
-      if (!p) { $("#plan").hidden = true; return; }
+      if (!p) { $("#plan").hidden = true; $("#sale").hidden = true; return; }
       $("#plan-year").textContent = p.year;
       const add = (v) => (v == null ? "n/a" : fmt(v));
       $("#plan-big").innerHTML = [
@@ -178,9 +191,21 @@
       $("#plan-tbl").innerHTML = `<tr>${cols.map(([h], i) => `<th${i ? ' class="n"' : ""}>${esc(h)}</th>`).join("")}</tr>` +
         p.scenarios.map((r) => `<tr>${cols.map(([, f], i) => `<td${i ? ' class="n"' : ""}>${esc(f(r))}</td>`).join("")}</tr>`).join("");
       $("#plan").hidden = false;
+      $("#sale").hidden = false;
       record("plan_viewed");
     }
 
+    $("#sale-run").addEventListener("click", () => {
+      const err = $("#sale-err");
+      const pr = parseMoney($("#sale-proceeds").value), ex = parseMoney($("#sale-exp").value);
+      const o = last && !Number.isNaN(pr) && !Number.isNaN(ex) && pr > 0 ? saleOutlook(last, { proceeds: pr, expenses: ex }) : null;
+      if (!o) { err.textContent = "Roll your basis forward first, then enter a sale price above zero and expenses of zero or more."; err.hidden = false; return; }
+      err.hidden = true;
+      $("#sale-big").innerHTML = [["Stock basis at sale", fmt(o.stockBasis)], [o.gain >= 0 ? "Gain on the shares" : "Loss on the shares", fmt(Math.abs(o.gain))], ["Suspended loss that would be lost", fmt(o.suspendedLost)], ["Contribution that would save it", fmt(o.contributionToUseLosses)]]
+        .map(([k, v]) => `<div>${esc(k)}<strong>${esc(v)}</strong></div>`).join("");
+      $("#sale-advice").innerHTML = o.advice.map((a) => `<div class="warn">${esc(a)}</div>`).join("");
+      record("sale_viewed");
+    });
     $("#run").addEventListener("click", () => {
       const o = opening();
       const err = $("#yerr");
@@ -198,7 +223,7 @@
       $("#run").click();
       record("example_loaded");
     });
-    $("#clear").addEventListener("click", () => { for (const id of ["#o-stock", "#o-debtbasis", "#o-debtface", "#o-susp", "#years"]) $(id).value = ""; $("#out").hidden = true; $("#plan").hidden = true; $("#yerr").hidden = true; last = null; });
+    $("#clear").addEventListener("click", () => { for (const id of ["#o-stock", "#o-debtbasis", "#o-debtface", "#o-susp", "#years"]) $(id).value = ""; $("#out").hidden = true; $("#sale").hidden = true; $("#plan").hidden = true; $("#yerr").hidden = true; last = null; });
     const save = (text, type, name) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([text], { type }));

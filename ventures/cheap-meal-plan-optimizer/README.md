@@ -19,6 +19,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Break-even prices: for every food the plan leaves out, the report gives the price per serving below which it would be used, and the drop needed from today's price, found by bisection on the continuous model (`breakEvenPrices` in `calc.mjs`); "never" means no price, even free, earns it a place. Use it to know which sale is worth waiting for.
 - Share link: "Copy share link" writes the food list and targets into the URL fragment (`#foods=...`), which browsers never send to a server, so you can bookmark a menu or send it to someone; opening the link refills the form. `encodeShare`/`decodeShare` in `calc.mjs` keep only known numeric fields.
 - Shopping list: add a ninth column, servings per pack (`Rice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7 | | 36`), and the report turns the plan into whole packs for the week, with leftovers and the real till total (`groceryList` in `calc.mjs`). Pack price is price per serving times pack size, so the cheapest plan itself is unchanged.
+- Household size: "People eating this plan" multiplies the week's shopping list (packs, leftovers, till total and the copied text) for a household that eats the same plan; the plan, its costs and the nutrition stay per person. Whole numbers 1 to 20, saved with the share link (`people` in `groceryList`).
 - Copy shopping list: one button puts the week's list (packs, or exact servings for foods without a pack size, plus the estimated total) on the clipboard as plain text for a notes app (`groceryText` in `calc.mjs`).
 - Sodium cap: add a tenth column, sodium in mg per serving (`Bread | 0.15 | 70 | 3 | 12 | 1 | 2 | 6 | 20 | 140`), and set "Sodium maximum (mg)" (for example 2300); the cap is one more linear row in the same solver, checked again by `verifyPlan`, and shows in the totals table and CSV. Foods without a figure count as 0 mg and the page says so. It is a planning aid, not medical advice.
 - A different menu each day: the cheapest plan repeats daily, so "A different menu each day" plans the week day by day, charging the solver more for a food each time it has already appeared (some, more or as much as possible), so staples rotate while every bound still holds. It shows each day's foods, the number of different menus, and what the variety costs against the cheapest plan every day; "Copy the week's menu as text" puts it on the clipboard (`weekMenu`, `weekText` in `calc.mjs`). Greedy in day order, so a variety aid rather than the cheapest possible week.
@@ -29,6 +30,17 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-eat-high-protein-on-a-budget.html` - guide whose worked example is
   recomputed by the test suite.
+
+## Host your own copy
+
+It is a static site: the server only hands out files and never sees a figure you type, so you can serve it from an
+address you control.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
 
 ## What you use today, and what this does differently
 

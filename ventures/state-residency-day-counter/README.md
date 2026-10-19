@@ -5,7 +5,7 @@ digital nomads. List where you were and when; it totals the days per state,
 checks them against the commonly published statutory residency tests (more than
 183 days plus a permanent place of abode in New York, New Jersey, Connecticut,
 Massachusetts, Pennsylvania, Minnesota, Rhode Island, Virginia, Maryland and Utah (183 days or more), Michigan, Indiana, Kentucky, Vermont, Missouri, Iowa, Maine, West Virginia and Delaware, and the District of Columbia (183 days or more); 183 days or more with no abode needed in Georgia; 185 days or more with no abode needed in New Mexico; more than six months (taken as 183 days) with no abode needed in Louisiana; more than six months (taken as 183 days) with a permanent place of abode in Nebraska and Colorado; more than 200 days in
-Oregon; more than 200 days in Hawaii (a rebuttable presumption); more than 212 contact periods in Ohio (the bright-line safe harbor, approximated by nights); more than 270 days in Idaho; the nine-month presumption in California), shows the room left and the
+Oregon; more than 200 days in Hawaii (a rebuttable presumption); more than 212 contact periods in Ohio (the bright-line safe harbor, approximated by nights); more than 270 days in Idaho; the nine-month presumption in California; New York City's own 183-day test, tracked when a stay line says NYC), shows the room left and the
 date you would cross a limit, splits remote-work wages by workdays, draws a
 year calendar coloured by state, imports stays from a calendar (.ics) export, the Timeline.json your phone exports from Google Maps (coordinates matched to states in the browser), or older Google Takeout history, and exports a day-range CSV. Nothing is uploaded.
 
@@ -23,6 +23,16 @@ server only hands out files and never sees a date you type.
 - **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
 - Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
   so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
+
+- Command line: `cli.mjs` runs the same counter on a stays file with no browser and no network, for preparers who keep many clients' years in text files and for anyone who wants the numbers in a script. Zero dependencies; your dates never leave the machine.
+
+  ```
+  node cli.mjs --year 2025 --home FL --abode NY,FL stays.txt   # days per state, limit, room left, crossing date
+  node cli.mjs --asof 2025-09-30 --nights stays.txt             # as of a date, counting nights
+  node cli.mjs --wages 140000 --employer NY stays.txt           # split wages by workday
+  node cli.mjs --csv stays.txt > totals.csv                     # totals; also --daily-log, --html, --ics, --json
+  node cli.mjs --example                                        # the built-in invented year
+  ```
 
 - `calc.mjs` - tolerant stay parser (ISO, US and month-name dates, state codes
   or names), day-grid analysis with travel-day and overlap handling, gap
@@ -49,6 +59,7 @@ server only hands out files and never sees a date you type.
 - `california-nine-month-residency-presumption.html` - guide on why California
   has a nine-month presumption rather than a 183-day test; figures recomputed by
   the test suite.
+- `nyc-resident-tax-183-day-test.html` - guide to New York City's own statutory-resident test (abode in the City plus more than 183 days inside the five boroughs); add `NYC` to a stay line and the counter tracks the City beside the State. Figures recomputed by the test suite.
 - `remote-work-convenience-of-the-employer-rule.html` - guide on the
   employer-state rule, its dollar figures recomputed by the test suite.
 

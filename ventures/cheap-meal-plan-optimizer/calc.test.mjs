@@ -366,3 +366,23 @@ test("micronutrient minimums survive a share link", () => {
   const enc = encodeShare("A | 1 | 2 | 3 | 4 | 5 | 6", { camin: "1000", femin: "8", potmin: "3400" });
   assert.deepEqual(decodeShare(enc).fields, { camin: "1000", femin: "8", potmin: "3400" });
 });
+
+test("groceryList scales the week by the number of people and groceryText says so", () => {
+  const spec = { daysPerWeek: 7, people: 3, foods: foods([["Rice", 0.2, [180, 3, 40, 0, 1]]]) };
+  spec.foods[0].pack = 20;
+  const res = { cost: 0.6, items: [{ index: 0, name: "Rice", servings: 3, cost: 0.6 }] };
+  const g = groceryList(spec, res);
+  assert.equal(g.people, 3);
+  assert.equal(g.lines[0].servings, 63); // 3 servings x 7 days x 3 people
+  assert.equal(g.lines[0].packs, 4);
+  assert.match(groceryText(spec, res), /one week for 3 people/);
+  for (const bad of [undefined, "", 0, -2, "abc"]) assert.equal(groceryList({ ...spec, people: bad }, res).people, 1);
+  assert.equal(groceryList({ ...spec, people: 500 }, res).people, 20);
+  assert.doesNotMatch(groceryText({ ...spec, people: 1 }, res), /people/);
+});
+
+test("people survives the share link and rejects non-numeric values", () => {
+  const frag = encodeShare("Rice | 0.2 | 180 | 3 | 40 | 0 | 1", { people: "4" });
+  assert.equal(decodeShare(frag).fields.people, "4");
+  assert.equal(decodeShare("foods=x&people=4%3Cb%3E").fields.people, undefined);
+});

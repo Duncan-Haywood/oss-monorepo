@@ -97,3 +97,11 @@ test("the preparer batch section is on the page and its events are disclosed", (
   for (const id of ["batch-in", "batch-run", "batch-csv", "batch-sheet"]) assert.match(html, new RegExp(`id="${id}"`));
   for (const ev of ["batch_run", "batch_example_loaded", "batch_csv_downloaded", "batch_worksheets_downloaded"]) assert.match(html, new RegExp(`<code>${ev}</code>`));
 });
+
+test("the stock-sale outlook is on the page and its event is disclosed", () => {
+  const html = page("index.html");
+  assert.match(html, /id="sale"/);
+  assert.match(html, /Selling your stock\?/);
+  assert.match(html, /<code>sale_viewed<\/code>/);
+  assert.match(html, /saleOutlook/);
+});

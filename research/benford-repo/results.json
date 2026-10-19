@@ -1,0 +1,386 @@
+{
+ "commit": "7a3a9158e391c27d09ec06be84bb3fd53a355a09",
+ "benford": [
+  0.30103,
+  0.17609,
+  0.12494,
+  0.09691,
+  0.07918,
+  0.06695,
+  0.05799,
+  0.05115,
+  0.04576
+ ],
+ "groups": {
+  "all": {
+   "bytes": {
+    "n": 35648,
+    "counts": [
+     10437,
+     7236,
+     4274,
+     4972,
+     2150,
+     1571,
+     1527,
+     2290,
+     1191
+    ],
+    "chi2": 1646.5,
+    "chi2_reject_5pct": true,
+    "mad": 0.01834,
+    "band": "nonconforming"
+   },
+   "lines": {
+    "n": 29313,
+    "counts": [
+     7608,
+     4384,
+     2559,
+     5156,
+     2451,
+     2515,
+     2375,
+     1115,
+     1150
+    ],
+    "chi2": 3061.02,
+    "chi2_reject_5pct": true,
+    "mad": 0.02784,
+    "band": "nonconforming"
+   },
+   "distinct bytes": {
+    "n": 12429,
+    "counts": [
+     3745,
+     2068,
+     1311,
+     1186,
+     1029,
+     884,
+     825,
+     729,
+     652
+    ],
+    "chi2": 90.83,
+    "chi2_reject_5pct": true,
+    "mad": 0.00681,
+    "band": "acceptable"
+   },
+   "distinct lines": {
+    "n": 980,
+    "counts": [
+     227,
+     140,
+     122,
+     118,
+     103,
+     75,
+     77,
+     74,
+     44
+    ],
+    "chi2": 55.61,
+    "chi2_reject_5pct": true,
+    "mad": 0.0231,
+    "band": "nonconforming"
+   }
+  },
+  ".py": {
+   "bytes": {
+    "n": 3721,
+    "counts": [
+     884,
+     959,
+     619,
+     519,
+     337,
+     142,
+     92,
+     77,
+     92
+    ],
+    "chi2": 537.88,
+    "chi2_reject_5pct": true,
+    "mad": 0.03933,
+    "band": "nonconforming"
+   },
+   "lines": {
+    "n": 3721,
+    "counts": [
+     1035,
+     410,
+     402,
+     393,
+     393,
+     344,
+     268,
+     262,
+     214
+    ],
+    "chi2": 229.51,
+    "chi2_reject_5pct": true,
+    "mad": 0.02349,
+    "band": "nonconforming"
+   },
+   "distinct bytes": {
+    "n": 2637,
+    "counts": [
+     647,
+     566,
+     455,
+     398,
+     260,
+     96,
+     71,
+     67,
+     77
+    ],
+    "chi2": 319.79,
+    "chi2_reject_5pct": true,
+    "mad": 0.03546,
+    "band": "nonconforming"
+   },
+   "distinct lines": {
+    "n": 476,
+    "counts": [
+     131,
+     88,
+     68,
+     50,
+     43,
+     30,
+     22,
+     22,
+     22
+    ],
+    "chi2": 5.03,
+    "chi2_reject_5pct": false,
+    "mad": 0.01032,
+    "band": "acceptable"
+   }
+  },
+  ".md": {
+   "bytes": {
+    "n": 2602,
+    "counts": [
+     673,
+     393,
+     219,
+     281,
+     374,
+     234,
+     191,
+     127,
+     110
+    ],
+    "chi2": 231.82,
+    "chi2_reject_5pct": true,
+    "mad": 0.02534,
+    "band": "nonconforming"
+   },
+   "lines": {
+    "n": 2602,
+    "counts": [
+     928,
+     373,
+     329,
+     402,
+     243,
+     123,
+     56,
+     45,
+     103
+    ],
+    "chi2": 273.5,
+    "chi2_reject_5pct": true,
+    "mad": 0.02865,
+    "band": "nonconforming"
+   },
+   "distinct bytes": {
+    "n": 2185,
+    "counts": [
+     530,
+     330,
+     198,
+     247,
+     317,
+     218,
+     156,
+     111,
+     78
+    ],
+    "chi2": 225.68,
+    "chi2_reject_5pct": true,
+    "mad": 0.0285,
+    "band": "nonconforming"
+   },
+   "distinct lines": {
+    "n": 274,
+    "counts": [
+     98,
+     44,
+     30,
+     22,
+     18,
+     18,
+     16,
+     16,
+     12
+    ],
+    "chi2": 5.54,
+    "chi2_reject_5pct": false,
+    "mad": 0.01428,
+    "band": "marginal"
+   }
+  },
+  ".json": {
+   "bytes": {
+    "n": 1790,
+    "counts": [
+     832,
+     150,
+     55,
+     496,
+     49,
+     60,
+     43,
+     50,
+     55
+    ],
+    "chi2": 1126.8,
+    "chi2_reject_5pct": true,
+    "mad": 0.07644,
+    "band": "nonconforming"
+   },
+   "lines": {
+    "n": 1767,
+    "counts": [
+     637,
+     156,
+     162,
+     583,
+     88,
+     42,
+     49,
+     26,
+     24
+    ],
+    "chi2": 1286.09,
+    "chi2_reject_5pct": true,
+    "mad": 0.065,
+    "band": "nonconforming"
+   },
+   "distinct bytes": {
+    "n": 1324,
+    "counts": [
+     542,
+     135,
+     49,
+     364,
+     43,
+     57,
+     37,
+     46,
+     51
+    ],
+    "chi2": 684.67,
+    "chi2_reject_5pct": true,
+    "mad": 0.06363,
+    "band": "nonconforming"
+   },
+   "distinct lines": {
+    "n": 311,
+    "counts": [
+     105,
+     53,
+     28,
+     34,
+     27,
+     23,
+     21,
+     13,
+     7
+    ],
+    "chi2": 10.12,
+    "chi2_reject_5pct": false,
+    "mad": 0.01626,
+    "band": "nonconforming"
+   }
+  },
+  ".html": {
+   "bytes": {
+    "n": 2875,
+    "counts": [
+     1374,
+     613,
+     83,
+     110,
+     117,
+     122,
+     143,
+     158,
+     155
+    ],
+    "chi2": 723.69,
+    "chi2_reject_5pct": true,
+    "mad": 0.05022,
+    "band": "nonconforming"
+   },
+   "lines": {
+    "n": 2875,
+    "counts": [
+     1143,
+     541,
+     145,
+     68,
+     204,
+     188,
+     198,
+     168,
+     220
+    ],
+    "chi2": 449.2,
+    "chi2_reject_5pct": true,
+    "mad": 0.03501,
+    "band": "nonconforming"
+   },
+   "distinct bytes": {
+    "n": 2724,
+    "counts": [
+     1289,
+     588,
+     81,
+     107,
+     115,
+     115,
+     132,
+     150,
+     147
+    ],
+    "chi2": 664.65,
+    "chi2_reject_5pct": true,
+    "mad": 0.04979,
+    "band": "nonconforming"
+   },
+   "distinct lines": {
+    "n": 503,
+    "counts": [
+     114,
+     101,
+     74,
+     45,
+     31,
+     19,
+     46,
+     52,
+     21
+    ],
+    "chi2": 58.32,
+    "chi2_reject_5pct": true,
+    "mad": 0.02946,
+    "band": "nonconforming"
+   }
+  }
+ }
+}

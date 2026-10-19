@@ -56,6 +56,14 @@
     <summary type="text">Free TCGplayer seller fee calculator: 10.75% marketplace commission (capped at $75 per product, charged on cards plus shipping) and 2.5% + $0.30 per-order transaction fee. See your payout, profit per order, the price for a target profit, and Pro or pre-February-2026 rates side by side. Nothing leaves your browser.</summary>
   </entry>
   <entry>
+    <title>UK Crypto CGT Calculator — Section 104 pool, same-day and 30-day rules, in your browser</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-crypto-cgt-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-crypto-cgt-calculator</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="UK tax, pay &amp; benefits"/>
+    <summary type="text">Free UK crypto capital gains calculator. Paste your buys, sales, swaps and staking income as a CSV and it applies HMRC&#39;s same-day, 30-day and Section 104 pooling rules, works out each tax year&#39;s gain, exempt amount and estimated CGT, and exports the working. Nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>UK Statutory Residence Test Checker — Days, Ties and Automatic Tests</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-statutory-residence-test-checker/"/>
     <id>tag:marisstella.dev,2026:tool/uk-statutory-residence-test-checker</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to the forecasting add-ons of Pipedrive, HubSpot and Clari for small B2B teams: win chances learned from your own closed deals, a backtested forecast range and a ranked list of stale or slipping deals. Paste a deal export and try it in your browser.</summary>
-  </entry>
-  <entry>
-    <title>devsec-toolkit — Every DevSecOps Check in One Free, Open-Source Command</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/devsec-toolkit/"/>
-    <id>tag:marisstella.dev,2026:tool/devsec-toolkit</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">One zero-dependency command that runs your repository through 23 open-source DevSecOps checks: GitHub Actions injection and poisoning, Docker and Compose, Kubernetes, dependency confusion, JWT misuse, ReDoS, AI-agent permissions. One report, SARIF for code scanning, baselines. MIT licensed, nothing uploaded.</summary>
   </entry>
 </feed>

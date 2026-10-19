@@ -26,12 +26,13 @@ third party: zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** TeamSnap, LeagueApps and SportsEngine hold your players' data behind per-team accounts and
   paid plans. This is only the publish-fixtures-and-table loop for one league, MIT-licensed. It has no registration,
-  payments, messaging or score-entry by players; use one of them if you need those.
+  payments or messaging; use one of them if you need those.
 - **Secrets:** `ADMIN_KEY` unlocks `/admin`; `LEAGUE_TOKEN` is the secret in the player link. The server refuses to
   serve without both. Put it behind HTTPS (Fly and Render do); keys are in the URL, so do not share admin links. Ten wrong links from one address lock it out for 15 minutes (HTTP 429); behind a proxy the last `X-Forwarded-For` hop is used.
 - **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
   (`docker-compose.yml`), Fly (`fly.toml`), or Render (`render.yaml`, deploy from your fork; it generates both
   secrets). Nothing runs on the author's accounts.
+- **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
 - Tests: `node --test server.test.mjs deploy.test.mjs`.
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
