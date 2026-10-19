@@ -41,14 +41,14 @@ export const SE_NET_EARNINGS_FACTOR = 0.9235;
 /**
  * Social Security stops at an annual wage base; Medicare does not.
  *
- * This default is the 2025 figure. The number is indexed to average wages and
+ * This default is the 2026 figure. The number is indexed to average wages and
  * changes every January, so it is a default rather than a constant of nature —
  * `socialSecurityWageBase` overrides it on every entry point that uses it, and
  * the page says so next to the result. It binds rarely for this audience: a
  * stylist would need to clear it on chair income alone before the cap changes
  * either side of the comparison, and below it the cap is inert.
  */
-export const DEFAULT_SOCIAL_SECURITY_WAGE_BASE = 176100;
+export const DEFAULT_SOCIAL_SECURITY_WAGE_BASE = 184500;
 
 function nonNegative(value) {
   const n = Number(value);
