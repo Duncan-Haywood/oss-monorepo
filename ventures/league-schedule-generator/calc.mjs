@@ -277,6 +277,45 @@ export function roundRobin(n, { double = false } = {}) {
   return [...first, ...second];
 }
 
+/**
+ * A one-day tournament timetable: the circle-method round robin, each round played to completion
+ * before the next starts (the rule the "how long does a round robin take" table uses), a round's
+ * matches spread over `courts` courts in waves, and every wave given a clock time. Nothing here
+ * can put a team in two matches at once because a round never repeats a team.
+ */
+export function oneDayTimetable(teams, { courts = 1, start = "09:00", matchMinutes = 30, changeoverMinutes = 0, double = false } = {}) {
+  const n = teams.length;
+  if (n < 3) throw new Error("A one-day round robin needs at least three teams.");
+  if (!Number.isInteger(courts) || courts < 1) throw new Error("Courts must be a whole number of at least 1.");
+  const t0 = parseTime(start);
+  if (!t0) throw new Error("Start time is not a time (try 09:00 or 9am).");
+  if (!Number.isFinite(matchMinutes) || matchMinutes < 5 || matchMinutes > 600) throw new Error("Match length must be between 5 and 600 minutes.");
+  if (!Number.isFinite(changeoverMinutes) || changeoverMinutes < 0 || changeoverMinutes > 120) throw new Error("Changeover must be between 0 and 120 minutes.");
+  const hhmm = (mins) => `${String(Math.floor(mins / 60) % 24).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
+  const step = matchMinutes + changeoverMinutes;
+  let clock = Number(t0.slice(0, 2)) * 60 + Number(t0.slice(3));
+  const slots = [];
+  roundRobin(n, { double }).forEach((r, ri) => {
+    for (let i = 0; i < r.matches.length; i += courts) {
+      const matches = r.matches.slice(i, i + courts).map(([h, a], k) => ({ court: k + 1, home: h, away: a }));
+      slots.push({ round: ri + 1, time: hhmm(clock), end: hhmm(clock + matchMinutes), bye: i === 0 && r.bye !== null ? r.bye : null, matches });
+      clock += step;
+    }
+  });
+  return { teams, courts, slots, finish: slots[slots.length - 1].end, games: slots.reduce((s, x) => s + x.matches.length, 0) };
+}
+
+export function oneDayText(tt) {
+  const lines = [];
+  for (const s of tt.slots) {
+    lines.push(`${s.time}-${s.end}  Round ${s.round}`);
+    for (const m of s.matches) lines.push(`  Court ${m.court}: ${tt.teams[m.home]} v ${tt.teams[m.away]}`);
+    if (s.bye !== null) lines.push(`  Bye: ${tt.teams[s.bye]}`);
+  }
+  lines.push(`Last game ends ${tt.finish} (${tt.games} games, ${tt.slots.length} time slots).`);
+  return lines.join("\n");
+}
+
 /** Home/away breaks per team over the rounds as given; a bye or an idle round resets the streak. */
 export function countBreaks(schedule) {
   const n = schedule.teams.length;

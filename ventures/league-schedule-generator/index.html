@@ -50,7 +50,7 @@
     @media print {
       :root { background: #fff; }
       body { max-width: none; padding: 0; }
-      header, footer, button, label, select, textarea, #pool-card, #swiss-card, #americano-card, #mexicano-card, #ladder-card, .card:not(#report), #form-status { display: none !important; }
+      header, footer, button, label, select, textarea, #pool-card, #swiss-card, #americano-card, #oneday-card, #mexicano-card, #ladder-card, .card:not(#report), #form-status { display: none !important; }
       #report { border: 0; box-shadow: none; padding: 0; margin: 0; }
       .big div { background: none; border: 1px solid #999; }
       .scroll { overflow: visible; }
@@ -212,6 +212,25 @@
     <pre id="swiss-out"></pre>
   </section>
 
+  <section class="card" id="oneday-card">
+    <h2>One-day tournament: clock times for every game</h2>
+    <p class="note">Everyone plays everyone once in a single day. List the teams in the Teams box above, then set the courts, the first start time and how long a game and the changeover take. Each round finishes before the next begins, so nobody plays twice at once. Not sure it fits? See <a href="./how-long-does-a-round-robin-tournament-take.html">how long a one-day round robin takes</a>.</p>
+    <label for="od-courts">Courts</label>
+    <input id="od-courts" type="number" min="1" max="16" value="2">
+    <label for="od-start">First game</label>
+    <input id="od-start" value="09:00">
+    <label for="od-minutes">Game length, minutes</label>
+    <input id="od-minutes" type="number" min="5" max="600" value="30">
+    <label for="od-change">Changeover, minutes</label>
+    <input id="od-change" type="number" min="0" max="120" value="5">
+    <label for="od-double">Play everyone twice</label>
+    <input id="od-double" type="checkbox">
+    <button type="button" id="build-oneday">Build timetable</button>
+    <button type="button" class="secondary" id="dl-oneday">Download timetable (text)</button>
+    <p id="od-status" role="status" class="note"></p>
+    <pre id="od-out"></pre>
+  </section>
+
   <section class="card" id="americano-card">
     <h2>Americano: rotating partners for doubles nights</h2>
     <p class="note">For social padel, pickleball, badminton and tennis nights where everyone plays with and against as many different people as possible. List the players in the Teams box above, say how many courts you have and how many rounds, and get a sheet of who partners whom each round. Games and sit-outs are shared evenly; repeat partners are avoided as far as the round count allows and counted below.</p>
@@ -285,7 +304,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice and does not replace your league's rules or a venue's booking system. <strong>You are responsible for reviewing and verifying the schedule</strong> (every date, court and pairing) before you send it to a league. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any league, sports body, club or scheduling software company, and none is named or ranked here. The example teams are invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — your setup is remembered only in this browser ("Clear" forgets it), so download the CSV.</p>
-    <p>Everything runs in your browser. Your team names and dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_built</code>, <code>pools_built</code>, <code>swiss_paired</code>, <code>americano_built</code>, <code>mexicano_drawn</code>, <code>ladder_shown</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>ics_downloaded</code>, <code>text_shared</code>, <code>link_shared</code>, <code>link_opened</code>, <code>next_season</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your team names and dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_built</code>, <code>pools_built</code>, <code>swiss_paired</code>, <code>americano_built</code>, <code>oneday_built</code>, <code>mexicano_drawn</code>, <code>ladder_shown</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>ics_downloaded</code>, <code>text_shared</code>, <code>link_shared</code>, <code>link_opened</code>, <code>next_season</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tool: the <a href="../shift-cover-optimizer/">shift cover optimizer</a> for staff rotas the <a href="../volunteer-shift-scheduler/">volunteer shift scheduler</a> for the people who run your league day, the <a href="../tournament-pairing-manager/">tournament pairing manager</a> for Swiss events and brackets, and the <a href="../youth-lineup-rotator/">youth lineup rotator</a> for who plays where inside each game.</p>
     <p>Running the league committee? <a href="../meeting-action-items/">Meeting action items</a> turns your meeting notes into owned, dated action items and a follow-up email.</p>
@@ -293,7 +312,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -679,6 +698,27 @@
       record("swiss_paired");
     }));
     $("#dl-swiss").addEventListener("click", () => { if (swissOut) download("swiss-pairings.txt", swissOut, "text/plain"); });
+
+    let odOut = "";
+    $("#build-oneday").addEventListener("click", () => later(() => {
+      const out = $("#od-status");
+      const teams = parseTeams($("#teams").value).teams;
+      let tt;
+      try {
+        tt = oneDayTimetable(teams, {
+          courts: parseInt($("#od-courts").value, 10) || 1,
+          start: $("#od-start").value,
+          matchMinutes: Number($("#od-minutes").value),
+          changeoverMinutes: Number($("#od-change").value || 0),
+          double: $("#od-double").checked,
+        });
+      } catch (e) { out.textContent = e.message; return; }
+      odOut = oneDayText(tt);
+      $("#od-out").textContent = odOut;
+      out.textContent = `${tt.games} games in ${tt.slots.length} time slots on ${tt.courts} court${tt.courts === 1 ? "" : "s"}; the last game ends ${tt.finish}.`;
+      record("oneday_built");
+    }));
+    $("#dl-oneday").addEventListener("click", () => { if (odOut) download("one-day-timetable.txt", odOut, "text/plain"); });
 
     let amOut = "";
     $("#build-americano").addEventListener("click", () => later(() => {
