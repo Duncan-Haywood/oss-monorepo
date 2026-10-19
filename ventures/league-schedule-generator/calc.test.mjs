@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1690,4 +1690,36 @@ test("nextSeasonFields keeps the league, clears last season's dated inputs and m
   // the rolled fields build a clean schedule
   const spec = readSpec(r.fields);
   assert.ok(buildSchedule(spec.spec ?? spec).rounds.length > 0);
+});
+
+test("one-day timetable: every pair meets once, nobody plays twice in a slot, slots match the how-long table", () => {
+  for (let n = 3; n <= 16; n++) for (const courts of [1, 2, 3, 4]) {
+    const tt = oneDayTimetable(names(n), { courts, start: "09:00", matchMinutes: 40, changeoverMinutes: 5 });
+    const seen = new Set();
+    for (const s of tt.slots) {
+      const inSlot = new Set();
+      assert.ok(s.matches.length <= courts);
+      for (const m of s.matches) {
+        assert.ok(!inSlot.has(m.home) && !inSlot.has(m.away), `team twice in a slot n=${n}`);
+        inSlot.add(m.home); inSlot.add(m.away);
+        const key = [m.home, m.away].sort().join("-");
+        assert.ok(!seen.has(key)); seen.add(key);
+      }
+    }
+    assert.equal(seen.size, n * (n - 1) / 2);
+    const rr = roundRobin(n);
+    assert.equal(tt.slots.length, rr.reduce((s, r) => s + Math.ceil(r.matches.length / courts), 0));
+  }
+});
+
+test("one-day timetable: clock times step by match plus changeover, double doubles the games, bad input is refused", () => {
+  const tt = oneDayTimetable(["A", "B", "C", "D"], { courts: 2, start: "9am", matchMinutes: 30, changeoverMinutes: 10 });
+  assert.deepEqual(tt.slots.map((s) => s.time), ["09:00", "09:40", "10:20"]);
+  assert.equal(tt.slots[0].end, "09:30");
+  assert.equal(tt.finish, "10:50");
+  assert.equal(oneDayTimetable(names(5), { double: true }).games, 20);
+  assert.match(oneDayText(tt), /Court 2: .* v .*\nLast game ends 10:50 \(6 games, 3 time slots\)\./s);
+  assert.throws(() => oneDayTimetable(["A", "B"], {}), /three teams/);
+  assert.throws(() => oneDayTimetable(names(4), { start: "soon" }), /Start time/);
+  assert.throws(() => oneDayTimetable(names(4), { courts: 0 }), /Courts/);
 });

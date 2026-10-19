@@ -11,6 +11,8 @@ After using this, you can now **build a week's schedule that nobody has to be mo
 unfillable before the week starts, and find the people the week depends on**, which used to be an hour of spreadsheet
 shuffling on Sunday night.
 
+**Start without typing:** pick a template (café or restaurant, hair salon, retail shop, clinic front office) from "or start from a template" and the page builds a roster for an invented team straight away; replace the names and wages with yours (`TEMPLATES` in `calc.mjs`).
+
 ## Run your own team schedule (self-hosted)
 
 The browser tool builds the roster; `server.mjs` is the part that gets it to your staff. You build and publish the
@@ -34,6 +36,8 @@ zero dependencies, one JSON file on a disk you own.
 - **Staff replies** are checked with the same parser as the browser tool and capped at 200 waiting lines and 64 KB
   per request. Read them in `/admin` before merging.
 - Tests: `node --test server.test.mjs`.
+
+- **Share link:** "Copy share link" puts the whole setup (staff, wages, shifts, rules) in the URL fragment, so a co-manager opens the same setup in one click. The fragment is never sent to a server; it still shows pay, so share it only with people who may see wages.
 
 ## Model
 

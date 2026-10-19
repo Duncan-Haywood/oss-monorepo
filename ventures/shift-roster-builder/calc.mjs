@@ -1698,5 +1698,66 @@ export function sampleShifts() {
   ].join("\n");
 }
 
+// One-click starting points for the page's "Start from a template" picker. Invented teams and wages;
+// each parses cleanly and builds a roster (tested), so a first visitor sees a result without typing.
+export const TEMPLATES = {
+  cafe: { label: "Café / restaurant", staff: sampleStaff, shifts: sampleShifts },
+  salon: {
+    label: "Hair salon / barbershop",
+    staff: () => [
+      "name, wage, max hours, min hours, availability",
+      "Mia, 24, 40, 30, Tue-Sat 9-19",
+      "Noah, 22, 36, 24, Tue-Fri 9-19; Sat 8-17",
+      "Orla, 20, 32, 16, Wed-Sun 10-20",
+      "Paz, 16, 24, 8, Thu-Sat 9-19",
+      "Quin, 15, 20, 0, Sat-Sun 9-17",
+    ].join("\n"),
+    shifts: () => [
+      "day, start, end, people needed, label",
+      "Tue-Wed, 10, 18, 2, quiet days",
+      "Thu-Fri, 9, 14, 2, morning chairs",
+      "Thu-Fri, 14, 19, 2, afternoon chairs",
+      "Sat, 9, 17, 3, busy day",
+      "Sun, 10, 16, 1, front desk",
+    ].join("\n"),
+  },
+  retail: {
+    label: "Retail shop",
+    staff: () => [
+      "name, wage, max hours, min hours, availability",
+      "Ruth, 19, 40, 32, Mon-Sat 8-21",
+      "Sam, 16, 32, 20, Mon-Fri 12-21; Sat-Sun 9-18",
+      "Tess, 15, 28, 12, Tue-Sun 9-18",
+      "Uma, 15, 24, 8, Mon-Wed 16-21; Sat-Sun 9-21",
+      "Vic, 17, 40, 24, any",
+    ].join("\n"),
+    shifts: () => [
+      "day, start, end, people needed, label",
+      "Mon-Fri, 9, 15, 1, open",
+      "Mon-Fri, 15, 21, 2, close",
+      "Sat-Sun, 9, 18, 2, weekend floor",
+      "Sat, 12, 21, 1, late",
+    ].join("\n"),
+  },
+  clinic: {
+    label: "Clinic / front office",
+    staff: () => [
+      "name, wage, max hours, min hours, availability, [roles: a|b]",
+      "Wen, 34, 40, 32, Mon-Fri 7-19, roles: nurse",
+      "Xia, 33, 36, 24, Mon-Thu 7-19, roles: nurse",
+      "Yan, 21, 40, 32, Mon-Fri 7-18",
+      "Zed, 20, 30, 16, Mon-Fri 12-19; Sat 8-13",
+      "Abe, 31, 24, 0, Tue/Thu/Sat 7-19, roles: nurse",
+    ].join("\n"),
+    shifts: () => [
+      "day, start, end, people needed, label, role",
+      "Mon-Fri, 8, 13, 1, nurse am, role: nurse",
+      "Mon-Fri, 13, 18, 1, nurse pm, role: nurse",
+      "Mon-Fri, 8, 17, 1, front desk",
+      "Sat, 8, 13, 1, saturday clinic, role: nurse",
+    ].join("\n"),
+  },
+};
+
 export const _paidMinutes = paidMinutes;
 export const _internals = { buildContext, scoreOwner, ownerValid, validList, BIG };
