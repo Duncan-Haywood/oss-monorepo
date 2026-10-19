@@ -100,6 +100,12 @@ class RankTests(unittest.TestCase):
         cold = make("cold", merit=6.0)
         self.assertEqual(rank([hot, cold])[0].name, "cold")
 
+    def test_consolidated_venture_yields_to_a_live_one(self):
+        folded = make("folded", merit=7.0)
+        folded.consolidated_into = "host"
+        live = make("live", merit=6.0)
+        self.assertEqual(rank([folded, live])[0].name, "live")
+
     def test_stable_name_tiebreak(self):
         a = make("a-venture", stage="idea", mrr=None, monthly_cap=10)
         b = make("b-venture", stage="idea", mrr=None, monthly_cap=10)
