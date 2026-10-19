@@ -3498,6 +3498,11 @@
     "slug": "sensing-scan2cad",
     "title": "How accurate must a scan be to rebuild a part as parametric CAD?",
     "summary": "Synthetic point-cloud scans of an 80&times;40&times;10&nbsp;mm plate with two 8&nbsp;mm holes, fitted by RANSAC planes and circle fits. With scan noise of 0.2&nbsp;mm or less every scan gives all five dimensions within 0.2&nbsp;mm at 2&thinsp;000 points or more (worst RMS 0.09&nbsp;mm). At 0.5&nbsp;mm noise only 0&ndash;50% of scans are usable at any point count because the error is a bias: thickness reads 0.20&nbsp;mm low and the bias grows with the inlier band (&minus;0.07 to &minus;0.38&nbsp;mm for 1.5&sigma; to 4&sigma;). A scale error of 0.5% from a reconstruction with no scale reference already moves an 80&nbsp;mm length by 0.40&nbsp;mm. Stylised: one shape, assumed Gaussian noise, pre-registered scan, generated CadQuery script not run."
+   },
+   {
+    "slug": "sensing-recon",
+    "title": "How many photos does a usable 3-D reconstruction need?",
+    "summary": "Synthetic bumpy-ellipsoid object, 800 features, pinhole cameras on an orbit with known poses and linear (DLT) triangulation. On a full orbit 12 views reconstruct every feature, 8 views 89%, 6 views 59% and 4 or fewer at most 13%, because a point must be seen by two cameras. Once triangulated, error is about 0.0028 object radii per pixel of image noise, a 1&deg; pose error does the damage of about 2&nbsp;px, and a narrow baseline (5&deg; span) raises error about 7&times; against a 40&deg; span. Triangulation stage only: matches and poses are given, there is no occlusion, mesh or splat, and no real images."
    }
   ]
  },
