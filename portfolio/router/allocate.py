@@ -151,12 +151,18 @@ def count_ledger_entries(ledger_dir: Path = LEDGER_DIR) -> dict[str, int]:
     if not ledger_dir.is_dir():
         return counts
     for ledger_path in sorted(ledger_dir.glob("*.yaml")):
-        data = yaml.safe_load(ledger_path.read_text()) or {}
+        data = _load_yaml(ledger_path)
         for entry in data.get("entries") or []:
             name = entry.get("venture")
             if name:
                 counts[name] = counts.get(name, 0) + 1
     return counts
+
+
+def _load_yaml(path: Path) -> dict:
+    """safe_load, through libyaml when installed (the pure-Python parser was 35s of a 60s run)."""
+    loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+    return yaml.load(path.read_text(), Loader=loader) or {}
 
 
 def count_portfolio_mentions(
@@ -183,18 +189,24 @@ def count_portfolio_mentions(
     # "alpha-venture" inside "alpha-venture-extended" at the second hyphen.
     # Treat '-' as part of the "word" for boundary purposes instead, so a
     # slug only matches when it is not itself part of a longer slug.
+    # A slug counts when it equals a whole run of [\w-] characters in the text, which is the same
+    # test as the boundary lookarounds. One tokenise per entry replaces ~1,300 regex scans per
+    # entry (46s of a 60s run on 2026-10-19).
+    plain = {name for name in venture_names if re.fullmatch(r"[\w-]+", name)}
     patterns = {
         name: re.compile(r"(?<![\w-])" + re.escape(name) + r"(?![\w-])")
-        for name in venture_names
+        for name in venture_names if name not in plain
     }
     if not ledger_dir.is_dir():
         return counts
     for ledger_path in sorted(ledger_dir.glob("*.yaml")):
-        data = yaml.safe_load(ledger_path.read_text()) or {}
+        data = _load_yaml(ledger_path)
         for entry in data.get("entries") or []:
             if entry.get("venture") != "portfolio":
                 continue
             text = "\n".join(str(o) for o in entry.get("outcomes") or [])
+            for name in plain.intersection(re.findall(r"[\w-]+", text)):
+                counts[name] += 1
             for name, pattern in patterns.items():
                 if pattern.search(text):
                     counts[name] += 1
@@ -236,7 +248,7 @@ def load_ventures(
         yaml_path = venture_dir / "VENTURE.yaml"
         if not yaml_path.is_file():
             continue
-        data = yaml.safe_load(yaml_path.read_text()) or {}
+        data = _load_yaml(yaml_path)
         name = data.get("name", venture_dir.name)
         names.append(name)
         parsed.append((name, data))
@@ -511,7 +523,9 @@ def decisions_by_merit(ventures: list[Venture]) -> list[dict]:
     return rows
 
 
-FETCH_TIMEOUT_S = 120
+# The whole run must fit a 120s foreground tool call (run-record doc_friction, 2026-10-19: the
+# 120s fetch alone pushed allocate.py into the background with empty output).
+FETCH_TIMEOUT_S = 50
 
 
 def _history_reaches(cutoff: datetime, cwd: Path) -> bool:
@@ -519,7 +533,7 @@ def _history_reaches(cutoff: datetime, cwd: Path) -> bool:
     nothing. --shallow-since leaves the clone shallow, so without this every run refetched
     (3 min on 2026-10-19)."""
     out = subprocess.run(["git", "log", "origin/main", "--format=%ct"], capture_output=True, text=True,
-                         timeout=60, cwd=cwd).stdout.split()
+                         timeout=20, cwd=cwd).stdout.split()
     return bool(out) and int(out[-1]) <= cutoff.timestamp() + 2 * 86400
 
 
@@ -565,7 +579,7 @@ def recent_commits(days: int = 7, deepen: bool = True) -> dict[str, int]:
     try:
         out = subprocess.run(
             ["git", "log", f"--since={days}.days", "--name-only", "--format=%x00"],
-            capture_output=True, text=True, timeout=120, cwd=Path(__file__).resolve().parent,
+            capture_output=True, text=True, timeout=30, cwd=Path(__file__).resolve().parent,
         ).stdout
     except (OSError, subprocess.SubprocessError):
         return {}
@@ -655,6 +669,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         action="store_true",
         help="emit the owner-decision / merit-unblocked rollup as JSON",
     )
+    parser.add_argument("--no-deepen", action="store_true",
+                        help="skip the shallow-clone fetch; 7-day commit counts may be partial")
     args = parser.parse_args(argv)
 
     ventures = load_ventures()
@@ -666,7 +682,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(json.dumps(decisions_by_merit(ventures), indent=2))
         return 0
 
-    recent = recent_commits()
+    recent = recent_commits(deepen=not args.no_deepen)
     for v in ventures:
         v.recent_commits = recent.get(v.name, 0)
     queue = work_queue(ventures)

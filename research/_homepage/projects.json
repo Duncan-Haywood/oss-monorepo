@@ -1399,6 +1399,11 @@
      "summary": "Provably equivalent rewrites of generated adder and multiplier RTL (random wire names, shuffled statements, shuffled order of added operands; 864 scored variants, every text proved equivalent to its reference) are scored under three ABC scripts. Names and statement order never change cells&times;depth. Operand order changes one carry-select adder by up to 1.43&times; within a script, and its best variant under <code>dch</code> is 17% better than the best adder <code>chip-abc-sweep</code> reported, so that earlier best was one draw from a distribution the text controls. Five other structures are unaffected. Stylised: two designs, one Yosys version, 12 seeds, generic-gate counts, cause not yet traced."
     },
     {
+     "slug": "chip-abc-orderpass",
+     "title": "Which Yosys pass makes the operand order of a + b + constant change the synthesised adder?",
+     "summary": "A follow-up to <code>chip-abc-order</code>. All 36 operand orders of a 16-bit carry-select adder's <code>a + b + const</code> chains (each proved equivalent to the reference) are run through <code>synth</code> one pass at a time. The cell counts first diverge in <code>opt_merge</code>: when a block's two sums both start with <code>a</code> and <code>b</code>, one shared <code>a + b</code> is kept (7 adders instead of 10), which happens in 4 of 36 orders. Cells&times;depth then takes only two values per ABC script, and the shared netlist is 1.20&ndash;1.28&times; larger under <code>dch_map</code> and <code>resyn2_map</code> but 0.92&times; under Yosys's default script. Removing <code>opt_merge</code> does not remove the dependence: the spread over orders widens to 1.44&ndash;3.17&times;. Stylised: one adder, Yosys 0.33, generic-gate cells&times;depth, no place and route."
+    },
+    {
      "slug": "chip-ppa-script",
      "title": "Does a rewritten adder or multiplier still beat the reference once the ABC script is allowed to vary?",
      "summary": "A follow-up to <code>chip-abc-sweep</code> and <code>chip-ppa-loop</code>: the earlier proposer files and a 16-adder and 8-multiplier sweep are scored under five ABC scripts, and every mapped netlist is proved equivalent to its reference (none failed). For the adder the best rewrite is 0.80&ndash;0.86&times; the reference under the same script, but the reference under its best script is already 0.61&times; its default score, so much of the headline gain was the script. For the multiplier no rewrite beats <code>a * b</code> under any script; the only gain (0.90&times;) is from the script. Stylised: two designs, one Yosys version, a session-written proposer, generic-gate counts rather than layout."
@@ -3294,6 +3299,11 @@
      "summary": "Follow-up to <code>mimic-threshold</code>. The n-gram detector is fit on seven RAID families; k human texts of the eighth set its cut-off, 500 random draws per cell. Taking the empirical 95th percentile, k = 20 gives a mean false-positive rate of 9% and a 36% chance of exceeding 10%; k = 80 gives 6.1% and 10%; k = 160 gives 5.5%. A conformal rank rule holds the mean at 4.7&ndash;4.9% from k = 20 but gives up recall (0.66 against 0.79 at k = 20) and cannot flag anything below 19 calibration texts. Even at k = 80 one draw lands anywhere from 1.7% to 8.8% (10th&ndash;90th percentile). Recalibration fixes the false-accusation rate, not the detector: recipes still catches under half of machine text. Preliminary: plain-prompt RAID text, one detector, calibration from the same population as the test, no LLM run."
     },
     {
+     "slug": "mimic-batch",
+     "title": "How many texts from one source does a weak human-vs-machine text detector need before a batch verdict is reliable?",
+     "summary": "The <code>mimic-contexts</code> n-gram detector scores a held-out RAID family; a batch is k independent texts and its statistic is their mean score. One text separates people from a plainly prompted LLM at AUROC 0.935 (mean of 8 families); four all-machine texts reach 0.997 and eight reach 1.00. If only half the batch is machine, k = 8 gives 0.98; a quarter needs about 32 (0.985); at 10% machine 32 texts give only 0.82. The catch is calibration: with a threshold set on 150 human texts, the share of human batches flagged drifts from 7.4% at k = 1 to 15% on average at k = 32 (books 60%), because the batch mean's spread shrinks while the calibration error does not. Preliminary: plain-prompt text, i.i.d. batches, one detector, no LLM run."
+    },
+    {
      "slug": "mimic-twinc2st",
      "title": "Does a classifier two-sample test catch digital-twin errors that a paired trajectory error misses?",
      "summary": "A stylised pendulum with Coulomb friction and heavy-tailed (Student-t) sensor noise is the &lsquo;real&rsquo; system; twins differ in friction, noise shape or noise level. A classifier two-sample test (5-fold CV AUROC, 800 vs 800 trajectories, 3 seeds) separates real from twin trajectories with boosted trees: a friction error of 0.03 (10%) that moves the noise-free trajectory by only 0.006 rad RMSE &mdash; a quarter of the 0.02 rad noise sd &mdash; gives AUROC 0.72, and 0.91 at 20%. A twin with the right dynamics but Gaussian instead of Student-t noise of the same sd has paired error exactly 0 yet AUROC 0.92 once second-difference features are added (0.59 on raw angles). A logistic regression on raw angles stays at chance (0.51) throughout, because the start angles are symmetric. Limits: one toy system, two noise models, three seeds, a handful of classifier settings; simulated only, nothing about real hardware. Preliminary, no LLM involved: a side piece of track 11."
@@ -3394,6 +3404,11 @@
      "slug": "house-energy",
      "title": "Which envelope upgrades pay for themselves over 30 years, by climate, and does advanced framing belong in the answer?",
      "summary": "A degree-day net-present-cost search (not EnergyPlus) over 640 envelope packages of the <code>house-framing</code> house in eight US climates and two heating systems. The advanced 2x6 wall builds for $42 less than a conventional 2x4 and loses 40% less heat through the opaque wall, and is in every cost-optimal package: 13&ndash;15% lower 30-year cost than the baseline ($2,100&ndash;4,600). Past the wall the optimum is modest (attic R-30&ndash;38, 3 ACH50 air sealing, slab-edge insulation from about 3,000 degree-days); R-49 attics and better windows pay back in 23&ndash;190 years. At the assumed window prices the optimum picks U 0.50 windows, which a code floor of U 0.35 costs $440&ndash;1,270 to avoid; that result does not survive 4&times; energy prices. Stylised: every price is an assumption, climates are rounded from memory, and there is no solar gain."
+    },
+    {
+     "slug": "house-wallsystems",
+     "title": "Does any alternative to a wood-framed wall beat it on cost, carbon or heat loss for a small house?",
+     "summary": "Prices six exterior wall systems (wood 2x6, steel stud, ICF, SIPs, CLT, 3D-printed concrete) on the 927 sq ft of net wall of the <code>house-framing</code> house, then runs 20,000 Monte Carlo draws over stylised cost, carbon and R-value ranges. Wood is cheapest in 96.8% of draws, lowest in product-stage carbon in 100% and lowest in first cost plus 30-year heat-loss cost in 99.9%; ICF and SIP save only about $500 of heat-loss present value against $5,500&ndash;8,300 more first cost, and SIP would need a 39% price cut to tie. SIPs and CLT take about half the crew hours. <em>Stylised</em>: every input is a range from memory, the result largely follows from them, biogenic carbon, avoided trades and strength are not credited or compared."
     },
     {
      "slug": "house-structure",
@@ -3550,6 +3565,11 @@
     "slug": "energy-thermal",
     "title": "Can a house-sized sand heat store carry summer heat into winter, and how does its electricity use compare with a heat pump?",
     "summary": "A transient finite-volume model of a spherical sand store in mineral wool (a hot-water tank run through the same code), checked against analytic cases. A store sized to still give 10 MWh after 120 days needs 222 m<sup>3</sup> (against 70 if lossless) and returns only 26% of the electricity put in as heat, so a COP-4 heat pump wins unless its electricity costs 15&times; more, before capital cost. After a day or a week the same store returns 79% and 73%: a days-scale store at house size, seasonal only near 1,000 m<sup>3</sup> (43% left after 180 days). Stylised: assumed properties, a sphere, instant uniform charging, no pipes or ground."
+    },
+    {
+    "slug": "energy-lcos",
+    "title": "Which energy-storage technology is cheapest per MWh delivered at 1 hour, 1 day and 3 weeks?",
+    "summary": "Levelised cost of storage for lithium-ion, vanadium flow, pumped hydro, cavern compressed air and cavern hydrogen, from capital cost, round-trip efficiency, life, fade and charging power. With round assumed inputs Li-ion is cheapest to about 4 hours ($116/MWh at 4 h) and costs about 3&times; a cavern store at 24 hours ($337 vs $109); cavern hydrogen beats Li-ion above 11 hours but cavern compressed air only above 308 hours. Li-ion would need an energy cost of $43/kWh instead of $200 to win at 24 hours. The 8&ndash;10 hour winner flips with the discount rate and charging price. Stylised: every input is assumed and unsourced, caverns need geology, one fixed use pattern."
     }
    ]
   },

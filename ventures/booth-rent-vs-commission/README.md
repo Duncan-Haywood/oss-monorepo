@@ -99,14 +99,14 @@ section has earned its place.
   the optional marginal-bracket input, used only to value the deductible half
   of self-employment tax; left at 0 that offset is worth nothing, which
   understates booth rent rather than overstating it.
-- The Social Security wage base defaults to the 2025 figure and is indexed
+- The Social Security wage base defaults to the 2026 figure ($184,500) and is indexed
   every January. It is an editable input, and it is inert for any book below
   it. Additional Medicare (0.9% over $200k) is not modelled.
 - Booth insurance write-offs beyond the business costs already entered, and
   household bills, are still yours to layer on. This is a comparison tool, not
   a tax tool.
-- One book, two deals. Sliding-scale commission, house fees on top of booth
-  rent, and assistant tip-outs are not modelled as separate rows yet.
+- One book, two deals. A one-step sliding-scale commission is supported (optional step threshold, new split, and whether it applies to all sales or only those above it). House fees on top of booth
+  rent and assistant tip-outs are not modelled as separate rows yet.
 - Retail does not automatically grow when you add clients. That is
   intentional: the break-even count is appointments, not a bundled retail
   forecast.
