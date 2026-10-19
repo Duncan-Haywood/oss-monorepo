@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Draw a research track the way research/PROJECTS.md "Picking work" says.
 
-r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * 15).
+r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * 17).
 Pass a number to map a draw you already have: pick_track.py 0.11
 
 For a track it also lists that track's projects on this checkout (newest commit
@@ -17,14 +17,15 @@ from pathlib import Path
 
 PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
           "eda", "accel", "osrobot", "swe", "mimic", "house", "capture",
-          "codesign", "sensing"]
+          "codesign", "sensing", "energy", "society"]
+SATURATED = 40
 RESEARCH = Path(__file__).resolve().parents[1]
 
 
 def pick(r):
     if r < 0.05:
         return "free"
-    return min(15, 1 + math.floor((r - 0.05) / 0.95 * 15))
+    return min(17, 1 + math.floor((r - 0.05) / 0.95 * 17))
 
 
 def projects(prefix, limit=5):
@@ -50,4 +51,8 @@ if __name__ == "__main__":
             shallow = subprocess.run(["git", "rev-parse", "--is-shallow-repository"],
                                      cwd=RESEARCH, capture_output=True, text=True).stdout.strip() == "true"
             note = " (shallow clone: order is not by date; unshallow first)" if shallow else ""
+            if n >= SATURATED:
+                counts = sorted(((len(list(RESEARCH.glob(x + "-*"))), i + 1) for i, x in enumerate(PREFIX)))
+                print(f"track {t} has {n} projects (>= {SATURATED}); redrawing is fine. Fewest: "
+                      + ", ".join(f"track {i} ({c})" for c, i in counts[:3]))
             print(f"next step if milestones are done: research/{newest[0]}/README.md, 'Next steps'{note}")

@@ -408,6 +408,29 @@ drop each new one into the catch-all within a week. Two consequences:
   to "More trade bids", and `build.test.mjs` fails when anything lands there.
   The fix is a keyword; the test is how anyone finds out one is needed.
 
+### Pages by trade or business (`c/for-<who>/`)
+
+A category is filed by the job a tool does; a searcher names themselves:
+"free tools for roofers", "Etsy fee calculator", "how to price a dog grooming
+business". `audiences.mjs` lists those people (roofers, plumbers, Etsy sellers,
+landlords, food businesses, creators, farms and so on), each with a slug
+keyword rule, a title in the searcher's words, an intro, and a note for someone
+deciding whether to *start* that kind of business, since "what should I
+charge" is the first thing they search. The build writes one page per audience
+under the category prefix, so `check.mjs` holds it to the category-page
+contract (hub link, disclaimer, only shipped tools), and lists it in
+`sitemap-hub.xml`. The hub, the `c/` index and every category page link every
+audience page, and each tool's footer links the audiences that claim it ("More
+free tools for roofers →").
+
+Unlike categories, a tool may belong to several audiences, so every rule is
+tested on its own. Rules anchor on slug word boundaries where a bare keyword
+hides inside another word (`pet-` in `carpet-`, `tutor` in `statutory`);
+`audiences.test.mjs` pins those cases. An audience matching fewer than
+`MIN_AUDIENCE_TOOLS` (4) tools is not published: a "free tools for X" page
+listing two tools is a doorway page, not an answer. The root `README.md` links
+every audience page, and a test keeps that list in step with `AUDIENCES`.
+
 ### The contents index
 
 Grouping alone does not shorten the page. The hub is **36,400px — 43 screens —

@@ -1,5 +1,16 @@
 # monorepo-projects
 
+**Free, open-source tools for small businesses, freelancers and the people
+starting one**: more than 1,200 browser calculators, quoting and pricing tools,
+self-hostable business apps and command-line checks, all MIT licensed. They run
+in your browser with no account, and you can deploy your own copy to run for
+yourself, inside your own product, or as a business of your own.
+**Use them at [https://duncan-haywood.github.io/monorepo-projects/](https://duncan-haywood.github.io/monorepo-projects/).**
+
+**Free tools by trade or business:** [Roofers](https://duncan-haywood.github.io/monorepo-projects/c/for-roofers/) · [HVAC contractors](https://duncan-haywood.github.io/monorepo-projects/c/for-hvac/) · [Plumbers](https://duncan-haywood.github.io/monorepo-projects/c/for-plumbers/) · [Electricians](https://duncan-haywood.github.io/monorepo-projects/c/for-electricians/) · [Painters](https://duncan-haywood.github.io/monorepo-projects/c/for-painters/) · [Cleaning businesses](https://duncan-haywood.github.io/monorepo-projects/c/for-cleaning-businesses/) · [Landscapers](https://duncan-haywood.github.io/monorepo-projects/c/for-landscapers/) · [Pool & hot tub pros](https://duncan-haywood.github.io/monorepo-projects/c/for-pool-hot-tub/) · [Auto detailing & repair](https://duncan-haywood.github.io/monorepo-projects/c/for-auto-detailing-repair/) · [Etsy sellers](https://duncan-haywood.github.io/monorepo-projects/c/for-etsy-sellers/) · [eBay sellers](https://duncan-haywood.github.io/monorepo-projects/c/for-ebay-sellers/) · [Amazon sellers & KDP authors](https://duncan-haywood.github.io/monorepo-projects/c/for-amazon-sellers/) · [Shopify stores](https://duncan-haywood.github.io/monorepo-projects/c/for-shopify-stores/) · [Resellers](https://duncan-haywood.github.io/monorepo-projects/c/for-resellers/) · [Landlords & hosts](https://duncan-haywood.github.io/monorepo-projects/c/for-landlords/) · [Freelancers](https://duncan-haywood.github.io/monorepo-projects/c/for-freelancers/) · [Photographers & videographers](https://duncan-haywood.github.io/monorepo-projects/c/for-photographers/) · [Wedding & event pros](https://duncan-haywood.github.io/monorepo-projects/c/for-wedding-event-pros/) · [Restaurants, cafes & bars](https://duncan-haywood.github.io/monorepo-projects/c/for-restaurants-bars/) · [Pet businesses](https://duncan-haywood.github.io/monorepo-projects/c/for-pet-businesses/) · [Creators](https://duncan-haywood.github.io/monorepo-projects/c/for-creators/) · [Childcare providers](https://duncan-haywood.github.io/monorepo-projects/c/for-childcare/) · [Tutors & teachers](https://duncan-haywood.github.io/monorepo-projects/c/for-tutors-teachers/) · [Truckers & owner-operators](https://duncan-haywood.github.io/monorepo-projects/c/for-truckers/) · [Farms & homesteads](https://duncan-haywood.github.io/monorepo-projects/c/for-farms/) · [Therapists & clinics](https://duncan-haywood.github.io/monorepo-projects/c/for-health-practices/) · [Salons & beauty pros](https://duncan-haywood.github.io/monorepo-projects/c/for-salons-beauty/).
+
+## What else is here
+
 One repository for two peer portfolios, products (`ventures/`) and open
 research (`research/`), plus the shared agent platform that works on both.
 The goals for each are in [`prompts/goals.md`](prompts/goals.md).
