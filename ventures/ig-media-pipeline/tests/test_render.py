@@ -646,3 +646,124 @@ def test_pull_out_pan_and_fit_render(tmp_path, layout, focus_to):
                         focus=Point(x=0.1, y=0.5), focus_to=focus_to))
     out = render.render_reel(plan, {"a": {"kind": "photo", "path": str(img)}}, tmp_path / "r.mp4", cfg_for(tmp_path))
     _check_video(out, 30)
+
+
+# --------------------------------------------------------------------------- 360 turns and tiny planets
+
+
+def test_view_yaw_at_eases_from_yaw_to_yaw_to():
+    n = 31
+    turn = Shot(asset_id="x", duration_s=n / FPS, view_yaw_deg=120, view_yaw_to=0)
+    yaws = [render.view_yaw_at(i, n, turn) for i in range(n)]
+    assert yaws[0] == pytest.approx(120) and yaws[-1] == pytest.approx(0) and yaws[15] == pytest.approx(60)
+    assert np.all(np.diff(yaws) < 0)                                   # turns every frame...
+    assert abs(yaws[1] - yaws[0]) < abs(yaws[16] - yaws[15]) / 5         # ...eased in
+    spin = Shot(asset_id="x", duration_s=1.0, view_yaw_deg=0, view_yaw_to=270)
+    assert render.view_yaw_at(29, 30, spin) == pytest.approx(270)      # taken as written, not -90
+    hold = Shot(asset_id="x", duration_s=1.0, view_yaw_deg=40)
+    assert {render.view_yaw_at(i, 30, hold) for i in range(30)} == {40.0}
+
+
+def test_build_segment_args_360_turn_and_planet(tmp_path):
+    """A turning 360 still loops its source frame first and sends v360 an absolute yaw for every
+    frame; a tiny planet is v360's stereographic output looking straight down. A shot that holds
+    its yaw renders as before (one v360, then the loop)."""
+    cfg = cfg_for(tmp_path)
+    src = SegmentSource("photo360", "/p.jpg", 11904, 5952, projection="dfisheye", lens_fov=200)
+    n = 45
+    turn = Shot(asset_id="p", duration_s=n / FPS, view_yaw_deg=170, view_yaw_to=260)
+
+    def graph(shot, s=src):
+        a = render.build_segment_args(shot, s, tmp_path / "o.mov", cfg)
+        return a[a.index("-filter_complex") + 1]
+
+    g = graph(turn)
+    assert g.index("loop=loop=44") < g.index("sendcmd=") < g.index("v360@")
+    cmds = re.search(r"sendcmd=c='([^']*)'", g).group(1).split(";")
+    assert len(cmds) == n
+    t, target, opt, val = cmds[0].split()
+    assert (float(t), target, opt, float(val)) == (0.0, "v360@yaw0v0", "yaw", 170.0)
+    assert [float(c.split()[0]) for c in cmds[1:3]] == pytest.approx([0.5 / FPS, 1.5 / FPS], abs=1e-6)
+    assert float(cmds[-1].split()[3]) == pytest.approx(-100.0)         # 260 wrapped
+    assert "reset_rot=1" in g and "output=flat" in g
+    planet = graph(turn.model_copy(update={"view": "tiny-planet"}))
+    assert "output=sg" in planet and "pitch=-90" in planet and "reset_rot=1" in planet
+    still_planet = graph(turn.model_copy(update={"view": "tiny-planet", "view_yaw_to": None}))
+    assert "sendcmd" not in still_planet and "output=sg" in still_planet
+    hold = graph(turn.model_copy(update={"view_yaw_to": None}))
+    assert "sendcmd" not in hold and "reset_rot" not in hold
+    assert hold.index("v360=") < hold.index("loop=")
+    assert graph(turn.model_copy(update={"view_yaw_to": 170})) == hold   # a turn to where it is: holds
+    vsrc = SegmentSource("video360", "/v.insv", 3840, 3840, duration=9, video_streams=2, projection="dfisheye")
+    vg = graph(turn, vsrc)
+    assert "hstack=inputs=2" in vg and vg.index("sendcmd=") < vg.index("v360@")
+    assert render.segment_key(turn, src, cfg) != render.segment_key(turn.model_copy(update={"view_yaw_to": None}),
+                                                                      src, cfg)
+
+
+def _equirect_longitude(path: Path, w: int = 1024, h: int = 512) -> None:
+    """An equirect whose red channel is the longitude (0 at yaw -180 .. 255 at +180), green the latitude,
+    with a fine grid so every view has detail."""
+    lon = np.linspace(0, 255, w)[None, :].repeat(h, 0)
+    lat = np.linspace(0, 255, h)[:, None].repeat(w, 1)
+    img = np.stack([lon, lat, np.full((h, w), 90.0)], -1)
+    img[::32] = 255
+    img[:, ::32] = 255
+    Image.fromarray(img.astype(np.uint8)).save(path)
+
+
+def _seg_frames(path: Path, w: int = 108, h: int = 192) -> np.ndarray:
+    out = subprocess.run([FFMPEG, "-v", "error", "-i", str(path), "-vf", f"scale={w}:{h}:flags=area,format=rgb24",
+                          "-f", "rawvideo", "-"], capture_output=True, check=True).stdout
+    return np.frombuffer(out, np.uint8).reshape(-1, h, w, 3).astype(float)
+
+
+@needs_ffmpeg
+@pytest.mark.parametrize("view", ["flat", "tiny-planet"])
+def test_360_still_turn_renders_moving_frames(tmp_path, view):
+    """Regression: a 360 photo with view_yaw_to (a turn, or a tiny-planet spin) rendered one frozen
+    view for the whole shot. Every frame must now differ from the one before, and the direction
+    shown must follow the eased yaw: the red channel encodes longitude, so on the flat view the
+    centre's red follows yaw, and on the planet a point above the nadir does."""
+    pano = tmp_path / "pano.png"
+    _equirect_longitude(pano)
+    cfg = cfg_for(tmp_path, reel_work_scale=1.0, reel_autolevels=False)
+    n = 15
+    shot = Shot(asset_id="p", duration_s=n / FPS, view=view, view_yaw_deg=0, view_yaw_to=90,
+                zoom_from=1.0, zoom_to=1.0)
+    src = SegmentSource("photo360", str(pano), 1024, 512, projection="equirect")
+    seg = render.render_segment(shot, src, cfg)
+    assert render._seg_info(seg, cfg).frames == n
+    fr = _seg_frames(seg)
+    assert len(fr) == n
+    step = np.abs(np.diff(fr, axis=0)).mean(axis=(1, 2, 3))
+    assert np.all(step > 0.3), step                                     # no frozen frame
+    if view == "flat":
+        red = fr[:, 90:102, 48:60, 0].mean(axis=(1, 2))                   # the view's centre
+    else:
+        red = fr[:, 96 - 40:96 - 34, 51:57, 0].mean(axis=(1, 2))         # straight above the nadir
+    want = np.array([render.view_yaw_at(i, n, shot) for i in range(n)]) * 255 / 360
+    # longitude moves by the eased yaw (either sense: v360's planet turns the other way round)
+    got = np.abs(red - red[0])
+    assert got[-1] == pytest.approx(want[-1], abs=8), red
+    assert np.abs(got - want).max() < 10, (got, want)
+    still = render.render_segment(shot.model_copy(update={"view_yaw_to": None}), src, cfg)
+    assert np.abs(np.diff(_seg_frames(still), axis=0)).max() < 1.0      # and a hold still holds
+
+
+@needs_ffmpeg
+def test_360_video_turn_renders_moving_frames(tmp_path):
+    pano = tmp_path / "pano.png"
+    _equirect_longitude(pano)
+    clip = tmp_path / "pano.mp4"
+    subprocess.run([FFMPEG, "-v", "error", "-y", "-loop", "1", "-i", str(pano), "-t", "2", "-r", "30",
+                    "-pix_fmt", "yuv420p", "-c:v", "libx264", "-preset", "ultrafast", str(clip)], check=True)
+    cfg = cfg_for(tmp_path, reel_autolevels=False)
+    n = 15
+    shot = Shot(asset_id="v", duration_s=n / FPS, view_yaw_deg=-30, view_yaw_to=60, zoom_from=1.0)
+    src = SegmentSource("video360", str(clip), 1024, 512, duration=2.0, fps=30.0, projection="equirect")
+    fr = _seg_frames(render.render_segment(shot, src, cfg))
+    assert len(fr) == n
+    assert np.all(np.abs(np.diff(fr, axis=0)).mean(axis=(1, 2, 3)) > 0.3)
+    red = fr[:, 90:102, 48:60, 0].mean(axis=(1, 2))
+    assert abs(red[-1] - red[0]) == pytest.approx(90 * 255 / 360, abs=8)

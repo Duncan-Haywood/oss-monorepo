@@ -26,6 +26,13 @@ Per kind of shot:
             straddles it.
   photo360  Same v360 reframe of a dual-fisheye .insp (or equirect JPEG) still, then the photo
             Ken Burns move.
+360 views (both kinds): shot.view "tiny-planet" is v360's stereographic output looking straight
+  down (nadir in the middle, the horizon a circle of PLANET_HORIZON of the width). A turn
+  (shot.view_yaw_to) moves the yaw from view_yaw_deg to view_yaw_to on a smoothstep ease
+  (view_yaw_at): a still's source frame is looped first, then a sendcmd gives v360 the yaw of each
+  frame (reset_rot=1, so each command is absolute: v360's own commands otherwise accumulate) and
+  v360 rebuilds its map per frame - a turning still costs about 0.35 s a frame at the 2x work size.
+  A tiny planet's turn spins it about the nadir. Without view_yaw_to the view holds.
   sequence  Arrives as a video (the rendered timelapse / stop-motion clip) and is treated as one;
             for the fit layout or a pan the clip must keep its own aspect (not be pre-cut 9:16).
 
@@ -370,18 +377,68 @@ def _even(v: float) -> int:
     return max(2, 2 * int(math.ceil(v / 2)))
 
 
-def _v360(src: SegmentSource, yaw: float, vfov: float, w: int, h: int, zoom: float = 1.0) -> str:
-    """Rectilinear 9:16 view out of a dual-fisheye or equirect frame."""
-    vt = math.tan(math.radians(vfov) / 2) / max(1.0, zoom)
-    v = math.degrees(2 * math.atan(vt))
-    hf = math.degrees(2 * math.atan(vt * w / h))
-    yaw = ((yaw + 180.0) % 360.0) - 180.0
+PLANET_HORIZON = 0.30          # tiny planet: horizon circle radius as a share of the width (as carousels)
+
+
+def _wrap_yaw(yaw: float) -> float:
+    return ((float(yaw) + 180.0) % 360.0) - 180.0
+
+
+def _v360(src: SegmentSource, yaw: float, vfov: float, w: int, h: int, zoom: float = 1.0,
+          planet: bool = False, name: str = "") -> str:
+    """Rectilinear 9:16 view out of a dual-fisheye or equirect frame; planet: the stereographic
+    'tiny planet' (looking straight down, nadir in the middle, horizon a circle of PLANET_HORIZON
+    of the width, scaled by zoom). v360's sg output puts the view-axis angle theta at normalised
+    radius tan(theta/2) / tan(h_fov/4), so the horizon (theta 90) sits at 1 / tan(h_fov/4) of the
+    half width. name: an instance name (v360@name) for per-frame yaw commands (see _yaw_cmds)."""
+    yaw = _wrap_yaw(yaw)
     if src.projection == "dfisheye":
         inp = f"input=dfisheye:ih_fov={src.lens_fov:g}:iv_fov={src.lens_fov:g}"
     else:
         inp = "input=e"
-    return (f"v360={inp}:output=flat:h_fov={hf:.3f}:v_fov={v:.3f}:yaw={yaw:.3f}:pitch=0:roll=0"
-            f":w={w}:h={h}:interp=lanczos")
+    # reset_rot=1 makes a yaw command absolute: v360 otherwise adds each command's rotation to the
+    # last one (meant for interactive nudges), so a sweep sent per frame spun many times over
+    flt = f"v360@{name}" if name else "v360"
+    rot = ":reset_rot=1" if name else ""
+    if planet:
+        rt = 1.0 / (2 * PLANET_HORIZON * max(1.0, zoom))
+        hf = math.degrees(4 * math.atan(rt))
+        v = math.degrees(4 * math.atan(rt * h / w))
+        return (f"{flt}={inp}:output=sg:h_fov={hf:.3f}:v_fov={v:.3f}:yaw={yaw:.3f}:pitch=-90:roll=0"
+                f":w={w}:h={h}:interp=lanczos{rot}")
+    vt = math.tan(math.radians(vfov) / 2) / max(1.0, zoom)
+    v = math.degrees(2 * math.atan(vt))
+    hf = math.degrees(2 * math.atan(vt * w / h))
+    return (f"{flt}={inp}:output=flat:h_fov={hf:.3f}:v_fov={v:.3f}:yaw={yaw:.3f}:pitch=0:roll=0"
+            f":w={w}:h={h}:interp=lanczos{rot}")
+
+
+def view_yaw_at(i: int, n: int, shot: Shot) -> float:
+    """Yaw (unwrapped) a 360 shot of n frames looks at on frame i: view_yaw_deg turning to
+    view_yaw_to on a smoothstep ease-in-out (the same ease as a pan); without view_yaw_to it holds.
+    The turn is taken as written, so 0 -> 270 is three quarters of a spin, not -90."""
+    y0 = float(shot.view_yaw_deg or 0.0)
+    if shot.view_yaw_to is None or n <= 1:
+        return y0
+    p = min(1.0, max(0.0, i / (n - 1)))
+    return y0 + (float(shot.view_yaw_to) - y0) * p * p * (3 - 2 * p)
+
+
+def _turns(shot: Shot) -> bool:
+    return shot.view_yaw_to is not None and abs(float(shot.view_yaw_to) - float(shot.view_yaw_deg or 0.0)) > 1e-6
+
+
+def _v360_name(label: str) -> str:
+    return "yaw" + re.sub(r"[^0-9a-z]", "", label)
+
+
+def _yaw_cmds(shot: Shot, name: str) -> str:
+    """sendcmd that sets v360@name's yaw for every output frame (frame k at k/30 s: each command
+    half a frame early, so rounding never lands it a frame late). v360 rebuilds its map on each."""
+    n = frames_for(shot.duration_s)
+    cmds = ";".join(f"{max(0.0, (k - 0.5) / FPS):.6f} v360@{name} yaw {_wrap_yaw(view_yaw_at(k, n, shot)):.4f}"
+                    for k in range(n))
+    return f"sendcmd=c='{cmds}'"
 
 
 MIN_MOVING_ZOOM = 1.0005
@@ -595,12 +652,24 @@ def _geometry(src: SegmentSource, shot: Shot, label: str, n: int, cfg: Config,
                              _pan_filter(n if animate else 1, (cw, ch), (ww, wh), src.focus,
                                          src.focus_to, shot.zoom_from, zt),
                              f"scale={out_w}:{out_h}:flags=lanczos"])
-        if src.kind == "photo360":
-            yaw = shot.view_yaw_deg or 0.0
-            first, focus = _v360(src, yaw, st["vfov"], ww, wh), (0.5, 0.5)
+        loop = [f"loop=loop={n - 1}:size=1:start=0", "settb=1/30", "setpts=N"]
+        planet = src.kind == "photo360" and shot.view == "tiny-planet"
+        if src.kind == "photo360" and animate and _turns(shot):
+            # the view turns: loop the source frame, then v360 per frame with its yaw sent per frame
+            name = _v360_name(label)
+            parts = [label + loop[0], *loop[1:], _yaw_cmds(shot, name),
+                     _v360(src, view_yaw_at(0, frames_for(shot.duration_s), shot), st["vfov"], ww, wh,
+                           planet=planet, name=name)]
+            focus = (0.5, 0.5)
         else:
-            first, focus = f"scale={ww}:{wh}:flags=lanczos", src.focus
-        parts = [f"{label}{first}", f"loop=loop={n - 1}:size=1:start=0", "settb=1/30", "setpts=N"]
+            if src.kind == "photo360":
+                # a still view; analysis (animate False) looks where the turn is half way
+                m = frames_for(shot.duration_s)
+                yaw = view_yaw_at((m - 1) / 2, m, shot) if not animate else (shot.view_yaw_deg or 0.0)
+                first, focus = _v360(src, yaw, st["vfov"], ww, wh, planet=planet), (0.5, 0.5)
+            else:
+                first, focus = f"scale={ww}:{wh}:flags=lanczos", src.focus
+            parts = [f"{label}{first}", *loop]
         kb = _kenburns_filter(n if animate else 1, ww, wh, focus, shot.zoom_from,
                               shot.zoom_to if animate else shot.zoom_from)
         if kb:
@@ -609,10 +678,17 @@ def _geometry(src: SegmentSource, shot: Shot, label: str, n: int, cfg: Config,
         return ",".join(parts)
 
     if src.kind == "video360":
-        yaw = shot.view_yaw_deg or 0.0
         stack = label if src.video_streams < 2 else f"{label}hstack=inputs=2,"
+        planet = shot.view == "tiny-planet"
+        m = frames_for(shot.duration_s)
+        if animate and _turns(shot):
+            name = _v360_name(label)
+            return (f"{stack}{head},{_yaw_cmds(shot, name)},"
+                    + _v360(src, view_yaw_at(0, m, shot), st["vfov"], out_w, out_h, shot.zoom_from,
+                            planet=planet, name=name))
+        yaw = view_yaw_at((m - 1) / 2, m, shot) if not animate else (shot.view_yaw_deg or 0.0)
         return (f"{stack}{head},"
-                + _v360(src, yaw, st["vfov"], out_w, out_h, shot.zoom_from))
+                + _v360(src, yaw, st["vfov"], out_w, out_h, shot.zoom_from, planet=planet))
 
     # flat video: cover the frame, crop around the focus
     sw, sh = max(src.width, 2), max(src.height, 2)
@@ -1261,7 +1337,7 @@ def _file_loudness(path: Path, cfg: Config) -> tuple[float, float]:
 # --------------------------------------------------------------------------- segments
 
 
-RENDER_VERSION = "2"            # in every cache key: bump when segment or transition output changes
+RENDER_VERSION = "3"            # in every cache key: bump when segment or transition output changes
 GRID_SLACK_S = 0.0001          # sped-up/slowed source times count as on the output frame grid this close
 REAL_FRAMES_FPS = 29.5          # slow motion shows the source's own frames while it plays this many fps
 STILL_KINDS = ("photo", "photo360")

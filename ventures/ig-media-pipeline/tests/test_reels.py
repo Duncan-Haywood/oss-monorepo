@@ -91,12 +91,13 @@ def test_reel_lengths_per_class(tmp_path):
 
 def test_mix_scales_with_keepers_and_material():
     m = reels.Mix()
-    assert [m.count("short", n) for n in (3, 4, 8, 16, 24, 200)] == [0, 1, 1, 2, 3, 4]
+    assert [m.count("short", n) for n in (3, 4, 7, 8, 16, 24, 200)] == [0, 0, 0, 1, 2, 3, 4]   # a short needs 8
     assert [m.count("medium", n) for n in (15, 16, 59, 60)] == [0, 1, 1, 2]
     assert [m.count("long", n) for n in (15, 39, 40)] == [0, 0, 1]
     asked = reels.Mix(short=3, medium=1, long=1)
     assert asked.count("long", 15) == 0                   # no long reel from 15 keepers
-    assert asked.count("short", 6) == 1                   # one short per 4 keepers at most
+    assert asked.count("short", 10) == 2                  # one short per 4 keepers at most
+    assert asked.count("short", 6) == 0                   # below the short gate: repeats, not a reel
     assert asked.count("medium", 30) == 1 and asked.count("short", 30) == 3
     assert reels.Mix.parse("short=2,medium=0,long=auto") == reels.Mix(short=2, medium=0, long=None)
     assert reels.Mix.parse("3,1,1,variants=0") == reels.Mix(short=3, medium=1, long=1, variants=False)
@@ -119,17 +120,33 @@ def test_plan_jobs_one_creative_unit_per_event():
     pool = {"2026-10-01_Mesa": [None] * 50, "2026-10-02_Mesa": [None] * 20, "2026-10-08_Harbor": [None] * 45}
     units = reels.plan_jobs(pool, reels.Mix())
     names = [[j.name for j in u] for u in units]
+    # richest first: the 70-keeper trip, then the 50, 45 and 20 keeper events
+    assert [u[0].group for u in units] == ["2026-10-01..10-02_Mesa", "2026-10-01_Mesa", "2026-10-08_Harbor",
+                                           "2026-10-02_Mesa"]
     # a single-day event is its own trip: its long reel is the main edit of its unit
     assert names[2] == ["2026-10-08_Harbor__long-01", "2026-10-08_Harbor__medium-01", "2026-10-08_Harbor__short-01",
                         "2026-10-08_Harbor__short-01b", "2026-10-08_Harbor__short-02",
                         "2026-10-08_Harbor__short-03", "2026-10-08_Harbor__short-04"]
-    assert names[0][0] == "2026-10-01_Mesa__medium-01"
+    assert names[1][0] == "2026-10-01_Mesa__medium-01"
     # consecutive days at one place: one recap of the trip
-    assert names[-1] == ["2026-10-01..10-02_Mesa__long-01"]
-    assert units[-1][0].events == ("2026-10-01_Mesa", "2026-10-02_Mesa")
+    assert names[0] == ["2026-10-01..10-02_Mesa__long-01"]
+    assert units[0][0].events == ("2026-10-01_Mesa", "2026-10-02_Mesa")
     assert all(j.name.endswith("b") is bool(j.variant) for u in units for j in u)
     no_b = reels.plan_jobs(pool, reels.Mix(variants=False))
     assert not any(j.variant for u in no_b for j in u)
+
+
+def test_plan_jobs_gates_thin_events_and_their_b_versions():
+    pool = {"2026-03-26_Courtyard": [None] * 6, "2026-03-27_Rome": [None] * 9, "2026-04-02_Dunes": [None] * 12,
+            "2026-04-09_Wedding": [None] * 11}
+    names = [j.name for u in reels.plan_jobs(pool, reels.Mix()) for j in u]
+    assert not any(n.startswith("2026-03-26_Courtyard") for n in names)     # 6 keepers: no short at all
+    assert "2026-03-27_Rome__short-01" in names and "2026-03-27_Rome__short-01b" not in names
+    assert "2026-04-09_Wedding__short-01b" not in names                      # 11: one short, no B
+    assert "2026-04-02_Dunes__short-01b" in names                            # 12: room for a B version
+    # richest first, so the thin events wait at the back
+    assert list(dict.fromkeys(n.split("__")[0] for n in names)) == ["2026-04-02_Dunes", "2026-04-09_Wedding",
+                                                                    "2026-03-27_Rome"]
 
 
 def _a(i, minute=0, day=3, kind="photo", event="", duration=None):
@@ -348,7 +365,7 @@ class FakeJudge:
 
 @pytest.fixture
 def stage(tmp_path, monkeypatch):
-    """A store with one 45-keeper event and one 6-keeper event (a wedding), fake renders."""
+    """A store with one 45-keeper event and one 8-keeper event (a wedding), fake renders."""
     thumb = tmp_path / "thumb.jpg"
     Image.new("RGB", (96, 64), (90, 120, 150)).save(thumb)
     renders = []
@@ -372,7 +389,7 @@ def stage(tmp_path, monkeypatch):
                   taken_at=datetime(2026, 10, 3, 9) + timedelta(minutes=7 * i))
         assets.append(a)
         store.put("scores", a.id, _score(9 - i / 10))
-    for i in range(6):
+    for i in range(8):
         a = Asset(id=f"w{i}", kind="photo", files=[], preview=str(thumb), location="Harbor", event="Wedding",
                   taken_at=datetime(2026, 10, 5, 15) + timedelta(minutes=i))
         assets.append(a)
@@ -385,13 +402,13 @@ def test_build_all_one_story_call_per_event_saves_everything_and_routes(stage):
     judge = FakeJudge()
     made = reels.build_all(c, store, judge, assets)
     stories = [k for k in judge.keys if k.startswith(("bundle:", "story:"))]
-    assert stories == ["bundle:2026-10-03_Mesa", "bundle:2026-10-05_Harbor_Wedding"]   # one creative pass each
+    assert stories == ["bundle:2026-10-03_Mesa", "story:2026-10-05_Harbor_Wedding"]    # one creative pass each
     names = sorted(k for k, _ in store.all("reels"))
     mesa = [n for n in names if n.startswith("2026-10-03_Mesa__")]
     assert mesa == ["2026-10-03_Mesa__long-01", "2026-10-03_Mesa__medium-01", "2026-10-03_Mesa__short-01",
                     "2026-10-03_Mesa__short-01b", "2026-10-03_Mesa__short-02", "2026-10-03_Mesa__short-03",
                     "2026-10-03_Mesa__short-04"]
-    assert made == len(names) == 9
+    assert made == len(names) == 8
     assert {k for k, _ in store.all("reel_plans")} == set(names)          # every plan saved as it came
     assert all(store.get("reel_rounds", f"{n}#00")["outcome"] == "ship" for n in names)
     out = c.output_dir / "reels"
@@ -399,16 +416,16 @@ def test_build_all_one_story_call_per_event_saves_everything_and_routes(stage):
         ev = out / "2026-10-03_Mesa"
         assert (ev / f"{n}.mp4").exists() and (ev / f"{n}.caption.txt").exists() and (ev / f"{n}.jpg").exists()
     assert sorted(p.name for p in (out / "_review" / "2026-10-05_Harbor_Wedding").glob("*.mp4")) == [
-        "2026-10-05_Harbor_Wedding__short-01.mp4", "2026-10-05_Harbor_Wedding__short-01b.mp4"]
+        "2026-10-05_Harbor_Wedding__short-01.mp4"]                       # 8 keepers: no B version
     rec = store.get("reels", "2026-10-03_Mesa__short-01b")
     assert rec["trial_of"] == "2026-10-03_Mesa__short-01" and rec["status"] == "shipped"
     openings = [store.get("reels", f"2026-10-03_Mesa__short-0{i}")["plan"]["shots"][0]["asset_id"] for i in (1, 2, 3)]
     assert len(set(openings)) == 3                       # every short has its own hook
     # drafts for the critic, then a final render of each shipped reel
-    assert sum(1 for *_, d in renders if d) == sum(1 for *_, d in renders if not d) == 9
+    assert sum(1 for *_, d in renders if d) == sum(1 for *_, d in renders if not d) == 8
     # ready/: the queue
     rows = list(csv.DictReader((c.output_dir / "ready" / "index.csv").open()))
-    assert len(rows) == 9 and (c.output_dir / "ready" / "index.jpg").exists()
+    assert len(rows) == 8 and (c.output_dir / "ready" / "index.jpg").exists()
     assert {r["status"] for r in rows if "Wedding" in r["event"]} == {"review"}
     # a second run has nothing left to pay for
     judge2 = FakeJudge()
@@ -479,6 +496,91 @@ def test_failed_checks_go_back_for_a_fix_without_a_critic_call(stage, monkeypatc
     r0 = store.get("reel_rounds", f"{name}#00")
     assert r0["stage"] == "render" and r0["qc"] == ["hook_motion: nothing moves"] and "critique" not in r0
     assert store.get("reels", name)["status"] == "shipped"
+
+
+class OpeningJudge(FakeJudge):
+    """The critic's first revision opens on a21 (a shot the story never opened on); the fix pass, like
+    the real one did, puts the story's old opener back first."""
+
+    def __init__(self, verdicts):
+        super().__init__(verdicts)
+        self.critic_prompts: list[str] = []
+
+    def judge(self, task):
+        out = super().judge(task)
+        if task.output.__name__ == "Critique":
+            self.critic_prompts.append(task.instructions)
+            if out.revised is not None:
+                shots = [Shot(asset_id="a21", duration_s=1.0, start_s=0.0)] + [
+                    s for s in out.revised.shots if s.asset_id != "a21"][:7]
+                out = out.model_copy(update={"revised": out.revised.model_copy(update={"shots": shots})})
+        elif task.key.startswith("fix:"):
+            out = out.model_copy(update={"shots": [Shot(asset_id="a1", duration_s=1.0)] + [
+                s for s in out.shots if s.asset_id not in ("a1", "a21")][:7]})
+        return out
+
+
+def _opening_stage(stage, monkeypatch, reports):
+    c, store, assets, _ = stage
+    rendered = []
+
+    def fake_render(plan, sources, out, cfg, music=None, draft=False):
+        rendered.append(plan.shots[0])
+        Path(out).write_bytes(b"mp4")
+        return Path(out)
+    monkeypatch.setattr(reels.render, "render_reel", fake_render)
+
+    class Report:
+        def __init__(self, ok):
+            self.failures = [] if ok else [type("F", (), {"rule": "hook_motion", "detail": "nothing moves"})()]
+            self.warnings = []
+
+        def summary_for_llm(self):
+            return "Reel QC FAILED\n- FAIL hook_motion: nothing moves"
+
+    class QC:
+        @staticmethod
+        def check_plan(plan, kinds=None):
+            return []
+
+        @staticmethod
+        def check_reel(path, cfg, band=None, **kw):
+            return Report(reports.pop(0) if reports else True)
+
+        @staticmethod
+        def findings_for_llm(findings):
+            return ""
+    monkeypatch.setattr(reels, "_qc", lambda: QC)
+    return c, store, assets, rendered
+
+
+def test_the_critics_revised_opening_is_what_renders_next(stage, monkeypatch):
+    c, store, assets, rendered = _opening_stage(stage, monkeypatch, [True, True])
+    judge = OpeningJudge(["revise", "ship"])
+    reels.build_all(c, store, judge, assets, mix=reels.Mix(short=1, medium=0, long=0, variants=False), only="Mesa")
+    name = "2026-10-03_Mesa__short-01"
+    r0 = store.get("reel_rounds", f"{name}#00")
+    assert r0["plan"]["shots"][0]["asset_id"] != "a21" and r0["next_plan"]["shots"][0]["asset_id"] == "a21"
+    assert rendered[1].asset_id == "a21"                       # round 1 renders the critic's opener
+    assert store.get("reel_rounds", f"{name}#01")["plan"]["shots"][0]["asset_id"] == "a21"
+    assert store.get("reels", name)["status"] == "shipped"
+
+
+def test_a_fix_pass_cannot_undo_the_critics_opening_and_the_critic_is_told(stage, monkeypatch):
+    # round 1 renders the critic's opener, the hook check finds it too still, the fix pass reaches for
+    # the old opener: the critic's shot stays first, with a move added, and the critic hears why
+    c, store, assets, rendered = _opening_stage(stage, monkeypatch, [True, False, True])
+    judge = OpeningJudge(["revise", "ship"])
+    reels.build_all(c, store, judge, assets, mix=reels.Mix(short=1, medium=0, long=0, variants=False), only="Mesa")
+    name = "2026-10-03_Mesa__short-01"
+    r1 = store.get("reel_rounds", f"{name}#01")
+    assert r1["stage"] == "render" and r1["outcome"] == "revise"
+    assert r1["next_plan"]["shots"][0]["asset_id"] == "a21"
+    assert [s.asset_id for s in rendered[:3]] == [rendered[0].asset_id, "a21", "a21"]
+    assert reels._moves(rendered[2])                           # it moves now
+    assert any("put back first" in t for t in r1["told"]) and any("pan/push" in t for t in r1["told"])
+    assert "Since your last critique" in judge.critic_prompts[1] and "id=a21" in judge.critic_prompts[1]
+    assert "Since your last critique" not in judge.critic_prompts[0]
 
 
 def test_no_music_library_never_ships_and_waits_for_music(stage, monkeypatch):
@@ -583,7 +685,7 @@ def test_real_render_end_to_end(tmp_path, monkeypatch):
                extra={"music": "none", "reel_preset": "ultrafast", "reel_hwaccel": False, "reel_work_scale": 1.0})
     store = Store(c.db_path)
     assets = []
-    for i in range(6):
+    for i in range(8):                                   # a short needs 8 keepers
         img = (rng.random((360, 540, 3)) * 60 + np.array([40 * i, 120, 200 - 30 * i])).clip(0, 255).astype(np.uint8)
         p = tmp_path / f"p{i}.jpg"
         Image.fromarray(img).save(p, quality=90)
@@ -619,3 +721,17 @@ def test_insta360_stills_reach_ffmpeg_as_jpg(tmp_path):
     a = Asset(id="i", kind="photo360", files=[str(src)], preview=str(src))
     path = Path(reels.source_for(a, Store(c.db_path), c)["path"])
     assert path.suffix == ".jpg" and path.resolve() == src.resolve()
+
+
+def test_finished_reel_moves_across_drives(tmp_path, monkeypatch):
+    import errno as _errno
+    src, dst = tmp_path / "work" / "final.mp4", tmp_path / "out" / "x.mp4"
+    src.parent.mkdir(); dst.parent.mkdir(); src.write_bytes(b"video")
+    real = reels.os.replace
+    def no_cross(a, b):                      # the first rename is the cross-drive one
+        if Path(a) == src:
+            raise OSError(_errno.EXDEV, "Cross-device link")
+        return real(a, b)
+    monkeypatch.setattr(reels.os, "replace", no_cross)
+    reels._move_across(src, dst)
+    assert dst.read_bytes() == b"video" and not src.exists() and not list(dst.parent.glob(".*"))

@@ -20,13 +20,17 @@ Each reel is a store row keyed <name>, so a stopped run resumes where it left of
 """
 from __future__ import annotations
 
+import errno
 import hashlib
 import inspect
 import logging
 import math
+import os
 import re
+import shutil
 import threading
 import time
+import uuid
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -63,8 +67,10 @@ NIGHT = re.compile(r"night|astro|star|milky|aurora|dark", re.I)
 SHOTS = {"short": "8-16", "medium": "15-35", "long": "30-80"}
 
 # How many reels of a class the material allows: at least GATE keepers, and one reel per
-# PER_REEL keepers at most (a short needs ~8 shots, a medium ~20, a long ~45; overlap is fine)
-GATE = {"short": MIN_KEEPERS, "medium": 12, "long": 30}
+# PER_REEL keepers at most (a short needs ~8 shots, a medium ~20, a long ~45; overlap is fine). A short
+# needs 8 distinct keepers: from fewer, its 8-16 shots repeat assets and the critic fails it every round.
+GATE = {"short": 8, "medium": 12, "long": 30}
+VARIANT_MIN_KEEPERS = 12   # the B version of short-01 only where the event can fill two different shorts
 PER_REEL = {"short": 4, "medium": 12, "long": 30}
 
 
@@ -288,8 +294,9 @@ def plan_jobs(pool: dict[str, list], mix: Mix) -> list[list[Job]]:
     """The reels to make, as independent units of work, each planned by one story pass (the main
     edit first, then the cut-downs derived from it): per event its long reel when the event is a
     trip of its own, its mediums, its shorts (the first one's B version right after it); per
-    multi-day trip its long reels."""
-    units: list[list[Job]] = []
+    multi-day trip its long reels. Units come richest first (most keepers, then by key), so the
+    events with the most material are made before the thin ones."""
+    ranked: list[tuple[int, str, list[Job]]] = []
     trips = trip_groups(list(pool))
     for key in sorted(pool):
         n, unit = len(pool[key]), []
@@ -298,18 +305,18 @@ def plan_jobs(pool: dict[str, list], mix: Mix) -> list[list[Job]]:
         unit += [Job(key, "medium", i, events=(key,)) for i in range(1, mix.count("medium", n) + 1)]
         for i in range(1, mix.count("short", n) + 1):
             unit.append(Job(key, "short", i, events=(key,)))
-            if i == 1 and mix.variants:
+            if i == 1 and mix.variants and n >= VARIANT_MIN_KEEPERS:
                 unit.append(Job(key, "short", 1, "b", events=(key,)))
         if unit:
-            units.append(unit)
+            ranked.append((n, key, unit))
     for trip, events in sorted(trips.items()):
         if events == [trip]:
             continue
         n = sum(len(pool[e]) for e in events)
         longs = [Job(trip, "long", i, events=tuple(events)) for i in range(1, mix.count("long", n) + 1)]
         if longs:
-            units.append(longs)
-    return units
+            ranked.append((n, trip, longs))
+    return [u for _, _, u in sorted(ranked, key=lambda r: (-r[0], r[1]))]
 
 
 # --------------------------------------------------------------------------- what the story pass sees
@@ -352,6 +359,21 @@ def source_for(a: Asset, store: Store, cfg: Config | None = None, shot: Shot | N
     if a.kind in ("video", "video360"):
         return {"kind": a.kind, "path": a.preview}
     return {"kind": a.kind, "path": _ffmpeg_readable(a.preview or a.raw, cfg)}
+
+
+def _move_across(src: Path, dst: Path) -> None:
+    """Move a finished file into place, also from the state disk to an output drive: a rename
+    cannot cross drives (EXDEV), so it is copied next to its destination and renamed there, which
+    keeps the arrival atomic."""
+    try:
+        os.replace(src, dst)
+    except OSError as e:
+        if e.errno != errno.EXDEV:
+            raise
+        tmp = dst.with_name(f".{dst.name}.{uuid.uuid4().hex[:8]}")
+        shutil.copyfile(src, tmp)
+        os.replace(tmp, dst)
+        src.unlink(missing_ok=True)
 
 
 def _ffmpeg_readable(path: str | None, cfg: Config | None) -> str | None:
@@ -1116,7 +1138,7 @@ def critic_task(key: str, plan: ReelPlan, hook: Path, contact: Path, options: st
                 music_note: str = "", earlier: list[str] | None = None, *, extra_images: list[Path] | None = None,
                 issues: list[str] | None = None, openings: list[str] | None = None,
                 band: tuple[float, float] | None = None, measured: str = "",
-                transitions: list | None = None) -> JudgeTask:
+                transitions: list | None = None, changes: list[str] | None = None) -> JudgeTask:
     cls = plan.length_class
     memory = ""
     if earlier:
@@ -1138,6 +1160,11 @@ def critic_task(key: str, plan: ReelPlan, hook: Path, contact: Path, options: st
                  "with a revised plan that fixes every one.\n\n")
     if measured:
         facts += ("Automatic measurements of this render (warnings, for your judgment):\n" + measured + "\n\n")
+    if changes:
+        facts += ("Since your last critique, your revised plan was changed before this render (hard rules and "
+                  "automatic-check fixes, not a choice to ignore you):\n" + "\n".join(f"- {c}" for c in changes)
+                  + "\nJudge this render with that in mind; if a change undid something you need, say so and "
+                  "ask for it again in a way the rules allow.\n\n")
     if transitions:
         named = [f"cut {i + 1} at {(_starts(plan)[i + 1]) / render.FPS:.2f}s: {k}"
                  for i, (k, _) in enumerate(cut_list(plan, transitions)) if k != "cut" and i + 1 < len(plan.shots)]
@@ -1593,7 +1620,7 @@ WIPE_S = 0.8
 
 
 def choose_transitions(plan: ReelPlan, sources: dict, ctx: Context, cfg: Config, judge: Backend,
-                       track: music.Track | None, name: str, work: Path) -> list[dict] | None:
+                       track: music.Track | None, name: str, work: Path, critic_notes: str = "") -> list[dict] | None:
     """The transition at every cut, chosen by the transition director (direction.direct: one Claude
     call for the whole reel) from measurements of the rendered draft segments; the story's own
     before/after wipes stay. None when the renderer has no segment pipeline (the plan's own
@@ -1616,7 +1643,12 @@ def choose_transitions(plan: ReelPlan, sources: dict, ctx: Context, cfg: Config,
         cuts = [c.model_copy(update={"chapter": ch}) for c, ch in zip(cuts, _chapters(plan, ctx.valid))]
         sheet = direction.boundary_sheet(segments, work / "cuts.jpg", cfg)
         seconds = sum(render.frames_for(s.duration_s) for s in plan.shots) / render.FPS
-        chosen = direction.direct(cuts, feats, judge, key=name, reel_seconds=seconds,
+        style = None
+        if critic_notes:                                # the critic's transition calls are the director's brief too
+            style = (direction.guide_text() + "\n\nThe reel's critic, on the previous render (follow its calls on "
+                     "transitions, such as which cut carries a zoom-through and in which direction):\n"
+                     + critic_notes + "\n")
+        chosen = direction.direct(cuts, feats, judge, style, key=name, reel_seconds=seconds,
                                   beat_s=info.beat_s if info is not None else None, sheet=sheet, cfg=cfg)
     except Exception as e:                              # the plan's own transitions still render
         log.warning("reel %s: transition direction failed (%s); using the plan's transitions", name, e)
@@ -1628,6 +1660,33 @@ def choose_transitions(plan: ReelPlan, sources: dict, ctx: Context, cfg: Config,
         else:
             out.append(t.model_dump(mode="json") if hasattr(t, "model_dump") else dict(t))
     return out
+
+
+def _keep_opening(p: ReelPlan, want: Shot) -> ReelPlan:
+    """The critic's opening shot back at the front of a fix pass's plan: the fix answers measured
+    faults, and which shot opens is the critic's call (its own shot when the fix dropped it)."""
+    if p.shots and p.shots[0].asset_id == want.asset_id:
+        return p
+    shots = list(p.shots)
+    i = next((k for k, s in enumerate(shots) if s.asset_id == want.asset_id), None)
+    first = shots.pop(i) if i is not None else want
+    return p.model_copy(update={"shots": [first, *shots]})
+
+
+def _push_opening(p: ReelPlan, valid: dict[str, Asset], aspects=None) -> ReelPlan:
+    """A measured-still opening: a pan (or a stronger push) across the shot's own frame, so the
+    opener the critic chose keeps its place and the first second moves."""
+    if not p.shots:
+        return p
+    s = p.shots[0]
+    a = valid.get(base_id(s.asset_id))
+    kind = a.kind if a is not None else "photo"
+    moved = _make_opening_move(s, kind, (aspects or {}).get(s.asset_id))
+    return p.model_copy(update={"shots": [moved, *p.shots[1:]]})
+
+
+def _ids(p: ReelPlan) -> list[str]:
+    return [s.asset_id for s in p.shots]
 
 
 def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: Backend, length_class: str,
@@ -1656,8 +1715,32 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
             p = p.model_copy(update={"music": track_from.music})     # keep the track
         return snap(p, cfg, ctx.valid, tracks, aspects=ctx.aspects, editable=ctx.editable)
 
-    def fix(p: ReelPlan, facts: str) -> ReelPlan:
-        return settle(judge.judge(fix_task(name, p, facts, ctx.opts, cfg, ctx.sheets, ctx.notes)), p)
+    # The critic's latest revision as it asked for it (its opening shot), and what the critic must hear
+    # about changes made to that revision before the next render (hard rules, automatic-check fixes).
+    asked: Shot | None = None
+    told: list[str] = []
+
+    def fix(p: ReelPlan, facts: str, fails: list[str]) -> ReelPlan:
+        hold = asked if (asked is not None and asked.asset_id in ctx.valid and asked.asset_id not in set(taken)) else None
+        if hold is not None:
+            facts += (f"\nThe critic chose shot 1 (id={hold.asset_id}) in its last revision. Keep it as the opening "
+                      "shot and fix the problems another way (a pan or a stronger push on it, or a cut inside the "
+                      "first second).")
+        raw = judge.judge(fix_task(name, p, facts, ctx.opts, cfg, ctx.sheets, ctx.notes))
+        what = [f"the automatic checks failed ({'; '.join(fails)}) and a fix pass revised the plan"]
+        if hold is not None and raw.shots and raw.shots[0].asset_id != hold.asset_id:
+            what.append(f"the fix pass tried to open on id={raw.shots[0].asset_id}; your opening shot "
+                        f"(id={hold.asset_id}) was put back first")
+            raw = _keep_opening(raw, hold)
+        new = settle(raw, p)
+        if (hold is not None and new.shots and new.shots[0].asset_id == hold.asset_id
+                and any(f.startswith("hook_motion") for f in fails)):
+            new = _push_opening(new, ctx.valid, ctx.aspects)
+            what.append(f"your opening shot (id={hold.asset_id}) measured too still in the first second, so it "
+                        "keeps its place with a pan/push added across its frame")
+        if hold is not None:
+            told.extend(what)
+        return new
 
     # resume: a stopped run continues at its next round with the plan that round was given
     rounds = load_rounds(store, name)
@@ -1667,6 +1750,13 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
     history = [r["critique"] for r in rounds if r.get("critique")]
     checks = [{"round": r["round"], "stage": r.get("stage"), "fails": r.get("qc", [])} for r in rounds if r.get("qc")]
     shipped, reason, transitions, done = False, None, None, False
+    asked_at = max((i for i, r in enumerate(rounds) if r.get("stage") == "critic" and r.get("next_plan")),
+                   default=None)
+    if asked_at is not None:                            # resume: the critic's ask and what it has not heard yet
+        rec = rounds[asked_at]
+        asked = (Shot.model_validate(rec["asked"]) if rec.get("asked")
+                 else ReelPlan.model_validate(rec["next_plan"]).shots[0])
+        told = [t for r in rounds[asked_at:] for t in r.get("told", [])]
     if rounds:
         last = rounds[-1]
         transitions = last.get("transitions")
@@ -1687,15 +1777,17 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
         final_round = round_ == CRITIC_ROUNDS
         fails, facts = plan_problems(plan, ctx.valid, taken)
         if fails and not final_round:
-            new = fix(plan, facts)
+            before = len(told)
+            new = fix(plan, facts, fails)
             save_round(store, name, round_, stage="plan", plan=plan.model_dump(mode="json"), qc=fails,
-                       outcome="revise", next_plan=new.model_dump(mode="json"))
+                       outcome="revise", next_plan=new.model_dump(mode="json"), told=told[before:])
             checks.append({"round": round_, "stage": "plan", "fails": fails})
             plan, round_ = new, round_ + 1
             continue
         sources, as_rendered = render_inputs(plan, ctx.valid, store, cfg)
         track = tracks.get(plan.music.track_id) if plan.music else None
-        transitions = choose_transitions(as_rendered, sources, ctx, cfg, judge, track, name, work)
+        transitions = choose_transitions(as_rendered, sources, ctx, cfg, judge, track, name, work,
+                                         critic_notes=history[-1].get("notes", "") if history else "")
         rendered = _render(as_rendered, sources, video, cfg, tracks, draft=True, transitions=transitions)
         rendered_now = True
         plan = plan.model_copy(update={"music": rendered.music})
@@ -1714,9 +1806,10 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
                            transitions=transitions, qc=rfails, outcome="stop", reason=reason)
                 break
             text = "\n".join(x for x in (facts, report.summary_for_llm() if report is not None else "") if x)
-            new = fix(plan, text)
+            before = len(told)
+            new = fix(plan, text, rfails)
             save_round(store, name, round_, stage="render", plan=plan.model_dump(mode="json"), transitions=transitions,
-                       qc=rfails, outcome="revise", next_plan=new.model_dump(mode="json"))
+                       qc=rfails, outcome="revise", next_plan=new.model_dump(mode="json"), told=told[before:])
             plan, round_ = new, round_ + 1
             continue
         qc = _qc()
@@ -1725,7 +1818,8 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
         verdict = judge.judge(critic_task(
             name, plan, images[0], images[1], listing(ctx.opts, cfg, ctx.notes), music_note(plan, tracks, cfg),
             [h["notes"] for h in history], extra_images=images[2:], openings=openings, band=(lo, hi),
-            measured=measured, transitions=transitions))
+            measured=measured, transitions=transitions, changes=told))
+        told = []
         history.append(verdict.model_dump(mode="json"))
         common = {"plan": plan.model_dump(mode="json"), "transitions": transitions,
                   "critique": verdict.model_dump(mode="json")}
@@ -1738,8 +1832,16 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
             save_round(store, name, round_, stage="critic", outcome="stop", reason=reason, **common)
             break
         new = settle(verdict.revised, plan)
+        want = [i for i in _ids(verdict.revised) if i in ctx.valid]
+        asked = next((s for s in verdict.revised.shots if s.asset_id in ctx.valid), new.shots[0])
+        if _ids(new)[:1] != want[:1]:
+            told.append(f"you asked to open on id={want[0] if want else '?'}; the hard rules open on "
+                        f"id={new.shots[0].asset_id} (that shot could not be used as planned)")
+        elif _ids(new) != want:
+            told.append(f"the hard rules (known ids, before/after needs an edit, the length cap) changed your shot "
+                        f"list from {want} to {_ids(new)}")
         save_round(store, name, round_, stage="critic", outcome="revise", next_plan=new.model_dump(mode="json"),
-                   **common)
+                   asked=asked.model_dump(mode="json"), told=list(told), **common)
         plan, round_ = new, round_ + 1
 
     # Shipped reels are rendered final; the others keep their draft (rendered again when this run
@@ -1755,7 +1857,7 @@ def finish_reel(ctx: Context, plan: ReelPlan, cfg: Config, store: Store, judge: 
     out_dir.mkdir(parents=True, exist_ok=True)
     _clear_other_copies(cfg, name, out_dir, key)
     final = out_dir / f"{name}.mp4"
-    video.replace(final)
+    _move_across(video, final)
     track = tracks.get(plan.music.track_id) if plan.music else None
     caption_file = out_dir / f"{name}.caption.txt"
     caption_file.write_text(caption_text(plan, track))
