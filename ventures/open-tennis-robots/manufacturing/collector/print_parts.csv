@@ -1,0 +1,6 @@
+file,part,qty,material,volume_cm3,size_mm,settings,notes
+motor_clamp_cradle.stl,motor_clamp_cradle,2,PETG,67.0,60 x 45 x 35,"0.2 mm layers, 4 walls, 40% gyroid","PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
+motor_clamp_cap.stl,motor_clamp_cap,2,PETG,45.3,60 x 45 x 26,"0.2 mm layers, 4 walls, 40% gyroid","PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
+pivot_block.stl,pivot_block,2,PETG,57.4,44 x 30 x 45,"0.2 mm layers, 4 walls, 40% gyroid",M4 heat-set inserts underneath; M8 pivot bolt through.
+caster_adapter.stl,caster_adapter,1,PETG,30.9,56 x 56 x 10,"0.2 mm layers, 4 walls, 40% gyroid","Spacer between base and a ball caster; drill the caster's own pattern to suit, or edit here."
+mast_socket.stl,mast_socket,1,PETG,72.9,42 x 42 x 50,"0.2 mm layers, 4 walls, 40% gyroid",20 mm tube push fit; add an M4 grub screw if it rattles.

@@ -1,0 +1,70 @@
+name: open-tennis-robots
+description: >-
+  Open-source hardware and software for two tennis robots: a ball machine with a
+  two-wheel launcher that tracks the player's return with stereo cameras and
+  slides a catch net to catch it (caught balls are re-fed), and a ball-collecting
+  rover that picks up balls during practice while avoiding keep-out zones. Ships
+  a Python planning package (flight model, aiming, tracker, catch planner,
+  collector routing), ESP32 firmware, BOMs and design docs, a browser shot
+  planner, and an Amazon SP-API listing tool so anyone can build and sell one.
+  The collector ships a complete manufacturing package (DXF, STL, STEP, BOM,
+  drawings) generated from parametric code-CAD.
+stage: prototype
+owner: duncan
+
+# Requested directly by the owner on 2026-10-19 ("an open source project for
+# tennis ... hardware + software designs"; follow-ups: "a long term one",
+# "I want people to pick this up and sell it ... set up on amazon with one
+# click"). Named task, so session_gate did not apply.
+# duplicate_check.py "open-source tennis ball machine robot and ball collecting
+# robot hardware and software designs": top score 0.12 (unrelated security
+# tools); no robotics or sports-hardware venture exists. Nearest neighbour:
+# pickleball-facility-pro-forma (racquet-sport business plan, not hardware).
+#
+# First visitor: searches "DIY tennis ball machine", "build a tennis ball
+# machine", "tennis ball pickup robot", "tennis ball collector robot"; r/tennis,
+# r/robotics and maker communities (Hackaday.io project page is an owner-only
+# publish). Volume not measured with an external tool.
+#
+# Liability boundary: design files and simulation, explicitly v0.1 and unbuilt;
+# not engineering or safety advice; safety.md and the no-warranty clause on
+# every surface; firmware enforces limits, watchdog and e-stop latching. Sellers
+# are the manufacturer: the listing tool refuses --live until compliance items
+# are confirmed, and runs only on the seller's own SP-API credentials (never the
+# owner's accounts). Not affiliated with any ball machine maker or Amazon.
+#
+# Path to revenue (rails off): donations; third-party sellers building kits and
+# machines (the owner wants to be able to buy one); a hosted drill app later.
+
+hypotheses:
+  - claim: >-
+      Makers and tennis players will star, fork or open build issues on an
+      open-source ball machine + collector design within 90 days of it being on
+      the published site.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A catch net on a base that moves at >= 2.5 m/s catches most club-level
+      returns (simulation says ~90% for a 3 m net); a first build can confirm it.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, forks or build reports) engage within 120 days of the page being reachable from the published site.
+  - A builder reports the flight model misses real landing spots by more than a metre after calibration, and the model cannot be fixed.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/open-tennis-robots/
+  analytics: null

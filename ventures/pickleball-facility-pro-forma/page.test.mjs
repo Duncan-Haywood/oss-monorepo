@@ -128,3 +128,9 @@ test("related-tool links point at ventures that exist", () => {
 test("footer links the padel club profit calculator", () => {
   assert.match(page("index.html"), /href="\.\.\/padel-club-profit-calculator\/"/);
 });
+
+// One-hop sibling link (platform/pages/siblings.mjs): the related-tool strip
+// rotates and may never pair these two racquet-sport pages.
+test("index links one hop to the open-tennis-robots sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/open-tennis-robots\/"/);
+});
