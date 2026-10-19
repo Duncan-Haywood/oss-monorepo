@@ -99,6 +99,8 @@ def find_figure(slug):
 def project_links(slug):
     base, url = RESEARCH / slug, f"{REPO_URL}/tree/main/research/{slug}"
     links = [(f"{url}#readme", "README and method", True)]
+    if (base / "app" / "index.html").is_file():
+        links.insert(0, ("app/", "Open the interactive app", True))
     for sub, label in (("paper", "White paper"), ("experiments", "Experiments and results"), ("src", "Code"), ("tests", "Tests")):
         if (base / sub).is_dir():
             links.append((f"{url}/{sub}", label, False))
@@ -246,6 +248,26 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
         shutil.copyfile(fig, d / fig.name)
         figure = (f'  <h2>A figure from its own output</h2>\n  <figure><img src="{html.escape(fig.name)}" alt="Figure produced by research/{slug}: {html.escape(fig.stem)}" loading="lazy">'
                   f'<figcaption>{html.escape(str(fig.relative_to(RESEARCH)))}, written by the project\'s own experiment code.</figcaption></figure>')
+    app = RESEARCH / slug / "app"
+    if (app / "index.html").is_file():
+        # A project's static browser app is published as-is under <slug>/app/.
+        shutil.copytree(app, d / "app", dirs_exist_ok=True,
+                        ignore=shutil.ignore_patterns("tests", "tools", "*.md", "*_testvectors.json", "__pycache__"))
+        page_file = d / "app" / "index.html"
+        app_page = page_file.read_text()
+        if base_url:  # canonical and share-card tags on whichever origin the site is built for
+            base = html.escape(base_url.rstrip("/") + "/")
+            url = f"{base}research/{slug}/app/"
+            app_page = app_page.replace("</head>", (
+                f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n'
+                f'<meta property="og:image" content="{base}social-card.png">\n'
+                '<meta name="twitter:card" content="summary_large_image">\n</head>'), 1)
+        if chrome:  # the site header (with its link home) above the app's own page
+            header = chrome["header"].replace("{{ROOT}}", "../../../")
+            link = f'<link rel="stylesheet" href="../../../{chrome["style_file"]}">\n'
+            app_page = app_page.replace("</head>", link + "</head>", 1)
+            app_page = re.sub(r"<body([^>]*)>", lambda m: m.group(0) + "\n" + header, app_page, count=1)
+        page_file.write_text(app_page)
     stats = f'<span>{tests} tests</span>' if tests else ""
     links = "\n".join(f'    <li><a{" class=primary" if prim else ""} href="{u}">{l}</a></li>' for u, l, prim in project_links(slug))
     page = tmpl

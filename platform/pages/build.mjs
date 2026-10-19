@@ -10406,6 +10406,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     }
   }
   researchSlugs.sort();
+  // A project's static browser app (research/<slug>/app/) is a page in its own right.
+  const researchApps = [];
+  for (const slug of researchSlugs) {
+    if (await fs.stat(path.join(outDir, RESEARCH_PATH, slug, 'app', 'index.html')).catch(() => null)) researchApps.push(`${slug}/app`);
+  }
   // The topic pages, research/topics/<id>/, for the sitemap.
   const researchTopics = (
     await fs.readdir(path.join(outDir, RESEARCH_PATH, RESEARCH_TOPICS_DIR), { withFileTypes: true }).catch(() => [])
@@ -10485,7 +10490,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
         ...audiencePages.map(({ audience }) => audiencePageId(audience)),
       ],
       compareProducts.map((group) => group.key),
-      [...researchSlugs, ...researchTopics],
+      [...researchSlugs, ...researchTopics, ...researchApps],
       posts.map((post) => post.slug),
     ),
   );

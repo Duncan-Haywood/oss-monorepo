@@ -143,7 +143,7 @@
     {
      "slug": "marriage-divorce-evidence",
      "title": "Can interpretable models predict annual divorce incidence?",
-     "summary": "Original ACS, NSFG and NLSY79 microdata analyses separate annual incidence from prevalence. A respondent-held-out enriched additive couple model reduces Poisson loss by about 3.4%; more flexible trees do not improve on it. Includes schooling/earnings pairings, direct contrasts, duration and first-birth checks, trained models and a portable report. Older cohort; observational, not a personal or causal forecast."
+     "summary": "Original ACS, NSFG and NLSY79 microdata analyses separate annual incidence from prevalence. A respondent-held-out enriched additive couple model reduces Poisson loss by about 3.4%; more flexible trees do not improve on it. Includes schooling/earnings pairings, direct contrasts, duration and first-birth checks, trained models and a portable report. A browser app runs the five models on two profiles to give year-by-year divorce odds with explanations, model disagreement and out-of-range flags. Older cohort; observational, not a personal or causal forecast."
     }
    ]
   },
