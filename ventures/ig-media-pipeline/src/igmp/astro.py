@@ -51,12 +51,16 @@ returned by `reel_source` in place of the plain clip.
 """
 from __future__ import annotations
 
+import itertools
 import json
 import logging
 import math
+import os
 import shutil
 import subprocess
 import tempfile
+from collections import deque
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from pathlib import Path
 from statistics import median
@@ -92,6 +96,7 @@ MAX_STACK = 40               # sqrt(40) ~ 6x less noise; more frames add little 
 REVISIONS = 2
 FEATHER = 0.001              # of the long edge: the skyline is snapped to the real edge, so a soft
                              # blend only smears land colour into the sky (or sky into the rock)
+DECODE_WORKERS = 8           # processes developing frames at once (each RAW decode is single-threaded)
 PREVIEW_EDGE = 640           # px, the cached frames trail timelapse critic rounds are made from
 LAYERS_VERSION = 3           # bump when how frames become layers changes: cached .npz files go stale
 FEED_SIZE = (1080, 1350)
@@ -389,6 +394,29 @@ def load_linear(a: Asset, edge: int) -> np.ndarray:
     return _srgb_to_linear(x).astype(np.float32)
 
 
+def decode_ahead(members: list[Asset], idx: list[int], edge: int, workers: int | None = None,
+                 ahead: int | None = None):
+    """Yield load_linear(members[i], edge) for i in idx, in order, decoded by a process pool.
+    RAW development is single-threaded per frame and the whole cost of a long run, so 8 cores
+    decode about 8 frames at once; at most `ahead` frames wait decoded, so a 500-frame run does
+    not pile up in memory."""
+    workers = workers or min(DECODE_WORKERS, os.cpu_count() or 1)
+    if workers <= 1 or len(idx) <= 1:
+        for i in idx:
+            yield load_linear(members[i], edge)
+        return
+    ahead = ahead or 2 * workers
+    with ProcessPoolExecutor(workers) as pool:
+        it = iter(idx)
+        pending = deque(pool.submit(load_linear, members[i], edge) for i in itertools.islice(it, ahead))
+        while pending:
+            frame = pending.popleft().result()
+            nxt = next(it, None)
+            if nxt is not None:
+                pending.append(pool.submit(load_linear, members[nxt], edge))
+            yield frame
+
+
 def _strip_apply(fn, arrays: list[np.ndarray], rows: int = 128, **kw) -> np.ndarray:
     """Run a per-pixel reducer over row strips to keep the cube small."""
     h = arrays[0].shape[0]
@@ -450,7 +478,7 @@ def sky_layers(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Co
         z = np.load(path)
         return Layers(z["sky"].astype(np.float32), z["fg"].astype(np.float32), str(z["engine"]),
                       z["ref"].astype(np.float32) if "ref" in z else None, float(z["reach"]) if "reach" in z else 0.0)
-    frames = [load_linear(members[i], edge) for i in idx]
+    frames = list(decode_ahead(members, idx, edge))
     shape = min(f.shape for f in frames)
     frames = [f[:shape[0], :shape[1]] for f in frames]
     # auto white balance wanders through a night run: pin every frame to the middle one's balance
@@ -648,12 +676,13 @@ def _plan_tag(plan: AstroPlan) -> str:
     return hashlib.sha1(f"{key}v{LAYERS_VERSION}".encode()).hexdigest()[:10]
 
 
-def _trail_images(frame, idx: list[int], plan: AstroPlan, size: tuple[int, int], keep=None):
+def _trail_images(frames, idx: list[int], plan: AstroPlan, size: tuple[int, int], keep=None):
     """Yield (k, display image) for a trail timelapse: the current background and land with every
-    star's trail so far laid over it. `frame(i)` returns member i as linear RGB. Grade levels and
+    star's trail so far laid over it. `frames` yields the members in `idx` as linear RGB. Grade levels and
     the gradient model are fixed from the first frame so the sky does not pump. `keep` limits the
     images made (all frames are still accumulated)."""
-    first = frame(idx[0])
+    frames = iter(frames)
+    first = next(frames)
     line = skyline(plan, first) if plan.horizon else []
     dist = core.skyline_distance(line, first.shape[:2])
     mask = dist > 0
@@ -667,7 +696,7 @@ def _trail_images(frame, idx: list[int], plan: AstroPlan, size: tuple[int, int],
     acc = None
     for k, i in enumerate(idx):
         if k:
-            cur = core.match_colour(frame(i)[: first.shape[0], : first.shape[1]], ref_ratio, mask)
+            cur = core.match_colour(next(frames)[: first.shape[0], : first.shape[1]], ref_ratio, mask)
             # and its brightness: moonlight and airglow drift over an hour, and through a fixed
             # grade a drifting sky reads as a colour shift too
             cur = cur * (ref_level / (float(np.median(core.luminance(cur)[mask])) + 1e-6))
@@ -693,7 +722,7 @@ def render_trail_timelapse(group: AstroGroup, members: list[Asset], plan: AstroP
     edge = int(cfg.extra.get("astro_video_long_edge", 2400))
     tmp = Path(tempfile.mkdtemp(prefix="igmp-astro-"))
     try:
-        for k, im in _trail_images(lambda i: load_linear(members[i], edge), idx, plan, (1080, 1920)):
+        for k, im in _trail_images(decode_ahead(members, idx, edge), idx, plan, (1080, 1920)):
             im.save(tmp / f"{k:06d}.jpg", quality=93)
         clip.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(sequences.ffmpeg_args(tmp / "%06d.jpg", plan.fps, clip, cfg), check=True,
@@ -709,13 +738,13 @@ def preview_frames(group: AstroGroup, members: list[Asset], cfg: Config, edge: i
     path = cfg.state_dir / "astro" / group.id / f"preview_{edge}_{len(members)}_v{LAYERS_VERSION}.npy"
     if path.exists():
         return np.load(path, mmap_mode="r")
-    first = load_linear(members[0], edge)
+    decoded = decode_ahead(members, list(range(len(members))), edge)
+    first = next(decoded)
     h, w = first.shape[:2]
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".part.npy")
     arr = np.lib.format.open_memmap(tmp, mode="w+", dtype=np.float16, shape=(len(members), h, w, 3))
-    for i, m in enumerate(members):
-        f = first if i == 0 else load_linear(m, edge)
+    for i, f in enumerate(itertools.chain([first], decoded)):
         hh, ww = min(h, f.shape[0]), min(w, f.shape[1])
         arr[i, :hh, :ww] = f[:hh, :ww]
     arr.flush()
@@ -730,7 +759,7 @@ def trail_preview_sheet(group: AstroGroup, members: list[Asset], plan: AstroPlan
     frames = preview_frames(group, members, cfg)
     idx = chosen(plan, len(members))
     keep = {round(j * (len(idx) - 1) / max(n - 1, 1)) for j in range(n)}
-    tiles = [im for _, im in _trail_images(lambda i: frames[i].astype(np.float32), idx, plan, (360, 640), keep)]
+    tiles = [im for _, im in _trail_images((frames[i].astype(np.float32) for i in idx), idx, plan, (360, 640), keep)]
     sheet = Image.new("RGB", (360 * len(tiles), 640))
     for j, t in enumerate(tiles):
         sheet.paste(t, (360 * j, 0))
