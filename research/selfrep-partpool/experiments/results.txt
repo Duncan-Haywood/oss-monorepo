@@ -1,0 +1,35 @@
+assumed inputs: print 25.0 g/h, assembly 6.0 h (as selfrep-growth); 44 printed parts of 1.0 h each from selfrep-closure, work per copy 50.0 h, vitamins per copy 170.3 (assumed units)
+fleet 1 -> 64; 100 runs per cell, seed 0; every job lognormal; effective doubling = time / 6 (hours), median [5th-95th pct]
+fluid free doubling W ln2 = 34.7 h
+
+== A. import budget sweep (cv 0.2)
+ budget/h                   whole                   focus                  spread
+     0.25   7155.3 [ 7155.0- 7155.6]   7155.3 [ 7155.0- 7155.6]   7155.3 [ 7155.0- 7155.6]
+        1   1789.5 [ 1789.3- 1789.9]   1789.5 [ 1789.3- 1789.9]   1789.5 [ 1789.3- 1789.9]
+        4    448.1 [  447.8-  448.5]    448.1 [  447.8-  448.5]    448.1 [  447.8-  448.5]
+       16    112.7 [  112.5-  113.3]    112.8 [  112.5-  113.1]    112.8 [  112.5-  113.1]
+       64     51.1 [   50.1-   51.9]     43.2 [   42.6-   43.8]     50.4 [   49.7-   51.1]
+      256     51.1 [   50.1-   51.9]     43.2 [   42.6-   43.8]     50.4 [   49.7-   51.1]
+    1e+09     51.1 [   50.1-   51.9]     43.2 [   42.6-   43.8]     50.4 [   49.7-   51.1]
+
+== B. deterministic (cv 0), budget unlimited: time to reach each fleet size, hours
+ fleet     whole     focus    spread
+     2      50.0      50.0      50.0
+     4     100.0      97.0     100.0
+     8     150.0     140.0     150.0
+    16     200.0     180.0     200.0
+    32     250.0     220.0     250.0
+    64     300.0     259.0     300.0
+
+== C. job noise (budget unlimited): median effective doubling by CV
+   cv                   whole                   focus                  spread
+  0.0     50.0 [   50.0-   50.0]     43.2 [   43.2-   43.2]     50.0 [   50.0-   50.0]
+  0.2     51.1 [   50.1-   51.9]     43.2 [   42.6-   43.8]     50.4 [   49.7-   51.1]
+  0.5     52.8 [   51.0-   54.9]     43.4 [   41.4-   45.2]     51.4 [   49.4-   53.2]
+  1.0     53.1 [   49.6-   55.9]     43.5 [   40.8-   46.4]     55.9 [   51.5-   59.7]
+
+== D. assembly time (budget unlimited, cv 0.2): assembly is a serial step per copy
+ asm h                   whole                   focus                  spread
+   0.5     45.3 [   44.6-   45.9]     35.7 [   35.2-   36.2]     44.9 [   44.2-   51.9]
+   6.0     51.1 [   50.1-   51.9]     43.2 [   42.6-   43.8]     50.4 [   49.7-   51.1]
+  24.0     71.2 [   68.9-   73.5]     65.5 [   64.0-   67.8]     69.7 [   67.6-   71.6]
