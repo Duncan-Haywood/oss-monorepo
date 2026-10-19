@@ -4,7 +4,7 @@ import json, os, sys
 from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "src"))
-from codesign_gripper import Problem
+from codesign_forcefresh import Problem
 
 
 def one(x):

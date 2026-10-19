@@ -6,8 +6,8 @@ from concurrent.futures import ProcessPoolExecutor as Pool
 import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "src"))
-from codesign_gripper import Problem, random_search, cma_es, bayes_opt, best_curve, score_proposals
-from codesign_gripper.problem import FRESH, success_rate, finger_stats, clip, NAMES
+from codesign_forcefresh import Problem, random_search, cma_es, bayes_opt, best_curve, score_proposals
+from codesign_forcefresh.problem import FRESH, success_rate, finger_stats, clip, NAMES
 
 BUDGET, SEEDS = 40, list(range(8))
 METHODS = {"random search": random_search, "CMA-ES": cma_es, "Bayesian opt (GP-EI)": bayes_opt}

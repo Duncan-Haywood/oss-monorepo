@@ -1,9 +1,9 @@
 import os, sys, json, tempfile, unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 import numpy as np
-from codesign_gripper import Problem, LB, UB, finger_stats, scenarios, random_search, cma_es, bayes_opt, score_proposals, best_curve
-from codesign_gripper.sim import rollout
-from codesign_gripper.stl import finger_mesh, is_watertight, volume_mm3, write_stl
+from codesign_forcefresh import Problem, LB, UB, finger_stats, scenarios, random_search, cma_es, bayes_opt, score_proposals, best_curve
+from codesign_forcefresh.sim import rollout
+from codesign_forcefresh.stl import finger_mesh, is_watertight, volume_mm3, write_stl
 
 DES = dict(w=14, t=4, L=40, v=0.4, mu=0.8)
 OBJ = dict(kind="cyl", size=18, mass_g=200, mu_obj=0.4, dy_mm=2, dz_mm=0)
