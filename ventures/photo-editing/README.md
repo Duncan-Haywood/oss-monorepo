@@ -15,6 +15,68 @@ The product direction is:
 - produce cinematic reels, carousels, feed photo sets, and intermediate graded
   masters for human review or editor handoff.
 
+## Process a shoot overnight on your Mac (ffmpeg)
+
+ShootFlow can now turn an ingested shoot into real media on your own machine,
+unattended, with nothing uploaded anywhere. It needs `ffmpeg` (`brew install
+ffmpeg`) and Python 3.10+. Run these from `ventures/photo-editing/`.
+
+```bash
+# 1. Copy the card to your SSD with checksums (never deletes the card).
+PYTHONPATH=src python3 -m shootflow.cli execute-ingest \
+  --source /Volumes/EOS_DIGITAL --destination /Volumes/SSD/shoots \
+  --shoot-date 2026-10-18 --shoot-slug wedding --confirm
+
+# 2. Optional: drop your look in as a 3D LUT (.cube), e.g. a log-to-Rec.709 LUT.
+mkdir -p /Volumes/SSD/shoots/2026-10-18_wedding/color
+cp MyLook.cube /Volumes/SSD/shoots/2026-10-18_wedding/color/shoot_look.cube
+
+# 3. Run every stage now...
+PYTHONPATH=src python3 -m shootflow.cli run-local-pipeline \
+  --ingest-manifest /Volumes/SSD/shoots/2026-10-18_wedding/ingest_manifest.json \
+  --max-concurrency 3
+
+# ...or have launchd run it at 01:30 every night.
+PYTHONPATH=src python3 -m shootflow.cli write-launchd-plist \
+  --ingest-manifest /Volumes/SSD/shoots/2026-10-18_wedding/ingest_manifest.json \
+  --output ~/Library/LaunchAgents/dev.shootflow.local-pipeline.plist
+launchctl load ~/Library/LaunchAgents/dev.shootflow.local-pipeline.plist
+```
+
+What you get in the shoot folder:
+
+| Folder | Contents |
+| --- | --- |
+| `proxies/` | Review/selection proxies: photos ≤1024 px, H.264 video ≤960 px |
+| `graded/` | Full-resolution masters with your LUT applied: ProRes 422 HQ for `.MOV`, high-bitrate H.264 for `.MP4`, photos in their own format |
+| `deliverables/instagram_reel.mp4`, `deliverables/instagram_reels/` | 1080×1920 H.264 reels cut from the selected clips (≤4 s each, ≤90 s total, no audio) |
+| `deliverables/instagram_carousel/`, `deliverables/instagram_photo_set/` | 1080×1350 (4:5) JPEGs |
+
+How it stays fast and safe:
+
+- **Hardware encoders.** On a Mac, H.264 and ProRes use VideoToolbox
+  (`h264_videotoolbox`, `prores_videotoolbox`); elsewhere `libx264`/`prores_ks`.
+  Override with `SHOOTFLOW_H264_ENCODER` / `SHOOTFLOW_PRORES_ENCODER`.
+- **Parallel jobs.** Each proxy, grade and render task is its own ffmpeg
+  process; `--max-concurrency` runs that many side by side.
+- **Unattended but conservative.** The nightly job runs under `caffeinate -i`
+  so the Mac stays awake mid-encode; if the Mac is asleep at 01:30, launchd
+  runs it on wake. Reruns skip finished work. Jobs left running by a run
+  that was killed part-way are marked retryable after six hours. Existing
+  outputs are never overwritten, and a task's files are committed only once
+  all of them have encoded.
+- **Stops for a person, never guesses.** A job that fails (an unsupported
+  file, a timeout) is marked retryable and listed in `needs_review_ids`; the
+  command exits `2`. After a look, rerun with `--retry-retryable`.
+
+Current limits, stated plainly: RAW stills (`.CR3`, `.ARW`, `.NEF`, …) and
+camera-raw video are not decoded, so convert them to JPEG/TIFF first or they
+are listed for review. The analysis, scene and look stages are still
+deterministic stand-ins, not a vision model, so *which* shots land in the reel
+is not taste-based yet. The grade is your LUT, or no color change if you have
+none. Every asset is graded before selection; grading only the selected
+shots is the next throughput step.
+
 ## Current repository state
 
 This repo currently contains the first testable core utilities:
@@ -481,6 +543,10 @@ PYTHONPATH=src python3 -m shootflow.cli create-pilot-cohort-demo \
 PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <dir>
 ```
 
+Use `--worker ffmpeg-proxy-production-local` and `--worker
+ffmpeg-grade-production-local` for real ffmpeg proxies and graded masters, and
+`--renderer ffmpeg-local` for real reel/carousel/photo-set media;
+`run-local-pipeline` (top of this README) chains them for you.
 Use `--worker metadata-production-local` for the deterministic local metadata
 adapter. Use `--worker proxy-production-local` for the conservative local proxy
 stand-in that copies trusted input bytes into declared proxy outputs. Both follow

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 import os
@@ -10,6 +11,15 @@ from pathlib import Path
 from typing import Protocol
 
 from shootflow.assembly import AssemblyPlan, RenderTask
+from shootflow.ffmpeg_media import (
+    FfmpegMediaError,
+    encode_new_output,
+    encode_new_outputs,
+    feed_image_command,
+    find_ffmpeg_tools,
+    reel_command,
+    require_workspace_file,
+)
 from shootflow.render_status import (
     RenderStatusError,
     RenderStatusManifest,
@@ -25,8 +35,10 @@ from shootflow.render_worker import (
     report_render_worker_retryable,
     report_render_worker_success,
 )
+from shootflow.story import STORYLINE_ARTIFACT_PATH
 
 _DRY_RUN_RENDERER_ADAPTER = "dry-run-local"
+_FFMPEG_RENDERER_ADAPTER = "ffmpeg-local"
 
 
 class DryRunRendererError(ValueError):
@@ -123,7 +135,57 @@ def run_dry_run_render_action(
     source/graded inputs, and refuses to overwrite an existing different output.
     """
 
-    _validate_action(action, expected_renderer_adapter=_DRY_RUN_RENDERER_ADAPTER)
+    return _run_render_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_renderer_adapter=_DRY_RUN_RENDERER_ADAPTER,
+        materialize_outputs=materialize_dry_run_render_outputs,
+        renderer_label="Dry-run renderer",
+    )
+
+
+def run_ffmpeg_render_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+    action: RenderWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> DryRunRenderResult:
+    """Render one trusted task into real Instagram media with ffmpeg.
+
+    Reels become 1080x1920 H.264 MP4s cut from the selected graded clips and
+    photos; carousel and photo-set tasks become one 1080x1350 JPEG per graded
+    input. Inputs are read only, and an existing output is never overwritten.
+    """
+
+    return _run_render_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_renderer_adapter=_FFMPEG_RENDERER_ADAPTER,
+        materialize_outputs=materialize_ffmpeg_render_outputs,
+        renderer_label="ffmpeg renderer",
+    )
+
+
+def _run_render_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+    action: RenderWorkerAction,
+    started_at: str,
+    completed_at: str,
+    expected_renderer_adapter: str,
+    materialize_outputs,
+    renderer_label: str,
+) -> DryRunRenderResult:
+    _validate_action(action, expected_renderer_adapter=expected_renderer_adapter)
     _validate_action_matches_trusted_plan(action, trusted_plan=trusted_plan)
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
@@ -146,7 +208,7 @@ def run_dry_run_render_action(
     )
 
     try:
-        outputs_materialized = materialize_dry_run_render_outputs(action, root)
+        outputs_materialized = materialize_outputs(action, root)
         final_status = report_render_worker_success(
             running_status,
             action,
@@ -158,7 +220,7 @@ def run_dry_run_render_action(
         final_status = report_render_worker_retryable(
             running_status,
             action,
-            error_message=_retryable_error_message(exc),
+            error_message=_retryable_error_message(exc, renderer_label=renderer_label),
             updated_at=completed_at,
         )
 
@@ -197,10 +259,56 @@ def run_dry_run_render_batch(
     leaves blocked tasks untouched for the caller/UI to display.
     """
 
+    return _run_render_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_renderer_adapter=_DRY_RUN_RENDERER_ADAPTER,
+        run_action=run_dry_run_render_action,
+    )
+
+
+def run_ffmpeg_render_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+    action_plan: RenderWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> DryRunRenderBatchResult:
+    """Run a trusted ffmpeg action plan, one ffmpeg process per parallel task."""
+
+    return _run_render_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_renderer_adapter=_FFMPEG_RENDERER_ADAPTER,
+        run_action=run_ffmpeg_render_action,
+    )
+
+
+def _run_render_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+    action_plan: RenderWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+    expected_renderer_adapter: str,
+    run_action,
+) -> DryRunRenderBatchResult:
     _validate_action_plan(
         action_plan,
         trusted_plan=trusted_plan,
-        expected_renderer_adapter=_DRY_RUN_RENDERER_ADAPTER,
+        expected_renderer_adapter=expected_renderer_adapter,
     )
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
@@ -220,6 +328,7 @@ def run_dry_run_render_batch(
                 action=current_action,
                 started_at=started_at,
                 completed_at=completed_at,
+                run_action=run_action,
             )
             if result is not None:
                 ordered_results[action_index] = result
@@ -241,6 +350,7 @@ def run_dry_run_render_batch(
                     action=action,
                     started_at=started_at,
                     completed_at=completed_at,
+                    run_action=run_action,
                 ): index
                 for index, action in enumerate(actions[group_start:group_end], start=group_start)
             }
@@ -278,6 +388,56 @@ def materialize_dry_run_render_outputs(
         _write_dry_run_output(root, action=action, output=output)
         materialized.append(output)
     return tuple(materialized)
+
+
+def materialize_ffmpeg_render_outputs(
+    action: RenderWorkerAction,
+    workspace_root: Path | str,
+) -> tuple[str, ...]:
+    """Encode the declared deliverables for one trusted render action."""
+
+    _validate_action(action, expected_renderer_adapter=_FFMPEG_RENDERER_ADAPTER)
+    root = _workspace_root(workspace_root)
+    if not action.inputs or action.inputs[0] != STORYLINE_ARTIFACT_PATH:
+        raise DryRunRendererError(
+            f"ffmpeg render action must list {STORYLINE_ARTIFACT_PATH} as its first input: {action.task_id}"
+        )
+    media_inputs = action.inputs[1:]
+    if not media_inputs:
+        raise DryRunRendererError(f"ffmpeg render action has no graded media inputs: {action.task_id}")
+    for output in action.outputs:
+        _reject_symlink_path(_workspace_deliverable_path(root, output), root, "ffmpeg output")
+    try:
+        sources = tuple(
+            require_workspace_file(root, input_ref, label="graded render input") for input_ref in media_inputs
+        )
+        tools = find_ffmpeg_tools()
+        if action.sequence_name == "reel":
+            if len(action.outputs) != 1 or not action.outputs[0].endswith(".mp4"):
+                raise DryRunRendererError(f"ffmpeg reel action must declare one .mp4 output: {action.task_id}")
+            encode_new_output(
+                root,
+                action.outputs[0],
+                build_command=lambda temp_path: reel_command(tools, sources, temp_path),
+            )
+            return action.outputs
+        if len(action.outputs) != len(sources):
+            raise DryRunRendererError(
+                f"ffmpeg image action must declare one output per graded input: {action.task_id}"
+            )
+        for output in action.outputs:
+            if not output.endswith(".jpg"):
+                raise DryRunRendererError(f"ffmpeg image output must be a .jpg file: {output}")
+        encode_new_outputs(
+            root,
+            tuple(
+                (output, functools.partial(feed_image_command, tools, source))
+                for source, output in zip(sources, action.outputs, strict=True)
+            ),
+        )
+    except FfmpegMediaError as exc:
+        raise DryRunRendererError(str(exc)) from exc
+    return action.outputs
 
 
 def _validate_action(
@@ -549,12 +709,12 @@ def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
         current = current.parent
 
 
-def _retryable_error_message(exc: Exception) -> str:
+def _retryable_error_message(exc: Exception, *, renderer_label: str = "Dry-run renderer") -> str:
     detail = str(exc).strip() or exc.__class__.__name__
     if len(detail) > 1500:
         detail = detail[:1497] + "..."
     return (
-        "Dry-run renderer could not materialize declared outputs: "
+        f"{renderer_label} could not materialize declared outputs: "
         f"{detail}. No source, graded, or deliverable files were deleted."
     )
 
@@ -583,9 +743,10 @@ def _run_batch_action(
     action: RenderWorkerAction,
     started_at: str,
     completed_at: str,
+    run_action,
 ) -> tuple[DryRunRenderResult | None, DryRunRenderFailure | None]:
     try:
-        result = run_dry_run_render_action(
+        result = run_action(
             workspace_root,
             trusted_plan=trusted_plan,
             action=action,
@@ -611,7 +772,10 @@ def _batch_failure_message(exc: Exception) -> str:
 
 
 def _render_adapter_registry() -> dict[str, RenderBatchRunner]:
-    return {_DRY_RUN_RENDERER_ADAPTER: run_dry_run_render_batch}
+    return {
+        _DRY_RUN_RENDERER_ADAPTER: run_dry_run_render_batch,
+        _FFMPEG_RENDERER_ADAPTER: run_ffmpeg_render_batch,
+    }
 
 
 def _render_batch_runner(renderer_adapter: str) -> RenderBatchRunner:
