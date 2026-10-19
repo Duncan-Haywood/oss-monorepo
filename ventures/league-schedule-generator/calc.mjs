@@ -105,19 +105,31 @@ export function parseTime(text) {
 
 // ---------------------------------------------------------------- text fields
 
+/**
+ * Team names from whatever the organiser pasted: one per line, a single
+ * comma/semicolon list, a spreadsheet column (extra tab columns dropped), with
+ * list numbering or bullets and surrounding quotes removed. A multi-line list
+ * keeps its commas, so "Smith, J. XI" stays one team.
+ */
+function teamLines(text) {
+  let lines = String(text ?? "").split(/\r?\n/).map((l) => l.split("\t")[0].replace(/\s+/g, " ").trim()).filter(Boolean);
+  if (lines.length === 1 && /[,;]/.test(lines[0])) lines = lines[0].split(/[,;]/).map((l) => l.trim()).filter(Boolean);
+  const marker = /^(\d{1,3}[.)]|[-•*–])\s+/;
+  if (lines.length > 1 && lines.every((l) => marker.test(l))) lines = lines.map((l) => l.replace(marker, ""));
+  return lines.map((l) => l.replace(/^(["“'])(.+)(["”'])$/, "$2").trim()).filter(Boolean);
+}
+
 export function parseTeams(text) {
   const teams = [];
   const errors = [];
   const seen = new Map();
-  for (const line of String(text ?? "").split(/\r?\n/)) {
-    const name = line.replace(/\s+/g, " ").trim();
-    if (!name) continue;
+  for (const name of teamLines(text)) {
     const key = name.toLowerCase();
     if (seen.has(key)) { errors.push(`"${name}" is listed twice.`); continue; }
     seen.set(key, teams.length);
     teams.push(name);
   }
-  if (teams.length < 2) errors.push("Enter at least two teams, one per line.");
+  if (teams.length < 2) errors.push("Enter at least two teams, one per line (a comma-separated list also works).");
   if (teams.length > MAX_TEAMS) errors.push(`Up to ${MAX_TEAMS} teams are supported.`);
   return { teams, errors };
 }
