@@ -55,3 +55,39 @@ test('a non-positive or missing existingRowCount still returns exactly one row p
 test('zero rows and zero plans returns an empty list rather than throwing', () => {
   assert.deepEqual(resolvePlanRows(0, []), []);
 });
+
+import { parsePlanReport } from './form.mjs';
+
+test('parsePlanReport reads a headed tab report, drops totals, sums repeats', () => {
+  const text = [
+    'Carrier\tProduction\tPPO Adjustment',
+    'Delta PPO\t$62,000.00\t($24,800.00)',
+    'Cigna\t31000\t13950',
+    'delta ppo\t1,000\t400',
+    'Total\t94000\t39150',
+  ].join('\n');
+  const { plans, skipped } = parsePlanReport(text);
+  assert.deepEqual(plans, [
+    { planName: 'Delta PPO', grossProduction: '63000', writeOff: '25200' },
+    { planName: 'Cigna', grossProduction: '31000', writeOff: '13950' },
+  ]);
+  assert.deepEqual(skipped, []);
+});
+
+test('parsePlanReport reads headerless CSV and reports unreadable lines', () => {
+  const { plans, skipped } = parsePlanReport('MetLife,19000,6650\nBad line,abc,5');
+  assert.equal(plans.length, 1);
+  assert.equal(plans[0].planName, 'MetLife');
+  assert.equal(skipped.length, 1);
+});
+
+test('parsePlanReport derives the write-off from a paid column', () => {
+  const { plans } = parsePlanReport('Plan,Billed,Paid\nAetna,10000,6500');
+  assert.deepEqual(plans, [{ planName: 'Aetna', grossProduction: '10000', writeOff: '3500' }]);
+});
+
+test('parsePlanReport says so when the header has no usable columns', () => {
+  const { plans, note } = parsePlanReport('Name,Foo,Bar\nx,1,2');
+  assert.equal(plans.length, 0);
+  assert.match(note, /header/);
+});
