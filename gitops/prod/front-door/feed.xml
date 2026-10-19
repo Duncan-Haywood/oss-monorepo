@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1296 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1297 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-19T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Build your own tennis ball machine that catches your returns with a moving net, and a robot that picks up tennis balls while you practise. Open-source hardware designs, firmware and software (MIT), plus a shot simulator you can try in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Tutoring Group Schedule Optimizer — which group sessions to run and who sits where</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tutoring-group-schedule-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/tutoring-group-schedule-optimizer</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free group schedule optimizer for tutoring centres, music, swim and language schools. Paste your possible weekly sessions and student availability to get the most profitable timetable. Exact for up to 10 slots. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>US Substantial Presence Test Calculator — 183-Day Weighted Count</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-17T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free review response generator. Paste your Google, Yelp or Facebook reviews and get a ready-to-post reply to each one: rating-aware, specific, safe around legal, health-privacy and refund traps, and checked before you post. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>S-Corp Shareholder Basis Tracker — stock basis, debt basis and Form 7203 worksheet</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/s-corp-basis-tracker/"/>
-    <id>tag:marisstella.dev,2026:tool/s-corp-basis-tracker</id>
-    <updated>2026-10-17T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free S corporation shareholder basis calculator. Enter each year&#39;s K-1 figures and get stock basis, debt basis and suspended losses carried forward in Form 7203 order, with taxable excess distributions flagged. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
