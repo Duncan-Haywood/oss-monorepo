@@ -439,7 +439,7 @@ The optional usage counter records only an event name (`comparison_calculated`,
 `channel_volume_edited`, `returns_compared`, `shelf_time_compared`,
 `share_link_copied`, `comparison_csv_downloaded`, `handoff_ebay`, `handoff_etsy`,
 `handoff_amazon`, `handoff_reverb`, `handoff_own-store`, `handoff_tiktok`,
-`handoff_whatnot`, `handoff_poshmark`, `handoff_walmart`, `handoff_tcgplayer`) and the
+`handoff_whatnot`, `handoff_poshmark`, `handoff_stockx`, `handoff_mercari`, `handoff_depop`, `handoff_grailed`, `handoff_facebook-marketplace`, `handoff_walmart`, `handoff_tcgplayer`, `handoff_discogs`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was
