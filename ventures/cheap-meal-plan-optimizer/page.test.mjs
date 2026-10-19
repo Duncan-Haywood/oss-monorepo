@@ -89,7 +89,7 @@ test("page documents the method, the limits and the safety floor", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["plan_run", "example_loaded", "report_downloaded"]) {
+  for (const e of ["plan_run", "example_loaded", "report_downloaded", "saved_list_restored", "plan_run_new_day"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
