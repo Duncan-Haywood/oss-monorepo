@@ -174,6 +174,23 @@ class FindingsIn(unittest.TestCase):
         self.assertEqual(len(found), 1)
 
 
+class SourceFiles(unittest.TestCase):
+    def test_skips_each_test_file_spelling_and_keeps_real_sources(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "v").mkdir()
+            names = ["index.html", "app.mjs", "a.test.mjs", "test_a.mjs", "a_test.mjs", "notes.md"]
+            for n in names:
+                (root / "v" / n).write_text("", encoding="utf-8")
+            old = guard.VENTURES
+            guard.VENTURES = root
+            try:
+                got = sorted(p.name for p in guard.source_files())
+            finally:
+                guard.VENTURES = old
+        self.assertEqual(got, ["app.mjs", "index.html"])
+
+
 class TheRepository(unittest.TestCase):
     def test_no_venture_source_signs_inside_the_symbol(self):
         # The guard's own subject. Kept here as well as in CI so a contributor
