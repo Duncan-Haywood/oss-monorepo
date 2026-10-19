@@ -369,7 +369,7 @@ test("share links round-trip every field, including non-ASCII names, and reject 
   const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", officials: "Pat (A): Tue max 4", grounds: "A, B" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
-  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "" });
+  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "", rounds: "" });
   assert.deepEqual(decodeFields("#s=" + code), decodeFields(code));
   const again = decodeFields(code);
   assert.deepEqual(readSpec(again).spec.teams, readSpec(f).spec.teams);
@@ -1632,4 +1632,40 @@ test("swiss withdrawals: even field after a drop-out has no bye, and too few pla
   assert.equal(r.bye, null);
   assert.equal(r.pairs.length, 2);
   assert.throws(() => swissPairings(["A", "B", "C"], [], [], [0, 1]), /at least 2/);
+});
+
+test("shorter season: 8 rounds of a 12-team league gives each team 8 games against 8 different opponents, and validates", () => {
+  const { errors, spec } = readSpec({ teams: names(12).join("\n"), double: false, start: "2026-10-06", weekdays: ["Tue"], rounds: "8" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.length, 8);
+  assert.deepEqual(validateSchedule(s).errors, []);
+  const opp = names(12).map(() => new Set());
+  const games = names(12).map(() => 0);
+  for (const r of s.rounds) for (const m of r.matches) { opp[m.home].add(m.away); opp[m.away].add(m.home); games[m.home]++; games[m.away]++; }
+  assert.ok(games.every((g) => g === 8));
+  assert.ok(opp.every((o) => o.size === 8));
+  assert.ok(s.notices.some((n) => n.startsWith("Shorter season: 8 of 11 rounds")));
+});
+
+test("shorter season: every length of every league size from 3 to 14 passes the independent validator", () => {
+  for (const double of [false, true]) {
+    for (let n = 3; n <= 14; n++) {
+      const full = roundRobin(n, { double }).length;
+      for (let k = 1; k < full; k++) {
+        const { errors, spec } = readSpec({ teams: names(n).join("\n"), double, start: "2026-10-06", weekdays: ["Tue"], rounds: String(k) });
+        assert.deepEqual(errors, []);
+        assert.deepEqual(validateSchedule(buildSchedule(spec)).errors, [], `${n} teams, ${k} rounds, double=${double}`);
+      }
+    }
+  }
+});
+
+test("shorter season: blank or full length builds the whole round robin, too many rounds is refused, and it rides the share link", () => {
+  const f = { teams: names(6).join("\n"), start: "2026-10-06", weekdays: ["Tue"] };
+  assert.equal(readSpec({ ...f, rounds: "" }).spec.rounds, null);
+  assert.equal(readSpec({ ...f, rounds: "5" }).spec.rounds, null);
+  assert.match(readSpec({ ...f, rounds: "9" }).errors.join(" "), /only 5 round/);
+  assert.match(readSpec({ ...f, rounds: "0" }).errors.join(" "), /whole number/);
+  assert.equal(decodeFields(encodeFields({ ...sampleFields(), rounds: "4" })).rounds, "4");
 });

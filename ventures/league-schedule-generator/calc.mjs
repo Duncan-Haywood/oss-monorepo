@@ -224,10 +224,18 @@ export function readSpec(f) {
   const seed = Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1;
   const minutes = f.minutes === undefined || f.minutes === "" ? 60 : Number(f.minutes);
   if (!Number.isFinite(minutes) || minutes < 5 || minutes > 600) errors.push("Match length must be between 5 and 600 minutes.");
+  let rounds = null;
+  if (f.rounds !== undefined && String(f.rounds).trim() !== "") {
+    const r = Number(f.rounds);
+    const full = t.teams.length >= 2 ? roundRobin(t.teams.length, { double: Boolean(f.double) }).length : 0;
+    if (!Number.isInteger(r) || r < 1) errors.push("Rounds to play must be a whole number of 1 or more, or blank for the full round robin.");
+    else if (full && r < full) rounds = r;
+    else if (full && r > full) errors.push(`${t.teams.length} teams have only ${full} round(s) in a ${f.double ? "double" : "single"} round robin; leave rounds blank or enter ${full} or fewer.`);
+  }
   return {
     errors,
     spec: {
-      teams: t.teams, double: Boolean(f.double), start, weekdays: w.weekdays, skipDays: skip.days,
+      rounds, teams: t.teams, double: Boolean(f.double), start, weekdays: w.weekdays, skipDays: skip.days,
       blackouts: b.blackouts, timeLimits: tl.limits, courtLimits: cl.limits, courts: courtNames, times: times.times, seed, minutes,
     },
   };
@@ -426,7 +434,14 @@ export function buildSchedule(spec) {
     throw new Error(`${n} teams play ${perRound} matches a round, but ${courts.length} court(s) x ${times.length} time slot(s) only fit ${courts.length * times.length}. Add courts or time slots.`);
   }
 
-  const plan = roundRobin(n, { double: Boolean(spec.double) });
+  let plan = roundRobin(n, { double: Boolean(spec.double) });
+  // A shorter season: the first k rounds of the circle method. Every team still meets k different
+  // opponents (k games, minus a bye in an odd league), and the home/away alternation is unchanged.
+  const partial = Number.isInteger(spec.rounds) && spec.rounds >= 1 && spec.rounds < plan.length;
+  if (partial) {
+    plan = plan.slice(0, spec.rounds);
+    notices.push(`Shorter season: ${spec.rounds} of ${roundRobin(n, { double: Boolean(spec.double) }).length} rounds, so each team plays ${n % 2 ? `${spec.rounds - 1}-${spec.rounds}` : spec.rounds} game(s) and not every pair meets.`);
+  }
   const remaining = plan.map((r, i) => ({ ...r, order: i }));
   const isBlocked = (t, day) => blackSet[t].has(day);
   const placed = [];
@@ -514,7 +529,7 @@ export function buildSchedule(spec) {
     teams,
     config: {
       timeLimits, courtLimits,
-      double: Boolean(spec.double), start: spec.start, weekdays: [...weekdaySet].sort(), skipDays: [...skipSet].sort((a, b) => a - b),
+      double: Boolean(spec.double), partial, start: spec.start, weekdays: [...weekdaySet].sort(), skipDays: [...skipSet].sort((a, b) => a - b),
       blackouts: Object.fromEntries(blackSet.map((s, i) => [i, [...s].sort((a, b) => a - b)]).filter(([, d]) => d.length)),
       courts, times, seed: spec.seed ?? 1, minutes: spec.minutes ?? 60,
     },
@@ -787,11 +802,11 @@ export function validateSchedule(schedule) {
         if (c > want) errors.push(`${schedule.teams[a]} and ${schedule.teams[b]} meet ${c} time(s), expected at most ${want}.`);
         continue;
       }
-      if (c !== want) errors.push(`${schedule.teams[a]} and ${schedule.teams[b]} meet ${c} time(s), expected ${want}.`);
-      if (want === 2 && rec && (rec.hostedByLow !== 1 || rec.hostedByHigh !== 1)) errors.push(`${schedule.teams[a]} and ${schedule.teams[b]} do not each host once.`);
+      if (cfg.partial ? c > want : c !== want) errors.push(`${schedule.teams[a]} and ${schedule.teams[b]} meet ${c} time(s), expected ${cfg.partial ? "at most " : ""}${want}.`);
+      if (want === 2 && !cfg.partial && rec && (rec.hostedByLow !== 1 || rec.hostedByHigh !== 1)) errors.push(`${schedule.teams[a]} and ${schedule.teams[b]} do not each host once.`);
     }
   }
-  const tolerance = want === 2 ? 0 : 1;
+  const tolerance = cfg.partial ? want : want === 2 ? 0 : 1;
   const lost = Array(n).fill(0);
   for (const w of schedule.withdrawals || []) for (const x of w.removed) { lost[x.home]++; lost[x.away]++; }
   for (let t = 0; t < n; t++) {
@@ -2091,7 +2106,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds", "scoring"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds", "scoring"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -2118,6 +2133,7 @@ export function decodeFields(text) {
       skip: str(o.skip), blackouts: str(o.blackouts), timeLimits: str(o.timeLimits), courtLimits: str(o.courtLimits), courts: str(o.courts), times: str(o.times),
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
+      rounds: o.rounds === undefined || o.rounds === "" ? "" : String(o.rounds).slice(0, 4),
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
       playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
       rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds), scoring: str(o.scoring),
