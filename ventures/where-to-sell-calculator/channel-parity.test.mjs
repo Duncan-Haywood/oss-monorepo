@@ -39,6 +39,12 @@ import {
   TRANSACTION_FIXED as TCG_TRANSACTION_FIXED,
   calculateSale as calculateTcgSale,
 } from '../tcgplayer-fee-calculator/calc.mjs';
+import {
+  SELLING_FEE_RATE as DISCOGS_FEE_RATE,
+  DEFAULT_PROCESSING_RATE as DISCOGS_PROCESSING_RATE,
+  DEFAULT_PROCESSING_FIXED as DISCOGS_PROCESSING_FIXED,
+  calculateSale as calculateDiscogsSale,
+} from '../discogs-fee-calculator/calc.mjs';
 import { FEE_SCHEDULE_PRESETS, calculateOrder } from '../tiktok-shop-fee-calculator/calc.mjs';
 import {
   CATEGORY_PRESETS,
@@ -736,12 +742,28 @@ test('the TCGplayer row matches the dedicated calculator\'s one-card order profi
   assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `TCGplayer profit: this page ${here.profit}, dedicated ${there.profit}`);
 });
 
+test('the Discogs row matches the dedicated calculator\'s order profit', () => {
+  const discogs = CHANNEL_PRESETS.find((preset) => preset.id === 'discogs');
+  assert.ok(discogs, 'no channel with id "discogs" in CHANNEL_PRESETS');
+  assert.equal(discogs.commissionRate, DISCOGS_FEE_RATE, 'commission disagrees with discogs-fee-calculator');
+  assert.equal(discogs.commissionBase, 'order', 'Discogs charges its fee on item plus shipping');
+  assert.equal(discogs.paymentRate, DISCOGS_PROCESSING_RATE);
+  assert.equal(discogs.paymentFixed, DISCOGS_PROCESSING_FIXED);
+
+  const here = calculateChannel(discogs, {
+    price: 30, shippingCharged: 6, shippingCost: 5, itemCost: 8, packagingCost: 1, otherCost: 0,
+    quantity: 1, monthlyVolume: 1,
+  });
+  const there = calculateDiscogsSale({ itemPrice: 30, buyerShipping: 6, labelCost: 5, itemCost: 8, otherCost: 1 });
+  assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `Discogs profit: this page ${here.profit}, dedicated ${there.profit}`);
+});
+
 test('every channel with a handoff has a parity assertion in this file', () => {
   // The check that stops this file going stale the way it just did. A new
   // channel that can hand an item to a dedicated calculator is a new chance
   // for the two to disagree, so it must be named here -- and if it is not,
   // this fails naming it, instead of waiting for a seller to find the gap.
-  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari', 'depop', 'grailed', 'facebook-marketplace', 'walmart', 'tcgplayer']);
+  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari', 'depop', 'grailed', 'facebook-marketplace', 'walmart', 'tcgplayer', 'discogs']);
   const missing = HANDOFFS.map((entry) => entry.channel).filter((channel) => !asserted.has(channel));
   assert.deepEqual(
     missing,
