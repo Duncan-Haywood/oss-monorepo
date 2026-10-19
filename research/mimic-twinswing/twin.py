@@ -1,7 +1,7 @@
 """Pendulum 'real system', its digital twins, and a swing-up task whose controller depends on friction.
 
 Same pendulum, noise models, twins and C2ST as `research/mimic-twinregret/twin.py` (copied, so this project stands
-alone). The task differs: the torque limit (UMAX = 3) is below gravity's pull (g/L = 9.81), so the pendulum cannot be
+alone). The task differs: the torque limit (UMAX = 4) is below gravity's pull (g/L = 9.81), so the pendulum cannot be
 lifted directly. The controller must pump energy by pushing along the measured velocity, then catch the top with PD.
 Pumping has to beat Coulomb and viscous friction, so, unlike the stabilisation task of `mimic-twinregret`, a twin with
 the wrong friction should tune the pump gain wrongly. Everything is stylised and simulated: no real data.
@@ -12,8 +12,8 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 
 DT, STEPS = 0.02, 100          # passive trajectories for the C2ST (same as mimic-twinregret)
-TSTEPS = 300                   # swing-up episode: 6 s
-UMAX, U_COST = 3.0, 0.002
+TSTEPS = 400                   # swing-up episode: 8 s
+UMAX, U_COST = 4.0, 0.002
 G_NOM = 9.81                   # the controller's own gravity constant in its energy estimate (not tuned on the twin)
 VF = 0.3                       # low-pass factor on the differenced velocity estimate
 REAL = dict(visc=0.1, coul=0.3, sd=0.02, kind="student3", glo=9.81)
@@ -75,7 +75,7 @@ def swing_cost(starts, gains, p, rng):
         meas = th + eps[t + 1]
         wh = (1 - VF) * wh + VF * (meas - prev) / DT
         e = wrap(meas - np.pi)
-        pump = ke * ((G_NOM - 0.0) - (0.5 * wh ** 2 - G_NOM * np.cos(meas))) * np.sign(wh)
+        pump = ke * (G_NOM - (0.5 * wh ** 2 - G_NOM * np.cos(meas))) * np.sign(wh)
         u = np.clip(np.where(np.abs(e) < cap, -kp * e - kd * wh, pump), -UMAX, UMAX)
         cost += (1 + np.cos(th)) / 2 + U_COST * u ** 2
         th, w = _rk4(th, w, u, p, DT)
