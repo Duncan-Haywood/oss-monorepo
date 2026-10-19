@@ -95,6 +95,8 @@
     <textarea id="timeLimits" rows="2" placeholder="Dink Dynasty: 18:00"></textarea>
     <label for="courtLimits">Optional: teams that can only use certain courts or fields, one per line: <code>Team name: Field 2</code> (needs two or more courts below; names must match the court names)</label>
     <textarea id="courtLimits" rows="2" placeholder="Under-8 Owls: Field 2"></textarea>
+    <label for="courtClosures">Optional: dates a court or field is closed or booked by someone else, one per line: <code>Field 2: 2026-11-03, 2026-11-10 to 2026-11-17</code> (no match is put there; if too few courts are left that night, matches move to makeup rounds)</label>
+    <textarea id="courtClosures" rows="2" placeholder="Court 2: 2026-11-03"></textarea>
     <div class="row4">
       <div><label for="finishBy">Must finish by, optional (YYYY-MM-DD)</label><input id="finishBy" placeholder="2026-12-15"></div>
       <div><label for="hire">Court hire per hour, optional (to price a team fee)</label><input id="hire" inputmode="decimal" placeholder="40"></div>
@@ -337,6 +339,7 @@
       $("#blackouts").value = f.blackouts;
       $("#timeLimits").value = f.timeLimits || "";
       $("#courtLimits").value = f.courtLimits || "";
+      $("#courtClosures").value = f.courtClosures || "";
       $("#courts").value = f.courts.replace(/\n/g, ", ");
       $("#times").value = f.times;
       $("#playoff").value = f.playoff;
@@ -357,7 +360,7 @@
       for (let i = 0; i < 7; i++) if ($("#wd" + i).checked) weekdays.push(WEEKDAYS[i]);
       return {
         teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
-        skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courts: $("#courts").value, times: $("#times").value,
+        skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courtClosures: $("#courtClosures").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value,
         results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
       };
@@ -599,7 +602,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "results", "rainouts", "withdrawals", "lateTeams", "officials", "grounds", "linked"]) $("#" + id).value = "";
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "rainouts", "withdrawals", "lateTeams", "officials", "grounds", "linked"]) $("#" + id).value = "";
       $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
