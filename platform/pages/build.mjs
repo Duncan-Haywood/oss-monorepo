@@ -395,8 +395,13 @@ const isTestFile = (name) =>
 // downloads none of the CLI, so it is not part of the Pages payload. The rule
 // is by extension rather than by directory name, because a venture is free to
 // keep browser modules in `src/` too.
+// Manufacturing files (CAD exchange formats and the zip that bundles them, as
+// in open-tennis-robots/manufacturing/) are downloads for fabricators, not web
+// payload: check.mjs has no MIME type for them, and the page links them on
+// GitHub instead.
 const NON_WEB_EXTENSIONS = new Set([
   '.py', '.toml', '.cfg', '.ini', '.lock', '.yaml', '.yml', '.sh', '.ts', '.tsx', '.md',
+  '.dxf', '.step', '.stp', '.stl', '.zip',
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.
