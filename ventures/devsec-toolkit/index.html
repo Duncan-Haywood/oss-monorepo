@@ -71,9 +71,9 @@ python3 devsec-src/ventures/devsec-toolkit/devsec.py scan . --fail-on high      
     <h2>Open a report</h2>
     <p class="note">Open the <code>devsec.json</code> or <code>devsec.sarif</code> that a scan wrote, or paste it below, to sort and filter the findings. The file is read in this browser and never uploaded.</p>
     <p>
-      <input type="file" id="report-file" accept=".json,.sarif,application/json">
+      <input aria-label="Report file" type="file" id="report-file" accept=".json,.sarif,application/json">
     </p>
-    <textarea id="report-text" placeholder="…or paste devsec JSON / SARIF here"></textarea>
+    <textarea aria-label="Pasted report" id="report-text" placeholder="…or paste devsec JSON / SARIF here"></textarea>
     <p>
       <button type="button" id="open-report">Show findings</button>
       <button type="button" class="secondary" id="load-example">Load example report</button>
