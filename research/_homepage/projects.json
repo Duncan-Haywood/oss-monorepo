@@ -3285,6 +3285,11 @@
      "slug": "swe-startslot",
      "title": "Do agent runs that start alongside other runs, or at certain hours, go worse?",
      "summary": "Joins 660 run records that have a start time (1 to 19 October 2026) to how many other runs started within 5, 10 or 30 minutes. Raw, crowded starts look better (error recorded in 9.8% against 21.0%), but that is a day effect: 13 to 15 October had 47&ndash;50% error records and few concurrent starts, 16 October on 6&ndash;9% and many. Shuffling the crowded label within calendar days finds no detectable difference (12 tests, one p&nbsp;=&nbsp;0.018 on a 50-run group, not counted), and six-hour blocks of the day show nothing. Preliminary and low power: association only, <code>errors</code> is self-reported, and duplicate work, the cost <code>swe-schedule</code> models, is not in the records."
+    },
+    {
+     "slug": "swe-nullrate",
+     "title": "How often does this portfolio report a negative or mixed result?",
+     "summary": "A hand-labelled census of 80 randomly sampled project summaries (of 711): 51% descriptive, 20% positive, 18% mixed and 11% negative. Among the 39 that test a claim against an alternative, 59% (Wilson 95% 43&ndash;73%) report a negative or mixed result, so the portfolio is not a list of wins. A keyword rule for negative or mixed has precision 0.60 and recall 0.65 in-sample and should not be used for by-theme shares. Preliminary: one labeller, one pass, rubric fixed while labelling, summaries truncated when long, no inter-rater agreement."
     }
    ]
   },
