@@ -1744,6 +1744,11 @@
      "slug": "robofab-barimpratio",
      "title": "Does a stiffer friction cone make the held-bar result in robofab-liftload threshold-free?",
      "summary": "A follow-up to <code>robofab-sliprate</code>, which traced the bar&rsquo;s creep to MuJoCo&rsquo;s contact settings. Raising the <code>impratio</code> option from 1 to 1000 cuts the creep of a 10&times;10&times;40&nbsp;mm bar held at one end from 3.66 to 0.004&nbsp;deg/s, roughly as 1/<code>impratio</code>. From <code>impratio</code> 10 the minimum holding forces for 1&deg; and 5&deg; tolerances agree within 26% in all 12 cases, so the answer no longer depends on the threshold. The simulated force is below the uniform-pressure torque bracket in 10 of 12 cases (0.67&ndash;1.17&times; its lower bound) and 1.15&ndash;1.67&times; a point-contact bound built on the five contacts per pad MuJoCo reports. One engine, one bar section, no torsional friction. Stylised and preliminary."
+    },
+    {
+     "slug": "robofab-tolstack",
+     "title": "How much clearance does a printed two-pin cover need to assemble, and how wasteful is worst-case stacking?",
+     "summary": "Monte Carlo of a printed base with two pins and a cover with two holes, each centre with a Gaussian position error and each diameter a Gaussian size error, translation-only assembly (exact two-disk test). With exact sizes, yield is <code>1 &minus; exp(&minus;c<sup>2</sup>/(8&sigma;<sub>p</sub><sup>2</sup>))</code> (tested against simulation). For position sd 0.10 mm and size sd 0.05 mm, 99% yield needs 0.62 mm nominal diametral clearance and 99.9% needs 0.77 mm, while a &plusmn;3&sigma; worst-case stack asks for 2.0 mm (3.0&ndash;3.4&times; the 99% requirement and 2.5&ndash;2.8&times; the 99.9% one across the six unbiased cases); a 3&sigma; root-sum-square rule lands at 0.9990&ndash;0.9998 yield where the holes are unbiased. A hole bias adds to the needed clearance one for one. Assumed process spreads, not measured; two pins, no rotation, stylised."
     }
    ]
   },
@@ -3135,6 +3140,11 @@
      "slug": "swe-orgs",
      "title": "Which practices of engineering organisations that ship could help an agent loop, and what is there to fix?",
      "summary": "A cited, growing catalogue of 57 practices from 56 sources (Mercari&rsquo;s production-readiness checklist, Apollo&rsquo;s priority displays, Kohavi, Tang and Xu on controlled experiments, Strathern on audit, Perrow on normal accidents, the DevOps Handbook, Reason on layered defences, Vaughan on normalization of deviance, Rigby and Bird, Humble and Farley, Beck, Allspaw and Hammond on Flickr, Parnas, Nygard, Conway, Nagappan et al., Skelton and Pais, Brooks, Fowler, Reinertsen, Toyota, the Rogers Commission, 37signals, Instagram, Google, Microsoft, Facebook, Netflix, Amazon, Etsy, Basecamp, Spotify, Stripe (twice, including its online-migrations post), Shopify, Linear, and postmortems from GitLab and Cloudflare, the SEC&rsquo;s order on Knight Capital and others), each tagged with company stage, evidence type (four measured, the rest case studies, postmortems, accounts or opinion), the loop element it maps to, how far it transfers to a fleet of agent sessions, and the assumption that does not carry over. The failure reports agree: a safety mechanism or a cost nobody measured before it shipped. Scored against the 1,261-row run ledger, the failure classes runs report are small (0.6&ndash;1.6% of runs, self-reported keyword matches), so <em>no practice clears the 5% ceiling as a new proposal</em>: a negative result. Sources were checked by web search only. Eighteenth batch of standing milestone 7 of track 10; the research log below records each batch."
+    },
+    {
+     "slug": "swe-startslot",
+     "title": "Do agent runs that start alongside other runs, or at certain hours, go worse?",
+     "summary": "Joins 660 run records that have a start time (1 to 19 October 2026) to how many other runs started within 5, 10 or 30 minutes. Raw, crowded starts look better (error recorded in 9.8% against 21.0%), but that is a day effect: 13 to 15 October had 47&ndash;50% error records and few concurrent starts, 16 October on 6&ndash;9% and many. Shuffling the crowded label within calendar days finds no detectable difference (12 tests, one p&nbsp;=&nbsp;0.018 on a 50-run group, not counted), and six-hour blocks of the day show nothing. Preliminary and low power: association only, <code>errors</code> is self-reported, and duplicate work, the cost <code>swe-schedule</code> models, is not in the records."
     }
    ]
   },
@@ -3406,6 +3416,18 @@
     "slug": "capture-crop",
     "title": "How long a lens can a 360 camera fake by cropping into a reel, and what perspective can no crop fake?",
     "summary": "Pixel and perspective geometry for the simplest multi-angle rig, a 360 camera on a pole reframed in software. An 8K (7,680 px) equirect cropped into a 1080&times;1920 vertical reel is native only up to about 24 mm full-frame-equivalent; 50 mm is upscaled 2.1&times; and 85 mm 3.5&times;, and a native 85 mm crop would need a ~27,000 px equirect. Perspective is set by distance: from a stick at 0.8 m a feature 10 cm nearer the lens images 14% larger, against 7.6% from the 1.4 m an 85 mm head-and-shoulders shot is taken at, with the background 1.7&times; larger. So portrait and compressed-background shots need a camera standing back, whatever the resolution. Upper bounds from pixel counts (real cameras resolve less); framing distances and depths are stated assumptions."
+   }
+  ]
+ },
+ {
+  "id": "sensing",
+  "name": "Sensing, imaging and 3D",
+  "blurb": "Getting more from cheap sensors: fusing cheap IMUs and cameras, computational imaging, and 3D models from real captures, with the error floors that correlated errors set.",
+  "projects": [
+   {
+    "slug": "sensing-imuarray",
+    "title": "How many cheap gyros, fused, match one better gyro at the same cost?",
+    "summary": "Single-axis gyro model with angle random walk and rate random walk (Allan-variance terms) and a fraction <em>&rho;</em> of each shared between units. With independent errors an array of <em>n</em> cheap units ties a unit <em>k</em> times quieter only when the price ratio exceeds <em>k</em><sup>2</sup> (9 for <em>k</em>&nbsp;=&nbsp;3, 100 for <em>k</em>&nbsp;=&nbsp;10); shared error above 1/<em>k</em><sup>2</sup> means no array size ties (<em>k</em>&nbsp;=&nbsp;10, <em>&rho;</em>&nbsp;&ge;&nbsp;0.01). If the better unit improves white noise 10&times; but bias walk only 3&times;, the number of units needed falls from 100 at 1&nbsp;s to 10 beyond 300&nbsp;s, so the answer depends on integration time. Monte Carlo matches the closed form within 0.03. Stylised: illustrative grades, not datasheets; no real IMU data; no prices claimed."
    }
   ]
  }
