@@ -12,11 +12,14 @@ Pure Python, no dependencies. Milestone 3 (`swe-value`) of track 10, the softwar
 - **Follow-ups cost about as much code as new projects.** Lines added to non-data files (no merges, `git log` on full history) have medians of 318 (pass A class 1, follow-up), 328 (class 2) and 362 (class 3, a listed milestone). So under this rubric a follow-up buys about 3.0 value points per 1000 lines against 5.1 for new work and 6.3 for listed milestones (bootstrap intervals in the results file). **That ratio is largely built in** (the points are the rubric's), so the informative part is only the near-equal code cost. Lines are a poor proxy for tokens, which the log does not record for most runs.
 - **Answer to the track's example question** (are follow-ups worth as much per unit as new milestones?): not on this rubric, but the rubric's agreement is too weak to rest an allocation policy (`swe-allocate`) on. What it needs first is human or blind-reviewer scores.
 
+![Agreement between the two automated value scores: a 3 by 3 count of projects, with 126 of 408 on the diagonal](experiments/agreement.svg)
+
 ```bash
 git fetch --unshallow origin main      # full history is needed for first-added dates
 cd research/swe-value
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, under a second
 python3 experiments/run.py > experiments/results.txt       # a few seconds; also writes scores.csv and sample.json
+python3 experiments/figure.py                              # experiments/agreement.svg from scores.csv
 ```
 
 `experiments/scores.csv` has every project's first-added time, lines added, family and both scores. `experiments/hand_scores.json` is the hand sample.
