@@ -297,6 +297,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             0 if v.later_stage else 1,
             -(v.merit if v.merit is not None else 0.0),
             -v.monthly_cap,
+            v.ledger_entries + v.portfolio_mentions,
             v.name,
         )
 

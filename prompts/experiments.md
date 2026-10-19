@@ -760,3 +760,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 7 runs).
   `derived/` not regenerated, audit not run (no GitHub API fetch attempted; recent outputs doc-only/research).
 - Result: (next review)
+
+## E42: review 2026-10-19
+
+- Change: `allocate.py` `rank()` now breaks ties by least-worked first
+  (ledger entries + portfolio mentions, ascending) before name. Top rows were a
+  merit tie sorted alphabetically, so every run met the same already-deep
+  ventures (reverb, where-to-sell: ~20 friction reports across
+  `CLAUDE.md`, `ventures/prompt-1.md`, `allocate.py`). Top 3 now include
+  ventures with 0 ledger entries.
+- Metric: "allocator top rows already deep" friction reports, next 20 ventures
+  runs; expect fewer.
+- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 7 runs).
+  `derived/` regenerated. Audit not run (recent outputs are venture deepenings
+  and research already audited).
+- Result: (next review)
