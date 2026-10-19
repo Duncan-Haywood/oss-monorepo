@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { parseGuests, parseRules, parseAccessTables, sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe, reseat, parsePlanCsv, planCsv } from "./calc.mjs";
+import { parseGuests, parseRules, parseAccessTables, parseTableSizes, sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe, reseat, parsePlanCsv, planCsv } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-wedding-seating-chart.html";
@@ -202,6 +202,39 @@ test("the step-free guide is linked, carries the clauses, and its worked example
   assert.deepEqual([at(base, "Walt Ferris"), at(base, "Gus Holt")], [1, 1], "list order seats both at an accessible table");
   assert.deepEqual([at(res.table, "Walt Ferris"), at(res.table, "Gus Holt")], [1, 2]);
   assert.deepEqual(res.tables.map((t) => t.size), [8, 8, 8]);
+});
+
+test("the kids-table guide is linked, carries the clauses, and its worked example matches the optimizer", () => {
+  const name = "how-to-seat-a-kids-table-and-a-head-table-at-a-wedding.html";
+  const guide = page(name);
+  assert.match(guide, /not a guarantee that any guest will be content/i);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(".", "\\.")}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(".", "\\.")}"`));
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(".", "\\.")));
+  const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
+
+  const rows = ["Maya Patel|Patel family", "Dev Patel|Patel family", "Anya Patel|Patel family", "Rohan Patel|Patel family", "Tom Reed|Reed family", "Sara Reed|Reed family", "Eli Reed|Reed family", "Zoe Reed|Reed family", "Lucy Reed|Reed family", "Nina Cho|Cho family", "Sam Cho|Cho family", "Ivy Cho|Cho family", "Hal Brandt|Brandt family", "June Brandt|Brandt family", "Max Brandt|Brandt family", "Owen Lind|", "Pia Lind|", "Gil Ward|", "Rae Ward|", "Ted Moss|", "Una Moss|", "Vic Hale|", "Wes Hale|", "Kay Dunn|"];
+  const parsed = parseGuests(rows.map((r) => r.replace("|", " | ")).join("\n"));
+  const kids = ["Anya Patel", "Rohan Patel", "Eli Reed", "Zoe Reed", "Lucy Reed", "Ivy Cho", "Max Brandt"];
+  const rulesText = ["Maya Patel + Gil Ward", "Tom Reed + Owen Lind", "Nina Cho + Ted Moss", "Hal Brandt + Vic Hale", "Kay Dunn + Una Moss", "Sara Reed ! Hal Brandt", "Maya Patel @ 1", "Tom Reed @ 1", ...kids.map((k) => `${k} @ 3`)].join("\n");
+  const { rules, errors } = parseRules(rulesText, parsed.guests);
+  assert.deepEqual([...parsed.errors, ...errors], []);
+  const sizes = parseTableSizes("1: 6, 3: 7");
+  assert.deepEqual(sizes.errors, []);
+  const spec = { guests: parsed.guests, rules, seatsPerTable: 8, tableCount: 4, balance: true, mix: "off", seed: 1, tableSizes: sizes.sizes };
+  assert.deepEqual(validateSpec(spec), []);
+  const res = optimize(spec);
+  assert.deepEqual(verifyPlan(spec, res), []);
+  const base = baselinePlan(spec);
+  const baseRes = describe(spec, weightMatrix(spec), base, base);
+  const row = (label, met, total, splits, score) => `<tr><td>${label}</td><td class="n">${met} of ${total}</td><td class="n">${splits}</td><td class="n">${score}</td></tr>`;
+  assert.ok(guide.includes(row("In the order typed", baseRes.rulesMet, baseRes.rulesTotal, baseRes.partySplits.length, baseRes.score)), "list-order row");
+  assert.ok(guide.includes(row("Optimized", res.rulesMet, res.rulesTotal, res.partySplits.length, res.score)), "optimized row");
+  assert.equal(res.rulesTotal, 6);
+  for (const k of kids) assert.equal(res.table[parsed.guests.findIndex((g) => g.name === k)], 2, `${k} at the kids table`);
+  assert.equal(res.tables[2].size, 7);
 });
 
 test("the late-RSVP guide is linked, carries the clauses, and its worked example matches reseat", () => {
