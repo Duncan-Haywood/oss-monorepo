@@ -1302,3 +1302,18 @@ test("planFairness adds each week's tough shifts per person and flags a lopsided
   assert.equal(lop.flag, true);
   assert.deepEqual(planFairness(null), { weeks: 0, rows: [], spread: 0, flag: false, most: null, least: null });
 });
+
+test("ownerValid judges a person's shifts in time order, whatever order the slot array is in", () => {
+  const staff = staffOf("Ann,15,40,0,Mon-Sun 6-24");
+  const base = slotsOf("Mon,9,17,1\nTue,9,17,1\nWed,9,17,1");
+  // Slot indices run with the clock in one array and against it in the other.
+  for (const slots of [base, [...base].reverse()]) {
+    const ctx = _internals.buildContext(staff, slots, {});
+    assert.ok(_internals.ownerValid(ctx, slots.map(() => 0)), "three days of shifts with a full night between them are valid");
+  }
+  const clash = slotsOf("Mon,6,12,1\nMon,10,16,1");
+  for (const slots of [clash, [...clash].reverse()]) {
+    const ctx = _internals.buildContext(staff, slots, {});
+    assert.ok(!_internals.ownerValid(ctx, [0, 0]), "overlapping shifts are invalid");
+  }
+});
