@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks } from "./calc.mjs";
+import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, validateSchedule, dayLabel } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-round-robin-schedule.html";
@@ -619,4 +619,33 @@ test("the fantasy football guide's 12-team, 14-week example matches buildSchedul
   assert.equal(rematchReport(s).shortest, 77);
   assert.match(page("sitemap.xml"), /how-to-make-a-fantasy-football-schedule\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-make-a-fantasy-football-schedule\.html"/);
+});
+
+test("the adult softball guide's 6-team example with a blackout matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "adult-softball-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Bat Pack", "Dugout Dogs", "Foul Ballers", "Grand Slammers", "Pitch Perfect", "Walk-Offs"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-04-14", weekdays: ["Tue"], courts: "Diamond 1\nDiamond 2", times: "18:30\n20:00", blackouts: "Walk-Offs: 2026-05-05", minutes: 90 });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(validateSchedule(s).ok, true);
+  assert.equal(s.rounds.length, 6);
+  let games = 0;
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.label}</td><td>${dayLabel(r.day)}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, r.matches.length);
+    games += r.matches.length;
+  });
+  assert.equal(games, 15);
+  const blackedOut = s.rounds.find((r) => dayLabel(r.day) === "Tue 5 May 2026");
+  assert.ok(blackedOut.matches.every((m) => m.homeName !== "Walk-Offs" && m.awayName !== "Walk-Offs"));
+  assert.equal(s.rounds.filter((r) => r.makeup).length, 1);
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });
