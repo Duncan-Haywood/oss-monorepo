@@ -51,7 +51,7 @@ export const MAX_BODY = 256;
 // Distribution-channel tags a page may report (`?ref=<tag>`), kept here so the
 // image stays one file. `platform/distribution/attribution.mjs` maps each
 // channel to its tag, and its test fails if the two lists drift apart.
-export const REFS = Object.freeze(['bluesky', 'devto', 'gh-action', 'ghcr', 'hashnode', 'homebrew', 'mastodon', 'mcp', 'npm', 'pypi', 'release', 'vscode', 'webext']);
+export const REFS = Object.freeze(['bluesky', 'devto', 'gh-action', 'ghcr', 'hashnode', 'homebrew', 'mastodon', 'mcp', 'npm', 'pypi', 'release', 'vscode', 'webext', 'wordpress']);
 // `:` is outside SLUG_RE, so a channel key can never collide with a page slug.
 export const REF_KEY = 'ref:';
 
