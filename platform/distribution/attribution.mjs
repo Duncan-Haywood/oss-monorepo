@@ -54,6 +54,7 @@ export const CHANNEL_REFS = Object.freeze({
   'browser-extension': 'webext',
   'vscode-extension': 'vscode',
   'github-actions': 'gh-action',
+  'wordpress-plugin': 'wordpress',
 });
 
 

@@ -234,6 +234,20 @@ channels:
     owner_ask: none
     dry_run: node platform/distribution/nixflake.mjs
     verified: built actions-timeout-check from the flake against a local nixpkgs (the sandbox cannot reach api.github.com for nixpkgs-unstable) and ran it on this repository (528 workflows, no findings); all 19 packages evaluate for x86_64-linux. Not run on macOS or aarch64.
+  - id: wordpress-plugin
+    rung: artifact
+    built: 2026-10-19
+    code: platform/distribution/wordpress.mjs
+    workflow: none (artifact only; the owner submits the zip to WordPress.org once)
+    enabled_by: nothing in the tree is gated; building a package is always allowed. Submitting is the owner's step
+    what_it_posts: 'nothing automatically. `wordpress.mjs --build <dir>` writes one dependency-free plugin zip, "Free Tools Embed": `[free_tool slug="..."]` renders a sandboxed lazy iframe of the tool page (?pfEmbed=1&ref=wordpress) with a visible link to the full tool, and `[free_tools_list]` prints every tool. No requests, options, cookies or scripts of its own; only slugs baked in at build time are accepted. WordPress.org readme.txt and MIT LICENSE bundled'
+    dedupe: not applicable (no automated posting)
+    terms_to_confirm_by_owner_when_enabling:
+      - WordPress.org plugin guidelines (https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/): a plugin must be GPL-compatible (MIT is), and must not exist mainly to push links, so the visible link back is kept to one caption line per embed. Agents had no network to wordpress.org on build day, so the guidelines are unread and the readme.txt unvalidated by their checker
+      - the "Contributors" line in readme.txt must be the owner's real wordpress.org username (currently a placeholder)
+      - the PHP was linted and the shortcodes executed with stubbed WordPress functions under php-cli; the plugin has not been activated in a real WordPress
+    owner_ask: create a wordpress.org account, fix the Contributors line, submit the zip for review
+    dry_run: node platform/distribution/wordpress.mjs
   - id: android-play-store
     rung: artifact
     built: 2026-10-16
