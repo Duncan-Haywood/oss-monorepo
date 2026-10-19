@@ -58,6 +58,7 @@ server only hands out files and never sees a date you type.
   reads "183 days or more", so the safe maximum is 182; figures recomputed by
   the test suite.
 - `georgia-new-mexico-louisiana-days-only-residency.html` - guide for the three states whose day test needs no place of abode; figures recomputed by the test suite.
+- `ohio-212-contact-period-safe-harbor.html` - guide to Ohio's contact-period safe harbor (212 or fewer; 213 presumes domicile); figures recomputed by the test suite.
 - `california-nine-month-residency-presumption.html` - guide on why California
   has a nine-month presumption rather than a 183-day test; figures recomputed by
   the test suite.
