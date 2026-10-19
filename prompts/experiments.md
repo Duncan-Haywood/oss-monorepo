@@ -760,3 +760,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 7 runs).
   `derived/` not regenerated, audit not run (no GitHub API fetch attempted; recent outputs doc-only/research).
 - Result: (next review)
+
+## E42: review 2026-10-19
+
+- Change: `research/CLAUDE.md` pyenv note now says first use can take over 2
+  minutes and to run it with `run_in_background` (E41 said ~20s; 5 reports
+  of a 120s foreground timeout since). `derived/` regenerated (53 PRs).
+- Metric: friction reports about pyenv foreground timeouts, next 20 research
+  runs; expect none.
+- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 7 runs).
+  Audit not run (recent outputs doc-only or mirrored).
+- Drift: `prompts/drift/2026-10-19.md`.
+- Result: (next review)

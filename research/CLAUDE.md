@@ -73,7 +73,7 @@ results, in the same commit:
 Tests and figures need packages the image may lack: from the repo root,
 `PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`, then use `"$PY"` instead of `python3`
 (stdout is only the interpreter path, and it can differ from the default `python3`).
-First use builds a venv and installs packages (about 20s, install chatter on stderr); run it in the background if your tool timeout is short.
+First use can build a venv and install packages: 20s to over 2 minutes (5 reports of a 120s foreground timeout), install chatter on stderr. Run it with `run_in_background` and read its stdout when it exits.
 EDA/chip projects also need `yosys` and `iverilog`, which the image lacks:
 `apt-get update -qq && apt-get install -y yosys iverilog` (about a minute; checked 2026-10-18).
 
