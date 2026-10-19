@@ -119,6 +119,19 @@
         <button id="reset" type="button">Reset</button>
       </div>
       <p id="status" class="note" role="status" aria-live="polite"></p>
+      <hr>
+      <h3>Payment reminder schedule</h3>
+      <p class="note">Dated follow-ups around the due date, with wording you can edit. Download them as calendar events (.ics) so you actually send them.</p>
+      <label>Invoice number (optional) <input id="invoiceNumber" type="text" maxlength="40" autocomplete="off"></label>
+      <table>
+        <thead><tr><th>Date</th><th>Step</th></tr></thead>
+        <tbody id="reminderRows"></tbody>
+      </table>
+      <div class="actions">
+        <button id="copyReminders" type="button">Copy reminder wording</button>
+        <button id="downloadReminders" type="button">Download calendar (.ics)</button>
+      </div>
+      <p id="reminderStatus" class="note" role="status" aria-live="polite"></p>
     </section>
 <p>Several supplier discounts and not enough cash to take them all? The <a href="../early-pay-discount-picker/">early pay discount picker</a> chooses which invoices to pay early.</p>
 <p>Related: the <a href="../film-tax-credit-net-value-calculator/">film tax credit net value calculator</a> shows what a slow-paying incentive costs a production.</p>
@@ -200,6 +213,7 @@
       SCHEDULE_PRESETS, compareSchedules, depositForPeakExposure,
       depositSchedule, scheduleCopy, scheduleNote,
     } from './schedule.mjs';
+    import { reminderSchedule, reminderIcs } from './reminders.mjs';
     import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     const ids = ['amount','invoiceDate','termsDays','annualLateRate','graceDays','monthlyBurn','outstanding','earlyPayDays','earlyPayDiscountPct','annualCarryRate','takeRatePct','factorFeePct','advancePct','reserveDays','payRun','payRunDay','payRunWeekday'];
@@ -213,6 +227,17 @@
     };
     let usageTimer;
     const safe = fn => { try { return fn(); } catch { return undefined; } };
+    let reminders = null;
+    function renderReminders(input) {
+      try {
+        reminders = reminderSchedule({ ...input, invoiceNumber: $('invoiceNumber').value });
+        $('reminderRows').replaceChildren(...reminders.steps.map(step => {
+          const tr = document.createElement('tr');
+          [step.date, step.label].forEach(value => { tr.insertCell().textContent = value; });
+          return tr;
+        }));
+      } catch { reminders = null; $('reminderRows').replaceChildren(); }
+    }
     function update(count = true) {
       try {
         const input = Object.fromEntries(ids.map(id => [id, $(id).value]));
@@ -229,6 +254,7 @@
           return tr;
         }));
         $('copyText').textContent = termsCopy(result);
+        renderReminders(input);
         const early = compareEarlyPay(input);
         $('earlyCash').textContent = money(early.earlyCash);
         $('earlyAfter').textContent = money(early.earlyAfterFloat);
@@ -423,6 +449,25 @@
         $('status').textContent = 'Payment terms copied.';
       } catch { $('status').textContent = 'Select and copy the terms shown above.'; }
       recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'terms_copied');
+    });
+    $('invoiceNumber').addEventListener('input', () => update(false));
+    $('copyReminders').addEventListener('click', async () => {
+      if (!reminders) { $('reminderStatus').textContent = 'Enter a valid invoice date first.'; return; }
+      const text = reminders.steps.map(s => `${s.date} — ${s.label}\nSubject: ${s.subject}\n${s.body}`).join('\n\n');
+      try { await navigator.clipboard.writeText(text); $('reminderStatus').textContent = 'Reminder wording copied.'; }
+      catch { $('reminderStatus').textContent = 'Clipboard unavailable — use the calendar download instead.'; }
+      recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'reminders_copied');
+    });
+    $('downloadReminders').addEventListener('click', () => {
+      if (!reminders) { $('reminderStatus').textContent = 'Enter a valid invoice date first.'; return; }
+      const blob = new Blob([reminderIcs(reminders, { invoiceNumber: $('invoiceNumber').value })], { type: 'text/calendar' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'invoice-reminders.ics';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      $('reminderStatus').textContent = 'Calendar file downloaded. Nothing was uploaded.';
+      recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'reminders_downloaded');
     });
     $('reset').addEventListener('click', () => {
       const defaults = { amount: '1200', termsDays: '30', annualLateRate: '18', graceDays: '10', monthlyBurn: '3000', outstanding: '3', earlyPayDays: '10', earlyPayDiscountPct: '2', annualCarryRate: '24', takeRatePct: '100', factorFeePct: '3', advancePct: '90', reserveDays: '35', payRun: 'weekdays', payRunDay: '1', payRunWeekday: '5', projectValue: '6000', projectDays: '30', avgDaysLate: '12', depositCollectionDays: '5', depositPct: '30', exposureCeiling: '2000' };      Object.entries(defaults).forEach(([id, value]) => $(id).value = value);

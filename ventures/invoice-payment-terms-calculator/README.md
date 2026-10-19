@@ -78,6 +78,16 @@ schedule (that is construction withhold), and not a Faire payout-speed
 page (that is marketplace processing). This page is invoice terms for
 service firms.
 
+## Payment reminder schedule
+
+Under the payment-terms wording the page lists dated follow-ups — three days
+before the due date, on it, then 7, 14 and 30 days after — with editable
+wording for each, and a **Download calendar (.ics)** button that creates
+all-day events you can import into Google, Apple or Outlook calendar. The file
+is built in your browser and never uploaded. The wording is a neutral template,
+not legal advice, and says nothing about what a late fee or collection step is
+permitted to do where you are ([`reminders.mjs`](reminders.mjs)).
+
 ## Run
 
 ```sh
@@ -88,7 +98,7 @@ Then open `http://localhost:8877`. There is no build step.
 
 ## Privacy and usage
 
-Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`, `schedule_compared`, `schedule_copied`) and can be disabled in the footer. Saved drafts stay on this device.
+Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`, `schedule_compared`, `schedule_copied`, `reminders_copied`, `reminders_downloaded`) and can be disabled in the footer. Saved drafts stay on this device.
 ## Safety
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. It does not determine whether a late-fee term is permitted or enforceable, and it does not tell you to offer or withhold an early-pay discount or to factor an invoice. **You are responsible for reviewing and verifying its output before relying on it.** To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
