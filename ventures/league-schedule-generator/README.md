@@ -44,6 +44,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   rainout rescheduling (cancel a night or one team's match; it moves to the
   earliest later night both teams are free and a court is open, nothing else
   changes), and an independent validator that re-checks a finished schedule.
+- Rainout change notices: after a rainout move, "Download rainout change notices" writes one post for the league chat listing every moved match (old date, new date, time, court) and one short note per affected team with only its own changes (`changeNotices` in `calc.mjs`).
 - A team drops out mid-season (`Lob Squad` or `2026-11-03 Lob Squad`): its remaining matches are removed, matches already played stay, nothing else moves, and the page lists how many fixtures each opponent loses so the league can decide how earlier results count (`applyWithdrawals`).
 - A team joins late (`2026-11-03 Newbies`): list the team with the others; its matches dated before its first night move to the earliest later night when both teams are free and a court and slot are open (respecting blackouts and per-team time and court limits), with a makeup night added if none fits. Nothing else moves, and a match that cannot be placed stays put and is named in the warnings (`applyLateTeams`).
 - Named make-up date: end a rainout line with `-> 2026-10-16` (or `→`) to put the match on a day you already agreed, even outside the league weekday; it is refused with the reason if either team is blacked out or already playing, or no court and slot is free (`applyRainouts`).

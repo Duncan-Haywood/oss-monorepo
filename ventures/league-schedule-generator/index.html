@@ -188,6 +188,7 @@
     <button type="button" class="secondary" id="dl-text">Download text</button>
     <button type="button" class="secondary" id="print-page">Print or save as PDF</button>
     <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
+    <button type="button" class="secondary" id="dl-change-notices" hidden>Download rainout change notices (.txt)</button>
     <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
     <select id="official-pick" hidden aria-label="Official"></select>
     <button type="button" class="secondary" id="dl-off-ics" hidden>Download calendar (.ics), selected official</button>
@@ -318,7 +319,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -375,6 +376,7 @@
     function render(s, extra) {
       last = { s, ...extra };
       $("#report").hidden = false;
+      $("#dl-change-notices").hidden = !(extra.moves && extra.moves.length);
       const v = validateSchedule(s);
       $("#notices").innerHTML = s.notices.map((n) => `<div class="warn">${esc(n)}</div>`).join("") + extra.warnings.map((n) => `<div class="warn">${esc(n)}</div>`).join("");
       const regular = s.rounds.filter((r) => !r.makeup).length;
@@ -480,12 +482,14 @@
       const warnings = [];
       let table = null, pres = [];
       let bracket = null;
+      let extraMoves = [];
       if (errors.length) { status.textContent = errors.join(" "); return false; }
       let s;
       try { s = buildSchedule(spec); } catch (e) { status.textContent = e.message; return false; }
       if ($("#rainouts").value.trim()) {
         const rr = applyRainouts(s, $("#rainouts").value);
         s = rr.schedule;
+        extraMoves = rr.moves;
         warnings.push(...rr.errors, ...rr.moves.map((m) => `Rainout: ${m.home} v ${m.away} on ${dayLabel(m.from)} is now ${dayLabel(m.to)}${m.time ? " at " + m.time : ""}, ${m.court}.`));
       }
       if ($("#withdrawals").value.trim()) {
@@ -570,7 +574,7 @@
           bracketTxt = bracketText(bracket);
         }
       }
-      render(s, { warnings, table, results: pres, bracket, bracketText: bracketTxt, race });
+      render(s, { moves: extraMoves, warnings, table, results: pres, bracket, bracketText: bracketTxt, race });
       status.textContent = "Done. Scroll down for the schedule.";
       return true;
     }
@@ -625,6 +629,11 @@
     $("#dl-team-msgs").addEventListener("click", () => {
       if (!last) return;
       download("team-messages.txt", teamMessages(last.s).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("text_shared");
+    });
+    $("#dl-change-notices").addEventListener("click", () => {
+      if (!last || !last.moves || !last.moves.length) return;
+      const n = changeNotices(last.moves);
+      download("rainout-change-notices.txt", [n.group, ...n.teams.map((m) => m.text)].join("\n\n----\n\n"), "text/plain"); record("text_shared");
     });
     $("#dl-off-ics").addEventListener("click", () => {
       if (!last) return;
