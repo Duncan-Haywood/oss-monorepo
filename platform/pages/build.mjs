@@ -32,6 +32,7 @@ import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { buildWriting, WRITING_PATH } from './writing.mjs';
+import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
   FEED_MAX_ENTRIES,
   feedUpdatedAt,
@@ -5561,6 +5562,8 @@ const CATEGORY_STYLE = `
     .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
     .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
     .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .starting { margin: 12px 0 0; max-width: 70ch; line-height: 1.6; padding: 12px 14px;
+                border-left: 3px solid var(--accent); background: var(--panel); border-radius: 0 9px 9px 0; }
     .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
                 border: 1px solid var(--line); border-radius: 13px; }
     .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
@@ -5614,8 +5617,19 @@ const CATEGORY_STYLE = `
  * `data-search` payload, which is a meaningful weight saving on the 112-tool
  * trades page.
  */
-export function renderCategoryPage({ category, items, groups, baseUrl, deployable = false, subgroups: subgroupsOverride }) {
-  const copy = categoryPageCopy(category);
+export function renderCategoryPage({
+  category,
+  items,
+  groups,
+  baseUrl,
+  deployable = false,
+  subgroups: subgroupsOverride,
+  copy: copyOverride,
+  audiences = [],
+}) {
+  // An audience page (`audiences.mjs`) passes its own copy; a category or type
+  // page reads it from `CATEGORY_PAGE_COPY`.
+  const copy = copyOverride ?? categoryPageCopy(category);
   const url = `${baseUrl}${categoryPagePath(category.id)}`;
   // Every asset lives at the site root and this page is served two levels down.
   const toRoot = '../../';
@@ -5702,6 +5716,28 @@ ${subItems.map(renderCard).join('\n')}
     )
     .join('\n');
 
+  // "Free tools for roofers", "for Etsy sellers": the same catalogue filed by
+  // who it serves rather than by job. Every category and audience page links
+  // every audience page, so each one is two clicks from the hub and a crawler
+  // that lands on any of them reaches the rest.
+  const otherAudiences = audiences.filter(({ audience }) => audiencePageId(audience) !== category.id);
+  const audienceLinks = otherAudiences.length
+    ? `    <section class="siblings">
+      <h2>Free tools by trade and business</h2>
+      <ul>
+${otherAudiences
+  .map(
+    ({ audience, items: audienceItems }) =>
+      `        <li><a href="${escapeHtml(`${toRoot}${categoryPagePath(audiencePageId(audience))}`)}">${escapeHtml(
+        audience.name,
+      )}</a> <span>(${audienceItems.length})</span></li>`,
+  )
+  .join('\n')}
+      </ul>
+    </section>
+`
+    : '';
+
   const itemList = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -5759,7 +5795,12 @@ ${subItems.map(renderCard).join('\n')}
     <header>
       <p class="eyebrow">${escapeHtml(category.title)}</p>
       <h1>${escapeHtml(copy.title)}</h1>
-      <p class="lede">${escapeHtml(copy.intro)}</p>
+      <p class="lede">${escapeHtml(copy.intro)}</p>${
+        copy.starting
+          ? `
+      <p class="starting">${escapeHtml(copy.starting)}</p>`
+          : ''
+      }
       <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>
     </header>
 ${jumps}
@@ -5776,7 +5817,7 @@ ${body}
 ${siblings}
       </ul>
     </section>
-
+${audienceLinks}
     <footer>${disclaimerHtml(toRoot, groups.flatMap((g) => g.items))}
       ${renderSiteFooterNav({ toRoot })}
       <p>${sponsorsNote()}</p>
@@ -5821,6 +5862,56 @@ ${siblings}
 </body>
 </html>
 `;
+}
+
+/**
+ * The category-shaped stand-in an audience page is rendered and carded as. Its
+ * tint is the trades green or the marketplace blue of whichever category the
+ * audience's tools mostly sit in, so "for roofers" looks like the trade pages
+ * it links into rather than a section of its own.
+ */
+export function audienceCategory(audience, items = []) {
+  const counts = new Map();
+  for (const s of items) {
+    const id = categoryFor(s.slug).id;
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  }
+  const top = [...counts].sort((a, b) => b[1] - a[1])[0]?.[0];
+  const home = ALL_CATEGORIES.find((c) => c.id === top) ?? ALL_CATEGORIES.find((c) => c.id === 'trades');
+  return { id: audiencePageId(audience), title: audience.name, blurb: audience.description, accent: home?.accent };
+}
+
+/**
+ * "Free tools for roofers": one audience's page (`audiences.mjs`). The same
+ * page shape and checks as a category page, with copy written for the person
+ * rather than the job, and the tools grouped by the category each sits in when
+ * they span more than one.
+ */
+export function renderAudiencePage({ audience, items, groups, baseUrl, audiences = [] }) {
+  const category = audienceCategory(audience, items);
+  const byCategory = groupByCategory(items);
+  const subgroups =
+    byCategory.length > 1
+      ? byCategory.map(({ category: home, items: subItems }) => ({
+          subcategory: { id: `${category.id}-${home.id}`, title: home.title },
+          items: subItems,
+        }))
+      : undefined;
+  return renderCategoryPage({
+    category,
+    items,
+    groups,
+    baseUrl,
+    subgroups,
+    audiences,
+    copy: {
+      title: audience.title,
+      description: audience.description,
+      intro: audience.intro,
+      starting: audience.starting,
+      audience: audience.who,
+    },
+  });
 }
 
 /**
@@ -5877,7 +5968,7 @@ export function exampleTools(items, limit = 4) {
  * each with its sub-sections, so the whole catalogue is two clicks from
  * anywhere without one page carrying all of it.
  */
-export function renderToolsIndexPage({ groups, kindPages = [], surfaces, baseUrl }) {
+export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [], surfaces, baseUrl }) {
   const toRoot = '../';
   const url = `${baseUrl}${CATEGORY_PATH_PREFIX}/`;
   const total = surfaces.length;
@@ -5965,7 +6056,17 @@ ${cats}
       <h2 class="band">By type</h2>
       <div class="cats">
 ${kinds}
-      </div>
+      </div>${
+        audiencePages.length
+          ? `
+      <h2 class="band">By trade or business</h2>
+      <div class="cats">
+${audiencePages
+  .map(({ audience, items }) => section(audiencePageId(audience), audience.name, audience.description, items.length, []))
+  .join('\n')}
+      </div>`
+          : ''
+      }
       <h2 class="band">Reading</h2>
       <p class="more"><a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Guides</a>: the explainers written beside each tool. <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a>: products compared side by side. <a href="${escapeHtml(`${toRoot}${RESEARCH_PATH}`)}">Research</a>: the open research portfolio.</p>
     </main>
@@ -7067,6 +7168,7 @@ ${themesHtml}
 
 export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { featured: [], themes: [] } } = {}) {
   const groups = groupByCategory(surfaces);
+  const audiencePages = audienceGroups(surfaces);
   const apps = surfaces.filter((s) => s.kind === 'app');
   const clis = surfaces.filter((s) => s.kind === 'cli');
   const browserCount = surfaces.length - apps.length - clis.length;
@@ -7241,6 +7343,11 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
     /* The category grid: the browse path for a visitor who cannot name the tool. */
     .cats { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 14px;
             grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+    .for-list { list-style: none; padding: 0; margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .for-list a { display: inline-block; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px;
+                  background: var(--panel); color: var(--ink); text-decoration: none; font-weight: 600; font-size: .92rem; }
+    .for-list a:hover, .for-list a:focus-visible { border-color: var(--accent); color: var(--accent); }
+    .for-list span { color: var(--soft); font-size: .85rem; }
     .cat { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line);
            border-radius: 14px; padding: 18px 18px 16px; }
     .cat:hover { border-color: var(--accent); }
@@ -7495,7 +7602,27 @@ ${categoryTiles}
       </ul>
     </section>
 
-    <section class="band" id="types" aria-labelledby="types-h">
+${
+  audiencePages.length
+    ? `    <section class="band" id="for" aria-labelledby="for-h">
+      <p class="section-eyebrow">By trade or business</p>
+      <h2 id="for-h">Free tools for your trade or business</h2>
+      <p class="band-lede">The same tools, filed by who they are for. Each page lists the calculators that kind of business uses, and what to price first if you are just starting one.</p>
+      <ul class="for-list">
+${audiencePages
+  .map(
+    ({ audience, items }) =>
+      `        <li><a href="${escapeHtml(categoryPagePath(audiencePageId(audience)))}" data-category="${escapeHtml(
+        audiencePageId(audience),
+      )}">${escapeHtml(audience.name)} <span>${items.length}</span></a></li>`,
+  )
+  .join('\n')}
+      </ul>
+    </section>
+
+`
+    : ''
+}    <section class="band" id="types" aria-labelledby="types-h">
       <p class="section-eyebrow">By type</p>
       <h2 id="types-h">Apps you run yourself, and checks for your terminal</h2>
       <ul class="cats">
@@ -9084,7 +9211,7 @@ function spliceAt(html, index, text) {
   return html.slice(0, index) + text + html.slice(index);
 }
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, pageTitle, externalCallHosts = [] }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, pageTitle, externalCallHosts = [], audiences = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -9175,6 +9302,17 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     )
     .join('\n');
 
+  // "More free tools for roofers →": the page about this tool's audience, which
+  // links every other tool that person uses. Absent when no audience claims it.
+  const forLinks = audiences.length
+    ? `    <p class="pf-for">${audiences
+        .map(
+          (audience) =>
+            `<a href="${escapeHtml(`${toRoot}${categoryPagePath(audiencePageId(audience))}`)}">More free tools for ${escapeHtml(audience.who)} →</a>`,
+        )
+        .join(' &nbsp;·&nbsp; ')}</p>\n`
+    : '';
+
   // Tested against the venture's own markup, before any chrome is added.
   const noSla = NO_SLA_PATTERN.test(html) ? '' : `    ${NO_SLA_CLAUSE}\n`;
 
@@ -9185,7 +9323,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
       : 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
     }</p>
-${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
+${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
@@ -9285,6 +9423,7 @@ export async function pageHasOwnShareControl(dir, html, cache) {
  * would happen to a `../` hub link injected any earlier.
  */
 export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_URL }) {
+  const audiencePages = audienceGroups(surfaces);
   const wrapped = [];
   const rated = [];
   const saved = [];
@@ -9322,6 +9461,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         canonical,
         isEntry: url === `${surface.slug}/index.html`,
         externalCallHosts: surface.externalFetchHosts,
+        audiences: audiencesFor(surface.slug, audiencePages),
       })), toRoot);
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
@@ -10177,12 +10317,24 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // pages this loop produced — a category page in no sitemap is the quiet
   // failure `check.mjs` exists to catch.
   const categoryGroups = groupByCategory(surfaces);
+  const audiencePages = audienceGroups(surfaces);
   for (const { category, items } of categoryGroups) {
     const dir = path.join(outDir, CATEGORY_PATH_PREFIX, category.id);
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(
       path.join(dir, 'index.html'),
-      renderCategoryPage({ category, items, groups: categoryGroups, baseUrl: base }),
+      renderCategoryPage({ category, items, groups: categoryGroups, baseUrl: base, audiences: audiencePages }),
+    );
+  }
+  // One page per trade or kind of business ("free tools for roofers"), under
+  // the same prefix so `check.mjs` holds them to the category-page contract:
+  // linked from the hub, disclaimered, and listing only tools that shipped.
+  for (const { audience, items } of audiencePages) {
+    const dir = path.join(outDir, CATEGORY_PATH_PREFIX, audiencePageId(audience));
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+      path.join(dir, 'index.html'),
+      renderAudiencePage({ audience, items, groups: categoryGroups, baseUrl: base, audiences: audiencePages }),
     );
   }
   // The browse-by-type pages (apps, command-line tools), on the same footing.
@@ -10199,13 +10351,14 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
         baseUrl: base,
         deployable: page.deployable,
         subgroups: subgroups.length > 1 ? subgroups : undefined,
+        audiences: audiencePages,
       }),
     );
   }
   // And the Tools section's own front page, which lists all of them.
   await fs.writeFile(
     path.join(outDir, CATEGORY_PATH_PREFIX, 'index.html'),
-    renderToolsIndexPage({ groups: categoryGroups, kindPages, surfaces, baseUrl: base }),
+    renderToolsIndexPage({ groups: categoryGroups, kindPages, audiencePages, surfaces, baseUrl: base }),
   );
 
   // After the categories because the About page links every one of them, and
@@ -10281,7 +10434,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     path.join(outDir, 'sitemap-hub.xml'),
     renderHubSitemap(
       base,
-      [...categoryGroups.map(({ category }) => category.id), ...kindPages.map(({ page }) => page.id)],
+      [
+        ...categoryGroups.map(({ category }) => category.id),
+        ...kindPages.map(({ page }) => page.id),
+        ...audiencePages.map(({ audience }) => audiencePageId(audience)),
+      ],
       compareProducts.map((group) => group.key),
       researchSlugs,
       posts.map((post) => post.slug),
@@ -10306,13 +10463,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // "more", because Sponsor Ready lives there) gets the exception footer —
   // otherwise this card would tell every social preview "nothing you type is
   // uploaded" for a category where that is false for one of its tools.
-  const categoriesWithExceptions = new Set(
-    categoryGroups
+  const categoriesWithExceptions = new Set([
+    ...categoryGroups
       .filter(({ items }) => externalCallExceptions(items).length)
       .map(({ category }) => category.id),
-  );
+    ...audiencePages
+      .filter(({ items }) => externalCallExceptions(items).length)
+      .map(({ audience }) => audiencePageId(audience)),
+  ]);
   await Promise.all(
-    [...ALL_CATEGORIES, ...KIND_PAGES].map((category) =>
+    [...ALL_CATEGORIES, ...KIND_PAGES, ...audiencePages.map(({ audience, items }) => audienceCategory(audience, items))].map((category) =>
       fs.writeFile(
         path.join(outDir, socialCardFileFor(category.id)),
         renderSocialCard({
