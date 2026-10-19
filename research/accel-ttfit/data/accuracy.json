@@ -1,0 +1,285 @@
+{
+ "source": "research/accel-kws/experiments/results.json (test accuracy, mean and sd over 3 seeds, 11 classes)",
+ "rows": [
+  {
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 2,
+   "test_mean": 0.2797,
+   "test_std": 0.0593
+  },
+  {
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 3,
+   "test_mean": 0.4234,
+   "test_std": 0.0116
+  },
+  {
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 4,
+   "test_mean": 0.4876,
+   "test_std": 0.0079
+  },
+  {
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 8,
+   "test_mean": 0.505,
+   "test_std": 0.0247
+  },
+  {
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 2,
+   "test_mean": 0.3602,
+   "test_std": 0.0481
+  },
+  {
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 3,
+   "test_mean": 0.5329,
+   "test_std": 0.0045
+  },
+  {
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 4,
+   "test_mean": 0.5853,
+   "test_std": 0.0074
+  },
+  {
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 8,
+   "test_mean": 0.6124,
+   "test_std": 0.0007
+  },
+  {
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 2,
+   "test_mean": 0.3613,
+   "test_std": 0.0105
+  },
+  {
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 3,
+   "test_mean": 0.6457,
+   "test_std": 0.01
+  },
+  {
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 4,
+   "test_mean": 0.6848,
+   "test_std": 0.0054
+  },
+  {
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 8,
+   "test_mean": 0.6905,
+   "test_std": 0.0063
+  },
+  {
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 2,
+   "test_mean": 0.4977,
+   "test_std": 0.0663
+  },
+  {
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 3,
+   "test_mean": 0.7061,
+   "test_std": 0.0056
+  },
+  {
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 4,
+   "test_mean": 0.7224,
+   "test_std": 0.0035
+  },
+  {
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 8,
+   "test_mean": 0.7248,
+   "test_std": 0.0039
+  },
+  {
+   "inputs": 70,
+   "hidden": 128,
+   "wbits": 2,
+   "test_mean": 0.6797,
+   "test_std": 0.007
+  },
+  {
+   "inputs": 70,
+   "hidden": 128,
+   "wbits": 3,
+   "test_mean": 0.7386,
+   "test_std": 0.0002
+  },
+  {
+   "inputs": 70,
+   "hidden": 128,
+   "wbits": 4,
+   "test_mean": 0.7487,
+   "test_std": 0.0021
+  },
+  {
+   "inputs": 70,
+   "hidden": 128,
+   "wbits": 8,
+   "test_mean": 0.7481,
+   "test_std": 0.0023
+  },
+  {
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 2,
+   "test_mean": 0.246,
+   "test_std": 0.0605
+  },
+  {
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 3,
+   "test_mean": 0.4473,
+   "test_std": 0.0089
+  },
+  {
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 4,
+   "test_mean": 0.4884,
+   "test_std": 0.0094
+  },
+  {
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 8,
+   "test_mean": 0.506,
+   "test_std": 0.0167
+  },
+  {
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 2,
+   "test_mean": 0.3847,
+   "test_std": 0.0319
+  },
+  {
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 3,
+   "test_mean": 0.5581,
+   "test_std": 0.007
+  },
+  {
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 4,
+   "test_mean": 0.6057,
+   "test_std": 0.008
+  },
+  {
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 8,
+   "test_mean": 0.6162,
+   "test_std": 0.0071
+  },
+  {
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 2,
+   "test_mean": 0.5142,
+   "test_std": 0.0069
+  },
+  {
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 3,
+   "test_mean": 0.6558,
+   "test_std": 0.0116
+  },
+  {
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 4,
+   "test_mean": 0.6837,
+   "test_std": 0.0003
+  },
+  {
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 8,
+   "test_mean": 0.6945,
+   "test_std": 0.0064
+  },
+  {
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 2,
+   "test_mean": 0.6065,
+   "test_std": 0.0039
+  },
+  {
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 3,
+   "test_mean": 0.7201,
+   "test_std": 0.0048
+  },
+  {
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 4,
+   "test_mean": 0.7382,
+   "test_std": 0.0037
+  },
+  {
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 8,
+   "test_mean": 0.7368,
+   "test_std": 0.0038
+  },
+  {
+   "inputs": 120,
+   "hidden": 128,
+   "wbits": 2,
+   "test_mean": 0.6911,
+   "test_std": 0.008
+  },
+  {
+   "inputs": 120,
+   "hidden": 128,
+   "wbits": 3,
+   "test_mean": 0.7488,
+   "test_std": 0.0028
+  },
+  {
+   "inputs": 120,
+   "hidden": 128,
+   "wbits": 4,
+   "test_mean": 0.7517,
+   "test_std": 0.0044
+  },
+  {
+   "inputs": 120,
+   "hidden": 128,
+   "wbits": 8,
+   "test_mean": 0.7504,
+   "test_std": 0.0058
+  }
+ ]
+}
