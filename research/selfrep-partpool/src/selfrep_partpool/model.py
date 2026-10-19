@@ -108,7 +108,7 @@ def simulate(p, policy, n0=1, target=64, seed=0, t_max=1e7):
                     free.remove(w)
                     start_part(w, c)
                 elif not c.running:
-                    if stock >= p.vit_cost * (1 - 1e-9):
+                    if stock >= (p.vit_cost - 1e-6):
                         free.remove(w)
                         start_asm(w, c)
                     else:
@@ -119,13 +119,13 @@ def simulate(p, policy, n0=1, target=64, seed=0, t_max=1e7):
                 progress = False
                 ready = [c for c in copies if not c.todo and not c.running and not c.assembling]
                 if ready:                       # assembly first
-                    if stock >= p.vit_cost * (1 - 1e-9):
+                    if stock >= (p.vit_cost - 1e-6):
                         start_asm(free.pop(), ready[0])
                         progress = True
                         continue
                     waiting = True
                 open_parts = [c for c in copies if c.todo]
-                if open_parts:
+                if open_parts and (policy == "focus" or len(copies) >= n):
                     c = open_parts[0] if policy == "focus" else min(open_parts, key=lambda c: nparts - c.todo)
                 elif len(copies) < n:
                     c = _Copy(nparts)
@@ -135,7 +135,7 @@ def simulate(p, policy, n0=1, target=64, seed=0, t_max=1e7):
                 start_part(free.pop(), c)
                 progress = True
         if waiting and p.budget > 0 and (try_at is None or try_at <= t):
-            try_at = t + (p.vit_cost * (1 - 1e-9) - stock) / p.budget
+            try_at = t + max(((p.vit_cost - 1e-6) - stock) / p.budget, 1e-6)
             heapq.heappush(events, (try_at, "try", None, None))
         if not events:
             return math.inf
