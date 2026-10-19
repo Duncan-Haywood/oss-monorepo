@@ -197,6 +197,7 @@
     <select id="official-pick" hidden aria-label="Official"></select>
     <button type="button" class="secondary" id="dl-off-ics" hidden>Download calendar (.ics), selected official</button>
     <button type="button" id="dl-page">Download league web page (.html)</button>
+    <button type="button" class="secondary" id="dl-sheets">Download printable score sheets (.html)</button>
   </section>
 
   <section class="card" id="pool-card">
@@ -659,6 +660,11 @@
       if (!last) return;
       download("league-page.html", leaguePageHtml(last.s, { title: "League schedule", table: last.table, bracket: last.bracket }), "text/html");
       record("page_downloaded");
+    });
+    $("#dl-sheets").addEventListener("click", () => {
+      if (!last) return;
+      download("score-sheets.html", scoreSheetsHtml(last.s, { title: "League score sheets" }), "text/html");
+      record("text_shared");
     });
     $("#copy-week").addEventListener("click", async () => {
       if (!last || !last.table) return;
