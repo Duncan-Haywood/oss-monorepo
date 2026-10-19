@@ -83,7 +83,7 @@ test("every element the script looks up exists on the page", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["schedule_built", "example_loaded", "csv_downloaded", "ics_downloaded", "text_shared", "link_shared", "link_opened"]) {
+  for (const e of ["schedule_built", "example_loaded", "csv_downloaded", "ics_downloaded", "text_shared", "link_shared", "link_opened", "next_season"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
