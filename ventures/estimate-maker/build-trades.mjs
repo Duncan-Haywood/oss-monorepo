@@ -53,6 +53,7 @@ li span, footer { font-size: .88rem; color: #4a5a52; }
 </head>
 <body>
 <h1>Free bid calculators by trade</h1>
+<p>Not sure which one fits, or your trade is not listed? <a href="../bid-price-engine/">Bid Price Engine</a> prices any job at the margin you choose, with starting inputs for each trade.</p>
 <p>Each calculator below prices one kind of job from labor hours, materials, overhead and the margin you want, and shows the walk-away price under which the job loses money. They run in your browser: nothing you type is uploaded. When the number is settled, put it on a quote with <a href="./">Estimate Maker</a>.</p>
 <label for="q">Find your trade (${trades.length} calculators)</label>
 <input id="q" type="search" placeholder="e.g. roofing, HVAC, cleaning" autocomplete="off">

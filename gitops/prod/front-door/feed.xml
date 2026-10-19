@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1290 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1291 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-18T00:00:00Z</updated>
+  <updated>2026-10-19T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Bid Price Engine — Job Bid Calculator for 120+ Trades, Margin Not Markup</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bid-price-engine/"/>
+    <id>tag:marisstella.dev,2026:tool/bid-price-engine</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free job bid calculator for contractors and service trades: labor with payroll burden, materials with waste, subs, contingency and overhead turned into a price at the profit margin you choose. Shows your walk-away price and how far labor can overrun. Private, no signup.</summary>
+  </entry>
   <entry>
     <title>Demand Forecast Back-Tester — safety stock and reorder points from your sales</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/demand-forecast-backtester/"/>
@@ -54,6 +62,14 @@
     <updated>2026-10-18T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free TCGplayer seller fee calculator: 10.75% marketplace commission (capped at $75 per product, charged on cards plus shipping) and 2.5% + $0.30 per-order transaction fee. See your payout, profit per order, the price for a target profit, and Pro or pre-February-2026 rates side by side. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>UK Crypto CGT Calculator — Section 104 pool, same-day and 30-day rules, in your browser</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-crypto-cgt-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-crypto-cgt-calculator</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="UK tax, pay &amp; benefits"/>
+    <summary type="text">Free UK crypto capital gains calculator. Paste your buys, sales, swaps and staking income as a CSV and it applies HMRC&#39;s same-day, 30-day and Section 104 pooling rules, works out each tax year&#39;s gain, exempt amount and estimated CGT, and exports the working. Nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>UK Statutory Residence Test Checker — Days, Ties and Automatic Tests</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to ChurnZero and Gainsight for small SaaS: learn from your own usage events which accounts are about to cancel, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.</summary>
-  </entry>
-  <entry>
-    <title>Deal Keeper — Free Self-Hosted Sales Forecast and Pipeline Hygiene</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/deal-keeper/"/>
-    <id>tag:marisstella.dev,2026:tool/deal-keeper</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">A free, open-source alternative to the forecasting add-ons of Pipedrive, HubSpot and Clari for small B2B teams: win chances learned from your own closed deals, a backtested forecast range and a ranked list of stale or slipping deals. Paste a deal export and try it in your browser.</summary>
-  </entry>
-  <entry>
-    <title>devsec-toolkit — Every DevSecOps Check in One Free, Open-Source Command</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/devsec-toolkit/"/>
-    <id>tag:marisstella.dev,2026:tool/devsec-toolkit</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">One zero-dependency command that runs your repository through 23 open-source DevSecOps checks: GitHub Actions injection and poisoning, Docker and Compose, Kubernetes, dependency confusion, JWT misuse, ReDoS, AI-agent permissions. One report, SARIF for code scanning, baselines. MIT licensed, nothing uploaded.</summary>
   </entry>
 </feed>

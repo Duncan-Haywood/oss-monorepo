@@ -1703,7 +1703,8 @@ const RELATIVE_SELF = relative(
 // +1: `sales-call-notes-desk` graduated.
 // +1: `seller-net-sheet/compare-multiple-offers.html` (a second page with its own opt-out).
 // +1: `uk-crypto-cgt-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1262;
+// +1: `bid-price-engine` graduated (the consolidated bid calculator).
+const SWITCHES_IN_THE_CATALOGUE = 1263;
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
 // +1: `liability-audit` graduated.

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bid Price Engine — Job Bid Calculator for 120+ Trades, Margin Not Markup</title>
+  <meta name="description" content="Free job bid calculator for contractors and service trades: labor with payroll burden, materials with waste, subs, contingency and overhead turned into a price at the profit margin you choose. Shows your walk-away price and how far labor can overrun. Private, no signup.">
+  <meta property="og:title" content="Bid Price Engine — price any job at the margin you need">
+  <meta property="og:description" content="One bid calculator for 120+ trades. Cost, overhead, contingency and target margin to a price, with the walk-away number and overrun headroom. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Bid Price Engine", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free job bid calculator for 120+ trades: labor with burden, materials with waste, subs, contingency, overhead and a target margin turned into a price, walk-away price and overrun headroom."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the difference between markup and margin?", "acceptedAnswer": {"@type": "Answer", "text": "Markup is the percentage you add on top of your cost. Margin is the share of the final price that is profit. A 25% markup is a 20% margin, and a 25% margin needs a 33.3% markup. This tool takes the margin you want and works out the price as cost divided by one minus the margin, so you never have to convert in your head."}}, {"@type": "Question", "name": "How do I price a job so that I actually make money?", "acceptedAnswer": {"@type": "Answer", "text": "Add up what the job costs you in labor (wages plus payroll burden), materials (plus the waste you buy), subcontractors, equipment and travel. Add a contingency for surprises and your overhead, then divide by one minus the profit margin you need. That figure is the price; anything lower trades profit for the chance of winning the job."}}, {"@type": "Question", "name": "What overhead and burden percentages should I use?", "acceptedAnswer": {"@type": "Answer", "text": "The defaults on the page are planning starting points for the kind of work you pick, not industry benchmarks. For burden, use your payroll taxes, workers' compensation and benefits as a share of wages. For overhead, divide last year's non-job costs (insurance, vehicles, office, software, owner's admin time) by last year's direct job cost; the helper on the page does that sum."}}, {"@type": "Question", "name": "Does it work for my trade?", "acceptedAnswer": {"@type": "Answer", "text": "It prices any job built from labor, materials, subcontractors and equipment. Pick your trade to load starting inputs for that kind of work and a link to the specialist calculator for it, which models the details that are particular to that trade, such as dump weight for junk removal or squares for roofing."}}, {"@type": "Question", "name": "What does the walk-away price mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is your full cost: direct cost, contingency and overhead, with zero profit. Below it you lose money on the job once the business's own costs are counted. The cash floor is lower, only what you spend out of pocket, and is the figure to compare against a bid you are tempted to match in a slow week."}}, {"@type": "Question", "name": "Is my pricing sent anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every figure is calculated in this browser tab. Nothing is uploaded, there are no accounts, and a share link stores the inputs in the web address after the # sign, which your browser never sends to a server."}}, {"@type": "Question", "name": "Is this legal, tax or accounting advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the numbers you type. It does not know your licensing, bonding, sales tax, prevailing wage or lien rules, and it makes no promise that a job will cost what you entered."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f5f4ef; }
+    body { max-width: 1040px; margin: auto; padding: 24px; }
+    a { color: #8a4b0f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.1; margin: 0 0 12px; color: #5c3208; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5c3208; }
+    h3 { font-size: 1rem; margin: 16px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a5448; }
+    .card { background: #fff; border: 1px solid #e0d9c8; border-radius: 14px; padding: 20px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c8bfa8; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 74px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #8a4b0f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f0e8d6; color: #5c3208; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #eee7d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5a5448; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #faf3e3; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.35rem; color: #5c3208; }
+    .kpi span { font-size: .8rem; color: #5a5448; }
+    .warn { background: #fdecea; border-left: 4px solid #b3261e; padding: 10px 12px; border-radius: 6px; }
+    .ok { background: #e8f3e8; border-left: 4px solid #2e7d32; padding: 10px 12px; border-radius: 6px; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #e0d9c8; padding-top: 16px; }
+    @media print { button, #inputs, details, footer { display: none; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Bid Price Engine</h1>
+  <p>Price any job at the profit margin you need. Enter labor, materials, subs and equipment, add contingency and overhead, and get the price, your walk-away number, and how far labor can run over before the job stops paying. One calculator for <span id="count">120+</span> trades; pick yours for starting inputs and a link to its specialist calculator.</p>
+
+  <section class="card" id="inputs">
+    <h2>The job</h2>
+    <label for="trade">Trade</label>
+    <select id="trade"></select>
+    <p class="note" id="trade-link"></p>
+    <div class="grid">
+      <div><label for="labor">Labor: hours @ hourly wage, one line per person or crew</label><textarea id="labor"></textarea></div>
+      <div><label for="materials">Materials: cost then name, one per line</label><textarea id="materials" placeholder="420 lumber&#10;85.50 hardware"></textarea></div>
+    </div>
+    <div class="grid">
+      <div><label for="burden">Payroll burden % of wages</label><input id="burden" type="number" min="0" step="any"></div>
+      <div><label for="waste">Material waste %</label><input id="waste" type="number" min="0" step="any"></div>
+      <div><label for="subs">Subcontractors $</label><input id="subs" type="number" min="0" step="any" value="0"></div>
+      <div><label for="equip">Equipment, dump, permits $</label><input id="equip" type="number" min="0" step="any" value="0"></div>
+      <div><label for="miles">Round-trip miles</label><input id="miles" type="number" min="0" step="any" value="0"></div>
+      <div><label for="mile-rate">Cost per mile $</label><input id="mile-rate" type="number" min="0" step="any" value="0.70"></div>
+    </div>
+    <div class="grid">
+      <div><label for="cont">Contingency % of direct cost</label><input id="cont" type="number" min="0" step="any"></div>
+      <div><label for="over">Overhead % of direct cost</label><input id="over" type="number" min="0" step="any"></div>
+      <div><label for="margin">Target margin % of price</label><input id="margin" type="number" min="0" max="90" step="any"></div>
+      <div><label for="rival">A rival's price $ (optional)</label><input id="rival" type="number" min="0" step="any"></div>
+      <div><label for="deposit">Deposit % (optional)</label><input id="deposit" type="number" min="0" max="100" step="any" value="0"></div>
+    </div>
+    <details><summary>Work out my overhead % from last year's books</summary>
+      <div class="grid"><div><label for="oh-annual">Last year's overhead $ (insurance, vehicles, office, software, admin time)</label><input id="oh-annual" type="number" min="0" step="any"></div>
+      <div><label for="oh-direct">Last year's direct job cost $ (labor with burden, materials, subs)</label><input id="oh-direct" type="number" min="0" step="any"></div></div>
+      <button type="button" class="secondary" id="oh-apply">Use this overhead %</button> <span id="oh-out" class="note"></span></details>
+    <button type="button" id="share">Copy a link to this bid</button><button type="button" class="secondary" id="copy">Copy a summary</button><button type="button" class="secondary" onclick="window.print()">Print</button> <span id="msg" class="note" role="status"></span>
+  </section>
+
+  <section class="card" id="result" aria-live="polite"></section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is the difference between markup and margin?</h3>
+    <p>Markup is the percentage you add on top of your cost. Margin is the share of the final price that is profit. A 25% markup is a 20% margin, and a 25% margin needs a 33.3% markup. This tool takes the margin you want and works out the price as cost divided by one minus the margin, so you never have to convert in your head.</p>
+    <h3>How do I price a job so that I actually make money?</h3>
+    <p>Add up what the job costs you in labor (wages plus payroll burden), materials (plus the waste you buy), subcontractors, equipment and travel. Add a contingency for surprises and your overhead, then divide by one minus the profit margin you need. That figure is the price; anything lower trades profit for the chance of winning the job.</p>
+    <h3>What overhead and burden percentages should I use?</h3>
+    <p>The defaults on the page are planning starting points for the kind of work you pick, not industry benchmarks. For burden, use your payroll taxes, workers' compensation and benefits as a share of wages. For overhead, divide last year's non-job costs (insurance, vehicles, office, software, owner's admin time) by last year's direct job cost; the helper on the page does that sum.</p>
+    <h3>Does it work for my trade?</h3>
+    <p>It prices any job built from labor, materials, subcontractors and equipment. Pick your trade to load starting inputs for that kind of work and a link to the specialist calculator for it, which models the details that are particular to that trade, such as dump weight for junk removal or squares for roofing.</p>
+    <h3>What does the walk-away price mean?</h3>
+    <p>It is your full cost: direct cost, contingency and overhead, with zero profit. Below it you lose money on the job once the business's own costs are counted. The cash floor is lower, only what you spend out of pocket, and is the figure to compare against a bid you are tempted to match in a slow week.</p>
+    <h3>Is my pricing sent anywhere?</h3>
+    <p>No. Every figure is calculated in this browser tab. Nothing is uploaded, there are no accounts, and a share link stores the inputs in the web address after the # sign, which your browser never sends to a server.</p>
+    <h3>Is this legal, tax or accounting advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. It does not know your licensing, bonding, sales tax, prevailing wage or lien rules, and it makes no promise that a job will cost what you entered.</p>
+    <p class="note">Guide: <a href="markup-vs-margin.html">markup vs margin, with a conversion table</a>. Running a trade with its own quirks? <a href="../estimate-maker/trade-bid-calculators.html">Every specialist bid calculator, by trade</a>. Then send the number as a document with <a href="../estimate-maker/">Estimate Maker</a>, or test what price wins with <a href="../bid-win-rate-optimizer/">Bid Win-Rate Optimizer</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This is arithmetic on the numbers you type; it is not legal, tax, or financial advice. Defaults are planning starting points, not benchmarks. It does not model licensing, bonding, sales tax, prevailing wage or lien rules. Everything runs in your browser. Nothing is uploaded and there are no accounts. Anonymous feature counts (<code>bid_priced</code>, <code>link_copied</code>) stay in local storage on your device and are off under Do Not Track. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free and MIT licensed. If it saves you a bad bid, <a href="https://github.com/sponsors/Duncan-Haywood">support the creator on GitHub Sponsors</a>.</p>
+  </footer>
+</main>
+<script type="module">
+  import { priceJob, parseLabor, parseCosts, overheadPctFrom, priceLadder } from "./calc.mjs";
+  import { TRADES, CATEGORIES } from "./trades.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const usd = (n) => (n < 0 ? "−" : "") + "$" + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+  const usd2 = (n) => (n < 0 ? "−" : "") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const IDS = ["trade", "labor", "materials", "burden", "waste", "subs", "equip", "miles", "mile-rate", "cont", "over", "margin", "rival", "deposit"];
+  $("#count").textContent = TRADES.length;
+
+  const groups = Object.entries(CATEGORIES).map(([key, c]) =>
+    `<optgroup label="${esc(c.label)}">${TRADES.filter((t) => t.category === key).map((t) => `<option value="${esc(t.slug)}">${esc(t.trade)}</option>`).join("")}</optgroup>`).join("");
+  $("#trade").innerHTML = `<option value="">Any job (generic)</option>` + groups;
+
+  function loadTrade(slug) {
+    const t = TRADES.find((x) => x.slug === slug);
+    const c = t ? CATEGORIES[t.category] : CATEGORIES.specialist;
+    $("#burden").value = c.burdenPct; $("#waste").value = c.wastePct; $("#cont").value = c.contingencyPct;
+    $("#over").value = c.overheadPct; $("#margin").value = c.marginPct; $("#labor").value = c.laborHint;
+    $("#trade-link").innerHTML = t ? `Loaded starting inputs for ${esc(c.label.toLowerCase())}. Prefer the details of your trade? <a href="../${esc(t.calculator)}/">${esc(t.trade)} bid calculator</a>.` : "Generic starting inputs. Edit every figure to match your books.";
+  }
+
+  function read() {
+    return {
+      labor: parseLabor($("#labor").value), materials: parseCosts($("#materials").value, "Material"),
+      burdenPct: $("#burden").value, wastePct: $("#waste").value, subs: $("#subs").value, equipment: $("#equip").value,
+      travelMiles: $("#miles").value, mileRate: $("#mile-rate").value, contingencyPct: $("#cont").value,
+      overheadPct: $("#over").value, marginPct: $("#margin").value, rivalPrice: $("#rival").value, depositPct: $("#deposit").value,
+    };
+  }
+
+  let last = null;
+  function render(count) {
+    const out = $("#result");
+    try {
+      const r = priceJob(read()); last = r;
+      if (count) record("bid_priced");
+      const rows = [["Labor with burden", r.laborCost], ["Materials with waste", r.materialCost], ["Subcontractors", r.subs], ["Equipment, dump, permits", r.equipment], ["Travel", r.travel], ["Direct cost", r.direct], ["Contingency", r.contingency], ["Overhead", r.overhead], ["Full cost (walk-away)", r.fullCost], ["Profit at target margin", r.profit]];
+      let rival = "";
+      if (r.rival) {
+        const v = r.rival.verdict;
+        rival = `<h3>Against the rival's ${usd(r.rival.price)}</h3><div class="${v === "above-target" ? "ok" : "warn"}">${
+          v === "below-cash" ? `That is below your cash cost of ${usd(r.cashFloor)}. Matching it loses money before overhead.` :
+          v === "below-walk-away" ? `That is below your walk-away price of ${usd(r.walkAway)}: matching it loses ${usd(-r.rival.profit)} once overhead is counted.` :
+          v === "thin" ? `Matching it leaves ${usd(r.rival.profit)} profit, a ${r.rival.marginPct}% margin against your ${r.marginPct}% target. Your price is ${r.rival.gapPct}% above theirs.` :
+          `Their price is above yours, so you can win on price and keep your ${r.marginPct}% margin.`}</div>`;
+      }
+      const over = r.overrunBeforeProfitLossPct === null ? "" : `<p>Labor can run <b>${r.overrunBeforeContingencyGonePct}%</b> over before the contingency is gone, and <b>${r.overrunBeforeProfitLossPct}%</b> over before the job stops making any profit after overhead.</p>`;
+      out.innerHTML = `<h2>Price</h2><div class="kpis">
+        <div class="kpi"><b>${usd(r.price)}</b><span>price to quote</span></div>
+        <div class="kpi"><b>${usd(r.walkAway)}</b><span>walk-away (zero profit)</span></div>
+        <div class="kpi"><b>${usd(r.profit)}</b><span>profit at ${r.marginPct}% margin</span></div>
+        <div class="kpi"><b>${r.markupPct}%</b><span>that margin as a markup on cost</span></div>
+        ${r.revenuePerLaborHour === null ? "" : `<div class="kpi"><b>${usd2(r.revenuePerLaborHour)}</b><span>billed per labor hour (${r.hours} h)</span></div>`}
+        ${r.deposit ? `<div class="kpi"><b>${usd(r.deposit)}</b><span>deposit; materials and subs are ${r.depositCoversMaterialsPct}% of price</span></div>` : ""}
+      </div>${over}
+      <div class="scroll"><table><thead><tr><th>Where the price goes</th><th class="n">Amount</th></tr></thead><tbody>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${usd2(v)}</td></tr>`).join("")}<tr><td><b>Price</b></td><td class="n"><b>${usd2(r.price)}</b></td></tr></tbody></table></div>
+      <h3>The markup trap</h3><p>Adding ${r.marginPct}% <em>on top of cost</em> gives ${usd(r.naive.price)} and a real margin of only ${r.naive.actualMarginPct}%, which is ${usd(r.naive.shortBy)} short of the price above.</p>
+      <h3>If you move the price</h3><div class="scroll"><table><thead><tr><th>Change</th><th class="n">Price</th><th class="n">Profit</th><th class="n">Margin</th></tr></thead><tbody>${priceLadder(r).map((p) => `<tr><td>${p.change > 0 ? "+" : ""}${p.change}%</td><td class="n">${usd(p.price)}</td><td class="n">${usd(p.profit)}</td><td class="n">${p.marginPct}%</td></tr>`).join("")}</tbody></table></div>${rival}`;
+    } catch (e) { last = null; out.innerHTML = `<div class="warn">${esc(e.message)}</div>`; }
+  }
+
+  function hash() { return "#" + new URLSearchParams(IDS.map((id) => [id, $("#" + id).value])).toString(); }
+  function restore() {
+    const p = new URLSearchParams(location.hash.slice(1));
+    if (!p.has("labor")) return false;
+    for (const id of IDS) if (p.has(id)) $("#" + id).value = p.get(id);
+    const t = TRADES.find((x) => x.slug === p.get("trade"));
+    if (t) $("#trade-link").innerHTML = `<a href="../${esc(t.calculator)}/">${esc(t.trade)} bid calculator</a>`;
+    return true;
+  }
+  async function copy(text, ok) {
+    try { await navigator.clipboard.writeText(text); $("#msg").textContent = ok; } catch { $("#msg").textContent = "Copy was blocked; select the text yourself."; }
+  }
+
+  $("#trade").addEventListener("change", () => { loadTrade($("#trade").value); render(false); });
+  $("#inputs").addEventListener("input", () => render(false));
+  $("#inputs").addEventListener("change", () => render(true));
+  $("#share").onclick = () => { history.replaceState(null, "", hash()); copy(location.href, "Link copied. The figures live in the address after #, which is never sent to a server."); record("link_copied"); };
+  $("#copy").onclick = () => { if (!last) return; copy(`Bid: ${usd(last.price)} (walk-away ${usd(last.walkAway)}, ${last.marginPct}% margin, ${usd(last.profit)} profit)`, "Summary copied."); };
+  $("#oh-apply").onclick = () => { try { const v = overheadPctFrom($("#oh-annual").value, $("#oh-direct").value); $("#over").value = v; $("#oh-out").textContent = `Overhead is ${v}% of direct cost.`; render(false); } catch (e) { $("#oh-out").textContent = e.message; } };
+  $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
+  if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+  if (!restore()) loadTrade("");
+  render(false);
+</script>
+</body>
+</html>
