@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01TtmVGp9SRKFLTe3VACjXmW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled)",
+  "input_sha256": "22ad619f9509f3b95d15aa5aec6eb43d01c80a2b2fc6623eadb43ae7f245ba82",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T21:02:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 8517,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Step 1b (regen --verify) exits 2 in a shallow clone on bid-calculator sibling links unrelated to the venture under test, so it cannot be used as a gate for a venture that does not touch them."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "where-to-sell-calculator: sourcing ceiling (sourcing.mjs), installable offline PWA, Capacitor wrapper. Venture tests 261/261; Chromium smoke OK.",
+  "corrections": [],
+  "redteam": null
+}
