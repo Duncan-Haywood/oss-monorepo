@@ -519,3 +519,22 @@ test("the ladder guide's worked example matches ladderStandings() and is linked 
   assert.match(page("index.html"), /href="\.\/how-to-run-a-ladder-league\.html"/);
   assert.match(page("index.html"), /id="build-ladder"/);
 });
+
+test("the referees guide's worked example matches assignOfficials() and is linked and in the sitemap", async () => {
+  const { readSpec, buildSchedule, parseOfficials, assignOfficials, validateOfficials } = await import("./calc.mjs");
+  const html = page("how-to-assign-referees-to-a-league-schedule.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-assign-referees-to-a-league-schedule\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const { spec, errors } = readSpec({ teams: "Hawks\nOwls\nWolves\nLynx", double: false, start: "2026-10-06", weekdays: ["Tue"], skip: "" });
+  assert.deepEqual(errors, []);
+  const o = parseOfficials(html.match(/<pre>(.*?)<\/pre>/s)[1], spec.teams);
+  assert.deepEqual(o.errors, []);
+  const a = assignOfficials(buildSchedule(spec), o.officials);
+  assert.deepEqual(validateOfficials(a.schedule, o.officials), []);
+  a.schedule.rounds.forEach((r, i) => r.matches.forEach((m) => assert.ok(html.includes(`<tr><td>${i + 1}</td><td>${m.homeName} v ${m.awayName}</td><td>${m.official}</td></tr>`), `${m.homeName} v ${m.awayName}`)));
+  assert.match(page("sitemap.xml"), /how-to-assign-referees-to-a-league-schedule\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-assign-referees-to-a-league-schedule\.html"/);
+});

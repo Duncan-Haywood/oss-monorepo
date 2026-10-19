@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Assign Referees To A League Schedule Fairly</title>
+  <meta name="description" content="How to share referees and umpires across a league schedule: no one works their own team, no double-booking, weekday availability and match caps, with a worked 4-team example. Then do yours free.">
+  <meta property="og:title" content="How To Assign Referees To A League Schedule Fairly">
+  <meta property="og:description" content="Fair referee rules with a 4-team worked example. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-assign-referees-to-a-league-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do you assign referees fairly in a league?", "acceptedAnswer": {"@type": "Answer", "text": "Give every match one official and hand each match to whoever has worked the fewest so far. Break ties by who has seen the two teams least, then by list order. That keeps the counts within one of each other without anyone keeping a tally by hand."}}, {"@type": "Question", "name": "Can a referee work a match involving their own team?", "acceptedAnswer": {"@type": "Answer", "text": "Not under these rules. If you put a team in brackets after an official's name, the tool never gives them that team's matches. It also never puts one official on two matches that start at the same time."}}, {"@type": "Question", "name": "What if nobody is free for a match?", "acceptedAnswer": {"@type": "Answer", "text": "The tool leaves that match without an official and lists it with the reason, such as every official being off that weekday or at their match cap, so you can recruit someone or lift a cap."}}, {"@type": "Question", "name": "Can each referee get their own calendar?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. After officials are assigned you can download a calendar file or copy a ready-to-paste note for each official with only the matches they work."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to assign referees to a league schedule fairly</h1>
+  <p>Once the fixtures exist, someone still has to cover them. Spreadsheets handle this badly: the same two volunteers end up on every Tuesday, a player's own team gets their friend, and nobody notices two games at 7pm sharing one referee until the night. The rules are simple enough to automate, so here they are.</p>
+  <p><a class="cta" href="./">Open the free schedule maker</a> (step 6, Referees and officials)</p>
+  <h2>The rules</h2>
+  <ul>
+    <li>Every match gets exactly one official.</li>
+    <li>An official never works a match involving their own team.</li>
+    <li>An official is on at most one match per time slot of a night.</li>
+    <li>An official only works the weekdays you list for them, and no more than their cap.</li>
+    <li>Among everyone who qualifies, the least-loaded official takes the match; ties go to whoever has seen these two teams least, then to list order.</li>
+  </ul>
+  <h2>A worked example: 4 teams, 3 officials</h2>
+  <p>Teams Hawks, Owls, Wolves and Lynx play a single round robin from Tuesday 6 October 2026. Officials, one per line:</p>
+  <pre>Pat (Hawks)
+Sam
+Lee: Tue max 2</pre>
+  <p>Pat belongs to Hawks, Sam is free any night, and Lee works Tuesdays only and at most twice.</p>
+  <table>
+    <thead><tr><th>Round</th><th>Match</th><th>Official</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Hawks v Lynx</td><td>Sam</td></tr>
+      <tr><td>1</td><td>Owls v Wolves</td><td>Pat</td></tr>
+      <tr><td>2</td><td>Lynx v Owls</td><td>Lee</td></tr>
+      <tr><td>2</td><td>Wolves v Hawks</td><td>Sam</td></tr>
+      <tr><td>3</td><td>Wolves v Lynx</td><td>Pat</td></tr>
+      <tr><td>3</td><td>Hawks v Owls</td><td>Lee</td></tr>
+    </tbody>
+  </table>
+  <p>Six matches, three officials, two each. Pat never appears on a Hawks game, and no one is on both matches of a round at the same time. A separate test recomputes this table from the same code the tool runs.</p>
+  <p><a class="cta" href="./">Assign your own officials</a></p>
+  <h2>Questions</h2>
+  <h3>How do you assign referees fairly in a league?</h3>
+  <p>Give every match one official and hand each match to whoever has worked the fewest so far. Break ties by who has seen the two teams least, then by list order. That keeps the counts within one of each other without anyone keeping a tally by hand.</p>
+  <h3>Can a referee work a match involving their own team?</h3>
+  <p>Not under these rules. If you put a team in brackets after an official's name, the tool never gives them that team's matches. It also never puts one official on two matches that start at the same time.</p>
+  <h3>What if nobody is free for a match?</h3>
+  <p>The tool leaves that match without an official and lists it with the reason, such as every official being off that weekday or at their match cap, so you can recruit someone or lift a cap.</p>
+  <h3>Can each referee get their own calendar?</h3>
+  <p>Yes. After officials are assigned you can download a calendar file or copy a ready-to-paste note for each official with only the matches they work.</p>
+  <p>Related: <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">how to fit a league onto limited courts and time slots</a>, <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a> and <a href="./how-to-reschedule-a-rained-out-league-game.html">how to reschedule a rained-out game</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Your league's own rules apply. The example teams and officials are invented.</p>
+    <p>Everything the tool does runs in your browser; names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
