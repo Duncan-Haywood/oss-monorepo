@@ -386,3 +386,31 @@ test("map your own columns: unassigned types, unreadable rows and missing fields
   assert.match(bad.notes[0], /could not be read/);
   assert.match(applyMapping(BROKER, { cols: { date: 0 } }).notes[0], /Pick a column for: type, quantity, asset, total or price/);
 });
+
+const BINANCE = `Date(UTC),Pair,Side,Price,Executed,Amount,Fee
+2023-02-01 09:00:00,BTCUSDT,BUY,20000,0.5BTC,10000USDT,0.0005BTC
+2023-08-01 09:00:00,ETHUSDT,BUY,1800,2ETH,3600USDT,1.2USDT
+2024-05-01 09:00:00,BTCUSDT,SELL,60000,0.25BTC,15000USDT,0.002BNB
+2024-06-01 09:00:00,ETHBTC,SELL,0.05,1ETH,0.05BTC,0.0001BNB
+2024-06-02 09:00:00,ADAEUR,BUY,0.4,100ADA,40EUR,0.1ADA
+garbage,XYZ,HOLD,1,1,1,1
+`;
+
+test("Binance spot trades: stablecoin quotes priced at $1, swaps and fiat quotes left empty, BNB fees counted, junk skipped", () => {
+  assert.equal(detectFormat(BINANCE), "binance");
+  const r = convertExchangeCsv(BINANCE);
+  assert.deepEqual(r.csv.trim().split("\n").slice(1), [
+    "2023-02-01,buy,BTC,0.5,10000,10,Binance",
+    "2023-08-01,buy,ETH,2,3600,1.2,Binance",
+    "2024-05-01,sell,BTC,0.25,15000,0,Binance",
+    "2024-06-01,sell,ETH,1,,0,Binance",
+    "2024-06-01,buy,BTC,0.05,,0,Binance",
+    "2024-06-02,buy,ADA,100,,0,Binance",
+  ]);
+  const notes = r.notes.join("\n");
+  assert.match(notes, /3 Binance rows quoted in a dollar stablecoin/);
+  assert.match(notes, /1 Binance coin-for-coin trade became/);
+  assert.match(notes, /1 Binance row quoted in a non-USD/);
+  assert.match(notes, /3 Binance rows paid a fee in BNB or another coin/);
+  assert.match(notes, /Line 7: Binance row for "XYZ"/);
+});

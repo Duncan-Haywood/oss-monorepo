@@ -1,0 +1,13 @@
+[project]
+name = "capture-crop"
+version = "0.1.0"
+description = "How long a lens a 360-degree camera can fake by cropping, and what perspective no crop can fake: pixel and distance limits for travel creators"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

@@ -1,10 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  applyRainouts, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
+  applyRainouts, changeNotices, dayLabel, applyPinnedMatches, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
-  scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
+  scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -366,7 +366,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", pins: "A v B -> 2026-12-01", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "", rounds: "" });
@@ -1766,4 +1766,149 @@ test("parseLinkedTeams and share link", () => {
   assert.deepEqual(r.groups, [[0, 1]]);
   assert.match(r.errors[0], /^Linked teams:/);
   assert.equal(decodeFields(encodeFields({ ...sampleFields(), linked: "Team 1, Team 2" })).linked, "Team 1, Team 2");
+});
+
+// ---------------------------------------------------------------- court closures
+
+test("parseCourtClosures reads dates and ranges per court and reports bad lines", () => {
+  const r = parseCourtClosures("court 2: 2026-11-03, 2026-11-10 to 2026-11-12\nCourt 9: 2026-11-03\nCourt 1: soon\nnonsense", ["Court 1", "Court 2"]);
+  assert.deepEqual(r.closures, { "Court 2": [D("2026-11-03"), D("2026-11-10"), D("2026-11-11"), D("2026-11-12")] });
+  assert.equal(r.errors.length, 3);
+});
+
+test("a closed court is never used that night, the schedule stays valid, and a share link keeps it", () => {
+  const closedDay = D("2026-10-13");
+  const { spec, errors } = readSpec({ ...LIMIT_BASE, courtClosures: "Court 2: 2026-10-13" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  const night = s.rounds.find((r) => r.day === closedDay);
+  assert.ok(night.matches.length > 0);
+  for (const m of night.matches) assert.notEqual(m.court, "Court 2");
+  assert.equal(validateSchedule(s).ok, true, validateSchedule(s).errors.join(" "));
+  const f = { ...sampleFields(), courtClosures: "Court 2: 2026-10-13" };
+  assert.equal(decodeFields(encodeFields(f)).courtClosures, "Court 2: 2026-10-13");
+});
+
+test("when too few courts are open, the overflow moves to a makeup round and every pair still meets once", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD\nE\nF", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2, Court 3", courtClosures: "Court 2: 2026-10-13\nCourt 3: 2026-10-13" });
+  const s = buildSchedule(spec);
+  const night = s.rounds.find((r) => r.day === D("2026-10-13"));
+  assert.equal(night.matches.length, 1);
+  assert.ok(s.rounds.some((r) => r.makeup));
+  assert.ok(s.notices.some((n) => n.includes("court slot")));
+  assert.equal(validateSchedule(s).ok, true, validateSchedule(s).errors.join(" "));
+});
+
+test("a rainout is never moved onto a closed court, and the validator flags a booking on one", () => {
+  const { spec } = readSpec({ ...LIMIT_BASE, courtClosures: "Court 1: 2026-10-20\nCourt 2: 2026-10-20" });
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.find((r) => r.day === D("2026-10-20")), undefined);
+  const r = applyRainouts(s, `${dayIso(s.rounds[0].day)} Team`.replace("Team", "A"));
+  assert.ok(r.moves.every((m) => m.to !== D("2026-10-20")));
+  const bad = buildSchedule(readSpec({ ...LIMIT_BASE, courtClosures: "Court 2: 2026-10-13" }).spec);
+  bad.rounds.find((x) => x.day === D("2026-10-13")).matches[0].court = "Court 2";
+  assert.ok(validateSchedule(bad).errors.some((e) => e.includes("is closed")));
+});
+
+test("changeNotices names each moved match once for the group and only own changes per team", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const day = s.rounds[0].day;
+  const r = applyRainouts(s, `${dayIso(day)} A`);
+  const n = changeNotices(r.moves);
+  const m = r.moves[0];
+  assert.equal(r.moves.length, 1);
+  assert.ok(n.group.includes(`${m.home} v ${m.away}`));
+  assert.ok(n.group.includes(`was ${dayLabel(m.from)}`) && n.group.includes(dayLabel(m.to)));
+  assert.deepEqual(n.teams.map((x) => x.team).sort(), [m.home, m.away].sort());
+  for (const x of n.teams) assert.ok(x.text.startsWith(`Hi ${x.team},`) && x.text.includes("unchanged"));
+  const home = n.teams.find((x) => x.team === m.home).text;
+  assert.ok(home.includes(`vs ${m.away} (home)`));
+  assert.ok(n.teams.find((x) => x.team === m.away).text.includes(`at ${m.home} (away)`));
+});
+
+test("changeNotices is empty when nothing moved and tolerates junk input", () => {
+  for (const x of [[], null, undefined, "x"]) assert.deepEqual(changeNotices(x), { group: "", teams: [] });
+});
+
+test("a pinned derby moves to a chosen later or earlier date and the schedule stays valid", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const count = (x) => x.rounds.reduce((a, r) => a + r.matches.length, 0);
+  const lastDay = s.rounds[s.rounds.length - 1].day;
+  const meet = (x, a, b) => x.rounds.flatMap((r) => r.matches.map((m) => ({ day: r.day, m }))).find(({ m }) => [m.homeName, m.awayName].sort().join() === [a, b].sort().join());
+  const later = applyPinnedMatches(s, `A v B -> ${dayIso(lastDay + 3)}`);
+  assert.deepEqual(later.errors, []);
+  assert.equal(later.pins.length, 1);
+  assert.equal(meet(later.schedule, "A", "B").day, lastDay + 3);
+  assert.equal(count(later.schedule), count(s));
+  assert.equal(validateSchedule(later.schedule).ok, true, validateSchedule(later.schedule).errors.join(" "));
+  const firstDay = s.rounds[0].day;
+  const opener = meet(s, "C", "D").day === firstDay ? ["A", "B"] : ["C", "D"];
+  const earlier = applyPinnedMatches(s, `${opener[0]} vs ${opener[1]} -> ${dayIso(firstDay - 7)}`);
+  assert.deepEqual(earlier.errors, []);
+  assert.equal(meet(earlier.schedule, ...opener).day, firstDay - 7);
+  assert.equal(earlier.schedule.rounds[0].day, firstDay - 7, "rounds stay in date order");
+  assert.equal(validateSchedule(earlier.schedule).ok, true, validateSchedule(earlier.schedule).errors.join(" "));
+  assert.equal(meet(s, "A", "B").day <= lastDay, true, "input is not mutated");
+});
+
+test("pinning both legs of a double round robin moves each once, and bad lines are named", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00", double: true });
+  const s = buildSchedule(spec);
+  const d1 = dayIso(s.rounds[s.rounds.length - 1].day + 7);
+  const d2 = dayIso(s.rounds[s.rounds.length - 1].day + 14);
+  const r = applyPinnedMatches(s, `A v B -> ${d1}\nB v A -> ${d2}\nA v B -> ${d1}`);
+  const days = r.schedule.rounds.flatMap((x) => x.matches.filter((m) => [m.homeName, m.awayName].sort().join() === "A,B").map(() => dayIso(x.day)));
+  assert.deepEqual(days.sort().slice(-2), [d1, d2]);
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0], /already pinned|every meeting/);
+  const bad = applyPinnedMatches(s, "A v A -> 2026-12-01\nA v Z -> 2026-12-01\nA v B\nA v B -> 2026-02-31");
+  assert.equal(bad.errors.length, 4);
+  assert.equal(bad.pins.length, 0);
+  assert.equal(validateSchedule(r.schedule).ok, true, validateSchedule(r.schedule).errors.join(" "));
+});
+
+test("a pin onto a night a team is blacked out is refused and the match stays put", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00", blackouts: "A: 2026-12-01" });
+  const s = buildSchedule(spec);
+  const r = applyPinnedMatches(s, "A v B -> 2026-12-01");
+  assert.equal(r.pins.length, 0);
+  assert.equal(r.errors.length, 1);
+  assert.deepEqual(r.schedule.rounds.map((x) => x.day), s.rounds.map((x) => x.day));
+});
+
+test("redteam: match length bounds are inclusive at 5 and 600 minutes", () => {
+  const f = sampleFields();
+  const ok = (minutes) => readSpec({ ...f, minutes: String(minutes) }).errors.every((e) => !/Match length/.test(e));
+  assert.equal(ok(5), true);
+  assert.equal(ok(600), true);
+  assert.equal(ok(4), false);
+  assert.equal(ok(601), false);
+});
+
+test("redteam: decodeFields accepts a share fragment of exactly 20000 characters and rejects 20001+", () => {
+  let code = null;
+  for (let n = 14000; n < 16000; n++) {
+    const c = encodeFields({ ...sampleFields(), notes: "x".repeat(n), teams: "A\nB\nC\nD".padEnd(n, "q") });
+    if (c.length === 20000) { code = c; break; }
+    if (c.length > 20000) break;
+  }
+  assert.ok(code, "found a code of exactly 20000 characters");
+  assert.notEqual(decodeFields(code), null);
+  assert.equal(decodeFields(code + "A"), null);
+});
+
+test("redteam: weeklyUpdate table ignores head-to-head unless asked (default is goal-difference order)", () => {
+  const s = buildSchedule(baseSpec(4));
+  const t = s.teams;
+  // same fixture as the standings head-to-head test: A, D, B level on 3 points, A ahead on goal difference
+  const results = [
+    { a: 0, b: 2, ga: 5, gb: 0 },
+    { a: 1, b: 0, ga: 1, gb: 0 },
+    { a: 3, b: 1, ga: 1, gb: 0 },
+  ];
+  const order = (text) => [...text.matchAll(/^ {2}\d\. (.+?) - /gm)].map((m) => m[1]).slice(0, 3);
+  assert.deepEqual(order(weeklyUpdate(s, results)), [t[0], t[3], t[1]]);
+  assert.deepEqual(order(weeklyUpdate(s, results, { headToHead: true })), [t[3], t[1], t[0]]);
 });

@@ -794,3 +794,22 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Candidates: unchanged (review/2 has 7 runs; ventures 2 / research 1 overlap).
   Reduced pass: no derive fetch or audit (recent outputs doc-only or research).
 - Result: (next review)
+
+## E45: review 2026-10-19 (fourth)
+
+- Change: `prompts/review/prompt-1.md` says a reduced pass (steps 1, 3, 7, 8
+  plus one step 5 fix) is a valid scheduled review and not friction; 37
+  reports said a full pass is too large for a scheduled run.
+- Metric: "full review too large" friction reports on `prompts/review/prompt-1.md`, next 5 reviews; expect none.
+- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 7 runs).
+  Audit and drift report skipped (recent outputs doc-only or research).
+- Change: `research/_shared/pick_track.py` says when the drawn track already has
+  40+ projects, that a redraw is fine, and names the three emptiest tracks
+  (`research/PROJECTS.md` friction: draws landing on saturated tracks 4 and 5
+  cost a run its first reads). `derived/` regenerated.
+- Metric: "saturated track / micro-variant chain" friction reports in
+  `research/PROJECTS.md`, next 20 research runs; expect fewer.
+- Candidates: unchanged (review/2 has 7 runs; ventures 2 / research 1 overlap).
+  Reduced pass: no audit (recent outputs doc-only or research); no new drift report
+  (`prompts/drift/2026-10-19.md` is hours old).
+- Result: (next review)

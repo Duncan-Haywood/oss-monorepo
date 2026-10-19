@@ -95,6 +95,8 @@
     <textarea id="timeLimits" rows="2" placeholder="Dink Dynasty: 18:00"></textarea>
     <label for="courtLimits">Optional: teams that can only use certain courts or fields, one per line: <code>Team name: Field 2</code> (needs two or more courts below; names must match the court names)</label>
     <textarea id="courtLimits" rows="2" placeholder="Under-8 Owls: Field 2"></textarea>
+    <label for="courtClosures">Optional: dates a court or field is closed or booked by someone else, one per line: <code>Field 2: 2026-11-03, 2026-11-10 to 2026-11-17</code> (no match is put there; if too few courts are left that night, matches move to makeup rounds)</label>
+    <textarea id="courtClosures" rows="2" placeholder="Court 2: 2026-11-03"></textarea>
     <div class="row4">
       <div><label for="finishBy">Must finish by, optional (YYYY-MM-DD)</label><input id="finishBy" placeholder="2026-12-15"></div>
       <div><label for="hire">Court hire per hour, optional (to price a team fee)</label><input id="hire" inputmode="decimal" placeholder="40"></div>
@@ -113,6 +115,10 @@
     <label for="scoring">Points for a win-draw-loss (blank = 3-1-0; <code>2-1-0</code> for hockey or darts)</label>
     <input id="scoring" placeholder="3-1-0" autocomplete="off">
     <input type="checkbox" id="h2h" style="margin-top:6px"> <label for="h2h" style="display:inline">Break ties on points by head-to-head results first</label>
+
+    <h2 style="margin-top:18px">4b. Fixed-date matches (optional)</h2>
+    <label for="pins">One per line: a derby on opening night, a game the venue booked months ago. <code>Hawks v Owls -&gt; 2026-11-03</code> moves their earliest meeting to that day (any day, earlier or later). It is refused, with the reason, if either team is blacked out or already playing, or no court is free. Write a pair twice to fix both legs of a double round robin.</label>
+    <textarea id="pins" rows="2" placeholder="Hawks v Owls -&gt; 2026-11-03"></textarea>
 
     <h2 style="margin-top:18px">5. Rainouts and cancellations (optional)</h2>
     <label for="rainouts">One per line: a date cancels every match that night, a date plus team names cancels only their match. Each cancelled match moves to the earliest later night both teams are free and a court is open; nothing else changes. Already agreed a new date? End the line with <code>-&gt; date</code> and it goes there if both teams and a court are free (otherwise it stays put and tells you why). <code>2026-10-13</code>, <code>2026-10-13 Lob Squad</code> or <code>2026-10-13 Lob Squad -&gt; 2026-10-16</code></label>
@@ -186,6 +192,7 @@
     <button type="button" class="secondary" id="dl-text">Download text</button>
     <button type="button" class="secondary" id="print-page">Print or save as PDF</button>
     <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
+    <button type="button" class="secondary" id="dl-change-notices" hidden>Download rainout change notices (.txt)</button>
     <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
     <select id="official-pick" hidden aria-label="Official"></select>
     <button type="button" class="secondary" id="dl-off-ics" hidden>Download calendar (.ics), selected official</button>
@@ -316,7 +323,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -337,12 +344,14 @@
       $("#blackouts").value = f.blackouts;
       $("#timeLimits").value = f.timeLimits || "";
       $("#courtLimits").value = f.courtLimits || "";
+      $("#courtClosures").value = f.courtClosures || "";
       $("#courts").value = f.courts.replace(/\n/g, ", ");
       $("#times").value = f.times;
       $("#playoff").value = f.playoff;
       $("#playoffDouble").checked = !!f.playoffDouble;
       $("#playoffThird").checked = !!f.playoffThird;
       $("#results").value = f.results;
+      $("#pins").value = f.pins || "";
       $("#rainouts").value = f.rainouts || "";
       $("#withdrawals").value = f.withdrawals || "";
       $("#lateTeams").value = f.lateTeams || "";
@@ -357,9 +366,9 @@
       for (let i = 0; i < 7; i++) if ($("#wd" + i).checked) weekdays.push(WEEKDAYS[i]);
       return {
         teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
-        skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courts: $("#courts").value, times: $("#times").value,
+        skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courtClosures: $("#courtClosures").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value,
-        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
+        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, pins: $("#pins").value, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
       };
     }
 
@@ -372,6 +381,7 @@
     function render(s, extra) {
       last = { s, ...extra };
       $("#report").hidden = false;
+      $("#dl-change-notices").hidden = !(extra.moves && extra.moves.length);
       const v = validateSchedule(s);
       $("#notices").innerHTML = s.notices.map((n) => `<div class="warn">${esc(n)}</div>`).join("") + extra.warnings.map((n) => `<div class="warn">${esc(n)}</div>`).join("");
       const regular = s.rounds.filter((r) => !r.makeup).length;
@@ -477,12 +487,19 @@
       const warnings = [];
       let table = null, pres = [];
       let bracket = null;
+      let extraMoves = [];
       if (errors.length) { status.textContent = errors.join(" "); return false; }
       let s;
       try { s = buildSchedule(spec); } catch (e) { status.textContent = e.message; return false; }
+      if ($("#pins").value.trim()) {
+        const pr = applyPinnedMatches(s, $("#pins").value);
+        s = pr.schedule;
+        warnings.push(...pr.errors, ...pr.pins.map((m) => `Fixed date: ${m.home} v ${m.away} moved from ${dayLabel(m.from)} to ${dayLabel(m.to)}${m.time ? " at " + m.time : ""}, ${m.court}.`));
+      }
       if ($("#rainouts").value.trim()) {
         const rr = applyRainouts(s, $("#rainouts").value);
         s = rr.schedule;
+        extraMoves = rr.moves;
         warnings.push(...rr.errors, ...rr.moves.map((m) => `Rainout: ${m.home} v ${m.away} on ${dayLabel(m.from)} is now ${dayLabel(m.to)}${m.time ? " at " + m.time : ""}, ${m.court}.`));
       }
       if ($("#withdrawals").value.trim()) {
@@ -567,7 +584,7 @@
           bracketTxt = bracketText(bracket);
         }
       }
-      render(s, { warnings, table, results: pres, bracket, bracketText: bracketTxt, race });
+      render(s, { moves: extraMoves, warnings, table, results: pres, bracket, bracketText: bracketTxt, race });
       status.textContent = "Done. Scroll down for the schedule.";
       return true;
     }
@@ -599,7 +616,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "results", "rainouts", "withdrawals", "lateTeams", "officials", "grounds", "linked"]) $("#" + id).value = "";
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "officials", "grounds", "linked"]) $("#" + id).value = "";
       $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
@@ -622,6 +639,11 @@
     $("#dl-team-msgs").addEventListener("click", () => {
       if (!last) return;
       download("team-messages.txt", teamMessages(last.s).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("text_shared");
+    });
+    $("#dl-change-notices").addEventListener("click", () => {
+      if (!last || !last.moves || !last.moves.length) return;
+      const n = changeNotices(last.moves);
+      download("rainout-change-notices.txt", [n.group, ...n.teams.map((m) => m.text)].join("\n\n----\n\n"), "text/plain"); record("text_shared");
     });
     $("#dl-off-ics").addEventListener("click", () => {
       if (!last) return;

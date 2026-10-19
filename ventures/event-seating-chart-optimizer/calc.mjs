@@ -984,3 +984,27 @@ export function parseSetup(text) {
   if (MIX_VALUES.includes(raw.mix)) state.mix = raw.mix;
   return { state, error: null };
 }
+
+// Share link: the whole setup packed into a URL fragment (#s=...), so a
+// partner or planner opens the same lists from one link. The fragment is never
+// sent to a server; it is read by the page in the browser. Unicode-safe
+// base64url of the setup JSON.
+export function shareFragment(state) {
+  const bytes = new TextEncoder().encode(setupJson(state));
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return "s=" + btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+export function parseShareFragment(hash) {
+  const m = /^#?s=([A-Za-z0-9_-]+)$/.exec(String(hash || ""));
+  if (!m) return { state: null, error: null };
+  try {
+    const b64 = m[1].replace(/-/g, "+").replace(/_/g, "/");
+    const bin = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4));
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    return parseSetup(new TextDecoder().decode(bytes));
+  } catch {
+    return { state: null, error: "That share link is damaged." };
+  }
+}

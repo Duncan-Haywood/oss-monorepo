@@ -34,6 +34,7 @@ import { INPUT_IDS as GRAILED_FIELDS } from '../grailed-fee-calculator/calc.mjs'
 import { INPUT_IDS as FB_FIELDS } from '../facebook-marketplace-fee-calculator/calc.mjs';
 import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculator/calc.mjs';
 import { INPUT_IDS as TCGPLAYER_FIELDS } from '../tcgplayer-fee-calculator/calc.mjs';
+import { INPUT_IDS as DISCOGS_FIELDS } from '../discogs-fee-calculator/calc.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
@@ -51,6 +52,7 @@ const TARGET_FIELDS = {
   'facebook-marketplace-fee-calculator': FB_FIELDS,
   'walmart-marketplace-calculator': WALMART_FIELDS,
   'tcgplayer-fee-calculator': TCGPLAYER_FIELDS,
+  'discogs-fee-calculator': DISCOGS_FIELDS,
 };
 
 const SHARED = {

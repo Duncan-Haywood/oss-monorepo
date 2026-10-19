@@ -164,6 +164,34 @@ export function parseTimeLimits(text, teams) {
 }
 
 /** Lines like "Cubs: Court 1, Court 2": the only courts that team may be given (matched to the league's court names). */
+/**
+ * Lines like "Field 2: 2026-11-03, 2026-11-10 to 2026-11-17": dates a court or field is not available
+ * (booked by someone else, closed for maintenance). Court names match case-insensitively when `courts`
+ * is known. Returns { closures: { courtName: [days] }, errors }.
+ */
+export function parseCourtClosures(text, courts = null) {
+  const closures = {};
+  const errors = [];
+  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(.*?)\s*(?::|\bis closed\b|\bclosed\b|\bunavailable\b)\s*(.+)$/i);
+    if (!m || !m[1].trim()) { errors.push(`Line ${i + 1}: write the court, a colon, then the dates it is closed (Field 2: 2026-11-05).`); continue; }
+    const name = m[1].trim();
+    const hit = courts ? courts.find((x) => x.toLowerCase() === name.toLowerCase()) : name;
+    if (!hit) { errors.push(`Line ${i + 1}: "${name}" is not one of the courts.`); continue; }
+    const { days, errors: e } = parseDateList(m[2]);
+    for (const x of e) errors.push(`Line ${i + 1}: ${x}`);
+    if (days.length) closures[hit] = [...new Set([...(closures[hit] || []), ...days])].sort((a, b) => a - b);
+  }
+  return { closures, errors };
+}
+
+/** True when `court` is listed as closed on `day` in a schedule config. */
+export function courtClosedOn(cfg, court, day) {
+  return ((cfg.courtClosures || {})[court] || []).includes(day);
+}
+
 export function parseCourtLimits(text, teams, courts = null) {
   const limits = {};
   const errors = [];
@@ -221,6 +249,8 @@ export function readSpec(f) {
   const courtNames = parseNameList(f.courts);
   const cl = parseCourtLimits(f.courtLimits, t.teams, courtNames.length ? courtNames : null);
   errors.push(...cl.errors);
+  const cc = parseCourtClosures(f.courtClosures, courtNames.length ? courtNames : null);
+  errors.push(...cc.errors);
   const seed = Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1;
   const minutes = f.minutes === undefined || f.minutes === "" ? 60 : Number(f.minutes);
   if (!Number.isFinite(minutes) || minutes < 5 || minutes > 600) errors.push("Match length must be between 5 and 600 minutes.");
@@ -236,7 +266,7 @@ export function readSpec(f) {
     errors,
     spec: {
       rounds, teams: t.teams, double: Boolean(f.double), start, weekdays: w.weekdays, skipDays: skip.days,
-      blackouts: b.blackouts, timeLimits: tl.limits, courtLimits: cl.limits, courts: courtNames, times: times.times, seed, minutes,
+      blackouts: b.blackouts, timeLimits: tl.limits, courtLimits: cl.limits, courtClosures: cc.closures, courts: courtNames, times: times.times, seed, minutes,
     },
   };
 }
@@ -363,15 +393,18 @@ function sumSq(arr) {
  * `banned[team]` (optional) is a set of time indexes that team may not be given; each use costs
  * LIMIT_PENALTY, far more than any evenness gain, so the search clears them whenever it can.
  * `bannedCourts[team]` does the same for court indexes.
+ * `closedByRound[i]` (optional) is a Set of slot indexes round i may not use (a closed court).
  * Mutates match.slot; returns the final cost (sum over teams of squared usage counts).
  */
-export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, banned = null, bannedCourts = null) {
+export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, banned = null, bannedCourts = null, closedByRound = null) {
   const cap = courtCount * timeCount;
   const cc = Array.from({ length: nTeams }, () => Array(courtCount).fill(0));
   const tc = Array.from({ length: nTeams }, () => Array(timeCount).fill(0));
-  const occ = rounds.map((r) => {
+  const allSlots = Array.from({ length: cap }, (_, k) => k);
+  const openOf = rounds.map((_, ri) => (closedByRound && closedByRound[ri] && closedByRound[ri].size ? allSlots.filter((k) => !closedByRound[ri].has(k)) : allSlots));
+  const occ = rounds.map((r, ri) => {
     const o = Array(cap).fill(-1);
-    r.matches.forEach((m, i) => { m.slot = i; o[i] = i; });
+    r.matches.forEach((m, i) => { m.slot = openOf[ri][i]; o[m.slot] = i; });
     return o;
   });
   const bump = (m, slot, sign) => {
@@ -390,7 +423,7 @@ export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, ban
   for (let x = 0; x < nTeams; x++) cost += teamCost(x);
   if (cap <= 1) return cost;
 
-  const movable = rounds.map((r, i) => (r.matches.length ? i : -1)).filter((i) => i >= 0);
+  const movable = rounds.map((r, i) => (r.matches.length && openOf[i].length > 1 ? i : -1)).filter((i) => i >= 0);
   if (!movable.length) return cost;
   const total = rounds.reduce((s, r) => s + r.matches.length, 0);
   const iterations = Math.min(80000, 800 * total);
@@ -404,8 +437,10 @@ export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, ban
     const i = Math.floor(rand() * r.matches.length);
     const mi = r.matches[i];
     const s1 = mi.slot;
-    let s2 = Math.floor(rand() * (cap - 1));
-    if (s2 >= s1) s2++;
+    const open = openOf[ri];
+    let k2 = Math.floor(rand() * (open.length - 1));
+    if (k2 >= open.indexOf(s1)) k2++;
+    const s2 = open[k2];
     const j = occ[ri][s2];
     const mj = j >= 0 ? r.matches[j] : null;
     const affected = new Set([mi.home, mi.away]);
@@ -473,6 +508,14 @@ export function buildSchedule(spec) {
     throw new Error(`${n} teams play ${perRound} matches a round, but ${courts.length} court(s) x ${times.length} time slot(s) only fit ${courts.length * times.length}. Add courts or time slots.`);
   }
 
+  const closures = {};
+  for (const [c, days] of Object.entries(spec.courtClosures || {})) {
+    if (courts.includes(c)) closures[c] = days;
+    else notices.push(`"${c}" is not one of the league's courts, so its closure dates were ignored.`);
+  }
+  const closedCourtsOn = (d) => new Set(courts.map((c, i) => ((closures[c] || []).includes(d) ? i : -1)).filter((i) => i >= 0));
+  const capacityOn = (d) => (courts.length - closedCourtsOn(d).size) * times.length;
+
   let plan = roundRobin(n, { double: Boolean(spec.double) });
   // A shorter season: the first k rounds of the circle method. Every team still meets k different
   // opponents (k games, minus a bye in an odd league), and the home/away alternation is unchanged.
@@ -500,8 +543,15 @@ export function buildSchedule(spec) {
       if (conf === 0) break;
     }
     const playable = best.matches.filter(([h, a]) => !isBlocked(h, day) && !isBlocked(a, day));
+    const open = capacityOn(day);
+    if (open === 0) playable.length = 0;
+    else if (playable.length > open) {
+      const over = playable.splice(open);
+      pool.push(...over);
+      notices.push(`${dayLabel(day)}: only ${open} court slot(s) are open, so ${over.length} match(es) moved to makeup rounds.`);
+    }
     if (!playable.length && best.matches.length) {
-      notices.push(`${dayLabel(day)}: no round could be played because of team blackouts, so that date is unused.`);
+      notices.push(open === 0 ? `${dayLabel(day)}: every court is closed, so that date is unused.` : `${dayLabel(day)}: no round could be played because of team blackouts, so that date is unused.`);
       day++;
       continue;
     }
@@ -517,7 +567,7 @@ export function buildSchedule(spec) {
     if (day === null || guard++ > MAX_SCAN_DAYS) throw new Error("Could not find dates for the makeup matches. Check the blackouts.");
     const used = new Set();
     const matches = [];
-    for (let i = 0; i < pool.length && matches.length < courts.length * times.length; i++) {
+    for (let i = 0; i < pool.length && matches.length < capacityOn(day); i++) {
       const [h, a] = pool[i];
       if (used.has(h) || used.has(a) || isBlocked(h, day) || isBlocked(a, day)) continue;
       used.add(h); used.add(a);
@@ -551,7 +601,12 @@ export function buildSchedule(spec) {
     if (!ok.length) { notices.push(`${teams[t]} is limited to courts that are not among the league's courts, so the limit was ignored.`); continue; }
     bannedCourts[t] = courts.map((x, i) => (ok.includes(x) ? -1 : i)).filter((i) => i >= 0);
   }
-  const cost = assignSlots(rounds, n, courts.length, times.length, spec.seed ?? 1, Object.keys(banned).length ? banned : null, Object.keys(bannedCourts).length ? bannedCourts : null);
+  const closedByRound = rounds.map((r) => {
+    const set = new Set();
+    for (const ci of closedCourtsOn(r.day)) for (let t = 0; t < times.length; t++) set.add(t * courts.length + ci);
+    return set;
+  });
+  const cost = assignSlots(rounds, n, courts.length, times.length, spec.seed ?? 1, Object.keys(banned).length ? banned : null, Object.keys(bannedCourts).length ? bannedCourts : null, Object.keys(closures).length ? closedByRound : null);
   for (const r of rounds) {
     for (const m of r.matches) {
       m.court = courts[m.slot % courts.length];
@@ -567,7 +622,7 @@ export function buildSchedule(spec) {
   const schedule = {
     teams,
     config: {
-      timeLimits, courtLimits,
+      timeLimits, courtLimits, courtClosures: closures,
       double: Boolean(spec.double), partial, start: spec.start, weekdays: [...weekdaySet].sort(), skipDays: [...skipSet].sort((a, b) => a - b),
       blackouts: Object.fromEntries(blackSet.map((s, i) => [i, [...s].sort((a, b) => a - b)]).filter(([, d]) => d.length)),
       courts, times, seed: spec.seed ?? 1, minutes: spec.minutes ?? 60,
@@ -823,6 +878,7 @@ export function validateSchedule(schedule) {
       if (cells.has(cell)) errors.push(`${round.label}: ${m.court} at ${m.time || "the one time slot"} is booked twice.`);
       cells.add(cell);
       if (!cfg.courts.includes(m.court)) errors.push(`${round.label}: unknown court ${m.court}.`);
+      else if (courtClosedOn(cfg, m.court, round.day)) errors.push(`${round.label}: ${m.court} is closed on ${dayIso(round.day)}.`);
       if (!cfg.times.includes(m.time)) errors.push(`${round.label}: unknown time ${m.time}.`);
       for (const t of [home, away]) {
         const lim = (cfg.timeLimits || {})[t];
@@ -866,7 +922,7 @@ export function validateSchedule(schedule) {
  * make-up date yourself (any day, not only a league weekday); it is refused, with the reason, if
  * either team is blacked out or already playing, or no court and slot is free, and the match stays put.
  */
-export function applyRainouts(schedule, text) {
+export function applyRainouts(schedule, text, opts = {}) {
   const s = JSON.parse(JSON.stringify(schedule));
   const cfg = s.config;
   const weekdaySet = new Set(cfg.weekdays);
@@ -902,7 +958,7 @@ export function applyRainouts(schedule, text) {
     for (const mt of cancelled) {
       let d = fixed !== null ? fixed : day + 1;
       let placed = null;
-      if (fixed !== null && fixed <= day) { errors.push(`${mt.homeName} v ${mt.awayName}: ${dayIso(fixed)} is not after ${dayIso(day)}.`); round.matches.push(mt); continue; }
+      if (fixed !== null && (opts.allowEarlier ? fixed === day : fixed <= day)) { errors.push(`${mt.homeName} v ${mt.awayName}: ${dayIso(fixed)} is not after ${dayIso(day)}.`); round.matches.push(mt); continue; }
       for (let guard = 0; guard < (fixed !== null ? 1 : 400) && !placed; guard++, d++) {
         if (fixed === null) { d = nextPlayDay(d, weekdaySet, skipSet); if (d === null) break; }
         const blocked = (t) => (cfg.blackouts[t] || []).includes(d);
@@ -914,7 +970,7 @@ export function applyRainouts(schedule, text) {
         const want = slotOf(mt);
         const timeOk = (k) => [mt.home, mt.away].every((t) => !(cfg.timeLimits || {})[t] || cfg.timeLimits[t].includes(cfg.times[Math.floor(k / cfg.courts.length)]));
         const courtOk = (k) => [mt.home, mt.away].every((t) => !(cfg.courtLimits || {})[t] || cfg.courtLimits[t].includes(cfg.courts[k % cfg.courts.length]));
-        const slotOk = (k) => timeOk(k) && courtOk(k);
+        const slotOk = (k) => timeOk(k) && courtOk(k) && !courtClosedOn(cfg, cfg.courts[k % cfg.courts.length], d);
         const free = !taken.has(want) && slotOk(want) ? want : Array.from({ length: total }, (_, k) => k).find((k) => !taken.has(k) && slotOk(k));
         if (free === undefined) continue;
         placed = { d, target, free };
@@ -930,9 +986,82 @@ export function applyRainouts(schedule, text) {
   for (const r of s.rounds) r.matches.sort((a, b) => a.slot - b.slot);
   let mk = 0;
   for (const r of s.rounds) if (r.makeup) r.label = `Makeup ${++mk}`;
-  if (moves.length) s.notices = [...s.notices, `${moves.length} match(es) moved after a rainout. Everything else is unchanged.`];
+  if (moves.length && !opts.quiet) s.notices = [...s.notices, `${moves.length} match(es) moved after a rainout. Everything else is unchanged.`];
   s.stats = scheduleStats(s);
   return { schedule: s, moves, errors };
+}
+
+// ---------------------------------------------------------------- change notices
+
+/**
+ * Ready-to-paste notices for the matches `applyRainouts` moved (its `moves`). Returns
+ * `{ group, teams }`: `group` is one post for the league chat listing every moved match
+ * (old date, new date, time, court), and `teams` has one short note per affected team with
+ * only its own changes. Teams with no moved match get no note. Empty `moves` give an empty result.
+ */
+export function changeNotices(moves) {
+  const list = Array.isArray(moves) ? moves : [];
+  if (!list.length) return { group: "", teams: [] };
+  const where = (m) => `${dayLabel(m.to)}${m.time ? " " + m.time : ""}${m.court ? ", " + m.court : ""}`;
+  const line = (m) => `${m.home} v ${m.away}: was ${dayLabel(m.from)}, now ${where(m)}`;
+  const group = ["Schedule change:", ...list.map((m) => "- " + line(m)), "Every other fixture is unchanged."].join("\n");
+  const byTeam = new Map();
+  for (const m of list) for (const t of [m.home, m.away]) {
+    if (!byTeam.has(t)) byTeam.set(t, []);
+    byTeam.get(t).push(m);
+  }
+  const teams = [...byTeam].map(([team, ms]) => ({
+    team,
+    text: [`Hi ${team}, a change to your fixtures:`, ...ms.map((m) => `- ${m.home === team ? "vs " + m.away : "at " + m.home} (${m.home === team ? "home" : "away"}): was ${dayLabel(m.from)}, now ${where(m)}`), "Your other fixtures are unchanged."].join("\n"),
+  }));
+  return { group, teams };
+}
+
+// ---------------------------------------------------------------- pinned matches
+
+/**
+ * Pinned fixtures: a derby on opening night, a cup rematch the venue booked months ago. Each line of
+ * `text` is `Hawks v Owls -> 2026-11-03` (`vs`, `-` and `,` also split the names; `->`, `=>` or an
+ * arrow gives the date, which may be before or after the match's current night and need not be a
+ * league weekday). The pair's earliest meeting that is not already pinned moves there, using the same
+ * checks as a named rainout make-up date: refused, with the reason, if either team is blacked out or
+ * already playing that day, or no court and time slot is free, and the match stays put. Write a pair
+ * twice to pin both legs of a double round robin. Nothing else moves. Returns a new schedule (the
+ * input is not mutated) plus `pins` ({ from, to, home, away, court, time }) and `errors`.
+ */
+export function applyPinnedMatches(schedule, text) {
+  let s = JSON.parse(JSON.stringify(schedule));
+  const pins = [];
+  const errors = [];
+  for (const raw of String(text ?? "").split(/\n+/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(.*?)\s*(?:->|=>|\u2192)\s*(\d{4}-\d{1,2}-\d{1,2})\s*$/);
+    const to = m ? parseDate(m[2]) : null;
+    if (!m || to === null) { errors.push(`"${line}": write it as Hawks v Owls -> 2026-11-03 with a real date.`); continue; }
+    const names = m[1].split(/\s+(?:v|vs\.?|versus)\s+|\s*,\s*|\s+-\s+/i).map((x) => x.trim()).filter(Boolean);
+    const idx = names.map((nm) => s.teams.findIndex((t) => t.toLowerCase() === nm.toLowerCase()));
+    if (names.length !== 2 || idx.some((i) => i < 0) || idx[0] === idx[1]) {
+      errors.push(`"${line}": name two different teams from the list, like Hawks v Owls.`);
+      continue;
+    }
+    const mine = [];
+    for (const r of s.rounds) for (const x of r.matches) if (x.home + x.away === idx[0] + idx[1] && [x.home, x.away].every((t) => idx.includes(t))) mine.push({ r, x });
+    mine.sort((a, b) => a.r.day - b.r.day);
+    if (mine.some(({ r, x }) => r.day === to && x.pinned)) { errors.push(`${names[0]} v ${names[1]}: already pinned to ${dayIso(to)}.`); continue; }
+    const pick = mine.find(({ x }) => !x.pinned);
+    if (!pick) { errors.push(`${names[0]} v ${names[1]}: ${mine.length ? "every meeting is already pinned" : "these teams do not meet in the schedule"}.`); continue; }
+    if (pick.r.day === to) { pick.x.pinned = true; continue; }
+    const res = applyRainouts(s, `${dayIso(pick.r.day)} ${s.teams[idx[0]]}, ${s.teams[idx[1]]} -> ${dayIso(to)}`, { allowEarlier: true, quiet: true });
+    if (res.errors.length) { errors.push(...res.errors); continue; }
+    s = res.schedule;
+    for (const r of s.rounds) for (const x of r.matches) if (x.home + x.away === idx[0] + idx[1] && x.moved && !x.pinned && r.day === to) x.pinned = true;
+    pins.push(...res.moves.map((mv) => ({ from: mv.from, to: mv.to, home: mv.home, away: mv.away, court: mv.court, time: mv.time })));
+  }
+  if (pins.length) {
+    s.notices = [...s.notices, `${pins.length} match(es) pinned to a chosen date. Everything else is unchanged.`];
+  }
+  return { schedule: s, pins, errors };
 }
 
 // ---------------------------------------------------------------- withdrawals
@@ -1043,7 +1172,7 @@ export function applyLateTeams(schedule, text) {
         const ok = (k) => [mt.home, mt.away].every((t) => {
           const tl = (cfg.timeLimits || {})[t];
           const cl = (cfg.courtLimits || {})[t];
-          return (!tl || tl.includes(cfg.times[Math.floor(k / cfg.courts.length)])) && (!cl || cl.includes(cfg.courts[k % cfg.courts.length]));
+          return (!tl || tl.includes(cfg.times[Math.floor(k / cfg.courts.length)])) && (!cl || cl.includes(cfg.courts[k % cfg.courts.length])) && !courtClosedOn(cfg, cfg.courts[k % cfg.courts.length], d);
         });
         const free = Array.from({ length: total }, (_, k) => k).find((k) => !taken.has(k) && ok(k));
         if (free === undefined) continue;
@@ -2046,7 +2175,7 @@ export function buildPoolPlay(spec, k, clubs = []) {
   return splitPools(spec.teams, k, clubs).map((pool) => {
     const remap = (obj) => Object.fromEntries(Object.entries(obj || {}).filter(([i]) => pool.teams.includes(spec.teams[i]))
       .map(([i, v]) => [pool.teams.indexOf(spec.teams[i]), v]));
-    const schedule = buildSchedule({ ...spec, teams: pool.teams, blackouts: remap(spec.blackouts), timeLimits: remap(spec.timeLimits), courtLimits: remap(spec.courtLimits) });
+    const schedule = buildSchedule({ ...spec, teams: pool.teams, blackouts: remap(spec.blackouts), timeLimits: remap(spec.timeLimits), courtLimits: remap(spec.courtLimits), courtClosures: spec.courtClosures });
     return { name: pool.name, schedule };
   });
 }
@@ -2231,7 +2360,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -2255,13 +2384,13 @@ export function decodeFields(text) {
     const wd = Array.isArray(o.weekdays) ? o.weekdays.filter((d) => WEEKDAYS.includes(d)) : [];
     return {
       teams: str(o.teams), double: o.double === true, start: str(o.start), weekdays: wd,
-      skip: str(o.skip), blackouts: str(o.blackouts), timeLimits: str(o.timeLimits), courtLimits: str(o.courtLimits), courts: str(o.courts), times: str(o.times),
+      skip: str(o.skip), blackouts: str(o.blackouts), timeLimits: str(o.timeLimits), courtLimits: str(o.courtLimits), courtClosures: str(o.courtClosures), courts: str(o.courts), times: str(o.times),
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       rounds: o.rounds === undefined || o.rounds === "" ? "" : String(o.rounds).slice(0, 4),
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
       playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
-      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds), linked: str(o.linked), scoring: str(o.scoring),
+      pins: str(o.pins), rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds), linked: str(o.linked), scoring: str(o.scoring),
     };
   } catch { return null; }
 }
@@ -2757,7 +2886,7 @@ export function nextSeasonFields(fields, { lastDay = null, gapWeeks = 8 } = {}) 
     f.start = dayIso(day);
   }
   f.seed = (Number(f.seed) || 0) + 1;
-  for (const k of ["skip", "blackouts", "results", "rainouts", "withdrawals", "lateTeams", "finishBy"]) if (k in f) f[k] = "";
+  for (const k of ["skip", "blackouts", "results", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy"]) if (k in f) f[k] = "";
   const dropped = String(fields.teams || "").split(/\n+/).map((t) => t.trim()).filter((t) => t && gone.has(t.toLowerCase()));
   return { fields: f, dropped, added: late.filter((t) => kept.includes(t)) };
 }

@@ -127,3 +127,10 @@ test("the AAA section is on the page and its event is disclosed", () => {
   assert.match(html, /<code>aaa_viewed<\/code>/);
   assert.match(html, /aaa\(last/);
 });
+
+test("K-1 box card is on the page, wired to fromK1Boxes, and its event is disclosed", () => {
+  const html = page("index.html");
+  assert.match(html, /id="k1-in"/);
+  assert.match(html, /fromK1Boxes/);
+  assert.match(html, /<code>k1_converted<\/code>/);
+});

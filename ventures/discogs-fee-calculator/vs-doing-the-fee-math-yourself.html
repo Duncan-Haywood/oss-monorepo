@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Discogs Fee Calculator vs. Doing the Fee Maths Yourself</title>
+  <meta name="description" content="Why 'take off 10%' misstates Discogs fees: shipping is in the fee base, processing has a flat part, the selling fee is capped at $150, and the price for a target profit is not a straight percentage.">
+  <meta property="og:title" content="Discogs Fee Calculator vs. Doing It Yourself">
+  <meta property="og:description" content="Where a take-off-10% rule of thumb goes wrong on Discogs, and what the calculator handles.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./vs-doing-the-fee-math-yourself.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just multiply by 0.91 in a spreadsheet?", "acceptedAnswer": {"@type": "Answer", "text": "Because the 9% is charged on item plus shipping, the processing has a flat per-order part, and the selling fee is capped at $150, so a flat percentage is wrong at both ends of your price range."}}, {"@type": "Question", "name": "Do I need to know the Discogs processing rate?", "acceptedAnswer": {"@type": "Answer", "text": "It helps. Discogs does not publish one rate for every seller, so the calculator takes it as two boxes that start at 2.9% + $0.30. Copy your real figure from a payout statement and every result updates."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #131b2e; background: #eef2f8; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; margin-bottom: .3em; }
+    h2 { margin-top: 1.6em; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+    th, td { text-align: left; border-bottom: 1px solid #c6d3e3; padding: 6px 10px; }
+    td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    code { background: #dde8f8; padding: 1px 5px; border-radius: 4px; }
+    .callout { background: #f3f7fd; border: 1px solid #c6d3e3; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    a { color: #1c5ea3; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #3d4a60; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Back to the Discogs fee calculator</a></p>
+  <h1>The Discogs fee calculator vs. doing the fee maths yourself</h1>
+  <p>Most Discogs sellers price a record with a rule of thumb: take off about 10% and call it done. It is close for a mid-priced record sold with free shipping and wrong in four places the calculator handles.</p>
+  <table>
+    <thead><tr><th>Question</th><th>Rule of thumb</th><th>Calculator</th></tr></thead>
+    <tbody>
+      <tr><td>Is shipping in the fee base?</td><td>Often forgotten</td><td>Yes, selling fee and processing both</td></tr>
+      <tr><td>Flat per-order processing</td><td>Ignored</td><td>Separate input</td></tr>
+      <tr><td>$150 cap on big sales</td><td>Overpays the fee in your head</td><td>Applied</td></tr>
+      <tr><td>Price for a target profit</td><td>Trial and error</td><td>Solved, including across the cap</td></tr>
+      <tr><td>Fee at $3 vs $100 vs $2,500</td><td>One number</td><td>Fee ladder</td></tr>
+    </tbody>
+  </table>
+  <h2>Where a spreadsheet is fine</h2>
+  <p>If you sell one kind of record at one price with one shipping rate, a spreadsheet with your own processing figure does the same thing. The calculator is for pricing a crate where the answer changes record by record, and for comparing Discogs against eBay, Etsy or Reverb on the same item through the <a href="../where-to-sell-calculator/">where-to-sell calculator</a>.</p>
+  <p><a href="./">Open the Discogs fee calculator</a></p>
+
+  <section class="faq">
+    <h2>Common questions</h2>
+    <h3>Why not just multiply by 0.91 in a spreadsheet?</h3>
+    <p>Because the 9% is charged on item plus shipping, the processing has a flat per-order part, and the selling fee is capped at $150, so a flat percentage is wrong at both ends of your price range.</p>
+    <h3>Do I need to know the Discogs processing rate?</h3>
+    <p>It helps. Discogs does not publish one rate for every seller, so the calculator takes it as two boxes that start at 2.9% + $0.30. Copy your real figure from a payout statement and every result updates.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the calculator are provided free and as-is, without warranty of any kind. They are not legal, tax, financial, or selling advice. Verify every figure against your own Discogs payout statement. Not affiliated with, endorsed by, or sponsored by Discogs; the name is used only to describe the published fee the tool computes against.</p>
+    <p><a href="./">Open the Discogs fee calculator</a> &middot; <a href="../where-to-sell-calculator/">Compare Discogs with eBay, Etsy and Reverb on one record</a></p>
+  </footer>
+</body>
+</html>
