@@ -97,7 +97,7 @@ They stay a little above the floor because the run includes the transition.
 
 - It shows that, under this rule, a fleet's programmed side is all or nothing: below a share
   set by how much people remember, it changes nothing and costs people a lot; above it, it
-  flips the crowd quickly. A designer who cannot be sure of being above the threshold should
+  flips every simulated crowd within the run. A designer who cannot be sure of being above the threshold should
   make robots follow the local convention.
 - It does not show that real pedestrians follow this rule, that their memory is any particular
   `M`, or that real robots would cause conflicts at these rates. The thresholds are properties
