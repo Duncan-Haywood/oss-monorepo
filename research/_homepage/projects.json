@@ -2222,6 +2222,11 @@
      "summary": "Follow-up to <code>simdesign-robustadapt</code>. The same nine robust half-MBB cases are run with five move-limit rules (45 deterministic runs): fixed 0.2, 0.1, 0.05, the earlier adaptive rule, and reject-and-retry, which discards a step whose worst-case compliance jumps more than 3&times; and redoes it at half the move. Blueprint failures: fixed 0.2, 5 of 9; adaptive, 2; retry, 1; fixed 0.1 and 0.05, none. Retry costs at most 2% more evaluations but never beat fixed 0.05, and on eroded-design quality it is 1.22&times; the best on average (fixed 0.1 hides one eroded design 25&times; worse that the blueprint test passes). Stylised: 2D dimensionless, one problem, one run per cell."
     },
     {
+     "slug": "simdesign-stuck",
+     "title": "Can penalty continuation free SIMP topology-optimisation starts that stay stuck in a different local optimum?",
+     "summary": "Follow-up to <code>simdesign-startsconverge</code>. Half-MBB 60&times;20, p = 3: after 1200 iterations 5 of 20 random starts still differ from the uniform-start design in at least 1% of elements. Penalty continuation (p = 1, 2, 3) frees none of them: all five collapse onto one design, 20.4% different from the uniform-start one, with compliance 204.01 versus 203.29 for the uniform start. Simply running 1200 more iterations at p = 3 takes three of them to 202.83, about 0.6% better than continuation. Stylised: 2D, dimensionless compliance, one mesh, 20 seeds."
+    },
+    {
      "slug": "simdesign-startsconverge",
      "title": "Is the start-dependence of fixed-penalty SIMP topology optimisation just slow convergence?",
      "summary": "Follow-up to <code>simdesign-starts</code>. Half-MBB 60&times;20, p = 3, one uniform and 20 random starting fields (noise &plusmn;0.3), each run 1200 OC iterations and snapshotted at 150, 300, 600 and 1200. The median random start ends at the uniform-start design (0.0% of elements differ at 1200, 3.9% at 150) and the pair disagreement falls from 15.4% to 0.5%, but the compliance spread only falls from 1.43% to 0.85% and holes still range 2&ndash;5, so a minority of starts stay in a different, slightly worse local optimum. Stylised: 2D, one mesh, one noise level, stuck starts not counted."
