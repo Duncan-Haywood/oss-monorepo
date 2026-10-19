@@ -3473,6 +3473,11 @@
     "slug": "sensing-burst",
     "title": "How many frames from a small sensor, merged, match one frame from a bigger one?",
     "summary": "Synthetic scenes with Poisson shot noise, Gaussian read noise and a full-well clip. A burst of <em>N</em> small-sensor frames (each at the large frame's exposure time) ties a sensor with <em>A</em>&times; the pixel area at <em>N</em>* = <em>A</em>&sup2;(<em>sx</em>+<em>r</em>&sup2;)/(<em>Asx</em>+<em>r</em>&sup2;): <em>A</em> frames when shot noise dominates, up to <em>A</em>&sup2; in the dark or at high read noise (simulation, <em>A</em>=4: 4.0 frames in bright light, 14.4 in dim light with 8 e<sup>&minus;</sup> read noise). Splitting the <em>same</em> total exposure into frames never ties: the burst has more variance than the large frame at every <em>N</em>. With hand shake and Fourier-shift registration, shifts are recovered to 0.09&ndash;0.8 px RMS in good light but fail in the dimmest case tested (3.1 px), and the registration blur means <em>A</em>=4 needs about 21 frames in bright light. A bracketed burst recovers clipped highlights (42 dB against 22 dB for one frame). Stylised: synthetic images, global translation only, no real raw files."
+   },
+   {
+    "slug": "sensing-timesync",
+    "title": "How many milliseconds of camera-to-gyro time offset double a fused attitude error, and can online calibration recover it?",
+    "summary": "Single-axis simulation: a 200&nbsp;Hz biased gyro and a 30&nbsp;Hz camera whose timestamps are late by <em>t<sub>d</sub></em>, fused by a complementary filter. At 30&nbsp;deg/s motion the error doubles at 12&ndash;14&nbsp;ms; the doubling offset is 32&ndash;34&nbsp;ms at 10&nbsp;deg/s and 8&ndash;10&nbsp;ms at 90&nbsp;deg/s, and grows with camera noise. A gyro-integral alignment fit recovers the offset to about 1&nbsp;ms rms and restores the zero-offset error, but fails on a nearly still platform. Stylised: one axis, constant offset, angle measurements only, synthetic noise."
    }
   ]
  },
