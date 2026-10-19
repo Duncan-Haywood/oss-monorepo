@@ -1,0 +1,13 @@
+Half-MBB 60x20, vf 0.5, rmin 1.5. Uniform start design after 1200 its at p 3: c = 203.29, holes 2.
+5 of 20 random starts (seeds 0..19) are stuck (>= 1% of elements differ from it): seeds [7, 9, 11, 12, 17].
+
+seed  c_1200   dist-u   holes | CONTROL (+1200 its p 3): c      dist-u  holes | CONTINUATION (p1:100,p2:100,p3:1000): c      dist-u  holes  freed?
+   7   203.90   24.8%   5   |                           202.83   23.3%   4   |                                        204.01   20.4%   4    no
+   9   204.56   27.3%   4   |                           204.56   27.3%   4   |                                        204.01   20.4%   4    no
+  11   203.50   14.2%   4   |                           203.92   20.5%   4   |                                        204.01   20.4%   4    no
+  12   202.84   23.3%   4   |                           202.84   23.3%   4   |                                        204.01   20.4%   4    no
+  17   203.01   22.5%   4   |                           202.83   23.3%   4   |                                        204.01   20.4%   4    no
+
+freed to the uniform-start layout (< 1% of elements differ) by continuation: 0/5; continuation compliance below the stuck design's in 1/5; control below in 4/5.
+
+total time 474 s
