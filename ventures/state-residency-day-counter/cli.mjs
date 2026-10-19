@@ -8,6 +8,7 @@
 //   node cli.mjs --html stays.txt > packet.html                    # printable audit packet
 //   node cli.mjs --ics stays.txt > last-safe-days.ics              # calendar reminders for the last safe day per state
 //   node cli.mjs --json stays.txt                                  # machine-readable
+//   node cli.mjs --trip "NY 2025-11-01 14" stays.txt              # what a planned trip (state, start, days) would change
 //   node cli.mjs --example                                         # run on the built-in invented year
 //
 // Stays file: one line per stay, as on the web page ("2025-01-03 to 2025-03-30 FL",
@@ -18,7 +19,7 @@
 import { readFile } from "node:fs/promises";
 import process from "node:process";
 import {
-  parseStays, parseDate, analyze, sampleSpec, reportCsv, dailyLogCsv, auditReportHtml, deadlinesIcs,
+  parseStays, parseDate, analyze, tripImpact, sampleSpec, reportCsv, dailyLogCsv, auditReportHtml, deadlinesIcs,
   statusText, dayIso, fmtNum, fmtMoney, STATE_NAMES,
 } from "./calc.mjs";
 
@@ -35,6 +36,7 @@ Options:
   --employer <ST>      your employer's state, for the convenience-of-the-employer view
   --wages <amount>     annual wages, to split by workdays per state
   --limits "OH 90,GA 150"  your own day limits, overriding the table
+  --trip "NY 2025-11-01 14"  what-if: add a planned trip (state, start date, days) and show what it changes
   --nights             count nights (drop the departure day) instead of any part of a day
   --csv                print totals per state as CSV
   --daily-log          print the day-by-day log as CSV
@@ -53,7 +55,7 @@ const code = (t) => String(t).trim().toUpperCase();
 
 export function parseArgs(argv) {
   const opts = {
-    file: null, year: null, asof: null, home: null, abode: [], employer: null, wages: null, limits: null,
+    file: null, year: null, asof: null, home: null, abode: [], employer: null, wages: null, limits: null, trip: null,
     nights: false, csv: false, dailyLog: false, html: false, ics: false, json: false, example: false, help: false,
   };
   const value = (i, flag, what) => {
@@ -89,7 +91,8 @@ export function parseArgs(argv) {
       const w = Number(value(++i, arg, "an amount").replace(/[$,]/g, ""));
       if (!(w >= 0)) throw new Error("--wages needs an amount of zero or more");
       opts.wages = w;
-    } else if (arg === "--limits") opts.limits = value(++i, arg, 'state and days pairs, e.g. "OH 90,GA 150"');
+    } else if (arg === "--trip") opts.trip = value(++i, arg, 'a state, start date and number of days, e.g. "NY 2025-11-01 14"');
+    else if (arg === "--limits") opts.limits = value(++i, arg, 'state and days pairs, e.g. "OH 90,GA 150"');
     else if (arg.startsWith("-") && arg !== "-") throw new Error(`unknown option: ${arg}`);
     else opts.file = arg;
   }
@@ -127,7 +130,29 @@ export function buildSpec(opts, staysText) {
   };
 }
 
+export function parseTrip(text, year) {
+  const m = String(text || "").trim().match(/^([A-Za-z]{2})\s+(\S+)\s+(\d{1,3})$/);
+  if (!m) throw new Error('--trip needs a state, a start date and a number of days, like "NY 2025-11-01 14"');
+  const start = parseDate(m[2], year);
+  if (start === null) throw new Error("--trip start is not a real date. Use YYYY-MM-DD.");
+  return { state: m[1].toUpperCase(), start, days: Number(m[3]) };
+}
+
+export function tripReport(t) {
+  const out = [`Planned trip: ${t.trip.days} day(s) in ${t.trip.state} from ${dayIso(t.trip.start)}.`, ""];
+  if (!t.changes.length) out.push("It changes no state's total.");
+  for (const c of t.changes) {
+    out.push(`  ${c.code}  ${c.before} -> ${c.after} days (${c.delta > 0 ? "+" : ""}${c.delta})${c.limit !== null ? `, limit ${c.limit}` : ""}${c.crossed ? "  CROSSES THE LIMIT" : ""}`);
+  }
+  if (t.maxSafeDays !== null) out.push("", `Longest trip from that date that stays within ${t.trip.state}'s limit of ${t.tripLimit}: ${t.maxSafeDays} day(s).`);
+  return out.join("\n") + "\n";
+}
+
 export function render(spec, opts) {
+  if (opts.trip) {
+    const t = tripImpact(spec, parseTrip(opts.trip, spec.year));
+    return opts.json ? JSON.stringify(t, null, 2) + "\n" : tripReport(t);
+  }
   if (opts.csv) return reportCsv(analyze(spec));
   if (opts.dailyLog) return dailyLogCsv(spec);
   if (opts.html) return auditReportHtml(spec);

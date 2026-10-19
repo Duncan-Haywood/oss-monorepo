@@ -1943,6 +1943,11 @@
      "summary": "A stylised follow-up to <em>ambient-falsewake</em>. On Gaussian AR(1) frame scores, wake counts per 1,000 s window are close to Poisson (Fano factor 1.05&ndash;1.5 at <em>&phi;</em> = 0.9&ndash;0.95). A window-to-window drift in the noise scale is what makes them bursty: a 5% lognormal drift lifts the Fano factor to about 9 for <em>m</em> = 3 while moving the mean only 4%, and 10% drift gives 38. A 10 s lockout cuts the Fano factor (9.8 to 2.5 with drift) but also cuts the mean by a third; a sub-second lockout changes little. The score is a model, not a real wake-word detector, and the drift is assumed. Stylised."
     },
     {
+     "slug": "ambient-driftwindow",
+     "title": "How does the burstiness of an always-on trigger's false-wake counts grow with the counting window when the noise level drifts for hours?",
+     "summary": "A stylised follow-up to <em>ambient-wakeburst</em>, which drew a fresh noise level per window. With a noise scale that drifts persistently (log-scale AR(1), 5% sd) the Fano factor of false-wake counts rises with the window instead of staying flat: about 1.9 at 100 s for any correlation time, then 14, 110 and 150 at 16, 256 and 1,024 blocks (28 h) for a 2.8 h correlation time, and 620 at 28 h for a 28 h correlation time, while the mean moves only 5%. A Poisson-given-scale (Cox) model, checked against a frame-level simulation (4.7 vs 4.7 and 44 vs 44), and a closed form (mean error 2% on the busy trigger, worst 11%) explain it. The drift is assumed, not measured, and the &lsquo;rare&rsquo; trigger is one wake per 500 s, not one a day. Stylised."
+    },
+    {
      "slug": "ambient-gatesimd",
      "title": "Do a dual-MAC energy loop and a divide-free threshold make the Cortex-M4 voice gate cheaper?",
      "summary": "A stylised follow-up to <em>ambient-gatem4</em>. With the block-minimum floor the SMLALD energy loop cuts executed instructions per frame by 17% at -Os and 37% at -O2, but without it the gate gets slower (64-bit ring entries), RAM doubles and code grows by about 60%. A divide-free sum-domain threshold matched the original decision on all 36,000 frames per configuration and removes the only library call; the divide itself is not counted, so its saving is unmeasured. Emulator instruction counts on synthetic audio, not cycles and not hardware."
@@ -2215,6 +2220,11 @@
      "slug": "simdesign-retry",
      "title": "Does rolling back a robust topology-optimisation step that spikes compliance, and redoing it at half the move, beat shrinking the move afterwards?",
      "summary": "Follow-up to <code>simdesign-robustadapt</code>. The same nine robust half-MBB cases are run with five move-limit rules (45 deterministic runs): fixed 0.2, 0.1, 0.05, the earlier adaptive rule, and reject-and-retry, which discards a step whose worst-case compliance jumps more than 3&times; and redoes it at half the move. Blueprint failures: fixed 0.2, 5 of 9; adaptive, 2; retry, 1; fixed 0.1 and 0.05, none. Retry costs at most 2% more evaluations but never beat fixed 0.05, and on eroded-design quality it is 1.22&times; the best on average (fixed 0.1 hides one eroded design 25&times; worse that the blueprint test passes). Stylised: 2D dimensionless, one problem, one run per cell."
+    },
+    {
+     "slug": "simdesign-stuck",
+     "title": "Can penalty continuation free SIMP topology-optimisation starts that stay stuck in a different local optimum?",
+     "summary": "Follow-up to <code>simdesign-startsconverge</code>. Half-MBB 60&times;20, p = 3: after 1200 iterations 5 of 20 random starts still differ from the uniform-start design in at least 1% of elements. Penalty continuation (p = 1, 2, 3) frees none of them: all five collapse onto one design, 20.4% different from the uniform-start one, with compliance 204.01 versus 203.29 for the uniform start. Simply running 1200 more iterations at p = 3 takes three of them to 202.83, about 0.6% better than continuation. Stylised: 2D, dimensionless compliance, one mesh, 20 seeds."
     },
     {
      "slug": "simdesign-startsconverge",
@@ -2587,6 +2597,11 @@
      "slug": "garment-wearmix",
      "title": "Does a fabric lever still pay once you weight it by where the garment is worn?",
      "summary": "Weights the comfort benefit of fabric levers by wearing time across a warm room, sunny outdoors and a cool room, and adds an idealised gated infrared lever. A fixed infrared-transparent shell has positive expected benefit only if the warm room takes more than 75.5% of wearing time (against the cool room); white never harms and has the best benefit per dollar in all four mixes tried. Across 66 wearing mixes the best garment changes with the mix, and the gate is chosen in 65 of 66 mixes at the fixed shell's premium but in 18 of 66 at twice it and none at four times. Stylised: premiums, gate cost and wearing shares are assumed, and the gate is an upper bound."
+    },
+    {
+     "slug": "garment-learning",
+     "title": "How many home-sewn coats before the labour cost per coat settles?",
+     "summary": "Applies a Wright learning curve (unit time falls by a fixed share per doubling of output) to the replica trench coat of <code>garment-teardown</code> ($43 materials, 76 experienced-operator minutes). With an assumed first coat 4&times; experienced time and an 85% rate it takes 20 coats to get within 2&times; of experienced time; with 8&times; and 90% it takes about 9,100, so the answer is set by the two assumed parameters. The first coat stays under $50 only if the sewer&rsquo;s time is valued at $1.45/h or less ($4.28/h for the 100th). In a factory run the learning surcharge is under 8% after 200 coats. Stylised: learning rates are assumed, not measured."
     },
     {
      "slug": "garment-costperwear",

@@ -30,6 +30,7 @@ server only hands out files and never sees a date you type.
   node cli.mjs --year 2025 --home FL --abode NY,FL stays.txt   # days per state, limit, room left, crossing date
   node cli.mjs --asof 2025-09-30 --nights stays.txt             # as of a date, counting nights
   node cli.mjs --wages 140000 --employer NY stays.txt           # split wages by workday
+  node cli.mjs --trip "NY 2025-11-01 14" stays.txt             # what-if: what a planned trip adds and the longest safe trip
   node cli.mjs --csv stays.txt > totals.csv                     # totals; also --daily-log, --html, --ics, --json
   node cli.mjs --example                                        # the built-in invented year
   ```

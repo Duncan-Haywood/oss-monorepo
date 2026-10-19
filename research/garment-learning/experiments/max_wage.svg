@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the highest hourly wage at which the n-th home-sewn replica trench coat still costs $50 in materials plus labour, rising from about $1.5 per hour for the first coat to about $4 per hour for the hundredth">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Garment learning: what your time can be worth and the n-th coat still cost $50</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="264.9" y2="264.9" stroke="#ddd"/><text x="58" y="268.9" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="205.9" y2="205.9" stroke="#ddd"/><text x="58" y="209.9" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="146.8" y2="146.8" stroke="#ddd"/><text x="58" y="150.8" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<line x1="64" x2="624" y1="87.7" y2="87.7" stroke="#ddd"/><text x="58" y="91.7" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">coats sewn so far (n)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">max wage ($/h)</text>
+<polyline points="64.0,238.3 259.7,198.8 428.3,150.9 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="238.3" r="3" fill="#c0392b"/>
+<circle cx="259.7" cy="198.8" r="3" fill="#c0392b"/>
+<circle cx="428.3" cy="150.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">max wage for a $50 coat</text>
+</svg>
