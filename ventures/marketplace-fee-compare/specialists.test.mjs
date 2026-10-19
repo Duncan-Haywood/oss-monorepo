@@ -4,6 +4,10 @@ import { loadItem, compareChannels } from "./calc.mjs";
 import { SPECIALIST_CHANNELS, specialistRows, specialistPriceForProfit } from "./specialists.mjs";
 import { feeFor as grailedFee } from "../grailed-fee-calculator/calc.mjs";
 import { feeFor as tcgFee } from "../tcgplayer-fee-calculator/calc.mjs";
+import { feeFor as mercariFee } from "../mercari-fee-calculator/calc.mjs";
+import { feeFor as depopFee } from "../depop-fee-calculator/calc.mjs";
+import { feeFor as discogsFee } from "../discogs-fee-calculator/calc.mjs";
+import { calculateSale as poshmarkSale } from "../poshmark-fee-calculator/calc.mjs";
 import { calculateReverbSale } from "../reverb-fee-calculator/calc.mjs";
 import { calculateSale as whatnotSale } from "../whatnot-seller-payout/calc.mjs";
 import { calculate as stockxSale } from "../stockx-seller-payout-calculator/calc.mjs";
@@ -19,7 +23,8 @@ test("no specialist appears for a category none accepts", () => {
 
 test("each specialist appears only for its own category", () => {
   assert.deepEqual(specialistRows(item({ categoryId: "music_gear" })).map((r) => r.id), ["reverb"]);
-  assert.deepEqual(ids("clothing"), ["grailed", "stockx"]);
+  assert.deepEqual(ids("clothing"), ["depop", "grailed", "mercari", "poshmark", "stockx"]);
+  assert.deepEqual(ids("records_media"), ["discogs"]);
   assert.deepEqual(ids("trading_cards"), ["tcgplayer", "whatnot"]);
 });
 
@@ -28,6 +33,9 @@ test("fees agree with the sibling calculators", () => {
     const it = item({ price, shippingCharged: ship });
     const by = Object.fromEntries(SPECIALIST_CHANNELS.map((c) => [c.id, c.fee(it)]));
     assert.ok(Math.abs(by.grailed - grailedFee({ itemPrice: price, buyerShipping: ship }).grailedFee) < 1e-9, `grailed ${price}`);
+    assert.ok(Math.abs(by.mercari - mercariFee({ itemPrice: price, buyerShipping: ship }).mercariFee) < 1e-9, `mercari ${price}`);
+    assert.ok(Math.abs(by.depop - depopFee({ itemPrice: price, buyerShipping: ship }).depopFee) < 1e-9, `depop ${price}`);
+    assert.ok(Math.abs(by.discogs - discogsFee({ itemPrice: price, buyerShipping: ship }).discogsFee) < 1e-9, `discogs ${price}`);
     assert.ok(Math.abs(by.tcgplayer - tcgFee({ subtotal: price + ship }).tcgplayerFee) < 1e-9, `tcg ${price}`);
   }
 });
@@ -75,4 +83,17 @@ test("StockX fee matches the sibling and the buyer's shipping never reaches the 
     const row = specialistRows(it).find((r) => r.id === "stockx");
     assert.ok(Math.abs(row.profit - sib.netPayout) < 1e-9, `stockx ${price}`);
   }
+});
+
+test("poshmark takes a flat fee under $15 and 20% from $15, and never keeps buyer shipping", () => {
+  const ch = SPECIALIST_CHANNELS.find((c) => c.id === "poshmark");
+  for (const price of [5, 14.99, 15, 80, 400]) {
+    const sib = poshmarkSale({ salePrice: price, itemCost: 0, otherCost: 0 });
+    const row = specialistRows(item({ categoryId: "clothing", price, shippingCharged: 0, itemCost: 0, otherCost: 0, shippingCost: 0 })).find((r) => r.id === "poshmark");
+    assert.ok(Math.abs(row.channelFees - sib.commission) < 1e-9, `poshmark ${price}`);
+  }
+  // buyer-paid shipping is revenue the seller never sees
+  const withShip = specialistRows(item({ categoryId: "clothing", price: 50, shippingCharged: 8, itemCost: 0, otherCost: 0, shippingCost: 0 })).find((r) => r.id === "poshmark");
+  assert.ok(Math.abs(withShip.profit - 40) < 1e-9);
+  assert.ok(ch.fee(item({ price: 14.99 })) > 0);
 });

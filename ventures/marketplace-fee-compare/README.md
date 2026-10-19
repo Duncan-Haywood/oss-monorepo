@@ -188,12 +188,15 @@ not tax, financial, or business advice.
 
 ## Specialist marketplaces
 
-Reverb (musical gear), Grailed (menswear and streetwear), StockX (sneakers and
-streetwear), TCGplayer and Whatnot (trading cards) only take one kind of item, so they are not in the ten-row ranking.
-When the category is *Musical instruments & gear*, *Clothing & accessories* or
-*Trading cards & collectibles*, a separate section (`specialists.mjs`) shows
-what the item nets there and how that compares with the best general channel.
-Fee schedules match the sibling calculators, which a test asserts.
+Reverb (musical gear), Grailed, Poshmark, Depop and Mercari (fashion), StockX
+(sneakers and streetwear), TCGplayer and Whatnot (trading cards) and Discogs
+(records) only take one kind of item, so they are not in the ten-row ranking.
+When the category is *Musical instruments & gear*, *Clothing & accessories*,
+*Trading cards & collectibles* or *Records, CDs & music media*, a separate
+section (`specialists.mjs`) shows what the item nets there and how that
+compares with the best general channel. Poshmark's flat-under-$15 cliff, Depop's
+0% selling fee with 3.3% processing, Mercari's 10% on item plus shipping and
+Discogs' capped 9% are all in the table. Fee schedules match the sibling calculators, which a test asserts.
 
 ## Host your own copy
 

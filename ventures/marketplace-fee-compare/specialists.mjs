@@ -93,6 +93,56 @@ export const SPECIALIST_CHANNELS = [
     // the seller: the fee adds it back to cancel it out of revenue.
     fee: ({ price, shippingCharged }) => price * 0.12 + shippingCharged,
   },
+  {
+    id: "poshmark",
+    label: "Poshmark",
+    categories: ["clothing"],
+    accepts: "fashion, shoes and accessories",
+    rateLabel: "flat $2.95 under $15, 20% from $15",
+    deepTool: "poshmark-fee-calculator",
+    deepToolLabel: "Poshmark fee calculator",
+    notCovered: "Offer and bundle discounts that cross the $15 line, and your own label cost: the shipping buyers pay funds Poshmark's prepaid label, so none of it reaches you.",
+    // The buyer-paid shipping funds Poshmark's label, so it never reaches the
+    // seller: add it back to cancel it out of revenue, as StockX does.
+    fee: ({ price, shippingCharged }) => (price < 15 ? Math.min(2.95, price) : price * 0.2) + shippingCharged,
+  },
+  {
+    id: "mercari",
+    label: "Mercari",
+    categories: ["clothing"],
+    accepts: "used fashion and shoes (Mercari sells more than clothing; it sits with the fashion resale sites here because that is where sellers weigh it against Poshmark and Depop)",
+    rateLabel: "10% of item plus buyer-paid shipping, no separate processing fee",
+    deepTool: "mercari-fee-calculator",
+    deepToolLabel: "Mercari fee calculator",
+    notCovered: "Listings made before 6 January 2025 and never edited keep the old schedule (10% of the item plus 2.9% and $0.50 processing). The buyer's 3.6% protection fee is not yours.",
+    fee: ({ price, shippingCharged }) => (price + shippingCharged) * 0.1,
+  },
+  {
+    id: "depop",
+    label: "Depop",
+    categories: ["clothing"],
+    accepts: "fashion, vintage and streetwear",
+    rateLabel: "0% selling fee, 3.3% + $0.45 processing (US)",
+    deepTool: "depop-fee-calculator",
+    deepToolLabel: "Depop fee calculator",
+    notCovered: "UK and rest-of-world schedules, the 12% Boosted Listings fee on boosted sales, and the buyer-side marketplace fee (paid by the buyer, never deducted from you).",
+    fee: ({ price, shippingCharged }) => (price + shippingCharged) * 0.033 + 0.45,
+  },
+  {
+    id: "discogs",
+    label: "Discogs",
+    categories: ["records_media"],
+    accepts: "records, CDs, tapes and music media",
+    rateLabel: "9% of item plus shipping (min $0.10, max $150) + processing",
+    deepTool: "discogs-fee-calculator",
+    deepToolLabel: "Discogs fee calculator",
+    notCovered: "Your real processing rate (Discogs does not publish one number; 2.9% + $0.30 is a placeholder to check against a payout) and the 8% rate on pre-May-2023 history.",
+    fee: ({ price, shippingCharged }) => {
+      const combined = price + shippingCharged;
+      if (!(combined > 0)) return 0;
+      return Math.min(Math.max(combined * 0.09, 0.1), 150) + combined * 0.029 + 0.3;
+    },
+  },
 ];
 
 function costOf(item) {
