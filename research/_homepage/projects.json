@@ -3459,6 +3459,18 @@
     "summary": "Robots as a committed minority in a passing-side convention. Simulated people take the side most of their last <em>M</em> partners used; robots hold a programmed side. The tipping share grows with memory: 16%, 22%, 28% and 32% of the crowd for <em>M</em>&nbsp;=&nbsp;5, 9, 17 and 25, within 0.02 of a mean-field prediction. Just below it, robots that hold their side make people collide up to 14&times; as often as robots that adapt (0.27 vs 0.020 conflicts per meeting). When people meet only neighbours, evenly spread robots tip everyone from 12&ndash;14%, while one block of robots converts under 10% of people even at half the crowd. Stylised: one binary choice per meeting, no geometry."
    }
   ]
+ },
+ {
+  "id": "codesign",
+  "name": "Agentic co-design of low-cost robots",
+  "blurb": "Loops that propose a cheap robot body as code, train a controller for it in simulation and read the result: civilian domains only, with random search, CMA-ES and Bayesian optimisation as the baselines.",
+  "projects": [
+   {
+    "slug": "codesign-gripper",
+    "title": "Do agent-proposed gripper fingers beat random search, CMA-ES and Bayesian optimisation when every design gets its own trained grasp force?",
+    "summary": "Five parameters of a 3D-printable two-finger gripper (width, thickness, length, V-groove depth, TPU pad) are searched under a print-time cap; for each design a grasp force is tuned in MuJoCo and the design is scored on 40 held-out scenes (cylinders, spheres, boxes of 100&ndash;900&nbsp;g). With 40 designs each, the best seeds of all three baselines reach 0.93&ndash;0.95 test success (medians 0.875, 0.887, 0.900 over 8 seeds) and one session-agent trajectory (n&nbsp;=&nbsp;1, hand-written proposals) reaches 0.95 after 20 designs. On 100 fresh scenes every method&rsquo;s best design drops 0.06&ndash;0.07 on average and the agent&rsquo;s falls to 0.81, level with the baseline median: the task is nearly saturated and the ranking is within noise (standard error about 0.05). Stylised: assumed costs and strengths, rigid fingers, grid-plus-refine policy search rather than deep RL, nothing printed."
+   }
+  ]
  }
  ],
  "featured": [
