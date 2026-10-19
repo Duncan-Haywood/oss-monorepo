@@ -1,0 +1,13 @@
+[project]
+name = "house-solar"
+version = "0.1.0"
+description = "Window solar gain by orientation added to the house-energy degree-day envelope optimiser, from first-principles solar geometry"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-energy/src", "../house-framing/src"]

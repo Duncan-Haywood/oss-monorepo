@@ -1,0 +1,60 @@
+A. Incident solar on a vertical surface, kBtu/ft2 per year (heating-weighted / cooling-weighted), by orientation
+  Miami (1A)         S  62.4/252.7  E  45.6/276.3  W  45.6/276.3  N  31.7/206.9
+  Houston (2A)       S 138.1/180.3  E 103.7/210.8  W 103.7/210.8  N  70.1/159.4
+  Atlanta (3A)       S 196.9/138.7  E 149.4/171.2  W 149.4/171.2  N  95.0/126.1
+  Albuquerque (4B)   S 317.0/137.3  E 210.5/201.9  W 210.5/201.9  N  84.4/110.8
+  Baltimore (4A)     S 196.9/123.8  E 150.4/143.2  W 150.4/143.2  N  98.9/108.1
+  Chicago (5A)       S 202.5/ 96.6  E 162.0/109.0  W 162.0/109.0  N 113.4/ 85.6
+  Minneapolis (6A)   S 223.8/ 90.9  E 173.7/105.1  W 173.7/105.1  N 113.7/ 80.4
+  Duluth (7)         S 213.3/ 78.6  E 169.5/ 90.3  W 169.5/ 90.3  N 117.8/ 72.0
+
+B. Cost-optimal package with solar gain (even split) vs house-energy's (lumped 25% gains credit); window U chosen
+  Miami (1A)         gas furnace + AC  old: U0.5 attic R30 ach5.0 slab R0 | new: adv 2x6 U0.35 attic R30 ach5.0 slab R0 NPC $16,691 saves $955
+  Miami (1A)         heat pump         old: U0.5 attic R30 ach5.0 slab R0 | new: adv 2x6 U0.35 attic R30 ach5.0 slab R0 NPC $16,691 saves $955
+  Houston (2A)       gas furnace + AC  old: U0.5 attic R30 ach5.0 slab R0 | new: adv 2x6 U0.5 attic R30 ach5.0 slab R0 NPC $15,052 saves $1,575
+  Houston (2A)       heat pump         old: U0.5 attic R30 ach5.0 slab R0 | new: adv 2x6 U0.5 attic R30 ach5.0 slab R0 NPC $15,439 saves $1,780
+  Atlanta (3A)       gas furnace + AC  old: U0.5 attic R30 ach5.0 slab R0 | new: adv 2x6 U0.5 attic R30 ach5.0 slab R10 NPC $15,018 saves $1,994
+  Atlanta (3A)       heat pump         old: U0.5 attic R30 ach5.0 slab R10 | new: adv 2x6 U0.5 attic R30 ach3.0 slab R10 NPC $15,939 saves $2,494
+  Albuquerque (4B)   gas furnace + AC  old: U0.5 attic R30 ach5.0 slab R10 | new: adv 2x6 U0.5 attic R30 ach3.0 slab R10 NPC $15,942 saves $2,455
+  Albuquerque (4B)   heat pump         old: U0.5 attic R30 ach3.0 slab R10 | new: adv 2x6 U0.5 attic R30 ach3.0 slab R10 NPC $17,276 saves $3,265
+  Baltimore (4A)     gas furnace + AC  old: U0.5 attic R30 ach5.0 slab R10 | new: adv 2x6 U0.5 attic R30 ach3.0 slab R10 NPC $16,581 saves $2,487
+  Baltimore (4A)     heat pump         old: U0.5 attic R30 ach3.0 slab R10 | new: adv 2x6 U0.5 attic R30 ach3.0 slab R10 NPC $18,379 saves $3,249
+  Chicago (5A)       gas furnace + AC  old: U0.5 attic R30 ach3.0 slab R10 | new: adv 2x6 U0.5 attic R30 ach3.0 slab R10 NPC $17,785 saves $3,086
+  Chicago (5A)       heat pump         old: U0.5 attic R38 ach3.0 slab R10 | new: adv 2x6 U0.5 attic R38 ach3.0 slab R10 NPC $20,261 saves $4,093
+  Minneapolis (6A)   gas furnace + AC  old: U0.5 attic R30 ach3.0 slab R10 | new: adv 2x6 U0.5 attic R38 ach3.0 slab R10 NPC $19,425 saves $3,581
+  Minneapolis (6A)   heat pump         old: U0.5 attic R38 ach3.0 slab R10 | new: adv 2x6 U0.5 attic R38 ach3.0 slab R10 NPC $22,537 saves $4,810
+  Duluth (7)         gas furnace + AC  old: U0.5 attic R38 ach3.0 slab R10 | new: adv 2x6 U0.5 attic R38 ach3.0 slab R10 NPC $21,451 saves $4,183
+  Duluth (7)         heat pump         old: U0.5 attic R38 ach3.0 slab R10 | new: adv 2x6 U0.5 attic R49 ach3.0 slab R10 NPC $25,525 saves $5,667
+
+C. Window orientation is free: NPC of the optimum package by glazing split (gas furnace + AC)
+  Atlanta (3A)       even $15,018 (U0.5) | south-heavy $14,649 (U0.5) | north-heavy $15,173 (U0.5) | east-west $15,285 (U0.5)
+  Chicago (5A)       even $17,785 (U0.5) | south-heavy $17,512 (U0.5) | north-heavy $17,971 (U0.5) | east-west $17,894 (U0.5)
+  Duluth (7)         even $21,451 (U0.5) | south-heavy $21,150 (U0.5) | north-heavy $21,681 (U0.5) | east-west $21,538 (U0.5)
+  Miami (1A)         even $16,691 (U0.35) | south-heavy $16,711 (U0.35) | north-heavy $16,495 (U0.35) | east-west $16,910 (U0.35)
+  Albuquerque (4B)   even $15,942 (U0.5) | south-heavy $15,127 (U0.5) | north-heavy $16,342 (U0.5) | east-west $16,461 (U0.5)
+
+D. Same, best split minus worst split, NPC dollars, both systems
+  Miami (1A)         gas furnace + AC $416 | heat pump $416
+  Houston (2A)       gas furnace + AC $558 | heat pump $636
+  Atlanta (3A)       gas furnace + AC $636 | heat pump $753
+  Albuquerque (4B)   gas furnace + AC $1,333 | heat pump $1,738
+  Baltimore (4A)     gas furnace + AC $501 | heat pump $699
+  Chicago (5A)       gas furnace + AC $459 | heat pump $659
+  Minneapolis (6A)   gas furnace + AC $590 | heat pump $838
+  Duluth (7)         gas furnace + AC $531 | heat pump $745
+
+E. Does a better window ever pay, and does the assumed SHGC change that? Chicago, gas, south-heavy glazing: extra NPC of forcing each window over the free optimum, by SHGC of the U 0.20 glass
+  SHGC(U0.20)=0.20: forcing U 0.20 costs $5,690 NPC over the optimum
+  SHGC(U0.20)=0.28: forcing U 0.20 costs $5,584 NPC over the optimum
+  SHGC(U0.20)=0.40: forcing U 0.20 costs $5,426 NPC over the optimum
+  SHGC(U0.20)=0.50: forcing U 0.20 costs $5,293 NPC over the optimum
+
+F. House-energy's code-like floor (U <= 0.35) re-priced with solar: extra NPC of forcing U<=0.35, even split
+  Miami (1A)         gas furnace + AC  $0
+  Miami (1A)         heat pump         $0
+  Atlanta (3A)       gas furnace + AC  $1,055
+  Atlanta (3A)       heat pump         $1,175
+  Chicago (5A)       gas furnace + AC  $1,134
+  Chicago (5A)       heat pump         $1,137
+  Duluth (7)         gas furnace + AC  $954
+  Duluth (7)         heat pump         $831
