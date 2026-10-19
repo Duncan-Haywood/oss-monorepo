@@ -106,6 +106,9 @@
     <p id="week-note" class="note"></p>
     <div style="overflow-x:auto"><table class="t" id="week"><thead><tr><th>Day</th><th>Foods (servings)</th><th class="n">Cost</th></tr></thead><tbody></tbody></table></div>
     <button type="button" class="secondary" id="copy-week">Copy the week's menu as text</button>
+    <h3>What protein costs, food by food</h3>
+    <p class="note">Your listed price per 100 g of protein and per 1,000 calories, cheapest protein first, ignoring every other bound. The plan can use a dearer protein for the calories, fibre or minerals it brings, so compare with the plan above.</p>
+    <div style="overflow-x:auto"><table class="t" id="proteinprice"><thead><tr><th>Food</th><th class="n">Per 100 g protein</th><th class="n">Per 1,000 kcal</th><th>In plan</th></tr></thead><tbody></tbody></table></div>
     <h3>Foods left out: what price would earn a place?</h3>
     <p class="note">The price per serving at which each food the plan skips would start to be used, with everything else unchanged. Watch for sales near these.</p>
     <div style="overflow-x:auto"><table class="t" id="breakeven"><thead><tr><th>Food</th><th class="n">Your price</th><th class="n">Used below</th><th class="n">Drop needed</th></tr></thead><tbody></tbody></table></div>
@@ -157,7 +160,7 @@
   </footer>
 
   <script type="module">
-    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, filterByStyle, STYLES, weekMenu, weekText, breakEvenPrices, stayInPrices, planCsv, groceryList, groceryText, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
+    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, filterByStyle, STYLES, weekMenu, weekText, breakEvenPrices, stayInPrices, proteinPrices, planCsv, groceryList, groceryText, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { FOOD_LIBRARY, lineName, addLibraryFoods } from "./food-library.mjs";
 
@@ -237,6 +240,7 @@
       $("#budget tbody").innerHTML = budgetFrontier(spec, [0.9, 1, 1.25, 1.5, 2].map((m) => res.bound * m)).map((r) => `<tr><td class="n">${money2(r.budget)}</td><td class="n">${r.protein === null ? "not possible" : fmt(r.protein, 0) + " g"}</td></tr>`).join("");
       $("#variety tbody").innerHTML = varietyFrontier(spec, [100, 50, 40, 30, 25, 20]).map((r) => `<tr><td class="n">${r.share >= 100 ? "no limit" : r.share + "%"}</td><td class="n">${r.cost === null ? "not possible" : money2(r.cost)}</td><td class="n">${r.cost === null ? "—" : r.foods}</td></tr>`).join("");
       renderWeek();
+      $("#proteinprice tbody").innerHTML = proteinPrices(spec, res).map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.per100gProtein === null ? "no protein" : money2(r.per100gProtein)}</td><td class="n">${r.per1000kcal === null ? "—" : money2(r.per1000kcal)}</td><td>${r.inPlan ? "yes" : "no"}</td></tr>`).join("");
       const be = breakEvenPrices(spec, res);
       $("#breakeven tbody").innerHTML = be.length ? be.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${money2(r.current)}</td><td class="n">${r.price === null ? "never" : money2(r.price)}</td><td class="n">${r.drop === null ? "no price helps" : fmt(r.drop * 100, 0) + "%"}</td></tr>`).join("") : `<tr><td colspan="4">Every food on your list is already in the plan.</td></tr>`;
       const st = stayInPrices(spec, res);
