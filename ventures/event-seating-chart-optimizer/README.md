@@ -53,6 +53,7 @@ zero dependencies, one JSON file on a disk you own.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
   recomputed by the test suite.
 - `how-to-handle-late-wedding-rsvps-and-drop-outs.html` - third guide (late RSVPs and drop-outs: a fresh run moves 9 of 22 returning guests, a re-seat moves 1), recomputed by the tests.
+- `how-to-seat-a-kids-table-and-a-head-table-at-a-wedding.html` - fifth guide (a pinned kids table and a smaller head table via different-sized tables: list order meets 2 of 6 wishes, a search meets 6), recomputed by the tests.
 - `how-to-seat-divorced-parents-at-a-wedding.html` - second guide (divorced
   parents, new partners, a never-together pair), also recomputed by the tests.
 
