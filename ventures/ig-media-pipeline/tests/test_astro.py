@@ -358,3 +358,10 @@ def test_colour_pinning_keeps_brightness_and_fixes_balance():
     out = core.match_colour(drift, core.colour_ratio(ref))
     assert np.allclose(core.colour_ratio(out), core.colour_ratio(ref), atol=1e-3)
     assert out.mean() == pytest.approx(drift.mean(), rel=0.01)
+
+
+def test_well_exposed_night_frames_count_daylight_does_not():
+    night = [shot(i, T0 + timedelta(seconds=40 * i), bright=0.24) for i in range(5)]       # 22:00, ETTR Milky Way
+    day = [shot(10 + i, datetime(2026, 10, 3, 13, 0) + timedelta(seconds=40 * i), bright=0.24) for i in range(5)]
+    groups = astro.find_groups([a for a, _ in night + day], {m.asset_id: m for _, m in night + day})
+    assert [len(g.members) for g in groups] == [5] and groups[0].members[0] == "p0"

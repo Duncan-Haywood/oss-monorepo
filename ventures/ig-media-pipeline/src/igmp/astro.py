@@ -78,6 +78,8 @@ from .prefilter import NIGHT_LABELS, hamming
 log = logging.getLogger(__name__)
 
 NIGHT_BRIGHTNESS = 0.18      # same cut as reels._night: below this a frame reads as night
+NIGHT_BRIGHTNESS_LOOSE = 0.45  # ...or shot between NIGHT_FROM_H and NIGHT_TO_H and under this
+NIGHT_FROM_H, NIGHT_TO_H = 19, 6
 DARK_SHARE = 0.6             # share of a sequence's members that must be dark
 STACK_MIN_FRAMES = 3
 STACK_MAX_GAP_S = 180.0      # a 30 s exposure plus long-exposure noise reduction is ~60 s apart
@@ -161,20 +163,32 @@ def _dark(m: Metrics | None) -> bool:
     return m is not None and (m.brightness < NIGHT_BRIGHTNESS or bool(set(m.labels) & NIGHT_LABELS))
 
 
+def _night(a: Asset | None, m: Metrics | None) -> bool:
+    """Worth considering for astro: dark, or shot at night (local time) and not bright. A
+    well-exposed Milky Way or moonlit frame averages 0.19-0.26, so darkness alone missed most of
+    them; the exposure gate (`looks_astro`) and Claude sort out the rest."""
+    if _dark(m):
+        return True
+    t = a.taken_at if a is not None else None
+    return (m is not None and t is not None and (t.hour >= NIGHT_FROM_H or t.hour < NIGHT_TO_H)
+            and m.brightness < NIGHT_BRIGHTNESS_LOOSE)
+
+
 def find_groups(assets: list[Asset], metrics: dict[str, Metrics]) -> list[AstroGroup]:
+    by_id = {a.id: a for a in assets}
     groups: list[AstroGroup] = []
     in_seq: set[str] = set()
     for a in assets:
         if a.kind != "sequence":
             continue
         in_seq.update(a.members)
-        dark = sum(_dark(metrics.get(m)) for m in a.members)
+        dark = sum(_night(by_id.get(m), metrics.get(m)) for m in a.members)
         if a.members and dark >= DARK_SHARE * len(a.members):
             groups.append(AstroGroup(id=a.id, kind="sequence", members=list(a.members), event_key=a.event_key,
                                      camera=a.camera, interval_s=a.interval_s))
     lanes: dict[tuple[str, str], list[Asset]] = {}
     for a in assets:
-        if a.kind == "photo" and a.id not in in_seq and _dark(metrics.get(a.id)) and (a.taken_at or a.clock_time):
+        if a.kind == "photo" and a.id not in in_seq and _night(a, metrics.get(a.id)) and (a.taken_at or a.clock_time):
             lanes.setdefault((a.event_key, a.camera), []).append(a)
     for (event_key, camera), shots in lanes.items():
         shots.sort(key=lambda a: a.taken_at or a.clock_time)
