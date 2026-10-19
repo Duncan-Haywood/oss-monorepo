@@ -1,0 +1,21 @@
+{
+  "python": "3.11.1 (v3.11.1:a7a450f84a, Dec  6 2022, 15:24:06) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "sklearn": "1.7.2",
+  "numpy": "2.3.4",
+  "pandas": "2.3.3",
+  "joblib": "1.5.2",
+  "input_features": [
+    "age",
+    "first_marriage_age",
+    "sex",
+    "education_model",
+    "work",
+    "income_quartile",
+    "religion_2000",
+    "baseline_status",
+    "start_wave"
+  ],
+  "output": "Predicted legal-divorce annual incidence rate per person-year, not a personal calibrated probability",
+  "training_population": "NLSY79cohort born1957\u20131964, baseline waves2000\u20132020, repeated existing married/separated intervals",
+  "religion": "Own attendance measured2000, potentially20yearsstale; not spouse religion"
+}

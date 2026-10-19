@@ -1,0 +1,26 @@
+{
+  "Men": {
+    "intervals": 17950,
+    "respondents": 2628,
+    "events": 569,
+    "person_years": 35875.666666666686,
+    "iterations": 6,
+    "matrix_rank": 25,
+    "parameters": 25,
+    "max_normalized_score": 3.418806556331778e-18,
+    "weighted_observed_events": 505.97431876993784,
+    "weighted_fitted_events": 505.97431876993807
+  },
+  "Women": {
+    "intervals": 18329,
+    "respondents": 2802,
+    "events": 587,
+    "person_years": 36406.08333333334,
+    "iterations": 6,
+    "matrix_rank": 25,
+    "parameters": 25,
+    "max_normalized_score": 3.173969474077033e-18,
+    "weighted_observed_events": 516.180873736985,
+    "weighted_fitted_events": 516.180873736985
+  }
+}

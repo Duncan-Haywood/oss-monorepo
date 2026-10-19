@@ -1,0 +1,33 @@
+[
+  {
+    "model": "Additive core",
+    "iterations": 5,
+    "warnings": []
+  },
+  {
+    "model": "Additive enriched",
+    "iterations": 4,
+    "warnings": []
+  },
+  {
+    "model": "Spline + pair interactions",
+    "iterations": 5,
+    "warnings": []
+  },
+  {
+    "model": "Poisson tree depth 2",
+    "min_samples_leaf": 1225,
+    "actual_depth": 2,
+    "leaves": 4,
+    "min_leaf_events": 53,
+    "min_leaf_respondents": 2938
+  },
+  {
+    "model": "Poisson tree depth 3",
+    "min_samples_leaf": 4707,
+    "actual_depth": 3,
+    "leaves": 7,
+    "min_leaf_events": 20,
+    "min_leaf_respondents": 1740
+  }
+]

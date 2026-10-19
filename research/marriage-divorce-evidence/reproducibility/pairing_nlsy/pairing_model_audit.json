@@ -1,0 +1,74 @@
+{
+  "All earnings": {
+    "intervals": 34129,
+    "respondents": 5291,
+    "events": 588,
+    "person_years": 68723.16666666669,
+    "rank": 31,
+    "parameters": 31,
+    "normalized_max_score": 6.982606353417577e-18,
+    "fitted_count": 548.6405666448554,
+    "observed_count": 548.6405666448559,
+    "iterations": 6
+  },
+  "All education": {
+    "intervals": 34129,
+    "respondents": 5291,
+    "events": 588,
+    "person_years": 68723.16666666669,
+    "rank": 33,
+    "parameters": 33,
+    "normalized_max_score": 2.9354434699115702e-18,
+    "fitted_count": 548.6405666448559,
+    "observed_count": 548.6405666448559,
+    "iterations": 6
+  },
+  "Men earnings": {
+    "intervals": 17327,
+    "respondents": 2644,
+    "events": 315,
+    "person_years": 34953.166666666686,
+    "rank": 30,
+    "parameters": 30,
+    "normalized_max_score": 1.1949939059998412e-17,
+    "fitted_count": 300.422885515383,
+    "observed_count": 300.4228855153831,
+    "iterations": 6
+  },
+  "Men education": {
+    "intervals": 17327,
+    "respondents": 2644,
+    "events": 315,
+    "person_years": 34953.166666666686,
+    "rank": 32,
+    "parameters": 32,
+    "normalized_max_score": 2.1977635911954184e-18,
+    "fitted_count": 300.4228855153831,
+    "observed_count": 300.4228855153831,
+    "iterations": 6
+  },
+  "Women earnings": {
+    "intervals": 16802,
+    "respondents": 2647,
+    "events": 273,
+    "person_years": 33770.00000000001,
+    "rank": 30,
+    "parameters": 30,
+    "normalized_max_score": 7.334528968777089e-18,
+    "fitted_count": 246.42340942777972,
+    "observed_count": 246.42340942777992,
+    "iterations": 6
+  },
+  "Women education": {
+    "intervals": 16802,
+    "respondents": 2647,
+    "events": 273,
+    "person_years": 33770.00000000001,
+    "rank": 32,
+    "parameters": 32,
+    "normalized_max_score": 1.1629523409952862e-17,
+    "fitted_count": 246.42340942777975,
+    "observed_count": 246.42340942777992,
+    "iterations": 6
+  }
+}

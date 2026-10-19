@@ -1,0 +1,34 @@
+[
+  {
+    "leaf_id": 2,
+    "conditions": [
+      "age <= 49.5",
+      "cat__education_model_Bachelor <= 0.5"
+    ],
+    "training_fitted_rate_per_1000": 13.32446284231368
+  },
+  {
+    "leaf_id": 3,
+    "conditions": [
+      "age <= 49.5",
+      "cat__education_model_Bachelor > 0.5"
+    ],
+    "training_fitted_rate_per_1000": 8.573987324407074
+  },
+  {
+    "leaf_id": 5,
+    "conditions": [
+      "age > 49.5",
+      "age <= 52.5"
+    ],
+    "training_fitted_rate_per_1000": 8.306306825955664
+  },
+  {
+    "leaf_id": 6,
+    "conditions": [
+      "age > 49.5",
+      "age > 52.5"
+    ],
+    "training_fitted_rate_per_1000": 5.169006316203777
+  }
+]

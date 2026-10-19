@@ -1,0 +1,68 @@
+[
+  {
+    "file": "female_religion.pdf",
+    "source_url": "https://www.cdc.gov/nchs/data/nsfg/2017-2019_NSFG_FemResp_SectionI_Codebook-508.pdf",
+    "bytes": 379734,
+    "sha256": "ca7d987f73d966f9b9b83cb1fa17830a2577f726024785dfd9dae554cfe523c2"
+  },
+  {
+    "file": "female.dct",
+    "source_url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/stata/2017_2019_FemRespSetup.dct",
+    "bytes": 326787,
+    "sha256": "d204b4ed1d0d432655e07a69d60adafa440e04dadc685beb6f73a2ddcae5c9e5"
+  },
+  {
+    "file": "female_recodes.pdf",
+    "source_url": "https://www.cdc.gov/nchs/data/nsfg/2017-2019_NSFG_FemResp_SectionRecodes_Codebook-508.pdf",
+    "bytes": 2487021,
+    "sha256": "b6edf79209f8e82b6fd9e9d7c42cfbca3cb7ba437a281102ec845f265b416ce8"
+  },
+  {
+    "file": "female_marriage.pdf",
+    "source_url": "https://www.cdc.gov/nchs/data/nsfg/2017-2019_NSFG_FemResp_SectionC_Codebook-508.pdf",
+    "bytes": 1010442,
+    "sha256": "d96e456e304e26e105eb00214058a479b32015a369a082a4515196b4a1bf9da6"
+  },
+  {
+    "file": "male.dat",
+    "source_url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/2017_2019_MaleData.dat",
+    "bytes": 21287334,
+    "sha256": "1e11d5a59d3c6a4ab8e50c67a1c67524bc33c8bb839330154c6db759e83c2506"
+  },
+  {
+    "file": "male_religion.pdf",
+    "source_url": "https://www.cdc.gov/nchs/data/nsfg/2017-2019_NSFG_Male_SectionJ_Codebook-508.pdf",
+    "bytes": 651107,
+    "sha256": "f3a0204140c952594a14342292d8aff8e96444a78c2ec1a29aebf3a255d41f64"
+  },
+  {
+    "file": "male.dct",
+    "source_url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/stata/2017_2019_MaleSetup.dct",
+    "bytes": 402579,
+    "sha256": "50cfbb0e3c46b216fe4274d6e36c64cca430c79a97eedaff707f7704605e97a2"
+  },
+  {
+    "file": "userguide.pdf",
+    "source_url": "https://www.cdc.gov/nchs/data/nsfg/NSFG-2017-2019-UG-MainText-508.pdf",
+    "bytes": 452619,
+    "sha256": "c274e9c107cf70de88bcca27df74a0f4bb1483189d0b3a3f71e6e611e8a87244"
+  },
+  {
+    "file": "male_recodes.pdf",
+    "source_url": "https://www.cdc.gov/nchs/data/nsfg/2017-2019_NSFG_Male_SectionRecodes_Codebook-508.pdf",
+    "bytes": 1824612,
+    "sha256": "37992c9d5a8c486e8dec11e64975db89bb2cba96f45f46cfefb498a007f4cf45"
+  },
+  {
+    "file": "female.dat",
+    "source_url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/2017_2019_FemRespData.dat",
+    "bytes": 23581440,
+    "sha256": "84494c833b85b93954164c56288aa7ccafe6c469eae33fa6a8f2a7f60f9400fc"
+  },
+  {
+    "file": "female_marriage_questionnaire.pdf",
+    "source_url": "https://www.cdc.gov/nchs/data/nsfg/NSFG-PUF2017-2019-FemC-CRQ-508.pdf",
+    "bytes": 959946,
+    "sha256": "acc6ef63a7e84921095725a4f89ecbaed454b1efe1a3cd97d8a8dcf62c27e442"
+  }
+]

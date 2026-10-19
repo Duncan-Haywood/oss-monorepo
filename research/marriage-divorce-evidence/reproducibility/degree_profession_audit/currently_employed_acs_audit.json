@@ -1,0 +1,152 @@
+{
+  "total_eligible_n": 357464,
+  "total_events": 3985,
+  "cells": 64,
+  "adequate_descriptive_cells": 34,
+  "occupation_codes": 529,
+  "current_employment_only": true,
+  "standardization": "None; crude contemporaneous annual event percentages, not prospective features",
+  "source_url": "https://www2.census.gov/programs-surveys/acs/data/pums/2023/1-Year/csv_pus.zip",
+  "chunk_counts": [
+    {
+      "degree_adults": 13199,
+      "employed_degree_adults": 10714
+    },
+    {
+      "degree_adults": 12434,
+      "employed_degree_adults": 9956
+    },
+    {
+      "degree_adults": 19309,
+      "employed_degree_adults": 16071
+    },
+    {
+      "degree_adults": 19638,
+      "employed_degree_adults": 16424
+    },
+    {
+      "degree_adults": 19377,
+      "employed_degree_adults": 16183
+    },
+    {
+      "degree_adults": 20619,
+      "employed_degree_adults": 17300
+    },
+    {
+      "degree_adults": 19743,
+      "employed_degree_adults": 16760
+    },
+    {
+      "degree_adults": 17540,
+      "employed_degree_adults": 14267
+    },
+    {
+      "degree_adults": 16577,
+      "employed_degree_adults": 13341
+    },
+    {
+      "degree_adults": 18607,
+      "employed_degree_adults": 15686
+    },
+    {
+      "degree_adults": 16536,
+      "employed_degree_adults": 13859
+    },
+    {
+      "degree_adults": 16440,
+      "employed_degree_adults": 14225
+    },
+    {
+      "degree_adults": 13645,
+      "employed_degree_adults": 11898
+    },
+    {
+      "degree_adults": 13504,
+      "employed_degree_adults": 11354
+    },
+    {
+      "degree_adults": 22022,
+      "employed_degree_adults": 19086
+    },
+    {
+      "degree_adults": 18924,
+      "employed_degree_adults": 16213
+    },
+    {
+      "degree_adults": 15665,
+      "employed_degree_adults": 13467
+    },
+    {
+      "degree_adults": 3821,
+      "employed_degree_adults": 3125
+    },
+    {
+      "degree_adults": 14240,
+      "employed_degree_adults": 12262
+    },
+    {
+      "degree_adults": 19944,
+      "employed_degree_adults": 16928
+    },
+    {
+      "degree_adults": 17533,
+      "employed_degree_adults": 14786
+    },
+    {
+      "degree_adults": 20186,
+      "employed_degree_adults": 17267
+    },
+    {
+      "degree_adults": 18187,
+      "employed_degree_adults": 15415
+    },
+    {
+      "degree_adults": 16901,
+      "employed_degree_adults": 14059
+    },
+    {
+      "degree_adults": 15586,
+      "employed_degree_adults": 13578
+    },
+    {
+      "degree_adults": 13759,
+      "employed_degree_adults": 11484
+    },
+    {
+      "degree_adults": 16467,
+      "employed_degree_adults": 14219
+    },
+    {
+      "degree_adults": 15047,
+      "employed_degree_adults": 12601
+    },
+    {
+      "degree_adults": 13901,
+      "employed_degree_adults": 11503
+    },
+    {
+      "degree_adults": 17398,
+      "employed_degree_adults": 14491
+    },
+    {
+      "degree_adults": 17084,
+      "employed_degree_adults": 14266
+    },
+    {
+      "degree_adults": 17085,
+      "employed_degree_adults": 14292
+    },
+    {
+      "degree_adults": 20830,
+      "employed_degree_adults": 17525
+    },
+    {
+      "degree_adults": 18579,
+      "employed_degree_adults": 15286
+    },
+    {
+      "degree_adults": 10055,
+      "employed_degree_adults": 8618
+    }
+  ]
+}

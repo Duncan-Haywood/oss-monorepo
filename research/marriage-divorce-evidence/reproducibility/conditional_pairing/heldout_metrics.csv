@@ -1,0 +1,4 @@
+model,weighted_heldout_deviance_per_person_year,weighted_heldout_observed_events,weighted_heldout_expected_events
+additive,0.07302264711195615,2947369.2100000004,2955985.3098410084
+school_interaction,0.07308129423607737,2947369.2100000004,2956217.563974865
+school_and_earnings_interactions,0.07302642131100989,2947369.2100000004,2956418.5652422756

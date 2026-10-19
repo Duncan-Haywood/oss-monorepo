@@ -1,0 +1,38 @@
+feature,coefficient
+num__age,-0.2838686461642224
+num__current_marriage_years,-0.42245380088998025
+cat__husband_school_13–15 years,-0.002532253327355601
+cat__husband_school_16–17 years,-0.09479075866791915
+cat__husband_school_18+ years,-0.4957972280674876
+cat__husband_school_<12 years,-0.06506142151550609
+cat__husband_school_Unknown,0.5802879461654252
+cat__wife_school_13–15 years,0.23892425704222248
+cat__wife_school_16–17 years,-0.35613144612241754
+cat__wife_school_18+ years,0.06216879909136383
+cat__wife_school_<12 years,0.004396605535006563
+cat__wife_school_Unknown,0.1280236264899699
+cat__total_wage_band_Q2,-0.09717864073530098
+cat__total_wage_band_Q3,-0.08927266476396144
+cat__total_wage_band_Q4,0.00408628188774281
+cat__total_wage_band_Unknown,-0.22291291885902323
+cat__total_wage_band_Zero,-0.046712184610629384
+cat__earnings_pair_Both zero wages,-0.046712184610629384
+"cat__earnings_pair_Husband majority, both positive",-0.3145971614542104
+cat__earnings_pair_Husband only,-0.07726263792176544
+cat__earnings_pair_Unknown,-0.22291291885902323
+"cat__earnings_pair_Wife majority, both positive",0.39591160798862807
+cat__earnings_pair_Wife only,0.059554077578922476
+cat__sex_Women,-0.2430973724786117
+cat__marriage_order_group_Subsequent,0.16037332381843633
+cat__marriage_order_group_Unknown,0.5443362768864558
+cat__wave_cat_2002,0.28535446017567256
+cat__wave_cat_2004,0.1898781546361556
+cat__wave_cat_2006,0.2253352862039755
+cat__wave_cat_2008,0.4158565397413581
+cat__wave_cat_2010,0.679551595509644
+cat__wave_cat_2012,0.3162834313347712
+cat__wave_cat_2014,0.011697787157085611
+cat__wave_cat_2016,0.4281933534070482
+cat__wave_cat_2018,0.29289059425143843
+cat__wave_cat_2020,0.23182544355737664
+cat__current_marriage_years_missing_Observed,0.4537184327443804
