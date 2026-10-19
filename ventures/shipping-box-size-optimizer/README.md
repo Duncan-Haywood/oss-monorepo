@@ -15,6 +15,8 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   candidates, and the solver: exact enumeration of every K-size set when that
   is small enough, otherwise greedy plus multi-start one-swap (Teitz-Bart)
   local search on the p-median objective.
+- `whatIf` in `calc.mjs` - type a carrier's new DIM divisor or postage and it re-solves, prices
+  the boxes you would keep under the new rates, and says whether to change them.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-many-box-sizes-to-stock.html` - guide with a worked example that the
   test suite recomputes.
