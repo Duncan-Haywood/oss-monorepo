@@ -23,6 +23,10 @@ price break is really worth, and know how much cash you are risking**.
 - Back-test: leave-one-season-out against "order the average" and "order the best ever".
 - Refuses: fewer than 3 seasons, fewer than 2 that did not sell out, leftover value above price, bad ranges.
 
+- Cash-limited basket: analyse several products, then split one pot of cash between them. Starts from the concave hull
+  of each product's (cash, expected profit) curve, spends on the best profit per dollar first, then a swap pass. It is a
+  heuristic with price breaks, so it reports the fractional upper bound and the profit given up to the limit.
+
 ## Limits
 
 No trends, competitors, price or ad effects, partial reorders or in-season markdowns. Verified against the closed-form
