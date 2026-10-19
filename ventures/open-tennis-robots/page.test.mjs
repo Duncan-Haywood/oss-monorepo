@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
@@ -67,4 +67,13 @@ test("module script imports only local files and parses", () => {
 // rotates and may never pair these two racquet-sport pages.
 test("index links one hop to the pickleball-facility-pro-forma sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/pickleball-facility-pro-forma\/"/);
+});
+
+test("the manufacturing package the page offers is committed next to it", () => {
+  const html = page("index.html");
+  // Absolute: the apex mirror serves only pages and scripts, and a relative link to a
+  // zip makes it drop this tool and every sibling that links here.
+  assert.match(html, /href="https:\/\/github\.com\/duncan-haywood\/oss-monorepo\/raw\/main\/ventures\/open-tennis-robots\/manufacturing\/collector-package\.zip"/);
+  assert.ok(existsSync(new URL("./manufacturing/collector-package.zip", import.meta.url)));
+  assert.ok(existsSync(new URL("./manufacturing/collector/bom.csv", import.meta.url)));
 });

@@ -57,7 +57,7 @@ PRODUCTS = {
             "Camera finds balls and plans the shortest route; a lawn-mower sweep works with no camera",
             "Keep-out zones keep it out of the player's and the coach's area",
             "Bumper skirt, emergency stop, and a watchdog that stops it if the controller goes quiet",
-            "Hopper holds about 75 balls and empties at a dump point you choose",
+            "Rod-cage pickup drum holds about 100 balls and empties through a side hatch",
         ],
         "description": ("A robot that collects tennis balls during practice. Built from the open-source Open Tennis "
                         "Robots design (MIT licence): hardware drawings, firmware and planning software are public, "

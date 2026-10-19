@@ -1,22 +1,21 @@
-# Ball-collecting rover, v0.1. Prices are rough USD planning estimates, not quotes: check current suppliers.
+# Ball-collecting rover, v0.2. The authoritative, generated BOM (with every fabricated part and fastener) is manufacturing/collector/bom.csv. Prices here are rough USD planning estimates, not quotes.
 item,qty,spec,est_unit_usd,notes
+Laser-cut aluminium 5052 parts (6 designs / 10 pieces),1,manufacturing/collector/laser/*.dxf,140,online laser service; est. for 5 mm + 3 mm sheet
+PETG printed parts (5 designs / 8 pieces),1,manufacturing/collector/print/*.stl,25,or print yourself
+Music wire 3 mm x 460 mm,18,spring steel,1.5,drum rods
+Aluminium tube 20 mm OD x 1 m,1,1.5 mm wall,10,camera mast
 Raspberry Pi 5 (4 GB) or Pi 4,1,with cooler,60,vision + planning
-Wide-angle camera module,1,~120 deg FOV,30,on 1 m mast
+Wide-angle camera module,1,~120 deg FOV,30,on the mast
 ESP32 dev board,1,ESP32-WROOM-32,10,motor control + safety
-DC gearmotor with encoder,2,"24 V, ~150-200 rpm",35,drive
-Dual H-bridge driver,1,"Cytron MDD10A or similar",30,
-Non-marking drive wheel,2,150-200 mm,12,
-Rear caster,1,non-marking,8,
-Roller gearmotor,1,"12-24 V, 150-250 rpm",20,pickup
-Logic-level MOSFET module,1,,5,roller switch
-Rubber paddles + 45 cm shaft + bearings,1,,25,pickup rotor
-Polycarbonate sheet,1,"for the ramp and hopper, ~0.5 m^2",30,
-Microswitch,2,with lever,3,bumper skirt
-IR break-beam pair,1,,5,hopper full
+37 mm DC gearmotor with encoder,2,"24 V, ~150-200 rpm, 6 mm D shaft",35,drive
+Dual H-bridge driver,1,"10 A/ch, PWM+DIR",30,
+Non-marking wheel 150 x 40 mm + 6 mm hub,2,,15,
+Ball caster (25 mm mounting height),1,,6,
+608 bearing,2,8 x 22 x 7,1,drum hubs
+Lever microswitch,2,,3,yoke-lift bumper
 IMU,1,BNO085 or similar,25,yaw
-Aluminium extrusion or plywood chassis,1,,40,
-LiFePO4 battery,1,"24 V (8S) 10-20 Ah with BMS",150,
-E-stop switch + contactor,1,NC mushroom + 24 V contactor,30,
+LiFePO4 battery,1,"24 V (8S) 10 Ah with BMS",150,
+E-stop switch + contactor,1,22 mm NC mushroom + 24 V contactor,30,
 5 V 5 A buck converter,1,for the Pi,12,
-Fuse holder + fuses,1,15 A,10,
-Wiring + connectors + fasteners,1,,30,
+Fasteners (per generated BOM),1,"M4/M5/M8, inserts, rivet nuts, standoffs",30,
+Fuse holder + 15 A fuse,1,,6,

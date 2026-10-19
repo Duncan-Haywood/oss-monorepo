@@ -11,6 +11,16 @@ are the manufacturer of whatever you ship.
 If you build and sell one, open an issue: we will link sellers from the
 project page so players can buy one instead of building it.
 
+## What you get to manufacture from
+
+The collector's complete fab package is
+[`../manufacturing/collector-package.zip`](../manufacturing/collector-package.zip).
+It contains laser-cut DXFs, printed-part STLs, STEP for every part and the
+assembly, a cut list, a full BOM with fasteners, and drawings. It is
+generated from parametric CAD ([`../cad/`](../cad/README.md)), so you can
+rebrand or resize it and regenerate. Quote the laser parts from the DXFs
+and the printed parts from the STLs. Everything else is on the BOM.
+
 ## What you are taking on as a seller
 
 This is a machine that throws balls at up to 100+ km/h and a robot that

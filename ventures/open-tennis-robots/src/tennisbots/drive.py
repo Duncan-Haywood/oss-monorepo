@@ -22,7 +22,7 @@ class Pose:
 
 @dataclass(frozen=True)
 class DiffDrive:
-    track_width: float = 0.42      # m between wheel contact patches
+    track_width: float = 0.552     # m between wheel centre-planes (cad params: track)
     max_wheel_speed: float = 1.0   # m/s
     lookahead: float = 0.6         # m
     cruise: float = 0.6            # m/s

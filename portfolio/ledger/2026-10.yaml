@@ -4073,4 +4073,16 @@ entries:
         (300 returns per cell): a fixed 3 m net catches 31% of club-level returns; on a 2.5 m/s base it
         catches 91%, 97% at 4 m/s, so drive speed matters more than net width. Nothing built yet; the
         page and README say so. 38 Python + 17 Node tests.
+      - >-
+        Owner asked mid-session for manufacturable designs ("one clickable to get it manufactured"), not
+        high-level ones. Added parametric code-CAD (build123d, pinned) that generates the collector's
+        complete fab package: 6 laser-cut DXFs (flat 5052, no bends or taps), 5 PETG STLs, STEP per part
+        plus assembly, cut list, BOM with every fastener, assembly drawings, manifest with hashes. The
+        build fails on design-rule violations, part collisions (bought-in parts as envelopes) or any part
+        not touching the ground; tests also prove printed-part pilot holes land on base-plate holes and
+        that builds are byte-reproducible (STEP/DXF timestamps, GUIDs, OCC counters and ezdxf class
+        order normalised). The committed package is served as a one-click zip and CI fails if it goes
+        stale. The CAD replaced v0.1's paddle roller and ramp with a passive rod-cage drum (ball-mower
+        mechanism, ~118 balls) after the ramp geometry could not drop balls into a hopper reliably.
+        Feeder CAD is next.
     mrr_end: 0

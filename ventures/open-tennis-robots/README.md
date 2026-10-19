@@ -19,9 +19,28 @@ Everything is MIT-licensed. You can build it, change it, and **sell it**
 under your own brand ([seller's guide](sell/README.md), including a
 one-command Amazon listing tool).
 
-> **Status: design v0.1.** The physics, planners, tracker and firmware logic
-> are written and tested in simulation (50+ automated tests). No robot has
-> been built yet. Builders: please open issues with what you find.
+## Manufacture it
+
+**The collector is ready to manufacture.** A parametric CAD model in code
+([`cad/`](cad/README.md), build123d) generates the whole fab package. It
+is committed at
+[`manufacturing/collector-package.zip`](manufacturing/collector-package.zip),
+or [browse it](manufacturing/collector/) (GitHub renders the STLs in 3D):
+
+- `laser/*.dxf`: laser or waterjet cutting, flat 5052 aluminium, no bends
+  or tapped holes
+- `print/*.stl`: PETG printed parts
+- `step/*.step`: every part, plus the assembly, for any CAD or CAM tool
+- `bom.csv` (every part and fastener), `cut_list.csv` and assembly drawings
+
+Every build checks for part-to-part collisions, bolt-hole alignment, ground
+contact and design rules, and is byte-reproducible. CI fails if the
+committed package goes stale. The feeder's CAD is next on the roadmap.
+
+> **Status:** the collector is design v0.2 with a complete package; the
+> feeder is a v0.1 design. The physics, planners, tracker and firmware
+> logic are tested in simulation. No robot has been built yet. Builders:
+> please open issues with what you find.
 
 ## What's here
 
@@ -31,9 +50,10 @@ one-command Amazon listing tool).
 | [`hardware/collector.md`](hardware/collector.md) | Collector rover design: pickup roller, drive, localisation |
 | [`hardware/electronics.md`](hardware/electronics.md) | Block diagram, ESP32 pin maps, power budget, wiring |
 | [`hardware/safety.md`](hardware/safety.md) | Safety features and the builder's responsibilities |
-| [`hardware/bom-*.csv`](hardware/) | Bills of materials (rough cost estimates: ~$1,200 feeder, ~$600 collector) |
+| [`hardware/bom-*.csv`](hardware/) | Bills of materials (rough cost estimates: ~$1,200 feeder, ~$700 collector) |
 | [`src/tennisbots/`](src/tennisbots/) | Python package for the Raspberry Pi: flight model, launcher aiming, tracker, catch planner, collector routing, path following, vision, serial protocol, listing tool |
 | [`firmware/esp32/`](firmware/esp32/README.md) | MicroPython motor-control firmware with watchdog, e-stop and bumper logic |
+| [`cad/`](cad/README.md), [`manufacturing/`](manufacturing/) | Parametric CAD (build123d) and the generated fab packages (DXF, STL, STEP, BOM, drawings) |
 | [`sell/`](sell/README.md) | How to sell builds legally, and the Amazon listing tool |
 | `index.html`, `sim.mjs` | The browser simulator (a port of the Python model, tested against it) |
 
@@ -108,20 +128,23 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
 
 ## Roadmap (long-term project)
 
-1. **Build the collector first.** It is simpler, cheaper and safer, and it
-   tests the vision, localisation and drive stack.
-2. Bench-test the feeder head: calibrate wheel efficiencies
+1. **Build the collector first** from the manufacturing package. It is
+   simpler, cheaper and safer, and it tests the vision, localisation and
+   drive stack.
+2. **Feeder CAD**: launcher head, hopper, lateral base and catch-net frame as
+   a second package, generated the same way.
+3. Bench-test the feeder head: calibrate wheel efficiencies
    (`launcher.calibrate`) with a radar gun, then validate the flight model
    against real landing spots.
-3. Build the stereo tracker on a tripod and record real returns. That
+4. Build the stereo tracker on a tripod and record real returns. That
    gives a measured `ReturnDistribution` to replace the guess.
-4. Build the moving base and net. Compare the measured catch rate with the
+5. Build the moving base and net. Compare the measured catch rate with the
    simulation.
-5. Phone app for drills (Web Bluetooth or a local web server on the Pi).
-6. Spin estimation from longer tracks, to cut prediction error on topspin
+6. Phone app for drills (Web Bluetooth or a local web server on the Pi).
+7. Spin estimation from longer tracks, to cut prediction error on topspin
    returns (the main error source; see `tests/test_robots.py`).
-7. UWB or line-based localisation for the collector on unlit courts.
-8. A kit for sellers: laser-cut/printed part files and an assembly guide.
+8. UWB or line-based localisation for the collector on unlit courts.
+9. An illustrated assembly guide and a kit for sellers.
 
 ## Safety, warranty, privacy
 

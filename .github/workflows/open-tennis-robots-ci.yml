@@ -6,7 +6,10 @@ name: open-tennis-robots CI
 # homography, serial protocol, ESP32 controller logic (run on CPython with a
 # fake board) and the Amazon listing builder (fake HTTP; nothing is sent).
 # Node: the browser port in sim.mjs checked against fixtures the Python model
-# writes, plus page wiring, disclaimers and the usage counter. Nothing here
+# writes, plus page wiring, disclaimers and the usage counter. The cad job
+# installs the pinned build123d, regenerates the collector's manufacturing
+# package and fails if the committed copy under manufacturing/ is stale, or if
+# any part collides, misses a mating hole or leaves the ground. Nothing here
 # publishes anything.
 on:
   pull_request:
@@ -61,3 +64,19 @@ jobs:
       - name: Disclaimer clauses on every page
         working-directory: .
         run: node platform/pages/clauses.mjs open-tennis-robots
+
+  cad:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install build123d (pinned)
+        run: python -m pip install -r cad/requirements.txt
+      - name: CAD checks and committed-package freshness
+        working-directory: ventures/open-tennis-robots/cad
+        run: python -m unittest discover -s tests -v

@@ -7,6 +7,8 @@ description: >-
   a Python planning package (flight model, aiming, tracker, catch planner,
   collector routing), ESP32 firmware, BOMs and design docs, a browser shot
   planner, and an Amazon SP-API listing tool so anyone can build and sell one.
+  The collector ships a complete manufacturing package (DXF, STL, STEP, BOM,
+  drawings) generated from parametric code-CAD.
 stage: prototype
 owner: duncan
 
