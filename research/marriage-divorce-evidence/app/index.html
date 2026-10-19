@@ -9,7 +9,7 @@
 <meta property="og:description" content="Year-by-year divorce odds from five interpretable models trained on U.S. longitudinal survey data, with explanations, model disagreement and honest limits.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from five explainable models (additive Poisson regressions, spline model and Poisson decision trees) trained on NLSY79 data. Runs entirely in the browser.","license":"https://opensource.org/licenses/MIT"}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from five explainable models (additive Poisson regressions, spline model and Poisson decision trees) trained on NLSY79 data. Runs entirely in the browser.","featureList":["Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link"],"license":"https://opensource.org/licenses/MIT"}
 </script>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -22,6 +22,17 @@
 </header>
 
 <main class="wrap">
+<section class="lens" aria-labelledby="lensHead">
+  <h2 id="lensHead">Evidence lens</h2>
+  <p class="sub">Each lens is one dataset with its own population and outcome. Lenses are never pooled: their targets differ.</p>
+  <label class="inline">Lens <select id="lensSel"></select></label>
+  <div id="lensCard" class="lens-card"></div>
+  <details>
+    <summary>All lenses</summary>
+    <div class="table-wrap"><table id="lensTable"></table></div>
+  </details>
+</section>
+
 <form id="form" class="grid" autocomplete="off">
   <fieldset data-who="a"><legend>You</legend></fieldset>
   <fieldset data-who="b"><legend>Your partner</legend></fieldset>
@@ -31,12 +42,13 @@
     <label>Projection horizon <select name="horizon"><option>20</option><option>30</option><option selected>40</option><option>50</option></select></label>
   </fieldset>
 </form>
+<p class="share"><button type="button" id="share">Copy link to this scenario</button> <span id="shareStatus" role="status"></span><small>The profiles are stored only in the link’s <code>#</code> fragment, which browsers do not send to any server. Anyone you share the link with sees them.</small></p>
 
 <section id="refuse" class="refuse" hidden aria-live="polite"></section>
 
 <section id="results" aria-live="polite">
   <h2>Chance of no divorce</h2>
-  <p class="sub">Average of five models; the range shows how much they disagree. Assumes both partners live through each year (mortality is not modelled).</p>
+  <p class="sub">Average of the lens’s models; the range shows how much they disagree. Assumes both partners live through each year (mortality is not modelled).</p>
   <div id="tiles" class="tiles"></div>
   <p id="support" class="support"></p>
 
@@ -61,7 +73,7 @@
   <div id="explain"></div>
 
   <h2>What the models link to lower risk</h2>
-  <p class="sub">Each row changes one thing and re-runs every model; the score is the change in the chance of no divorce by year 10. “Models agreeing” counts how many of the five move the same way. These are associations in survey data — completing a degree or changing hours is not shown to <em>cause</em> a lower risk.</p>
+  <p class="sub">Each row changes one thing and re-runs every model; the score is the change in the chance of no divorce by year 10. The range is the smallest to largest change across models, and the count says how many move the same way as the average. These are associations in survey data — completing a degree or changing hours is not shown to <em>cause</em> a lower risk.</p>
   <div class="two">
     <div><h3>If you changed…</h3><ol id="changesA" class="changes"></ol></div>
     <div><h3>If your partner changed…</h3><ol id="changesB" class="changes"></ol></div>
@@ -69,6 +81,7 @@
 
   <h3>Partner profiles the models score highest for you</h3>
   <p class="sub">Searches partner age (±6 years), degree and wages, holding everything else fixed. The gap between best and worst is small next to everything the data leaves out.</p>
+  <p id="idealNote" class="note"></p>
   <div class="table-wrap"><table id="idealTable"></table></div>
 </section>
 

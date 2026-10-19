@@ -1,5 +1,5 @@
 // UI for the couple divorce-odds calculator. All computation is local (couple.js, engine.js).
-import { SCHOOL, DEGREE, WORK, RELIGION, unsupported, project, constantSurvival, explain, groupedTerms, selfChanges, idealPartners } from './couple.js';
+import { SCHOOL, DEGREE, WORK, RELIGION, unsupported, project, constantSurvival, explain, groupedTerms, selfChanges, idealPartners, lensSummary, encodeScenario, decodeScenario } from './couple.js';
 
 const $ = (s) => document.querySelector(s);
 const pct = (x, d = 0) => (100 * x).toFixed(d) + '%';
@@ -48,8 +48,60 @@ function readForm() {
 
 let bundle;
 let state;
+let lenses = []; // [{ entry, bundle, summary }]
+
+const fmtN = (x) => (Number.isFinite(x) ? Math.round(x).toLocaleString('en-US') : '—');
+
+function formFields() {
+  const out = {};
+  for (const el of $('#form').elements) {
+    if (!el.name) continue;
+    out[el.name] = el.type === 'checkbox' ? el.checked : el.value;
+  }
+  out.lens = $('#lensSel').value;
+  return out;
+}
+
+function applyFields(fields) {
+  const form = $('#form');
+  for (const [k, v] of Object.entries(fields)) {
+    const el = form.elements[k];
+    if (!el) continue;
+    if (el.type === 'checkbox') el.checked = v === '1';
+    else el.value = v;
+  }
+}
+
+function saveHash() {
+  const h = encodeScenario(formFields());
+  if (h !== location.hash) history.replaceState(null, '', h === '#' ? location.pathname + location.search : h);
+}
+
+function renderLens() {
+  const cur = lenses.find((l) => l.summary.id === $('#lensSel').value) || lenses[0];
+  const s = cur.summary;
+  const t = s.training;
+  $('#lensCard').innerHTML = `<dl class="facts">
+      <dt>Population</dt><dd>${esc(s.population)}</dd>
+      <dt>Target</dt><dd>${esc(s.target)}</dd>
+      <dt>Training data</dt><dd>${[t.respondents && fmtN(t.respondents) + ' people', t.intervals && fmtN(t.intervals) + ' intervals', t.events && fmtN(t.events) + ' divorces'].filter(Boolean).join(' · ') || 'not stated'}</dd>
+      <dt>Held-out skill</dt><dd>${s.best ? `best of ${s.models} models (${esc(s.best.label)}) beats a constant rate by ${s.best.improvement.toFixed(1)}% in held-out deviance` : `${s.models} models; see the bundle for held-out metrics`}</dd>
+    </dl>${s.scorable ? '' : '<p class="note">This lens’s inputs do not map onto the form yet, so it shows what it covers but gives no number.</p>'}`;
+  $('#lensTable').innerHTML = '<thead><tr><th>Lens</th><th>Target</th><th class="num">Models</th><th class="num">Best held-out gain</th><th>In the calculator</th></tr></thead><tbody>'
+    + lenses.map(({ summary: z }) => `<tr><td>${esc(z.label)}</td><td>${esc(z.target)}</td><td class="num">${z.models}</td><td class="num">${z.best ? z.best.improvement.toFixed(1) + '%' : '—'}</td><td>${z.scorable ? 'yes' : 'listed only'}</td></tr>`).join('') + '</tbody>';
+  return cur;
+}
 
 function render() {
+  const cur = renderLens();
+  saveHash();
+  if (!cur.summary.scorable) {
+    $('#refuse').hidden = false;
+    $('#results').hidden = true;
+    $('#refuse').innerHTML = `<strong>No estimate from this lens.</strong> ${esc(cur.summary.label)} uses inputs the form does not collect yet. Pick another lens to score a couple.`;
+    return;
+  }
+  bundle = cur.bundle;
   const { a, b, couple, horizon } = readForm();
   const why = unsupported(a, b);
   $('#refuse').hidden = why.length === 0;
@@ -114,7 +166,7 @@ function renderChart(years, couple) {
     <line id="cross" y1="${T}" y2="${H - B}" stroke="var(--text-muted)" stroke-dasharray="3 3" visibility="hidden"/>
     <circle id="dot" r="4.5" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width="2" visibility="hidden"/>
     <rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent" id="hit"/></svg>`;
-  $('#legend').innerHTML = `<span><i style="background:var(--series-1)"></i>Average of 5 models</span><span><i style="background:var(--band)"></i>Range across models</span><span><i style="background:var(--model-line);height:2px"></i>Each model</span><span><i style="background:var(--outside);border:1px solid var(--border)"></i>Outside training data</span>`;
+  $('#legend').innerHTML = `<span><i style="background:var(--series-1)"></i>Average of ${bundle.models.length} models</span><span><i style="background:var(--band)"></i>Range across models</span><span><i style="background:var(--model-line);height:2px"></i>Each model</span><span><i style="background:var(--outside);border:1px solid var(--border)"></i>Outside training data</span>`;
   const svg = $('#chart svg');
   const tip = $('#tip');
   $('#hit').addEventListener('pointermove', (ev) => {
@@ -151,9 +203,9 @@ function renderModels(years) {
 
 function renderExplain() {
   const sel = $('#explainModel');
-  if (!sel.options.length) {
+  if (sel.dataset.lens !== bundle.id) {
+    sel.dataset.lens = bundle.id;
     sel.innerHTML = bundle.models.map((m) => `<option value="${m.key}"${m.key === 'additive_enriched' ? ' selected' : ''}>${esc(m.label)}</option>`).join('');
-    sel.addEventListener('change', renderExplain);
   }
   const m = bundle.models.find((z) => z.key === sel.value);
   const { a, b, couple } = state;
@@ -175,24 +227,67 @@ function renderExplain() {
 }
 
 function renderChanges(a, b, couple) {
+  const pts = (x) => `${x >= 0 ? '+' : '−'}${(100 * Math.abs(x)).toFixed(1)}`;
   const list = (opts) => opts.slice(0, 6).map((o) => {
     const cls = o.delta > 0 ? 'up' : 'down';
-    return `<li>${esc(o.label)}: <span class="d ${cls}">${o.delta >= 0 ? '+' : '−'}${(100 * Math.abs(o.delta)).toFixed(1)} pts</span> <small>${o.agree} of ${o.models} models agreeing</small></li>`;
+    return `<li>${esc(o.label)}: <span class="d ${cls}">${pts(o.delta)} pts</span> <small>models range ${pts(o.lo)} to ${pts(o.hi)} pts; ${o.agree} of ${o.models} agree on the direction</small></li>`;
   }).join('');
-  $('#changesA').innerHTML = list(selfChanges(bundle, 'a', a, b, couple));
-  $('#changesB').innerHTML = list(selfChanges(bundle, 'b', a, b, couple));
+  const none = (opts) => (opts.length && opts[0].delta > 0 ? '' : '<li class="note">None of the changes searched raises the estimate in these models.</li>');
+  const ca = selfChanges(bundle, 'a', a, b, couple);
+  const cb = selfChanges(bundle, 'b', a, b, couple);
+  $('#changesA').innerHTML = none(ca) + list(ca);
+  $('#changesB').innerHTML = none(cb) + list(cb);
   const ideal = idealPartners(bundle, a, b, couple);
-  $('#idealTable').innerHTML = '<thead><tr><th>Partner age</th><th>Degree</th><th class="num">Partner wages</th><th class="num">No divorce by year 10</th><th class="num">Model range</th><th>Data support</th></tr></thead><tbody>'
-    + ideal.best.map((r) => `<tr><td>${r.partner.age}</td><td>${esc(r.partner.degree)}</td><td class="num">$${r.partner.wages.toLocaleString()}</td><td class="num">${pct(r.meanSurvival, 1)}</td><td class="num">${pct(r.minSurvival, 1)}–${pct(r.maxSurvival, 1)}</td><td>${r.inSupport ? 'in range' : 'extrapolated'}</td></tr>`).join('')
-    + `<tr class="out"><td colspan="3">Lowest-scoring of ${ideal.considered} profiles searched</td><td class="num">${pct(ideal.worst.meanSurvival, 1)}</td><td></td><td></td></tr></tbody>`;
+  const k = ideal.models;
+  $('#idealTable').innerHTML = `<thead><tr><th>Partner age</th><th>Degree</th><th class="num">Partner wages</th><th class="num">No divorce by year 10</th><th class="num">Model range</th><th class="num">Models scoring it above your partner as entered</th><th>Data support</th></tr></thead><tbody>`
+    + `<tr class="ref"><td colspan="3">Your partner as entered</td><td class="num">${pct(ideal.current.meanSurvival, 1)}</td><td class="num">${pct(ideal.current.minSurvival, 1)}–${pct(ideal.current.maxSurvival, 1)}</td><td class="num">—</td><td></td></tr>`
+    + ideal.best.map((r) => `<tr><td>${r.partner.age}</td><td>${esc(r.partner.degree)}</td><td class="num">$${r.partner.wages.toLocaleString('en-US')}</td><td class="num">${pct(r.meanSurvival, 1)}</td><td class="num">${pct(r.minSurvival, 1)}–${pct(r.maxSurvival, 1)}</td><td class="num">${r.beats} of ${k}</td><td>${r.inSupport ? 'in range' : 'extrapolated'}</td></tr>`).join('')
+    + `<tr class="out"><td colspan="3">Lowest-scoring of ${ideal.considered} profiles searched</td><td class="num">${pct(ideal.worst.meanSurvival, 1)}</td><td class="num">${pct(ideal.worst.minSurvival, 1)}–${pct(ideal.worst.maxSurvival, 1)}</td><td class="num">${ideal.worst.beats} of ${k}</td><td></td></tr></tbody>`;
+  const tiedText = ideal.tied > 1
+    ? `${ideal.tied} of ${ideal.considered} searched profiles have a model range that overlaps the top profile’s, so the models cannot tell them apart.`
+    : `The top profile’s model range does not overlap any other of the ${ideal.considered} searched.`;
+  const topsText = ideal.distinctTops === 1 ? `All ${k} models put the same profile first on their own.` : `On their own, the ${k} models put ${ideal.distinctTops} different profiles first.`;
+  $('#idealNote').innerHTML = `<strong>No single ideal partner.</strong> ${tiedText} ${topsText} Partner age enters the models as that person’s own age, and older people divorced less in these data; it is not evidence of an ideal age gap.`;
+}
+
+async function loadLenses() {
+  let entries;
+  try {
+    entries = (await (await fetch('models/index.json')).json()).lenses;
+  } catch {
+    entries = [{ file: 'nlsy79_couples.json', adapter: 'nlsy79_couples' }];
+  }
+  const loaded = await Promise.all(entries.map(async (entry) => {
+    try {
+      const b = await (await fetch('models/' + encodeURIComponent(entry.file))).json();
+      return { entry, bundle: b, summary: lensSummary(b, entry) };
+    } catch {
+      return null; // a lens that fails to load is skipped, not fatal
+    }
+  }));
+  return loaded.filter(Boolean);
 }
 
 async function main() {
   $('fieldset[data-who="a"]').insertAdjacentHTML('beforeend', personFields('a'));
   $('fieldset[data-who="b"]').insertAdjacentHTML('beforeend', personFields('b'));
-  bundle = await (await fetch('models/nlsy79_couples.json')).json();
+  lenses = await loadLenses();
+  const scorableFirst = lenses.slice().sort((x, y) => Number(y.summary.scorable) - Number(x.summary.scorable));
+  $('#lensSel').innerHTML = scorableFirst.map((l) => `<option value="${esc(l.summary.id)}">${esc(l.summary.label)}${l.summary.scorable ? '' : ' (listed only)'}</option>`).join('');
+  const fromHash = decodeScenario(location.hash);
+  applyFields(fromHash);
+  if (fromHash.lens && lenses.some((l) => l.summary.id === fromHash.lens)) $('#lensSel').value = fromHash.lens;
   $('#form').addEventListener('input', render);
   $('#form').addEventListener('change', render);
+  $('#lensSel').addEventListener('change', render);
+  $('#explainModel').addEventListener('change', renderExplain);
+  $('#share').addEventListener('click', async () => {
+    saveHash();
+    let ok = false;
+    try { await navigator.clipboard.writeText(location.href); ok = true; } catch { /* clipboard blocked */ }
+    $('#shareStatus').textContent = ok ? 'Link copied.' : 'Copy the address bar to share this scenario.';
+  });
+  window.addEventListener('hashchange', () => { applyFields(decodeScenario(location.hash)); render(); });
   render();
 }
 main();

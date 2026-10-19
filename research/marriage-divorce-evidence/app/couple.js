@@ -203,10 +203,14 @@ export function selfChanges(bundle, who, a, b, couple, n = 10) {
     const p2 = { ...person, ...patch };
     const r = who === 'a' ? survivalAt(bundle, p2, b, couple, n) : survivalAt(bundle, a, p2, couple, n);
     const deltas = bundle.models.map((m) => r.survival[m.key] - base.survival[m.key]);
+    const delta = r.meanSurvival - base.meanSurvival;
     options.push({
       label,
-      delta: r.meanSurvival - base.meanSurvival,
-      agree: deltas.filter((d) => d > 0).length,
+      delta,
+      lo: Math.min(...deltas),
+      hi: Math.max(...deltas),
+      // Models that move the same way as the average (ties count as not agreeing).
+      agree: deltas.filter((d) => (delta >= 0 ? d > 0 : d < 0)).length,
       models: deltas.length,
     });
   };
@@ -231,22 +235,28 @@ function defaultSchool(degree) {
 
 // Partner profiles that the models associate with the highest n-year survival, varying
 // only the partner's schooling, degree, wages and age within +/-maxAgeGap of `me`.
+// There is deliberately no single answer: `tied` counts the profiles whose model range
+// overlaps the top profile's, and `beats` how many models score a profile above the
+// partner as entered.
 export function idealPartners(bundle, me, partnerTemplate, couple, { n = 10, maxAgeGap = 6, top = 5 } = {}) {
-  const myWage = num(me.wages);
   const wageGrid = [0, 15000, 30000, 50000, 80000, 120000];
   const degrees = [['High school', '12 years'], ['Some college', '13–15 years'], ['Bachelor', '16–17 years'], ['Master', '18+ years'], ['Professional', '18+ years']];
+  const current = survivalAt(bundle, me, partnerTemplate, couple, n);
   const results = [];
   for (let gap = -maxAgeGap; gap <= maxAgeGap; gap += 3) {
     for (const [degree, school] of degrees) {
       for (const wages of wageGrid) {
         const p = { ...partnerTemplate, age: num(me.age) + gap, degree, school, wages };
-        const r = survivalAt(bundle, me, p, couple, n);
+        const proj = project(bundle, me, p, couple, n);
+        const r = proj[proj.length - 1];
         results.push({
           partner: p,
           meanSurvival: r.meanSurvival,
           minSurvival: r.minSurvival,
           maxSurvival: r.maxSurvival,
-          inSupport: project(bundle, me, p, couple, n).every((y) => y.inSupport),
+          survival: r.survival,
+          beats: bundle.models.filter((m) => r.survival[m.key] > current.survival[m.key]).length,
+          inSupport: proj.every((y) => y.inSupport),
         });
       }
     }
@@ -254,5 +264,100 @@ export function idealPartners(bundle, me, partnerTemplate, couple, { n = 10, max
   results.sort((x, y) => y.meanSurvival - x.meanSurvival);
   const best = results.slice(0, top);
   const worst = results[results.length - 1];
-  return { best, worst, considered: results.length, myWage };
+  const tied = results.filter((r) => r.maxSurvival >= best[0].minSurvival).length;
+  // Each model's own favourite profile; how many distinct ones there are shows (dis)agreement.
+  const perModelTop = bundle.models.map((m) => {
+    const r = results.reduce((x, y) => (y.survival[m.key] > x.survival[m.key] ? y : x));
+    return { model: m.label, partner: r.partner, survival: r.survival[m.key] };
+  });
+  const key = (p) => `${p.age}|${p.degree}|${p.wages}`;
+  return {
+    perModelTop,
+    distinctTops: new Set(perModelTop.map((t) => key(t.partner))).size,
+    best,
+    worst,
+    considered: results.length,
+    tied,
+    current: { meanSurvival: current.meanSurvival, minSurvival: current.minSurvival, maxSurvival: current.maxSurvival },
+    models: bundle.models.length,
+  };
+}
+
+// ---- Evidence lenses -------------------------------------------------------------------
+// Every model bundle in models/ is a lens with its own population and target. The form
+// below maps to NLSY79 couple inputs; a lens whose inputs the form cannot fill is still
+// listed, with its population, target and skill, but gives no number.
+export const FORM_ADAPTERS = ['nlsy79_couples'];
+
+export function lensSummary(bundle, entry = {}) {
+  const metrics = (bundle.models || []).map((m) => ({ key: m.key, label: m.label, ...(m.heldout || {}) }));
+  const dev = metrics.filter((m) => Number.isFinite(m.deviance_improvement_percent));
+  const best = dev.length ? dev.reduce((x, y) => (y.deviance_improvement_percent > x.deviance_improvement_percent ? y : x)) : null;
+  const adapter = entry.adapter || bundle.adapter || bundle.id;
+  return {
+    id: bundle.id || entry.file,
+    label: entry.label || bundle.label || bundle.id,
+    population: bundle.source || bundle.population || 'not stated',
+    target: bundle.target || 'not stated',
+    training: bundle.training || {},
+    models: metrics.length,
+    best: best ? { label: best.label, improvement: best.deviance_improvement_percent } : null,
+    metrics,
+    scorable: FORM_ADAPTERS.includes(adapter) && Array.isArray(bundle.models) && bundle.models.length > 0,
+  };
+}
+
+// ---- Shareable scenarios ---------------------------------------------------------------
+// A scenario lives in the URL fragment (never sent to a server). Decoding accepts only
+// known fields and allowed values, so a crafted link cannot inject anything.
+const PERSON_SPEC = {
+  sex: ['Woman', 'Man'],
+  age: [16, 100],
+  school: SCHOOL,
+  degree: DEGREE,
+  wages: [0, 10000000],
+  work: WORK,
+  religion: RELIGION,
+  priorMarriage: 'bool',
+  firstMarriageAge: [13, 80],
+};
+const COUPLE_SPEC = { yearsMarried: [0, 60], familyIncome: [0, 100000000], horizon: ['20', '30', '40', '50'] };
+
+function specFor(name) {
+  const [who, k] = name.includes('.') ? name.split('.') : [null, name];
+  if (who === 'a' || who === 'b') return PERSON_SPEC[k];
+  if (who === null) return COUPLE_SPEC[k] || (k === 'lens' ? 'id' : undefined);
+  return undefined;
+}
+
+function cleanValue(spec, v) {
+  if (spec === undefined || v === null || v === undefined) return undefined;
+  if (spec === 'bool') return v === '1' || v === 'on' || v === true ? '1' : '0';
+  if (spec === 'id') return /^[a-z0-9_]{1,64}$/.test(v) ? v : undefined;
+  if (Array.isArray(spec) && typeof spec[0] === 'number') {
+    if (v === '') return '';
+    const x = Number(v);
+    return Number.isFinite(x) && x >= spec[0] && x <= spec[1] ? String(x) : undefined;
+  }
+  return spec.includes(v) ? v : undefined;
+}
+
+// fields: { 'a.age': '36', 'a.priorMarriage': true, yearsMarried: '0', lens: 'nlsy79_couples', ... }
+export function encodeScenario(fields) {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(fields)) {
+    const c = cleanValue(specFor(k), v);
+    if (c !== undefined && c !== '') q.set(k, c);
+  }
+  return '#' + q.toString();
+}
+
+export function decodeScenario(hash) {
+  const out = {};
+  const q = new URLSearchParams(String(hash || '').replace(/^#/, ''));
+  for (const [k, v] of q) {
+    const c = cleanValue(specFor(k), v);
+    if (c !== undefined) out[k] = c;
+  }
+  return out;
 }
