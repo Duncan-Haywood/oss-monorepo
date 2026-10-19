@@ -29,7 +29,12 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "research_live_links check red on main (simdesign-stuck README had no live-page link)",
+      "fix": "added the link in this PR"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
