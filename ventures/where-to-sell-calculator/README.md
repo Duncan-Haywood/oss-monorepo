@@ -288,6 +288,13 @@ Two details that are not obvious:
   one that is merely incomplete. Its own round-trip test now asserts the net
   profit on the two pages is the same number.
 
+**The link back to the quick triage carries the item too.** The footer link to
+`../marketplace-fee-compare/` (headline fees, plus a bulk catalogue view) is rewritten on every
+calculation with price, postage, cost and monthly orders, packaging folded into `otherCost`.
+Before, it opened empty, so a seller who wanted the shorter view had to retype the item —
+the same failure this section exists to remove, in the one direction left. `handoff.test.mjs`
+round-trips it through that page's own `decodeShare`.
+
 Nothing is uploaded. The values ride in the URL fragment — the same mechanism
 the "Copy share link" button already uses — which browsers never send to a
 server, and they only travel inside your own browser as you follow the link.

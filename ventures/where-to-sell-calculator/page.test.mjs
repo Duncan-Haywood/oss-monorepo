@@ -283,7 +283,7 @@ test('figures that can be absent are rendered defensively', () => {
 // ---------------------------------------------------------------------------
 
 test('the page imports and calls the handoff builder', () => {
-  assert.match(html, /import \{ handoffsForResults \} from "\.\/handoff\.mjs"/);
+  assert.match(html, /import \{ handoffsForResults, quickCompareUrl \} from "\.\/handoff\.mjs"/);
   assert.match(html, /renderContinue\(comparison\.results, readShared\(\)\)/,
     'the links must be rebuilt from the current inputs on every recalculation');
 });
@@ -420,4 +420,10 @@ test('index links to the related marketplace fee compare hub', () => {
     /href="\.\.\/marketplace-fee-compare\/"/,
     'index must link ../marketplace-fee-compare/ so crawlers can reach the Walmart/TikTok headline-fee ranking',
   );
+});
+
+test('the marketplace-fee-compare link is rewritten with the item on every calculation', () => {
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /id="quickCompareLink" href="\.\.\/marketplace-fee-compare\/"/);
+  assert.match(html, /getElementById\("quickCompareLink"\)\.href = quickCompareUrl\(readShared\(\)\)/);
 });
