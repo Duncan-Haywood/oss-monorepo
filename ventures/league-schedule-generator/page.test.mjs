@@ -538,3 +538,85 @@ test("the referees guide's worked example matches assignOfficials() and is linke
   assert.match(page("sitemap.xml"), /how-to-assign-referees-to-a-league-schedule\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-assign-referees-to-a-league-schedule\.html"/);
 });
+
+test("the pickleball guide's worked example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "pickleball-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const { errors, spec } = readSpec({ teams: "Dinkers\nSpinners\nLobbers\nVolleys\nBangers\nDrop Shots\nKitchen Crew\nPaddle Pals", start: "2026-10-07", weekdays: ["Wed"], courts: "Court 1\nCourt 2", times: "18:00\n19:00" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.length, 7);
+  const early = {};
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.number}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, r.matches.length);
+    for (const m of r.matches) if (m.time === "18:00") for (const t of [m.homeName, m.awayName]) early[t] = (early[t] || 0) + 1;
+  });
+  assert.ok(Object.values(early).every((c) => c === 3 || c === 4));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the youth soccer guide's 9-team example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "youth-soccer-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Rockets", "Falcons", "Tigers", "Comets", "Rangers", "Strikers", "Blazers", "Wolves", "Sharks"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-10-24", weekdays: ["Sat"], courts: "Field 1\nField 2", times: "09:00\n10:30" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.length, 9);
+  const byes = {};
+  s.rounds.forEach((r) => {
+    const playing = new Set(r.matches.flatMap((m) => [m.homeName, m.awayName]));
+    const bye = teams.filter((t) => !playing.has(t));
+    assert.equal(bye.length, 1);
+    byes[bye[0]] = (byes[bye[0]] || 0) + 1;
+    const row = `<tr><td>${r.number}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td><td>${bye[0]}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, r.matches.length);
+  });
+  assert.ok(teams.every((t) => byes[t] === 1));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the fantasy football guide's 12-team, 14-week example matches buildSchedule() and is linked and in the sitemap", async () => {
+  const { readSpec, buildSchedule, validateSchedule, rematchReport } = await import("./calc.mjs");
+  const html = page("how-to-make-a-fantasy-football-schedule.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-make-a-fantasy-football-schedule\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const names = "Ace,Bolt,Colt,Dash,Echo,Fox,Gale,Hawk,Iris,Jinx,Kite,Lynx".split(",");
+  assert.ok(html.includes(names.join(", ")));
+  const { errors, spec } = readSpec({ teams: names.join("\n"), start: "2026-09-10", weekdays: "Thu", double: true, rounds: "14" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(validateSchedule(s).ok, true);
+  assert.equal(s.rounds.length, 14);
+  const meets = new Map();
+  for (const r of s.rounds) for (const m of r.matches) {
+    const k = Math.min(m.home, m.away) + "-" + Math.max(m.home, m.away);
+    meets.set(k, (meets.get(k) || 0) + 1);
+  }
+  assert.equal(meets.size, 66);
+  assert.equal([...meets.values()].filter((v) => v === 2).length, 18);
+  const rematches = Array(12).fill(0);
+  for (const [k, v] of meets) if (v === 2) for (const t of k.split("-")) rematches[t]++;
+  assert.ok(rematches.every((x) => x === 3));
+  assert.equal(rematchReport(s).shortest, 77);
+  assert.match(page("sitemap.xml"), /how-to-make-a-fantasy-football-schedule\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-make-a-fantasy-football-schedule\.html"/);
+});
