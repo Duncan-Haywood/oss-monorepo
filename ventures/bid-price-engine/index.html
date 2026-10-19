@@ -84,6 +84,16 @@
 
   <section class="card" id="result" aria-live="polite"></section>
 
+  <section class="card" id="winrate">
+    <h2>Which margin wins the most money? Learn it from your own bids</h2>
+    <p class="note">A margin that looks right on the cost side ignores the bids you lose by quoting high. After each quote, log whether you won it. From eight bids with at least two wins and two losses, the page fits a win-chance curve to your history and shows the margin with the best expected profit per bid. The log stays on this device; nothing is uploaded.</p>
+    <button type="button" id="wr-won">Log the bid above: won</button> <button type="button" class="secondary" id="wr-lost">Log the bid above: lost</button> <span id="wr-msg" class="note" role="status"></span>
+    <label for="wr-import">Or paste past bids, one per line: <code>price,cost,won</code> (won = 1 or 0; cost is your full cost incl. overhead)</label>
+    <textarea id="wr-import" rows="3" placeholder="12400,9800,1&#10;15100,11000,0"></textarea>
+    <button type="button" class="secondary" id="wr-add">Add pasted bids</button>
+    <div id="wr-result" aria-live="polite"></div>
+  </section>
+
   <section class="card" id="closeout">
     <h2>Close out the job: what it really left</h2>
     <p class="note">When the job is done, enter what it actually took. The bid above is the comparison. Closed jobs are kept on this device only; after three, the page shows how far your jobs run over and the contingency that would have covered it.</p>
@@ -131,6 +141,7 @@
 <script type="module">
   import { priceJob, parseLabor, parseCosts, overheadPctFrom, priceLadder } from "./calc.mjs";
   import { closeoutJob, trackRecord } from "./closeout.mjs";
+  import { winRateCurve, bidMarginPct } from "./winrate.mjs";
   import { TRADES, CATEGORIES } from "./trades.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   const $ = (s) => document.querySelector(s);
@@ -254,6 +265,53 @@
     } catch (e) { $("#co-msg").textContent = e.message; }
   };
   renderRecord();
+
+  // Bid log for the win-rate curve. Stays on this device; storage may be blocked.
+  const BIDS_KEY = "bid-price-engine-bid-log";
+  const loadBids = () => { try { const a = JSON.parse(localStorage.getItem(BIDS_KEY) || "[]"); return Array.isArray(a) ? a.filter((b) => b && Number.isFinite(b.marginPct)) : []; } catch { return []; } };
+  const saveBids = (a) => { try { localStorage.setItem(BIDS_KEY, JSON.stringify(a.slice(-500))); return true; } catch { return false; } };
+  function renderWinRate() {
+    const bids = loadBids(); const el = $("#wr-result");
+    if (!bids.length) { el.innerHTML = ""; return; }
+    const r = winRateCurve(bids);
+    const tools = `<p><button type="button" class="secondary" id="wr-clear">Delete this log</button></p>`;
+    let body;
+    if (!r.ready) {
+      body = r.reason === "too-few" ? `<p class="note">${r.bids} bid${r.bids === 1 ? "" : "s"} logged. Log ${r.need} more to fit a curve.</p>`
+        : r.reason === "one-sided" ? `<p class="note">${r.wins} won, ${r.losses} lost so far. A curve needs at least two of each, or it cannot tell what price loses you work.</p>`
+        : `<p class="note">Every bid so far carries nearly the same margin, so there is nothing to compare. Log some bids at a higher or lower margin.</p>`;
+    } else if (!r.found) {
+      body = `<div class="warn">Across ${r.bids} bids (${r.winRate}% won) your win rate does not fall as margin rises, so the log cannot say that a lower margin would win more. Keep logging; do not read this as permission to raise prices without limit.</div>`;
+    } else {
+      const range = r.interval ? ` Resampling your bids puts it between <b>${r.interval.low}%</b> and <b>${r.interval.high}%</b>${r.confident ? "." : ", a wide range: treat it as a direction, not a number."}` : "";
+      body = `<div class="ok">Across <b>${r.bids}</b> bids (${r.winRate}% won), expected profit per bid peaks near a <b>${r.bestMarginPct}%</b> margin, where the curve gives about a ${r.winChanceAtBestPct}% chance of winning. Your average quoted margin is ${r.avgMarginPct}% (${r.winChanceAtAvgPct}% chance); at ${r.bestMarginPct}% the model expects ${r.liftPct >= 0 ? "+" : ""}${r.liftPct}% more profit per bid quoted.${range}</div>
+        <p class="note">It only looks inside the margins you have actually quoted, and it sees price, not the customer, the trade or the season, so a big job and a small one are treated alike. <button type="button" class="secondary" id="wr-apply">Set target margin to ${r.bestMarginPct}%</button></p>`;
+    }
+    el.innerHTML = body + tools;
+    const ap = $("#wr-apply"); if (ap) ap.onclick = () => { $("#margin").value = r.bestMarginPct; render(false); $("#wr-msg").textContent = "Target margin updated. The bid price above has changed."; };
+    $("#wr-clear").onclick = () => { if (confirm("Delete every logged bid saved on this device?")) { saveBids([]); renderWinRate(); } };
+  }
+  for (const [id, won] of [["#wr-won", true], ["#wr-lost", false]]) $(id).onclick = () => {
+    if (!last) { $("#wr-msg").textContent = "Fix the bid above first."; return; }
+    const m = bidMarginPct(last.price, last.fullCost);
+    if (m === null) { $("#wr-msg").textContent = "That bid has no margin to log."; return; }
+    saveBids(loadBids().concat([{ marginPct: Math.round(m * 100) / 100, won, date: new Date().toISOString().slice(0, 10) }]));
+    record("bid_logged"); $("#wr-msg").textContent = won ? "Logged as won." : "Logged as lost."; renderWinRate();
+  };
+  $("#wr-add").onclick = () => {
+    const rows = $("#wr-import").value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const added = []; let skipped = 0;
+    for (const row of rows) {
+      const [p, c, w] = row.replace(/[$]/g, "").split(",").map((x) => x.trim());
+      const m = bidMarginPct(p, c);
+      if (m === null || !/^(1|0|won|lost|true|false|yes|no)$/i.test(w || "")) { skipped++; continue; }
+      added.push({ marginPct: Math.round(m * 100) / 100, won: /^(1|won|true|yes)$/i.test(w), date: new Date().toISOString().slice(0, 10) });
+    }
+    if (added.length) { saveBids(loadBids().concat(added)); record("bids_imported"); $("#wr-import").value = ""; }
+    $("#wr-msg").textContent = `${added.length} added${skipped ? `, ${skipped} line${skipped === 1 ? "" : "s"} skipped (need price,cost,won with cost below price)` : ""}.`;
+    renderWinRate();
+  };
+  renderWinRate();
 </script>
 </body>
 </html>
