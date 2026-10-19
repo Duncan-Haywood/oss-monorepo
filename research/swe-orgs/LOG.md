@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-19 · Batch 18: tiered readiness checks and priority-ordered load shedding
+
+- Added 2 sources and 2 practices (57 practices, 56 sources): Mercari's public production-readiness checklist (P56; a Japanese growth-stage company, the catalogue's second non-US source) and the Computer History Museum's profile of Margaret Hamilton's Apollo error-detection software, the priority displays (P57; 1960s, a hard real-time system).
+- **Both transfer `partial` and are `not adopted`.** P56: gates here differ by area (ventures against internal code) but there is no written scale of how critical a change is, so low-risk work pays the same bar as high-risk work; nothing measures that cost. P57: a run near its usage limit stops where it is, and the router draws a track without regard to remaining allowance. They rank 0.3% and 0.5%.
+- **Still no proposal.** The ledger has 1261 rows (it had 1211); every class share is at or below 1.6% (tooling). P57's lead is a design question for `swe-allocate` and `swe-schedule` (which tracks to drop first when allowance runs short), not a ledger-sized failure.
+- Verification was by web search only. The Mercari repository was not opened (the search surfaced only a third-party mirror and the repo listing), so no checklist item is quoted and the year is n.d.; the CHM profile was not read in full and accounts of the Apollo 11 radar fault disagree, so none is stated.
+
 ## 2026-10-19 · Batch 17: controlled experiments and Strathern on measures that become targets
 
 - Added 2 sources and 2 practices (55 practices, 54 sources): Kohavi, Tang and Xu's *Trustworthy Online Controlled Experiments* (Cambridge University Press, 2020; P54) and Strathern's 1997 *European Review* paper on audit in British universities (P55). Both bear on `swe-prompt` and the track's "guard the metric" rule, and P55 is the catalogue's first source from outside software and outside the US.
