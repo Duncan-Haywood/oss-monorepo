@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of one 64x70 matrix-vector product's latency in microseconds against logic cells used on an iCE40 UP5K, one line per engine (output-stationary OS, reduction tree RT, pipelined tree RTp) with and without DSP multipliers, lane counts 1 to 32: latency falls from about 140 to about 10 microseconds as cells rise from about 200 to 3,800">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Accel-planefpga: latency against logic cells (iCE40 UP5K)</text>
+<line x1="64" x2="624" y1="311.4" y2="311.4" stroke="#ddd"/><text x="58" y="315.4" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="103.3" y2="103.3" stroke="#ddd"/><text x="58" y="107.3" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">191</text>
+<text x="118.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">255</text>
+<text x="155.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">311</text>
+<text x="211.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">420</text>
+<text x="280.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">609</text>
+<text x="380.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1042</text>
+<text x="496.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1937</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3834</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">logic cells (post place-and-route)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">latency per product (us, cycles / Fmax)</text>
+<polyline points="107.4,70.4 211.1,131.9 327.4,192.0 449.7,251.1 574.6,309.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="107.4" cy="70.4" r="3" fill="#c0392b"/>
+<circle cx="211.1" cy="131.9" r="3" fill="#c0392b"/>
+<circle cx="327.4" cy="192.0" r="3" fill="#c0392b"/>
+<circle cx="449.7" cy="251.1" r="3" fill="#c0392b"/>
+<circle cx="574.6" cy="309.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">OS</text>
+<polyline points="64.0,84.4 155.0,147.3 263.2,209.8 381.1,268.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="84.4" r="3" fill="#1f6fb2"/>
+<circle cx="155.0" cy="147.3" r="3" fill="#1f6fb2"/>
+<circle cx="263.2" cy="209.8" r="3" fill="#1f6fb2"/>
+<circle cx="381.1" cy="268.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">OS, DSP</text>
+<polyline points="118.0,75.1 193.4,116.8 292.1,159.3 395.6,211.8 504.4,253.4 624.0,287.7" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="118.0" cy="75.1" r="3" fill="#2e8b57"/>
+<circle cx="193.4" cy="116.8" r="3" fill="#2e8b57"/>
+<circle cx="292.1" cy="159.3" r="3" fill="#2e8b57"/>
+<circle cx="395.6" cy="211.8" r="3" fill="#2e8b57"/>
+<circle cx="504.4" cy="253.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="287.7" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">RT</text>
+<polyline points="91.2,84.2 138.1,126.1 211.6,174.1 296.9,230.8" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="91.2" cy="84.2" r="3" fill="#8e44ad"/>
+<circle cx="138.1" cy="126.1" r="3" fill="#8e44ad"/>
+<circle cx="211.6" cy="174.1" r="3" fill="#8e44ad"/>
+<circle cx="296.9" cy="230.8" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">RT, DSP</text>
+<polyline points="123.0,116.5 190.0,139.6 280.5,176.1 380.8,220.0 496.5,258.8 617.8,295.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="123.0" cy="116.5" r="3" fill="#c0392b"/>
+<circle cx="190.0" cy="139.6" r="3" fill="#c0392b"/>
+<circle cx="280.5" cy="176.1" r="3" fill="#c0392b"/>
+<circle cx="380.8" cy="220.0" r="3" fill="#c0392b"/>
+<circle cx="496.5" cy="258.8" r="3" fill="#c0392b"/>
+<circle cx="617.8" cy="295.0" r="3" fill="#c0392b"/>
+<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">RTp</text>
+<polyline points="96.2,120.0 140.7,158.2 193.9,198.7 278.0,238.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="96.2" cy="120.0" r="3" fill="#1f6fb2"/>
+<circle cx="140.7" cy="158.2" r="3" fill="#1f6fb2"/>
+<circle cx="193.9" cy="198.7" r="3" fill="#1f6fb2"/>
+<circle cx="278.0" cy="238.5" r="3" fill="#1f6fb2"/>
+<rect x="914" y="32" width="14" height="10" fill="#1f6fb2"/><text x="934" y="41" font-family="sans-serif" font-size="11">RTp, DSP</text>
+</svg>
