@@ -481,6 +481,23 @@ export function stayInPrices(spec, res) {
   return out.sort((x, y) => (x.price === null) - (y.price === null) || (x.rise ?? 0) - (y.rise ?? 0));
 }
 
+/**
+ * Sticker-price ranking of the foods you listed: dollars per 100 g of protein and per 1,000 kcal, cheapest protein
+ * first, with whether the plan uses the food. It ignores every other bound, so it answers "what does protein cost
+ * here" and not "what should I eat" (the plan does that). Foods with no protein get `per100gProtein: null`.
+ */
+export function proteinPrices(spec, res) {
+  const used = (i) => res && res.status === "optimal" && res.servings[i] > 1e-6;
+  const rows = spec.foods.map((f, i) => ({
+    index: i,
+    name: f.name,
+    per100gProtein: f.n[1] > 0 ? (f.price / f.n[1]) * 100 : null,
+    per1000kcal: f.n[0] > 0 ? (f.price / f.n[0]) * 1000 : null,
+    inPlan: !!used(i),
+  }));
+  return rows.sort((a, b) => (a.per100gProtein === null) - (b.per100gProtein === null) || (a.per100gProtein ?? 0) - (b.per100gProtein ?? 0));
+}
+
 /** Independent check of a result. */
 export function verifyPlan(spec, res) {
   const problems = [];
