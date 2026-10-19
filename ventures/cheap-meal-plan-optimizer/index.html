@@ -109,6 +109,9 @@
     <h3>Foods left out: what price would earn a place?</h3>
     <p class="note">The price per serving at which each food the plan skips would start to be used, with everything else unchanged. Watch for sales near these.</p>
     <div style="overflow-x:auto"><table class="t" id="breakeven"><thead><tr><th>Food</th><th class="n">Your price</th><th class="n">Used below</th><th class="n">Drop needed</th></tr></thead><tbody></tbody></table></div>
+    <h3>Foods in the plan: how far can the price rise?</h3>
+    <p class="note">The price per serving above which each food in the plan would be dropped for something else, with everything else unchanged. A food far above today's price is safe to keep buying through a price rise; one close to it is the first to swap out.</p>
+    <div style="overflow-x:auto"><table class="t" id="stayin"><thead><tr><th>Food</th><th class="n">Your price</th><th class="n">Kept up to</th><th class="n">Rise allowed</th></tr></thead><tbody></tbody></table></div>
     <h3>Shopping list for the week</h3>
     <p class="note" id="grocery-note"></p>
     <div style="overflow-x:auto"><table class="t" id="grocery"><thead><tr><th>Food</th><th class="n">Servings / week</th><th class="n">Packs to buy</th><th class="n">Left over</th><th class="n">At the till</th></tr></thead><tbody></tbody></table></div>
@@ -154,7 +157,7 @@
   </footer>
 
   <script type="module">
-    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, filterByStyle, STYLES, weekMenu, weekText, breakEvenPrices, planCsv, groceryList, groceryText, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
+    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, filterByStyle, STYLES, weekMenu, weekText, breakEvenPrices, stayInPrices, planCsv, groceryList, groceryText, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { FOOD_LIBRARY, lineName, addLibraryFoods } from "./food-library.mjs";
 
@@ -236,6 +239,8 @@
       renderWeek();
       const be = breakEvenPrices(spec, res);
       $("#breakeven tbody").innerHTML = be.length ? be.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${money2(r.current)}</td><td class="n">${r.price === null ? "never" : money2(r.price)}</td><td class="n">${r.drop === null ? "no price helps" : fmt(r.drop * 100, 0) + "%"}</td></tr>`).join("") : `<tr><td colspan="4">Every food on your list is already in the plan.</td></tr>`;
+      const st = stayInPrices(spec, res);
+      $("#stayin tbody").innerHTML = st.length ? st.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${money2(r.current)}</td><td class="n">${r.price === null ? "any price" : money2(r.price)}</td><td class="n">${r.rise === null ? "no rise drops it" : fmt(r.rise * 100, 0) + "%"}</td></tr>`).join("") : `<tr><td colspan="4">No food has a price that could drop it.</td></tr>`;
       const gl = groceryList(spec, res);
       const anyPack = gl.lines.some((l) => l.packs !== null);
       $("#grocery tbody").innerHTML = gl.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${fmt(l.servings, 1)}</td><td class="n">${l.packs === null ? "—" : l.packs + " × " + fmt(l.pack, 1)}</td><td class="n">${l.packs === null ? "—" : fmt(l.leftover, 1)}</td><td class="n">${money2(l.spend)}</td></tr>`).join("") + `<tr><td><strong>Total</strong></td><td></td><td></td><td></td><td class="n"><strong>${money2(gl.spend)}</strong></td></tr>`;

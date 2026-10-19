@@ -453,6 +453,34 @@ export function breakEvenPrices(spec, res) {
   return out.sort((x, y) => (x.price === null) - (y.price === null) || (x.drop ?? 0) - (y.drop ?? 0));
 }
 
+/**
+ * The mirror of `breakEvenPrices`, for each food the plan uses: the highest price per serving at which the continuous
+ * optimum still uses it (bisection, re-solving each time), and how far above today's price that is. `price` is null
+ * when no price drops it (it is the only source of a nutrient bound, or a floor you set keeps it in). Foods used
+ * only to round to whole servings but absent from the continuous optimum are skipped.
+ */
+export function stayInPrices(spec, res) {
+  if (res.status !== "optimal") return [];
+  const { lo, hi } = stepBounds(spec);
+  const base = relaxed(spec, lo, hi);
+  if (base.status !== "optimal") return [];
+  const used = (i, price) => {
+    const foods = spec.foods.map((f, j) => (j === i ? { ...f, price } : f));
+    const r = relaxed({ ...spec, foods }, lo, hi);
+    return r.status === "optimal" && r.y[i] > 1e-6;
+  };
+  const out = [];
+  spec.foods.forEach((f, i) => {
+    if (res.servings[i] <= 1e-6 || !(f.price > 0) || !(base.y[i] > 1e-6)) return;
+    const ceiling = f.price * 1000;
+    if (used(i, ceiling)) { out.push({ index: i, name: f.name, current: f.price, price: null, rise: null }); return; }
+    let a = f.price, b = ceiling; // used at a, not used at b
+    for (let k = 0; k < 50; k++) { const m = (a + b) / 2; if (used(i, m)) a = m; else b = m; }
+    out.push({ index: i, name: f.name, current: f.price, price: a, rise: a / f.price - 1 });
+  });
+  return out.sort((x, y) => (x.price === null) - (y.price === null) || (x.rise ?? 0) - (y.rise ?? 0));
+}
+
 /** Independent check of a result. */
 export function verifyPlan(spec, res) {
   const problems = [];
