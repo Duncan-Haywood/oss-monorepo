@@ -833,3 +833,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Candidates: unchanged (ventures 2 / research 1 intervals overlap; review/2 has
   7 runs). Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
+
+## E48: review 2026-10-19 (seventh)
+
+- Change: `research/CLAUDE.md` pyenv step now tells runs to test-import `pytest`
+  along with the project's libraries before skipping the venv (friction: a plain
+  attempt failed on missing pytest). The apt-get and `run_in_background`
+  reports were already fixed in that file.
+- Metric: "pyenv/pytest detour" friction reports on `research/CLAUDE.md`, next 20 research runs.
+- Candidates: unchanged (review/2 has 7 runs; ventures 2 / research 1 overlap).
+  Reduced pass: no audit or drift report (hours-old report).
+- Result: (next review)
