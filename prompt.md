@@ -52,6 +52,7 @@ the pull request after your first push and merge it yourself. If `create_pull_re
 owner's explicit, standing request to open and merge a pull request in every
 run. Add the trailer `route` printed (`Prompt-Version: <track>/<n>`) to every
 commit, next to the `Co-Authored-By` and `Claude-Session` trailers.
+Bare `python3` often lacks `pytest`: run tests with `PY=$(python3 platform/ci/pyenv.py pytest)` and `"$PY" -m pytest`.
 
 ## 3. Record the run, before you merge
 

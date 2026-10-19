@@ -39,6 +39,8 @@ FENCE_RE = re.compile(r"^\s*(```|~~~)")
 SKIP = ("http://", "https://", "//", "mailto:", "tel:", "data:", "/")
 # Verbatim snapshots of other files; their links were relative to the original.
 ARCHIVE_DIRS = ("docs/history/",)
+# GitHub's blob view of another file accepts #L10 / #L10-L20 as a line anchor.
+LINE_ANCHOR_RE = re.compile(r"L\d+(?:-L\d+)?", re.I)
 
 
 def tracked_markdown(root: Path) -> list[Path]:
@@ -109,7 +111,9 @@ def dead_links(path: Path, root: Path):
                 slugs = heading_slugs(dest.read_text(encoding="utf-8"))
             except (OSError, UnicodeDecodeError):
                 continue
-            if unquote(frag).lower() not in slugs:
+            if unquote(frag).lower() not in slugs and not (
+                dest != path and LINE_ANCHOR_RE.fullmatch(frag)
+            ):
                 yield n, target
 
 

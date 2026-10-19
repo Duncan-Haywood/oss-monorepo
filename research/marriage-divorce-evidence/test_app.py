@@ -23,8 +23,24 @@ class AppTests(unittest.TestCase):
     def test_individual_lens(self):
         self.run_node('individuals.test.mjs')
 
+    def test_nsfg2002_bundle_matches_sklearn(self):
+        self.run_node('nsfg2002.test.mjs')
+
     def test_lenses_and_scenarios(self):
         self.run_node('lenses.test.mjs')
+
+
+class Nsfg2002BundleTests(unittest.TestCase):
+    def test_bundle_agrees_with_audit_and_beats_baseline(self):
+        import json
+        src = APP.parent / 'reproducibility' / 'nsfg2002_first_marriage'
+        audit = json.loads((src / 'sample_audit.json').read_text())
+        bundle = json.loads((APP / 'models' / 'nsfg2002_first_marriage.json').read_text())
+        self.assertEqual(audit['respondents_in_file'], 7643)
+        self.assertEqual(bundle['training']['respondents'], audit['ever_married'])
+        self.assertEqual(bundle['training']['events'], audit['first_marriage_dissolutions'])
+        best = max(m['heldout']['deviance_improvement_percent'] for m in bundle['models'])
+        self.assertGreater(best, 0)
 
 
 if __name__ == '__main__':

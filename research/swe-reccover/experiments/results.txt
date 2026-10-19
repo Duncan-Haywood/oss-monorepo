@@ -1,0 +1,34 @@
+commits on origin/main 13314   PRs landed (squash or merge subject) 7336   sessions with a Claude-Session trailer 5187   records 1473
+
+== A. records that name a pull request in this repository: is it on main? (k/n, Wilson 95%)
+  outcome success   503/503   100.0% (99.2-100.0)
+  outcome partial    19/19    100.0% (83.2-100.0)
+  claimed but not on main: 0 []
+  records naming a pull request in the retired research repository (not checkable here): 162
+
+== B. landed sessions that have a record, from 2026-10-13 (first day with 20+ recorded landed sessions)
+  all sessions             1465/1836   79.8% (77.9-81.6)
+  ventures                 408/515    79.2% (75.5-82.5)
+  research                 411/446    92.2% (89.3-94.3)
+  (version only)           260/265    98.1% (95.7-99.2)
+  (no Prompt-Version)        9/214     4.2% (2.2-7.8)
+  process                  138/148    93.2% (88.0-96.3)
+  redteam                  117/117   100.0% (96.8-100.0)
+  explore                   73/81     90.1% (81.7-94.9)
+  review                    49/50     98.0% (89.5-99.6)
+  (a session can carry several tracks' trailers, so track rows can overlap)
+  with Prompt-Version     1456/1622   89.8% (88.2-91.1)
+  without Prompt-Version     9/214     4.2% (2.2-7.8)
+
+== C. coverage by day of landed sessions (day  sessions  recorded%)
+  2026-10-13    162   59.9
+  2026-10-14    144   61.1
+  2026-10-15    338   81.7
+  2026-10-16    335   83.0
+  2026-10-17    285   83.5
+  2026-10-18    321   87.9
+  2026-10-19    251   82.1
+
+== D. records dated 2026-10-13 or later whose session has no Claude-Session trailer on main
+  outcome success     1/1381    0.1% (0.0-0.4)
+  outcome partial     0/89      0.0% (0.0-4.1)

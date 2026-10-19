@@ -302,6 +302,8 @@ test("hire what-if: an unfillable shift reports what one more person would cover
   assert.equal(r.hireTest.coveredHours, 4);
   assert.equal(r.hireTest.stillUnfilledHours, 0);
   assert.ok(Math.abs(r.hireTest.extraCost - 60) < 1e-6);
+  assert.equal(r.hireTest.windows.length, 1);
+  assert.match(r.hireTest.windows[0], /^Sat /);
 });
 
 test("hire what-if: absent when everything is covered", () => {
