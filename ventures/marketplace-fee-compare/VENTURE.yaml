@@ -3,7 +3,7 @@ description: A private browser comparison that takes one item once — price, la
 stage: prototype
 owner: duncan
 hypotheses:
-  - claim: Multi-channel sellers will use a one-item cross-channel comparison before opening any single-channel calculator, because the question they start with is "where do I list this" and no tool in the portfolio answers it.
+  - claim: Multi-channel sellers will use a one-item cross-channel comparison before opening any single-channel calculator, because the question they start with is "where do I list this" and the per-channel calculators each answer only their own channel. (The deeper where-to-sell-calculator also answers it, with returns and shelf time; this tool is the quick headline triage plus a bulk catalogue view, so the hypothesis is whether sellers start here or there.)
     status: untested
     checked: null
     evidence: customer-contact
