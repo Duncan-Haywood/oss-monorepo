@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01KhTfQUjtoMhfAgMw4fVxHx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T21:09:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Took >50s in a shallow clone; commit counts partial."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took the first Explore row's neighbours' gap (no self-host files) instead of building a new venture; docker daemon unavailable so image unbuilt, stated in READMEs."
+    }
+  ],
+  "goal": null,
+  "notes": "Added Docker/Fly/Render self-host files + deploy tests to seller-net-sheet and owner-operator-cpm-calculator. First draft of the test regex missed single-quoted imports (false pass); fixed and shown to fail when a module is dropped.",
+  "corrections": [],
+  "redteam": null
+}
