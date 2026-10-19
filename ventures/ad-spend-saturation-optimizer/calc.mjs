@@ -163,15 +163,38 @@ export function adstock(pts, lam) {
 
 // Pick the carry-over rate by small-sample AIC on the saturating curve. A
 // non-zero rate has to beat the best so far by more than 2 points.
+// Weeks flagged `skip` (promotions, stock-outs) still feed the carry-over
+// but are left out of every fit.
+export const kept = (pts) => pts.filter((p) => !p.skip);
 export function fitAdstock(pts, { enabled = true } = {}) {
-  if (!enabled || pts.length < 12) return { fit: fitBest(pts), lambda: 0, eff: pts };
-  let bestL = 0, bestA = fitCurve(pts, "exp").aicc;
+  if (!enabled || kept(pts).length < 12) return { fit: fitBest(kept(pts)), lambda: 0, eff: pts };
+  let bestL = 0, bestA = fitCurve(kept(pts), "exp").aicc;
   for (const lam of LAMBDAS.slice(1)) {
-    const a = fitCurve(adstock(pts, lam), "exp").aicc;
+    const a = fitCurve(kept(adstock(pts, lam)), "exp").aicc;
     if (a < bestA - 2) { bestA = a; bestL = lam; }
   }
   const eff = bestL ? adstock(pts, bestL) : pts;
-  return { fit: fitBest(eff), lambda: bestL, eff };
+  return { fit: fitBest(kept(eff)), lambda: bestL, eff };
+}
+
+// "2025-11-24..2025-12-07; 2025-12-26" -> [{ from, to }] in day numbers. A week
+// is left out when any day of it falls inside a range.
+export function parseSkipWeeks(text) {
+  const out = [], bad = [];
+  for (const part of String(text ?? "").split(/[;\n,]+/).map((x) => x.trim()).filter(Boolean)) {
+    const [a, b] = part.split(/\s*(?:\.\.|\bto\b|–|—)\s*/);
+    const from = parseDay(a), to = b === undefined ? from : parseDay(b);
+    if (Number.isNaN(from) || Number.isNaN(to) || to < from) bad.push(part); else out.push({ from, to });
+  }
+  return { ranges: out, bad };
+}
+export function applySkipWeeks(by, ranges) {
+  let n = 0;
+  if (!ranges || !ranges.length) return n;
+  for (const pts of by.values()) for (const p of pts) {
+    if (ranges.some((r) => p.week + 6 >= r.from && p.week <= r.to)) { p.skip = true; n++; }
+  }
+  return n;
 }
 
 // ---------- exact budget allocation (dynamic programme) ----------
@@ -309,7 +332,7 @@ export function weekly(rows) {
 const MIN_WEEKS = 8;
 const CURRENT_WEEKS = 8;
 
-function currentSpend(pts) { return mean(pts.slice(-CURRENT_WEEKS).map((p) => p.s)); }
+function currentSpend(pts) { const k = kept(pts); return mean((k.length >= 4 ? k : pts).slice(-CURRENT_WEEKS).map((p) => p.s)); }
 
 function bootstrapChannel(pts, fit, B, u) {
   const out = [];
@@ -328,18 +351,19 @@ function bootstrapChannel(pts, fit, B, u) {
 // spend that really happened, and compare with a constant-ROAS line.
 export function backtestChannel(pts, holdout, { adstock: useAds = true } = {}) {
   const rawTrain = pts.slice(0, pts.length - holdout);
-  if (rawTrain.length < MIN_WEEKS + 2 || holdout < 3) return null;
+  if (kept(rawTrain).length < MIN_WEEKS + 2 || holdout < 3) return null;
   const { fit, lambda } = fitAdstock(rawTrain, { enabled: useAds });
   const eff = adstock(pts, lambda);
-  const train = pts.slice(0, pts.length - holdout), test = pts.slice(-holdout);
+  const train = kept(pts.slice(0, pts.length - holdout)), test = pts.slice(-holdout);
   const effTest = eff.slice(-holdout);
   const roas = train.reduce((a, p) => a + p.r, 0) / (train.reduce((a, p) => a + p.s, 0) || 1);
   let actual = 0, pc = 0, pl = 0, ec = 0, el = 0;
   for (let i = 0; i < test.length; i++) {
+    if (test[i].skip) continue;
     const p = test[i], c = curveValue(fit, effTest[i].s), l = roas * p.s;
     actual += p.r; pc += c; pl += l; ec += Math.abs(c - p.r); el += Math.abs(l - p.r);
   }
-  return { weeks: test.length, actual, curve: pc, linear: pl, wapeCurve: ec / (actual || 1), wapeLinear: el / (actual || 1), model: fit.type, lambda };
+  return { weeks: kept(test).length, actual, curve: pc, linear: pl, wapeCurve: ec / (actual || 1), wapeLinear: el / (actual || 1), model: fit.type, lambda };
 }
 
 export function analyze(rows, opts = {}) {
@@ -350,6 +374,8 @@ export function analyze(rows, opts = {}) {
   const u = rng(seed);
   const by = weekly(rows);
   if (!by.size) return { error: "No usable rows." };
+  const skip = parseSkipWeeks(opts.skipWeeks);
+  const skipped = applySkipWeeks(by, skip.ranges);
 
   const allWeeks = [...by.values()].flat().map((p) => p.week);
   const firstWeek = Math.min(...allWeeks), lastWeek = Math.max(...allWeeks);
@@ -358,23 +384,24 @@ export function analyze(rows, opts = {}) {
   const channels = [];
   for (const [name, pts] of [...by.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
     const totalS = pts.reduce((a, p) => a + p.s, 0), totalR = pts.reduce((a, p) => a + p.r, 0);
+    const nKept = kept(pts).length;
     const cur = currentSpend(pts);
     const maxS = Math.max(...pts.map((p) => p.s));
     const ch = { name, pts, weeks: pts.length, totalSpend: totalS, totalRevenue: totalR, roas: totalS > 0 ? totalR / totalS : NaN, current: cur, maxSpend: maxS, modelled: false, reason: null };
-    const spends = pts.map((p) => p.s), ms = mean(spends);
+    const spends = kept(pts).map((p) => p.s), ms = mean(spends);
     ch.spendCv = ms > 0 ? Math.sqrt(mean(spends.map((x) => (x - ms) ** 2))) / ms : 0;
-    if (pts.length < MIN_WEEKS) ch.reason = `only ${pts.length} weeks of data (need ${MIN_WEEKS})`;
+    if (nKept < MIN_WEEKS) ch.reason = `only ${nKept} weeks of data${nKept < pts.length ? " after leaving out the weeks you listed" : ""} (need ${MIN_WEEKS})`;
     else if (totalS <= 0 || totalR <= 0) ch.reason = "no spend or no revenue";
     else if (new Set(spends.map((x) => Math.round(x * 100))).size < 4) ch.reason = "spend barely changed, so no curve can be fitted";
     else {
       ch.modelled = true;
       const ad = fitAdstock(pts, { enabled: opts.adstock !== false });
       ch.fit = ad.fit; ch.lambda = ad.lambda; ch.fitPts = ad.eff;
-      ch.maxSpend = Math.max(...ad.eff.map((p) => p.s), cur);
+      ch.maxSpend = Math.max(...kept(ad.eff).map((p) => p.s), cur);
       ch.mroas = marginal(ch.fit, cur);
       ch.fitted = curveValue(ch.fit, cur);
       ch.saturation = ch.fit.type === "exp" ? 1 - Math.exp(-cur / ch.fit.p[1]) : Math.pow(cur, ch.fit.p[2]) / (Math.pow(ch.fit.p[1], ch.fit.p[2]) + Math.pow(cur, ch.fit.p[2]));
-      ch.boot = bootstrapChannel(ch.fitPts, ch.fit, B, u);
+      ch.boot = bootstrapChannel(kept(ch.fitPts), ch.fit, B, u);
       const ms2 = ch.boot.filter(Boolean).map((f) => marginal(f, cur)).filter(Number.isFinite).sort((a, b) => a - b);
       ch.mroasLo = percentile(ms2, 0.1); ch.mroasHi = percentile(ms2, 0.9);
       ch.lowSpread = ch.spendCv < 0.15;
@@ -430,7 +457,7 @@ export function analyze(rows, opts = {}) {
 
   const summary = {
     channels: channels.length, modelled: modelled.length, weeks: spanWeeks, rows: rows.length,
-    firstWeek, lastWeek, margin, budget, fixedSpend, currentRevenue: curRev, recommendedRevenue: alloc.revenue,
+    firstWeek, lastWeek, skippedWeeks: skipped, skipBad: skip.bad, margin, budget, fixedSpend, currentRevenue: curRev, recommendedRevenue: alloc.revenue,
     gain, gainLo: percentile(gains, 0.1), gainMid: percentile(gains, 0.5), gainHi: percentile(gains, 0.9),
     pGain: gains.length ? gains.filter((g) => g > 0).length / gains.length : NaN, boots: gains.length,
     profitAtBudget, profitAtCurrent, breakevenRoas: 1 / margin, frontier: fr,

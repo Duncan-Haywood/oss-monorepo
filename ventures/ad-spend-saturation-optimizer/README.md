@@ -26,6 +26,7 @@ Daily rows are summed into Monday weeks. Amounts in one currency.
   tried (`e = (1 - r) spend + r e_previous`, so steady spend is unchanged) and kept only if it beats no carry-over
   by more than 2 on small-sample AIC. The curve is then fitted on the carried spend and read at steady weekly spend;
   weeks missing from the file count as zero spend. The back-test re-picks the rate on its training weeks only.
+- Promotion weeks: list date ranges in "Weeks to leave out" (`2025-11-24..2025-12-07; 2025-12-26`). Those weeks stay in the carry-over but are left out of the curve fit, the resamples, the "today's spend" average and the back-test score, so one Black Friday does not pull a channel's ceiling up (`parseSkipWeeks`, `kept` in `calc.mjs`). A channel left with under 8 weeks says so.
 - Marginal return at today's spend (mean of the last 8 weeks) is the curve's slope there.
 - Allocation: exact dynamic programme over the channels on a 400-step budget grid, so S-shaped curves are handled
   properly. Each channel is limited to 0.25x to 2x its current spend and never beyond 1.25x its highest week.
@@ -39,7 +40,7 @@ Daily rows are summed into Monday weeks. Amounts in one currency.
   optimum, a brute-force check on S-shaped curves, and a check that the recommended split beats the current one
   under the true curves.
 
-Not modelled: carry-over longer or shaped differently from a single geometric rate, seasonality, promotions and price changes, overlap or halo
+Not modelled: carry-over longer or shaped differently from a single geometric rate, seasonality and price changes (promotions only if you list the weeks), overlap or halo
 between channels, attribution error (revenue is whatever the file credits to each channel, often platform-reported
 and overstated), incrementality, and any channel with under 8 weeks or nearly constant spend (left where it is).
 The resample range covers noise in the fit, not a wrong curve shape. Unverified against a published marketing
