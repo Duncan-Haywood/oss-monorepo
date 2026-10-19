@@ -1,0 +1,48 @@
+== A. Stationary scores, no lockout: Fano factor of wake counts per window (100,000 frames; 2000 windows; calibrated to ~50 wakes a window)
+   phi  m  theta  stats
+  0.50  3  2.057    mean    50.55  var    54.58  fano 1.080  [1.014, 1.143]
+  0.90  1  3.124    mean    50.26  var    74.25  fano 1.477  [1.382, 1.566]
+  0.90  3  2.614    mean    50.79  var    60.25  fano 1.186  [1.116, 1.254]
+  0.90  5  2.298    mean    50.51  var    53.04  fano 1.050  [0.988, 1.115]
+  0.95  3  2.632    mean    50.31  var    73.61  fano 1.463  [1.371, 1.555]
+
+== B. Noise-scale drift between windows (scores multiplied by exp(sigma*z) per window), phi=0.9, thresholds from A
+   m  sigma  stats
+   1  0.00    mean    50.44  var    71.03  fano 1.408  [1.317, 1.495]
+   1  0.02    mean    51.53  var   173.40  fano 3.365  [3.148, 3.569]
+   1  0.05    mean    56.16  var   813.38  fano 14.483  [13.459, 15.484]
+   1  0.10    mean    71.86  var  4431.86  fano 61.673  [56.403, 67.356]
+   3  0.00    mean    51.22  var    58.04  fano 1.133  [1.060, 1.202]
+   3  0.02    mean    51.29  var   124.45  fano 2.426  [2.268, 2.584]
+   3  0.05    mean    53.24  var   503.02  fano 9.448  [8.766, 10.200]
+   3  0.10    mean    61.54  var  2346.96  fano 38.136  [34.878, 41.805]
+   5  0.00    mean    51.04  var    55.66  fano 1.090  [1.025, 1.162]
+   5  0.02    mean    51.37  var   110.04  fano 2.142  [2.011, 2.288]
+   5  0.05    mean    53.38  var   426.10  fano 7.982  [7.449, 8.618]
+   5  0.10    mean    60.71  var  1817.81  fano 29.941  [27.661, 32.660]
+
+== C. Lockout of L frames after a kept wake, m=3, phi=0.9, theta from A
+   sigma    L  stats
+   0.00    0    mean    50.92  var    61.13  fano 1.200  [1.123, 1.269]
+   0.00   10    mean    48.33  var    52.51  fano 1.086  [1.016, 1.156]
+   0.00   50    mean    46.16  var    45.31  fano 0.982  [0.916, 1.041]
+   0.00  200    mean    43.20  var    36.87  fano 0.854  [0.795, 0.909]
+   0.00 1000    mean    32.13  var    15.04  fano 0.468  [0.437, 0.498]
+   0.05    0    mean    53.97  var   530.89  fano 9.836  [9.095, 10.679]
+   0.05   10    mean    51.08  var   459.07  fano 8.987  [8.305, 9.768]
+   0.05   50    mean    48.44  var   377.28  fano 7.788  [7.234, 8.416]
+   0.05  200    mean    44.79  var   277.18  fano 6.188  [5.778, 6.632]
+   0.05 1000    mean    32.27  var    80.07  fano 2.481  [2.345, 2.626]
+
+== D. Does the window length matter? m=3, phi=0.9, theta from A, sigma=0.05 (drift per 100,000-frame window); sums of k consecutive windows
+   k  window_frames  stats
+   1       100,000    mean    53.70  var   509.29  fano 9.485  [8.897, 10.123]
+   4       400,000    mean   214.79  var  2039.84  fano 9.497  [8.283, 10.664]
+  16     1,600,000    mean   859.14  var  8433.01  fano 9.816  [7.496, 12.484]
+
+== E. Fano factor against drift sigma (from B)
+  sigma  m=1  m=3  m=5
+   0.00    1.41    1.13    1.09
+   0.02    3.36    2.43    2.14
+   0.05   14.48    9.45    7.98
+   0.10   61.67   38.14   29.94
