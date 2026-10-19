@@ -15,7 +15,7 @@ library ──scan──> catalog ──prefilter──> candidates ──score�
 | geo | Matches shots to a phone's GPS track (Apple Photos, an exported folder, GPX/CSV, Google Timeline) by time; suggests place labels for unlabelled days | code |
 | prefilter | Sharpness, exposure, dHash bursts, usable video stretches; on macOS a free Apple Vision pass (aesthetics, face capture quality incl. blinks in groups, feature prints for near-duplicates across cameras); intervalometer runs become one timelapse/stop-motion **sequence** | code, local, free |
 | score | Each candidate is scored 0-10 with a role, 9:16 and feed crop centres, the best stretch of a clip, a 360 view direction, or (for sequences) timelapse vs stop-motion, fps and frame range | Claude |
-| astro | Night-sky runs (night intervalometer sequences, and 3+ dark tripod frames close in time) with a long exposure are measured locally (exposure, stars, sky drift); Claude picks the outputs - a star-aligned **stack**, **star trails**, a **timelapse** or a **trail timelapse** - the frames to use and drop, the horizon, the foreground and the grade; code aligns the sky on the stars and stacks it with sigma clipping, holds the foreground still, and grades; a critic ships, revises (up to twice) or rejects each still | Claude + numpy |
+| astro | Night-sky runs (night intervalometer sequences, and 3+ dark tripod frames close in time) with a long exposure are measured locally (exposure, stars, sky drift); Claude picks the outputs - a star-aligned **stack**, **star trails**, a **timelapse** or a **trail timelapse** - the frames to use and drop, the horizon, the foreground and the grade; code snaps Claude's horizon to the real skyline, has [Siril](https://siril.org) register the sky on its stars (homography, so wide-lens corners line up) and stack it with winsorized rejection (a built-in aligner and sigma-clip stack when Siril is not installed, or `astro_stacker = "builtin"`), holds the foreground still, and grades; a critic ships, revises (up to twice) or rejects each still | Claude + numpy |
 | edit | A curator drops near-repeats per event; every frame >= 6.5 plus each event's best 15% get RAW edit settings and a feed shape (4:5, 1:1 or 1.91:1); RawTherapee renders; a checklist critic ships, revises (up to twice) or rejects | Claude + RawTherapee |
 | reels | Per event (thin consecutive days merge into one trip) ONE creative pass plans the main edit and the cut-downs derived from it: a long recap (60 s-3 min, per trip), a medium arc (30-60 s), several shorts (7-15 s) each with its own hook, and a B version of the first short for an A/B trial. Code holds each plan to the hard rules (beat grid, length band, the first second moves, every still moves, at most one bordered shot); each shot renders once as a cached segment, a transition director picks the cuts from measurements of them; automatic checks (`qc`) send a faulty draft straight back for a fix; a per-class critic ships it or revises up to three times; shipped reels are rendered final with a 3:4-safe cover, the rest wait in `reels/_needs-attention/<event>/` | Claude + ffmpeg |
 | tag | After every stage, XMP sidecars carry what was learned | code |
@@ -36,6 +36,7 @@ originals are never rewritten; edited exports carry the metadata embedded.
 ```bash
 brew install ffmpeg exiftool
 brew install --cask rawtherapee
+brew install siril          # optional: astro stacks are registered and stacked by Siril when present
 cd ventures/ig-media-pipeline
 uv venv && uv pip install -e '.[dev]'
 .venv/bin/igmp init        # writes ~/.config/igmp/config.toml - edit the paths
@@ -43,7 +44,8 @@ uv venv && uv pip install -e '.[dev]'
 ```
 
 Settings live in `~/.config/igmp/config.toml` (or `$IGMP_CONFIG`), outside this repository,
-because they name your drives. Outputs go to `output_dir`: `photos/<event>/`,
+because they name your drives. `state_dir` (default `<output_dir>/state`) moves the database and
+caches to a disk that stays connected, so a run survives an external drive dropping off. Outputs go to `output_dir`: `photos/<event>/`,
 `reels/<event>/<event>__<class>-NN.mp4` with a `.caption.txt` (the caption, then the
 track it was cut to) and a `.jpg` cover (reels of `review_events` wait in `reels/_review/<event>/` for your
 approval), `ready/index.jpg` + `index.csv` (everything shipped, as a posting queue of about three a

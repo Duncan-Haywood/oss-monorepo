@@ -37,6 +37,7 @@ photo_aspect = "4:5"    # or "3:4"
 # normalised for Instagram (-14 LUFS, -1 dBTP). "none": silent reels; add a sound in the app.
 # An empty or missing music_dir also means silent reels.
 music = "auto"
+# state_dir = "~/Library/Application Support/igmp/state"   # default: <output_dir>/state
 # music_dir = "/Volumes/PhotoDrive/IG/music"   # default: <output_dir>/music
 # Each track needs a sidecar licence record next to it, e.g. song.mp3.license.json:
 #   {"source": "...", "license": "CC0-1.0", "attribution": null, "url": "https://..."}
@@ -81,7 +82,10 @@ class Config:
 
     @property
     def state_dir(self) -> Path:
-        return self.output_dir / "state"
+        """Database, previews and caches. Setting `state_dir` keeps them on a disk that stays
+        connected (the Mac's own) while outputs go to an external drive that may drop off."""
+        s = (self.extra or {}).get("state_dir")
+        return Path(s).expanduser() if s else self.output_dir / "state"
 
     @property
     def db_path(self) -> Path:

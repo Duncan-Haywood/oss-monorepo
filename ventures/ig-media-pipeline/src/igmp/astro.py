@@ -67,6 +67,7 @@ from PIL import Image, ImageDraw, ImageOps
 from pydantic import BaseModel, Field
 
 from . import astro_core as core
+from . import astro_siril
 from . import media
 from .catalog import asset_id
 from .config import Config
@@ -405,16 +406,26 @@ def _layers_path(group: AstroGroup, cfg: Config, mode: str, idx: list[int], edge
     return cfg.state_dir / "astro" / group.id / f"{key}.npz"
 
 
+def stack_engine(cfg: Config) -> str:
+    """"siril" when siril-cli is installed (and astro_stacker is not "builtin"), else "builtin"."""
+    return "siril" if astro_siril.cli(cfg) else "builtin"
+
+
 def sky_layers(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config, mode: str,
-               edge: int) -> tuple[np.ndarray, np.ndarray]:
-    """(sky, foreground) linear float32 layers for `mode` in ("stack", "star-trails"), cached."""
+               edge: int, engine: str | None = None) -> tuple[np.ndarray, np.ndarray, str]:
+    """(sky, foreground, engine) linear float32 layers for `mode` in ("stack", "star-trails"),
+    cached. A stack's sky comes from Siril when it is installed, else - or when Siril cannot
+    register the frames - from the built-in aligner; `engine` says which made it."""
     idx = chosen(plan, len(members))
     if mode == "stack":
         idx = _even(idx, int(cfg.extra.get("astro_max_stack", MAX_STACK)))
-    path = _layers_path(group, cfg, mode, idx, edge)
+        engine = engine or stack_engine(cfg)
+    else:
+        engine = "builtin"
+    path = _layers_path(group, cfg, f"{mode}-{engine}" if mode == "stack" else mode, idx, edge)
     if path.exists():
         z = np.load(path)
-        return z["sky"].astype(np.float32), z["fg"].astype(np.float32)
+        return z["sky"].astype(np.float32), z["fg"].astype(np.float32), str(z["engine"]) if "engine" in z else engine
     frames = [load_linear(members[i], edge) for i in idx]
     shape = min(f.shape for f in frames)
     frames = [f[:shape[0], :shape[1]] for f in frames]
@@ -423,22 +434,19 @@ def sky_layers(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Co
     ref_ratio = core.colour_ratio(frames[len(frames) // 2], rough_sky)
     frames = [core.match_colour(f, ref_ratio, rough_sky) for f in frames]
     if mode == "stack":
-        ref = frames[len(frames) // 2]
-        sky_mask = core.horizon_mask([(p.x, p.y) for p in plan.horizon], ref.shape[:2])
-        ref_stars = core.find_stars(core.luminance(ref), mask=sky_mask)
-        warped, cover = [], []
-        for i, f in zip(idx, frames):
-            if f is ref:
-                warped.append(f)
-                cover.append(np.ones(f.shape[:2], np.float32))
-                continue
-            fit = core.estimate_transform(ref_stars, core.find_stars(core.luminance(f), mask=sky_mask))
-            if fit is None:
-                log.info("astro %s: frame %d did not align; left out of the sky", group.id, i)
-                continue
-            warped.append(core.warp(f, fit[0]))
-            cover.append(core.warp(np.ones(f.shape[:2], np.float32), fit[0]))
-        sky = _clip_strips(warped, cover)
+        r = len(frames) // 2
+        ref = frames[r]
+        sky_mask = core.horizon_mask(skyline(plan, ref), ref.shape[:2]) if plan.horizon \
+            else np.ones(ref.shape[:2], bool)
+        sky = None
+        if engine == "siril":
+            try:
+                sky = astro_siril.stack(frames, sky_mask, r, cfg)
+            except (astro_siril.SirilError, subprocess.TimeoutExpired, OSError) as e:
+                log.warning("astro %s: siril could not stack (%s); using the built-in stacker", group.id, e)
+                engine = "builtin"
+        if sky is None:
+            sky = _builtin_stack(group, idx, frames, ref, sky_mask)
     else:      # star trails: the median sky plus the brightest star signal each pixel ever had
         sky_mask = core.horizon_mask([(p.x, p.y) for p in plan.horizon], frames[0].shape[:2])
         trails = None
@@ -448,9 +456,29 @@ def sky_layers(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Co
         sky = _strip_apply(_median, frames) + trails
     fg = frames[min(max((plan.foreground_frame or 0) - idx[0], 0), len(frames) - 1)] \
         if plan.foreground == "frame" else _strip_apply(_median, frames)
+    if mode == "stack":          # a fallback is cached as what it is, so Siril is asked again next time
+        path = _layers_path(group, cfg, f"{mode}-{engine}", idx, edge)
     path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez(path, sky=sky.astype(np.float16), fg=fg.astype(np.float16))
-    return sky, fg
+    np.savez(path, sky=sky.astype(np.float16), fg=fg.astype(np.float16), engine=np.array(engine))
+    return sky, fg, engine
+
+
+def _builtin_stack(group: AstroGroup, idx: list[int], frames: list[np.ndarray], ref: np.ndarray,
+                   sky_mask: np.ndarray) -> np.ndarray:
+    ref_stars = core.find_stars(core.luminance(ref), mask=sky_mask)
+    warped, cover = [], []
+    for i, f in zip(idx, frames):
+        if f is ref:
+            warped.append(f)
+            cover.append(np.ones(f.shape[:2], np.float32))
+            continue
+        fit = core.estimate_transform(ref_stars, core.find_stars(core.luminance(f), mask=sky_mask))
+        if fit is None:
+            log.info("astro %s: frame %d did not align; left out of the sky", group.id, i)
+            continue
+        warped.append(core.warp(f, fit[0]))
+        cover.append(core.warp(np.ones(f.shape[:2], np.float32), fit[0]))
+    return _clip_strips(warped, cover)
 
 
 def _clip_strips(frames: list[np.ndarray], cover: list[np.ndarray], rows: int = 128) -> np.ndarray:
@@ -533,17 +561,18 @@ def out_dir(group: AstroGroup, cfg: Config) -> Path:
     return cfg.output_dir / "photos" / group.event_key / "astro"
 
 
-def render_still(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config, mode: str) -> dict:
+def render_still(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config, mode: str,
+                 engine: str | None = None, suffix: str = "") -> dict:
     edge = int(cfg.extra.get("astro_long_edge", WORK_LONG_EDGE))
-    sky, fg = sky_layers(group, members, plan, cfg, mode, edge)
+    sky, fg, engine = sky_layers(group, members, plan, cfg, mode, edge, engine)
     lin, alpha = composite(sky, fg, plan, skyline(plan, fg))
     im = _to_image(grade(lin, plan.grade, alpha))
     d = out_dir(group, cfg)
     d.mkdir(parents=True, exist_ok=True)
-    full, ig = d / f"{group.id}__{mode}.jpg", d / f"{group.id}__{mode}.ig.jpg"
+    full, ig = d / f"{group.id}__{mode}{suffix}.jpg", d / f"{group.id}__{mode}{suffix}.ig.jpg"
     im.save(full, quality=95)
     _crop(im, FEED_SIZE, plan.feed_focus).save(ig, quality=95)
-    return {"full": str(full), "ig": str(ig)}
+    return {"full": str(full), "ig": str(ig), "engine": engine}
 
 
 def _plan_tag(plan: AstroPlan) -> str:
