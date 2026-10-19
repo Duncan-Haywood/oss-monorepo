@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyze, parseStays, importI94, summarize, maxSafeDays, meets, weighted, toDay, SAMPLE, SAMPLE_OPTIONS } from "./engine.mjs";
+import { outlook, latestDeparture, STEADY_DAYS, analyze, parseStays, importI94, summarize, maxSafeDays, meets, weighted, toDay, SAMPLE, SAMPLE_OPTIONS } from "./engine.mjs";
 
 const run = (stays, o = {}) => analyze({ stays, asOf: "2025-12-31", year: 2025, ...o });
 
@@ -113,4 +113,35 @@ test("I-94 travel history pairs arrivals and departures into stays", () => {
   assert.deepEqual(r.lines, ["2024-03-04 to 2024-06-28", "2025-03-01 to present"]);
   assert.equal(r.notes.length, 1); // the Jan 2025 departure has no arrival
   assert.equal(analyze({ stays: r.lines.join("\n"), asOf: "2025-06-15", year: 2025 }).errors.length, 0);
+});
+
+test("steady state: 121 a year stays under forever, 122 does not", () => {
+  assert.equal(STEADY_DAYS, 121);
+  assert.equal(meets(121, 121, 121), false);
+  assert.equal(meets(122, 122, 122), true);
+});
+
+test("outlook chains each year's maximum into the next", () => {
+  const o = outlook(91, 120);
+  assert.equal(o[0].max, maxSafeDays(91, 120));
+  assert.equal(o[1].max, maxSafeDays(o[0].max, 91));
+  assert.equal(o[2].max, maxSafeDays(o[1].max, o[0].max));
+  assert.equal(outlook(121, 121)[2].max, 121);
+  for (const r of outlook(91, 120)) assert.ok(r.max >= 30 && r.max <= 182);
+});
+
+test("latest departure is start plus room left minus one, and stops at year end", () => {
+  assert.deepEqual(latestDeparture("2025-03-01", 10, 2025), { last: Date.UTC(2025, 2, 10) / 86400000 });
+  assert.deepEqual(latestDeparture("2025-12-20", 40, 2025), { yearEnd: true });
+  assert.deepEqual(latestDeparture("2025-03-01", 0, 2025), { none: true });
+  assert.ok(latestDeparture("2026-03-01", 10, 2025).error);
+  assert.ok(latestDeparture("nope", 10, 2025).error);
+});
+
+test("analyze reports the latest departure and it keeps the total under the test", () => {
+  const r = analyze({ stays: SAMPLE, ...SAMPLE_OPTIONS, tripStart: "2025-07-01" });
+  assert.ok(r.trip.last);
+  const days = r.cur.days + (r.trip.last - Date.UTC(2025, 6, 1) / 86400000 + 1);
+  assert.equal(meets(days, r.p1.days, r.p2.days), false);
+  assert.equal(meets(days + 1, r.p1.days, r.p2.days), true);
 });

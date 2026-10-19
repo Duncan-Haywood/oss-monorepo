@@ -78,6 +78,32 @@ export function maxSafeDays(p1, p2) {
   return Math.max(DAYS_CURRENT_MIN - 1, byWeight);
 }
 
+// If you spend the most days allowed each year, what the next years allow. STEADY_DAYS is the most days a year
+// you can repeat forever (9c < 1098 per the sixths test, so 121).
+export const STEADY_DAYS = Math.floor((SIXTHS_MIN - 1) / 9);
+export function outlook(c, p1, years = 3) {
+  const rows = [];
+  let a = c, b = p1;
+  for (let i = 1; i <= years; i++) {
+    const max = maxSafeDays(a, b);
+    rows.push({ offset: i, max });
+    b = a; a = max;
+  }
+  return rows;
+}
+
+// Last day you can be in the US on a trip that starts on `start` and stay under the test this year, assuming one
+// unbroken stay and that the dated stays already entered stay as they are.
+export function latestDeparture(start, roomLeft, year) {
+  const s = toDay(start);
+  if (Number.isNaN(s)) return { error: "The trip start must be YYYY-MM-DD." };
+  if (yearOf(s) !== year) return { error: `The trip must start in ${year}.` };
+  if (roomLeft <= 0) return { none: true };
+  const last = s + roomLeft - 1;
+  if (yearOf(last) !== year) return { yearEnd: true };
+  return { last };
+}
+
 export function analyze(input = {}) {
   const asOf = input.asOf || new Date().toISOString().slice(0, 10);
   if (Number.isNaN(toDay(asOf))) throw new Error("The as-of date must be YYYY-MM-DD.");
@@ -130,6 +156,9 @@ export function analyze(input = {}) {
   const nextYear = { sixths: sixthsOf(0, cur.days, p1.days) };
   const nextRoom = maxSafeDays(cur.days, p1.days);
 
+  const tripStart = input.tripStart ? String(input.tripStart).trim() : null;
+  const trip = tripStart ? latestDeparture(tripStart, roomLeft, year) : null;
+
   if (resident && cur.days < WEIGHTED_MIN) warnings.push(`You meet the test but were here fewer than ${WEIGHTED_MIN} days in ${year}: the closer connection exception (Form 8840) may apply if your tax home and closer connection were to a foreign country. It is claimed, not automatic.`);
   if (!resident && (cur.exempt || p1.exempt || p2.exempt)) warnings.push("Exempt days are left out of every count. They are only exempt if you really were an exempt individual; check Pub. 519 and Form 8843.");
   if (resident && firstDay) warnings.push(`If you meet the test, your US residency generally starts on the first day you were present in ${year}${firstDay ? ` (${fromDay(firstDay)})` : ""}; up to 10 days of nominal presence can be ignored if you have a closer connection to a foreign country in that period.`);
@@ -138,7 +167,8 @@ export function analyze(input = {}) {
     asOf, year, planned, errors, warnings, stays, cur, p1, p2,
     sixths, weighted: w, meetsCurrent, meetsWeighted, resident,
     safeMax, roomLeft, over, crossing, firstDay,
-    withPlanned, plannedMeets, nextRoom,
+    withPlanned, plannedMeets, nextRoom, tripStart, trip,
+    outlook: outlook(cur.days, p1.days),
     parts: { c: cur.days, p1: p1.days / 3, p2: p2.days / 6 },
   };
 }
@@ -156,6 +186,10 @@ export function summarize(r) {
   if (!r.resident) lines.push(`You can be in the US ${r.roomLeft} more day${r.roomLeft === 1 ? "" : "s"} in ${r.year} (${r.safeMax} in all) and still stay under the test.`);
   else if (r.over > 0) lines.push(`You are ${r.over} day${r.over === 1 ? "" : "s"} past the most you could spend in ${r.year} (${r.safeMax}) and stay under the test.`);
   if (r.planned > 0) lines.push(`Adding a planned ${r.planned} day${r.planned === 1 ? "" : "s"} makes ${r.withPlanned} in ${r.year}: ${r.plannedMeets ? "that meets the test" : "that stays under the test"}.`);
+  if (r.trip && r.trip.error) lines.push(r.trip.error);
+  else if (r.trip && r.trip.last) lines.push(`A trip starting ${r.tripStart} can run to ${fromDay(r.trip.last)} and keep you under the test.`);
+  else if (r.trip && r.trip.yearEnd) lines.push(`A trip starting ${r.tripStart} can run to the end of ${r.year} and keep you under the test.`);
+  else if (r.trip && r.trip.none) lines.push(`There is no room left in ${r.year} for another day.`);
   return { status: r.resident ? "meets" : "under", text: lines.join("\n") };
 }
 
