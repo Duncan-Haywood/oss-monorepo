@@ -614,7 +614,7 @@ export const SERVABLE_NAMES = new Set(['LICENSE']);
  * `<link rel="...">` values `injectMirrorTags` removes from every mirrored
  * page, and which `validateLinks` therefore must not hold a venture to.
  *
- * These three are the mirror's own to set, not the venture's:
+ * These are the mirror's own to set, not the venture's:
  *
  * - `canonical` — the mirror points every page at its `tools.marisstella.dev`
  *   URL, which is the whole basis of the "invisible to crawlers" argument in
@@ -626,6 +626,12 @@ export const SERVABLE_NAMES = new Set(['LICENSE']);
  *   mirrored page the link is dead; and pointing a crawler at another host's
  *   sitemap from a page this mirror deliberately marks `noindex` argues
  *   against itself.
+ * - `manifest` and `apple-touch-icon` — an installable-app manifest and its
+ *   home-screen icon (bid-price-engine, 2026-10-19). The mirror serves neither
+ *   file (`.webmanifest` and `.png` are not in `SERVABLE_EXTENSIONS`), and an
+ *   install offer belongs to the host the app is published on. Policed, the
+ *   one dead `manifest.webmanifest` dropped bid-price-engine, and with it
+ *   every trade tool that links to it: the mirror fell from 1,297 to 105.
  *
  * Both call sites derive from this one set. They were independent before, and
  * the drift was not cosmetic: `injectMirrorTags` stripped a tag `validateLinks`
@@ -633,7 +639,7 @@ export const SERVABLE_NAMES = new Set(['LICENSE']);
  * that would never have reached a browser. A `<link>` whose target the mirror
  * removes is not a broken link — it is a link that does not exist.
  */
-export const STRIPPED_LINK_RELS = ['canonical', 'icon', 'sitemap'];
+export const STRIPPED_LINK_RELS = ['canonical', 'icon', 'sitemap', 'manifest', 'apple-touch-icon'];
 
 /** One `<link>` element carrying any rel in `STRIPPED_LINK_RELS`. */
 const STRIPPED_LINK = new RegExp(
