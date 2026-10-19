@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { run, parseYears, SAMPLE, step } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "form-7203-basis-order.html", "s-corp-distributions-over-basis.html"];
+const PAGES = ["index.html", "form-7203-basis-order.html", "s-corp-distributions-over-basis.html", "s-corp-suspended-losses.html"];
 
 test("every page carries the no-warranty clause; the app also has privacy, independence and sponsor lines", () => {
   for (const n of PAGES) assert.match(page(n), /No warranty/, n);
@@ -82,6 +82,20 @@ test("the distribution guide's three cases are recomputed", () => {
   assert.equal(c2.lines.excessDistributions, 0); assert.equal(c2.close.stock, 5000); assert.ok(html.includes("basis ends at $5,000"));
   const c3 = step(open, { ...z, distributions: 10000, losses: 5000 });
   assert.equal(c3.close.suspended, 5000); assert.ok(html.includes("$5,000 loss is suspended"));
+});
+
+test("the suspended-loss guide's three years are recomputed", () => {
+  const z = { year: 2024, contributions: 0, loansMade: 0, loansRepaid: 0, income: 0, taxExempt: 0, distributions: 0, nondeductible: 0, losses: 0 };
+  const html = page("s-corp-suspended-losses.html");
+  const y1 = step({ stock: 20000, debtBasis: 0, debtFace: 0, suspended: 0, ndCarry: 0 }, { ...z, loansMade: 10000, losses: 40000 });
+  assert.equal(y1.deductedLosses, 30000); assert.equal(y1.close.suspended, 10000); assert.equal(y1.close.debtBasis, 0);
+  assert.ok(html.includes("you deduct $30,000") && html.includes("$10,000 is suspended"));
+  const y2 = step(y1.close, { ...z, year: 2025, income: 4000 });
+  assert.equal(y2.close.suspended, 6000); assert.equal(y2.close.debtBasis, 0);
+  assert.ok(html.includes("$6,000 is still suspended"));
+  const y3 = step(y2.close, { ...z, year: 2026, loansRepaid: 10000 });
+  assert.equal(y3.lines.repaymentGain, 10000); assert.equal(y3.close.suspended, 6000);
+  assert.ok(html.includes("$10,000 of gain"));
 });
 
 test("the year-end planner is on the page and its event is disclosed", async () => {
