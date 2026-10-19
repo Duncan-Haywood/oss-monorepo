@@ -1,0 +1,23 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# Starter plan on purpose: the free plan has no disk, so proposals would vanish on restart.
+# Render generates ADMIN_KEY; read it in the service's Environment tab, then open https://<service>.onrender.com/admin?key=<ADMIN_KEY>.
+services:
+  - type: web
+    name: estimate-hub
+    runtime: docker
+    dockerContext: ventures/trade-bid-studio
+    dockerfilePath: ventures/trade-bid-studio/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: PAYMENT_LINK_URL
+        sync: false

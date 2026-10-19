@@ -185,3 +185,11 @@ test("the import page names every exchange format the importer reads", async () 
   const html = page("import-coinbase-kraken-binance-csv-crypto-taxes.html");
   for (const [k, label] of Object.entries(FORMAT_LABELS)) if (k !== "generic") assert.ok(html.includes(label.split(" (")[0]), label);
 });
+
+test("the page wires the Form 1099-DA check to the same functions the CLI uses", () => {
+  const html = page("index.html");
+  assert.match(html, /import \{[^}]*parse1099da[^}]*reconcile1099da[^}]*\} from "\.\/calc\.mjs"/);
+  for (const id of ["da-text", "da-run", "da-out"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /record\("reconcile_1099da_run"\)/);
+  assert.ok(!/fetch\(|XMLHttpRequest|sendBeacon/.test(html), "no network calls");
+});
