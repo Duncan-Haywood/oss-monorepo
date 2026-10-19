@@ -3445,6 +3445,18 @@
     "slug": "energy-density",
     "title": "How much energy can each storage technology hold per kilogram, at the most?",
     "summary": "Theoretical ceilings from first principles for batteries, hydrogen, flywheels, pumped hydro and heat, reproducing five published values to within 0.3% (lead-acid 170, Zn-air 1,086, Li-S 2,567, Li-O<sub>2</sub> 3,458 Wh/kg; Al-air 8,100 on Al). No battery couple releases more than 1.65 eV per reactant atom, so the spread comes from atomic mass: Wh/kg = 26,801 &times; eV per atom / mean g/mol. A carbon-fibre flywheel holds at most 756 Wh/kg (0.34 eV per atom), sand at 500 &deg;C 107 Wh/kg of heat (41% recoverable as electricity) and water lifted 300 m 0.82 Wh/kg. Ceilings for the active material only, with some voltages and material properties assumed."
+    }
+   ]
+  },
+  {
+  "id": "society",
+  "name": "Robot societies among people",
+  "blurb": "Simulated societies of AI-driven robots living among simulated people: the conventions that emerge, who sets them, what they cost people, and watchable episodes made from seeded runs.",
+  "projects": [
+   {
+    "slug": "society-robotnorms",
+    "title": "How many robots does it take to change how a crowd walks?",
+    "summary": "Robots as a committed minority in a passing-side convention. Simulated people take the side most of their last <em>M</em> partners used; robots hold a programmed side. The tipping share grows with memory: 16%, 22%, 28% and 32% of the crowd for <em>M</em>&nbsp;=&nbsp;5, 9, 17 and 25, within 0.02 of a mean-field prediction. Just below it, robots that hold their side make people collide up to 14&times; as often as robots that adapt (0.27 vs 0.020 conflicts per meeting). When people meet only neighbours, evenly spread robots tip everyone from 12&ndash;14%, while one block of robots converts under 10% of people even at half the crowd. Stylised: one binary choice per meeting, no geometry."
    }
   ]
  }
