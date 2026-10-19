@@ -44,10 +44,11 @@ export const CATEGORY_PRESETS = {
   home: { label: "Home & kitchen", amazon: 15, walmart: 15 },
   toys: { label: "Toys & games", amazon: 15, walmart: 15 },
   sports: { label: "Sports & outdoors", amazon: 15, walmart: 15 },
-  // The two below exist so a specialist channel (specialists.mjs) can apply;
+  // The three below exist so a specialist channel (specialists.mjs) can apply;
   // the general-channel rates are the same 15% as "Everything else".
   music_gear: { label: "Musical instruments & gear", amazon: 15, walmart: 15 },
   trading_cards: { label: "Trading cards & collectibles", amazon: 15, walmart: 15 },
+  records_media: { label: "Records, CDs & music media", amazon: 15, walmart: 15 },
 };
 
 export const CATEGORY_IDS = Object.freeze(Object.keys(CATEGORY_PRESETS));
