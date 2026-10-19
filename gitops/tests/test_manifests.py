@@ -3086,7 +3086,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
     # +1: `s-corp-basis-tracker` graduated (browser S corporation stock and debt basis roll-forward in Form 7203 order, suspended losses and excess distributions).
     # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
-    total = 1290  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1290 tools" wording.
+    total = 1291  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1291 tools" wording.
     # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
     # +1: `actions-schedule-check` graduated (browser + CLI lint of GitHub Actions schedule crons: invalid, faster than 5 minutes, minute 0).
     # +1: `liability-audit` graduated (zero-dependency repository scanner for legal and financial exposure: consent, auto-renewal, disclosures, leaked keys, open LLM endpoints, cloud budgets; CLI, SARIF, monorepo sweep, browser page, agent playbook).
@@ -3121,6 +3121,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `survey-keeper` reached the mirror (it landed on main without its count bump; counted by sync_tree_counts.py while merging main into #7632).
     # +1: a venture landed on main without its count bump (counted by sync_tree_counts.py while merging main into #7987).
     # +1: `review-reply-desk` graduated (browser local-business review reply writer: rating-aware replies, risky-review triage, health-privacy-safe mode, reply checker, optional own-key AI).
+    # +1: `bid-price-engine` graduated (one job-pricing engine for 120+ trades; the consolidated bid calculator).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
