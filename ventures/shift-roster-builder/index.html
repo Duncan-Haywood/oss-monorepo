@@ -377,7 +377,7 @@
         return `<tr><td>${esc(p.name)}</td><td class="n">${p.shifts}</td><td class="n">${num(p.hours)}</td><td class="n">${num(p.otHours)}</td><td class="n">${money(p.cost)}</td><td>${note}</td></tr>`;
       }).join("");
       $("#hire-box").innerHTML = r.hireTest
-        ? `<p class="note"><strong>Would one more person fix it?</strong> Adding someone free at any time (${num(r.hireTest.maxHours)} h a week, at the average wage of ${money2(r.hireTest.wage)}) would cover ${num(r.hireTest.coveredHours)} of the uncovered hours${r.hireTest.stillUnfilledHours > 0.01 ? ` and leave ${num(r.hireTest.stillUnfilledHours)} still open` : ""}, adding about ${money(r.hireTest.extraCost)} of payroll. A what-if only; it is not added to your list.</p>`
+        ? `<p class="note"><strong>Would one more person fix it?</strong> Adding someone free at any time (${num(r.hireTest.maxHours)} h a week, at the average wage of ${money2(r.hireTest.wage)}) would cover ${num(r.hireTest.coveredHours)} of the uncovered hours${r.hireTest.stillUnfilledHours > 0.01 ? ` and leave ${num(r.hireTest.stillUnfilledHours)} still open` : ""}, adding about ${money(r.hireTest.extraCost)} of payroll.${r.hireTest.windows && r.hireTest.windows.length ? ` The hire would work: ${r.hireTest.windows.join("; ")}. That is the availability to ask for in the job post.` : ""} A what-if only; it is not added to your list.</p>`
         : "";
       $("#critical").innerHTML = r.critical.length
         ? `<div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours left uncovered without them</th></tr></thead><tbody>${r.critical.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${num(c.extraUnfilledHours)}</td></tr>`).join("")}</tbody></table></div>`

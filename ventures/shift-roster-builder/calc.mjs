@@ -762,7 +762,10 @@ export function buildRoster(staff, slots, options = {}) {
     const hctx = buildContext([...staff, extra], slots, { ...o, restarts: 1, iterations: Math.max(5000, ctx.S * 40) });
     const hres = summarise(hctx, search(hctx, 1, Math.max(5000, ctx.S * 40)).owner);
     const covered = res.unfilledHours - hres.unfilledHours;
-    if (covered > 1e-9) hireTest = { wage, maxHours, coveredHours: covered, stillUnfilledHours: hres.unfilledHours, extraCost: hres.cost - res.cost };
+    // The shifts that hire takes, as a posting line: the availability the job actually needs.
+    const windows = (hres.lists[staff.length] || []).map((i) => slots[i]).sort((a, b) => a.day - b.day || a.startMin - b.startMin)
+      .map((s) => `${DAYS[s.day]} ${fmtClock(s.startMin)}–${fmtClock(s.endMin)}${s.role ? " [" + s.role + "]" : ""}`);
+    if (covered > 1e-9) hireTest = { wage, maxHours, coveredHours: covered, stillUnfilledHours: hres.unfilledHours, extraCost: hres.cost - res.cost, windows };
   }
 
   const warnings = [];
