@@ -1,0 +1,76 @@
+# osrobot-scoutpair results: 60 x 30 m field, 30 seeds per row (fields and random draws shared across rows)
+# Reference: weeds 0.3/m2 clustered, 20% muddy blocks. Ground robot: p_max 0.7 inline at v=1.0; as treater v_tour=1.5.
+# Scout: 3 m swath, p_max 0.6, 0.01 false positives/m2, 150 W. ground = treater minutes; fly = scout minutes; total = ground + fly (no overlap).
+
+# Sweep 1: one platform against two, scout v=5 m/s
+                                 kill  ground    fly   total     Wh  treats
+inline v=1.0                    0.401    51.7    0.0    51.7    189     231
+pair plan=euclid                0.049     5.2    2.4     7.7     34      45
+pair plan=mud                   0.049     5.2    2.4     7.6     33      45
+
+# Sweep 2: scout speed (mud-aware tour)
+                                 kill  ground    fly   total     Wh  treats
+pair scout v=1.0                0.343    15.8   10.8    26.6    117     201
+pair scout v=2.0                0.210    11.2    5.6    16.8     77     130
+pair scout v=3.0                0.128     8.2    3.8    12.1     55      87
+pair scout v=5.0                0.049     5.2    2.4     7.6     33      45
+pair scout v=8.0                0.011     3.4    1.6     5.0     21      24
+pair scout v=12.0               0.002     3.0    1.2     4.2     18      19
+
+# Sweep 3: scout detection p_max at v=5 (mud-aware tour)
+                                 kill  ground    fly   total     Wh  treats
+pair scout p_max=0.3            0.023     4.0    2.4     6.4     27      31
+pair scout p_max=0.45           0.036     4.6    2.4     7.0     30      38
+pair scout p_max=0.6            0.049     5.2    2.4     7.6     33      45
+pair scout p_max=0.8            0.064     5.8    2.4     8.2     37      53
+pair scout p_max=0.95           0.076     6.2    2.4     8.6     39      59
+
+# Sweep 4: weed density, inline against pair (scout v=5, mud-aware)
+                                 kill  ground    fly   total     Wh  treats
+inline d=0.05                   0.411    41.8    0.0    41.8    133      54
+pair d=0.05                     0.055     3.3    2.4     5.8     23      23
+inline d=0.15                   0.399    46.2    0.0    46.2    157     124
+pair d=0.15                     0.051     4.1    2.4     6.5     27      31
+inline d=0.3                    0.401    51.7    0.0    51.7    189     231
+pair d=0.3                      0.049     5.2    2.4     7.6     33      45
+inline d=0.6                    0.403    64.6    0.0    64.6    261     447
+pair d=0.6                      0.049     7.3    2.4     9.7     45      70
+inline d=1.2                    0.405    90.0    0.0    90.0    404     880
+pair d=1.2                      0.047    10.8    2.4    13.2     66     119
+
+# Sweep 5: mud share, inline against pair (scout v=5), euclid then mud-aware tour
+                                 kill  ground    fly   total     Wh  treats
+inline mud=0.0                  0.401    46.0    0.0    46.0    165     231
+pair euclid mud=0.0             0.049     4.8    2.4     7.2     31      45
+pair mud-aware mud=0.0          0.049     4.8    2.4     7.2     31      45
+inline mud=0.2                  0.401    51.7    0.0    51.7    189     231
+pair euclid mud=0.2             0.049     5.2    2.4     7.7     34      45
+pair mud-aware mud=0.2          0.049     5.2    2.4     7.6     33      45
+inline mud=0.5                  0.401    61.2    0.0    61.2    228     231
+pair euclid mud=0.5             0.049     6.0    2.4     8.5     38      45
+pair mud-aware mud=0.5          0.049     5.9    2.4     8.4     38      45
+inline mud=0.8                  0.401    70.6    0.0    70.6    266     231
+pair euclid mud=0.8             0.049     6.8    2.4     9.3     43      45
+pair mud-aware mud=0.8          0.049     6.7    2.4     9.2     43      45
+
+# Sweep 6: the one-platform frontier, inline speed (no scout), for matching kill against sweep 2
+                                 kill  ground    fly   total     Wh  treats
+inline v=0.5                    0.517    91.6    0.0    91.6    228     293
+inline v=1.0                    0.401    51.7    0.0    51.7    189     231
+inline v=1.5                    0.313    37.0    0.0    37.0    168     185
+inline v=2.0                    0.244    28.7    0.0    28.7    153     148
+inline v=3.0                    0.152    19.9    0.0    19.9    134     100
+
+# Sweep 7: scout swath (m) at scout v=1.0, mud-aware tour; the 3 m rows are sweep 2's v=1.0 row
+                                 kill  ground    fly   total     Wh  treats
+pair swath=1.0                  0.343    15.8   31.5    47.3    169     202
+pair swath=2.0                  0.345    15.7   16.0    31.7    130     200
+pair swath=3.0                  0.343    15.8   10.8    26.6    117     201
+pair swath=4.0                  0.343    15.7    8.8    24.5    112     200
+pair swath=6.0                  0.343    15.7    5.6    21.3    104     200
+
+# Sweep 8: scout speed at 1 m swath (same swath as the ground robot), mud-aware tour
+                                 kill  ground    fly   total     Wh  treats
+pair swath=1 v=0.5              0.442    19.2   62.0    81.2    266     256
+pair swath=1 v=1.0              0.343    15.8   31.5    47.3    169     202
+pair swath=1 v=2.0              0.210    11.3   16.2    27.6    104     132
