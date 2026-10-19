@@ -120,6 +120,20 @@ class Main(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("does not exist", err.getvalue())
 
+    def test_no_argument_defaults_to_ventures(self):
+        import os
+        cwd = os.getcwd()
+        with tempfile.TemporaryDirectory() as d:
+            os.chdir(d)
+            try:
+                err = io.StringIO()
+                with contextlib.redirect_stderr(err):
+                    code = main(["check_step_grid.py"])
+            finally:
+                os.chdir(cwd)
+        self.assertEqual(code, 2)
+        self.assertIn("ventures does not exist", err.getvalue())
+
 
 class Repository(unittest.TestCase):
     def test_the_shipped_ventures_are_clean(self):
