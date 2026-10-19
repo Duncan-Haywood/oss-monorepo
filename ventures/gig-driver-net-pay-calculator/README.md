@@ -68,6 +68,13 @@ one gap in between: a personal-vehicle gig session, priced honestly.
    per mile — that would clear a target hourly take-home after vehicle cost
    and the tax reserve.
 
+**Tax-year car deduction.** [`tax.html`](tax.html) compares the IRS standard
+mileage rate (72.5 cents for 2026, editable) with actual car expenses and
+shows the self-employment tax, total tax and quarterly payment under each
+([`tax.mjs`](tax.mjs), [`tax.test.mjs`](tax.test.mjs)). Rates, the Social
+Security wage base and your marginal income-tax rate are inputs; state tax
+and credits are not modelled.
+
 **Copy session summary** turns the result into plain text. **Copy share
 link** puts the same inputs in a URL fragment so a partner or future-you can
 reopen the exact session — nothing is sent to a server either way.

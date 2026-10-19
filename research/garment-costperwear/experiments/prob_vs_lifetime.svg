@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: the probability that a designer coat has a lower cost per wear than a replica rises from zero at 300 median wears to about 0.95 at 10,000 wears">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">P(designer coat cheaper per wear) vs its median lifetime</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="271.1" y2="271.1" stroke="#ddd"/><text x="58" y="275.1" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="218.1" y2="218.1" stroke="#ddd"/><text x="58" y="222.1" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="165.2" y2="165.2" stroke="#ddd"/><text x="58" y="169.2" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="112.2" y2="112.2" stroke="#ddd"/><text x="58" y="116.2" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="59.3" y2="59.3" stroke="#ddd"/><text x="58" y="63.3" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">300</text>
+<text x="256.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="431.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3000</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">designer median lifetime (wears, log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">probability</text>
+<line x1="64" x2="624" y1="191.6" y2="191.6" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,324.0 256.3,308.6 431.7,193.5 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="256.3" cy="308.6" r="3" fill="#c0392b"/>
+<circle cx="431.7" cy="193.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">trench</text>
+<polyline points="64.0,324.0 256.3,312.4 431.7,209.9 624.0,75.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="256.3" cy="312.4" r="3" fill="#1f6fb2"/>
+<circle cx="431.7" cy="209.9" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="75.1" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">coat</text>
+</svg>

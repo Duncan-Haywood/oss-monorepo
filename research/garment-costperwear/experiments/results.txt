@@ -1,0 +1,44 @@
+replica cost to make (garment-teardown, mid-wage): trench $56, coat $68
+
+== A. break-even lifetime multiple Ld/Lr (designer must outlast replica by this factor), by designer care cost per wear (replica care fixed at $0.10) and resale
+garment  resale  designer_care  breakeven_multiple   (replica lifetime 60 wears)
+trench 0.0 0.0 45.6
+trench 0.0 0.5 87.8
+trench 0.0 2.0 inf
+trench 0.3 0.0 31.9
+trench 0.3 0.5 61.5
+trench 0.3 2.0 inf
+coat 0.0 0.0 52.0
+coat 0.0 0.5 87.3
+coat 0.0 2.0 inf
+coat 0.3 0.0 36.4
+coat 0.3 0.5 61.1
+coat 0.3 2.0 inf
+
+== B. P(designer cheaper per wear), lognormal lifetimes sigma 0.5, replica median 60 wears, no resale or care
+garment  designer_median_wears  prob
+trench 300 0.000
+trench 1000 0.058
+trench 3000 0.493
+trench 10000 0.955
+coat 300 0.000
+coat 1000 0.044
+coat 3000 0.431
+coat 10000 0.940
+
+== C. trench: designer median wears needed for P(designer cheaper) >= 0.5, by resale and designer care (replica care $0.10, median 60)
+resale  designer_care  needed_median_wears
+0.0 0.1 3127
+0.0 1.0 72987
+0.3 0.1 2189
+0.3 1.0 51091
+0.6 0.1 1251
+0.6 1.0 29195
+
+== D. trench: designer median wears 1000, replica median wears varied (P designer cheaper)
+replica_median_wears  prob
+15 0.654
+30 0.280
+60 0.058
+120 0.005
+240 0.000

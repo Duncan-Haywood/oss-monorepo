@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ratelimit-burst"
+version = "0.1.0"
+description = "How far above its limit can a rate limiter be pushed in a true rolling window: fixed window, sliding log, sliding-window counter, token bucket and leaky bucket, by exhaustive adversarial search and Poisson overload"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

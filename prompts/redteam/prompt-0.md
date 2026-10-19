@@ -28,7 +28,9 @@ With no `--target`, the tool picks a random file that some test suite guards
 (`redteam.py targets` lists them; about 95% are under `ventures/`, so
 `--under platform` aims the draw at the CI and tooling code). Pass `--target` to aim at a file that just
 changed on `main` (`git log --since=3.days --name-only origin/main`) or that
-users rely on most. Run two or three campaigns if each takes under a minute.
+users rely on most. The campaign prints the baseline time and an estimate; run two or
+three campaigns if each takes under a minute, and for a slow suite (e.g. `sync_tree_counts.py`, over 5 min)
+run it in the background and check `git status` afterwards.
 
 The tool applies one mutant at a time, runs the suite, and restores the file
 byte for byte. It refuses a dirty file and a red baseline. **A red baseline

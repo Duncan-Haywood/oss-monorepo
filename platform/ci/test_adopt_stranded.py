@@ -149,6 +149,18 @@ class TestPullRequest(PlanFixture):
         self.assertIn("CI has not run here yet", body)
         self.assertIn("close it with a one-line reason", body)
 
+    def test_body_lists_twenty_commits_then_counts_the_rest(self):
+        cand = self.candidate()
+        commit = cand.commits[0]
+        cand.commits = [commit] * 21
+        lines = cand.body().splitlines()
+        self.assertEqual(sum(l.startswith("- `") for l in lines), 20)
+        self.assertIn("- ... and 1 more", lines)
+        cand.commits = [commit] * 20
+        self.assertNotIn("more", "\n".join(l for l in cand.body().splitlines() if l.startswith("- ")))
+        cand.commits = [commit] * 25
+        self.assertIn("- ... and 5 more", cand.body().splitlines())
+
     def test_open_draft_posts_a_draft_pr(self):
         cand = self.candidate()
         sent = {}
@@ -171,6 +183,7 @@ class TestPullRequest(PlanFixture):
         self.assertEqual(sent["url"], "https://api.github.com/repos/o/r/pulls")
         self.assertEqual(sent["auth"], "Bearer tok")
         self.assertTrue(sent["payload"]["draft"])
+        self.assertTrue(sent["payload"]["maintainer_can_modify"])
         self.assertEqual(sent["payload"]["head"], "claude/new")
         self.assertEqual(sent["payload"]["base"], "main")
 
