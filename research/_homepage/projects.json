@@ -2945,6 +2945,11 @@
      "summary": "A stdlib sweep of <code>osrobot-assist</code>'s feeding-arm twin over lip stiffness, loop stiffness and forward lead (200 paired trials per row, 30&nbsp;mm sway, camera arm at 0.20&nbsp;m/s). Mean peak lip force rises from 0.32&nbsp;N at 100&nbsp;N/m to 1.15&nbsp;N at 800 and 2.02&nbsp;N at 6400; the worst trial reaches 6.7&nbsp;N, above the controller's 4.0&nbsp;N stall push, so that push is a ceiling only for soft and medium lips. At 0.05&nbsp;m/s every stiffness stays under 2&nbsp;N. Stylised: assumed constants, a point mass and a passive user."
     },
     {
+     "slug": "osrobot-lean",
+     "title": "If the person being fed leans toward the spoon, can a blind feeding arm do without a camera?",
+     "summary": "A stdlib extension of <code>osrobot-assist</code>'s planar feeding-arm twin in which the user shifts the mouth toward the spoon tip at a swept lean speed (200 paired trials per row). At 30&nbsp;mm sway and 0.20&nbsp;m/s the blind arm's share of feeds with peak lip force at most 2&nbsp;N rises from 0.21 (passive user) to 0.69 at 50&nbsp;mm/s and 1.00 at 100&nbsp;mm/s, against 0.71 to 0.97 for the camera arm; at 50&nbsp;mm sway even 100&nbsp;mm/s gives only 0.62 for the blind arm. Leaning removes contacts but not the peak force of the ones that remain (4.0&nbsp;N at 0.20&nbsp;m/s). Stylised: every constant, including the lean speed, is assumed; no person was modelled or tested."
+    },
+    {
      "slug": "osrobot-field",
      "title": "For a weeding robot with a cheap camera, is it better to treat weeds as it drives or to scout first and come back, and what does a weak sensor cost?",
      "summary": "A stdlib simulation of a lane-following weeding robot on a 60&times;30&nbsp;m field with clustered weeds, a motion-blurred noisy detector and muddy squares. Scouting then touring the targets kills the same share of weeds as treating inline (0.399 against 0.401 at 1&nbsp;m/s) and is slower in all 23 paired rows, by 2.8 to 7.8&nbsp;min. Lane overlap repays a weak sensor at a steep price: 0 to 0.75 overlap raises the kill share from 0.40 to 0.86 and the time from 52 to 178&nbsp;min; no grid configuration reaches a 0.9 kill share at a 0.5 hit rate. Stylised: every constant is assumed, the speed results move with the blur assumption, and the planner comparison is a statement about this cost model."
