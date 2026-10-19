@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { parseGuests, parseRules, sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe, reseat, parsePlanCsv, planCsv } from "./calc.mjs";
+import { parseGuests, parseRules, parseAccessTables, sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe, reseat, parsePlanCsv, planCsv } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-wedding-seating-chart.html";
@@ -167,6 +167,40 @@ test("the divorced-parents guide is linked, carries the clauses, and its worked 
   assert.ok(guide.includes(row("In the order typed", baseRes.rulesMet, baseRes.rulesTotal, baseRes.partySplits.length, baseRes.score)), "list-order row");
   assert.ok(guide.includes(row("Optimized", res.rulesMet, res.rulesTotal, res.partySplits.length, res.score)), "optimized row");
   assert.equal(res.rulesTotal, 10);
+  assert.deepEqual(res.tables.map((t) => t.size), [8, 8, 8]);
+});
+
+test("the step-free guide is linked, carries the clauses, and its worked example matches the optimizer", () => {
+  const name = "how-to-seat-wheelchair-users-and-guests-who-need-step-free-access-at-a-wedding.html";
+  const guide = page(name);
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /not a guarantee that any guest will be content/i);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(".", "\\.")}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(".", "\\.")}"`));
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(".", "\\.")));
+  const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
+
+  const names = ["Ines Duarte", "Tomas Duarte", "Leila Duarte", "Ravi Nair", "Mira Nair", "Abe Lindqvist", "Sue Lindqvist", "Cora Bell", "Hugh Bell", "Dot Marsh", "Ed Marsh", "Fay Okoro", "Ben Okoro", "Joss Kemp", "Lena Kemp", "Orla Voss", "Pete Voss", "Quin Adler", "Rex Adler", "Tess Brandt", "Gus Holt", "Pam Holt", "Walt Ferris", "Nell Ferris"];
+  const party = { "Ines Duarte": "Duarte party", "Tomas Duarte": "Duarte party", "Gus Holt": "Holt party", "Pam Holt": "Holt party", "Walt Ferris": "Ferris party", "Nell Ferris": "Ferris party" };
+  const parsed = parseGuests(names.map((g) => (party[g] ? `${g} | ${party[g]}` : g)).join("\n"));
+  const rulesText = ["Walt Ferris @ accessible", "Gus Holt @ wheelchair", "Walt Ferris + Cora Bell", "Gus Holt + Abe Lindqvist", "Nell Ferris + Dot Marsh", "Ines Duarte + Ravi Nair", "Fay Okoro + Ben Okoro", "Joss Kemp + Lena Kemp", "Orla Voss + Quin Adler", "Tess Brandt ! Pete Voss"].join("\n");
+  const { rules, errors } = parseRules(rulesText, parsed.guests);
+  assert.deepEqual([...parsed.errors, ...errors], []);
+  const spec = { guests: parsed.guests, rules, seatsPerTable: 8, tableCount: 3, balance: true, mix: "off", seed: 1, accessTables: parseAccessTables("1, 2").tables };
+  assert.deepEqual(validateSpec(spec), []);
+  const res = optimize(spec);
+  assert.deepEqual(verifyPlan(spec, res), []);
+  const base = baselinePlan(spec);
+  const baseRes = describe(spec, weightMatrix(spec), base, base);
+  const row = (label, met, total, splits, score) => `<tr><td>${label}</td><td class="n">${met} of ${total}</td><td class="n">${splits}</td><td class="n">${score}</td></tr>`;
+  assert.ok(guide.includes(row("In the order typed", baseRes.rulesMet, baseRes.rulesTotal, baseRes.partySplits.length, baseRes.score)), "list-order row");
+  assert.ok(guide.includes(row("Optimized", res.rulesMet, res.rulesTotal, res.partySplits.length, res.score)), "optimized row");
+  assert.equal(res.rulesTotal, 8);
+  const at = (p, n) => p[names.indexOf(n)] + 1;
+  assert.deepEqual([at(base, "Walt Ferris"), at(base, "Gus Holt")], [1, 1], "list order seats both at an accessible table");
+  assert.deepEqual([at(res.table, "Walt Ferris"), at(res.table, "Gus Holt")], [1, 2]);
   assert.deepEqual(res.tables.map((t) => t.size), [8, 8, 8]);
 });
 
