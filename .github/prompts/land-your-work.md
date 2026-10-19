@@ -20,6 +20,10 @@ repository, whatever the brief says.
 (`create_pull_request`, `merge_pull_request`, `pull_request_read`) for every
 step below; they are the supported route there.
 
+If `create_pull_request` returns HTTP 500, search open PRs for your branch
+(`search_pull_requests`, `head:` or the title) before retrying: it can succeed
+on the second or third call, and a 500 may still have created the PR.
+
 ## Why this has its own prompt
 
 Measured 2026-10-05: PRs that get opened land (1,251 merged, 23 closed in two

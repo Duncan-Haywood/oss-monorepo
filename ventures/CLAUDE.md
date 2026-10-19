@@ -32,3 +32,6 @@ the deployer's own keys, never the owner's accounts (`../prompts/goals.md`,
 "Payments: never the owner's"); the owner's own instances take GitHub Sponsors
 donations only. Prefer higher-value work to another single-page calculator: a
 principle, not a ban (owner, 2026-10-16; `../prompts/ventures/prompt-1.md`).
+
+Running venture tests: `python3 platform/ci/run_venture_tests.py --changed`
+(or named slugs; no args runs all, in minutes). Do not loop `node --test` serially.
