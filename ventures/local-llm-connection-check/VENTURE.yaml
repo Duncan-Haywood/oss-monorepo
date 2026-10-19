@@ -1,0 +1,82 @@
+name: local-llm-connection-check
+description: Free browser tool that tests whether a web page can reach a model running on the visitor's own computer (Ollama, LM Studio, llama.cpp's llama-server, or any OpenAI-compatible address), tells a CORS refusal apart from a server that is not running, has no model, or is blocked as mixed content, gives the exact fix command per server and operating system (OLLAMA_ORIGINS for the macOS app, a Linux systemd service, Windows, ollama serve; LM Studio's CORS switch), and times a test prompt in tokens per second. Runs client-side; the only requests go to the addresses it probes.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-10-19)
+#
+# Built for the owner's direction of 2026-10-18 (prompts/goals.md, "Local
+# models as an option beside API keys"): every AI feature that takes a key
+# also takes a model on the user's own machine. Five ventures now offer
+# Ollama, LM Studio and llama.cpp in their provider pickers (#8040). The step
+# that stops a visitor is the first connection: Ollama refuses pages from
+# other origins until OLLAMA_ORIGINS is set, and the browser reports that as
+# "Failed to fetch", identical to a stopped server. This tool is the support
+# page those five link to, and a standalone answer to a widely searched
+# problem ("ollama cors error", "OLLAMA_ORIGINS", "ollama 403 forbidden").
+#
+# duplicate_check.py against the feature description: top score 0.11
+# (sql-migration-lock-check), then cors-misconfig-check (pipeline, 0.08) and
+# llm-spend-guard (0.08). Nothing near the 0.45 bar. Read: cors-misconfig-check
+# audits a remote server's CORS response headers for being too permissive;
+# this tool diagnoses why a local model server refuses a page, the opposite
+# direction. llm-spend-guard caps hosted-API spend. No venture touches local
+# model servers.
+#
+# LIABILITY CONTAINMENT: the page sends GET /v1/models and one no-cors GET to
+# each probed address, and one 80-token chat completion only when the visitor
+# presses the test button. It reports what the browser could reach at that
+# moment, never a claim about the visitor's security. Every fix is a command
+# the visitor reads and runs themselves; the CORS guidance says to allow
+# specific origins only and never a wildcard on a networked machine.
+#
+# JUDGMENT CALLS flagged for review:
+#  - "Unreachable" covers both a stopped server and a browser that blocked
+#    local network access (Chrome asks first since its Local Network Access
+#    change). The page cannot tell those apart, so the fix names both.
+#  - The fix commands are taken from each project's own documentation as of
+#    2026-10 (Ollama FAQ for OLLAMA_ORIGINS per platform, LM Studio's `lms
+#    server start --cors`). They can drift; a wrong command is a kill
+#    criterion below, not a silent risk.
+#  - Example model names (llama3.2, llama-3.2-3b-instruct) are examples of a
+#    small model to start with, not recommendations.
+hypotheses:
+  - claim: A visitor who chose "Ollama" in one of the portfolio's AI tools and got "Failed to fetch" will follow a link to a page that names the real cause and the command, and come back with a working local model.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: People searching for the Ollama CORS error or OLLAMA_ORIGINS on their own (for any web app, not ours) find the guide page useful enough to run the check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: a static page; every request goes from the visitor's
+  # browser to their own computer.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors run a probe within 90 days.
+  - A fix command it gives is wrong for the server and system it names and cannot be corrected from the project's current documentation.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/local-llm-connection-check/
+  analytics: null
+
+channel_notes: >-
+  Internal first: the five AI-enabled ventures (proposal-maker,
+  review-reply-desk, sales-call-notes-desk, icp-lens, ats-resume-checker)
+  link to it from their local-model setup note, which is where a visitor who
+  hit the CORS wall already is. External: organic search for "ollama cors
+  error", "OLLAMA_ORIGINS", "ollama 403 forbidden from browser", "connect web
+  app to ollama", "lm studio enable cors"; the Ollama and LM Studio GitHub
+  issue trackers and r/LocalLLaMA, where the question recurs, are places to
+  answer with the guide when someone asks, not to post unprompted.

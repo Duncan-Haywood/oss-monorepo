@@ -638,6 +638,7 @@
     "llm-spend-guard": "2026-10-16",
     "llm-usage-log-analyzer": "2026-09-30",
     "llms-txt-generator": "2026-09-11",
+    "local-llm-connection-check": "2026-10-19",
     "lockfile-license-check": "2026-10-03",
     "locksmith-bid-calculator": "2026-09-06",
     "locum-tenens-vs-employed-calculator": "2026-09-30",

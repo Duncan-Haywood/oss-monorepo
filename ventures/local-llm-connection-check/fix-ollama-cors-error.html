@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fix the Ollama CORS error: set OLLAMA_ORIGINS on macOS, Linux and Windows</title>
+  <meta name="description" content="Why a web page gets a CORS error or 403 from Ollama, and how to allow it with OLLAMA_ORIGINS on the macOS app, a Linux systemd service, Windows, or ollama serve. Plus LM Studio's CORS switch and the https-to-LAN mixed-content block.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./fix-ollama-cors-error.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Allow a web page to use Ollama (fix the CORS error)","step":[{"@type":"HowToStep","name":"Find the page's origin","text":"The origin is the scheme and host of the page, such as https://duncan-haywood.github.io, with no path."},{"@type":"HowToStep","name":"Set OLLAMA_ORIGINS","text":"macOS app: launchctl setenv OLLAMA_ORIGINS \"<origin>\". Linux service: add Environment=\"OLLAMA_ORIGINS=<origin>\" under [Service] with sudo systemctl edit ollama.service. Windows: setx OLLAMA_ORIGINS \"<origin>\". Terminal: OLLAMA_ORIGINS=\"<origin>\" ollama serve."},{"@type":"HowToStep","name":"Restart Ollama","text":"Quit and reopen the app, or run sudo systemctl daemon-reload && sudo systemctl restart ollama."},{"@type":"HowToStep","name":"Check it","text":"Run the Local LLM Connection Check from the same site, which reports whether the page can now reach Ollama."}]}</script>
+  <style>
+    :root{font:16px/1.6 system-ui,sans-serif;color:#172033;background:#f5f7fb}
+    main{max-width:780px;margin:auto;padding:32px 18px 56px}
+    h1{font-size:clamp(1.5rem,4vw,2.1rem);line-height:1.15}h2{font-size:1.15rem;margin-top:28px}
+    p,li{color:#3d4a60}
+    pre{background:#0d1526;color:#dbe6ff;border-radius:8px;padding:10px 12px;font-size:.85rem;overflow-x:auto;white-space:pre-wrap}
+    code{background:#eef2fa;padding:1px 4px;border-radius:4px}pre code{background:none;padding:0}
+    .cta{display:inline-block;background:#2457d6;color:#fff;padding:10px 14px;border-radius:8px;font-weight:700;text-decoration:none}
+    footer{border-top:1px solid #d9e0eb;margin-top:32px;padding-top:14px;font-size:.85rem;color:#58657a}
+    a{color:#1f4f8a}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Fix the Ollama CORS error</h1>
+  <p>You point a web tool at <code>http://localhost:11434</code> and it fails with a CORS error, a 403, or just "Failed to fetch", while <code>curl</code> from a terminal works fine. Ollama is running. It is refusing the web page.</p>
+  <p><a class="cta" href="./">Check your setup in one click</a></p>
+
+  <h2>Why it happens</h2>
+  <p>Ollama answers web pages only from origins it trusts. By default that is pages served from your own computer (<code>localhost</code>, <code>127.0.0.1</code>) and a few app schemes. A page on any other site, including a tool you opened at an https address, is refused. A terminal request has no origin, which is why <code>curl</code> works.</p>
+  <p>The browser reports a refused origin the same way as a server that is not running, so the error alone does not tell you which you have. The <a href="./">connection check</a> tells them apart.</p>
+
+  <h2>The fix: allow the page's origin in OLLAMA_ORIGINS</h2>
+  <p>The origin is the page's scheme and host with no path, for example <code>https://duncan-haywood.github.io</code>. Separate several with commas. Then restart Ollama: it reads the setting only at start.</p>
+
+  <h3>macOS (the Ollama app)</h3>
+  <pre><code>launchctl setenv OLLAMA_ORIGINS "https://duncan-haywood.github.io"</code></pre>
+  <p>Quit Ollama from the menu bar and open it again. <code>launchctl setenv</code> lasts until you log out; to keep it, run it again after logging in or set it in a login item.</p>
+
+  <h3>Linux (systemd service)</h3>
+  <pre><code>sudo systemctl edit ollama.service</code></pre>
+  <p>Add these lines in the editor and save:</p>
+  <pre><code>[Service]
+Environment="OLLAMA_ORIGINS=https://duncan-haywood.github.io"</code></pre>
+  <pre><code>sudo systemctl daemon-reload && sudo systemctl restart ollama</code></pre>
+
+  <h3>Windows</h3>
+  <pre><code>setx OLLAMA_ORIGINS "https://duncan-haywood.github.io"</code></pre>
+  <p>Quit Ollama from the system tray and start it again, so it picks up the new variable.</p>
+
+  <h3>Any system, from a terminal</h3>
+  <pre><code>OLLAMA_ORIGINS="https://duncan-haywood.github.io" ollama serve</code></pre>
+
+  <h2>Only allow sites you trust</h2>
+  <p>An allowed origin can use your model, and see what it answers, whenever Ollama is running. Allow the specific sites you use. Avoid <code>*</code>, which lets every site you visit do the same, and especially on a machine where Ollama listens on the network (<code>OLLAMA_HOST=0.0.0.0</code>).</p>
+
+  <h2>Still failing after the fix?</h2>
+  <ul>
+    <li><strong>Chrome asked about "local network access" and you dismissed it.</strong> Recent Chrome versions ask before a public site can reach your computer. Allow it in the site settings (the icon left of the address bar).</li>
+    <li><strong>The model runs on another machine.</strong> An https page cannot call a plain-http address on your network (mixed content), whatever Ollama allows. Use the tool on the machine with the model, put Ollama behind https, or forward the port: <code>ssh -N -L 11434:localhost:11434 you@that-machine</code>.</li>
+    <li><strong>It is LM Studio, not Ollama.</strong> Turn on "Enable CORS" in the Developer tab's server settings, or start it with <code>lms server start --cors</code>.</li>
+    <li><strong>No model yet.</strong> <code>ollama pull llama3.2</code>, then check again.</li>
+  </ul>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not security or IT advice. <strong>You are responsible for reviewing and verifying every command before you run it</strong> and for what you allow to reach your computer. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> This page makes no requests of its own. The <a href="./">connection check</a> talks only to the addresses it probes on your computer.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional.</p>
+  </footer>
+</main>
+</body>
+</html>
