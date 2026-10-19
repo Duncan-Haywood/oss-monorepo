@@ -388,3 +388,14 @@ test('quickCompareUrl leaves blank fields out and gives the bare link for an emp
   assert.equal(quickCompareUrl({}), '../marketplace-fee-compare/');
   assert.equal(quickCompareUrl({ price: '', itemCost: 'abc', shippingCost: '-3' }), '../marketplace-fee-compare/');
 });
+
+test('README discloses a usage event for every handoff channel', async () => {
+  const { readFileSync } = await import('node:fs');
+  const readme = readFileSync(new URL('./README.md', import.meta.url), 'utf8');
+  for (const entry of HANDOFFS) {
+    assert.ok(
+      readme.includes(`\`handoff_${entry.channel}\``),
+      `README does not list handoff_${entry.channel}`,
+    );
+  }
+});
