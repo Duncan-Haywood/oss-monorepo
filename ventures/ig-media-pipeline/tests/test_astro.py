@@ -366,3 +366,25 @@ def test_well_exposed_night_frames_count_daylight_does_not():
     day = [shot(10 + i, datetime(2026, 10, 3, 13, 0) + timedelta(seconds=40 * i), bright=0.24) for i in range(5)]
     groups = astro.find_groups([a for a, _ in night + day], {m.asset_id: m for _, m in night + day})
     assert [len(g.members) for g in groups] == [5] and groups[0].members[0] == "p0"
+
+
+def test_stack_band_above_the_skyline_comes_from_the_reference_frame():
+    h, w = 200, 300
+    sky = np.full((h, w, 3), 0.02, np.float32)          # a stack with a dark seam over the skyline
+    sky[95:100] = 0.0
+    ref = np.full((h, w, 3), 0.05, np.float32)
+    fg = np.full((h, w, 3), 0.3, np.float32)
+    plan = astro.AstroPlan(is_night_sky=True, outputs=["stack"], horizon=[Point(x=0, y=.5), Point(x=1, y=.5)],
+                           vertical_focus=Point(x=.5, y=.5), feed_focus=Point(x=.5, y=.5), reason="")
+    out, _ = astro.composite(sky, fg, plan, [(0, 0.5), (1, 0.5)], ref, reach=10)
+    assert out[97, 150, 0] > 0.02                        # the seam is gone: reference sky there
+    assert out[20, 150, 0] == pytest.approx(0.02)         # far above: the stack
+    assert out[150, 150, 0] == pytest.approx(0.3)         # land
+
+
+def test_skyline_reach_measures_how_far_alignment_moves_the_land():
+    mask = core.horizon_mask([(0, HORIZON_Y), (1, HORIZON_Y)], (H, W))
+    stars = [core.find_stars(core.luminance(sky_frame(k)), mask=mask) for k in (0, 10, 20)]
+    reach = core.skyline_reach(stars[1], [stars[0], stars[2]], [(0, HORIZON_Y), (1, HORIZON_Y)], (H, W))
+    # 10 steps of 0.08 deg about a pole 1.5 frame-heights up: the skyline corners move several px
+    assert reach is not None and 5 < reach < 60

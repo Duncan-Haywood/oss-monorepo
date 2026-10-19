@@ -406,3 +406,31 @@ def match_colour(frame: np.ndarray, ref_ratio: np.ndarray, mask: np.ndarray | No
     """Pin a frame's colour balance to a reference (auto white balance wandering through a night
     run), leaving its brightness alone."""
     return (frame * (ref_ratio / colour_ratio(frame, mask))).astype(np.float32)
+
+
+def skyline_distance(line: Sequence[Sequence[float]] | None, size: tuple[int, int]) -> np.ndarray:
+    """(H, W) px above the skyline (negative below it). No line: everything is far above."""
+    h, w = size
+    if not line:
+        return np.full((h, w), float(h), np.float32)
+    ys = horizon_ys(line, size)
+    return (ys[None, :] - np.arange(h)[:, None]).astype(np.float32)
+
+
+def skyline_reach(ref_stars: np.ndarray, frames_stars: Sequence[np.ndarray], line, size: tuple[int, int],
+                  margin: float = 4.0) -> float | None:
+    """How far, in px, a frame registered onto the reference moves the land along the skyline:
+    the band above the skyline that a star-aligned stack has filled with rotated land (or the
+    flat tone it was masked with). None when no frame could be matched."""
+    h, w = size
+    ys = horizon_ys(line, size)
+    xs = np.linspace(0, w - 1, 64)
+    pts = np.column_stack([xs, np.interp(xs, np.arange(w), ys)])
+    reach = None
+    for stars in frames_stars:
+        fit = estimate_transform(ref_stars, stars)
+        if fit is None:
+            continue
+        move = float(np.linalg.norm(apply(fit[0], pts) - pts, axis=1).max())
+        reach = move if reach is None else max(reach, move)
+    return None if reach is None else reach + margin

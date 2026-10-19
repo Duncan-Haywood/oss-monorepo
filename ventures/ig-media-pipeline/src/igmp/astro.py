@@ -60,7 +60,7 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from statistics import median
-from typing import Literal
+from typing import Literal, NamedTuple
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageOps
@@ -93,7 +93,7 @@ REVISIONS = 2
 FEATHER = 0.001              # of the long edge: the skyline is snapped to the real edge, so a soft
                              # blend only smears land colour into the sky (or sky into the rock)
 PREVIEW_EDGE = 640           # px, the cached frames trail timelapse critic rounds are made from
-LAYERS_VERSION = 2           # bump when how frames become layers changes: cached .npz files go stale
+LAYERS_VERSION = 3           # bump when how frames become layers changes: cached .npz files go stale
 FEED_SIZE = (1080, 1350)
 SHEET_FRAMES = 12
 
@@ -426,8 +426,16 @@ def stack_engine(cfg: Config) -> str:
     return "siril" if astro_siril.cli(cfg) else "builtin"
 
 
+class Layers(NamedTuple):
+    sky: np.ndarray
+    fg: np.ndarray
+    engine: str
+    ref: np.ndarray | None = None    # stack only: the reference frame, whose sky never moved
+    reach: float = 0.0               # stack only: px above the skyline the stack filled with moved land
+
+
 def sky_layers(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config, mode: str,
-               edge: int, engine: str | None = None) -> tuple[np.ndarray, np.ndarray, str]:
+               edge: int, engine: str | None = None) -> Layers:
     """(sky, foreground, engine) linear float32 layers for `mode` in ("stack", "star-trails"),
     cached. A stack's sky comes from Siril when it is installed, else - or when Siril cannot
     register the frames - from the built-in aligner; `engine` says which made it."""
@@ -440,7 +448,8 @@ def sky_layers(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Co
     path = _layers_path(group, cfg, f"{mode}-{engine}" if mode == "stack" else mode, idx, edge)
     if path.exists():
         z = np.load(path)
-        return z["sky"].astype(np.float32), z["fg"].astype(np.float32), str(z["engine"]) if "engine" in z else engine
+        return Layers(z["sky"].astype(np.float32), z["fg"].astype(np.float32), str(z["engine"]),
+                      z["ref"].astype(np.float32) if "ref" in z else None, float(z["reach"]) if "reach" in z else 0.0)
     frames = [load_linear(members[i], edge) for i in idx]
     shape = min(f.shape for f in frames)
     frames = [f[:shape[0], :shape[1]] for f in frames]
@@ -462,8 +471,18 @@ def sky_layers(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Co
                 engine = "builtin"
         if sky is None:
             sky = _builtin_stack(group, idx, frames, ref, sky_mask)
+        # registering on the stars swings the land below the skyline up into the sky; how far is
+        # how far the frames furthest in time from the reference were turned
+        line = skyline(plan, ref) if plan.horizon else []
+        ref_stars = core.find_stars(core.luminance(ref), mask=sky_mask)
+        ends = [core.find_stars(core.luminance(f), mask=sky_mask) for f in (frames[0], frames[-1])]
+        reach = core.skyline_reach(ref_stars, ends, line, ref.shape[:2]) if line else 0.0
+        if reach is None:
+            reach = 0.03 * ref.shape[0]
     else:      # star trails: the median sky plus the brightest star signal each pixel ever had
-        sky_mask = core.horizon_mask([(p.x, p.y) for p in plan.horizon], frames[0].shape[:2])
+        ref, reach = None, 0.0
+        line = skyline(plan, frames[0]) if plan.horizon else []
+        sky_mask = core.skyline_distance(line, frames[0].shape[:2]) > _edge_px(frames[0])
         trails = None
         for f in frames:
             _, stars = core.star_signal(f, sky_mask)
@@ -474,8 +493,15 @@ def sky_layers(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Co
     if mode == "stack":          # a fallback is cached as what it is, so Siril is asked again next time
         path = _layers_path(group, cfg, f"{mode}-{engine}", idx, edge)
     path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez(path, sky=sky.astype(np.float16), fg=fg.astype(np.float16), engine=np.array(engine))
-    return sky, fg, engine
+    extra = {} if ref is None else {"ref": ref.astype(np.float16), "reach": np.array(reach)}
+    np.savez(path, sky=sky.astype(np.float16), fg=fg.astype(np.float16), engine=np.array(engine), **extra)
+    return Layers(sky, fg, engine, ref, float(reach))
+
+
+def _edge_px(img: np.ndarray) -> float:
+    """Star signal is only taken this far clear of the skyline: a lit rock edge right at the line
+    otherwise counts as a star and a running maximum builds it into a rim."""
+    return max(2.0, 0.002 * max(img.shape[:2]))
 
 
 def _builtin_stack(group: AstroGroup, idx: list[int], frames: list[np.ndarray], ref: np.ndarray,
@@ -556,8 +582,15 @@ def skyline(plan: AstroPlan, land: np.ndarray) -> list[tuple[float, float]]:
 
 
 def composite(sky: np.ndarray, fg: np.ndarray, plan: AstroPlan,
-              horizon: list[tuple[float, float]] | None = None) -> tuple[np.ndarray, np.ndarray]:
+              horizon: list[tuple[float, float]] | None = None, ref: np.ndarray | None = None,
+              reach: float = 0.0) -> tuple[np.ndarray, np.ndarray]:
+    """Sky over land along the skyline. A stack's sky is blended, over the band `reach` px above
+    the skyline, into the reference frame's sky: in that band the stack averaged in land the
+    star alignment had turned up into the sky, which shows as a dark seam."""
     line = horizon if horizon is not None else [(p.x, p.y) for p in plan.horizon]
+    if ref is not None and reach > 0 and line:
+        b = np.clip(core.skyline_distance(line, sky.shape[:2]) / reach, 0, 1)[..., None]
+        sky = b * sky + (1 - b) * ref[: sky.shape[0], : sky.shape[1]]
     mask = core.horizon_mask(line, sky.shape[:2])
     alpha = core.feather(mask, FEATHER * max(sky.shape[:2])) if plan.foreground != "none" else np.ones(mask.shape, np.float32)
     return sky * alpha[..., None] + fg * (1 - alpha[..., None]), alpha
@@ -579,15 +612,32 @@ def out_dir(group: AstroGroup, cfg: Config) -> Path:
 def render_still(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config, mode: str,
                  engine: str | None = None, suffix: str = "") -> dict:
     edge = int(cfg.extra.get("astro_long_edge", WORK_LONG_EDGE))
-    sky, fg, engine = sky_layers(group, members, plan, cfg, mode, edge, engine)
-    lin, alpha = composite(sky, fg, plan, skyline(plan, fg))
+    layers = sky_layers(group, members, plan, cfg, mode, edge, engine)
+    sky, fg, engine = layers.sky, layers.fg, layers.engine
+    line = skyline(plan, fg) if plan.horizon else []
+    lin, alpha = composite(sky, fg, plan, line, layers.ref, layers.reach)
     im = _to_image(grade(lin, plan.grade, alpha))
     d = out_dir(group, cfg)
     d.mkdir(parents=True, exist_ok=True)
     full, ig = d / f"{group.id}__{mode}{suffix}.jpg", d / f"{group.id}__{mode}{suffix}.ig.jpg"
     im.save(full, quality=95)
     _crop(im, FEED_SIZE, plan.feed_focus).save(ig, quality=95)
-    return {"full": str(full), "ig": str(ig), "engine": engine}
+    work = cfg.state_dir / "astro" / group.id
+    work.mkdir(parents=True, exist_ok=True)
+    return {"full": str(full), "ig": str(ig), "engine": engine,
+            "skyline": str(skyline_overlay(im, line, work / f"skyline_{mode}{suffix}.jpg"))}
+
+
+def skyline_overlay(im: Image.Image, line, out: Path) -> Path:
+    """The image with the snapped skyline drawn on it, for the critic to check the edge."""
+    view = im.copy()
+    view.thumbnail((1400, 1400))
+    if line:
+        w, h = view.size
+        ys = core.horizon_ys(line, (h, w))
+        ImageDraw.Draw(view).line([(x, float(ys[x])) for x in range(w)], fill=(0, 255, 255), width=1)
+    view.save(out, quality=90)
+    return out
 
 
 def _plan_tag(plan: AstroPlan) -> str:
@@ -604,16 +654,26 @@ def _trail_images(frame, idx: list[int], plan: AstroPlan, size: tuple[int, int],
     the gradient model are fixed from the first frame so the sky does not pump. `keep` limits the
     images made (all frames are still accumulated)."""
     first = frame(idx[0])
-    mask = core.horizon_mask(skyline(plan, first), first.shape[:2])
+    line = skyline(plan, first) if plan.horizon else []
+    dist = core.skyline_distance(line, first.shape[:2])
+    mask = dist > 0
+    star_mask = dist > _edge_px(first)
     ref_ratio = core.colour_ratio(first, mask)
+    ref_level = float(np.median(core.luminance(first)[mask])) + 1e-6
     alpha = core.feather(mask, FEATHER * max(first.shape[:2])) if plan.foreground != "none" \
         else np.ones(mask.shape, np.float32)
     model = gradient_model(first, alpha)
     lv = levels(np.clip(first - plan.grade.gradient_removal * model * alpha[..., None], 0, None), plan.grade, mask)
     acc = None
     for k, i in enumerate(idx):
-        cur = first if k == 0 else core.match_colour(frame(i)[: first.shape[0], : first.shape[1]], ref_ratio, mask)
-        bg, stars = core.star_signal(cur, mask)
+        if k:
+            cur = core.match_colour(frame(i)[: first.shape[0], : first.shape[1]], ref_ratio, mask)
+            # and its brightness: moonlight and airglow drift over an hour, and through a fixed
+            # grade a drifting sky reads as a colour shift too
+            cur = cur * (ref_level / (float(np.median(core.luminance(cur)[mask])) + 1e-6))
+        else:
+            cur = first
+        bg, stars = core.star_signal(cur, star_mask)
         acc = stars if acc is None else np.maximum(acc * plan.trail_decay, stars)
         if keep is not None and k not in keep:
             continue
@@ -676,7 +736,17 @@ def trail_preview_sheet(group: AstroGroup, members: list[Asset], plan: AstroPlan
         sheet.paste(t, (360 * j, 0))
     out = cfg.state_dir / "astro" / group.id / f"trails_preview_{_plan_tag(plan)}.jpg"
     sheet.save(out, quality=90)
+    first = frames[idx[0]].astype(np.float32)
+    line = skyline(plan, first) if plan.horizon else []
+    look = stretched_array(first)
+    skyline_overlay(look, line, out.with_name(out.stem + "_skyline.jpg"))
     return out
+
+
+def stretched_array(lin: np.ndarray) -> Image.Image:
+    lo, hi = np.percentile(lin, 1), np.percentile(lin, 99.7)
+    y = np.clip((lin - lo) / max(hi - lo, 1e-6), 0, 1)
+    return _to_image(np.arcsinh(20 * y) / np.arcsinh(20))
 
 
 # --- the stage ---------------------------------------------------------------------------
@@ -697,9 +767,16 @@ def review(group: AstroGroup, plan: AstroPlan, mode: str, still: dict, cfg: Conf
             "median of moving plants ghosted it, switch to foreground='frame'), core not clipped, background not crushed to "
             "black or left grey and noisy, star colour natural. Ship it if it is good enough to post; revise "
             "with a full corrected plan (grade, horizon, frames) if a change would clearly fix something; "
-            "reject if the frames cannot make a good image." + (f" Earlier rounds: {' | '.join(notes)}" if notes else ""))
+            "reject if the frames cannot make a good image. The last image shows, as a thin cyan line, the "
+            "skyline the code found: your horizon is only its starting point, and the code snaps it to the real "
+            "sky/land edge every round. Everything above the line is sky (aligned on the stars in a stack), "
+            "everything below is held still. Change `horizon` only if that cyan line follows the wrong edge "
+            "(a cloud bank, a lit haze layer), and then trace the true edge; never move it to fix a band, glow "
+            "or seam near a correctly found skyline - say so in your notes instead." +
+            (f" Earlier rounds: {' | '.join(notes)}" if notes else ""))
+    images = [Path(still["full"])] + ([Path(still["skyline"])] if still.get("skyline") else [])
     return judge.judge(JudgeTask(key=f"astro-review:{group.id}:{mode}", output=AstroReview,
-                                 images=[Path(still["full"])], instructions=text, effort="medium"))
+                                 images=images, instructions=text, effort="medium"))
 
 
 def _lead(group: AstroGroup, store, metrics: dict[str, Metrics]) -> str:
@@ -811,7 +888,9 @@ def _video_rounds(group, members, plan: AstroPlan, cfg: Config, judge: Backend) 
     notes: list[str] = []
     for round_ in range(REVISIONS + 1):
         sheet = trail_preview_sheet(group, members, plan, cfg)
-        verdict = review(group, plan, "trail-timelapse", {"full": str(sheet)}, cfg, judge, notes)
+        verdict = review(group, plan, "trail-timelapse",
+                         {"full": str(sheet), "skyline": str(sheet.with_name(sheet.stem + "_skyline.jpg"))},
+                         cfg, judge, notes)
         notes.append(verdict.notes)
         status = None
         if verdict.verdict == "ship":
