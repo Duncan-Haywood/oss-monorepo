@@ -91,3 +91,12 @@ instead of asking the visitor to do the day-count division themselves.
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as
 static files.
+
+## Host your own copy
+
+You do not need the author's site. Fork the repository and run your own:
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the site's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts, and nothing you type reaches a server. The Docker image has not been built in the session that added these files, so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
