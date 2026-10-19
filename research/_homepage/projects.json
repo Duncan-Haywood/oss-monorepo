@@ -2950,6 +2950,11 @@
      "summary": "A stdlib sweep of <code>osrobot-assist</code>'s feeding-arm twin over lip stiffness, loop stiffness and forward lead (200 paired trials per row, 30&nbsp;mm sway, camera arm at 0.20&nbsp;m/s). Mean peak lip force rises from 0.32&nbsp;N at 100&nbsp;N/m to 1.15&nbsp;N at 800 and 2.02&nbsp;N at 6400; the worst trial reaches 6.7&nbsp;N, above the controller's 4.0&nbsp;N stall push, so that push is a ceiling only for soft and medium lips. At 0.05&nbsp;m/s every stiffness stays under 2&nbsp;N. Stylised: assumed constants, a point mass and a passive user."
     },
     {
+     "slug": "osrobot-leannoise",
+     "title": "If the person being fed misjudges the spoon, or sees it late, can a blind feeding arm still do without a camera?",
+     "summary": "A stdlib extension of <code>osrobot-lean</code>'s planar feeding-arm twin in which the user leans toward a perceived spoon position that is delayed and offset by a per-feed misjudgement (200 paired trials per row, 30&nbsp;mm sway, 0.20&nbsp;m/s, 100&nbsp;mm/s lean). A blind arm's share of feeds with peak lip force at most 2&nbsp;N falls from 1.00 with a perfect leaner to 0.83, 0.60 and 0.47 at 10, 20 and 40&nbsp;mm of misjudgement, and only 0.50 of feeds reach the mouth at 40&nbsp;mm; the camera arm falls from 0.97 to 0.69 and always feeds. A perception delay of up to 0.2&nbsp;s changes little; 1.0&nbsp;s drops the blind arm to 0.46. Stylised: constant offset, assumed constants, no safety case."
+    },
+    {
      "slug": "osrobot-lean",
      "title": "If the person being fed leans toward the spoon, can a blind feeding arm do without a camera?",
      "summary": "A stdlib extension of <code>osrobot-assist</code>'s planar feeding-arm twin in which the user shifts the mouth toward the spoon tip at a swept lean speed (200 paired trials per row). At 30&nbsp;mm sway and 0.20&nbsp;m/s the blind arm's share of feeds with peak lip force at most 2&nbsp;N rises from 0.21 (passive user) to 0.69 at 50&nbsp;mm/s and 1.00 at 100&nbsp;mm/s, against 0.71 to 0.97 for the camera arm; at 50&nbsp;mm sway even 100&nbsp;mm/s gives only 0.62 for the blind arm. Leaning removes contacts but not the peak force of the ones that remain (4.0&nbsp;N at 0.20&nbsp;m/s). Stylised: every constant, including the lean speed, is assumed; no person was modelled or tested."
