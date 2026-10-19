@@ -1321,6 +1321,12 @@ test('every published page links the favicon, not just the site root', async () 
 test('a venture that declares its own icon keeps it', () => {
   const own = '<head><link rel="icon" href="mine.png"></head>';
   assert.equal(injectFavicon(own, '../'), own);
+  const shortcut = '<head><link rel="shortcut icon" href="mine.ico"></head>';
+  assert.equal(injectFavicon(shortcut, '../'), shortcut);
+
+  // An apple-touch-icon alone is not a favicon: the page still gets the link.
+  const touch = injectFavicon('<head><link rel="apple-touch-icon" href="t.png"></head>', '../');
+  assert.ok(touch.includes('<link rel="icon" href="../favicon.ico"'));
 
   const injected = injectFavicon('<head>\n<title>t</title></head>', '../');
   assert.equal((injected.match(/rel="icon"/g) ?? []).length, 1);
