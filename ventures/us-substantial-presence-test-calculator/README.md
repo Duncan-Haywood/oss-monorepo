@@ -12,6 +12,10 @@ The IRS worksheet in Pub. 519 and generic "183 day" web calculators take three y
 
 **Plan ahead:** enter a planned trip start date and it gives the last day you can stay and remain under the test; a table shows the most days each of the next three years allows, and the most you can repeat every year indefinitely (121).
 
+## I-94 import
+
+Paste the Travel History table from i94.cbp.dhs.gov (dates as `MM/DD/YYYY`, `YYYY-MM-DD` or `Mar 4, 2024`, with the word Arrival or Departure per row). Rows are sorted and paired into stays; an unmatched departure is skipped with a note, and a final arrival becomes an ongoing stay. Mark exempt-individual stays by hand.
+
 ## Your dates, not tax advice
 
 Every value is something you type. Any part of a day in the US counts as a day. The calculator does not decide whether you are an exempt individual, whether a tax treaty or the closer connection exception (Form 8840) applies, whether the first-year choice is open to you, or what you owe. Check IRS Publication 519 or a tax professional. Not affiliated with the IRS or any tax preparer.

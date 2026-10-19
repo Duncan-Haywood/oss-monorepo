@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { outlook, latestDeparture, STEADY_DAYS, analyze, parseStays, summarize, maxSafeDays, meets, weighted, toDay, SAMPLE, SAMPLE_OPTIONS } from "./engine.mjs";
+import { outlook, latestDeparture, STEADY_DAYS, analyze, parseStays, importI94, summarize, maxSafeDays, meets, weighted, toDay, SAMPLE, SAMPLE_OPTIONS } from "./engine.mjs";
 
 const run = (stays, o = {}) => analyze({ stays, asOf: "2025-12-31", year: 2025, ...o });
 
@@ -106,6 +106,13 @@ test("brute force: independent per-day recount agrees on a random-ish year", () 
   assert.equal(r.cur.days, c);
   assert.equal(r.p1.days, toDay("2024-10-15") - toDay("2024-04-01") + 1);
   assert.equal(r.p2.days, toDay("2023-09-02") - toDay("2023-02-10") + 1);
+});
+
+test("I-94 travel history pairs arrivals and departures into stays", () => {
+  const r = importI94("Date Type Location\n06/28/2024 Departure JFK\n03/04/2024 Arrival JFK\n2025-03-01 Arrival SFO\nJan 9, 2025 Departure LAX");
+  assert.deepEqual(r.lines, ["2024-03-04 to 2024-06-28", "2025-03-01 to present"]);
+  assert.equal(r.notes.length, 1); // the Jan 2025 departure has no arrival
+  assert.equal(analyze({ stays: r.lines.join("\n"), asOf: "2025-06-15", year: 2025 }).errors.length, 0);
 });
 
 test("steady state: 121 a year stays under forever, 122 does not", () => {

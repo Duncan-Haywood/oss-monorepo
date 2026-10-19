@@ -193,6 +193,46 @@ export function summarize(r) {
   return { status: r.resident ? "meets" : "under", text: lines.join("\n") };
 }
 
+// I-94 travel history (i94.cbp.dhs.gov "Get Travel History") pasted as text: one row per
+// crossing, a date, Arrival or Departure, and a port. Rows are paired in date order into
+// stays. Dates may be MM/DD/YYYY, YYYY-MM-DD or "Mar 4, 2024"-style month names.
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+function dateIn(line) {
+  let m = /(\d{4})-(\d{2})-(\d{2})/.exec(line);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = /\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/.exec(line);
+  if (m) return `${m[3]}-${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}`;
+  m = /\b([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})\b/.exec(line);
+  if (m && MONTHS.includes(m[1].toLowerCase())) return `${m[3]}-${String(MONTHS.indexOf(m[1].toLowerCase()) + 1).padStart(2, "0")}-${m[2].padStart(2, "0")}`;
+  return null;
+}
+
+export function importI94(text) {
+  const rows = [];
+  const notes = [];
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const kind = /\b(arriv\w*|entry|entered)\b/i.test(line) ? "in" : /\b(depart\w*|exit\w*)\b/i.test(line) ? "out" : null;
+    const iso = dateIn(line);
+    if (!kind || !iso || Number.isNaN(toDay(iso))) continue;
+    rows.push({ iso, kind, day: toDay(iso) });
+  }
+  rows.sort((a, b) => a.day - b.day || (a.kind === "in" ? -1 : 1));
+  const lines = [];
+  let open = null;
+  for (const r of rows) {
+    if (r.kind === "in") {
+      if (open) notes.push(`Two arrivals in a row (${open.iso}, ${r.iso}): a departure may be missing between them; the first stay was ended on the day before the second arrival.`);
+      if (open) lines.push(`${open.iso} to ${fromDay(r.day - 1)}`);
+      open = r;
+    } else if (open) { lines.push(`${open.iso} to ${r.iso}`); open = null; }
+    else notes.push(`Departure on ${r.iso} has no earlier arrival in what you pasted, so it was skipped. If you were already in the US, add a line starting before it.`);
+  }
+  if (open) lines.push(`${open.iso} to present`);
+  return { lines, notes, rows: rows.length };
+}
+
 export const SAMPLE = [
   "2023-03-01 to 2023-06-28  # three-month client stint",
   "2024-03-01 to 2024-06-28",
