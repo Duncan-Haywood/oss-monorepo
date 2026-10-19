@@ -1,0 +1,4 @@
+{"round": 3,
+ "notes": "After rounds 1-2 (best 0.95 at 12/4/30/0.3/0.9, then 0.93 at 12/5/32/0.3/0.8). Neighbours of those two: both are narrow (12 mm), short (30-32 mm), high TPU (0.8-0.9), shallow V (0.3). Several near-identical designs scored 0.68-0.78 because the per-design force search settled on a low force (6-8 N) that held all 12 training scenes but not the 40 test scenes, so scores near this region are noisy at the +-0.05 level; round 3 samples the neighbourhood (thickness, length, V depth, TPU, width one at a time) rather than trusting a single point.",
+ "designs": [[12, 4.5, 31, 0.3, 0.85], [12, 5, 30, 0.3, 0.9], [11, 5, 30, 0.3, 0.9], [12, 4, 30, 0.2, 0.9], [12, 4, 30, 0.4, 0.9],
+             [13, 5, 30, 0.3, 0.9], [12, 5, 34, 0.3, 0.8], [12, 4, 30, 0.3, 1.0], [11, 4, 28, 0.3, 0.9], [12, 5, 32, 0.25, 0.85]]}

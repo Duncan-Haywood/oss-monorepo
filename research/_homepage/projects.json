@@ -3480,6 +3480,11 @@
     "title": "Which printable two-finger gripper holds eight different objects for the least plastic, and can an agent beat CMA-ES and Bayesian optimisation at 40 simulations?",
     "summary": "A parametric 3D-printable gripper finger (length, thickness, pad width, V angle) scored in MuJoCo on eight objects with a per-design grip force. At 40 evaluations the median best objective is 0.991 for Bayesian optimisation, 0.979 for CMA-ES, 0.965 for random search and 0.963 for a session agent&rsquo;s hand-written proposals (one run; Bayesian optimisation matched or beat it in 10 of 10 seeds). The best designs are tiny flat fingers (0.5&nbsp;g), but re-scored with object offsets tripled they hold 5 of 8 objects against 6 of 8 for the agent&rsquo;s wide V. Rigid, stylised, no learned policy, nothing printed."
    }
+   ,{
+    "slug": "codesign-forcefresh",
+    "title": "How much of a best-of-40 gripper design's score is selection noise when every design gets its own trained grasp force?",
+    "summary": "Companion to <code>codesign-gripper</code> with a different objective and a searched grasp force. Five parameters of a 3D-printable two-finger gripper (width, thickness, length, V-groove depth, TPU pad) are searched under a print-time cap; for each design a grasp force is tuned in MuJoCo and the design is scored on 40 held-out scenes (cylinders, spheres, boxes of 100&ndash;900&nbsp;g). With 40 designs each, the best seeds of all three baselines reach 0.93&ndash;0.95 test success (medians 0.875, 0.887, 0.900 over 8 seeds) and one session-agent trajectory (n&nbsp;=&nbsp;1, hand-written proposals) reaches 0.95 after 20 designs. On 100 fresh scenes every method&rsquo;s best design drops 0.06&ndash;0.07 on average and the agent&rsquo;s falls to 0.81, level with the baseline median: the task is nearly saturated and the ranking is within noise (standard error about 0.05). Stylised: assumed costs and strengths, rigid fingers, grid-plus-refine policy search rather than deep RL, nothing printed."
+   }
   ]
  }
  ],

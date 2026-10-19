@@ -1,0 +1,4 @@
+{"round": 1,
+ "notes": "Written before seeing any score from the 40-design budget. Physics prior: the worst scene is a 900 g object of friction 0.2 under a 7 m/s^2 shake, which needs roughly 15-20 N per finger, so the finger must survive about 30 N before the 1.5 safety factor: w*t^2/L about 5e-6 m^3*... (w 15 mm, t 4 mm, L 40 mm gives a 30 N breaking force). TPU pads raise friction but cost print time (4 g/h), so use about half thickness. Medium V-groove (0.4-0.6) to centre round objects. Length 35-50 mm so that fingers overlap the 60 mm tall objects even when the hand is 25 mm high.",
+ "designs": [[15, 4, 40, 0.5, 0.5], [18, 4, 45, 0.6, 0.4], [14, 4, 35, 0.4, 0.6], [20, 3.5, 40, 0.5, 0.3], [16, 5, 50, 0.7, 0.2],
+             [12, 4.5, 40, 0.3, 0.7], [22, 4, 35, 0.5, 0.4], [15, 3.5, 30, 0.5, 0.5], [18, 5, 45, 0.8, 0.3], [14, 4, 55, 0.5, 0.4]]}

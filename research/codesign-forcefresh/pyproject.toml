@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-forcefresh"
+version = "0.1.0"
+description = "Co-designing printable two-finger gripper fingers and a per-design grasp-force policy in MuJoCo, scored against random search, CMA-ES and Bayesian optimisation"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "cma", "mujoco", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
