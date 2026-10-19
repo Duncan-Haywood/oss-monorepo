@@ -3381,7 +3381,19 @@
      "summary": "Adds overhang shading (profile angle, shadow depth on the glass, beam radiation only) to <code>house-solar</code>&rsquo;s south windows and searches projection from 0 to 4&nbsp;ft with the 640 envelope packages. At an assumed $12 per foot of width per foot of projection no overhang is cost-optimal in any of 8 climates or 2 systems. Its gross energy value is at most $280 of 30-year net present cost (Miami, 4&nbsp;ft); in cold and mixed climates anything deeper than about 1&nbsp;ft loses more winter gain than it saves in summer. It would be chosen only below roughly $0.60 to $4.20 per foot per foot. Stylised degree-day model; height, gap and price are assumptions; not EnergyPlus."
     }
    ]
-  }
+  },
+ {
+  "id": "capture",
+  "name": "Autonomous multi-angle capture",
+  "blurb": "Filming a travel creator from every angle with open, packable hardware and an automated edit: the pixel, perspective, battery and weight limits first, in simulation.",
+  "projects": [
+   {
+    "slug": "capture-crop",
+    "title": "How long a lens can a 360 camera fake by cropping into a reel, and what perspective can no crop fake?",
+    "summary": "Pixel and perspective geometry for the simplest multi-angle rig, a 360 camera on a pole reframed in software. An 8K (7,680 px) equirect cropped into a 1080&times;1920 vertical reel is native only up to about 24 mm full-frame-equivalent; 50 mm is upscaled 2.1&times; and 85 mm 3.5&times;, and a native 85 mm crop would need a ~27,000 px equirect. Perspective is set by distance: from a stick at 0.8 m a feature 10 cm nearer the lens images 14% larger, against 7.6% from the 1.4 m an 85 mm head-and-shoulders shot is taken at, with the background 1.7&times; larger. So portrait and compressed-background shots need a camera standing back, whatever the resolution. Upper bounds from pixel counts (real cameras resolve less); framing distances and depths are stated assumptions."
+   }
+  ]
+ }
  ],
  "featured": [
   "decentralized-verification-markets",
