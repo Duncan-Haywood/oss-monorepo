@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Divorce Odds Calculator for Couples — Explainable ML in Your Browser</title>
-<meta name="description" content="Enter your profile and your partner's to see model-estimated divorce odds for each year of marriage, the chance of staying married, and which traits the models link to lower risk. Five explainable models trained on NLSY79 survey data run privately in your browser.">
+<meta name="description" content="Estimate a couple's divorce odds for each year of marriage with explainable ML models that run privately in your browser, showing model agreement and limits.">
 <meta property="og:title" content="Divorce odds calculator for couples (explainable, in-browser)">
 <meta property="og:description" content="Year-by-year divorce odds from five interpretable models trained on U.S. longitudinal survey data, with explanations, model disagreement and honest limits.">
 <meta property="og:type" content="website">
@@ -93,7 +93,7 @@
     <li><strong>Per year.</strong> Each model gives an annual divorce <em>rate</em> for the couple at each marriage year (ages and duration advance; everything else stays as entered). A year’s divorce probability is 1 − e<sup>−rate</sup>, and the chance of still being married multiplies those years together.</li>
     <li><strong>Couple.</strong> The survey interviewed one spouse. The app scores the couple from both partners’ points of view and averages them. Same-sex couples were not in the training data, so the app shows no number for them rather than guessing.</li>
     <li><strong>Outside the data.</strong> Years where either partner is under 35 or over 64 are outside what the models saw; the chart shades them and the numbers there are extrapolation. Younger cohorts, recent marriages, wealth, occupation, children and relationship quality are not covered.</li>
-    <li><strong>Not causal, not personal.</strong> Coefficients describe who divorced in one cohort. No validated “ideal partner”, safe anniversary or personal forecast is established. Full methods: <a href="../reproducibility/ml_couples/METHODS.md">ml_couples/METHODS.md</a> and the <a href="../MODEL_CARD.md">model card</a>.</li>
+    <li><strong>Not causal, not personal.</strong> Coefficients describe who divorced in one cohort. No validated “ideal partner”, safe anniversary or personal forecast is established. Full methods: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/reproducibility/ml_couples/METHODS.md">ml_couples/METHODS.md</a> and the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/MODEL_CARD.md">model card</a>.</li>
   </ul>
   <p class="small">Open source (MIT): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/research/marriage-divorce-evidence/app">source code</a>. Not advice of any kind.</p>
 </section>
