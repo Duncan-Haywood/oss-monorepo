@@ -10401,6 +10401,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     }
   }
   researchSlugs.sort();
+  // A project's static browser app (research/<slug>/app/) is a page in its own right.
+  const researchApps = [];
+  for (const slug of researchSlugs) {
+    if (await fs.stat(path.join(outDir, RESEARCH_PATH, slug, 'app', 'index.html')).catch(() => null)) researchApps.push(`${slug}/app`);
+  }
 
   // The engineering status page: what the agent fleet shipped, is working on,
   // spent and is blocked on, read from the committed run records and history.
@@ -10473,7 +10478,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
         ...audiencePages.map(({ audience }) => audiencePageId(audience)),
       ],
       compareProducts.map((group) => group.key),
-      researchSlugs,
+      [...researchSlugs, ...researchApps],
       posts.map((post) => post.slug),
     ),
   );

@@ -195,12 +195,22 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
     if (app / "index.html").is_file():
         # A project's static browser app is published as-is under <slug>/app/.
         shutil.copytree(app, d / "app", dirs_exist_ok=True,
-                        ignore=shutil.ignore_patterns("tests", "tools", "*_testvectors.json", "__pycache__"))
-        if base_url:  # canonical and share URL on whichever origin the site is built for
-            url = html.escape(f"{base_url.rstrip('/')}/research/{slug}/app/")
-            page_file = d / "app" / "index.html"
-            page_file.write_text(page_file.read_text().replace(
-                "</head>", f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n</head>', 1))
+                        ignore=shutil.ignore_patterns("tests", "tools", "*.md", "*_testvectors.json", "__pycache__"))
+        page_file = d / "app" / "index.html"
+        app_page = page_file.read_text()
+        if base_url:  # canonical and share-card tags on whichever origin the site is built for
+            base = html.escape(base_url.rstrip("/") + "/")
+            url = f"{base}research/{slug}/app/"
+            app_page = app_page.replace("</head>", (
+                f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n'
+                f'<meta property="og:image" content="{base}social-card.png">\n'
+                '<meta name="twitter:card" content="summary_large_image">\n</head>'), 1)
+        if chrome:  # the site header (with its link home) above the app's own page
+            header = chrome["header"].replace("{{ROOT}}", "../../../")
+            link = f'<link rel="stylesheet" href="../../../{chrome["style_file"]}">\n'
+            app_page = app_page.replace("</head>", link + "</head>", 1)
+            app_page = re.sub(r"<body([^>]*)>", lambda m: m.group(0) + "\n" + header, app_page, count=1)
+        page_file.write_text(app_page)
     stats = f'<span>{tests} tests</span>' if tests else ""
     links = "\n".join(f'    <li><a{" class=primary" if prim else ""} href="{u}">{l}</a></li>' for u, l, prim in project_links(slug))
     page = tmpl
