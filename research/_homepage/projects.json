@@ -3573,6 +3573,11 @@
     "title": "Does the robots-in-a-corridor conclusion survive a more humanlike crowd?",
     "summary": "The <code>society-plaza</code> corridor rerun with four crowds of simulated people: varied speeds and sideways-push weights, a 0.4&nbsp;s reaction delay, 30% stubborn walkers, and all three (10 seeds per cell). Adaptive robots stay free and committed robots never flip the crowd (at most 58% prefer their side) in every crowd. The size of the slowdown (a loss of 0.17 to 0.49 of desired speed at 30% robots) and of personal-space intrusions (0.03 to 0.36 of agent time; reaction delay alone gives 0.087 with no robots) depends strongly on the crowd. Hand-chosen perturbations, not fitted to data; simulated walkers only."
    }
+   ,{
+    "slug": "society-show",
+    "title": "Can a simulation run be turned into a watchable, honest episode?",
+    "summary": "Five seeded, clearly labelled fictional episodes of a robot town, built on <code>society-trust</code>: 48 invented townspeople, a trust-coloured grid, turning points found by code from the recorded data and a narration whose numbers all come from that record. Even-handed gossip recovers 46 rounds after the fix; gossip that weighs bad news 4&times; locks the town out (48 of 48 avoid working robots at round 399); robots that explain failures recover in 29 rounds with nobody avoiding; and at 2&times; the same settings recover on seed 0 and lock out on seed 1. Episodes are single illustrative runs, not statistics; stylised model, no viewer study."
+   }
   
   ]
  }
