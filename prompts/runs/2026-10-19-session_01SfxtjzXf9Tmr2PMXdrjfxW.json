@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01SfxtjzXf9Tmr2PMXdrjfxW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T01:40:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "s-corp-basis-tracker AAA tracker",
+  "projects": [
+    "s-corp-basis-tracker"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8229",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Router 'Explore' rows point at ventures that already shipped the hypothesis feature; cost several reads to find a gap."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Top router candidates were all already deepened by sibling sessions; picked the smallest, added AAA (listed as not modelled). Did not run runcost attach or venture-preflight.",
+  "corrections": [],
+  "redteam": null
+}
