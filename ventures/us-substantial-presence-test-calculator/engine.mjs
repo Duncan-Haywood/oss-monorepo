@@ -213,7 +213,8 @@ export function importI94(text) {
   for (const raw of String(text ?? "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const kind = /\b(arriv\w*|entry|entered)\b/i.test(line) ? "in" : /\b(depart\w*|exit\w*)\b/i.test(line) ? "out" : null;
+    // The Arrival/Departure word decides; "entry"/"exit" only when neither is there ("Port of Entry" appears in departure rows).
+    const kind = /\barriv\w*/i.test(line) ? "in" : /\bdepart\w*/i.test(line) ? "out" : /\b(entry|entered)\b/i.test(line) ? "in" : /\bexit\w*/i.test(line) ? "out" : null;
     const iso = dateIn(line);
     if (!kind || !iso || Number.isNaN(toDay(iso))) continue;
     rows.push({ iso, kind, day: toDay(iso) });
@@ -224,7 +225,7 @@ export function importI94(text) {
   for (const r of rows) {
     if (r.kind === "in") {
       if (open) notes.push(`Two arrivals in a row (${open.iso}, ${r.iso}): a departure may be missing between them; the first stay was ended on the day before the second arrival.`);
-      if (open) lines.push(`${open.iso} to ${fromDay(r.day - 1)}`);
+      if (open && r.day - 1 >= open.day) lines.push(`${open.iso} to ${fromDay(r.day - 1)}`);
       open = r;
     } else if (open) { lines.push(`${open.iso} to ${r.iso}`); open = null; }
     else notes.push(`Departure on ${r.iso} has no earlier arrival in what you pasted, so it was skipped. If you were already in the US, add a line starting before it.`);

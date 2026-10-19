@@ -37,6 +37,15 @@ that names no contract.
 - **How concentrated the write-off is**: how many carriers make up half of it.
   One bad contract and eight mediocre ones produce the same total and are
   entirely different problems.
+- **The gap to break-even, per plan**: for each plan under the break-even rate,
+  what it paid short this month and annualised, and how much higher its allowed
+  amounts would have to be to reach it. A statement of the size of the gap, not
+  a view on whether a contract can change.
+- **Paste a production-by-carrier report** (`parsePlanReport` in `form.mjs`):
+  tab, comma or semicolon text with or without a header row; columns are found by
+  name (production, adjustment or write-off, or paid/net, from which the
+  write-off is derived), totals rows are dropped, repeated carriers are summed and
+  unreadable lines are counted, never zeroed. Parsed on the device.
 - **What a fee schedule increase would actually collect**, separated from what
   it would merely add to the write-off.
 
