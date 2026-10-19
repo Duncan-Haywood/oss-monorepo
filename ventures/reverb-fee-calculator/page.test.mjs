@@ -374,3 +374,11 @@ test('an invalid draft is still saved locally, so a mid-edit value survives a re
   assert.match(paintBody[1], /localStorage\.setItem\(INPUTS_KEY/);
   assert.match(paintBody[1], /try\s*\{/);
 });
+
+test('the Preferred Seller button sets only the processing percentage to 2.99', () => {
+  assert.match(html, /id="preferredSeller"/);
+  const handler = html.match(/field\('preferredSeller'\)\.addEventListener\('click', \(\) => \{([\s\S]*?)\n    \}\);/);
+  assert.ok(handler, 'no click handler for preferredSeller');
+  assert.match(handler[1], /field\('paymentRate'\)\.value = '2\.99'/);
+  assert.doesNotMatch(handler[1], /paymentFixed/);
+});

@@ -532,6 +532,15 @@ test("Nebraska six-month test needs an abode and crosses at 183 days", () => {
   assert.equal(RULES.NE.kind, "statutory");
 });
 
+test("Arkansas six-month test needs an abode; Kansas presumption does not", () => {
+  assert.equal(RULES.AR.limit, 182);
+  assert.equal(RULES.AR.requiresAbode, true);
+  assert.equal(RULES.AR.kind, "statutory");
+  assert.equal(RULES.KS.limit, 182);
+  assert.equal(RULES.KS.requiresAbode, false);
+  assert.equal(RULES.KS.kind, "presumption");
+});
+
 test("Kentucky test needs an abode and crosses past 183 days", () => {
   assert.equal(RULES.KY.limit, 183);
   assert.equal(RULES.KY.requiresAbode, true);
