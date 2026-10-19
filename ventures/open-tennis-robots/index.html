@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Open Tennis Robots — open-source tennis ball machine with a catch net, and a ball pickup robot</title>
+  <meta name="description" content="Build your own tennis ball machine that catches your returns with a moving net, and a robot that picks up tennis balls while you practise. Open-source hardware designs, firmware and software (MIT), plus a shot simulator you can try in your browser.">
+  <meta property="og:title" content="Open Tennis Robots — DIY tennis ball machine + ball collecting robot">
+  <meta property="og:description" content="Open-source designs for a ball machine that slides a catch net to where your return lands, and a rover that collects balls during practice. Try the shot simulator; build one; sell one.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Open Tennis Robots", "applicationCategory": "SportsApplication", "operatingSystem": "Any modern browser; Python 3.9+ on Raspberry Pi; MicroPython on ESP32", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "license": "https://opensource.org/licenses/MIT", "description": "Open-source hardware and software for two tennis robots: a ball machine (two-wheel launcher with topspin and backspin) that tracks your return with stereo cameras and slides a catch net to catch it, and a ball-collecting rover that picks up balls during practice while staying out of keep-out zones. Includes a shot planner, a catch-net simulation, a route planner, ESP32 firmware and an Amazon listing tool for sellers.", "featureList": "Tennis ball machine shot planner, wheel rpm for topspin and backspin, moving catch net simulation, ball tracking Kalman filter, ball collector route planning, keep-out zones, ESP32 motor firmware with watchdog and e-stop, bill of materials, Amazon SP-API listing builder"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I build my own tennis ball machine?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The feeder uses two counter-rotating wheels on BLDC motors, a hopper with a single-ball gate, servos for elevation and azimuth, a Raspberry Pi for planning and an ESP32 for motor control. The bill of materials, wiring, pin map, firmware and planning software are all in the repository under the MIT licence. It is a v0.1 design that has been simulated, not yet built and tested."}}, {"@type": "Question", "name": "How does a two-wheel ball machine make topspin and backspin?", "acceptedAnswer": {"@type": "Answer", "text": "The ball is pinched between two wheels stacked one above the other. If both spin at the same surface speed, the ball leaves flat at roughly their average speed. If the top wheel turns faster, the top of the ball is pushed forward and it leaves with topspin; a faster bottom wheel gives backspin. The planner above shows both wheel speeds, and the calibrate function fits your machine's real slip from a few measured shots."}}, {"@type": "Question", "name": "How does the catch net know where my return will go?", "acceptedAnswer": {"@type": "Answer", "text": "Two cameras on top of the net frame see the ball. A Kalman filter estimates its position and velocity from each frame, and a flight model with drag, spin lift and the bounce predicts where it will cross the plane of the net. About twenty times a second, the base is told to drive there. In the simulation above, a 3 m net on a base that moves at 2.5 m/s caught far more returns than the same net standing still."}}, {"@type": "Question", "name": "Is there a robot that picks up tennis balls?", "acceptedAnswer": {"@type": "Answer", "text": "This project's collector is one you can build: a small differential-drive rover pushing a rod-cage drum, the mechanism hand-pushed ball mowers use, which squeezes balls in between spring wires and holds about 118. It finds balls with a camera and plans the shortest route, or sweeps the court in lanes when it has no camera. It never drives through keep-out zones around the player, the ball machine or a coach. Its laser-cut, printed and STEP files are ready to download."}}, {"@type": "Question", "name": "How much does it cost to build?", "acceptedAnswer": {"@type": "Answer", "text": "The bills of materials add up to roughly 1,200 US dollars for the feeder with its catch net and roughly 700 for the collector. These are rough planning estimates, not quotes. The battery, motors and net frame are the largest items. Check current supplier prices before you buy."}}, {"@type": "Question", "name": "Can I sell tennis robots built from these designs?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything is MIT-licensed, so you can build, brand and sell kits or assembled machines with no royalty. You are the manufacturer. The seller's guide lists the safety, radio, battery transport and insurance work involved, and the listing tool builds an Amazon listing from one config file and submits it through your own Selling Partner API account."}}, {"@type": "Question", "name": "Is a homemade ball machine safe?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you build it carefully. Launcher wheels at several thousand rpm and balls at over 100 km/h can injure people. The design includes a hard-wired emergency stop, wheel guards, a firmware watchdog that stops every motor if the controller goes quiet, a feed interlock and command limits. You are still responsible for building, testing and operating your machine safely."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #18222b; background: #f3f5f1; --accent: #2f6b2a; --ball: #c8dc3c; --line: #ffffff; --courtc: #3d7a9e; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #245c9a; }
+    h1 { font-size: clamp(1.8rem, 4.6vw, 2.7rem); line-height: 1.1; margin: 0 0 14px; color: var(--accent); }
+    h2 { font-size: 1.2rem; margin: 0 0 10px; color: var(--accent); }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5964; }
+    .card { background: #fff; border: 1px solid #d8dee3; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #708896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; }
+    button.secondary { background: #e3ece1; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e6eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5964; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 12px 0; }
+    .big div { background: #f1f6ef; border-radius: 10px; padding: 10px; }
+    .big strong { display: block; font-size: 1.35rem; color: var(--accent); }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    svg.court { width: 100%; height: auto; background: #2f5f7e; border-radius: 10px; touch-action: manipulation; }
+    svg.side { width: 100%; height: auto; background: #f7faf6; border: 1px solid #d8dee3; border-radius: 10px; }
+    .scroll { overflow-x: auto; }
+    code { overflow-wrap: anywhere; }
+    footer { margin-top: 28px; border-top: 1px solid #d8dee3; padding-top: 16px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+    .check input { width: auto; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">OPEN TENNIS ROBOTS · OPEN-SOURCE HARDWARE + SOFTWARE · MIT LICENCE</p>
+    <h1>A tennis ball machine that catches your returns, and a robot that picks up the rest</h1>
+    <p>Two open-source robots for solo and coached practice. The <strong>feeder</strong> fires drills with topspin or backspin, watches your shot with two cameras, and <strong>slides a 3 m catch net to where your return will arrive</strong>. Caught balls roll back into its hopper. The <strong>collector</strong> roams the court and <strong>picks up tennis balls while you play</strong>, staying out of the player's and coach's zones.</p>
+    <p>The <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-tennis-robots">designs, firmware and software</a> are free to build, change and sell. Try the shot planner below; it runs the same flight model the robot uses.</p>
+    <p class="note">Status: the collector has a complete manufacturing package (v0.2); the feeder is a v0.1 design whose CAD is next. Everything has been simulated, but no robot has been built yet. Not engineering or safety advice.</p>
+  </header>
+
+  <section class="card" id="feeder">
+    <h2>Shot planner: aim the ball machine</h2>
+    <p>Tap the court to set where the ball should land, then choose speed and spin. The planner solves the launch angles and the two wheel speeds, with drag, spin lift and the net taken into account.</p>
+    <div class="two">
+      <div>
+        <svg class="court" id="court" viewBox="-14 -7 28 14" role="img" aria-label="Top view of a tennis court; tap to choose a target">
+          <title>Tennis court, top view</title>
+        </svg>
+        <p class="note">Ball machine at the left baseline, player on the right. Yellow: target. Dashed line: the ball's path.</p>
+      </div>
+      <div>
+        <div class="grid">
+          <div><label for="tx">Target, metres past the net</label><input id="tx" type="number" step="0.1" min="0.5" max="11.8" value="9"></div>
+          <div><label for="ty">Target, metres left (+) / right (−)</label><input id="ty" type="number" step="0.1" min="-4.1" max="4.1" value="-2"></div>
+          <div><label for="speed">Ball speed, km/h</label><input id="speed" type="number" step="1" min="30" max="140" value="80"></div>
+          <div><label for="spin">Spin, rpm (− = backspin)</label><input id="spin" type="number" step="100" min="-3000" max="4000" value="1200"></div>
+          <div><label for="my">Machine position, m left of centre</label><input id="my" type="number" step="0.1" min="-4" max="4" value="0"></div>
+        </div>
+        <button id="aim">Plan this shot</button>
+        <button class="secondary" id="drill">Random drill ball</button>
+        <div id="shot" aria-live="polite"></div>
+      </div>
+    </div>
+    <svg class="side" id="side" viewBox="-13 -0.3 26 4.3" role="img" aria-label="Side view of the ball's flight">
+      <title>Ball flight, side view</title>
+    </svg>
+  </section>
+
+  <section class="card" id="catch-net">
+    <h2>Does a moving catch net work? What the simulation says</h2>
+    <p>Each cell is 300 simulated club-level returns: struck from the player's back court at 50–100 km/h with 0–2,500 rpm topspin, landing in the singles court. The model includes 120 fps cameras with 5 cm position noise, 100 ms from frame to motor, and a base accelerating at 5 m/s². The share of returns caught:</p>
+    <div class="scroll">
+      <table id="study">
+        <thead><tr><th>Net width</th><th class="n">Fixed net</th><th class="n">Base 1 m/s</th><th class="n">Base 2.5 m/s</th><th class="n">Base 4 m/s</th></tr></thead>
+        <tbody>
+          <tr><td>1.5 m</td><td class="n">19%</td><td class="n">45%</td><td class="n">80%</td><td class="n">91%</td></tr>
+          <tr><td>2.0 m</td><td class="n">23%</td><td class="n">50%</td><td class="n">84%</td><td class="n">94%</td></tr>
+          <tr><td>3.0 m</td><td class="n">31%</td><td class="n">64%</td><td class="n">91%</td><td class="n">97%</td></tr>
+          <tr><td>4.0 m</td><td class="n">46%</td><td class="n">79%</td><td class="n">96%</td><td class="n">99%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Simulation, not a measurement on a real court. The assumed spread of returns, the camera noise and the drive limits are all inputs; rerun with your own: <code>tennisbots catch-study --net-width 3 --base-speed 2.5</code>. None of the simulated returns cleared a 2.5 m frame.</p>
+  </section>
+
+  <section class="card" id="collector">
+    <h2>Ball collector: route planner</h2>
+    <p>Scatter some balls and watch the rover's route: nearest ball first, then untangled with 2-opt. The robot's own planner also routes around keep-out zones and empties the hopper when it is full.</p>
+    <div class="grid">
+      <div><label for="nballs">Balls on court</label><input id="nballs" type="number" min="1" max="150" value="40"></div>
+      <div><label for="rspeed">Rover speed, m/s</label><input id="rspeed" type="number" step="0.1" min="0.2" max="1.0" value="0.6"></div>
+    </div>
+    <button id="scatter">Scatter balls and plan</button>
+    <svg class="court" id="ccourt" viewBox="-14 -7 28 14" role="img" aria-label="Top view of a court with balls and the collector's route">
+      <title>Collector route</title>
+    </svg>
+    <div id="route" aria-live="polite"></div>
+  </section>
+
+  <section class="card" id="make">
+    <h2>Manufacture the collector: download the fab package</h2>
+    <p>Everything a fabricator needs, generated from one parametric CAD model: laser-cut <strong>DXF</strong> files (flat 5052 aluminium, true millimetres, no bends or tapped holes), <strong>STL</strong> files for printed PETG parts, <strong>STEP</strong> files for any CAD or CAM tool, a cut list, a full bill of materials with every fastener, and assembly drawings. The build checks every part against every other for collisions, every bolt hole against its mate, and that the wheels, caster and drum all touch the ground.</p>
+    <p><a href="https://github.com/duncan-haywood/oss-monorepo/raw/main/ventures/open-tennis-robots/manufacturing/collector-package.zip">Download the collector manufacturing package (zip, 0.6 MB)</a> or <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-tennis-robots/manufacturing/collector">browse the files</a> (GitHub shows the STLs in 3D). Upload the DXFs to any laser-cutting service, print or order the STLs, and buy the rest from <code>bom.csv</code>.</p>
+    <div class="big">
+      <div>Laser-cut parts<strong>6 designs</strong></div>
+      <div>Printed parts<strong>5 designs</strong></div>
+      <div>Drum holds<strong>~118 balls</strong></div>
+      <div>Size<strong>80 × 59 cm</strong></div>
+    </div>
+    <p class="note">Design v0.2, not yet built: the first build will find things to fix. Change any dimension and regenerate with <code>python -m otr_cad collector</code> (<a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-tennis-robots/cad">parametric CAD source</a>). The feeder's package is next.</p>
+  </section>
+
+  <section class="card" id="build">
+    <h2>Build one</h2>
+    <ul>
+      <li><a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-tennis-robots/hardware/feeder-catcher.md">Feeder with moving catch net</a>: dimensions, mechanism, sensing, <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-tennis-robots/hardware/bom-feeder-catcher.csv">bill of materials</a> (roughly $1,200 in parts, estimated).</li>
+      <li><a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-tennis-robots/hardware/collector.md">Ball-collecting rover</a>: rod-cage pickup drum, drive, keep-out zones, <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-tennis-robots/hardware/bom-collector.csv">bill of materials</a> (roughly $700, estimated).</li>
+      <li><a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-tennis-robots/hardware/electronics.md">Electronics and pin map</a>, <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-tennis-robots/firmware/esp32/README.md">ESP32 firmware</a>, and <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-tennis-robots/hardware/safety.md">safety</a>.</li>
+      <li>Software: <code>pip install "git+https://github.com/duncan-haywood/oss-monorepo#subdirectory=ventures/open-tennis-robots"</code>, then <code>tennisbots aim --x 9 --y -2 --speed 22 --topspin 1200</code>.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="sell">
+    <h2>Sell one, or buy one</h2>
+    <p>The licence lets anyone build and sell these robots, branded as their own, with no royalty. The <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-tennis-robots/sell/README.md">seller's guide</a> covers kits versus assembled machines and the safety, radio, battery transport and insurance work. A listing tool turns one config file into an Amazon listing on your own seller account. It refuses to go live until the compliance items are confirmed.</p>
+    <p>Running a club or a court business? The <a href="../pickleball-facility-pro-forma/">pickleball and padel facility pro forma</a> models courts, rates, memberships and break-even. It runs in your browser and uploads nothing.</p>
+    <p>No one sells a ready-made one yet. If you build and sell one, <a href="https://github.com/duncan-haywood/oss-monorepo/issues">open an issue</a> and we will link you here.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>Can I build my own tennis ball machine?</h3>
+    <p>Yes. The feeder uses two counter-rotating wheels on BLDC motors, a hopper with a single-ball gate, servos for elevation and azimuth, a Raspberry Pi for planning and an ESP32 for motor control. The bill of materials, wiring, pin map, firmware and planning software are all in the repository under the MIT licence. It is a v0.1 design that has been simulated, not yet built and tested.</p>
+    <h3>How does a two-wheel ball machine make topspin and backspin?</h3>
+    <p>The ball is pinched between two wheels stacked one above the other. If both spin at the same surface speed, the ball leaves flat at roughly their average speed. If the top wheel turns faster, the top of the ball is pushed forward and it leaves with topspin; a faster bottom wheel gives backspin. The planner above shows both wheel speeds, and the calibrate function fits your machine's real slip from a few measured shots.</p>
+    <h3>How does the catch net know where my return will go?</h3>
+    <p>Two cameras on top of the net frame see the ball. A Kalman filter estimates its position and velocity from each frame, and a flight model with drag, spin lift and the bounce predicts where it will cross the plane of the net. About twenty times a second, the base is told to drive there. In the simulation above, a 3 m net on a base that moves at 2.5 m/s caught far more returns than the same net standing still.</p>
+    <h3>Is there a robot that picks up tennis balls?</h3>
+    <p>This project's collector is one you can build: a small differential-drive rover pushing a rod-cage drum, the mechanism hand-pushed ball mowers use, which squeezes balls in between spring wires and holds about 118. It finds balls with a camera and plans the shortest route, or sweeps the court in lanes when it has no camera. It never drives through keep-out zones around the player, the ball machine or a coach. Its laser-cut, printed and STEP files are ready to download.</p>
+    <h3>How much does it cost to build?</h3>
+    <p>The bills of materials add up to roughly 1,200 US dollars for the feeder with its catch net and roughly 700 for the collector. These are rough planning estimates, not quotes. The battery, motors and net frame are the largest items. Check current supplier prices before you buy.</p>
+    <h3>Can I sell tennis robots built from these designs?</h3>
+    <p>Yes. Everything is MIT-licensed, so you can build, brand and sell kits or assembled machines with no royalty. You are the manufacturer. The seller's guide lists the safety, radio, battery transport and insurance work involved, and the listing tool builds an Amazon listing from one config file and submits it through your own Selling Partner API account.</p>
+    <h3>Is a homemade ball machine safe?</h3>
+    <p>Only if you build it carefully. Launcher wheels at several thousand rpm and balls at over 100 km/h can injure people. The design includes a hard-wired emergency stop, wheel guards, a firmware watchdog that stops every motor if the controller goes quiet, a feed interlock and command limits. You are still responsible for building, testing and operating your machine safely.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering or safety advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for building and operating any machine safely and lawfully. To the maximum extent permitted by law, the authors accept no liability for any loss, damage or injury arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser. Nothing you type is uploaded, and there are no accounts, tracking cookies or analytics vendor. Anonymous counts of which features get used are stored in your own browser only. <label class="check" for="optout"><input type="checkbox" id="optout"> Turn usage counting off</label></p>
+    <p>Not affiliated with any ball machine maker, tennis brand, or Amazon. Open source under the MIT licence. Like it? <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work on GitHub</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { aim, defaultOrigin, wheelRpm, RPM, COURT, collectRoute } from "./sim.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const NS = "http://www.w3.org/2000/svg";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, attrs, parent) => {
+      const e = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+      if (parent) parent.appendChild(e);
+      return e;
+    };
+    // Court x runs left-right on screen; court y (left of the machine) is screen up.
+    function drawCourt(svg) {
+      svg.querySelectorAll(".layer").forEach((n) => n.remove());
+      const g = el("g", { class: "layer", stroke: "#fff", "stroke-width": "0.08", fill: "none" }, svg);
+      const L = COURT.halfLength, D = COURT.doublesWidth / 2, S = COURT.singlesWidth / 2;
+      el("rect", { x: -L, y: -D, width: 2 * L, height: 2 * D, fill: "#3d7a9e" }, g);
+      el("line", { x1: -L, y1: -S, x2: L, y2: -S }, g);
+      el("line", { x1: -L, y1: S, x2: L, y2: S }, g);
+      el("line", { x1: -COURT.serviceLine, y1: -S, x2: -COURT.serviceLine, y2: S }, g);
+      el("line", { x1: COURT.serviceLine, y1: -S, x2: COURT.serviceLine, y2: S }, g);
+      el("line", { x1: -COURT.serviceLine, y1: 0, x2: COURT.serviceLine, y2: 0 }, g);
+      el("line", { x1: 0, y1: -D - 0.9, x2: 0, y2: D + 0.9, stroke: "#ddd", "stroke-width": "0.12" }, g);
+      return g;
+    }
+    const sy = (y) => -y; // screen y
+
+    let target = [9, -2];
+    const courtSvg = $("court");
+    function render(shot, machineY) {
+      const g = drawCourt(courtSvg);
+      el("rect", { x: -COURT.halfLength - 0.9, y: sy(machineY) - 0.35, width: 0.8, height: 0.7, fill: "#e5533d", stroke: "none" }, g);
+      el("rect", { x: -COURT.halfLength - 0.85, y: sy(machineY) - 1.5, width: 0.1, height: 3, fill: "#c9d7ee", stroke: "none" }, g);
+      if (shot) {
+        const pts = shot.flight.points.map((p) => `${p.pos[0].toFixed(2)},${sy(p.pos[1]).toFixed(2)}`).join(" ");
+        el("polyline", { points: pts, stroke: "#c8dc3c", "stroke-dasharray": "0.3 0.2" }, g);
+      }
+      el("circle", { cx: target[0], cy: sy(target[1]), r: 0.25, fill: "#c8dc3c", stroke: "#3b4a00", "stroke-width": "0.05" }, g);
+      const side = $("side");
+      side.querySelectorAll(".layer").forEach((n) => n.remove());
+      const s = el("g", { class: "layer", fill: "none" }, side);
+      el("line", { x1: -13, y1: 4, x2: 13, y2: 4, stroke: "#556", "stroke-width": "0.04" }, s);
+      el("line", { x1: 0, y1: 4, x2: 0, y2: 4 - COURT.netCentre, stroke: "#333", "stroke-width": "0.08" }, s);
+      el("line", { x1: -COURT.halfLength, y1: 3.95, x2: -COURT.halfLength, y2: 4, stroke: "#2f6b2a", "stroke-width": "0.1" }, s);
+      el("line", { x1: COURT.halfLength, y1: 3.95, x2: COURT.halfLength, y2: 4, stroke: "#2f6b2a", "stroke-width": "0.1" }, s);
+      if (shot) {
+        const pts = shot.flight.points.map((p) => `${p.pos[0].toFixed(2)},${(4 - p.pos[2]).toFixed(2)}`).join(" ");
+        el("polyline", { points: pts, stroke: "#7a8a00", "stroke-width": "0.05" }, s);
+      }
+    }
+
+    function plan(silent = false) {
+      const x = Number($("tx").value), y = Number($("ty").value);
+      const kmh = Number($("speed").value), spin = Number($("spin").value), my = Number($("my").value);
+      target = [x, y];
+      const out = $("shot");
+      try {
+        const shot = aim(defaultOrigin(my), [x, y], kmh / 3.6, spin);
+        const w = wheelRpm(kmh / 3.6, spin * RPM);
+        out.innerHTML = `<div class="big">
+          <div>Elevation<strong>${shot.elevationDeg.toFixed(1)}°</strong></div>
+          <div>Azimuth<strong>${shot.azimuthDeg.toFixed(1)}°</strong></div>
+          <div>Top wheel<strong>${Math.round(w.top)} rpm</strong></div>
+          <div>Bottom wheel<strong>${Math.round(w.bottom)} rpm</strong></div>
+          <div>Net clearance<strong>${shot.netClearance === null ? "–" : shot.netClearance.toFixed(2) + " m"}</strong></div>
+          <div>Flight to bounce<strong>${shot.flightTime.toFixed(2)} s</strong></div></div>` +
+          (w.error ? `<p class="warn">Wheels: ${w.error}.</p>` : "");
+        render(shot, my);
+        if (!silent) record("shot_planned");
+      } catch (e) {
+        out.innerHTML = `<p class="warn">${e.message}. Try more speed, less topspin, or a shorter target.</p>`;
+        render(null, my);
+        if (!silent) record("shot_unreachable");
+      }
+    }
+
+    courtSvg.addEventListener("click", (ev) => {
+      const pt = courtSvg.createSVGPoint();
+      pt.x = ev.clientX; pt.y = ev.clientY;
+      const p = pt.matrixTransform(courtSvg.getScreenCTM().inverse());
+      if (p.x <= 0.3) return;
+      $("tx").value = Math.min(11.8, p.x).toFixed(1);
+      $("ty").value = Math.max(-4.1, Math.min(4.1, -p.y)).toFixed(1);
+      record("court_tapped");
+      plan();
+    });
+    $("aim").addEventListener("click", () => plan());
+    $("drill").addEventListener("click", () => {
+      $("tx").value = (5 + Math.random() * 6).toFixed(1);
+      $("ty").value = (-3.5 + Math.random() * 7).toFixed(1);
+      $("speed").value = String(60 + Math.round(Math.random() * 40));
+      $("spin").value = String(Math.round(Math.random() * 20) * 100);
+      record("drill_ball");
+      plan();
+    });
+
+    function scatter(silent = false) {
+      const n = Math.max(1, Math.min(150, Number($("nballs").value) || 40));
+      const speed = Math.max(0.2, Math.min(1, Number($("rspeed").value) || 0.6));
+      const balls = [];
+      for (let i = 0; i < n; i++) balls.push([-13 + Math.random() * 26, -6 + Math.random() * 12]);
+      const start = [-COURT.halfLength - 1.5, COURT.doublesWidth / 2 + 0.5];
+      const r = collectRoute(start, balls);
+      const svg = $("ccourt");
+      const g = drawCourt(svg);
+      const pts = [start, ...r.order].map((p) => `${p[0].toFixed(2)},${sy(p[1]).toFixed(2)}`).join(" ");
+      el("polyline", { points: pts, stroke: "#f6c445", "stroke-width": "0.09" }, g);
+      for (const b of balls) el("circle", { cx: b[0], cy: sy(b[1]), r: 0.17, fill: "#c8dc3c", stroke: "none" }, g);
+      el("rect", { x: start[0] - 0.3, y: sy(start[1]) - 0.3, width: 0.6, height: 0.6, fill: "#e5533d", stroke: "none" }, g);
+      $("route").innerHTML = `<div class="big"><div>Balls<strong>${n}</strong></div><div>Route<strong>${r.length.toFixed(0)} m</strong></div><div>Drive time<strong>${(r.length / speed / 60).toFixed(1)} min</strong></div></div><p class="note">Drive time only; turning and pickup add to it.</p>`;
+      if (!silent) record("collector_route");
+    }
+    $("scatter").addEventListener("click", () => scatter());
+
+    const opt = $("optout");
+    opt.checked = usageOptedOut();
+    opt.addEventListener("change", () => setUsageOptOut(opt.checked));
+    plan(true);
+    scatter(true);
+  </script>
+</body>
+</html>

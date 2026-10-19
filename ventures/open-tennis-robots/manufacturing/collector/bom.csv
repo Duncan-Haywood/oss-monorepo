@@ -1,0 +1,42 @@
+item,kind,qty,what,notes
+base_plate,laser,1,aluminium 5052 5 mm,All holes are clearance holes; no tapping.
+electronics_tray,laser,1,aluminium 5052 3 mm,Pi 5 on M2.5 x 58x49; other boards on the 10 mm M3 grid.
+drum_disc,laser,2,aluminium 5052 5 mm,18 rod holes on R158; 22 mm bore takes a 608 bearing (press or loctite).
+rod_clamp_ring,laser,2,aluminium 5052 3 mm,Holds the rod ends in the disc.
+drum_cover,laser,2,aluminium 5052 3 mm,"Emptying hatch: one side on M5 thumb screws, the other bolted."
+yoke_arm,laser,2,aluminium 5052 5 mm,M8 shoulder bolts at both ends; drum hangs on its own weight.
+motor_clamp_cradle,print,2,PETG,"PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
+motor_clamp_cap,print,2,PETG,"PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
+pivot_block,print,2,PETG,M4 heat-set inserts underneath; M8 pivot bolt through.
+caster_adapter,print,1,PETG,"Spacer between base and a ball caster; drill the caster's own pattern to suit, or edit here."
+mast_socket,print,1,PETG,20 mm tube push fit; add an M4 grub screw if it rattles.
+drum_rod,stock,18,"3 mm music wire, cut 460 mm",Deburr ends.
+mast_tube,stock,1,"20 mm OD x 1.5 mm wall aluminium tube, cut 1000 mm",
+standoff,cots,4,M3 x 30 mm female-female hex standoff,
+gearmotor,cots,2,"37 mm gearmotor, 24 V, ~150-200 rpm, 6 mm D shaft, quadrature encoder",
+wheel,cots,2,150 x 40 mm non-marking wheel + 6 mm D-shaft hub,
+ball_caster,cots,1,"ball caster, 25 mm mounting height (e.g. 3/4-1 in ball)",
+battery,cots,1,"24 V LiFePO4 10 Ah with BMS, max 80 x 180 x 100 mm",
+M4 x 50 socket cap screw,cots,8,M4 x 50 socket cap screw,motor clamp caps
+M4 x 12 socket cap screw,cots,16,M4 x 12 socket cap screw,"clamp cradles, pivot blocks, caster adapter, mast socket (from below)"
+"M4 heat-set insert, 5.7 mm long",cots,24,"M4 heat-set insert, 5.7 mm long",all printed parts
+M4 x 12 button head + nyloc nut,cots,12,M4 x 12 button head + nyloc nut,rod clamp rings
+M5 x 12 button head,cots,6,M5 x 12 button head,fixed drum cover
+"M5 thumb screw, 12 mm",cots,6,"M5 thumb screw, 12 mm",hatch drum cover
+"M5 rivet nut (blind insert), aluminium",cots,12,"M5 rivet nut (blind insert), aluminium","drum discs, for the covers"
+M8 x 25 shoulder bolt + nyloc nut,cots,4,M8 x 25 shoulder bolt + nyloc nut,yoke pivots and drum axles
+"M8 washer, 3 mm stack",cots,4,"M8 washer, 3 mm stack",spacer between drum cover and arm
+"608 (or F608) bearing, 8 x 22 x 7",cots,2,"608 (or F608) bearing, 8 x 22 x 7",drum hubs
+M3 x 8 screw,cots,8,M3 x 8 screw,tray standoffs
+M2.5 x 6 screw + 6 mm standoff,cots,4,M2.5 x 6 screw + 6 mm standoff,Raspberry Pi
+Ball caster mounting screws,cots,1,Ball caster mounting screws,to suit the caster bought
+Raspberry Pi 5 (4 GB) or Pi 4,cots,1,Raspberry Pi 5 (4 GB) or Pi 4,vision + planning
+Wide-angle camera module + 1 m ribbon/USB,cots,1,Wide-angle camera module + 1 m ribbon/USB,on the mast
+ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),firmware/esp32
+"Dual DC motor driver, 10 A/ch, PWM+DIR",cots,1,"Dual DC motor driver, 10 A/ch, PWM+DIR",e.g. Cytron MDD10A class
+5 V 5 A buck converter,cots,1,5 V 5 A buck converter,Pi supply
+22 mm NC mushroom e-stop + 24 V contactor,cots,1,22 mm NC mushroom e-stop + 24 V contactor,hard power cut
+Lever microswitch,cots,2,Lever microswitch,yoke-lift bumper sensing
+BNO085 (or similar) IMU,cots,1,BNO085 (or similar) IMU,yaw
+"25 mm hook-and-loop strap, 600 mm",cots,1,"25 mm hook-and-loop strap, 600 mm",battery
+15 A blade fuse + holder,cots,1,15 A blade fuse + holder,battery positive

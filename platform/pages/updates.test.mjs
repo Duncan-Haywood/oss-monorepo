@@ -216,3 +216,24 @@ test('active research: one row per project, newest change first, counted', () =>
   assert.deepEqual(rows.map((r) => [r.slug, r.changes, r.latest.title]), [['kws', 2, 'kws: newest'], ['gyro', 1, 'two at once']]);
   assert.deepEqual(activeResearch(null), []);
 });
+
+test('the week window: launches count from the day after weekAgo through today, no later', () => {
+  const launched = {
+    'roofing-calc': '2026-10-19',
+    a: '2026-10-13',
+    b: '2026-10-12',
+    c: '2026-10-20',
+  };
+  const published = new Set(['roofing-calc', 'a', 'b', 'c']);
+  const s = summarise(data({ launched, published }));
+  assert.equal(s.weekAgo, '2026-10-12');
+  assert.deepEqual(s.launchedWeek.map(([slug]) => slug), ['roofing-calc', 'a']);
+});
+
+test('the updates page lists at most six owner decisions and the live PR meta joins by string', () => {
+  const decisions = Array.from({ length: 7 }, (_, i) => ({ id: `decision-${i}`, gates: '' }));
+  const html = renderUpdates(data({ decisions }), { baseUrl: BASE });
+  assert.ok(html.includes('decision-5'));
+  assert.ok(!html.includes('decision-6'), 'the seventh decision is cut');
+  assert.ok(html.includes("' · #' + Number(pr.number) + (pr.draft"), 'PR number is concatenated, not subtracted');
+});
