@@ -1284,3 +1284,19 @@ test("every starter template parses cleanly and builds a roster that covers its 
     if (k !== "cafe") assert.ok(r.unfilledHours <= 10, k + " leaves too much open: " + r.unfilledHours);
   }
 });
+
+test("ownerValid judges a person's shifts in time order, whatever order the shifts were listed in", () => {
+  const staff = staffOf("Ann,15,40,0,Mon-Sun 6-24");
+  // Listed latest-first, then earliest-first: slot indices run against the clock in one, with it in the other.
+  for (const text of ["Wed,9,17,1\nTue,9,17,1\nMon,9,17,1", "Mon,9,17,1\nTue,9,17,1\nWed,9,17,1"]) {
+    const slots = slotsOf(text);
+    const ctx = _internals.buildContext(staff, slots, {});
+    assert.ok(_internals.ownerValid(ctx, slots.map(() => 0)), "three days of shifts with a full night between them are valid");
+  }
+  // An overlapping pair is invalid in either listing order.
+  for (const text of ["Mon,10,16,1\nMon,6,12,1", "Mon,6,12,1\nMon,10,16,1"]) {
+    const slots = slotsOf(text);
+    const ctx = _internals.buildContext(staff, slots, {});
+    assert.ok(!_internals.ownerValid(ctx, [0, 0]), "overlapping shifts are invalid");
+  }
+});
