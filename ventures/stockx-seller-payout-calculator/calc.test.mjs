@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculate, computeMonthProfit, incomeGap, priceForProfit, DEFAULTS } from './calc.mjs';
+import { calculate, computeMonthProfit, incomeGap, priceForProfit, levelLadder, DEFAULTS } from './calc.mjs';
 
 function close(actual, expected, eps = 0.01) {
   assert.ok(Math.abs(actual - expected) < eps, `expected ${actual} to be close to ${expected}`);
@@ -176,4 +176,24 @@ test('priceForProfit() default break-even on the default inputs is (100 + 6) / 0
 test('priceForProfit() is null when the percentage fees take the whole price', () => {
   assert.equal(priceForProfit({ ...DEFAULTS, sellerFeePct: 100, fastShippingDiscountPct: 0 }, 10), null);
   assert.equal(priceForProfit({ ...DEFAULTS, sellerFeePct: 60, paymentProcessingFeePct: 40, fastShippingDiscountPct: 0 }), null);
+});
+
+test('levelLadder prices the same sale at each fee rate and diffs it against the entered rate', () => {
+  const rows = levelLadder(DEFAULTS, [9, 8, 10], 20);
+  assert.equal(rows.length, 3);
+  close(rows[0].deltaPerSale, 0);
+  // $150 sale: one point of seller fee is $1.50.
+  close(rows[1].deltaPerSale, 1.5);
+  close(rows[1].deltaPerMonth, 30);
+  close(rows[2].deltaPerSale, -1.5);
+  close(rows[1].netProfit, calculate({ ...DEFAULTS, sellerFeePct: 8 }).netProfit);
+});
+
+test('levelLadder keeps the Fast Shipping discount and rejects bad input', () => {
+  const rows = levelLadder({ ...DEFAULTS, fastShippingDiscountPct: 2 }, [1]);
+  // 1% fee minus a 2-point discount floors at 0%, same as calculate.
+  close(rows[0].netProfit, calculate({ ...DEFAULTS, sellerFeePct: 1, fastShippingDiscountPct: 2 }).netProfit);
+  assert.throws(() => levelLadder(DEFAULTS, [101]));
+  assert.throws(() => levelLadder(DEFAULTS, [9], -1));
+  assert.deepEqual(levelLadder(DEFAULTS, [], 5), []);
 });
