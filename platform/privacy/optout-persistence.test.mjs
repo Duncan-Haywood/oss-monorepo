@@ -1706,7 +1706,8 @@ const RELATIVE_SELF = relative(
 // +1: `bid-price-engine` graduated (the consolidated bid calculator).
 // +1: `us-substantial-presence-test-calculator` graduated.
 // +1: `discogs-fee-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1265;
+const SWITCHES_IN_THE_CATALOGUE = 1266;
+// +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
 // +1: `liability-audit` graduated.
