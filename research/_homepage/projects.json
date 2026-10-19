@@ -2544,6 +2544,11 @@
      "summary": "Weights the comfort benefit of fabric levers by wearing time across a warm room, sunny outdoors and a cool room, and adds an idealised gated infrared lever. A fixed infrared-transparent shell has positive expected benefit only if the warm room takes more than 75.5% of wearing time (against the cool room); white never harms and has the best benefit per dollar in all four mixes tried. Across 66 wearing mixes the best garment changes with the mix, and the gate is chosen in 65 of 66 mixes at the fixed shell's premium but in 18 of 66 at twice it and none at four times. Stylised: premiums, gate cost and wearing shares are assumed, and the gate is an upper bound."
     },
     {
+     "slug": "garment-costperwear",
+     "title": "How much longer must a $2,850 coat last to beat a $56 replica on cost per wear?",
+     "summary": "Combines the modelled replica costs and reported prices of <code>garment-teardown</code> with an assumed durability layer. With no resale and equal care the $2,850 trench must outlast a $56 replica by about 46&times; (52&times; for the $3,850 coat). With lognormal lifetimes (log-sd 0.5) and a 60-wear replica, the designer coat needs a median life near 3,100 wears to win half the time and wins about 6% of the time at 1,000; designer care of $1 per wear pushes the needed median to about 73,000. Lifetimes, care and resale are all assumed, not measured. Stylised."
+    },
+    {
      "slug": "garment-wearpair",
      "title": "Is a second garment better than a dearer single one?",
      "summary": "Lets the wearer own two garments (a shell and a layer) and wear whichever is most comfortable in each of three scenarios, searching all lever pairs under one total added-retail budget on the replica trench. With thin cloth allowed the pair beats the best single garment in 58 of 66 wearing mixes at $50, but the apparent $20 gain is an artefact: thin cloth has a negative assumed cost that funds the second garment. With thin cloth removed the gain is 0 at $20, +0.49&nbsp;&deg;C (54 of 66 mixes) at $50 and +1.02&nbsp;&deg;C at $100, usually a warm-weather infrared-transparent shell plus a cold-weather thick low-emissivity coat. Stylised: premiums, wearing shares and fabric properties are assumed, garments are not stacked, and no real garment was measured."
