@@ -97,7 +97,7 @@
             "caught": false,
             "seconds": 6.5,
             "triage": "gap",
-            "caught_after_fix": false,
+            "caught_after_fix": true,
             "note": "ownerValid sort comparator (start - start) had no test where slot indices run against the clock; added one in calc.test.mjs"
           },
           {
