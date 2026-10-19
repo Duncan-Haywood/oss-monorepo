@@ -361,6 +361,19 @@ def source_for(a: Asset, store: Store, cfg: Config | None = None, shot: Shot | N
     return {"kind": a.kind, "path": _ffmpeg_readable(a.preview or a.raw, cfg)}
 
 
+def _developed(raw: Path, cfg: Config) -> Path:
+    out = cfg.state_dir / "links" / (raw.stem + ".raw.jpg")
+    if not out.exists():
+        import rawpy
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with rawpy.imread(str(raw)) as r:
+            rgb = r.postprocess(use_camera_wb=True, half_size=True, output_bps=8)
+        tmp = out.with_name(f".{out.name}.{uuid.uuid4().hex[:8]}.jpg")
+        Image.fromarray(rgb).save(tmp, quality=93)
+        os.replace(tmp, out)
+    return out
+
+
 def _move_across(src: Path, dst: Path) -> None:
     """Move a finished file into place, also from the state disk to an output drive: a rename
     cannot cross drives (EXDEV), so it is copied next to its destination and renamed there, which
@@ -377,9 +390,16 @@ def _move_across(src: Path, dst: Path) -> None:
 
 
 def _ffmpeg_readable(path: str | None, cfg: Config | None) -> str | None:
-    """An Insta360 .insp is a JPEG, but ffmpeg refuses the extension ("Operation not permitted"):
-    hand it a .jpg-named link to the same file instead."""
-    if not path or cfg is None or Path(path).suffix.lower() != ".insp":
+    """A still ffmpeg and Pillow can read at reel size. An Insta360 .insp is a JPEG, but ffmpeg
+    refuses the extension ("Operation not permitted"): it gets a .jpg-named link to the same file.
+    A RAW-only shot (no camera JPG) is developed once - camera white balance, half size - into a
+    cached JPEG."""
+    if not path or cfg is None:
+        return path
+    suffix = Path(path).suffix.lower()
+    if suffix in (".arw", ".dng"):
+        return str(_developed(Path(path), cfg))
+    if suffix != ".insp":
         return path
     link = cfg.state_dir / "links" / (Path(path).stem + ".jpg")
     if not link.exists():
