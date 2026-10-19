@@ -72,7 +72,7 @@ results, in the same commit:
 4. Run `python3 platform/ci/research_live_links.py --write` (a project README needs a `**Live page:**` line) and `python3 platform/ci/check_md_links.py` (README links to figures or files not yet generated fail it). Both fail a PR in CI.
 
 Tests and figures may need packages the image lacks. Skip this step when plain `python3` already
-imports what the project uses (stdlib-only projects need nothing; try `python3 -c "import numpy"` first). Otherwise, from the repo root,
+imports what the project uses (stdlib-only projects need nothing; try `python3 -c "import numpy, pytest"` first; one run lost time to a missing pytest). Otherwise, from the repo root,
 `PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`, then use `"$PY"` instead of `python3`
 (stdout is only the interpreter path, and it can differ from the default `python3`).
 First use can build a venv and install packages: 20s to over 2 minutes (5 reports of a 120s foreground timeout), install chatter on stderr. Run it with `run_in_background` and read its stdout when it exits.
