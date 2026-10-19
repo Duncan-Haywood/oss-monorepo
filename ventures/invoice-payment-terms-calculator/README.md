@@ -46,6 +46,10 @@ answers the third-party fee question. On 24% money, waiting still leaves
 $1,176.33 against $1,161.24 after a 3% fee and 90% advance. They match
 at a 1.74% fee. At 50%, factoring flips ahead.
 
+[UK late payment interest](uk-late-payment-interest.html) works out the statutory
+interest (8% over the Bank of England reference rate) and £40/£70/£100 fixed
+compensation you can add to a late UK business-to-business invoice.
+
 [Already overdue? Wait, chase, settle, or collections](chasing-a-late-invoice.html)
 picks up where the due date runs out. The same invoice, 15 days late, scored
 four ways on expected cash after float and the hours a chase costs: a 10%
