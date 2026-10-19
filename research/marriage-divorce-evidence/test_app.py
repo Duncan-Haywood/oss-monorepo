@@ -17,6 +17,9 @@ class AppTests(unittest.TestCase):
     def test_couple_layer(self):
         self.run_node('couple.test.mjs')
 
+    def test_lenses_and_scenarios(self):
+        self.run_node('lenses.test.mjs')
+
 
 if __name__ == '__main__':
     unittest.main()
