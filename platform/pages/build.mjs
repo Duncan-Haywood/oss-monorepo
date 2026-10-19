@@ -402,6 +402,21 @@ const NON_WEB_EXTENSIONS = new Set([
 const REWRITABLE = new Set(['.html', '.xml', '.txt', '.json', '.mjs', '.js', '.webmanifest']);
 
 // Ordered: the first rule whose test matches wins.
+// `categoryFor` runs for every slug on every page and link the build writes,
+// and this check stats the venture's files, so it is answered once per slug
+// (the tree does not change during a build). Uncached it made ~25M `existsSync`
+// calls and took the front-door tests past CI's 20-minute job limit.
+const deployableApp = new Map();
+function shipsDeployableApp(slug) {
+  let hit = deployableApp.get(slug);
+  if (hit === undefined) {
+    hit = surfaceKind(path.join(REPO_ROOT, 'ventures', slug), slug) === 'app'
+      && !CATEGORY_RULES.slice(1).some((rule) => rule.test(slug));
+    deployableApp.set(slug, hit);
+  }
+  return hit;
+}
+
 const CATEGORY_RULES = [
   {
     // Added 2026-10-16 (P019): the self-hosted SaaS-operations apps had been
@@ -419,8 +434,7 @@ const CATEGORY_RULES = [
       /-keeper$/.test(slug)
       || ['cancel-flow', 'churn-radar', 'cron-heartbeat', 'dunning-engine', 'feedback-board', 'form-inbox',
         'mrr-pulse', 'rev-rec', 'self-hosted-saas-stack', 'support-desk', 'trial-converter', 'webhook-relay'].includes(slug)
-      || (surfaceKind(path.join(REPO_ROOT, 'ventures', slug), slug) === 'app'
-        && !CATEGORY_RULES.slice(1).some((rule) => rule.test(slug))),
+      || shipsDeployableApp(slug),
   },
   {
     // `1099k-reconciliation-worksheet` moved here from `backoffice` 2026-10-10: it reconciles a marketplace's 1099-K against a seller's own sales, a
