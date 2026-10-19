@@ -525,6 +525,11 @@
    "blurb": "Gossip, local SGD, pipelines, checkpoints and shared rollouts on unreliable, heterogeneous workers.",
    "projects": [
     {
+     "slug": "ratelimit-burst",
+     "title": "How far over its limit can a rate limiter be pushed in a true rolling window?",
+     "summary": "A stylised free-choice study of five limiters configured as <em>L</em> requests per window <em>W</em>, by adversarial search on an integer tick clock and a Poisson overload test. Only the sliding log never admits more than <em>L</em> in a rolling window. The sliding-window counter admits up to about 1.4&ndash;1.5<em>L</em> (1.40, 1.45, 1.48 for <em>W</em> = 20, 40, 100), and token and leaky buckets admit 1.90&ndash;1.98<em>L</em>; fixed window reaches 2<em>L</em>. At 1.5&times; offered Poisson load, 47% of rolling windows exceed <em>L</em> for fixed window, 39% for the buckets, 8.8% for the sliding counter and none for the sliding log. The searches give lower bounds, not proofs; one client, no distributed state."
+    },
+    {
      "slug": "gossip-consensus",
      "title": "What can one stubborn node do to gossip training?",
      "summary": "Pairwise gossip averaging as a stand-in for all-reduce: disagreement contracts by exactly (n&minus;2)/(2(n&minus;1)) &asymp; &frac12; per matching round (about 20 rounds at any n), the noise floor is (n&minus;1)(n&minus;2)s&sup2;/n (matched to 0.3%), a single stubborn node captures the honest mean at exact rate 1&minus;1/(n(n&minus;1)), and a trust-region clip turns capture into linear creep of at most &tau;/(n(n&minus;1)) per step. Stylised."
