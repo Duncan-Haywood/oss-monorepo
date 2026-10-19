@@ -91,8 +91,8 @@ function single(opts, text) {
 }
 
 function table(result) {
-  const head = ["year", "stock basis", "debt basis", "taxable excess dist.", "suspended loss"];
-  const rows = result.rows.map((r) => [String(r.year), fmt(r.close.stock), fmt(r.close.debtBasis), fmt(r.lines.excessDistributions), fmt(r.close.suspended)]);
+  const head = ["year", "stock basis", "debt basis", "taxable excess dist.", "loan repay gain", "suspended loss"];
+  const rows = result.rows.map((r) => [String(r.year), fmt(r.close.stock), fmt(r.close.debtBasis), fmt(r.lines.excessDistributions), fmt(r.lines.repaymentGain), fmt(r.close.suspended)]);
   const w = head.map((h, i) => Math.max(h.length, ...rows.map((r) => r[i].length)));
   const line = (c) => c.map((x, i) => (i === 0 ? x.padEnd(w[i]) : x.padStart(w[i]))).join("  ");
   return [line(head), ...rows.map(line)].join("\n");
@@ -106,7 +106,7 @@ export function render(opts, text) {
     if (opts.html) return { out: batchPacketHtml(batch), errors };
     const sum = batchSummary(batch);
     if (opts.json) return { out: JSON.stringify({ summary: sum, holders: batch.holders.map((h) => ({ name: h.name, rows: h.result ? h.result.rows : [] })), errors }, null, 2) + "\n", errors };
-    const lines = sum.map((s) => `${s.name}: stock ${fmt(s.stock)}, debt ${fmt(s.debtBasis)}, suspended ${fmt(s.suspended)}, taxable excess ${fmt(s.excessDistributions)}${s.flags.length ? "  <-- " + s.flags.join(", ") : ""}`);
+    const lines = sum.map((s) => `${s.name}: stock ${fmt(s.stock)}, debt ${fmt(s.debtBasis)}, suspended ${fmt(s.suspended)}, taxable excess ${fmt(s.excessDistributions)}${s.repaymentGain > 0 ? `, loan repayment gain ${fmt(s.repaymentGain)}` : ""}${s.flags.length ? "  <-- " + s.flags.join(", ") : ""}`);
     return { out: lines.join("\n") + "\n", errors };
   }
   const { result, errors } = single(opts, text);

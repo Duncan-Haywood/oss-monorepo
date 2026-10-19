@@ -171,7 +171,7 @@ export function packetHtml(result, title = "S corporation shareholder basis work
       ["Stock basis at end of year", r.close.stock], ["Debt basis at beginning of year", r.open.debtBasis],
       ["Loans made", L.loansMade], ["Debt basis restored", L.debtRestored], ["Losses allowed against debt", -L.lossAgainstDebt],
       ["Debt basis reduced by repayment", -(L.loansRepaid - L.repaymentGain)], ["Debt basis at end of year", r.close.debtBasis],
-      ["Excess distributions (generally gain)", L.excessDistributions], ["Losses suspended to next year", L.lossesSuspended],
+      ["Excess distributions (generally gain)", L.excessDistributions], ["Gain on repaying reduced-basis debt", L.repaymentGain], ["Losses suspended to next year", L.lossesSuspended],
     ];
     return `<h2>${r.year}</h2><table>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${esc(fmt(v))}</td></tr>`).join("")}</table>` +
       (r.notes.length ? `<ul>${r.notes.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "");
@@ -410,8 +410,8 @@ export function batchCsv(batch) {
 // One printable file: a summary page, then each shareholder's worksheet.
 export function batchPacketHtml(batch, title = "S corporation shareholder basis worksheets") {
   const sum = batchSummary(batch);
-  const table = `<table><tr><th>Shareholder</th><th class="n">Stock basis</th><th class="n">Debt basis</th><th class="n">Suspended</th><th class="n">Taxable excess dist.</th><th>Flags</th></tr>` +
-    sum.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${esc(fmt(s.stock))}</td><td class="n">${esc(fmt(s.debtBasis))}</td><td class="n">${esc(fmt(s.suspended))}</td><td class="n">${esc(fmt(s.excessDistributions))}</td><td>${esc(s.flags.join(", ") || "none")}</td></tr>`).join("") + "</table>";
+  const table = `<table><tr><th>Shareholder</th><th class="n">Stock basis</th><th class="n">Debt basis</th><th class="n">Suspended</th><th class="n">Taxable excess dist.</th><th class="n">Loan repay gain</th><th>Flags</th></tr>` +
+    sum.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${esc(fmt(s.stock))}</td><td class="n">${esc(fmt(s.debtBasis))}</td><td class="n">${esc(fmt(s.suspended))}</td><td class="n">${esc(fmt(s.excessDistributions))}</td><td class="n">${esc(fmt(s.repaymentGain))}</td><td>${esc(s.flags.join(", ") || "none")}</td></tr>`).join("") + "</table>";
   const inner = batch.holders.filter((h) => h.result).map((h) => {
     const body = packetHtml(h.result, h.name).match(/<body>([\s\S]*)<\/body>/)[1];
     return `<section style="page-break-before:always">${body.replace(/<p>Prepared with[\s\S]*?<\/p>/, "").replace(/<p>No warranty\.[\s\S]*?<\/p>/, "")}</section>`;
