@@ -158,7 +158,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or construction advice, does not state anyone's tax residency, and does not replace a tax professional or the state's own guidance. The rules are summarised from commonly published tests and may be out of date or incomplete. Counts are a record of the dates you typed.</p>
     <p><strong>Independent.</strong> Not affiliated with any state, tax authority, payroll or tax software company, and none is named or ranked here. The example year is invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved unless you tick "Remember my entries" or save a file, so download the CSV.</p>
-    <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>daily_log_downloaded</code>, <code>audit_packet_downloaded</code>, <code>deadlines_downloaded</code>, <code>trip_checked</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>daily_log_downloaded</code>, <code>audit_packet_downloaded</code>, <code>deadlines_downloaded</code>, <code>trip_checked</code>, <code>remembered_entries_restored</code>, <code>count_run_new_day</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../economic-nexus-threshold-tracker/">economic nexus threshold tracker</a> for sellers, the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> and, for US expats, the <a href="../feie-physical-presence-calculator/">FEIE physical presence calculator</a> and the <a href="../us-substantial-presence-test-calculator/">US substantial presence test calculator</a> (federal 183-day test for non-citizens).</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -321,7 +321,7 @@
       catch (e) { status.textContent = e.message; return false; }
     }
 
-    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("count_run"); }));
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) { record("count_run"); noteDay(); } }));
     $("#load-example").addEventListener("click", () => {
       fill(sampleSpec());
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented year, not a real person."; } });
@@ -395,8 +395,11 @@
     try {
       const saved = localStorage.getItem(KEY);
       const r = saved ? setupFromJson(saved) : null;
-      if (r && r.fields) { applyValues(r.fields); $("#remember").checked = true; status.textContent = "Restored the entries you asked this browser to remember. Click Count my days."; }
+      if (r && r.fields) { applyValues(r.fields); $("#remember").checked = true; status.textContent = "Restored the entries you asked this browser to remember. Click Count my days."; record("remembered_entries_restored"); }
     } catch { /* storage blocked */ }
+    // Return measurement (hypothesis: people come back as the year goes on). Counts a run on a different calendar day from the last one, on this device only.
+    const DAY_KEY = "state-residency-day-counter:last-run-day";
+    function noteDay() { try { const d = new Date().toISOString().slice(0, 10), last = localStorage.getItem(DAY_KEY); if (last && last !== d) record("count_run_new_day"); localStorage.setItem(DAY_KEY, d); } catch { /* storage blocked */ } }
     $("#remember").addEventListener("change", () => {
       try { if ($("#remember").checked) persist(); else localStorage.removeItem(KEY); } catch { /* storage blocked */ }
     });
