@@ -49,7 +49,7 @@ Sources:
 - `research/README.md` — each project's bullet is reused as the card's one-line lede.
 - `research/<slug>/` — test counts are the `def test_` functions in its `test*.py` files.
 - `research/<slug>/LOG.md` (optional) — an ongoing project's research log: `## <date> · <title>` entries, newest first, with bullets. The project page shows it under "Research log" and the homepage lists every project that has one.
-- `_homepage/template.html` — layout, styles and search script. `_homepage/project.html` — the per-project home page (`_site/<slug>/index.html`); it shows the first image under the project's `experiments/` if there is one.
+- `_homepage/template.html` — layout, styles and search script. `_homepage/project.html` — the per-project home page (`_site/<slug>/index.html`); it shows the first image under the project's `experiments/` if there is one, a breadcrumb through its theme, previous/next and six more projects from the same theme. `_homepage/topic.html` — one page per theme (`_site/topics/<id>/index.html`) listing its projects; a project's theme is where a reader browsing for it will look, so pick it with care.
 
 Directories under `research/` whose names start with `_` or `.` are not projects.
 
