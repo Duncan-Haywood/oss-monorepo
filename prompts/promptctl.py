@@ -733,6 +733,9 @@ def print_measure(m: dict[str, Any]) -> None:
     print("\n## Doc friction by file\n")
     if not m["doc_friction"]:
         print("None reported.\n")
+    if m["doc_friction"] and _is_shallow():
+        print("(Shallow clone: a file's \"last changed\" date is only as old as the fetched history, so "
+              "[file changed since] tags may be wrong. `git fetch --unshallow origin main` first.)\n")
     for path, f in m["doc_friction"].items():
         note, changed = _changed_note(path)
         tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in f["recent"]]
@@ -780,6 +783,15 @@ def print_measure(m: dict[str, Any]) -> None:
 
 
 # --------------------------------------------------------------------------
+
+
+def _is_shallow() -> bool:
+    try:
+        out = subprocess.run(["git", "rev-parse", "--is-shallow-repository"], cwd=ROOT.parent,
+                             capture_output=True, text=True, timeout=20).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return out == "true"
 
 
 def _changed_note(path: str) -> tuple[str, str]:
