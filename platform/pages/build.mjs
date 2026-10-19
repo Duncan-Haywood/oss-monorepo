@@ -32,6 +32,7 @@ import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { buildWriting, WRITING_PATH } from './writing.mjs';
+import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
   FEED_MAX_ENTRIES,
@@ -7658,17 +7659,17 @@ ${renderResearchSection(research, researchCount)}
           <p>The explainers written beside each tool, and products compared side by side, filed by trade.</p>
           <span class="pillar-more">Read the guides →</span>
         </a>
-        <a class="pillar" href="${ENGINEERING_PATH}">
+        <a class="pillar" href="${UPDATES_PATH}">
           <h3>Built in public</h3>
-          <p>What shipped this week, what CI caught, and what each automated run cost, from the repository's own records.</p>
-          <span class="pillar-more">Engineering status →</span>
+          <p>What shipped this week, what is in progress, where the project is going and how AI agents build it, from the repository's own records.</p>
+          <span class="pillar-more">Updates and roadmap →</span>
         </a>
       </div>
       <ul class="principles">
         <li>No accounts or sign-up</li>
         <li>No tracking cookies</li>
         <li>MIT licence throughout</li>
-        <li>Every change in <a href="dev/">public history</a></li>
+        <li>Every change in the <a href="${CHANGELOG_PATH}">public changelog</a></li>
       </ul>
     </section>
 
@@ -9676,6 +9677,9 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // The writing index and each post, only when the build wrote them.
     .concat(writingSlugs.length ? [`  <url><loc>${baseUrl}${WRITING_PATH}</loc></url>`] : [])
     .concat(writingSlugs.map((slug) => `  <url><loc>${baseUrl}${WRITING_PATH}${slug}/</loc></url>`))
+    // The open book: updates and the changelog. Both change with every merge,
+    // which is what a crawler deciding how often to come back wants to see.
+    .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`])
     // And the guides index, for the same reason. See `GUIDES_PATH`: it is the
     // only page on the site that is *about* the 342 informational pages the
     // ventures wrote, which is the half of the catalogue organic search
@@ -9862,6 +9866,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     '',
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Research](${baseUrl}${RESEARCH_PATH}): the open research portfolio built in the same repository — white papers with reproducible code on mechanism design for verifiable decentralised ML, and digital twins and sim-to-real gaps.`,
+    `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
     // question an assistant is actually asked is about one product ("a free
@@ -10387,6 +10392,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
   const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+
+  // The open book (see `updates.mjs`): what shipped, what is in progress, the
+  // owner's direction and the process, plus the changelog of every merge.
+  // After the research pages so a merge can link the page it changed.
+  await buildUpdates(outDir, base, {
+    published: new Set(surfaces.map((s) => s.slug)),
+    researchSlugs: new Set(researchSlugs),
+    titles: new Map(surfaces.map((s) => [s.slug, s.title])),
+    socialCard: `${base}${SOCIAL_CARD_FILE}`,
+  });
 
   // The comparison index. After the categories because it links every one of
   // them, and before the sitemaps for the same reason they are.

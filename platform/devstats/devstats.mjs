@@ -443,7 +443,20 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
       prs_closed_unmerged_7d: closed.filter((p) => !p.merged_at && p.closed_at && Date.parse(p.closed_at) > now - 7 * DAY).length,
       first_review_hours: { sampled: sample.length, reviewed, p50: round(quantile(firstReview, 0.5)), p90: round(quantile(firstReview, 0.9)) },
       review_states: reviewStates,
-      open_prs: { count: open.length, drafts: open.filter((p) => p.draft).length, older_than_7d: openAges.filter((d) => d > 7).length, oldest_days: round(Math.max(0, ...openAges)) },
+      open_prs: {
+        count: open.length,
+        drafts: open.filter((p) => p.draft).length,
+        older_than_7d: openAges.filter((d) => d > 7).length,
+        oldest_days: round(Math.max(0, ...openAges)),
+        // The newest open PRs from branches in this repository, for the Updates
+        // page's "in progress" list. A fork's title is anyone's text, so it is
+        // left out rather than published on the site.
+        recent: open
+          .filter((p) => String(p.head?.repo?.full_name ?? '').toLowerCase() === repo.toLowerCase())
+          .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
+          .slice(0, 25)
+          .map((p) => ({ number: p.number, title: p.title, draft: Boolean(p.draft), created_at: p.created_at })),
+      },
       ci_main: { runs: mainRuns.length, green_share: share(mainRuns.filter(decided), (r) => r.conclusion === 'success'), failing_workflows: Object.entries(failingWorkflows).sort((a, b) => b[1] - a[1]).slice(0, 8) },
       ci_pr: {
         runs: prRuns.length,
