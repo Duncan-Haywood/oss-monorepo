@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_018LzowTym13zdftjic9pkdH",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "Owner problem statement: add autonomous multi-angle capture for travel creators (360 cameras, lens variety, battery/weight trade-offs, follow robots/drones, automated reel editing) as a project direction",
+  "input_sha256": "debf81b7943b4326ca5c82197ec93e67d1fb16f0b7b5c664b76da4299b956393",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-19T06:32:14Z",
+  "ended": "2026-10-19T06:36:29Z",
+  "wall_minutes": 4.63,
+  "tokens_in": 3414626,
+  "tokens_out": 25141,
+  "cost_usd": 1.9077,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": 8297,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_homepage/projects.json",
+      "issue": "Hand-edited separators (`}\\n    ,{`) mean json.dumps round-trips rewrite unrelated entries; had to insert the new theme as text."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Owner named the task (add a new research track), so I skipped promptctl route (it drew ventures) and recorded under research/1."
+    }
+  ],
+  "goal": null,
+  "notes": "Added research track 13 (capture) from the owner's problem statement, plus the first project capture-crop (360 crop and perspective limits). Facts checked: FAA PackSafe battery rule; X4 8K runtime not used.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "584f3982-ec2c-574b-a66f-de5d9aee19af",
+    "transcripts": 1,
+    "first": "2026-10-19T06:32:14Z",
+    "last": "2026-10-19T06:36:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 29,
+        "input": 58,
+        "output": 25141,
+        "thinking": 5183,
+        "cache_read": 3322044,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92524,
+        "api_equivalent_usd": 1.9077,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 29,
+      "input": 58,
+      "output": 25141,
+      "thinking": 5183,
+      "cache_read": 3322044,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92524,
+      "api_equivalent_usd": 1.9077,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 26,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.63,
+      "active_minutes": 4.63,
+      "model_minutes": 3.94,
+      "tool_minutes": 0.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researching 360 crop geometry, writing model/tests/README and drafting a research track",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 314.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
