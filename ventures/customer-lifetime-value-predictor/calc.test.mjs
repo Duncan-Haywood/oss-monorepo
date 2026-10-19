@@ -192,7 +192,7 @@ test("cohortRetention: repeat share and revenue by first-order month, unobserved
   const orders = [
     { id: "a", day: d("2025-01-02"), amount: 10 }, { id: "a", day: d("2025-01-20"), amount: 20 },
     { id: "b", day: d("2025-01-10"), amount: 30 },
-    { id: "c", day: d("2025-03-01"), amount: 50 }, { id: "c", day: d("2025-06-01"), amount: 5 },
+    { id: "c", day: d("2025-03-01"), amount: 50 }, { id: "c", day: d("2025-04-20"), amount: 5 },
     { id: "z", day: d("2025-06-30"), amount: 1 },
   ];
   const { cohorts } = cohortRetention(orders);
@@ -206,6 +206,7 @@ test("cohortRetention: repeat share and revenue by first-order month, unobserved
   assert.equal(jan.repeat[180], null);
   assert.equal(jan.repeat[365], null);
   assert.equal(cohorts[1].repeat[90], 1);
+  assert.equal(cohorts[1].repeat[180], null);
   assert.equal(cohorts[1].repeat[30], 0);
   assert.equal(cohorts[2].repeat[30], null);
   assert.deepEqual(cohortRetention([]).cohorts, []);
