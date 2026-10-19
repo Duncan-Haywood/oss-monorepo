@@ -19,7 +19,7 @@
   "tool_calls": 13,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8455",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -29,12 +29,16 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": 0,
-  "integrity_issues": 0,
+  "errors": [],
+  "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/process/prompt-1.md",
       "issue": "Backlog had only owner rows; chose Critique from measure's friction list; worked as written."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "create_pull_request returned HTTP 500 twice before succeeding on the third try; no doc mentions retrying."
     }
   ],
   "deviations": [],
