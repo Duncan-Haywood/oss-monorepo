@@ -38,7 +38,7 @@ test('channelTotals separates page loads from channel arrivals', () => {
 });
 
 test('report suggests "measured" only from a non-zero reading, and says plainly when there is none', () => {
-  const channels = [{ id: 'npm-cli-packages', rung: 'live' }, { id: 'bluesky-bot', rung: 'artifact' }, { id: 'ios-app-store', rung: 'artifact' }];
+  const channels = [{ id: 'npm-cli-packages', rung: 'live' }, { id: 'bluesky-bot', rung: 'artifact' }, { id: 'nix-flake', rung: 'artifact' }];
   const on = report({ channels, days: { d: { 'ref:npm': 4 } }, counterOn: true }).rows;
   assert.equal(on[0].suggest, 'measured');
   assert.equal(on[1].suggest, null);
@@ -46,4 +46,10 @@ test('report suggests "measured" only from a non-zero reading, and says plainly 
   assert.match(on[2].reading, /^untagged/);
   const off = report({ channels, days: {}, counterOn: false }).rows;
   assert.match(off[0].reading, /counter is off/);
+});
+
+test('the store listings link their web version with their own channel tag', () => {
+  assert.equal(CHANNEL_REFS['android-play-store'], 'android');
+  assert.equal(CHANNEL_REFS['ios-app-store'], 'ios');
+  assert.equal(tagUrl('https://example.com/x/', 'android'), 'https://example.com/x/?ref=android');
 });
