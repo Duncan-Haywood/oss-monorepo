@@ -118,6 +118,9 @@ export const RESEARCH_DIR = 'research';
 export const ENGINEERING_DIR = 'engineering';
 // Essays from `docs/posts/` (`writing.mjs`): indexed pages about the repository.
 export const WRITING_DIR = 'writing';
+// The open book (`updates.mjs`): indexed pages about what the repository ships.
+export const UPDATES_DIR = 'updates';
+export const CHANGELOG_DIR = 'changelog';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
@@ -131,7 +134,7 @@ export const DEPLOY_DIR = 'deploy';
 // check on the same terms as the deploy page.
 export const DEV_DIR = 'dev';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -702,6 +705,17 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
+  for (const dir of [UPDATES_DIR, CHANGELOG_DIR]) {
+    // Optional, like the writing pages: a fixture build may write neither.
+    const relative = path.join(dir, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) continue;
+    if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+    if (hubHtml !== null && !new RegExp(`href="${dir}/"`).test(hubHtml)) {
+      problems.push(`${dir}/: shipped but the hub does not link it, so nobody can reach it`);
+    }
+  }
+
   // ---- About page ----------------------------------------------------------
   //
   {
@@ -1181,7 +1195,9 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       // Every tool page footer links `deploy/?app=<slug>` (the "Run your own copy" link), and the page is
       // written after this check runs.
       if (resolved === path.resolve(site, DEPLOY_DIR, 'index.html')) continue;
-      if (resolved === path.resolve(site, DEV_DIR, 'index.html')) continue;
+      // Everything under dev/ (the dashboard, its stats.json and dev/analyses/)
+      // is written by publish-branch.sh after this check, on the same terms.
+      if (resolved.startsWith(path.resolve(site, DEV_DIR) + path.sep)) continue;
       if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
       else {
         inboundLinks.add(resolved);

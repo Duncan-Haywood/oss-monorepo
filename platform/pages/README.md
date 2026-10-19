@@ -160,6 +160,33 @@ rather than a rule, so the exclusion also covers `test.mjs`, `test_*.mjs` and
 that was fixed. It matches on the whole filename segment, so product code that
 merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
 
+## Updates and the changelog: the open book
+
+`updates.mjs` writes two indexed pages on every build, both in the site
+header (Updates) and the hub sitemap:
+
+- **`updates/`**: this week in numbers, recently shipped products, research
+  and site changes, the research log (`research/*/LOG.md`), what is in
+  progress (open pull requests, the open process backlog, what waits on the
+  owner), the owner's mission and direction summarised from
+  `prompts/goals.md`, and how the development process works.
+- **`changelog/`**: every merge to `main` in the last 30 days, by day,
+  filed as Tools, Research, Website or Platform & process, each linked to its
+  pull request and to the live page it changed. Atom feed at
+  `changelog/feed.xml`.
+
+Nothing on either page is typed by hand. The open pull requests are the one
+live section: `publish-branch.sh` writes `dev/stats.json` (with
+`github.open_prs.recent`, same-repo PRs only) after this build, and the page
+reads it from its own origin when it loads. The publish workflow checks out
+3,000 commits so the changelog reaches back 30 days; a shallower checkout
+says how far back it could read.
+
+```
+node platform/pages/updates.mjs --out=dist      # just these two pages
+node --test platform/pages/updates.test.mjs
+```
+
 ## What the build fixes up
 
 - **The placeholder origin.** Every venture's `sitemap.xml` and canonical tags

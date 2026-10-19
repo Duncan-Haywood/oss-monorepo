@@ -114,9 +114,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Enough history for the engineering page's "landed on main" view.
-          # Depth 1 would still build; the page would say history is missing.
-          fetch-depth: 400
+          # Enough history for the engineering page's "landed on main" view
+          # and the changelog's 30 days (~100 merges a day). Depth 1 would
+          # still build; both pages would say how far back history goes.
+          fetch-depth: 3000
 
       - uses: actions/setup-node@v4
         with:
