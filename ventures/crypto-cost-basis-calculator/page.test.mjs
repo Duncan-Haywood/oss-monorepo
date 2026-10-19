@@ -138,3 +138,50 @@ test("an unrecognised export opens the column mapper, wired to the importers", (
   assert.match(html, /import \{[^}]*suggestMapping[^}]*applyMapping[^}]*\} from "\.\/importers\.mjs"/);
   assert.match(html, /Header row is missing/);
 });
+
+const SEO_PAGES = ["crypto-tax-loss-harvesting-worked-example", "form-8949-crypto-boxes-g-h-i-j-k-l", "import-coinbase-kraken-binance-csv-crypto-taxes"];
+
+test("the search pages carry the clauses, are linked and in the sitemap, and FAQ schema matches the visible questions", () => {
+  for (const slug of SEO_PAGES) {
+    const html = page(`${slug}.html`);
+    assert.match(html, /No warranty/, slug);
+    assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/, slug);
+    assert.ok(html.includes(`<link rel="canonical" href="./${slug}.html">`), slug);
+    assert.match(page("index.html"), new RegExp(`href="\\./${slug}\\.html"`), slug);
+    assert.match(page("sitemap.xml"), new RegExp(`${slug}\\.html`), slug);
+    const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+    for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+  }
+});
+
+test("the harvesting example matches harvestPlan", async () => {
+  const { harvestPlan, parsePrices } = await import("./calc.mjs");
+  const csv = `date,type,asset,quantity,total,fee,wallet
+2023-02-01,buy,BTC,0.5,10000,0,main
+2024-03-01,buy,ETH,10,40000,0,main
+2024-05-10,buy,SOL,100,20000,0,main
+2024-04-01,buy,BTC,0.2,14000,0,main
+2024-09-15,sell,BTC,0.5,30000,0,main
+`;
+  const r = analyze(csv, { year: 2024, method: "FIFO" });
+  const h = harvestPlan(r.openLots, parsePrices("BTC=60000, ETH=3000, SOL=150").prices, { asOf: "2024-12-10", summary: r.summary });
+  const html = page("crypto-tax-loss-harvesting-worked-example.html");
+  assert.equal(h.taxBefore, 3000);
+  assert.equal(h.taxAfter, 450);
+  assert.equal(h.taxSaved, 2550);
+  assert.equal(h.shortLoss, -17000);
+  for (const l of h.losers) for (const v of [l.basis, l.value, l.taxSaved]) assert.ok(html.includes("$" + v.toLocaleString("en-US")), `${l.asset} ${v}`);
+  assert.ok(html.includes("$2,550") && html.includes("$450") && html.includes("$17,000"));
+});
+
+test("the Form 8949 box table matches form8949Box", async () => {
+  const { form8949Box } = await import("./calc.mjs");
+  assert.deepEqual(["basis", "nobasis", ""].map((x) => form8949Box("Short", x)), ["G", "H", "I"]);
+  assert.deepEqual(["basis", "nobasis", ""].map((x) => form8949Box("Long", x)), ["J", "K", "L"]);
+});
+
+test("the import page names every exchange format the importer reads", async () => {
+  const { FORMAT_LABELS } = await import("./importers.mjs");
+  const html = page("import-coinbase-kraken-binance-csv-crypto-taxes.html");
+  for (const [k, label] of Object.entries(FORMAT_LABELS)) if (k !== "generic") assert.ok(html.includes(label.split(" (")[0]), label);
+});

@@ -31,6 +31,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `fifo-vs-hifo-crypto-cost-basis.html` - guide with a worked example that the
   test suite recomputes.
+- Search guides, each checked by the test suite against the code: `crypto-tax-loss-harvesting-worked-example.html`, `form-8949-crypto-boxes-g-h-i-j-k-l.html` and `import-coinbase-kraken-binance-csv-crypto-taxes.html`.
 
 ## What you use today, and what this does differently
 
