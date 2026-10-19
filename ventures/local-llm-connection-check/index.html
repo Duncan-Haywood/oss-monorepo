@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local LLM Connection Check — can this page reach Ollama, LM Studio or llama.cpp?</title>
+  <meta name="description" content="Free check for local AI: tests whether a web page can reach Ollama, LM Studio or llama.cpp on your computer, tells a CORS block (OLLAMA_ORIGINS) from a server that is not running or has no models, gives the exact fix command for macOS, Linux or Windows, then runs a test prompt and measures tokens per second. Nothing is uploaded.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./">
+  <meta property="og:title" content="Local LLM Connection Check">
+  <meta property="og:description" content="Can this page reach the model on your computer? Tells a CORS block from a stopped server or a missing model, and gives the command that fixes it.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Local LLM Connection Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A browser tool that probes Ollama, LM Studio and llama.cpp on your own computer the way a web page would, diagnoses why a page cannot reach them (CORS, server not running, no model, mixed content), gives the fix command, and times a test prompt."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a web page get a CORS error from Ollama?","acceptedAnswer":{"@type":"Answer","text":"Ollama answers requests only from pages served from your own computer unless you list other origins in the OLLAMA_ORIGINS environment variable. A page on any other site is refused, and the browser reports it the same way as a server that is not running. Set OLLAMA_ORIGINS to that site's origin and restart Ollama."}},{"@type":"Question","name":"How can this page tell a CORS block from a server that is off?","acceptedAnswer":{"@type":"Answer","text":"It sends a second request in no-cors mode, which is allowed to reach the server but not to read the reply. If that request completes, something is listening on the port and refusing this page; if it fails too, nothing is listening, or the browser blocked access to your local network."}},{"@type":"Question","name":"Does anything I type or any model output leave my computer?","acceptedAnswer":{"@type":"Answer","text":"No. The page talks only to the addresses it probes, which are on your own computer unless you enter another. The test prompt goes to your model and its reply is shown here; nothing is sent to us or to an analytics service."}},{"@type":"Question","name":"Is it safe to allow a website in OLLAMA_ORIGINS?","acceptedAnswer":{"@type":"Answer","text":"Allowing one origin lets pages from that site use your local model while it runs, which is the point. Allow only sites you trust, never a wildcard on a machine others can reach, and remove the setting if you stop using them."}},{"@type":"Question","name":"Why can my https page not reach a model on another machine on my network?","acceptedAnswer":{"@type":"Answer","text":"Browsers treat http://localhost as secure, so an https page may call it, but they block plain-http requests to any other address from an https page. Run the tool on the computer with the model, serve the model over https, or forward its port to localhost with ssh."}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
+    *{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:auto;padding:32px 18px 56px}
+    h1{font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.1;margin:.2rem 0 .7rem}h2{font-size:1.1rem;margin:0 0 12px}h3{font-size:1rem;margin:16px 0 4px}
+    p{color:var(--muted)}.lede{max-width:720px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 5px 20px #18315a0b}
+    label{display:block;color:var(--muted);font-size:.86rem;margin:9px 0 3px}
+    input,select{font:inherit;padding:8px 10px;border:1px solid #b9c5d7;border-radius:7px;color:var(--ink);background:#fff;max-width:100%}
+    input:focus,button:focus,select:focus{outline:3px solid #9db6ff;outline-offset:2px}
+    button{border:0;border-radius:8px;background:var(--accent);color:white;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer;margin-top:8px}
+    button.secondary{background:#eef2fa;color:var(--ink);font-weight:600;padding:6px 11px;font-size:.85rem}
+    button:disabled{opacity:.6;cursor:wait}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+    .card{border:1px solid var(--line);border-left:5px solid var(--line);border-radius:10px;padding:12px 14px;margin:12px 0;background:#f8f9fc}
+    .card.ok{border-left-color:#1b7a3d;background:#eff8f2}.card.warn{border-left-color:#c98a00;background:#fdf7e8}.card.bad{border-left-color:#a3211a;background:#fdf1f0}
+    .card .where{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+    .card .state{font-weight:700;color:var(--ink);margin:2px 0 6px}
+    .card ol{margin:6px 0 0;padding-left:20px;color:var(--muted)}
+    pre.cmd{background:#0d1526;color:#dbe6ff;border-radius:8px;padding:9px 11px;font-size:.82rem;overflow-x:auto;margin:6px 0 2px;white-space:pre-wrap;overflow-wrap:anywhere}
+    .small{font-size:.85rem}.notice{background:#fff8e5;border-left:4px solid #d49a00;padding:10px 13px;color:#5f4900}
+    .toggle{display:flex;align-items:center;gap:8px}.toggle input{width:auto;display:inline}
+    .stat{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 8px 0 0;background:#f8f9fc}
+    .stat strong{display:block;font-size:1.3rem;color:var(--ink)}
+    blockquote{margin:8px 0;padding:8px 12px;border-left:3px solid var(--line);background:#f8f9fc;color:var(--ink)}
+    footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted)}
+    a{color:#1f4f8a}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Local LLM Connection Check</h1>
+  <p class="lede">Want a web tool to use the AI model on your own computer instead of an API key? This page tries to reach <strong>Ollama</strong>, <strong>LM Studio</strong> and <strong>llama.cpp</strong> the same way a web tool would, tells you what is in the way (a CORS block, a server that is not running, no model downloaded), and gives you the command that fixes it. Then it sends a test prompt and measures how fast your model answers.</p>
+  <p class="notice"><strong>Nothing is uploaded.</strong> This page only talks to the addresses it probes, which are on your own computer unless you type another. The checks and the test prompt run in your browser.</p>
+
+  <section class="panel">
+    <h2>1. Probe your computer</h2>
+    <div class="row">
+      <div><label for="os">Your operating system (for the fix commands)</label>
+        <select id="os"><option value="mac">macOS</option><option value="linux">Linux</option><option value="windows">Windows</option></select></div>
+      <div><label for="customUrl">Another address (optional)</label>
+        <input id="customUrl" type="text" placeholder="localhost:11434 or http://127.0.0.1:5000/v1" autocomplete="off" size="34"></div>
+    </div>
+    <button id="probeBtn" type="button">Check Ollama, LM Studio and llama.cpp</button>
+    <p class="small">Your browser may ask whether this site may reach devices on your local network. Allow it: that is the request this tool is checking.</p>
+    <p id="probeStatus" class="small" role="status" aria-live="polite"></p>
+    <div id="results"></div>
+    <button id="copyReport" type="button" class="secondary" hidden>Copy report</button>
+    <span id="copyStatus" class="small" role="status" aria-live="polite"></span>
+  </section>
+
+  <section class="panel" id="testPanel" hidden>
+    <h2>2. Send a test prompt</h2>
+    <div class="row">
+      <div><label for="testTarget">Server and model</label><select id="testTarget"></select></div>
+    </div>
+    <button id="testBtn" type="button">Send a test prompt</button>
+    <p class="small">The first prompt after a model loads includes loading it into memory, so run it twice for a fair speed.</p>
+    <p id="testStatus" class="small" role="status" aria-live="polite"></p>
+    <div id="testOut" hidden>
+      <span class="stat"><strong id="tps">—</strong>tokens per second</span>
+      <span class="stat"><strong id="secs">—</strong>seconds in total</span>
+      <span class="stat"><strong id="toks">—</strong>tokens written</span>
+      <blockquote id="testText"></blockquote>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>3. Use it in a tool</h2>
+    <p>Once a server shows as working, pick it as the AI provider in these free tools. They need no key, and your text goes only to your own computer:</p>
+    <ul>
+      <li><a href="../proposal-maker/">Proposal Maker</a>: draft a client proposal.</li>
+      <li><a href="../review-reply-desk/">Review Reply Desk</a>: reply to a customer review.</li>
+      <li><a href="../sales-call-notes-desk/">Sales Call Notes Desk</a>: turn call notes into a follow-up email.</li>
+      <li><a href="../icp-lens/">ICP Lens</a>: draft outreach to your best-fit prospects.</li>
+      <li><a href="../ats-resume-checker/">ATS Resume Checker</a>: suggest resume wording for a job posting.</li>
+    </ul>
+  </section>
+
+  <section class="panel small">
+    <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous events on this device</label>
+    <p>Usage is optional, stays in this browser, and counts only that a probe ran, a test prompt ran or a fix was copied. Addresses, model names, prompts and replies are never recorded or sent anywhere. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>Why does a web page get a CORS error from Ollama?</h3>
+  <p>Ollama answers requests only from pages served from your own computer unless you list other origins in the <code>OLLAMA_ORIGINS</code> environment variable. A page on any other site is refused, and the browser reports it the same way as a server that is not running. Set <code>OLLAMA_ORIGINS</code> to that site's origin and restart Ollama. <a href="./fix-ollama-cors-error.html">Step-by-step for macOS, Linux and Windows</a>.</p>
+  <h3>How can this page tell a CORS block from a server that is off?</h3>
+  <p>It sends a second request in <code>no-cors</code> mode, which is allowed to reach the server but not to read the reply. If that request completes, something is listening on the port and refusing this page; if it fails too, nothing is listening, or the browser blocked access to your local network.</p>
+  <h3>Does anything I type or any model output leave my computer?</h3>
+  <p>No. The page talks only to the addresses it probes, which are on your own computer unless you enter another. The test prompt goes to your model and its reply is shown here; nothing is sent to us or to an analytics service.</p>
+  <h3>Is it safe to allow a website in OLLAMA_ORIGINS?</h3>
+  <p>Allowing one origin lets pages from that site use your local model while it runs, which is the point. Allow only sites you trust, never a wildcard on a machine others can reach, and remove the setting if you stop using them.</p>
+  <h3>Why can my https page not reach a model on another machine on my network?</h3>
+  <p>Browsers treat <code>http://localhost</code> as secure, so an https page may call it, but they block plain-http requests to any other address from an https page. Run the tool on the computer with the model, serve the model over https, or forward its port to localhost with ssh.</p>
+
+  <footer class="small">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security or IT advice, and a result here is an observation about what this page could reach at that moment, not a guarantee about your setup. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every command before you run it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs client-side in your browser. The only requests this page makes are to the addresses it probes and the model you test, which are on your own computer unless you enter another. Nothing reaches us, and there is no third-party analytics vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Comparing what hosted models would cost instead? See the <a href="../llm-api-pricing-calculator/">LLM API Pricing Calculator</a>.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<script type="module">
+  import { probe, probeAll, fixFor, guessOs, testPrompt, reportText, serverName, STATUSES } from "./probe.mjs";
+  import { complete } from "./byok.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const origin = location.origin === "null" ? "file://" : location.origin;
+  let results = [];
+
+  $("os").value = guessOs(navigator.userAgent);
+  $("usage").checked = usageAllowed();
+  $("usage").addEventListener("change", (e) => setUsageEnabled(e.target.checked));
+
+  const TONE = { ok: "ok", "no-models": "warn", "mixed-content": "warn", "http-error": "warn", "bad-url": "warn", blocked: "bad", unreachable: "bad" };
+
+  function el(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      try { await navigator.clipboard.writeText(text); return; } catch { /* fall back below */ }
+    }
+    const t = el("textarea");
+    t.value = text;
+    t.style.position = "fixed";
+    t.style.opacity = "0";
+    document.body.appendChild(t);
+    t.select();
+    const copied = document.execCommand("copy");
+    t.remove();
+    if (!copied) throw new Error("Clipboard unavailable.");
+  }
+
+  function card(r) {
+    const c = el("div", `card ${TONE[r.status] || ""}`);
+    c.appendChild(el("div", "where", `${serverName(r.provider)} · ${r.baseUrl}`));
+    c.appendChild(el("div", "state", STATUSES[r.status] || r.status));
+    const fix = fixFor(r, { origin, os: $("os").value });
+    c.appendChild(el("p", "small", fix.title));
+    const ol = el("ol");
+    for (const step of fix.steps) {
+      const li = el("li", "small", step.text);
+      if (step.command) {
+        li.appendChild(el("pre", "cmd", step.command));
+        const b = el("button", "secondary", "Copy");
+        b.type = "button";
+        b.addEventListener("click", async () => {
+          try { await copyText(step.command); b.textContent = "Copied"; countUsage("fix_copied"); } catch (e) { b.textContent = e.message; }
+        });
+        li.appendChild(b);
+      }
+      ol.appendChild(li);
+    }
+    c.appendChild(ol);
+    return c;
+  }
+
+  function render() {
+    const box = $("results");
+    box.replaceChildren(...results.map(card));
+    $("copyReport").hidden = results.length === 0;
+    const working = results.filter((r) => r.status === "ok");
+    const sel = $("testTarget");
+    sel.replaceChildren();
+    for (const r of working) for (const m of r.models) {
+      const o = el("option", null, `${serverName(r.provider)}: ${m}`);
+      o.value = JSON.stringify({ provider: r.provider, baseUrl: r.baseUrl, model: m });
+      sel.appendChild(o);
+    }
+    $("testPanel").hidden = working.length === 0;
+  }
+
+  $("os").addEventListener("change", render);
+
+  $("probeBtn").addEventListener("click", async () => {
+    const btn = $("probeBtn");
+    btn.disabled = true;
+    $("probeStatus").textContent = "Probing…";
+    try {
+      const custom = $("customUrl").value.trim();
+      const [defaults, extra] = await Promise.all([
+        probeAll({ pageProtocol: location.protocol }),
+        custom ? probe({ provider: "custom", baseUrl: custom, pageProtocol: location.protocol }) : null,
+      ]);
+      results = extra ? [...defaults, extra] : defaults;
+      const n = results.filter((r) => r.status === "ok").length;
+      $("probeStatus").textContent = n
+        ? `${n} working server(s) found. Send a test prompt below.`
+        : "No working server yet. Follow the steps under each result, then check again.";
+      render();
+      countUsage("probe_run");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  $("copyReport").addEventListener("click", async () => {
+    try { await copyText(reportText(results, { origin, os: $("os").value })); $("copyStatus").textContent = "Copied"; }
+    catch (e) { $("copyStatus").textContent = e.message; }
+  });
+
+  $("testBtn").addEventListener("click", async () => {
+    const pick = $("testTarget").value;
+    if (!pick) return;
+    const { provider, baseUrl, model } = JSON.parse(pick);
+    const btn = $("testBtn");
+    btn.disabled = true;
+    $("testStatus").textContent = `Asking ${model}…`;
+    try {
+      const r = await testPrompt({ complete, provider, baseUrl, model, now: () => performance.now() });
+      countUsage("test_prompt_run");
+      if (!r.ok) {
+        $("testOut").hidden = true;
+        $("testStatus").textContent = `The model did not answer: ${r.error}.`;
+        return;
+      }
+      $("tps").textContent = r.tokensPerSecond === null ? "—" : String(r.tokensPerSecond);
+      $("secs").textContent = (r.ms / 1000).toFixed(1);
+      $("toks").textContent = r.outputTokens ? String(r.outputTokens) : "—";
+      $("testText").textContent = r.text || "(empty reply)";
+      $("testOut").hidden = false;
+      $("testStatus").textContent = "Your model answered. Pick it as the provider in any tool above.";
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

@@ -2,6 +2,8 @@
 
 After 1200 iterations at fixed p = 3, 5 of 20 random starting fields of a half-MBB topology optimisation still end in a layout that differs from the uniform-start design (`simdesign-startsconverge` could not count them). I chose this because it is that project's first "Next step". Answer on this problem: **no, and "stuck" is the wrong word.** Penalty continuation (p = 1, then 2, then 3) sends all five stuck starts to one and the same design, but it is not the uniform-start design (20.4% of elements differ) and its compliance, 204.01, is worse than the 202.83 that three of the five reach by simply running 1200 more iterations at p = 3. The uniform start's 203.29 is not the best optimum found either. Produced with AI assistance (Claude). Stylised: 2D, dimensionless compliance, one problem, one mesh, 20 seeds; nothing was made or tested physically.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-stuck/
+
 **Builds on.** `simdesign-startsconverge` (run-to-snapshot SIMP, imported unchanged), `simdesign-starts` (random-start generator, hole counter, layout distance), `simdesign-topopt` (FE assembly, filter, half-MBB problem), and Sigmund (2001), "A 99 line topology optimization code written in Matlab", *Struct. Multidisc. Optim.* 21:120–127, <https://doi.org/10.1007/s001580050176>. Penalty continuation as a remedy for local optima is standard in the SIMP literature (see Sigmund and Maute 2013, "Topology optimization approaches", *Struct. Multidisc. Optim.* 48:1031–1055, <https://doi.org/10.1007/s00158-013-0978-6>); this project only tests it on these starts. It builds on none of the CU Boulder groups in `prompt.md`.
 
 ## Method

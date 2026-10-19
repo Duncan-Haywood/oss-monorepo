@@ -4053,3 +4053,19 @@ entries:
         2025-26 federal values and the page tells the user to replace them. Also refreshed the gh-pages
         snapshot, which the session gate reported stale.
     mrr_end: 0
+  - venture: local-llm-connection-check
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built local-llm-connection-check for the owner's 2026-10-18 local-models direction:
+        a browser page that probes Ollama, LM Studio and llama.cpp on the visitor's computer the way a web
+        tool would and tells a CORS refusal (via a second no-cors request) from a stopped server, a server
+        with no model, and an https-to-LAN mixed-content block, with the fix command per server and OS
+        (OLLAMA_ORIGINS for the macOS app, systemd, Windows, ollama serve; LM Studio's CORS switch) and a
+        timed test prompt in tokens per second. Plus a guide page for the Ollama CORS error. 21 tests; run
+        in headless Chromium against stand-in servers (blocked, working and absent all diagnosed). The five
+        ventures with a local-model option now link to it from their setup note. duplicate_check.py best
+        match 0.11. First visitor: someone who picked Ollama in one of those five and got "Failed to fetch";
+        search volume for "ollama cors" unmeasured.
+    mrr_end: 0

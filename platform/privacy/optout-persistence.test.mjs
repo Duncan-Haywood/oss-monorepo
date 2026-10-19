@@ -1705,7 +1705,7 @@ const RELATIVE_SELF = relative(
 // +1: `uk-crypto-cgt-calculator` graduated.
 // +1: `bid-price-engine` graduated (the consolidated bid calculator).
 // +1: `us-substantial-presence-test-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1264;
+const SWITCHES_IN_THE_CATALOGUE = 1265;
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
 // +1: `liability-audit` graduated.
@@ -1750,6 +1750,7 @@ const SWITCHES_IN_THE_CATALOGUE = 1264;
 // +1: `csv-to-sql-generator` graduated.
 // +1: `eu-dsa-obligations-checker` graduated.
 // +1: `uk-mtd-income-tax-checker` graduated.
+// +1: `local-llm-connection-check` graduated.
 
 let counter = 0;
 function fixture(source) {
