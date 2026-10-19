@@ -64,6 +64,14 @@
     <p class="note" id="status"></p>
   </section>
 
+  <section class="card">
+    <h2>Have your I-94 travel history?</h2>
+    <p class="note">At i94.cbp.dhs.gov, "Get Most Recent I-94", then "Travel History", lists every arrival and departure. Select the table, paste it here, and it turns into stays above. Matching and the arithmetic happen in this tab; the paste is never uploaded.</p>
+    <textarea id="i94" aria-label="Pasted I-94 travel history" spellcheck="false" placeholder="03/04/2024 Arrival JFK&#10;06/28/2024 Departure JFK"></textarea>
+    <p><button type="button" class="secondary" id="i94-go">Turn travel history into stays</button></p>
+    <p class="note" id="i94-status"></p>
+  </section>
+
   <section class="card" id="result-card" hidden aria-live="polite">
     <h2>Result</h2>
     <p id="summary"></p>
@@ -111,7 +119,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, summarize, fromDay, INPUT_NOTES, SAMPLE, SAMPLE_OPTIONS } from "./engine.mjs";
+    import { analyze, summarize, importI94, fromDay, INPUT_NOTES, SAMPLE, SAMPLE_OPTIONS } from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -157,6 +165,16 @@
       $("#stays").value = SAMPLE; $("#asof").value = SAMPLE_OPTIONS.asOf; $("#year").value = SAMPLE_OPTIONS.year; $("#planned").value = SAMPLE_OPTIONS.planned;
       render();
       record("example_loaded");
+    });
+    $("#i94-go").addEventListener("click", () => {
+      const r = importI94($("#i94").value);
+      const st = $("#i94-status");
+      if (!r.lines.length) { st.innerHTML = '<span class="error">No arrival or departure rows found. Paste the Travel History table, one crossing per line with a date and the word Arrival or Departure.</span>'; return; }
+      const cur = $("#stays").value.trim();
+      $("#stays").value = (cur ? cur + "\n" : "") + r.lines.join("\n");
+      st.innerHTML = `${r.lines.length} stay${r.lines.length === 1 ? "" : "s"} from ${r.rows} rows added above. Mark any exempt-individual stays (student, J-1) with the word exempt.` + (r.notes.length ? '<br><span class="error">' + r.notes.map(escapeHtml).join("<br>") + "</span>" : "");
+      record("i94_imported");
+      render();
     });
     $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
     $("#copy").addEventListener("click", async () => {
