@@ -2,6 +2,12 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-19 · Batch 19: marking review comments by importance
+
+- Added 1 source and 1 practice (58 practices, 57 sources): Sentry's public code-review guide (P58). It is the catalogue's first review policy from a venture-backed software company that was fetched and read in full, not summarised from search results. Reviewers mark a comment high, medium or low (LOGAF) and only high ones block a merge; changes with long-term effects (schema, API, new dependency, large refactor) go to a senior reviewer; the page notes each requested change often costs a PR a day or more.
+- **Transfers `partial` and is `partly adopted`.** Nit and optional findings already do not block here, and red-circle findings always do, but there is no written letter scale and nothing measures how often a nit still delays a merge. It ranks 0.6%. Sentry's cost is a human day per round trip; a session answers in minutes, so the saving is smaller. The page is a policy statement with no outcome data and states no date.
+- **Still no proposal.** The ledger has 1317 rows (it had 1261); every class share is at or below 1.6% (tooling), far below the 5% bar.
+
 ## 2026-10-19 · Batch 18: tiered readiness checks and priority-ordered load shedding
 
 - Added 2 sources and 2 practices (57 practices, 56 sources): Mercari's public production-readiness checklist (P56; a Japanese growth-stage company, the catalogue's second non-US source) and the Computer History Museum's profile of Margaret Hamilton's Apollo error-detection software, the priority displays (P57; 1960s, a hard real-time system).
