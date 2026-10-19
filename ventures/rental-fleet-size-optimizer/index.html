@@ -80,6 +80,8 @@
       <div><label for="costPerRental">Cost of each rental: cleaning, delivery, wear ($)</label><input id="costPerRental" inputmode="decimal" value="18"></div>
       <div><label for="unitCost">Yearly cost of owning one unit ($)</label><input id="unitCost" inputmode="decimal" value="1100"></div>
       <div><label for="lostCost">Extra cost of turning a customer away ($)</label><input id="lostCost" inputmode="decimal" value="0"></div>
+      <div><label for="overflowMargin">Optional: what you keep when you sub-rent a turned-away request from a partner ($)</label><input id="overflowMargin" inputmode="decimal" value="0"></div>
+      <div><label for="overflowShare">Optional: share of turned-away requests you can fill that way (%)</label><input id="overflowShare" inputmode="decimal" value="0"></div>
     </div>
     <p class="note">The cost of owning a unit is what it costs you whether or not it is out: depreciation or finance, storage, insurance, upkeep.</p>
 
@@ -154,7 +156,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const FIELDS = ["price", "costPerRental", "unitCost", "lostCost", "bookingStyle", "vmr", "maxTurnAway", "currentUnits", "maxUnits", "years"];
+    const FIELDS = ["price", "costPerRental", "unitCost", "lostCost", "overflowMargin", "overflowShare", "bookingStyle", "vmr", "maxTurnAway", "currentUnits", "maxUnits", "years"];
     let last = null;
 
     function run() {
