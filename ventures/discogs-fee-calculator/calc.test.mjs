@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  calculateSale, feeFor, feeLadder, priceForTargetPayout, sellingFeeOn,
+  calculateBatch, calculateSale, feeFor, feeLadder, priceForTargetPayout, sellingFeeOn,
   SELLING_FEE_MAX, SELLING_FEE_MIN, DEFAULT_PROCESSING_RATE, DEFAULT_PROCESSING_FIXED,
 } from './calc.mjs';
 
@@ -103,4 +103,32 @@ test('fee ladder: effective rate falls toward the headline and the cap flattens 
   const top = ladder.rows.at(-1);
   near(top.discogsFee, 150 + 2500 * 0.029 + 0.30);
   assert.equal(feeLadder({}).ok, false);
+});
+
+test('crate: label optional, shipping and cost default to 0, bad lines reported, losing orders counted', () => {
+  const { rows, problems, totals } = calculateBatch([
+    'label, price, shipping, cost',
+    'Kind of Blue (Columbia), 45, 5, 20',
+    '12.50, 4, 15',
+    'Bad row, abc',
+  ].join('\n'));
+  assert.equal(rows.length, 2);
+  assert.equal(problems.length, 1);
+  assert.equal(rows[0].label, 'Kind of Blue (Columbia)');
+  assert.equal(rows[1].label, 'Order 2');
+  assert.equal(rows[1].itemCost, 15);
+  assert.equal(totals.losing, 1);
+  assert.ok(Math.abs(totals.payout - (rows[0].payout + rows[1].payout)) < 1e-9);
+});
+
+test('crate: each order pays its own flat processing amount', () => {
+  const settings = { processingRate: '0', processingFixed: '1' };
+  const two = calculateBatch('10\n10', settings).totals;
+  const one = calculateBatch('20', settings).totals;
+  near(two.discogsFee - one.discogsFee, 1, 'two orders carry one more flat fee than one order of the same total, minus nothing else');
+});
+
+test('crate: blank input is empty, not an error', () => {
+  const { rows, problems, totals } = calculateBatch('  \n# comment\n');
+  assert.deepEqual([rows.length, problems.length, totals.orders], [0, 0, 0]);
 });
