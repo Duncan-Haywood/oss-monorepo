@@ -165,7 +165,7 @@ def export(key, model):
     out = prep_spec(pipe.named_steps['prep'])
     est = pipe.named_steps['fit']
     if key == 'logistic_hazard':
-        out.update(kind='logistic_glm', intercept=float(est.intercept_[0]), coef=est.coef_[0].tolist())
+        out.update(kind='logistic_hazard', intercept=float(est.intercept_[0]), coef=est.coef_[0].tolist())
     elif key == 'random_forest':
         out.update(kind='forest', trees=[sk_tree(e.tree_) for e in est.estimators_])
     else:

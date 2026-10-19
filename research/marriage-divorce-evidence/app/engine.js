@@ -1,7 +1,8 @@
 // In-browser inference for the exported scikit-learn pipelines (no dependencies).
 // Reproduces SimpleImputer(median[, add_indicator]) -> [SplineTransformer] -> [StandardScaler] for numeric
 // columns and OneHotEncoder(drop='first', handle_unknown='ignore') for categorical columns,
-// then a PoissonRegressor (log link), a logistic discrete-time hazard, a Poisson
+// then a PoissonRegressor (log link), a binary LogisticRegression (a probability), a logistic
+// discrete-time hazard (a rate), a Poisson
 // DecisionTreeRegressor, a random forest of Poisson trees or Poisson gradient boosting
 // (HistGradientBoostingRegressor); categorical naive Bayes bins raw inputs itself.
 // tests/*engine*.test.mjs and tests/nsfg2002*.test.mjs check every model against Python.
@@ -172,10 +173,12 @@ const sumTerms = (c) => Object.values(c.terms).reduce((a, b) => a + b, c.interce
 export function predict(model, row) {
   if (model.kind === 'naive_bayes') return probToRate(sumTerms(nbTerms(model, row)));
   const { values } = prepare(model, row);
-  if (model.kind === 'poisson_glm' || model.kind === 'logistic_glm') {
+  if (model.kind === 'poisson_glm' || model.kind === 'logistic_glm' || model.kind === 'logistic_hazard') {
     let eta = model.intercept;
     for (let i = 0; i < values.length; i++) eta += model.coef[i] * values[i];
-    return model.kind === 'poisson_glm' ? Math.exp(eta) : probToRate(eta);
+    if (model.kind === 'poisson_glm') return Math.exp(eta);
+    // logistic_glm (binary LogisticRegression) returns a probability, not a rate.
+    return model.kind === 'logistic_glm' ? 1 / (1 + Math.exp(-eta)) : probToRate(eta);
   }
   if (model.kind === 'forest') {
     let s = 0;
@@ -192,13 +195,14 @@ export function predict(model, row) {
 
 // Exact additive contribution of each raw input column, on the model's own scale:
 // - poisson_glm: log rate; exp(intercept + sum) = predict().
-// - logistic_glm, naive_bayes: log-odds of an event in the year; rate = -log(1 - sigmoid(sum)).
+// - logistic_glm: log-odds; sigmoid(intercept + sum) = predict(), a probability.
+// - logistic_hazard, naive_bayes: log-odds of an event in the year; rate = -log(1 - sigmoid(sum)).
 // - forest: rate (mean of per-tree path changes); intercept + sum = predict().
 // - boosted: log rate (sum of per-tree path changes); exp(intercept + sum) = predict().
 // Relative to each model's reference point (GLMs: standardized numerics at their training
 // mean and first categories; trees: the training-average root values). `scale` names it.
 export function contributions(model, row) {
-  if (model.kind === 'naive_bayes') return { scale: 'log_odds', ...nbTerms(model, row) };
+  if (model.kind === 'naive_bayes') return { scale: 'hazard_log_odds', ...nbTerms(model, row) };
   if (model.kind === 'tree') return null;
   const { values, owners } = prepare(model, row);
   const out = {};
@@ -216,14 +220,17 @@ export function contributions(model, row) {
     return { scale: 'log_rate', intercept: model.baseline + root, terms: out };
   }
   for (let i = 0; i < values.length; i++) add(owners[i], model.coef[i] * values[i]);
-  return { scale: model.kind === 'poisson_glm' ? 'log_rate' : 'log_odds', intercept: model.intercept, terms: out };
+  const scale = { poisson_glm: 'log_rate', logistic_glm: 'log_odds', logistic_hazard: 'hazard_log_odds' }[model.kind];
+  return { scale, intercept: model.intercept, terms: out };
 }
 
-// The rate implied by a contributions() result (inverse of its scale).
-export function rateFromContributions(c) {
+// The prediction implied by a contributions() result (inverse of its scale): a rate, or a
+// probability for logistic_glm.
+export function valueFromContributions(c) {
   const eta = sumTerms(c);
   if (c.scale === 'rate') return eta;
-  if (c.scale === 'log_odds') return probToRate(eta);
+  if (c.scale === 'hazard_log_odds') return probToRate(eta);
+  if (c.scale === 'log_odds') return 1 / (1 + Math.exp(-eta));
   return Math.exp(eta);
 }
 
