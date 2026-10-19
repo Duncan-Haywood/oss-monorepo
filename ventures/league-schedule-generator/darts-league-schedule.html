@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Darts League Fixtures: A Home And Away Schedule For A 6-Team Pub League</title>
+  <meta name="description" content="Make a pub darts league fixture list for 6 teams: every team plays every other at home and away, 5 home and 5 away each. Worked 10-week example, then build yours free.">
+  <meta property="og:title" content="Darts League Fixtures: A Home And Away Schedule For A 6-Team Pub League">
+  <meta property="og:description" content="A 6-team pub darts league, home and away, worked through week by week. Free, private, in your browser.">
+  <link rel="canonical" href="./darts-league-schedule.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you make a darts league fixture list?","acceptedAnswer":{"@type":"Answer","text":"List the teams, pick the league night, and tick double round robin. The tool plays every team against every other once in the first half of the season and again in the second half with the venues swapped, with the home team shown first."}},{"@type":"Question","name":"How many weeks does a six-team darts league last?","acceptedAnswer":{"@type":"Answer","text":"A double round robin of six teams takes 10 weeks, because each team plays the other five twice. Add makeup nights for blackout dates and rainouts, or end-of-season finals, on top."}},{"@type":"Question","name":"How do you keep home and away fair in a darts league?","acceptedAnswer":{"@type":"Answer","text":"Each pair meets once at each team's board, so every team in the six-team example hosts 5 matches and travels for 5. The tool counts home and away per team and the longest home or away run, so you can see it before you send the fixtures."}},{"@type":"Question","name":"What if a pub cannot host on some night?","acceptedAnswer":{"@type":"Answer","text":"Add the team and the date under blackout dates. Only the match that clashes moves to a makeup night; the rest of the night goes ahead. Two pubs that share a premises can be listed as sharing a ground so they are not both at home on the same night."}},{"@type":"Question","name":"Can I send each team only its own fixtures?","acceptedAnswer":{"@type":"Answer","text":"Yes. The per-team download gives every captain a list of its own dates, opponents and home or away, and the calendar export puts them in a phone calendar."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>Darts league fixtures: a home-and-away schedule for a six-team pub league</h1>
+  <p>A pub darts league is a double round robin: every team plays every other team twice, once on its own board and once on the opponent's. The job for the captain or league secretary is making sure each team hosts as often as it travels, nobody has a run of away nights, and every pair meets exactly twice. Doing it on a spreadsheet takes an evening and the first mistake usually shows up in week four. This guide works one season through: 6 pub teams, Thursdays, 10 weeks.</p>
+  <p><a class="cta" href="./">Open the free schedule tool</a> (paste your teams, pick the night, get dates and a CSV or calendar file)</p>
+  <h2>A worked example: 6 pubs, double round robin, Thursday nights</h2>
+  <p>Six invented pub teams play from 10 September 2026. The home team, listed first, hosts the match on its own board. Six teams give 3 matches a night, and a double round robin is 10 nights.</p>
+  <table>
+    <thead><tr><th>Round</th><th>Night</th><th>Games</th></tr></thead>
+    <tbody>
+      <tr><td>Round 1</td><td>Thu 10 Sep 2026</td><td>Red Lion v White Hart, Black Horse v Royal Oak, Kings Arms v Crown</td></tr>
+      <tr><td>Round 2</td><td>Thu 17 Sep 2026</td><td>Royal Oak v Red Lion, White Hart v Kings Arms, Crown v Black Horse</td></tr>
+      <tr><td>Round 3</td><td>Thu 24 Sep 2026</td><td>Red Lion v Crown, Royal Oak v White Hart, Black Horse v Kings Arms</td></tr>
+      <tr><td>Round 4</td><td>Thu 1 Oct 2026</td><td>White Hart v Black Horse, Crown v Royal Oak, Kings Arms v Red Lion</td></tr>
+      <tr><td>Round 5</td><td>Thu 8 Oct 2026</td><td>Crown v White Hart, Red Lion v Black Horse, Royal Oak v Kings Arms</td></tr>
+      <tr><td>Round 6</td><td>Thu 15 Oct 2026</td><td>Royal Oak v Black Horse, Crown v Kings Arms, White Hart v Red Lion</td></tr>
+      <tr><td>Round 7</td><td>Thu 22 Oct 2026</td><td>Black Horse v Crown, Kings Arms v White Hart, Red Lion v Royal Oak</td></tr>
+      <tr><td>Round 8</td><td>Thu 29 Oct 2026</td><td>Kings Arms v Black Horse, Crown v Red Lion, White Hart v Royal Oak</td></tr>
+      <tr><td>Round 9</td><td>Thu 5 Nov 2026</td><td>Red Lion v Kings Arms, Royal Oak v Crown, Black Horse v White Hart</td></tr>
+      <tr><td>Round 10</td><td>Thu 12 Nov 2026</td><td>Kings Arms v Royal Oak, Black Horse v Red Lion, White Hart v Crown</td></tr>
+    </tbody>
+  </table>
+  <p>That is 30 matches, 15 pairs each meeting twice, and every team hosts 5 times and travels 5 times. The second half mirrors the first, so the two meetings of a pair are always exactly five weeks apart.</p>
+  <p>The table comes from the same code the page runs and a test recomputes it, so it cannot drift from the tool.</p>
+  <p><a class="cta" href="./">Build your own schedule</a></p>
+  <h2>Questions</h2>
+  <h3>How do you make a darts league fixture list?</h3>
+  <p>List the teams, pick the league night, and tick double round robin. The tool plays every team against every other once in the first half of the season and again in the second half with the venues swapped, with the home team shown first.</p>
+  <h3>How many weeks does a six-team darts league last?</h3>
+  <p>A double round robin of six teams takes 10 weeks, because each team plays the other five twice. Add makeup nights for blackout dates and rainouts, or end-of-season finals, on top.</p>
+  <h3>How do you keep home and away fair in a darts league?</h3>
+  <p>Each pair meets once at each team's board, so every team in the six-team example hosts 5 matches and travels for 5. The tool counts home and away per team and the longest home or away run, so you can see it before you send the fixtures.</p>
+  <h3>What if a pub cannot host on some night?</h3>
+  <p>Add the team and the date under blackout dates. Only the match that clashes moves to a makeup night; the rest of the night goes ahead. Two pubs that share a premises can be listed as sharing a ground so they are not both at home on the same night.</p>
+  <h3>Can I send each team only its own fixtures?</h3>
+  <p>Yes. The per-team download gives every captain a list of its own dates, opponents and home or away, and the calendar export puts them in a phone calendar.</p>
+  <p>Related: <a href="./how-to-balance-home-and-away-games-in-a-round-robin.html">balancing home and away games</a>, <a href="./how-to-reschedule-a-rained-out-league-game.html">rescheduling a postponed game</a>, <a href="./how-to-break-ties-in-league-standings.html">breaking ties in the standings</a>, <a href="./pickleball-league-schedule.html">a pickleball league schedule</a> and <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing and date before you announce it; your league's own rules and tie-breaks apply. The example teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
