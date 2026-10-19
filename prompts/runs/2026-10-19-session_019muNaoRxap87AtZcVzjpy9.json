@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_019muNaoRxap87AtZcVzjpy9",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T01:41:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "state-residency-day-counter"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8230",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Asks to run unlanded_work.py but nothing on PR state; fine. Session-gate output long; allocate.py top rows already all had deploy kits."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added cli.mjs (text/csv/daily-log/html/ics/json) to state-residency-day-counter. Considered a Georgia trailing-window feature but could not verify the statute, so skipped.",
+  "corrections": [],
+  "redteam": null
+}
