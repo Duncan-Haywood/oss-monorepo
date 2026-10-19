@@ -991,6 +991,32 @@ export function applyRainouts(schedule, text, opts = {}) {
   return { schedule: s, moves, errors };
 }
 
+// ---------------------------------------------------------------- change notices
+
+/**
+ * Ready-to-paste notices for the matches `applyRainouts` moved (its `moves`). Returns
+ * `{ group, teams }`: `group` is one post for the league chat listing every moved match
+ * (old date, new date, time, court), and `teams` has one short note per affected team with
+ * only its own changes. Teams with no moved match get no note. Empty `moves` give an empty result.
+ */
+export function changeNotices(moves) {
+  const list = Array.isArray(moves) ? moves : [];
+  if (!list.length) return { group: "", teams: [] };
+  const where = (m) => `${dayLabel(m.to)}${m.time ? " " + m.time : ""}${m.court ? ", " + m.court : ""}`;
+  const line = (m) => `${m.home} v ${m.away}: was ${dayLabel(m.from)}, now ${where(m)}`;
+  const group = ["Schedule change:", ...list.map((m) => "- " + line(m)), "Every other fixture is unchanged."].join("\n");
+  const byTeam = new Map();
+  for (const m of list) for (const t of [m.home, m.away]) {
+    if (!byTeam.has(t)) byTeam.set(t, []);
+    byTeam.get(t).push(m);
+  }
+  const teams = [...byTeam].map(([team, ms]) => ({
+    team,
+    text: [`Hi ${team}, a change to your fixtures:`, ...ms.map((m) => `- ${m.home === team ? "vs " + m.away : "at " + m.home} (${m.home === team ? "home" : "away"}): was ${dayLabel(m.from)}, now ${where(m)}`), "Your other fixtures are unchanged."].join("\n"),
+  }));
+  return { group, teams };
+}
+
 // ---------------------------------------------------------------- pinned matches
 
 /**

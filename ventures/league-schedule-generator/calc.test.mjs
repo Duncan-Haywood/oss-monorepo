@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  applyRainouts, applyPinnedMatches, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
+  applyRainouts, changeNotices, dayLabel, applyPinnedMatches, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
@@ -1808,6 +1808,27 @@ test("a rainout is never moved onto a closed court, and the validator flags a bo
   const bad = buildSchedule(readSpec({ ...LIMIT_BASE, courtClosures: "Court 2: 2026-10-13" }).spec);
   bad.rounds.find((x) => x.day === D("2026-10-13")).matches[0].court = "Court 2";
   assert.ok(validateSchedule(bad).errors.some((e) => e.includes("is closed")));
+});
+
+test("changeNotices names each moved match once for the group and only own changes per team", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const day = s.rounds[0].day;
+  const r = applyRainouts(s, `${dayIso(day)} A`);
+  const n = changeNotices(r.moves);
+  const m = r.moves[0];
+  assert.equal(r.moves.length, 1);
+  assert.ok(n.group.includes(`${m.home} v ${m.away}`));
+  assert.ok(n.group.includes(`was ${dayLabel(m.from)}`) && n.group.includes(dayLabel(m.to)));
+  assert.deepEqual(n.teams.map((x) => x.team).sort(), [m.home, m.away].sort());
+  for (const x of n.teams) assert.ok(x.text.startsWith(`Hi ${x.team},`) && x.text.includes("unchanged"));
+  const home = n.teams.find((x) => x.team === m.home).text;
+  assert.ok(home.includes(`vs ${m.away} (home)`));
+  assert.ok(n.teams.find((x) => x.team === m.away).text.includes(`at ${m.home} (away)`));
+});
+
+test("changeNotices is empty when nothing moved and tolerates junk input", () => {
+  for (const x of [[], null, undefined, "x"]) assert.deepEqual(changeNotices(x), { group: "", teams: [] });
 });
 
 test("a pinned derby moves to a chosen later or earlier date and the schedule stays valid", () => {
