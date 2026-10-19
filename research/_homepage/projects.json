@@ -3435,6 +3435,18 @@
     "summary": "Single-axis gyro model with angle random walk and rate random walk (Allan-variance terms) and a fraction <em>&rho;</em> of each shared between units. With independent errors an array of <em>n</em> cheap units ties a unit <em>k</em> times quieter only when the price ratio exceeds <em>k</em><sup>2</sup> (9 for <em>k</em>&nbsp;=&nbsp;3, 100 for <em>k</em>&nbsp;=&nbsp;10); shared error above 1/<em>k</em><sup>2</sup> means no array size ties (<em>k</em>&nbsp;=&nbsp;10, <em>&rho;</em>&nbsp;&ge;&nbsp;0.01). If the better unit improves white noise 10&times; but bias walk only 3&times;, the number of units needed falls from 100 at 1&nbsp;s to 10 beyond 300&nbsp;s, so the answer depends on integration time. Monte Carlo matches the closed form within 0.03. Stylised: illustrative grades, not datasheets; no real IMU data; no prices claimed."
    }
   ]
+ },
+ {
+  "id": "energy",
+  "name": "Energy supply and dense energy storage",
+  "blurb": "How densely, cheaply and durably energy can be stored, and what mix of supply and storage meets demand at least cost: the physical limits first, then devices, costs and grids, in open code.",
+  "projects": [
+   {
+    "slug": "energy-density",
+    "title": "How much energy can each storage technology hold per kilogram, at the most?",
+    "summary": "Theoretical ceilings from first principles for batteries, hydrogen, flywheels, pumped hydro and heat, reproducing five published values to within 0.3% (lead-acid 170, Zn-air 1,086, Li-S 2,567, Li-O<sub>2</sub> 3,458 Wh/kg; Al-air 8,100 on Al). No battery couple releases more than 1.65 eV per reactant atom, so the spread comes from atomic mass: Wh/kg = 26,801 &times; eV per atom / mean g/mol. A carbon-fibre flywheel holds at most 756 Wh/kg (0.34 eV per atom), sand at 500 &deg;C 107 Wh/kg of heat (41% recoverable as electricity) and water lifted 300 m 0.82 Wh/kg. Ceilings for the active material only, with some voltages and material properties assumed."
+   }
+  ]
  }
  ],
  "featured": [

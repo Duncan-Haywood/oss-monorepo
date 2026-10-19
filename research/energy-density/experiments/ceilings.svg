@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 730 484" width="730" height="484" font-family="system-ui, sans-serif" font-size="12">
+<rect width="730" height="484" fill="#ffffff"/>
+<text x="230" y="22" font-size="14" font-weight="600" fill="#222">Theoretical ceiling, Wh per kg of active material (log scale)</text>
+<line x1="230.0" y1="34" x2="230.0" y2="414" stroke="#ddd"/>
+<text x="230.0" y="430" text-anchor="middle" fill="#444">0.1</text>
+<line x1="308.3" y1="34" x2="308.3" y2="414" stroke="#ddd"/>
+<text x="308.3" y="430" text-anchor="middle" fill="#444">1</text>
+<line x1="386.7" y1="34" x2="386.7" y2="414" stroke="#ddd"/>
+<text x="386.7" y="430" text-anchor="middle" fill="#444">10</text>
+<line x1="465.0" y1="34" x2="465.0" y2="414" stroke="#ddd"/>
+<text x="465.0" y="430" text-anchor="middle" fill="#444">100</text>
+<line x1="543.3" y1="34" x2="543.3" y2="414" stroke="#ddd"/>
+<text x="543.3" y="430" text-anchor="middle" fill="#444">1000</text>
+<line x1="621.7" y1="34" x2="621.7" y2="414" stroke="#ddd"/>
+<text x="621.7" y="430" text-anchor="middle" fill="#444">10000</text>
+<line x1="700.0" y1="34" x2="700.0" y2="414" stroke="#ddd"/>
+<text x="700.0" y="430" text-anchor="middle" fill="#444">100000</text>
+<text x="222" y="52" text-anchor="end" fill="#222">H2 alone (Gibbs)</text>
+<rect x="230" y="40" width="431.9" height="16" fill="#6741d9"/>
+<text x="665.9" y="52" fill="#222">32,678</text>
+<text x="222" y="74" text-anchor="end" fill="#222">H2 + O2 (with O2)</text>
+<rect x="230" y="62" width="357.4" height="16" fill="#1f6fb2"/>
+<text x="591.4" y="74" fill="#222">3,657</text>
+<text x="222" y="96" text-anchor="end" fill="#222">Lithium-oxygen (with O2)</text>
+<rect x="230" y="84" width="355.5" height="16" fill="#1f6fb2"/>
+<text x="589.5" y="96" fill="#222">3,458</text>
+<text x="222" y="118" text-anchor="end" fill="#222">Aluminium-air (with O2, H2O)</text>
+<rect x="230" y="106" width="348.3" height="16" fill="#1f6fb2"/>
+<text x="582.3" y="118" fill="#222">2,793</text>
+<text x="222" y="140" text-anchor="end" fill="#222">Lithium-sulfur</text>
+<rect x="230" y="128" width="345.4" height="16" fill="#1f6fb2"/>
+<text x="579.4" y="140" fill="#222">2,567</text>
+<text x="222" y="162" text-anchor="end" fill="#222">Zinc-air (with O2)</text>
+<rect x="230" y="150" width="316.2" height="16" fill="#1f6fb2"/>
+<text x="550.2" y="162" fill="#222">1,087</text>
+<text x="222" y="184" text-anchor="end" fill="#222">Li-ion graphite/LiFePO4</text>
+<rect x="230" y="172" width="280.8" height="16" fill="#1f6fb2"/>
+<text x="514.8" y="184" fill="#222">385</text>
+<text x="222" y="206" text-anchor="end" fill="#222">Li-ion graphite/LiCoO2</text>
+<rect x="230" y="194" width="280.4" height="16" fill="#1f6fb2"/>
+<text x="514.4" y="206" fill="#222">380</text>
+<text x="222" y="228" text-anchor="end" fill="#222">Flywheel, T700/epoxy rim</text>
+<rect x="230" y="216" width="266.8" height="16" fill="#2e8b57"/>
+<text x="500.8" y="228" fill="#222">255</text>
+<text x="222" y="250" text-anchor="end" fill="#222">Lead-acid</text>
+<rect x="230" y="238" width="253.1" height="16" fill="#1f6fb2"/>
+<text x="487.1" y="250" fill="#222">170</text>
+<text x="222" y="272" text-anchor="end" fill="#222">Solar salt, heat</text>
+<rect x="230" y="260" width="239.6" height="16" fill="#c0392b"/>
+<text x="473.6" y="272" fill="#222">115</text>
+<text x="222" y="294" text-anchor="end" fill="#222">Sand 500 C, heat</text>
+<rect x="230" y="282" width="237.2" height="16" fill="#c0392b"/>
+<text x="471.2" y="294" fill="#222">107</text>
+<text x="222" y="316" text-anchor="end" fill="#222">Water 25-85 C, heat</text>
+<rect x="230" y="304" width="222.7" height="16" fill="#c0392b"/>
+<text x="456.7" y="316" fill="#222">70</text>
+<text x="222" y="338" text-anchor="end" fill="#222">Sand 500 C, exergy</text>
+<rect x="230" y="326" width="206.7" height="16" fill="#e8890c"/>
+<text x="440.7" y="338" fill="#222">43</text>
+<text x="222" y="360" text-anchor="end" fill="#222">Flywheel, steel rim</text>
+<rect x="230" y="348" width="189.9" height="16" fill="#2e8b57"/>
+<text x="423.9" y="360" fill="#222">27</text>
+<text x="222" y="382" text-anchor="end" fill="#222">Water 25-85 C, exergy</text>
+<rect x="230" y="370" width="145.8" height="16" fill="#e8890c"/>
+<text x="379.8" y="382" fill="#222">7.26</text>
+<text x="222" y="404" text-anchor="end" fill="#222">Pumped hydro, 300 m</text>
+<rect x="230" y="392" width="71.6" height="16" fill="#2e8b57"/>
+<text x="305.6" y="404" fill="#222">0.82</text>
+<rect x="20" y="440" width="12" height="12" fill="#1f6fb2"/>
+<text x="36" y="450" fill="#222">electrochemical (reactant mass)</text>
+<rect x="267" y="440" width="12" height="12" fill="#6741d9"/>
+<text x="283" y="450" fill="#222">fuel alone</text>
+<rect x="367" y="440" width="12" height="12" fill="#2e8b57"/>
+<text x="383" y="450" fill="#222">mechanical</text>
+<rect x="467" y="440" width="12" height="12" fill="#c0392b"/>
+<text x="483" y="450" fill="#222">heat</text>
+<rect x="525" y="440" width="12" height="12" fill="#e8890c"/>
+<text x="541" y="450" fill="#222">heat as electricity (exergy)</text>
+</svg>

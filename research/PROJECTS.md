@@ -1,7 +1,7 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 and tracks 13 to 15 on 2026-10-19. Runs
-started from `prompt.md` take their new work from here. There are fifteen tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19 and track 16 on 2026-10-19. Runs
+started from `prompt.md` take their new work from here. There are sixteen tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-15 and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-16 and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -113,6 +113,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 13. Autonomous multi-angle capture | `capture` |
 | 14. Agentic co-design of low-cost robots | `codesign` |
 | 15. Sensor fusion, imaging and 3D from real captures | `sensing` |
+| 16. Energy supply and dense energy storage | `energy` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -1095,9 +1096,68 @@ gsplat, rawpy (LibRaw) and OpenVINS.
 - *Lab tags.* Milestones 2, 3 and 7 may build on ARPG (perception and mapping). Otherwise say
   none fits.
 
+## 16. Energy supply and dense energy storage (`energy`)
+
+Added on 2026-10-19 at the owner's request, as a long-term track: "one of the more important
+things for humanity to progress on."
+
+**Goal.** Cheap, clean energy supply depends on storing energy densely, cheaply and for a long
+time: in vehicles and devices per kilogram and litre, on the grid per dollar of kWh delivered
+over a lifetime. This track works on both halves in open, testable code. What limits each
+storage technology (thermodynamics, materials, cost, degradation), how close real devices get,
+which designs move the limits, and what mix of supply and storage meets demand at least cost?
+The track cannot discover a new chemistry: that needs synthesis and cell testing, which are
+owner steps. What it can produce is sound models, open tools, design searches scored by
+simulators, and techno-economic analysis that others can check and build on.
+
+**Prior work.** Bruce et al. (2012), *Nature Materials*, on the theoretical energy of Li-O<sub>2</sub>
+and Li-S cells against Li-ion. Doyle, Fuller and Newman (1993), *J. Electrochem. Soc.*, for the
+porous-electrode (DFN) cell model, implemented openly in PyBaMM (Sulzer et al. 2021, *J. Open
+Research Software*). Brown, H&ouml;rsch and Schlachtberger (2018), *J. Open Research Software*,
+for PyPSA power-system optimisation. Ziegler et al. (2019), *Joule*, on the storage cost that
+long-duration storage needs to reach for wind and solar to supply most demand. NREL's Annual
+Technology Baseline and Cole and Ramasamy's cost projections for utility-scale batteries. Open
+tools: PyBaMM, PyPSA, HiGHS, CoolProp, Cantera, pymatgen.
+
+**Milestones.**
+1. `energy-density` (done 2026-10-19): theoretical ceilings per kilogram for batteries, hydrogen,
+   flywheels, pumped hydro and thermal storage from first principles, reproducing published
+   values, with the per-atom view (Wh/kg = 26,801 &times; eV per atom / mean atomic mass).
+2. `energy-practical`: the gap between ceiling and product. Published cell-, pack- and
+   system-level Wh/kg, Wh/L, cycle life and efficiency for each technology, every figure sourced
+   and dated, as an open dataset, and where each gap comes from (inactive mass, voltage loss,
+   utilisation).
+3. `energy-cell`: cell design as a search. A PyBaMM cell (electrode thickness, porosity, active
+   loading, N/P ratio) scored on energy density at a required power and on modelled
+   degradation, with an LLM or session proposer against random search and Bayesian optimisation
+   at the same budget.
+4. `energy-lcos`: levelised cost of storage. Cost per kWh delivered over a lifetime for each
+   technology and duration (hours to weeks), from capital cost, efficiency, cycle life and
+   degradation, every price sourced and dated. Which technology wins at which duration?
+5. `energy-mix`: supply design. The least-cost mix of solar, wind, firm supply and storage that
+   meets a year of hourly demand in an open dataset, in PyPSA, and how sensitive it is to the
+   cost and duration of storage.
+6. `energy-thermal`: heat storage designed. A sand or rock store as a transient model (charging,
+   losses through insulation, discharge to heat or power), sized for a house (with track 12) and
+   for district heat, against a hot-water tank and a heat pump.
+7. `energy-home`: solar plus battery sizing for a home, from an open hourly model, as a tool
+   people can use (a candidate for `ventures/`).
+
+**Guardrails.**
+- *Ceilings and simulations are not devices.* Keep theoretical, simulated and measured figures
+  apart, and never present a modelled cell or store as a tested one.
+- *Every price and device figure is sourced and dated, or labelled assumed.*
+- *Batteries, hydrogen and pressure are hazards.* Building, charging or testing cells, packs,
+  pressure vessels or high-temperature stores is an owner step with certified parts and
+  protection; results about them say what safety analysis was not done.
+- *No grid or electrical work.* Anything that connects to the grid or a building's wiring needs a
+  licensed electrician and the utility's approval; designs here are research.
+- *Lab tags.* No group in `prompt.md` covers energy storage. Say so rather than stretching a
+  connection; work on vehicle or UAV batteries may build on RECUV and track 9.
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked). Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
