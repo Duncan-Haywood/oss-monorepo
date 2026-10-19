@@ -12,6 +12,11 @@ One review, one pull request, titled `prompts: review YYYY-MM-DD`. Open it as
 a draft within your first few minutes, so other runs see the claim and route
 with `--skip-review`.
 
+**Short on time (a scheduled run)?** A reduced pass is a valid review: do
+steps 1, 3, 7 and 8 and one fix from step 5, skip the audit and the drift
+report when recent outputs are doc-only, and say so in the log. Do not report
+the skip as friction (37 reports said a full pass was too large).
+
 ## 1. Measure
 
 ```

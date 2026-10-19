@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01PEkuMLJmd1ZETYkKyN2KSB",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T07:40:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": 0,
+  "integrity_issues": 0,
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Full review too large for a scheduled run; added a reduced-pass paragraph (E45)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Skipped audit and drift report (recent outputs doc-only/research); reduced pass, per the new paragraph."
+    }
+  ],
+  "goal": null,
+  "notes": "Reduced review: derive fetch/build refreshed, no candidate changes (all under 10 runs or overlapping), one doc fix.",
+  "corrections": [],
+  "redteam": null
+}
