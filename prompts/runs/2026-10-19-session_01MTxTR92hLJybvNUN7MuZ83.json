@@ -14,7 +14,10 @@
   "errors": [],
   "doc_friction": [],
   "deviations": [
-    "gh-pages refresh (publish-branch.sh) was denied by the auto-mode classifier as a production deploy; not retried. Snapshot still stale."
+    {
+      "file": "platform/pages/publish-branch.sh",
+      "why": "gh-pages refresh (publish-branch.sh) was denied by the auto-mode classifier as a production deploy; not retried. Snapshot still stale."
+    }
   ],
   "notes": "Added cli.mjs + 8 tests + README line to shift-roster-builder (same solver as the page; --check exits 1 on open shifts, --last-week carries rest across Monday). All three top router rows were already deep; chose a deepening feature over a new niche.",
   "usage": {
@@ -98,5 +101,6 @@
   ],
   "started": "2026-10-19T17:56:05Z",
   "tool_calls": 21,
-  "integrity_issues": []
+  "integrity_issues": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8466"
 }
