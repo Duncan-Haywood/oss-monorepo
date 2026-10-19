@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plaza replay: robots and people in a corridor (simulation)</title>
+<style>
+:root{--bg:#fff;--fg:#1c2128;--mut:#57606a;--h:#1f6fb2;--r:#d9730d;--wall:#ccd1d6}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9aa4af;--h:#58a6ff;--r:#f0883e;--wall:#30363d}}
+body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif;max-width:900px;margin-inline:auto}
+canvas{width:100%;border:1px solid var(--wall);border-radius:6px;background:var(--bg)}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
+small,.note{color:var(--mut)}
+button{font:inherit;padding:4px 12px}
+</style></head><body>
+<h1>Plaza replay</h1>
+<p class="note"><strong>This is a simulation, not footage.</strong> Sixty invented walkers in a 30&nbsp;m &times; 6&nbsp;m corridor that wraps around.
+Blue discs are simulated people, orange discs are robots that always keep to the left of their heading. A short tick marks each walker’s direction of travel; a filled dot marks a person who currently prefers to pass on the left.
+Part of the research project <code>society-plaza</code>; settings are in the caption below.</p>
+<canvas id="c" width="900" height="200" role="img" aria-label="Animated top-down view of walkers in a corridor"></canvas>
+<div class="row"><button id="pp">Pause</button><input id="t" type="range" min="0" value="0" style="flex:1" aria-label="Time"><span id="lab"></span></div>
+<p id="cap"><small></small></p>
+<script id="d" type="application/json">__DATA__</script>
+<script>
+const D=JSON.parse(document.getElementById('d').textContent);
+const cv=document.getElementById('c'),g=cv.getContext('2d'),t=document.getElementById('t'),lab=document.getElementById('lab'),pp=document.getElementById('pp');
+t.max=D.pos.length-1;let f=0,play=true,last=0;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n);
+function draw(){const sx=cv.width/D.len,sy=cv.height/D.wid;g.clearRect(0,0,cv.width,cv.height);
+ g.fillStyle=css('--wall');g.fillRect(0,0,cv.width,2);g.fillRect(0,cv.height-2,cv.width,2);
+ const P=D.pos[f],S=D.sides[f];let humans=0,left=0;
+ for(let i=0;i<P.length;i++){const x=P[i][0]/10*sx,y=cv.height-P[i][1]/10*sy,dir=D.meta[i][0],rb=D.meta[i][1];
+  g.beginPath();g.arc(x,y,0.25*sx,0,7);g.fillStyle=css(rb?'--r':'--h');g.globalAlpha=.85;g.fill();g.globalAlpha=1;
+  g.strokeStyle=css('--fg');g.lineWidth=1;g.beginPath();g.moveTo(x,y);g.lineTo(x+dir*0.5*sx,y);g.stroke();
+  if(!rb){humans++;if(S[i]<0){left++;g.fillStyle=css('--fg');g.beginPath();g.arc(x,y,3,0,7);g.fill();}}}
+ lab.textContent=(f*D.dt).toFixed(0)+' s · people preferring left: '+left+' of '+humans;t.value=f;}
+function loop(ts){if(play&&ts-last>60){f=(f+1)%D.pos.length;last=ts;}draw();requestAnimationFrame(loop);}
+pp.onclick=()=>{play=!play;pp.textContent=play?'Pause':'Play'};t.oninput=()=>{f=+t.value;draw()};
+document.querySelector('#cap small').textContent='Seed '+D.seed+', robot share '+Math.round(D.rho*100)+'% ('+D.policy+'), people remember their last 9 partners. People start keeping right.';
+requestAnimationFrame(loop);
+</script></body></html>
