@@ -196,6 +196,11 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
         # A project's static browser app is published as-is under <slug>/app/.
         shutil.copytree(app, d / "app", dirs_exist_ok=True,
                         ignore=shutil.ignore_patterns("tests", "tools", "*_testvectors.json", "__pycache__"))
+        if base_url:  # canonical and share URL on whichever origin the site is built for
+            url = html.escape(f"{base_url.rstrip('/')}/research/{slug}/app/")
+            page_file = d / "app" / "index.html"
+            page_file.write_text(page_file.read_text().replace(
+                "</head>", f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n</head>', 1))
     stats = f'<span>{tests} tests</span>' if tests else ""
     links = "\n".join(f'    <li><a{" class=primary" if prim else ""} href="{u}">{l}</a></li>' for u, l, prim in project_links(slug))
     page = tmpl
