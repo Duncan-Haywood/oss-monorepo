@@ -734,6 +734,9 @@ workflows:
 - workflow: gutter-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hands-free-language-coach-ci.yml
+  classification: none
+  publishes: []
 - workflow: hardwood-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -870,6 +873,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: link-contrast-ci.yml
+  classification: none
+  publishes: []
+- workflow: listen-and-learn-audio-ci.yml
   classification: none
   publishes: []
 - workflow: llm-api-pricing-calculator-ci.yml
@@ -1538,10 +1544,10 @@ workflows:
 - workflow: upwork-connects-roi-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: used-car-lot-aging-planner-ci.yml
+- workflow: us-substantial-presence-test-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: us-substantial-presence-test-calculator-ci.yml
+- workflow: used-car-lot-aging-planner-ci.yml
   classification: none
   publishes: []
 - workflow: vector-db-cost-calculator-ci.yml

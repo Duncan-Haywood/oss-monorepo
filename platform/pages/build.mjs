@@ -3682,6 +3682,17 @@ const CATEGORY_RULES = [
         'quick-pick-survey',
       ].includes(slug),
   },
+  {
+    // Added 2026-10-19 when `hands-free-language-coach` and
+    // `listen-and-learn-audio` took the catch-all to 6. Listing it showed a
+    // third member on the same axis, `ai-engineering-academy`: tools for one
+    // person learning a skill, rather than earning, pricing or checking.
+    id: 'learning',
+    title: 'Learning & practice',
+    accent: '#127a4b',
+    blurb: 'Learn a language or a technical skill by doing it: hands-free speaking drills, graded audio stories, and project-first engineering lessons, free in your browser.',
+    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio'].includes(slug),
+  },
 ];
 
 const FALLBACK_CATEGORY = {

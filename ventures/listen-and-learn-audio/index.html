@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Listen &amp; Learn Audio — bilingual audio stories for language learners, hands-free</title>
+  <meta name="description" content="Short graded stories read aloud in Spanish, French, German and Italian, each line followed by English. Press play and listen while you walk or commute. Free in your browser, plus an AI skill for Claude and ChatGPT voice mode that tells new stories and podcast-style episodes on any topic, at your level.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./">
+  <meta property="og:title" content="Listen &amp; Learn Audio">
+  <meta property="og:description" content="Graded bilingual audio stories and AI podcast-style episodes for learning by listening. Press play, put the phone away.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Listen & Learn Audio","applicationCategory":"EducationalApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A free, hands-free audio player of short graded bilingual stories for language learners, read aloud line by line in the target language and English, plus an AI assistant skill that tells new stories and podcast-style episodes at the listener's level.","featureList":"Graded A1-A2 stories in Spanish, French, German and Italian; target-then-English, English-then-target and immersion modes; shadowing pauses; adjustable speed; Claude and ChatGPT voice-mode skill for new stories and podcast episodes on any topic"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can you learn a language just by listening?","acceptedAnswer":{"@type":"Answer","text":"Listening to material you mostly understand builds vocabulary and an ear for the language, and it fits time when your hands and eyes are busy. It works best alongside speaking practice; the sibling Hands-Free Language Coach does that part."}},{"@type":"Question","name":"What level are the stories?","acceptedAnswer":{"@type":"Answer","text":"The built-in stories are beginner level (CEFR A1 and A2). The AI skill adapts stories and episodes to whatever level you tell it."}},{"@type":"Question","name":"Is the audio recorded by people?","acceptedAnswer":{"@type":"Answer","text":"No. The built-in stories are read by your device's own text-to-speech voices, so quality depends on the voices your device has installed. The stories themselves were written for this project."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The player runs entirely in your browser with your device's voices. Nothing you do is sent to us."}}]}</script>
+  <style>
+    :root{font:17px/1.5 system-ui,sans-serif;color:#1b1830;background:#f6f4fb;--muted:#5b5872;--line:#ddd8ea;--panel:#fff;--accent:#5a3fc0}
+    *{box-sizing:border-box}body{margin:0;background:#f6f4fb}main{max-width:860px;margin:auto;padding:28px 16px 56px}
+    h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;margin:.2rem 0 .6rem}h2{font-size:1.15rem;margin:0 0 10px}
+    p,li{color:var(--muted)}.lede{max-width:680px;font-size:1.05rem}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin:18px 0}
+    label{color:var(--muted);font-size:.9rem;display:inline-flex;gap:8px;align-items:center;margin:4px 14px 4px 0}
+    select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid #c3bcd8;max-width:100%}
+    button{border:0;border-radius:12px;background:var(--accent);color:#fff;padding:14px 22px;font:inherit;font-weight:700;cursor:pointer}
+    button.secondary{background:#ece8f7;color:#1b1830}
+    button:focus,select:focus{outline:3px solid #b9a8f0;outline-offset:2px}
+    #playBtn{font-size:1.3rem;padding:20px 34px;width:100%;margin-top:14px}
+    #line{font-size:1.4rem;color:#1b1830;min-height:2.2em;margin:12px 0 2px}
+    #lineEn{min-height:1.5em}
+    footer{border-top:1px solid var(--line);padding-top:16px;font-size:.88rem}footer p{color:var(--muted)}
+    a{color:var(--accent)}
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="https://duncan-haywood.github.io/monorepo-projects/">Free tools</a> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/listen-and-learn-audio">Source</a></p>
+  <h1>Listen &amp; Learn Audio</h1>
+  <p class="lede">Learn by listening, like a podcast. Short stories are read aloud a line at a time in the language you're learning, each followed by English, with a pause to let it sink in. Press play and put the phone in your pocket.</p>
+
+  <section class="panel" aria-labelledby="playerH">
+    <h2 id="playerH">Listen now</h2>
+    <label>Language <select id="lang"></select></label>
+    <label>Story <select id="story"></select></label><br>
+    <label>Mode <select id="mode"></select></label>
+    <label>Speed <select id="rate"><option value="0.7">Slow</option><option value="0.85" selected>Relaxed</option><option value="1">Natural</option></select></label>
+    <label><input type="checkbox" id="shadow"> Pause to repeat aloud</label>
+    <button id="playBtn">▶ Play story</button>
+    <p id="line" aria-live="polite"></p>
+    <p id="lineEn"></p>
+  </section>
+
+  <section class="panel">
+    <h2>Endless stories and podcast episodes with AI</h2>
+    <p>The built-in stories are a sample. For new ones on any topic (history, football, a mystery, the news in simple French), add the <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/listen-and-learn-audio/skill/SKILL.md">Listen &amp; Learn skill for Claude</a> or make a GPT from <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/listen-and-learn-audio/gpt/instructions.md">these instructions</a>, turn on voice mode, and say "tell me a story in Spanish, beginner level" or "play an episode about volcanoes". It is built for listening: long, flowing episodes, with questions only when you want them. It runs on your own assistant plan; nothing goes through us.</p>
+    <p>Want to speak, not just listen? Try the <a href="../hands-free-language-coach/">Hands-Free Language Coach</a>.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="faqH">
+    <h2 id="faqH">Questions</h2>
+    <h3>Can you learn a language just by listening?</h3>
+    <p>Listening to material you mostly understand builds vocabulary and an ear for the language, and it fits time when your hands and eyes are busy. It works best alongside speaking practice; the sibling Hands-Free Language Coach does that part.</p>
+    <h3>What level are the stories?</h3>
+    <p>The built-in stories are beginner level (CEFR A1 and A2). The AI skill adapts stories and episodes to whatever level you tell it.</p>
+    <h3>Is the audio recorded by people?</h3>
+    <p>No. The built-in stories are read by your device's own text-to-speech voices, so quality depends on the voices your device has installed. The stories themselves were written for this project.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. The player runs entirely in your browser with your device's voices. Nothing you do is sent to us.</p>
+  </section>
+
+  <footer>
+    <p><strong>Privacy.</strong> Everything runs in your browser with your device's own voices. Nothing is uploaded, and there are no accounts, tracking cookies or analytics vendor. We count anonymous events in this browser only (stories started and finished, nothing about you). <button id="usageToggle" class="secondary"></button></p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not professional language instruction, and its stories and translations may contain mistakes; it does not replace a qualified teacher. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Stories written for this project. MIT licensed. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a>.</p>
+  </footer>
+</main>
+<script type="module">
+  import { LANGS, MODES, playlist, storiesFor, STORIES } from "./stories.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const canSpeak = "speechSynthesis" in window;
+  for (const [id, l] of Object.entries(LANGS)) $("lang").add(new Option(l.name, id));
+  for (const [id, label] of Object.entries(MODES)) $("mode").add(new Option(label, id));
+
+  function fillStories() {
+    $("story").innerHTML = "";
+    for (const s of storiesFor($("lang").value)) $("story").add(new Option(`${s.title} (${s.level})`, s.id));
+  }
+  $("lang").addEventListener("change", fillStories);
+  fillStories();
+  if (!canSpeak) { $("playBtn").disabled = true; $("line").textContent = "This browser has no speech synthesis, so it cannot read the stories aloud."; }
+
+  let voices = canSpeak ? speechSynthesis.getVoices() : [];
+  if (canSpeak) speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); };
+
+  function say(text, lang) {
+    return new Promise((resolve) => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      u.rate = lang.startsWith("en") ? 1 : Number($("rate").value);
+      u.voice = voices.find((v) => v.lang === lang) || voices.find((v) => v.lang.startsWith(lang.slice(0, 2))) || null;
+      u.onend = u.onerror = () => resolve();
+      speechSynthesis.speak(u);
+    });
+  }
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  let playing = false;
+  async function play() {
+    const story = STORIES.find((s) => s.id === $("story").value);
+    playing = true;
+    $("playBtn").textContent = "■ Stop";
+    countUsage("story_started");
+    let wakeLock = null;
+    try { wakeLock = await navigator.wakeLock?.request("screen"); } catch { /* not granted: fine */ }
+    for (const item of playlist(story, $("mode").value, { shadow: $("shadow").checked })) {
+      if (!playing) break;
+      if (item.lang === "en-US") $("lineEn").textContent = item.text;
+      else { $("line").textContent = item.text; $("lineEn").textContent = ""; }
+      await say(item.text, item.lang);
+      await wait(item.pauseMs);
+    }
+    if (playing) countUsage("story_finished");
+    try { wakeLock?.release(); } catch { /* already released */ }
+    stop();
+  }
+  function stop() {
+    playing = false;
+    if (canSpeak) speechSynthesis.cancel();
+    $("playBtn").textContent = "▶ Play story";
+  }
+  $("playBtn").addEventListener("click", () => (playing ? stop() : play()));
+
+  function renderToggle() { $("usageToggle").textContent = usageAllowed() ? "Turn off counting" : "Turn on counting"; }
+  $("usageToggle").addEventListener("click", () => { setUsageEnabled(!usageAllowed()); renderToggle(); });
+  renderToggle();
+</script>
+</body>
+</html>
