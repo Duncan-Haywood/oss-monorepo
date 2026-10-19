@@ -3671,6 +3671,8 @@ const CATEGORY_RULES = [
         'tutor-package-pricing-calculator',
         // `tutor-weekly-schedule-optimizer` joined 2026-10-09 on its first commit: the same one-to-one teacher as the package calculator, deciding which students to book when.
         'tutor-weekly-schedule-optimizer',
+        // `tutoring-group-schedule-optimizer` joined 2026-10-19 on its first commit: the group-class case of the one-to-one timetable above, same centre owner.
+        'tutoring-group-schedule-optimizer',
         // `rush-job-sequencer` joined 2026-10-09 on its first commit: a small shop ordering its own job queue, one hop from the scheduling optimizers above.
         'rush-job-sequencer',
         // `patreon-fee-calculator` and the two Social Security calculators were filed here 2026-10-09 because the catch-all hit 6:

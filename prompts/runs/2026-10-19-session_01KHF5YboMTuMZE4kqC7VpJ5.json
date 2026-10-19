@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01KHF5YboMTuMZE4kqC7VpJ5",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work, build revenue software ventures",
+  "input_sha256": "63319637b0ec0038d30caa3dfa875093418cd913a7899c7c3ada6d98077071f3",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T16:31:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new venture tutoring-group-schedule-optimizer",
+  "projects": [
+    "tutoring-group-schedule-optimizer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8447",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 29,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Graduating a venture touches launched.json, build.mjs, optout-persistence count and a sibling inbound link; none is listed in one place, found by running tests."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Explore idea: group-class timetable (capacity, minimum group, which slots to open) as min-cost flow inside an exact subset search, verified against an exhaustive oracle. Complements the one-to-one tutor-weekly-schedule-optimizer. First CI run failed siblings.test (crawlable orphan); fixed by linking from the sibling.",
+  "corrections": [],
+  "redteam": null
+}
