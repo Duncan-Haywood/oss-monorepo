@@ -113,6 +113,22 @@
     </section>
   </main>
 
+  <section id="multi">
+    <h2>Several products on one entry</h2>
+    <p>One customs entry often carries more than one HTS line. Each line has its own duty and tariff rates, but the Merchandise Processing Fee (with its floor and ceiling), Harbor Maintenance Fee and broker fee are charged <strong>once per entry</strong>. Enter each product below. Freight, insurance, broker fee, entry type and ocean setting come from the form above; freight and insurance are split by item cost, and entry-level fees by customs value.</p>
+    <table id="lines" style="color:inherit">
+      <thead><tr><th style="text-align:left">Product</th><th>Item cost ($)</th><th>Units</th><th>Duty %</th><th>Suppl. %</th><th></th></tr></thead>
+      <tbody id="lineRows"></tbody>
+    </table>
+    <div class="actions"><button id="addLine" type="button">Add product line</button></div>
+    <p id="multiError" class="error" hidden></p>
+    <table>
+      <thead><tr><th style="text-align:left">Product</th><th>Total landed</th><th>Per unit</th></tr></thead>
+      <tbody id="multiOut"></tbody>
+    </table>
+    <p id="multiSummary" class="note"></p>
+  </section>
+
   <section id="faq">
     <h2>Common questions</h2>
 
@@ -167,7 +183,7 @@
     <p>Free and open source. If it kept a lowball tariff estimate from turning your shipment into a loss, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { INPUT_FIELDS, LANDED_COST_DEFAULTS, calculateLandedCost, breakdownRows } from './calc.mjs';
+    import { INPUT_FIELDS, LANDED_COST_DEFAULTS, calculateLandedCost, calculateEntry, breakdownRows } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { encodeInputs, decodeInputs, formValues } from './share.mjs';
 
@@ -287,6 +303,47 @@
     field('entryType').addEventListener('change', paint);
     field('oceanFreight').addEventListener('change', paint);
     paint();
+
+    // Multi-line entry: rows live in the DOM, shared inputs come from the form.
+    const MULTI_KEY = 'import-landed-cost-lines';
+    const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    function addLine(v = {}) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><input data-k="name" type="text" value="${esc(v.name ?? '')}" placeholder="Product"></td>`
+        + ['itemCost', 'quantity', 'dutyRatePct', 'supplementalRatePct'].map(k =>
+          `<td><input data-k="${k}" type="number" min="0" step="any" value="${esc(v[k] ?? '')}"></td>`).join('')
+        + '<td><button type="button" class="rm" aria-label="Remove line">×</button></td>';
+      tr.querySelector('.rm').addEventListener('click', () => { tr.remove(); paintMulti(); });
+      tr.addEventListener('input', paintMulti);
+      field('lineRows').appendChild(tr);
+    }
+    const readLines = () => [...field('lineRows').children].map(tr =>
+      Object.fromEntries([...tr.querySelectorAll('input')].map(i => [i.dataset.k, i.value])));
+    function paintMulti() {
+      const lines = readLines();
+      safe(() => localStorage.setItem(MULTI_KEY, JSON.stringify(lines)));
+      const err = field('multiError');
+      try {
+        const i = currentInputs();
+        const e = calculateEntry(lines, i);
+        field('multiOut').innerHTML = e.lines.map(l =>
+          `<tr><td>${esc(l.name)}</td><td>${money(l.totalLandedCost)}</td><td>${money(l.perUnitLandedCost)}</td></tr>`).join('');
+        field('multiSummary').textContent = `Entry total ${money(e.totalLandedCost)} on customs value ${money(e.customsValue)}; one MPF of ${money(e.fees.mpf)}, tariff burden ${e.effectiveTariffBurdenPct.toFixed(2)}% of item cost.`;
+        err.hidden = true;
+        recordUsage(undefined, field('usageOptOut').checked, 'multi_entry_calculated');
+      } catch (error) {
+        err.textContent = error.message;
+        err.hidden = false;
+      }
+    }
+    field('addLine').addEventListener('click', () => { addLine(); paintMulti(); });
+    for (const id of INPUT_FIELDS) { field(id).addEventListener('input', paintMulti); field(id).addEventListener('change', paintMulti); }
+    const savedLines = safe(() => JSON.parse(localStorage.getItem(MULTI_KEY) || '[]')) || [];
+    (savedLines.length ? savedLines : [
+      { name: 'Product A', itemCost: 3000, quantity: 300, dutyRatePct: 4.5, supplementalRatePct: 25 },
+      { name: 'Product B', itemCost: 2000, quantity: 200, dutyRatePct: 12, supplementalRatePct: 0 },
+    ]).forEach(addLine);
+    paintMulti();
   </script>
 </body>
 </html>

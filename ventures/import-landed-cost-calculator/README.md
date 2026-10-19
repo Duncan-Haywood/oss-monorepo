@@ -54,6 +54,12 @@ for a worked example of what changed.
   percent of item cost — the single number sellers care about most: how much
   you're really paying on top of the invoice price.
 
+- **Several products on one entry.** A second section prices a mixed
+  shipment line by line: each product has its own duty and tariff rates,
+  freight and insurance are split by item cost, and the MPF (with its floor
+  and ceiling), HMF and broker fee are charged once per entry and then split
+  by customs value, so each product gets its own landed cost per unit.
+
 None of the duty or tariff *rates* are stored or assumed. They are fields you
 fill in from your own HTS lookup (hts.usitc.gov) or your broker's guidance,
 so the result stays a checkable calculation rather than a claim about any
