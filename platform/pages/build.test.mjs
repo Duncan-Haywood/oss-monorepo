@@ -1321,6 +1321,11 @@ test('every published page links the favicon, not just the site root', async () 
 test('a venture that declares its own icon keeps it', () => {
   const own = '<head><link rel="icon" href="mine.png"></head>';
   assert.equal(injectFavicon(own, '../'), own);
+  const shortcut = '<head><link rel="shortcut icon" href="mine.ico"></head>';
+  assert.equal(injectFavicon(shortcut, '../'), shortcut);
+  // A home-screen tile is not a tab icon: the page still gets one.
+  const touch = injectFavicon('<head><link rel="apple-touch-icon" href="t.png"></head>', '../');
+  assert.ok(touch.includes('href="../favicon.ico"'), 'apple-touch-icon must not count as a favicon');
 
   const injected = injectFavicon('<head>\n<title>t</title></head>', '../');
   assert.equal((injected.match(/rel="icon"/g) ?? []).length, 1);
@@ -1699,6 +1704,7 @@ test('every page type carries the one site header, with every nav item', async (
     guides: ['guides', 'index.html'],
     research: ['research', 'index.html'],
     researchProject: ['research', 'accel-kws', 'index.html'],
+    researchTopic: ['research', 'topics', 'accel', 'index.html'],
     engineering: ['engineering', 'index.html'],
     writing: ['writing', 'index.html'],
     updates: ['updates', 'index.html'],
@@ -1725,6 +1731,33 @@ test('every page type carries the one site header, with every nav item', async (
   const deep = (await listFiles(path.join(outDir, 'ebay-fee-calculator'))).find((f) => f.endsWith('.html') && !f.endsWith('index.html'));
   const html = await fs.readFile(deep, 'utf8');
   assert.match(html, /aria-label="Breadcrumb"><a href="\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/c\/marketplace\/".*href="\.\.\/ebay-fee-calculator\/"/s);
+});
+
+// Until 2026-10-19 a research project page linked only back to a 2 MB index of
+// all 700 projects, and the index's card titles went to GitHub, so most
+// project pages had one inbound link and no route sideways.
+test('research has a topic level, and every project page routes up and sideways', async () => {
+  const { outDir } = await site();
+  const project = await read('research', 'accel-kws', 'index.html');
+  assert.match(project, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/\.\.\/research\/">Research<\/a>.*href="\.\.\/\.\.\/research\/topics\/accel\/">/s);
+  assert.doesNotMatch(project, /\{\{\w+\}\}/, 'no unfilled placeholder');
+  assert.doesNotMatch(project, /<title>accel-kws /, 'the title is the project, not its slug');
+  // "More in <topic>", previous/next, and every topic.
+  const more = project.slice(project.indexOf('id="more"'));
+  assert.ok([...more.matchAll(/<li><a href="\.\.\/[\w-]+\/">/g)].length >= 3, 'lists sibling projects');
+  assert.match(project, /rel="(prev|next)"/);
+  const topics = [...project.matchAll(/href="\.\.\/topics\/([\w-]+)\/"/g)].map((m) => m[1]);
+  for (const id of new Set(topics)) {
+    assert.ok(await exists(path.join(outDir, 'research', 'topics', id, 'index.html')), `topic ${id} has a page`);
+  }
+  // The topic page lists its projects, each linking its on-site page.
+  const topic = await read('research', 'topics', 'accel', 'index.html');
+  assert.match(topic, /<a href="\.\.\/\.\.\/accel-kws\/">/);
+  assert.match(topic, /<link rel="canonical" href="[^"]*research\/topics\/accel\/">/);
+  // The index's card titles open the project's page on this site.
+  const index = await read('research', 'index.html');
+  assert.match(index, /<h3><a href="accel-kws\/">/);
+  assert.match(index, /<a href="topics\/accel\/">/);
 });
 
 test('every published venture page routes back to the hub', async () => {
@@ -4549,6 +4582,8 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, /co
 
   // Each research project's home page is listed under /research/.
   assert.ok(renderHubSitemap(BASE, [], [], ['accel-kws']).includes(`<loc>${BASE}${RESEARCH_PATH}accel-kws/</loc>`));
+  // And each research topic page, which the build passes in the same list.
+  assert.ok(renderHubSitemap(BASE, [], [], ['topics/accel']).includes(`<loc>${BASE}${RESEARCH_PATH}topics/accel/</loc>`));
 
   // The writing index and each post, and neither when there are no posts.
   const withPosts = renderHubSitemap(BASE, [], [], [], ['a-post']);
