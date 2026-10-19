@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Docker Base Image Pin Check vs. reading a Dockerfile by hand</title>
-<meta name="description" content="Skimming a Dockerfile for FROM lines catches the obvious case -- bare latest, no tag at all. It also depends on remembering that a specific-looking tag like node:18 is just as mutable as latest, correctly telling a build-stage reference apart from a registry pull, and reading every FROM line across every Dockerfile in a repo, every time.">
+<meta name="description" content="A careful read of a Dockerfile catches an obvious bare latest. This tool checks every FROM line the same way every time, including the specific-looking tags a skim reads as already pinned.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="./vs-reading-a-dockerfile-by-hand.html">
 <meta property="og:type" content="article">
