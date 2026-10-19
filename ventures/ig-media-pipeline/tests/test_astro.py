@@ -279,7 +279,8 @@ def test_trail_timelapse_and_reel_source(tmp_path, monkeypatch):
     assert astro.run(cfg, store, judge, assets + [seq]) == 2
     src = astro.reel_source(seq, store)
     assert src["kind"] == "video" and Path(src["path"]).exists() and src["denoise"]
-    assert "four frames" in judge.tasks[-1].instructions and judge.tasks[-1].images[0].name.endswith(".sheet.jpg")
+    assert list((cfg.state_dir / "astro" / "seq1").glob("preview_*.npy"))       # frames decoded once, cached
+    assert "four frames" in judge.tasks[-1].instructions and judge.tasks[-1].images[0].name.startswith("trails_preview_")
 
 
 def test_gradient_removal_takes_a_colour_cast_out_of_the_sky_only():

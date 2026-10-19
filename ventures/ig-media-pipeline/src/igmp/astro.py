@@ -92,6 +92,7 @@ MAX_STACK = 40               # sqrt(40) ~ 6x less noise; more frames add little 
 REVISIONS = 2
 FEATHER = 0.001              # of the long edge: the skyline is snapped to the real edge, so a soft
                              # blend only smears land colour into the sky (or sky into the rock)
+PREVIEW_EDGE = 640           # px, the cached frames trail timelapse critic rounds are made from
 LAYERS_VERSION = 2           # bump when how frames become layers changes: cached .npz files go stale
 FEED_SIZE = (1080, 1350)
 SHEET_FRAMES = 12
@@ -597,10 +598,32 @@ def _plan_tag(plan: AstroPlan) -> str:
     return hashlib.sha1(f"{key}v{LAYERS_VERSION}".encode()).hexdigest()[:10]
 
 
+def _trail_images(frame, idx: list[int], plan: AstroPlan, size: tuple[int, int], keep=None):
+    """Yield (k, display image) for a trail timelapse: the current background and land with every
+    star's trail so far laid over it. `frame(i)` returns member i as linear RGB. Grade levels and
+    the gradient model are fixed from the first frame so the sky does not pump. `keep` limits the
+    images made (all frames are still accumulated)."""
+    first = frame(idx[0])
+    mask = core.horizon_mask(skyline(plan, first), first.shape[:2])
+    ref_ratio = core.colour_ratio(first, mask)
+    alpha = core.feather(mask, FEATHER * max(first.shape[:2])) if plan.foreground != "none" \
+        else np.ones(mask.shape, np.float32)
+    model = gradient_model(first, alpha)
+    lv = levels(np.clip(first - plan.grade.gradient_removal * model * alpha[..., None], 0, None), plan.grade, mask)
+    acc = None
+    for k, i in enumerate(idx):
+        cur = first if k == 0 else core.match_colour(frame(i)[: first.shape[0], : first.shape[1]], ref_ratio, mask)
+        bg, stars = core.star_signal(cur, mask)
+        acc = stars if acc is None else np.maximum(acc * plan.trail_decay, stars)
+        if keep is not None and k not in keep:
+            continue
+        sky = np.maximum(cur, bg + acc)
+        lin = sky * alpha[..., None] + cur * (1 - alpha[..., None])
+        yield k, _crop(_to_image(grade(lin, plan.grade, alpha, lv, model)), size, plan.vertical_focus)
+
+
 def render_trail_timelapse(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config) -> dict:
-    """One video frame per input frame: the current background and land, with every star's
-    trail so far laid over it. Grade levels and the gradient model are fixed from the first
-    frame so the sky does not pump."""
+    """The full-size clip, one video frame per input frame (see _trail_images)."""
     from . import sequences
     idx = chosen(plan, len(members))
     d = cfg.state_dir / "astro" / group.id
@@ -608,25 +631,10 @@ def render_trail_timelapse(group: AstroGroup, members: list[Asset], plan: AstroP
     if clip.exists():
         return {"video": str(clip)}
     edge = int(cfg.extra.get("astro_video_long_edge", 2400))
-    first = load_linear(members[idx[0]], edge)
-    mask = core.horizon_mask(skyline(plan, first), first.shape[:2])
-    ref_ratio = core.colour_ratio(first, mask)
-    alpha = core.feather(mask, FEATHER * max(first.shape[:2])) if plan.foreground != "none" \
-        else np.ones(mask.shape, np.float32)
-    model = gradient_model(first, alpha)
-    lv = levels(np.clip(first - plan.grade.gradient_removal * model * alpha[..., None], 0, None), plan.grade, mask)
     tmp = Path(tempfile.mkdtemp(prefix="igmp-astro-"))
     try:
-        acc = None
-        for k, i in enumerate(idx):
-            cur = first if k == 0 else core.match_colour(
-                load_linear(members[i], edge)[: first.shape[0], : first.shape[1]], ref_ratio, mask)
-            bg, stars = core.star_signal(cur, mask)
-            acc = stars if acc is None else np.maximum(acc * plan.trail_decay, stars)
-            sky = np.maximum(cur, bg + acc)
-            lin = sky * alpha[..., None] + cur * (1 - alpha[..., None])
-            _crop(_to_image(grade(lin, plan.grade, alpha, lv, model)), (1080, 1920), plan.vertical_focus) \
-                .save(tmp / f"{k:06d}.jpg", quality=93)
+        for k, im in _trail_images(lambda i: load_linear(members[i], edge), idx, plan, (1080, 1920)):
+            im.save(tmp / f"{k:06d}.jpg", quality=93)
         clip.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(sequences.ffmpeg_args(tmp / "%06d.jpg", plan.fps, clip, cfg), check=True,
                        capture_output=True)
@@ -635,17 +643,39 @@ def render_trail_timelapse(group: AstroGroup, members: list[Asset], plan: AstroP
     return {"video": str(clip)}
 
 
-def video_sheet(video: Path, cfg: Config, n: int = 4) -> Path:
-    """n evenly spaced frames side by side, for the critic."""
-    out = video.with_suffix(".sheet.jpg")
-    if not out.exists():
-        frames = int(subprocess.run([cfg.ffprobe, "-v", "error", "-count_packets", "-select_streams", "v:0",
-                                     "-show_entries", "stream=nb_read_packets", "-of", "csv=p=0", str(video)],
-                                    capture_output=True, text=True, check=True).stdout.strip() or 1)
-        step = max(1, (frames - 1) // max(n - 1, 1))
-        subprocess.run([cfg.ffmpeg, "-v", "error", "-y", "-i", str(video), "-vf",
-                        f"select='not(mod(n\\,{step}))',scale=360:-2,tile={n}x1", "-frames:v", "1", str(out)],
-                       check=True, capture_output=True)
+def preview_frames(group: AstroGroup, members: list[Asset], cfg: Config, edge: int = PREVIEW_EDGE) -> np.ndarray:
+    """Every member developed once at `edge` px and cached as a float16 array on disk (memory
+    mapped), so each critic round of a long run costs seconds instead of decoding every RAW again."""
+    path = cfg.state_dir / "astro" / group.id / f"preview_{edge}_{len(members)}_v{LAYERS_VERSION}.npy"
+    if path.exists():
+        return np.load(path, mmap_mode="r")
+    first = load_linear(members[0], edge)
+    h, w = first.shape[:2]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".part.npy")
+    arr = np.lib.format.open_memmap(tmp, mode="w+", dtype=np.float16, shape=(len(members), h, w, 3))
+    for i, m in enumerate(members):
+        f = first if i == 0 else load_linear(m, edge)
+        hh, ww = min(h, f.shape[0]), min(w, f.shape[1])
+        arr[i, :hh, :ww] = f[:hh, :ww]
+    arr.flush()
+    del arr
+    tmp.rename(path)
+    return np.load(path, mmap_mode="r")
+
+
+def trail_preview_sheet(group: AstroGroup, members: list[Asset], plan: AstroPlan, cfg: Config, n: int = 4) -> Path:
+    """What the critic sees of a trail timelapse: n evenly spaced frames, start to end, made from
+    the cached preview frames with the plan's settings - the same code the full clip runs."""
+    frames = preview_frames(group, members, cfg)
+    idx = chosen(plan, len(members))
+    keep = {round(j * (len(idx) - 1) / max(n - 1, 1)) for j in range(n)}
+    tiles = [im for _, im in _trail_images(lambda i: frames[i].astype(np.float32), idx, plan, (360, 640), keep)]
+    sheet = Image.new("RGB", (360 * len(tiles), 640))
+    for j, t in enumerate(tiles):
+        sheet.paste(t, (360 * j, 0))
+    out = cfg.state_dir / "astro" / group.id / f"trails_preview_{_plan_tag(plan)}.jpg"
+    sheet.save(out, quality=90)
     return out
 
 
@@ -777,17 +807,21 @@ def finish(group: AstroGroup, members: list[Asset], rec: dict, cfg: Config, stor
 
 
 def _video_rounds(group, members, plan: AstroPlan, cfg: Config, judge: Backend) -> dict:
+    """Critic rounds on cheap previews; the full-size clip is rendered once, with the final plan."""
     notes: list[str] = []
     for round_ in range(REVISIONS + 1):
-        video = render_trail_timelapse(group, members, plan, cfg)
-        sheet = video_sheet(Path(video["video"]), cfg)
+        sheet = trail_preview_sheet(group, members, plan, cfg)
         verdict = review(group, plan, "trail-timelapse", {"full": str(sheet)}, cfg, judge, notes)
         notes.append(verdict.notes)
-        done = {**video, "plan": plan.model_dump(), "notes": notes, "rounds": round_ + 1}
+        status = None
         if verdict.verdict == "ship":
-            return {"status": "shipped", **done}
-        if verdict.verdict == "reject" or verdict.revised is None or round_ == REVISIONS:
-            return {"status": "rejected" if verdict.verdict == "reject" else "held", **done}
+            status = "shipped"
+        elif verdict.verdict == "reject" or verdict.revised is None or round_ == REVISIONS:
+            status = "rejected" if verdict.verdict == "reject" else "held"
+        if status:
+            video = render_trail_timelapse(group, members, plan, cfg) if status != "rejected" else {}
+            return {"status": status, **video, "sheet": str(sheet), "plan": plan.model_dump(), "notes": notes,
+                    "rounds": round_ + 1}
         revised = verdict.revised
         revised.outputs = plan.outputs
         plan = revised
