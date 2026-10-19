@@ -602,15 +602,21 @@ test('the itemised calculators are offered the control once they declare their r
 // flipping a comparison in them passed every test. This runs the emitted module
 // itself in a `vm` with the smallest document it needs.
 
-function runLinkModule(hash, formIds, { storage = {}, repeatPrefix = '' } = {}) {
+function runLinkModule(hash, formIds, { storage = {}, repeatPrefix = '', hero = null, checkboxes = [] } = {}) {
   const note = { textContent: '', hidden: true, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; },
     removeAttribute(k) { delete this.attrs[k]; } };
   const nodes = formIds.map((id) => ({
-    id, tagName: 'INPUT', type: 'text', value: '', closest: () => null, dispatchEvent() {},
+    id, tagName: 'INPUT', type: checkboxes.includes(id) ? 'checkbox' : 'text', value: '', closest: () => null, dispatchEvent() {},
     getAttribute: () => null,
   }));
   const document = {
-    querySelector: () => null,
+    // `hero` stands in for the page's headline figure: the script tag names its
+    // selector and the selector finds the element showing the number.
+    querySelector: (sel) => {
+      if (!hero) return null;
+      if (sel.startsWith('script[')) return { getAttribute: () => '#bidPrice' };
+      return sel === '#bidPrice' ? { textContent: hero } : null;
+    },
     getElementById: (id) => (id === 'pf-link-note' ? note : null),
     querySelectorAll: (sel) => {
       if (sel.startsWith('input[id]')) return nodes;
@@ -688,4 +694,52 @@ test('the usage counter adds to an existing count and honours the opt-out', () =
 
 test('a non-string page is never offered the control', () => {
   for (const html of [undefined, null, 7, {}]) assert.equal(pageTakesBidLink(html), false);
+});
+
+// Red-team seeding (2026-10-19): the boundaries and one gate below were each
+// changed without a single test noticing.
+
+test('a value exactly at the ceiling survives and one past it is dropped', () => {
+  assert.equal(MAX_LINK_VALUE, 512);
+  const at = decodeBidLink(encodeBidLink({ fields: { note: 'x'.repeat(512) } }));
+  assert.equal(at.fields.note.length, 512);
+  const payload = encodeURIComponent(JSON.stringify({
+    v: 1, f: { lengthFt: '14', note: 'x'.repeat(513) },
+  }));
+  assert.deepEqual(decodeBidLink('#' + BID_LINK_PREFIX + payload), { fields: { lengthFt: '14' } });
+});
+
+test('a page that builds rows in script but declares them takes the control', () => {
+  const declared = '<form><input id="a"><input id="b"><input id="c"><input id="d"><input id="e"></form>'
+    + '<button data-pf-repeat="row">Add</button>'
+    + '<script>el.innerHTML = `<input id="${id}-x">`;</script>';
+  assert.equal(pageBuildsFieldsAtRuntime(declared), true);
+  assert.ok(pageRepeatPrefixes(declared).length > 0);
+  const html = injectSavedBids(declared, 'demo', './');
+  assert.equal(pageTakesBidLink(html), true);
+});
+
+test('the page script reports an extra form control even when it is the first one', () => {
+  const hash = '#' + encodeBidLink({ fields: { b: '1' } });
+  const { note } = runLinkModule(hash, ['a', 'b']);
+  assert.match(note.textContent, /carries 1 this form has that the link never priced, so/);
+});
+
+test('a figure that differs from the sender is a warning and is counted', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1' }, amount: '$1,800' });
+  const off = runLinkModule(hash, ['a'], { hero: '$1,900' });
+  assert.match(off.note.textContent, /The sender saw \$1,800 and this page works out \$1,900/);
+  assert.ok('data-pf-link-warn' in off.note.attrs, 'a disagreement is shown as a warning');
+  assert.equal(JSON.parse(off.store['portfolio-hub-usage']).bid_link_amount_differs, 1);
+  const same = runLinkModule(hash, ['a'], { hero: '$1,800' });
+  assert.match(same.note.textContent, /works out the same \$1,800/);
+  assert.equal('data-pf-link-warn' in same.note.attrs, false);
+});
+
+test('a checkbox in a link sets its checked state, not its text value', () => {
+  const hash = '#' + encodeBidLink({ fields: { rush: true, hours: '3' } });
+  const { nodes } = runLinkModule(hash, ['rush', 'hours'], { checkboxes: ['rush'] });
+  assert.equal(nodes[0].checked, true);
+  assert.equal(nodes[0].value, '');
+  assert.equal(nodes[1].value, '3');
 });
