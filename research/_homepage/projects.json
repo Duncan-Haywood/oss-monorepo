@@ -2120,6 +2120,11 @@
      "summary": "Follow-up to selfrep-alurod and selfrep-rodmodes: rods of the printer redesign are sized to a first-mode frequency target (Rayleigh estimate, assumed 0.3&nbsp;kg carriage) instead of a sag spec. Aluminium reaches 40&nbsp;Hz with 10.0&nbsp;mm, inside the assumed 12&nbsp;mm holder limit, where hardwood needs 16.0&nbsp;mm; within 12&nbsp;mm the highest reachable frequency is 56&nbsp;Hz for aluminium and 23&nbsp;Hz for hardwood. Closure by mass rises with the target only because thicker stock counts as makeable, while imported stock grows from 1946&nbsp;g to 2596&nbsp;g. Stylised: one mode, assumed carriage mass, moduli and holder limit."
     },
     {
+     "slug": "selfrep-alufring",
+     "title": "How thick must a printer rod be to keep carriage ringing small at a given acceleration?",
+     "summary": "Follow-up to selfrep-alufreq: the rod diameter is derived from an acceleration and a 50&nbsp;&micro;m ringing tolerance (one-mode oscillator, assumed 0.3&nbsp;kg carriage and damping ratio 0.01) instead of a bare frequency target. At 3&nbsp;m/s&sup2; with abrupt steps steel needs 7.3&nbsp;mm, aluminium 9.6&nbsp;mm and hardwood 15.5&nbsp;mm; ramping the force over 20&nbsp;ms cuts aluminium at 5&nbsp;m/s&sup2; from 10.9 to 8.9&nbsp;mm. Stylised: one mode, assumed damping, nothing measured."
+    },
+    {
      "slug": "selfrep-sensitivity",
      "title": "Which assumed input of the replicating-printer growth model does the doubling time depend on most?",
      "summary": "Follow-up to selfrep-growth: variance-based (Sobol) sensitivity of the fluid-model doubling time to print rate, assembly time, vitamin cost, import budget and build-failure probability over assumed ranges. Import-limited (4/h): budget and vitamin cost carry about 0.45 and 0.43 of the variance of ln&nbsp;T, failure 0.11, print rate and assembly time none. Time-limited (64/h): budget, vitamin cost, failure and print rate are comparable (0.25&ndash;0.28). The fluid model overstates budget sensitivity at 64/h against the discrete-event model (elasticity &minus;0.45 vs &minus;0.02). Stylised, with assumed ranges and inputs."
