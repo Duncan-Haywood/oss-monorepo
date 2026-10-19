@@ -2607,3 +2607,32 @@ export function sampleFields() {
     playoff: 4,
   };
 }
+
+/**
+ * Roll a league's form fields over to the next season: same teams, courts, times, weekdays and
+ * per-team time and court limits; the old season's dated inputs (skip dates, blackouts, results, rainouts, withdrawals,
+ * late entries, deadline) are cleared; teams that withdrew are dropped and late entrants kept;
+ * the start moves to the first chosen weekday on or after `lastDay` + `gapWeeks` weeks (or a year
+ * after the old start when the old season was not built); the seed moves on so home and away
+ * and court draws are not a copy of last season's.
+ */
+export function nextSeasonFields(fields, { lastDay = null, gapWeeks = 8 } = {}) {
+  const f = { ...fields };
+  const lineTeam = (line) => line.replace(/^\s*\d{4}-\d{1,2}-\d{1,2}\s*[:,-]?\s*/, "").replace(/\s*(?:->|=>|\u2192)\s*.*$/, "").trim();
+  const gone = new Set(String(f.withdrawals || "").split(/\n+/).map(lineTeam).filter(Boolean).map((t) => t.toLowerCase()));
+  const late = String(f.lateTeams || "").split(/\n+/).map(lineTeam).filter(Boolean);
+  const kept = String(f.teams || "").split(/\n+/).map((t) => t.trim()).filter((t) => t && !gone.has(t.toLowerCase()));
+  for (const t of late) if (!kept.some((k) => k.toLowerCase() === t.toLowerCase())) kept.push(t);
+  f.teams = kept.join("\n");
+  const old = parseDate(f.start);
+  let day = lastDay != null ? lastDay + gapWeeks * 7 : old != null ? old + 364 : null;
+  if (day != null) {
+    const wanted = (f.weekdays || []).map((w) => WEEKDAYS.indexOf(w)).filter((i) => i >= 0);
+    if (wanted.length) for (let i = 0; i < 7 && !wanted.includes(dayOfWeek(day)); i++) day++;
+    f.start = dayIso(day);
+  }
+  f.seed = (Number(f.seed) || 0) + 1;
+  for (const k of ["skip", "blackouts", "results", "rainouts", "withdrawals", "lateTeams", "finishBy"]) if (k in f) f[k] = "";
+  const dropped = String(fields.teams || "").split(/\n+/).map((t) => t.trim()).filter((t) => t && gone.has(t.toLowerCase()));
+  return { fields: f, dropped, added: late.filter((t) => kept.includes(t)) };
+}
