@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of the Fano factor of false-wake counts against window length in 100-second blocks: flat near 1.9 for independent drift, and rising to 17, 150 and 620 for drift with correlation times of 10, 100 and 1000 blocks">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Fano factor of false-wake counts against window length (5% noise-scale drift)</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#ddd"/><text x="58" y="313.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="224.0" y2="224.0" stroke="#ddd"/><text x="58" y="228.0" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="138.3" y2="138.3" stroke="#ddd"/><text x="58" y="142.3" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="250.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="436.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="622.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">window length (blocks of 100 s)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">Fano factor (log)</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,286.2 176.0,286.4 288.0,286.2 400.0,286.0 512.0,286.6 624.0,288.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="286.2" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="286.4" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="286.2" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="286.0" r="3" fill="#c0392b"/>
+<circle cx="512.0" cy="286.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="288.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">i.i.d. drift</text>
+<polyline points="64.0,286.2 176.0,257.2 288.0,225.0 400.0,207.7 512.0,203.6 624.0,203.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="286.2" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="257.2" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="225.0" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="207.7" r="3" fill="#1f6fb2"/>
+<circle cx="512.0" cy="203.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="203.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">tau = 10 blocks</text>
+<polyline points="64.0,286.4 176.0,254.2 288.0,211.0 400.0,167.1 512.0,134.9 624.0,122.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="286.4" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="254.2" r="3" fill="#2e8b57"/>
+<circle cx="288.0" cy="211.0" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="167.1" r="3" fill="#2e8b57"/>
+<circle cx="512.0" cy="134.9" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="122.5" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">tau = 100 blocks</text>
+<polyline points="64.0,286.8 176.0,254.6 288.0,210.1 400.0,161.1 512.0,112.5 624.0,70.4" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="286.8" r="3" fill="#8e44ad"/>
+<circle cx="176.0" cy="254.6" r="3" fill="#8e44ad"/>
+<circle cx="288.0" cy="210.1" r="3" fill="#8e44ad"/>
+<circle cx="400.0" cy="161.1" r="3" fill="#8e44ad"/>
+<circle cx="512.0" cy="112.5" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">tau = 1000 blocks</text>
+</svg>
