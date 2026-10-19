@@ -3457,6 +3457,11 @@
     "slug": "society-robotnorms",
     "title": "How many robots does it take to change how a crowd walks?",
     "summary": "Robots as a committed minority in a passing-side convention. Simulated people take the side most of their last <em>M</em> partners used; robots hold a programmed side. The tipping share grows with memory: 16%, 22%, 28% and 32% of the crowd for <em>M</em>&nbsp;=&nbsp;5, 9, 17 and 25, within 0.02 of a mean-field prediction. Just below it, robots that hold their side make people collide up to 14&times; as often as robots that adapt (0.27 vs 0.020 conflicts per meeting). When people meet only neighbours, evenly spread robots tip everyone from 12&ndash;14%, while one block of robots converts under 10% of people even at half the crowd. Stylised: one binary choice per meeting, no geometry."
+   },
+   {
+    "slug": "society-plaza",
+    "title": "Do robots that keep to one side make people walk on it, or jam the corridor?",
+    "summary": "The 1D <code>society-robotnorms</code> passing-side model rebuilt as a social-force corridor (60 simulated walkers, 30&nbsp;m &times; 6&nbsp;m). Robots that adapt to people change nothing. Robots that hold the left slow people from 0.91 to 0.81 of desired speed at 5% of the crowd and to 0.39 at 30%, halve the lane separation (2.75&nbsp;m to 1.43&nbsp;m), and move people to their side only gradually (at most 54% of people at memory&nbsp;9), with no sharp tipping in 300&nbsp;s. Includes a seeded browser replay. Stylised: 8 seeds, one parameter set, simulated walkers only."
    }
   ]
  }
