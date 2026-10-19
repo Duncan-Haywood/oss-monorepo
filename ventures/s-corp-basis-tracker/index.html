@@ -186,9 +186,10 @@
         ["Stock basis at end", fmt(res.closing.stock)], ["Debt basis at end", fmt(res.closing.debtBasis)],
         ["Suspended losses", fmt(res.closing.suspended)],
         ["Taxable excess distributions", fmt(res.rows.reduce((a, r) => a + r.lines.excessDistributions, 0))],
+        ["Gain on loan repayments", fmt(res.rows.reduce((a, r) => a + r.lines.repaymentGain, 0))],
       ].map(([k, v]) => `<div>${esc(k)}<strong>${esc(v)}</strong></div>`).join("");
       const cols = [["Year", (r) => r.year], ["Stock start", (r) => fmt(r.open.stock)], ["Income + exempt", (r) => fmt(r.lines.income + r.lines.taxExempt)],
-        ["Distributions", (r) => fmt(r.lines.distributions)], ["Excess dist.", (r) => fmt(r.lines.excessDistributions)],
+        ["Distributions", (r) => fmt(r.lines.distributions)], ["Excess dist.", (r) => fmt(r.lines.excessDistributions)], ["Loan repay gain", (r) => fmt(r.lines.repaymentGain)],
         ["Loss deducted", (r) => fmt(r.deductedLosses)], ["Suspended", (r) => fmt(r.close.suspended)],
         ["Stock end", (r) => fmt(r.close.stock)], ["Debt basis end", (r) => fmt(r.close.debtBasis)]];
       $("#tbl").innerHTML = `<tr>${cols.map(([h], i) => `<th${i ? ' class="n"' : ""}>${esc(h)}</th>`).join("")}</tr>` +
@@ -317,9 +318,9 @@
       err.textContent = b.errors.join(" "); err.hidden = !b.errors.length;
       lastBatch = b;
       const cols = [["Shareholder", (r) => r.name], ["Through", (r) => r.lastYear], ["Stock basis", (r) => fmt(r.stock)], ["Debt basis", (r) => fmt(r.debtBasis)], ["Suspended", (r) => fmt(r.suspended)],
-        ["Taxable excess dist.", (r) => fmt(r.excessDistributions)], ["Can still distribute tax free", (r) => fmt(r.maxTaxFreeDistribution)], ["Needs attention", (r) => r.flags.join(", ") || "none"]];
-      $("#batch-tbl").innerHTML = `<tr>${cols.map(([h], i) => `<th${i > 1 && i < 7 ? ' class="n"' : ""}>${esc(h)}</th>`).join("")}</tr>` +
-        batchSummary(b).map((r) => `<tr>${cols.map(([, f], i) => `<td${i > 1 && i < 7 ? ' class="n"' : ""}>${esc(f(r))}</td>`).join("")}</tr>`).join("");
+        ["Taxable excess dist.", (r) => fmt(r.excessDistributions)], ["Loan repay gain", (r) => fmt(r.repaymentGain)], ["Can still distribute tax free", (r) => fmt(r.maxTaxFreeDistribution)], ["Needs attention", (r) => r.flags.join(", ") || "none"]];
+      $("#batch-tbl").innerHTML = `<tr>${cols.map(([h], i) => `<th${i > 1 && i < 8 ? ' class="n"' : ""}>${esc(h)}</th>`).join("")}</tr>` +
+        batchSummary(b).map((r) => `<tr>${cols.map(([, f], i) => `<td${i > 1 && i < 8 ? ' class="n"' : ""}>${esc(f(r))}</td>`).join("")}</tr>`).join("");
       $("#batch-out").hidden = false;
       record("batch_run");
     });

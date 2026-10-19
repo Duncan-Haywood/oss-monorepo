@@ -296,3 +296,19 @@ test("K-1 entry reports unknown boxes, bad amounts and missing years instead of 
   assert.equal(r.rows.length, 1);
   assert.equal(r.rows[0].distributions, 1000);
 });
+
+test("gain on repaying reduced-basis debt shows in the worksheet, batch summary and batch packet", async () => {
+  const { runBatch, batchSummary, batchPacketHtml } = await import("./calc.mjs");
+  const r = run(open({ debtFace: 10000, debtBasis: 4000 }), [{ ...Z, loansRepaid: 10000 }]);
+  assert.equal(r.rows[0].lines.repaymentGain, 6000);
+  assert.ok(packetHtml(r).includes('Gain on repaying reduced-basis debt</td><td class="n">$6,000'));
+  // columns: shareholder,year,contributions,loansMade,loansRepaid,income,taxExempt,distributions,nondeductible,losses
+  const hdr = "shareholder,year,contributions,loansMade,loansRepaid,income,taxExempt,distributions,nondeductible,losses\n";
+  const none = batchSummary(runBatch(hdr + "Ann,2023,0,10000,0,0,0,0,0,6000\nAnn,2024,0,0,0,0,0,0,0,0\n"))[0];
+  assert.equal(none.repaymentGain, 0);
+  const b2 = runBatch(hdr + "Bo,2023,0,10000,0,0,0,0,0,16000\nBo,2024,0,0,10000,0,0,0,0,0\n");
+  const s = batchSummary(b2)[0];
+  assert.ok(s.repaymentGain > 0);
+  assert.ok(s.flags.includes("loan repayment gain"));
+  assert.ok(batchPacketHtml(b2).includes("Loan repay gain"));
+});
