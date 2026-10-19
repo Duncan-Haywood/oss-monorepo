@@ -845,7 +845,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
 
-## E49: review 2026-10-19 (eighth)
+## E49: review 2026-10-19 (ninth)
 
 - Change: `prompt.md` step 2 says to retry `create_pull_request` on HTTP 500
   (`prompt.md` friction: two 500s before success, no doc mentioned retrying).
