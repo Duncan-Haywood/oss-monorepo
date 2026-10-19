@@ -9,7 +9,7 @@
   <meta property="og:description" content="Find out how many extra sales your ads really caused, how sure that is, and whether the spend paid back.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ad Incrementality Test Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste daily or weekly sales by store or region, name the test regions and the campaign start date, and get the incremental lift from ads with an interval, incremental ROAS, profit after ad spend and the smallest lift the test could detect. Runs entirely in your browser.", "featureList": "geo holdout test analysis, ad incrementality calculator, synthetic control counterfactual, placebo test interval, incremental ROAS, cost per incremental order, CSV export"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an ad incrementality test?", "acceptedAnswer": {"@type": "Answer", "text": "It asks whether your ads caused sales that would not have happened anyway. You switch a campaign on in some stores or regions and leave comparable ones alone, then compare what happened. The difference, beyond what the comparison regions predicted, is the incremental effect. Platform-reported conversions count everyone who saw an ad and bought, including people who were going to buy regardless."}}, {"@type": "Question", "name": "How do I run a geo holdout test for my ads?", "acceptedAnswer": {"@type": "Answer", "text": "Pick several regions, cities or stores with steady sales, run the campaign in some of them and keep others dark for at least two to four weeks. Collect daily or weekly sales for all of them from well before the start date. Paste that table here with the start date and the names of the test regions."}}, {"@type": "Question", "name": "How is the counterfactual built?", "acceptedAnswer": {"@type": "Answer", "text": "Sales in the test regions are explained before the campaign as a non-negative weighted sum of the comparison regions, fitted by least squares. The same weights are then used after the start date to predict what the test regions would have sold with no campaign. The gap between actual and predicted is the lift. A simple before-and-after comparison against the pooled comparison regions is shown as a second opinion."}}, {"@type": "Question", "name": "How sure is the result?", "acceptedAnswer": {"@type": "Answer", "text": "The tool replays the method on the days before your campaign: it pretends the campaign started earlier, predicts forward, and records how big a fake lift can look from noise alone. Your real lift is compared with those fake ones, which gives an interval and a p-value. A wide interval means the test was too small or too noisy to say; the tool shows the smallest lift it could have detected."}}, {"@type": "Question", "name": "How many regions and days do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 14 days before the campaign, 3 or more after it, and at least one comparison region. In practice four or more comparison regions that move like the test ones, several weeks of history before the start and a campaign that runs two to four weeks give a usable answer. If the comparison regions do not track the test regions beforehand the tool says the result is unreliable."}}, {"@type": "Question", "name": "What is iROAS and why is it lower than my platform ROAS?", "acceptedAnswer": {"@type": "Answer", "text": "Incremental return on ad spend is extra sales caused by the ads divided by ad spend. Platforms credit every conversion that follows an ad touch, including buyers who would have bought anyway, so their ROAS is usually higher. Break-even iROAS is one divided by your gross margin: at a 40% margin you need 2.5 dollars of extra sales per dollar of spend to break even."}}, {"@type": "Question", "name": "Is my sales data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your data. It works offline once the page has loaded."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an ad incrementality test?", "acceptedAnswer": {"@type": "Answer", "text": "It asks whether your ads caused sales that would not have happened anyway. You switch a campaign on in some stores or regions and leave comparable ones alone, then compare what happened. The difference, beyond what the comparison regions predicted, is the incremental effect. Platform-reported conversions count everyone who saw an ad and bought, including people who were going to buy regardless."}}, {"@type": "Question", "name": "How do I run a geo holdout test for my ads?", "acceptedAnswer": {"@type": "Answer", "text": "Pick several regions, cities or stores with steady sales, run the campaign in some of them and keep others dark for at least two to four weeks. Collect daily or weekly sales for all of them from well before the start date. Paste that table here with the start date and the names of the test regions."}}, {"@type": "Question", "name": "How is the counterfactual built?", "acceptedAnswer": {"@type": "Answer", "text": "Sales in the test regions are explained before the campaign as a non-negative weighted sum of the comparison regions, fitted by least squares. The same weights are then used after the start date to predict what the test regions would have sold with no campaign. The gap between actual and predicted is the lift. A simple before-and-after comparison against the pooled comparison regions is shown as a second opinion."}}, {"@type": "Question", "name": "How sure is the result?", "acceptedAnswer": {"@type": "Answer", "text": "The tool replays the method on the days before your campaign: it pretends the campaign started earlier, predicts forward, and records how big a fake lift can look from noise alone. Your real lift is compared with those fake ones, which gives an interval and a p-value. A wide interval means the test was too small or too noisy to say; the tool shows the smallest lift it could have detected."}}, {"@type": "Question", "name": "How many regions and days do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 14 days before the campaign, 3 or more after it, and at least one comparison region. In practice four or more comparison regions that move like the test ones, several weeks of history before the start and a campaign that runs two to four weeks give a usable answer. If the comparison regions do not track the test regions beforehand the tool says the result is unreliable."}}, {"@type": "Question", "name": "What is iROAS and why is it lower than my platform ROAS?", "acceptedAnswer": {"@type": "Answer", "text": "Incremental return on ad spend is extra sales caused by the ads divided by ad spend. Platforms credit every conversion that follows an ad touch, including buyers who would have bought anyway, so their ROAS is usually higher. Break-even iROAS is one divided by your gross margin: at a 40% margin you need 2.5 dollars of extra sales per dollar of spend to break even."}}, {"@type": "Question", "name": "Is my sales data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your data. It works offline once the page has loaded."}}, {"@type": "Question", "name": "How do I choose which regions to run my ad test in?", "acceptedAnswer": {"@type": "Answer", "text": "Pick the split whose comparison regions best predict the test regions, so that a small real lift stands out from noise. The planner on this page replays fake campaigns on your own sales history for many possible splits and ranks them by the smallest lift each could detect. Avoid test regions that swing on their own (a tourist town, one with frequent local promotions) and prefer a split where the test regions are not so large a share of sales that the rest cannot predict them."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -83,6 +83,24 @@
     <p id="form-status" role="status" class="note">Upload or paste your table, name the test regions and the start date, then click Measure lift.</p>
   </section>
 
+  <section class="card" id="planner">
+    <h2>Planning a test? Pick the regions before you spend</h2>
+    <p>Paste (or load) sales history by region in the box above, with no campaign running in it. The planner tries different splits of regions into campaign and comparison groups, replays fake campaigns on your history for each, and ranks the splits by the <strong>smallest lift the test could detect</strong>. Choose the split that can see a lift of the size you expect.</p>
+    <div class="row3">
+      <div><label for="plan-size">Regions that will run the campaign</label><input id="plan-size" inputmode="numeric" value="2"></div>
+      <div><label for="plan-len">Campaign length (periods)</label><input id="plan-len" inputmode="numeric" value="14"></div>
+    </div>
+    <button type="button" id="plan-run">Suggest a design</button>
+    <button type="button" class="secondary" id="plan-example">Try it on example history</button>
+    <p id="plan-status" role="status" class="note">Needs at least 28 periods of history and three regions.</p>
+    <div id="plan-out" hidden>
+      <div id="plan-notices"></div>
+      <div class="scroll"><table id="plan-table"><thead><tr><th>Rank</th><th>Run the campaign in</th><th class="n">Detectable lift</th><th class="n">Fit (R²)</th><th class="n">Share of sales</th></tr></thead><tbody></tbody></table></div>
+      <h3>Detectable lift by campaign length (best split)</h3>
+      <div id="plan-len-out" class="note"></div>
+    </div>
+  </section>
+
   <section id="report" class="card" hidden>
     <h2>Result</h2>
     <div id="notices"></div>
@@ -119,6 +137,8 @@
     <p>At least 14 days before the campaign, 3 or more after it, and at least one comparison region. In practice four or more comparison regions that move like the test ones, several weeks of history before the start and a campaign that runs two to four weeks give a usable answer. If the comparison regions do not track the test regions beforehand the tool says the result is unreliable.</p>
     <h3>What is iROAS and why is it lower than my platform ROAS?</h3>
     <p>Incremental return on ad spend is extra sales caused by the ads divided by ad spend. Platforms credit every conversion that follows an ad touch, including buyers who would have bought anyway, so their ROAS is usually higher. Break-even iROAS is one divided by your gross margin: at a 40% margin you need 2.5 dollars of extra sales per dollar of spend to break even.</p>
+    <h3>How do I choose which regions to run my ad test in?</h3>
+    <p>Pick the split whose comparison regions best predict the test regions, so that a small real lift stands out from noise. The planner on this page replays fake campaigns on your own sales history for many possible splits and ranks them by the smallest lift each could detect. Avoid test regions that swing on their own (a tourist town, one with frequent local promotions) and prefer a split where the test regions are not so large a share of sales that the rest cannot predict them.</p>
     <h3>Is my sales data uploaded anywhere?</h3>
     <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your data. It works offline once the page has loaded.</p>
   </section>
@@ -127,7 +147,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the data you supply; they do not guarantee what a future campaign will earn. You are responsible for reviewing and verifying its output before you act on it.</p>
     <p><strong>Independent.</strong> Not affiliated with any advertising, analytics or e-commerce vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>, <code>plan_run</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>, the <a href="../customer-lifetime-value-predictor/">customer lifetime value predictor</a> and the <a href="../sales-seasonality-forecaster/">sales seasonality forecaster</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -135,6 +155,7 @@
 
   <script type="module">
     import { parseTable, analyze, reportCsv, sampleText, num, money, pct } from "./calc.mjs";
+    import { planDesign } from "./plan.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -189,6 +210,25 @@
       report.scrollIntoView({ behavior: "smooth", block: "start" });
       return true;
     }
+
+    function plan() {
+      const panel = parseTable($("#rows").value);
+      const pstat = $("#plan-status"), out = $("#plan-out");
+      const r = panel.error ? { error: panel.error } : planDesign(panel, { testSize: $("#plan-size").value, length: $("#plan-len").value });
+      if (r.error) { pstat.textContent = r.error; out.hidden = true; return false; }
+      $("#plan-notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      $("#plan-table tbody").innerHTML = r.designs.map((d, i) => `<tr><td>${i + 1}</td><td>${esc(d.tests.join(", "))}</td><td class="n">${pct(d.mde)}</td><td class="n">${pct(d.r2, 0)}</td><td class="n">${pct(d.share, 0)}</td></tr>`).join("");
+      $("#plan-len-out").textContent = r.byLength.map((x) => `${x.length} periods: ${x.mde === null ? "n/a" : pct(x.mde)}`).join(" · ") + `. Worst split tried (${r.worst.tests.join(", ")}): ${pct(r.worst.mde)}. ${r.evaluated} of ${r.total.toLocaleString("en-US")} possible splits tried.`;
+      out.hidden = false;
+      pstat.textContent = "Done. A lower detectable lift is better; compare it with the lift you hope to see.";
+      return true;
+    }
+    $("#plan-example").addEventListener("click", () => {
+      const [head, ...rows] = sampleText().split("\n");
+      $("#rows").value = [head, ...rows.filter((l) => l < "2026-03-02")].join("\n");
+      if (plan()) { record("plan_run"); $("#plan-status").textContent = "Sample data: 60 invented days across 8 regions, not a real business. Lower detectable lift is better."; }
+    });
+    $("#plan-run").addEventListener("click", () => { if (plan()) record("plan_run"); });
 
     $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
     $("#load-example").addEventListener("click", () => {

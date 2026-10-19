@@ -23,6 +23,16 @@ spend paid back**, which used to take a marketing-science vendor or an analyst w
 - Refuses: fewer than 14 pre or 3 post periods, unknown test names, no comparison region. Flags poor pre-fit
   (R² under 0.5) as unreliable, one region carrying over 80% of the counterfactual, and few placebo windows.
 
+## Plan a test before you spend (`plan.mjs`)
+
+Paste sales history with no campaign in it, say how many regions will run ads and for how many periods, and the
+planner ranks splits of regions into campaign and comparison groups. For each split it replays up to 12 fake campaigns
+of that length on the history (fit on earlier periods, predict forward, same non-negative regression as the analyzer)
+and reports the smallest lift that split could tell from noise (half the 5th-to-95th percentile spread of the fake
+lifts), the pre-fit R² and the split's share of sales. It also shows how that detectable lift changes with campaign
+length. Up to 120 splits are tried; beyond that it samples them with a fixed seed and says so. Needs 3+ regions and at
+least max(28, 2 x length) periods. Tested on simulated panels where one region is deliberately erratic.
+
 ## Limits
 
 Spillover between regions, region-specific promotions and stock-outs, slow-ramping effects and long-run brand effects
