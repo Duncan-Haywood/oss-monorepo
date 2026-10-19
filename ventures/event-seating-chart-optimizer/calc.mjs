@@ -547,6 +547,35 @@ export function checkMove(spec, result, guestName, toTable) {
 }
 
 /**
+ * Applies hand edits to a plan: `moves` is [{ guest, to }] with `to` a 1-based table, all applied together so a swap
+ * (two moves) can pass through a full table. The result must still respect capacity, pins and accessible tables, else
+ * nothing is applied. Returns { errors } or the full report for the edited plan (same shape as `optimize`), so every
+ * print-out and the CSV work on it unchanged. The edited plan can score lower than the optimiser's; that is the point.
+ */
+export function applyMoves(spec, result, moves) {
+  const T = resolveTableCount(spec);
+  const next = result.table.slice();
+  for (const m of moves) {
+    const g = spec.guests.findIndex((x) => x.name.toLowerCase() === String(m.guest || "").trim().toLowerCase());
+    if (g < 0) return { errors: [`No guest named "${String(m.guest || "").trim()}".`] };
+    const to = Number(m.to) - 1;
+    if (!Number.isInteger(to) || to < 0 || to >= T) return { errors: [`Table should be a number from 1 to ${T}.`] };
+    next[g] = to;
+  }
+  const caps = capacitiesOf(spec, T), pins = pinsOf(spec), access = accessOf(spec);
+  const load = new Array(T).fill(0);
+  next.forEach((t) => load[t]++);
+  const errors = [];
+  load.forEach((c, t) => { if (c > caps[t]) errors.push(`Table ${t + 1} would have ${c} guests for ${caps[t]} seats.`); });
+  next.forEach((t, g) => {
+    if (pins.get(g) !== undefined && pins.get(g) !== t) errors.push(`${spec.guests[g].name} is pinned to table ${pins.get(g) + 1}.`);
+    if (!canSit(access, g, t)) errors.push(`${spec.guests[g].name} needs an accessible table and table ${t + 1} is not one.`);
+  });
+  if (errors.length) return { errors };
+  return describe(spec, weightMatrix(spec), next, baselinePlan(spec));
+}
+
+/**
  * "How do I fix this unmet wish?" For each wish the plan could not meet, tries moving either guest to the other's
  * table and swapping either guest with someone at the other's table, keeps only options that respect capacity, pins
  * and access tables and that raise the plan's score, and returns the best per wish. Nothing is applied. Returns
@@ -574,19 +603,19 @@ export function suggestFixes(spec, result) {
       const to = result.table[anchor], from = result.table[mover];
       if (ok(mover, to) && size(to) < caps[to]) {
         const next = result.table.slice(); next[mover] = to;
-        options.push({ next, action: `Move ${nm(mover)} from table ${from + 1} to table ${to + 1}.` });
+        options.push({ next, moves: [{ guest: nm(mover), to: to + 1 }], action: `Move ${nm(mover)} from table ${from + 1} to table ${to + 1}.` });
       }
       result.table.forEach((t, x) => {
         if (t !== to || x === anchor || !ok(mover, to) || !ok(x, from)) return;
         const next = result.table.slice(); next[mover] = to; next[x] = from;
-        options.push({ next, action: `Swap ${nm(mover)} (table ${from + 1}) with ${nm(x)} (table ${to + 1}).` });
+        options.push({ next, moves: [{ guest: nm(mover), to: to + 1 }, { guest: nm(x), to: from + 1 }], action: `Swap ${nm(mover)} (table ${from + 1}) with ${nm(x)} (table ${to + 1}).` });
       });
     }
     let best = null;
     for (const o of options) {
       const delta = planScore(W, n, o.next) - base;
       if (delta > 1e-9 && (!best || delta > best.scoreDelta)) {
-        best = { rule: br.kind, aName: br.aName, bName: br.bName, kind: br.kind, action: o.action, scoreDelta: Math.round(delta * 100) / 100,
+        best = { rule: br.kind, aName: br.aName, bName: br.bName, kind: br.kind, action: o.action, moves: o.moves, scoreDelta: Math.round(delta * 100) / 100,
           broke: pairRules.filter((r) => met(result.table, r) && !met(o.next, r)).map((r) => ({ kind: r.kind, aName: nm(r.a), bName: nm(r.b) })) };
       }
     }

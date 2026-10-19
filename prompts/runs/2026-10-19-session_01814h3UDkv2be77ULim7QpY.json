@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01814h3UDkv2be77ULim7QpY",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on revenue-generating products",
+  "input_sha256": "cff201b615ebc2003116e6381e5d7785501e13f7175346ab5fb80e22eea17ced",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T11:01:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: event-seating-chart-optimizer apply-edit",
+  "projects": [
+    "event-seating-chart-optimizer"
+  ],
+  "pr": 8371,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/router",
+      "issue": "Top router row (where-to-sell handoff) is already built end to end; the task text does not say what remains to ship."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Idea: the seating optimizer could check a move or fix but never apply it, so planners left the tool to finish. Added applyMoves + Apply/Undo UI + browser check. Skipped the where-to-sell handoff hypothesis: handoff is already built and its measurement is local-only, so a reading is not obtainable from a session.",
+  "corrections": [],
+  "redteam": null
+}
