@@ -187,7 +187,13 @@
   $("#oh-apply").onclick = () => { try { const v = overheadPctFrom($("#oh-annual").value, $("#oh-direct").value); $("#over").value = v; $("#oh-out").textContent = `Overhead is ${v}% of direct cost.`; render(false); } catch (e) { $("#oh-out").textContent = e.message; } };
   $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
   if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
-  if (!restore()) loadTrade("");
+  if (!restore()) {
+    // A bare #trade=<slug> (from a specialist calculator's link) preselects the trade.
+    const slug = new URLSearchParams(location.hash.slice(1)).get("trade");
+    const known = TRADES.some((x) => x.slug === slug);
+    if (known) $("#trade").value = slug;
+    loadTrade(known ? slug : "");
+  }
   render(false);
 </script>
 </body>
