@@ -1,0 +1,21 @@
+Best objective J = success rate - 0.01 x plastic grams, after n simulator evaluations (budget 40).
+Baselines: median [min, max] over 10 seeds. Session agent: one run of 4 rounds x 10.
+
+method | n=10 | n=20 | n=30 | n=40
+random search | 0.956 [0.813, 0.968] | 0.959 [0.813, 0.968] | 0.959 [0.874, 0.968] | 0.965 [0.874, 0.982]
+CMA-ES | 0.960 [0.807, 0.991] | 0.972 [0.807, 0.991] | 0.977 [0.848, 0.991] | 0.979 [0.848, 0.992]
+Bayesian opt (GP-EI) | 0.960 [0.914, 0.982] | 0.985 [0.970, 0.995] | 0.988 [0.970, 0.995] | 0.991 [0.970, 0.995]
+session agent | 0.963 | 0.963 | 0.963 | 0.963
+
+At n=40, seeds that matched or beat the agent's best:
+random search: 6 of 10  (agent best J = 0.963)
+CMA-ES: 8 of 10  (agent best J = 0.963)
+Bayesian opt (GP-EI): 10 of 10  (agent best J = 0.963)
+
+Fraction of evaluations holding all 8 objects (success = 1.0):
+random search: 0.285
+CMA-ES: 0.480
+Bayesian opt (GP-EI): 0.723
+session agent: 0.225
+
+Best design seen in any run: x = [15.0, 1.7, 8.0, 0.0] (L, t, w, a), J = 0.995, plastic 0.51 g, force 5.2 N
