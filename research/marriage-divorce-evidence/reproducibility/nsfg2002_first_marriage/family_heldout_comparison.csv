@@ -1,0 +1,8 @@
+model,heldout_mean_deviance,deviance_improvement_percent,ci95_low,ci95_high,observed_expected_ratio
+constant,0.361625,0,0,0,0.999697
+duration_only,0.360243,0.382194,-0.0950337,0.851722,0.999803
+additive_spline,0.350688,3.02443,1.99354,4.08783,0.988395
+logistic_hazard,0.350842,2.98175,1.9005,4.09847,1.01595
+naive_bayes,0.360802,0.227581,-1.7608,2.10782,0.892096
+random_forest,0.353446,2.26164,1.50162,3.0226,0.981018
+gradient_boosting,0.352265,2.58833,1.5773,3.6877,0.965197
