@@ -1,0 +1,9 @@
+feature,coef_standardized,odds_ratio_per_unit_or_vs_reference
+num__rate_marriage,-0.5115,0.6287
+num__age,-0.3864,0.9592
+num__yrs_married,0.5071,1.0954
+num__religious,-0.3727,0.7265
+num__educ,0.0500,1.0211
+num__occupation_rank,0.0572,1.0320
+cat__gender_male,0.2602,1.2971
+cat__children_yes,0.3786,1.4603

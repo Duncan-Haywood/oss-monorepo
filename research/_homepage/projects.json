@@ -3085,6 +3085,11 @@
      "summary": "A stdlib planar model gives 2 to 6 joint feeding arms an operational-space tip mass (servo, link and spoon masses plus each servo's rotor inertia reflected through a 345:1 gearbox) and feeds it to <code>osrobot-assist</code>'s lip-contact trials (200 paired trials per row, 30&nbsp;mm sway, camera arm). The tip mass falls only from 0.63 to 0.50&nbsp;kg from 2 to 6 joints; the worst peak lip force is identical (2.0&nbsp;N at 0.10&nbsp;m/s, 4.0&nbsp;N at 0.20) and the safe share at 0.20&nbsp;m/s is 0.60 to 0.65, within sampling error. Servo cost alone triples, from $52&ndash;98 to $156&ndash;295 (two retailers' listings, 2026-10-19). Most of the mass is the geared-up rotor. Stylised: planar, one pose, position-only task, assumed constants, so the real reasons for more joints (spoon orientation, 3-D motion) are not tested."
     },
     {
+     "slug": "osrobot-mjfeed",
+     "title": "Does the stylised feeding-arm lip-force result survive real contact physics? osrobot-assist re-run in MuJoCo",
+     "summary": "The <code>osrobot-assist</code> spoon-feeding trial rebuilt in MuJoCo (a sphere on two slide joints, two box lips that follow the mouth's sway, MuJoCo soft contact), with the same controller and 200 paired seeds per row. With the arm blocked, the steady contact force equals the controller identity KP&times;LEAD&times;speed (2.00&nbsp;N at 0.10&nbsp;m/s) but the impact peak is 1.84&times; higher at every speed (3.68&nbsp;N), and falls with more contact damping. With a swaying mouth the share fed at most 2&nbsp;N drops from the stylised 1.00 to 0.45 at 0.10&nbsp;m/s (30&nbsp;mm sway, camera arm), with peaks of 11 to 23&nbsp;N because the kinematic lips sweep into the tip, a contact the stylised model leaves out. Feeding time agrees within 4&nbsp;% in all but one row. Stylised and preliminary: rigid lips that cannot yield, assumed contact damping, no human model."
+    },
+    {
      "slug": "osrobot-lipsweep",
      "title": "Is the peak force of a feeding arm on the lips set by the lips' stiffness, the arm's force loop, or its approach lead?",
      "summary": "A stdlib sweep of <code>osrobot-assist</code>'s feeding-arm twin over lip stiffness, loop stiffness and forward lead (200 paired trials per row, 30&nbsp;mm sway, camera arm at 0.20&nbsp;m/s). Mean peak lip force rises from 0.32&nbsp;N at 100&nbsp;N/m to 1.15&nbsp;N at 800 and 2.02&nbsp;N at 6400; the worst trial reaches 6.7&nbsp;N, above the controller's 4.0&nbsp;N stall push, so that push is a ceiling only for soft and medium lips. At 0.05&nbsp;m/s every stiffness stays under 2&nbsp;N. Stylised: assumed constants, a point mass and a passive user."
@@ -3290,6 +3295,11 @@
      "slug": "swe-reccover",
      "title": "Do the agent run records match git? Does every landed session leave one?",
      "summary": "Checks the run records against the commit history on main. All 522 records that name a pull request in this repository name one that landed (Wilson 95% 99.3&ndash;100%). But only 79.8% of sessions that landed commits from 13 October have a record (1,465 of 1,836; 77.9&ndash;81.6%): 89.8% of sessions that followed the master prompt, 4.2% of those that did not, and by track research 92.2%, process 93.2%, red team 100% and ventures 79.2% (75.5&ndash;82.5%). Coverage rose from about 60% on 13&ndash;14 October to 82&ndash;88% afterwards. Preliminary: seven days; sessions are identified by a commit trailer, so sessions without one are invisible; landed is a git fact, not a quality one."
+    },
+    {
+     "slug": "swe-ventgap",
+     "title": "Why do landed ventures sessions leave fewer run records than research sessions?",
+     "summary": "Splits the 515 ventures sessions that landed commits from 13 October by prompt version, scope, size, subject and day. 79.6% have a run record against 92.2% for research, and no feature of what the session built separates the unrecorded ones (one venture 80.2%, 1&ndash;5 files 78.9%, single commit 80.3%). The one structural difference is in the prompts: every other track's sub-prompt tells the reader to write the record, and the three ventures sub-prompts do not; but <code>ventures/2</code>, which also omits it, reaches 85.4%, and coverage rose from 53% on 14 October to 84&ndash;89% on 18&ndash;19 October. Preliminary and observational: six days, landed sessions only, no intervals on the day-matched odds ratios."
     },
     {
      "slug": "swe-nullrate",

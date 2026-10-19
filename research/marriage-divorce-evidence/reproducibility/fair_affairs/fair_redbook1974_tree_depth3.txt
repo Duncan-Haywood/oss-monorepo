@@ -1,0 +1,19 @@
+|--- num__rate_marriage <= 3.500
+|   |--- num__yrs_married <= 4.250
+|   |   |--- value: [0.455]
+|   |--- num__yrs_married >  4.250
+|   |   |--- num__rate_marriage <= 2.500
+|   |   |   |--- value: [0.703]
+|   |   |--- num__rate_marriage >  2.500
+|   |   |   |--- value: [0.599]
+|--- num__rate_marriage >  3.500
+|   |--- num__yrs_married <= 4.250
+|   |   |--- num__rate_marriage <= 4.500
+|   |   |   |--- value: [0.195]
+|   |   |--- num__rate_marriage >  4.500
+|   |   |   |--- value: [0.099]
+|   |--- num__yrs_married >  4.250
+|   |   |--- num__rate_marriage <= 4.500
+|   |   |   |--- value: [0.397]
+|   |   |--- num__rate_marriage >  4.500
+|   |   |   |--- value: [0.247]
