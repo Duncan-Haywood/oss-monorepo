@@ -204,8 +204,9 @@ class TestCheckBranch(Fixture):
 
     def test_detached_head_cannot_answer(self):
         run(self.clone, "checkout", "-q", "--detach", "origin/main")
-        with self.assertRaises(uw.GitError):
+        with self.assertRaises(uw.GitError) as caught:
             self.check()
+        self.assertIn("detached", str(caught.exception))
 
     def test_main_itself_cannot_answer(self):
         run(self.clone, "checkout", "-q", "-B", "main", "origin/main")
@@ -235,6 +236,13 @@ class TestSweep(Fixture):
         everything = uw.sweep(str(self.clone), since=None, probe=self.probe)
         self.assertEqual(sorted(row[1] for row in everything),
                          ["claude/old", "claude/stranded"])
+
+    def test_sweep_finds_its_own_probe_when_none_is_given(self):
+        self.branch("claude/stranded")
+        self.commit("a.txt", "a\n", "a", day="2026-10-01")
+        self.push("claude/stranded")
+        found = uw.sweep(str(self.clone), since=None)
+        self.assertEqual([row[1] for row in found], ["claude/stranded"])
 
     def test_names_the_pr_a_branch_kept_pushing_after(self):
         self.branch("claude/kept-going")
@@ -288,6 +296,19 @@ class TestMain(Fixture):
         self.assertEqual(code, 1)
         self.assertIn("STRANDED", buf.getvalue())
         self.assertIn(".github/prompts/land-your-work.md", buf.getvalue())
+
+    def test_sweep_defaults_to_a_recent_window(self):
+        self.branch("claude/ancient")
+        self.commit("a.txt", "a\n", "a", day="2020-01-01")
+        self.push("claude/ancient")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            uw.main(["--sweep", "--repo", str(self.clone)])
+        self.assertNotIn("claude/ancient", buf.getvalue())
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            uw.main(["--sweep", "--since", "all", "--repo", str(self.clone)])
+        self.assertIn("claude/ancient", buf.getvalue())
 
     def test_subject_containing_a_tab_is_kept_whole(self):
         self.branch("claude/tabbed")
