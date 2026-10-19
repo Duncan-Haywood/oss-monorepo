@@ -3475,6 +3475,11 @@
     "slug": "energy-density",
     "title": "How much energy can each storage technology hold per kilogram, at the most?",
     "summary": "Theoretical ceilings from first principles for batteries, hydrogen, flywheels, pumped hydro and heat, reproducing five published values to within 0.3% (lead-acid 170, Zn-air 1,086, Li-S 2,567, Li-O<sub>2</sub> 3,458 Wh/kg; Al-air 8,100 on Al). No battery couple releases more than 1.65 eV per reactant atom, so the spread comes from atomic mass: Wh/kg = 26,801 &times; eV per atom / mean g/mol. A carbon-fibre flywheel holds at most 756 Wh/kg (0.34 eV per atom), sand at 500 &deg;C 107 Wh/kg of heat (41% recoverable as electricity) and water lifted 300 m 0.82 Wh/kg. Ceilings for the active material only, with some voltages and material properties assumed."
+    },
+    {
+    "slug": "energy-thermal",
+    "title": "Can a house-sized sand heat store carry summer heat into winter, and how does its electricity use compare with a heat pump?",
+    "summary": "A transient finite-volume model of a spherical sand store in mineral wool (a hot-water tank run through the same code), checked against analytic cases. A store sized to still give 10 MWh after 120 days needs 222 m<sup>3</sup> (against 70 if lossless) and returns only 26% of the electricity put in as heat, so a COP-4 heat pump wins unless its electricity costs 15&times; more, before capital cost. After a day or a week the same store returns 79% and 73%: a days-scale store at house size, seasonal only near 1,000 m<sup>3</sup> (43% left after 180 days). Stylised: assumed properties, a sphere, instant uniform charging, no pipes or ground."
     }
    ]
   },
