@@ -41,6 +41,15 @@ test("weekdays and times parse in several spellings", () => {
 test("team lists trim, reject duplicates and need two teams", () => {
   assert.deepEqual(parseTeams("  A \n\nB  b\n").teams, ["A", "B b"]);
   assert.equal(parseTeams("A\na").errors.length >= 1, true);
+  // Pasted from elsewhere: one comma line, numbered list, spreadsheet columns, quotes.
+  assert.deepEqual(parseTeams("Hawks, Owls; Eagles,Lions").teams, ["Hawks", "Owls", "Eagles", "Lions"]);
+  assert.deepEqual(parseTeams("1. Hawks\n2) Owls\n3. Eagles").teams, ["Hawks", "Owls", "Eagles"]);
+  assert.deepEqual(parseTeams("- Hawks\n• Owls").teams, ["Hawks", "Owls"]);
+  assert.deepEqual(parseTeams("Hawks\tCoach A\nOwls\tCoach B").teams, ["Hawks", "Owls"]);
+  assert.deepEqual(parseTeams('"Hawks"\n“Owls”').teams, ["Hawks", "Owls"]);
+  // Commas on a multi-line list, and a numeral that is part of a name, are left alone.
+  assert.deepEqual(parseTeams("Smith, J. XI\nOwls").teams, ["Smith, J. XI", "Owls"]);
+  assert.deepEqual(parseTeams("1. FC Köln\nOwls").teams, ["1. FC Köln", "Owls"]);
   assert.equal(parseTeams("Only one").errors.length, 1);
 });
 
