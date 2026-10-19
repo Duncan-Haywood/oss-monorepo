@@ -3473,6 +3473,11 @@
     "title": "Can a robot fleet's reputation survive one bad incident?",
     "summary": "Simulated people hold trust in a robot fleet, updated by their own encounters and by gossip in which bad news may travel further than good. Trust that is only dented recovers in every case. What sinks a reputation is avoidance: if people stop using robots below a trust threshold of 0.30, an incident at error rate 0.8 is recovered in 20/20 crowds with neutral gossip, 18/20 when bad news counts 2&times;, and 0/20 at 4&times; (final mean trust 0.947, 0.871, 0.282). Robots that explain failures (each costing 0.3&times; the trust) recovered in every setting. Stylised: 100 simulated people, one shared reputation, a hard avoidance threshold, no fitted parameters."
    }
+   ,{
+    "slug": "society-commons",
+    "title": "What does it cost robots to let people go first at a shared lift or narrow pavement?",
+    "summary": "People and robots share a one-at-a-time crossing. At load 0.9, robots that always let waiting people go first cut people&rsquo;s mean wait from 4.60 to 0.71 time units and raise the robots&rsquo; from 4.61 to 7.21; the total waiting cost is the same for every share of deferential robots (4.14&ndash;4.15), so deference moves waiting rather than removing it, and pays exactly when a person&rsquo;s wait costs more than a robot&rsquo;s. A lone selfish robot waits 2.08 against 7.65 for deferential ones (the dilemma). Under overload (load 1.2) half the robots deferring costs them 10.5% of their crossings and gives people 20% more. Simulation within 2.7% of M/G/1 closed forms. Stylised: one server, Poisson arrivals, fixed crossing times."
+   }
   ]
  }
  ,{
