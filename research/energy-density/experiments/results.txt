@@ -1,0 +1,76 @@
+A. Electrochemical couples: theoretical specific energy on reactant mass
+couple                                                         V    Wh/kg    metal  eV/atom   g/mol
+Lead-acid (Pb + PbO2 + 2 H2SO4)                             2.04      170        -    0.227   35.70
+Li-ion, graphite / LiCoO2 (half the Li cycled)              3.80      380        -    0.271   19.13
+Li-ion, graphite / LiFePO4                                  3.30      385        -    0.254   17.68
+Lithium-sulfur (2 Li + S -> Li2S)                           2.20     2567        -    1.467   15.31
+Zinc-air (Zn + 1/2 O2 -> ZnO)                               1.65     1087     1353    1.650   40.69
+Aluminium-air (Al + 3/4 O2 + 3/2 H2O -> Al(OH)3)            2.71     2793     8076    1.161   11.14
+Lithium-oxygen, non-aqueous (2 Li + O2 -> Li2O2)            2.96     3458    11431    1.480   11.47
+Hydrogen-oxygen fuel cell (H2 + 1/2 O2 -> H2O), Gibbs energy  1.23     3657    32678    0.819    6.00
+'metal' = on the reactive metal (or H2) alone, with O2 from the air; '-' = closed cell.
+eV/atom = n*E / reactant atoms; g/mol = mean reactant atomic mass; Wh/kg = 26801 * eV/atom / g/mol.
+
+B. Cross-check against published theoretical values (arithmetic check, not new data)
+lead_acid      ours     170  published    170  diff  +0.1%  (170 Wh/kg at 2.04 V (167 at 2.0 V); PSI exercise and National Academies table, checked 2026-10-19)
+li_s           ours    2567  published   2567  diff  -0.0%  (2,567 Wh/kg; Zhou, Chen and Cui 2022, Nature Energy 7, 312)
+zn_air         ours    1087  published   1086  diff  +0.1%  (1,086 Wh/kg including O2; Li and Dai 2014, Chem. Soc. Rev. 43, 5257)
+al_air_metal   ours    8076  published   8100  diff  -0.3%  (8,100 Wh/kg (Al only); Liu et al. 2017, Green Energy Environ. 2, 246)
+li_o2          ours    3458  published   3458  diff  +0.0%  (3,457-3,458 Wh/kg on Li + O2 reactant mass (IUPUI poster; NASA TM-20205010120), checked 2026-10-19)
+li_o2 Li-only basis: 11431 Wh/kg at 2.96 V, 11586 at 3.0 V; published Li-only figures of ~11,400-11,700 differ by the voltage used.
+
+C. Flow battery (all-vanadium), ceiling per litre of total electrolyte (both tanks, full SOC swing)
+V 1.6 mol/L, 1.26 V:  27.0 Wh/L
+V 2.0 mol/L, 1.26 V:  33.8 Wh/L
+1.26 V: cell voltage quoted in US patent 10,079,401 (checked 2026-10-19); 1.6 and 2.0 mol/L assumed.
+Reported practical VRB energy density: 15-25 Wh/L (Wikipedia, checked 2026-10-19).
+
+D. Thermal stores: heat, and exergy (the ceiling on electricity back) with dead state 20 C
+store                           heat Wh/kg  exergy Wh/kg  exergy %  heat eV/atom
+Water tank, 25 -> 85 C                69.7           7.3      10.4         0.016
+Sand, 20 -> 500 C                    106.7          43.5      40.8         0.080
+Solar salt, 290 -> 565 C             114.6          66.0      57.6             -
+  Water tank, 25 -> 85 C: c = 4.18 kJ/kgK, standard value, assumed
+  Sand, 20 -> 500 C: 500 C is Polar Night Energy's reported operating temperature (checked 2026-10-19); c = 0.8 kJ/kgK for silica sand, assumed (not checked)
+  Solar salt, 290 -> 565 C: 60/40 NaNO3/KNO3, c = 1.5 kJ/kgK and the 290-565 C window as in CSP plants, assumed (not checked)
+Ice, latent (cold store)              92.8          10.2      11.0             -
+  Ice: latent heat 334 kJ/kg, standard value, assumed; exergy against a 30 C day (assumed).
+
+E. Mechanical stores
+Lifted mass (pumped hydro, blocks)  100 m:  0.272 Wh/kg,  0.272 kWh/m3 of water (6.1e-05 eV/atom)
+Lifted mass (pumped hydro, blocks)  300 m:  0.817 Wh/kg,  0.817 kWh/m3 of water (1.8e-04 eV/atom)
+Lifted mass (pumped hydro, blocks)  600 m:  1.634 Wh/kg,  1.634 kWh/m3 of water (3.7e-04 eV/atom)
+Flywheel at burst speed, T700S fibre alone, ideal disc (K=1):    756 Wh/kg of rotor, 0.339 eV/atom
+Flywheel at burst speed, T700S/epoxy rim (K=0.5):    255 Wh/kg of rotor
+Flywheel at burst speed, High-strength steel rim (K=0.5):     27 Wh/kg of rotor, 0.055 eV/atom
+  T700S fibre alone, ideal disc (K=1): 4,900 MPa and 1.80 g/cm3, Toray T700S data sheet, checked 2026-10-19
+  T700S/epoxy rim (K=0.5): 2,860 MPa composite tensile at 60% fibre volume, Toray T700S data sheet (checked); 1,560 kg/m3 from 0.6*1.80 + 0.4*1.20, assumed resin density
+  High-strength steel rim (K=0.5): 1.5 GPa and 7,850 kg/m3, assumed (not checked)
+Burst speed is the ceiling; a working flywheel runs below it with a safety factor, a hub, bearings and a containment housing, none counted here.
+Compressed air, ideal gas, isothermal, 200 bar tank:  23.8 Wh/L of tank (heat for the expansion comes from the surroundings; per kg of tank is not a storage figure)
+Compressed air, ideal gas, isothermal, 300 bar tank:  39.1 Wh/L of tank (heat for the expansion comes from the surroundings; per kg of tank is not a storage figure)
+
+F. Hydrogen at 700 bar (Gibbs free energy, i.e. a 100%-efficient fuel cell)
+H2 alone: 32678 Wh/kg; gas at 700 bar, 288 K, 40.2 kg/m3: 1314 Wh/L of gas
+  ideal T700/epoxy sphere, safety factor 1.00: shell   57.2 kg/m3, H2 41.3 wt%,  13488 Wh/kg of H2 + shell
+  ideal T700/epoxy sphere, safety factor 2.25: shell  128.7 kg/m3, H2 23.8 wt%,   7779 Wh/kg of H2 + shell
+  Safety factor 2.25 assumed (not checked). Real tanks are cylinders with liners, bosses and valves, so they are heavier than the ideal sphere; the sphere is a ceiling.
+
+G. Summary: ceilings in Wh/kg of active material (for the figure)
+H2 alone (Gibbs)                    32677.60  fuel
+H2 + O2 (with O2)                    3656.84  electrochemical
+Lithium-oxygen (with O2)             3458.41  electrochemical
+Aluminium-air (with O2, H2O)         2793.43  electrochemical
+Lithium-sulfur                       2566.97  electrochemical
+Zinc-air (with O2)                   1086.83  electrochemical
+Li-ion graphite/LiFePO4               384.84  electrochemical
+Li-ion graphite/LiCoO2                380.29  electrochemical
+Flywheel, T700/epoxy rim              254.63  mechanical
+Lead-acid                             170.18  electrochemical
+Solar salt, heat                      114.58  heat
+Sand 500 C, heat                      106.67  heat
+Water 25-85 C, heat                    69.67  heat
+Sand 500 C, exergy                     43.49  exergy
+Flywheel, steel rim                    26.54  mechanical
+Water 25-85 C, exergy                   7.26  exergy
+Pumped hydro, 300 m                     0.82  mechanical

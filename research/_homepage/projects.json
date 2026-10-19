@@ -3437,6 +3437,18 @@
   ]
  },
  {
+  "id": "energy",
+  "name": "Energy supply and dense energy storage",
+  "blurb": "How densely, cheaply and durably energy can be stored, and what mix of supply and storage meets demand at least cost: the physical limits first, then devices, costs and grids, in open code.",
+  "projects": [
+   {
+    "slug": "energy-density",
+    "title": "How much energy can each storage technology hold per kilogram, at the most?",
+    "summary": "Theoretical ceilings from first principles for batteries, hydrogen, flywheels, pumped hydro and heat, reproducing five published values to within 0.3% (lead-acid 170, Zn-air 1,086, Li-S 2,567, Li-O<sub>2</sub> 3,458 Wh/kg; Al-air 8,100 on Al). No battery couple releases more than 1.65 eV per reactant atom, so the spread comes from atomic mass: Wh/kg = 26,801 &times; eV per atom / mean g/mol. A carbon-fibre flywheel holds at most 756 Wh/kg (0.34 eV per atom), sand at 500 &deg;C 107 Wh/kg of heat (41% recoverable as electricity) and water lifted 300 m 0.82 Wh/kg. Ceilings for the active material only, with some voltages and material properties assumed."
+    }
+   ]
+  },
+  {
   "id": "society",
   "name": "Robot societies among people",
   "blurb": "Simulated societies of AI-driven robots living among simulated people: the conventions that emerge, who sets them, what they cost people, and watchable episodes made from seeded runs.",
