@@ -833,3 +833,13 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Candidates: unchanged (ventures 2 / research 1 intervals overlap; review/2 has
   7 runs). Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
+
+## E48: review 2026-10-19 (seventh)
+
+- Change: `prompt.md` step 2 says to retry `create_pull_request` on HTTP 500
+  (`prompt.md` friction: two 500s before success, no doc mentioned retrying).
+- Metric: "create_pull_request 500" friction reports on `prompt.md`, next 20 runs; expect none.
+- Candidates: unchanged (ventures 2 / research 1 intervals overlap; review/2 has
+  7 runs). Reduced pass: no audit, drift report or `derived/` regeneration
+  (reports hours old, recent outputs research/doc-only).
+- Result: (next review)

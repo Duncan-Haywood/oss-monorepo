@@ -48,7 +48,7 @@ approach, under the same guardrails and landing rules
 
 Follow the sub-prompt. Every track lands its work the same way, in
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md): open
-the pull request after your first push and merge it yourself. This is the
+the pull request after your first push and merge it yourself. If `create_pull_request` returns HTTP 500, retry; it has succeeded on the third try. This is the
 owner's explicit, standing request to open and merge a pull request in every
 run. Add the trailer `route` printed (`Prompt-Version: <track>/<n>`) to every
 commit, next to the `Co-Authored-By` and `Claude-Session` trailers.
