@@ -272,3 +272,27 @@ test("aaa: losses count in the year they reduce basis, not the year they are sus
   assert.equal(a.rows[1].reductions, 9000);
   assert.equal(a.closing, -9000);
 });
+
+import { fromK1Boxes, K1_SAMPLE } from "./calc.mjs";
+
+test("K-1 boxes map to the year columns: income vs loss by sign, deductions as losses", () => {
+  const r = fromK1Boxes("2024: 1=90000, 2=-4000, 4=200, 11=5000, 12=1000, 16A=300, 16B=200, 16C=2000, 16D=60000, 16E=15000, contrib=7000, loan=3000");
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.rows[0], { year: 2024, contributions: 7000, loansMade: 3000, loansRepaid: 15000, income: 90200, taxExempt: 500, distributions: 60000, nondeductible: 2000, losses: 10000 });
+});
+
+test("K-1 sample rolls forward the same as the equivalent column entry", () => {
+  const r = fromK1Boxes(K1_SAMPLE);
+  assert.deepEqual(r.errors, []);
+  const cols = "year,contributions,loansMade,loansRepaid,income,taxExempt,distributions,nondeductible,losses\n2022,0,30000,0,0,0,0,1500,70000\n2023,0,0,0,40000,0,10000,0,0\n2024,0,0,15000,90000,500,60000,2000,0";
+  const k1 = parseYears(r.text);
+  assert.deepEqual(k1.errors, []);
+  assert.deepEqual(run(SAMPLE.opening, k1.years).closing, run(SAMPLE.opening, parseYears(cols).years).closing);
+});
+
+test("K-1 entry reports unknown boxes, bad amounts and missing years instead of guessing", () => {
+  const r = fromK1Boxes("2024: 99=5, 1=abc\nnope\n2023: 16D=1000");
+  assert.equal(r.errors.length, 3);
+  assert.equal(r.rows.length, 1);
+  assert.equal(r.rows[0].distributions, 1000);
+});

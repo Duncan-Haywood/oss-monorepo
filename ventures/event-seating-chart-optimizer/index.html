@@ -85,6 +85,7 @@
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <button type="button" class="secondary" id="save-setup">Save setup file</button>
+    <button type="button" class="secondary" id="copy-link">Copy share link</button>
     <label class="secondary" style="display:inline-block;cursor:pointer">Load setup file <input type="file" id="load-setup" aria-label="Load setup file" accept="application/json,.json" style="display:none"></label>
     <p id="form-status" role="status" class="note">Add your guests and wishes, then click Seat my guests.</p>
     <p class="note">Your guests, wishes and settings are remembered on this device only (browser local storage), so you can come back as RSVPs arrive. <button type="button" class="secondary" id="forget">Forget saved data</button></p>
@@ -170,7 +171,7 @@
   </footer>
 
   <script type="module">
-    import { checkMove, suggestFixes, compareTableCounts, importGuestSheet, parseGuests, parseRules, parseTableSizes, parseAccessTables, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, floorPlanHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, sampleSpec, setupJson, parseSetup, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
+    import { shareFragment, parseShareFragment, checkMove, suggestFixes, compareTableCounts, importGuestSheet, parseGuests, parseRules, parseTableSizes, parseAccessTables, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, floorPlanHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, sampleSpec, setupJson, parseSetup, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -388,6 +389,17 @@
       const a = document.createElement("a"); a.href = url; a.download = "seating-setup.json"; a.click();
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     });
+    $("#copy-link").addEventListener("click", async () => {
+      const link = location.href.split("#")[0] + "#" + shareFragment(snapshot());
+      try { await navigator.clipboard.writeText(link); status.textContent = "Link copied. It holds your whole guest list in the address itself, so send it only to people who may see the names. Nothing is uploaded."; }
+      catch (e) { status.textContent = "Copy this link: " + link; }
+      record("share_link_copied");
+    });
+    try {
+      const sh = parseShareFragment(location.hash);
+      if (sh.error) status.textContent = sh.error;
+      else if (sh.state) { apply(sh.state); persist(); status.textContent = "Opened a shared setup. Click Seat my guests to rebuild."; }
+    } catch (e) {}
     $("#load-setup").addEventListener("change", async (e) => {
       const f = e.target.files[0]; if (!f) return;
       const { state, error } = parseSetup(await f.text());
