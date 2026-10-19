@@ -28,4 +28,15 @@ brute-force comparison and duality checks.
 **Privacy.** Everything runs in your browser; your figures are never uploaded.
 Anonymous feature counts stay in local storage and can be switched off.
 
+## Host your own copy
+
+It is a static site: the server only hands out files and never sees a figure you type, so you can serve it from an
+address you control.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
+
 MIT licence, see `LICENSE`.
