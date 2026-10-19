@@ -1705,7 +1705,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-crypto-cgt-calculator` graduated.
 // +1: `bid-price-engine` graduated (the consolidated bid calculator).
 // +1: `us-substantial-presence-test-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1264;
+// +2: `hands-free-language-coach` and `listen-and-learn-audio` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1266;
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
 // +1: `liability-audit` graduated.
