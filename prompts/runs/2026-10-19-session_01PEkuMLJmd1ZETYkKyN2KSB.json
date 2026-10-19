@@ -19,7 +19,7 @@
   "tool_calls": 17,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 8319,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -29,8 +29,8 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": 0,
-  "integrity_issues": 0,
+  "errors": [],
+  "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/review/prompt-1.md",
