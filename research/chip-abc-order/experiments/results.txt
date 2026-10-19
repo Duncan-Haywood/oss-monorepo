@@ -1,0 +1,22 @@
+cells*depth over 12 seeds per rewrite kind; 'base' is the generated text unchanged
+structure   script         base   shuffle (distinct/min-max)rename (distinct/min-max)permute (distinct/min-max)all (distinct/min-max)  
+plus        yosys_default  2542   1 / 2542-2542           1 / 2542-2542           1 / 2542-2542           1 / 2542-2542           
+plus        dch_map        1540   1 / 1540-1540           1 / 1540-1540           1 / 1540-1540           1 / 1540-1540           
+plus        resyn2_map     1620   1 / 1620-1620           1 / 1620-1620           1 / 1620-1620           1 / 1620-1620           
+ripple      yosys_default  2387   1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           
+ripple      dch_map        2387   1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           
+ripple      resyn2_map     2387   1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           
+csel4       yosys_default  2090   1 / 2090-2090           1 / 2090-2090           3 / 2090-2268           3 / 2090-2268           
+csel4       dch_map        1232   1 / 1232-1232           1 / 1232-1232           4 / 1024-1408           4 / 1024-1408           
+csel4       resyn2_map     1665   1 / 1665-1665           1 / 1665-1665           4 / 1220-1750           4 / 1300-1750           
+cselrip4    yosys_default  2387   1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           
+cselrip4    dch_map        2387   1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           
+cselrip4    resyn2_map     2387   1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           1 / 2387-2387           
+mul6-cfg0   yosys_default  3850   1 / 3850-3850           1 / 3850-3850           1 / 3850-3850           1 / 3850-3850           
+mul6-cfg0   dch_map        3515   1 / 3515-3515           1 / 3515-3515           1 / 3515-3515           1 / 3515-3515           
+mul6-cfg0   resyn2_map     3580   1 / 3580-3580           1 / 3580-3580           1 / 3580-3580           1 / 3580-3580           
+mul6-cfg3   yosys_default  3850   1 / 3850-3850           1 / 3850-3850           1 / 3850-3850           1 / 3850-3850           
+mul6-cfg3   dch_map        3515   1 / 3515-3515           1 / 3515-3515           1 / 3515-3515           1 / 3515-3515           
+mul6-cfg3   resyn2_map     3580   1 / 3580-3580           1 / 3580-3580           1 / 3580-3580           1 / 3580-3580           
+variants scored: 864; differing from base: 72; worst max/min ratio: 1.434; variants not proved equivalent to the reference: 0
+tool: Yosys 0.33 (git sha1 2584903a060)

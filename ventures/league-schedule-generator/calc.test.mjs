@@ -4,7 +4,7 @@ import {
   applyRainouts, changeNotices, dayLabel, applyPinnedMatches, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
+  weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1876,4 +1876,39 @@ test("a pin onto a night a team is blacked out is refused and the match stays pu
   assert.equal(r.pins.length, 0);
   assert.equal(r.errors.length, 1);
   assert.deepEqual(r.schedule.rounds.map((x) => x.day), s.rounds.map((x) => x.day));
+});
+
+test("redteam: match length bounds are inclusive at 5 and 600 minutes", () => {
+  const f = sampleFields();
+  const ok = (minutes) => readSpec({ ...f, minutes: String(minutes) }).errors.every((e) => !/Match length/.test(e));
+  assert.equal(ok(5), true);
+  assert.equal(ok(600), true);
+  assert.equal(ok(4), false);
+  assert.equal(ok(601), false);
+});
+
+test("redteam: decodeFields accepts a share fragment of exactly 20000 characters and rejects 20001+", () => {
+  let code = null;
+  for (let n = 14000; n < 16000; n++) {
+    const c = encodeFields({ ...sampleFields(), notes: "x".repeat(n), teams: "A\nB\nC\nD".padEnd(n, "q") });
+    if (c.length === 20000) { code = c; break; }
+    if (c.length > 20000) break;
+  }
+  assert.ok(code, "found a code of exactly 20000 characters");
+  assert.notEqual(decodeFields(code), null);
+  assert.equal(decodeFields(code + "A"), null);
+});
+
+test("redteam: weeklyUpdate table ignores head-to-head unless asked (default is goal-difference order)", () => {
+  const s = buildSchedule(baseSpec(4));
+  const t = s.teams;
+  // same fixture as the standings head-to-head test: A, D, B level on 3 points, A ahead on goal difference
+  const results = [
+    { a: 0, b: 2, ga: 5, gb: 0 },
+    { a: 1, b: 0, ga: 1, gb: 0 },
+    { a: 3, b: 1, ga: 1, gb: 0 },
+  ];
+  const order = (text) => [...text.matchAll(/^ {2}\d\. (.+?) - /gm)].map((m) => m[1]).slice(0, 3);
+  assert.deepEqual(order(weeklyUpdate(s, results)), [t[0], t[3], t[1]]);
+  assert.deepEqual(order(weeklyUpdate(s, results, { headToHead: true })), [t[3], t[1], t[0]]);
 });
