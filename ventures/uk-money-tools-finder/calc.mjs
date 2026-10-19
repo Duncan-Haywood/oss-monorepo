@@ -67,6 +67,7 @@ export const TOOLS = [
   ["Property and investments", "uk-landlord-section-24-calculator", "UK landlord Section 24 calculator", "Tax with the 20% mortgage interest credit against the old rules.", ["landlord"]],
   ["Property and investments", "uk-eis-seis-relief-calculator", "UK EIS and SEIS tax relief calculator", "Income tax relief you can use, CGT deferral, and your real loss after loss relief if the company fails.", ["investor"]],
   ["Property and investments", "uk-capital-gains-tax-calculator", "UK Capital Gains Tax calculator", "CGT for 2025/26 at 18% and 24% with the annual exempt amount, costs and losses.", ["investor", "landlord"]],
+  ["Property and investments", "uk-crypto-cgt-calculator", "UK crypto CGT calculator", "Paste a CSV of crypto buys, sales, swaps and staking: HMRC same-day, 30-day and Section 104 matching per disposal, and the capital gains tax by year.", ["investor"]],
   ["Property and investments", "uk-stamp-duty-calculator", "UK Stamp Duty calculator", "SDLT in England and Northern Ireland band by band, with first-time buyer and additional-home rates.", ["buying"]],
   ["Property and investments", "uk-mortgage-overpayment-calculator", "UK mortgage overpayment calculator", "Interest saved and years cut by overpaying a repayment mortgage, overpaying versus saving, and the 10% early repayment charge allowance.", ["buying", "landlord"]],
   ["Property and investments", "uk-inheritance-tax-calculator", "UK Inheritance Tax calculator", "IHT on an estate for deaths from April 2025, with the home allowance and gifts.", ["estate"]],
