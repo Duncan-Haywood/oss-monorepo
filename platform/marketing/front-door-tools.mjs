@@ -696,6 +696,7 @@ export const WHY_CATEGORY_WORD = {
   'food-service': 'food-service',
   'self-hosted': 'self-hosted',
   learning: 'learning',
+  'research-algorithms': 'research-algorithms',
   more: 'more',
 };
 
