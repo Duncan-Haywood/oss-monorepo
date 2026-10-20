@@ -110,3 +110,9 @@ test("the trend box offers one bend and several, and passes the choice to the en
   assert.match(html, /<select id="trend">[^]*?<option value="bend">[^]*?<option value="bends">/);
   assert.match(html, /trend: \$\("#trend"\)\.value === "1" \? true : \$\("#trend"\)\.value \|\| false/);
 });
+
+test("the page has a switch for scoring every pair of knots and passes it to the engine", () => {
+  const html = page("index.html");
+  assert.match(html, /<input id="jointKnots" type="checkbox">/);
+  assert.match(html, /jointKnots: \$\("#jointKnots"\)\.checked/);
+});
