@@ -134,7 +134,20 @@ series, 40 each, in `engine.test.mjs`):
   144 points) gave exactly one change in 0 of 40 runs without adjustment and
   exactly one change within 1 point of the truth in 33 of 40 with `--period 12`
   (centred moving average, per-phase median, profile centred at zero). It needs
-  two full cycles and is not offered for counts.
+  two full cycles. For counts, see the next item.
+- **Seasonal counts (`--model poisson --period n`, added 2026-10-20).** Subtracting a profile
+  would break counts, so the cycle is multiplicative: a count in phase p has rate (segment rate) x f[p],
+  the factors average 1 and enter the Poisson likelihood as exposures (cost 2(a - a log(a / sum e)), the
+  Gamma-Poisson pass gets beta += e and a negative-binomial predictive with success probability beta/(beta + e)).
+  The factors start from phase totals over a centred moving average, then alternate with PELT: segment
+  under the current exposures, re-estimate each factor as the phase total over what the segment rates predict
+  for that phase, until they move less than 1e-4 (at most 8 passes), so a rate shift stays in the segments.
+  Tests: the exposure cost equals a hand computation; PELT equals brute-force optimal partitioning with
+  exposures; BOCPD log evidence equals the closed-form marginal when the hazard vanishes. Measured on
+  weekly counts (period 7, factors 0.4 to 1.6, 210 points, seeds 300..319 and 1300..1319): a constant rate of 12
+  gave a false change on 15 of 20 runs without `--period 7` and 0 of 20 with it; a rate going 10 to 15 at
+  point 105 gave exactly one change within 8 points of it on 20 of 20 runs with `--period 7`. Fitted factors are
+  within 0.12 of the true ones on a 280-point series whose rate doubles midway. `--drift` is not available for counts.
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144
@@ -239,7 +252,7 @@ series, 40 each, in `engine.test.mjs`):
   change near it in 38 of 40. The Bayesian pass stays a level-change detector: it runs on the series minus a
   line whose slope is the median first difference (a level shift touches one difference, so it does not
   bend the slope), so it does not flag pure slope changes, which only PELT reports. Not combined with
-  `--ar1` and not offered for counts; with `--period` the profile is removed first.
+  `--ar1` and not offered for counts (a line subtracted from counts is not a count; a Poisson trend is the open item); with `--period` the profile is removed first.
 
 ## Limits
 
