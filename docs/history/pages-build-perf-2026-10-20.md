@@ -52,7 +52,15 @@ stays at none. Level 6 was the setting that shipped:
 | whole built site | 215,302,143 | 222,027,191 (+3.1%) |
 
 A visitor who receives a shared link downloads one card, so they pay about
-4.6 KB more. `node check.mjs dist` exits 0 on the new build. All 1,159 tests
+4.6 KB more.
+
+**Any change to the encoder's output bytes needs `node
+platform/marketing/regen.mjs`.** The apex's share card,
+`gitops/prod/front-door/social-card.png`, is committed, and
+`platform/marketing/front-door.test.mjs` compares it byte-for-byte with
+`renderSocialCard()`. This PR's first push turned that test red, and
+regenerating the card fixed it. Check `regen.mjs --verify`'s exit status
+directly, not through a pipe. `node check.mjs dist` exits 0 on the new build. All 1,159 tests
 in `node --test platform/pages/*.test.mjs` pass.
 
 ### 2. Router: merit scores parsed with pure-Python YAML (fixed)

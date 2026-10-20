@@ -30,13 +30,29 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 0,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "validate (marketing suite) red on first push: front-door.test.mjs pins gitops/prod/front-door/social-card.png byte-for-byte against renderSocialCard(), so the encoder change made it stale",
+      "fix": "ran node platform/marketing/regen.mjs and committed the rewritten card",
+      "cause": "I piped regen.mjs --verify through tail, which hid its exit 1"
+    },
+    {
+      "what": "pkill -f killed its own shell and the background verification run",
+      "fix": "killed by pid instead",
+      "cause": "ignored the warning in verify-and-merge.md"
+    }
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/offline.mjs",
+      "issue": "nothing at the encoder says its exact bytes are pinned by a committed PNG under gitops/prod/front-door; only the marketing suite finds out"
+    }
+  ],
   "deviations": [
     {
       "file": "prompt.md",
