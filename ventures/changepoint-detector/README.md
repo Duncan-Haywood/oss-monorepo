@@ -147,6 +147,18 @@ series, 40 each, in `engine.test.mjs`):
   series (from 2.95), shift found 40 of 40, exactly one change 24 of 40 (from 15), false changes on
   14 of 40 no-shift series (from 27). On a steady cycle (amplitude 10) it costs a little: exactly one
   24 of 40 against 27, false 14 against 12.
+- **`--period --drift --ar1` together.** On the same growing cycle (144 points, amplitude 4 to 12, shift 5 at
+  point 84, seeds 401..440) with AR(1) noise of rho 0.5: `--period 12 --drift` alone gave 9.5 changes per
+  series and a false change on 40 of 40 no-shift series; adding `--ar1` gave 1.30 changes per series,
+  the shift found in 39 of 40, exactly one change in 33 of 40, false changes on 9 of 40. With independent
+  noise `--ar1` still helps (exactly one 24 to 36 of 40, false 14 to 5), because the drift profile leaves
+  correlated residue. `--ar1 joint` is about the same (exactly one 30 of 40, false 15 at rho 0.5).
+- **Choosing the drift window from the data: tried, not kept.** Picking the half-width (1 to 6 cycles) by
+  leave-one-out prediction error, with and without a 10% margin over the fixed default, was worse than
+  the fixed rule in all five series shapes tried (growing, steady, fast-growing, 72-point and a
+  wandering peak). On the wandering peak (288 points, phase moving 0.2 rad per cycle) it chose 1 cycle
+  and gave 32 changes per series against 3.3. The held-out error rewards narrow windows that follow noise,
+  so it is not a proxy for clean detection. The fixed rule stays.
 
 ## Limits
 
