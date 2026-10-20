@@ -1,4 +1,4 @@
-# shopify-customer-csv-check
+# Shopify Customer CSV Check — Find Import Errors Before You Import
 
 Checks a Shopify customer import CSV in the browser before it is imported: emails and duplicates,
 phone format, Excel damage to zips and phones, country and province codes, marketing and

@@ -4,21 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Divorce Odds Calculator for Couples — Explainable ML in Your Browser</title>
-<meta name="description" content="Estimate divorce odds per year of marriage with explainable ML that runs in your browser: compare with the population, rank partners, score a CSV.">
+<meta name="description" content="Estimate your chance of divorce with 15 explainable models from U.S. and Canadian surveys: ranges, population percentiles and partner what-ifs.">
 <meta property="og:title" content="Divorce odds calculator for couples (explainable, in-browser)">
-<meta property="og:description" content="Year-by-year divorce odds from explainable models trained on U.S. surveys (NLSY79 couples, NSFG first marriages), with model disagreement and limits.">
+<meta property="og:description" content="Divorce odds for a couple from 15 survey lenses (NLSY, NSFG, GSS, HCMST, SIPP, ACS, Statistics Canada), side by side and never pooled, with model ranges.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from explainable models (additive and spline Poisson regressions and Poisson decision trees) trained on two U.S. surveys: NLSY79 married couples and NSFG 2002 first marriages from the wedding day. Runs entirely in the browser.","featureList":["Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link","Population percentile overall and within subgroups","Just-me estimate averaged over realistic partners","Rank several candidate partners per lens","Batch CSV scoring in the browser with downloadable results","Dashboard of partner traits and what-ifs with non-negotiables","Optional literature-based adjustment for conflict, depression, alcohol problems, neuroticism and earlier cohabitations, from verified published hazard ratios","CDC/NCHS population baselines of first-marriage disruption by matching characteristics"],"license":"https://opensource.org/licenses/MIT"}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce and break-up odds for a couple from explainable models trained on U.S. and Canadian surveys (NLSY79, NLSY97, NSFG 2002 and 1995–2023, GSS panels, HCMST, SIPP, ACS, Statistics Canada GSS, a Los Angeles newlywed study), each lens at the horizons it supports, with a summary across lenses that never pools them. Runs entirely in the browser.","featureList":["Summary across 15 evidence lenses with held-out skill and data fit","Relationship quality, marriage happiness and newlywed satisfaction lenses","Same-sex and unmarried couples (HCMST lens)","ACS one-year divorce rates for people like you","Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link","Population percentile overall and within subgroups","Just-me estimate averaged over realistic partners","Rank several candidate partners per lens","Batch CSV scoring in the browser with downloadable results","Dashboard of partner traits and what-ifs with non-negotiables","Optional literature-based adjustment for conflict, depression, alcohol problems, neuroticism and earlier cohabitations, from verified published hazard ratios","CDC/NCHS population baselines of first-marriage disruption by matching characteristics"],"license":"https://opensource.org/licenses/MIT"}
 </script>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="wrap">
   <p class="crumb"><a href="../">Marriage &amp; divorce research</a> · <a href="../../">Research home</a></p>
   <h1>Divorce odds calculator for couples</h1>
-  <p class="lede">Enter two profiles to see what explainable machine-learning models, trained on U.S. survey data, estimate for your odds of divorce in each year of marriage — and which changes they associate with lower risk. Four evidence lenses, shown side by side: NLSY79 married couples and NLSY79 individuals (ages 35–64), and two model families on NSFG 2002 first marriages counted from the wedding day (wives married at 15–39). Everything runs in your browser; nothing you type is sent anywhere.</p>
-  <p class="warn" role="note"><strong>Read this first.</strong> These are statistical associations in past U.S. surveys (NLSY79: people born 1957–1964, observed 2000–2022; NSFG: first marriages begun up to 2002), not a forecast for you and not causes. The best models beat a flat average rate by only about 3% on held-out people. Relationship quality, conflict, fidelity and commitment — which matter a great deal — are not in the data. Use it to explore the evidence, not to choose or judge a partner.</p>
+  <p class="lede">Enter two profiles to see what explainable machine-learning models, trained on survey data, estimate for your chance of divorce or break-up — with each lens’s model range, where you sit in its population, and which changes it links to lower risk. Fifteen evidence lenses: NLSY79 and NLSY97, NSFG 2002 and 1995–2023, GSS panels (marriage happiness), HCMST (relationship quality; married or not, same-sex or not), SIPP and ACS (Census), Statistics Canada, and a Los Angeles newlywed study. Each speaks only to the horizons its data support, and they are shown side by side, never pooled. Everything runs in your browser; nothing you type is sent anywhere.</p>
+  <p class="warn" role="note"><strong>Read this first.</strong> These are statistical associations in past surveys, not a forecast for you and not causes. Most lenses beat a flat average rate by only 3–9% on held-out people; the one that asks about relationship quality (HCMST) does far better, because how a relationship feels now says a lot about the next few years. Fidelity, commitment and much else are not in any of the data. Use it to explore the evidence, not to choose or judge a partner.</p>
 </header>
 
 <main class="wrap">
@@ -50,21 +51,32 @@
     <label>Years married so far <input name="yearsMarried" type="number" min="0" max="60" step="1" value="0"><small>0 if engaged, dating or just married</small></label>
     <label>Household income per year, $ <input name="familyIncome" type="number" min="0" step="1000" placeholder="defaults to both wages"></label>
     <label>Lived together before marrying <select name="cohabitedFirst"><option value="">Not sure</option><option>Yes</option><option>No</option></select></label>
-    <label>Projection horizon <select name="horizon"><option>20</option><option>30</option><option selected>40</option><option>50</option></select></label>
+    <label>Projection horizon (year-by-year lenses) <select name="horizon"><option>20</option><option>30</option><option selected>40</option><option>50</option></select></label>
+    <div id="coupleExtra" class="couple-extra"></div>
   </fieldset>
 </form>
 <p class="share"><button type="button" id="share">Copy link to this scenario</button> <span id="shareStatus" role="status"></span><small>The profiles are stored only in the link’s <code>#</code> fragment, which browsers do not send to any server. Anyone you share the link with sees them.</small></p>
 
+<section id="summaryBox" class="summary" aria-labelledby="summaryHead">
+  <h2 id="summaryHead">Summary across lenses</h2>
+  <p class="sub">Every lens that can score this couple, at the horizons its own data support: the chance of a break-up with the range across its models, where you sit in its surveyed population, how well it predicted people it never saw, and how well you fit its data. The outcomes differ, so the numbers are never averaged together.</p>
+  <div id="synthesis" class="synthesis" aria-live="polite"></div>
+  <div class="table-wrap"><table id="summaryTable"></table></div>
+</section>
+
 <section id="refuse" class="refuse" hidden aria-live="polite"></section>
 
 <section id="results" aria-live="polite">
-  <h2>Chance of no divorce</h2>
+  <h2>Chance of no divorce or break-up</h2>
   <p class="sub">Average of the lens’s models; the range shows how much they disagree. Assumes both partners live through each year; the lifelong split below adds mortality. <span id="outcomeNote"></span></p>
   <div id="tiles" class="tiles"></div>
   <p id="support" class="support"></p>
   <h2>Compared with the surveyed population</h2>
   <p class="sub">Where this couple’s predicted risk sits among the lens’s own surveyed marriages, overall and within the groups the couple belongs to.</p>
   <div id="popPanel"></div>
+  <h3>One-year divorce rates for people like you (ACS, observed)</h3>
+  <p class="sub">What the American Community Survey recorded for 2019 and 2021–2024: the share of people married at some point in the past 12 months who reported a divorce, in the groups each of you belongs to, with 95% intervals. No model. Cross-sectional: characteristics are measured after any divorce.</p>
+  <div id="acsPanel"></div>
   <h2>Population baselines (CDC/NCHS)</h2>
   <p class="sub">Official life tables from the National Center for Health Statistics for the rows that match this couple: the share of first marriages disrupted (separation or divorce) by 5, 10, 15 and 20 years, from the 1995 survey (Bramlett &amp; Mosher 2002) and the 2006–2010 survey (Copen et al. 2012). No model: these are what the surveys observed.</p>
   <div id="nchsPanel"></div>
@@ -101,11 +113,6 @@
       <p class="small">Sources, quotes and the full appraisal: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/reproducibility/literature_evidence/EVIDENCE.md">EVIDENCE.md</a> (286 records, each checked against its source).</p>
     </details>
   </section>
-  <details id="compareBox" open>
-    <summary>Every lens, side by side</summary>
-    <p class="sub">The same couple through each dataset that can score them. The outcomes differ (legal divorce at ages 35–64 versus any break-up of a first marriage from the wedding day), so read the rows next to each other, never as one number.</p>
-    <div class="table-wrap"><table id="compareTable"></table></div>
-  </details>
 
   <figure class="chart-card">
     <figcaption><strong>Still married (no divorce), by year of marriage</strong></figcaption>
@@ -119,16 +126,16 @@
   </details>
 
   <h2>Do the models agree?</h2>
-  <p class="sub">Held-out improvement is how much better each model predicted divorces of people it never saw than a single average rate did (5-fold, respondent-held-out Poisson deviance).</p>
+  <p class="sub">Held-out improvement is how much better each model predicted break-ups of people it never saw than a single average rate did (person- or couple-held-out deviance or log loss). Rows in grey are shown for reference and not averaged.</p>
   <div class="table-wrap"><table id="modelTable"></table></div>
 
   <h2>Why this estimate?</h2>
-  <p class="sub">Each bar is how much one input multiplies the annual divorce rate in this model, relative to its reference profile, for marriage year <span id="explainYear"></span>. Additive models explain exactly: the factors multiply to the prediction.</p>
+  <p class="sub">Each bar is how much one input multiplies the model’s risk (its rate, or the odds of a break-up), relative to its reference profile, for <span id="explainYear"></span>. Additive models explain exactly: the factors multiply to the prediction.</p>
   <label class="inline">Model <select id="explainModel"></select></label>
   <div id="explain"></div>
 
   <h2>What the models link to lower risk</h2>
-  <p class="sub">Each row changes one thing and re-runs every model; the score is the change in the chance of no divorce by year 10. The range is the smallest to largest change across models, and the count says how many move the same way as the average. These are associations in survey data — completing a degree or changing hours is not shown to <em>cause</em> a lower risk.</p>
+  <p class="sub">Each row changes one thing and re-runs every model; the score is the change in the chance of no break-up by <span id="changesHorizon">10 years</span>. The range is the smallest to largest change across models, and the count says how many move the same way as the average. These are associations in survey data — completing a degree or changing hours is not shown to <em>cause</em> a lower risk.</p>
   <div class="two">
     <div><h3>If you changed…</h3><ol id="changesA" class="changes"></ol></div>
     <div><h3>If your partner changed…</h3><ol id="changesB" class="changes"></ol></div>
@@ -203,9 +210,10 @@
     <li><strong>NLSY79 lens.</strong> National Longitudinal Survey of Youth 1979 (U.S. Bureau of Labor Statistics): 40,818 two-year intervals from 5,735 married respondents and 726 legal divorces, survey-weighted. Respondents were 35–64; marriages up to 49 years long. Two additive Poisson regressions, a spline model with schooling-pair and earnings-role interactions, and two shallow Poisson decision trees.</li>
     <li><strong>NLSY79 individuals lens.</strong> The same survey, but each partner is scored from their own traits only (age, age at first marriage, sex, degree, work hours, religious attendance, family income) and the two rates are averaged: 42,259 intervals, 5,899 currently married people, 854 divorces. Additive and spline Poisson models and two Poisson trees; the best beats a flat rate by 1.9% held out.</li>
     <li><strong>NSFG 2002 lens.</strong> National Survey of Family Growth, Cycle 6 (NCHS): 4,126 women’s first marriages followed from the wedding day, 1,492 ending in divorce, annulment or separation, 30,341 person-years. An additive spline Poisson model and a depth-3 Poisson tree, with a duration-only curve as the baseline; a second lens runs a discrete-time logistic hazard, a random forest and gradient boosting on the same data (naive Bayes is shown but not averaged: it is overconfident at the top). It covers newly-weds and young couples; it knows nothing about income or schooling. A couple whose combination of inputs is more unusual than 99% of the surveyed marriages (distance from the training data) gets no number.</li>
+    <li><strong>Newer lenses.</strong> NLSY79 and NLSY97 first marriages from the wedding (with the spouse’s traits); NSFG 1995–2023 pooled (the wife’s report, and a both-sexes view from each spouse’s own report); Statistics Canada GSS first marriages (one partner at a time); SIPP first marriages, and SIPP married couples one year ahead with both spouses’ earnings and wealth; ACS one-year divorce incidence (cross-sectional); GSS panels, divorced or separated within 2 years from marriage happiness; HCMST, a break-up within about 8 years from relationship quality, for married and unmarried, same-sex and different-sex couples; and 368 Los Angeles newlyweds over 12 years from satisfaction, self-reported hostility and conflict questions that approximate trained observers’ codes. Each lens shows only the horizons its follow-up covers, refuses couples outside its population, and gives no number when an input it has no “unknown” group for is missing.</li>
     <li><strong>Exact in the browser.</strong> Every model was trained in scikit-learn, exported to JSON and runs here in a small JavaScript engine that reproduces scikit-learn’s predictions to 10<sup>−9</sup> (tested).</li>
     <li><strong>Per year.</strong> Each model gives an annual divorce <em>rate</em> for the couple at each marriage year (ages and duration advance; everything else stays as entered). A year’s divorce probability is 1 − e<sup>−rate</sup>, and the chance of still being married multiplies those years together.</li>
-    <li><strong>Couple.</strong> Each survey interviewed one spouse. The NLSY79 lens scores the couple from both partners’ points of view and averages them; the NSFG lens uses the wife’s report, as the survey did. Same-sex couples were not in either survey, so the app shows no number for them rather than guessing.</li>
+    <li><strong>Couple.</strong> Most surveys interviewed one spouse. Lenses built on one respondent score the couple from each partner’s point of view (where that partner fits the lens) and average them; the NSFG lenses use the wife’s report, as the survey did; the newlywed study measured both spouses. Same-sex couples get numbers only from the lenses whose data include them (HCMST, SIPP first marriages, ACS); the others show no number rather than guess.</li>
     <li><strong>Outside the data.</strong> Years outside what a lens saw (NLSY79: ages under 35 or over 64; NSFG: beyond year 24 of marriage) are shaded, and the numbers there are extrapolation. A couple a lens cannot speak to at all (for NSFG: a wife married before, or a wedding age outside the data) gets no number from that lens. Wealth, occupation and relationship quality are not covered.</li>
     <li><strong>Population comparison.</strong> For the NSFG 2002 lenses, every surveyed woman’s first marriage was scored at its wedding by models fitted on the other four-fifths of women (the same held-out folds as the skill numbers), and the app stores only survey-weighted percentiles of those predictions, overall and in groups of at least 100 marriages. Your percentile is read off those, interpolated, and capped at “below p1” and “above p99”. The NLSY79 lenses have no reference yet (their person-level data are not in the repository).</li>
     <li><strong>Published evidence (lower confidence).</strong> The optional questions under “What the surveys don’t measure” apply hazard ratios from 9 published records (Birditt et al. 2010, Breslau et al. 2011, Roberts et al. 2007, Rosenfeld &amp; Roesler 2019, Manning &amp; Cohen 2012, Killewald 2016), each quote and number checked against the full text. Every hazard ratio is drawn from its published interval plus a between-study spread, stacked adjustments are shrunk for overlap, and the result is labelled literature-based. Full appraisal of 286 records: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/reproducibility/literature_evidence/EVIDENCE.md">EVIDENCE.md</a>.</li>

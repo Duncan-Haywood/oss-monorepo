@@ -34,6 +34,17 @@ APT_NAMES = {"sklearn": "python3-sklearn", "yaml": "python3-yaml", "PIL": "pytho
              "dateutil": "python3-dateutil"}
 
 
+# pip distribution name -> import name, so `pyenv.py scikit-learn` works
+# (2026-10-20: it built `import scikit-learn`, a SyntaxError, and reported
+# "no interpreter imports" after a venv that had everything installed)
+IMPORT_NAMES = {v: k for k, v in PIP_NAMES.items()}
+
+
+def import_name(arg):
+    """Import name for a module or pip name; other dashes become underscores."""
+    return IMPORT_NAMES.get(arg.lower(), arg.replace("-", "_"))
+
+
 def candidates(path=None, extra_globs=("/usr/bin/python3*", "/usr/local/bin/python3*")):
     """Distinct real interpreters: PATH's python3 first, then versioned ones."""
     seen, out = set(), []
@@ -133,6 +144,7 @@ def main(argv=None):
     if any(m.startswith("-") for m in modules):
         print(__doc__, file=sys.stderr)
         return 2
+    modules = [import_name(m) for m in modules]
     cands = candidates()
     venv_dir = os.environ.get("PYENV_VENV") or os.path.join(os.path.expanduser("~"), ".cache", "pyenv-venv")
     py = find(modules, cands, venv_dir=venv_dir)

@@ -1,4 +1,4 @@
-# shopify-inventory-csv-check
+# Shopify Inventory CSV Check — Catch Bad Stock Counts Before You Import
 
 Checks a Shopify inventory import CSV in the browser before it is imported: the `On hand (new)` column,
 quantities that are text, fractions or have a thousands comma, tenfold jumps, duplicate variant-and-location

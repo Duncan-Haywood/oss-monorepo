@@ -152,6 +152,36 @@ couple, 99.1 (abstain). The quantiles are in
 `../reproducibility/nsfg2002_first_marriage/family_ood_heldout_quantiles.csv`, and
 `tests/ood.test.mjs` matches Python's distances on 68 rows to 10<sup>-9</sup>.
 
+## Every lens scored: adapters, horizons and the summary across lenses (2026-10-20)
+
+- **Adapters for the newer lenses** live in `lens-adapters.js` (merged into `couple.js`'s
+  `ADAPTERS`): HCMST couples, GSS panels, NLSY79 and NLSY97 first marriages, NSFG 1995–2023
+  (wife's report, and the both-sexes models as a second view of the same bundle via
+  `expandLens`), Statistics Canada GSS, the Los Angeles newlyweds, SIPP first marriages, SIPP
+  couples and ACS. Each maps the form onto its bundle's `inputs` exactly; an input with no
+  "unknown" level that is left blank means no number from that lens, with the question named;
+  documented imputations are listed in the lens notes.
+- **Time.** `kind: 'rate'` lenses project year by year; `'periods'` lenses (HCMST, newlyweds)
+  multiply per-period probabilities, advancing ages and years together by `time_offsets`;
+  `'fixed'` lenses (GSS 2 years, SIPP couples and ACS 1 year) give one window. `lensHorizons()`,
+  `primaryHorizon()` and `stepAt()` drive every table; nothing is shown beyond a lens's follow-up,
+  and short lenses have no lifelong figure and no literature adjustment.
+- **Out of distribution.** `typicality()` scores the adapter's own rows (every perspective; the
+  most unusual counts) with the bundle's `ood` spec. Inputs not given are set to the training
+  mode or median for the distance only, and listed.
+- **Population references** in every published shape are converted by `referenceFor()` in
+  `population.js` (see its header); the couple is compared on the reference's own model and
+  quantity, from the wedding or from today as the reference counts.
+- **Summary across lenses** (`summary.js`): per lens, the estimate at each supported horizon
+  with the model range, the population percentile, held-out skill (`modelSkill`, `lensSkill`) and
+  data fit; then a synthesis of agreement on relative risk and the most relevant lens. No number
+  is pooled. **ACS baselines** (`baselines.js`): the published cells each partner matches, most
+  specific first, with 95% intervals.
+- **Form.** New questions are grouped in collapsible sections, each listing the lenses it feeds.
+  Hostility, abuse, substance use, low mood and adverse childhood experiences are never written
+  to the link (`SENSITIVE` in `couple.js`). Batch CSV accepts the new answers as optional columns
+  (`satisfaction` and `hostility` as the study's sums).
+
 ## Compare with the population, just me, many people, many couples, and a dashboard
 
 Five views sit above the form (tabs; arrow keys move between them). Every view scores each

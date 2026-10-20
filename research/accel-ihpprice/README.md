@@ -1,4 +1,4 @@
-# accel-ihpprice
+# Does clock-gated weight-stationary scheduling still beat output-stationary on a second open process, with that process's own SRAM?
 
 Does clock-gated register-file weight-stationary scheduling still beat output-stationary on a second open process, IHP SG13G2, and does the answer to "is ungated weight-stationary good enough?" depend on the node? Ninth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. It takes the "second-node verdict" next step of `accel-gatedprice`, which could not give one because GF180 has no SRAM macro in the open tree. IHP SG13G2 does: ten SRAM macros, with separate read and write energies. It seemed worth doing because every earlier verdict in this chain rests on one node (SKY130), so the headline "weight-stationary needs gated flops" could have been a SKY130 accident.
 

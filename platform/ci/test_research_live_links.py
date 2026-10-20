@@ -46,5 +46,26 @@ class Main(unittest.TestCase):
             self.assertEqual(r.main(["--root", d]), 0)
 
 
+class Topics(unittest.TestCase):
+    DATA = {"themes": [{"id": "chip", "name": "Chip &amp; loops", "projects": [{"slug": "a"}]},
+                       {"id": "x", "projects": []}]}
+
+    def test_block_links_each_named_topic(self):
+        block = r.topics_block(self.DATA)
+        self.assertIn(f"- [Chip & loops]({r.BASE}topics/chip/)", block)
+        self.assertNotIn("topics/x/", block)
+        self.assertTrue(block.startswith(r.TOPICS_START) and block.endswith(r.TOPICS_END))
+
+    def test_inserted_before_first_list_item_then_replaced_in_place(self):
+        text = "# R\n\nIntro.\n\n- [`research/a`](a) — one.\n"
+        once = r.with_topics(text, r.topics_block(self.DATA))
+        self.assertLess(once.index(r.TOPICS_END), once.index("- [`research/a`]"))
+        self.assertIn("## All projects", once)
+        self.assertEqual(r.with_topics(once, r.topics_block(self.DATA)), once)
+        changed = r.with_topics(once, "<!-- topics:start -->NEW<!-- topics:end -->")
+        self.assertIn("NEW", changed)
+        self.assertNotIn("Chip & loops", changed)
+
+
 if __name__ == "__main__":
     unittest.main()

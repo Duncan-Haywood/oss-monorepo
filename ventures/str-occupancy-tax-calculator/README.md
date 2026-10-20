@@ -1,4 +1,4 @@
-# str-occupancy-tax-calculator
+# STR Occupancy Tax Calculator | What Airbnb/Vrbo Collect vs. What You Must Remit
 
 A browser calculator for short-term rental hosts that splits one stay's
 **occupancy tax** into what a platform (Airbnb, Vrbo) already collects and
