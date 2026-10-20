@@ -257,6 +257,53 @@ def build(work):
     return out, m, audit
 
 
+LEAK_COLS = ['dataset', 'predictor', 'existing_lens_uses', 'measured_when', 'source', 'leaks', 'note']
+
+
+def refit(raw, tm, removed, strict_removed, repeats=3):
+    """The lens's own models (train_models.fit), its own person folds (SEED + repeat shuffle of ids,
+    k % 5), held-out weighted Poisson deviance gain vs the training-fold constant rate."""
+    m = tm.prepare(raw)
+    iv = tm.intervals(m)
+    y, e, w = iv.event.to_numpy(), iv.exposure.to_numpy(), iv.weight.to_numpy()
+    variants = {'published': tm.FEATURES,
+                'without': [c for c in tm.FEATURES if c not in removed],
+                'strict': [c for c in tm.FEATURES if c not in removed + strict_removed]}
+    res = {}
+    for r in range(repeats):
+        ids = m.id.to_numpy().copy()
+        np.random.default_rng(tm.SEED + r).shuffle(ids)
+        fold_of = {i: k % 5 for k, i in enumerate(ids)}
+        ivf = iv.id.map(fold_of).to_numpy()
+        base = np.zeros(len(iv))
+        pr = {(k, v): np.zeros(len(iv)) for k in ('additive_spline', 'gradient_boosting') for v in variants}
+        for f in range(5):
+            trn, te = iv[ivf != f], iv[ivf == f]
+            base[ivf == f] = (trn.weight * trn.event).sum() / (trn.weight * trn.exposure).sum()
+            for (k, v) in pr:
+                pr[(k, v)][ivf == f] = tm.fit(k, trn, variants[v], tm.ALPHA).predict(te)
+        b = tm.deviance(y, e, w, base)
+        for key, p in pr.items():
+            res[(r,) + key] = 100 * (1 - tm.deviance(y, e, w, p) / b)
+        print(f'refit repeat {r}:', {f'{k}/{v}': round(res[(r, k, v)], 3) for (k, v) in pr}, flush=True)
+    rows = []
+    for k, pub in (('additive_spline', 4.6799), ('gradient_boosting', 4.91284)):
+        for v, rem in (('without', removed), ('strict', removed + strict_removed)):
+            label = 'flagged yes/possible' if v == 'without' else 'flagged + all remaining spouse traits (strict)'
+            g0, g1 = res[(0, k, 'published')], res[(0, k, v)]
+            rows.append(dict(dataset='nlsy97', model=f'{k} (first split, as published; METHODS {pub:.2f})',
+                             predictors_removed=f'{label}: ' + ';'.join(rem),
+                             gain_with_percent=g0, gain_without_percent=g1, change_points=g1 - g0))
+            if repeats > 1:
+                g0 = np.mean([res[(r, k, 'published')] for r in range(repeats)])
+                g1 = np.mean([res[(r, k, v)] for r in range(repeats)])
+                rows.append(dict(dataset='nlsy97', model=f'{k} (mean of {repeats} seeded splits)',
+                                 predictors_removed=f'{label}: ' + ';'.join(rem),
+                                 gain_with_percent=g0, gain_without_percent=g1, change_points=g1 - g0))
+    return pd.DataFrame(rows), dict(marriages=len(m), events=int(m.event.sum()), intervals=len(iv),
+                                    person_years=float(e.sum()))
+
+
 if __name__ == '__main__':
     mode, work = sys.argv[1], sys.argv[2]
     if mode == 'extract':

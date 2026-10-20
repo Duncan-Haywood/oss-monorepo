@@ -1,0 +1,2 @@
+dataset,wife_age,husband_age,age_gap,wedding_year,wife_educ,husband_educ,wife_prior_marriage,husband_prior_marriage,wife_prior_children,husband_prior_children,cohabited_first,wife_race,husband_race,same_race,intact_family,religion_raised,respondent_sex
+canada_gss,0.6768,0.579,0.2557,1.0,0.0,0.0,0.6208,0.5041,0.5648,0.4352,0.9978,0.0,0.0,0.0,0.9986,0.0,1.0

@@ -36,6 +36,8 @@ CATEGORICAL = ['wife_educ', 'husband_educ', 'wife_prior_marriage', 'husband_prio
                'wife_race', 'husband_race', 'same_race', 'intact_family', 'religion_raised',
                'respondent_sex']
 MIN_KNOWN = 0.5  # a feature is used only where at least half the rows know it
+# No missing-value indicators: whether a spouse trait is known can depend on the outcome (e.g.
+# Canada 2017 spouse age is missing for 6.8% of dissolved and 1.5% of intact marriages).
 
 
 def load(path):
@@ -81,14 +83,14 @@ def make(kind, num, cat):
         return Pipeline([('prep', prep), ('fit', PoissonRegressor(alpha=1e-6, max_iter=3000, solver='newton-cholesky'))])
     numcols = ['marriage_years'] + num
     if kind in ('additive_spline', 'logistic_hazard'):
-        nump = Pipeline([('impute', SimpleImputer(strategy='median', add_indicator=True)),
+        nump = Pipeline([('impute', SimpleImputer(strategy='median')),
                          ('spline', SplineTransformer(n_knots=4, degree=2, knots='quantile', include_bias=False, extrapolation='constant')),
                          ('scale', StandardScaler())])
         prep = ColumnTransformer([('num', nump, numcols)] + ([('cat', onehot, cat)] if cat else []))
         est = PoissonRegressor(alpha=1e-4, max_iter=3000, solver='newton-cholesky') if kind == 'additive_spline' \
             else LogisticRegression(C=1.0, max_iter=5000)
         return Pipeline([('prep', prep), ('fit', est)])
-    prep = ColumnTransformer([('num', SimpleImputer(strategy='median', add_indicator=True), numcols)] + ([('cat', onehot, cat)] if cat else []))
+    prep = ColumnTransformer([('num', SimpleImputer(strategy='median'), numcols)] + ([('cat', onehot, cat)] if cat else []))
     est = HistGradientBoostingRegressor(loss='poisson', max_depth=3, max_iter=150, learning_rate=0.05,
                                         min_samples_leaf=200, l2_regularization=1.0, early_stopping=False, random_state=SEED)
     return Pipeline([('prep', prep), ('fit', est)])
