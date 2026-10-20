@@ -1,6 +1,6 @@
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { record, readUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+import { usageReport, record, readUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
 function fakeStorage() {
   const store = new Map();
@@ -60,4 +60,14 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   assert.deepEqual(readUsage(), {});
   record("file_checked");
   assert.equal(readUsage().file_checked, 1);
+});
+
+test("usageReport lists counts and the suppression share, and is empty with no counts", () => {
+  assert.equal(usageReport(), "");
+  record("file_checked");
+  record("file_checked");
+  record("suppression_used");
+  const report = usageReport();
+  assert.match(report, /file_checked: 2/);
+  assert.match(report, /suppression_share: 50% of file checks/);
 });

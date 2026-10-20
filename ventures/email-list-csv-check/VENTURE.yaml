@@ -48,3 +48,6 @@ hypotheses:
     status: untested
     checked: null
     evidence: in-repo
+    # 2026-10-20: counts live only in each visitor's localStorage. The page now has "Show my usage counts",
+    # which prints them with suppression_share and offers a prefilled GitHub issue the visitor sends on purpose;
+    # settle this claim from those issues.

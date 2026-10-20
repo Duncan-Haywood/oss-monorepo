@@ -143,14 +143,16 @@
     <p><strong>Not affiliated with Mailchimp, HubSpot, Klaviyo, Brevo or Constant Contact.</strong> This tool is independent and is not sponsored, endorsed or connected to any email, CRM or marketing vendor. Those names are trademarks of their owners, used here only to say which import formats the tool reads. The heading names and rules are read from memory of public sources and may be out of date or miss a variant; check them against each platform's current import documentation.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
     <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>, <code>rejected_downloaded</code>, <code>suppression_used</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
-    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p><button type="button" class="secondary" id="usage-show">Show my usage counts</button> <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <pre id="usage-out" hidden></pre>
+    <p id="usage-share" hidden>These numbers are counts only. If you want to help the maintainer see whether the do-not-email box is used, <a id="usage-issue" href="https://github.com/Duncan-Haywood/oss-monorepo/issues/new" rel="noopener">open a prefilled GitHub issue</a>; nothing is sent unless you submit it.</p>
     <p>Related tools: the <a href="../mailchimp-audience-csv-check/">Mailchimp audience CSV check</a> prepares the same list for Mailchimp, the <a href="../gbp-bulk-location-check/">Google Business Profile bulk-location check</a> does the same for a multi-location spreadsheet, the <a href="../email-auth-check/">email auth check</a> looks at the SPF, DKIM and DMARC records that decide whether your sending domain's mail is trusted, the <a href="../substack-subscriber-export-analyzer/">Substack subscriber export analyzer</a> reads a subscriber export for churn and growth, the <a href="../email-api-pricing-calculator/">email API pricing calculator</a> prices the sending side, the <a href="../xero-invoice-csv-check/">Xero invoice CSV check</a> does the same pre-flight for invoice import files, and the <a href="../hubspot-contacts-csv-check/">HubSpot contacts CSV check</a> covers a contacts or companies list going into HubSpot, and the <a href="../ics-calendar-check/">ICS calendar check</a> finds why a calendar file will not import.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer, parseSuppression } from "./calc.mjs";
-    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { record, setUsageOptOut, usageOptedOut, usageReport } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
@@ -213,6 +215,14 @@
     $("#download-rejected").addEventListener("click", () => { if (fix && fix.rejectedText) { record("rejected_downloaded"); download("email-list-rejected.csv", fix.rejectedText, "text/csv"); } });
     $("#download-csv").addEventListener("click", () => { if (lastResult) download("email-list-findings.csv", findingsCsv(lastResult), "text/csv"); });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    $("#usage-show").addEventListener("click", () => {
+      const text = usageReport();
+      const out = $("#usage-out");
+      out.textContent = text || "No counts on this device yet (or counting is off).";
+      out.hidden = false;
+      $("#usage-share").hidden = !text;
+      if (text) $("#usage-issue").href = "https://github.com/Duncan-Haywood/oss-monorepo/issues/new?title=" + encodeURIComponent("email-list-csv-check: anonymous usage counts") + "&body=" + encodeURIComponent("```\n" + text + "\n```");
+    });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>
 </body>

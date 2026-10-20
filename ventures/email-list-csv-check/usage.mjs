@@ -67,4 +67,18 @@ export function setUsageOptOut(value) {
   }
 }
 
+// Plain-text summary the visitor can read, copy, or send on purpose. Counts
+// only: event names and numbers, never file contents or addresses.
+export function usageReport() {
+  const usage = readUsage();
+  const names = Object.keys(usage).filter((k) => Number.isFinite(usage[k])).sort();
+  if (!names.length) return "";
+  const lines = names.map((k) => `${k}: ${usage[k]}`);
+  const checked = usage.file_checked || 0;
+  if (checked > 0) {
+    lines.push(`suppression_share: ${Math.round(((usage.suppression_used || 0) / checked) * 100)}% of file checks`);
+  }
+  return lines.join("\n");
+}
+
 export { usageOptedOut };
