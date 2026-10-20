@@ -121,7 +121,7 @@ import {
   siteStyleLink,
   writeResearchChrome,
 } from './site-nav.mjs';
-import { ASK_PATH, ASSISTANT_BUTTON_CSS, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
+import { ASK_PATH, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -8645,7 +8645,7 @@ export function renderChromeStyle() {
   // The site header's layout rules ride along (see site-nav.mjs). They carry
   // no colour of their own, so on a venture page the header takes the host's
   // palette exactly as the footer does.
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${REFLOW_CSS}${ASSISTANT_BUTTON_CSS}`;
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${REFLOW_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were

@@ -112,7 +112,7 @@ test('the header carries an Ask link on every page', () => {
 
 test('the launcher is small, and runs without a DOM it can use', () => {
   // It rides in pf-site.js, which every page loads; the panel itself does not.
-  assert.ok(ASSISTANT_LAUNCHER_JS.length < 3200, `launcher is ${ASSISTANT_LAUNCHER_JS.length} bytes`);
+  assert.ok(ASSISTANT_LAUNCHER_JS.length < 3600, `launcher is ${ASSISTANT_LAUNCHER_JS.length} bytes`);
   const docListeners = [];
   const winListeners = [];
   const fakeDocument = {

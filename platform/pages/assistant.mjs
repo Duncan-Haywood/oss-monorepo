@@ -88,25 +88,18 @@ export const ASSISTANT_LAUNCHER_JS = `
         b.setAttribute('aria-label','Fill this calculator by voice or chat');
         b.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12z"/></svg><span>Speak or type</span>';
         b.addEventListener('click',function(){go({opener:b});});
-        document.body.appendChild(b);
+        // Its own colours, not the host's: it floats over whatever the page
+        // has under it, so it needs an opaque fill with a known contrast
+        // (white on #12594a is 7.9:1). pf-chrome.css stays colour-free.
+        var s=document.createElement('style');
+        s.textContent='.pf-ask-voice{position:fixed;right:16px;bottom:16px;z-index:2147482000;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;margin:0;border:0;border-radius:999px;background:#12594a;color:#fff;font:600 14px/1 system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}.pf-ask-voice:focus-visible{outline:3px solid #f59f00;outline-offset:2px}@media (max-width:560px){.pf-ask-voice span{display:none}.pf-ask-voice{padding:12px}}@media print{.pf-ask-voice{display:none}}';
+        document.head.appendChild(s);document.body.appendChild(b);
       }
       if(navigator.modelContext)get().then(function(m){m.registerAgentTools();},function(){});
     };
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
   }catch(e){}
 })();
-`;
-
-/**
- * The calculator button's look, appended to pf-chrome.css (which every venture
- * page already links) rather than carried in the launcher.
- */
-export const ASSISTANT_BUTTON_CSS = `
-.pf-ask-voice{position:fixed;right:16px;bottom:16px;z-index:2147482000;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;margin:0;
-  border:0;border-radius:999px;background:#12594a;color:#fff;font:600 14px/1 system-ui,-apple-system,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
-.pf-ask-voice:focus-visible{outline:3px solid #f59f00;outline-offset:2px}
-@media (max-width:560px){.pf-ask-voice span{display:none}.pf-ask-voice{padding:12px}}
-@media print{.pf-ask-voice{display:none}}
 `;
 
 /** Score the eval set: per set, cases fully right, and fields written with a wrong value. */
