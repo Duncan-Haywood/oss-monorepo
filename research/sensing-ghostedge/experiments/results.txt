@@ -1,0 +1,56 @@
+# sensing-ghostedge: a layered sub-pixel coverage model for the edge ring of a moving subject (synthetic, Poisson-Gaussian noise)
+48x48 px scenes, 12 scenes per cell, still camera, one disc (radius 4 px, centre (24, 8) in frame 0) moving along x at v px per frame.
+A = 4, read = 3 e-, P = 300 e- per unit radiance in one large frame (small frame: 75). Truth = noise-free frame 0. Display PSNR, border cropped.
+ring = pixels within 1 px outside to 2 px inside the frame-0 footprint edge; disc = footprint eroded by 2 px; static = never within 2 px of the subject.
+layered-fit: disc centre and radius fitted to the burst; layered-oracle: true geometry. Both use the true speed v. Layered estimates replace aligned+rej within 3 px of the frame-0 disc.
+
+== A. against subject speed, N = 8
+N | v | region | refguided | aligned+rej | layered-fit | layered-oracle | large (dB)
+8 | 0.5 | all | 32.00 | 32.14 | 32.25 | 32.42 | 30.79
+8 | 0.5 | static | 32.68 | 32.74 | 32.76 | 32.76 | 30.71
+8 | 0.5 | ring | 26.02 | 27.63 | 28.01 | 29.38 | 31.65
+8 | 0.5 | disc | 32.81 | 36.64 | 37.75 | 38.29 | 33.76
+8 | 0.5 | fit: found 12/12, centre within 0.5 px 10/12, median centre error 0.14 px, median radius error 0.06 px
+8 | 1 | all | 31.76 | 31.76 | 32.10 | 32.16 | 30.83
+8 | 1 | static | 32.65 | 32.73 | 32.77 | 32.77 | 30.74
+8 | 1 | ring | 25.80 | 27.00 | 29.20 | 29.97 | 31.80
+8 | 1 | disc | 31.34 | 36.22 | 42.69 | 45.08 | 33.73
+8 | 1 | fit: found 12/12, centre within 0.5 px 11/12, median centre error 0.12 px, median radius error 0.06 px
+8 | 2 | all | 31.82 | 31.68 | 32.30 | 32.31 | 30.79
+8 | 2 | static | 32.71 | 32.81 | 32.85 | 32.85 | 30.74
+8 | 2 | ring | 26.26 | 27.08 | 33.08 | 33.35 | 31.74
+8 | 2 | disc | 29.17 | 35.81 | 44.59 | 44.81 | 33.05
+8 | 2 | fit: found 12/12, centre within 0.5 px 12/12, median centre error 0.13 px, median radius error 0.03 px
+8 | 4 | all | 31.83 | 31.92 | 32.60 | 32.61 | 30.83
+8 | 4 | static | 32.72 | 32.86 | 32.91 | 32.91 | 30.81
+8 | 4 | ring | 26.34 | 26.67 | 33.39 | 33.95 | 32.02
+8 | 4 | disc | 27.75 | 36.65 | 47.88 | 43.84 | 33.69
+8 | 4 | fit: found 12/12, centre within 0.5 px 12/12, median centre error 0.09 px, median radius error 0.05 px
+
+== B. against frames merged, v = 2 px per frame
+N | v | region | refguided | aligned+rej | layered-fit | layered-oracle | large (dB)
+4 | 2 | all | 29.14 | 29.39 | 29.48 | 29.50 | 30.86
+4 | 2 | static | 29.63 | 29.80 | 29.81 | 29.81 | 30.82
+4 | 2 | ring | 25.58 | 26.77 | 27.79 | 28.05 | 31.59
+4 | 2 | disc | 29.15 | 33.97 | 46.34 | 47.99 | 32.72
+4 | 2 | fit: found 12/12, centre within 0.5 px 12/12, median centre error 0.11 px, median radius error 0.05 px
+8 | 2 | all | 31.82 | 31.68 | 32.30 | 32.31 | 30.79
+8 | 2 | static | 32.71 | 32.81 | 32.85 | 32.85 | 30.74
+8 | 2 | ring | 26.26 | 27.08 | 33.08 | 33.35 | 31.74
+8 | 2 | disc | 29.17 | 35.81 | 44.59 | 44.81 | 33.05
+8 | 2 | fit: found 12/12, centre within 0.5 px 12/12, median centre error 0.13 px, median radius error 0.03 px
+16 | 2 | all | 34.23 | 33.78 | 34.97 | 35.00 | 30.81
+16 | 2 | static | 35.77 | 35.56 | 35.66 | 35.66 | 30.76
+16 | 2 | ring | 26.46 | 26.85 | 34.71 | 35.48 | 31.75
+16 | 2 | disc | 29.11 | 38.50 | 45.27 | 47.18 | 33.59
+16 | 2 | fit: found 12/12, centre within 0.5 px 12/12, median centre error 0.10 px, median radius error 0.04 px
+
+== C. sensitivity to geometry error, N = 8, v = 2 (layered-oracle with a perturbed disc; ring dB)
+perturbation | ring | disc | all
+none | 33.35 | 44.81 | 32.31
+centre +0.25 px x | 30.50 | 43.48 | 32.17
+centre +0.5 px x | 25.02 | 40.20 | 31.55
+centre +1 px x | 19.76 | 36.47 | 29.87
+centre +0.5 px y | 24.03 | 39.05 | 31.28
+radius +0.25 px | 27.20 | 34.78 | 31.84
+radius -0.5 px | 22.17 | 52.66 | 30.78
