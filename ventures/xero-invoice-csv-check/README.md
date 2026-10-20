@@ -38,6 +38,9 @@ accounts, contacts that differ from an existing one only by case, punctuation or
 suffix (Xero would create a duplicate), and tax rate names that are not spelled exactly. Export
 headings were read from memory, so matching is loose. The lists stay in the browser.
 
+The report also prints control totals (net before tax, per currency, with invoice counts) so a
+bookkeeper can reconcile the file against the source system before importing.
+
 ## Safe fixes and splitting
 
 `repair()` changes only things with one reasonable reading and lists every change. It never edits a

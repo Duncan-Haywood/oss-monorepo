@@ -190,7 +190,7 @@ export function validate(input) {
   const findings = [];
   const add = (severity, line, title, detail) => findings.push({ severity, line, title, detail });
   const { text, delim, parsed, rows } = prepare(input);
-  const empty = { findings, summary: { rows: 0, lines: 0, invoices: 0, columns: 0, delimiter: delim, groups: [] } };
+  const empty = { findings, summary: { rows: 0, lines: 0, invoices: 0, columns: 0, delimiter: delim, groups: [], totals: [] } };
   if (!text.trim()) { add("error", 0, "The file is empty", "There is nothing to check."); return empty; }
   if (parsed.unterminated) add("error", parsed.unterminated, "A quoted cell is never closed", `A quote opened on line ${parsed.unterminated} has no closing quote, so everything after it reads as one cell. Usually a description containing a stray " mark.`);
   if (delim !== ",") add("warning", 1, `The file is ${delim === ";" ? "semicolon" : "tab"}-separated`, "Xero expects commas. Excel in many locales saves CSV with semicolons because the comma is the decimal separator. Apply safe fixes rewrites it with commas.");
@@ -379,7 +379,10 @@ export function validate(input) {
   const rank = { error: 0, warning: 1, info: 2 };
   findings.sort((a, b) => rank[a.severity] - rank[b.severity] || a.line - b.line);
   const gl = [...groups.values()].map((g) => ({ number: g.number, line: g.line, contact: g.contact, invoiceDate: g.invoiceDate, dueDate: g.dueDate, lines: g.lines, net: Math.round(g.net * 100) / 100, currency: g.currency }));
-  return { findings, summary: { rows: data.length, lines: data.length, invoices: groups.size, columns: header.length, delimiter: delim, order, groups: gl } };
+  const byCur = new Map();
+  for (const g of gl) { const k = (g.currency || "").toUpperCase(); const t = byCur.get(k) || { currency: k, invoices: 0, lines: 0, net: 0 }; t.invoices++; t.lines += g.lines; if (g.net === g.net) t.net += g.net; byCur.set(k, t); }
+  const totals = [...byCur.values()].map((t) => ({ ...t, net: Math.round(t.net * 100) / 100 }));
+  return { findings, summary: { rows: data.length, lines: data.length, invoices: groups.size, columns: header.length, delimiter: delim, order, groups: gl, totals } };
 }
 const g_ok = (q, u) => Number.isFinite(q) && Number.isFinite(u);
 
