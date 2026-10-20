@@ -1,0 +1,71 @@
+Yosys: Yosys 0.33 (git sha1 2584903a060); designs: 133; each family split 5 times into a pool (60%) and a fixed test set (40%).
+Choosers pick k pool designs by features only; the surrogate (other three families weight 1, chosen designs weight w) is scored on the fixed test set. random: median over 20 draws.
+
+== S. linear, w=1: median over families and splits of the median APE on the fixed test set (percent) ==
+k random smallest spread extremes
+2 13.4 27.9 11.7 20.6
+3 11.5 19.4 9.3 18.3
+5 7.7 15.5 7.4 6.8
+8 6.3 12.1 5.2 5.3
+
+== S. linear, w=5: median over families and splits of the median APE on the fixed test set (percent) ==
+k random smallest spread extremes
+2 13.7 22.8 9.7 21.8
+3 9.1 18.4 7.7 13.5
+5 6.0 14.0 4.8 4.3
+8 5.2 6.9 2.9 3.2
+
+== S. ridge, w=1: median over families and splits of the median APE on the fixed test set (percent) ==
+k random smallest spread extremes
+2 21.7 19.1 19.6 24.6
+3 18.3 18.9 18.9 19.3
+5 10.6 19.1 8.5 8.3
+8 8.5 15.9 7.8 6.7
+
+== S. ridge, w=5: median over families and splits of the median APE on the fixed test set (percent) ==
+k random smallest spread extremes
+2 21.6 23.9 19.1 24.9
+3 16.7 27.4 19.3 14.2
+5 9.2 19.2 6.4 7.4
+8 7.1 9.5 5.4 5.5
+
+== S. gbr, w=1: median over families and splits of the median APE on the fixed test set (percent) ==
+k random smallest spread extremes
+2 29.4 31.7 24.2 30.8
+3 29.2 32.5 21.4 24.2
+5 22.6 29.3 16.4 19.3
+8 18.6 32.6 16.4 14.1
+
+== S. gbr, w=5: median over families and splits of the median APE on the fixed test set (percent) ==
+k random smallest spread extremes
+2 32.0 30.3 21.4 30.7
+3 31.0 29.1 24.0 24.6
+5 26.2 27.6 17.6 19.0
+8 21.2 32.0 16.6 14.8
+
+== W. share of the 20 (family, split) cells in which the strategy beats random (percent) ==
+kind w k smallest spread extremes
+linear 1 2 20 90 40
+linear 1 3 25 65 30
+linear 1 5 25 75 70
+linear 1 8 10 55 65
+linear 5 2 10 75 25
+linear 5 3 10 50 30
+linear 5 5 15 65 65
+linear 5 8 5 80 70
+ridge 1 2 35 50 50
+ridge 1 3 35 35 50
+ridge 1 5 15 75 85
+ridge 1 8 15 85 85
+ridge 5 2 25 65 55
+ridge 5 3 15 35 55
+ridge 5 5 10 65 80
+ridge 5 8 10 75 80
+gbr 1 2 15 85 40
+gbr 1 3 20 75 55
+gbr 1 5 20 90 50
+gbr 1 8 15 80 75
+gbr 5 2 25 80 40
+gbr 5 3 30 75 60
+gbr 5 5 30 90 70
+gbr 5 8 20 70 80
