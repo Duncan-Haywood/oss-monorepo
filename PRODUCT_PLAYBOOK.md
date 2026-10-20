@@ -197,6 +197,38 @@ One session should produce something usable. Concretely:
   execute the action. If you can't run it, you can't say it ships.
 - **Leave `main` working.**
 
+### Rule of thumb: every way in: see, type, speak, delegate (owner, 2026-10-20)
+
+People would often rather say "2,400 square feet, 8/12 pitch" than click
+through twenty fields, and an AI agent should be able to use a tool as
+easily as a person. So voice, chat and agent use are primary interfaces, not
+add-ons (`prompts/goals.md`, "Direction: voice, chat and agents"). For a
+browser tool on the Pages site most of this comes free from the site
+assistant (`platform/pages/assistant.mjs`): the header's Ask link, a
+"Speak or type" button on every calculator, voice-only mode, and WebMCP
+tools for agents. A product's part is:
+
+- **Keep the form readable by machines.** Every control has a real
+  `<label>` that names it in a user's words ("Shipping label cost", not
+  "Cost 2"), a `type="number"` with honest `min`/`max`/`step` where it is a
+  number, and real `<option>` text. The reader matches what people say to
+  these labels, and agents get them as a JSON Schema.
+- **Put the result where it can be read aloud**: an `aria-live` region, an
+  `<output>`, or an element with id `results`/`summary`. A result announced
+  to a screen reader is one the assistant can speak.
+- **Recompute on `input`/`change`**, so a value written by voice or by an
+  agent updates the result the same way typing does.
+- **Opt in to anything heavy.** A model, a speech recogniser, a voice: none
+  of these loads until the person clicks something that names the download
+  size and where their words go. The page without any of it stays fast and
+  fully usable. Never use cloud speech recognition silently. It sends audio
+  to a third party.
+- **Show your work.** Every value written by voice, chat or an agent is listed
+  with its source words and an Undo. Every reply names the engine that made
+  it. Accuracy is measured on real sentences (`platform/pages/assistant/evals.json`),
+  and the measured score is published beside the limitations. When a real
+  sentence fails, add it there.
+
 ### Rule of thumb: plain JavaScript, checked by TypeScript (2026-10-16)
 
 Venture code stays build-free `.mjs`, served as committed. TypeScript is used

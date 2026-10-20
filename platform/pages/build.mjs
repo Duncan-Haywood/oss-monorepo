@@ -121,6 +121,7 @@ import {
   siteStyleLink,
   writeResearchChrome,
 } from './site-nav.mjs';
+import { ASK_PATH, ASSISTANT_BUTTON_CSS, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -8644,7 +8645,7 @@ export function renderChromeStyle() {
   // The site header's layout rules ride along (see site-nav.mjs). They carry
   // no colour of their own, so on a venture page the header takes the host's
   // palette exactly as the footer does.
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${REFLOW_CSS}`;
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${REFLOW_CSS}${ASSISTANT_BUTTON_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -8819,7 +8820,7 @@ export const CHROME_MODULE_FILE = 'pf-site.js';
 
 /** The contents of that file. Written once by the build, at the site root. */
 export function renderChromeModule({ counterUrl = SITE_COUNTER_URL } = {}) {
-  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n`;
+  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -9726,6 +9727,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // here or in no sitemap at all — and an unlisted page is one a crawler
     // reaches only by following a footer link on a page it happened to find.
     .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`])
+    // The assistant's page, on the same terms: hub-level, so listed here or nowhere.
+    .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
@@ -9923,6 +9926,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     '## Optional',
     '',
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Research](${baseUrl}${RESEARCH_PATH}): the open research portfolio built in the same repository — white papers with reproducible code on mechanism design for verifiable decentralised ML, and digital twins and sim-to-real gaps.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
@@ -10432,6 +10436,30 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     path.join(aboutDir, 'index.html'),
     renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
   );
+
+  // The assistant's own page, and the files every page lazy-loads it from.
+  const askDir = path.join(outDir, ASK_PATH);
+  await fs.mkdir(askDir, { recursive: true });
+  await fs.writeFile(
+    path.join(askDir, 'index.html'),
+    renderAskPage({
+      baseUrl: base,
+      siteName: SITE_NAME,
+      toolCount: surfaces.length,
+      chrome: {
+        style: `${CATEGORY_STYLE}${ABOUT_STYLE}`,
+        styleLink: siteStyleLink('../'),
+        header: renderSiteHeader({ toRoot: '../', current: 'ask', crumbs: [{ label: 'Ask' }] }),
+        disclaimer: disclaimerHtml('../', surfaces),
+        footerNav: renderSiteFooterNav({ toRoot: '../' }),
+        script: `<script src="../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="ask" defer></script>`,
+        ogImage: `${base}${SOCIAL_CARD_FILE}`,
+      },
+    }),
+  );
+  for (const [name, contents] of Object.entries(renderAssistantFiles({ searchVariants, searchScore }))) {
+    await fs.writeFile(path.join(outDir, name), contents);
+  }
 
   await buildResearchPage(outDir, base);
   const researchSlugs = [];

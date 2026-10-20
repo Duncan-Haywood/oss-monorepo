@@ -206,6 +206,28 @@ a local server such as ComfyUI), at no per-call cost and with the data
 staying local. The deterministic path stays the product. How:
 [`platform/llm/`](../platform/llm/README.md) and `PRODUCT_PLAYBOOK.md` §3.
 
+## Direction: voice, chat and agents as primary ways in
+
+Set by the owner on 2026-10-20: "I want to add an ai assistant to the ghp. I
+also want voice interfaces and llm interfaces to be considered a primary use
+case for the browser. have them load well without killing app performance or
+opt in." And: "especially for calculators chat interface or voice interface
+as interchangeable is a nice add on. I'd rather give info by voice than
+clicking a bunch of stuff a lot of the time. I think multi method ui is a
+good thing agentic use, human use by visual ui voice type etc accessible
+output in voice etc. voice only modes for the apps. easily accessible tools
+for ai agent to use and plug ins with seo and auditable quality." And:
+"easily auditable quality limitations and transparency on how things work."
+
+Every tool is reachable four ways: the visual form, a typed sentence, the
+voice, and an AI agent. Output can be read aloud, and voice-only use must work.
+Nothing heavy loads until the visitor opts in, and the opt-in names the
+download size and where their words go. Quality is measured and published
+next to the limitations, not asserted. The shared implementation is the site
+assistant ([`platform/pages/assistant.mjs`](../platform/pages/assistant.mjs),
+the Ask page on the public site). Rules for products: `PRODUCT_PLAYBOOK.md`
+§4, "Every way in".
+
 ## Judgment over rules
 
 Set by the owner on 2026-10-15. The owner writes rarely and does not review

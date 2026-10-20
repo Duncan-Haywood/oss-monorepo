@@ -1,0 +1,638 @@
+{
+ "about": "Sentences a person might say or type to a calculator, and the fields they mean. Forms are copied from the live pages named in `source` (labels, ids, ranges, choices). Scored by assistant.test.mjs; the Ask page prints the score the build measured. A case passes only if every expected field gets exactly the expected value and nothing else is written. Add a case whenever a real sentence fails: the score is only worth what the cases are. Cases marked `tuned` were written alongside the rules and pass by construction; `held-out` cases were written afterwards and scored without changing the rules to fit them, so their score is the honest estimate.",
+ "forms": {
+  "ebay": {
+   "source": "ventures/ebay-fee-calculator/index.html",
+   "fields": [
+    {
+     "key": "price",
+     "label": "Item price",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "quantity",
+     "label": "Units in this batch",
+     "type": "number",
+     "min": 1,
+     "max": 1000,
+     "step": "1"
+    },
+    {
+     "key": "combinedItemCount",
+     "label": "Items already sold",
+     "type": "number",
+     "min": 2,
+     "step": "1",
+     "max": 20
+    },
+    {
+     "key": "shippingCharged",
+     "label": "Shipping charged to buyer",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "finalValueRate",
+     "label": "Final value fee (%)",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "fixedFee",
+     "label": "Per-order fixed fee (charged once)",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "promotedRate",
+     "label": "Promoted listings (%)",
+     "type": "number",
+     "min": 0,
+     "step": "0.1"
+    },
+    {
+     "key": "costOfGoods",
+     "label": "You paid for the item",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "shippingCost",
+     "label": "Shipping label cost",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "packagingCost",
+     "label": "Packaging cost",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "targetMargin",
+     "label": "Target net margin (%)",
+     "type": "number",
+     "min": 0,
+     "max": 99.99,
+     "step": "0.1"
+    },
+    {
+     "key": "returnRatePercent",
+     "label": "Expected return rate (%)",
+     "type": "number",
+     "min": 0,
+     "max": 100,
+     "step": "0.1"
+    }
+   ]
+  },
+  "roofing": {
+   "source": "ventures/roofing-bid-calculator/index.html (the two section rows it renders on load, labelled as the assistant reads them)",
+   "fields": [
+    {
+     "key": "s1-foot",
+     "label": "Footprint sq ft",
+     "type": "number",
+     "min": 0,
+     "step": "10"
+    },
+    {
+     "key": "s1-pitch",
+     "label": "Pitch rise per 12",
+     "type": "number",
+     "min": 0,
+     "max": 24,
+     "step": "1"
+    },
+    {
+     "key": "s1-layers",
+     "label": "Tear-off layers",
+     "type": "number",
+     "min": 0,
+     "max": 6,
+     "step": "1"
+    },
+    {
+     "key": "s2-foot",
+     "label": "Footprint sq ft (row 2)",
+     "type": "number",
+     "min": 0,
+     "step": "10"
+    },
+    {
+     "key": "s2-pitch",
+     "label": "Pitch rise per 12 (row 2)",
+     "type": "number",
+     "min": 0,
+     "max": 24,
+     "step": "1"
+    },
+    {
+     "key": "s2-layers",
+     "label": "Tear-off layers (row 2)",
+     "type": "number",
+     "min": 0,
+     "max": 6,
+     "step": "1"
+    },
+    {
+     "key": "wastePercent",
+     "label": "Waste (%)",
+     "type": "number",
+     "min": 0,
+     "step": "0.5"
+    },
+    {
+     "key": "materialPerSquare",
+     "label": "Material $ / square",
+     "type": "number",
+     "min": 0,
+     "step": "1"
+    },
+    {
+     "key": "hourlyWage",
+     "label": "Crew hourly wage",
+     "type": "number",
+     "min": 0,
+     "step": "0.25"
+    },
+    {
+     "key": "burdenRate",
+     "label": "Payroll burden (%)",
+     "type": "number",
+     "min": 0,
+     "step": "0.5"
+    },
+    {
+     "key": "dumpsterFee",
+     "label": "Dumpster (flat)",
+     "type": "number",
+     "min": 0,
+     "step": "10"
+    },
+    {
+     "key": "permitFee",
+     "label": "Permit & inspection",
+     "type": "number",
+     "min": 0,
+     "step": "10"
+    },
+    {
+     "key": "targetMargin",
+     "label": "Target net margin (%)",
+     "type": "number",
+     "min": 0,
+     "max": 99.9,
+     "step": "0.5"
+    },
+    {
+     "key": "depositPercent",
+     "label": "Deposit (%)",
+     "type": "number",
+     "min": 0,
+     "max": 100,
+     "step": "5"
+    },
+    {
+     "key": "validDays",
+     "label": "Hold this price for (days)",
+     "type": "number",
+     "min": 0,
+     "max": 365,
+     "step": "1"
+    }
+   ]
+  },
+  "fba": {
+   "source": "ventures/amazon-fba-calculator/index.html",
+   "fields": [
+    {
+     "key": "fulfillmentMethod",
+     "label": "Fulfilment",
+     "type": "select",
+     "options": [
+      {
+       "value": "fba",
+       "text": "FBA"
+      },
+      {
+       "value": "fbm",
+       "text": "FBM (you ship)"
+      }
+     ]
+    },
+    {
+     "key": "category",
+     "label": "Category",
+     "type": "select",
+     "options": [
+      {
+       "value": "home",
+       "text": "Home & kitchen (15%)"
+      },
+      {
+       "value": "clothing",
+       "text": "Clothing & accessories (17%)"
+      },
+      {
+       "value": "jewelry",
+       "text": "Jewelry (20%)"
+      },
+      {
+       "value": "electronics",
+       "text": "Electronics (8%)"
+      },
+      {
+       "value": "grocery",
+       "text": "Grocery & gourmet (8%)"
+      },
+      {
+       "value": "beauty",
+       "text": "Beauty & personal care (8%)"
+      }
+     ]
+    },
+    {
+     "key": "salePrice",
+     "label": "Sale price",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "length",
+     "label": "Length (in)",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "width",
+     "label": "Width (in)",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "height",
+     "label": "Height (in)",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "weightLb",
+     "label": "Weight (lb)",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "monthsInStorage",
+     "label": "Months in storage",
+     "type": "number",
+     "min": 0,
+     "step": "0.1"
+    },
+    {
+     "key": "costOfGoods",
+     "label": "You paid for the item",
+     "type": "number",
+     "min": 0,
+     "step": "0.01"
+    },
+    {
+     "key": "lowPriceEligible",
+     "label": "Listing can use Low-Price FBA (standard-size, at or under the threshold — you confirm, this page does not)",
+     "type": "checkbox"
+    },
+    {
+     "key": "couponPercent",
+     "label": "Coupon percent (%)",
+     "type": "number",
+     "min": 0,
+     "max": 100,
+     "step": "0.1"
+    }
+   ]
+  }
+ },
+ "cases": [
+  {
+   "form": "ebay",
+   "say": "item price 55, shipping charged to buyer 8",
+   "expect": {
+    "price": "55",
+    "shippingCharged": "8"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "ebay",
+   "say": "I'm selling it for forty dollars and I paid twelve for the item",
+   "expect": {
+    "price": "40",
+    "costOfGoods": "12"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "ebay",
+   "say": "price $1,250",
+   "expect": {
+    "price": "1250"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "ebay",
+   "say": "promoted listings 5 percent",
+   "expect": {
+    "promotedRate": "5"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "ebay",
+   "say": "final value fee 13.6%, fixed fee 0.40",
+   "expect": {
+    "finalValueRate": "13.6",
+    "fixedFee": "0.4"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "ebay",
+   "say": "shipping label costs 7.50 and packaging is 1 dollar",
+   "expect": {
+    "shippingCost": "7.5",
+    "packagingCost": "1"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "ebay",
+   "say": "ten units",
+   "expect": {
+    "quantity": "10"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "ebay",
+   "say": "target margin twenty five percent",
+   "expect": {
+    "targetMargin": "25"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "ebay",
+   "say": "return rate 150 percent",
+   "expect": {},
+   "set": "tuned"
+  },
+  {
+   "form": "ebay",
+   "say": "it sells for 30",
+   "expect": {
+    "price": "30"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "roofing",
+   "say": "2,400 square feet, 8/12 pitch, two layers to tear off",
+   "expect": {
+    "s1-foot": "2400",
+    "s1-pitch": "8",
+    "s1-layers": "2"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "roofing",
+   "say": "footprint twenty four hundred sq ft and pitch eight over twelve",
+   "expect": {
+    "s1-foot": "2400",
+    "s1-pitch": "8"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "roofing",
+   "say": "waste 12 percent, material 145 per square",
+   "expect": {
+    "wastePercent": "12",
+    "materialPerSquare": "145"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "roofing",
+   "say": "crew wage 38.50 an hour, payroll burden 28%",
+   "expect": {
+    "hourlyWage": "38.5",
+    "burdenRate": "28"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "roofing",
+   "say": "dumpster 500, permit 300",
+   "expect": {
+    "dumpsterFee": "500",
+    "permitFee": "300"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "roofing",
+   "say": "deposit 30 percent and hold the price for 45 days",
+   "expect": {
+    "depositPercent": "30",
+    "validDays": "45"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "roofing",
+   "say": "margin 22 and a half percent",
+   "expect": {
+    "targetMargin": "22.5"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "roofing",
+   "say": "seven layers",
+   "expect": {},
+   "set": "tuned"
+  },
+  {
+   "form": "fba",
+   "say": "category electronics, sale price 24.99",
+   "expect": {
+    "category": "electronics",
+    "salePrice": "24.99"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "fba",
+   "say": "length 10 width 8 height 3 inches, weight 1.2 pounds",
+   "expect": {
+    "length": "10",
+    "width": "8",
+    "height": "3",
+    "weightLb": "1.2"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "fba",
+   "say": "I ship it myself, FBM",
+   "expect": {
+    "fulfillmentMethod": "fbm"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "fba",
+   "say": "no low price FBA",
+   "expect": {
+    "lowPriceEligible": false
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "fba",
+   "say": "beauty and personal care, I paid 6 for it, coupon 10 percent",
+   "expect": {
+    "category": "beauty",
+    "costOfGoods": "6",
+    "couponPercent": "10"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "fba",
+   "say": "storage for three months",
+   "expect": {
+    "monthsInStorage": "3"
+   },
+   "set": "tuned"
+  },
+  {
+   "form": "ebay",
+   "say": "we charge the buyer 9.95 for shipping",
+   "expect": {
+    "shippingCharged": "9.95"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "ebay",
+   "say": "cost of goods eight bucks",
+   "expect": {
+    "costOfGoods": "8"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "ebay",
+   "say": "batch of 25",
+   "expect": {
+    "quantity": "25"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "ebay",
+   "say": "packaging 0.75, label 4.20, price 32",
+   "expect": {
+    "packagingCost": "0.75",
+    "shippingCost": "4.2",
+    "price": "32"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "ebay",
+   "say": "I expect about 8% returns",
+   "expect": {
+    "returnRatePercent": "8"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "roofing",
+   "say": "three thousand two hundred square feet",
+   "expect": {
+    "s1-foot": "3200"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "roofing",
+   "say": "the pitch is 6",
+   "expect": {
+    "s1-pitch": "6"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "roofing",
+   "say": "labor 42 dollars an hour",
+   "expect": {
+    "hourlyWage": "42"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "roofing",
+   "say": "aim for a 25 percent margin with 10 percent waste",
+   "expect": {
+    "targetMargin": "25",
+    "wastePercent": "10"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "fba",
+   "say": "it's jewelry, weighs half a pound",
+   "expect": {
+    "category": "jewelry",
+    "weightLb": "0.5"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "fba",
+   "say": "12 by 9 by 4 inches",
+   "expect": {
+    "length": "12",
+    "width": "9",
+    "height": "4"
+   },
+   "set": "held-out"
+  },
+  {
+   "form": "fba",
+   "say": "selling at 19.99 in clothing",
+   "expect": {
+    "salePrice": "19.99",
+    "category": "clothing"
+   },
+   "set": "held-out"
+  }
+ ]
+}
