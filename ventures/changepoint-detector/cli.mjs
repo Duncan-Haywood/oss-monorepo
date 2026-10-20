@@ -20,7 +20,7 @@ Usage:
 Options:
   --column <name|index>     value column (default: last numeric column)
   --label-column <name|i>   label/date column (default: first column)
-  --model mean|meanvar      change in level, or in level and volatility (default: mean)
+  --model mean|meanvar|poisson  change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|hannan-quinn|<number>   PELT penalty per change (default: bic)
   --min-segment <n>         shortest segment (default: 2 for mean, 5 for meanvar)
   --hazard <n>              Bayesian expected points between changes (default: ${DEFAULTS.hazardLambda})
