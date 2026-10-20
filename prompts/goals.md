@@ -176,6 +176,21 @@ vote manipulation, automated posting where a community forbids it, paid
 placement, or evading a platform's limits. Account creation and publishing
 under the portfolio's public name stay owner-only.
 
+**Privacy rules follow the law, not stricter** (the owner, 2026-10-20): "i
+mean follow laws but going beyond them is too much." And on the old blanket
+"no cookies" rule: "Idk how that got in there." So the law is the line, and
+self-imposed restrictions on top of it are not: cookies and `localStorage` a
+feature needs (a setting, a referral code, a cart, a saved session) are
+allowed without asking; anonymous aggregate measurement that stores nothing on
+the device and nothing that identifies a person (page loads, which kind of
+site sent the visitor, a coarse event) is on by default; analytics that puts
+an identifier on the device (returning visitors, A/B buckets) is allowed with
+the consent the law requires where the visitor is (prior consent in the
+EU/UK under ePrivacy/PECR). What stays: the law itself (GDPR, ePrivacy, PECR,
+CCPA and the rest), honest privacy copy that says what a page actually does,
+and nothing personal in this public repository. Spec:
+`portfolio/usage/README.md`.
+
 ## Direction: sales, marketing and business tools
 
 Set by the owner on 2026-10-16: "lets add a potential direction sales tools
@@ -259,6 +274,34 @@ overclaimed; posts say the work was done by AI agents with an owner
 steering, and carry a not-advice sentence where a reader might act on a
 number. One post per subject: before writing, check `docs/posts/` and open
 PRs for one that covers it, and extend it instead of writing a second.
+
+## Direction: files first, not the GitHub API
+
+Set by the owner on 2026-10-20: "lets make a rule of thumb that things should
+be files first not have to be searched from api. not to muddy up the repo but
+to include the process in the docs or simialr section of how things developed
+without having to ghapi".
+
+A fresh clone and `grep` should answer "what happened and why". A PR body,
+review thread, issue, CI log or Actions artifact won't do that: you have to
+query the API one PR at a time to read any of them, and logs and artifacts
+expire (artifacts here keep 7 to 30 days). So anything a later reader needs
+goes in a file in the same PR, and the GitHub text is a summary that points
+to it, never the source:
+
+- **What a run did, verified or found** (checklist output, what you ran and
+  skipped, why you chose the work): the run record's `notes`
+  (`prompts/runs/`, step 3 of `prompt.md`).
+- **Why a project is the way it is** (a decision, a rejected approach, a
+  gotcha): one or two sentences in that project's README.
+- **How the process itself changed** (a rule's origin, an incident): the
+  commit message, or `docs/history/` when it is longer than a commit.
+- **A review or PR thread that settles something:** copy the conclusion into
+  one of the above and link the PR. Leave the back-and-forth on GitHub.
+
+Don't muddy the repository. Write the conclusion, not a transcript. Don't
+make a new file for something that fits in a sentence of an existing one, and
+don't backfill threads nobody will need.
 
 ## Judgment over rules
 
@@ -476,6 +519,14 @@ time budgets. Each change should move one of the dashboard's CI numbers.
   owner's brief in the ventures sub-prompt (ambitious, AI/ML where it helps,
   mobile apps, real business potential). The finish line for a venture is a
   working one-click self-deploy page (the business model under Mission).
+  **Deepen the flagships** (the owner, 2026-10-20): "on the one hand I like
+  the thousand plus small tools, but on the other hand I want to work on
+  deeper business and engineering problems and more of the work to be to
+  deepening and improving existing projects that have real depth to them."
+  So the small tools stay and get maintained, but most venture runs deepen
+  one of the few ventures listed in
+  [`portfolio/flagships.yaml`](../portfolio/flagships.yaml), which
+  `allocate.py` ranks first.
 - **Research:** merged projects that pass the research guardrails and a
   quality audit: the code re-runs, the README numbers match its output, and
   every citation checks out.

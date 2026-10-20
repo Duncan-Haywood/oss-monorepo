@@ -786,7 +786,7 @@ export const FORM_ADAPTERS = Object.keys(ADAPTERS);
 // (deviance or log loss, with its interval), the concordance (Harrell's C) and an AUC.
 export function modelSkill(m) {
   const h = m.heldout || {};
-  const gain = Number.isFinite(h.deviance_improvement_percent) ? h.deviance_improvement_percent : Number.isFinite(h.logloss_improvement_percent) ? h.logloss_improvement_percent : null;
+  const gain = Number.isFinite(h.deviance_improvement_percent) ? h.deviance_improvement_percent : Number.isFinite(h.deviance_gain_percent) ? h.deviance_gain_percent : Number.isFinite(h.logloss_improvement_percent) ? h.logloss_improvement_percent : null;
   let gainCi = h.ci95 || h.logloss_improvement_ci || h.logloss_improvement_ci95 || null;
   // NLSY79 individuals publish the interval per person-year; rescale it to percent.
   if (gainCi && Number.isFinite(h.deviance_improvement_per_person_year) && h.deviance_improvement_per_person_year > 0) gainCi = gainCi.map((x) => (x * gain) / h.deviance_improvement_per_person_year);
@@ -876,10 +876,38 @@ export const COUPLE_SPEC = {
 // abuse, substance use, low mood, adverse childhood experiences.
 export const SENSITIVE = new Set(['hostSum', 'substance', 'ace', 'abuse', 'lowMood']);
 
+// ---- Stage: before the wedding, or already married ----------------------------------------
+// The calculator's default question is the owner's: will a marriage last, asked BEFORE the
+// wedding, for a couple or a candidate partner. Only lenses whose clock starts at the wedding and
+// whose inputs are fixed by then answer it (the leakage audit, reproducibility/prewedding/,
+// lists the post-wedding inputs some of their published models used). Lenses that score couples
+// who are already married, or whose outcome is not divorce, sit behind "Already married".
+export const STAGES = ['before', 'married'];
+const BEFORE_LENSES = new Set([
+  'prewedding_harmonized', 'nsfg_pooled_first_marriage', 'nlsy97_first_marriage', 'nlsy79_first_marriage',
+  'sipp_first_marriage', 'canada_gss_first_marriage', 'nsfg2002_first_marriage', 'nsfg2002_family',
+  'hcmst_dating_marriage', 'hcmst_dating_breakup',
+]);
+export function lensStage(bundle) {
+  if (STAGES.includes(bundle.stage)) return bundle.stage;
+  return BEFORE_LENSES.has(bundle.view_of || bundle.id) ? 'before' : 'married';
+}
+export const lensesForStage = (lenses, stage) => lenses.filter((l) => lensStage(l.bundle) === stage);
+// First scorable lens in this order, else the stage's first scorable lens.
+const DEFAULT_LENS = { before: ['prewedding_harmonized', 'nsfg_pooled_first_marriage'], married: ['nlsy79_couples'] };
+export function defaultLens(lenses, stage) {
+  const ok = lensesForStage(lenses, stage).filter((l) => l.summary.scorable);
+  for (const id of DEFAULT_LENS[stage] || []) {
+    const hit = ok.find((l) => l.summary.id === id);
+    if (hit) return hit;
+  }
+  return ok[0] || lensesForStage(lenses, stage)[0] || lenses[0];
+}
+
 function specFor(name) {
   const [who, k] = name.includes('.') ? name.split('.') : [null, name];
   if (who === 'a' || who === 'b') return SENSITIVE.has(k) ? undefined : PERSON_SPEC[k];
-  if (who === null) return COUPLE_SPEC[k] || (k === 'lens' ? 'id' : undefined);
+  if (who === null) return COUPLE_SPEC[k] || (k === 'lens' ? 'id' : k === 'stage' ? STAGES : undefined);
   return undefined;
 }
 

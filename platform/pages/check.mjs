@@ -122,6 +122,8 @@ export const WRITING_DIR = 'writing';
 export const UPDATES_DIR = 'updates';
 export const CHANGELOG_DIR = 'changelog';
 export const ASK_DIR = 'ask';
+// The lab (`lab.mjs`): `noindex` experiments in what the site can be.
+export const LAB_DIR = 'lab';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
@@ -135,7 +137,7 @@ export const DEPLOY_DIR = 'deploy';
 // check on the same terms as the deploy page.
 export const DEV_DIR = 'dev';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, ASK_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, ASK_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product

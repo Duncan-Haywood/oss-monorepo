@@ -36,7 +36,7 @@ for (const id of ['hcmst_dating_marriage', 'hcmst_dating_breakup']) {
 
   test(`${id}: metadata the app needs`, () => {
     assert.equal(bundle.outcome, 'probability');
-    assert.equal(bundle.stage, 'before the wedding');
+    assert.equal(bundle.stage, 'before');
     assert.equal(bundle.periods.length, 5);
     assert.ok(bundle.constant_probability > 0 && bundle.constant_probability < 1);
     assert.ok(bundle.models.some((m) => m.kind === 'logistic_glm'));

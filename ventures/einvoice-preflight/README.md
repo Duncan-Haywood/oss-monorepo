@@ -52,6 +52,27 @@ capture the party legal identifier and the invoice and payment-terms notes.
 Off by default, JS only, and an offline observation, not a certified
 platform's validator or legal advice. Findings never echo the number.
 
+**Official EN 16931 Schematron (optional).** Beside the built-in rules you can
+run the CEN EN 16931 validation artefacts (ConnectingEurope/eInvoicing-EN16931,
+EUPL-1.2) for UBL and CII invoices, in Saxon-JS, with each BR-xx failure mapped
+to a plain-language fix (`schematron-fixes.mjs`). Findings carry the official
+rule ID and `source: "en16931-schematron"`; the built-in `INV-nnn` rules still
+run. Neither the engine nor the compiled rules ship in this folder:
+
+```sh
+cd ventures/einvoice-preflight
+npm i --no-save saxon-js xslt3     # Saxon-JS is Saxonica's, free to use, not MIT
+node build-schematron.mjs          # clones the artefacts, compiles ./schematron/*.sef.json (~1 min)
+node schematron-cli.mjs examples/ubl-invoice-with-defects.xml   # or --json
+# API: POST /v1/validate?schematron=1 (report.reports[].schematron is "ok" or "unavailable")
+```
+
+Checked on the bundled examples: the clean UBL, CII and Factur-X invoices pass,
+and the defects file raises BR-CO-15, BR-CO-16, BR-CO-17, BR-S-09 and BR-61.
+It runs the base EN 16931 rules only, not the XRechnung or Peppol add-on
+Schematron, JSON drafts have no XML to check, and the Docker image does not
+include it yet.
+
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit

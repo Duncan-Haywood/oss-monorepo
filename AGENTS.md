@@ -114,7 +114,7 @@ Incident history for these rules: `docs/history/claude-md-2026-10-15.md`.
   close.
 - **Red is red, but classify first:**
   `python3 platform/ci/ci_starvation.py --run <run_id>` votes on `runner_id: 0`
-  (no runner assigned, no step ran). See `CLAUDE.md`, "Reading CI".
+  (no runner assigned, no step ran). See `.github/prompts/verify-and-merge.md`, "Reading CI".
 - **Verify with the workflows' own steps, not a subset:**
   `python3 platform/ci/run_workflow_locally.py --for-changes` runs every
   workflow your diff would trigger that cannot write anything and names each
@@ -158,9 +158,11 @@ product PR?"
    names a specific competitor (`vs-<competitor>.html`) needs a second,
    separate disclaimer — §5f, nominative fair use plus a "not affiliated
    with" line — checked by `node platform/pages/clauses.mjs <slug>`.
-2. **Usage stats** — anonymous events only (feature used, page viewed), never
-   people: no PII, no IPs, no content, no analytics vendor. Rules and the file
-   readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
+2. **Usage stats** — anonymous aggregate events (feature used, page viewed,
+   kind of referring site) on by default; anything that identifies a returning
+   browser only with the consent the law requires; nothing personal committed.
+   Follow the law, no stricter (owner, 2026-10-20): cookies a feature needs are
+   fine. Rules and the file readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
 3. **Free full access** for now — no paywalls; optional GitHub Sponsors/donate link OK.
 4. **A LICENSE and the discoverability basics** — landing copy in the user's
    search words, meta description, JSON-LD, sitemap, crawlable robots.txt.

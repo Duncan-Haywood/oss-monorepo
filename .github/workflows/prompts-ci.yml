@@ -2,7 +2,8 @@ name: Prompts
 
 # The prompt system under prompts/ and the master prompt.md: routing, every
 # sub-prompt version, and every run record must stay valid for the router and
-# the review track to trust them.
+# the review track to trust them. Every guidance file anywhere (CLAUDE.md,
+# AGENTS.md, .github/prompts/) must have an entry in prompts/system.json.
 
 on:
   push:
@@ -10,11 +11,17 @@ on:
     paths:
       - "prompt.md"
       - "prompts/**"
+      - "**/CLAUDE.md"
+      - "**/AGENTS.md"
+      - ".github/prompts/**"
       - ".github/workflows/prompts-ci.yml"
   pull_request:
     paths:
       - "prompt.md"
       - "prompts/**"
+      - "**/CLAUDE.md"
+      - "**/AGENTS.md"
+      - ".github/prompts/**"
       - ".github/workflows/prompts-ci.yml"
   workflow_dispatch:
 

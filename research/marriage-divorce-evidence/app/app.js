@@ -1,7 +1,7 @@
 // UI for the couple divorce-odds calculator. All computation is local (couple.js, engine.js).
 import { renderPopulation, renderJustMe, renderCandidates, renderDashboard, initCandidates, initBatch, initDashboard, readHashExtras, hashExtras, currentView, setView, syncConstraintControls, renderAcsBaselines } from './compare-ui.js';
 import { encodeLiterature, decodeLiterature, renderLiteratureQuestions, readLiteratureInputs, renderLiteratureResult, renderNchs } from './literature-ui.js';
-import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, referenceOnlyModels, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, expandLens, shareOod, encodeScenario, decodeScenario, rowLabels, lensHorizons, primaryHorizon, isRateLens, stepAt, fmtYears, modelSkill } from './couple.js';
+import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, referenceOnlyModels, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, expandLens, shareOod, encodeScenario, decodeScenario, rowLabels, lensHorizons, primaryHorizon, isRateLens, stepAt, fmtYears, modelSkill, STAGES, lensStage, lensesForStage, defaultLens } from './couple.js';
 import { QUALITY, HAPMAR, PARTY, PARENTS_VIEW, COUNT3, RELIGION_RAISED, MOTHER_EDU, MOTHER_AGE, ATTEND_DETAIL, OFTEN, STATUS, HOW_MET, PLACE, STATES, YESNO, MARRIAGES_BEFORE, SAT_ITEMS, SAT_SCALE, HOSTILE_ITEMS, HOSTILE_SCALE, QUESTION_LENSES } from './lens-adapters.js';
 import { summariseAll, shortName } from './summary.js';
 import { inputsFromFields } from './scenarios.js';
@@ -31,7 +31,7 @@ function personFields(who) {
   const you = who === 'a';
   return `
     <label>Sex <select name="${who}.sex">${opt(['Woman', 'Man'], d.sex)}</select></label>
-    <label>Age today <input name="${who}.age" type="number" min="16" max="100" value="${d.age}"></label>
+    <label><span class="age-label">Age at the wedding</span> <input name="${who}.age" type="number" min="16" max="100" value="${d.age}"></label>
     <label>Years of schooling <select name="${who}.school">${opt(SCHOOL, d.school)}</select></label>
     <label>Highest degree <select name="${who}.degree">${opt(DEGREE, d.degree)}</select></label>
     <label>Wages last year, $ <input name="${who}.wages" type="number" min="0" step="1000" value="${d.wages}"><small>Leave blank if unknown; 0 if no paid work</small></label>
@@ -42,13 +42,13 @@ function personFields(who) {
     <label>Children from an earlier relationship <select name="${who}.priorChildren">${opt(['No', 'Yes'], d.priorChildren)}</select></label>
     <label>Lived with both parents from birth to 18 <select name="${who}.intactFamily">${opt(['Yes', 'No'], d.intactFamily)}</select></label>
     <label>Race-ethnicity <select name="${who}.raceEth"><option value="">Prefer not to say</option>${opt(RACE_ETH, d.raceEth)}</select><small>Hispanic of any race; several lenses have no “unknown” group for it</small></label>
-    <details class="qgroup"><summary>The relationship, in ${you ? 'your' : 'your partner’s'} words</summary>${usedBy(['quality', 'hapmar', 'party', 'parentsView'])}
+    <details class="qgroup" data-stage="married"><summary>The relationship, in ${you ? 'your' : 'your partner’s'} words</summary>${usedBy(['quality', 'hapmar', 'party', 'parentsView'])}
       ${sel(`${who}.quality`, 'How would you describe the quality of your relationship?', QUALITY, d.quality)}
       ${sel(`${who}.hapmar`, 'Taken all together, how would you describe your marriage?', HAPMAR, d.hapmar, '<small>Only if married</small>')}
       ${sel(`${who}.party`, 'Party preference', PARTY, d.party)}
       ${sel(`${who}.parentsView`, 'Your parents’ view of your partner', PARENTS_VIEW, d.parentsView)}
     </details>
-    <details class="qgroup"><summary>Background and life before this marriage</summary>${usedBy(['bornUS', 'marriagesBefore', 'kidsBefore', 'priorPartners', 'enrolled', 'religionRaised', 'attendDetail', 'motherEdu', 'motherAgeFirst'])}
+    <details class="qgroup" data-open-before><summary>Background and life before the wedding</summary>${usedBy(['bornUS', 'marriagesBefore', 'kidsBefore', 'priorPartners', 'enrolled', 'religionRaised', 'attendDetail', 'motherEdu', 'motherAgeFirst'])}
       ${sel(`${who}.bornUS`, 'Born in the U.S.', YESNO, d.bornUS)}
       ${sel(`${who}.marriagesBefore`, 'If married before: how many earlier marriages', MARRIAGES_BEFORE, d.marriagesBefore)}
       ${sel(`${who}.kidsBefore`, 'Children born before the wedding (with anyone, including this partner)', COUNT3, d.kidsBefore)}
@@ -59,7 +59,7 @@ function personFields(who) {
       ${sel(`${who}.motherEdu`, 'Mother’s schooling', MOTHER_EDU, d.motherEdu)}
       ${sel(`${who}.motherAgeFirst`, 'Mother’s age at her first birth', MOTHER_AGE, d.motherAgeFirst)}
     </details>
-    <details class="qgroup"><summary>Newlywed study questions (optional)</summary>${usedBy(['satisfaction', 'observed', 'vulnerabilities', 'hostility'])}
+    <details class="qgroup" data-stage="married"><summary>Newlywed study questions (optional)</summary>${usedBy(['satisfaction', 'observed', 'vulnerabilities', 'hostility'])}
       <fieldset class="sub"><legend>${you ? 'Your' : 'Your partner’s'} satisfaction with…</legend>
         ${SAT_ITEMS.map((it, i) => sel(`${who}.sat${i + 1}`, esc(it), SAT_SCALE, d.sat?.[i])).join('')}
         <small>The study used 4- and 5-point answers summed to 8–37; here all 8 use one 5-point scale and the sum is rescaled (an approximation).</small>
@@ -96,6 +96,8 @@ let evidence = null; // verified published hazard ratios (data/literature_eviden
 let nchs = null; // CDC/NCHS disruption life tables (data/nchs_disruption_tables.json)
 let acs = null; // ACS one-year divorce baselines (data/acs_divorce_baselines.json)
 let litAnswers = {}; // answers to the literature questions, mirrored in the # fragment
+let stage = 'before'; // 'before' the wedding (default) or 'married'; mirrored in the # fragment
+const stageLenses = () => lensesForStage(lenses, stage);
 
 const fmtN = (x) => (Number.isFinite(x) ? Math.round(x).toLocaleString('en-US') : '—');
 
@@ -106,10 +108,14 @@ function formFields() {
     out[el.name] = el.type === 'checkbox' ? el.checked : el.value;
   }
   out.lens = $('#lensSel').value;
+  out.stage = stage;
+  // Before the wedding, the projection starts on the wedding day.
+  if (stage === 'before') out.yearsMarried = '0';
   return out;
 }
 
 function applyFields(fields) {
+  if (STAGES.includes(fields.stage)) setStage(fields.stage);
   const form = $('#form');
   for (const [k, v] of Object.entries(fields)) {
     const el = form.elements[k];
@@ -129,6 +135,7 @@ function loadScenario(sc) {
     else el.value = v ?? '';
   }
   litAnswers = { ...(sc.lit || {}) };
+  if (STAGES.includes(sc.fields.stage)) setStage(sc.fields.stage);
   render();
 }
 
@@ -139,6 +146,29 @@ function saveHash() {
   if (h !== location.hash) history.replaceState(null, '', h === '#' ? location.pathname + location.search : h);
 }
 
+// Switch between "Before the wedding" and "Already married": the lens list, the summary, the
+// just-me and candidate views all use only that stage's lenses; the form follows the stage.
+function setStage(next) {
+  if (!STAGES.includes(next) || !lenses.length) return;
+  stage = next;
+  for (const r of document.querySelectorAll('input[name="stagePick"]')) r.checked = r.value === stage;
+  const keep = $('#lensSel').value;
+  const list = stageLenses().slice().sort((x, y) => Number(y.summary.scorable) - Number(x.summary.scorable));
+  $('#lensSel').innerHTML = list.map((l) => `<option value="${esc(l.summary.id)}">${esc(l.summary.label)}${l.summary.scorable ? '' : ' (listed only)'}</option>`).join('');
+  $('#lensSel').value = list.some((l) => l.summary.id === keep) ? keep : defaultLens(lenses, stage).summary.id;
+  const before = stage === 'before';
+  $('#yearsMarriedField').hidden = before;
+  $('fieldset.couple legend').textContent = before ? 'Your planned wedding' : 'Your marriage';
+  for (const el of document.querySelectorAll('.age-label')) el.textContent = before ? 'Age at the wedding' : 'Age today';
+  // Questions only married-couple lenses read are hidden before the wedding; the pre-wedding
+  // background questions open, since most pre-wedding lenses need them.
+  for (const el of document.querySelectorAll('[data-stage="married"]')) el.hidden = before;
+  if (before) for (const el of document.querySelectorAll('[data-open-before]')) el.open = true;
+  $('#stageNote').textContent = before
+    ? 'Scored only by lenses that start the clock on the wedding day and use facts known by then. Facts that change after the wedding (relationship quality, wages, children together) are not inputs here.'
+    : 'For couples who are already married: lenses that score a marriage in progress, including relationship quality and marriage happiness.';
+}
+
 function skillText(s) {
   const sk = s.skill;
   if (!sk) return `${s.models} models; see the bundle for held-out metrics`;
@@ -147,7 +177,7 @@ function skillText(s) {
 }
 
 function renderLens() {
-  const cur = lenses.find((l) => l.summary.id === $('#lensSel').value) || lenses[0];
+  const cur = stageLenses().find((l) => l.summary.id === $('#lensSel').value) || defaultLens(lenses, stage);
   const s = cur.summary;
   const t = s.training;
   const people = t.respondents || t.couples || t.people || t.train_people || t.couple_years;
@@ -158,8 +188,8 @@ function renderLens() {
       <dt>Held-out skill</dt><dd>${skillText(s)}</dd>
       ${s.scorable ? `<dt>Horizons</dt><dd>${isRateLens(cur.bundle) ? 'year by year (tiles at 5, 10, 20 … years)' : lensHorizons(cur.bundle).map(yrs).join(', ') + ' only: the lens’s own follow-up, never extrapolated'}</dd><dt>Uses from the form</dt><dd>${esc(adapterFor(cur.bundle).uses)}</dd>` : ''}
     </dl>${s.scorable ? '' : '<p class="note">This lens’s inputs do not map onto the form, or its outcome is not divorce, so it shows what it covers but gives no number.</p>'}`;
-  $('#lensTable').innerHTML = '<thead><tr><th>Lens</th><th>Target</th><th class="num">Models</th><th class="num">Best held-out gain</th><th>In the calculator</th></tr></thead><tbody>'
-    + lenses.map(({ summary: z }) => `<tr><td>${esc(z.label)}</td><td>${esc(z.target)}</td><td class="num">${z.models}</td><td class="num">${z.best ? z.best.improvement.toFixed(1) + '%' : '—'}</td><td>${z.scorable ? 'scored' : 'listed only'}</td></tr>`).join('') + '</tbody>';
+  $('#lensTable').innerHTML = '<thead><tr><th>Lens</th><th>Target</th><th class="num">Models</th><th class="num">Best held-out gain</th><th>View</th><th>In the calculator</th></tr></thead><tbody>'
+    + lenses.map(({ summary: z, bundle: lb }) => `<tr><td>${esc(z.label)}</td><td>${esc(z.target)}</td><td class="num">${z.models}</td><td class="num">${z.best ? z.best.improvement.toFixed(1) + '%' : '—'}</td><td>${lensStage(lb) === 'before' ? 'Before the wedding' : 'Already married'}</td><td>${z.scorable ? 'scored' : 'listed only'}</td></tr>`).join('') + '</tbody>';
   return cur;
 }
 
@@ -188,8 +218,8 @@ function render() {
   const v = currentView();
   const f = readForm();
   if (v !== 'couple') {
-    if (v === 'justme') renderJustMe({ lenses, a: f.a, couple: f.couple });
-    else if (v === 'candidates') renderCandidates({ lenses, a: f.a, couple: f.couple, mortality });
+    if (v === 'justme') renderJustMe({ lenses: stageLenses(), a: f.a, couple: f.couple });
+    else if (v === 'candidates') renderCandidates({ lenses: stageLenses(), a: f.a, couple: f.couple, mortality });
     else if (v === 'scenarios') renderScenarios();
     else if (v === 'dashboard') {
       if (!cur.summary.scorable) $('#dashOut').innerHTML = '<p class="note">This lens gives no numbers; pick a scorable lens at the top.</p>';
@@ -246,7 +276,7 @@ function renderLiterature(cur, a, b, couple, years) {
 // Summary across lenses: each scorable lens's own estimate at the horizons it supports, its
 // held-out skill and how well this couple fits its data, then a synthesis that pools nothing.
 function renderSummary(cur, a, b, couple) {
-  const s = summariseAll(lenses, a, b, couple);
+  const s = summariseAll(stageLenses(), a, b, couple);
   const rows = s.rows.map((r) => {
     const name = `${esc(r.label)}${r.id === cur.summary.id ? ' <small>(selected)</small>' : ` <button type="button" class="link" data-lens="${esc(r.id)}">view</button>`}`;
     if (r.status !== 'ok') return `<tr class="out"><td>${name}</td><td colspan="4">${r.status === 'abstain' ? 'no number: ' : ''}${esc(r.reason)}</td></tr>`;
@@ -263,10 +293,13 @@ function renderSummary(cur, a, b, couple) {
 
 // Links to the other lenses that can score this couple, inside their own data range.
 function otherLenses(cur, a, b, couple) {
-  const ok = lenses.filter((l) => l !== cur && l.summary.scorable && !refusals(l.bundle, a, b, couple).length
+  const ok = stageLenses().filter((l) => l !== cur && l.summary.scorable && !refusals(l.bundle, a, b, couple).length
     && project(l.bundle, a, b, couple, primaryHorizon(l.bundle)).every((y) => y.inSupport));
   return ok.map((l) => `<button type="button" class="link" data-lens="${esc(l.summary.id)}">${esc(shortName(l.summary.label, l.summary.id))}</button>`).join(', ');
 }
+
+// A lens with one scoring model has no spread across models; say so rather than print "x–x".
+const rangeText = (lo, hi) => (scoringModels(bundle).length > 1 ? `models: ${pct(lo)}–${pct(hi)}` : 'one model, so no model range');
 
 function renderTiles(years, couple) {
   const rate = isRateLens(bundle);
@@ -277,7 +310,7 @@ function renderTiles(years, couple) {
     const all = years.filter((z) => z.elapsed <= n + 0.01).every((z) => z.inSupport);
     const label = rate ? (n === last ? `Through year ${y.year} (if both partners live)` : `Through year ${y.year}`) : `No break-up within ${yrs(n)} from ${adapterFor(bundle).referenceAt === 'now' ? 'today' : 'the wedding'}`;
     return `<div class="tile${all ? '' : ' out'}"><div class="k">${label}</div><div class="v">${pct(y.meanSurvival)}</div>
-      <div class="r">models: ${pct(y.minSurvival)}–${pct(y.maxSurvival)}</div>${all ? '' : '<div class="flag">includes years outside the data</div>'}</div>`;
+      <div class="r">${rangeText(y.minSurvival, y.maxSurvival)}</div>${all ? '' : '<div class="flag">includes years outside the data</div>'}</div>`;
   }).join('');
   const outside = years.filter((y) => !y.inSupport);
   const avg = constantSurvival(bundle, 10);
@@ -316,7 +349,7 @@ function renderLifelong(a, b, couple, horizon) {
     $('#lifelong').innerHTML = `<p class="note">This lens covers only ${lensHorizons(bundle).map(yrs).join(', ')}, so it gives no lifelong figure; projecting it further would be extrapolation.</p>`;
     return;
   }
-  const tile = (k, s, note) => `<div class="tile"><div class="k">${k}</div><div class="v">${pct(s.mean)}</div><div class="r">models: ${pct(s.min)}–${pct(s.max)}</div>${note ? `<div class="flag">${note}</div>` : ''}</div>`;
+  const tile = (k, s, note) => `<div class="tile"><div class="k">${k}</div><div class="v">${pct(s.mean)}</div><div class="r">${rangeText(s.min, s.max)}</div>${note ? `<div class="flag">${note}</div>` : ''}</div>`;
   $('#lifelong').innerHTML = `<div class="tiles three">${tile('Lifelong: ends only when a partner dies', L.widowhood)}${tile('Ends in divorce', L.divorce)}${tile(`Still married, both alive, after year ${L.lastYear}`, L.stillMarried)}</div>`
     + `<p class="small">Each year, the lens’s divorce rate competes with the death of either partner (UN World Population Prospects 2024 U.S. death rates by age, sex and calendar year, CC BY 3.0 IGO). The three shares add to 100%. These are population death rates: married people live longer than average and spouses’ deaths are linked, neither of which is modelled.${L.extrapolated ? ` ${L.extrapolated} of the ${L.horizon} years use divorce rates outside the lens’s data.` : ''}</p>`;
 }
@@ -492,21 +525,33 @@ async function main() {
   $('fieldset[data-who="b"]').insertAdjacentHTML('beforeend', personFields('b'));
   $('#coupleExtra').innerHTML = coupleFields();
   shareOod(lenses.map((l) => l.bundle));
-  const scorableFirst = lenses.slice().sort((x, y) => Number(y.summary.scorable) - Number(x.summary.scorable));
-  $('#lensSel').innerHTML = scorableFirst.map((l) => `<option value="${esc(l.summary.id)}">${esc(l.summary.label)}${l.summary.scorable ? '' : ' (listed only)'}</option>`).join('');
+  setStage('before');
+  for (const r of document.querySelectorAll('input[name="stagePick"]')) r.addEventListener('change', () => { setStage(r.value); render(); });
   initScenarios({ lenses: () => lenses, capture: () => ({ fields: formFields(), lit: { ...litAnswers } }), load: loadScenario, rerender: () => render() });
   importScenariosFromHash(location.hash);
   const fromHash = decodeScenario(location.hash);
   readHashExtras(location.hash);
   litAnswers = decodeLiterature(location.hash);
+  // Links made before the stage switch existed: a married-couple lens or years married > 0 open
+  // the "Already married" view instead of being reset to a wedding-day projection.
+  if (!fromHash.stage) {
+    const hl = lenses.find((l) => l.summary.id === fromHash.lens);
+    if ((hl && lensStage(hl.bundle) === 'married') || Number(fromHash.yearsMarried) > 0) fromHash.stage = 'married';
+  }
   applyFields(fromHash);
-  if (fromHash.lens && lenses.some((l) => l.summary.id === fromHash.lens)) $('#lensSel').value = fromHash.lens;
+  if (fromHash.lens && stageLenses().some((l) => l.summary.id === fromHash.lens)) $('#lensSel').value = fromHash.lens;
   $('#form').addEventListener('input', render);
   $('#form').addEventListener('change', render);
   $('#lensSel').addEventListener('change', render);
   document.querySelector('main').addEventListener('click', (ev) => {
     const id = ev.target.closest('[data-lens]')?.dataset.lens;
-    if (id) { $('#lensSel').value = id; render(); $('#lensSel').focus(); }
+    if (id) {
+      const l = lenses.find((z) => z.summary.id === id);
+      if (l && lensStage(l.bundle) !== stage) setStage(lensStage(l.bundle));
+      $('#lensSel').value = id;
+      render();
+      $('#lensSel').focus();
+    }
   });
   $('#explainModel').addEventListener('change', renderExplain);
   $('#literature').addEventListener('change', (ev) => {
@@ -544,7 +589,7 @@ async function main() {
     syncConstraintControls();
     const h = decodeScenario(location.hash);
     applyFields(h);
-    if (h.lens && lenses.some((l) => l.summary.id === h.lens)) $('#lensSel').value = h.lens;
+    if (h.lens && stageLenses().some((l) => l.summary.id === h.lens)) $('#lensSel').value = h.lens;
     render();
   });
   render();
@@ -554,7 +599,7 @@ async function main() {
 // usable on a phone; each group says which lenses read it.
 function coupleFields() {
   return `
-    <details class="qgroup"><summary>The relationship now</summary>${usedBy(['status', 'yearsTogether', 'howMet', 'childrenHome'])}
+    <details class="qgroup" data-stage="married"><summary>The relationship now</summary>${usedBy(['status', 'yearsTogether', 'howMet', 'childrenHome'])}
       ${sel('status', 'Relationship now', STATUS, 'Married, living together')}
       <label>Years together (since the relationship began) <input name="yearsTogether" type="number" min="0" max="80" step="0.5" value="3"></label>
       ${sel('howMet', 'How you met', HOW_MET, 'Through friends')}

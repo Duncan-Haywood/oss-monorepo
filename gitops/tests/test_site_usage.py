@@ -405,8 +405,10 @@ def test_every_published_tool_is_reachable_by_slug_for() -> None:
             # what shipped, what is in progress and the direction, each a row.
             # `ask` is the site assistant's page (assistant.mjs), a top-level
             # page about the site like `about`.
+            # `lab` is the experiments section (lab.mjs); every experiment
+            # counts toward the one `lab` row.
             | {"_hub", "c", "c/apps", "c/cli", "about", "ask", "compare", "guides", "research", "engineering", "writing",
-               "updates", "changelog", "404", "offline"}
+               "updates", "changelog", "lab", "404", "offline"}
         )
         for page in sorted(out.rglob("*.html")):
             uri = "/" + page.relative_to(out).as_posix()
