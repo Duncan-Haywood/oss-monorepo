@@ -12,7 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { REF_KEY } from './counter.mjs';
+import { REF_KEY, SOURCE_KEY } from './counter.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const OUT = path.resolve(HERE, '..', '..', 'portfolio', 'usage', 'site-visits.json');
@@ -32,6 +32,7 @@ export function mergeDays(existing = {}, incoming = {}) {
 export function summarise(days) {
   const totals = {};
   const channels = {};
+  const sources = {};
   let all = 0;
   for (const slugs of Object.values(days)) {
     for (const [slug, n] of Object.entries(slugs)) {
@@ -41,12 +42,17 @@ export function summarise(days) {
         channels[slug.slice(REF_KEY.length)] = (channels[slug.slice(REF_KEY.length)] || 0) + n;
         continue;
       }
+      // `src:<class>` keys are the same page loads, by kind of referring site.
+      if (slug.startsWith(SOURCE_KEY)) {
+        sources[slug.slice(SOURCE_KEY.length)] = (sources[slug.slice(SOURCE_KEY.length)] || 0) + n;
+        continue;
+      }
       totals[slug] = (totals[slug] || 0) + n;
       all += n;
     }
   }
   const top = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 20);
-  return { days: Object.keys(days).length, page_loads: all, top, channels };
+  return { days: Object.keys(days).length, page_loads: all, top, channels, sources };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -68,10 +74,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const merged = mergeDays(existing, days);
   const doc = {
     unit: 'page loads per UTC day by browsers that did not send DNT/GPC or opt out; not people',
-    source: 'platform/counter (first-party, cookieless, no IPs stored)',
+    source: 'platform/counter (first-party, cookieless, no IPs or referring hosts stored)',
     days: merged,
   };
   fs.writeFileSync(OUT, `${JSON.stringify(doc, null, 1)}\n`);
   const s = summarise(merged);
-  console.log(`${s.page_loads} page loads over ${s.days} day(s). Top: ${s.top.slice(0, 5).map(([k, n]) => `${k}=${n}`).join(', ') || 'none'}. By channel link: ${Object.entries(s.channels).map(([k, n]) => `${k}=${n}`).join(', ') || 'none'}`);
+  console.log(`${s.page_loads} page loads over ${s.days} day(s). Top: ${s.top.slice(0, 5).map(([k, n]) => `${k}=${n}`).join(', ') || 'none'}. By channel link: ${Object.entries(s.channels).map(([k, n]) => `${k}=${n}`).join(', ') || 'none'}. By referring site: ${Object.entries(s.sources).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k}=${n}`).join(', ') || 'none'}`);
 }

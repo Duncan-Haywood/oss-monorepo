@@ -38,6 +38,9 @@ class AppTests(unittest.TestCase):
     def test_ood_score_matches_python(self):
         self.run_node('ood.test.mjs')
 
+    def test_prewedding_lens_matches_sklearn(self):
+        self.run_node('prewedding.test.mjs')
+
     def test_sipp_bundles(self):
         self.run_node('sipp.test.mjs')
 
