@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-10-20 · App: not engaged yet? Marry each other, or break up first
+
+- The before-the-wedding view now answers the earlier question too. For a couple who are dating or living together, workstream A's two HCMST 2009–2017 models (#8662) give the chance of marrying each other within 8.4 years and of breaking up first, chained period by period as the bundles' `how_to_combine` specifies (`app/dating.js`). The chain then hands over to the selected pre-wedding lens for the marriage itself.
+- A couple living together for 3 years (27 and 29, bachelor's degrees, parents approve, rating the relationship excellent and good): 50.9% marry each other within 8.4 years, 41.6% break up first, 7.5% still together and unmarried. Two partners who rate it fair and live apart: 5.7% marry and 94% break up first. Across all 939 couples, 21.9% married and 54.0% broke up first. Held-out AUC is 0.73 (marrying) and 0.71 (breaking up). The two models were fitted separately, so the split is approximate, and the page says so.
+- The hand-over multiplies two estimates from different surveys (marrying within 8.4 years, times no break-up in the first 10 years of marriage) and is labelled as an approximation.
+
 ## 2026-10-20 · App: the harmonized before-the-wedding model is the default lens
 
 - Workstream B's harmonized model (#8684) now scores couples in the app, and it is what "Before the wedding" opens on. It uses only facts knowable on the wedding day (NSFG 1995–2023, 43,336 first marriages; held-out C 0.661). Each partner is scored as the surveyed spouse, and the two rates are averaged. Unanswered inputs take the survey's most common answer, and the page names them.

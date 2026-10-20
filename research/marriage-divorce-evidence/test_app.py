@@ -86,6 +86,9 @@ class AppTests(unittest.TestCase):
     def test_before_the_wedding_lens_in_the_app(self):
         self.run_node('prewedding_app.test.mjs')
 
+    def test_dating_couple_chain(self):
+        self.run_node('dating.test.mjs')
+
     def test_population_comparison(self):
         self.run_node('population.test.mjs')
 
