@@ -298,6 +298,9 @@ function otherLenses(cur, a, b, couple) {
   return ok.map((l) => `<button type="button" class="link" data-lens="${esc(l.summary.id)}">${esc(shortName(l.summary.label, l.summary.id))}</button>`).join(', ');
 }
 
+// A lens with one scoring model has no spread across models; say so rather than print "x–x".
+const rangeText = (lo, hi) => (scoringModels(bundle).length > 1 ? `models: ${pct(lo)}–${pct(hi)}` : 'one model, so no model range');
+
 function renderTiles(years, couple) {
   const rate = isRateLens(bundle);
   const marks = rate ? [5, 10, 20, 30, years.length].filter((n, i, arr) => n <= years.length && arr.indexOf(n) === i) : lensHorizons(bundle);
@@ -307,7 +310,7 @@ function renderTiles(years, couple) {
     const all = years.filter((z) => z.elapsed <= n + 0.01).every((z) => z.inSupport);
     const label = rate ? (n === last ? `Through year ${y.year} (if both partners live)` : `Through year ${y.year}`) : `No break-up within ${yrs(n)} from ${adapterFor(bundle).referenceAt === 'now' ? 'today' : 'the wedding'}`;
     return `<div class="tile${all ? '' : ' out'}"><div class="k">${label}</div><div class="v">${pct(y.meanSurvival)}</div>
-      <div class="r">models: ${pct(y.minSurvival)}–${pct(y.maxSurvival)}</div>${all ? '' : '<div class="flag">includes years outside the data</div>'}</div>`;
+      <div class="r">${rangeText(y.minSurvival, y.maxSurvival)}</div>${all ? '' : '<div class="flag">includes years outside the data</div>'}</div>`;
   }).join('');
   const outside = years.filter((y) => !y.inSupport);
   const avg = constantSurvival(bundle, 10);
@@ -346,7 +349,7 @@ function renderLifelong(a, b, couple, horizon) {
     $('#lifelong').innerHTML = `<p class="note">This lens covers only ${lensHorizons(bundle).map(yrs).join(', ')}, so it gives no lifelong figure; projecting it further would be extrapolation.</p>`;
     return;
   }
-  const tile = (k, s, note) => `<div class="tile"><div class="k">${k}</div><div class="v">${pct(s.mean)}</div><div class="r">models: ${pct(s.min)}–${pct(s.max)}</div>${note ? `<div class="flag">${note}</div>` : ''}</div>`;
+  const tile = (k, s, note) => `<div class="tile"><div class="k">${k}</div><div class="v">${pct(s.mean)}</div><div class="r">${rangeText(s.min, s.max)}</div>${note ? `<div class="flag">${note}</div>` : ''}</div>`;
   $('#lifelong').innerHTML = `<div class="tiles three">${tile('Lifelong: ends only when a partner dies', L.widowhood)}${tile('Ends in divorce', L.divorce)}${tile(`Still married, both alive, after year ${L.lastYear}`, L.stillMarried)}</div>`
     + `<p class="small">Each year, the lens’s divorce rate competes with the death of either partner (UN World Population Prospects 2024 U.S. death rates by age, sex and calendar year, CC BY 3.0 IGO). The three shares add to 100%. These are population death rates: married people live longer than average and spouses’ deaths are linked, neither of which is modelled.${L.extrapolated ? ` ${L.extrapolated} of the ${L.horizon} years use divorce rates outside the lens’s data.` : ''}</p>`;
 }

@@ -43,10 +43,12 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
-      Replace the deterministic analysis stand-ins in
-      src/shootflow/local_pipeline.py with real frame selection: sharpness,
-      exposure and face scores plus perceptual-hash near-duplicate grouping,
-      written to the analysis/NNNNN.json contract analysis.py already validates.
+      Sharpness, exposure, motion and dHash near-duplicate grouping now run
+      on real frames (src/shootflow/frame_analysis.py). Next: face and
+      closed-eye scores and subject framing for the story score (a small
+      on-device model, opt-in, behind the same analysis/NNNNN.json contract),
+      and RAW stills via a RAW developer so they stop falling back to the
+      sha256 stand-in.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a

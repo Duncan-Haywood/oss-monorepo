@@ -44,6 +44,7 @@ count"):
 |---|---|
 | Proposals and quotes | `proposal-maker`, `rfp-compliance-matrix`, `security-questionnaire-matcher` |
 | Lifecycle email and win-back | `drip-keeper`, `cancel-flow`, `dunning-engine`, `trial-converter` |
+| Prospecting cadence (email, call, LinkedIn, letter) | `sales-cadence-builder`, `icp-lens` |
 | Lead capture and referrals | `waitlist-keeper`, `referral-keeper`, `form-inbox`, `link-keeper`, `freelance-lead-tracker` |
 | Social proof and feedback | `testimonial-keeper`, `feedback-board`, `support-desk` |
 | Attribution and measurement | `visit-keeper`, `mrr-pulse`, `ab-test-significance-calculator`, `lead-response-time-analyzer` |

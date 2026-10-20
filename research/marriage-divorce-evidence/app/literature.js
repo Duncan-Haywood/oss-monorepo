@@ -118,6 +118,8 @@ export const LENS_MODELS = {
   nsfg_pooled_first_marriage: ['nonreligious_spouse', 'religiosity_match', 'parental_divorce_wife'],
   nsfg_pooled_both_sexes: ['nonreligious_spouse', 'religiosity_match', 'parental_divorce_wife', 'parental_divorce_husband'],
   canada_gss_first_marriage: ['prior_cohabitations_other_partners', 'parental_divorce_wife', 'parental_divorce_husband'],
+  // Each partner's religion raised and family of origin (both perspectives are scored).
+  prewedding_harmonized: ['nonreligious_spouse', 'religiosity_match', 'parental_divorce_wife', 'parental_divorce_husband'],
 };
 
 // For a bundle not in LENS_MODELS: infer from its input column names (conservatively).
