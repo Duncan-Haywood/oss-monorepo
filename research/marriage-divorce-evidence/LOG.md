@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-10-20 · Flexible models and a pooled nine-survey model: neither beats the single-lens additive models where data are large
+
+- Flexible models were tuned with nested, grouped cross-validation on five lenses: LightGBM, boosting, forests, an EBM, an elastic net with pairs, and a stack. None beat the lens's best GLM with a 95% interval above zero. GSS: random forest +0.42 points (−1.55 to 2.25). HCMST: stack +0.65 (−0.11 to 1.43). Tree models fit training folds far better than held-out ones; on GSS, LightGBM scored 44.5% on training folds against 7.4% held out. Shuffled outcomes scored at or below zero for every model. Six large lenses were not run (see NEXT.md).
+- The pooled Bayesian hazard model covers nine surveys, 321,121 units and 44 inputs, with survey-specific baselines and chained-equation imputation. Held out by person, it beats the single-survey models in HCMST (+4.81 points, 1.88–7.79) and the LA newlyweds (+1.78, 0.60–3.16) and loses in NSFG (−0.85), NLSY79 (−0.50) and Canada (−0.40). Leaving one survey out shows that the effects carry across surveys and the baselines do not. 90% intervals covered 85% of held-out groups. It has not been exported to the app.
+- [NEXT.md](NEXT.md) lists the action items for later runs: the form inputs, the guided decision flow, the large-lens model runs, the pooled-model export, and the owner asks.
+
 ## 2026-10-20 · Train the models yourself: the NSFG 1995–2023 lens retrained in the browser, matching scikit-learn
 
 - The app has a new "Train the models yourself" panel. A background worker downloads a 374 KB public extract of the NSFG 1995–2023 women's first marriages: 29,202 marriages, 10,529 dissolutions and 249,868 marriage-years. It contains only inputs fixed at or before the wedding. The worker then refits the lens in plain JavaScript with the Python pipeline's person-held-out five folds.
