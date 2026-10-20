@@ -778,3 +778,26 @@ test("the cornhole guide's 8-team schedule with a skipped week matches buildSche
   assert.match(page("sitemap.xml"), new RegExp(name));
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });
+
+test("the multi-division page loads divisions.mjs, carries the notices, and is linked and in the sitemap", async () => {
+  const html = page("multi-division-league-schedule.html");
+  assert.match(html, /from "\.\/divisions\.mjs"/);
+  assert.match(html, /No warranty/);
+  assert.match(html, /Not affiliated with any league/);
+  assert.match(html, /Best-effort hosting, no SLA/);
+  assert.match(html, /never uploaded/);
+  assert.match(html, /rel="canonical" href="\.\/multi-division-league-schedule\.html"/);
+  for (const e of html.match(/record\("[a-z_]+"\)/g)) assert.ok(html.includes(`<code>${e.slice(8, -2)}</code>`), `${e} is disclosed in the footer`);
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
+  const faq = blocks.find((b) => b["@type"] === "FAQPage");
+  for (const q of faq.mainEntity) { assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name); assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name); }
+  assert.match(page("sitemap.xml"), /multi-division-league-schedule\.html/);
+  assert.match(page("index.html"), /href="\.\/multi-division-league-schedule\.html"/);
+  // the example embedded in the page is the one the CLI test uses, and it builds a valid schedule
+  const ex = JSON.parse(html.match(/const EXAMPLE = (\{.*?\});\n/s)[1]);
+  assert.deepEqual(ex, JSON.parse(page("example-divisions.json")));
+  const { readDivisionsSpec, buildDivisions, validateDivisions } = await import("./divisions.mjs");
+  const { spec, errors } = readDivisionsSpec({ ...ex, seed: 1 });
+  assert.deepEqual(errors, []);
+  assert.equal(validateDivisions(buildDivisions(spec)).ok, true);
+});

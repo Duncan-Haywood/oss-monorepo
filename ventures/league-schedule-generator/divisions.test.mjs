@@ -98,3 +98,8 @@ test("a double round robin hosts each pair once each way", () => {
   assert.equal(s.stats.matches, 12);
   assert.equal(dayIso(parseDate("2026-10-06")), "2026-10-06");
 });
+
+test("divisions.mjs imports in a browser, where there is no `process`", () => {
+  const src = readFileSync(new URL("./divisions.mjs", import.meta.url), "utf8");
+  assert.match(src, /typeof process !== "undefined" && import\.meta\.url/);
+});

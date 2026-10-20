@@ -153,6 +153,7 @@ rounds left go first, so they finish together) and which match gets which court 
   (and off consecutive slots at different venues); each team plays at the venue it used last time where it can
   (`Court 1 @ Park` puts a court at a venue). Court closures and skip dates are respected. A clash that cannot be avoided is
   listed under `conflicts`, never hidden.
+- **In the browser.** `multi-division-league-schedule.html` runs the same engine with the example preloaded (CSV and text export, nothing uploaded).
 - **Run it.** `node divisions.mjs example-divisions.json` prints the nights; add `--csv` for the sheet. `example-divisions.json`
   holds the form fields (divisions, courts, times, weekdays, skip dates, closures, links).
 - **Checked.** `validateDivisions` re-checks every pair meets once (twice for a double), home/away stays balanced, no court is

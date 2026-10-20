@@ -322,7 +322,7 @@ export function readDivisionsSpec(f) {
 }
 
 // node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV). spec.json holds the form fields.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (typeof process !== "undefined" && import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
   if (!file) { console.error("usage: node divisions.mjs spec.json [--csv]"); process.exit(2); }
