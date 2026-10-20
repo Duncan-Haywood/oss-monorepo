@@ -3639,6 +3639,11 @@
      "slug": "house-dewpoint",
      "title": "Where in a wall does water vapor condense, and does a vapor retarder or exterior foam fix it, by climate?",
      "summary": "A steady-state Glaser check of a 2x6 batt wall (gypsum, optional retarder, OSB, optional 1 or 2&nbsp;in XPS, housewrap, siding) in four assumed climates. In winter nothing condenses in Miami or Atlanta. In Chicago painted drywall gives about 6&nbsp;g/m<sup>2</sup>/day at the sheathing; 2&nbsp;in of exterior XPS removes it and a kraft facing cuts it to 0.05. In Duluth only polyethylene reaches zero (painted drywall about 11&nbsp;g/m<sup>2</sup>/day). The summer case shows no condensation because the model has no wet-cladding reservoir. Stylised: steady state, unsourced permeances and climate values, no moisture storage, not WUFI."
+    },
+    {
+     "slug": "house-market",
+     "title": "What does a new home cost to build in the US and Colorado in 2026, and where does the money go?",
+     "summary": "A sourced, dated market report. The median new US home sold for $393,700 in August 2026 (&minus;5.8% y/y) while inputs to residential construction rose 10.3%, mortgage rates reached 7.4% and builder sentiment hit its lowest since 2012. On NAHB&rsquo;s 2024 breakdown, construction is 64.4% of price and foundations, framing and exterior 26%, so a 20% cheaper structural system moves the price only 5.2%; HUD-code manufactured homes cost about 52% of site-built per sq ft by building the whole house in a factory. In Denver, itemised fees and a 209-day plan review are about 12% of a modelled $462,000 home before land, against 3.5% nationally. Technique cost studies are old and often industry-funded; several figures are search excerpts, marked in the data."
     }
    ]
   },
