@@ -50,6 +50,17 @@ class AppTests(unittest.TestCase):
     def test_dashboard(self):
         self.run_node('dashboard.test.mjs')
 
+    def test_literature_adjustment(self):
+        self.run_node('literature.test.mjs')
+
+    def test_literature_ui_and_nchs_baselines(self):
+        self.run_node('literature_ui.test.mjs')
+
+    def test_literature_derivations_recompute(self):
+        script = APP.parent / 'reproducibility' / 'literature_evidence' / 'scripts' / 'verify_quotes.py'
+        r = subprocess.run(['python3', str(script)], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout[-2000:] + r.stderr[-2000:])
+
 
 class Nsfg2002BundleTests(unittest.TestCase):
     def test_bundle_agrees_with_audit_and_beats_baseline(self):

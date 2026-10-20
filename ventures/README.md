@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1296 when this list was last generated), grouped the way the live site
+Every tool in this folder (1297 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -23,7 +23,7 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [CI checks & developer gates](#ci-checks--developer-gates) (175)
 - [Creator & solo earner income](#creator--solo-earner-income) (91)
 - [Learning & practice](#learning--practice) (3)
-- [More free tools](#more-free-tools) (3)
+- [More free tools](#more-free-tools) (4)
 - [Other directories](#other-directories) (4)
 
 ## Self-hosted business apps
@@ -1384,6 +1384,7 @@ Learn a language or a technical skill by doing it: hands-free speaking drills, g
 Everything else that runs entirely in your browser. [Browse this section on the site →](https://duncan-haywood.github.io/monorepo-projects/c/more/)
 
 - [Open Tennis Robots — DIY tennis ball machine + ball collecting robot](https://duncan-haywood.github.io/monorepo-projects/open-tennis-robots/) · [code](open-tennis-robots/)
+- [Simulate conversations between fictional personalities](https://duncan-haywood.github.io/monorepo-projects/persona-conversation-simulator/) · [code](persona-conversation-simulator/)
 - [Price drop alerts for any shop, on your own GitHub](https://duncan-haywood.github.io/monorepo-projects/price-drop-watcher/) · [code](price-drop-watcher/)
 - [What time is it there — and are they awake?](https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/) · [code](world-clock-widget/)
 
