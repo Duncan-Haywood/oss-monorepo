@@ -4057,6 +4057,11 @@
     "slug": "hanger-pick",
     "title": "How should a laundry robot pick one garment out of a tangled dryer load?",
     "summary": "A stylised 2D pile of overlapping disc garments, 40% with the opening hidden by the garment itself, emptied by three scripted policies with assumed times. Aiming at a visible neck or waistband takes 13.4 s per garment against 22.7 s for pinching the top and regrasping; pushing garments aside first is slower (17.7 s) because neighbours rarely hide every opening, the garments themselves do. In <code>hanger-cell</code> the policies give 151, 110 and 127 items an hour for one arm, against 169 for its placeholder pick. Stylised: assumed times, disc cloth, not a measurement of a robot."
+   },
+   {
+    "slug": "hanger-pickbreak",
+    "title": "How long may a laundry robot spend finding a garment's opening before blind pinching is faster?",
+    "summary": "On paired piles in the stylised hanger-pick model, aiming at a visible opening beats a blind pinch only if finding the opening costs under 9.2 s per pick (95% interval 8.9 to 9.6, assumed times). The threshold grows with the time of a regrasp (2.9 s to 18.7 s for 2 to 12 s), shrinks as regrasps succeed more often (14.7 s to 3.9 s) and as more openings are hidden (15.3 s to 0), and does not depend on pile size. Sweeping garments aside first beats aiming only when a sweep costs under half a second. Stylised: every time is an assumed placeholder."
    }
   ]
  },
