@@ -1,0 +1,24 @@
+{
+  "label": "Local service business (trades, cleaning, salon, tutoring, repair)",
+  "default_stack": "Static website with a quote calculator and booking request form on GitHub Pages; bookings land as email or a form service's free tier; Google Business Profile listing completed by the owner.",
+  "weights": {
+    "build":  {"product": 0.40, "marketing": 0.25, "sales": 0.10, "finance": 0.10, "legal": 0.10, "support": 0.00, "review": 0.05},
+    "launch": {"product": 0.15, "marketing": 0.40, "sales": 0.20, "finance": 0.10, "legal": 0.05, "support": 0.05, "review": 0.05},
+    "grow":   {"product": 0.10, "marketing": 0.40, "sales": 0.20, "finance": 0.15, "legal": 0.00, "support": 0.10, "review": 0.05}
+  },
+  "questions": [
+    {"id": "service", "ask": "Which services will you offer first, and which will you refuse?", "default": "The two services the idea names, nothing else, until there are customers."},
+    {"id": "area", "ask": "Which towns, postcodes or radius will you cover?", "default": "A 15-mile radius around the city named in the idea."},
+    {"id": "price", "ask": "How do you price today (hourly, per job, per square foot)?", "default": "Per job, from a calculator built on local published rates the agent cites."},
+    {"id": "licence", "ask": "Which licences, insurance or certifications do you hold?", "default": "None assumed; the agent lists what your trade and area require and adds it to the owner checklist."},
+    {"id": "capacity", "ask": "How many jobs a week can you take?", "default": "Five; the booking form closes when the week is full."},
+    {"id": "hours", "ask": "How many hours a week can you give the back office (calls, quotes, approvals)?", "default": "Two hours a week, batched into one owner checklist."}
+  ],
+  "owner_setup": [
+    {"id": "entity", "what": "Decide whether to trade as yourself or register a company.", "why": "Liability and tax; an agent cannot sign registration forms."},
+    {"id": "insurance", "what": "Buy the liability insurance your trade requires.", "why": "Needs a card and your identity; the agent lists quotes to compare."},
+    {"id": "gbp", "what": "Claim and verify a Google Business Profile with the text the agent drafted in marketing/.", "why": "Verification is by postcard or phone to you."},
+    {"id": "bank", "what": "Open a separate business bank account.", "why": "Keeps the books clean; needs your ID."},
+    {"id": "domain", "what": "Buy the domain the agent proposes in BUSINESS.md.", "why": "Needs a card."}
+  ]
+}
