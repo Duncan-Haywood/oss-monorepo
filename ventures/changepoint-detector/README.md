@@ -148,6 +148,18 @@ series, 40 each, in `engine.test.mjs`):
   gave a false change on 15 of 20 runs without `--period 7` and 0 of 20 with it; a rate going 10 to 15 at
   point 105 gave exactly one change within 8 points of it on 20 of 20 runs with `--period 7`. Fitted factors are
   within 0.12 of the true ones on a 280-point series whose rate doubles midway. `--drift` is not available for counts.
+- **Count trends (`--model poisson --trend`, added 2026-10-20).** A subtracted line would break counts, so the
+  trend is multiplicative: the rate at point t is (segment rate) x seasonal factor x exp(g u), u running from
+  -0.5 to 0.5 over the series, so g is the total log change. exp(g u) is another exposure in the Poisson
+  likelihood and composes with `--period`. g starts from the median of lag-n/4 differences of log counts, then
+  alternates with PELT: segment under the current exposures, one Newton step on g with each segment's rate
+  profiled out, until g moves less than 1e-5. One common growth rate only (`bend`/`bends` are refused for counts).
+  Measured on 200 counts, rate 10 growing by e^1.2 (seeds 500..539): no step, 3.80 changes per series without
+  `--trend`, 0.07 with it; a x1.6 step at 100 on top of the ramp, 4.55 -> 1.40 changes per series, the step found
+  within 8 points 40/40 either way and as the only change 0/40 -> 30/40; flat series 0.03 -> 0.05 (no cost).
+  With `--period 7` (210 points, factors 0.4 to 1.6, growth e^1.0, x1.5 step at 105, seeds 900..919): 4.10 -> 1.20
+  changes per series, step as the only change 0/20 -> 18/20, mean fitted g 1.04. Tests: growth recovered within 0.35, flat
+  series near 0, bends refused.
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144
