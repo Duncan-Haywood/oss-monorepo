@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the two achieved error rates against the rollout cap: the unacceptable-rate error stays above 0.05 at every cap tried and falls to 0.050 by a cap of 360, while the acceptable-rate error is above 0.05 only for caps up to about 200 and then sits between 0.03 and 0.05">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Error rates of a truncated SPRT, p1 = 1% against p0 = 5% (fixed test needs 181 rollouts)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="247.6" y2="247.6" stroke="#ddd"/><text x="58" y="251.6" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="171.2" y2="171.2" stroke="#ddd"/><text x="58" y="175.2" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="94.8" y2="94.8" stroke="#ddd"/><text x="58" y="98.8" text-anchor="end" font-family="sans-serif" font-size="11">0.3</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">40</text>
+<text x="169.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="274.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">160</text>
+<text x="379.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">220</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">280</text>
+<text x="589.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">340</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">rollout cap</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">error rate</text>
+<polyline points="64.0,225.8 99.0,177.6 134.0,257.2 169.0,230.9 204.0,271.4 239.0,257.3 274.0,278.4 309.0,270.9 344.0,282.0 379.0,278.0 414.0,283.8 449.0,281.8 484.0,284.8 519.0,283.7 554.0,285.3 589.0,284.7 624.0,285.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="225.8" r="3" fill="#c0392b"/>
+<circle cx="99.0" cy="177.6" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="257.2" r="3" fill="#c0392b"/>
+<circle cx="169.0" cy="230.9" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="271.4" r="3" fill="#c0392b"/>
+<circle cx="239.0" cy="257.3" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="278.4" r="3" fill="#c0392b"/>
+<circle cx="309.0" cy="270.9" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="282.0" r="3" fill="#c0392b"/>
+<circle cx="379.0" cy="278.0" r="3" fill="#c0392b"/>
+<circle cx="414.0" cy="283.8" r="3" fill="#c0392b"/>
+<circle cx="449.0" cy="281.8" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="284.8" r="3" fill="#c0392b"/>
+<circle cx="519.0" cy="283.7" r="3" fill="#c0392b"/>
+<circle cx="554.0" cy="285.3" r="3" fill="#c0392b"/>
+<circle cx="589.0" cy="284.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="285.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">unacceptable-rate error (nominal 0.05)</text>
+<polyline points="64.0,71.2 99.0,231.4 134.0,179.3 169.0,263.6 204.0,237.0 239.0,281.6 274.0,267.8 309.0,291.2 344.0,284.1 379.0,296.3 414.0,292.5 449.0,299.0 484.0,297.0 519.0,300.4 554.0,299.4 589.0,301.2 624.0,300.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="99.0" cy="231.4" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="179.3" r="3" fill="#1f6fb2"/>
+<circle cx="169.0" cy="263.6" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="237.0" r="3" fill="#1f6fb2"/>
+<circle cx="239.0" cy="281.6" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="267.8" r="3" fill="#1f6fb2"/>
+<circle cx="309.0" cy="291.2" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="284.1" r="3" fill="#1f6fb2"/>
+<circle cx="379.0" cy="296.3" r="3" fill="#1f6fb2"/>
+<circle cx="414.0" cy="292.5" r="3" fill="#1f6fb2"/>
+<circle cx="449.0" cy="299.0" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="297.0" r="3" fill="#1f6fb2"/>
+<circle cx="519.0" cy="300.4" r="3" fill="#1f6fb2"/>
+<circle cx="554.0" cy="299.4" r="3" fill="#1f6fb2"/>
+<circle cx="589.0" cy="301.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="300.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">acceptable-rate error (nominal 0.05)</text>
+</svg>
