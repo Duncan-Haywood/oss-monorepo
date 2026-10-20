@@ -76,6 +76,17 @@ export function classify(raw) {
   let s = String(raw ?? "").trim();
   if (s === "") return { kind: "empty" };
   let notes = [];
+  // Invisible and look-alike characters that arrive from web pages, PDFs and ERP exports.
+  const tidy = s
+    .replace(/[\u200b-\u200d\u2060\ufeff\u00ad]/g, "")
+    .replace(/[\uff10-\uff19]/g, (c) => String(c.charCodeAt(0) - 0xff10))
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[\u00a0\u2007\u202f]/g, " ")
+    .trim();
+  if (tidy !== s) { notes.push("invisible, full-width or look-alike characters were replaced"); s = tidy; }
+  const label = /^(?:gtin(?:-?\d+)?|upc(?:-?[aeAE])?|ean(?:-?\d+)?|isbn(?:-?\d+)?|barcode)\s*[:#=]?\s*(?=[\d'"=])/i.exec(s);
+  if (label) { notes.push(`the "${label[0].trim()}" label was removed`); s = s.slice(label[0].length); }
+  if (/^\d{1,3}(?:,\d{3})+$/.test(s)) { notes.push("thousands separators were removed"); s = s.replace(/,/g, ""); }
   if (/^'/.test(s)) { s = s.slice(1); notes.push("a leading apostrophe was removed"); }
   s = s.replace(/^="?|"$/g, "").trim();
   const sci = /^(\d+)(?:\.(\d+))?[eE]\+?(\d+)$/.exec(s);
