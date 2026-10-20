@@ -4123,6 +4123,11 @@
     "slug": "hanger-pickbreak",
     "title": "How long may a laundry robot spend finding a garment's opening before blind pinching is faster?",
     "summary": "On paired piles in the stylised hanger-pick model, aiming at a visible opening beats a blind pinch only if finding the opening costs under 9.2 s per pick (95% interval 8.9 to 9.6, assumed times). The threshold grows with the time of a regrasp (2.9 s to 18.7 s for 2 to 12 s), shrinks as regrasps succeed more often (14.7 s to 3.9 s) and as more openings are hidden (15.3 s to 0), and does not depend on pile size. Sweeping garments aside first beats aiming only when a sweep costs under half a second. Stylised: every time is an assumed placeholder."
+   },
+   {
+    "slug": "hanger-misaim",
+    "title": "How often may a laundry robot's opening detector aim wrong before blind pinching is faster?",
+    "summary": "In the stylised hanger-pick model a wrong aim costs one wasted grasp and then the same regrasp hunt as a blind pinch. The look-time budget of the detector falls almost linearly with its error: 9.2 s per pick when perfect, 6.3 s at 30% wrong, 4.5 s at 50%, about 0 when always wrong (300 paired piles, assumed times). At a 1 s look aiming still wins until about 88% of aims are wrong; at 5 s the limit is 43%, at 9 s 3%, and an 11 s look loses even when perfect. Stylised: every time and probability is an assumed placeholder; error is independent per pick."
    }
   ]
  },
