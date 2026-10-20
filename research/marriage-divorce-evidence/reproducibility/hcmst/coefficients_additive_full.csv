@@ -1,0 +1,70 @@
+feature,coef
+num__mean_age_sp_0,0.0787743
+num__mean_age_sp_1,0.096972
+num__mean_age_sp_2,0.0705994
+num__mean_age_sp_3,-0.24963
+num__age_gap_sp_0,-0.0566334
+num__age_gap_sp_1,-0.108318
+num__age_gap_sp_2,-0.177071
+num__age_gap_sp_3,0.0265463
+num__relationship_years_sp_0,0.31544
+num__relationship_years_sp_1,0.0711949
+num__relationship_years_sp_2,0.0324754
+num__relationship_years_sp_3,-0.188577
+num__edu_years_mean_sp_0,-0.368651
+num__edu_years_mean_sp_1,0.0579845
+num__edu_years_mean_sp_2,-0.168756
+num__edu_years_mean_sp_3,-0.348417
+num__edu_gap_sp_0,0
+num__edu_gap_sp_1,0.0144623
+num__edu_gap_sp_2,0.0960692
+num__edu_gap_sp_3,0.0557938
+num__hh_income_k_sp_0,0.14452
+num__hh_income_k_sp_1,0.187986
+num__hh_income_k_sp_2,0.228201
+num__hh_income_k_sp_3,0.232825
+num__children_in_hh_sp_0,0
+num__children_in_hh_sp_1,0
+num__children_in_hh_sp_2,-0.290557
+num__children_in_hh_sp_3,-0.231856
+cat__period_2,-0.246711
+cat__period_3,0.229275
+cat__period_4,0.00424978
+cat__period_5,0.138024
+cat__relationship_quality_Fair,1.39607
+cat__relationship_quality_Good,0.826263
+cat__relationship_quality_Poor or very poor,1.91333
+cat__relationship_quality_Unknown,0.444508
+cat__married_Yes,-0.67994
+cat__cohabiting_Unknown,0.128814
+cat__cohabiting_Yes,-1.23092
+cat__couple_type_Two men,0.151122
+cat__couple_type_Two women,0.764048
+cat__couple_race_Both Hispanic,-0.112313
+cat__couple_race_Both Other,-0.594741
+cat__couple_race_Both White,-0.229566
+cat__couple_race_Interracial,-0.139345
+cat__couple_race_Unknown,-0.162452
+cat__party_pair_Both Republicans,-0.2082
+"cat__party_pair_One Republican, one Democrat",0.0307346
+cat__party_pair_Other or independent,-0.263125
+cat__how_met_Church,-0.328435
+cat__how_met_Online,0.0495864
+cat__how_met_Other,-0.135659
+cat__how_met_School or college,-0.172037
+cat__how_met_Through family,0.243964
+cat__how_met_Through friends,0.0996096
+cat__how_met_Unknown,0.257401
+cat__how_met_Work or coworkers,-0.0831701
+cat__prior_marriage_Unknown,0.271431
+cat__prior_marriage_Yes,0.365132
+cat__earnings_One earned more,-0.0335047
+cat__earnings_Unknown,-0.355298
+cat__religion_pair_Different religions,0.163317
+cat__religion_pair_One no religion,0.07525
+cat__religion_pair_Same religion,0.0304891
+cat__religion_pair_Unknown,0.41545
+cat__parental_approval_Disapprove,-0.143612
+cat__parental_approval_Neutral or unsure,0.385261
+cat__parental_approval_Not asked (no living parent),0.326852
+cat__parental_approval_Unknown,0.167553

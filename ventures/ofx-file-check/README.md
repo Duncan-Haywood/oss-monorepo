@@ -21,9 +21,20 @@ To run the tests (Node 20 or newer):
 node --test ventures/ofx-file-check/
 ```
 
+## Command line (whole folders, CI)
+
+```
+node cli.mjs check downloads/            # every .ofx/.qfx under the folder; exit 1 on errors
+node cli.mjs check downloads/ --json     # or --csv; --strict makes warnings fail too
+node cli.mjs fix statement.qfx --diff    # writes statement.fixed.qfx, never overwrites
+```
+
+Zero dependencies, Node 20+, no network: files are read locally only.
+
 ## Files
 
 - `index.html`: the tool's page.
+- `cli.mjs`: command-line checker/fixer for folders and CI.
 - `calc.mjs`: the logic, kept separate from the page so it can be tested.
 - `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see
   `portfolio/usage/README.md` in the monorepo).

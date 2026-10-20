@@ -1,0 +1,322 @@
+cross-validation loaded from cache
+bootstrap CIs reused: point estimates match the saved comparison
+           model  gain_vs_constant_pct  gain_vs_period_only_pct  gain_vs_period_only_pct_lo  gain_vs_period_only_pct_hi  c_index  c_index_lo  c_index_hi  auc_2.3y  auc_4.2y  auc_8.8y  auc_12y  auc_12y_lo  auc_12y_hi  brier_12y  brier_skill_12y_pct  gain_12y_vs_base_pct  oe_12y
+     period_only                 5.861                    0.000                       0.000                       0.000    0.496       0.485       0.506     0.421     0.434     0.470    0.497       0.485       0.510      0.239                0.000                 0.000   1.000
+             ses                 6.901                    0.973                       0.146                       1.736    0.550       0.508       0.596     0.521     0.507     0.527    0.565       0.511       0.620      0.236                0.987                 0.750   0.996
+ vulnerabilities                 8.168                    2.334                       0.757                       3.979    0.595       0.551       0.639     0.548     0.529     0.599    0.626       0.574       0.678      0.226                5.278                 3.960   0.995
+    satisfaction                 7.568                    1.683                       0.396                       2.917    0.558       0.510       0.606     0.532     0.537     0.547    0.574       0.515       0.632      0.231                3.118                 2.310   1.000
+        observed                 6.596                    0.633                      -0.074                       1.260    0.535       0.494       0.576     0.454     0.455     0.512    0.552       0.502       0.603      0.239               -0.169                -0.115   0.999
+       hostility                 7.492                    1.606                       0.102                       2.907    0.597       0.553       0.641     0.588     0.573     0.588    0.624       0.571       0.678      0.231                3.326                 2.079   0.995
+    sat_observed                 7.517                    1.624                       0.305                       2.893    0.572       0.526       0.614     0.538     0.536     0.557    0.594       0.538       0.646      0.232                2.958                 2.150   0.997
+     ses_vul_sat                 8.804                    3.002                       1.238                       4.647    0.607       0.563       0.652     0.559     0.539     0.598    0.645       0.590       0.697      0.221                7.255                 5.463   0.991
+ses_vul_sat_host                 9.167                    3.386                       1.444                       5.196    0.623       0.577       0.668     0.592     0.561     0.614    0.662       0.608       0.715      0.219                8.485                 6.336   0.988
+ ses_vul_sat_obs                 8.753                    2.950                       1.174                       4.693    0.611       0.567       0.656     0.565     0.547     0.601    0.648       0.595       0.702      0.222                7.135                 5.330   0.987
+             all                 9.202                    3.424                       1.468                       5.294    0.626       0.581       0.672     0.597     0.570     0.618    0.665       0.611       0.718      0.218                8.670                 6.483   0.984
+       all_lasso                 7.950                    2.071                       0.048                       3.983    0.594       0.551       0.637     0.553     0.544     0.588    0.627       0.575       0.677      0.227                5.132                 3.550   0.991
+            tree                 6.063                    0.032                      -2.107                       2.139    0.540       0.517       0.563     0.506     0.515     0.532    0.557       0.530       0.586      0.238                0.534                 0.355   0.993
+                                                                         question            model       reference                  metric  model_value  reference_value  delta   ci_lo  ci_hi  share_of_bootstraps_positive
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test)  ses_vul_sat_obs     ses_vul_sat gain_vs_period_only_pct        2.950            3.002 -0.052  -0.512  0.391                         0.413
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test)  ses_vul_sat_obs     ses_vul_sat                 c_index        0.611            0.607  0.004  -0.010  0.018                         0.709
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test)  ses_vul_sat_obs     ses_vul_sat                 auc_12y        0.648            0.645  0.003  -0.013  0.020                         0.668
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test)  ses_vul_sat_obs     ses_vul_sat                auc_4.2y        0.547            0.539  0.008  -0.013  0.030                         0.764
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test)  ses_vul_sat_obs     ses_vul_sat     brier_skill_12y_pct        7.135            7.255 -0.121  -1.351  1.077                         0.438
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test)  ses_vul_sat_obs     ses_vul_sat    gain_12y_vs_base_pct        5.330            5.463 -0.133  -1.105  0.801                         0.397
+                                     Observed interaction over satisfaction alone     sat_observed    satisfaction gain_vs_period_only_pct        1.624            1.683 -0.060  -0.730  0.553                         0.446
+                                     Observed interaction over satisfaction alone     sat_observed    satisfaction                 c_index        0.572            0.558  0.014  -0.013  0.041                         0.852
+                                     Observed interaction over satisfaction alone     sat_observed    satisfaction                 auc_12y        0.594            0.574  0.020  -0.013  0.054                         0.875
+                                     Observed interaction over satisfaction alone     sat_observed    satisfaction                auc_4.2y        0.536            0.537 -0.001  -0.039  0.037                         0.475
+                                     Observed interaction over satisfaction alone     sat_observed    satisfaction     brier_skill_12y_pct        2.958            3.118 -0.160  -1.914  1.536                         0.458
+                                     Observed interaction over satisfaction alone     sat_observed    satisfaction    gain_12y_vs_base_pct        2.150            2.310 -0.161  -1.522  1.113                         0.437
+                                     Satisfaction over observed interaction alone     sat_observed        observed gain_vs_period_only_pct        1.624            0.633  0.990  -0.023  2.033                         0.968
+                                     Satisfaction over observed interaction alone     sat_observed        observed                 c_index        0.572            0.535  0.037  -0.007  0.080                         0.949
+                                     Satisfaction over observed interaction alone     sat_observed        observed                 auc_12y        0.594            0.552  0.042  -0.009  0.091                         0.945
+                                     Satisfaction over observed interaction alone     sat_observed        observed                auc_4.2y        0.536            0.455  0.081   0.012  0.149                         0.987
+                                     Satisfaction over observed interaction alone     sat_observed        observed     brier_skill_12y_pct        2.958           -0.169  3.127   0.253  5.973                         0.983
+                                     Satisfaction over observed interaction alone     sat_observed        observed    gain_12y_vs_base_pct        2.150           -0.115  2.264   0.113  4.419                         0.979
+                Self-reported hostility over SES + vulnerabilities + satisfaction ses_vul_sat_host     ses_vul_sat gain_vs_period_only_pct        3.386            3.002  0.384  -0.378  1.153                         0.847
+                Self-reported hostility over SES + vulnerabilities + satisfaction ses_vul_sat_host     ses_vul_sat                 c_index        0.623            0.607  0.015  -0.001  0.033                         0.961
+                Self-reported hostility over SES + vulnerabilities + satisfaction ses_vul_sat_host     ses_vul_sat                 auc_12y        0.662            0.645  0.018  -0.002  0.038                         0.959
+                Self-reported hostility over SES + vulnerabilities + satisfaction ses_vul_sat_host     ses_vul_sat                auc_4.2y        0.561            0.539  0.022  -0.007  0.051                         0.939
+                Self-reported hostility over SES + vulnerabilities + satisfaction ses_vul_sat_host     ses_vul_sat     brier_skill_12y_pct        8.485            7.255  1.230  -0.769  3.161                         0.901
+                Self-reported hostility over SES + vulnerabilities + satisfaction ses_vul_sat_host     ses_vul_sat    gain_12y_vs_base_pct        6.336            5.463  0.873  -0.676  2.410                         0.874
+       Observed interaction + hostility over SES + vulnerabilities + satisfaction              all     ses_vul_sat gain_vs_period_only_pct        3.424            3.002  0.422  -0.512  1.336                         0.833
+       Observed interaction + hostility over SES + vulnerabilities + satisfaction              all     ses_vul_sat                 c_index        0.626            0.607  0.019  -0.002  0.041                         0.956
+       Observed interaction + hostility over SES + vulnerabilities + satisfaction              all     ses_vul_sat                 auc_12y        0.665            0.645  0.020  -0.003  0.046                         0.949
+       Observed interaction + hostility over SES + vulnerabilities + satisfaction              all     ses_vul_sat                auc_4.2y        0.570            0.539  0.031  -0.002  0.064                         0.960
+       Observed interaction + hostility over SES + vulnerabilities + satisfaction              all     ses_vul_sat     brier_skill_12y_pct        8.670            7.255  1.415  -0.746  3.698                         0.892
+       Observed interaction + hostility over SES + vulnerabilities + satisfaction              all     ses_vul_sat    gain_12y_vs_base_pct        6.483            5.463  1.020  -0.653  2.785                         0.881
+                                     Self-reported hostility over everything else              all ses_vul_sat_obs gain_vs_period_only_pct        3.424            2.950  0.474  -0.366  1.314                         0.883
+                                     Self-reported hostility over everything else              all ses_vul_sat_obs                 c_index        0.626            0.611  0.015  -0.001  0.031                         0.968
+                                     Self-reported hostility over everything else              all ses_vul_sat_obs                 auc_12y        0.665            0.648  0.017  -0.001  0.036                         0.968
+                                     Self-reported hostility over everything else              all ses_vul_sat_obs                auc_4.2y        0.570            0.547  0.023  -0.004  0.051                         0.952
+                                     Self-reported hostility over everything else              all ses_vul_sat_obs     brier_skill_12y_pct        8.670            7.135  1.535  -0.417  3.474                         0.948
+                                     Self-reported hostility over everything else              all ses_vul_sat_obs    gain_12y_vs_base_pct        6.483            5.330  1.152  -0.407  2.714                         0.931
+                                          SES + vulnerabilities over satisfaction      ses_vul_sat    satisfaction gain_vs_period_only_pct        3.002            1.683  1.319   0.145  2.696                         0.988
+                                          SES + vulnerabilities over satisfaction      ses_vul_sat    satisfaction                 c_index        0.607            0.558  0.050   0.011  0.091                         0.996
+                                          SES + vulnerabilities over satisfaction      ses_vul_sat    satisfaction                 auc_12y        0.645            0.574  0.070   0.019  0.124                         0.998
+                                          SES + vulnerabilities over satisfaction      ses_vul_sat    satisfaction                auc_4.2y        0.539            0.537  0.003  -0.058  0.068                         0.533
+                                          SES + vulnerabilities over satisfaction      ses_vul_sat    satisfaction     brier_skill_12y_pct        7.255            3.118  4.137   0.875  7.711                         0.995
+                                          SES + vulnerabilities over satisfaction      ses_vul_sat    satisfaction    gain_12y_vs_base_pct        5.463            2.310  3.153   0.584  5.963                         0.993
+                                    Observed interaction over the baseline hazard         observed     period_only gain_vs_period_only_pct        0.633            0.000  0.633  -0.074  1.260                         0.963
+                                    Observed interaction over the baseline hazard         observed     period_only                 c_index        0.535            0.496  0.039  -0.004  0.083                         0.962
+                                    Observed interaction over the baseline hazard         observed     period_only                 auc_12y        0.552            0.497  0.054   0.003  0.106                         0.983
+                                    Observed interaction over the baseline hazard         observed     period_only                auc_4.2y        0.455            0.434  0.021  -0.036  0.080                         0.772
+                                    Observed interaction over the baseline hazard         observed     period_only     brier_skill_12y_pct       -0.169            0.000 -0.169  -1.317  0.946                         0.408
+                                    Observed interaction over the baseline hazard         observed     period_only    gain_12y_vs_base_pct       -0.115            0.000 -0.115  -0.983  0.726                         0.418
+                                            Satisfaction over the baseline hazard     satisfaction     period_only gain_vs_period_only_pct        1.683            0.000  1.683   0.396  2.917                         0.994
+                                            Satisfaction over the baseline hazard     satisfaction     period_only                 c_index        0.558            0.496  0.062   0.015  0.109                         0.995
+                                            Satisfaction over the baseline hazard     satisfaction     period_only                 auc_12y        0.574            0.497  0.077   0.019  0.138                         0.996
+                                            Satisfaction over the baseline hazard     satisfaction     period_only                auc_4.2y        0.537            0.434  0.103   0.017  0.187                         0.992
+                                            Satisfaction over the baseline hazard     satisfaction     period_only     brier_skill_12y_pct        3.118            0.000  3.118  -0.090  6.204                         0.971
+                                            Satisfaction over the baseline hazard     satisfaction     period_only    gain_12y_vs_base_pct        2.310            0.000  2.310  -0.107  4.642                         0.971
+                                                       Lasso vs ridge, all inputs        all_lasso             all gain_vs_period_only_pct        2.071            3.424 -1.353  -1.857 -0.858                         0.000
+                                                       Lasso vs ridge, all inputs        all_lasso             all                 c_index        0.594            0.626 -0.032  -0.047 -0.017                         0.000
+                                                       Lasso vs ridge, all inputs        all_lasso             all                 auc_12y        0.627            0.665 -0.039  -0.056 -0.021                         0.000
+                                                       Lasso vs ridge, all inputs        all_lasso             all                auc_4.2y        0.544            0.570 -0.026  -0.049 -0.003                         0.016
+                                                       Lasso vs ridge, all inputs        all_lasso             all     brier_skill_12y_pct        5.132            8.670 -3.538  -4.782 -2.282                         0.000
+                                                       Lasso vs ridge, all inputs        all_lasso             all    gain_12y_vs_base_pct        3.550            6.483 -2.933  -4.020 -1.898                         0.000
+                                                  Small tree vs ridge, all inputs             tree             all gain_vs_period_only_pct        0.032            3.424 -3.392  -5.608 -1.044                         0.001
+                                                  Small tree vs ridge, all inputs             tree             all                 c_index        0.540            0.626 -0.086  -0.123 -0.052                         0.000
+                                                  Small tree vs ridge, all inputs             tree             all                 auc_12y        0.557            0.665 -0.108  -0.151 -0.066                         0.000
+                                                  Small tree vs ridge, all inputs             tree             all                auc_4.2y        0.515            0.570 -0.055  -0.128  0.015                         0.066
+                                                  Small tree vs ridge, all inputs             tree             all     brier_skill_12y_pct        0.534            8.670 -8.136 -12.279 -4.188                         0.000
+                                                  Small tree vs ridge, all inputs             tree             all    gain_12y_vs_base_pct        0.355            6.483 -6.128  -9.432 -3.030                         0.001
+                input           block     sd  missing  or_period_adjusted  lo_period_adjusted  hi_period_adjusted  or_all_adjusted  lo_all_adjusted  hi_all_adjusted  or_sat_obs_host_adjusted  lo_sat_obs_host_adjusted  hi_sat_obs_host_adjusted  boot_lo_period_adjusted  boot_hi_period_adjusted
+             H_educ_D             ses  0.400        1               1.336               1.089               1.639            1.274            0.993            1.635                       NaN                       NaN                       NaN                      NaN                      NaN
+             W_educ_D             ses  0.448        0               1.271               1.051               1.537            0.974            0.765            1.238                       NaN                       NaN                       NaN                      NaN                      NaN
+             income_k             ses 28.037        2               0.805               0.674               0.960            0.939            0.674            1.308                       NaN                       NaN                       NaN                      NaN                      NaN
+       Household_comp             ses  2.407        0               1.163               0.992               1.363            1.137            0.906            1.428                       NaN                       NaN                       NaN                      NaN                      NaN
+         Low_income_D             ses  0.500        2               1.179               0.993               1.400            0.924            0.678            1.260                       NaN                       NaN                       NaN                      NaN                      NaN
+Couple_unemployment_D             ses  0.382        0               1.104               0.938               1.300            0.986            0.821            1.183                       NaN                       NaN                       NaN                      NaN                      NaN
+  Couple_fin_strain_D             ses  0.393        0               1.131               0.961               1.330            0.967            0.796            1.176                       NaN                       NaN                       NaN                      NaN                      NaN
+Neighborhood_unemploy             ses  4.113        0               1.088               0.924               1.282            1.019            0.841            1.235                       NaN                       NaN                       NaN                      NaN                      NaN
+Neighborhood_income_k             ses 16.322        0               0.792               0.652               0.962            0.865            0.691            1.083                       NaN                       NaN                       NaN                      NaN                      NaN
+        H_substance_D vulnerabilities  0.458       13               1.226               1.041               1.444            1.145            0.941            1.392                       NaN                       NaN                       NaN                      NaN                      NaN
+              H_ACE_D vulnerabilities  0.499       34               0.953               0.802               1.131            0.900            0.742            1.090                       NaN                       NaN                       NaN                      NaN                      NaN
+            H_abuse_D vulnerabilities  0.474        2               1.071               0.904               1.267            0.917            0.755            1.114                       NaN                       NaN                       NaN                      NaN                      NaN
+       H_neg_affect_D vulnerabilities  0.393        0               1.197               1.021               1.404            1.041            0.861            1.257                       NaN                       NaN                       NaN                      NaN                      NaN
+  H_parent_marriage_D vulnerabilities  0.500        0               1.221               1.026               1.453            1.152            0.946            1.403                       NaN                       NaN                       NaN                      NaN                      NaN
+        W_substance_D vulnerabilities  0.353       17               1.161               0.992               1.359            1.085            0.899            1.310                       NaN                       NaN                       NaN                      NaN                      NaN
+              W_ACE_D vulnerabilities  0.493       35               0.980               0.826               1.163            0.845            0.698            1.023                       NaN                       NaN                       NaN                      NaN                      NaN
+            W_abuse_D vulnerabilities  0.492        0               1.227               1.036               1.454            1.112            0.912            1.355                       NaN                       NaN                       NaN                      NaN                      NaN
+       W_neg_affect_D vulnerabilities  0.430        0               1.290               1.101               1.511            1.165            0.975            1.392                       NaN                       NaN                       NaN                      NaN                      NaN
+  W_parent_marriage_D vulnerabilities  0.500        0               1.421               1.193               1.692            1.386            1.144            1.679                       NaN                       NaN                       NaN                      NaN                      NaN
+            H_sat_sum    satisfaction  3.114        0               0.785               0.670               0.919            0.920            0.755            1.120                     0.896                     0.749                     1.073                    0.687                    0.920
+            W_sat_sum    satisfaction  3.451        0               0.718               0.611               0.844            0.813            0.670            0.985                     0.762                     0.631                     0.919                    0.620                    0.840
+         H_Positivity        observed  0.770       11               0.995               0.840               1.179            0.936            0.662            1.323                     0.932                     0.675                     1.287                    0.839                    1.174
+         W_Positivity        observed  0.746       11               1.035               0.874               1.225            1.332            0.946            1.876                     1.276                     0.926                     1.757                    0.880                    1.213
+         H_Negativity        observed  0.593       11               1.000               0.843               1.185            0.801            0.641            1.002                     0.861                     0.697                     1.065                    0.849                    1.180
+         W_Negativity        observed  0.583       11               1.133               0.959               1.338            1.086            0.873            1.350                     1.058                     0.859                     1.302                    0.946                    1.335
+          H_Effective        observed  0.891       11               0.866               0.733               1.024            1.100            0.858            1.411                     1.008                     0.795                     1.278                    0.731                    1.005
+          W_Effective        observed  0.863       11               0.814               0.689               0.963            0.827            0.652            1.049                     0.808                     0.646                     1.010                    0.681                    0.950
+          H_Hostility       hostility  3.525        0               1.328               1.153               1.529            1.161            0.953            1.416                     1.164                     0.970                     1.396                    1.146                    1.725
+          W_Hostility       hostility  3.554        0               1.380               1.189               1.601            1.159            0.948            1.418                     1.167                     0.963                     1.416                    1.194                    1.622
+           model  quintile  couples  predicted_12y  observed_12y
+     period_only         1     74.0          0.393         0.398
+     period_only         2     73.0          0.393         0.400
+     period_only         3     74.0          0.395         0.391
+     period_only         4     73.0          0.395         0.389
+     period_only         5     74.0          0.395         0.392
+             ses         1     74.0          0.321         0.294
+             ses         2     73.0          0.380         0.377
+             ses         3     74.0          0.400         0.411
+             ses         4     73.0          0.418         0.431
+             ses         5     74.0          0.458         0.457
+ vulnerabilities         1     74.0          0.259         0.274
+ vulnerabilities         2     73.0          0.336         0.336
+ vulnerabilities         3     74.0          0.384         0.330
+ vulnerabilities         4     73.0          0.432         0.462
+ vulnerabilities         5     74.0          0.569         0.567
+    satisfaction         1     74.0          0.303         0.332
+    satisfaction         2     73.0          0.351         0.382
+    satisfaction         3     74.0          0.382         0.352
+    satisfaction         4     73.0          0.408         0.351
+    satisfaction         5     74.0          0.525         0.553
+        observed         1     74.0          0.349         0.325
+        observed         2     73.0          0.386         0.351
+        observed         3     74.0          0.394         0.389
+        observed         4     73.0          0.400         0.488
+        observed         5     74.0          0.444         0.419
+       hostility         1     74.0          0.322         0.284
+       hostility         2     73.0          0.355         0.283
+       hostility         3     74.0          0.381         0.386
+       hostility         4     73.0          0.404         0.446
+       hostility         5     74.0          0.516         0.571
+    sat_observed         1     74.0          0.290         0.307
+    sat_observed         2     73.0          0.352         0.335
+    sat_observed         3     74.0          0.387         0.379
+    sat_observed         4     73.0          0.417         0.415
+    sat_observed         5     74.0          0.530         0.533
+     ses_vul_sat         1     74.0          0.248         0.262
+     ses_vul_sat         2     73.0          0.333         0.318
+     ses_vul_sat         3     74.0          0.386         0.343
+     ses_vul_sat         4     73.0          0.442         0.439
+     ses_vul_sat         5     74.0          0.578         0.607
+ses_vul_sat_host         1     74.0          0.243         0.256
+ses_vul_sat_host         2     73.0          0.326         0.295
+ses_vul_sat_host         3     74.0          0.383         0.340
+ses_vul_sat_host         4     73.0          0.441         0.427
+ses_vul_sat_host         5     74.0          0.601         0.651
+ ses_vul_sat_obs         1     74.0          0.244         0.268
+ ses_vul_sat_obs         2     73.0          0.335         0.299
+ ses_vul_sat_obs         3     74.0          0.386         0.347
+ ses_vul_sat_obs         4     73.0          0.442         0.455
+ ses_vul_sat_obs         5     74.0          0.587         0.599
+             all         1     74.0          0.237         0.255
+             all         2     73.0          0.324         0.262
+             all         3     74.0          0.382         0.378
+             all         4     73.0          0.448         0.435
+             all         5     74.0          0.611         0.638
+       all_lasso         1     74.0          0.227         0.301
+       all_lasso         2     73.0          0.324         0.291
+       all_lasso         3     74.0          0.385         0.357
+       all_lasso         4     73.0          0.440         0.425
+       all_lasso         5     74.0          0.612         0.595
+            tree         1     74.0          0.303         0.310
+            tree         2     73.0          0.369         0.375
+            tree         3     74.0          0.395         0.384
+            tree         4     73.0          0.411         0.432
+            tree         5     74.0          0.505         0.469
+{
+ "couples": 368,
+ "divorced": 145,
+ "person_periods": 2671,
+ "events_by_period": {
+  "02": 11,
+  "03": 13,
+  "04": 12,
+  "05": 18,
+  "06": 57,
+  "07": 19,
+  "08": 5,
+  "09": 5,
+  "10": 5
+ },
+ "events_reported_after_a_missed_wave": 36,
+ "status_reversals": 1,
+ "missing_inputs": {
+  "H_educ_D": 1,
+  "income_k": 2,
+  "Low_income_D": 2,
+  "H_substance_D": 13,
+  "H_ACE_D": 34,
+  "H_abuse_D": 2,
+  "W_substance_D": 17,
+  "W_ACE_D": 35,
+  "H_Positivity": 11,
+  "W_Positivity": 11,
+  "H_Negativity": 11,
+  "W_Negativity": 11,
+  "H_Effective": 11,
+  "W_Effective": 11
+ },
+ "tuned_choices_outer": {
+  "period_only": {
+   "None": 100
+  },
+  "ses": {
+   "0.0003": 20,
+   "0.001": 3,
+   "0.003": 46,
+   "0.01": 29,
+   "0.03": 2
+  },
+  "vulnerabilities": {
+   "0.0003": 14,
+   "0.003": 2,
+   "0.01": 27,
+   "0.03": 54,
+   "0.1": 3
+  },
+  "satisfaction": {
+   "0.0003": 17,
+   "0.01": 10,
+   "0.03": 38,
+   "0.1": 28,
+   "0.3": 7
+  },
+  "observed": {
+   "0.0003": 43,
+   "0.001": 2,
+   "0.003": 9,
+   "0.01": 34,
+   "0.03": 9,
+   "0.1": 3
+  },
+  "hostility": {
+   "0.0003": 16,
+   "0.003": 2,
+   "0.01": 44,
+   "0.03": 32,
+   "0.1": 5,
+   "0.3": 1
+  },
+  "sat_observed": {
+   "0.0003": 17,
+   "0.003": 5,
+   "0.01": 29,
+   "0.03": 44,
+   "0.1": 5
+  },
+  "ses_vul_sat": {
+   "0.0003": 7,
+   "0.003": 13,
+   "0.01": 74,
+   "0.03": 6
+  },
+  "ses_vul_sat_host": {
+   "0.0003": 5,
+   "0.003": 17,
+   "0.01": 76,
+   "0.03": 2
+  },
+  "ses_vul_sat_obs": {
+   "0.0003": 10,
+   "0.003": 10,
+   "0.01": 74,
+   "0.03": 6
+  },
+  "all": {
+   "0.0003": 5,
+   "0.003": 15,
+   "0.01": 76,
+   "0.03": 4
+  },
+  "all_lasso": {
+   "0.02": 12,
+   "0.05": 8,
+   "0.1": 55,
+   "0.2": 24,
+   "0.5": 1
+  },
+  "tree": {
+   "(1, 60)": 40,
+   "(2, 120)": 38,
+   "(2, 60)": 17,
+   "(3, 120)": 4,
+   "(3, 240)": 1
+  }
+ },
+ "final_hyperparameters": {
+  "period_only": null,
+  "ses": 0.01,
+  "vulnerabilities": 0.03,
+  "satisfaction": 0.01,
+  "observed": 0.03,
+  "hostility": 0.1,
+  "sat_observed": 0.01,
+  "ses_vul_sat": 0.01,
+  "ses_vul_sat_host": 0.01,
+  "ses_vul_sat_obs": 0.01,
+  "all": 0.01,
+  "all_lasso": 0.2,
+  "tree": [
+   1,
+   60
+  ]
+ },
+ "ood_heldout_d2_p99": 72.31984846005834,
+ "python_sklearn": "1.7.2",
+ "runtime_seconds": 51
+}
+exit 0

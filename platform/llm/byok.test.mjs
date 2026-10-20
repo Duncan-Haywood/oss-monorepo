@@ -183,6 +183,10 @@ test('isLocal: localhost and private addresses only', () => {
   assert.equal(isLocal({ provider: 'ollama', model: 'm', baseUrl: 'https://ollama.example.com/v1' }), false);
   assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: 'http://172.32.0.1/v1' }), false);
   assert.equal(isLocal({ provider: 'anthropic', apiKey: 'k' }), false);
+  // A DNS name that merely starts with digits and a dot is a remote host.
+  for (const host of ['10.evil.com', '127.attacker.net', '192.168.x.example.org', '172.16.evil.io']) {
+    assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: `https://${host}/v1` }), false, host);
+  }
   assert.equal(isLocal({ provider: 'ollama' }), false, 'an unusable config is not local');
 });
 

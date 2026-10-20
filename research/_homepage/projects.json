@@ -1342,6 +1342,11 @@
      "summary": "Exact dynamic-programming comparison (no sampling) of Wald&rsquo;s sequential probability ratio test with the smallest fixed-size binomial test, both at 5% error, for deciding between an acceptable and an unacceptable failure rate. At either rate the sequential test uses about half the rollouts (for 1% vs 5%: 79 and 113 on average against 181). Between the two rates the saving shrinks to 6&ndash;17% at its worst point in the four cases tried. Assumes iid rollouts that match reality, so it says nothing about the sim-to-real gap."
     },
     {
+     "slug": "free-sprtcap",
+     "title": "How long can a sequential rollout test run, and what does capping it cost?",
+     "summary": "Exact dynamic-programming study (no sampling) of the stopping-time distribution of Wald&rsquo;s sequential test for certifying a failure rate at 5% error, and of adding a hard rollout cap that decides by the sign of the likelihood ratio. For 1% vs 5% (fixed test: 181 rollouts) the average is 79 but the 99th percentile is 309, and 28% of runs at the midpoint rate exceed the fixed size. Capping at the fixed size inflates the unacceptable-rate error to about 0.068; a cap of 1.5 times the fixed size brings it to 0.053&ndash;0.057 with the mean within 2% of the uncapped test. Four rate pairs, one truncation rule, iid rollouts matching reality; says nothing about the sim-to-real gap."
+    },
+    {
      "slug": "free-secretarymargin",
      "title": "With noisy scores, does a \"beat the record by a margin\" rule pick the best candidate more often than the best cutoff?",
      "summary": "Simulation (<em>n</em> = 50 candidates, parameters tuned on 8,000 training trials, scored on 60,000 fresh paired trials) of a two-parameter margin rule: skip <em>r</em>&minus;1 candidates, then take the first whose noisy score beats the earlier maximum by at least <em>d</em>. P(pick the true best) rises from 0.2334 to 0.2444 at noise 0.5 (+0.0111, se 0.0014) and from 0.1429 to 0.1491 at noise 1 (+0.0062, se 0.0015); at noise 2 the gain (+0.0018, se 0.0011) is not distinguishable from zero, and with no noise the tuning picks the plain cutoff. One setting, one seed pair, a coarse grid; the Bayes-optimal policy is not computed."
@@ -3320,6 +3325,11 @@
      "slug": "swe-nullrate",
      "title": "How often does this portfolio report a negative or mixed result?",
      "summary": "A hand-labelled census of 80 randomly sampled project summaries (of 711): 51% descriptive, 20% positive, 18% mixed and 11% negative. Among the 39 that test a claim against an alternative, 59% (Wilson 95% 43&ndash;73%) report a negative or mixed result, so the portfolio is not a list of wins. A keyword rule for negative or mixed has precision 0.60 and recall 0.65 in-sample and should not be used for by-theme shares. Preliminary: one labeller, one pass, rubric fixed while labelling, summaries truncated when long, no inter-rater agreement."
+    },
+    {
+     "slug": "swe-reuse",
+     "title": "Do later projects build on earlier ones?",
+     "summary": "A reference graph of 723 research READMEs, from slug mentions and git creation times: 61.7% of projects (Wilson 95% 58&ndash;65%) are named by at least one later project, but inbound counts are very uneven (Gini 0.69; the most-named is named by 50) and 71% of references stay within a track. Preliminary: a README naming a project does not show it was reused, so this is an upper bound on &ldquo;built on&rdquo;; one snapshot, no hand-checked sample of edges."
     }
    ]
   },
@@ -3561,6 +3571,11 @@
      "summary": "Inverts the question <code>house-energy</code> asks: instead of the lowest-cost package, the largest extra first cost each upgrade can carry before its 30-year energy saving no longer covers it, on the <code>house-open-design</code> ADU (24 &times; 20 ft). The whole tight package (advanced 2x6 wall with R-5 foam, R-49 attic, U-0.27 windows, 3 ACH50, R-30 floor) saves $72 to $158 a year with a heat pump, so at a 3&percnt; real rate it can carry $1,409 (Houston) to $3,104 (Minneapolis) of extra cost, and $892 to $1,965 at 7&percnt;. Energy is linear in heat loss, so the one-at-a-time savings add up exactly to the package. At <code>house-energy</code>'s unsourced unit prices the attic ($319 extra) only breaks even in Minneapolis, air sealing ($500) needs energy 1.3 to 2.6 times as dear, and the windows ($1,392) 2.7 to 5.5 times; the wall switch is the best of the five upgrades. Stylised: degree-day climates from memory, every price assumed, no first-cost data for the wall or floor, not a design anyone should build from without a licensed review."
     },
     {
+     "slug": "house-hpsize",
+     "title": "Does a tighter envelope let a 480 sq ft backyard cottage use a smaller heat pump, and is the saving worth counting?",
+     "summary": "Adds the term <code>house-breakeven</code> left out: the equipment downsizing credit. The design heating load (UA &times; design temperature difference) of the <code>house-open-design</code> ADU falls about 36.5% with the tight envelope in every climate, but equipment comes in discrete sizes, so the credit is a step: with an assumed catalogue and prices it is $450 (Houston), $1,350 (Baltimore), $900 (Chicago) and $1,800 (Minneapolis) for the whole package, and it is mostly the wall switch that moves the size. Added to the energy break-even, the three costed upgrades (assumed extra cost $2,211) come within $98 to $463 of paying back in the three colder cities but not in Houston ($1,607 short). The size is sensitive to the assumed design temperature and sizing margin, which are unchecked memory, so the credit is a range of one or two catalogue steps, not a number. Stylised: no EnergyPlus, no Manual J, no sourced prices."
+    },
+    {
      "slug": "house-truss",
      "title": "How much lumber does a prefabricated roof truss save over rafters and ceiling joists?",
      "summary": "A pin-jointed W-type truss solved by a small stiffness solver, with NDS chord and web checks and a search for the lightest passing 2x4 to 2x8 truss at 24 in o.c., against stick-built 16 in rafters and ceiling joists from <code>house-spans</code>. At 30 psf snow and 4/12 pitch the truss uses 40&ndash;55% less nominal lumber per sq ft of plan over 12&ndash;30 ft spans (45% at 24 ft: 1.26 against 2.30 board feet). Stylised: no connector plates, bracing or heel details, an unchecked tension value, and no comparison with a commercial truss design program."
@@ -3755,6 +3770,11 @@
     "slug": "energy-cell",
     "title": "How much better can a lithium-ion cell get by redesigning its electrodes, and does a smarter search help?",
     "summary": "A PyBaMM single-particle model with electrolyte of an NMC811 / graphite-SiOx cell, scored on discharge energy per kilogram of electrode stack after 100 cycles at a fixed current. Four design numbers (positive thickness, two porosities, negative-to-positive capacity ratio) are searched with 30 evaluations by random search, Gaussian-process Bayesian optimisation (5 seeds each) and the session agent proposing by hand (one run). The reference cell scores 109 Wh/kg; all three reach 141&ndash;143 (+30%) with a thicker, more porous positive electrode and about 30% more negative capacity, and their seed ranges overlap, so no proposer is shown to be better. Limits: one aggressively ageing parameter set, constant-current charge only, stack not finished cell, optimum at the search bounds. Stylised and simulated, not a tested cell."
+    },
+    {
+    "slug": "energy-lcos-mc",
+    "title": "How robust is the cheapest energy-storage technology at each duration when costs are uncertain?",
+    "summary": "A Monte Carlo over the <code>energy-lcos</code> model: 4,000 scenarios draw each technology's energy cost, power cost and efficiency from assumed ranges, plus the discount rate (3&ndash;10%) and charging price ($10&ndash;100/MWh), and count how often each is cheapest. Lithium-ion wins 96% of scenarios at 2 hours, 64% at 4 and 18% at 8; between 6 and 12 hours no technology wins more than 48%, so the point-estimate winner is a coin toss there. Caverns win most scenarios from 24 hours (compressed air 61% at 24 h, 81% at 100 h) and hydrogen 69% at 500 hours. Charging price is the largest single swing in cost. Stylised: every range is assumed, draws are independent and uniform, and the use pattern is fixed."
     }
    ]
   },
@@ -3798,6 +3818,11 @@
     "slug": "society-stubborn",
     "title": "How many robots does it take to change a crowd's walking side when some people never adapt?",
     "summary": "The <code>society-robotnorms</code> committed-robot model with a share <em>s</em> of stubborn people who always walk right. The mean-field tipping share for memory&nbsp;9 rises from 0.217 (<em>s</em>&nbsp;=&nbsp;0) to 0.240, 0.283 and 0.329 at <em>s</em>&nbsp;=&nbsp;0.2, 0.4 and 0.5, and memory&nbsp;5 and&nbsp;9 coincide from <em>s</em>&nbsp;=&nbsp;0.4. Simulation (200 people, 12 seeds) agrees within 0.02 at every <em>s</em> when &ldquo;tipped&rdquo; means a majority of adaptive people on the robots' side. Conflict costs of committed and adaptive robots are unchanged by stubborn people. Stylised; simulated walkers only."
+   }
+   ,{
+    "slug": "society-blocs",
+    "title": "How many robots does it take to change a crowd's walking side when some people always walk on the robots' side?",
+    "summary": "The <code>society-stubborn</code> model with a share <em>sl</em> of people who always walk the robots' side and <em>sr</em> who always walk the status-quo side. For memory&nbsp;9 the mean-field tipping robot share falls from 0.217 to 0.176, 0.131, 0.080 and 0.023 at <em>sl</em>&nbsp;=&nbsp;0.05, 0.10, 0.15 and 0.20 (about 0.8 robots saved per ally), and a crowd with 25% allies tips with no robots. Opposing blocs raise the self-tipping share (0.219 to 0.300 as <em>sr</em> goes 0 to 0.3), equal blocs are a knife edge, and simulation (200 people, 12 seeds) agrees with mean field within 0.01 at seven bloc mixes. Opposing blocs alone cost 0.195 conflicts per human meeting. Stylised; simulated walkers only."
    }
    ,{
     "slug": "society-show",
