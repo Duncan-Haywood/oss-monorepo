@@ -55,6 +55,21 @@ class Audit(unittest.TestCase):
             self.assertEqual((r["long_titles"], r["long_descriptions"]), (0, 0))
             self.assertEqual(r["worst_ventures"], [])
 
+    def test_default_title_limit_is_60(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "ventures/a").mkdir(parents=True)
+            (root / "ventures/a/x.html").write_text(page("T" * 61, "short"))
+            self.assertEqual(s.audit(root)["long_titles"], 1)
+
+    def test_worst_ventures_ties_sorted_by_name(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            for v in ("a-b", "a", "c"):
+                (root / "ventures" / v).mkdir(parents=True)
+                (root / "ventures" / v / "x.html").write_text(page("T" * 70, "short"))
+            self.assertEqual(s.audit(root)["worst_ventures"], [("a", 1), ("a-b", 1), ("c", 1)])
+
     def test_empty_tree_does_not_divide_by_zero(self):
         with tempfile.TemporaryDirectory() as d:
             self.assertEqual(s.main(["--root", d]), 0)
