@@ -3922,6 +3922,11 @@
     "summary": "Theoretical ceilings from first principles for batteries, hydrogen, flywheels, pumped hydro and heat, reproducing five published values to within 0.3% (lead-acid 170, Zn-air 1,086, Li-S 2,567, Li-O<sub>2</sub> 3,458 Wh/kg; Al-air 8,100 on Al). No battery couple releases more than 1.65 eV per reactant atom, so the spread comes from atomic mass: Wh/kg = 26,801 &times; eV per atom / mean g/mol. A carbon-fibre flywheel holds at most 756 Wh/kg (0.34 eV per atom), sand at 500 &deg;C 107 Wh/kg of heat (41% recoverable as electricity) and water lifted 300 m 0.82 Wh/kg. Ceilings for the active material only, with some voltages and material properties assumed."
     },
     {
+    "slug": "energy-volumetric",
+    "title": "How much energy can each storage chemistry hold per litre, and does the ranking by weight survive?",
+    "summary": "Volumetric ceilings (Wh/L) for the couples of <em>energy-density</em>, from the sum of reactant mass over assumed handbook density. With oxygen taken from air, zinc-air reaches 9,659 Wh/L, lithium-oxygen 6,104 and aluminium-air 5,887, against 1,382 for graphite/LiCoO<sub>2</sub> and 724 for lead-acid. The ranking changes with the basis: lithium-sulfur beats graphite/LiCoO<sub>2</sub> by 6.8 times per kg but only 2.1 times per litre (lithium is light and bulky), while zinc-air beats lead-acid by 6.4 times per kg and 13 times per litre. Hydrogen holds 1,314 Wh/L at 700 bar and 2,314 as a 20 K liquid. Sand at 500 &deg;C holds 171 Wh/L as heat. Active material only; densities are assumed, not checked."
+    },
+    {
     "slug": "energy-practical",
     "title": "How close do real batteries, flow cells and hydrogen tanks get to their first-principles ceilings?",
     "summary": "A small sourced dataset set beside the ceilings of <em>energy-density</em>. A Panasonic NCR18650B cell (data sheet) stores 243 Wh/kg, 0.64 of the 380 Wh/kg graphite/LiCoO<sub>2</sub> reactants could release; commercial LiFePO<sub>4</sub> reaches 0.25&ndash;0.45 and lead-acid 0.21&ndash;0.24. DOE&rsquo;s projected 700 bar hydrogen system (1.71 kWh/kg) is 5.1% hydrogen by mass against 23.8&ndash;41.3% for an ideal carbon-fibre sphere. Round-trip efficiency runs from 50% (compressed air) to 85% (advanced lead-acid). Limited: five families, five of seven data rows read through secondary pages, gap not split into causes."
