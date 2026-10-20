@@ -14,7 +14,9 @@ python3 prompts/promptctl.py map --track ventures   # or research, process, expl
 `CLAUDE.md` or `AGENTS.md`, `prompt.md`, a sub-prompt, or a
 `.github/prompts/` runbook) has no entry in the map, or when an entry points
 at a file that is gone. A new instruction file therefore has to say where it
-fits before it can merge.
+fits before it can merge. Files that only look like guidance go under
+`ignore` in the map: test fixtures, and templates rendered into other
+repositories (`platform/business-template/template/`).
 
 ## Why layers
 

@@ -72,5 +72,5 @@
     "CLAUDE.md", "**/CLAUDE.md", "AGENTS.md", "**/AGENTS.md",
     "prompt.md", "prompts/*/prompt-*.md", ".github/prompts/*.md"
   ],
-  "ignore": ["**/tests/fixtures/**"]
+  "ignore": ["**/tests/fixtures/**", "platform/business-template/template/**"]
 }
