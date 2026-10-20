@@ -173,8 +173,11 @@ COMPARE_PATH = f"repos/{REPO_PLACEHOLDER}/compare/{{base}}...{{head}}"
 
 PUBLISH_BRANCH = "gh-pages"
 
-# The publishing workflow, read for its `paths:` filter rather than restated
-# here. That filter *is* the set of inputs `build.mjs` reads, and the repository
+# The site workflow, read for its `paths:` filter rather than restated here.
+# Its `pull_request` filter *is* the set of inputs `build.mjs` reads (its `push`
+# trigger has no filter: every merge deploys). This read
+# `publish-pages-branch.yml` until that workflow was retired on 2026-10-20,
+# when the Pages source moved to GitHub Actions. The repository
 # has now twice paid for a constant copied out of the file that owns it
 # (CLAUDE.md, "168 became 169"), so this parses the one source of truth and
 # `test_pages_state.py` asserts the file still parses.
@@ -182,7 +185,7 @@ PUBLISH_WORKFLOW = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     ".github",
     "workflows",
-    "publish-pages-branch.yml",
+    "portfolio-pages.yml",
 )
 
 # GitHub's managed builder for a *branch*-sourced Pages site. It is not a file
@@ -313,8 +316,12 @@ def build_input_patterns(path=PUBLISH_WORKFLOW):
     triggers = document.get("on") if isinstance(document, dict) else None
     if triggers is None and isinstance(document, dict):
         triggers = document.get(True)
-    push = (triggers or {}).get("push") if isinstance(triggers, dict) else None
-    paths = (push or {}).get("paths") if isinstance(push, dict) else None
+    paths = None
+    for event in ("push", "pull_request"):
+        trigger = (triggers or {}).get(event) if isinstance(triggers, dict) else None
+        paths = (trigger or {}).get("paths") if isinstance(trigger, dict) else None
+        if paths:
+            break
     if not paths:
         return None
     return [str(pattern) for pattern in paths]
