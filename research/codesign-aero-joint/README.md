@@ -1,4 +1,4 @@
-# codesign-aero-joint
+# Should a quadrotor’s airframe and controller gains be searched jointly when the plant is uncertain?
 
 **Should you search airframe and controller gains jointly when the plant is uncertain, instead of grid-then-tune? In this stylised quadrotor model, yes: joint CMA-ES finds a better design than the grid with a fifth of the evaluations.**
 
