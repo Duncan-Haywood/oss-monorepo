@@ -4094,6 +4094,11 @@
     "slug": "qual-regression",
     "title": "What happens to a regression coefficient when the regressor is an LLM's code?",
     "summary": "Regressing an outcome on an LLM's codes attenuates the coded variable's coefficient (0.74 for a true 1.00, interval coverage 0% in 300 simulated studies) and, when the coder's error depends on another covariate, biases that perfectly measured covariate too (0.467 against 0.50, coverage 60%). Design-based supervised learning (DSL) with about 210 hand-coded items drawn at a known 7% rate recovers both (1.01 and 0.50, coverage 94&ndash;97%) but narrows the coded coefficient&rsquo;s interval by only 14%. For a 3-class code, naive class shares are off by up to 8.5 points with 0% coverage; per-class PPI covers 95.5&ndash;97%. Simulated coders only; no real LLM was run."
+   },
+   {
+    "slug": "qual-real",
+    "title": "Does the prediction-powered correction work on real hand-coded text?",
+    "summary": "On 3,188 real Reddit comments with human emotion labels (GoEmotions), a naive-Bayes coder (kappa 0.14) reports 13.3% negative emotion against a human 25.3% (coverage 0 of 500 draws) and a short-versus-long gap of &minus;0.170 against a true &minus;0.028, because it misses 94% of negative emotion in short comments but 70% in long ones. PPI with 200 hand-coded items recovers both (coverage 0.94&ndash;0.97) but is 6&ndash;19% wider than using the hand-coded items alone, since the coders are weak. The coders are a trained classifier and a word list, not an LLM (no API key)."
    }
   ]
  }
