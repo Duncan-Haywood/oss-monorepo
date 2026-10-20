@@ -12,7 +12,7 @@ committed `results.txt`:
 
 - ``exact``      byte-identical after stripping trailing whitespace;
 - ``numeric``    same text, every number within 1% (relative) of the committed one;
-- ``timing``     differs only on lines that report wall-clock time;
+- ``timing``     differs only on lines that report wall-clock time or a tool version;
 - ``differs``    anything else (the committed numbers are not what the code prints now);
 - ``error`` / ``timeout`` / ``missing-dep`` / ``no-runner`` / ``no-results``  could not compare.
 
@@ -36,7 +36,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RESEARCH = ROOT / "research"
 
 NUM = re.compile(r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?")
-TIMING = re.compile(r"\b(elapsed|wall|seconds|runtime|took|time:|sec\b|ms\b|s\)|\d+(\.\d+)?\s?s\b)", re.I)
+TIMING = re.compile(r"\b(elapsed|wall|seconds|runtime|took|time:|sec\b|ms\b|s\)|\d+(\.\d+)?\s?s\b|"
+                    r"version|v?\d+\.\d+\.\d+\b|mujoco \d|yosys \d|python \d)", re.I)
 
 
 def projects(base: Path = RESEARCH) -> list[str]:
@@ -117,7 +118,8 @@ def _outputs(d: Path) -> dict[Path, tuple[int, str]]:
 WORST = ["differs", "timing", "numeric", "exact"]
 
 
-def run_one(tree: Path, slug: str, python: str, timeout: int, readme_mode: bool = False) -> dict:
+def run_one(tree: Path, slug: str, python: str, timeout: int, readme_mode: bool = False,
+            siblings: bool = False) -> dict:
     d = tree / "research" / slug
     rec: dict = {"slug": slug}
     readme = (d / "README.md").read_text(errors="replace") if (d / "README.md").exists() else ""
@@ -131,7 +133,10 @@ def run_one(tree: Path, slug: str, python: str, timeout: int, readme_mode: bool 
         return rec
     rec["commands"] = len(cmds)
     before = _outputs(d)
-    env = dict(os.environ, PYTHONPATH="src", MPLBACKEND="Agg", PYTHONHASHSEED="0")
+    path = ["src"]
+    if siblings:  # some READMEs put a sibling project's src on PYTHONPATH
+        path += sorted(str(p) for p in (tree / "research").glob("*/src") if p.parent != d)
+    env = dict(os.environ, PYTHONPATH=os.pathsep.join(path), MPLBACKEND="Agg", PYTHONHASHSEED="0")
     t0, stdout = time.time(), ""
     for c in cmds:
         left = timeout - (time.time() - t0)
@@ -188,7 +193,8 @@ def cmd_run(args) -> None:
         done = {json.loads(ln)["slug"] for ln in out.read_text().splitlines() if ln.strip()}
     todo = [s for s in slugs if s not in done]
     with out.open("a") as fh, cf.ThreadPoolExecutor(args.jobs) as ex:
-        futs = {ex.submit(run_one, tree, s, args.python, args.timeout, args.readme): s for s in todo}
+        futs = {ex.submit(run_one, tree, s, args.python, args.timeout, args.readme,
+                           args.siblings): s for s in todo}
         for i, f in enumerate(cf.as_completed(futs), 1):
             rec = f.result()
             fh.write(json.dumps(rec) + "\n")
@@ -382,6 +388,7 @@ def main(argv=None) -> None:
     r.add_argument("--only", nargs="*")
     r.add_argument("--readme", action="store_true",
                    help="run the README's own python commands even when experiments/run.py exists")
+    r.add_argument("--siblings", action="store_true", help="put every sibling project's src on PYTHONPATH")
     t = sub.add_parser("tests")
     t.add_argument("--tree", default=str(ROOT))
     t.add_argument("--out", required=True)
