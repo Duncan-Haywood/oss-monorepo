@@ -1,0 +1,35 @@
+name: csv-to-sepa-pain008
+description: >-
+  Free browser tool that turns a CSV or Excel export of debtors and signed mandates (name, IBAN, amount, mandate
+  reference, mandate date) into a SEPA direct debit collection file (ISO 20022 pain.008.001.02, CORE or B2B) for a
+  business bank's bulk upload. The creditor identifier gets its check-digit test, every IBAN is checked, each mandate
+  needs a reference and a signature date, collections are written as one block per sequence type (FRST, RCUR, OOFF,
+  FNAL) with exact cent totals, and no file is written while any collection has an error. The list is read locally and
+  never uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-20 as the collection half of the SEPA set: `csv-to-sepa-pain001` writes credit transfers, this writes
+# direct debits, and `sepa-pain001-validator` (which also reads pain.008) checks the result. A test feeds this tool's output
+# to the validator when both sit in the monorepo; it reports no errors for CORE and B2B.
+#
+# Archetype: paste-your-file converter with an arithmetic core (exact-cent control totals per block) and a rules core
+# (creditor-id check digits, mandate completeness, sequence-type grouping). Competitors are the SEPA export add-ons of
+# membership, rent and billing software, and paid desktop tools that write pain.008 from a spreadsheet; the angle here
+# is private (nothing uploaded), free, refuses to emit a half-correct batch, and says why per line.
+#
+# First visitor: a club treasurer, landlord, small gym or SaaS bookkeeper in the euro area whose bank accepts a pain.008
+# upload but whose billing tool does not export one, searching "CSV to SEPA direct debit", "Excel to pain.008",
+# "Lastschrift XML erstellen". Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet for a paid tier. If usage appears: saved creditor profiles,
+# a mandate register with sequence-type tracking (FRST becomes RCUR automatically), pre-notification letters, return
+# and R-transaction reading via pain.002, and an API behind an env-var switch; none built.
+#
+# Known gap, left for the next session: the sibling validator treats ReqdColltnDt in pain.008.001.08 as wrapped in <Dt>.
+# Real pain.008.001.08 schemas are believed to define it as a plain date, which is not confirmed from a primary source,
+# so this tool writes only pain.008.001.02 (the version banks' SEPA specs name) and does not touch the validator.
+#
+# Liability: generates a file from the user's own list, no warranty, independent of every bank and the EPC, no promise
+# the bank accepts it, user reviews every collection, holds the signed mandates and sends any pre-notification the scheme
+# requires. Reference data read from memory of public sources.

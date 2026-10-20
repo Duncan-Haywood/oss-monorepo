@@ -1852,6 +1852,10 @@ const CATEGORY_RULES = [
       // `sepa-pain002-status-reader` joined 2026-10-04 on its first commit: the receiving end of `sepa-pain001-validator` -- the bank's
       // status report on an uploaded SEPA file, read per payment with each rejection code explained.
       || slug === 'sepa-pain002-status-reader'
+      // `csv-to-sepa-pain001` and `csv-to-sepa-pain008` joined 2026-10-20: the generator halves of the SEPA set (credit transfers and
+      // direct debits from a spreadsheet), filed beside the validator and status reader that check and read their files.
+      || slug === 'csv-to-sepa-pain001'
+      || slug === 'csv-to-sepa-pain008'
       // `edi-x12-order-checker` joined 2026-10-04 on its first commit: a supplier's EDI purchase order, invoice and ship
       // notice checked before they go to a retailer -- the same back-office document-preflight job as the payment-file checkers.
       || slug === 'edi-x12-order-checker'
