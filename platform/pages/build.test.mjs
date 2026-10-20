@@ -3737,7 +3737,9 @@ test('every stylesheet and script this build injects is one file, at the right d
       const html = await fs.readFile(file, 'utf8');
       const rel = path.relative(outDir, file);
       if (rel === 'index.html' || rel === '404.html') continue; // the hub is its own document
-      if (!html.includes('pf-chrome')) continue;               // not a page this build wraps
+      // The chrome's own markup, not the bare word: the changelog quotes commit
+      // subjects, and one that names pf-chrome.css is not a wrapped page.
+      if (!html.includes('class="pf-chrome')) continue;       // not a page this build wraps
       if (!gate(html)) continue;
       carrying += 1;
       const pattern = attr === 'link'
