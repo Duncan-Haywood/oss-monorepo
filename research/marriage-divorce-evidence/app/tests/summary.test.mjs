@@ -53,3 +53,19 @@ test('ACS baselines: the cells a person matches, most specific first, with inter
   assert.ok(!n.matches.some((x) => x.dims.includes('state') || x.dims.includes('nativity')));
   assert.deepEqual(n.missing.sort(), ['nativity', 'race_ethnicity', 'state']);
 });
+
+test('HCMST skill is the couple group\'s own C-index, not the pooled one', async () => {
+  const { skillForCouple } = await import('../summary.js');
+  const { readFileSync } = await import('node:fs');
+  const bundle = JSON.parse(readFileSync(new URL('../models/hcmst_couples.json', import.meta.url)));
+  const married = skillForCouple(bundle, {}, {}, { status: 'Married, living together' });
+  const unmarried = skillForCouple(bundle, {}, {}, { status: 'Not married, living together' });
+  const unknown = skillForCouple(bundle, {}, {}, {});
+  const m = bundle.models.find((x) => x.key === married.key);
+  assert.equal(married.c, m.heldout.by_group['Married at wave 1'].c_index);
+  assert.equal(unmarried.c, m.heldout.by_group['Unmarried at wave 1'].c_index);
+  assert.equal(married.group, 'married couples');
+  assert.ok(married.c < married.cPooled);
+  assert.equal(unknown.c, m.heldout.c_index);
+  assert.equal(unknown.group, undefined);
+});

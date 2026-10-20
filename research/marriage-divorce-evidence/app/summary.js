@@ -6,6 +6,22 @@
 import { refusals, project, stepAt, lensHorizons, primaryHorizon, typicality, lensSkill, adapterFor, isRateLens } from './couple.js';
 import { referenceFor, populationComparison } from './population.js';
 
+// Held-out skill for this couple's own group when the lens publishes one (HCMST reports it for
+// married and unmarried couples separately; its pooled C-index is inflated by telling new and
+// unmarried couples apart from long marriages, which says little about a married couple).
+const GROUP_OF = {
+  hcmst_couples: (a, b, couple) => (couple.status ? (String(couple.status).startsWith('Married') ? 'Married at wave 1' : 'Unmarried at wave 1') : null),
+};
+export function skillForCouple(bundle, a, b, couple) {
+  const skill = lensSkill(bundle);
+  const pick = GROUP_OF[bundle.id];
+  if (!skill || !pick) return skill;
+  const group = pick(a, b, couple);
+  const g = group && (bundle.models || []).find((m) => m.key === skill.key)?.heldout?.by_group?.[group];
+  if (!g || !Number.isFinite(g.c_index)) return skill;
+  return { ...skill, c: g.c_index, cCi: g.c_index_ci || null, group: group.replace(/ at wave 1$/, '').toLowerCase() + ' couples', cPooled: skill.c };
+}
+
 export function summariseLens(lens, a, b, couple) {
   const bundle = lens.bundle;
   const base = { id: lens.summary.id, label: lens.summary.label, outcome: adapterFor(bundle).outcome || lens.summary.target, kind: adapterFor(bundle).kind || 'rate' };
@@ -28,7 +44,7 @@ export function summariseLens(lens, a, b, couple) {
     status: 'ok',
     horizons,
     primary: ph,
-    skill: lensSkill(bundle),
+    skill: skillForCouple(bundle, a, b, couple),
     fit: { ood: t ? t.percentile : null, given: t ? 1 - t.neutralised.length / (bundle.ood.numeric.length + bundle.ood.categorical.length) : null, abstainAbove: bundle.ood?.abstain_above_percentile ?? null, inSupport: horizons.every((x) => x.inSupport), outside: p.filter((z) => !z.inSupport).length },
     percentile: prow ? { horizon: prow.horizon, quantity: cmp.quantity, ...prow.overall } : null,
     rate: isRateLens(bundle),
@@ -58,7 +74,7 @@ export function relevance(s) {
     reasons.push(`on the ${Math.round(100 * s.fit.given)}% of its inputs you gave, this couple is more typical than ${Math.round(100 - s.fit.ood)}% of its surveyed people`);
   } else reasons.push('it has no typicality check');
   const c = s.skill?.c;
-  if (Number.isFinite(c)) { r += 2 * (c - 0.5); reasons.push(`held-out C-index ${c.toFixed(2)}`); } else if (Number.isFinite(s.skill?.gain)) { r += s.skill.gain / 50; reasons.push(`held-out gain ${s.skill.gain.toFixed(1)}%`); }
+  if (Number.isFinite(c)) { r += 2 * (c - 0.5); reasons.push(`held-out C-index ${c.toFixed(2)}${s.skill.group ? ` among ${s.skill.group} (${s.skill.cPooled.toFixed(2)} pooled)` : ''}`); } else if (Number.isFinite(s.skill?.gain)) { r += s.skill.gain / 50; reasons.push(`held-out gain ${s.skill.gain.toFixed(1)}%`); }
   return { score: r, reasons };
 }
 
