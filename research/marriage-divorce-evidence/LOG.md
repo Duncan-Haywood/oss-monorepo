@@ -3,8 +3,17 @@
 ## 2026-10-20 · App: not engaged yet? Marry each other, or break up first
 
 - The before-the-wedding view now answers the earlier question too. For a couple who are dating or living together, workstream A's two HCMST 2009–2017 models (#8662) give the chance of marrying each other within 8.4 years and of breaking up first, chained period by period as the bundles' `how_to_combine` specifies (`app/dating.js`). The chain then hands over to the selected pre-wedding lens for the marriage itself.
-- A couple living together for 3 years (27 and 29, bachelor's degrees, parents approve, rating the relationship excellent and good): 50.9% marry each other within 8.4 years, 41.6% break up first, 7.5% still together and unmarried. Two partners who rate it fair and live apart: 5.7% marry and 94% break up first. Across all 939 couples, 21.9% married and 54.0% broke up first. Held-out AUC is 0.73 (marrying) and 0.71 (breaking up). The two models were fitted separately, so the split is approximate, and the page says so.
+- Two additive models are run: the full one, and the harmonized one A checked on HCMST's 2017 cohort (#8727; AUC 0.79 for marrying and 0.85 for breaking up by 2022). The page shows their range.
+- A couple living together for 3 years (27 and 29, bachelor's degrees, parents approve, rating the relationship excellent and good): 60.4% marry each other within 8.4 years (models 50.9–70.0), 31.7% break up first (21.9–41.6), and 7.9% are still together and unmarried. The same couple rating it fair and living apart: 9.2% marry (6.5–11.9) and 86.9% break up first (81.9–91.9). Across all 939 couples, 21.9% married and 54.0% broke up first.
+- The two outcomes were modelled separately, so the split is approximate, and the page says so.
 - The hand-over multiplies two estimates from different surveys (marrying within 8.4 years, times no break-up in the first 10 years of marriage) and is labelled as an approximation.
+
+## 2026-10-20 · Before the wedding, checked on a later cohort: 2009 dating models predict 2017 couples
+
+- The two HCMST before-the-wedding models (marry the partner, or break up first) were trained on couples unmarried in 2009. They were scored, without refitting, on the 777 couples unmarried in HCMST's fresh 2017 sample, using a harmonized variant without parents' view or religion (not asked in 2017).
+- By 2020: marrying AUC 0.767 (16.5% observed, 15.8% predicted); breaking up first AUC 0.838 (33.1% vs 34.4%). By 2022: marrying AUC 0.786 (21.7% vs 21.6%); breaking up first AUC 0.847 (43.8% vs 44.9%). That is at least as good as the 2009 held-out AUCs (0.72 and 0.70). This is one later cohort of the same survey, not a different population.
+- Data fix: 8 weddings to the 2017 partner newly reported in 2022 show up only in `w3_when_married_yr` plus `w3_partner_source`, because the derived `w3_partner_type` was not updated. Counting them raises 2022 marriages from 65 to 73.
+- The bundles now carry the harmonized model, the external results and `stage: before` (the convention in `couple.js`, #8713). Parity is 320/320 to 10<sup>-9</sup>. ROADMAP A item 3 is done.
 
 ## 2026-10-20 · App: the harmonized before-the-wedding model is the default lens
 

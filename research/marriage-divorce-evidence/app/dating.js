@@ -8,9 +8,12 @@
 import { predict } from './engine.js';
 import { hcmstRow, QUALITY, STATUS } from './lens-adapters.js';
 
-// The additive models are scored; period-only is a baseline and the depth-2 trees did worse
-// than it held out (marriage log-loss gain −1.6%), so neither is averaged.
-export const DATING_MODEL = 'additive';
+// The two additive models are scored (the full one, and the harmonized one A checked on the
+// 2017 cohort, #8727, which drops parents' view and religion); the chain is run per model and
+// its range shown. Period-only is a baseline and the depth-2 trees did worse than it held out
+// (marriage log-loss gain −1.6%), so neither is used.
+export const DATING_MODELS = ['additive', 'additive_harmonized'];
+export const DATING_MODEL = DATING_MODELS[0];
 
 const num = (v) => (v === '' || v === null || v === undefined ? NaN : Number(v));
 const has = (v) => v !== '' && v !== null && v !== undefined;
@@ -46,23 +49,23 @@ export function datingIssues(bundle, a, b, couple, k) {
   return out;
 }
 
-// The period probability of one outcome, averaged over the couple's perspectives.
-function periodProb(bundle, a, b, couple, k) {
-  const model = bundle.models.find((m) => m.key === DATING_MODEL);
+// The period probability of one outcome from one model, averaged over the couple's perspectives.
+function periodProb(bundle, a, b, couple, k, key = DATING_MODEL) {
+  const model = bundle.models.find((m) => m.key === key);
   const views = datingViews(a, b);
   return views.reduce((s, v) => s + predict(model, hcmstRow(bundle, v, a, b, couple, k)), 0) / views.length;
 }
 
-// Cumulative chances by the end of each follow-up period, from today.
-export function datingChain(mBundle, bBundle, a, b, couple) {
+// Cumulative chances by the end of each follow-up period, from today, for one model pair.
+export function datingChain(mBundle, bBundle, a, b, couple, key = DATING_MODEL) {
   const periods = mBundle.periods;
   let still = 1;
   let married = 0;
   let broke = 0;
   const steps = [];
   for (let k = 0; k < periods.length; k++) {
-    const m = periodProb(mBundle, a, b, couple, k);
-    const br = periodProb(bBundle, a, b, couple, k);
+    const m = periodProb(mBundle, a, b, couple, k, key);
+    const br = periodProb(bBundle, a, b, couple, k, key);
     // Separately fitted: if the two would exceed 1, share the period out in proportion.
     const tot = m + br;
     const sc = tot > 1 ? 1 / tot : 1;
@@ -72,6 +75,23 @@ export function datingChain(mBundle, bBundle, a, b, couple) {
     steps.push({ period: periods[k].period, years: periods[k].years_since_start_at_end, m, b: br, married, brokeUp: broke, stillTogether: still, issues: datingIssues(mBundle, a, b, couple, k) });
   }
   return { steps, married, brokeUp: broke, stillTogether: still, years: periods[periods.length - 1].years_since_start_at_end, perspectives: datingViews(a, b).length };
+}
+
+// The chain for every scored model pair the bundles carry: mean and range of each share.
+export function datingRange(mBundle, bBundle, a, b, couple) {
+  const keys = DATING_MODELS.filter((k) => mBundle.models.some((m) => m.key === k) && bBundle.models.some((m) => m.key === k));
+  const per = Object.fromEntries(keys.map((k) => [k, datingChain(mBundle, bBundle, a, b, couple, k)]));
+  const stat = (f) => {
+    const v = keys.map((k) => per[k][f]);
+    return { mean: v.reduce((x, y) => x + y, 0) / v.length, min: Math.min(...v), max: Math.max(...v) };
+  };
+  return { per, models: keys.length, married: stat('married'), brokeUp: stat('brokeUp'), stillTogether: stat('stillTogether'), years: per[keys[0]].years, perspectives: per[keys[0]].perspectives, issues: per[keys[0]].steps.some((z) => z.issues.length) };
+}
+
+// A's out-of-sample check on HCMST's 2017 cohort (#8727): AUC of the harmonized models.
+export function datingExternal(bundle, outcome) {
+  const rows = (bundle.external_validation || []).filter((r) => r.model === 'additive_harmonized' && r.outcome === outcome);
+  return rows.length ? rows[rows.length - 1] : null;
 }
 
 // The observed reference: what happened to all 939 couples (weighted), no model.
@@ -84,5 +104,6 @@ export function datingObserved(mBundle) {
 // and are still married `afterYears` after the wedding. It multiplies two estimates from different
 // surveys as if independent, so it is an approximation and labelled so.
 export function handover(chain, survivalAfterWedding) {
-  return Number.isFinite(survivalAfterWedding) ? chain.married * survivalAfterWedding : null;
+  const m = typeof chain.married === 'number' ? chain.married : chain.married.mean;
+  return Number.isFinite(survivalAfterWedding) ? m * survivalAfterWedding : null;
 }

@@ -114,7 +114,7 @@ Incident history for these rules: `docs/history/claude-md-2026-10-15.md`.
   close.
 - **Red is red, but classify first:**
   `python3 platform/ci/ci_starvation.py --run <run_id>` votes on `runner_id: 0`
-  (no runner assigned, no step ran). See `CLAUDE.md`, "Reading CI".
+  (no runner assigned, no step ran). See `.github/prompts/verify-and-merge.md`, "Reading CI".
 - **Verify with the workflows' own steps, not a subset:**
   `python3 platform/ci/run_workflow_locally.py --for-changes` runs every
   workflow your diff would trigger that cannot write anything and names each

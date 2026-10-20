@@ -60,3 +60,16 @@ test('observed reference and hand-over', () => {
   assert.equal(handover(ch, 0.9), ch.married * 0.9);
   assert.equal(handover(ch, NaN), null);
 });
+
+test('two scored models: the full additive and the harmonized one checked on 2017', async () => {
+  const { datingRange, datingExternal, DATING_MODELS } = await import('../dating.js');
+  const r = datingRange(M, B, a, b, c);
+  assert.equal(r.models, DATING_MODELS.length);
+  for (const f of ['married', 'brokeUp', 'stillTogether']) assert.ok(r[f].min <= r[f].mean + 1e-15 && r[f].mean <= r[f].max + 1e-15);
+  assert.ok(Math.abs(r.per.additive.married - datingChain(M, B, a, b, c).married) < 1e-15);
+  assert.ok(Math.abs(r.married.mean + r.brokeUp.mean + r.stillTogether.mean - 1) < 1e-12);
+  assert.equal(handover(r, 0.5), r.married.mean * 0.5);
+  const em = datingExternal(M, 'married');
+  const eb = datingExternal(B, 'broke_up');
+  assert.ok(em && em.auc > 0.7 && eb && eb.auc > 0.8, 'A’s 2017-cohort AUCs');
+});

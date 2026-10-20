@@ -58,12 +58,46 @@ couple, with a seeded shuffle. The score is weighted log loss against a constant
 | --- | --- | --- | --- | --- |
 | Marriage | Period only | −1.3% | −5.7 to 1.4% | 0.481 |
 | Marriage | **Additive logistic** | **7.9%** | 1.4 to 20.5% | **0.726** |
+| Marriage | Additive, harmonized (no parents' view or religion) | 7.7% | 1.4 to 21.0% | 0.716 |
 | Marriage | Tree, depth 2 | −1.6% | −9.7 to 12.6% | 0.564 |
 | Break-up | Period only | 1.6% | 0.1 to 3.2% | 0.566 |
 | Break-up | **Additive logistic** | **9.3%** | 5.9 to 12.8% | **0.706** |
+| Break-up | Additive, harmonized | 8.7% | 4.9 to 11.6% | 0.700 |
 | Break-up | Tree, depth 2 | 3.1% | −0.4 to 9.7% | 0.631 |
 
 There are only 160 weddings, so the marriage model's skill varies a lot between folds.
+
+## External check on a later cohort: HCMST 2017–2022 (`external_validation_hcmst2017.csv`)
+
+HCMST drew a fresh sample in 2017: 3,510 adults, 2,862 of them partnered, re-interviewed in
+2020 (2,107) and 2022 (1,722). The file is *small public version 2.2*, the same file and checksum
+as the HCMST couples lens. Its 777 couples who were together but unmarried in July 2017 were
+scored with the **2009-trained harmonized models**, which leave out parents' view and religion
+because 2017 did not ask about them. Nothing was refitted. Inputs are coded by
+`../hcmst/hcmst_data.py` `couples_2017()`.
+
+- **Outcomes:** whichever came first, marrying the 2017 partner or breaking up with them, by
+  the 2020 wave and by the 2022 wave. Partner deaths, and couples not seen at the end of a
+  window with no earlier event, are left out of that window.
+- **Weddings newly reported in 2022:** they carry `w3_when_married_yr`, but their derived
+  `w3_partner_type` still says "unmarried". The wedding year plus `w3_partner_source` = 1 (the
+  current partner is the 2017 partner) is what marks them: 8 weddings that the status field
+  alone misses.
+- **Horizons:** the models' period sums end at 2.2 years for the 2020 window and 4.1 years for
+  2022. The real windows are somewhat longer, so predicted shares would, if anything, run low.
+
+| Window | Outcome | Couples | Events | Observed (weighted) | Predicted | AUC |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2017→2020 | Married | 400 | 65 | 16.5% | 15.8% | **0.767** |
+| 2017→2020 | Broke up first | 400 | 131 | 33.1% | 34.4% | **0.838** |
+| 2017→2022 | Married | 352 | 73 | 21.7% | 21.6% | **0.786** |
+| 2017→2022 | Broke up first | 352 | 151 | 43.8% | 44.9% | **0.847** |
+
+The 2009 models rank the 2017 couples at least as well as they ranked held-out 2009 couples.
+Their overall shares land within 1.5 points of what happened. The depth-2 trees do worse (AUC
+0.69–0.77), and the period-only baseline has no ranking skill by construction. This is one
+external cohort from the same survey design and the same kind of panel, so it shows the models
+travel across eight years, not across populations.
 
 ## Results (`cumulative_incidence.csv`, weighted, whichever event comes first)
 
@@ -90,8 +124,10 @@ cohabit or to rate a relationship "excellent" differs in ways the survey does no
 
 ## Using the bundles
 
-`app/models/hcmst_dating_marriage.json` and `hcmst_dating_breakup.json` are logistic models,
-each with a period-only baseline and a depth-2 tree. `how_to_combine` in each bundle gives the
+`app/models/hcmst_dating_marriage.json` and `hcmst_dating_breakup.json` each hold the
+additive logistic model, the harmonized additive model (externally checked, and usable when a
+person skips parents' view or religion), a period-only baseline and a depth-2 tree.
+`stage` is `before`, as in `couple.js` (#8713). `how_to_combine` in each bundle gives the
 calculation:
 
 - still dating: S<sub>k</sub> = S<sub>k−1</sub>(1 − m<sub>k</sub> − b<sub>k</sub>);
@@ -100,7 +136,7 @@ calculation:
 The two models are fitted separately, so treat their combination as approximate. Both
 bundles are listed in `models/index.json` without a form adapter. They abstain for couples
 already married, inputs outside `support`, and horizons beyond about 8.4 years.
-`tests/hcmst_dating.test.mjs` checks the engine against Python on 240 predictions (to 10⁻⁹).
+`tests/hcmst_dating.test.mjs` checks the engine against Python on 320 predictions (to 10⁻⁹).
 
 ## Reproduce
 

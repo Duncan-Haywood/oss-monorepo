@@ -68,7 +68,9 @@ licences):**
   `literature_evidence/`.
 - **Mortality:** `un_wpp2024_mortality/` (`mortality.js` `competingRisks`).
 
-**Hand-offs to C (app):** adapters for the two HCMST before-the-wedding lenses. They ask for
+**Hand-offs to C (app):** adapters for the two HCMST before-the-wedding lenses (#8713 already
+places them under "Before the wedding"). Prefer each bundle's `additive_harmonized` model when
+parents' view or religion is not given: it is the one checked on the 2017 cohort. They ask for
 the 2009 HCMST inputs: relationship quality, living together, parents' view, couple type, ages,
 schooling and how the couple met. Chain them into a marriage lens after the wedding, as
 `how_to_combine` in each bundle describes.
@@ -81,8 +83,10 @@ schooling and how the couple met. Chain them into a marriage lens after the wedd
 2. **Add Health public-use waves I–V** (addhealth.cpc.unc.edu reachable): adolescents measured
    long before they marry. Check whether the public-use files and relationship histories can be
    downloaded without a contract.
-3. **HCMST 2017–2022 unmarried couples** (Stanford reachable): a second, more recent
-   before-the-wedding cohort, and an external check for the 2009 lenses.
+3. ~~HCMST 2017–2022 unmarried couples~~ **Done 2026-10-20:** the 2009-trained harmonized
+   dating models, scored on 777 unmarried 2017 couples, reach AUC 0.77–0.79 for marrying and
+   0.84–0.85 for breaking up first by 2020 and 2022, with shares within 1.5 points
+   (`hcmst_dating_to_marriage/external_validation_hcmst2017.csv`).
 4. **Pre-marital relationship-quality studies** with open data on OSF or Zenodo (both
    reachable), for example engaged-couple or premarital-inventory studies.
 5. **PSID, Fragile Families / Future of Families and Understanding Society**: their hosts
@@ -178,7 +182,8 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
   are named on the page; second marriages, same-sex couples and out-of-data ages are refused;
   B's typicality score runs before any number (`tests/prewedding_app.test.mjs`).
 - Not engaged yet: `dating.js` chains A's two HCMST dating-couple models (marry each other vs
-  break up first) by the bundles' `how_to_combine`, per partner rating, and hands over to the
+  break up first) by the bundles' `how_to_combine`, per partner rating, for both additive models
+  (the full one and the harmonized one A checked on the 2017 cohort) with their range, and hands over to the
   selected before-the-wedding lens for the years after a wedding (a labelled approximation that
   joins two surveys). Shown only before the wedding; relationship questions are visible there
   and the relationship status follows the stage (`tests/dating.test.mjs`).

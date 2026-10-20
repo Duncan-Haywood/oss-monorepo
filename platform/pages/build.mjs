@@ -32,6 +32,7 @@ import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { buildWriting, WRITING_PATH } from './writing.mjs';
+import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
@@ -3613,6 +3614,8 @@ const CATEGORY_RULES = [
         'freelance-lead-tracker',
         // `sales-call-notes-desk` joined 2026-10-17 on its first commit: a seller or founder turning discovery-call notes into CRM fields, qualification gaps and the follow-up email, the step between the lead and the proposal.
         'sales-call-notes-desk',
+        // `sales-cadence-builder` joined 2026-10-20 on its first commit: the multi-channel prospecting plan (email, call, LinkedIn, letter) for a list the seller already has, the step before the call notes.
+        'sales-cadence-builder',
         // `rental-ledger` joined 2026-10-07: the records-and-Schedule-E home for the landlord calculators, which each answer one typed question and hold nothing.
         'rental-ledger',
         // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
@@ -10479,6 +10482,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
   const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+
+  // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
+  // site can be. Its handoff page reads catalog.json in the browser.
+  await buildLab(outDir);
 
   // The open book (see `updates.mjs`): what shipped, what is in progress, the
   // owner's direction and the process, plus the changelog of every merge.

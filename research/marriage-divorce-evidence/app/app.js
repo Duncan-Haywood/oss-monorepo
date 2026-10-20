@@ -4,7 +4,7 @@ import { encodeLiterature, decodeLiterature, renderLiteratureQuestions, readLite
 import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, referenceOnlyModels, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, expandLens, shareOod, encodeScenario, decodeScenario, rowLabels, lensHorizons, primaryHorizon, isRateLens, stepAt, fmtYears, modelSkill, STAGES, lensStage, lensesForStage, defaultLens } from './couple.js';
 import { QUALITY, HAPMAR, PARTY, PARENTS_VIEW, COUNT3, RELIGION_RAISED, MOTHER_EDU, MOTHER_AGE, ATTEND_DETAIL, OFTEN, STATUS, HOW_MET, PLACE, STATES, YESNO, MARRIAGES_BEFORE, SAT_ITEMS, SAT_SCALE, HOSTILE_ITEMS, HOSTILE_SCALE, QUESTION_LENSES } from './lens-adapters.js';
 import { summariseAll, shortName } from './summary.js';
-import { datingRefusals, datingChain, datingObserved, handover } from './dating.js';
+import { datingRefusals, datingRange, datingExternal, datingObserved, handover } from './dating.js';
 import { inputsFromFields } from './scenarios.js';
 import { initScenarios, renderScenarios, importScenariosFromHash } from './scenarios-ui.js';
 
@@ -310,21 +310,23 @@ function renderDating(cur, a, b, couple) {
   if (!mB || !bB) { box.innerHTML = '<p class="note">The dating-couple models did not load.</p>'; return; }
   const why = datingRefusals(a, b, couple);
   if (why.length) { box.innerHTML = `<p class="note"><strong>No estimate.</strong> ${why.map(esc).join(' ')}</p>`; return; }
-  const ch = datingChain(mB, bB, a, b, couple);
+  const ch = datingRange(mB, bB, a, b, couple);
   const obs = datingObserved(mB);
-  const out = ch.steps.some((z) => z.issues.length);
   const H = Math.round(ch.years * 10) / 10;
+  const rng = (s) => (ch.models > 1 ? `models ${pct(s.min)}–${pct(s.max)}` : 'one model');
+  const exM = datingExternal(mB, 'married');
+  const exB = datingExternal(bB, 'broke_up');
   let hand = '';
   if (cur.summary.scorable && isRateLens(cur.bundle) && !refusals(cur.bundle, a, b, couple).length) {
     const s10 = project(cur.bundle, a, b, couple, 10)[9].meanSurvival;
     hand = `<p class="small">If you marry: ${esc(shortName(cur.summary.label, cur.summary.id))} puts the chance of no break-up in the first 10 years of the marriage at ${pct(s10)}. Multiplying the two, about <b>${pct(handover(ch, s10))}</b> of couples like you would marry within ${H} years and still be married 10 years after the wedding: an approximation that joins two surveys as if independent.</p>`;
   }
   box.innerHTML = `<div class="tiles three">
-      <div class="tile"><div class="k">Marry each other within ${H} years</div><div class="v">${pct(ch.married)}</div><div class="r">one model (additive), from ${ch.perspectives === 2 ? 'both your ratings' : 'one rating'}</div></div>
-      <div class="tile"><div class="k">Break up first</div><div class="v">${pct(ch.brokeUp)}</div><div class="r">one model (additive)</div></div>
-      <div class="tile"><div class="k">Still together, not married</div><div class="v">${pct(ch.stillTogether)}</div><div class="r">at ${H} years</div></div>
+      <div class="tile"><div class="k">Marry each other within ${H} years</div><div class="v">${pct(ch.married.mean)}</div><div class="r">${rng(ch.married)}; ${ch.perspectives === 2 ? 'both your ratings' : 'one rating'}</div></div>
+      <div class="tile"><div class="k">Break up first</div><div class="v">${pct(ch.brokeUp.mean)}</div><div class="r">${rng(ch.brokeUp)}</div></div>
+      <div class="tile"><div class="k">Still together, not married</div><div class="v">${pct(ch.stillTogether.mean)}</div><div class="r">at ${H} years</div></div>
     </div>
-    <p class="small">HCMST followed ${obs ? obs.couples.toLocaleString('en-US') : '939'} unmarried couples (dating or living together, different- or same-sex) from 2009 to 2017${obs ? `; overall ${pct(obs.married)} married and ${pct(obs.brokeUp)} broke up first` : ''}. Held out, the marriage model's AUC is ${mB.models.find((m) => m.key === 'additive').heldout.auc.toFixed(2)} and the break-up model's ${bB.models.find((m) => m.key === 'additive').heldout.auc.toFixed(2)}. The two were fitted separately, so the split is approximate.${out ? ' Some inputs are outside the survey’s data, so treat the numbers as extrapolation.' : ''}</p>${hand}`;
+    <p class="small">HCMST followed ${obs ? obs.couples.toLocaleString('en-US') : '939'} unmarried couples (dating or living together, different- or same-sex) from 2009 to 2017${obs ? `; overall ${pct(obs.married)} married and ${pct(obs.brokeUp)} broke up first` : ''}. Held out, the marriage model's AUC is ${mB.models.find((m) => m.key === 'additive').heldout.auc.toFixed(2)} and the break-up model's ${bB.models.find((m) => m.key === 'additive').heldout.auc.toFixed(2)}${exM && exB ? `; on HCMST's later 2017 cohort, never used in training, ${exM.auc.toFixed(2)} and ${exB.auc.toFixed(2)} (${esc(exM.window)})` : ''}. The two outcomes were modelled separately, so the split is approximate.${ch.issues ? ' Some inputs are outside the survey’s data, so treat the numbers as extrapolation.' : ''}</p>${hand}`;
 }
 
 // Links to the other lenses that can score this couple, inside their own data range.
