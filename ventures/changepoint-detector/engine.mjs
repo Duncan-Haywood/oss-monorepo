@@ -250,6 +250,23 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
       if (!found) break;
       best = found;
     }
+    // the grid is coarse on long series (step n/40), and a knot a few points off leaves a small kink that is read as a step:
+    // slide each knot one point at a time within a grid step of where it landed, keeping any move that lowers BIC
+    if (step > 1 && best.knots.length) {
+      for (let j = 0; j < best.knots.length; j++) {
+        const lo = Math.ceil(0.2 * n), hi = Math.floor(0.8 * n);
+        const around = best.knots[j];
+        let pick = null;
+        for (let knot = Math.max(lo, around - step + 1); knot <= Math.min(hi, around + step - 1); knot++) {
+          if (knot === around) continue;
+          const ks = best.knots.map((k, i) => (i === j ? knot : k)).sort((p, q) => p - q);
+          if (ks.some((k, i) => i && k - ks[i - 1] < gap)) continue;
+          const f = fit(ks);
+          if (f.bic < (pick || best).bic) pick = f;
+        }
+        if (pick) best = pick;
+      }
+    }
   }
   const out = { adjusted: detrend(line(best.s, best.knots)), slope: best.s[0] };
   if (best.knots.length) Object.assign(out, { slopeAfter: best.s[1], knot: best.knots[0], knots: best.knots, slopes: best.s });
