@@ -153,6 +153,17 @@ series, 40 each, in `engine.test.mjs`):
   the shift found in 39 of 40, exactly one change in 33 of 40, false changes on 9 of 40. With independent
   noise `--ar1` still helps (exactly one 24 to 36 of 40, false 14 to 5), because the drift profile leaves
   correlated residue. `--ar1 joint` is about the same (exactly one 30 of 40, false 15 at rho 0.5).
+- **A trend under the steps (`--trend`).** A slow ramp reads as many small steps. `--trend` fits one
+  line under the steps: start from the median first difference (a step touches one difference), segment
+  with PELT, re-estimate the slope as the pooled within-segment least-squares slope (segments of 8 or more
+  points), repeat. The segmentation inside that loop uses three times the penalty, because with the normal
+  penalty a slightly wrong slope makes PELT cut the residual ramp and the cuts then confirm the slope (seed 3
+  below stuck at 0.111 for a true 0.1); the final segmentation uses the normal penalty. On 200 points, slope 0.1,
+  shift 5 at point 100, seeds 501..540: 10.1 changes per series without, 1.13 with; mean slope 0.1003; shift found
+  40 of 40, exactly one change 37 of 40, a false change on 3 of 40 series with no shift (9.75 changes per
+  series without). Combined with `--period 12` (144 points, slope 0.08, amplitude 8, shift 5 at 84, seeds
+  601..640): 6.6 changes per series with `--period` alone, 1.25 with `--trend`, found 40 of 40, exactly one 36
+  of 40. One common slope only; a slope that itself changes is still read as steps. Not offered for counts.
 - **Choosing the drift window from the data: tried, not kept.** Picking the half-width (1 to 6 cycles) by
   leave-one-out prediction error, with and without a 10% margin over the fixed default, was worse than
   the fixed rule in all five series shapes tried (growing, steady, fast-growing, 72-point and a

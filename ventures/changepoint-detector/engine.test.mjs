@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -465,4 +465,52 @@ test('trend model: reports the jump and the slope on each side, and the summary 
   assert.ok(r.pelt.segments.every((sg) => typeof sg.slope === 'number'));
   assert.match(r.summary, /slope goes from/);
   assert.equal(r.bocpd.changeProb.length, 120);
+});
+
+test('trend: a ramp under one step leaves one change, not ten, and the slope is recovered', () => {
+  const N = 40, n = 200;
+  let plain = 0, tr = 0, found = 0, exact = 0, falseRuns = 0, slope = 0;
+  for (let s = 1; s <= N; s++) {
+    const z = normals(rng(s + 500), n);
+    const base = z.map((e, i) => 0.1 * i + e);
+    const x = base.map((v, i) => v + (i >= 100 ? 5 : 0));
+    plain += analyze({ values: x }).pelt.changepoints.length;
+    const r = analyze({ values: x, trend: true });
+    const c = r.pelt.changepoints;
+    tr += c.length; slope += r.trend.slopePerPoint;
+    const hit = c.some((p) => Math.abs(p.index - 100) <= 3);
+    found += hit; exact += hit && c.length === 1;
+    falseRuns += analyze({ values: base, trend: true }).pelt.changepoints.length > 0;
+  }
+  // measured (seeds 501..540, slope 0.1, shift 5 at 100): 10.1 changes/series without, 1.13 with; slope 0.1003;
+  // shift found 40/40, exactly one 37/40, false changes on 3/40 no-shift series
+  console.log(`# trend: ${plain / N} vs ${tr / N} changes/series; slope ${(slope / N).toFixed(4)}; found ${found}/${N}; exact ${exact}/${N}; false ${falseRuns}/${N}`);
+  assert.ok(tr / N < 0.25 * (plain / N));
+  assert.ok(Math.abs(slope / N - 0.1) < 0.005);
+  assert.ok(found >= 0.95 * N && exact >= 0.8 * N && falseRuns <= 0.2 * N);
+});
+
+test('trend with a seasonal cycle, and counts are refused', () => {
+  const N = 40;
+  let plain = 0, tr = 0, found = 0;
+  for (let s = 1; s <= N; s++) {
+    const z = normals(rng(s + 600), 144);
+    const x = z.map((e, i) => 0.08 * i + 8 * Math.sin((2 * Math.PI * i) / 12) + (i >= 84 ? 5 : 0) + e);
+    plain += analyze({ values: x, period: 12 }).pelt.changepoints.length;
+    const c = analyze({ values: x, period: 12, trend: true }).pelt.changepoints;
+    tr += c.length; found += c.some((p) => Math.abs(p.index - 84) <= 3);
+  }
+  // measured (seeds 601..640): 6.6 changes/series with --period alone, 1.25 with --trend; found 40/40
+  console.log(`# period+trend: ${plain / N} vs ${tr / N}; found ${found}/${N}`);
+  assert.ok(tr / N < 0.3 * (plain / N) && found >= 0.95 * N);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], model: 'poisson', trend: true }), /counts/);
+});
+
+test('trendAdjust keeps the mean level and returns the slope', () => {
+  const x = Array.from({ length: 60 }, (_, i) => 2 + 0.5 * i);
+  const { adjusted, slope } = trendAdjust(x);
+  assert.ok(Math.abs(slope - 0.5) < 1e-9);
+  const mean = adjusted.reduce((a, b) => a + b, 0) / 60;
+  assert.ok(Math.abs(mean - x.reduce((a, b) => a + b, 0) / 60) < 1e-9);
+  assert.ok(Math.max(...adjusted) - Math.min(...adjusted) < 1e-9);
 });
