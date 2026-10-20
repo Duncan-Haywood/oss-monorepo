@@ -19,7 +19,7 @@
   "tool_calls": 22,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 8801,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -44,7 +44,7 @@
     }
   ],
   "goal": null,
-  "notes": "Another session landed travel times (#8805) minutes earlier; dropped my duplicate implementation, added a harder 5-venue-line measurement (3200->1280 min) as test+README. Closing #8801 as superseded.",
+  "notes": "Another session landed travel times (#8805) minutes earlier; dropped my duplicate implementation, added a harder 5-venue-line measurement (3200->1280 min) as test+README. Reused PR #8801 for the smaller change.",
   "corrections": [],
   "redteam": null,
   "usage": {
