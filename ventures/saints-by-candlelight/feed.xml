@@ -16,6 +16,19 @@
     <itunes:category text="Religion &amp; Spirituality"><itunes:category text="Christianity"/></itunes:category>
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
-
+    <item>
+      <title>The Angel Who Called Himself Azarias</title>
+      <link>https://example.invalid/saints-by-candlelight/the-angel-who-called-himself-azarias.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-the-angel-who-called-himself-azarias</guid>
+      <pubDate>Tue, 20 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A blind old man, a nervous young man, a bride with a very bad wedding-night record, a large fish, a dog with no name, and a travelling companion who is not quite who he says he is. The Book of Tobit, told for bedtime, with the Archangel Raphael. What&#39;s true: The events follow the Book of Tobit, which Catholic and Orthodox Christians read as part of the Old Testament. Legend: None beyond the book itself; the dog&#39;s wagging tail comes from Saint Jerome&#39;s Latin translation. Invented for this episode: Small conversations, the travellers&#39; jokes, and the narrator&#39;s guesses about the dog and the fish are our own; nothing invented changes what happens or what it means. Feast day: Saint Raphael is honoured with the other archangels on the twenty-ninth of September in the Catholic calendar and at the Synaxis of the Archangels on the eighth of November in the Orthodox calendar. Full script and sources: https://example.invalid/saints-by-candlelight/the-angel-who-called-himself-azarias.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A blind old man, a nervous young man, a bride with a very bad wedding-night record, a large fish, a dog with no name, and a travelling companion who is not quite who he says he is. The Book of Tobit, told for bedtime, with the Archangel Raphael.</itunes:summary>
+      <itunes:episode>1</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/the-angel-who-called-himself-azarias.mp3" length="16040364" type="audio/mpeg"/>
+      <itunes:duration>0:53:28</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/the-angel-who-called-himself-azarias.html" type="text/html"/>
+    </item>
   </channel>
 </rss>
