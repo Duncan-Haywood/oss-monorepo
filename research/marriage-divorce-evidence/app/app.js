@@ -4,6 +4,7 @@ import { encodeLiterature, decodeLiterature, renderLiteratureQuestions, readLite
 import { SCHOOL, DEGREE, WORK, RELIGION, RACE_ETH, refusals, lensNotes, adapterFor, scoringModels, referenceOnlyModels, excludeReason, project, lifelong, constantSurvival, explain, groupedTerms, selfChanges, coupleChanges, idealPartners, lensSummary, lensView, expandLens, shareOod, encodeScenario, decodeScenario, rowLabels, lensHorizons, primaryHorizon, isRateLens, stepAt, fmtYears, modelSkill, STAGES, lensStage, lensesForStage, defaultLens } from './couple.js';
 import { QUALITY, HAPMAR, PARTY, PARENTS_VIEW, COUNT3, RELIGION_RAISED, MOTHER_EDU, MOTHER_AGE, ATTEND_DETAIL, OFTEN, STATUS, HOW_MET, PLACE, STATES, YESNO, MARRIAGES_BEFORE, SAT_ITEMS, SAT_SCALE, HOSTILE_ITEMS, HOSTILE_SCALE, QUESTION_LENSES } from './lens-adapters.js';
 import { summariseAll, shortName } from './summary.js';
+import { datingRefusals, datingRange, datingExternal, datingObserved, handover } from './dating.js';
 import { inputsFromFields } from './scenarios.js';
 import { initScenarios, renderScenarios, importScenariosFromHash } from './scenarios-ui.js';
 
@@ -42,9 +43,9 @@ function personFields(who) {
     <label>Children from an earlier relationship <select name="${who}.priorChildren">${opt(['No', 'Yes'], d.priorChildren)}</select></label>
     <label>Lived with both parents from birth to 18 <select name="${who}.intactFamily">${opt(['Yes', 'No'], d.intactFamily)}</select></label>
     <label>Race-ethnicity <select name="${who}.raceEth"><option value="">Prefer not to say</option>${opt(RACE_ETH, d.raceEth)}</select><small>Hispanic of any race; several lenses have no “unknown” group for it</small></label>
-    <details class="qgroup" data-stage="married"><summary>The relationship, in ${you ? 'your' : 'your partner’s'} words</summary>${usedBy(['quality', 'hapmar', 'party', 'parentsView'])}
+    <details class="qgroup"><summary>The relationship, in ${you ? 'your' : 'your partner’s'} words</summary>${usedBy(['quality', 'hapmar', 'party', 'parentsView'])}
       ${sel(`${who}.quality`, 'How would you describe the quality of your relationship?', QUALITY, d.quality)}
-      ${sel(`${who}.hapmar`, 'Taken all together, how would you describe your marriage?', HAPMAR, d.hapmar, '<small>Only if married</small>')}
+      <span data-stage="married">${sel(`${who}.hapmar`, 'Taken all together, how would you describe your marriage?', HAPMAR, d.hapmar, '<small>Only if married</small>')}</span>
       ${sel(`${who}.party`, 'Party preference', PARTY, d.party)}
       ${sel(`${who}.parentsView`, 'Your parents’ view of your partner', PARENTS_VIEW, d.parentsView)}
     </details>
@@ -164,6 +165,11 @@ function setStage(next) {
   // background questions open, since most pre-wedding lenses need them.
   for (const el of document.querySelectorAll('[data-stage="married"]')) el.hidden = before;
   if (before) for (const el of document.querySelectorAll('[data-open-before]')) el.open = true;
+  // The relationship status follows the stage (only the dating estimate and married lenses read it).
+  const st = $('#form').elements.status;
+  if (st && before && st.value.startsWith('Married')) st.value = st.value.endsWith('apart') ? 'Not married, not living together' : 'Not married, living together';
+  if (st && !before && st.value.startsWith('Not married')) st.value = 'Married, living together';
+  $('#datingBox').hidden = !before;
   $('#stageNote').textContent = before
     ? 'Scored only by lenses that start the clock on the wedding day and use facts known by then. Facts that change after the wedding (relationship quality, wages, children together) are not inputs here.'
     : 'For couples who are already married: lenses that score a marriage in progress, including relationship quality and marriage happiness.';
@@ -208,6 +214,7 @@ function applyView() {
   $('.share').hidden = v === 'batch';
   for (const [id, view] of [['justMe', 'justme'], ['candidates', 'candidates'], ['dashboard', 'dashboard'], ['batch', 'batch'], ['scenarios', 'scenarios']]) $('#' + id).hidden = v !== view;
   $('#summaryBox').hidden = v !== 'couple';
+  $('#datingBox').hidden = v !== 'couple' || stage !== 'before';
   if (v !== 'couple') { $('#results').hidden = true; $('#refuse').hidden = true; }
 }
 
@@ -228,6 +235,7 @@ function render() {
     return;
   }
   renderSummary(cur, f.a, f.b, f.couple);
+  renderDating(cur, f.a, f.b, f.couple);
   if (!cur.summary.scorable) {
     $('#refuse').hidden = false;
     $('#results').hidden = true;
@@ -289,6 +297,36 @@ function renderSummary(cur, a, b, couple) {
   });
   $('#summaryTable').innerHTML = '<thead><tr><th scope="col">Lens and its outcome</th><th scope="col">Chance of a break-up (model range)</th><th class="num" scope="col">Population percentile</th><th scope="col">Held-out skill</th><th scope="col">How well you fit its data</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
   $('#synthesis').innerHTML = s.synthesis.lines.map((l) => `<p>${esc(l)}</p>`).join('');
+}
+
+// Not engaged yet: will the couple marry each other, or break up first (HCMST dating models,
+// combined per the bundles' how_to_combine), and how that hands over to the selected
+// before-the-wedding lens. Only in the before-the-wedding view.
+function renderDating(cur, a, b, couple) {
+  const box = $('#datingOut');
+  if (stage !== 'before') return;
+  const mB = lenses.find((l) => l.summary.id === 'hcmst_dating_marriage')?.bundle;
+  const bB = lenses.find((l) => l.summary.id === 'hcmst_dating_breakup')?.bundle;
+  if (!mB || !bB) { box.innerHTML = '<p class="note">The dating-couple models did not load.</p>'; return; }
+  const why = datingRefusals(a, b, couple);
+  if (why.length) { box.innerHTML = `<p class="note"><strong>No estimate.</strong> ${why.map(esc).join(' ')}</p>`; return; }
+  const ch = datingRange(mB, bB, a, b, couple);
+  const obs = datingObserved(mB);
+  const H = Math.round(ch.years * 10) / 10;
+  const rng = (s) => (ch.models > 1 ? `models ${pct(s.min)}–${pct(s.max)}` : 'one model');
+  const exM = datingExternal(mB, 'married');
+  const exB = datingExternal(bB, 'broke_up');
+  let hand = '';
+  if (cur.summary.scorable && isRateLens(cur.bundle) && !refusals(cur.bundle, a, b, couple).length) {
+    const s10 = project(cur.bundle, a, b, couple, 10)[9].meanSurvival;
+    hand = `<p class="small">If you marry: ${esc(shortName(cur.summary.label, cur.summary.id))} puts the chance of no break-up in the first 10 years of the marriage at ${pct(s10)}. Multiplying the two, about <b>${pct(handover(ch, s10))}</b> of couples like you would marry within ${H} years and still be married 10 years after the wedding: an approximation that joins two surveys as if independent.</p>`;
+  }
+  box.innerHTML = `<div class="tiles three">
+      <div class="tile"><div class="k">Marry each other within ${H} years</div><div class="v">${pct(ch.married.mean)}</div><div class="r">${rng(ch.married)}; ${ch.perspectives === 2 ? 'both your ratings' : 'one rating'}</div></div>
+      <div class="tile"><div class="k">Break up first</div><div class="v">${pct(ch.brokeUp.mean)}</div><div class="r">${rng(ch.brokeUp)}</div></div>
+      <div class="tile"><div class="k">Still together, not married</div><div class="v">${pct(ch.stillTogether.mean)}</div><div class="r">at ${H} years</div></div>
+    </div>
+    <p class="small">HCMST followed ${obs ? obs.couples.toLocaleString('en-US') : '939'} unmarried couples (dating or living together, different- or same-sex) from 2009 to 2017${obs ? `; overall ${pct(obs.married)} married and ${pct(obs.brokeUp)} broke up first` : ''}. Held out, the marriage model's AUC is ${mB.models.find((m) => m.key === 'additive').heldout.auc.toFixed(2)} and the break-up model's ${bB.models.find((m) => m.key === 'additive').heldout.auc.toFixed(2)}${exM && exB ? `; on HCMST's later 2017 cohort, never used in training, ${exM.auc.toFixed(2)} and ${exB.auc.toFixed(2)} (${esc(exM.window)})` : ''}. The two outcomes were modelled separately, so the split is approximate.${ch.issues ? ' Some inputs are outside the survey’s data, so treat the numbers as extrapolation.' : ''}</p>${hand}`;
 }
 
 // Links to the other lenses that can score this couple, inside their own data range.
@@ -599,7 +637,7 @@ async function main() {
 // usable on a phone; each group says which lenses read it.
 function coupleFields() {
   return `
-    <details class="qgroup" data-stage="married"><summary>The relationship now</summary>${usedBy(['status', 'yearsTogether', 'howMet', 'childrenHome'])}
+    <details class="qgroup"><summary>The relationship now</summary>${usedBy(['status', 'yearsTogether', 'howMet', 'childrenHome'])}
       ${sel('status', 'Relationship now', STATUS, 'Married, living together')}
       <label>Years together (since the relationship began) <input name="yearsTogether" type="number" min="0" max="80" step="0.5" value="3"></label>
       ${sel('howMet', 'How you met', HOW_MET, 'Through friends')}
