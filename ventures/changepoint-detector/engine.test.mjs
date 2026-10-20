@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, poissonSeasonal, poissonTrend, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -811,4 +811,27 @@ test('count trends refuse bends, and a flat series gets a growth near zero', () 
   const r = rng(5);
   const a = analyze({ values: poissons(r, 150, 8), model: 'poisson', trend: true });
   assert.ok(Math.abs(a.trend.logGrowthAcrossSeries) < 0.4);
+});
+
+test('countDispersion reads Poisson counts as 1 and clumpy counts as large, and overdispersion stops the false steps', () => {
+  const r = rng(1700);
+  const n = 210;
+  const plain = Array.from({ length: n }, (_, t) => poissons(r, 1, 10 * [1.6, 1.3, 1.1, 0.9, 0.8, 0.5, 0.8][t % 7])[0]);
+  assert.ok(countDispersion(plain, 7) < 1.8);
+  // a lognormal rate with memory (rho 0.6, sd 0.35 innovations): variance far above the mean
+  let z = 0;
+  const sticky = Array.from({ length: n }, (_, t) => {
+    z = 0.6 * z + 0.35 * Math.sqrt(-2 * Math.log(Math.max(r(), 1e-12))) * Math.cos(2 * Math.PI * r());
+    return poissons(r, 1, 10 * Math.exp(z) * [1.6, 1.3, 1.1, 0.9, 0.8, 0.5, 0.8][t % 7])[0];
+  });
+  assert.ok(countDispersion(sticky, 7) > 2.5, `dispersion ${countDispersion(sticky, 7)}`);
+  assert.equal(countDispersion([1, 2, 3], 0), 1);
+  const without = analyze({ values: sticky, model: 'poisson', period: 7 });
+  const withOd = analyze({ values: sticky, model: 'poisson', period: 7, overdispersion: true });
+  assert.ok(withOd.dispersion > 2.5);
+  assert.ok(withOd.pelt.penalty > 2.5 * without.pelt.penalty);
+  assert.ok(withOd.pelt.changepoints.length < without.pelt.changepoints.length);
+  assert.ok(withOd.pelt.changepoints.length <= 2);
+  assert.equal(analyze({ values: plain, model: 'poisson', overdispersion: 3 }).dispersion, 3);
+  assert.throws(() => analyze({ values: plain, model: 'mean', overdispersion: true }), /counts/);
 });
