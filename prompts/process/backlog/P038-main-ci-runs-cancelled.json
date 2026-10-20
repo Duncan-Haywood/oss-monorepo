@@ -19,7 +19,7 @@
   "baseline": "44 of 100 cancelled (2026-10-20)",
   "opened": "2026-10-20",
   "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
-  "pr": "this",
+  "pr": 8829,
   "result": null,
   "history": [
     "2026-10-20: ventures-tests.yml only: main runs no longer cancel in-flight runs. Other workflows left (runner starvation risk across 500+ workflows); verify metric after a day."
