@@ -27,10 +27,12 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      Models for real-world series the README lists as limits: a Poisson
-      cost for counts, a seasonal-difference or STL pre-step for seasonal
-      data, and an AR(1)-aware cost so autocorrelated series stop showing
-      false changes, each checked against R's changepoint package output.
+      A Poisson cost for counts is in (PELT exact against brute force, Gamma-
+      Poisson BOCPD exact against its closed form; --model poisson). Next: a
+      seasonal-difference or STL pre-step for seasonal data and an AR(1)-aware
+      cost so autocorrelated series stop showing false changes, and a check of
+      all three models against R's changepoint package output (R was not
+      available for the Poisson one).
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
