@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-20T23:08:25Z",
+ "generated": "2026-10-20T23:12:50Z",
  "rows": [
   {
    "date": "2026-10-01",
@@ -32663,7 +32663,7 @@
    "measured": {
     "additions": 105,
     "changed_files": 5,
-    "ci_head": "green",
+    "ci_head": "pending",
     "ci_red_commits": 0,
     "deletions": 17,
     "hours_open": 0.0,
@@ -33892,6 +33892,17 @@
   {
    "date": "2026-10-20",
    "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8957",
+   "prompt_version": 1,
+   "record": "2026-10-20-session_019vNa4UngLdqeJbxyA79KWX.json",
+   "track": "process"
+  },
+  {
+   "date": "2026-10-20",
+   "measured": {
     "additions": 140,
     "changed_files": 6,
     "ci_head": "red",
@@ -34894,6 +34905,17 @@
    "prompt_version": 1,
    "record": "2026-10-20-session_01FXCowNVAXJdWFKCCGFMQBh.json",
    "track": "process"
+  },
+  {
+   "date": "2026-10-20",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8956",
+   "prompt_version": 2,
+   "record": "2026-10-20-session_01Fa4doz3Ed2cvxe5Te1f4uc.json",
+   "track": "review"
   },
   {
    "date": "2026-10-20",
@@ -36000,6 +36022,17 @@
   {
    "date": "2026-10-20",
    "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-20-session_01Lhrcycg8xR7LAfmjmiuw4M.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-20",
+   "measured": {
     "additions": 871,
     "changed_files": 7,
     "ci_head": "green",
@@ -36500,6 +36533,17 @@
    "prompt_version": 0,
    "record": "2026-10-20-session_01PYFYbNvwwvLBxEkZ1R85YY.json",
    "track": "explore"
+  },
+  {
+   "date": "2026-10-20",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#8960",
+   "prompt_version": 1,
+   "record": "2026-10-20-session_01PaA7rW1fjrz7Zu4KmJ1Dct.json",
+   "track": "review"
   },
   {
    "date": "2026-10-20",
@@ -37309,7 +37353,7 @@
    "measured": {
     "additions": 188,
     "changed_files": 7,
-    "ci_head": "green",
+    "ci_head": "pending",
     "ci_red_commits": 6,
     "deletions": 23,
     "hours_open": 12.93,

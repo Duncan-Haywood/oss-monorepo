@@ -937,7 +937,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (reduced pass).
 - Result: (next review)
 
-## E56: review 2026-10-20 (reduced pass, night)
+## E57: review 2026-10-20 (reduced pass, night)
 
 - Change: `portfolio/router/allocate.py` prints the first 500 characters of a
   flagship's `next:` in the work queue and points at `flagships.yaml` for the
@@ -949,4 +949,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   issue (the disclosed search-excerpt caveat); kept, as in E54/E55, and the
   `verdict` fix remains a proposal for the owner (E55). ventures 2 and review 2
   unchanged (overlap / under 10 runs). No audit or drift report (reduced pass).
+
+## E56: review 2026-10-20 (night)
+
+- Change: `runcost.py attach` takes `--human-hours`/`--human-basis` as optional
+  (basis still required with hours); `prompt.md` says so (and is back to its
+  100-line budget). Scheduled runs skipped the whole cost step because the
+  human-hours estimate had no basis, losing tokens and dollars with it
+  (`prompt.md`/`runcost.py`: ~46 and 3 friction/deviation reports).
+- Metric: share of new records with a `usage` block, over the next 40 runs
+  (baseline: median API $ measured for about 55% of runs in `measure`).
+- Decisions: ventures 2 and review 2 unchanged (intervals overlap / 8 runs).
+  Research candidate 1: the retire suggestion fires on one disclosed caveat
+  (see E55); kept, 99% vs 98% success. `derived/` regenerated. No audit
+  (reduced pass), no new candidate.
 - Result: (next review)
