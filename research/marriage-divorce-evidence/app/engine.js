@@ -1,7 +1,7 @@
 // In-browser inference for the exported scikit-learn pipelines (no dependencies).
 // Reproduces SimpleImputer(median) -> [SplineTransformer] -> [StandardScaler] for numeric
 // columns and OneHotEncoder(drop='first', handle_unknown='ignore') for categorical columns,
-// then a PoissonRegressor (log link) or a Poisson DecisionTreeRegressor.
+// then a PoissonRegressor (log link), a binary LogisticRegression or a DecisionTreeRegressor.
 // tests/engine.test.mjs checks every model against predictions computed in Python.
 
 // Basis values B_i(x) and first derivatives for a B-spline with knot vector t and degree d,
@@ -110,19 +110,21 @@ export function treeLeaf(tree, x) {
 
 export function predict(model, row) {
   const { values } = prepare(model, row);
-  if (model.kind === 'poisson_glm') {
+  if (model.kind === 'poisson_glm' || model.kind === 'logistic_glm') {
     let eta = model.intercept;
     for (let i = 0; i < values.length; i++) eta += model.coef[i] * values[i];
-    return Math.exp(eta);
+    // logistic_glm (binary LogisticRegression) returns a probability, not a rate.
+    return model.kind === 'logistic_glm' ? 1 / (1 + Math.exp(-eta)) : Math.exp(eta);
   }
   return model.tree.value[treeLeaf(model.tree, values).node];
 }
 
 // Additive (log-rate) contribution of each raw input column, relative to the model's
 // reference point (all standardized numerics at their training mean, first category).
-// exp(sum of contributions + intercept) equals predict().
+// exp(sum of contributions + intercept) equals predict(); for logistic_glm the terms are on
+// the log-odds scale and the logistic of that sum equals predict().
 export function contributions(model, row) {
-  if (model.kind !== 'poisson_glm') return null;
+  if (model.kind !== 'poisson_glm' && model.kind !== 'logistic_glm') return null;
   const { values, owners } = prepare(model, row);
   const out = {};
   for (let i = 0; i < values.length; i++) {
