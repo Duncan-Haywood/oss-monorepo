@@ -113,8 +113,9 @@ flagships:
       (`travel` field, minutes per venue pair; -10% road minutes against a flat
       trip count on three venues, README). Rainouts across divisions are in
       (applyDivisionRainouts: a night, a division or named teams, optional make-up date, linked-team aware, re-validated; page step 4).
+      A share link now carries the division form (#d=, round-trip tested, opened in headless Chromium).
       Next: filling partial nights (split a round
-      across nights without breaking its balance) and a share link that carries the division form.
+      across nights without breaking its balance).
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
