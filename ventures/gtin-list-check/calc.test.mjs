@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkDigitOk, computeCheck, classify, validate, repair, parseTable, isbn10Ok, isbn10To13, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+import { toLength, checkDigitOk, computeCheck, classify, validate, repair, parseTable, isbn10Ok, isbn10To13, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
 
 test("check digit: known real codes validate and a changed digit does not", () => {
   for (const g of ["036000291452", "4006381333931", "9780306406157", "96385074", "00012345678905"]) assert.ok(checkDigitOk(g), g);
@@ -115,4 +115,18 @@ test("20,000 rows validate quickly", () => {
   const r = validate(rows.join("\n"));
   assert.equal(r.summary.errors, 0);
   assert.ok(Date.now() - t < 3000);
+});
+
+test("repair can write every valid code at one length, and refuses to drop a significant digit", () => {
+  const src = "gtin\n036000291452\n4006381333931\n";
+  const r13 = repair(src, { length: 13 });
+  assert.match(r13.text, /\n0036000291452\n4006381333931\n/);
+  assert.equal(r13.skipped.length, 0);
+  const r12 = repair(src, { length: 12 });
+  assert.match(r12.text, /\n036000291452\n/);
+  assert.equal(r12.skipped.length, 1);
+  assert.match(r12.text, /4006381333931/);
+  assert.equal(toLength("0036000291452", 12), "036000291452");
+  assert.equal(toLength("036000291452", 14), "00036000291452");
+  assert.equal(toLength("4006381333931", 12), null);
 });
