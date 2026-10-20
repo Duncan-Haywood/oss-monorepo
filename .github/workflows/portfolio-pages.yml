@@ -25,33 +25,19 @@ name: Portfolio Pages
 on:
   push:
     branches: [main]
-    # Every input of the published site, not only of `build.mjs`: the steps
-    # after "Check the built artifact" add the development analyses, the
-    # self-deploy page and the development dashboard. Kept a superset of
-    # `publish-pages-branch.yml`'s list, which this workflow replaced as the
-    # live route when the owner switched the Pages source to GitHub Actions
-    # (2026-10-20); a path missing here is a page that silently stops updating.
-    paths:
-      - "ventures/**"
-      - "platform/pages/**"
-      # The writing section (platform/pages/writing.mjs) renders docs/posts/,
-      # and loadPosts throws on a malformed post, so a post-only PR is a build input.
-      - "docs/posts/**"
-      - "research/_homepage/**"
-      - "research/README.md"
-      - "research/*/app/**"
-      - "research/*/LOG.md"
-      - "platform/devlog/**"
-      - "platform/deploy/**"
-      - "platform/devstats/**"
-      - "platform/daily/**"
-      - "docs/posts/**"
-      - "prompts/**"
-      - "portfolio/research/**"
-      - "portfolio/ledger/asks.yaml"
-      - ".github/workflows/portfolio-pages.yml"
+    # Every merge to `main`, with no path filter (owner, 2026-10-20: "if
+    # something is landing in main there is probably an update worth noting
+    # in the ghp site and the site should be updated automatically"). The
+    # filter this replaced listed site inputs by hand and kept falling behind
+    # them: `docs/podcast/` (the episode audio and scripts) and research
+    # READMEs were missing, so a merge could land with the live site still
+    # serving the old copy. The site also shows what landed (the development
+    # dashboard, the changelog), which every merge changes anyway. Runs on a
+    # busy day queue rather than pile up: GitHub keeps one pending run per
+    # concurrency group and drops the older pending ones, so the deploy always
+    # catches up to the newest `main`.
   # The development dashboard's CI, review and branch numbers move without a
-  # merge to the paths above; refresh the site every three hours.
+  # merge; refresh the site every three hours.
   schedule:
     - cron: "41 */3 * * *"
   pull_request:
@@ -61,6 +47,7 @@ on:
       # The writing section (platform/pages/writing.mjs) renders docs/posts/,
       # and loadPosts throws on a malformed post, so a post-only PR is a build input.
       - "docs/posts/**"
+      - "docs/podcast/**"
       - "research/_homepage/**"
       - "research/README.md"
       - "research/*/app/**"
