@@ -748,7 +748,10 @@ def test_360_still_turn_renders_moving_frames(tmp_path, view):
     assert got[-1] == pytest.approx(want[-1], abs=8), red
     assert np.abs(got - want).max() < 10, (got, want)
     still = render.render_segment(shot.model_copy(update={"view_yaw_to": None}), src, cfg)
-    assert np.abs(np.diff(_seg_frames(still), axis=0)).max() < 1.0      # and a hold still holds
+    # and a hold still holds: no frame moves on average (single pixels may wobble a few levels in
+    # some H.264 encoders' handling of a static picture - Linux x264 does, up to 4 - which is not motion)
+    hold = np.abs(np.diff(_seg_frames(still), axis=0))
+    assert hold.mean(axis=(1, 2, 3)).max() < 0.05 and hold.max() <= 8
 
 
 @needs_ffmpeg
