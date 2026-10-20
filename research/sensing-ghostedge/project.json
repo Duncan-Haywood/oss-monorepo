@@ -1,0 +1,5 @@
+{
+ "theme": "sensing",
+ "title": "Does modelling the sub-pixel coverage of a moving subject fix the edge ring that burst merging leaves behind?",
+ "summary": "Follow-up to <code>sensing-ghostring</code>, where no merge or mask fixed the edge ring. Here each frame is a layered mix, <em>a</em>&middot;disc + (1&minus;<em>a</em>)&middot;background, with sub-pixel coverage <em>a</em> from a fitted disc, and the background solved by least squares over the frames. On the same synthetic bursts at 8 frames and 2&nbsp;px per frame the ring goes from 27.1&nbsp;dB (aligned plus reject) to 33.1&nbsp;dB with the disc fitted from the burst itself (large sensor, 4&times; area: 31.7&nbsp;dB); at 0.5&ndash;1&nbsp;px per frame it gains 0.4&ndash;2.2&nbsp;dB and stays below the large frame. It is sensitive to geometry: a 0.5&nbsp;px centre error drops the ring to 25&nbsp;dB. Stylised: the model assumes the exact shape of the synthetic subject (a flat disc), so this is an upper-bound-style result, not a general deghosting method."
+}
