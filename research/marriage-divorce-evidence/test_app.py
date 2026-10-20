@@ -44,6 +44,9 @@ class AppTests(unittest.TestCase):
     def test_nlsy79_first_marriage_bundle(self):
         self.run_node('nlsy79_first_marriage.test.mjs')
 
+    def test_hcmst_bundle_matches_sklearn(self):
+        self.run_node('hcmst.test.mjs')
+
     def test_lenses_and_scenarios(self):
         self.run_node('lenses.test.mjs')
 
@@ -89,6 +92,36 @@ class Nsfg2002BundleTests(unittest.TestCase):
             for cells in ref['subgroups'].values():
                 for cell in cells.values():
                     self.assertGreaterEqual(cell['n'], 100)
+
+
+class HcmstBundleTests(unittest.TestCase):
+    def test_bundle_agrees_with_audit_and_tables(self):
+        import csv, json
+        src = APP.parent / 'reproducibility' / 'hcmst'
+        audit = json.loads((src / 'sample_audit.json').read_text())
+        bundle = json.loads((APP / 'models' / 'hcmst_couples.json').read_text())
+        # Stanford's documented counts (user guide v5; data.stanford.edu/hcmst2017).
+        self.assertEqual(audit['hcmst2009']['respondents'], 4002)
+        self.assertEqual(audit['hcmst2009']['partnered_qflag'], 3009)
+        self.assertEqual(audit['hcmst2017']['partnered_2017'], 2862)
+        self.assertTrue(audit['hcmst2009']['breakups_matching_w2345_combo_plus_w6'])
+        self.assertEqual(bundle['training']['couples'], 3009)
+        self.assertEqual(bundle['training']['events'], audit['hcmst2009']['breakups'])
+        events = list(csv.DictReader(open(src / 'events_by_period.csv')))
+        self.assertEqual(sum(int(r['breakups']) for r in events), bundle['training']['events'])
+        self.assertEqual(sum(int(r['person_periods']) for r in events), bundle['training']['person_periods'])
+        rates = {r['group']: r for r in csv.DictReader(open(src / 'breakup_rates_by_group.csv'))}
+        self.assertGreater(float(rates['Quality: Poor or very poor']['unweighted_by_2017']),
+                           float(rates['Quality: Excellent']['unweighted_by_2017']))
+        self.assertGreater(float(rates['Unmarried']['unweighted_by_2017']), float(rates['Married']['unweighted_by_2017']))
+        for m in bundle['models']:
+            if m['key'] != 'period_only':
+                lo, hi = m['heldout']['c_index_ci']
+                self.assertLess(lo, m['heldout']['c_index'])
+                self.assertLess(m['heldout']['c_index'], hi)
+        for cells in bundle['population_reference']['models'].values():
+            for c in cells:
+                self.assertGreaterEqual(c['n'], 50)
 
 
 class RelationshipDatasetTests(unittest.TestCase):
