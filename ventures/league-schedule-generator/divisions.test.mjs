@@ -257,3 +257,14 @@ test("stats count home/away breaks, and rainouts with balance:true add fewer of 
   }
   assert.ok(balanced < plain, `balanced ${balanced} against ${plain}`); // measured 8 seeds: 395 -> 347 (README), 4 seeds here
 });
+
+test("linked teams in back-to-back slots are not sent to different venues when another slot is free (30 seeds)", () => {
+  const slots = ["18:00", "19:00", "20:00"];
+  for (const links of ["A/a1, B/b1", "A/a1, B/b1\nA/a2, B/b2"]) for (let seed = 1; seed <= 30; seed++) {
+    const { spec, errors } = readDivisionsSpec({ divisions: "A: a1, a2\nB: b1, b2", courts: "P1 @ Park, P2 @ Park, S1 @ School, S2 @ School", times: slots.join(", "), start: "2026-10-06", weekdays: "Tue", links, seed });
+    assert.deepEqual(errors, []);
+    const [x, y] = buildDivisions(spec).nights[0].matches;
+    const gap = Math.abs(slots.indexOf(x.time) - slots.indexOf(y.time));
+    assert.ok(!(gap === 1 && x.venue !== y.venue), `seed ${seed}: ${x.time} ${x.venue} then ${y.time} ${y.venue}`);
+  }
+});
