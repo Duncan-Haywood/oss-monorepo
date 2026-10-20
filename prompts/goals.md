@@ -253,6 +253,38 @@ steering, and carry a not-advice sentence where a reader might act on a
 number. One post per subject: before writing, check `docs/posts/` and open
 PRs for one that covers it, and extend it instead of writing a second.
 
+## Direction: research algorithms as tools
+
+Set by the owner on 2026-10-20: "i want to move more into in browser ml run
+tools that are actually useful i think that could be cool. like instead of
+all the random calculators like when that would be a thing. let's either
+give people access to advanced graduate level plus algorithms or ml
+applications drawn from real data. abiding by licenses obviously. like
+pulling algorithms and math from grad/doctorate level stem domains and others
+and making them publically accessible and also accessible for other agents
+with agent docs and tooling for them in the repo or otherwise. looking at
+open papers and pulling those from wide domains and implementing them as
+publically available tools obviosuly giving credit and citing it. i think
+that's a cooler thing than random basic addition accounting calculators."
+
+New tools favour methods from papers, run on the user's own data in the
+browser, with the paper cited and the licence respected; another basic
+calculator ranks below them. Spec, licence rules and definition of done:
+[`portfolio/research-tools/README.md`](../portfolio/research-tools/README.md).
+
+## Direction: every platform, not just the web
+
+Set by the owner on 2026-10-20: "i also want to move more into ios and
+android and mac and linux and windows app distribution and clis for those
+platforms and maybe mcp setups too not just web app. like distributing the
+software in more ways."
+
+A tool is finished when it reaches people beyond its web page: a CLI, the
+MCP server, and the app packagers in `platform/distribution/` (iOS, Android,
+browser extension; desktop is the open gap). Publishing under the
+portfolio's name stays an owner step; building the packages is not. Channel
+list and status: [`portfolio/distribution/README.md`](../portfolio/distribution/README.md).
+
 ## Direction: files first, not the GitHub API
 
 Set by the owner on 2026-10-20: "lets make a rule of thumb that things should
