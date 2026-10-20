@@ -91,6 +91,7 @@ export function splitUrl(raw) {
   return { host, scheme, path: s, fragment };
 }
 
+const STAGING_HOST = /^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])$|(^|\.)(staging|stage|stg|dev|test|preview|uat|qa)\.|\.(local|localhost|test|internal|vercel\.app|netlify\.app|pages\.dev|herokuapp\.com|ngrok\.io|ngrok-free\.app|myshopify\.com|webflow\.io|wpengine\.com|azurewebsites\.net)$/i;
 const stripWww = (h) => h.replace(/^www\./, "");
 const noSlash = (p) => { const q = p.indexOf("?"); const a = q < 0 ? p : p.slice(0, q); const b = q < 0 ? "" : p.slice(q); return (a.length > 1 ? a.replace(/\/+$/, "") : a) + b; };
 
@@ -238,6 +239,7 @@ export function validate(input, options = {}) {
     if (/[^\x00-\x7f]/.test(f)) add("info", "non-ascii", "Source has non-ASCII characters", `${f} — servers see the percent-encoded form; make sure the map holds what the old site actually served.`, line);
     if (t && (/^\s*(\.\/|\.\.\/)/.test(t) || (it.to.path[0] !== "/" && !it.to.host))) add("error", "relative-target", "New URL is relative", `${t} — use an absolute path (/new) or a full https:// URL.`, line);
     if (it.to && it.to.scheme === "http:") add("warning", "http-target", "Target is http, not https", `${t} — sends visitors to an insecure URL, which then usually redirects again to https.`, line);
+    if (t && it.to.host && !own(it.to) && STAGING_HOST.test(it.to.host.replace(/:\d+$/, ""))) add("warning", "staging-target", "Target is a staging, preview or local host", `${t} — ${it.to.host} looks like a development or preview address. If this map is going live, visitors would be sent there.`, line);
     let code = 301;
     if (it.code) {
       const n = Number(it.code);

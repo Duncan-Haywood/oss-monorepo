@@ -1,4 +1,4 @@
-# status-keeper
+# status-keeper — Free Self-Hosted Status Page and Uptime Monitor
 
 After using this, you can now **publish a status page that stays up when your
 app goes down**, with uptime checks, 90-day bars, incident updates and alerts,

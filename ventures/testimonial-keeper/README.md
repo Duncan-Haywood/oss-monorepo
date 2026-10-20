@@ -1,4 +1,4 @@
-# testimonial-keeper
+# Testimonial Keeper — Free Self-Hosted Testimonial Collector and Wall of Love
 
 After using this, you can now **collect customer testimonials with a link, approve the ones you want, and show them as a wall on your own site**, on a server you own. That used to mean a monthly subscription to a testimonial service that keeps your customers' words behind its own login.
 

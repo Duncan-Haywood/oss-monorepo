@@ -95,7 +95,9 @@ test('shipped NSFG reference blocks are aggregate, valid and per lens', () => {
     const med = ref.horizons.map((h) => quantilesAt(ref.overall, h, ref.horizons)[49]);
     assert.ok(med[0] < med[1] && med[1] < med[2]);
     // Nothing person-level: only aggregate keys.
-    assert.deepEqual(Object.keys(ref).sort(), ['about', 'horizons', 'min_cell', 'overall', 'quantity', 'subgroup_defs', 'subgroups', 'weights']);
+    assert.deepEqual(Object.keys(b.population_reference).sort(), ['about', 'horizons', 'min_cell', 'overall', 'quantity', 'subgroup_defs', 'subgroups', 'weights']);
+    assert.equal(ref.shape, 'standard');
+    assert.equal(ref.model, null, 'the reference is of the lens mean');
   }
   // Each lens's reference comes from its own models, so the two are not identical.
   assert.notDeepEqual(nsfg.population_reference.overall, family.population_reference.overall);
@@ -129,8 +131,14 @@ test('a scored couple gets percentiles overall and in its subgroups', () => {
 });
 
 test('lenses without a reference say so; no pooling across lenses', () => {
-  assert.equal(populationComparison(nlsy, { ...wife, age: 40 }, { ...husband, age: 42 }, couple), null);
+  // NLSY79 individuals has none; NLSY79 couples now has one, of the ANNUAL RATE over couple-years.
   assert.equal(populationComparison(ind, { ...wife, age: 40 }, { ...husband, age: 42 }, couple), null);
+  const nl = { sex: 'Woman', age: 40, school: '16–17 years', degree: 'Bachelor', wages: 50000, work: '2,000+ hours', religion: 'Never', priorMarriage: false, firstMarriageAge: 30 };
+  const nm = { ...nl, sex: 'Man', age: 42, firstMarriageAge: 32 };
+  const ann = populationComparison(nlsy, nl, nm, { yearsMarried: 10 });
+  assert.equal(ann.quantity, 'annual_rate');
+  assert.deepEqual(ann.horizons.map((h) => h.horizon), [0]);
+  assert.ok(ann.horizons[0].risk > 0 && ann.horizons[0].risk < 0.1, 'an annual rate, not a cumulative risk');
   const a = populationComparison(nsfg, wife, husband, couple).horizons[1];
   const b = populationComparison(family, wife, husband, couple).horizons[1];
   assert.notEqual(a.risk, b.risk, 'each lens scores with its own models');
@@ -172,11 +180,9 @@ test('just me: averaged over the partner distribution, with percentiles', () => 
   }
 });
 
-test('references in another shape are not read', () => {
+test('references in an unknown shape are not read', () => {
   assert.equal(referenceFor({ population_reference: { cells: [{ variable: 'All', n: 100 }], quantiles: [0.5] } }), null);
   assert.equal(referenceFor({ population_reference: { overall: { n: 1, quantiles: {} } } }), null);
-  const ok = { horizons: [10], overall: { n: 1, quantiles: {} } };
-  assert.equal(referenceFor({ population_reference: ok }), ok);
-  const couples = JSON.parse(readFileSync(new URL('../models/nlsy79_couples.json', import.meta.url)));
-  assert.equal(referenceFor(couples), null);
+  assert.equal(referenceFor({ population_reference: { horizons: [10], overall: { n: 1, quantiles: {} } } }), null, 'no complete quantiles');
+  assert.equal(referenceFor({ population_reference: { something: 'else' } }), null);
 });

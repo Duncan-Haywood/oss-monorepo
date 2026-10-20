@@ -24,3 +24,8 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-every-service clause,
 # trademarks used nominatively, no acceptance promise, no route-safety claim.
+
+# 2026-10-20: built the CLI half of the stated revenue path (`cli.mjs`: check/fix files and folders,
+# --json/--strict, CI exit codes). No npm publish (owner gate).
+# Hypothesis to test: people who publish route libraries reach the CLI section of the README from search;
+# reading is the opt-in usage counter on the page, not a download count.

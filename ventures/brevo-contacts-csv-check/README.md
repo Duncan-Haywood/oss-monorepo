@@ -1,4 +1,4 @@
-# brevo-contacts-csv-check
+# Brevo Contacts CSV Check — Find Import Errors Before You Import
 
 Checks a Brevo (formerly Sendinblue) contacts import CSV in the browser before it is imported: emails and
 duplicates, rows with neither email nor SMS, SMS numbers with no country code or ruined by Excel,

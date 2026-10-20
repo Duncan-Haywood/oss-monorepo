@@ -1,4 +1,4 @@
-# garment-twonodesteady
+# Do the fabric-optics effects on thermal comfort change once the two-node model reaches steady state?
 
 Follow-up to [`garment-twonodeoptics`](../garment-twonodeoptics) (track 6, `PROJECTS.md`), taking an item from its next steps: "compare optics effects at steady state." Question: do the fabric-optics effects measured after one hour (stylised) keep their size and ranking once the two-node model has stopped changing? Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 

@@ -44,6 +44,12 @@ class AppTests(unittest.TestCase):
     def test_acs_bundle(self):
         self.run_node('acs.test.mjs')
 
+    def test_lens_adapters(self):
+        self.run_node('adapters.test.mjs')
+
+    def test_summary_across_lenses(self):
+        self.run_node('summary.test.mjs')
+
     def test_nsfg_pooled_bundle(self):
         self.run_node('nsfg_pooled.test.mjs')
 

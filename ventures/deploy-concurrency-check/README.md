@@ -1,4 +1,4 @@
-# deploy-concurrency-check
+# Deploy Concurrency Check — find the race that ships an older commit
 
 Find the ways a GitHub Actions deploy workflow is permitted to apply an **older**
 revision over a newer one.

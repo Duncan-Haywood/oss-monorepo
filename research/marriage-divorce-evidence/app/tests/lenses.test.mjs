@@ -110,7 +110,9 @@ assert.ok(refusals(nsfg, { ...w, intactFamily: '' }, h, c0).some((x) => x.includ
 // The husband's earlier marriage is an input, not a refusal.
 assert.equal(refusals(nsfg, w, { ...h, priorMarriage: true }, c0).length, 0);
 // NLSY79 refusals are unchanged by the NSFG-only inputs.
-assert.equal(refusals(bundle, { ...w, age: 45, raceEth: '' }, h, c0).length, 0);
+assert.equal(refusals(bundle, { ...a, raceEth: '', intactFamily: '' }, b, couple).length, 0);
+// Inputs not given are neutral in the distance (not counted as unusual), and say so.
+assert.ok(typicality(bundle, { ...w, age: 45 }, h, c0).neutralised.includes('husband_school'));
 
 // The duration-only curve is a baseline: shown, but not averaged.
 assert.deepEqual(scoringModels(nsfg).map((m) => m.key), ['additive_spline', 'tree_depth3']);
@@ -204,7 +206,7 @@ assert.equal(explain(nsfg, m0, w, h, c0).scale, 'log_rate');
 // Abstention: B's out-of-distribution percentile, shared with the first-marriage bundle.
 const shared = shareOod([{ ...nsfg }, fam, { ...bundle }]);
 assert.equal(shared[0].ood, fam.ood, 'first-marriage bundle borrows the family OOD spec');
-assert.equal(shared[2].ood, undefined, 'NLSY79 bundles do not');
+assert.equal(shared[2].ood, bundle.ood, 'the NLSY79 couples bundle keeps its own spec');
 const nsfgO = shared[0];
 const typical = typicality(nsfgO, w, h, c0);
 assert.ok(typical.percentile < 99 && !typical.abstain);
@@ -217,7 +219,11 @@ assert.equal(refusals(nsfg, ...odd, c0).length, 0, 'range checks alone accept it
 const t2 = typicality(nsfgO, ...odd, c0);
 assert.ok(t2.abstain, `percentile ${t2.percentile}`);
 assert.ok(refusals(nsfgO, ...odd, c0).some((x) => x.includes('abstains')));
-assert.equal(typicality(bundle, a, b, couple), null);
+// NLSY79 couples: its own couple-interval OOD spec, scored on both perspectives' rows.
+const tn = typicality(bundle, a, b, couple);
+assert.equal(tn.perspectives, 2);
+assert.ok(tn.percentile < 99 && !tn.abstain);
+assert.equal(typicality(ind, a, b, couple), null, 'no spec, no score');
 console.log(`nsfg family ok: ${(100 * pf[9].meanSurvival).toFixed(1)}% vs ${(100 * pn[9].meanSurvival).toFixed(1)}% (first-marriage bundle) by year 10; typical couple at the ${typical.percentile.toFixed(0)}th percentile, 17/50 at the ${t2.percentile.toFixed(1)}th (abstains)`);
 
 // ---- Lifelong estimate with competing mortality (workstream A's mortality.js) ----

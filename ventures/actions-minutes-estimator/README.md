@@ -1,4 +1,4 @@
-# actions-minutes-estimator
+# GitHub Actions Minutes Estimator — What Will This Workflow Cost?
 
 **What will this GitHub Actions workflow cost you a month?**
 

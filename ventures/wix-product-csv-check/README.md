@@ -1,4 +1,4 @@
-# wix-product-csv-check
+# Wix Product CSV Check — Find Store Import Errors Before You Import
 
 Checks a Wix Stores product CSV in the browser before it is imported: Product and Variant row
 structure, option choices, name length, price, inventory, discounts, image links, SKUs and Excel

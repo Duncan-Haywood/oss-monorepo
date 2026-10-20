@@ -1,4 +1,4 @@
-# accel-gatedprice
+# Does clock-gating the extra accumulators make register-file weight-stationary scheduling beat output-stationary?
 
 Eighth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. It takes two items from the "Next steps" of `accel-pdkprice`: price a **clock-gated** weight-stationary (WS) design (the integrated clock gate, ICG, is in the liberty file), and repeat the library reading with another open PDK (GF180MCU). It seemed worth doing because `accel-pdkprice` ended on "WS needs cheap idle flops", and clock gating is the standard way to make idle flops cheap. The question: if the extra accumulators of register-file WS sit behind clock gates, does WS beat output-stationary (OS) at SKY130's own prices, and how many flops may share one gate?
 

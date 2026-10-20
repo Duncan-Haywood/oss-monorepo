@@ -1,4 +1,4 @@
-# dunning-engine
+# Dunning Engine — Free Self-Hosted Stripe Failed Payment Recovery
 
 After using this, you can now **win back failed Stripe subscription payments
 with a plan per decline reason, on your own server and with your own

@@ -86,7 +86,7 @@ function ventureFiles(slugs, keep) {
   for (const slug of slugs) {
     const dir = join(ROOT, "ventures", slug);
     // TypeScript ventures run their own `tsc` against their tsconfig.
-    if (!existsSync(dir) || existsSync(join(dir, "tsconfig.json"))) continue;
+    if (!existsSync(dir) || !statSync(dir).isDirectory() || existsSync(join(dir, "tsconfig.json"))) continue;
     walk(dir, keep, files);
   }
   return files.sort();

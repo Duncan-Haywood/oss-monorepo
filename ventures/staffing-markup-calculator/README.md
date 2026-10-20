@@ -1,4 +1,4 @@
-# staffing-markup-calculator
+# Staffing Markup Calculator | What a 45% Markup Actually Earns
 
 A browser calculator for independent staffing agencies and recruiters. It
 prices one placement the way the trade actually quotes it — a **markup on the

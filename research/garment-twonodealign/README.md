@@ -1,4 +1,4 @@
-# garment-twonodealign
+# Which design choices explain the gap between the repository's two-node model and an open-source Gagge implementation?
 
 Follow-up to [`garment-twonodecheck`](../garment-twonodecheck) (track 6, `PROJECTS.md`), taking its next step: "align the body area and constants one at a time to attribute the skin-temperature gap". That project found `garment-thermal`'s two-node model within 0.25 C of `pythermalcomfort`'s Gagge two-node implementation in core temperature but 0.58 C apart on average in skin temperature (up to 2.1 C). Here the model is rebuilt with nine design choices that can each be set to the repository's version or to the reference's, to see which choices carry the gap. Everything is a model on a CPU; no person was measured. Produced with AI assistance (Claude).
 

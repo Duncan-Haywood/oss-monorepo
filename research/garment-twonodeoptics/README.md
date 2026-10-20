@@ -1,4 +1,4 @@
-# garment-twonodeoptics
+# Do the fabric-optics conclusions of the thermal-comfort model survive a different two-node implementation?
 
 Follow-up to [`garment-twonodealign`](../garment-twonodealign) (track 6, `PROJECTS.md`), taking the last item of its next steps: "re-run `garment-thermal`'s fabric comparisons with the reference's choices to see whether its conclusions about optics change." `garment-twonodealign` rebuilt the repository's two-node thermoregulation model with nine switchable design choices, each set to `garment-thermal`'s version ("ours") or to the version in `pythermalcomfort` 4.6.1 ("ref"). Here the fabric-optics extension of `garment-thermal` (infrared transmittance, outer emissivity, solar absorptance, radiant temperature, solar load) is added to that switchable model, and the optical effects are compared under all-ours and all-ref choices. Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 

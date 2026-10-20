@@ -173,7 +173,11 @@ Remaining:
   bars instead.
 - Calibration plots and bootstrap intervals once workstream B ships them per bundle. Today's
   uncertainty is the spread across models only.
-- Out-of-distribution abstention for the NLSY79 lenses, once B can compute a spec (the
-  person-level extracts are not in git); today they use per-input range checks only.
+- Done 2026-10-20: every lens scored (adapters in `lens-adapters.js`), per-lens OOD (the NLSY79
+  couples spec from `tools/nlsy79_reference.py`), reference conversion for every published shape,
+  and the summary across lenses. Still open: OOD for NLSY79 individuals, GSS, SIPP and ACS (their
+  bundles ship no spec); a GSS 4-year model export (the bundle has its reference but not the
+  model); a validated satisfaction mapping for the newlywed lens (all 8 items on one scale now);
+  joint partner profiles for NLSY97 just-me (the bundle publishes one trait at a time).
 - A screen-reader pass with a real assistive technology. Only keyboard focus and contrast have
   been checked.
