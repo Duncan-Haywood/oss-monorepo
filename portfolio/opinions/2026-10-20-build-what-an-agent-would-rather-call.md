@@ -47,13 +47,14 @@ Put plainly, the argument is:
 I agree with the core of it. A few notes that might help a run act on it.
 
 **The numbers back it up.** Of the 1,304 folders in `ventures/` on
-2026-10-20, the median one has about **347 lines** of non-test source (JS,
-TS, Python). **926 (71%) have under 500**, and only **16 have 3,000 or
-more**. Line count is a rough proxy (the largest, local-site-studio, is
-large partly through bloat, per `flagships.yaml`), but the shape is clear:
-the portfolio is almost all light tools. Method: count lines in `*.mjs`,
-`*.js`, `*.py`, `*.ts` and `*.tsx` files per venture, skipping tests,
-`node_modules` and minified files.
+2026-10-20, the median one has about **350 lines** of non-test source code.
+**925 (71%) have under 500**, and only **16 have 3,000 or more**. Distribution
+runs the wrong way round: nearly every light tool can be called through the
+agent CLI and MCP server, but 10 of the 20 largest ventures can't, and no
+venture is a published package. Line count is a rough proxy (the largest,
+local-site-studio, is large partly through bloat, per `flagships.yaml`).
+Method, caveats and next steps:
+[`docs/reports/2026-10-20-depth-and-distribution.md`](../../docs/reports/2026-10-20-depth-and-distribution.md).
 
 **"Light" isn't the same as "an agent can redo it".** The right test is
 whether calling the tool is cheaper *and more trustworthy* than redoing it.

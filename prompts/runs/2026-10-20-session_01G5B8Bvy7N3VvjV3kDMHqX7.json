@@ -5,7 +5,9 @@
   "prompt_version": 1,
   "input": "write up a light agent directed opinion piece on that in the repo for me",
   "input_sha256": "cf16a4049c976c96ecc6644804cbf84f151844a131704e4cc81d618284edb80f",
-  "follow_up_inputs": [],
+  "follow_up_inputs": [
+    "write up a report and blog and merge save any unfinished work and give instructions for a future agent to complete it."
+  ],
   "model": "claude-opus-5-5",
   "models_seen": [
     "claude-opus-5-5"
@@ -17,9 +19,10 @@
   "tokens_out": 13633,
   "cost_usd": 1.2623,
   "tool_calls": 25,
-  "task": "Owner-requested opinion piece on depth over light tools",
+  "task": "Opinion piece, depth-and-distribution report and blog post on depth over light tools",
   "projects": [
-    "portfolio"
+    "portfolio",
+    "docs"
   ],
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8768",
   "repo": null,
@@ -33,7 +36,12 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a docs-only diff produced no output for 30+ minutes; killed and ran the touched checks directly."
+    }
+  ],
   "deviations": [
     {
       "file": "prompt.md",
@@ -41,7 +49,7 @@
     }
   ],
   "goal": null,
-  "notes": "Docs-only: portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md plus a pointer in portfolio/flagships.yaml. Venture size figures measured in-session by counting non-test *.mjs/*.js/*.py/*.ts/*.tsx lines per ventures/ folder (1,304 folders, median 347, 926 under 500, 16 at 3,000+).",
+  "notes": "Shipped portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md, docs/reports/2026-10-20-depth-and-distribution.md (with docs/reports/assets/depth-audit/depth_audit.mjs and summary-2026-10-20.json) and docs/posts/2026-10-20-build-what-an-agent-would-rather-call.md. Audit: 1,304 ventures, median 350 non-test source lines, 925 under 500, 16 at 3,000+; 1,264 in the agent catalogue but 10 of the 20 largest not; 0 publishable npm packages; 876 of 925 light ventures link no outside source in code. Handoff for a future agent: the report's 'What to do with it' section (agent catalogue for flagships, einvoice npm package, LP bound for shift-roster exactSearch, rerun the audit). Verification: node --test platform/pages/writing.test.mjs (8 pass); writing.mjs build renders the post with the 'no warranty' disclaimer marker; promptctl.py validate ok. run_workflow_locally.py --for-changes hung past 30 min with no output and was killed.",
   "corrections": [],
   "redteam": null,
   "usage": {
@@ -49,50 +57,52 @@
     "session_id": "e9d6dbdd-72a9-5c85-99e4-debe234bee3f",
     "transcripts": 1,
     "first": "2026-10-20T09:18:59Z",
-    "last": "2026-10-20T09:38:31Z",
+    "last": "2026-10-20T09:47:30Z",
     "primary_model": "claude-opus-5-5",
     "models": {
       "claude-opus-5-5": {
-        "requests": 25,
-        "input": 50,
-        "output": 13633,
-        "thinking": 3896,
-        "cache_read": 2370289,
+        "requests": 57,
+        "input": 116,
+        "output": 34986,
+        "thinking": 7684,
+        "cache_read": 6752791,
         "cache_write_5m": 0,
-        "cache_write_1h": 64422,
-        "api_equivalent_usd": 1.2623,
+        "cache_write_1h": 111923,
+        "api_equivalent_usd": 2.9461,
         "fast_requests": 0
       }
     },
     "totals": {
-      "requests": 25,
-      "input": 50,
-      "output": 13633,
-      "thinking": 3896,
-      "cache_read": 2370289,
+      "requests": 57,
+      "input": 116,
+      "output": 34986,
+      "thinking": 7684,
+      "cache_read": 6752791,
       "cache_write_5m": 0,
-      "cache_write_1h": 64422,
-      "api_equivalent_usd": 1.2623,
+      "cache_write_1h": 111923,
+      "api_equivalent_usd": 2.9461,
       "api_equivalent_complete": true
     },
-    "cache_hit_share": 0.974,
-    "tool_calls": 25,
+    "cache_hit_share": 0.984,
+    "tool_calls": 56,
     "tools": {
-      "Bash": 20,
-      "Write": 1,
+      "Bash": 46,
+      "Write": 3,
+      "mcp__github__pull_request_read": 2,
       "ToolSearch": 1,
       "mcp__github__search_pull_requests": 1,
       "mcp__github__create_pull_request": 1,
-      "mcp__claude-code-remote__subscribe_pr_activity": 1
+      "mcp__claude-code-remote__subscribe_pr_activity": 1,
+      "ReadNotifications": 1
     },
     "web_searches": 0,
     "time": {
-      "wall_minutes": 19.53,
-      "active_minutes": 6.52,
-      "model_minutes": 3.91,
-      "tool_minutes": 2.61,
-      "waiting_on_human_minutes": 13.01,
-      "human_prompts": 3,
+      "wall_minutes": 28.52,
+      "active_minutes": 11.34,
+      "model_minutes": 8.19,
+      "tool_minutes": 3.15,
+      "waiting_on_human_minutes": 17.18,
+      "human_prompts": 5,
       "stalls": 0,
       "subagent_minutes": 0.0
     },
@@ -101,12 +111,12 @@
       "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
     },
     "human_equivalent": {
-      "hours": 1.5,
-      "basis": "researching the venture size distribution and drafting a ~1,000-word opinion piece",
+      "hours": 4.0,
+      "basis": "writing a reproducible audit script, a data report, an opinion note and a blog post",
       "rate_usd_per_hour": 100.0,
-      "usd": 150.0
+      "usd": 400.0
     },
-    "leverage": 118.8,
+    "leverage": 135.8,
     "certainty": {
       "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
       "model": "high: the `model` field on each API response, not the configured model",
