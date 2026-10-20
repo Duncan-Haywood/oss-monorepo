@@ -4,6 +4,7 @@
 //   node cli.mjs claims.csv --admin-fee 115 --entity-fee 700   # which claims to file, and the offer for each
 //   node cli.mjs claims.csv --admin-fee 115 --entity-fee 700 --csv > idr.csv
 //   node cli.mjs claims.csv --admin-fee 115 --entity-fee 700 --json
+//   node cli.mjs claims.csv --outcomes past.csv   # win chances fitted to your own closed disputes
 //   node cli.mjs --example
 //   node cli.mjs --deadlines 2026-03-02 --holidays 2026-05-25,2026-06-19
 //
@@ -13,7 +14,7 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
-import { parseClaims, analyze, deadlines, reportCsv, sampleClaims, money, pct, DEFAULTS } from "./calc.mjs";
+import { parseClaims, parseOutcomes, fitWinCurve, analyze, deadlines, reportCsv, sampleClaims, money, pct, DEFAULTS } from "./calc.mjs";
 
 const USAGE = `Size No Surprises Act IDR offers and pick the claims worth filing.
 
@@ -32,6 +33,8 @@ Options:
   --p-qpa <pct>          win chance if you offer the QPA (default ${DEFAULTS.pWinAtQpa})
   --p-billed <pct>       win chance if you offer the billed charge (default ${DEFAULTS.pWinAtBilled})
   --payer-pct <pct>      payer's expected offer as % of QPA (default ${DEFAULTS.payerOfferPctQpa})
+  --outcomes <file>      past disputes ("label, billed, QPA, your offer, won|lost"): fit the win-chance curve
+                         to them and use it in place of --p-qpa / --p-billed (those become the prior)
   --csv                  print the report as CSV
   --json                 print the full result as JSON
   --deadlines <date>     open-negotiation end and IDR initiation date from the initial payment/denial date
@@ -49,17 +52,18 @@ const OPT_KEYS = {
 };
 
 export function parseArgs(argv) {
-  const o = { file: null, opts: {}, csv: false, json: false, example: false, help: false, deadlines: null, holidays: "" };
+  const o = { file: null, opts: {}, csv: false, json: false, example: false, help: false, deadlines: null, holidays: "", outcomes: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "-h" || a === "--help") o.help = true;
     else if (a === "--csv") o.csv = true;
     else if (a === "--json") o.json = true;
     else if (a === "--example") o.example = true;
-    else if (a === "--deadlines" || a === "--holidays" || OPT_KEYS[a]) {
+    else if (a === "--deadlines" || a === "--holidays" || a === "--outcomes" || OPT_KEYS[a]) {
       const v = argv[++i];
       if (v === undefined) return { error: `${a} needs a value.` };
       if (a === "--deadlines") o.deadlines = v;
+      else if (a === "--outcomes") o.outcomes = v;
       else if (a === "--holidays") o.holidays = v.replace(/,/g, " ");
       else o.opts[OPT_KEYS[a]] = v;
     } else if (a === "-" || !a.startsWith("-")) {
@@ -98,9 +102,21 @@ export async function main(argv, io = { read: (f) => readFile(f, "utf8"), stdin:
   else try { text = a.file === "-" ? await io.stdin() : await io.read(a.file); } catch (e) { return { code: 2, err: `Cannot read ${a.file}: ${e.message}\n` }; }
   const parsed = parseClaims(text);
   if (parsed.error) return { code: 2, err: parsed.error + "\n" };
+  let fit = null;
+  if (a.outcomes) {
+    let otext;
+    try { otext = await io.read(a.outcomes); } catch (e) { return { code: 2, err: `Cannot read ${a.outcomes}: ${e.message}\n` }; }
+    const po = parseOutcomes(otext);
+    if (po.error) return { code: 2, err: po.error + "\n" };
+    fit = fitWinCurve(po.rows, a.opts);
+    if (fit.error) return { code: 2, err: fit.error + "\n" };
+    a.opts.pWinAtQpa = fit.pWinAtQpa; a.opts.pWinAtBilled = fit.pWinAtBilled;
+    parsed.warnings.push(...po.warnings, `Win chances fitted to ${fit.n} past dispute(s) (${fit.wins} won): ${fit.pWinAtQpa}% at the QPA, ${fit.pWinAtBilled}% at the billed charge.`, ...fit.notes);
+  }
   const r = analyze(parsed.rows, a.opts);
   if (r.error) return { code: 2, err: r.error + "\n" };
   r.warnings.push(...parsed.warnings);
+  if (fit) r.fit = fit;
   return { code: 0, out: a.json ? JSON.stringify(r, null, 2) + "\n" : a.csv ? reportCsv(r) : render(r) };
 }
 
