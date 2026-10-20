@@ -1,0 +1,133 @@
+feature,coefficient
+num__age_sp_0,0.12174048113093384
+num__age_sp_1,0.2110476153010518
+num__age_sp_2,0.18524909056832353
+num__current_marriage_years_sp_0,0.2543251271875748
+num__current_marriage_years_sp_1,0.28039743298339476
+num__current_marriage_years_sp_2,-0.11689015363028023
+num__first_marriage_age_sp_0,0.007721526092727239
+num__first_marriage_age_sp_1,-0.022272146899933263
+num__first_marriage_age_sp_2,-0.15941790737404
+num__wife_wage_share_sp_0,-0.1009959800971679
+num__wife_wage_share_sp_1,-0.06080956360151797
+num__wife_wage_share_sp_2,0.1301836088244708
+cat__husband_school_13–15 years,0.09001366391430096
+cat__husband_school_16–17 years,0.08945291216918007
+cat__husband_school_18+ years,-0.2592493334520856
+cat__husband_school_<12 years,-0.11113074784526673
+cat__husband_school_Unknown,0.12383453754770922
+cat__wife_school_13–15 years,0.14776258475729823
+cat__wife_school_16–17 years,-0.3240287422909283
+cat__wife_school_18+ years,0.027955722465676028
+cat__wife_school_<12 years,-0.03441608526947342
+cat__wife_school_Unknown,0.06720951635430798
+cat__total_wage_band_Q2,-0.12208696516095387
+cat__total_wage_band_Q3,0.02309100898094834
+cat__total_wage_band_Q4,0.0381678032638157
+cat__total_wage_band_Unknown,-0.021148580670373868
+cat__total_wage_band_Zero,0.03767713892382329
+cat__earnings_pair_Both zero wages,0.03767713892382328
+"cat__earnings_pair_Husband majority, both positive",-0.09605937125641975
+cat__earnings_pair_Husband only,0.08250881534276251
+cat__earnings_pair_Unknown,-0.021148580670373868
+"cat__earnings_pair_Wife majority, both positive",0.05307012201326388
+cat__earnings_pair_Wife only,-0.009155335100975775
+cat__sex_Women,-0.29679153215736515
+cat__marriage_order_group_Subsequent,-0.09505384349658762
+cat__marriage_order_group_Unknown,0.1791014455315851
+cat__wave_cat_2002,0.1809296188235101
+cat__wave_cat_2004,0.05190032981591505
+cat__wave_cat_2006,0.06238706555554151
+cat__wave_cat_2008,0.2004830220613208
+cat__wave_cat_2010,0.4174301664730352
+cat__wave_cat_2012,0.05284768056966806
+cat__wave_cat_2014,-0.22258738812322923
+cat__wave_cat_2016,0.08881724520399456
+cat__wave_cat_2018,-0.0031803963028757837
+cat__wave_cat_2020,-0.06168056302154402
+cat__education_Bachelor,-0.04216656874245694
+cat__education_High school,0.03677226254532137
+cat__education_Less than high school,0.31555908971700847
+cat__education_Master,0.19801247628672047
+cat__education_PhD,0.25857278709220227
+cat__education_Professional,-0.393416897012307
+cat__education_Some college,0.07556836455965642
+cat__education_Unknown,-0.32696070748590333
+"cat__work_2,000+ hours",-0.17975424206262455
+cat__work_No work hours,-0.06084884010646341
+cat__work_Unknown,0.09596719996158605
+cat__religion_refresh_Never,0.08341841302159067
+cat__religion_refresh_Unknown,0.06690218126623482
+cat__religion_refresh_Weekly or more,0.0795219256462934
+cat__family_income_band_Q2,0.14377233823845412
+cat__family_income_band_Q3,-0.16291967111183803
+cat__family_income_band_Q4,-0.02181530141328815
+cat__family_income_band_Unknown,0.1705748864599173
+cat__husband_wage_band_train_Q2,-0.0027130987810597322
+cat__husband_wage_band_train_Q3,-0.02847293728835364
+cat__husband_wage_band_train_Q4,-0.005323373941032385
+cat__husband_wage_band_train_Unknown,-0.34584257887396813
+cat__husband_wage_band_train_Zero,-0.18630622567666907
+cat__wife_wage_band_train_Q2,-0.03069914694098264
+cat__wife_wage_band_train_Q3,-0.010259380472202385
+cat__wife_wage_band_train_Q4,-0.017611307188287725
+cat__wife_wage_band_train_Unknown,-0.027458880885874812
+cat__wife_wage_band_train_Zero,0.2066290424603489
+cat__current_marriage_years_missing_Observed,0.03430081223594981
+cat__first_marriage_age_missing_Observed,0.24499116083002512
+cat__wife_wage_share_missing_Observed,-0.016528558253448983
+cat__school_pair_12 years | 13–15 years,0.2401943188743241
+cat__school_pair_12 years | 16–17 years,0.06061464308457997
+cat__school_pair_12 years | 18+ years,-0.07456482121237097
+cat__school_pair_12 years | <12 years,0.045220285159869186
+cat__school_pair_12 years | Unknown,-0.046483466160902515
+cat__school_pair_13–15 years | 12 years,0.04800356219264201
+cat__school_pair_13–15 years | 13–15 years,-0.0664708574961499
+cat__school_pair_13–15 years | 16–17 years,0.08942355189236224
+cat__school_pair_13–15 years | 18+ years,0.08020202986397708
+cat__school_pair_13–15 years | <12 years,-0.023289583481332563
+cat__school_pair_13–15 years | Unknown,-0.037855039057197365
+cat__school_pair_16–17 years | 12 years,-0.15750377463255433
+cat__school_pair_16–17 years | 13–15 years,0.0016650043442100434
+cat__school_pair_16–17 years | 16–17 years,-0.012690425088283996
+cat__school_pair_16–17 years | 18+ years,-0.10858903706548771
+cat__school_pair_16–17 years | <12 years,0.19537426542858194
+cat__school_pair_16–17 years | Unknown,0.171196879182715
+cat__school_pair_18+ years | 12 years,0.28414254975652115
+cat__school_pair_18+ years | 13–15 years,-0.10149825207023004
+cat__school_pair_18+ years | 16–17 years,-0.2613230144053296
+cat__school_pair_18+ years | 18+ years,-0.14214821604744587
+cat__school_pair_18+ years | <12 years,-0.033937829712661856
+cat__school_pair_18+ years | Unknown,-0.004484570972939252
+cat__school_pair_<12 years | 12 years,0.011496519643750331
+cat__school_pair_<12 years | 13–15 years,0.04526520487075459
+cat__school_pair_<12 years | 16–17 years,-0.1876140332007913
+cat__school_pair_<12 years | 18+ years,0.2797968243538596
+cat__school_pair_<12 years | <12 years,-0.24491097687547214
+cat__school_pair_<12 years | Unknown,-0.015164286637367887
+cat__school_pair_Unknown | 12 years,0.08728013910209971
+cat__school_pair_Unknown | 13–15 years,0.02860716623438896
+cat__school_pair_Unknown | 16–17 years,-0.012439464573464992
+cat__school_pair_Unknown | 18+ years,-0.0067410574268564364
+cat__school_pair_Unknown | <12 years,0.027127754211542
+cat__role_total_pair_Balanced 40–60% wife | Q2,-0.22204516564439167
+cat__role_total_pair_Balanced 40–60% wife | Q3,-0.09183044857975883
+cat__role_total_pair_Balanced 40–60% wife | Q4,-0.018895285017231433
+cat__role_total_pair_Both zero wages | Zero,0.03767713892382328
+"cat__role_total_pair_Husband majority, both positive | Q1",-0.13488316983100665
+"cat__role_total_pair_Husband majority, both positive | Q2",0.03713354570790572
+"cat__role_total_pair_Husband majority, both positive | Q3",-0.03158370745463889
+"cat__role_total_pair_Husband majority, both positive | Q4",0.0332739603213189
+cat__role_total_pair_Husband only | Q1,0.0737675917244539
+cat__role_total_pair_Husband only | Q2,-0.16336472674830793
+cat__role_total_pair_Husband only | Q3,0.13178628167744313
+cat__role_total_pair_Husband only | Q4,0.04031966868917255
+cat__role_total_pair_Unknown | Unknown,-0.021148580670373868
+"cat__role_total_pair_Wife majority, both positive | Q1",-0.09543409385862055
+"cat__role_total_pair_Wife majority, both positive | Q2",0.06833784703442483
+"cat__role_total_pair_Wife majority, both positive | Q3",0.1488493842624502
+"cat__role_total_pair_Wife majority, both positive | Q4",-0.06868301542498854
+cat__role_total_pair_Wife only | Q1,-0.08502884336138725
+cat__role_total_pair_Wife only | Q2,0.1578515344894147
+cat__role_total_pair_Wife only | Q3,-0.1341305009245474
+cat__role_total_pair_Wife only | Q4,0.052152474695543995

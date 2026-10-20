@@ -1,0 +1,41 @@
+entries 60; keyword rule agrees with the hand label on 40 = 66.7% (Wilson 95% 54.1% to 77.3%)
+Cohen's kappa 0.59
+
+confusion: rows hand label, columns keyword rule
+               collisio  timeout environm ci-or-to own-mist    other
+collision             5        0        0        0        0        0
+timeout               0        6        0        0        0        0
+environment           0        0       12        0        1        0
+ci-or-tooling         3        0        0        0        4        2
+own-mistake           1        1        1        0       12        7
+other                 0        0        0        0        0        5
+
+per class: keyword assigned / hand labelled / agreed -> precision, recall
+  collision        9   5   5   precision  56%  recall 100%
+  timeout          7   6   6   precision  86%  recall 100%
+  environment     13  13  12   precision  92%  recall  92%
+  ci-or-tooling    0   9   0   precision  n/a  recall   0%
+  own-mistake     17  22  12   precision  71%  recall  55%
+  other           14   5   5   precision  36%  recall 100%
+
+disagreements (hand -> keyword):
+  6.0    environment -> own-mistake: OpenROAD nixpkgs build failed its own regression test dbSta.report_cell_usage_file.tcl; rebuilt with doCheck=f
+  54.1   own-mistake -> other: stall counter first missed nonlocal declaration
+  133.0  own-mistake -> other: scan window above w=16.0 mm unusable (slenderness rule skips FE); found after the scan ran
+  208.0  ci-or-tooling -> other: build check red on main too: platform/pages secondary-schema.test.mjs, mileage-log/privacy.html lacks JSON-LD 
+  222.1  ci-or-tooling -> own-mistake: First check_money_sign campaign mutated docstring lines; discarded, redteam.py fixed to skip docstrings and bl
+  245.1  ci-or-tooling -> other: garmin page's png broke the front-door mirror fixpoint and cascaded ~100 ventures; removed the image
+  360.0  own-mistake -> timeout: pkill -f 'node --test' killed my own shell; full platform/pages suite exceeds 120s so ran 5 relevant suites (1
+  417.0  own-mistake -> other: Overwrote the existing eda-harness project in the working tree by building eda-harness before checking researc
+  420.0  own-mistake -> other: A first concatenation of CLAUDE.md left a stray line ('in the PR what they said:') above the checklist fence
+  541.0  ci-or-tooling -> own-mistake: publish-branch.sh artifact check failed: actions-runtime-deprecation-check had no launch date
+  590.0  ci-or-tooling -> own-mistake: test_devsec fixture-coverage guard failed once (actions-runtime-deprecation had no fixture case); fixed by add
+  590.1  ci-or-tooling -> own-mistake: gitops/tests failed twice on derived counts (runs-on README, mirrored tool total); fixed with the named sync s
+  619.0  own-mistake -> other: PR links were rendered without https:// (regex match lacked the scheme); check.mjs caught 13 dead links on the
+  619.1  own-mistake -> other: First version counted only merge commits; most PRs land as squash merges, so it read 16 of 66 first-parent com
+  651.0  ci-or-tooling -> collision: First push broke gitops publish-branch stub, sibling-links and pages tests (apps/CLIs removed from searchable 
+  765.0  own-mistake -> collision: first no-figure scan used ls with two globs and gave a wrong list; a figure regex missed a comma; a hand confl
+  808.1  own-mistake -> environment: Python rewrite of the CSVs normalised mixed line endings; restored by appending to the originals
+  906.0  own-mistake -> other: first experiment launch without OMP_NUM_THREADS=1 oversubscribed CPUs and did not finish in 30 min; relaunched
+  957.0  ci-or-tooling -> collision: sibling-links CI job failed on first head (orphan budget); 0 orphans locally before and after merging main; re
+  976.0  ci-or-tooling -> collision: cherry-pick of stranded PR #7650 conflicted in generated gitops mirror files; re-applied venture files by hand

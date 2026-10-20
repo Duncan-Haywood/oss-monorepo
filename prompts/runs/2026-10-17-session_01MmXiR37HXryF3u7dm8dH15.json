@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01MmXiR37HXryF3u7dm8dH15",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T21:09:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "turo-host-payout-calculator save-and-share (router Consolidate task for *-payout-calculator judged not applicable: six members differ in shape)",
+  "projects": [],
+  "pr": 7840,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py / Bash tooling",
+      "issue": "pkill -f in the same shell line killed the session shell (exit 144); no doc issue with prompts themselves"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Top task was Consolidate for *-payout-calculator; members share no calculation shape, so deepened one (Turo) instead, as the task text allows"
+    }
+  ],
+  "goal": null,
+  "notes": "Checked the 6 *-payout-calculator ventures; calculation shapes differ, so no shared engine. Deepened Turo, which lacked save-and-share. Preflight clean.",
+  "corrections": [],
+  "redteam": null
+}

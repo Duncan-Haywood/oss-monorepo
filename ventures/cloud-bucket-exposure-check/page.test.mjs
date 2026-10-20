@@ -8,6 +8,7 @@ import { buildReport } from './engine.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
 const vsHtml = readFileSync(join(HERE, 'vs-manually-checking-in-the-cloud-console.html'), 'utf8');
+const guideHtml = readFileSync(join(HERE, 'why-do-cloud-buckets-end-up-publicly-listable.html'), 'utf8');
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -145,4 +146,32 @@ test('the vs page links back to the index page, and index links to the vs page',
 test('the vs page names no competing product or company, only a generic manual habit', () => {
   assert.match(vsHtml, /names no specific company or product/i);
   assert.doesNotMatch(vsHtml, /\bAWS Trusted Advisor\b|\bS3 Inspector\b|\bScoutSuite\b|\bProwler\b/i);
+});
+
+test('the guide page carries valid HowTo JSON-LD', () => {
+  const blocks = jsonLdBlocks(guideHtml).map((b) => JSON.parse(b));
+  const howTo = blocks.find((b) => b['@type'] === 'HowTo');
+  assert.ok(howTo, 'missing HowTo JSON-LD on the guide page');
+  assert.ok(howTo.step.length >= 3);
+});
+
+test('the no-warranty and authorisation disclaimers are present on the guide page too', () => {
+  assert.match(guideHtml, /No warranty/);
+  assert.match(guideHtml, /provided free and as-is, without warranty/);
+  assert.match(guideHtml, /authoris(?:ed|ation)/i);
+});
+
+test('index links to the guide page, and the guide page links back', () => {
+  assert.match(html, /href="why-do-cloud-buckets-end-up-publicly-listable\.html"/);
+  assert.match(guideHtml, /href="index\.html"/);
+});
+
+test('the guide page explains the three access-control layers this tool sits downstream of', () => {
+  assert.match(guideHtml, /ACL/);
+  assert.match(guideHtml, /[Bb]ucket policy/);
+  assert.match(guideHtml, /Block Public Access/);
+});
+
+test('the guide page links to the vs-console page it complements', () => {
+  assert.match(guideHtml, /href="vs-manually-checking-in-the-cloud-console\.html"/);
 });

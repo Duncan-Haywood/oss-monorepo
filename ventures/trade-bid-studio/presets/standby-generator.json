@@ -1,0 +1,55 @@
+{
+  "slug": "standby-generator-bid-calculator",
+  "name": "Standby generator installation",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Home standby generators priced from kW, transfer switch, pad, feeder run, gas line, trench and permit.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 52,
+  "burdenRate": 32,
+  "overheadRate": 18,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Set 22 kW generator on precast pad, inspection and commissioning",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 9.5,
+      "materialPerUnit": 540,
+      "source": "LABOR_RATES baseHours 5 + precast pad 1.5 (PAD_TYPES) + inspection 1.5 + commission 1.5; precast pad $380 + fittings $160 (MATERIAL_RATES); generator unit $0 because defaultInputs().generatorHardware is 0 (calc.mjs)"
+    },
+    {
+      "label": "200 A automatic transfer switch and 100 A generator breaker",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 6.5,
+      "materialPerUnit": 1580,
+      "source": "TRANSFER_SWITCHES automatic 6.5 h; ATS_COST automatic 200 A $1,450 + BREAKER_COST 100 A $130 (22 kW = 91.7 A nameplate -> 100 A breaker) (calc.mjs)"
+    },
+    {
+      "label": "Feeder: #3 copper in PVC conduit",
+      "unit": "linear ft",
+      "qty": 20,
+      "hoursPerUnit": 0.08,
+      "materialPerUnit": 9.4,
+      "source": "feederFeet 20 (defaultInputs); 4.8 min/ft (LABOR_RATES); #3 AWG $7.20/run ft (WIRE_TABLE via recommendWire, 0.37% drop) + PVC $2.20/ft (MATERIAL_RATES)"
+    },
+    {
+      "label": "Natural-gas line",
+      "unit": "linear ft",
+      "qty": 15,
+      "hoursPerUnit": 0.08,
+      "materialPerUnit": 6.5,
+      "source": "gasLineFeet 15 (defaultInputs); gasNgHoursPerFoot 0.08 (LABOR_RATES); ngPipePerFoot $6.50 (MATERIAL_RATES)"
+    },
+    {
+      "label": "Permit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 185,
+      "source": "permitFee default $185 (defaultInputs in calc.mjs)"
+    }
+  ],
+  "specialistModels": "Breaker and copper sizing with a 3% voltage-drop check, ATS-vs-service warnings, kW suggestions by load and service size, propane, trench, meter upgrade, yard-location and liquid-cooled adders."
+}

@@ -7,6 +7,8 @@ prices, compares selling at weaning against finishing and selling breeding
 stock, and finds the flock size where the farm covers its fixed costs.
 Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sheep-goat-flock-profit-planner/
+
 After using this, you can **see whether the flock pays, and which of weaning
 rate, hay or price it depends on**, instead of guessing from the sale price.
 

@@ -1,0 +1,40 @@
+Shared instrument, Poisson arrivals, one FIFO server. Time unit = mean service time (same in twin and real).
+Twin: exponential service (c2=1).  Real: lognormal service with squared CV c2 (or Pareto), same mean.
+
+== 0. Pollaczek-Khinchine vs Lindley simulation (lognormal service, 1.5e6 jobs, 5,000 burn-in) ==
+c2   rho   PK mean wait   simulated (+- se, 20 contiguous batches)
+1    0.7   2.3333         2.3193 +- 0.0168
+4    0.5   2.5000         2.5235 +- 0.0593
+4    0.7   5.8333         5.9532 +- 0.1706
+9    0.5   5.0000         5.0146 +- 0.2632
+
+== 1. Load admitted at mean wait <= 2 service times ==
+twin (c2=1) admits rho=0.6667
+c2    real rho*   twin overload (rho_twin/rho*)   real mean wait at twin load   (x claim)
+0     0.8000      0.833                          1.000                          0.50
+0.5   0.7273      0.917                          1.500                          0.75
+2     0.5714      1.167                          3.000                          1.50
+4     0.4444      1.500                          5.000                          2.50
+9     0.2857      2.333                          10.000                          5.00
+25    0.1333      5.000                          26.000                          13.00
+
+== 2. 99th-percentile wait at the twin's admitted load (lognormal, 3e6 jobs) ==
+twin (exponential) claims P99 wait = 12.60 service times; P(W > t99) = 0.0100
+real c2=4: P(W > twin's t99) = 0.1174 (11.7x claim); real P99 = 48.16 (3.82x claim); mean 5.065 (PK 5.000)
+real c2=9: P(W > twin's t99) = 0.2047 (20.5x claim); real P99 = 113.49 (9.01x claim); mean 10.136 (PK 10.000)
+
+== 3. Infinite-variance service (Pareto): the twin's finite mean wait has no real counterpart ==
+twin claim at rho=0.5: mean wait 1.000
+alpha  c2      mean wait after n jobs (median of 5 seeds)
+3      0.333   n=1e4: 0.70  n=1e5: 0.66  n=1e6: 0.66   PK: 0.67
+2.5    0.800   n=1e4: 0.79  n=1e5: 0.91  n=1e6: 0.85   PK: 0.90
+1.8    inf     n=1e4: 1.58  n=1e5: 3.25  n=1e6: 6.23   PK: inf
+1.5    inf     n=1e4: 6.67  n=1e5: 8.83  n=1e6: 33.41   PK: inf
+
+== 4. Repair: fit c2 from n logged real service times (lognormal c2=4, SLA mean wait <= 2) ==
+true admissible rho* = 0.4444; twin admits 0.6667 (real wait 5.00 = 2.50x SLA)
+n      | plug-in: median c2_hat  median rho_hat  P(real wait > SLA)  mean wait/SLA | bootstrap-90% upper c2: P(violate)  mean rho* - rho_used
+25     | 1.73            0.5946          0.892               1.813         | 0.812                              -0.0878
+100    | 2.51            0.5325          0.805               1.403         | 0.672                              -0.0292
+400    | 3.04            0.4975          0.775               1.214         | 0.562                              0.0023
+1600   | 3.44            0.4739          0.698               1.091         | 0.455                              0.0235

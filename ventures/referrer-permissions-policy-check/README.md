@@ -5,6 +5,8 @@ HTTP GET request** to a URL you choose and classifies its `Referrer-Policy`
 and `Permissions-Policy` headers into the misconfiguration patterns that
 actually matter:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/referrer-permissions-policy-check/
+
 - **`Referrer-Policy: unsafe-url`** — sends the document's full URL,
   including its path and query string, as the `Referer` header on every
   outbound request this page makes, including a request that downgrades

@@ -8,6 +8,8 @@ searches for the price that earns the most along a demand curve you set, and
 shows what a shorter reset, a minimum group charge or a slow month would do.
 Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/escape-room-pricing-capacity-planner/
+
 After using this, you can **see how full your rooms must be to pay for the
 hosts and rent**, and whether a price change is worth testing.
 

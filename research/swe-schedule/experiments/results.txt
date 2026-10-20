@@ -1,0 +1,44 @@
+trials per cell: 40000; pool = 11 tracks unless stated; read=2 min, jitter=0.5 min (assumed)
+
+1. blind simultaneous starts, closed form vs simulation (latency = infinity)
+  n=2 sim                        4.5% runs redundant (se 0.07)   closed form   4.5%   P(any duplicate pair)  9.1%
+  n=4 sim                       12.8% runs redundant (se 0.08)   closed form  12.8%   P(any duplicate pair) 45.9%
+  n=6 sim                       20.2% runs redundant (se 0.07)   closed form  20.2%   P(any duplicate pair) 81.2%
+  n=8 sim                       26.6% runs redundant (se 0.06)   closed form  26.6%   P(any duplicate pair) 96.9%
+
+2. n=4 simultaneous starts, claims visible after Exp(mean L) minutes
+  L=1 min                       11.2% runs redundant (se 0.07)
+  L=3 min                       12.3% runs redundant (se 0.07)
+  L=10 min                      12.6% runs redundant (se 0.07)
+  L=30 min                      12.6% runs redundant (se 0.07)
+
+3. n=4, pool size (blind picks, L=3)
+  pool=5                        25.2% runs redundant (se 0.08)
+  pool=11                       12.3% runs redundant (se 0.07)
+  pool=22                        6.1% runs redundant (se 0.06)
+  pool=44                        3.2% runs redundant (se 0.04)
+
+4. n=4, stagger gap g minutes between starts; batch finishes starting after 3g minutes
+ claim latency mean 3 min
+  g=0                           12.2% runs redundant (se 0.07)
+  g=1                            8.1% runs redundant (se 0.06)
+  g=2                            5.1% runs redundant (se 0.05)
+  g=5                            1.6% runs redundant (se 0.03)
+  g=10                           0.3% runs redundant (se 0.01)
+  g=20                           0.0% runs redundant (se 0.00)
+ claim latency mean 10 min
+  g=0                           12.5% runs redundant (se 0.07)
+  g=1                           11.0% runs redundant (se 0.07)
+  g=2                            9.5% runs redundant (se 0.07)
+  g=5                            6.4% runs redundant (se 0.06)
+  g=10                           3.4% runs redundant (se 0.04)
+  g=20                           1.1% runs redundant (se 0.03)
+
+5. scheduler-assigned slots (no look-up, no claim latency)
+  n=4                            0.0% runs redundant (se 0.00)
+  n=8                            0.0% runs redundant (se 0.00)
+  n=11                           0.0% runs redundant (se 0.00)
+  n=14                          21.4% runs redundant (se 0.00)
+
+6. runs shipped per batch of 4 (4 x (1 - redundant)), and start spread 3g minutes
+  uniform 3.51   stagger g=5 3.94   slots 4.00

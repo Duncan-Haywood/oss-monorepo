@@ -7,6 +7,8 @@ margin**, **months to pay back the build**, the **utilization needed to break ev
 peak and off-peak rates for your target margin**, the **lowest peak rate for a payback target**, profit per bay, what 10% and 20% fewer bookings do, and compares a second scenario (say five bays
 instead of three).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/golf-simulator-bay-profit-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

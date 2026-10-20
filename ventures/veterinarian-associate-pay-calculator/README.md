@@ -6,6 +6,8 @@ expect to generate, and see each offer's yearly value, the real percentage after
 value per hour worked, the production where the offers pay the same, and how each moves if production runs
 30% low or high.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/veterinarian-associate-pay-calculator/
+
 After using this, you can now **see that a "22% of production" offer pays 19.8% of what you bill once lab and
 outside services are excluded, and whether a guaranteed base or a percentage wins at the production you will
 really hit**, which used to take a spreadsheet and a guess.

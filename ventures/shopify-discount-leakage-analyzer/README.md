@@ -5,6 +5,8 @@ see, for every discount code, how much it gave away and what share of its orders
 had to be new sales for the discount to pay for itself.** The file is read in the
 browser; nothing is uploaded and no store access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-discount-leakage-analyzer/
+
 After using this, you can now **rank your discount codes by what they really cost,
 see which ones refund more than full-price orders, and find out how much discount
 went to customers who had already bought**, which used to mean installing an

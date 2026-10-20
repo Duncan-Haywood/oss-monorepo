@@ -58,7 +58,7 @@
   <section class="card">
     <h2>Your JSON</h2>
     <p class="note">One value, several samples one per line (NDJSON), or several objects pasted back to back. More samples means better optional and nullable detection.</p>
-    <textarea id="json" class="log" spellcheck="false" placeholder='{"id": 1, "name": "Ada", "email": "ada@example.com"}&#10;{"id": 2, "name": null}'></textarea>
+    <textarea aria-label="JSON samples" id="json" class="log" spellcheck="false" placeholder='{"id": 1, "name": "Ada", "email": "ada@example.com"}&#10;{"id": 2, "name": null}'></textarea>
     <p>
       <label for="style">Output: </label><select id="style"><option value="ts">TypeScript</option><option value="zod">Zod</option><option value="jsonschema">JSON Schema</option><option value="go">Go structs</option></select>
       <label for="root">Root type name: </label><input type="text" id="root" size="14" value="Root">
@@ -76,7 +76,7 @@
     <h2>Generated code</h2>
     <p class="verdict" id="verdict"></p>
     <div id="warnings"></div>
-    <textarea id="out" class="out" readonly spellcheck="false"></textarea>
+    <textarea aria-label="Generated output" id="out" class="out" readonly spellcheck="false"></textarea>
     <p><button type="button" id="copy">Copy code</button></p>
   </section>
 

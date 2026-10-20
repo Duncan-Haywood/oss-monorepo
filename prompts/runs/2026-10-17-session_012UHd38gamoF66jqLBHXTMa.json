@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_012UHd38gamoF66jqLBHXTMa",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T06:07:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "figures (PROJECTS.md milestone 9)",
+  "projects": [
+    "robust-outer",
+    "race-heterogeneity",
+    "pipeline-replication"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7668",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Milestone 9 progress paragraph is a very long single line; hard to edit and to find the open count."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added figure.py + SVG to three projects without figures. Hit no errors.",
+  "corrections": [],
+  "redteam": null
+}

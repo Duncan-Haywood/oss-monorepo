@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Crypto CGT Calculator — Section 104 pool, same-day and 30-day rules, in your browser</title>
+  <meta name="description" content="Free UK crypto capital gains calculator. Paste your buys, sales, swaps and staking income as a CSV and it applies HMRC's same-day, 30-day and Section 104 pooling rules, works out each tax year's gain, exempt amount and estimated CGT, and exports the working. Nothing is uploaded.">
+  <meta property="og:title" content="UK Crypto CGT Calculator — free, private, in your browser">
+  <meta property="og:description" content="Section 104 pooling, the 30-day bed-and-breakfast rule and the same-day rule applied to your own crypto CSV, with an estimate per tax year and a working you can keep.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Crypto CGT Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "description": "Free UK crypto capital gains calculator using HMRC's same-day, 30-day and Section 104 pooling rules. Runs in your browser.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}, "isAccessibleForFree": true, "inLanguage": "en-GB"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the Section 104 pool for crypto?", "acceptedAnswer": {"@type": "Answer", "text": "HMRC treats all units of one cryptoasset as a single pool. Every purchase adds its units and allowable cost to the pool, and a disposal uses a share of the pool's cost in proportion to the units sold. It is an average cost, not first-in first-out, and you cannot pick which coins you sold."}}, {"@type": "Question", "name": "What are the same-day and 30-day rules?", "acceptedAnswer": {"@type": "Answer", "text": "Before the pool is used, a disposal is matched with units of the same asset you bought on the same day, then with units you bought in the 30 days after the disposal, earliest first. Selling and buying back within 30 days therefore does not create a loss you can claim from the old pool."}}, {"@type": "Question", "name": "Which fees can I deduct?", "acceptedAnswer": {"@type": "Answer", "text": "Fees paid to buy count towards the cost of the units. Fees paid to sell or swap come off the proceeds. Enter each fee in pounds in the fee column."}}, {"@type": "Question", "name": "Is a crypto-to-crypto swap taxable in the UK?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Swapping one cryptoasset for another is a disposal of the first, at its pound value on the day. This tool treats a swap row as a disposal of the asset you gave up and an acquisition of the one you received at the same pound value."}}, {"@type": "Question", "name": "How is staking or airdrop income treated here?", "acceptedAnswer": {"@type": "Answer", "text": "Income rows are added to the pool at their pound value when received, so a later sale has the right cost. The income itself may also be taxable as income and is listed separately; this tool does not work out income tax."}}, {"@type": "Question", "name": "Which tax years and rates are built in?", "acceptedAnswer": {"@type": "Answer", "text": "2021-22 to 2026-27: the annual exempt amount for each year, and the capital gains rates for crypto, including the change on 30 October 2024 from 10% and 20% to 18% and 24%. Check the figures against HMRC before you file, because the 2026-27 row assumes the 2025-26 rules continue."}}, {"@type": "Question", "name": "Is my transaction history uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page runs in your browser, reads the file on your device and sends nothing anywhere."}}, {"@type": "Question", "name": "Can I use the result on my tax return?", "acceptedAnswer": {"@type": "Answer", "text": "Use it as working, not as advice. It does not cover every case, for example DeFi, NFTs, forks, transfers between your own wallets that you have not removed, gifts to a spouse, or losses claimed outside the file. Check the result against HMRC's guidance or with an adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #2d4fa3; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2b3a67; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2b3a67; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2b3a6710; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2d4fa3; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #2b3a67; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.4rem; color: #2b3a67; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: #e3e9ef; color: #2b3a67; }
+    .pill.same { background: #f8d9d6; color: #7d1f16; }
+    .pill.thirty { background: #fdf0d5; color: #5c4508; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 190px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK CRYPTO CGT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does HMRC say you sold?</h1>
+    <p>Paste your crypto <strong>buys, sales, swaps and staking income</strong> as a CSV. The calculator applies HMRC's <strong>same-day rule, 30-day rule and Section 104 pool</strong> to every disposal, shows which rule matched each one, and estimates each tax year's capital gains tax after the exempt amount. Download the working to keep with your records.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice. New to the rules? Read <a href="./section-104-pooling-crypto-worked-example.html">Section 104 pooling for crypto, with a worked example</a>.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your transactions</h2>
+    <p class="note">Columns: <code>date, type, asset, quantity, gbp value, fee</code>; swaps also <code>to asset, to quantity</code>. Types: buy, sell, income, swap, donate. Dates as 2024-05-02 or 02/05/2024 (day first). Put the pound value of the whole row in <em>gbp value</em>, not the price per unit.</p>
+    <label for="csv">Transactions (CSV)</label>
+    <textarea id="csv" spellcheck="false" placeholder="date,type,asset,quantity,gbp value,fee,to asset,to quantity"></textarea>
+    <div class="row3">
+      <div><label for="file">Or open a CSV file from your device</label><input id="file" type="file" accept=".csv,text/csv,text/plain"></div>
+      <div><label for="income">Your taxable income after personal allowance (£)</label><input id="income" inputmode="decimal" placeholder="blank = assume a free basic-rate band"></div>
+      <div><label for="losses">Capital losses brought forward (£)</label><input id="losses" inputmode="decimal" value="0"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out my gains</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="status" role="status">Paste or open your transactions, then click Work out my gains.</p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <div id="notices"></div>
+    <div id="years"></div>
+    <h2>Every disposal and the rule that matched it</h2>
+    <div class="scroll" id="disposals"></div>
+    <p>
+      <button type="button" id="download">Download the working (CSV)</button>
+      <button type="button" class="secondary" id="download-pools">Download pool balances (CSV)</button>
+    </p>
+    <h2>Section 104 pools at the end of each tax year</h2>
+    <div class="scroll" id="pools"></div>
+    <h2>Income received as crypto</h2>
+    <div class="scroll" id="income-table"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and does not cover</h2>
+    <ul>
+      <li>Covered: purchases, sales, swaps between assets, staking and airdrop receipts entered at their pound value, charity donations, fees, losses carried between years, the exempt amount and the rate change on 30 October 2024.</li>
+      <li>Not covered: DeFi and liquidity pools, NFTs, forks, wrapped tokens, lost or stolen coins, gifts to a spouse (no gain, no loss) or to others, income tax on staking, trading-income treatment, and transfers between your own wallets (leave them out of the file; they are not disposals).</li>
+      <li>Prices are yours. Nothing is fetched, so a missing pound value is skipped and reported, never guessed as zero.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is the Section 104 pool for crypto?</h3>
+    <p>HMRC treats all units of one cryptoasset as a single pool. Every purchase adds its units and allowable cost to the pool, and a disposal uses a share of the pool's cost in proportion to the units sold. It is an average cost, not first-in first-out, and you cannot pick which coins you sold.</p>
+    <h3>What are the same-day and 30-day rules?</h3>
+    <p>Before the pool is used, a disposal is matched with units of the same asset you bought on the same day, then with units you bought in the 30 days after the disposal, earliest first. Selling and buying back within 30 days therefore does not create a loss you can claim from the old pool.</p>
+    <h3>Which fees can I deduct?</h3>
+    <p>Fees paid to buy count towards the cost of the units. Fees paid to sell or swap come off the proceeds. Enter each fee in pounds in the fee column.</p>
+    <h3>Is a crypto-to-crypto swap taxable in the UK?</h3>
+    <p>Yes. Swapping one cryptoasset for another is a disposal of the first, at its pound value on the day. This tool treats a swap row as a disposal of the asset you gave up and an acquisition of the one you received at the same pound value.</p>
+    <h3>How is staking or airdrop income treated here?</h3>
+    <p>Income rows are added to the pool at their pound value when received, so a later sale has the right cost. The income itself may also be taxable as income and is listed separately; this tool does not work out income tax.</p>
+    <h3>Which tax years and rates are built in?</h3>
+    <p>2021-22 to 2026-27: the annual exempt amount for each year, and the capital gains rates for crypto, including the change on 30 October 2024 from 10% and 20% to 18% and 24%. Check the figures against HMRC before you file, because the 2026-27 row assumes the 2025-26 rules continue.</p>
+    <h3>Is my transaction history uploaded?</h3>
+    <p>No. The page runs in your browser, reads the file on your device and sends nothing anywhere.</p>
+    <h3>Can I use the result on my tax return?</h3>
+    <p>Use it as working, not as advice. It does not cover every case, for example DeFi, NFTs, forks, transfers between your own wallets that you have not removed, gifts to a spouse, or losses claimed outside the file. Check the result against HMRC's guidance or with an adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace an adviser or HMRC's guidance. Results are arithmetic on the figures you type; tax rules, rates and reporting requirements change. You are responsible for reviewing and verifying its output before you file anything.</p>
+    <p><strong>Independent.</strong> Not affiliated with HMRC, any exchange, wallet, blockchain or crypto tax software, and none is ranked here. The example transactions are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your transactions are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-capital-gains-tax-calculator/">UK capital gains tax calculator</a> for shares and property, the <a href="../uk-self-assessment-tax-calculator/">UK self assessment tax calculator</a>, and the US-rules <a href="../crypto-cost-basis-calculator/">crypto cost basis calculator</a> (FIFO, HIFO, Form 8949).</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseTransactions, overview, toDisposalsCsv, toPoolCsv, fmtQty, round2, SAMPLE_CSV } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(round2(n)).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const num = (id) => { const v = $(id).value.trim().replace(/[£,\s]/g, ""); return v === "" ? undefined : Number(v); };
+    const status = $("#status"), report = $("#report");
+    let last = null;
+
+    const RULE = { "same-day": ["Same day", "same"], "30-day": ["30-day", "thirty"], pool: ["Section 104 pool", ""] };
+
+    function run() {
+      const parsed = parseTransactions($("#csv").value);
+      const income = num("#income"), losses = num("#losses");
+      if (income !== undefined && !(income >= 0)) { status.textContent = "Income must be a number of pounds."; return false; }
+      if (losses !== undefined && !(losses >= 0)) { status.textContent = "Losses brought forward must be a number of pounds."; return false; }
+      const notes = parsed.warnings.map((w) => `<div class="warn">${esc(w)}</div>`);
+      if (!parsed.transactions.length) {
+        report.hidden = false;
+        $("#notices").innerHTML = notes.join("") || '<div class="warn">No transactions found.</div>';
+        for (const id of ["#years", "#disposals", "#pools", "#income-table"]) $(id).innerHTML = "";
+        status.textContent = "Nothing could be read. Check the column names and try again.";
+        last = null;
+        return false;
+      }
+      const result = overview(parsed.transactions, { income, lossesBroughtForward: losses });
+      last = result;
+      for (const w of result.warnings) notes.push(`<div class="warn">${esc(w)}</div>`);
+      $("#notices").innerHTML = notes.join("");
+      $("#years").innerHTML = result.summaries.length ? result.summaries.map((s) => {
+        const e = s.estimate;
+        return `<h2>Tax year ${esc(s.year)} (6 April ${s.year.slice(0, 4)} to 5 April ${Number(s.year.slice(0, 4)) + 1})</h2>` +
+          `<div class="big"><div>Proceeds<strong>${gbp(s.proceeds)}</strong></div><div>Allowable cost<strong>${gbp(s.cost)}</strong></div><div>Net gain or loss<strong>${gbp(s.net)}</strong></div>` +
+          (e ? `<div>Exempt amount used<strong>${gbp(e.aeaUsed)}</strong> of ${gbp(e.aea)}</div><div>Taxable gain<strong>${gbp(e.taxable)}</strong></div><div>Estimated CGT<strong>${gbp(e.tax)}</strong></div>` : "") + `</div>` +
+          (e ? `<p class="note">${e.assumedIncome ? "No income entered, so the estimate assumes your whole basic-rate band is free (lowest possible rate). " : ""}Gains: ${gbp(s.gains)}, losses: ${gbp(s.losses)}, brought-forward losses used: ${gbp(e.bfUsed)}, losses carried forward: ${gbp(e.lossCarried)}. Disposals on ${s.disposalCount} day-and-asset combinations. Report on your tax return if gains exceed the exempt amount or proceeds exceed the reporting limit shown in HMRC's guidance.</p>` : `<p class="note">Rates for this year are not built in; the gains are still correct.</p>`);
+      }).join("") : '<p class="note">No disposals in this file.</p>';
+      $("#disposals").innerHTML = result.disposals.length ? `<table><thead><tr><th>Date</th><th>Asset</th><th>Rule</th><th class="n">Units</th><th class="n">Proceeds</th><th class="n">Allowable cost</th><th class="n">Gain / loss</th><th>Matched with</th></tr></thead><tbody>` +
+        result.disposals.map((d) => `<tr><td>${d.date}</td><td>${esc(d.asset)}</td><td><span class="pill ${RULE[d.rule][1]}">${RULE[d.rule][0]}</span></td><td class="n">${fmtQty(d.quantity)}</td><td class="n">${gbp(d.proceeds)}</td><td class="n">${gbp(d.cost)}</td><td class="n">${gbp(d.gain)}</td><td>${d.matchedWith ? "Purchase on " + d.matchedWith : "Pool"}</td></tr>`).join("") + `</tbody></table>` : "";
+      const poolRows = Object.entries(result.poolsByYear).sort().flatMap(([y, ps]) => Object.entries(ps).map(([a, p]) => `<tr><td>${esc(y)}</td><td>${esc(a)}</td><td class="n">${fmtQty(p.quantity)}</td><td class="n">${gbp(p.cost)}</td></tr>`));
+      $("#pools").innerHTML = poolRows.length ? `<table><thead><tr><th>At 5 April ending</th><th>Asset</th><th class="n">Units in pool</th><th class="n">Pool allowable cost</th></tr></thead><tbody>${poolRows.join("")}</tbody></table>` : '<p class="note">Nothing held in a pool.</p>';
+      $("#income-table").innerHTML = result.income.length ? `<table><thead><tr><th>Date</th><th>Asset</th><th class="n">Units</th><th class="n">Value when received</th></tr></thead><tbody>` + result.income.map((i) => `<tr><td>${i.date}</td><td>${esc(i.asset)}</td><td class="n">${fmtQty(i.quantity)}</td><td class="n">${gbp(i.value)}</td></tr>`).join("") + `</tbody></table><p class="note">Added to the pool at this value. Whether it is also taxable income depends on your facts; this tool does not work out income tax.</p>` : '<p class="note">None.</p>';
+      report.hidden = false;
+      status.textContent = `Read ${parsed.transactions.length} transaction${parsed.transactions.length === 1 ? "" : "s"}` + (parsed.warnings.length ? `; ${parsed.warnings.length} row${parsed.warnings.length === 1 ? "" : "s"} skipped (see above)` : "") + ".";
+      return true;
+    }
+
+    function save(name, text) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+      a.download = name;
+      a.click();
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = SAMPLE_CSV;
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: invented transactions, not a real person or exchange."; }
+    });
+    $("#file").addEventListener("change", async (event) => {
+      const list = Array.from(event.target.files || []);
+      if (!list.length) return;
+      const texts = await Promise.all(list.map((f) => new Promise((res) => { const r = new FileReader(); r.onload = () => res(String(r.result || "")); r.readAsText(f); })));
+      // Several files: keep the first header, drop the others.
+      $("#csv").value = texts.map((t, i) => (i === 0 ? t.trimEnd() : t.split(/\r?\n/).slice(1).join("\n").trimEnd())).join("\n");
+      record("file_opened");
+      status.textContent = `Read ${list.length} file${list.length > 1 ? "s" : ""} on this device. Check the rows, then click Work out my gains.`;
+    });
+    $("#clear-all").addEventListener("click", () => { $("#csv").value = ""; report.hidden = true; last = null; status.textContent = "Paste or open your transactions, then click Work out my gains."; });
+    $("#download").addEventListener("click", () => { if (last) { save("uk-crypto-disposals-working.csv", toDisposalsCsv(last.disposals)); record("report_downloaded"); } });
+    $("#download-pools").addEventListener("click", () => { if (last) { save("uk-crypto-pool-balances.csv", toPoolCsv(last.pools)); record("report_downloaded"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+serial re-run, timeout 1200 s each, one project at a time
+
+project                      status       difflines    secs
+robofab-insert               timeout              0  1200.1
+robofab-slipcrit             identical            0    56.3
+robofab-sliprate             differs              1     9.8

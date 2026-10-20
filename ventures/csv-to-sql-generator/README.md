@@ -7,6 +7,8 @@ recognised; ZIP-style codes with leading zeros stay text; ambiguous `03/04/2024`
 flagged and follow your choice; empty cells and `NULL` load as NULL. Anything it had to
 guess is listed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/csv-to-sql-generator/
+
 [`index.html`](index.html) runs in a browser; nothing is uploaded and the page makes no
 network calls. [`how-to-import-a-csv-into-a-database.html`](how-to-import-a-csv-into-a-database.html)
 covers INSERT vs `COPY` vs `LOAD DATA` vs `.import` vs `bq load`, and the traps.

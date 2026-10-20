@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Paint estimator (uitest fixture)</title></head>
+<body>
+<h1>Paint estimator</h1>
+<p>A tiny fixture app for uitest's own tests. It works; <a href="broken.html">broken.html</a> does not.</p>
+<form id="f">
+  <label for="w">Wall width (ft)</label> <input id="w" type="number" min="1" max="200">
+  <label for="h">Wall height (ft)</label> <input id="h" type="number" min="1" max="30">
+  <label for="c">Coats</label>
+  <select id="c"><option>1</option><option>2</option><option>3</option></select>
+  <button type="submit">Calculate</button>
+</form>
+<p role="status" id="out"></p>
+<script>
+document.getElementById('f').addEventListener('submit', e => {
+  e.preventDefault();
+  const w = Number(document.getElementById('w').value), h = Number(document.getElementById('h').value);
+  const coats = Number(document.getElementById('c').value);
+  if (!(w > 0 && h > 0)) { document.getElementById('out').textContent = 'Enter a width and a height.'; return; }
+  const gallons = Math.ceil((w * h * coats) / 350 * 10) / 10;
+  document.getElementById('out').textContent = `You need ${gallons} gallons of paint.`;
+});
+</script>
+</body></html>

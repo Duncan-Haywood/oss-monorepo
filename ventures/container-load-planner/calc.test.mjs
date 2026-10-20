@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, parseRotation, orientations, resolveContainer,
   packPass, bestPack, planLoad, verifyPacking, palletise, compareOptions, viewRects, loadingOrder,
-  mulberry32, lineFits, suggestRestarts, reportCsv, sampleCargo, toMm, fromMm, MAX_UNITS,
+  mulberry32, balanceReport, stopReport, lineFits, suggestRestarts, reportCsv, planReportHtml, sampleCargo, toMm, fromMm, MAX_UNITS,
 } from "./calc.mjs";
 
 const M = SYSTEMS.metric, IMP = SYSTEMS.imperial;
@@ -398,4 +398,124 @@ test("a thousand-plus units plan in a reasonable time and validate", () => {
   assert.ok(Date.now() - t < 20000);
   for (const c of plan.containers) assert.equal(verifyPacking(plan.container, lines, c.placements).ok, true);
   assert.equal(plan.packedUnits, 1600);
+});
+
+// ----- balance --------------------------------------------------------------
+
+test("balance: a single centred box sits at 0.5, 0.5 and half its height", () => {
+  const c = box(1000, 400, 400);
+  const ln = [mk("a", 20, 20, 20, 100, 1)];
+  const r = balanceReport(c, ln, [{ line: 0, x: 400, y: 100, z: 0, l: 200, w: 200, h: 200 }]);
+  assert.equal(r.x, 0.5); assert.equal(r.y, 0.5); assert.equal(r.z, 0.25);
+  assert.equal(r.backShare, 0); assert.ok(r.ok);
+});
+
+test("balance: weight weighs the average, and a back-heavy load warns", () => {
+  const c = box(1000, 400, 400);
+  const ln = [mk("heavy", 20, 20, 20, 900, 1), mk("light", 20, 20, 20, 100, 1)];
+  const r = balanceReport(c, ln, [
+    { line: 0, x: 0, y: 100, z: 0, l: 200, w: 200, h: 200 },
+    { line: 1, x: 800, y: 100, z: 0, l: 200, w: 200, h: 200 },
+  ]);
+  assert.ok(Math.abs(r.x - 0.18) < 1e-9); // (900*100 + 100*900)/1000 mm of a 1000 mm length
+  assert.ok(Math.abs(r.backShare - 0.9) < 1e-9);
+  assert.equal(r.ok, false);
+  assert.match(r.warnings[0], /back wall/);
+});
+
+test("balance: side-heavy and top-heavy loads each warn; empty load is fine", () => {
+  const c = box(1000, 400, 400);
+  const ln = [mk("a", 20, 20, 20, 100, 1)];
+  const side = balanceReport(c, ln, [{ line: 0, x: 400, y: 0, z: 0, l: 200, w: 200, h: 200 }]);
+  assert.match(side.warnings.join(" "), /left wall/);
+  const high = balanceReport(c, ln, [{ line: 0, x: 400, y: 100, z: 200, l: 200, w: 200, h: 200 }]);
+  assert.match(high.warnings.join(" "), /floor/);
+  assert.equal(balanceReport(c, ln, []).ok, true);
+});
+
+test("balance: a planned load's weight matches the container weight", () => {
+  const ln = [mk("carton", 40, 30, 30, 20, 60)];
+  const plan = planLoad(ln, PRESETS.find((p) => p.id === "20ft"));
+  const c = plan.containers[0];
+  const r = balanceReport(plan.container, ln, c.placements);
+  assert.equal(r.weight, c.weight);
+  assert.ok(r.x > 0 && r.x < 1);
+});
+
+test("printable load plan: one section per container, escaped names, disclaimer, no script", () => {
+  const lines = [mk("<b>a</b> & co", 50, 50, 50, 1, 30), mk("b", 40, 40, 40, 2, 5)];
+  const plan = planLoad(lines, { l: 2000, w: 1000, h: 1000, payload: 1e6 });
+  const html = planReportHtml(plan, lines, M, { notes: ["A note <x>"], when: "2026-10-18" });
+  assert.equal((html.match(/<h2>Container \d+ of/g) || []).length, plan.containers.length);
+  assert.ok(plan.containers.length >= 1);
+  assert.match(html, /&lt;b&gt;a&lt;\/b&gt; &amp; co/);
+  assert.match(html, /A note &lt;x&gt;/);
+  assert.match(html, /No warranty/);
+  assert.doesNotMatch(html, /<script/i);
+  const total = plan.containers.reduce((s, c) => s + c.count, 0);
+  assert.equal((html.match(/<tr><td>\d+<\/td><td>[AB] ·/g) || []).length, total);
+  assert.equal((html.match(/<svg /g) || []).length, 2 * plan.containers.length);
+});
+
+import { encodeShare, decodeShare } from "./calc.mjs";
+
+test("share link round-trips the form, including non-ASCII names", () => {
+  const state = { units: "imperial", preset: "40ft", container: { l: "473", w: "92.5", h: "93.8", payload: "58,000" }, rows: [{ name: "Gläser «A»", l: "24", w: "16", h: "16", weight: "40", qty: "90", rotation: "upright", maxLayers: "", maxTop: "" }, { name: "Tiles", l: "20", w: "20", h: "10", weight: "55", qty: "30", rotation: "fixed", maxLayers: "3", maxTop: "200" }] };
+  const { token, error } = encodeShare(state);
+  assert.ok(!error);
+  assert.match(token, /^[A-Za-z0-9_-]+$/);
+  assert.deepEqual(decodeShare("#plan=" + token), state);
+});
+
+test("share link rejects garbage and falls back on unknown values", () => {
+  for (const t of ["", "not base64!!", "e30", btoa("[1,2]"), btoa(JSON.stringify({ v: 2 }))]) assert.ok(decodeShare(t).error, t);
+  const { token } = encodeShare({ units: "metric", preset: "nope", container: { l: "1", w: "1", h: "1", payload: "1" }, rows: [{ name: "x", l: "1", w: "1", h: "1", weight: "1", qty: "1", rotation: "sideways" }] });
+  const d = decodeShare(token);
+  assert.equal(d.preset, "custom");
+  assert.equal(d.rows[0].rotation, "upright");
+});
+
+test("share link refuses a plan too long for a URL", () => {
+  const rows = Array.from({ length: 40 }, (_, i) => ({ name: "n".repeat(190) + i, l: "1", w: "1", h: "1", weight: "1", qty: "1", rotation: "any" }));
+  assert.ok(encodeShare({ units: "metric", preset: "40hc", container: { l: "1", w: "1", h: "1", payload: "1" }, rows }).error);
+});
+
+test("priceOptions totals freight, divides by ordered units and never names an incomplete option cheapest", async () => {
+  const { priceOptions, parseRates, compareOptions, parseCargo } = await import("./calc.mjs");
+  const { lines } = parseCargo("Carton,60,40,40,15,300");
+  const cmp = compareOptions(lines, { restarts: 2 });
+  const priced = priceOptions(cmp.options, { "20ft": 2400, "40ft": 3800 }, 300);
+  const forty = priced.find((p) => p.id === "40ft");
+  assert.equal(forty.total, 3800 * forty.containers);
+  assert.equal(forty.perUnit, forty.total / 300);
+  assert.equal(priced.filter((p) => p.cheapest).length, 1);
+  assert.ok(priced.find((p) => p.cheapest).complete);
+  assert.ok(priced.every((p) => !p.id.startsWith("53ft")));
+  const none = priceOptions([{ id: "20ft", label: "x", plan: { containersNeeded: 1, packedUnits: 5, unfit: [{ qty: 2 }], unplaced: [0] } }], { "20ft": 100 }, 7);
+  assert.equal(none[0].complete, false);
+  assert.equal(none[0].cheapest, false);
+  assert.deepEqual(parseRates("20ft=2400, 40HC=4000.5"), { "20ft": 2400, "40hc": 4000.5 });
+  assert.throws(() => parseRates("40ft"), /40ft=3800/);
+});
+
+test("delivery stops: the first stop is loaded nearest the doors and a clean plan reports nothing blocked", () => {
+  const { lines } = parseCargo("Stop A, 100, 100, 100, 50, 6, upright,,, 1\nStop B, 100, 100, 100, 50, 6, upright,,, 2\nStop C, 100, 100, 100, 50, 6, upright,,, 3", M);
+  assert.deepEqual(lines.map((l) => l.stop), [1, 2, 3]);
+  const plan = planLoad(lines, PRESETS.find((p) => p.id === "20ft"), { restarts: 6 });
+  const c = plan.containers[0];
+  assert.equal(c.count, 18);
+  const mean = (li) => { const ps = c.placements.filter((p) => p.line === li); return ps.reduce((s, p) => s + p.x, 0) / ps.length; };
+  assert.ok(mean(0) > mean(1) && mean(1) > mean(2), "earlier stops sit nearer the doors");
+  assert.equal(stopReport(lines, c.placements).ok, true);
+});
+
+test("delivery stops: invalid stop is rejected, none means not used, a reversed layout is flagged", () => {
+  assert.match(parseCargo("A,1,1,1,1,1,,,,0", M).warnings[0], /delivery stop/);
+  const { lines } = parseCargo("A,1,1,1,1,1\nB,1,1,1,1,1", M);
+  assert.equal(stopReport(lines, [{ line: 0, x: 0, y: 0, z: 0, l: 1, w: 1, h: 1 }]).used, false);
+  const two = parseCargo("A,1,1,1,1,1,,,,1\nB,1,1,1,1,1,,,,2", M).lines;
+  const rev = [{ line: 0, x: 0, y: 0, z: 0, l: 1000, w: 1000, h: 1000 }, { line: 1, x: 1000, y: 0, z: 0, l: 1000, w: 1000, h: 1000 }];
+  const r = stopReport(two, rev);
+  assert.equal(r.ok, false);
+  assert.equal(r.blockedUnits, 1);
 });

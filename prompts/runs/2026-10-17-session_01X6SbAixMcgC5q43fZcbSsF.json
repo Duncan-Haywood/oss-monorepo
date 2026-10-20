@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01X6SbAixMcgC5q43fZcbSsF",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T10:38:11Z",
+  "ended": "2026-10-17T11:34:43Z",
+  "wall_minutes": 56.93,
+  "tokens_in": 4426903,
+  "tokens_out": 26694,
+  "cost_usd": 1.5331,
+  "tool_calls": 47,
+  "task": "simdesign next step (revgauge)",
+  "projects": [
+    "simdesign-gaugelayers"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7734",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Built a full duplicate (simdesign-lcorner, same numbers as simdesign-lbuckle/revwidth) because I scanned the research/ listing for claims but missed lbuckle; discarded it before any commit, costing about 40 minutes of compute.",
+    "pkill -f on the script name killed the session shell."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Claim check is a 500-entry directory listing with no way to match an idea to a project; a README.md grep for the idea's keywords would have caught the duplicate. Suggest a helper that greps research/README.md bullets."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "platform/ci/pyenv.py failed to install scikit-fem here; a plain venv with pip worked."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Chose simdesign from the draw (0.437). First project duplicated lbuckle and was dropped; second answers revgauge's through-thickness-layers next step. layers.txt written in two invocations (documented).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8bf5bcd8-e0a4-50a1-9fc4-d17e71839ab7",
+    "transcripts": 1,
+    "first": "2026-10-17T10:38:11Z",
+    "last": "2026-10-17T11:35:07Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 44,
+        "input": 88,
+        "output": 26694,
+        "thinking": 5180,
+        "cache_read": 4326653,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100162,
+        "api_equivalent_usd": 1.5331,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 88,
+      "output": 26694,
+      "thinking": 5180,
+      "cache_read": 4326653,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100162,
+      "api_equivalent_usd": 1.5331,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 41,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "bash": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 56.93,
+      "active_minutes": 56.93,
+      "model_minutes": 3.4,
+      "tool_minutes": 53.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "FE study, interpolation, README, registration for a PhD-level researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 260.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -7,6 +7,8 @@ Markdown. Phases are inferred from plain wording ("alert fired", "rolled back",
 "incident closed") or tagged explicitly with `start:`, `detected:`, `ack:`,
 `mitigated:`, `resolved:`.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/incident-postmortem-timeline/
+
 [`index.html`](index.html) runs it in a browser; nothing is uploaded and the page
 makes no network requests.
 [`how-to-write-a-blameless-postmortem.html`](how-to-write-a-blameless-postmortem.html)

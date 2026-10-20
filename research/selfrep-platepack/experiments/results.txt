@@ -1,0 +1,29 @@
+assumed inputs (as selfrep-partpool): 44 printed parts of 1.0 h each, assembly 6 h, work per copy 50.0 h without changeover
+plate = k parts printed together, k divides 44; plate job = k h + changeover (ASSUMED 0, 0.25, 0.5, 1 h per plate)
+fleet 1 -> 64, no import limit, job CV 0.2, 100 runs per cell, seed 0; effective doubling = time / 6 (hours), median
+fluid floor for zero changeover W ln2 = 34.7 h
+
+== A. policy focus: median effective doubling (h) by parts per plate k (rows) and changeover per plate (columns, h)
+   k  plates      c=0   c=0.25    c=0.5      c=1
+   1      44     43.2     52.0     60.8     78.3
+   2      22     43.6     48.0     52.5     61.3
+   4      11     44.2     46.4     48.6     53.3
+  11       4     46.1     47.0     47.8     49.6
+  22       2     48.8     49.3     49.7     50.6
+  44       1     52.5     52.8     53.2     53.7
+
+== B. policy whole: median effective doubling (h) by parts per plate k (rows) and changeover per plate (columns, h)
+   k  plates      c=0   c=0.25    c=0.5      c=1
+   1      44     51.1     62.2     73.4     95.7
+   2      22     51.4     56.9     62.7     74.0
+   4      11     51.8     54.5     57.5     63.1
+  11       4     52.7     53.9     54.9     57.0
+  22       2     53.3     53.8     54.2     55.6
+  44       1     52.5     52.8     53.2     53.7
+
+== C. best k per changeover
+    c   focus k   focus h   whole k   whole h  focus gain %
+    0         1      43.2         1      51.1          15.5
+ 0.25         4      46.4        44      52.8          12.1
+  0.5        11      47.8        44      53.2          10.2
+    1        11      49.6        44      53.7           7.6

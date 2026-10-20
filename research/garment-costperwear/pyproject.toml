@@ -1,0 +1,13 @@
+[project]
+name = "garment-costperwear"
+version = "0.1.0"
+description = "Cost per wear of a designer coat against a replica, with uncertain lifetimes, care and resale"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

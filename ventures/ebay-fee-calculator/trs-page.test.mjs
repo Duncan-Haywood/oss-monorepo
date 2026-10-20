@@ -78,26 +78,26 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareTopRatedPlus({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
     feeRefundOnReturnPercent: 100,
   });
-  assert.ok(Math.abs(comparison.standard.expectedProfit - 11.63796) < 1e-6, 'default standard');
-  assert.ok(Math.abs(comparison.topRated.expectedProfit - 10.875135) < 1e-6, 'default Top Rated');
-  assert.ok(Math.abs(comparison.breakEvenTrsReturnRate - 12.93778319709766) < 1e-6, 'default return-rate ceiling');
-  assert.match(html, /\$11\.64/);
-  assert.match(html, /\$10\.88/);
-  assert.match(html, /\$0\.76/);
-  assert.match(html, /−\$0\.76|-\$0\.76/);
-  assert.match(html, /−\$30\.51|-\$30\.51/);
+  assert.ok(Math.abs(comparison.standard.expectedProfit - 11.493888) < 1e-6, 'default standard');
+  assert.ok(Math.abs(comparison.topRated.expectedProfit - 10.720848) < 1e-6, 'default Top Rated');
+  assert.ok(Math.abs(comparison.breakEvenTrsReturnRate - 12.873726099194412) < 1e-6, 'default return-rate ceiling');
+  assert.match(html, /\$11\.49/);
+  assert.match(html, /\$10\.72/);
+  assert.match(html, /\$0\.77/);
+  assert.match(html, /−\$0\.77|-\$0\.77/);
+  assert.match(html, /−\$30\.92|-\$30\.92/);
   assert.match(html, /12\.9%/);
-  assert.match(html, /80\.3%/);
-  assert.match(html, /\$49\.19/);
-  assert.match(html, /\$40\.42/);
-  assert.match(html, /\$8\.78/);
+  assert.match(html, /80\.4%/);
+  assert.match(html, /\$48\.74/);
+  assert.match(html, /\$40\.02/);
+  assert.match(html, /\$8\.72/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

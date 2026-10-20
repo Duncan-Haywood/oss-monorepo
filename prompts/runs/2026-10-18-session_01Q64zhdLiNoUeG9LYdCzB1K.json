@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01Q64zhdLiNoUeG9LYdCzB1K",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T07:00:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "auto-repair-effective-labor-rate: repair-order paste import and per-technician rate",
+  "projects": [
+    "auto-repair-effective-labor-rate"
+  ],
+  "pr": 7969,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Routed to research but shipped a venture feature, as the scheduled brief asked for products."
+    }
+  ],
+  "goal": null,
+  "notes": "Router drew research, but the brief was revenue products; ran ventures work instead (router's Explore task for the effective-labor-rate hypothesis). Left PR 7964 (another live session, CI running) alone. Browser checks highlight.mjs/contrast.mjs not run locally: playwright package missing from the repo.",
+  "corrections": [],
+  "redteam": null
+}

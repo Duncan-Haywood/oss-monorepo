@@ -1,0 +1,44 @@
+== A. Mean gain (C) of the best pair over the best single garment as the wearer's error rate e rises; 66 mixes, thin cloth removed ==
+budget <= 50, e = 0.0: pair beats single in 37 of 66 mixes; mean gain +0.009 C, min +0.000 C
+budget <= 50, e = 0.1: pair beats single in 55 of 66 mixes; mean gain +0.067 C, min +0.000 C
+budget <= 50, e = 0.2: pair beats single in 55 of 66 mixes; mean gain +0.125 C, min +0.000 C
+budget <= 50, e = 0.3: pair beats single in 55 of 66 mixes; mean gain +0.184 C, min +0.000 C
+budget <= 50, e = 0.5: pair beats single in 59 of 66 mixes; mean gain +0.329 C, min +0.000 C
+budget <= 100, e = 0.0: pair beats single in 54 of 66 mixes; mean gain +0.547 C, min +0.000 C
+budget <= 100, e = 0.1: pair beats single in 65 of 66 mixes; mean gain +0.510 C, min +0.000 C
+budget <= 100, e = 0.2: pair beats single in 65 of 66 mixes; mean gain +0.522 C, min +0.000 C
+budget <= 100, e = 0.3: pair beats single in 65 of 66 mixes; mean gain +0.569 C, min +0.000 C
+budget <= 100, e = 0.5: pair beats single in 65 of 66 mixes; mean gain +0.729 C, min +0.000 C
+
+== B. Break-even error rate (smallest e, grid 0.02, at which the best single garment ties or beats the best pair), 66 mixes, thin cloth removed ==
+budget <= 50: pair never loses by e = 1 in 36 of 66; pair already no better at e = 0 in 29; among the other 1 the break-even e has median 0.9400000000000001, min 0.9400000000000001, max 0.9400000000000001
+budget <= 100: pair never loses by e = 1 in 45 of 66; pair already no better at e = 0 in 12; among the other 9 the break-even e has median 0.84, min 0.68, max 0.98
+
+== C. Break-even error rate for named mixes, budget <= 100, thin cloth removed ==
+office (80% warm room): break-even e = 0.84
+outdoor (70% sun): break-even e = None
+cold-climate (70% cool room): break-even e = None
+even: break-even e = None
+
+== D. With thin cloth allowed (negative added cost by linear pricing), budget <= 20, same sweep ==
+e = 0.0: mean gain +0.947 C, min +0.000 C
+e = 0.2: mean gain +0.779 C, min +0.000 C
+e = 0.5: mean gain +0.522 C, min +0.000 C
+
+== E. Which pair is bought at budget <= 100 when the wearer errs (does the optimiser change its choice?), thin cloth removed ==
+e = 0.0: ir_transparent+white | low_emissivity+thick x44; ir_transparent | low_emissivity+thick x9; ir_transparent+white | none x6; ir_transparent+white+thick | none x4
+e = 0.3: low_emissivity+white+thick | white+thick x25; ir_transparent+white | low_emissivity+white+thick x19; ir_transparent+white | white x6; low_emissivity+thick | thick x5
+
+== F. Harsher error: every mistake is the single worst owned option (wrong coat for the weather); 66 mixes, thin cloth removed ==
+budget <= 50, e = 0.0: pair beats single in 37 of 66 mixes; mean gain +0.009 C, min +0.000 C
+budget <= 50, e = 0.1: pair beats single in 37 of 66 mixes; mean gain +0.008 C, min +0.000 C
+budget <= 50, e = 0.2: pair beats single in 37 of 66 mixes; mean gain +0.007 C, min +0.000 C
+budget <= 50, e = 0.3: pair beats single in 37 of 66 mixes; mean gain +0.006 C, min +0.000 C
+budget <= 50, e = 0.5: pair beats single in 34 of 66 mixes; mean gain +0.004 C, min +0.000 C
+budget <= 50: break-even e under worst-option errors: never in 0 of 66, already at e = 0 in 29; the other 37: median 0.84, min 0.36, max 1.0
+budget <= 100, e = 0.0: pair beats single in 54 of 66 mixes; mean gain +0.547 C, min +0.000 C
+budget <= 100, e = 0.1: pair beats single in 52 of 66 mixes; mean gain +0.328 C, min +0.000 C
+budget <= 100, e = 0.2: pair beats single in 50 of 66 mixes; mean gain +0.185 C, min +0.000 C
+budget <= 100, e = 0.3: pair beats single in 47 of 66 mixes; mean gain +0.094 C, min +0.000 C
+budget <= 100, e = 0.5: pair beats single in 39 of 66 mixes; mean gain +0.025 C, min +0.000 C
+budget <= 100: break-even e under worst-option errors: never in 0 of 66, already at e = 0 in 12; the other 54: median 0.72, min 0.04, max 1.0

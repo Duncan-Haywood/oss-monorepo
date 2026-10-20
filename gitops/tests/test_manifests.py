@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 
 import yaml
+from front_door_mirror import all_kustomizations, mirror_kustomization as _mirror_kustomization
 
 ROOT = Path(__file__).resolve().parents[1]
 AGENTS = ROOT / "agents"
@@ -1159,15 +1160,13 @@ def test_portfolio_front_mounts_only_generated_configmaps() -> None:
 # `front-door-tools/` is a nested one (its file list is machine-written, one
 # line per mirrored file, so it lives in its own directory rather than
 # inflating `prod/kustomization.yaml`), and it is still a generator.
-_FRONT_DOOR_KUSTOMIZATIONS = (
-    ROOT / "prod" / "kustomization.yaml",
-    ROOT / "prod" / "front-door-tools" / "kustomization.yaml",
-)
+def _front_door_kustomizations() -> tuple:
+    return (ROOT / "prod" / "kustomization.yaml", _mirror_kustomization())
 
 
 def _front_door_generated_configmaps() -> set:
     generated = set()
-    for kustomization in _FRONT_DOOR_KUSTOMIZATIONS:
+    for kustomization in _front_door_kustomizations():
         parsed = yaml.safe_load(kustomization.read_text())
         generated |= {entry["name"] for entry in parsed.get("configMapGenerator", [])}
     return generated
@@ -1184,7 +1183,7 @@ def _front_door_mounted_configmaps(pod: dict) -> set:
 def _mirror_shard_names() -> list:
     """Shard ConfigMaps in the order `front-door-tools/kustomization.yaml` declares them."""
     parsed = yaml.safe_load(
-        (ROOT / "prod" / "front-door-tools" / "kustomization.yaml").read_text()
+        _mirror_kustomization().read_text()
     )
     return [entry["name"] for entry in parsed["configMapGenerator"]]
 
@@ -1235,7 +1234,7 @@ def _mirrored_venture_slugs() -> set:
     contains that separator itself.
     """
     parsed = yaml.safe_load(
-        (ROOT / "prod" / "front-door-tools" / "kustomization.yaml").read_text()
+        _mirror_kustomization().read_text()
     )
     slugs = set()
     for entry in parsed["configMapGenerator"]:
@@ -3050,7 +3049,49 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `self-serve-dog-wash-profit-calculator` graduated (browser dog wash pro forma: tub capacity, traffic by weekday and season, break-even washes per day, ramp and payback).
     # +1: `convenience-store-gas-station-profit-calculator` graduated (browser c-store and gas station P&L: fuel margin after card fees, inside sales, labor, loan, break-even gallons and debt coverage).
     # +1: `nis2-scope-checker` graduated (browser EU NIS2 scope check: sector and size to essential, important or out of scope, with the Article).
-    total = 1126  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1126 tools" wording.
+    # +1: `eaa-accessibility-act-checker` graduated (browser European Accessibility Act check: product or service, role and size to in scope, microenterprise-exempt or out, with the Article).
+    # +1: `indoor-play-center-profit-calculator` graduated (browser indoor play centre pro forma: visits, memberships, parties, cafe and staffing to profit, break-even visits, ramp-up reserve and payback).
+    # +1: `gpsr-product-safety-checker` graduated (browser EU General Product Safety Regulation check).
+    # +1: `eu-battery-regulation-checker` graduated (browser EU Batteries Regulation duty timeline).
+    # +1: `padel-club-profit-calculator` graduated (browser padel club pro forma: courts, peak and off-peak utilisation, members, coaching, food and drink and staffing to profit, break-even utilisation, ramp-up reserve and payback).
+    # +1: `pay-transparency-directive-checker` graduated (browser EU Pay Transparency Directive check).
+    # +1: `eu-whistleblower-channel-checker` graduated (browser EU Whistleblower Directive channel check and report clocks).
+    # +1: `eu-einvoicing-mandate-checker` graduated (browser EU e-invoicing mandate dates by country).
+    # +1: `eu-product-liability-directive-checker` graduated (browser EU Product Liability Directive scope, liability chain and time limits).
+    # +1: `dac7-seller-reporting-checker` graduated (browser EU DAC7 platform seller reporting check).
+    # +1: `eu-platform-work-directive-checker` graduated (browser EU Platform Work Directive scope, employment presumption and algorithmic-management check).
+    # +1: `eu-price-reduction-claim-checker` graduated (browser EU 30-day lowest price rule check for sale prices).
+    # +1: `eu-dora-readiness-checker` graduated (browser EU DORA scope, duty areas, Article 30 contract terms and major-incident report clocks).
+    # +1: `ugc-creator-rate-calculator` graduated (browser UGC creator rate calculator: content plus ad usage rights, whitelisting, exclusivity).
+    # +1: `uk-sole-trader-vs-limited-company-calculator` graduated (browser UK sole trader vs limited company take-home, best salary and dividend split, 2026/27).
+    # +1: `eu-espr-readiness-checker` graduated (browser EU ESPR unsold-apparel destruction ban, disclosure table and Digital Product Passport data checklist).
+    # +1: `uk-tax-free-childcare-calculator` graduated (browser UK Tax-Free Childcare, 15/30 free hours and Universal Credit childcare comparison for England).
+    # +1: `uk-savings-interest-tax-calculator` graduated (browser UK savings interest tax, starting rate, Personal Savings Allowance and cash ISA saving).
+    # +1: `sg-freelancer-tax-set-aside-calculator` graduated (browser Singapore freelancer income tax after earned income relief, MediSave flag and set-aside per invoice).
+    # +1: `de-freiberufler-tax-set-aside-calculator` graduated (browser Germany freelancer tax: section 32a tariff, Soli, Kirchensteuer, Gewerbesteuer and set-aside per invoice).
+    # +1: `us-freelancer-tax-set-aside-calculator` graduated (browser US freelancer SE tax, federal tax with QBI, state tax and 1040-ES set-aside). #6981 and #6982 each wrote 1223 against a base without the other; re-synced after both merged.
+    # +1: `cancel-flow` graduated (self-hosted Stripe cancellation flow: reason-matched save offers, browser simulator plus zero-dependency server).
+    # +1: `dunning-engine` graduated (self-hosted Stripe failed-payment recovery: browser plan simulator plus zero-dependency server).
+    # +1: `uk-statutory-residence-test-checker` graduated (UK Statutory Residence Test rules engine, in-browser).
+    # +1: `webhook-relay` graduated (self-hosted webhook relay: verify, store, retry, replay; browser outage simulator plus zero-dependency server).
+    # +1: `visit-keeper` graduated (self-hosted cookie-free web analytics: snippet, daily-rotating visitor hashes, goals credited to source; browser setup page plus zero-dependency server).
+    # +1: `rev-rec` graduated (self-hosted Stripe revenue recognition: deferred revenue schedule and journal CSV, browser demo plus zero-dependency server).
+    # +1: `actions-checkout-credentials-check` graduated (browser persist-credentials scan of pasted workflow YAML, ported from its CLI).
+    # +1: `support-desk` graduated (self-hosted shared support inbox: email and form tickets, threading, triage, reply targets, saved-reply suggestions).
+    # +1: `slot-keeper` graduated (self-hosted booking pages: weekly hours, busy time from an iCal feed, visitor time zones, invitations, reminders, reschedule links).
+    # +1: `help-keeper` graduated (self-hosted help center: Markdown articles, typo-tolerant ranked search, helpful votes, content-gap report).
+    # +1: `deal-keeper` graduated (self-hosted pipeline forecaster: learned stage win rates, backtested forecast band, stale/slipped deal hygiene list, signed alert webhook).
+    # +1: `internal-link-planner` graduated (browser and CLI internal link audit: orphans, menu-only pages, suggested links with the PageRank effect).
+    # +1: `trade-bid-studio` graduated (browser trade-agnostic bid engine: price at a target margin, walk-away price, competitor-quote check, markup/margin converter, directory of the 121 bid calculators).
+    # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
+    # +1: `s-corp-basis-tracker` graduated (browser S corporation stock and debt basis roll-forward in Form 7203 order, suspended losses and excess distributions).
+    # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
+    total = 1300  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1300 tools" wording.
+    # +1: `open-tennis-robots` graduated (open-source tennis ball machine with a moving catch net and a ball-collecting rover: shot planner, catch simulation, route planner, ESP32 firmware, seller listing tool, collector manufacturing package).
+    # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
+    # +1: `actions-schedule-check` graduated (browser + CLI lint of GitHub Actions schedule crons: invalid, faster than 5 minutes, minute 0).
+    # +1: `liability-audit` graduated (zero-dependency repository scanner for legal and financial exposure: consent, auto-renewal, disclosures, leaked keys, open LLM endpoints, cloud budgets; CLI, SARIF, monorepo sweep, browser page, agent playbook).
+    # +1: `llm-spend-guard` graduated (self-hosted proxy and zero-dependency library: hard per-user/feature/run LLM budgets with worst-case holds, loop breakers, browser log-replay simulator).
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
@@ -3075,6 +3116,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ad-slot-sell-through-planner` graduated (browser-local newsletter/podcast ad-slot sell-through, price-response and booking-pace planner).
     # +1: `ca-meal-rest-break-premium-checker` graduated (browser California meal and rest break premium audit: late, short and missed meals, rest shortfalls, waivers and the Labor Code 226.7 premium per workday from pasted timecards).
     # +1: `prop-firm-challenge-calculator` graduated (browser Monte Carlo of a funded-trader challenge: pass probability, expected fees to pass, funded payouts, break-even win rate).
+    # +1: `youtube-sponsorship-rate-calculator` reached the mirror (its page landed after #7000 set 1232; counted by sync_tree_counts.py at the merge).
+    # +1: `self-hosted-saas-stack` graduated (browser directory of the 27 self-hosted small-SaaS tools, grouped by job and named against the paid products they replace).
+    # +1: `trial-converter` graduated (self-hosted Stripe trial-to-paid conversion: card and no-card plans, browser simulator plus zero-dependency server).
+    # +1: `survey-keeper` reached the mirror (it landed on main without its count bump; counted by sync_tree_counts.py while merging main into #7632).
+    # +1: a venture landed on main without its count bump (counted by sync_tree_counts.py while merging main into #7987).
+    # +1: `review-reply-desk` graduated (browser local-business review reply writer: rating-aware replies, risky-review triage, health-privacy-safe mode, reply checker, optional own-key AI).
+    # +1: `bid-price-engine` graduated (one job-pricing engine for 120+ trades; the consolidated bid calculator).
+    # +1: `us-substantial-presence-test-calculator` graduated (browser IRS substantial presence test: 183-day weighted count, days left this year, crossing date, planned-trip what-if).
+    # +1: `discogs-fee-calculator` graduated (browser Discogs seller fee calculator: 9% on item plus shipping with the $0.10/$150 limits, editable processing, target-profit price, fee ladder).
+    # +1: `tutoring-group-schedule-optimizer` graduated (browser exact timetable for weekly small-group sessions: min-cost-flow seating inside a search over which slots to run).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
@@ -3187,7 +3238,7 @@ def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
     # content or a regenerated page never reaches a running pod. The usage
     # script is the deliberate exception: a CronJob names it directly.
     by_name = {}
-    for kustomization in _FRONT_DOOR_KUSTOMIZATIONS:
+    for kustomization in _front_door_kustomizations():
         parsed = yaml.safe_load(kustomization.read_text())
         # A nested kustomization can set the option globally rather than per
         # entry, so fold `generatorOptions` down onto each generator before
@@ -3250,7 +3301,7 @@ def _generated_configmaps() -> list[tuple[str, Path, bytes, dict[str, str]]]:
     under-measuring — the good direction for that bug to fail in.
     """
     found = []
-    for kustomization in sorted(ROOT.rglob("kustomization.yaml")):
+    for kustomization in all_kustomizations(ROOT):
         parsed = yaml.safe_load(kustomization.read_text()) or {}
         shared = parsed.get("generatorOptions", {})
         for entry in parsed.get("configMapGenerator", []):
@@ -3984,3 +4035,20 @@ def test_portfolio_site_build_uses_flags_the_build_scripts_accept() -> None:
     # dependency-free: there is no npm install step in the pod, and adding one
     # would need network egress the NetworkPolicy does not grant this pod.
     assert "npm install" not in script and "npm ci" not in script
+
+
+def test_the_generated_front_door_tools_mirror_is_not_committed() -> None:
+    # P024: the tree fed the k3s origin retired on 2026-10-01 and the tests
+    # build it into a temp dir. Venture PRs kept re-adding thousands of its
+    # files (6,202 on 2026-10-20) by running `front-door-tools.mjs --write`
+    # with no `--out`; pass `--out <dir>` if you need to inspect it.
+    import subprocess
+
+    tracked = subprocess.run(
+        ["git", "ls-files", "gitops/prod/front-door-tools"],
+        cwd=REPO, capture_output=True, text=True, check=True,
+    ).stdout.split()
+    assert not tracked, (
+        f"{len(tracked)} files are tracked under gitops/prod/front-door-tools/; "
+        "`git rm -r` it. It is generated and no longer committed."
+    )

@@ -5,6 +5,8 @@ you request a carrier quote. It turns a common shipping question, "what freight
 class is this?", into the cube, density, and class band that a shipper can check
 against the carrier's answer.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ltl-freight-class-estimator/
+
 Serve this directory statically and open it at `http://localhost:8080`. Browsers
 may block the module imports when the page is opened directly as `file://`. It
 has no build step, account, network call, or paid dependency.

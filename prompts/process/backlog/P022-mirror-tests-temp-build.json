@@ -1,0 +1,33 @@
+{
+  "status": "done",
+  "owner": "agent",
+  "opened": "2026-10-16",
+  "source": "P021 split of P014",
+  "pr": 7424,
+  "result": "Helped: the mirror is no longer tracked (P024), and the gitops/marketing tests run against it absent on main; git ls-tree origin/main shows 0 files.",
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Process run: front-door-tools.mjs --write --out <dir> (touches nothing tracked); front-door-tools.test.mjs and gitops/tests build the mirror into a temp dir. test_manifests.py + test_front_door_serving.py pass with gitops/prod/front-door-tools moved away (84 passed, 19 skipped)."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Verify run: tests no longer depend on the committed tree because the tree is gone from main."
+    }
+  ],
+  "touches": [
+    "platform/marketing/",
+    "gitops/tests/"
+  ],
+  "id": "P022",
+  "title": "P014 step 1: build the front-door mirror into a temp dir for gitops tests and regen --verify",
+  "effect": 1,
+  "cost": 2,
+  "problem": "First of three single-PR steps of P014. test_manifests.py, test_front_door_serving.py and platform/marketing tests read the committed gitops/prod/front-door-tools tree, which blocks removing it.",
+  "evidence": [
+    "P014 history: 3 platform/marketing test files and 2 gitops/tests files read the committed tree"
+  ],
+  "change": "Let front-door-tools.mjs take --out <dir>; make the Python and node tests generate into a temp dir and read from there. Commit nothing is removed yet.",
+  "metric": "gitops/tests and platform/marketing tests pass with the mirror directory absent",
+  "baseline": "tests fail without the committed tree"
+}

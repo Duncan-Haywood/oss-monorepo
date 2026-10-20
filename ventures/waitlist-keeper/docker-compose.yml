@@ -1,0 +1,22 @@
+# Any box with Docker:
+#   ADMIN_KEY=$(openssl rand -hex 16) docker compose up -d
+# Starts in DRY_RUN=true (no email sent). Add RESEND_API_KEY + MAIL_FROM and DRY_RUN=false to send real email.
+services:
+  waitlist-keeper:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data"]
+    environment:
+      STATE: /data/state.json
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY (16+ characters)}
+      PRODUCT_NAME: ${PRODUCT_NAME:-}
+      TAGLINE: ${TAGLINE:-}
+      BASE_URL: ${BASE_URL:-}
+      INVITE_URL: ${INVITE_URL:-}
+      TIERS_JSON: ${TIERS_JSON:-}
+      DRY_RUN: ${DRY_RUN:-true}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+volumes:
+  state:

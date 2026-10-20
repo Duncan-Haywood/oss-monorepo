@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01XbkcmgEv7TAea22x1km3oV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "#7123, #7125",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "publish-branch.sh takes >9 min, over the foreground tool limit; run it in the background"
+    },
+    {
+      "file": "platform/ci/unlanded_work.py",
+      "issue": "reports STRANDED for a local branch equal to main whose remote branch was deleted after merge"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Small run: corrected platform/deploy README (16 server ventures, not five) and added launch dates for referral-keeper/testimonial-keeper, which blocked publish-branch.sh. No CI ran on either PR (0 check runs); merged after local deploy build tests (9/0) and launched tests (23/0). Snapshot republish was started in the background and its result is not recorded here. Thin value: no new product depth shipped.",
+  "corrections": [],
+  "redteam": null
+}

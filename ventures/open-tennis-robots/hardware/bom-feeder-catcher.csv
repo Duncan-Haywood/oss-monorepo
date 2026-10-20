@@ -1,0 +1,26 @@
+# Feeder with moving catch net, v0.1. Prices are rough USD planning estimates, not quotes: check current suppliers.
+item,qty,spec,est_unit_usd,notes
+Raspberry Pi 5 (4 GB),1,with active cooler,60,vision + planning
+Global-shutter camera module,2,~120 fps at reduced resolution,50,stereo pair
+ESP32 dev board,1,ESP32-WROOM-32,10,motor control + safety
+BLDC outrunner motor,2,50-63 mm e-skate class,45,launcher wheels
+ESC for BLDC,2,"24 V, 50 A+, servo-pulse input",35,
+Launcher wheel,2,"150 mm, polyurethane tread",20,
+IR reflective sensor,2,TCRT5000 module or similar,2,tachometers
+High-torque servo or linear actuator,1,elevation,30,
+Servo,2,standard metal gear,15,azimuth + feed gate
+DC gearmotor with encoder,2,"24 V, ~200 rpm",35,base drive
+Dual H-bridge driver,1,"Cytron MDD10A or similar, 10 A/ch",30,
+Non-marking wheel,4,"125-200 mm polyurethane",12,
+Aluminium extrusion,1,"2040 + 2020, ~6 m total, with brackets",80,base + head frame
+Net frame poles,1,"fibreglass or aluminium, 3 m x 2.5 m frame",60,
+Knotless netting,1,"25-35 mm mesh, ~3.5 x 3 m",40,
+Hopper + chute,1,"PETG sheet or cut tub, 70 mm tube",30,
+LiFePO4 battery,1,"24 V (8S) 20 Ah with BMS",220,
+Charger,1,29.2 V LiFePO4,40,
+E-stop switch + contactor,1,NC mushroom + 24 V contactor,30,
+Wireless e-stop relay remote,1,latching,25,
+5 V 5 A buck converter,1,for the Pi,12,
+6-7.4 V BEC,1,for servos,10,
+Fuse holder + fuses,1,30 A,10,
+Wiring + connectors + fasteners,1,,50,

@@ -7,6 +7,8 @@ against a checkout — both use the same classifier and agree on every input
 (`classify.test.mjs` pins a parity test that shells out to the CLI and
 compares findings).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/
+
 ## Why this is not "did I `echo` a secret"
 
 GitHub Actions already masks the exact, unmodified string of a declared

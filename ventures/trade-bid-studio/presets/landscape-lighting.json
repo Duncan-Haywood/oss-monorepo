@@ -1,0 +1,40 @@
+{
+  "slug": "landscape-lighting-bid-calculator",
+  "name": "Landscape lighting",
+  "group": "Landscaping & outdoor",
+  "summary": "Low-voltage landscape lighting priced from fixtures, trench feet, transformer and extras.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 32,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "milesOneWay": 8,
+  "items": [
+    {
+      "label": "Path / walkway lights",
+      "unit": "fixture",
+      "qty": 6,
+      "hoursPerUnit": 0.28,
+      "materialPerUnit": 42,
+      "source": "6 path lights (index.html pathLights default); hoursPerPath 0.28 and pathEach $42 (suggestedExtraKit in calc.mjs); default scope fixtures-only on the existing transformer, so no trench, wire or transformer"
+    },
+    {
+      "label": "Trip and site / punch-list time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.3,
+      "materialPerUnit": 0,
+      "source": "hoursTrip 1.4 + siteHours 0.9 (suggestedExtraKit in calc.mjs); per-mile drive time (0.035 h/mile) and travelPerMile $2.80 left to the suite's mileage"
+    },
+    {
+      "label": "Travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 55,
+      "source": "travelAndEquipment $55 (index.html default)"
+    }
+  ],
+  "specialistModels": "Fixtures-only vs new-system vs add-on scope kits, soil-dependent trench and turf repair, transformer sizing, photocell/saw-cut/extra-transformer extras, and a three-scope comparison."
+}

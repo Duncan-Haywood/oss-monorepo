@@ -42,7 +42,7 @@ concurrency:
 
 jobs:
   page-integrity:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # A full-history checkout plus a node --test sweep over every venture
     # page -- normally under 30s. See hetzner-gitops-ci.yml's timeout-minutes
     # addition for why an unbounded job is worth capping on a
@@ -52,6 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           # The checker's tests read historical blobs of a page that shipped
           # broken, so they need real history rather than a shallow clone.
           fetch-depth: 0

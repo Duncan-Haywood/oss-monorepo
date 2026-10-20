@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" role="img" aria-label="Share of merged projects per track">
+<rect width="700" height="400" fill="#fff"/>
+<text x="350.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Share of merged projects by track (dashed line: uniform, 9.1%)</text>
+<line x1="56" x2="684" y1="322.0" y2="322.0" stroke="#ddd"/><text x="50" y="326.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="56" x2="684" y1="275.7" y2="275.7" stroke="#ddd"/><text x="50" y="279.7" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="56" x2="684" y1="229.3" y2="229.3" stroke="#ddd"/><text x="50" y="233.3" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<line x1="56" x2="684" y1="183.0" y2="183.0" stroke="#ddd"/><text x="50" y="187.0" text-anchor="end" font-family="sans-serif" font-size="11">12</text>
+<line x1="56" x2="684" y1="136.7" y2="136.7" stroke="#ddd"/><text x="50" y="140.7" text-anchor="end" font-family="sans-serif" font-size="11">16</text>
+<line x1="56" x2="684" y1="90.3" y2="90.3" stroke="#ddd"/><text x="50" y="94.3" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="56" x2="684" y1="44.0" y2="44.0" stroke="#ddd"/><text x="50" y="48.0" text-anchor="end" font-family="sans-serif" font-size="11">24</text>
+<rect x="62.9" y="184.2" width="20.7" height="137.8" fill="#1f6fb2"/>
+<rect x="84.5" y="289.6" width="20.7" height="32.4" fill="#e08a1e"/>
+<text x="84.5" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 84.5 338)">selfrep</text>
+<rect x="119.9" y="167.9" width="20.7" height="154.1" fill="#1f6fb2"/>
+<rect x="141.6" y="97.3" width="20.7" height="224.7" fill="#e08a1e"/>
+<text x="141.6" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 141.6 338)">ambient</text>
+<rect x="177.0" y="210.8" width="20.7" height="111.2" fill="#1f6fb2"/>
+<rect x="198.7" y="289.6" width="20.7" height="32.4" fill="#e08a1e"/>
+<text x="198.7" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 198.7 338)">chip</text>
+<rect x="234.1" y="114.7" width="20.7" height="207.3" fill="#1f6fb2"/>
+<rect x="255.8" y="257.1" width="20.7" height="64.9" fill="#e08a1e"/>
+<text x="255.8" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 255.8 338)">robofab</text>
+<rect x="291.2" y="135.5" width="20.7" height="186.5" fill="#1f6fb2"/>
+<rect x="312.9" y="128.6" width="20.7" height="193.4" fill="#e08a1e"/>
+<text x="312.9" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 312.9 338)">simdesign</text>
+<rect x="348.3" y="147.1" width="20.7" height="174.9" fill="#1f6fb2"/>
+<rect x="370.0" y="289.6" width="20.7" height="32.4" fill="#e08a1e"/>
+<text x="370.0" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 370.0 338)">garment</text>
+<rect x="405.4" y="289.6" width="20.7" height="32.4" fill="#1f6fb2"/>
+<rect x="427.1" y="225.9" width="20.7" height="96.1" fill="#e08a1e"/>
+<text x="427.1" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 427.1 338)">eda</text>
+<rect x="462.5" y="274.5" width="20.7" height="47.5" fill="#1f6fb2"/>
+<rect x="484.2" y="225.9" width="20.7" height="96.1" fill="#e08a1e"/>
+<text x="484.2" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 484.2 338)">accel</text>
+<rect x="519.6" y="289.6" width="20.7" height="32.4" fill="#1f6fb2"/>
+<rect x="541.3" y="225.9" width="20.7" height="96.1" fill="#e08a1e"/>
+<text x="541.3" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 541.3 338)">osrobot</text>
+<rect x="576.7" y="274.5" width="20.7" height="47.5" fill="#1f6fb2"/>
+<rect x="598.4" y="193.4" width="20.7" height="128.6" fill="#e08a1e"/>
+<text x="598.4" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 598.4 338)">swe</text>
+<rect x="633.8" y="295.4" width="20.7" height="26.6" fill="#1f6fb2"/>
+<rect x="655.5" y="161.0" width="20.7" height="161.0" fill="#e08a1e"/>
+<text x="655.5" y="338" text-anchor="end" font-family="sans-serif" font-size="11" transform="rotate(-35 655.5 338)">mimic</text>
+<line x1="56" x2="684" y1="216.7" y2="216.7" stroke="#444" stroke-dasharray="5 4"/>
+<text x="14" y="183.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 183.0)">projects (%)</text>
+<rect x="66" y="48" width="12" height="10" fill="#1f6fb2"/><text x="84" y="57" font-family="sans-serif" font-size="11">since the tracks were set (n = 218)</text>
+<rect x="66" y="63" width="12" height="10" fill="#e08a1e"/><text x="84" y="72" font-family="sans-serif" font-size="11">since all eleven tracks existed (n = 36)</text>
+</svg>

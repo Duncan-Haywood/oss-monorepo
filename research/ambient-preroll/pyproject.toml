@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-preroll"
+version = "0.1.0"
+description = "Pre-roll ring buffer for an energy-gated audio pendant: onset recall, RAM and battery cost on synthetic audio"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

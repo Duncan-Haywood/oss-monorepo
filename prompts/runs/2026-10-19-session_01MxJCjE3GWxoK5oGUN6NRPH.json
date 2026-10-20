@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01MxJCjE3GWxoK5oGUN6NRPH",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-19T05:06:24Z",
+  "ended": "2026-10-19T05:47:18Z",
+  "wall_minutes": 41.04,
+  "tokens_in": 3577520,
+  "tokens_out": 24390,
+  "cost_usd": 1.2833,
+  "tool_calls": 38,
+  "task": "ambient-driftwindow (track 2 follow-up from ambient-wakeburst next steps)",
+  "projects": [
+    "ambient-driftwindow"
+  ],
+  "pr": 8276,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "First experiment run crashed: quadratic log-rate fit extrapolated to absurd rates (Poisson 'lam too large') and gave nan for the rare regime; replaced by interpolation and reran before keeping any result."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py printed /usr/local/bin/python3 without numpy; plain python3 on PATH lacked numpy until pip install. The 'try python3 -c import numpy first' advice works but pyenv output was misleading."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "The Stop hook asks to commit untracked files mid-run, which conflicts with the 'no commit before results' flow; pushed code early as a draft claim instead."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Mid-run: a pgrep -f waiter matched its own command line and was killed at its time limit; use a bracketed pattern.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bc52aa83-5891-564a-aa2c-2cbb23defcb7",
+    "transcripts": 1,
+    "first": "2026-10-19T05:06:24Z",
+    "last": "2026-10-19T05:47:26Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 39,
+        "input": 86,
+        "output": 24390,
+        "thinking": 5039,
+        "cache_read": 3492239,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85195,
+        "api_equivalent_usd": 1.2833,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 86,
+      "output": 24390,
+      "thinking": 5039,
+      "cache_read": 3492239,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85195,
+      "api_equivalent_usd": 1.2833,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 31,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 41.04,
+      "active_minutes": 5.16,
+      "model_minutes": 3.19,
+      "tool_minutes": 1.97,
+      "waiting_on_human_minutes": 35.89,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "design, simulation, closed form, tests and write-up of a new stylised project",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 623.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

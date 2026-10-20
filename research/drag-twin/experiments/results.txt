@@ -1,0 +1,60 @@
+Drag twin: real v' = -c v|v| + u with c = 0.05; twin v' = -k v + u. Unit mass, SI-like units.
+
+== 1. Closed forms vs RK4 (dt = 1e-3) ==
+coast-down v0=10, T=20: RK4 v 0.909091 closed 0.909091; distance RK4 47.95791 closed 47.95791
+
+== 2. Coast-down: time to fall to v0/10; twin matched at v_fit = 5 (k = c v_fit = 0.250) ==
+v0     real t    twin t    twin/real  (ratio = ln10/9 * v0/v_fit = 0.2558 v0/v_fit)
+1      180.000   9.210     0.051    
+2.5    72.000    9.210     0.128    
+5      36.000    9.210     0.256    
+10     18.000    9.210     0.512    
+20     9.000     9.210     1.023    
+Distance covered while falling to v0/10, v0 = 10: real 46.05 m, twin 36.00 m
+
+== 3. Terminal speed under constant thrust F = 5 (real sqrt(F/c) = 10.000) ==
+v_fit   twin terminal   twin/real (= v_term/v_fit)
+1.000   100.000         10.000
+2.000   50.000          5.000
+5.000   20.000          2.000
+10.000  10.000          1.000
+15.000  6.667           0.667
+20.000  5.000           0.500
+
+== 4. Least-squares linear fit of the drag force over speeds uniform in [0, vmax]: k = 3 c vmax / 4 ==
+Drag-force ratio twin/real = 0.75 vmax / v; it is 1 at v = 0.75 vmax; at vmax it is 0.75 (25% under), at 0.25 vmax it is 3.0
+v = 0.10 vmax: twin/real drag = 7.500
+v = 0.25 vmax: twin/real drag = 3.000
+v = 0.50 vmax: twin/real drag = 1.500
+v = 0.75 vmax: twin/real drag = 1.000
+v = 1.00 vmax: twin/real drag = 0.750
+v = 1.50 vmax: twin/real drag = 0.500
+
+== 5. Safe speed under a stopping-distance limit D = 10 m, brake B = 4 (real safe v0 = 11.724) ==
+v_fit  k      twin safe v0   twin vs real   real stop dist at twin's 'safe' speed
+1      0.050  9.281          -20.8        % 7.31 m
+2      0.100  9.623          -17.9        % 7.69 m
+5      0.250  10.683         -8.9         % 8.86 m
+10     0.500  12.546         +7.0         % 10.88 m
+20     1.000  16.545         +41.1        % 14.87 m
+twin with k -> 0 (frictionless, constant braking only): safe v0 8.944 (v0^2 = 2 B D)
+twin safe speed at v_fit = 10.0 vs real: stopping distance at real safe speed under twin k: 9.01 m (limit 10)
+
+== 6. Stopping distance error across speeds, twin matched at v_fit = 5 ==
+v0     real     twin     (twin-real)/real
+2      0.488    0.462    -5.3%
+5      2.719    2.596    -4.5%
+10     8.109    8.927    +10.1%
+15     13.383   17.670   +32.0%
+20     17.918   28.100   +56.8%
+30     25.055   52.413   +109.2%
+
+== 7. k fitted by least squares to one coast-down trace (speed samples, dt=0.05), then used elsewhere ==
+trace: v0 = 10, length T; fitted k vs k_matched at v0 (=0.500) and at v0/2 (=0.250)
+T=2     fitted k 0.3820   (mean real speed over the trace 6.95)
+T=5     fitted k 0.3089   (mean real speed over the trace 5.03)
+T=10    fitted k 0.2583   (mean real speed over the trace 3.59)
+T=20    fitted k 0.2286   (mean real speed over the trace 2.41)
+T=40    fitted k 0.2232   (mean real speed over the trace 1.53)
+noisy traces (sigma = 0.2, T = 10, 200 seeds): fitted k mean / sd
+mean 0.2583 sd 0.0014; noiseless 0.2583

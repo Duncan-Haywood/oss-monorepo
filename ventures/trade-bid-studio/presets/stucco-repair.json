@@ -1,0 +1,41 @@
+{
+  "slug": "stucco-repair-bid-calculator",
+  "name": "Stucco and EIFS repair",
+  "group": "Exterior & roofing",
+  "summary": "Stucco and EIFS repairs priced from crack feet, hollow and tear-off area, flashings and caulk.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2,
+  "hourlyWage": 38,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "tripFee": 95,
+  "items": [
+    {
+      "label": "Patch hairline cracks, hard-coat",
+      "unit": "linear ft",
+      "qty": 40,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 1.1,
+      "source": "crackLf 40, hoursPerCrackLf 0.12, mixPerCrackLf $1.10 (index.html defaults); hours x one crew wage in calculateBid"
+    },
+    {
+      "label": "Control-joint / caulk",
+      "unit": "linear ft",
+      "qty": 20,
+      "hoursPerUnit": 0.04,
+      "materialPerUnit": 1.2,
+      "source": "caulkLf 20, hoursPerCaulkLf 0.04, caulkPerLf $1.20 (index.html defaults)"
+    },
+    {
+      "label": "Permit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 75,
+      "source": "permitFee $75 (index.html default), always added in calculateBid"
+    }
+  ],
+  "specialistModels": "System kits (hard-coat, one-coat, EIFS), story-based scaffold hours and rental, tear-off with full vs patch mesh, color match, moisture investigation and dumpster logic."
+}

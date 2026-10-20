@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the frictionless twin acceleration over the real disc acceleration against friction mu: 1.0 at mu=0 rising to 1.5 once the disc rolls at mu about 0.19">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Inertia twin: twin/real acceleration vs friction</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="239.7" y2="239.7" stroke="#ddd"/><text x="58" y="243.7" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="155.4" y2="155.4" stroke="#ddd"/><text x="58" y="159.4" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="126.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="182.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.19</text>
+<text x="219.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.9</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">friction coefficient mu</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">twin / real acceleration</text>
+<polyline points="64.0,155.4 95.1,139.5 126.2,120.1 157.3,96.3 182.2,72.8 188.4,71.2 219.6,71.2 375.1,71.2 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="155.4" r="3" fill="#c0392b"/>
+<circle cx="95.1" cy="139.5" r="3" fill="#c0392b"/>
+<circle cx="126.2" cy="120.1" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="96.3" r="3" fill="#c0392b"/>
+<circle cx="182.2" cy="72.8" r="3" fill="#c0392b"/>
+<circle cx="188.4" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="219.6" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="375.1" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">twin/real acceleration</text>
+</svg>

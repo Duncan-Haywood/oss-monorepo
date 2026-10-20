@@ -5,6 +5,8 @@ configuration shapes behind the 2021 dependency-confusion incidents
 (Alex Birsan's research against Apple, Microsoft, PayPal, Netflix, Uber,
 Tesla, and others):
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/
+
 1. **pip `--extra-index-url`** — pip's own documentation names this as a
    risk: the additional index can specify a version of a package that gets
    installed instead of the one from `--index-url`, because pip compares

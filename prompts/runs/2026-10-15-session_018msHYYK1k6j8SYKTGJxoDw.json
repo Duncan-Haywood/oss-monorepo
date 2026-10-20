@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_018msHYYK1k6j8SYKTGJxoDw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "mrr-pulse: run-rate projection (low/base/high), /v1/forecast, dashboard table",
+  "projects": [
+    "mrr-pulse"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "regen.mjs and the marketing/pages test run each exceed the 120s default tool timeout; run them in the background."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Shipped forecast feature, mirror regenerated, marketing+pages suites 1298 pass. Published snapshot (session_gate) not refreshed this run.",
+  "corrections": [],
+  "redteam": null
+}

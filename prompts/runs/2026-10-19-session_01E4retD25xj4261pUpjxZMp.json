@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01E4retD25xj4261pUpjxZMp",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-19T00:06:13Z",
+  "ended": "2026-10-19T00:35:28Z",
+  "wall_minutes": 29.37,
+  "tokens_in": 1922441,
+  "tokens_out": 14807,
+  "cost_usd": 0.8093,
+  "tool_calls": 23,
+  "task": "simdesign next step: reject-and-retry",
+  "projects": [
+    "simdesign-retry"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8208",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Track 5 follow-up to simdesign-robustadapt. 45 runs, 25 min. Retry 1/9 failures vs adaptive 2/9, fixed 0.2 5/9; never beat fixed 0.05. Chain is near micro-variant territory; next run should ask a new question.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "10886c90-104b-5108-9fa9-c7e3de346f9a",
+    "transcripts": 1,
+    "first": "2026-10-19T00:06:13Z",
+    "last": "2026-10-19T00:35:36Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 23,
+        "input": 50,
+        "output": 14807,
+        "thinking": 2284,
+        "cache_read": 1849580,
+        "cache_write_5m": 0,
+        "cache_write_1h": 72811,
+        "api_equivalent_usd": 0.8093,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 23,
+      "input": 50,
+      "output": 14807,
+      "thinking": 2284,
+      "cache_read": 1849580,
+      "cache_write_5m": 0,
+      "cache_write_1h": 72811,
+      "api_equivalent_usd": 0.8093,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 23,
+    "tools": {
+      "Bash": 19,
+      "Read": 1,
+      "mcp__github__search_pull_requests": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.37,
+      "active_minutes": 3.27,
+      "model_minutes": 1.77,
+      "tool_minutes": 1.51,
+      "waiting_on_human_minutes": 26.1,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "write rule, tests, 45-run experiment, README for a grad student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 741.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

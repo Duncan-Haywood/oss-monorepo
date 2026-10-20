@@ -1,0 +1,37 @@
+name: uk-capital-allowances-calculator
+description: >-
+  Free browser tool for UK businesses buying equipment: enter the spend (new, second-hand, special-rate, cars) and pool balances to see the Annual Investment Allowance, full expensing and writing-down deduction, the best order to spend the AIA, the tax saved and a five-year run-off. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; duplicate_check.py found no capital-allowances tool (closest uk-vat-registration-checker, 0.15 word overlap). Existing UK tools cover income tax, VAT, IR35 and pensions, not equipment relief.
+#
+# First visitor: a UK limited-company director or sole trader who just bought a van, laptops or machinery, searching "capital allowances calculator", "annual investment allowance vs full expensing", "writing down allowance 18% calculator". Evergreen, peaks at year end and in the January return window; volume not measured. Rivals are accountant blog explainers with static tables and a few gated calculators.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: multi-year asset register with disposals and balancing charges behind an env-var switch.
+#
+# Liability: 2026/27 rates (AIA 1,000,000, main pool 18%, special rate 6%, 50% special FYA, 1,000 small pool) were written from memory without network access and are flagged for GOV.UK verification on the page. Zero-emission car first-year allowances, disposals, SBA and private use are refused and named. The page states it is not tax advice and points to a qualified accountant.
+hypotheses:
+  - claim: >-
+      UK business owners who bought equipment will use a free calculator to see their allowance claim and where to put the AIA.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or threshold differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-capital-allowances-calculator/
+  analytics: null

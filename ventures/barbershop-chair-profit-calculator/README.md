@@ -2,6 +2,8 @@
 
 A free browser tool for independent barbershop owners: **enter your haircut, beard and premium-combo prices, chair minutes, supplies, no-show rate, rent, equipment, retail attach and commission, and get profit per cut and per chair hour, the price each service needs for your target margin, break-even cuts per week, what no-shows cost, and what the same chair nets you cutting it yourself, employing a barber on commission, or renting it by the week**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/barbershop-chair-profit-calculator/
+
 After using this, you can now **decide whether to cut, employ or rent out a chair, and what a haircut has to cost to clear your target margin once rent and empty slots are counted**, which used to take a spreadsheet and a guess.
 
 ## Use

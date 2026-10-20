@@ -48,10 +48,10 @@
 
   <section class="card">
     <h2>1. Paste <code>pip-audit -f json</code></h2>
-    <textarea id="audit" spellcheck="false" placeholder='{"dependencies":[ ... ]}'></textarea>
+    <textarea aria-label="Audit JSON output" id="audit" spellcheck="false" placeholder='{"dependencies":[ ... ]}'></textarea>
     <h2 style="margin-top:14px">2. Paste your source (optional but it is the point)</h2>
     <p class="note">Concatenate files, or put a line <code># file: app/main.py</code> before each so test files are recognised. In the CLI the directory is scanned for you.</p>
-    <textarea id="src" spellcheck="false" placeholder="# file: app/main.py&#10;import flask"></textarea>
+    <textarea aria-label="Source code to match against" id="src" spellcheck="false" placeholder="# file: app/main.py&#10;import flask"></textarea>
     <p>
       <button type="button" id="check">Triage</button>
       <button type="button" class="secondary" id="load-example">Load worked example</button>

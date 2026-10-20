@@ -4,6 +4,8 @@ A free tool that checks a page's `<link rel="alternate" hreflang="..."
 href="...">` tags for the well-documented international-SEO
 misconfigurations Google's own hreflang documentation names directly:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/
+
 - **Missing reciprocal confirmation** — page A links to page B with
   hreflang, but page B does not link back to page A. Google's documentation
   says hreflang annotations must be reciprocal or they may be disregarded.

@@ -1,0 +1,79 @@
+{
+  "slug": "wildlife-exclusion-bid-calculator",
+  "name": "Wildlife removal and exclusion",
+  "group": "Specialty & remediation",
+  "summary": "Animal removal and exclusion priced by visit: trapping, trap checks, sealing, one-way doors and attic cleanup.",
+  "fit": "partial",
+  "crewSize": 2,
+  "hourlyWage": 25,
+  "burdenRate": 52,
+  "overheadRate": 14,
+  "targetMargin": 22,
+  "items": [
+    {
+      "label": "Full-crew round trips (inspection, install, device removal)",
+      "unit": "visit",
+      "qty": 3,
+      "hoursPerUnit": 0.7333,
+      "materialPerUnit": 23.8,
+      "source": "separateInspection + install + doorRemovalVisit = 3 visits (index.html); 2 x 22 drive min = 0.7333 h; 2 x 14 miles x $0.85/mile vehicle cost"
+    },
+    {
+      "label": "Inspection on site",
+      "unit": "visit",
+      "qty": 1,
+      "hoursPerUnit": 0.75,
+      "materialPerUnit": 0,
+      "source": "inspectionMinutes 45 (index.html default)"
+    },
+    {
+      "label": "Seal entry points, two-story ladder work",
+      "unit": "linear ft",
+      "qty": 45,
+      "hoursPerUnit": 0.03967,
+      "materialPerUnit": 3.2,
+      "source": "exclusionLinearFeet 45, 1.4 min/ft x 1.7 two-story multiplier (HEIGHT_TIERS 'two') / 60; exclusionMaterialPerFoot $3.20 (index.html)"
+    },
+    {
+      "label": "One-way door: install and later removal",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.7,
+      "materialPerUnit": 45,
+      "source": "(doorMinutesEach 35 + doorRemovalMinutes 25) x 1.7 reach multiplier / 60; doorCostEach $45 (index.html)"
+    },
+    {
+      "label": "Set raccoon traps",
+      "unit": "trap",
+      "qty": 3,
+      "hoursPerUnit": 0.2,
+      "materialPerUnit": 7,
+      "source": "trapsSet 3 x trapSetMinutes 12 (calculateBid multiplies per trap) / 60; consumablesPerTrap $7 (index.html)"
+    },
+    {
+      "label": "Trap-check visits (one tech)",
+      "unit": "visit",
+      "qty": 5,
+      "hoursPerUnit": 0.575,
+      "materialPerUnit": 23.8,
+      "source": "trapDays 5 x 1 check/day; (44 drive + 25 on-site min) / 60 = 1.15 tech-hours, halved because trapCheckCrewSize is 1 vs crewSize 2; 28 miles x $0.85"
+    },
+    {
+      "label": "Attic decontamination, insulation out and in",
+      "unit": "sq ft",
+      "qty": 250,
+      "hoursPerUnit": 0.0075,
+      "materialPerUnit": 4.4,
+      "source": "deconSquareFeet 250, 45 min per 100 sq ft; $55 per 100 sq ft decon + insulation removal $1.40 + replacement $1.90 per sq ft on 250 sq ft (index.html)"
+    },
+    {
+      "label": "Disposal and soffit/fascia repair",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 250,
+      "source": "disposalFee $90 + repairCost $160 (index.html defaults)"
+    }
+  ],
+  "specialistModels": "Counts every return visit with its own crew size, species presets and maternity-season warnings, reach multipliers and lift rental, an 8% warranty reserve on warranted work (about $36 here, not included above), and a flat-fee shortfall check."
+}

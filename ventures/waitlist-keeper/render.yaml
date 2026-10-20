@@ -1,0 +1,36 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# No third-party key is required. Add RESEND_API_KEY + MAIL_FROM and set DRY_RUN=false to send real email.
+services:
+  - type: web
+    name: waitlist-keeper
+    runtime: docker
+    dockerContext: ventures/waitlist-keeper
+    dockerfilePath: ventures/waitlist-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: PRODUCT_NAME
+        sync: false
+      - key: TAGLINE
+        sync: false
+      - key: BASE_URL
+        sync: false
+      - key: INVITE_URL
+        sync: false
+      - key: TIERS_JSON
+        sync: false
+      - key: DRY_RUN
+        value: "true"
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false

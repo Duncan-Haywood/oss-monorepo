@@ -1,0 +1,66 @@
+name: flag-keeper
+description: >-
+  Self-hosted feature flags for small teams: sticky percentage rollouts,
+  multivariate splits, targeting rules, reusable segments, flag prerequisites,
+  individual targets, a kill switch, an audit log, a local-evaluation SDK and a
+  "who would flip?" impact check. Browser rollout simulator running the real
+  engine, zero-dependency Node server, one-click Render/Fly/Docker deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and large: LaunchDarkly (from about
+# $10 per seat and per-service-connection fees, enterprise contracts above),
+# Split, Statsig, Flagsmith, ConfigCat and PostHog flags charge per seat, per
+# monthly active user or per request. Open-source options are Unleash and
+# Flagsmith (a database plus several services to run), GrowthBook (needs
+# MongoDB) and OpenFeature (a spec, not a server). The gap: a small team that
+# wants "10% of users, staff first, kill switch" without a per-seat bill or a
+# platform to operate. Seventh product for the SaaS-founder buyer of
+# drip-keeper, waitlist-keeper, feedback-board, trial-converter, dunning-engine
+# and cancel-flow; those run the customer lifecycle, this one is how their
+# engineers ship safely.
+# duplicate_check: ventures/ names and READMEs searched for flag, toggle,
+# rollout, experiment on 2026-10-15; agent-permission-harness and
+# status-keeper are unrelated; no feature-flag venture existed.
+#
+# First visitor: developers on Hacker News, r/selfhosted, r/webdev and Indie
+# Hackers asking "launchdarkly alternative", "self hosted feature flags",
+# "open source feature toggle". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup and SDK integration, a hosted copy under the deployer's own
+# name, a dashboard UI as a later paid add-on, or GitHub Sponsors are the paid
+# steps. Hosting under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small engineering teams will try the browser rollout simulator on their own
+      flag config and then deploy the server, because hosted flag services price
+      by seat or monthly active user and the free ones need a database.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The "who would flip" check before a rollout edit is the feature that makes a
+      team trust a JSON-and-API flag tool without a dashboard.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a flag serving a different variant to the same user across restarts or config edits that did not change their rule, or a client key reading rules; the bucketing and key-scope paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/flag-keeper/
+  analytics: null

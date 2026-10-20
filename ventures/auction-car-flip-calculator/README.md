@@ -7,6 +7,8 @@ for the max bid and the break-even bid, shows profit at a ladder of bids, and
 stress-tests the max bid against repair overruns and a lower resale price.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/auction-car-flip-calculator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - repair and fee-tier parsing, all-in cost, max-bid solver, stress grid, CSV.

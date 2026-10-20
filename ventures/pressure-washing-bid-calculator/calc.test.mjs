@@ -228,3 +228,14 @@ test('the copied summary names every surface and the after-travel hourly', () =>
   const packaged = formatBidSummary(calculateBid({ ...house(), packageVisits: 4, packageDiscount: 15 }));
   assert.match(packaged, /4 visits/);
 });
+
+test('omitted payroll burden and minimum job default to zero', () => {
+  const r = calculateBid({
+    surfaces: [{ squareFeet: 1000, productionRate: 1000 }],
+    hourlyWage: 0.5,
+    targetMargin: 0,
+  });
+  assert.equal(r.totalCost, 0.5); // 1 wash hour at the unloaded wage
+  assert.equal(r.bidPrice, 0.5); // no minimum-job floor
+  assert.equal(r.minimumApplied, false);
+});

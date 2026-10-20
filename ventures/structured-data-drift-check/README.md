@@ -6,6 +6,8 @@ A free tool that checks whether a page's JSON-LD structured data
 word, in that same page's own visible rendered text** — and, where it
 doesn't, names exactly the character where the two texts part ways.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/structured-data-drift-check/
+
 **What it is not:** an SEO audit, a compliance verdict, or advice of
 record. It answers one narrow, deterministic question per claim — is this
 exact string present in the page's rendered text — from the page itself,

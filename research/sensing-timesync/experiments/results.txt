@@ -1,0 +1,43 @@
+# sensing-timesync: camera-to-gyro time offset (single axis, synthetic, stylised)
+setup: Setup(omega_rms=30.0, f_band=2.0, gyro_noise=0.2, gyro_bias=0.5, cam_noise=0.3, fs_g=200.0, fs_c=30.0)
+filter: complementary (fixed gains), 4 seeds x 40 s per cell; error = rms angle error after 5 s warm-up
+
+## A. Fused attitude error vs time offset (td > 0: camera stamp is late)
+td (ms) | rms error (deg) | ratio to td=0 | first-order omega_rms*td (deg)
+   0 | 0.152 | 1.00 | 0.000
+   2 | 0.160 | 1.05 | 0.060
+   5 | 0.187 | 1.23 | 0.150
+  10 | 0.259 | 1.70 | 0.300
+  15 | 0.344 | 2.26 | 0.450
+  20 | 0.434 | 2.85 | 0.600
+  40 | 0.816 | 5.35 | 1.200
+  80 | 1.588 | 10.42 | 2.400
+
+## B. Offset that doubles the error, vs motion intensity and camera noise (bracket from a 2 ms grid)
+omega_rms (deg/s) | cam noise (deg) | error at td=0 | doubling offset between (ms)
+10 | 0.1 | 0.078 | 18-20
+10 | 0.3 | 0.124 | 32-34
+10 | 1.0 | 0.344 | 92-94
+30 | 0.1 | 0.117 | 8-10
+30 | 0.3 | 0.152 | 12-14
+30 | 1.0 | 0.356 | 30-32
+90 | 0.1 | 0.288 | 6-8
+90 | 0.3 | 0.305 | 8-10
+90 | 1.0 | 0.445 | 12-14
+
+## C. Online estimate of the offset (gyro-integral vs camera alignment fit), 6 seeds
+true td (ms) | window (s) | mean estimate (ms) | rms error (ms)
+10 | 10 | 9.37 | 1.01
+10 | 40 | 9.35 | 0.88
+40 | 10 | 39.21 | 1.00
+40 | 40 | 39.30 | 1.05
+zero-offset control (true td = 0): estimates (ms) = 0.92, 0.49, -0.97, 0.83, 0.97, -0.86
+
+## D. Does feeding the estimate back help? (T = 40 s estimate, then filter with td_hat)
+true td (ms) | uncorrected rms (deg) | corrected rms (deg) | td=0 reference
+10 | 0.259 | 0.157 | 0.152
+40 | 0.816 | 0.156 | 0.152
+80 | 1.588 | 0.157 | 0.152
+
+## E. Excitation: estimator needs motion. Nearly still platform (omega_rms = 1 deg/s), T = 40 s
+true 20 ms: estimates (ms) = -2.5, -45.8, 42.1, 40.5, 5.8, -25.8

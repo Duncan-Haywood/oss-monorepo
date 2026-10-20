@@ -1,0 +1,49 @@
+runs with a parseable start time: 660 (2026-10-01 to 2026-10-19)
+
+== window +-5 min ==
+others started within window (capped at 4): 0:101, 1:178, 2:195, 3:156, 4:30
+crowded = at least 1 other(s): 559 crowded, 101 not
+  partial         crowded 0.032 (0.020-0.050)  not 0.059 (0.028-0.124)  raw diff -0.027  within-day diff -0.022  p=0.530
+  error recorded  crowded 0.097 (0.075-0.124)  not 0.327 (0.243-0.423)  raw diff -0.230  within-day diff -0.081  p=0.068
+crowded = at least 2 other(s): 381 crowded, 279 not
+  partial         crowded 0.024 (0.012-0.044)  not 0.054 (0.033-0.087)  raw diff -0.030  within-day diff -0.026  p=0.168
+  error recorded  crowded 0.071 (0.049-0.101)  not 0.215 (0.171-0.267)  raw diff -0.144  within-day diff -0.044  p=0.086
+
+== window +-10 min ==
+others started within window (capped at 4): 0:61, 1:139, 2:190, 3:179, 4:91
+crowded = at least 1 other(s): 599 crowded, 61 not
+  partial         crowded 0.033 (0.022-0.051)  not 0.066 (0.026-0.157)  raw diff -0.032  within-day diff -0.023  p=0.430
+  error recorded  crowded 0.114 (0.091-0.141)  not 0.311 (0.209-0.436)  raw diff -0.198  within-day diff -0.027  p=0.685
+crowded = at least 2 other(s): 460 crowded, 200 not
+  partial         crowded 0.028 (0.017-0.048)  not 0.055 (0.031-0.096)  raw diff -0.027  within-day diff -0.019  p=0.341
+  error recorded  crowded 0.098 (0.074-0.128)  not 0.210 (0.159-0.272)  raw diff -0.112  within-day diff -0.004  p=1.000
+
+== window +-30 min ==
+others started within window (capped at 4): 0:19, 1:31, 2:16, 3:33, 4:561
+crowded = at least 1 other(s): 641 crowded, 19 not
+  partial         crowded 0.034 (0.023-0.051)  not 0.105 (0.029-0.314)  raw diff -0.071  within-day diff -0.060  p=0.223
+  error recorded  crowded 0.119 (0.096-0.146)  not 0.579 (0.363-0.769)  raw diff -0.460  within-day diff -0.103  p=0.582
+crowded = at least 2 other(s): 610 crowded, 50 not
+  partial         crowded 0.033 (0.021-0.050)  not 0.080 (0.032-0.188)  raw diff -0.047  within-day diff -0.108  p=0.018
+  error recorded  crowded 0.102 (0.080-0.128)  not 0.500 (0.366-0.634)  raw diff -0.398  within-day diff -0.047  p=0.806
+
+== UTC hour block ==
+partial
+  00-06  n=200  rate 0.040 (0.020-0.077)
+  06-12  n=156  rate 0.051 (0.026-0.098)
+  12-18  n=142  rate 0.021 (0.007-0.060)
+  18-24  n=162  rate 0.031 (0.013-0.070)
+error recorded
+  00-06  n=200  rate 0.125 (0.086-0.178)
+  06-12  n=156  rate 0.154 (0.106-0.219)
+  12-18  n=142  rate 0.113 (0.071-0.175)
+  18-24  n=162  rate 0.136 (0.091-0.197)
+
+== by calendar day, October 2026 (day, error rate, mean others within 10 min, runs)
+13 0.477 1.14 44
+14 0.500 0.91 22
+15 0.467 0.27 15
+16 0.092 2.23 153
+17 0.061 2.24 163
+18 0.089 2.39 191
+19 0.085 3.13 71

@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodeprop"
+version = "0.1.0"
+description = "A proportional infrared-gating transmittance versus the on/off thermostat gate, in the two-node model"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

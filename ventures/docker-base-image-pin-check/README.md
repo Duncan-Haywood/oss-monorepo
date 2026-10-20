@@ -5,6 +5,8 @@ image is referenced by a mutable tag (`node:18`, `python:3.11-slim`, or bare
 `latest`) instead of a pinned content digest (`@sha256:...`) — a documented
 Docker/SLSA supply-chain hardening practice, not a novel claim.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/
+
 **What it is not:** a security audit, a compliance attestation, or a
 guarantee that your build is safe from supply-chain attacks. It answers one
 narrow question — is this specific `FROM` line pinned to a content digest —

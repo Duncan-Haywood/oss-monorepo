@@ -7,6 +7,8 @@ setting, rent, insurance, the build cost and any loan. It shows **monthly profit
 membership fee for your target margin**, the day pass that reaches your payback target, a crowding
 check against comfortable capacity, what 10% and 20% less demand does, and compares a second scenario.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/climbing-gym-profit-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

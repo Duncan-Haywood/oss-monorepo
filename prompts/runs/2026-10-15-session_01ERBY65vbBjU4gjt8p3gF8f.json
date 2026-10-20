@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01ERBY65vbBjU4gjt8p3gF8f",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "model": "claude-sonnet-5-5",
+  "task": "new-project",
+  "projects": [
+    "mimic-twinc2st"
+  ],
+  "pr": 552,
+  "commits": [
+    "5308bb5",
+    "c620073"
+  ],
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "track 11 mimic-loop blocked: Hugging Face 403 from container, no local model weights"
+  ],
+  "integrity_issues": [],
+  "notes": "Drew track 11; milestone 2 needs local LLM weights (unreachable), so shipped an LLM-free C2ST-vs-paired-RMSE twin-fidelity study. Tokens/cost not read.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

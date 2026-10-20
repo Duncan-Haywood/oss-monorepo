@@ -263,6 +263,23 @@ class Screen(unittest.TestCase):
         self.assertEqual(step.seconds, 0.0)
 
 
+class WorkflowBudget(unittest.TestCase):
+    def test_budget_reports_timeout_instead_of_hanging(self):
+        steps = [runner.Step("j", "slow", "sleep 5", "."),
+                 runner.Step("j", "after", "true", ".")]
+        with contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 900, budget=1)
+        self.assertEqual([s.status for s in steps], ["failed", "failed"])
+        self.assertTrue(all(s.reason.startswith("TIMEOUT") for s in steps))
+        self.assertLess(steps[0].seconds, 4)
+
+    def test_no_budget_runs_normally(self):
+        steps = [runner.Step("j", "ok", "true", ".")]
+        with contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 900)
+        self.assertEqual(steps[0].status, "ok")
+
+
 class Execute(unittest.TestCase):
     def run_one(self, command, workdir="."):
         step = runner.Step("j", "n", command, workdir)
@@ -885,12 +902,13 @@ class ReadOnlyJobs(unittest.TestCase):
     def test_the_gitops_shellcheck_job_runs_while_its_ssh_jobs_stay_held(self):
         """Both halves on the real file, because both halves matter.
 
-        `hetzner-gitops-ci.yml` is the only workflow here that both validates
-        the whole delivery path and can log into the two live boxes. The
-        `scripts` job is pure `shellcheck` over the 24 scripts that install
-        every runner-free route; `preflight` and `restore` SSH to production
-        and `restore` reinstalls k3s on it. A screen that cannot tell those
-        apart is either useless or dangerous, so this pins which is which.
+        `hetzner-gitops-ci.yml` validates the whole delivery path. The
+        `scripts` job is pure `shellcheck`; `hcloud-scope` reads a secret.
+        Its `preflight` and `restore` jobs, which SSHed to the two Hetzner
+        boxes, were removed on 2026-10-01 when the owner deleted the servers
+        -- a released IP can be reassigned to a stranger -- so this also pins
+        that they do not come back. A screen that cannot tell a secret-reading
+        job from a read-only one is either useless or dangerous.
         """
         parsed = runner.load_workflow(
             os.path.join(runner.WORKFLOWS, "hetzner-gitops-ci.yml"))
@@ -902,9 +920,11 @@ class ReadOnlyJobs(unittest.TestCase):
         self.assertTrue(any("shellcheck" in s.run for s in steps),
                         "the scripts job must still carry the shellcheck step")
 
-        for job_id in ("preflight", "restore", "hcloud-scope"):
-            self.assertIn(job_id, held_ids,
-                          f"{job_id} reads a secret and must never auto-run")
+        self.assertIn("hcloud-scope", held_ids,
+                      "hcloud-scope reads a secret and must never auto-run")
+        for job_id in ("preflight", "restore"):
+            self.assertNotIn(job_id, parsed["jobs"],
+                             f"{job_id} SSHed to servers deleted 2026-10-01")
 
     def test_a_secret_reference_holds_the_job_however_long_the_command(self):
         """Why the screen walks scalars instead of re-serialising them.

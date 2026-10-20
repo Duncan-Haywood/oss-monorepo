@@ -129,6 +129,7 @@ export function analyze(raw) {
   const n = Math.round(o.yearsLeft * 12);
   if (!(o.balance > 0)) warnings.push("Enter a loan balance above zero.");
   if (!(n >= 1)) warnings.push("Enter the years left on the loan (at least one month).");
+  if (n > 1200) warnings.push("Enter 100 years or less left on the loan.");
   if (o.ratePct < 0 || o.returnPct < -50) warnings.push("Check the rates; a negative mortgage rate or a return below -50% is not modelled.");
   if (o.extraMonthly < 0 || o.lump < 0) warnings.push("The extra payment and the lump sum cannot be negative.");
   if (o.gainsTaxPct < 0 || o.gainsTaxPct > 100 || o.interestTaxSavingPct < 0 || o.interestTaxSavingPct > 100) warnings.push("Tax percentages must be between 0 and 100.");

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-uav"
+version = "0.1.0"
+description = "Sizing a purpose-built multirotor and fixed-wing UAV for a targeted-observation mission: mass closure, endurance and break-even (stylised)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

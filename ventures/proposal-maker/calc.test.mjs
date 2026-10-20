@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   toCents, percentOf, addDays, addMonths, daysBetween, splitLines, normalizeProposal, pricingOptions, depositFor, phaseDates, finishDate,
   paymentSchedule, clauseTexts, status, proposalValue, nextNumber, duplicateNumbers, pipeline, duplicateProposal, validUntil, validate,
-  renderProposal, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, esc, LEGAL_NOTICE,
+  followUps, followUpText, renderProposal, standaloneHtml, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, esc, LEGAL_NOTICE,
 } from "./calc.mjs";
 
 const base = (over = {}) => normalizeProposal({
@@ -271,4 +271,76 @@ test("CSV export neutralises spreadsheet formulas and quotes commas", () => {
   assert.match(csv, /'=HYPERLINK/);
   assert.match(csv, /"A, B"/);
   assert.match(csv.split("\n")[1], /,sent,fixed,7000\.00$/);
+});
+
+test("standaloneHtml is one self-contained file: no script, no network, user text escaped", () => {
+  const html = standaloneHtml(base({ title: "<b>Site</b>", clientName: "A & B" }), { css: "#preview h3{color:red}" });
+  assert.match(html, /^<!doctype html>/);
+  assert.match(html, /<title>PROP-0001 &lt;b&gt;Site&lt;\/b&gt;<\/title>/);
+  assert.match(html, /#preview h3\{color:red\}/);
+  assert.match(html, /A &amp; B/);
+  assert.doesNotMatch(html, /<script|<link|src=|href=|<b>Site/i);
+});
+
+test("followUps lists quiet or expiring sent proposals, most urgent first", () => {
+  const today = "2026-10-10";
+  const quiet = base({ id: "a", number: "PROP-0001", sentOn: "2026-10-05", validUntil: "2026-10-31" });
+  const fresh = base({ id: "b", number: "PROP-0002", sentOn: "2026-10-09", validUntil: "2026-10-31" });
+  const soon = base({ id: "c", number: "PROP-0003", sentOn: "2026-10-09", validUntil: "2026-10-12" });
+  const expired = base({ id: "d", number: "PROP-0004", sentOn: "2026-09-01", validUntil: "2026-09-30" });
+  const draft = base({ id: "e", number: "PROP-0005", status: "draft", sentOn: "" });
+  const accepted = base({ id: "f", number: "PROP-0006", status: "accepted", sentOn: "2026-10-01" });
+  const r = followUps([quiet, fresh, soon, expired, draft, accepted], today);
+  assert.deepEqual(r.map((x) => x.id), ["c", "a"]);
+  assert.equal(r[0].reason, "expiring");
+  assert.equal(r[0].daysLeft, 2);
+  assert.equal(r[1].quietDays, 5);
+  assert.equal(r[1].value, 700000);
+});
+
+test("followUps breaks ties on expiry by quietest first, and keeps input order when both are unknown", () => {
+  const today = "2026-10-10";
+  const a = base({ id: "a", sentOn: "2026-10-04", validUntil: "" });
+  const b = base({ id: "b", sentOn: "2026-10-01", validUntil: "" });
+  assert.deepEqual(followUps([a, b], today).map((x) => x.id), ["b", "a"]);
+  // Same expiry day, no sent date: neither has a quiet count, so order is untouched.
+  const c = base({ id: "c", sentOn: "", validUntil: "2026-10-11" });
+  const d = base({ id: "d", sentOn: "", validUntil: "2026-10-11" });
+  assert.deepEqual(followUps([c, d], today).map((x) => x.id), ["c", "d"]);
+  // A known quiet count outranks an unknown one at the same expiry, whatever the input order.
+  const e = base({ id: "e", sentOn: "2026-10-09", validUntil: "2026-10-11" });
+  assert.deepEqual(followUps([c, e], today).map((x) => x.id), ["e", "c"]);
+  assert.deepEqual(followUps([e, c], today).map((x) => x.id), ["e", "c"]);
+});
+
+test("followUpText names the proposal and the remaining days", () => {
+  const txt = followUpText({ clientName: "Acme", number: "PROP-0003", title: "Website rebuild", reason: "expiring", daysLeft: 1 });
+  assert.match(txt, /^Hi Acme,/);
+  assert.match(txt, /PROP-0003 \(Website rebuild\)/);
+  assert.match(txt, /1 more day\./);
+  assert.match(followUpText({ clientName: "", number: "P", title: "", reason: "quiet", daysLeft: null }), /^Hi,/);
+});
+
+test("boundaries: a one-cent milestone, a one-cent change rate, a one-month retainer and a 101% deposit", () => {
+  const tiny = base({ options: [{ name: "", lines: [{ desc: "Fee", qty: 1, rate: "1" }] }], depositType: "percent", depositValue: "0", milestones: [{ label: "Kickoff", percent: "1", when: "" }] });
+  const rows = paymentSchedule(tiny, 0);
+  assert.ok(rows.some((r) => r.label === "Kickoff" && r.amount === 1));
+  const penny = base({ terms: { changeRate: "0.01" } });
+  assert.match(clauseTexts(penny).find((c) => c.key === "changeOrders").text, /per hour/);
+  const oneMonth = base({ model: "retainer", retainer: { monthly: "1000", months: "1", hours: "10" } });
+  assert.ok(validate(oneMonth).every((m) => !/number of months/.test(m)));
+  assert.ok(validate({ ...base(), depositType: "percent", depositValue: "101" }).some((m) => /between 0 and 100/.test(m)));
+});
+
+test("boundaries: valid-until day is still open, a one-cent hourly rate is accepted, no change rate means a quoted price", () => {
+  const p = base();
+  assert.equal(status(p, "2026-10-31"), "sent");
+  assert.equal(status(p, "2026-11-01"), "expired");
+  const hourly = (rate) => validate({ ...base({ model: "hourly" }), hourly: { rate, hours: "10", capHours: "12" } });
+  assert.ok(!hourly("0.01").some((m) => /hourly rate/.test(m)));
+  assert.ok(hourly("0").some((m) => /hourly rate/.test(m)));
+  const change = (changeRate) => clauseTexts(base({ terms: { changeRate } })).find((c) => c.key === "changeOrders").text;
+  assert.match(change(""), /billed at a price quoted in advance/);
+  assert.match(change("0"), /billed at a price quoted in advance/);
+  assert.match(change("125"), /per hour/);
 });

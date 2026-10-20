@@ -1,0 +1,38 @@
+N = 3000 builds per cell, common random numbers; working days; start on the 1st of the month
+house-schedule flat 15% weather, baseline: mean 213.7 d, interest 3.02% of price
+house-schedule flat 15% weather, order at day 0: mean 150.7 d
+
+climate: cold winters (assumed); mean exterior loss 0.203
+start  baseline d    p90  interest %  d vs flat  early d  early gain
+Jan         229.9  256.5        3.25      +16.2    167.7        62.2
+Feb         224.6  250.3        3.17      +10.9    161.8        62.8
+Mar         219.0  244.6        3.09       +5.3    155.9        63.1
+Apr         214.4  240.0        3.03       +0.7    151.1        63.3
+May         212.0  237.9        2.99       -1.7    148.5        63.5
+Jun         211.5  237.2        2.99       -2.2    147.9        63.6
+Jul         211.4  237.2        2.99       -2.3    147.8        63.7
+Aug         212.3  238.3        3.00       -1.4    148.7        63.6
+Sep         214.4  240.8        3.03       +0.7    151.6        62.7
+Oct         219.4  246.5        3.10       +5.7    158.4        61.0
+Nov         226.6  254.8        3.20      +12.9    166.3        60.3
+Dec         231.3  258.6        3.27      +17.6    170.0        61.2
+best start Jul 211.4 d, worst Dec 231.3 d, swing 19.8 d
+with early ordering: best Jul 147.8 d, worst Dec 170.0 d, swing 22.3 d
+
+climate: mild (assumed); mean exterior loss 0.133
+start  baseline d    p90  interest %  d vs flat  early d  early gain
+Jan         215.7  241.7        3.05       +2.0    152.8        62.9
+Feb         214.4  240.2        3.03       +0.7    151.3        63.1
+Mar         213.0  238.9        3.01       -0.7    149.8        63.2
+Apr         212.4  238.3        3.00       -1.3    149.3        63.1
+May         212.4  238.4        3.00       -1.3    149.1        63.3
+Jun         212.1  238.0        3.00       -1.6    148.7        63.4
+Jul         211.8  237.7        2.99       -1.9    148.5        63.3
+Aug         212.1  238.0        3.00       -1.6    148.8        63.3
+Sep         212.5  238.6        3.00       -1.2    149.4        63.2
+Oct         213.1  239.2        3.01       -0.6    150.3        62.9
+Nov         214.1  240.4        3.02       +0.4    151.5        62.7
+Dec         215.5  241.8        3.04       +1.8    152.8        62.7
+best start Jul 211.8 d, worst Jan 215.7 d, swing 3.9 d
+with early ordering: best Jul 148.5 d, worst Jan 152.8 d, swing 4.3 d
+

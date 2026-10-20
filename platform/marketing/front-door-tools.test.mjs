@@ -14,6 +14,7 @@
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -45,7 +46,7 @@ import {
   ROUTABLE_SUBPATH,
   STRIPPED_LINK_RELS,
   blankStrippedLinks,
-  OUTPUT_DIR,
+  writeMirror,
   FRONT_DOOR_DEPLOYMENT,
   renderMountSources,
   writeMountList,
@@ -107,7 +108,21 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 // #3257 and #3258 each did on 2026-09-05. See platform/marketing/regen.mjs.
 const REGENERATE = 'node platform/marketing/regen.mjs';
 
-test('the committed mirror matches what the generator produces', async () => {
+// The mirror is built into a scratch directory, never read from the committed
+// gitops/prod/front-door-tools tree, so these tests keep passing when that
+// tree is removed (process backlog P014 / P022). One build is shared.
+let scratch;
+const scratchMirror = () => (scratch ??= (async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'front-door-mirror-'));
+  await writeMirror(dir);
+  return dir;
+})());
+process.on('exit', () => {
+  // best effort; the OS tmp cleaner covers a crash
+  if (scratch) scratch.then((d) => fsSync.rmSync(d, { recursive: true, force: true }), () => {});
+});
+
+test('the written mirror holds what the generator produces', async () => {
   // `stored`, not `files`: a file whose bytes are byte-identical to one already
   // in the mirror is deliberately not written at all — `00-mirror-alias.conf`
   // points its name at the copy that is. The two tests below cover the aliased
@@ -115,7 +130,7 @@ test('the committed mirror matches what the generator produces', async () => {
   // disk.
   const { stored } = await buildMirror();
   for (const file of stored) {
-    const onDisk = await fs.readFile(path.join(OUTPUT_DIR, file.stored)).catch(() => null);
+    const onDisk = await fs.readFile(path.join(await scratchMirror(), file.stored)).catch(() => null);
     assert.notEqual(onDisk, null, `${file.stored} is missing from the commit — run \`${REGENERATE}\``);
     assert.ok(onDisk.equals(file.bytes), `${file.stored} is stale — run \`${REGENERATE}\``);
     // What is committed is compressed, so a byte comparison alone would pass
@@ -129,10 +144,10 @@ test('the committed mirror matches what the generator produces', async () => {
   }
 });
 
-test('the mirror directory holds nothing the generator did not write', async () => {
+test('the written mirror directory holds nothing the generator did not list', async () => {
   const { stored } = await buildMirror();
   const expected = new Set([...stored.map((f) => f.stored), 'kustomization.yaml']);
-  const actual = await fs.readdir(OUTPUT_DIR);
+  const actual = await fs.readdir(await scratchMirror());
   for (const name of actual) {
     assert.ok(
       expected.has(name),
@@ -256,9 +271,9 @@ test('an empty mirror still renders a usable alias map', () => {
   assert.match(rendered, /^ {2}default \$fd_flat;$/m);
 });
 
-test('the committed kustomization matches the file list', async () => {
+test('the written kustomization matches the file list', async () => {
   const { shards } = await buildMirror();
-  const onDisk = await fs.readFile(path.join(OUTPUT_DIR, 'kustomization.yaml'), 'utf8');
+  const onDisk = await fs.readFile(path.join(await scratchMirror(), 'kustomization.yaml'), 'utf8');
   assert.equal(onDisk, renderKustomization(shards), `stale — run \`${REGENERATE}\``);
 });
 
@@ -1535,7 +1550,7 @@ test('the committed Deployment already mounts exactly the committed shards', asy
   // The staleness assertion for this file, matching how the mirror's own
   // freshness is pinned above: the real file must equal what the writer would
   // produce from the shards actually committed in kustomization.yaml.
-  const kustomization = await fs.readFile(path.join(OUTPUT_DIR, 'kustomization.yaml'), 'utf8');
+  const kustomization = await fs.readFile(path.join(await scratchMirror(), 'kustomization.yaml'), 'utf8');
   const generated = [...new Set(kustomization.match(/portfolio-front-tools-\d+/g) || [])].sort(
     (a, b) => Number(a.split('-').pop()) - Number(b.split('-').pop()),
   );

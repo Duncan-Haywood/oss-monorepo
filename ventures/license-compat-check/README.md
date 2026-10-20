@@ -4,6 +4,8 @@ A free tool that checks your dependencies' declared licenses against **how you
 ship** and lists exactly which ones conflict, which need a human, and the usual
 way out of each.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/license-compat-check/
+
 **What it is not:** legal advice, a compliance certifier, or a substitute for
 reading license texts. It applies a rules table of widely published FSF/OSI
 compatibility positions to the license strings you give it, deterministically,

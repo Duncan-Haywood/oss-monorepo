@@ -7,6 +7,8 @@ many days lost to weather the season can take, the rentals your fleet turns
 away, what one more kayak or boat earns and pays back in, and the price that
 earns the most along a demand curve you set. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/waterfront-rental-season-planner/
+
 After using this, you can **tell whether another boat is worth buying and how
 wet a summer you can survive**, which used to be a guess.
 

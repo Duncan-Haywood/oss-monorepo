@@ -7,6 +7,8 @@ Security (with the wage-base cap), Medicare and the Additional Medicare Tax, the
 balance due at filing, the effect of putting part in a 401(k), the employer's total cost,
 and the gross bonus needed to leave a target amount net. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bonus-take-home-gross-up-calculator/
+
 After using this, you can **see what a bonus really pays, whether the withholding was too
 high or too low, and what gross to offer to deliver a promised net amount**.
 

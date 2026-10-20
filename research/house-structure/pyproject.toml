@@ -1,0 +1,13 @@
+[project]
+name = "house-structure"
+version = "0.1.0"
+description = "Lateral design of the house-framing house: wind and seismic base shear against the wood shear-wall length the openings leave, nailing schedule and hold-down demand"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-framing/src"]

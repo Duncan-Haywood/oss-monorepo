@@ -53,7 +53,7 @@ export const pct = (x) => `${(Math.round(x * 10) / 10).toFixed(1)}%`;
 
 const L = (o, p) => ({
   advancePct: o[p + "AdvancePct"], rehabPct: o[p + "RehabPct"], rate: o[p + "Rate"], points: o[p + "Points"],
-  flat: o[p + "Flat"], draws: Math.max(1, Math.round(o[p + "Draws"])), drawFee: o[p + "DrawFee"],
+  flat: o[p + "Flat"], draws: Math.min(1000, Math.max(1, Math.round(o[p + "Draws"]))), drawFee: o[p + "DrawFee"],
   minMonths: o[p + "MinMonths"], term: o[p + "Term"], extPct: o[p + "ExtPct"], extMonths: o[p + "ExtMonths"],
 });
 

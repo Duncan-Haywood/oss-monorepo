@@ -1,0 +1,60 @@
+name: rev-rec
+description: >-
+  Self-hosted Stripe revenue recognition: paid invoice lines spread per day over
+  their service period into a monthly billings / recognised / deferred-revenue
+  schedule, backlog of already-invoiced revenue, and balanced month-end journal
+  entries as CSV. Read-only key, zero-dependency server, browser demo on a pasted
+  invoice export, one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real: Stripe Revenue Recognition (billed
+# as a percentage of Billing volume), Chargebee RevRec, Maxio, RevenueCat-adjacent
+# finance tools. Gap: small SaaS companies with annual plans whose bookkeeper
+# rebuilds deferred revenue in a spreadsheet each close. Fourth product for the
+# Stripe-SaaS-founder buyer (mrr-pulse measures, dunning-engine recovers,
+# license-keeper licenses): this one closes the books. duplicate_check:
+# stripe-payout-to-journal covers the cash side from payout CSVs; nothing in the
+# tree computes deferred revenue from invoice line periods.
+#
+# First visitor: founders and bookkeepers searching "stripe deferred revenue
+# schedule", "asc 606 stripe annual plans", "stripe revenue recognition
+# alternative". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; done-for-you
+# setup and a hosted copy under the deployer's own name are the paid steps;
+# GitHub Sponsors for the owner; hosting under the public name is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small SaaS founders and their bookkeepers will paste an invoice-line export
+      into the browser demo and then deploy the read-only server, because Stripe's
+      own tool is priced on volume and the spreadsheet alternative drifts.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The journal CSV imports into the accounting tool without hand edits for a
+      company on straight-line daily recognition, which is what makes the monthly
+      close shorter.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a monthly recognised-revenue figure off by more than 1% from their accountant's schedule on straight-line subscriptions; the day-count and discount paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rev-rec/
+  analytics: null

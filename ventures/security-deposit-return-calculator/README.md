@@ -5,6 +5,8 @@ raises: itemize a security deposit's deductions to see the refund or balance
 due, and calculate prorated rent for a partial first or last month. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/security-deposit-return-calculator/
+
 After using this, you can now **turn a deposit amount and a list of
 deductions into a refund or balance figure, copy that out as the itemized
 statement you actually have to send, and turn a monthly rent into a prorated

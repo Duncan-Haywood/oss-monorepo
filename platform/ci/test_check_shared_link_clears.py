@@ -16,9 +16,14 @@ to four more ventures (`vending-machine-route-margin`,
 the original BARE_APPLY pattern could not see at all.
 """
 
+import contextlib
+import io
+import os
+import tempfile
 import unittest
+from pathlib import Path
 
-from check_shared_link_clears import check_page
+from check_shared_link_clears import check_page, check_tree, main
 
 DRAFT = "const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');"
 DECODE = "const fromLink = decodeInputs(location.hash || location.search);"
@@ -166,6 +171,64 @@ class SharedLinkClearsTest(unittest.TestCase):
             "applyInputs(fromLink);",
         ))
         self.assertIsNotNone(problem)
+
+
+BUGGY = page(DRAFT, DECODE, "writeInputs(fromLink);")
+SOUND = page(DRAFT, DECODE, "writeInputs(formValues(fromLink));")
+
+
+class CommandLineTest(unittest.TestCase):
+    """`main` is what CI runs; its exit codes and default root are the contract."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name)
+
+    def write(self, name: str, markup: str) -> None:
+        folder = self.root / name
+        folder.mkdir(parents=True)
+        (folder / "index.html").write_text(markup, encoding="utf-8")
+
+    def run_main(self, argv):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = main(argv)
+        return code, out.getvalue(), err.getvalue()
+
+    def test_check_tree_names_only_the_buggy_page(self):
+        self.write("good", SOUND)
+        self.write("bad", BUGGY)
+        problems = check_tree(self.root)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("bad", problems[0])
+
+    def test_exit_0_when_every_page_is_sound(self):
+        self.write("good", SOUND)
+        code, out, _ = self.run_main(["check", str(self.root)])
+        self.assertEqual(code, 0)
+        self.assertIn("replaces the form", out)
+
+    def test_exit_1_and_names_the_page_when_one_is_buggy(self):
+        self.write("bad", BUGGY)
+        code, out, _ = self.run_main(["check", str(self.root)])
+        self.assertEqual(code, 1)
+        self.assertIn("1 page(s)", out)
+        self.assertIn("bad", out)
+
+    def test_exit_2_when_the_root_is_missing(self):
+        code, _, err = self.run_main(["check", str(self.root / "nope")])
+        self.assertEqual(code, 2)
+        self.assertIn("does not exist", err)
+
+    def test_defaults_to_ventures_under_the_working_directory(self):
+        self.write("ventures/bad", BUGGY)
+        cwd = os.getcwd()
+        os.chdir(self.root)
+        self.addCleanup(os.chdir, cwd)
+        code, out, _ = self.run_main(["check"])
+        self.assertEqual(code, 1)
+        self.assertIn("ventures", out)
 
 
 if __name__ == "__main__":

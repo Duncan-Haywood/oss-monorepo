@@ -1,0 +1,67 @@
+name: slot-keeper
+description: >-
+  Self-hosted booking pages (Calendly alternative): weekly hours, buffers,
+  minimum notice, your calendar's busy time respected from a secret iCal feed
+  (recurring and all-day events, time zones, daylight saving), slots shown in
+  the visitor's zone, calendar invitations, reminders, cancel and reschedule
+  links, a JSON slots API, CSV export and a feed of your bookings. Browser slot
+  finder demo plus a zero-dependency server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16. Paid market is real and proven: Calendly, SavvyCal,
+# Acuity, Zoho Bookings and Cal.com charge per seat per month, and a solo
+# consultant, tutor, coach or clinic needs a link that offers only free times.
+# Open-source schedulers exist (Cal.com, Easy!Appointments) but are full
+# platforms with a database and a build; the gap is a one-process scheduler a
+# solo operator deploys in a click, with their own calendar as the source of
+# truth. Seventh product for the indie-site and small-service buyer of
+# support-desk, form-inbox, status-keeper and proposal-maker; a booking link
+# is also what a proposal or support reply ends with.
+# duplicate_check: grep of ventures/ on 2026-10-16 found only
+# appointment-no-show-analyzer, appointment-overbooking-optimizer (calculators),
+# booking-request-chooser (rental-night chooser) and tutor-weekly-schedule-optimizer;
+# none offers a booking page.
+#
+# First visitor: people on r/selfhosted, r/Entrepreneur, Hacker News and
+# Indie Hackers asking "calendly alternative", "self hosted booking page",
+# "calendly free alternative", "cal.com too complicated". Volume not measured
+# with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Solo service providers will deploy their own booking page once it is one
+      click and one env var, because per-seat pricing and the feature gating
+      of buffers, reminders and several event types is what they resent.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Reading their existing calendar's busy time from a secret iCal address,
+      with no OAuth app to register, is enough to prevent double-bookings and
+      is simpler than the calendar integrations hosted tools sell.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A report of a double-booked slot, a time shown in the wrong zone, a booking changed or read without its private link, a script injection in the admin or booking pages, or an admin action accepted without the key; correctness, escaping and auth checks come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/slot-keeper/
+  analytics: null

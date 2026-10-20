@@ -432,9 +432,9 @@ test('carries free-shipping fields so a shared link does not drop them', () => {
 });
 
 test('round-trips known numeric inputs in stable order', () => {
-  const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
-  assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');
-  assert.deepEqual(decodeInputs(encoded), { price: 40, shippingCharged: 6, finalValueRate: 13.25 });
+  const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.6 });
+  assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.6');
+  assert.deepEqual(decodeInputs(encoded), { price: 40, shippingCharged: 6, finalValueRate: 13.6 });
 });
 
 test('ignores unknown, negative, non-finite, and malformed values', () => {

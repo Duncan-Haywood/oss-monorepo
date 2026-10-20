@@ -298,6 +298,7 @@ class BuildArtifact(unittest.TestCase):
         every hosted surface."""
         hub = (self.out / "index.html").read_text(encoding="utf-8")
         self.assertIn("No warranty", hub)
+        self.assertIn("provided free and as-is", " ".join(hub.split()))
         self.assertIn("no SLA", hub)
         self.assertIn("sponsors", hub)
 
@@ -309,6 +310,44 @@ class BuildArtifact(unittest.TestCase):
             "https://host.example.com/repo/sitemap.xml",
             (self.out / "robots.txt").read_text(encoding="utf-8"),
         )
+
+    def _favicon_pixel(self, x, y):
+        import struct
+        import zlib
+
+        png = (self.out / "favicon.ico").read_bytes()[22:]
+        idat = b""
+        i = 8
+        while i < len(png):
+            n, tag = struct.unpack(">I4s", png[i : i + 8])
+            if tag == b"IDAT":
+                idat += png[i + 8 : i + 8 + n]
+            i += 12 + n
+        raw = zlib.decompress(idat)
+        stride = 1 + 32 * 4
+        off = y * stride + 1 + x * 4
+        return tuple(raw[off : off + 4])
+
+    def test_favicon_is_a_rounded_tile(self):
+        self.assertEqual(self._favicon_pixel(0, 0)[3], 0)
+        self.assertEqual(self._favicon_pixel(31, 31)[3], 0)
+        # Just inside the corner arc, and the middle of the tile, are opaque.
+        self.assertEqual(self._favicon_pixel(3, 3)[3], 255)
+        self.assertEqual(self._favicon_pixel(7, 0)[3], 255)
+        self.assertEqual(self._favicon_pixel(16, 16)[3], 255)
+        # The far edges are rounded by the same radius as the near ones.
+        self.assertEqual(self._favicon_pixel(31, 24)[3], 255)
+        self.assertEqual(self._favicon_pixel(24, 31)[3], 255)
+
+    def test_reports_the_number_of_files_it_copied(self):
+        copied = sum(
+            1
+            for slug in ("widget-calculator", "nested-calculator")
+            for f in (self.out / slug).rglob("*")
+            if f.is_file()
+        )
+        self.assertEqual(self.result["files"], copied)
+        self.assertGreater(copied, 0)
 
     def test_disables_jekyll(self):
         """Pages runs Jekyll by default, which drops underscore-prefixed paths."""
@@ -335,6 +374,16 @@ class BuildArtifact(unittest.TestCase):
         stale.write_text("gone", encoding="utf-8")
         self._build()
         self.assertFalse(stale.exists())
+
+
+class CheckCommand(unittest.TestCase):
+    def test_passes_when_a_product_ships_its_index_and_assets(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp)
+        make_venture(tmp, "widget-calculator")
+        with unittest.mock.patch.object(bp, "VENTURES_DIR", tmp / "ventures"):
+            with unittest.mock.patch("builtins.print"):
+                self.assertEqual(bp.check(), 0)
 
 
 class LinkChecking(unittest.TestCase):
@@ -401,6 +450,31 @@ class LinkChecking(unittest.TestCase):
         (self.tmp / "index.html").write_text('<a href="a&amp;b.html">x</a>', encoding="utf-8")
         self.assertEqual(links.check_site(self.tmp), [])
 
+    def test_flags_a_fragment_whose_section_does_not_exist(self):
+        """`./#compare` into a page with no `id="compare"` lands the reader at
+        the top of the page; the file exists, so the plain path check passed."""
+        (self.tmp / "index.html").write_text('<h2>Other</h2>', encoding="utf-8")
+        (self.tmp / "guide.html").write_text('<a href="./#compare">x</a>', encoding="utf-8")
+        (self.tmp / "same.html").write_text('<a href="#nope">x</a>', encoding="utf-8")
+        self.assertEqual(len(links.check_site(self.tmp)), 2)
+
+    def test_accepts_a_fragment_that_matches_an_id(self):
+        (self.tmp / "index.html").write_text('<section id="compare">x</section>', encoding="utf-8")
+        (self.tmp / "guide.html").write_text(
+            '<a href="./#compare">x</a><a href="#here">y</a><i id="here"></i>', encoding="utf-8"
+        )
+        self.assertEqual(links.check_site(self.tmp), [])
+
+    def test_does_not_treat_prefilled_state_fragments_as_anchors(self):
+        """`#price=200&land=40` and `#c=%7B...%7D` are read by the calculator's
+        script, not scrolled to, so no element carries that id."""
+        (self.tmp / "index.html").write_text("ok", encoding="utf-8")
+        (self.tmp / "guide.html").write_text(
+            '<a href="./#price=200&amp;land=40">x</a><a href="./#c=%7B%22a%22%3A1%7D">y</a>',
+            encoding="utf-8",
+        )
+        self.assertEqual(links.check_site(self.tmp), [])
+
     def test_ignores_js_template_literal_hrefs(self):
         """tender-radar builds source links in a script: href="${escapeHtml(href)}".
         That is not a published path and must not fail the Pages link check."""
@@ -420,6 +494,34 @@ class DescriptionTrimming(unittest.TestCase):
         self.assertLessEqual(len(trimmed), 62)
         self.assertTrue(trimmed.endswith("…"))
         self.assertFalse(trimmed[:-1].endswith(" "))
+
+    def test_clipped_text_never_exceeds_the_limit(self):
+        """A word boundary exactly at the limit must not pull in one more character."""
+        trimmed = bp._first_sentence("aaaa bbbb cc", limit=9)
+        self.assertEqual(trimmed, "aaaa…")
+
+
+class VentureYamlFolding(unittest.TestCase):
+    def test_folded_scalar_keeps_its_first_continuation_line(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp)
+        y = tmp / "VENTURE.yaml"
+        y.write_text("name: x\ndescription: one\n  two\n  three\nnext: y\n", encoding="utf-8")
+        self.assertEqual(bp._read_venture_field(y, "description"), "one two three")
+
+
+class NonUtf8Copy(unittest.TestCase):
+    def test_a_non_utf8_html_file_is_copied_and_counted(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp)
+        make_venture(tmp, "latin-calculator")
+        (tmp / "ventures" / "latin-calculator" / "legacy.html").write_bytes(b"caf\xe9")
+        out = tmp / "_site"
+        result = bp.build(
+            out_dir=out, base_url="https://host.example.com/repo", ventures_dir=tmp / "ventures"
+        )
+        files = [f for f in (out / "latin-calculator").rglob("*") if f.is_file()]
+        self.assertEqual(result["files"], len(files))
 
 
 if __name__ == "__main__":

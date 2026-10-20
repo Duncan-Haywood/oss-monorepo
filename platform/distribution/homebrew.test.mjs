@@ -1,0 +1,70 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { className, tarballUrl, formula, sha256Of, run, MAX_PER_RUN } from './homebrew.mjs';
+
+const SHA = 'a'.repeat(64);
+const MIT = 'MIT License\n\nCopyright (c) x';
+
+async function fixture(slugs) {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'brewtest-'));
+  for (const s of slugs) {
+    const d = path.join(root, 'ventures', s);
+    await fs.mkdir(d, { recursive: true });
+    await fs.writeFile(path.join(d, 'cli.mjs'), '#!/usr/bin/env node\nconsole.log(1);\n');
+    await fs.writeFile(path.join(d, 'LICENSE'), MIT);
+    await fs.writeFile(path.join(d, 'VENTURE.yaml'), 'name: x\ndescription: Checks a thing. More.\n');
+  }
+  return root;
+}
+const registry = (have) => async (url) => {
+  const hit = have.some((s) => url.includes(`/${s}/-/`));
+  return { status: hit ? 200 : 404, arrayBuffer: async () => new TextEncoder().encode(url).buffer };
+};
+
+test('className camel-cases hyphenated names and rejects ones Ruby cannot use', () => {
+  assert.equal(className('deal-keeper'), 'DealKeeper');
+  assert.equal(className('x2-tool'), 'X2Tool');
+  assert.equal(className('1099-helper'), null);
+  assert.equal(className('Bad_Name'), null);
+});
+
+test('tarballUrl handles scoped names', () => {
+  assert.equal(tarballUrl('a-b'), 'https://registry.npmjs.org/a-b/-/a-b-0.1.0.tgz');
+  assert.equal(tarballUrl('@me/a-b'), 'https://registry.npmjs.org/@me/a-b/-/a-b-0.1.0.tgz');
+});
+
+test('formula embeds the real hash and escapes the description; refuses a bad hash', () => {
+  const rb = formula({ slug: 'deal-keeper', description: 'Tracks "deals" #{x}.', sha256: SHA });
+  assert.match(rb, /^class DealKeeper < Formula/);
+  assert.match(rb, new RegExp(`sha256 "${SHA}"`));
+  assert.match(rb, /desc "Tracks \\"deals\\" \\#\{x\}"/);
+  assert.match(rb, /depends_on "node"/);
+  assert.equal(formula({ slug: 'deal-keeper', description: 'x', sha256: 'nope' }), null);
+});
+
+test('dry run writes nothing; live run writes only packages already on npm and never overwrites', async () => {
+  const root = await fixture(['aa-tool', 'bb-tool', 'cc-tool']);
+  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'tap-'));
+  const lines = [];
+  const dry = await run({ env: {}, root, fetchImpl: registry(['aa-tool', 'bb-tool']), log: (l) => lines.push(l), outDir: out });
+  assert.deepEqual(dry, { written: 0, planned: 2 });
+  assert.deepEqual(await fs.readdir(out), []);
+  await fs.mkdir(path.join(out, 'Formula'));
+  await fs.writeFile(path.join(out, 'Formula', 'aa-tool.rb'), 'keep');
+  const live = await run({ env: { DISTRIBUTE_HOMEBREW: 'true' }, root, fetchImpl: registry(['aa-tool', 'bb-tool']), log: () => {}, outDir: out });
+  assert.deepEqual(live, { written: 1, planned: 1 });
+  assert.equal(await fs.readFile(path.join(out, 'Formula', 'aa-tool.rb'), 'utf8'), 'keep');
+  const bb = await fs.readFile(path.join(out, 'Formula', 'bb-tool.rb'), 'utf8');
+  assert.ok(bb.includes(sha256Of(Buffer.from('https://registry.npmjs.org/bb-tool/-/bb-tool-0.1.0.tgz'))));
+  await assert.rejects(fs.stat(path.join(out, 'Formula', 'cc-tool.rb')));
+});
+
+test('caps new formulas per run', async () => {
+  const slugs = Array.from({ length: MAX_PER_RUN + 3 }, (_, i) => `t${String.fromCharCode(97 + i)}-tool`);
+  const root = await fixture(slugs);
+  const r = await run({ env: {}, root, fetchImpl: registry(slugs), log: () => {} });
+  assert.equal(r.planned, MAX_PER_RUN);
+});

@@ -6,6 +6,8 @@ and names whether the bucket allows anonymous listing, and whether its ACL grant
 access to the `AllUsers` group (anyone on the internet) or the `AuthenticatedUsers` group (any AWS
 account holder anywhere — not just your own users, a commonly misunderstood setting).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/
+
 **Object file contents are never fetched by this tool — only the key (file) names S3's own
 listing response already returns, and ACL grant metadata.** A bucket that lists its own contents
 to an anonymous request is already evidence enough of the misconfiguration without this tool

@@ -5,6 +5,8 @@ report before a customer audit. This tool checks whether older inventory was
 still waiting when a newer lot was picked, and calls out missing or
 ill-formed timestamps. It does not upload the log or certify an operation.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fifo-pick-evidence/
+
 ## Browser tool
 
 Open `index.html` (or `npm run serve` and visit `localhost:8000`) and drag in

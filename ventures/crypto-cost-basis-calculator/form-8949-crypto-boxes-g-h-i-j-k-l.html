@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Form 8949 Boxes G To L For Crypto: Which One Is Each Sale?</title>
+  <meta name="description" content="Crypto sales now sort into digital-asset boxes G, H, I (short-term) and J, K, L (long-term) on Form 8949, depending on whether Form 1099-DA reported the sale and its basis. How to tell which box each of your rows belongs in, with a free private tool.">
+  <meta property="og:title" content="Form 8949 Boxes G To L For Crypto: Which One Is Each Sale?">
+  <meta property="og:description" content="Six digital-asset boxes, one rule: how a sale's holding period and what your exchange reported decide the box on Form 8949.">
+  <link rel="canonical" href="./form-8949-crypto-boxes-g-h-i-j-k-l.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is Form 1099-DA?", "acceptedAnswer": {"@type": "Answer", "text": "It is the information return that brokers file for digital-asset sales, starting with transactions in 2025 for gross proceeds and a later year for cost basis, under the IRS schedule. Whether you receive one depends on the platform you used and the year; confirm the current schedule with the IRS instructions."}}, {"@type": "Question", "name": "Do I use box I and L if I got no 1099-DA?", "acceptedAnswer": {"@type": "Answer", "text": "Those are the boxes for digital-asset sales that were not reported to you on a Form 1099-DA, short-term and long-term respectively. The calculator puts a row there when its reported column is blank."}}, {"@type": "Question", "name": "Does the calculator file my return?", "acceptedAnswer": {"@type": "Answer", "text": "No. It produces Form 8949 style rows and totals from your own CSV so you or your preparer can check them against what you file. Nothing is uploaded."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #2d4fa3; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    th.n, td.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #2d4fa3; color: #fff; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 40px; font-size: .86rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Crypto cost basis calculator</a></p>
+  <h1>Form 8949 boxes G to L for crypto: which box is each sale?</h1>
+  <p>On the 2025 forms, sales of digital assets are reported in their own boxes on Form 8949, separate from stock. Which box a row goes in depends on two facts: how long you held the coins, and whether a broker reported the sale to the IRS on Form 1099-DA, with or without your basis. This page lays out the six boxes and shows how the free calculator assigns each row.</p>
+  <p><a class="cta" href="./">Open the free calculator</a></p>
+
+  <h2>The six boxes</h2>
+  <table>
+    <thead><tr><th>Held</th><th>Box</th><th>What the broker reported</th></tr></thead>
+    <tbody>
+      <tr><td>One year or less (short-term)</td><td>G</td><td>Form 1099-DA, basis reported to the IRS</td></tr>
+      <tr><td>One year or less (short-term)</td><td>H</td><td>Form 1099-DA, basis not reported</td></tr>
+      <tr><td>One year or less (short-term)</td><td>I</td><td>No Form 1099-DA</td></tr>
+      <tr><td>More than one year (long-term)</td><td>J</td><td>Form 1099-DA, basis reported to the IRS</td></tr>
+      <tr><td>More than one year (long-term)</td><td>K</td><td>Form 1099-DA, basis not reported</td></tr>
+      <tr><td>More than one year (long-term)</td><td>L</td><td>No Form 1099-DA</td></tr>
+    </tbody>
+  </table>
+  <p>Short-term rows go in Part I and long-term rows in Part II; the totals carry to Schedule D. Check the current instructions for the form year you are filing, because box lettering and 1099-DA phase-in dates are set by the IRS and can differ from year to year.</p>
+
+  <h2>How the calculator assigns a box</h2>
+  <p>Add an optional <code>reported</code> column to your sell rows: <code>basis</code> if the exchange reported the sale with basis, <code>nobasis</code> if it reported the sale without basis, and leave it blank if it did not report it. Each row is then sorted into G, H or I when short-term and J, K or L when long-term, a Box column is added to the Form 8949 style CSV it exports, and totals are shown per box. Without the column nothing changes: every row is treated as not reported.</p>
+  <table>
+    <thead><tr><th><code>reported</code></th><th>Held one year or less</th><th>Held more than one year</th></tr></thead>
+    <tbody>
+      <tr><td><code>basis</code></td><td>G</td><td>J</td></tr>
+      <tr><td><code>nobasis</code></td><td>H</td><td>K</td></tr>
+      <tr><td>blank</td><td>I</td><td>L</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Why a sale can land in a different box than you expect</h2>
+  <ul>
+    <li>A sale matched to several lots can be split between a short-term and a long-term row, and the two rows go to different boxes.</li>
+    <li>Changing the matching method (FIFO, HIFO and so on) changes which lots a sale uses, and with it the holding period and the box.</li>
+    <li>Coins moved in from another wallet keep their original purchase date only if the transfer is recorded; otherwise the sale shows up with no basis on record, and the calculator flags it.</li>
+  </ul>
+  <h2>Common questions</h2>
+  <h3>What is Form 1099-DA?</h3>
+  <p>It is the information return that brokers file for digital-asset sales, starting with transactions in 2025 for gross proceeds and a later year for cost basis, under the IRS schedule. Whether you receive one depends on the platform you used and the year; confirm the current schedule with the IRS instructions.</p>
+  <h3>Do I use box I and L if I got no 1099-DA?</h3>
+  <p>Those are the boxes for digital-asset sales that were not reported to you on a Form 1099-DA, short-term and long-term respectively. The calculator puts a row there when its reported column is blank.</p>
+  <h3>Does the calculator file my return?</h3>
+  <p>No. It produces Form 8949 style rows and totals from your own CSV so you or your preparer can check them against what you file. Nothing is uploaded.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or investment advice. Every person, trade and price on this page is invented. Tax rules, rates and which lot-identification methods you may use depend on your jurisdiction, your records and the date; confirm with a qualified tax professional.</p>
+    <p><a href="./">Use the calculator</a> &middot; <a href="./fifo-vs-hifo-crypto-cost-basis.html">FIFO vs HIFO</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a></p>
+  </footer>
+</body>
+</html>

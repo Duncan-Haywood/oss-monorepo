@@ -4,6 +4,8 @@ A free browser tool for craft brewers: **enter what leaves the brewery in a year
 federal beer excise tax at the Craft Beverage Modernization Act rates, the tax built into each keg, case and pint, and what
 growth past the 60,000-barrel reduced rate does to the bill.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/brewery-excise-tax-calculator/
+
 After using this, you can now **price a keg or case knowing the federal tax inside it, and see the cost of crossing 60,000
 barrels before you plan the expansion**, which used to be a tier calculation redone by hand each time.
 

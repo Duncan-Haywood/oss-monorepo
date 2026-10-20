@@ -1,0 +1,12 @@
+first-parent commits on origin/main touching an index file, since 2026-10-14, up to 560a599a7: 67
+commits whose own tree fails the checks: 67 of 67
+  first seen at 6aad81af4: readme duplicate bullet (not caught by build.py): interleave-twin  [One repo: fold in the research portfolio, plus a self-improving master]
+  first seen at 6aad81af4: readme duplicate bullet (not caught by build.py): multi-observation-elicitation  [One repo: fold in the research portfolio, plus a self-improving master]
+errors still present at the last commit: [('readme duplicate bullet (not caught by build.py)', 'interleave-twin'), ('readme duplicate bullet (not caught by build.py)', 'multi-observation-elicitation')]
+
+window (min)  pairs  conflict   clean+consistent   clean but broken
+      10        18     1 ( 5.6%)    17 (94.4%)         0 ( 0.0%)
+      30        64    11 (17.2%)    53 (82.8%)         0 ( 0.0%)
+      60       129    37 (28.7%)    92 (71.3%)         0 ( 0.0%)
+
+kinds of breakage among clean-but-broken pairs, all windows: none

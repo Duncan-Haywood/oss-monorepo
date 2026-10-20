@@ -1,0 +1,65 @@
+name: support-desk
+description: >-
+  Self-hosted shared support inbox: email (Postmark, Mailgun, Resend or any
+  forwarder) and website contact-form tickets, threading by ticket number,
+  priority and spam guesses with visible reasons, first-reply targets with an
+  overdue list, saved replies suggested by keyword weight, internal notes, a
+  customer portal link, CSV export and optional AI reply drafts on your own
+  key (Anthropic, OpenAI, Gemini or any compatible endpoint; templates without
+  one). Browser triage demo plus a
+  zero-dependency server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Help Scout, Front,
+# Zendesk, Freshdesk, Crisp and Gorgias charge per agent per month, and a small
+# product pays $20-60 per seat for what is mostly a shared inbox with status and
+# saved replies. Open-source desks exist (Chatwoot, FreeScout, Zammad) but need a
+# database, a queue and operations work; the gap is a one-process desk a solo
+# founder deploys in a click. Sixth product for the indie-site and small SaaS
+# buyer of form-inbox, feedback-board, status-keeper and cancel-flow, and the
+# natural place their emails land. duplicate_check: grep of ventures/ on
+# 2026-10-15 found only support-staffing-planner (a staffing calculator) and
+# form-inbox (one-way form capture, no replies or threads).
+#
+# First visitor: people on r/selfhosted, r/SaaS, Hacker News and Indie Hackers
+# asking "help scout alternative", "self hosted helpdesk", "shared inbox for
+# a small team". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Solo founders and tiny teams will deploy their own desk once it is one
+      click and one env var, because per-agent pricing is the part of Help Scout
+      and Zendesk they resent for two or three people answering email.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing why a ticket was ranked high (the words that did it) and tightening
+      its reply target makes the overdue list something owners act on instead of
+      ignoring.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A report of a customer message lost or shown to the wrong requester, a script injection in the admin or customer pages, a reply threaded onto someone else's ticket, or an admin action accepted without the key; escaping, auth and threading checks come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/support-desk/
+  analytics: null

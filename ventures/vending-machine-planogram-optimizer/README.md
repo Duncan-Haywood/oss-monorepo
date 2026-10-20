@@ -2,6 +2,8 @@
 
 A free browser tool for vending operators: **enter the machine's coils, how often you restock, and each product's price, cost, weekly sales and units per coil, and get the split of coils that earns the most.** It shows which products sell out before the next visit, what one more coil is worth, and the best gap between visits after the cost of a trip. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vending-machine-planogram-optimizer/
+
 After using this, you can **stop filling coils evenly by habit**: move coils from slow items to the ones that sell out, and know when an extra coil or an extra visit stops paying.
 
 ## Model

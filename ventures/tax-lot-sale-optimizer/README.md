@@ -4,6 +4,8 @@ A free browser tool for investors who need cash from a taxable account: **paste 
 much cash (or how many shares) you need, and see exactly which shares to sell from each lot to pay the least
 tax**, next to what FIFO, LIFO and highest-cost-first would cost. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tax-lot-sale-optimizer/
+
 After using this, you can **tell your broker which lots to sell (specific identification)** and know what
 it saves, which used to mean working Schedule D netting by hand for every combination.
 

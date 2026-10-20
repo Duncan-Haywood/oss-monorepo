@@ -2,6 +2,8 @@
 
 **Plan which crops to seed on which day, how many rack spaces the busiest weekday needs, what each crop earns per tray per rack-day, and the best mix when the rack is full.** Browser page, no install.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/microgreens-tray-planner/
+
 After using this, you know how many trays to seed for your harvest days, whether your rack is big enough on the worst day, and which crop actually earns the most for the space it takes.
 
 ## Your numbers, not advice

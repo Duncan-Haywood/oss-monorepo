@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the error floor against the number of modules for eight uniform clusters: with a block router the floor falls from 0.269 with one module to 0.050 with eight, while with random routing it stays at 0.269">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Router-impurity: error floor against number of modules</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="277.0" y2="277.0" stroke="#ddd"/><text x="58" y="281.0" text-anchor="end" font-family="sans-serif" font-size="11">0.05</text>
+<line x1="64" x2="624" y1="229.9" y2="229.9" stroke="#ddd"/><text x="58" y="233.9" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="182.9" y2="182.9" stroke="#ddd"/><text x="58" y="186.9" text-anchor="end" font-family="sans-serif" font-size="11">0.15</text>
+<line x1="64" x2="624" y1="135.8" y2="135.8" stroke="#ddd"/><text x="58" y="139.8" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="88.8" y2="88.8" stroke="#ddd"/><text x="58" y="92.8" text-anchor="end" font-family="sans-serif" font-size="11">0.25</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="144.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="224.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="304.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="464.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">modules</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">error floor</text>
+<polyline points="64.0,71.2 144.0,100.5 224.0,130.0 304.0,159.3 464.0,218.1 624.0,277.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="144.0" cy="100.5" r="3" fill="#c0392b"/>
+<circle cx="224.0" cy="130.0" r="3" fill="#c0392b"/>
+<circle cx="304.0" cy="159.3" r="3" fill="#c0392b"/>
+<circle cx="464.0" cy="218.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="277.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">block router</text>
+<polyline points="64.0,71.2 144.0,71.2 224.0,71.2 304.0,71.2 464.0,71.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="144.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="224.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="304.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="464.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">random routing</text>
+</svg>

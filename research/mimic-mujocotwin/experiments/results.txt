@@ -1,0 +1,14 @@
+Real: MuJoCo {'integrator': 'rk4', 'dt': 0.002, 'damping': 0.025, 'frictionloss': 0.075}, Student-t(3) sensor noise sd 0.02 rad. 800 real + 800 twin trajectories of 100 samples at 0.02 s.
+C2ST: boosted trees on raw+second-difference features, 5-fold CV AUROC, mean+-sd over seeds (0, 1, 2). Chance is 0.5.
+paired RMSE: noise-free twin vs noise-free real from the same start angle (rad); the noise sd is 0.02.
+twin                   pairedRMSE      C2ST AUROC
+exact twin (null)         0.00000     0.506+-0.019
+rk4 dt=0.02               0.00112     0.514+-0.022
+euler dt=0.002            0.00282     0.530+-0.014
+euler dt=0.005            0.00706     0.672+-0.005
+euler dt=0.01             0.01415     0.901+-0.004
+euler dt=0.02             0.02769     0.977+-0.001
+frictionloss -10%         0.00432     0.524+-0.009
+frictionloss -20%         0.00867     0.608+-0.009
+frictionloss 0            0.04418     0.997+-0.001
+exact, gauss noise        0.00000     0.920+-0.001

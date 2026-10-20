@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01FLcmNsR4pANoUCtVNay5LM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo to develop, deploy, market, sell revenue-generating software products",
+  "input_sha256": "f6b4a7620b171b10887021c12239236efd09cb9f8275fd32f0eed18f07373fb4",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7120",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "router drew research, which must land upstream and has no clone here; re-routed with --track ventures per its own fallback"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "First built referral-keeper (PR 7119), but a same-name venture landed on main minutes earlier; closed it and built testimonial-keeper instead. Not run in real browsers. run_workflow_locally --for-changes hit the tool timeout; ran targeted checks. share-location.test.mjs fails on another session's referral-keeper/pages.mjs.",
+  "corrections": [],
+  "redteam": null
+}

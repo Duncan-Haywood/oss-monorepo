@@ -4,6 +4,8 @@ A free tool for web developers and security researchers: sends **one real HTTP
 GET request** to a URL you choose and classifies the response's `Set-Cookie`
 headers into the misconfiguration patterns that actually break things:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/
+
 - **`SameSite=None` without `Secure`** — the current SameSite specification
   requires `Secure` alongside `SameSite=None`, and Chrome, Firefox, and Safari
   all reject the `Set-Cookie` header outright when it's missing, rather than

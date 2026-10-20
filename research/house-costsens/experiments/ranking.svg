@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" role="img" aria-label="Bar chart of each lever's price swing in index points when house-cost's driver splits are redrawn (median bar, 5th to 95th percentile whisker): size 1,600 to 2,400 sq ft: 24.2 (22.3 to 25.7); storeys 1 to 3 (same area): 13.9 (9.0 to 19.9); finish level x0.8 to x1.3: 10.1 (10.1 to 10.1); lot price x0.7 to x1.3: 9.9 (9.9 to 9.9); foundation x0.7 (slab) to x1.6 (basement): 7.9 (7.9 to 7.9); shape: aspect 1.0 to 3.0: 2.7 (2.2 to 3.2); overhead and fees x0.8 to x1.2: 2.7 (2.7 to 2.7); framing labour x0.9 to x1.2: 2.3 (2.3 to 2.3); framing materials x0.85 to x1.15: 1.9 (1.9 to 1.9); build time x0.7 to x1.3 (financing): 1.1 (1.1 to 1.1)">
+<rect width="700" height="400" fill="#fff"/>
+<text x="350.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Price swing of each lever when the assumed driver splits are redrawn</text>
+<text x="350.0" y="40" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">Median and 5th to 95th percentile, 2,000 draws, Dirichlet k=20; stylised model</text>
+<line x1="270.0" x2="270.0" y1="62" y2="360" stroke="#ddd"/>
+<text x="270.0" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<line x1="336.7" x2="336.7" y1="62" y2="360" stroke="#ddd"/>
+<text x="336.7" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<line x1="403.3" x2="403.3" y1="62" y2="360" stroke="#ddd"/>
+<text x="403.3" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<line x1="470.0" x2="470.0" y1="62" y2="360" stroke="#ddd"/>
+<text x="470.0" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">15</text>
+<line x1="536.7" x2="536.7" y1="62" y2="360" stroke="#ddd"/>
+<text x="536.7" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<line x1="603.3" x2="603.3" y1="62" y2="360" stroke="#ddd"/>
+<text x="603.3" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">25</text>
+<line x1="670.0" x2="670.0" y1="62" y2="360" stroke="#ddd"/>
+<text x="670.0" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<rect x="270.0" y="66.0" width="322.7" height="21.8" fill="#b5651d"/>
+<line x1="567.3" x2="612.7" y1="76.9" y2="76.9" stroke="#222" stroke-width="2"/>
+<text x="262" y="80.9" text-anchor="end" font-family="sans-serif" font-size="11">size 1,600 to 2,400 sq ft</text>
+<text x="616.7" y="80.9" font-family="sans-serif" font-size="10">24.2</text>
+<rect x="270.0" y="95.8" width="185.3" height="21.8" fill="#b5651d"/>
+<line x1="390.0" x2="535.3" y1="106.7" y2="106.7" stroke="#222" stroke-width="2"/>
+<text x="262" y="110.7" text-anchor="end" font-family="sans-serif" font-size="11">storeys 1 to 3 (same area)</text>
+<text x="539.3" y="110.7" font-family="sans-serif" font-size="10">13.9</text>
+<rect x="270.0" y="125.6" width="134.7" height="21.8" fill="#b5651d"/>
+<line x1="404.7" x2="404.7" y1="136.5" y2="136.5" stroke="#222" stroke-width="2"/>
+<text x="262" y="140.5" text-anchor="end" font-family="sans-serif" font-size="11">finish level x0.8 to x1.3</text>
+<text x="408.7" y="140.5" font-family="sans-serif" font-size="10">10.1</text>
+<rect x="270.0" y="155.4" width="132.0" height="21.8" fill="#b5651d"/>
+<line x1="402.0" x2="402.0" y1="166.3" y2="166.3" stroke="#222" stroke-width="2"/>
+<text x="262" y="170.3" text-anchor="end" font-family="sans-serif" font-size="11">lot price x0.7 to x1.3</text>
+<text x="406.0" y="170.3" font-family="sans-serif" font-size="10">9.9</text>
+<rect x="270.0" y="185.2" width="105.3" height="21.8" fill="#b5651d"/>
+<line x1="375.3" x2="375.3" y1="196.1" y2="196.1" stroke="#222" stroke-width="2"/>
+<text x="262" y="200.1" text-anchor="end" font-family="sans-serif" font-size="11">foundation x0.7 (slab) to x1.6 (basement)</text>
+<text x="379.3" y="200.1" font-family="sans-serif" font-size="10">7.9</text>
+<rect x="270.0" y="215.0" width="36.0" height="21.8" fill="#b5651d"/>
+<line x1="299.3" x2="312.7" y1="225.9" y2="225.9" stroke="#222" stroke-width="2"/>
+<text x="262" y="229.9" text-anchor="end" font-family="sans-serif" font-size="11">shape: aspect 1.0 to 3.0</text>
+<text x="316.7" y="229.9" font-family="sans-serif" font-size="10">2.7</text>
+<rect x="270.0" y="244.8" width="36.0" height="21.8" fill="#b5651d"/>
+<line x1="306.0" x2="306.0" y1="255.7" y2="255.7" stroke="#222" stroke-width="2"/>
+<text x="262" y="259.7" text-anchor="end" font-family="sans-serif" font-size="11">overhead and fees x0.8 to x1.2</text>
+<text x="310.0" y="259.7" font-family="sans-serif" font-size="10">2.7</text>
+<rect x="270.0" y="274.6" width="30.7" height="21.8" fill="#b5651d"/>
+<line x1="300.7" x2="300.7" y1="285.5" y2="285.5" stroke="#222" stroke-width="2"/>
+<text x="262" y="289.5" text-anchor="end" font-family="sans-serif" font-size="11">framing labour x0.9 to x1.2</text>
+<text x="304.7" y="289.5" font-family="sans-serif" font-size="10">2.3</text>
+<rect x="270.0" y="304.4" width="25.3" height="21.8" fill="#b5651d"/>
+<line x1="295.3" x2="295.3" y1="315.3" y2="315.3" stroke="#222" stroke-width="2"/>
+<text x="262" y="319.3" text-anchor="end" font-family="sans-serif" font-size="11">framing materials x0.85 to x1.15</text>
+<text x="299.3" y="319.3" font-family="sans-serif" font-size="10">1.9</text>
+<rect x="270.0" y="334.2" width="14.7" height="21.8" fill="#b5651d"/>
+<line x1="284.7" x2="284.7" y1="345.1" y2="345.1" stroke="#222" stroke-width="2"/>
+<text x="262" y="349.1" text-anchor="end" font-family="sans-serif" font-size="11">build time x0.7 to x1.3 (financing)</text>
+<text x="288.7" y="349.1" font-family="sans-serif" font-size="10">1.1</text>
+</svg>

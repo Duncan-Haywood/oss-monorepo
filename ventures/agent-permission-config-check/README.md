@@ -10,6 +10,8 @@ no matching deny rule, an MCP server reached over plain `http://`, and a
 hardcoded-looking secret in a server's `env` or `headers` instead of an
 environment-variable reference.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/agent-permission-config-check/
+
 **What it is not:** a runtime guard, a secret-verification service, or a
 judgment that a config is safe. It never launches a server's command, never
 contacts a server's `url`, and never checks whether a flagged value is a

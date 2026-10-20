@@ -2,6 +2,8 @@
 
 A free browser tool for junk car and salvage buyers: **type the car's weight, what your crusher pays, what the converter and parts bring and what the tow, paperwork, storage and labour cost, and see the most you can offer.** It shows the profit at the seller's ask, the farthest one-way tow, the scrap price and the parts sell-through at which the ask stops working, and how the offer moves with scrap price, converter value, parts sell-through, tow miles and car weight. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/junk-car-buyer-offer-calculator/
+
 After using this, you can **counter a seller with a number you can defend**, from your own costs instead of a rule of thumb.
 
 ## Model

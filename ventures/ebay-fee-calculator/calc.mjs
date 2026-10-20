@@ -189,8 +189,8 @@ export function calculateOrder(input) {
   };
   const price = number(input.price, 'Item price');
   const shippingCharged = number(input.shippingCharged ?? 0, 'Shipping charged');
-  const finalValueRate = number(input.finalValueRate ?? 13.25, 'Final value fee rate');
-  const fixedFee = number(input.fixedFee ?? 0.3, 'Per-order fixed fee');
+  const finalValueRate = number(input.finalValueRate ?? 13.6, 'Final value fee rate');
+  const fixedFee = number(input.fixedFee ?? 0.4, 'Per-order fixed fee');
   const promotedRate = number(input.promotedRate ?? 0, 'Promoted listings rate');
   const intlFeeRate = number(input.intlFeeRate ?? 0, 'International fee rate');
   const costOfGoods = number(input.costOfGoods ?? 0, 'Cost of goods');
@@ -349,8 +349,8 @@ export function priceToMatchProfit(input, targetProfit) {
   const quantity = number(input.quantity ?? 1, 'Units');
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Units must be a whole number of at least 1');
   const shippingCharged = number(input.shippingCharged ?? 0, 'Shipping charged');
-  const finalValueRate = number(input.finalValueRate ?? 13.25, 'Final value fee rate');
-  const fixedFee = number(input.fixedFee ?? 0.3, 'Per-order fixed fee');
+  const finalValueRate = number(input.finalValueRate ?? 13.6, 'Final value fee rate');
+  const fixedFee = number(input.fixedFee ?? 0.4, 'Per-order fixed fee');
   const promotedRate = number(input.promotedRate ?? 0, 'Promoted listings rate');
   const intlFeeRate = number(input.intlFeeRate ?? 0, 'International fee rate');
   const costOfGoods = number(input.costOfGoods ?? 0, 'Cost of goods');
@@ -1690,7 +1690,7 @@ export const DEFAULT_COMBINED_SHIPPING_CHARGED = 8;
 export const DEFAULT_COMBINED_SHIPPING_COST = 6.5;
 export const DEFAULT_COMBINED_PACKAGING_COST = 1.25;
 export const DEFAULT_COMBINED_RETURN_SHIPPING_COST = 6.5;
-export const DEFAULT_COMBINED_FIXED_FEE = 0.3;
+export const DEFAULT_COMBINED_FIXED_FEE = 0.4;
 export const DEFAULT_MONTHLY_COMBINED_ORDERS = 12;
 
 function combinedRow({
@@ -2652,7 +2652,7 @@ export const DEFAULT_QTY_SHIPPING_CHARGED = 6;
 export const DEFAULT_QTY_SHIPPING_COST = 5.5;
 export const DEFAULT_QTY_PACKAGING_COST = 1.25;
 export const DEFAULT_QTY_RETURN_SHIPPING_COST = 5.5;
-export const DEFAULT_QTY_FIXED_FEE = 0.3;
+export const DEFAULT_QTY_FIXED_FEE = 0.4;
 export const DEFAULT_SINGLES_SELL_THROUGH = 55;
 export const DEFAULT_QTY_TAKE_PCT = 70;
 export const DEFAULT_MONTHLY_QTY_ORDERS = 20;
@@ -3501,7 +3501,7 @@ export function compareTopRatedPlus(input) {
     DEFAULT_MONTHLY_TRS_LISTINGS,
   );
 
-  const listedFvf = optionalNumber(input.finalValueRate, 'Final value fee rate', 13.25);
+  const listedFvf = optionalNumber(input.finalValueRate, 'Final value fee rate', 13.6);
   const discountedFvf = listedFvf * (1 - discountPct / 100);
   const handlingCost = (minutes / 60) * wage;
 
@@ -4175,7 +4175,7 @@ export function compareStoreTiers(input, tiers = STORE_TIER_PRESETS) {
     'Current monthly store fee',
     DEFAULT_MONTHLY_STORE_FEE,
   );
-  const currentRate = optionalNumber(input.finalValueRate, 'Final value fee rate', 13.25);
+  const currentRate = optionalNumber(input.finalValueRate, 'Final value fee rate', 13.6);
 
   const currentOrder = calculateOrder(input);
   const currentMonthlyProfit = currentOrder.profit * monthlyOrders - currentStoreFee;

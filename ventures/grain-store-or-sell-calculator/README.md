@@ -6,6 +6,8 @@ shrink, drying, handling shrink, storage, interest on the money not received and
 bin loss, shows what each later price nets against selling now, and finds the
 **break-even price** for storage to pay.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/grain-store-or-sell-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

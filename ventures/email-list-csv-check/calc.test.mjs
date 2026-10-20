@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validate, repair, checkSyntax, suggestDomain, aliasKey, isRoleLocal, isDisposable, parseCsv, toCsv, decodeBuffer, findingsCsv, sampleFile, sampleBrokenFile, PLATFORMS } from "./calc.mjs";
+import { validate, repair, checkSyntax, suggestDomain, aliasKey, isRoleLocal, isDisposable, parseCsv, toCsv, decodeBuffer, findingsCsv, sampleFile, sampleBrokenFile, PLATFORMS, isPlaceholder, unwrapEmail, punycodeAddress, parseSuppression, suppressedBy } from "./calc.mjs";
 
 const file = (...rows) => ["Email,First Name,Status", ...rows].join("\n") + "\n";
 const has = (r, code) => r.findings.some((f) => f.code === code);
@@ -28,7 +28,7 @@ test("syntax: good and bad addresses", () => {
 });
 
 test("domain typos get a suggested fix", () => {
-  const cases = { "gmial.com": "gmail.com", "gmal.com": "gmail.com", "hotmial.com": "hotmail.com", "yahooo.com": "yahoo.com", "outlok.com": "outlook.com", "gmail.con": "gmail.com", "yahoo.coom": "yahoo.com", "example.con": "example.com", "hotmail.cmo": "hotmail.com", "gmail.co": "gmail.com", "gmaiil.com": "gmail.com" };
+  const cases = { "gmial.com": "gmail.com", "gmal.com": "gmail.com", "hotmial.com": "hotmail.com", "yahooo.com": "yahoo.com", "outlok.com": "outlook.com", "gmail.con": "gmail.com", "yahoo.coom": "yahoo.com", "example.con": "example.com", "hotmail.cmo": "hotmail.com", "gmail.co": "gmail.com", "gmaiil.com": "gmail.com", "sbcgobal.net": "sbcglobal.net", "verzon.net": "verizon.net", "bellsouth.nt": "bellsouth.net", "protonmal.com": "protonmail.com", "icloud.con": "icloud.com", "verizin.net": "verizon.net" };
   for (const [d, fix] of Object.entries(cases)) assert.equal(suggestDomain(d), fix, d);
   for (const ok of ["gmail.com", "example.com", "live.com", "yahoo.co.uk", "love.com", "company.co"]) assert.equal(suggestDomain(ok), null, ok);
 });
@@ -204,4 +204,66 @@ test("findings CSV defuses spreadsheet formulas", () => {
 test("empty input", () => {
   assert.ok(has(validate("  \n"), "empty"));
   assert.match(repair("").error, /empty/);
+});
+
+test("do-not-email list: exact and domain matches are rejected, alias matches only flagged", () => {
+  const list = file("Ann@Example.org,Ann,subscribed", "b.o@gmail.com,Bo,subscribed", "x@spam.example,X,subscribed", "keep@example.org,Kay,subscribed");
+  const suppress = "ann@example.org\nbo@gmail.com\n@spam.example\n";
+  const r = validate(list, { suppress });
+  assert.equal(r.summary.counts.suppressed, 2);
+  assert.equal(r.summary.counts.suppressedAlias, 1);
+  assert.equal(r.summary.suppressionLoaded, true);
+  const fixed = repair(list, { suppress });
+  assert.equal(fixed.kept, 2);
+  assert.match(fixed.rejectedText, /On the do-not-email list/);
+  assert.match(fixed.rejectedText, /Domain is on the do-not-email list/);
+  assert.ok(fixed.changes.some((c) => /do-not-email/.test(c)));
+});
+
+test("do-not-email list: Gmail alias of a suppressed address is flagged, not removed", () => {
+  const list = file("b.o+news@gmail.com,Bo,subscribed");
+  const r = validate(list, { suppress: "bo@gmail.com" });
+  assert.ok(has(r, "suppressed-alias"));
+  assert.equal(repair(list, { suppress: "bo@gmail.com" }).kept, 1);
+});
+
+test("do-not-email list parsing: any export format, junk ignored", () => {
+  assert.equal(parseSuppression("hello\n\n"), null);
+  const s = parseSuppression('﻿Email,Reason\n"A@x.com",unsub\nnot-an-email\n@y.example');
+  assert.ok(s.emails.has("a@x.com") && s.domains.has("y.example"));
+  assert.equal(suppressedBy(s, "a@X.com"), "exact");
+  assert.equal(suppressedBy(null, "a@x.com"), "");
+});
+
+test("placeholder addresses are flagged, real ones are not", () => {
+  for (const p of ["test@test.com", "none@none.com", "noemail@gmail.com".replace("gmail.com", "noemail.com"), "a@b.invalid", "no@email.com", "asdf@example.com"]) assert.equal(isPlaceholder(p), true, p);
+  for (const p of ["maria@example.com", "test@gmail.com", "jo@acme.com", "info@acme.com"]) assert.equal(isPlaceholder(p), false, p);
+  const r = validate(file("test@test.com,Pat,subscribed", "jo@acme.com,Jo,subscribed"));
+  assert.equal(of(r, "placeholder").length, 1);
+  assert.equal(r.summary.counts.placeholders, 1);
+});
+
+test("wrapped addresses are rescued by repair, not rejected", () => {
+  assert.equal(unwrapEmail("mailto:a@b.com"), "a@b.com");
+  assert.equal(unwrapEmail("Jo Lee <jo@b.com>"), "jo@b.com");
+  assert.equal(unwrapEmail("<jo@b.com>"), "jo@b.com");
+  assert.equal(unwrapEmail("jo@b.com."), "jo@b.com");
+  assert.equal(unwrapEmail("a@b.com;c@d.com"), null);
+  assert.equal(unwrapEmail("jo@b.com"), null);
+  const src = file('"Jo Lee <jo@b.com>",Jo,subscribed', "mailto:al@b.com,Al,subscribed", "plainaddress,Bo,subscribed");
+  assert.equal(of(validate(src), "wrapped").length, 2);
+  const out = repair(src);
+  assert.equal(out.kept, 2);
+  assert.equal(out.rejected, 1);
+  assert.match(out.text, /jo@b\.com/);
+  assert.match(out.text, /al@b\.com/);
+});
+
+test("internationalised domains get a punycode form", () => {
+  assert.equal(punycodeAddress("info@bücher.de"), "info@xn--bcher-kva.de");
+  assert.equal(punycodeAddress("jo@acme.com"), null);
+  assert.equal(punycodeAddress("josé@bücher.de"), null);
+  const src = file("info@bücher.de,Anna,subscribed");
+  assert.match(of(validate(src), "non-ascii")[0].detail, /xn--bcher-kva\.de/);
+  assert.match(repair(src).text, /info@xn--bcher-kva\.de/);
 });

@@ -1,0 +1,27 @@
+mimic-contexts reference detectors (AUROC; 1.0 = perfect, 0.5 = chance)
+
+detector                       train fams          held-out fams  held acc  held paired
+length             0.491 [0.473,0.508]  0.515 [0.491,0.541]      0.523        0.513
+ngram              1.000 [1.000,1.000]  0.927 [0.913,0.939]      0.813        0.938
+logppl             0.878 [0.860,0.896]  0.760 [0.719,0.791]      0.696        0.846
+bino               0.854 [0.831,0.878]  0.802 [0.767,0.834]      0.736        0.817
+length [zs subset] 0.487 [0.458,0.516]  0.507 [0.467,0.546]      0.524        0.514
+ngram [zs subset]  1.000 [1.000,1.000]  0.926 [0.907,0.944]      0.817        0.938
+
+by family AUROC:
+  length             abstracts=0.44  books=0.41  news=0.52  recipes=0.70  reddit=0.58  poetry=0.89  reviews=0.52  wiki=0.15
+  ngram              abstracts=1.00  books=1.00  news=1.00  recipes=1.00  reddit=1.00  poetry=0.95  reviews=0.98  wiki=0.89
+  logppl             abstracts=0.86  books=0.98  news=0.90  recipes=0.89  reddit=0.94  poetry=0.83  reviews=0.90  wiki=0.81
+  bino               abstracts=0.88  books=0.90  news=0.83  recipes=0.88  reddit=0.81  poetry=0.72  reviews=0.85  wiki=0.88
+  length [zs subset] abstracts=0.43  books=0.42  news=0.54  recipes=0.73  reddit=0.55  poetry=0.90  reviews=0.48  wiki=0.16
+  ngram [zs subset]  abstracts=1.00  books=1.00  news=1.00  recipes=1.00  reddit=1.00  poetry=0.95  reviews=0.98  wiki=0.89
+
+ngram leave-one-family-out AUROC: abstracts=0.90  books=0.99  news=0.97  recipes=0.87  reddit=0.95  poetry=0.95  reviews=0.98  wiki=0.90
+
+held-out AUROC by plain-prompt LLM (human vs that LLM):
+  length             llama-chat=0.35(n=384)  mistral-chat=0.55(n=333)  mpt-chat=0.81(n=183)
+  ngram              llama-chat=0.94(n=384)  mistral-chat=0.90(n=333)  mpt-chat=0.96(n=183)
+  logppl             llama-chat=0.81(n=161)  mistral-chat=0.80(n=123)  mpt-chat=0.59(n=76)
+  bino               llama-chat=0.87(n=161)  mistral-chat=0.81(n=123)  mpt-chat=0.65(n=76)
+  length [zs subset] llama-chat=0.34(n=161)  mistral-chat=0.52(n=123)  mpt-chat=0.84(n=76)
+  ngram [zs subset]  llama-chat=0.94(n=161)  mistral-chat=0.89(n=123)  mpt-chat=0.95(n=76)

@@ -5,6 +5,8 @@ weighing commercial lease offers: **enter up to three offers and see each one's 
 all-in cost per square foot, what leaving early costs, and the base rent that would make a worse offer match the best
 one.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/commercial-lease-effective-rent-calculator/
+
 After using this, you can now **rank lease offers on what they really cost and go back to the landlord with a
 specific rent number**, which used to take a broker's spreadsheet or a lease-analysis subscription.
 

@@ -1,0 +1,40 @@
+assumed inputs: unit goods value a=1; market capacity c (machine-hours per hour) is swept; W=50.0 h per copy from selfrep-growth
+fluid model, cash never binds, Euler step 1 h, horizon T=600 h, fleet starts at 1 unit, k=(1-fail)/W; final fleet worth 0
+J values are Euler values, shared by all policies; percentages are of the DP policy's simulated J (the best found)
+
+table 1: market capacity c, failure 0 (k = 0.0200 /h; fleet reaches e^(kT) = 162755 units if it only copies)
+
+c=inf            DP table V0=   2835148.4 | DP policy J=   2685743.1 (N_T=  53451.6, u<0.5 from t=550, 1 h interior) | bang-bang ts= 549 100.00% | const u=0.90   9.21% | smooth ts=550,w=2  99.73% | piecewise  98.44% | DP table vs policy +5.56%
+c=1e+06          DP table V0=   2750310.3 | DP policy J=   2616775.3 (N_T=  52084.1, u<0.5 from t=548, 3 h interior) | bang-bang ts= 548  99.99% | const u=0.90   9.44% | smooth ts=550,w=2  99.74% | piecewise  98.84% | DP table vs policy +5.10%
+c=100000         DP table V0=   2214366.0 | DP policy J=   2153656.5 (N_T=  42715.3, u<0.5 from t=538, 21 h interior) | bang-bang ts= 537  99.40% | const u=0.90  11.36% | smooth ts=535,w=2  99.77% | piecewise  99.29% | DP table vs policy +2.82%
+c=10000          DP table V0=    933196.7 | DP policy J=    930880.4 (N_T=  18301.1, u<0.5 from t=492, 90 h interior) | bang-bang ts= 485  95.50% | const u=0.90  23.91% | smooth ts=490,w=10  99.12% | piecewise  99.43% | DP table vs policy +0.25%
+c=3000           DP table V0=    443435.5 | DP policy J=    443855.0 (N_T=   8685.4, u<0.5 from t=448, 141 h interior) | bang-bang ts= 439  93.91% | const u=0.90  40.45% | smooth ts=450,w=20  99.06% | piecewise  99.26% | DP table vs policy -0.09%
+c=1000           DP table V0=    201249.8 | DP policy J=    201596.4 (N_T=   3936.7, u<0.5 from t=398, 194 h interior) | bang-bang ts= 393  93.35% | const u=0.90  57.39% | smooth ts=405,w=20  98.61% | piecewise  99.49% | DP table vs policy -0.17%
+c=300            DP table V0=     78382.0 | DP policy J=     78521.1 (N_T=   1532.2, u<0.5 from t=340, 251 h interior) | bang-bang ts= 338  93.30% | const u=0.90  69.94% | smooth ts=365,w=40  98.46% | piecewise  99.59% | DP table vs policy -0.18%
+c=100            DP table V0=     31651.0 | DP policy J=     31702.4 (N_T=    615.9, u<0.5 from t=287, 302 h interior) | bang-bang ts= 287  93.51% | const u=0.85  78.20% | smooth ts=310,w=40  98.62% | piecewise  99.74% | DP table vs policy -0.16%
+
+table 2: failure rate sweep at c=1000
+fail=0.0         DP table V0=    201249.8 | DP policy J=    201596.4 (N_T=   3936.7, u<0.5 from t=398, 194 h interior) | bang-bang ts= 393  93.35% | const u=0.90  57.39% | smooth ts=405,w=20  98.61% | piecewise  99.49% | DP table vs policy -0.17%
+fail=0.2         DP table V0=    113397.3 | DP policy J=    113228.7 (N_T=   1787.0, u<0.5 from t=468, 108 h interior) | bang-bang ts= 458  95.59% | const u=0.90  28.75% | smooth ts=470,w=20  99.44% | piecewise  99.50% | DP table vs policy +0.15%
+fail=0.4         DP table V0=     32746.3 | DP policy J=     32415.3 (N_T=    387.2, u<0.5 from t=500, 32 h interior) | bang-bang ts= 498  99.50% | const u=0.85  19.64% | smooth ts=500,w=5  99.95% | piecewise  99.54% | DP table vs policy +1.02%
+fail=0.6         DP table V0=      5424.9 | DP policy J=      5386.5 (N_T=     43.0, u<0.5 from t=472, 6 h interior) | bang-bang ts= 472  99.99% | const u=0.70  27.31% | smooth ts=470,w=2  99.98% | piecewise  99.77% | DP table vs policy +0.71%
+
+table 3: DP resolution check at c=1000, failure 0 (policy J from the DP feedback rule)
+n_points= 100 u_levels= 11: table V0=    200117.2  policy J=    201509.3
+n_points= 200 u_levels= 21: table V0=    200854.3  policy J=    201592.2
+n_points= 400 u_levels= 21: table V0=    201249.8  policy J=    201596.4
+n_points= 800 u_levels= 41: table V0=    201498.4  policy J=    201607.6
+
+table 4: time path at c=1000 (DP policy): fleet N and copy share u
+t=   0 N=         1.0 u=1.00
+t=  50 N=         2.7 u=1.00
+t= 100 N=         7.2 u=1.00
+t= 150 N=        19.5 u=1.00
+t= 200 N=        52.5 u=1.00
+t= 250 N=       141.3 u=1.00
+t= 300 N=       380.2 u=1.00
+t= 350 N=      1022.0 u=0.95
+t= 400 N=      1976.2 u=0.46
+t= 450 N=      2876.3 u=0.30
+t= 500 N=      3614.4 u=0.15
+t= 550 N=      3936.7 u=0.00

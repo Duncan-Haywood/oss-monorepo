@@ -1,0 +1,2563 @@
+National Survey of Family Growth, 2017-2019                                                        Page 1 of 35
+
+
+
+Female Respondent File Codebook :: SECTION J: Audio CASI :: (JA) General health, height, and weight
+
+GENHEALT(2684-2684)
+
+Variable Type : raw
+
+JA-4 : In general, how is your health? Would you say it is...
+
+  value          label      Total
+  1       Excellent           1618
+  2       Very good           2170
+  3       Good                1706
+  4       Fair                 542
+  5       Poor                 87
+  7       Not ascertained        9
+  8       Refused                8
+  9       Don't know             1
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+bmicat(2685-2685)
+
+Variable Type : computed
+
+Description : Body Mass Index (categorical) (computed in post-processing)
+
+  value          label      Total
+  .       INAPPLICABLE       1153
+  1       Underweight         126
+  2       Normal weight      1551
+  3       Overweight         1268
+  4       Obese              1926
+  5       Undefined BMI       117
+          Total             6141
+
+
+Universe : Applicable if R is older than 19 years and not currently pregnant (AGER GT 19 and RCURPREG = 2)
+
+Notes : This variable has been created for public use, and the original source variables are accessible by
+application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+DRWEIGH(2686-2686)
+
+Variable Type : raw
+
+JA-6a : The next couple of questions are about your weight. In the past 12 months, that is, since
+[INTERVIEW MONTH, INTERVIEW YEAR - 1], did a doctor or other medical care provider weigh you?
+
+  value          label      Total
+  1       Yes                 5250
+  5       No                   865
+  7       Not ascertained       9
+  8       Refused               14
+  9       Don't know             3
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+TELLWGHT(2687-2687)
+
+Variable Type : raw
+
+JA-6b : During your visit in the past 12 months, did a doctor or other medical care provider tell you that you
+were underweight, normal weight, overweight, obese, or were you not told?
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                          Page 2 of 35
+
+
+
+  value          label         Total
+  .       INAPPLICABLE           882
+  1       Underweight            156
+  2       Normal weight         1808
+  3       Overweight            1420
+  4       Obese                  483
+  5       Not told              1365
+  7       Not ascertained          9
+  8       Refused                  9
+  9       Don't know               9
+          Total                6141
+
+
+Universe : Applicable if R reported she had been weighed by a doctor or other medical care provider in the
+past 12 months (JA-6a DRWEIGH = 1)
+
+WGHTSCRN(2688-2688)
+
+Variable Type : raw
+
+JA-6c : During your visit in the past 12 months, did a doctor or other medical care provider refer you to diet
+or exercise counseling?
+
+  value          label         Total
+  .       INAPPLICABLE          4229
+  1       Yes                    846
+  5       No                    1056
+  7       Not ascertained          9
+  8       Refused                  1
+          Total                6141
+
+
+Universe : Applicable if R was told she was overweight or obese (JA-6b TELLWGHT = 3 or 4)
+
+ENGSPEAK(2689-2689)
+
+Variable Type : raw
+
+JA-7 : How well do you speak English?
+
+  value          label         Total
+  1       Very well             5265
+  2       Well                   489
+  3       Not well               234
+  4       Not at all             127
+  7       Not ascertained          9
+  8       Refused                 15
+  9       Don't know               2
+          Total                6141
+
+
+Universe : Applicable for all respondents
+
+Female Respondent File Codebook :: SECTION J: Audio CASI :: (JB) Pregnancy reporting
+
+CASIBIRTH(2690-2691)
+
+Variable Type : raw
+
+JB-1 : Between January [YEAR OF INTERVIEW - 5] and December [YEAR OF INTERVIEW - 1], how many
+pregnancies did you have that resulted in live birth, that is, in a baby born alive? Having twins or triplets
+should be counted as 1 pregnancy.
+
+  value                label           Total
+  0       NO PREGNANCIES                4327
+  1       1 PREGNANCY                   1082
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                            Page 3 of 35
+
+
+
+  2       2 PREGNANCIES              441
+  3-95    3 OR MORE                  206
+          PREGNANCIES
+  97      Not ascertained             10
+  98      Refused                     54
+  99      Don't know                  21
+          Total                     6141
+
+
+Universe : Applicable for all respondents
+
+CASILOSS(2692-2693)
+
+Variable Type : raw
+
+JB-2 : Between January [YEAR OF INTERVIEW - 5] and December [YEAR OF INTERVIEW - 1], how many
+pregnancies did you have that ended in miscarriage, stillbirth, or ectopic pregnancy?
+
+  value             label           Total
+  0       NO PREGNANCIES             5480
+  1       1 PREGNANCY                 435
+  2       2 PREGNANCIES                93
+  3-20    3 OR MORE PREGNANCIES        61
+  97      Not ascertained              10
+  98      Refused                      51
+  99      Don't know                   11
+          Total                      6141
+
+
+Universe : Applicable for all respondents
+
+CASIABOR(2694-2695)
+
+Variable Type : raw
+
+JB-3 : Between January [YEAR OF INTERVIEW - 5] and December [YEAR OF INTERVIEW - 1], how many
+pregnancies did you have that ended in abortion?
+
+  value             label           Total
+  0       NO PREGNANCIES             5799
+  1       1 PREGNANCY                 209
+  2       2 PREGNANCIES                43
+  3-20    3 OR MORE PREGNANCIES        21
+  97      Not ascertained              10
+  98      Refused                      47
+  99      Don't know                   12
+          Total                      6141
+
+
+Universe : Applicable for all respondents
+
+CASIADOP(2696-2696)
+
+Variable Type : raw
+
+JB-4 : Have you ever placed a child you gave birth to for adoption?
+
+  value         label       Total
+  .       INAPPLICABLE         47
+  1       Yes                  70
+  5       No                 5985
+  7       Not ascertained      10
+  8       Refused              28
+  9       Don't know            1
+          Total             6141
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                          Page 4 of 35
+
+
+
+Universe : Applicable if R has not previously reported placing a child for adoption (totplacd > 0)
+
+Female Respondent File Codebook :: SECTION J: Audio CASI :: (JC) Housing insecurity;
+suspension/expulsion; substance use
+
+NOBEDYR(2697-2697)
+
+Variable Type : raw
+
+JC-0a : In the last 12 months, that is, since (INTERVIEW MONTH, INTERVIEW YEAR - 1), was there ever a
+time when you did not have a permanent place to stay and had to stay at least overnight in a location such as
+a shelter, a car or someplace outdoors?
+
+  value         label       Total
+  1       Yes                 200
+  5       No                 5899
+  7       Not ascertained      10
+  8       Refused              28
+  9       Don't know            4
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+STAYREL(2698-2698)
+
+Variable Type : raw
+
+JC-0b : In the last 12 months, was there ever a time when you did not have a permanent place to stay and
+had to stay at least overnight with a friend or relative?
+
+  value         label       Total
+  1       Yes                 383
+  5       No                 5716
+  7       Not ascertained      10
+  8       Refused              27
+  9       Don't know            5
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+EVSUSPEN(2699-2699)
+
+Variable Type : raw
+
+JC-0c : The next couple of questions are about your school experience. Have you ever been suspended or
+expelled from school?
+
+  value         label       Total
+  .       INAPPLICABLE       4346
+  1       Yes                 356
+  5       No                 1423
+  7       Not ascertained      10
+  8       Refused               4
+  9       Don't know            2
+          Total             6141
+
+
+Universe : Applicable if R's age at screener is less than 25 years (agescrn < 25)
+
+GRADSUSP(2700-2701)
+
+Variable Type : raw
+
+JC-0d : What grade were you in when you were suspended or expelled from school? If you were suspended or
+expelled more than once, please enter the grade you were in the most recent time.
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                          Page 5 of 35
+
+
+
+  value         label          Total
+  .       INAPPLICABLE          5775
+  1-6     Grades 1-6              57
+  7-9     Grades 7-9             165
+  10-12   Grades 10-12           129
+  97      Not ascertained         10
+  98      Refused                  1
+  99      Don't know               4
+          Total                6141
+
+
+Universe : Applicable if R reported ever being suspended or expelled from school (JC-0c EVSUSPEN = 1)
+
+SMK100(2702-2702)
+
+Variable Type : raw
+
+JC-1 : These next questions are about your use of cigarettes, alcohol, and other substances. In your entire
+life, have you smoked at least 100 cigarettes?
+
+  value         label          Total
+  1       Yes                   1669
+  5       No                    4439
+  7       Not ascertained         10
+  8       Refused                 22
+  9       Don't know               1
+          Total                6141
+
+
+Universe : Applicable for all respondents
+
+AGESMK(2703-2704)
+
+Variable Type : raw
+
+JC-2 : How old were you when you first started smoking fairly regularly? Please enter your age in years. If
+you never smoked regularly, enter 0.
+
+  value                label           Total
+  .       INAPPLICABLE                  4462
+  0       NEVER SMOKED REGULARLY          92
+  11      11 YEARS OR YOUNGER             67
+  12      12 YEARS OLD                    67
+  13      13 YEARS OLD                    80
+  14      14 YEARS OLD                   136
+  15      15 YEARS OLD                   207
+  16      16 YEARS OLD                   216
+  17      17 YEARS OLD                   158
+  18      18 YEARS OLD                   225
+  19      19 YEARS OLD                   102
+  20-24   20-24 YEARS OLD                225
+  25-29   25-29 YEARS OLD                 57
+  30-49   30-49 YEARS OLD                 31
+  97      Not ascertained                 10
+  98      Refused                          1
+  99      Don't know                       5
+          Total                        6141
+
+
+Universe : Applicable if R reported smoking at least 100 cigarettes in lifetime (JC-1 SMK100 = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+SMOKE12(2705-2705)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                         Page 6 of 35
+
+
+
+Variable Type : raw
+
+JC-3 : During the last 12 months, that is since [INTERVIEW MONTH, INTERVIEW YEAR-1], how many
+cigarettes did you smoke a day, on average?
+
+  value                           label                            Total
+  .       INAPPLICABLE                                              4462
+  1       None                                                       563
+  2       About one cigarette a day or less                          177
+  3       Just a few cigarettes a day, between 2 to 4 cigarettes     273
+  4       About half a pack a day, between 5 to 14 cigarettes        381
+  5       About a pack a day, between 15 to 24 cigarettes            235
+  6       More than a pack a day, 25 or more cigarettes               39
+  7       Not ascertained                                             10
+  8       Refused                                                      1
+          Total                                                    6141
+
+
+Universe : Applicable if R reported smoking at least 100 cigarettes in lifetime (JC-1 SMK100 = 1)
+
+SMKSTOP(2706-2706)
+
+Variable Type : raw
+
+JC-3a : During the last 12 months, has a doctor or other medical care provider provided you with counseling
+or support for you to stop smoking or using other kinds of tobacco?
+
+  value         label        Total
+  .       INAPPLICABLE          5026
+  1       Yes                    397
+  5       No                     708
+  7       Not ascertained         10
+          Total                 6141
+
+
+Universe : Asked if R reported any amount of smoking in the past 12 months (JC-3 SMOKE12 = 2,3,4,5,6)
+
+DRINK12(2707-2707)
+
+Variable Type : raw
+
+JC-4 : During the last 12 months, that is, since [INTERVIEW MONTH, INTERVIEW YEAR-1], how often have
+you had beer, wine, liquor, or other alcoholic beverages?
+
+  value                 label             Total
+  1       Never                               1595
+  2       Once or twice during the year       1208
+  3       Several times during the year        987
+  4       About once a month                   893
+  5       About once a week                   1120
+  6       About once a day                     301
+  7       Not ascertained                       10
+  8       Refused                               23
+  9       Don't know                             4
+          Total                               6141
+
+
+Universe : Applicable for all respondents
+
+UNIT30D(2708-2708)
+
+Variable Type : raw
+
+JC-4a_U : This next question asks about your drinking over the past 30 days. Would you prefer to answer in
+terms of days per week or days per month?
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                      Page 7 of 35
+
+
+
+  value      label          Total
+  .       INAPPLICABLE       1618
+  1       Days per           1450
+          week
+  5       Days per           3035
+          month
+  7       Not                  10
+          ascertained
+  8       Refused              19
+  9       Don't know            9
+          Total             6141
+
+
+Universe : Applicable if R reported consumption of any amount of alcoholic beverages in last year or said DK
+(JC-4 DRINK12 = 2, 3, 4, 5, 6, or DK)
+
+DRINK30D(2709-2710)
+
+Variable Type : raw
+
+JC-4a_N : During the past 30 days, that is, since (mo/day/yr), on how many days (per week) did you have at
+least one drink of any alcoholic beverage such as beer, wine, a malt beverage or liquor?
+
+  value        label          Total
+  .       INAPPLICABLE         1637
+  0       0 DAYS                945
+  1       1 DAY                 925
+  2       2 DAYS                830
+  3-30    3 OR MORE DAYS       1778
+  97      Not ascertained           10
+  98      Refused                    7
+  99      Don't know                 9
+          Total                6141
+
+
+Universe : Applicable if R reported consumption of any amount of alcoholic beverages in last year or said DK
+(JC-4 DRINK12 = 2, 3, 4, 5, 6, or DK)
+
+DRINKDAY(2711-2712)
+
+Variable Type : raw
+
+JC-4b : One drink is equivalent to a 12-ounce beer, a 5-ounce glass of wine, or a drink with one shot of
+liquor. During the past 30 days, on the days when you drank, about how many drinks did you drink on the
+average?
+
+  value           label        Total
+  .       INAPPLICABLE              2598
+  1       1 DRINK                   1007
+  2       2 DRINKS                  1128
+  3       3 DRINKS                   569
+  4       4 DRINKS                   273
+  5       5 DRINKS                   185
+  6-95    6 OR MORE DRINKS           350
+  97      Not ascertained            10
+  98      Refused                        7
+  99      Don't know                 14
+          Total                 6141
+
+
+Universe : Applicable if R reported consumption of any amount of alcoholic beverages in last 30 days (1 LE
+JC-4a_N DRINK30D LE 30)
+
+BINGE30(2713-2714)
+
+Variable Type : raw
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                      Page 8 of 35
+
+
+
+JC-4c : Considering all types of alcoholic beverages, how many times during the past 30 days did you have 4
+or more drinks on an occasion?
+
+  value           label        Total
+  .       INAPPLICABLE           2582
+  0       NONE                   1700
+  1       1 TIME                  664
+  2       2 TIMES                 428
+  3       3 TIMES                 224
+  4       4 TIMES                 158
+  5-95    5 OR MORE TIMES         354
+  97      Not ascertained          10
+  98      Refused                  10
+  99      Don't know               11
+          Total                 6141
+
+
+Universe : Applicable if R reported consumption of any amount of alcoholic beverages in last 30 days or R
+reported don't know or refused (1 LE JC-4a_N DRINK30D LE 30 or JC-4a_N DRINK30D = DK or RF)
+
+DRNKMOST(2715-2716)
+
+Variable Type : raw
+
+JC-4d : During the past 30 days, what is the largest number of drinks you had on any occasion?
+
+  value           label         Total
+  .       INAPPLICABLE            2582
+  1       1 DRINK                  667
+  2       2 DRINKS                 858
+  3       3 DRINKS                 564
+  4       4 DRINKS                 432
+  5       5 DRINKS                 365
+  6-95    6 OR MORE DRINKS         639
+  97      Not ascertained           10
+  98      Refused                   11
+  99      Don't know                13
+          Total                  6141
+
+
+Universe : Applicable if R reported consumption of any amount of alcoholic beverages in last 30 days or R
+reported don't know or refused (1 LE JC-4a_N DRINK30D LE 30 or JC-4a_N DRINK30D = DK or RF)
+
+BINGE12(2717-2717)
+
+Variable Type : raw
+
+JC-5 : During the last 12 months, how often did you have 4 or more drinks within a couple of hours?
+
+  value                label              Total
+  .       INAPPLICABLE                     1618
+  1       Never                            2316
+  2       Once or twice during the year    1131
+  3       Several times during the year     482
+  4       About once a month                371
+  5       About once a week                 165
+  6       About once a day                   24
+  7       Not ascertained                    11
+  8       Refused                            14
+  9       Don't know                          9
+          Total                           6141
+
+
+Universe : Applicable if R reported consumption of any amount of alcoholic beverages in last year or said DK
+(JC-4 DRINK12 = 2, 3, 4, 5, 6, or DK)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                    Page 9 of 35
+
+
+
+POT12(2718-2718)
+
+Variable Type : raw
+
+JC-6 : During the last 12 months, how often have you smoked marijuana?
+
+  value                label              Total
+  1       Never                            4641
+  2       Once or twice during the year     448
+  3       Several times during the year     284
+  4       About once a month                138
+  5       About once a week                 191
+  6       About once a day or more          392
+  7       Not ascertained                    11
+  8       Refused                            29
+  9       Don't know                          7
+          Total                           6141
+
+
+Universe : Applicable for all respondents
+
+COC12(2719-2719)
+
+Variable Type : raw
+
+JC-7 : During the last 12 months, how often have you used cocaine?
+
+  value                label              Total
+  1       Never                            5948
+  2       Once or twice during the year     102
+  3       Several times during the year      37
+  4       About once a month or more         16
+  7       Not ascertained                    11
+  8       Refused                            25
+  9       Don't know                          2
+          Total                           6141
+
+
+Universe : Applicable for all respondents
+
+CRACK12(2720-2720)
+
+Variable Type : raw
+
+JC-8 : During the last 12 months, how often have you used crack?
+
+  value                label              Total
+  1       Never                            6083
+  2       Once or twice during the year      12
+  3       Several times during the year       4
+  4       About once a month or more          6
+  7       Not ascertained                    11
+  8       Refused                            23
+  9       Don't know                          2
+          Total                           6141
+
+
+Universe : Applicable for all respondents
+
+CRYSTMTH12(2721-2721)
+
+Variable Type : raw
+
+JC-8a : During the last 12 months, how often have you used Crystal or meth, also known as tina, crank, or
+ice?
+
+  value                label              Total
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                     Page 10 of 35
+
+
+
+  1       Never                            6064
+  2       Once or twice during the             16
+          year
+  3       Several times during the             14
+          year
+  4       About once a month or                10
+          more
+  7       Not ascertained                      11
+  8       Refused                              23
+  9       Don't know                            3
+          Total                           6141
+
+
+Universe : Applicable for all respondents
+
+INJECT12(2722-2722)
+
+Variable Type : raw
+
+JC-9 : During the last 12 months, how often have you shot up or injected drugs other than those prescribed
+for you? By shooting up, we mean anytime you might have used drugs with a needle, by mainlining, skin-
+popping, or muscling.
+
+  value                 label             Total
+  1       Never                                6082
+  2       Once or twice during the year             9
+  3       Several times during the year             2
+  4       About once a month or more                7
+  7       Not ascertained                        11
+  8       Refused                                27
+  9       Don't know                                3
+          Total                            6141
+
+
+Universe : Applicable for all respondents
+
+Female Respondent File Codebook :: SECTION J: Audio CASI :: (JD) Sex with males
+
+VAGSEX(2723-2723)
+
+Variable Type : raw
+
+JD-1 : Has a male ever put his penis in your vagina (also known as vaginal intercourse)?
+
+  value         label       Total
+  .       INAPPLICABLE          4483
+  1       Yes                    848
+  5       No                     787
+  7       Not ascertained         11
+  8       Refused                 10
+  9       Don't know               2
+          Total                 6141
+
+
+Universe : Applicable if R has never married, never cohabited, and not reported any pregnancies thus far in
+the interview (AD-7b MARSTAT=6 and npregs_s=0 and (CD-1 LIVEOTH = 5, DK, or RF) and JB-1
+CASIBIRTH=0 and JB-2 CASILOSS=0 and JB-3 CASIABOR=0 and (JB-4 CASIADOP = 5, DK, or RF))
+
+AGEVAGR(2724-2725)
+
+Variable Type : raw
+
+JD-2 : The first time this occurred, how old were you?
+
+  value             label              Total
+  .       INAPPLICABLE                  5282
+  10      10 YEARS OR YOUNGER              7
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 11 of 35
+
+
+
+  11-14   11-14 YEARS                    83
+  15-17   15-17 YEARS                   412
+  18-19   18-19 YEARS                   195
+  20-49   20 YEARS OR OLDER             146
+  97      Not ascertained                11
+  98      Refused                         4
+  99      Don't know                      1
+          Total                        6141
+
+
+Universe : Applicable if R was asked in ACASI and reported ever having vaginal intercourse with a male (JD-1
+VAGSEX = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+CONDVAG(2726-2726)
+
+Variable Type : raw
+
+JD-4 : Was a condom used the last time you had vaginal intercourse with a male?
+
+  value         label        Total
+  .       INAPPLICABLE         799
+  1       Yes                 1515
+  5       No                  3765
+  7       Not ascertained         11
+  8       Refused                 47
+  9       Don't know               4
+          Total              6141
+
+
+Universe : Applicable if R reported ever having vaginal intercourse with a male (JD-1 VAGSEX = 1 or blank)
+
+WHYCONDL(2727-2727)
+
+Variable Type : raw
+
+JD-5 : The last time you had vaginal intercourse with a male, did you use the condom to...
+
+  value                                       label                                 Total
+  .       INAPPLICABLE                                                               4615
+  1       To prevent pregnancy                                                        582
+  2       To prevent diseases like gonorrhea, chlamydia, syphilis, herpes or AIDS     142
+  3       For both reasons                                                            734
+  4       For some other reason                                                        54
+  7       Not ascertained                                                              11
+  8       Refused                                                                       3
+          Total                                                                     6141
+
+
+Universe : Applicable if R reported using a condom at last vaginal intercourse (JD-4 CONDVAG = 1)
+
+GETORALM(2728-2728)
+
+Variable Type : raw
+
+JD-6 : The next few questions are about oral sex. By oral sex, we mean stimulating the genitals with the
+mouth. Has a male ever performed oral sex on you?
+
+  value         label        Total
+  1       Yes                 4574
+  5       No                  1463
+  7       Not ascertained         12
+  8       Refused                 85
+  9       Don't know               7
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                       Page 12 of 35
+
+
+
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+GIVORALM(2729-2729)
+
+Variable Type : raw
+
+JD-7 : Have you ever performed oral sex on a male? That is, have you ever stimulated his penis with your
+mouth?
+
+  value         label        Total
+  1       Yes                   4486
+  5       No                    1544
+  7       Not ascertained         12
+  8       Refused                 91
+  9       Don't know               8
+          Total                 6141
+
+
+Universe : Applicable for all respondents
+
+CONDFELL(2730-2730)
+
+Variable Type : raw
+
+JD-8 : Was a condom used the last time you performed oral sex on a male?
+
+  value         label        Total
+  .       INAPPLICABLE          1643
+  1       Yes                    276
+  5       No                    4209
+  7       Not ascertained         12
+  8       Refused                  1
+          Total                 6141
+
+
+Universe : Applicable if R reported ever performing oral sex on a male partner (JD-7 GIVORALM = 1)
+
+anyoral(2731-2731)
+
+Variable Type : computed
+
+Description : Whether R has ever had oral sex with a male (Computed in Flow Check J-8b)
+
+  value         label        Total
+  .       INAPPLICABLE            95
+  1       YES                   4794
+  5       NO                    1240
+  7       Not ascertained         12
+          Total                 6141
+
+
+Universe : Applicable if R gave valid responses to the oral sex questions ((JD-6 GETORALM = 1 or 5) and
+(JD-7 GIVORALM = 1 or 5))
+
+TIMING(2732-2732)
+
+Variable Type : raw
+
+JD-8b : Thinking back to when you had oral sex with a male for the first time, was it before, after, or on the
+same occasion as your first vaginal intercourse with a male?
+
+  value                 label                Total
+  .       INAPPLICABLE                        5152
+  1       Before first vaginal intercourse     392
+  3       After first vaginal intercourse      381
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                     Page 13 of 35
+
+
+
+  5       Same occasion              197
+  7       Not ascertained             12
+  8       Refused                      5
+  9       Don't know                   2
+          Total                     6141
+
+
+Universe : Applicable if R's age at screener is less than 25 years (agescrn < 25) and R reported having ever
+had both vaginal and oral sex ((JD-1 VAGSEX = 1 or blank) and anyoral = 1)
+
+ANALSEX(2733-2733)
+
+Variable Type : raw
+
+JD-9 : Has a male ever put his penis in your rectum or butt (also known as anal sex)?
+
+  value         label       Total
+  1       Yes                1975
+  5       No                 4065
+  7       Not ascertained      12
+  8       Refused              81
+  9       Don't know            8
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+CONDANAL(2734-2734)
+
+Variable Type : raw
+
+JD-10 : Was a condom used the last time you had anal sex with a male?
+
+  value         label       Total
+  .       INAPPLICABLE       4154
+  1       Yes                 427
+  5       No                 1546
+  7       Not ascertained      12
+  8       Refused               1
+  9       Don't know            1
+          Total             6141
+
+
+Universe : Applicable if R reported ever having anal sex (JD-9 ANALSEX = 1)
+
+oppsexany(2735-2735)
+
+Variable Type : computed
+
+Description : Whether R has ever had vaginal, oral, or anal sex with a male partner (Computed in Flow Check
+J-9)
+
+  value         label       Total
+  .       INAPPLICABLE         12
+  1       YES                5430
+  5       NO                  687
+  7       Not ascertained      12
+          Total             6141
+
+
+Universe : Applicable if R gave answers other than "don't know" or "refused" to all of the questions on
+opposite-sex activity (JD-1 VAGSEX NE DK/RF and JD-6 GETORALM NE DK/RF and JD-7 GIVORALM NE DK/RF
+and JD-9 ANALSEX NE DK/RF).
+
+oppsexgen(2736-2736)
+
+Variable Type : computed
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 14 of 35
+
+
+
+Description : Whether R has ever had male-genital-involving sex with a male partner (Computed in Flow
+Check J-9)
+
+  value         label       Total
+  .       INAPPLICABLE         12
+  1       YES                5408
+  5       NO                  709
+  7       Not ascertained      12
+          Total             6141
+
+
+Universe : Applicable if R gave answers other than "don't know" or "refused" to all of the questions on
+opposite-sex activity (JD-1 VAGSEX NE DK/RF and JD-6 GETORALM NE DK/RF and JD-7 GIVORALM NE DK/RF
+and JD-9 ANALSEX NE DK/RF).
+
+CONDSEXL(2737-2737)
+
+Variable Type : raw
+
+JD-11 : The very last time you had any type of sex -- that is, vaginal intercourse or anal sex or oral sex --
+with a male partner, was a condom used?
+
+  value         label       Total
+  .       INAPPLICABLE       4307
+  1       Yes                1346
+  5       No                  466
+  7       Not ascertained      12
+  8       Refused               7
+  9       Don't know            3
+          Total             6141
+
+
+Universe : Applicable if R reported more than 1 form of male-genital-involving sex (more than 1 of these
+statements true: JD-1 VAGSEX = 1, JD-7 GIVORALM = 1, JD-9 ANALSEX = 1) and reported condom use at
+last sex for any specific type (JD-4 CONDVAG = 1 or JD-8 CONDFELL = 1 or JD-10 CONDANAL = 1)
+
+Female Respondent File Codebook :: SECTION J: Audio CASI :: (JF) STD/HIV risk behaviors
+
+opplifenum(2738-2740)
+
+Variable Type : computed
+
+Description : Number of opposite-sex partners in lifetime for all types of sex [Computed in Flow Check J-14d]
+
+  value             label           Total
+  .       INAPPLICABLE                699
+  1       1 PARTNER                   978
+  2       2 PARTNERS                  577
+  3       3 PARTNERS                  524
+  4       4 PARTNERS                  534
+  5       5 PARTNERS                  533
+  6       6 PARTNERS                  309
+  7       7 PARTNERS                  256
+  8       8 PARTNERS                  212
+  9       9 PARTNERS                  123
+  10      10 PARTNERS                 276
+  11-19   11-19 PARTNERS              462
+  20-49   20-49 PARTNERS              422
+  50      50 OR MORE PARTNERS         105
+  997     Not ascertained              13
+  998     Refused                     101
+  999     Don't know                   17
+          Total                     6141
+
+
+Universe : Applicable if R reported any vaginal, oral, or anal sex with a male (oppsexany = 1)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 15 of 35
+
+
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+oppyearnum(2741-2743)
+
+Variable Type : computed
+
+Description : Number of opposite-sex partners in last 12 months for all types of sex [Computed in Flow Check
+J-14f]
+
+  value             label      Total
+  .       INAPPLICABLE           699
+  0       0 PARTNERS             649
+  1       1 PARTNER             3819
+  2       2 PARTNERS             490
+  3       3 PARTNERS             172
+  4       4 PARTNERS              85
+  5       5 PARTNERS              50
+  6       6 PARTNERS              25
+  7       7 OR MORE PARTNERS      50
+  997     Not ascertained         13
+  998     Refused                 80
+  999     Don't know               9
+          Total                6141
+
+
+Universe : Applicable if R reported any vaginal, oral, or anal sex with a male (oppsexany = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+VAGNUM12(2744-2746)
+
+Variable Type : raw
+
+JF-2YRa : Your number of male partners in the last 12 months is displayed below. Thinking of your male
+partners in the last 12 months, with how many of them did you have vaginal intercourse?
+
+  value             label      Total
+  .       INAPPLICABLE          1487
+  0       0 PARTNERS              24
+  1       1 PARTNER             3741
+  2       2 PARTNERS             465
+  3       3 PARTNERS             164
+  4       4 PARTNERS              82
+  5       5 PARTNERS              42
+  6       6 PARTNERS              26
+  7       7 OR MORE PARTNERS      83
+  997     Not ascertained         13
+  998     Refused                  7
+  999     Don't know               7
+          Total                6141
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months (JF-2 PARTS12M_1 > 0 or
+PARTS12M_2 > 0 or JF-2YR NEWYEAR > 0) and R reported ever having vaginal intercourse (JD-1 VAGSEX =
+1 or blank)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+ORALNUM12(2747-2749)
+
+Variable Type : raw
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 16 of 35
+
+
+
+JF-2YRb : (Your number of male partners in the last 12 months is displayed below.) Thinking of your male
+partners in the last 12 months, with how many of them did you have oral sex, either giving or receiving?
+
+  value             label           Total
+  .       INAPPLICABLE               1904
+  0       0 PARTNERS                  192
+  1       1 PARTNER                  3311
+  2       2 PARTNERS                  420
+  3       3 PARTNERS                  116
+  4       4 PARTNERS                   61
+  5       5 PARTNERS                   40
+  6       6 PARTNERS                   10
+  7       7 OR MORE PARTNERS           63
+  997     Not ascertained              13
+  998     Refused                       6
+  999     Don't know                    5
+          Total                     6141
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months (JF-2 PARTS12M_1 > 0 or
+PARTS12M_2 > 0 or JF-2YR NEWYEAR > 0) and R reported ever having oral sex with a male (anyoral = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+ANALNUM12(2750-2752)
+
+Variable Type : raw
+
+JF-2YRc : (Your number of male partners in the last 12 months is displayed below.) Thinking of your male
+partners in the last 12 months, with how many of them did you have anal sex?
+
+  value             label           Total
+  .       INAPPLICABLE               4313
+  0       0 PARTNERS                  798
+  1       1 PARTNER                   938
+  2       2 PARTNERS                   49
+  3       3 PARTNERS                    6
+  4       4 PARTNERS                    5
+  5       5 PARTNERS                    9
+  6       6 PARTNERS                    1
+  7       7 OR MORE PARTNERS            5
+  997     Not ascertained              13
+  998     Refused                       2
+  999     Don't know                    2
+          Total                     6141
+
+
+Universe : Applicable R reported any male sexual partners in the last 12 months (JF-2 PARTS12M_1 > 0 or
+PARTS12M_2 > 0 or JF-2YR NEWYEAR > 0) and R reported ever having anal sex with a male (JD-9 ANALSEX
+= 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+BISEXPRT(2753-2753)
+
+Variable Type : raw
+
+JF-3 : (Now please think about all of / Have any) your male partners in the last 12 months, that is since
+[INTERVIEW MONTH, INTERVIEW YEAR-1] ever had sex with other males?
+
+  value         label       Total
+  .       INAPPLICABLE       1428
+  1       Yes                 123
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                    Page 17 of 35
+
+
+
+  5       No                   4548
+  7       Not                   13
+          ascertained
+  8       Refused                 3
+  9       Don't know            26
+          Total             6141
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months (1 LE oppyearnum LT 995)
+or R said she did not know how many male partners she had in the last 12 months (oppyearnum = DK)
+
+NONMONOG(2754-2754)
+
+Variable Type : raw
+
+JF-4 : In the last 12 months, did you have sex with any males who were also having sex with other people at
+around the same time?
+
+  value         label       Total
+  .       INAPPLICABLE         1428
+  1       Yes                   583
+  5       No                   4080
+  7       Not ascertained         13
+  8       Refused                  6
+  9       Don't know              31
+          Total                6141
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months (1 LE oppyearnum LT 995)
+or R said she did not know how many male partners she had in the last 12 months (oppyearnum = DK)
+
+NNONMONOG1(2755-2755)
+
+Variable Type : raw
+
+JF-5a : To the best of your knowledge, how many of your male sexual partners in the last 12 months were
+having sex with other people around the same time?
+
+  value           label         Total
+  .       INAPPLICABLE            5734
+  1       1 partner                   232
+  2       2 or more partners          159
+  7       Not ascertained              13
+  9       Don't know                    3
+          Total                   6141
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months who were having sex with
+others (JF-4 NONMONOG =1)
+
+NNONMONOG2(2756-2756)
+
+Variable Type : raw
+
+JF-5b : (Thinking of your 1 male partner in the last 12 months), how many other partners do you think this
+partner had around the same time as he was having sex with you?
+
+  value                   label                  Total
+  .       INAPPLICABLE                            5707
+  1       1 other partner besides you              279
+  2       2 or more other partners besides you     135
+  7       Not ascertained                           13
+  8       Refused                                    1
+  9       Don't know                                 6
+          Total                                  6141
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 18 of 35
+
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months who were having sex with
+1 other partner (JF-4 NONMONOG=1 and JF-5a NNONMONOG1=1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+NNONMONOG3(2757-2757)
+
+Variable Type : raw
+
+JF-5c : Thinking of your most recent male partner who had other sexual partners, how many other partners
+do you think he had around the same time as he was having sex with you?
+
+  value                  label                   Total
+  .       INAPPLICABLE                            5966
+  1       1 other partner besides you               93
+  2       2 or more other partners besides you      64
+  7       Not ascertained                           13
+  8       Refused                                    1
+  9       Don't know                                 4
+          Total                                  6141
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months who were having sex with
+2 or more partners (JF-4 NONMONOG=1 and JF-5a NNONMONOG1=2)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+MALSHT12(2758-2758)
+
+Variable Type : raw
+
+JF-6 : In the last 12 months, have you had sex with a male who takes or shoots street drugs using a needle?
+
+  value         label       Total
+  .       INAPPLICABLE       1428
+  1       Yes                    49
+  5       No                 4640
+  7       Not ascertained        13
+  8       Refused                 4
+  9       Don't know              7
+          Total             6141
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months (1 LE oppyearnum LT 995)
+or R said she did not know how many male partners she had in the last 12 months (oppyearnum = DK)
+
+PROSTFRQ(2759-2759)
+
+Variable Type : raw
+
+JF-7 : In the last 12 months, has a male given you money or drugs to have sex with him?
+
+  value         label       Total
+  .       INAPPLICABLE       1428
+  1       Yes                    41
+  5       No                 4653
+  7       Not ascertained        13
+  8       Refused                 3
+  9       Don't know              3
+          Total             6141
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months (1 LE oppyearnum LT 995)
+or R said she did not know how many male partners she had in the last 12 months (oppyearnum = DK)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                   Page 19 of 35
+
+
+
+JOHNFREQ(2760-2760)
+
+Variable Type : raw
+
+JF-8 : In the last 12 months, have you given a male money or drugs to have sex with you?
+
+  value         label       Total
+  .       INAPPLICABLE       1428
+  1       Yes                  15
+  5       No                 4679
+  7       Not ascertained      13
+  8       Refused               2
+  9       Don't know            4
+          Total             6141
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months (1 LE oppyearnum LT 995)
+or R said she did not know how many male partners she had in the last 12 months (oppyearnum = DK)
+
+HIVMAL12(2761-2761)
+
+Variable Type : raw
+
+JF-9 : In the last 12 months, have you have sex with a male who you knew was infected with the AIDS virus?
+
+  value         label       Total
+  .       INAPPLICABLE       1428
+  1       Yes                   6
+  5       No                 4686
+  7       Not ascertained      13
+  8       Refused               2
+  9       Don't know            6
+          Total             6141
+
+
+Universe : Applicable if R reported any male sexual partners in the last 12 months (1 LE oppyearnum LT 995)
+or R said she did not know how many male partners she had in the last 12 months (oppyearnum = DK)
+
+Female Respondent File Codebook :: SECTION J: Audio CASI :: (JG) Sex with females
+
+GIVORALF(2762-2762)
+
+Variable Type : raw
+
+JG-1a : The next questions ask about sexual experiences you may had with another female. Have you ever
+performed oral sex on another female?
+
+  value         label       Total
+  1       Yes                 823
+  5       No                 5248
+  7       Not ascertained      13
+  8       Refused              54
+  9       Don't know            3
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+GETORALF(2763-2763)
+
+Variable Type : raw
+
+JG-1b : Has another female ever performed oral sex on you?
+
+  value         label       Total
+  1       Yes                 935
+  5       No                 5138
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                     Page 20 of 35
+
+
+
+  7       Not                 13
+          ascertained
+  8       Refused             52
+  9       Don't know           3
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+FEMSEX(2764-2764)
+
+Variable Type : raw
+
+JG-1c : Have you ever had any sexual experience of any kind with another female?
+
+  value         label       Total
+  .       INAPPLICABLE        990
+  1       Yes                 257
+  5       No                 4829
+  7       Not ascertained      13
+  8       Refused              49
+  9       Don't know               3
+          Total              6141
+
+
+Universe : Applicable if R has not reported some form of oral sex with a female partner (JG-1a GIVORALF =
+5, DK, or RF and JG-1b GETORALF = 5, DK, or RF)
+
+samesexany(2765-2765)
+
+Variable Type : computed
+
+Description : Whether R has had any sexual experience with a female partner (Computed in Flow Check J-19)
+
+  value         label       Total
+  .       INAPPLICABLE         59
+  1       YES                1247
+  5       NO                 4822
+  7       Not ascertained      13
+          Total              6141
+
+
+Universe : Applicable if R gave answers other than "don't know" or "refused" to all of the questions on same-
+sex activity (JG-1a GIVORALF NE DK/RF and JG-1b GETORALF NE DK/RF and JG-1c FEMSEX NE DK/RF).
+
+samlifenum(2766-2768)
+
+Variable Type : computed
+
+Description : Number of same-sex partners in lifetime [Computed in Flow Check J-19d]
+
+  value             label              Total
+  .       INAPPLICABLE                  4881
+  1       1 PARTNER                      559
+  2       2 PARTNERS                     259
+  3       3 PARTNERS                     144
+  4       4 PARTNERS                      81
+  5       5 PARTNERS                      62
+  6       6 PARTNERS                      26
+  7       7 PARTNERS                      13
+  8       8 PARTNERS                      16
+  9       9 PARTNERS                       5
+  10      10 OR MORE PARTNERS             67
+  997     Not ascertained                 13
+  998     Refused                         12
+  999     Don't know                       3
+          Total                        6141
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 21 of 35
+
+
+
+
+Universe : Applicable if R reported ever having sexual experience with a female partner (samesexany = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+samyearnum(2769-2771)
+
+Variable Type : computed
+
+Description : Number of same-sex partners in last 12 months [Computed in Flow Check J-19f]
+
+  value             label          Total
+  .       INAPPLICABLE                  4881
+  0       0 PARTNERS                    852
+  1       1 PARTNER                     280
+  2       2 PARTNERS                     63
+  3       3 OR MORE PARTNERS              45
+  997     Not ascertained                13
+  998     Refused                          7
+          Total                      6141
+
+
+Universe : Applicable if R reported ever having sexual experience with a female partner (samesexany = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+SAMESEX1(2772-2773)
+
+Variable Type : raw
+
+JG-4 : Thinking back to the first time you ever had oral sex or another kind of sexual experience with a
+female partner, how old were you?
+
+  value        label          Total
+  .       INAPPLICABLE          4881
+  1       UNDER 15 YEARS         208
+  2       15-19 YEARS            525
+  3       20-29 YEARS            403
+  4       30-49 YEARS             91
+  97      Not ascertained         13
+  98      Refused                 15
+  99      Don't know                5
+          Total                6141
+
+
+Universe : Applicable if R reported ever having sexual experience with a female partner (samesexany = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+FSAMEREL(2774-2775)
+
+Variable Type : raw
+
+JG-4a : At the time you first had any sexual experience with a female partner, how would you describe your
+relationship with her?
+
+  value                            label                              Total
+  .       INAPPLICABLE                                                 4881
+  1       Married to her                                                  2
+  2       Engaged to her                                                  2
+  3       Living together in a sexual relationship, but not engaged      16
+  4       Going with her or going steady                                195
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                       Page 22 of 35
+
+
+
+  5       Going out with her once in a while                 61
+  6       Just friends                                      803
+  7       Had just met her                                   72
+  8       Something else                                     90
+  97      Not ascertained                                    13
+  98      Refused                                             5
+  99      Don't know                                          1
+          Total                                            6141
+
+
+Universe : Asked for all Rs who ever had any sexual experience with a female partner (SAMESEXANY=1)
+
+Female Respondent File Codebook :: SECTION J: Audio CASI :: (JH) Sexual attraction, orientation, &
+experience with STDs
+
+MFLASTP(2776-2776)
+
+Variable Type : raw
+
+JH-1 : The very last time you had any type of sex -- that is vaginal intercourse or anal sex or oral sex -- was
+that last sexual partner male or female?
+
+  value         label        Total
+  .       INAPPLICABLE         5814
+  1       Male                  256
+  2       Female                54
+  7       Not ascertained       13
+  8       Refused                   3
+  9       Don't know                1
+          Total               6141
+
+
+Universe : Applicable if R reported having sex with both males & females in the last 12 months ((JF-2
+PARTS12M_1 > 0 or PARTS12M_1 = DK) and (JG-3 FEMPRT12_1 > 0 or FEMPRT12_1 = DK)) or if R has
+reported no partners at all in the last 12 months but has had both male and female partners in lifetime
+(PARTS12M_1 = 0, RF and FEMPRT12_1 = 0, RF and oppsexgen = 1 and samesexany = 1)
+
+DATEAPP(2777-2777)
+
+Variable Type : raw
+
+JH-1a : JH-1a : In the past 12 months, have you had sex with anyone you first met using a dating or
+“hookup” website or mobile app? Sex includes vaginal, anal and oral sex.
+
+  value         label        Total
+  1       Yes                   335
+  5       No                   5739
+  7       Not ascertained       13
+  8       Refused                50
+  9       Don't know                4
+          Total               6141
+
+
+Universe : Applicable for all respondents
+
+ATTRACT(2778-2778)
+
+Variable Type : raw
+
+JH-2 : People are different in their sexual attraction to other people. Which best describes your feelings? Are
+you...
+
+  value                     label                  Total
+  1       Only attracted to males                   4386
+  2       Mostly attracted to males                  911
+  3       Equally attracted to males and females     424
+  4       Mostly attracted to females                112
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                   Page 23 of 35
+
+
+
+  5       Only attracted to females                      109
+  6       Not sure                                       115
+  7       Not ascertained                                 14
+  8       Refused                                         59
+  9       Don't know                                      11
+          Total                                         6141
+
+
+Universe : Applicable for all respondents
+
+ORIENT_A(2779-2779)
+
+Variable Type : raw
+
+JH-3 : Do you think of yourself as ...
+
+  value              label                Total
+  .       INAPPLICABLE                      2965
+  1       Heterosexual or straight          2693
+  2       Homosexual, gay, or lesbian             86
+  3       Bisexual                            331
+  7       Not ascertained                         14
+  8       Refused                                 40
+  9       Don't know                              12
+          Total                             6141
+
+
+Universe : Applicable for random half sample of respondents (NSFG version)
+
+ORIENT_B(2780-2780)
+
+Variable Type : raw
+
+JH-3b : Which of the following best represents how you think of yourself?
+
+  value                 label                      Total
+  .       INAPPLICABLE                                 3162
+  1       Lesbian or gay                                 73
+  2       Straight, that is, not lesbian or gay        2436
+  3       Bisexual                                      290
+  4       Something else                                132
+  7       Not ascertained                                14
+  8       Refused                                        28
+  9       Don't know                                      6
+          Total                                        6141
+
+
+Universe : Applicable for random half sample of respondents (NHIS version)
+
+CONFCONC(2781-2781)
+
+Variable Type : raw
+
+JH-3a : Would you ever not go for sexual or reproductive health care because your parents might find out?
+
+  value         label        Total
+  .       INAPPLICABLE         4140
+  1       Yes                   266
+  5       No                   1704
+  7       Not ascertained         14
+  8       Refused                  8
+  9       Don't know               9
+          Total               6141
+
+
+Universe : Applicable if R is under 26 years of age (agescrn < 26)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                      Page 24 of 35
+
+
+
+TIMALON(2782-2782)
+
+Variable Type : raw
+
+JH-3b : The last time you had a health care visit in the past 12 months, did a doctor or other health provider
+spend any time alone with you without a parent, relative or guardian in the room?
+
+  value                          label                             Total
+  .       INAPPLICABLE                                              5534
+  1       Yes                                                        224
+  5       No                                                         308
+  6       Did not have a health care visit in the past 12 months      57
+  7       Not ascertained                                             14
+  8       Refused                                                      1
+  9       Don't know                                                   3
+          Total                                                    6141
+
+
+Universe : Applicable if R is under 18 years of age (agescrn < 18)
+
+RISKCHEK1(2783-2783)
+
+Variable Type : raw
+
+JH-3c : In the last 12 months, that is, since (INTERVIEW MONTH, INTERVIEW YEAR - 1), has a doctor or
+other medical care provider asked you about your sexual orientation or the sex of your sexual partners?
+
+  value         label       Total
+  1       Yes                 1473
+  5       No                  4593
+  7       Not ascertained       14
+  8       Refused               51
+  9       Don't know            10
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+RISKCHEK2(2784-2784)
+
+Variable Type : raw
+
+JH-3d : In the last 12 months, has a doctor or other medical care provider asked you about your number of
+sexual partners?
+
+  value         label       Total
+  1       Yes                 1745
+  5       No                  4325
+  7       Not ascertained       14
+  8       Refused               49
+  9       Don't know              8
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+RISKCHEK3(2785-2785)
+
+Variable Type : raw
+
+JH-3e : In the last 12 months, has a doctor or other medical care provider asked you about your use of
+condoms?
+
+  value         label       Total
+  1       Yes                 1927
+  5       No                  4147
+  7       Not ascertained       14
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                     Page 25 of 35
+
+
+
+  8       Refused             48
+  9       Don't know           5
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+RISKCHEK4(2786-2786)
+
+Variable Type : raw
+
+JH-3f : In the last 12 months, has a doctor or other medical care provider asked you about the types of sex
+you have, whether vaginal, oral, or anal?
+
+  value         label       Total
+  1       Yes                1055
+  5       No                 5014
+  7       Not ascertained      14
+  8       Refused              53
+  9       Don't know               5
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+CHLAMTST(2787-2787)
+
+Variable Type : raw
+
+JH-4 : In the last 12 months, that is, since [INTERVIEW MONTH, INTERVIEW YEAR-1], have you been tested
+for chlamydia?
+
+  value         label       Total
+  1       Yes                1697
+  5       No                 4359
+  7       Not ascertained      14
+  8       Refused              48
+  9       Don't know           23
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+STDOTHR12(2788-2788)
+
+Variable Type : raw
+
+JH-4b : In the past 12 months, have you been tested for any other sexually transmitted disease like
+gonorrhea, herpes, or syphilis?
+
+  value         label       Total
+  1       Yes                1849
+  5       No                 4213
+  7       Not ascertained      14
+  8       Refused              46
+  9       Don't know           19
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+STDTRT12(2789-2789)
+
+Variable Type : raw
+
+JH-5 : In the past 12 months, have you been treated or received medication from a doctor or other medical
+care provider for a sexually transmitted disease like gonorrhea, chlamydia, herpes, or syphilis?
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                      Page 26 of 35
+
+
+
+  value        label        Total
+  1       Yes                 312
+  5       No                 5762
+  7       Not                  14
+          ascertained
+  8       Refused              47
+  9       Don't know            6
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+GON(2790-2790)
+
+Variable Type : raw
+
+JH-6 : In the last 12 months, have you been told by a doctor or other provider that you had gonorrhea?
+
+  value         label        Total
+  1       Yes                   70
+  5       No                  6010
+  7       Not ascertained       14
+  8       Refused               42
+  9       Don't know                5
+          Total               6141
+
+
+Universe : Applicable for all respondents
+
+CHLAM(2791-2791)
+
+Variable Type : raw
+
+JH-7 : In the last 12 months, have you ever been told by a doctor or other medical care provider that you
+had chlamydia?
+
+  value         label        Total
+  1       Yes                  112
+  5       No                  5967
+  7       Not ascertained       14
+  8       Refused               43
+  9       Don't know                5
+          Total               6141
+
+
+Universe : Applicable for all respondents
+
+HERPES(2792-2792)
+
+Variable Type : raw
+
+JH-8 : At any time in your life, have you ever been told by a doctor or other medical care provider that you
+had genital herpes?
+
+  value         label        Total
+  1       Yes                  229
+  5       No                  5850
+  7       Not ascertained       14
+  8       Refused               44
+  9       Don't know                4
+          Total               6141
+
+
+Universe : Applicable for all respondents
+
+GENWARTS(2793-2793)
+
+Variable Type : raw
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 27 of 35
+
+
+
+JH-9 : At any time in your life, have you ever been told by a doctor or other medical care provider that you
+had genital warts or human papillomavirus also called HPV?
+
+  value         label       Total
+  1       Yes                 623
+  5       No                 5453
+  7       Not ascertained      14
+  8       Refused              45
+  9       Don't know            6
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+SYPHILIS(2794-2794)
+
+Variable Type : raw
+
+JH-10 : At any time in your life, have you ever been told by a doctor or other medical care provider that you
+had syphilis?
+
+  value         label       Total
+  1       Yes                  28
+  5       No                 6053
+  7       Not ascertained      14
+  8       Refused              41
+  9       Don't know            5
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+EVRINJECT(2795-2795)
+
+Variable Type : raw
+
+JH-11 : At any time in your life, have you ever shot up or injected drugs other than those prescribed for you?
+
+  value         label       Total
+  .       INAPPLICABLE         18
+  1       Yes                  59
+  5       No                 6008
+  7       Not ascertained      14
+  8       Refused              37
+  9       Don't know            5
+          Total             6141
+
+
+Universe : Applicable if R did not report injecting drugs without a prescription in the last 12 months or she
+said DK or RF (JC-9 INJECT12 = 1, DK, or RF)
+
+EVRSHARE(2796-2796)
+
+Variable Type : raw
+
+JH-12 : At any time in your life, have you ever used a needle that you knew or suspected someone else had
+used before you?
+
+  value         label       Total
+  .       INAPPLICABLE       6049
+  1       Yes                  35
+  5       No                   41
+  7       Not ascertained      15
+  9       Don't know            1
+          Total             6141
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                         Page 28 of 35
+
+
+
+Universe : Applicable if R had reported ever injecting drugs without a prescription in the past 12 months
+(JC-9 INJECT12 = 2,3 or 4) or at any time in her life (JH-11 EVRINJECT = 1)
+
+Female Respondent File Codebook :: SECTION J: Audio CASI :: (JI) Individual earnings and family income
+and public assistance
+
+EARNTYPE(2797-2797)
+
+Variable Type : raw
+
+JI-0a : Next, please enter your total earnings before (taxes / taxes on your last job). Will it be easier for you
+to enter your total earnings per week, per month, or per year?
+
+  value       label         Total
+  .       INAPPLICABLE        579
+  1       Week               1718
+  2       Month              1535
+  3       Year               2050
+  7       Not ascertained      15
+  8       Refused             160
+  9       Don't know           84
+          Total             6141
+
+
+Universe : Applicable if R ever worked (rearnty ne 5)
+
+EARN(2798-2799)
+
+Variable Type : raw
+
+JI-0b : Which category represents your total (weekly / monthly / yearly) earnings before (taxes / taxes on
+your last job)?
+
+  value                                    label                                       Total
+  .       INAPPLICABLE                                                                   579
+  1       Under $96 (weekly)/Under $417 (monthly)/Under $5,000 (yearly)                  557
+  2       $96-$143 (weekly)/$417-624 (monthly)/$5,000-7,499 (yearly)                     328
+  3       $144-191 (weekly)/$625-832 (monthly)/$7,500-9,999 (yearly)                     240
+  4       $192-239 (weekly)/$833-1,041 (monthly)/$10,000-12,499 (yearly)                 344
+  5       $240-288 (weekly)/$1,042-1,249 (monthly)/$12,500-14,999 (yearly)               315
+  6       $289-384 (weekly)/$1,250-1,666 (monthly)/$15,000-19,999 (yearly)               455
+  7       $385-480 (weekly)/$1,667-2,082 (monthly)/$20,000-24,999 (yearly)               495
+  8       $481-576 (weekly)/$2,083-2,499 (monthly)/$25,000-29,999 (yearly)               439
+  9       $577-672 (weekly)/$2,500-2,916 (monthly)/$30,000-34,999 (yearly)               356
+  10      $673-768 (weekly)/$2,917-3,332 (monthly)/$35,000-39,999 (yearly)               268
+  11      $769-961 (weekly)/$3,333-4,166 (monthly)/$40,000-49,999 (yearly)               430
+  12      $962-1,153 (weekly)/$4,167-4,999 (monthly)/$50,000-59,999 (yearly)             318
+  13      $1,154-1,441 (weekly)/$5,000-6,249 (monthly)/$60,000-74,999 (yearly)           289
+  14      $1,442-1,922 (weekly)/$6,250-8,332 (monthly)/$75,000-99,999 (yearly)           235
+  15      $1,923 or more (weekly)/$8,333 or more (monthly)/$100,000 or more (yearly)     230
+  97      Not ascertained                                                                 15
+  98      Refused                                                                        162
+  99      Don't know                                                                      86
+          Total                                                                        6141
+
+
+Universe : Applicable if R ever worked (rearnty ne 5)
+
+EARNDK1(2800-2800)
+
+Variable Type : raw
+
+JI-0c : Was it $20,000 or more per year?
+
+  value       label         Total
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                     Page 29 of 35
+
+
+
+  .       INAPPLICABLE      5878
+  1       Yes                 29
+  5       No                  43
+  7       Not                 15
+          ascertained
+  8       Refused            116
+  9       Don't know          60
+          Total             6141
+
+
+Universe : Applicable if R did not know or refused to report her total earnings before taxes (JI-0b EARN =
+DK/RF)
+
+EARNDK2(2801-2801)
+
+Variable Type : raw
+
+JI-0d : Was it $50,000 or more per year?
+
+  value         label       Total
+  .       INAPPLICABLE       6097
+  1       Yes                   7
+  5       No                   11
+  7       Not ascertained      15
+  8       Refused               7
+  9       Don't know            4
+          Total             6141
+
+
+Universe : Applicable if R's total earnings before taxes were $20,000 or more (JI-0c EARNDK1 = 1)
+
+EARNDK3(2802-2802)
+
+Variable Type : raw
+
+JI-0e : Was it $75,000 or more per year?
+
+  value         label       Total
+  .       INAPPLICABLE       6119
+  1       Yes                   2
+  5       No                    5
+  7       Not ascertained      15
+          Total             6141
+
+
+Universe : Applicable if R's total earnings before taxes were $50,000 or more (JI-0d EARNDK2 = 1)
+
+EARNDK4(2803-2803)
+
+Variable Type : raw
+
+JI-0f : Was it $100,000 or more per year?
+
+  value         label       Total
+  .       INAPPLICABLE       6124
+  1       Yes                   1
+  5       No                    1
+  7       Not ascertained      15
+          Total             6141
+
+
+Universe : Applicable if R's total earnings before taxes were $75,000 or more (JI-0e EARNDK3 = 1)
+
+TOINCWMY(2804-2804)
+
+Variable Type : raw
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                       Page 30 of 35
+
+
+
+JI-2 : Remember, this item is important and your answers will be kept confidential. Will it be easier for you to
+report the total income per week, per month, or per year?
+
+  value       label         Total
+  1       Week                1050
+  2       Month               1489
+  3       Year                3196
+  7       Not ascertained       15
+  8       Refused              212
+  9       Don't know           179
+          Total               6141
+
+
+Universe : Applicable for all respondents
+
+TOTINC(2805-2806)
+
+Variable Type : raw
+
+JI-3 : Which category represents (your total (weekly / monthly / yearly) income / the total combined
+(weekly / monthly / yearly) income of your family) in the year [INTERVIEW YEAR - 1]? Please enter the
+amount before taxes.
+
+  value                                    label                                       Total
+  1       Under $96 (weekly)/Under $417 (monthly)/Under $5,000 (yearly)                  271
+  2       $96-$143 (weekly)/$417-624 (monthly)/$5,000-7,499 (yearly)                     167
+  3       $144-191 (weekly)/$625-832 (monthly)/$7,500-9,999 (yearly)                     167
+  4       $192-239 (weekly)/$833-1,041 (monthly)/$10,000-12,499 (yearly)                 234
+  5       $240-288 (weekly)/$1,042-1,249 (monthly)/$12,500-14,999 (yearly)               239
+  6       $289-384 (weekly)/$1,250-1,666 (monthly)/$15,000-19,999 (yearly)               268
+  7       $385-480 (weekly)/$1,667-2,082 (monthly)/$20,000-24,999 (yearly)               324
+  8       $481-576 (weekly)/$2,083-2,499 (monthly)/$25,000-29,999 (yearly)               371
+  9       $577-672 (weekly)/$2,500-2,916 (monthly)/$30,000-34,999 (yearly)               313
+  10      $673-768 (weekly)/$2,917-3,332 (monthly)/$35,000-39,999 (yearly)               299
+  11      $769-961 (weekly)/$3,333-4,166 (monthly)/$40,000-49,999 (yearly)               479
+  12      $962-1,153 (weekly)/$4,167-4,999 (monthly)/$50,000-59,999 (yearly)             483
+  13      $1,154-1,441 (weekly)/$5,000-6,249 (monthly)/$60,000-74,999 (yearly)           525
+  14      $1,442-1,922 (weekly)/$6,250-8,332 (monthly)/$75,000-99,999 (yearly)           532
+  15      $1,923 or more (weekly)/$8,333 or more (monthly)/$100,000 or more (yearly)     882
+  97      Not ascertained                                                                 15
+  98      Refused                                                                        224
+  99      Don't know                                                                     348
+          Total                                                                        6141
+
+
+Universe : Applicable for all respondents
+
+Notes : use recode TOTINCR; see recode POVERTY
+
+FMINCDK1(2807-2807)
+
+Variable Type : raw
+
+JI-3a : Was it less than $50,000 or $50,000 or more in [INTERVIEW YEAR - 1]?
+
+  value          label        Total
+  .       INAPPLICABLE          5554
+  1       Less than $50,000          76
+  5       $50,000 or more            45
+  7       Not ascertained            15
+  8       Refused                191
+  9       Don't know             260
+          Total                6141
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                    Page 31 of 35
+
+
+
+Universe : Applicable if R did not know or refused to report total combined family income (JI-3 TOTINC =
+DK/RF)
+
+FMINCDK2(2808-2808)
+
+Variable Type : raw
+
+JI-3b : Was it less than $35,000?
+
+  value         label       Total
+  .       INAPPLICABLE       6050
+  1       Yes                  43
+  5       No                    9
+  7       Not ascertained      15
+  8       Refused               4
+  9       Don't know           20
+          Total             6141
+
+
+Universe : Applicable if R's total combined family income was less than $50,000 (JI-3a FMINCDK1 = 1)
+
+FMINCDK3(2809-2809)
+
+Variable Type : raw
+
+JI-3c : Was it less than [POVERTY THRESHOLD FOR A FAMILY THAT SIZE IN INTERVIEW YEAR - 1]?
+
+  value         label       Total
+  .       INAPPLICABLE       6083
+  1       Yes                  19
+  5       No                   16
+  7       Not ascertained      15
+  9       Don't know            8
+          Total             6141
+
+
+Universe : Applicable if R's total combined family income was less than $35,000 (JI-3b FMINCDK2 = 1)
+
+FMINCDK4(2810-2810)
+
+Variable Type : raw
+
+JI-3d : Was it $75,000 or more last year?
+
+  value         label       Total
+  .       INAPPLICABLE       6081
+  1       Yes                  17
+  5       No                   12
+  7       Not ascertained      15
+  8       Refused               1
+  9       Don't know           15
+          Total             6141
+
+
+Universe : Applicable if R's total combined family income was $50,000 or more (JI-3a FMINCDK1 = 5)
+
+FMINCDK5(2811-2811)
+
+Variable Type : raw
+
+JI-3e : Was it $100,000 or more last year?
+
+  value         label       Total
+  .       INAPPLICABLE       6109
+  1       Yes                   5
+  5       No                    5
+  7       Not ascertained      15
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 32 of 35
+
+
+
+  8       Refused                1
+  9       Don't know             6
+          Total             6141
+
+
+Universe : Applicable if R's total combined family income was $75,000 or more (JI-3d FMINCDK4 = 1)
+
+PUBASST(2812-2812)
+
+Variable Type : raw
+
+JI-4 : At any time during [INTERVIEW YEAR - 1], even for one month, did you or any members of your family
+living here receive any CASH assistance from a state or county welfare program, such as [STATE-SPECIFIC
+TEMPORARY-ASSISTANCE-FOR-NEEDY-FAMILIES NAME]?
+
+  value         label       Total
+  1       Yes                  561
+  5       No                 5328
+  7       Not ascertained        15
+  8       Refused              115
+  9       Don't know           122
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+Notes : see recode PUBASSIS
+
+PUBASTYP1(2813-2813)
+
+Variable Type : raw
+
+JI-5 : From what type of program did you or any members of your family living here receive the CASH
+assistance? Was it a welfare or welfare-to-work program such as [STATE-SPECIFIC TEMPORARY-
+ASSISTANCE-FOR-NEEDY-FAMILIES NAME], General Assistance, Emergency Assistance, or some other
+program? [1st MENTIONED]
+
+  value                  label                   Total
+  .       INAPPLICABLE                            5565
+  1       Public assist prog, e.g. AFDC or ADC     299
+  2       General/Emergency/Other assistance       234
+  3       3                                         13
+  7       Not ascertained                           15
+  8       Refused                                    4
+  9       Don't know                                11
+          Total                                  6141
+
+
+Universe : Applicable if R or a family member received any cash assistance from a state or county welfare
+program (JI-4 PUBASST = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+FOODSTMP(2814-2814)
+
+Variable Type : raw
+
+JI-6 : The next question is about SNAP, the Supplemental Nutrition Assistance Program, formerly known as
+the Food Stamp Program. SNAP benefits are provided on an electronic debit card {called [SNAP_FILL] / or
+EBT card}. In the year [INTERVIEW YEAR - 1], did you or any members of your family living here receive
+food stamps or SNAP benefits?
+
+  value         label       Total
+  1       Yes                1464
+  5       No                 4480
+  7       Not ascertained        15
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                       Page 33 of 35
+
+
+
+  8       Refused             94
+  9       Don't know          88
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+WIC(2815-2815)
+
+Variable Type : raw
+
+JI-7 : In the year [INTERVIEW YEAR - 1], did you or any members of your family living here receive WIC, the
+Women, Infants, and Children Nutrition Program?
+
+  value         label       Total
+  1       Yes                 795
+  5       No                 5191
+  7       Not ascertained      15
+  8       Refused              76
+  9       Don't know           64
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+HLPTRANS(2816-2816)
+
+Variable Type : raw
+
+JI-8a : In the year [INTERVIEW YEAR - 1], did you or any members of your family living here receive the
+following type of government assistance because your income was low...
+Transportation assistance, such as gas vouchers, bus passes, or help registering, repairing, or insuring a car?
+
+  value         label       Total
+  1       Yes                 235
+  5       No                 5740
+  7       Not ascertained      16
+  8       Refused              70
+  9       Don't know           80
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+HLPCHLDC(2817-2817)
+
+Variable Type : raw
+
+JI-8b : (In the year [INTERVIEW YEAR - 1], did you or any members of your family living here receive the
+following type of government assistance because your income was low...)
+Any child care services or assistance so you or they could go to work or school or training?
+
+  value         label       Total
+  1       Yes                 291
+  5       No                 5710
+  7       Not ascertained      16
+  8       Refused              68
+  9       Don't know           56
+          Total              6141
+
+
+Universe : Applicable for all respondents
+
+HLPJOB(2818-2818)
+
+Variable Type : raw
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                                        Page 34 of 35
+
+
+
+JI-8c : (In the year [INTERVIEW YEAR - 1], did you or any members of your family living here receive the
+following type of government assistance because your income was low...)
+A social services or Welfare office's help with job training, a Job Club, a job search program, or anything else
+to help you or anyone in the household try to find a job?
+
+  value         label       Total
+  1       Yes                 224
+  5       No                 5776
+  7       Not ascertained      16
+  8       Refused              65
+  9       Don't know           60
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+FREEFOOD(2819-2819)
+
+Variable Type : raw
+
+JI-9 : In the last 12 months, did you receive free or reduced-cost food or meals because you couldn't afford
+to buy food?
+
+  value         label       Total
+  1       Yes                 544
+  5       No                 5490
+  7       Not ascertained      16
+  8       Refused              61
+  9       Don't know           30
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+HUNGRY(2820-2820)
+
+Variable Type : raw
+
+JI-10 : In the past 12 months, were you or any member of your family ever hungry, but you just couldn't
+afford more food?
+
+  value         label       Total
+  1       Yes                 457
+  5       No                 5597
+  7       Not ascertained      16
+  8       Refused              55
+  9       Don't know           16
+          Total             6141
+
+
+Universe : Applicable for all respondents
+
+MED_COST(2821-2821)
+
+Variable Type : raw
+
+JI-11 : In the past 12 months, was there anyone in your household who needed to see a doctor or go to the
+hospital but couldn't go because of the cost?
+
+  value         label       Total
+  1       Yes                 658
+  5       No                 5401
+  7       Not ascertained      16
+  8       Refused              51
+  9       Don't know           15
+          Total             6141
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+National Survey of Family Growth, 2017-2019                                     Page 35 of 35
+
+
+
+Universe : Applicable for all respondents
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15533?studyNumber=10002&fo... 11/18/2020
+

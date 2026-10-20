@@ -1,0 +1,24 @@
+b = 1.5 mm, reversed load (vertical arm in compression), floor 3. factor = critical load / 100 N.
+stage w_mm factor mass_g seconds
+sweep-coarse 18.400 2.267 30.68 35
+sweep-coarse 20.000 2.544 32.97 17
+sweep-coarse 22.000 2.915 35.75 16
+sweep-coarse 24.000 3.315 38.43 16
+sweep-coarse 26.000 3.748 41.02 17
+bisect-coarse 20.000 2.544 32.97 16
+bisect-coarse 24.000 3.315 38.43 16
+bisect-coarse 22.000 2.915 35.75 16
+bisect-coarse 23.000 3.111 37.10 16
+bisect-coarse 22.500 3.012 36.43 17
+bisect-coarse 22.250 2.963 36.09 15
+bisect-coarse 22.375 2.988 36.26 17
+bisect-coarse 22.438 3.000 36.34 17
+bisect-coarse 22.469 3.006 36.39 16
+coarse root w = 22.469
+fine 21.869 2.861 35.57 107
+fine 23.069 3.093 37.20 75
+fine 22.469 2.976 36.39 73
+fine 22.769 3.034 36.79 73
+fine 22.619 3.005 36.59 74
+fine 22.544 2.991 36.49 73
+fine root w = 22.619

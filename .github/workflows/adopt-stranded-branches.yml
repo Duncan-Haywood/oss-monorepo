@@ -1,0 +1,67 @@
+name: Adopt stranded branches
+
+# Open a draft pull request for every branch a session pushed and then left.
+#
+# Sessions that die before their landing checklist (tool limit, container
+# reclaimed, stopped at `git push`) leave branches with no PR, and every other
+# guard here keys on a PR. On 2026-10-15, 122 branches with tips since
+# 2026-09-15 carried commits in no PR; 40 of them held files that only they had
+# changed -- mostly SEO comparison and guide pages that never shipped.
+# This job gives each such branch a draft PR so the processes that already work
+# on PRs (the next session's queue, the reviewers, branch cleanup) see it.
+#
+# What it skips (young tips, run-log/derived-only branches, work already on
+# main, branches main has overtaken, "parked"/"not for merge") and why lives in
+# platform/ci/adopt_stranded.py, with tests.
+#
+# On CLAUDE.md's "Automation" rule: it pushes no commits and calls no paid API
+# -- one GITHUB_TOKEN REST call per PR it opens, at most 10 per run. The owner
+# asked for a process for branches that die before `main` (2026-10-15).
+# Turn it off with the repository variable ADOPT_STRANDED_BRANCHES=false.
+#
+# GitHub does not start workflows for PRs opened with GITHUB_TOKEN, so an
+# adopted PR's CI runs on the first push to it; the PR body says so.
+
+on:
+  schedule:
+    - cron: "41 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "List what would be adopted, open nothing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: adopt-stranded-branches
+  cancel-in-progress: false
+
+jobs:
+  adopt:
+    if: vars.ADOPT_STRANDED_BRANCHES != 'false'
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write # opening the draft PRs
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Open draft PRs for stranded branches
+        working-directory: platform/ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLY: ${{ inputs.dry_run && ' ' || '--apply' }}
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          # A fixed start, not the 14-day default, so the backlog measured on
+          # 2026-10-15 (tips back to 2026-09-15) is adopted too. Adopted PRs that
+          # get closed are deleted by branch-cleanup.yml, so the window empties.
+          python3 adopt_stranded.py --repo "$GITHUB_WORKSPACE" --since 2026-09-15 $APPLY

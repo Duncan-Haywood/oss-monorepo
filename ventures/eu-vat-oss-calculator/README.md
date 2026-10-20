@@ -7,6 +7,8 @@ per rate for the quarterly One-Stop-Shop (OSS) return.** The file is read in the
 nothing is uploaded and no login, account or API key is needed. Sellers outside the EU can use
 it for the non-Union OSS.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/eu-vat-oss-calculator/
+
 After using this, you can now **name the date and the order at which destination-country VAT
 started, see which of your rows are domestic, B2B, non-EU or below the threshold and so not on
 the return, and download the return table as CSV**, which used to mean a spreadsheet, a rate

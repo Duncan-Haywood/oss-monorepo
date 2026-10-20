@@ -6,6 +6,8 @@ the way the job actually costs — glass source, ADAS camera/sensor
 calibration, mobile trip fee, and cash versus insurance billing — and flags
 a bid where a required calibration was never actually priced.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/auto-glass-bid-calculator/
+
 **After using this, you can now send a windshield bid that already includes
 the calibration line**, which used to take a flat coupon-rate guess that
 quoted the glass and quietly dropped the camera.

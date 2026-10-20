@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "router-impurity"
+version = "0.1.0"
+description = "Conflict floor of routed modules in continual learning equals the Gini impurity of the router: exact law, simulation, and what modularity buys when tasks conflict"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

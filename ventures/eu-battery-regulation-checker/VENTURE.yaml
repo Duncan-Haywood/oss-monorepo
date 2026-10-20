@@ -1,0 +1,44 @@
+name: eu-battery-regulation-checker
+description: >-
+  Free browser tool that gives a first read of the EU Batteries Regulation (Regulation (EU) 2023/1542) for a maker, importer or online seller of batteries and battery-powered products (e-bikes, power banks, storage, EV packs): which duties reach the battery, the date each applies from (general label, removability, QR code, battery passport, due diligence), whether an EU operator stands behind it, and what is still open. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no battery-regulation tool in ventures/ (duplicate_check top hit 0.23, gpsr-product-safety-checker). Not in screened-out.md.
+#
+# First visitor: an e-bike, power-bank or storage maker/importer hearing about the "battery passport" and the 2026 label deadline; search phrases
+# "EU battery regulation requirements", "battery passport 2027", "EU battery label 2026", "battery regulation authorised representative".
+# Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: per-SKU battery passport data-sheet and label generator,
+# behind an env-var switch.
+#
+# Liability: first read of the Regulation's scope and dates; rejects bad input, says plainly that implementing acts and national enforcement decide, carries
+# no-warranty and not-legal-advice clauses. Dates and Article numbers were written from memory without network access to EUR-Lex in the building session
+# and must be verified (notably the 2025 postponement of due diligence to 18 Aug 2027 and the pending carbon-footprint method); ethical risk is false
+# comfort from an "out" result or a stale date.
+
+hypotheses:
+  - claim: >-
+      Battery and e-mobility makers and importers facing the 2026 label and 2027 passport deadlines will use a free checker to learn which duties reach them and by when.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a date, scope or Article reference differs from the Regulation's text (or a later implementing act) on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-battery-regulation-checker/
+  analytics: null

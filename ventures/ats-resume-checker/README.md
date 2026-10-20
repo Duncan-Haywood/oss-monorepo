@@ -8,10 +8,23 @@ corrupted text, missing standard section headings, buried or missing
 contact info, missing dates, and signs of a collapsed multi-column layout.
 Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/
+
 After using this, you can now **see exactly which formatting artifacts
 would break an ATS parser reading your resume, in one paste**, which used
 to take manually eyeballing a text dump or paying for an account-gated
 scanner that uploads your resume to someone else's server.
+
+## Wording suggestions on your own AI key (optional)
+
+After the posting match, a box offers wording changes. With no key it names,
+for each missing term, the resume line closest to how the posting uses it,
+and says to add the term only if it is true. With your own key (Anthropic,
+OpenAI, Gemini, or any OpenAI-compatible endpoint, via
+`platform/llm/byok.mjs`) a model rewrites up to five of your existing lines;
+the page flags any number in a suggestion that your resume does not contain.
+The key is never stored; the only request the page can make goes to the
+provider you pick. Engine: `tailor.mjs` (tests: `tailor.test.mjs`).
 
 ## Why this exists
 
@@ -25,9 +38,9 @@ never finds out why they stopped hearing back.
 The existing tools in this space (Jobscan, ResyMatch, Rezi, TopResume,
 VMock, and others) mostly require an account, often a paid tier or
 credits, and usually a server-side upload of the resume's content to match
-it against a job description. This does one narrower thing — the format
-check, not the keyword match — with nothing to sign up for and nothing
-sent anywhere: paste the text you already copied, read the findings, done.
+it against a job description. This does the two checks that need no server:
+the format check, and a plain-wording keyword match against one posting you
+paste — with nothing to sign up for and nothing sent anywhere.
 
 ## Try it
 
@@ -37,6 +50,30 @@ resume**. See [`what-is-the-ats-copy-paste-test.html`](what-is-the-ats-copy-past
 for why the technique works and what it can't tell you, or
 [`vs-jobscan.html`](vs-jobscan.html) for how this differs from a
 keyword-matching scanner like Jobscan.
+
+## Keyword match against a job posting
+
+[`match.mjs`](match.mjs) (`matchPosting(resume, posting)`) reads one posting and
+reports which of its skills and phrases the resume covers and which it never
+mentions, most important first. How it works, so you can judge it:
+
+- Terms are words and 2-3 word phrases compared on a light stem, so
+  `dashboards` matches `dashboard`. A small alias list treats `k8s` as
+  `kubernetes`, `js` as `javascript`, `ML` as `machine learning`, and so on.
+- A term weighs more when the posting repeats it, puts it in the title or a
+  requirements section, or says *required / proficient / must*; it weighs less
+  under "nice to have". Known hard skills count double, soft skills half.
+  Boilerplate ("team", "ability to") is dropped.
+- The headline percentage is the weighted share of terms the resume covers. It
+  is this tool's own figure, **not** an ATS score and not a prediction.
+- Years-of-experience and degree requirements are reported separately, since
+  they are not keywords you can add.
+
+Limits: no semantic matching beyond the alias list (`inventory counts` does not
+match `inventory management`), English only, and the skill lists are small and
+tilted to software, analytics, finance and operations. Every "missing" term is
+a prompt to check whether you have that experience and say so truthfully, not
+an instruction to paste words in. Tests use invented postings and resumes.
 
 ## What it checks
 

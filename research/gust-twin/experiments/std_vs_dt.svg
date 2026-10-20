@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of position standard deviation against twin step: the variance-matched twin answer shrinks with its own step while the real value stays at 0.71">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Std of x (a=1) vs twin step dt</text>
+<line x1="64" x2="624" y1="199.7" y2="199.7" stroke="#ddd"/><text x="58" y="203.7" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.001</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.01</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">twin step dt (s)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">std of x</text>
+<polyline points="624.0,157.7 477.6,197.4 344.0,233.6 197.6,273.5 64.0,309.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="157.7" r="3" fill="#c0392b"/>
+<circle cx="477.6" cy="197.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="233.6" r="3" fill="#c0392b"/>
+<circle cx="197.6" cy="273.5" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">variance-matched twin</text>
+<polyline points="624.0,70.4 477.6,70.4 344.0,70.4 197.6,70.4 64.0,70.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#1f6fb2"/>
+<circle cx="477.6" cy="70.4" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="70.4" r="3" fill="#1f6fb2"/>
+<circle cx="197.6" cy="70.4" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">real</text>
+</svg>

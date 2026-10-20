@@ -4,6 +4,8 @@ A free tool that compares two **Cobertura** or **JaCoCo** coverage XML
 reports — baseline vs this pull request — and tells you whether line
 coverage dropped, and which files moved.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/coverage-drop-check/
+
 **What it is not:** a coverage runner, a quality score, or a substitute
 for reading the diff. It answers one narrow question — did the line rate
 go down between these two reports, and where — deterministically, from

@@ -41,6 +41,8 @@ export const DEFAULTS = Object.freeze({
   costPerRental: 18,  // cleaning, delivery, wear, paid every rental
   unitCost: 1100,     // yearly cost of owning one unit
   lostCost: 0,        // extra cost of turning a customer away (goodwill)
+  overflowMargin: 0,  // what you keep on a request you sub-rent from a partner
+  overflowShare: 0,   // % of turned-away requests you can fill that way
   vmr: 1,             // variance-to-mean ratio of requests per day; 1 = Poisson
   bookingStyle: "date", // "date": booked by calendar day; "anytime": pickup at any hour
   maxTurnAway: "",    // optional cap on the share of requests turned away
@@ -131,6 +133,8 @@ function econOf(o = {}) {
     costPerRental: num(o.costPerRental, DEFAULTS.costPerRental),
     unitCost: num(o.unitCost, DEFAULTS.unitCost),
     lostCost: num(o.lostCost, DEFAULTS.lostCost),
+    overflowMargin: num(o.overflowMargin, DEFAULTS.overflowMargin),
+    overflowShare: num(o.overflowShare, DEFAULTS.overflowShare),
     vmr: num(o.vmr, DEFAULTS.vmr),
     bookingStyle: o.bookingStyle === "anytime" ? "anytime" : "date",
     maxTurnAway: o.maxTurnAway === "" || o.maxTurnAway === undefined || o.maxTurnAway === null ? null : num(o.maxTurnAway, NaN),
@@ -147,6 +151,8 @@ function validateEcon(e) {
   if (!(e.costPerRental >= 0)) return "Cost per rental cannot be negative.";
   if (!(e.unitCost >= 0)) return "Yearly cost of owning a unit cannot be negative.";
   if (!(e.lostCost >= 0)) return "Cost of turning a customer away cannot be negative.";
+  if (!(e.overflowMargin >= 0)) return "Margin on a sub-rented request cannot be negative.";
+  if (!(e.overflowShare >= 0 && e.overflowShare <= 100)) return "The share of turn-aways you can sub-rent is a percentage from 0 to 100.";
   if (!(e.vmr >= 1)) return "Booking clustering (variance-to-mean ratio) must be 1 or more; 1 means bookings arrive independently.";
   if (e.vmr > 25) return "Booking clustering above 25 is not a usable input; use 1 to 5.";
   if (e.maxTurnAway !== null && !(e.maxTurnAway >= 0 && e.maxTurnAway < 100)) return "The turn-away cap is a percentage from 0 to under 100.";
@@ -155,6 +161,10 @@ function validateEcon(e) {
   if (!Number.isFinite(e.years) || !Number.isFinite(e.seed)) return "Simulated years and seed must be numbers.";
   return null;
 }
+
+// Expected margin from a turned-away request: the share you can sub-rent from
+// a partner times what you keep on each one.
+const overflowNet = (e) => ((e.overflowShare || 0) / 100) * (e.overflowMargin || 0);
 
 // Closed-form (Erlang B) yearly figures for a fleet of c units.
 export function analyticYear(c, seasons, meanDays, e) {
@@ -176,10 +186,11 @@ export function analyticYear(c, seasons, meanDays, e) {
   const revenue = rentalDays * e.price;
   const variable = carried * e.costPerRental;
   const lost = turned * e.lostCost;
+  const overflow = turned * overflowNet(e);
   const owning = c * e.unitCost;
   return {
-    units: c, requests, rentals: carried, turnedAway: turned, rentalDays, revenue, variable, lost, owning,
-    profit: revenue - variable - lost - owning,
+    units: c, requests, rentals: carried, turnedAway: turned, rentalDays, revenue, variable, lost, overflow, owning,
+    profit: revenue - variable - lost + overflow - owning,
     turnAwayShare: requests > 0 ? turned / requests : 0,
     utilization: c > 0 && days > 0 ? rentalDays / (c * days) : 0,
     bySeason,
@@ -293,7 +304,7 @@ export function simulate(seasons, durations, e, maxC, years) {
       }
       if (y === 0) continue;
       const turned = req - accd;
-      profits.push(rev - accd * e.costPerRental - turned * e.lostCost - c * e.unitCost);
+      profits.push(rev - accd * e.costPerRental - turned * (e.lostCost - overflowNet(e)) - c * e.unitCost);
       reqT += req; accT += accd; busyT += busyDays;
     }
     const sorted = [...profits].sort((a, b) => a - b);
@@ -420,6 +431,7 @@ function makeVerdict(v) {
   const ts = (r) => (e.bookingStyle === "date" ? r.sim.turnAwayShare : r.analytic.turnAwayShare);
   let s = `Own ${recUnits} unit${recUnits === 1 ? "" : "s"}: about ${fmtMoney(pf(rec))} a year after the cost of owning them, with ${(ts(rec) * 100).toFixed(1)}% of requests turned away (${primary}).`;
   if (capUnits !== null && capUnits > profitUnits) s += ` That is more than the ${profitUnits} that maximise profit, because of your ${e.maxTurnAway}% turn-away cap; the cap costs ${fmtMoney(profitAt(profitUnits) - profitAt(recUnits))} a year.`;
+  if (e.overflowShare > 0 && e.overflowMargin > 0) s += ` This counts ${fmtMoney(e.overflowMargin)} kept on ${e.overflowShare}% of turned-away requests that you sub-rent from a partner, which is why fewer owned units can pay.`;
   if (current && current.units !== recUnits) {
     const d = profitAt(recUnits) - current.profit;
     s += ` Against the ${current.units} you own today that is ${d >= 0 ? "+" : "−"}${fmtMoney(Math.abs(d))} a year.`;

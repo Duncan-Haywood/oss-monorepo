@@ -8,6 +8,8 @@ and margin**, **payback**, the **utilization needed to break even** and to hit a
 per bike, what 10% and 20% fewer bookings do, and compares a second scenario (say thirty bikes
 instead of twenty at the lower utilization you expect).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ebike-rental-fleet-profit-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

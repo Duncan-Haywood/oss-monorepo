@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-vio"
+version = "0.1.0"
+description = "Visual-inertial odometry drift against camera and IMU quality: which sensor upgrade buys the most accuracy (planar, synthetic)"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

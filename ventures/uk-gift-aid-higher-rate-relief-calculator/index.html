@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Gift Aid Higher Rate Relief Calculator (what a donation really costs)</title>
+  <meta name="description" content="Free UK Gift Aid calculator for higher and additional rate taxpayers: what the charity receives, the relief you reclaim, the carry-back to last tax year, and the gift that wins back your personal allowance. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Gift Aid higher rate relief calculator: what does my donation really cost? Free, private">
+  <meta property="og:description" content="See what a donation costs after higher rate relief, and whether carrying it back beats this year.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Gift Aid Higher Rate Relief Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is Gift Aid?", "acceptedAnswer": {"@type": "Answer", "text": "A UK scheme that lets a charity claim 25p from HMRC for every \u00a31 you give, as long as you have paid enough UK income tax or Capital Gains Tax to cover it. A \u00a3100 gift is worth \u00a3125 to the charity."}}, {"@type": "Question", "name": "How do I claim higher rate relief on Gift Aid?", "acceptedAnswer": {"@type": "Answer", "text": "If you pay 40% or 45% tax you can claim back the difference between your rate and the 20% basic rate on the grossed-up gift. Put the gross amount in the Gift Aid section of your Self Assessment return, or ask HMRC to change your tax code."}}, {"@type": "Question", "name": "Can I carry a donation back to the previous tax year?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. You can elect to treat a gift as made in the previous tax year, which helps if your income was higher then. The election must be made on or before filing that year's return, and no later than 31 January after the tax year of the gift."}}, {"@type": "Question", "name": "Can a donation win back my personal allowance?", "acceptedAnswer": {"@type": "Answer", "text": "Between \u00a3100,000 and \u00a3125,140 of income you lose \u00a31 of personal allowance for every \u00a32 over \u00a3100,000. A Gift Aid donation lowers your adjusted net income, so a gross gift equal to the amount over \u00a3100,000 restores the full allowance and relief can exceed 40%."}}, {"@type": "Question", "name": "What if I have not paid enough tax?", "acceptedAnswer": {"@type": "Answer", "text": "The charity's 25% is treated as tax you have paid. If your income tax and Capital Gains Tax for the year are less than the tax on the grossed-up gift, you may have to pay the difference to HMRC."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK GIFT AID HIGHER RATE RELIEF CALCULATOR · 2025/26 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does my Gift Aid donation really cost me?</h1>
+    <p>Enter what you gave and your income. You get what the charity receives, the higher rate relief you can reclaim, whether carrying the gift back to last tax year pays more, and whether a gift would win back your personal allowance.</p>
+    <p class="note">Check the figures on GOV.UK. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="gift">What you donated, before Gift Aid (&pound;)</label><input id="gift" type="number" step="0.01" min="0"></div>
+      <div><label for="income">Your total taxable income this tax year, e.g. salary (&pound;)</label><input id="income" type="number" step="0.01" min="0"></div>
+      <div><label for="prevIncome">Last tax year's income, to test a carry-back (optional, &pound;)</label><input id="prevIncome" type="number" step="0.01" min="0"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the relief</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out the relief.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The gift</h2>
+    <div class="scroll"><table><thead><tr><th>Line</th><th class="n">Amount</th></tr></thead><tbody id="schedule"></tbody></table></div>
+    <h2>If you gave a different amount</h2>
+    <div class="scroll"><table><thead><tr><th>You give</th><th class="n">Charity gets</th><th class="n">Relief</th><th class="n">Your cost</th></tr></thead><tbody id="scenarios"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="copy-summary">Copy summary</button> <button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the grossed-up gift, the 25% the charity claims, higher and additional rate relief through the widened basic and higher rate bands, the personal allowance taper between &pound;100,000 and &pound;125,140, and a carry-back to the previous tax year.</li>
+      <li><strong>Gives:</strong> what the charity receives, the relief you reclaim, your net cost per &pound;1 the charity gets, and outcomes at other gift sizes.</li>
+      <li><strong>Not decided:</strong> Scottish income tax rates, savings and dividend income, pension contributions, Capital Gains Tax, gifts of shares or land, payroll giving, whether you have a valid Gift Aid declaration and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is Gift Aid?</h3>
+    <p>A UK scheme that lets a charity claim 25p from HMRC for every £1 you give, as long as you have paid enough UK income tax or Capital Gains Tax to cover it. A £100 gift is worth £125 to the charity.</p>
+    <h3>How do I claim higher rate relief on Gift Aid?</h3>
+    <p>If you pay 40% or 45% tax you can claim back the difference between your rate and the 20% basic rate on the grossed-up gift. Put the gross amount in the Gift Aid section of your Self Assessment return, or ask HMRC to change your tax code.</p>
+    <h3>Can I carry a donation back to the previous tax year?</h3>
+    <p>Yes. You can elect to treat a gift as made in the previous tax year, which helps if your income was higher then. The election must be made on or before filing that year's return, and no later than 31 January after the tax year of the gift.</p>
+    <h3>Can a donation win back my personal allowance?</h3>
+    <p>Between £100,000 and £125,140 of income you lose £1 of personal allowance for every £2 over £100,000. A Gift Aid donation lowers your adjusted net income, so a gross gift equal to the amount over £100,000 restores the full allowance and relief can exceed 40%.</p>
+    <h3>What if I have not paid enough tax?</h3>
+    <p>The charity's 25% is treated as tax you have paid. If your income tax and Capital Gains Tax for the year are less than the tax on the grossed-up gift, you may have to pay the difference to HMRC.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with a qualified accountant or GOV.UK before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-100k-tax-trap-calculator/">UK £100k tax trap calculator</a>, the <a href="../uk-self-assessment-tax-calculator/">UK Self Assessment tax calculator</a>, the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a> and the <a href="../uk-money-tools-finder/">UK money tools finder</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { gift: "gift", income: "income", prevIncome: "prevIncome" };
+    const IDLE = "Fill in the figures, then click Work out the relief.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `The charity receives ${gbp(r.gross)}. You reclaim ${gbp(r.best.relief)} (${r.best.which}), so your gift costs ${gbp(r.best.cost)}: ${gbp(r.costPerPound)} for every £1 the charity gets.`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["You give", r.v.gift], ["Added by Gift Aid (charity claims)", r.charityExtra], ["Charity receives", r.gross], ["Relief you reclaim this year", -r.now.relief]];
+      $("#schedule").innerHTML = rows.map(([l, n]) => `<tr><td>${esc(l)}</td><td class="n">${gbp(n)}</td></tr>`).join("") + `<tr class="total"><td>Your net cost this year</td><td class="n">${gbp(r.costNow)}</td></tr>`;
+      $("#scenarios").innerHTML = r.scenarios.map((s) => `<tr><td>${gbp(s.net)}</td><td class="n">${gbp(s.gross)}</td><td class="n">${gbp(s.relief)}</td><td class="n">${gbp(s.cost)}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify the rates on GOV.UK before you act.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: £800 donated by someone on £70,000.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#copy-summary").addEventListener("click", async () => { if (last) { try { await navigator.clipboard.writeText(summaryText(last)); status.textContent = "Summary copied."; } catch { status.textContent = "Copy failed: select the text and copy it."; } } });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("gift-aid-relief.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

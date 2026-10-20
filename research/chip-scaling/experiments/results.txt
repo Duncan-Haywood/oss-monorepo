@@ -1,0 +1,60 @@
+== add: width cells depth
+4 17 7
+8 38 15
+16 82 31
+32 170 63
+64 344 125
+== cmp_lt: width cells depth
+4 13 5
+8 38 8
+16 78 10
+32 158 14
+64 318 16
+== eq: width cells depth
+4 7 3
+8 15 4
+16 31 5
+32 63 6
+64 127 7
+== shift: width cells depth
+4 9 2
+8 26 3
+16 67 4
+32 164 5
+64 389 6
+== popcount: width cells depth
+4 9 4
+8 26 11
+16 64 14
+32 141 21
+64 304 27
+== mul: width cells depth
+4 63 12
+6 170 22
+8 330 30
+12 803 46
+16 1476 62
+24 3411 92
+32 6144 120
+== mux4: width cells depth
+4 12 2
+8 24 2
+16 48 2
+32 96 2
+64 192 2
+== fits: kind exponent coefficient r2 (cells ~ c*W^p, all widths)
+add 1.08 3.92 0.9993
+cmp_lt 1.13 3.16 0.9911
+eq 1.04 1.69 0.9997
+shift 1.35 1.48 0.9983
+popcount 1.26 1.76 0.9952
+mul 2.19 3.30 0.9989
+mux4 1.00 3.00 1.0000
+== fits_top: kind exponent (largest three widths only)
+add 1.03
+cmp_lt 1.01
+eq 1.02
+shift 1.27
+popcount 1.12
+mul 2.06
+mux4 1.00

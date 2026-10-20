@@ -18,6 +18,15 @@ test('named character references decode, including the ones a short table misses
   assert.equal(decodeEntities('4&times;8 &mdash; wide'), '4×8 — wide');
 });
 
+test('numeric references at the edges of the valid range', () => {
+  assert.equal(decodeEntities('caf&#x0e9;'), 'café'); // a hex digit of 0 is still a hex digit
+  assert.equal(decodeEntities('&#0;'), '\u0000');
+  assert.equal(decodeEntities('&#xD7FF;'), '\ud7ff');
+  assert.equal(decodeEntities('&#xDFFF;'), '&#xDFFF;'); // last lone surrogate stays literal
+  assert.equal(decodeEntities('&#xD800;'), '&#xD800;');
+  assert.equal(decodeEntities('&#xE000;'), '\ue000');
+});
+
 test('decoding is a single pass, so a decoded value is never re-scanned', () => {
   // The bug in every chained-`.replace()` decoder: `&amp;` becomes `&`, and
   // the next `.replace()` then eats the `lt;` that followed it.

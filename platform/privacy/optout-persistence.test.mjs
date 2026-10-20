@@ -1158,6 +1158,7 @@ const RELATIVE_SELF = relative(
 // +1: `shift-roster-builder` graduated.
 // +1: `time-off-request-planner` graduated.
 // +1: `cheap-meal-plan-optimizer` graduated.
+// +1: `aid-award-letter-comparator` graduated.
 // +1: `retirement-withdrawal-sequencer` graduated.
 // +1: `coffee-roaster-margin-calculator` graduated.
 // +1: `business-loan-offer-comparator` graduated.
@@ -1591,7 +1592,127 @@ const RELATIVE_SELF = relative(
 // +1: `eu-ai-act-risk-checker` graduated.
 // +1: `eudr-scope-checker` graduated.
 // +1: `cbam-cost-estimator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1105;
+// +1: `eaa-accessibility-act-checker` graduated.
+// +1: `indoor-play-center-profit-calculator` graduated.
+// +1: `gpsr-product-safety-checker` graduated.
+// +1: `eu-battery-regulation-checker` graduated.
+// +1: `padel-club-profit-calculator` graduated.
+// +1: `eu-data-act-checker` graduated.
+// +1: `eu-packaging-regulation-checker` graduated.
+// +1: `bowling-center-profit-calculator` graduated.
+// +1: `pay-transparency-directive-checker` graduated.
+// +1: `eu-whistleblower-channel-checker` graduated.
+// +1: `eu-einvoicing-mandate-checker` graduated.
+// +1: `eu-green-claims-checker` graduated.
+// +1: `eu-product-liability-directive-checker` graduated.
+// +1: `dac7-seller-reporting-checker` graduated.
+// +1: `eu-platform-work-directive-checker` graduated.
+// +1: `eu-price-reduction-claim-checker` graduated.
+// +1: `eu-green-claims-copy-scanner` graduated.
+// +1: `eu-dora-readiness-checker` graduated.
+// +1: `ugc-creator-rate-calculator` graduated.
+// +1: `eu-csrd-scope-checker` graduated.
+// +1: `uk-sole-trader-vs-limited-company-calculator` graduated.
+// +1: `eu-espr-readiness-checker` graduated.
+// +1: `employer-payroll-tax-cost-calculator` graduated.
+// +1: `commercial-property-cap-rate-calculator` graduated.
+// +1: `uk-statutory-sick-pay-calculator` graduated.
+// +1: `retirement-plan-startup-credit-calculator` graduated.
+// +1: `au-gst-registration-checker` graduated.
+// +1: `tfsa-over-contribution-checker` graduated.
+// +1: `social-security-survivor-spousal-benefit-calculator` graduated.
+// +1: `au-redundancy-pay-calculator` graduated.
+// +1: `iolta-three-way-reconciliation-checker` graduated.
+// +1: `uk-cis-deduction-refund-calculator` graduated.
+// +1: `nz-gst-registration-checker` graduated.
+// +1: `uk-trading-allowance-calculator` graduated.
+// +1: `uk-ir35-inside-outside-calculator` graduated.
+// +1: `uk-self-assessment-late-penalty-calculator` graduated.
+// +1: `uk-child-benefit-charge-calculator` graduated.
+// +1: `uk-student-loan-repayment-calculator` graduated.
+// +1: `uk-100k-tax-trap-calculator` graduated.
+// +1: `uk-landlord-section-24-calculator` graduated.
+// +1: `uk-stamp-duty-calculator` graduated.
+// +1: `uk-pension-annual-allowance-calculator` graduated.
+// +1: `uk-marriage-allowance-calculator` graduated.
+// +1: `uk-redundancy-pay-calculator` graduated.
+// +1: `uk-statutory-maternity-pay-calculator` graduated.
+// +1: `uk-holiday-pay-calculator` graduated.
+// +1: `uk-employer-hiring-cost-calculator` graduated.
+// +1: `uk-scottish-income-tax-calculator` graduated.
+// +1: `uk-self-assessment-tax-calculator` graduated.
+// +1: `uk-money-tools-finder` graduated.
+// +1: `uk-salary-sacrifice-calculator` graduated.
+// +1: `uk-company-car-tax-calculator` graduated.
+// +1: `uk-minimum-wage-checker` graduated.
+// +1: `uk-tax-code-checker` graduated.
+// +1: `uk-state-pension-ni-years-checker` graduated.
+// +1: `uk-rent-a-room-relief-calculator` graduated.
+// +1: `uk-late-payment-interest-calculator` graduated.
+// +1: `uk-tax-free-childcare-calculator` graduated.
+// +1: `uk-simplified-expenses-calculator` graduated.
+// +1: `uk-vat-flat-rate-scheme-calculator` graduated.
+// +1: `uk-capital-allowances-calculator` graduated.
+// +1: `uk-directors-loan-s455-calculator` graduated.
+// +1: `uk-savings-interest-tax-calculator` graduated.
+// +1: `uk-rd-tax-relief-calculator` graduated.
+// +1: `uk-emi-share-option-tax-calculator` graduated.
+// +1: `uk-gift-aid-higher-rate-relief-calculator` graduated.
+// +1: `uk-lifetime-isa-vs-pension-calculator` graduated.
+// +1: `uk-eis-seis-relief-calculator` graduated.
+// +1: `uk-shared-parental-pay-planner` graduated.
+// +1: `uk-mortgage-overpayment-calculator` graduated.
+// +1: `uk-working-from-home-tax-relief-calculator` graduated.
+// +1: `uk-bonus-tax-calculator` graduated.
+// +1: `uk-mileage-allowance-calculator` graduated.
+// +1: `uk-unfair-dismissal-compensation-calculator` graduated.
+// +1: `ca-self-employed-tax-set-aside-calculator` graduated.
+// +1: `au-sole-trader-tax-set-aside-calculator` graduated.
+// +1: `ie-self-employed-tax-set-aside-calculator` graduated.
+// +1: `nl-zzp-tax-set-aside-calculator` graduated.
+// +1: `de-freiberufler-tax-set-aside-calculator` graduated.
+// +1: `za-freelancer-provisional-tax-set-aside-calculator` graduated.
+// +1: `sg-freelancer-tax-set-aside-calculator` graduated.
+// +1: `in-freelancer-advance-tax-set-aside-calculator` graduated.
+// +1: `us-freelancer-tax-set-aside-calculator` graduated.
+// +1: `tenant-security-deposit-deadline-checker` graduated.
+// +1: `rfp-compliance-matrix` graduated.
+// +1: `security-questionnaire-matcher` graduated.
+// +1: `job-application-tracker` graduated.
+// +1: `youtube-sponsorship-rate-calculator` graduated.
+// +1: `dunning-engine` graduated.
+// +1: `cancel-flow` graduated.
+// +1: `webhook-relay` graduated.
+// +1: `visit-keeper` graduated.
+// +1: `rev-rec` graduated.
+// +1: `trial-converter` graduated.
+// +1: `form-inbox` graduated.
+// +1: `meter-keeper` graduated.
+// +1: `link-keeper` graduated.
+// +1: `support-desk` graduated.
+// +1: `slot-keeper` graduated.
+// +1: `help-keeper` graduated.
+// +1: `churn-radar` graduated.
+// +1: `pql-radar` graduated.
+// +1: `deal-keeper` graduated.
+// +1: `changelog-keeper` graduated.
+// +1: `error-keeper` graduated.
+// +1: `workflow-audit` graduated.
+// +1: `reseller-books` graduated.
+// +1: `review-reply-desk` graduated.
+// +1: `sales-call-notes-desk` graduated.
+// +1: `seller-net-sheet/compare-multiple-offers.html` (a second page with its own opt-out).
+// +1: `uk-crypto-cgt-calculator` graduated.
+// +1: `bid-price-engine` graduated (the consolidated bid calculator).
+// +1: `us-substantial-presence-test-calculator` graduated.
+// +1: `discogs-fee-calculator` graduated.
+// +2: `hands-free-language-coach` and `listen-and-learn-audio` graduated.
+// +1: `persona-conversation-simulator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1272;
+// +1: `open-tennis-robots` graduated.
+// +1: `uk-statutory-residence-test-checker` graduated.
+// +1: `llm-spend-guard` graduated.
+// +1: `liability-audit` graduated.
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
@@ -1631,6 +1752,9 @@ const SWITCHES_IN_THE_CATALOGUE = 1105;
 // +1: `json-to-types-generator` graduated.
 // +1: `prop-firm-challenge-calculator` graduated.
 // +1: `csv-to-sql-generator` graduated.
+// +1: `eu-dsa-obligations-checker` graduated.
+// +1: `uk-mtd-income-tax-checker` graduated.
+// +1: `tutoring-group-schedule-optimizer` graduated.
 
 let counter = 0;
 function fixture(source) {
@@ -1921,6 +2045,75 @@ test("a module the driver cannot reach is reported, not passed", async () => {
     export function setUsageOptOut(value) { globalThis.__usageOptOut = Boolean(value); }
   `);
   assert.equal(result.status, "undrivable", JSON.stringify(result));
+});
+
+test("a plainly named switch is tried before an unrelated export that silences the recorder", async () => {
+  // Candidates run in export order after the sort, and the first one that
+  // silences the recorder decides the verdict. `hush` forgets on reload but is
+  // exported first; the module is sound because `setUsageOptOut` persists.
+  // Without the promised-names-first sort the unrelated export answers for it.
+  const result = await statusOf(`
+const KEY = "fixture-usage";
+const OPT_OUT = "fixture-usage-opt-out";
+function optedOut() {
+  if (globalThis.__usageOptOut) return true;
+  try { return localStorage.getItem(OPT_OUT) === "1"; } catch { return false; }
+}
+export function record(event) {
+  if (typeof localStorage === "undefined" || optedOut()) return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function hush() { globalThis.__usageOptOut = true; }
+export function setUsageOptOut(value) {
+  globalThis.__usageOptOut = Boolean(value);
+  if (value) localStorage.setItem(OPT_OUT, "1"); else localStorage.removeItem(OPT_OUT);
+}
+`);
+  assert.equal(result.status, "pass", JSON.stringify(result));
+  assert.match(result.via, /setUsageOptOut/);
+});
+
+test("a candidate that throws is skipped, not judged as a switch", async () => {
+  // `disableUsage` flips the in-memory flag and then throws on every call
+  // shape. Treating a throw as acceptance would fail the module on that
+  // function's reload even though the real switch after it keeps the choice.
+  const result = await statusOf(`
+const KEY = "fixture-usage";
+const OPT_OUT = "fixture-usage-opt-out";
+function optedOut() {
+  if (globalThis.__usageOptOut) return true;
+  try { return localStorage.getItem(OPT_OUT) === "1"; } catch { return false; }
+}
+export function record(event) {
+  if (typeof localStorage === "undefined" || optedOut()) return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function disableUsage() { globalThis.__usageOptOut = true; throw new Error("not a switch"); }
+export function setUsageOptOut(value) {
+  globalThis.__usageOptOut = Boolean(value);
+  if (value) localStorage.setItem(OPT_OUT, "1"); else localStorage.removeItem(OPT_OUT);
+}
+`);
+  assert.equal(result.status, "pass", JSON.stringify(result));
+  assert.match(result.via, /setUsageOptOut/);
+});
+
+test("a check puts back a global it overwrote or deleted", async () => {
+  // restoreGlobals must reinstate pre-existing globals a module changed, not
+  // only delete the ones it added.
+  globalThis.__optoutChanged = "original";
+  globalThis.__optoutRemoved = "original";
+  try {
+    await statusOf(`
+globalThis.__optoutChanged = "module";
+delete globalThis.__optoutRemoved;
+${REMEMBERS}`);
+    assert.equal(globalThis.__optoutChanged, "original");
+    assert.equal(globalThis.__optoutRemoved, "original");
+  } finally {
+    delete globalThis.__optoutChanged;
+    delete globalThis.__optoutRemoved;
+  }
 });
 
 test("every venture that offers the switch keeps it across a reload", async () => {

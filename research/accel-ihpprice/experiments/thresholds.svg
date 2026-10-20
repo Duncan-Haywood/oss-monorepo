@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot against batch size B: the cost of one packed 4-bit weight fetch, in idle flop clock cycles, that ungated and clock-gated weight-stationary scheduling need to beat output-stationary, with the cheapest and dearest IHP SG13G2 packed SRAM macro as flat lines. SKY130 packed macros span 18 to 62, below every IHP macro">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Weight fetch cost WS needs, in idle-flop-cycles (IHP SG13G2, 64x70 layer)</text>
+<line x1="64" x2="624" y1="231.6" y2="231.6" stroke="#ddd"/><text x="58" y="235.6" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="136.6" y2="136.6" stroke="#ddd"/><text x="58" y="140.6" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">batch B</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">weight fetch, in idle-flop-cycles</text>
+<polyline points="64.0,166.6 250.7,138.1 437.3,109.5 624.0,81.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="166.6" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="138.1" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="109.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="81.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">ungated WS needs more than</text>
+<polyline points="64.0,309.6 250.7,281.1 437.3,252.6 624.0,224.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="281.1" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="252.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="224.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">gate per 24 flops needs more than</text>
+<polyline points="64.0,70.4 250.7,70.4 437.3,70.4 624.0,70.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="70.4" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="70.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">IHP packed macros, dearest</text>
+<polyline points="64.0,150.1 250.7,150.1 437.3,150.1 624.0,150.1" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="150.1" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="150.1" r="3" fill="#8e44ad"/>
+<circle cx="437.3" cy="150.1" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="150.1" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">IHP packed macros, cheapest</text>
+</svg>

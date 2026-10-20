@@ -1,0 +1,64 @@
+name: link-keeper
+description: >-
+  Self-hosted link shortener for marketers and small SaaS: short links on your
+  own domain, UTM tagging, iOS/Android app-store routing, expiry and click
+  limits, and click stats (day, referrer host, device, country) with no cookies
+  and no stored IP. Browser campaign-link planner running the real engine,
+  zero-dependency Node server, one-click Render and Fly deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real: Bitly (from about $10 to several
+# hundred a month), Rebrandly, Short.io and Dub (YC-backed, open core) charge by
+# link count, tracked-click quota and custom domains; analytics and a branded
+# domain are the paywalled parts. Open-source options are YOURLS (PHP + MySQL,
+# dated stats), Shlink (PHP/Docker, needs a database) and Kutt (Node + Postgres
+# + Redis). The gap: one dependency-free process with a JSON file, privacy-first
+# stats that need no consent banner story, device routing for app launches, and
+# a batch campaign planner. Sits beside waitlist-keeper, drip-keeper,
+# referral-keeper and meter-keeper for the same indie SaaS founder: those
+# capture, email and meter; this one is the link every campaign points through.
+# duplicate_check: grep of ventures/ names and READMEs for shortener / short
+# link / bit.ly found only affiliate-disclosure-checker (unrelated), 2026-10-15.
+#
+# First visitor: indie hackers and small marketing teams searching "bitly
+# alternative", "self hosted url shortener", "privacy friendly link tracking",
+# "utm link builder". Volume not measured.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; done-
+# for-you setup on the buyer's own domain, a hosted copy under the deployer's
+# own name, or GitHub Sponsors are the paid steps. Hosting under the public name
+# is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small teams will plan a campaign's links in the browser and then deploy the
+      server, because hosted shorteners paywall branded domains and click
+      analytics and the self-hosted ones need a database to run.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Stats that store no IP and set no cookie are a reason to pick this over
+      Bitly for EU-facing sites, not just a footnote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a redirect to the wrong destination, a link that counted clicks past its limit, or a stored address; the redirect and privacy paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/link-keeper/
+  analytics: null

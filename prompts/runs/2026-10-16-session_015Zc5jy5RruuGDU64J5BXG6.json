@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_015Zc5jy5RruuGDU64J5BXG6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on revenue-generating products; merge when done",
+  "input_sha256": "2ee6c57f6993358e5b49e272326f782245bfeef51572ff8ccfd68ebe58a2a42c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T01:18:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7242",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Route sent the run to the research track, whose prompt says to use the upstream repo; re-routed to ventures by hand."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Built churn-radar (self-hosted churn prediction, logistic regression with out-of-time validation); refreshed gh-pages snapshot; no CI check runs appeared on the PR, so verified locally: venture tests, preflight, gitops tests, optout test, checklist_coverage.",
+  "corrections": [],
+  "redteam": null
+}

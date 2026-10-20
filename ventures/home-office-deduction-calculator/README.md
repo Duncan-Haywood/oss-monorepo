@@ -4,6 +4,8 @@ A free browser calculator comparing the IRS **simplified** home office
 deduction with the **regular (Form 8829)** method for a self-employed
 filer. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/home-office-deduction-calculator/
+
 After using this, you can now **see which method deducts more and saves
 more tax on your own numbers** — including the gross income limit applied in
 Form 8829's own order, home depreciation, and what carries forward — which

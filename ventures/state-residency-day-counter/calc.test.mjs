@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES } from "./calc.mjs";
+import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney, dailyLog, dailyLogCsv, auditReportHtml, tripImpact, deadlinesIcs } from "./calc.mjs";
 
 const Y = 2025;
 const spec = (lines, extra = {}) => ({ year: Y, stays: parseStays(lines.join("\n"), Y).stays, abode: {}, overrides: {}, ...extra });
@@ -101,13 +101,13 @@ test("the limit is 'more than 183 days' and needs an abode", () => {
 });
 
 test("a user override changes the limit; a state with no rule is just counted", () => {
-  const r = analyze(spec(["2025-01-01 to 2025-02-10 OH", "2025-03-01 to 2025-03-10 TX"], { overrides: { OH: { limit: 30 } } }));
-  assert.equal(by(r, "OH").days, 41);
-  assert.equal(by(r, "OH").status, "over");
+  const r = analyze(spec(["2025-01-01 to 2025-02-10 WI", "2025-03-01 to 2025-03-10 TX"], { overrides: { WI: { limit: 30 } } }));
+  assert.equal(by(r, "WI").days, 41);
+  assert.equal(by(r, "WI").status, "over");
   assert.equal(by(r, "TX").status, "no-wage-tax");
-  const g = analyze(spec(["2025-01-01 to 2025-02-10 OH"]));
-  assert.equal(by(g, "OH").status, "none");
-  assert.equal(by(g, "OH").rule, null);
+  const g = analyze(spec(["2025-01-01 to 2025-02-10 WI"]));
+  assert.equal(by(g, "WI").status, "none");
+  assert.equal(by(g, "WI").rule, null);
 });
 
 test("trigger date is the first day the limit would be crossed if present every day from tomorrow", () => {
@@ -182,4 +182,452 @@ test("validation and the CSV export", () => {
   assert.match(csv, /NY,198,/);
   assert.match(csv, /2025-04-01\.\.2025-08-29/);
   assert.ok(RULES.NY.limit === 183 && RULES.OR.limit === 200);
+});
+
+test("Rhode Island is a more-than-183-days-plus-abode state", () => {
+  assert.equal(RULES.RI.limit, 183);
+  assert.equal(RULES.RI.requiresAbode, true);
+});
+
+test("Vermont is a more-than-183-days-plus-abode state", () => {
+  assert.equal(RULES.VT.limit, 183);
+  assert.equal(RULES.VT.requiresAbode, true);
+  assert.equal(RULES.VT.kind, "statutory");
+  const sp = spec(["VT 2025-01-01 to 2025-07-02"], { homeState: "FL" }); // 183 days: at the limit, not over
+  assert.notEqual(by(analyze(sp), "VT").status, "over");
+});
+
+test("icsToStays: all-day end is exclusive, locations and titles resolve, adjacent same-state merge", () => {
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "BEGIN:VEVENT", "DTSTART;VALUE=DATE:20250301", "DTEND;VALUE=DATE:20250304", "SUMMARY:Ski trip", "LOCATION:Denver\\, CO", "END:VEVENT",
+    "BEGIN:VEVENT", "DTSTART;VALUE=DATE:20250304", "DTEND;VALUE=DATE:20250306", "SUMMARY:Stay in Colorado", "END:VEVENT",
+    "BEGIN:VEVENT", "DTSTART:20250410T090000Z", "DTEND:20250412T170000Z", "SUMMARY:Conference", "LOCATION:Moscone Center\\, San Francisco\\,", " California", "END:VEVENT",
+    "BEGIN:VEVENT", "DTSTART;VALUE=DATE:20250501", "DTEND;VALUE=DATE:20250502", "SUMMARY:Dentist", "END:VEVENT",
+    "BEGIN:VEVENT", "DTSTART;VALUE=DATE:20240601", "DTEND;VALUE=DATE:20240602", "LOCATION:Austin\\, TX", "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const r = icsToStays(ics, 2025);
+  assert.deepEqual(r.lines, ["2025-03-01 to 2025-03-05 CO", "2025-04-10 to 2025-04-12 CA"]);
+  assert.equal(r.imported, 3);
+  assert.equal(r.skipped, 2);
+  assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
+});
+
+test("Maryland (183 or more) and Maine (more than 183) thresholds follow the 'more than limit' convention", () => {
+  assert.equal(RULES.MD.limit, 182);
+  assert.equal(RULES.ME.limit, 183);
+  assert.equal(RULES.MD.requiresAbode, true);
+  assert.equal(RULES.ME.requiresAbode, true);
+});
+
+test("Utah: 183 or more days with a place of abode, so the limit is 182", () => {
+  assert.equal(RULES.UT.limit, 182);
+  assert.equal(RULES.UT.requiresAbode, true);
+  assert.equal(RULES.UT.kind, "statutory");
+  const sp = spec(["UT 2025-01-01 to 2025-07-02"], { abode: { UT: true }, homeState: "FL" }); // 183 days
+  assert.equal(by(analyze(sp), "UT").days, 183);
+  assert.equal(by(analyze(sp), "UT").status, "over");
+});
+
+test("Georgia: 183 or more days, no abode needed, so the limit is 182", () => {
+  assert.equal(RULES.GA.limit, 182);
+  assert.equal(RULES.GA.requiresAbode, false);
+  assert.equal(RULES.GA.kind, "statutory");
+  const sp = spec(["GA 2025-01-01 to 2025-07-02"], { homeState: "FL" }); // 183 days, no abode entered
+  assert.equal(by(analyze(sp), "GA").days, 183);
+  assert.equal(by(analyze(sp), "GA").status, "over");
+  const ok = spec(["GA 2025-01-01 to 2025-07-01"], { homeState: "FL" }); // 182 days
+  assert.equal(by(analyze(ok), "GA").status, "close"); // 0 days of room left, not over
+});
+
+test("Michigan: more than 183 days with a permanent place of abode", () => {
+  assert.equal(RULES.MI.limit, 183);
+  assert.equal(RULES.MI.requiresAbode, true);
+  assert.equal(RULES.MI.kind, "statutory");
+  const sp = spec(["MI 2025-01-01 to 2025-07-03"], { abode: { MI: true }, homeState: "FL" }); // 184 days
+  assert.equal(by(analyze(sp), "MI").days, 184);
+  assert.equal(by(analyze(sp), "MI").status, "over");
+});
+
+test("convenience-of-the-employer view pulls remote workdays back to the employer's state", () => {
+  // 5 workdays in NY, 5 in NJ, 5 in FL (no wage tax); employer in NY.
+  const lines = ["2025-06-02 to 2025-06-06 NY", "2025-06-09 to 2025-06-13 NJ", "2025-06-16 to 2025-06-20 FL"];
+  const r = analyze(spec(lines, { wages: 1500, employerState: "NY" }));
+  assert.equal(r.employer.code, "NY");
+  assert.equal(r.employer.kind, "strict");
+  assert.equal(r.employer.physicalDays, 5);
+  assert.equal(r.employer.remoteDays, 10);
+  assert.equal(r.employer.claimableDays, 15);
+  assert.equal(r.employer.claimableWages, 1500);
+  assert.equal(r.employer.doubleTaxDays, 5); // NJ taxes wages, FL does not
+  assert.equal(r.employer.doubleTaxWages, 500);
+  assert.ok(r.notices.some((n) => n.includes("New York may claim")));
+  assert.deepEqual(r.employer.byState.map((b) => [b.code, b.noWageTax]).sort(), [["FL", true], ["NJ", false]]);
+});
+
+test("no employer view without an employer state or for a state with no such rule", () => {
+  const lines = ["2025-06-02 to 2025-06-06 NY"];
+  assert.equal(analyze(spec(lines, { wages: 1000 })).employer, null);
+  assert.equal(analyze(spec(lines, { wages: 1000, employerState: "TX" })).employer, null);
+  assert.ok(EMPLOYER_RULES.PA.kind === "retaliatory");
+  const pa = analyze(spec(["2025-06-02 to 2025-06-06 PA", "2025-06-09 to 2025-06-13 OH"], { employerState: "PA" }));
+  assert.ok(pa.notices.some((n) => n.includes("same rule")));
+  assert.equal(pa.employer.claimableWages, null); // no wages typed
+});
+
+test("fmtNum rounds to whole numbers by default and fmtMoney leaves cents off", () => {
+  assert.equal(fmtNum(1234.5), "1,235");
+  assert.equal(fmtNum(12), "12");
+  assert.equal(fmtNum(2.25, 1), "2.3");
+  assert.equal(fmtMoney(140000.4), "$140,000");
+  assert.equal(fmtMoney(null), "");
+});
+
+test("timelineToStays: Takeout placeVisits resolve addresses, skip travel and no-address visits, merge neighbours", () => {
+  const visit = (address, start, end, name) => ({ placeVisit: { location: { address, name }, duration: { startTimestamp: start, endTimestamp: end } } });
+  const doc = { timelineObjects: [
+    visit("10 Main St, Albany, NY 12207, USA", "2025-03-01T09:00:00Z", "2025-03-01T17:00:00Z"),
+    visit("22 Elm St, Albany, NY 12207, USA", "2025-03-02T08:00:00Z", "2025-03-04T10:00:00Z"),
+    visit("1 Beach Rd, Miami, FL 33101, USA", "2025-05-10T10:00:00Z", "2025-05-10T20:00:00Z"),
+    { activitySegment: { activityType: "IN_VEHICLE" } },
+    visit(undefined, "2025-06-01T10:00:00Z", "2025-06-01T11:00:00Z"),
+    visit("1 Old St, Austin, TX 78701, USA", "2024-12-31T10:00:00Z", "2024-12-31T11:00:00Z"),
+  ] };
+  const r = timelineToStays(JSON.stringify(doc), 2025);
+  assert.deepEqual(r.lines, ["2025-03-01 to 2025-03-04 NY", "2025-05-10 FL"]);
+  assert.equal(r.imported, 3);
+  assert.equal(r.skipped, 3);
+  assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
+  assert.equal(timelineToStays("not json", 2025).error, "Not a JSON file.");
+  assert.equal(timelineToStays(JSON.stringify([doc, doc]), 2025).lines.length, 2);
+});
+
+test("daily log totals match analyze and brute force, for both conventions", () => {
+  for (const convention of ["inclusive", "nights"]) {
+    const sp = { ...spec(["NY 2025-01-01 to 2025-03-10", "FL 2025-03-10 to 2025-06-30", "NJ 2025-08-01 to 2025-09-15"], { homeState: "NY" }), convention };
+    const log = dailyLog(sp);
+    assert.equal(log.length, 365);
+    const r = analyze(sp);
+    for (const s of r.states) assert.equal(log.filter((x) => x.states.includes(s.code)).length, s.days, `${convention} ${s.code}`);
+  }
+});
+
+test("daily log marks assumed and unrecorded days and writes one CSV row per day", () => {
+  const sp = spec(["NY 2025-01-01 to 2025-01-31"]);
+  const log = dailyLog(sp);
+  assert.equal(log[0].basis, "stay");
+  assert.equal(log[40].basis, "not recorded");
+  assert.equal(dailyLog({ ...sp, homeState: "FL" })[40].basis, "assumed (no stay listed)");
+  assert.equal(dailyLogCsv(sp).trim().split("\n").length, 366);
+  const travel = dailyLog(spec(["NY 2025-01-01 to 2025-01-10", "FL 2025-01-10 to 2025-01-20"]));
+  assert.deepEqual(travel[9].states, ["FL", "NY"]);
+});
+
+test("audit packet carries every state total and one log row per day, and escapes names", () => {
+  const sp = spec(["NY 2025-01-01 to 2025-03-10", "FL 2025-03-10 to 2025-06-30"], { homeState: "FL" });
+  const html = auditReportHtml(sp, { name: "<b>A & B</b>" });
+  const r = analyze(sp);
+  for (const s of r.states) assert.ok(html.includes(`<td class="n">${s.days}</td>`), s.code);
+  assert.equal((html.match(/<td class="ev">/g) || []).length, 365);
+  assert.ok(!html.includes("<b>A & B</b>"));
+  assert.ok(html.includes("&lt;b&gt;A &amp; B&lt;/b&gt;"));
+  assert.ok(html.includes("not tax or legal advice"));
+  assert.ok(!/https?:\/\//.test(html));
+});
+
+test("Idaho: more than 270 days with a year-round abode", () => {
+  assert.equal(RULES.ID.limit, 270);
+  assert.equal(RULES.ID.requiresAbode, true);
+  assert.equal(RULES.ID.kind, "statutory");
+});
+
+test("tripImpact adds the trip's days, flags a newly crossed limit and finds the longest safe trip", () => {
+  const sp = spec(["NY 2025-01-01 to 2025-06-30"], { abode: { NY: true }, homeState: "FL" });
+  const base = by(analyze(sp), "NY").days; // 181
+  const r = tripImpact(sp, { state: "NY", start: toDay(Y, 7, 1), days: 2 });
+  const ny = r.changes.find((c) => c.code === "NY");
+  assert.equal(ny.before, base);
+  assert.equal(ny.after, base + 2);
+  assert.equal(ny.delta, 2);
+  assert.deepEqual(r.newlyOver, []);
+  // limit is 183 (over means more than 183): 2 more days are safe, 3 cross it
+  assert.equal(r.maxSafeDays, 183 - base);
+  const over = tripImpact(sp, { state: "NY", start: toDay(Y, 7, 1), days: 184 - base });
+  assert.deepEqual(over.newlyOver, ["NY"]);
+  // a trip to a state replaces assumed home days
+  assert.deepEqual(tripImpact(sp, { state: "FL", start: toDay(Y, 7, 1), days: 5 }).changes, []);
+  assert.equal(tripImpact(sp, { state: "TX", start: toDay(Y, 7, 1), days: 5 }).maxSafeDays, null);
+  assert.throws(() => tripImpact(sp, { state: "N", start: 1, days: 3 }));
+  assert.throws(() => tripImpact(sp, { state: "NY", start: toDay(Y, 7, 1), days: 0 }));
+});
+
+test("a line with three dates is rejected, not silently truncated", () => {
+  const r = parseStays("2025-01-03 to 2025-01-09 to 2025-01-12 FL", Y);
+  assert.equal(r.stays.length, 0);
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0].message, /More than two dates/);
+});
+
+test("an employer state that is not a two-letter code is ignored, even if it names an inherited property", () => {
+  const base = spec(["2025-01-06 to 2025-01-31 NY"]);
+  for (const bad of ["constructor", "toString", "ny"]) {
+    const r = analyze({ ...base, employerState: bad });
+    assert.equal(r.employer ?? null, null, bad);
+  }
+});
+
+test("saved setup round-trips the form fields and rejects other files", async () => {
+  const { setupToJson, setupFromJson, SETUP_FIELDS } = await import("./calc.mjs");
+  const values = { year: "2025", asof: "2025-09-30", home: "FL", employer: "", wages: "120000", conv: "nights", stays: "2025-01-01 to 2025-03-31 FL\n6/2 - 6/9 New York", abode: "NY, FL", limits: "OH 90", extra: "ignored" };
+  const back = setupFromJson(setupToJson(values));
+  assert.equal(back.error, undefined);
+  for (const k of SETUP_FIELDS) assert.equal(back.fields[k], values[k], k);
+  assert.ok(!("extra" in back.fields));
+  assert.match(setupFromJson("not json").error, /not JSON/);
+  assert.match(setupFromJson('{"kind":"other","fields":{}}').error, /not a setup/);
+  assert.match(setupFromJson("null").error, /not a setup/);
+});
+
+test("gap notices name the uncovered date ranges", () => {
+  const spec = { year: 2026, asOf: yearBounds(2026).end, homeState: "FL", stays: parseStays("2026-03-01 to 2026-03-31 NY\n2026-07-01 to 2026-07-10 NY", 2026).stays };
+  const r = analyze(spec);
+  const n = r.notices.find((x) => x.includes("assumed to be in FL"));
+  assert.ok(n.includes("2026-01-01 to 2026-02-28"), n);
+  assert.ok(n.includes("2026-04-01 to 2026-06-30"), n);
+  const noHome = analyze({ ...spec, homeState: null }).notices.find((x) => x.includes("not in any stay"));
+  assert.ok(noHome.includes("Uncovered: 2026-01-01 to 2026-02-28"), noHome);
+});
+
+test("a home state that is not a two-letter code is ignored, so it never becomes a row of its own", () => {
+  const r = analyze(spec(["2025-03-01 to 2025-03-10 NY"], { homeState: "florida" }));
+  assert.deepEqual(r.states.map((s) => s.code), ["NY"]);
+});
+
+test("no 'may claim wages' notice when every workday was already spent in the employer's state", () => {
+  const r = analyze(spec(["2025-06-02 to 2025-06-06 NY"], { wages: 1000, employerState: "NY" }));
+  assert.equal(r.employer.remoteDays, 0);
+  assert.ok(!r.notices.some((n) => /may claim wages/.test(n)));
+});
+
+test("deviceTimelineToStays: coordinates resolve to states for the Android and iPhone exports", async () => {
+  const { STATE_RINGS } = await import("./state-boundaries.mjs");
+  const { stateAt, parseLatLng, isDeviceTimeline, deviceTimelineToStays } = await import("./calc.mjs");
+  const cities = [
+    [40.7128, -74.006, "NY"], [25.7617, -80.1918, "FL"], [34.0522, -118.2437, "CA"], [30.2672, -97.7431, "TX"],
+    [39.7392, -104.9903, "CO"], [47.6062, -122.3321, "WA"], [42.3601, -71.0589, "MA"], [39.9526, -75.1652, "PA"],
+    [38.9072, -77.0369, "DC"], [21.3069, -157.8583, "HI"], [61.2181, -149.9003, "AK"], [40.7357, -74.1724, "NJ"],
+    [41.7658, -72.6734, "CT"], [44.9778, -93.265, "MN"], [33.749, -84.388, "GA"],
+  ];
+  for (const [lat, lon, code] of cities) assert.equal(stateAt(lon, lat, STATE_RINGS), code, code);
+  assert.equal(stateAt(-40, 30, STATE_RINGS), "");
+  assert.equal(stateAt(NaN, 30, STATE_RINGS), "");
+  assert.deepEqual(parseLatLng("37.4220°, -122.0841°"), { lat: 37.422, lon: -122.0841 });
+  assert.deepEqual(parseLatLng("geo:40.7,-74.0"), { lat: 40.7, lon: -74 });
+  assert.equal(parseLatLng("nothing"), null);
+
+  const android = { semanticSegments: [
+    { startTime: "2025-03-01T09:00:00.000-05:00", endTime: "2025-03-04T10:00:00.000-05:00", visit: { topCandidate: { placeLocation: { latLng: "40.7128°, -74.0060°" } } } },
+    { startTime: "2025-03-04T12:00:00.000-05:00", endTime: "2025-03-05T12:00:00.000-05:00", activity: { start: { latLng: "40.7°, -74.0°" } } },
+    { startTime: "2025-05-10T10:00:00.000-04:00", endTime: "2025-05-10T20:00:00.000-04:00", visit: { topCandidate: { placeLocation: { latLng: "25.7617°, -80.1918°" } } } },
+    { startTime: "2025-06-01T10:00:00.000-04:00", endTime: "2025-06-01T11:00:00.000-04:00", visit: { topCandidate: { placeLocation: { latLng: "30.0°, -40.0°" } } } },
+    { startTime: "2024-12-31T10:00:00.000-05:00", endTime: "2024-12-31T11:00:00.000-05:00", visit: { topCandidate: { placeLocation: { latLng: "30.2672°, -97.7431°" } } } },
+  ] };
+  assert.equal(isDeviceTimeline(android), true);
+  assert.equal(isDeviceTimeline({ timelineObjects: [] }), false);
+  const r = deviceTimelineToStays(JSON.stringify(android), 2025, STATE_RINGS);
+  assert.deepEqual(r.lines, ["2025-03-01 to 2025-03-04 NY", "2025-05-10 FL"]);
+  assert.equal(r.imported, 2);
+  assert.equal(r.skipped, 3);
+  assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
+
+  const iphone = [{ startTime: "2025-07-04T08:00:00.000-07:00", endTime: "2025-07-06T08:00:00.000-07:00", visit: { topCandidate: { placeLocation: "geo:34.0522,-118.2437" } } }];
+  assert.deepEqual(deviceTimelineToStays(JSON.stringify(iphone), 2025, STATE_RINGS).lines, ["2025-07-04 to 2025-07-06 CA"]);
+
+  // Port Chester NY is within a kilometre of Connecticut: flagged for checking.
+  const edge = [{ startTime: "2025-07-04T08:00:00.000-04:00", endTime: "2025-07-04T09:00:00.000-04:00", visit: { topCandidate: { placeLocation: "geo:41.0,-73.66" } } }];
+  const e = deviceTimelineToStays(JSON.stringify(edge), 2025, STATE_RINGS);
+  assert.deepEqual(e.lines, ["2025-07-04 NY"]);
+  assert.equal(e.nearBorder, 1);
+  assert.equal(r.nearBorder, 0);
+  // A visit with no endTime counts as a single day on its start date.
+  const open = [{ startTime: "2025-08-09T08:00:00.000-04:00", visit: { topCandidate: { placeLocation: "geo:25.7617,-80.1918" } } }];
+  assert.deepEqual(deviceTimelineToStays(JSON.stringify(open), 2025, STATE_RINGS).lines, ["2025-08-09 FL"]);
+  assert.equal(deviceTimelineToStays("nope", 2025, STATE_RINGS).error, "Not a JSON file.");
+  assert.match(deviceTimelineToStays("{}", 2025, STATE_RINGS).error, /phone/);
+});
+
+test("the other counting convention is shown and flagged when it flips a result", () => {
+  const stays = [{ state: "NY", start: toDay(2026, 1, 1), end: toDay(2026, 7, 3), work: true }];
+  const spec = { year: 2026, stays, abode: { NY: true } };
+  const inc = analyze({ ...spec, convention: "inclusive" });
+  const nyI = inc.states.find((s) => s.code === "NY");
+  assert.equal(nyI.days, 184);
+  assert.equal(nyI.otherDays, 183);
+  assert.ok(inc.notices.some((n) => /New York.*184.*183/.test(n)));
+  const nyN = analyze({ ...spec, convention: "nights" }).states.find((s) => s.code === "NY");
+  assert.equal(nyN.days, 183);
+  assert.equal(nyN.otherDays, 184);
+  // No flag when the choice changes nothing.
+  const far = analyze({ year: 2026, stays: [{ state: "NY", start: toDay(2026, 1, 1), end: toDay(2026, 2, 1) }], abode: { NY: true } });
+  assert.ok(!far.notices.some((n) => /decides whether/.test(n)));
+});
+
+test("Iowa and DC day tests", () => {
+  assert.equal(RULES.IA.limit, 183);
+  assert.equal(RULES.IA.requiresAbode, true);
+  assert.equal(RULES.DC.limit, 182);
+  assert.equal(RULES.DC.requiresAbode, true);
+  assert.equal(RULES.DC.kind, "statutory");
+});
+
+test("West Virginia: more than 183 days with a permanent place of abode", () => {
+  assert.equal(RULES.WV.limit, 183);
+  assert.equal(RULES.WV.requiresAbode, true);
+  assert.equal(RULES.WV.kind, "statutory");
+});
+
+test("Louisiana six-month test is a no-abode statutory limit of 182", () => {
+  assert.equal(RULES.LA.limit, 182);
+  assert.equal(RULES.LA.requiresAbode, false);
+  assert.equal(RULES.LA.kind, "statutory");
+});
+
+test("Indiana: more than 183 days with a permanent place of residence", () => {
+  assert.equal(RULES.IN.limit, 183);
+  assert.equal(RULES.IN.requiresAbode, true);
+  assert.equal(RULES.IN.kind, "statutory");
+});
+
+test("Delaware and New Mexico day tests", () => {
+  assert.equal(RULES.DE.limit, 183);
+  assert.equal(RULES.DE.requiresAbode, true);
+  assert.equal(RULES.NM.limit, 184);
+  assert.equal(RULES.NM.requiresAbode, false);
+  assert.equal(RULES.NM.kind, "statutory");
+});
+
+test("Hawaii 200-day presumption", () => {
+  assert.equal(RULES.HI.limit, 200);
+  assert.equal(RULES.HI.kind, "presumption");
+  assert.equal(RULES.HI.requiresAbode, false);
+});
+
+test("Ohio 212 contact-period safe harbor is a presumption that needs no Ohio abode", () => {
+  assert.equal(RULES.OH.limit, 212);
+  assert.equal(RULES.OH.kind, "presumption");
+  assert.equal(RULES.OH.requiresAbode, false);
+  assert.match(RULES.OH.note, /contact period/);
+});
+
+test("Ohio: 212 days is inside the safe harbor and 213 crosses it", () => {
+  for (const [days, over] of [[212, false], [213, true]]) {
+    const end = dayIso(toDay(Y, 1, 1) + days - 1);
+    const oh = by(analyze(spec([`OH ${Y}-01-01 to ${end}`], { homeState: "FL" })), "OH");
+    assert.equal(oh.days, days);
+    assert.equal(oh.status === "over", over, `${days} days`);
+  }
+});
+
+test("Nebraska six-month test needs an abode and crosses at 183 days", () => {
+  assert.equal(RULES.NE.limit, 182);
+  assert.equal(RULES.NE.requiresAbode, true);
+  assert.equal(RULES.NE.kind, "statutory");
+});
+
+test("Arkansas six-month test needs an abode; Kansas presumption does not", () => {
+  assert.equal(RULES.AR.limit, 182);
+  assert.equal(RULES.AR.requiresAbode, true);
+  assert.equal(RULES.AR.kind, "statutory");
+  assert.equal(RULES.KS.limit, 182);
+  assert.equal(RULES.KS.requiresAbode, false);
+  assert.equal(RULES.KS.kind, "presumption");
+});
+
+test("Kentucky test needs an abode and crosses past 183 days", () => {
+  assert.equal(RULES.KY.limit, 183);
+  assert.equal(RULES.KY.requiresAbode, true);
+  assert.equal(RULES.KY.kind, "statutory");
+});
+
+test("Missouri and Colorado day tests need an abode", () => {
+  assert.equal(RULES.MO.limit, 183);
+  assert.equal(RULES.MO.requiresAbode, true);
+  assert.equal(RULES.CO.limit, 182);
+  assert.equal(RULES.CO.requiresAbode, true);
+  const sp = spec(["CO 2025-01-01 to 2025-07-02"], { abode: { CO: true }, homeState: "FL" }); // 183 days
+  assert.equal(by(analyze(sp), "CO").days, 183);
+  assert.equal(by(analyze(sp), "CO").status, "over");
+  const mo = spec(["MO 2025-01-01 to 2025-07-02"], { abode: { MO: true }, homeState: "FL" }); // 183 days
+  assert.notEqual(by(analyze(mo), "MO").status, "over");
+});
+
+test("deadline reminders: one all-day event per state still short of its limit, on the last safe day", () => {
+  const base = { ...spec(["2025-01-01 to 2025-03-31 NY"]), abode: { NY: true }, asOf: toDay(Y, 3, 31) };
+  const r = analyze(base);
+  const { ics, count } = deadlinesIcs(r);
+  const ny = by(r, "NY");
+  assert.equal(count, 1);
+  assert.ok(ics.startsWith("BEGIN:VCALENDAR\r\n") && ics.endsWith("END:VCALENDAR\r\n"));
+  const last = ny.triggerDate - 1;
+  assert.ok(ics.includes(`DTSTART;VALUE=DATE:${dayIso(last).replace(/-/g, "")}`));
+  // Being there every day through the last safe day sits exactly on the limit; one more crosses it.
+  const through = (end) => by(analyze({ ...base, stays: [...base.stays, { state: "NY", start: toDay(Y, 4, 1), end, work: true }] }), "NY");
+  assert.equal(through(last).days, 183);
+  assert.equal(through(last).status, "close");
+  assert.equal(through(last + 1).status, "over");
+  // A state already over its limit gets no reminder.
+  const over = analyze({ ...base, stays: [{ state: "NY", start: toDay(Y, 1, 1), end: toDay(Y, 12, 31), work: true }] });
+  assert.equal(deadlinesIcs(over).count, 0);
+});
+
+test("New York City: an NYC stay counts for NY and for the City's own test", () => {
+  const year = 2025;
+  const { stays, errors } = parseStays([
+    "2025-01-01 to 2025-03-31 NYC",
+    "2025-04-01 to 2025-06-30 New York",
+    "2025-07-01 to 2025-12-31 Brooklyn NY",
+  ].join("\n"), year);
+  assert.deepEqual(errors, []);
+  assert.deepEqual(stays.map((s) => [s.state, s.city || null]), [["NY", "NYC"], ["NY", null], ["NY", "NYC"]]);
+  const spec = { year, stays, abode: { NY: true, NYC: true }, convention: "inclusive", wages: 100000 };
+  const r = analyze(spec);
+  const ny = r.states.find((s) => s.code === "NY");
+  const nyc = r.states.find((s) => s.code === "NYC");
+  assert.equal(ny.days, 365);
+  assert.equal(nyc.days, 90 + 184);
+  assert.equal(nyc.status, "over");
+  assert.equal(nyc.rule.limit, 183);
+  assert.equal(r.daysCounted, 365, "the City is not an extra state-day");
+  assert.deepEqual(bruteForceCounts(spec), { NY: 365, NYC: 274 });
+  // Workdays inside the City get a share of the wages.
+  assert.ok(nyc.workdays > 0 && nyc.workdays < ny.workdays);
+});
+
+test("New York City: a Manhattan pied-a-terre can be over the City line while under the State's elsewhere", () => {
+  const year = 2025;
+  const { stays } = parseStays("2025-01-01 to 2025-07-15 NYC\n2025-07-16 to 2025-12-31 NJ", year);
+  const r = analyze({ year, stays, abode: { NYC: true, NY: true }, convention: "inclusive" });
+  assert.equal(r.states.find((s) => s.code === "NYC").status, "over");
+  assert.equal(r.states.find((s) => s.code === "NY").status, "over");
+  const noAbode = analyze({ year, stays, abode: { NY: true }, convention: "inclusive" });
+  assert.equal(noAbode.states.find((s) => s.code === "NYC").status, "no-abode");
+});
+
+test("New York City: a city word on a non-New-York line is an error", () => {
+  const { stays, errors } = parseStays("2025-02-01 to 2025-02-10 Brooklyn NJ", 2025);
+  assert.equal(stays.length, 0);
+  assert.equal(errors.length, 1);
+});
+
+test("North Dakota seven-month test needs an abode and crosses at 211 days", () => {
+  assert.equal(RULES.ND.limit, 210);
+  assert.equal(RULES.ND.requiresAbode, true);
+  assert.equal(RULES.ND.kind, "statutory");
+  for (const [days, over] of [[210, false], [211, true]]) {
+    const end = dayIso(toDay(Y, 1, 1) + days - 1);
+    const nd = by(analyze(spec([`ND ${Y}-01-01 to ${end}`], { homeState: "FL", abode: { ND: true } })), "ND");
+    assert.equal(nd.days, days);
+    assert.equal(nd.status === "over", over, `${days} days`);
+  }
 });

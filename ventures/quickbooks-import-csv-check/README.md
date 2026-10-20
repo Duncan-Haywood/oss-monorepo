@@ -6,6 +6,8 @@ paste or drop the CSV and see every problem with its line number before the impo
 then download a safe-fixes copy or a set of files split to the import size.** The file is read in
 the browser; nothing is uploaded and no login is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/quickbooks-import-csv-check/
+
 After using this, you can now **find the two customers whose names collide once capitals and double
 spaces are ignored, the `Acme: East` that becomes a sub-customer, the `$1,250.00` and `340,50`
 balances, the balance with no as-of date, the file that mixes `13/01/2026` and `01/13/2026`, the ZIP

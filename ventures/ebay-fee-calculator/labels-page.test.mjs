@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareEbayLabels({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     ebayLabelCost: 5,
     thirdPartyLabelCost: 4.25,
@@ -93,25 +93,25 @@ test('default inputs on the page match the worked example', () => {
     labelUploadWage: 18,
     monthlyLabelShipments: 40,
   });
-  assert.ok(Math.abs(comparison.ebay.expectedProfit - 18.053744) < 1e-5, 'default eBay');
-  assert.ok(Math.abs(comparison.third.expectedProfit - 16.9858875) < 1e-5, 'default third-party');
-  assert.ok(Math.abs(comparison.postageOnly.expectedProfit - 18.1858875) < 1e-5, 'default postage-only');
-  assert.match(html, /\$18\.05/);
-  assert.match(html, /\$16\.99/);
-  assert.match(html, /\$18\.19/);
-  assert.match(html, /\$1\.07/);
-  assert.match(html, /\$42\.71/);
-  assert.match(html, /\$0\.13/);
-  assert.match(html, /\$5\.29/);
-  assert.match(html, /\$3\.18/);
-  assert.match(html, /0\.4 minutes/);
-  assert.match(html, /\$21\.61/);
-  assert.match(html, /\$21\.16/);
-  assert.match(html, /\$17\.64/);
+  assert.ok(Math.abs(comparison.ebay.expectedProfit - 17.82072) < 1e-5, 'default eBay');
+  assert.ok(Math.abs(comparison.third.expectedProfit - 16.75686) < 1e-5, 'default third-party');
+  assert.ok(Math.abs(comparison.postageOnly.expectedProfit - 17.95686) < 1e-5, 'default postage-only');
+  assert.match(html, /\$17\.82/);
+  assert.match(html, /\$16\.76/);
+  assert.match(html, /\$17\.96/);
+  assert.match(html, /\$1\.06/);
+  assert.match(html, /\$42\.55/);
+  assert.match(html, /\$0\.14/);
+  assert.match(html, /\$5\.45/);
+  assert.match(html, /\$3\.19/);
+  assert.match(html, /0\.5 minutes/);
+  assert.match(html, /\$21\.34/);
+  assert.match(html, /\$20\.89/);
+  assert.match(html, /\$17\.42/);
   assert.match(html, /\$0\.41/);
   assert.match(html, /2\.9%/);
   assert.match(html, /\$56\.68/);
-  assert.match(html, /\$55\.31/);
+  assert.match(html, /\$55\.32/);
   assert.match(html, /\$1\.37/);
   assert.match(html, /1\.6%/);
 });

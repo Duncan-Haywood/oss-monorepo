@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_013VkAq5ZZEf8SUo1nWJpT2J",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7036",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "hub-link build test failed after adding deploy/ link; fixed before merge"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/unlanded_work.py",
+      "issue": "unlanded_work.py --sweep: listed 3 branches (proposal-maker, tile-layout-optimizer, agent_review fork guard) whose work is already on main; the sweep seems to flag by commit not content, costing a check."
+    },
+    {
+      "file": "platform/pages/publish-branch.sh",
+      "issue": "platform/pages/publish-branch.sh: pages_state.py could not read state without an Actions token, so --require-current cannot confirm after publish."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not run the full checklist (python suites, browser checks); change is one footer link + checker exemption, ran the pages/marketing/deploy node suites and a full build+check instead."
+    }
+  ],
+  "goal": null,
+  "notes": "Full pages/marketing/deploy node suites: 1 failure was mine (hub link test, fixed in a follow-up commit); 'every secondary prose page ships structured data' fails on clean origin/main too. python pytest suites not run (no pytest). | outcome summary: Refreshed stale gh-pages snapshot + IndexNow; linked the self-deploy page from the hub footer with a check.mjs exemption and test.",
+  "corrections": [],
+  "redteam": null
+}

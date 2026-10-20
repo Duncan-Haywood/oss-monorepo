@@ -6,6 +6,8 @@ to commit, not just whether to.** Every committed hour is paid whether used or n
 shape of your usage. The tool finds the commitment that saves the most, draws the savings curve around it, shows
 when an upfront payment pays back, and stress-tests the choice if usage falls. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/aws-commitment-breakeven-calculator/
+
 After using this, you can now **pick a commitment level from your own usage curve, compare 1-year and 3-year and
 upfront options on a present-value basis, and see the downside before you buy**.
 

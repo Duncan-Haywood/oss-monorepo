@@ -105,7 +105,7 @@
   <h2>Generate a hash</h2>
   <p>Paste the exact file contents (the script or stylesheet as it will be served) — hashed
   entirely in your browser, nothing sent anywhere.</p>
-  <textarea id="hashInput" spellcheck="false" placeholder="Paste the script or stylesheet contents here..."></textarea>
+  <textarea aria-label="Script or link tag to hash" id="hashInput" spellcheck="false" placeholder="Paste the script or stylesheet contents here..."></textarea>
   <p>
     <label>Algorithm
       <select id="hashAlgo">
@@ -130,7 +130,7 @@
     — plain Node, nothing to install. It only ever talks to the page URL you pass and the
     asset URLs that page itself references; nothing goes through this site.
   </p>
-  <textarea id="payload" spellcheck="false" placeholder='{"page": "https://example.com/", "assets": [...], "findings": [...]}'></textarea>
+  <textarea aria-label="Pasted JSON output" id="payload" spellcheck="false" placeholder='{"page": "https://example.com/", "assets": [...], "findings": [...]}'></textarea>
   <p>
     <button type="button" class="primary" id="check">Check</button>
     <button type="button" id="load-example">Load worked example (vulnerable)</button>

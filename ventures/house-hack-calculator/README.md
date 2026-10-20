@@ -5,6 +5,8 @@ the others pay, the rent you need to live free, whether a 3-4 unit FHA loan pass
 price at which you live free, and the 10-year return versus renting** (including the year you move out and rent your own
 unit). Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/house-hack-calculator/
+
 After using this, you can now **tell whether a small multi-unit building is a house hack that pays for itself or just a
 smaller mortgage with tenants**, which used to be a forum spreadsheet.
 

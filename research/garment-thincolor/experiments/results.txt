@@ -1,0 +1,34 @@
+1. Single TiO2-like film on nylon-like substrate, normal incidence (the reported peak can sit at the 380 or 780 nm edge of the grid when the true maximum is outside it)
+               d=40 nm  peak   384 nm  Rmax 0.337  L*= 60.6  C*=  5.7  h=  252
+               d=60 nm  peak   576 nm  Rmax 0.337  L*= 64.4  C*=  5.4  h=  109
+               d=80 nm  peak   768 nm  Rmax 0.337  L*= 58.2  C*= 27.3  h=   89
+              d=100 nm  peak   780 nm  Rmax 0.310  L*= 41.3  C*= 24.5  h=   44
+              d=120 nm  peak   384 nm  Rmax 0.337  L*= 31.7  C*= 44.6  h=  295
+              d=160 nm  peak   512 nm  Rmax 0.337  L*= 60.5  C*= 18.6  h=  162
+              d=200 nm  peak   384 nm  Rmax 0.337  L*= 54.9  C*= 28.9  h=   54
+
+2. Quarter-wave stacks (hi/lo pairs), design wavelength 450/530/620 nm, normal incidence
+      lam0=450 pairs=2  peak   450 nm  Rmax 0.698  L*= 79.5  C*= 16.1  h=  229  mass 0.74 g/m2
+      lam0=450 pairs=4  peak   450 nm  Rmax 0.952  L*= 81.2  C*= 53.1  h=  213  mass 1.47 g/m2
+      lam0=450 pairs=6  peak   450 nm  Rmax 0.993  L*= 79.8  C*= 45.1  h=  229  mass 2.21 g/m2
+      lam0=530 pairs=2  peak   530 nm  Rmax 0.698  L*= 85.7  C*= 11.0  h=  134  mass 0.87 g/m2
+      lam0=530 pairs=4  peak   530 nm  Rmax 0.952  L*= 96.9  C*= 21.8  h=  126  mass 1.73 g/m2
+      lam0=530 pairs=6  peak   530 nm  Rmax 0.993  L*= 98.7  C*= 28.1  h=  123  mass 2.60 g/m2
+      lam0=620 pairs=2  peak   620 nm  Rmax 0.698  L*= 83.6  C*= 54.9  h=   99  mass 1.01 g/m2
+      lam0=620 pairs=4  peak   620 nm  Rmax 0.952  L*= 92.6  C*= 69.7  h=   92  mass 2.03 g/m2
+      lam0=620 pairs=6  peak   620 nm  Rmax 0.993  L*= 93.6  C*= 74.6  h=   90  mass 3.04 g/m2
+
+3. Angle dependence of a 6-pair stack designed at 620 nm (unpolarised)
+           theta=0 deg  peak   620 nm  Rmax 0.993  L*= 93.6  C*= 74.6  h=   90  dE76 vs 0deg =   0.0
+          theta=15 deg  peak   614 nm  Rmax 0.993  L*= 94.8  C*= 74.8  h=   93  dE76 vs 0deg =   4.5
+          theta=30 deg  peak   594 nm  Rmax 0.992  L*= 97.0  C*= 72.4  h=  100  dE76 vs 0deg =  13.7
+          theta=45 deg  peak   568 nm  Rmax 0.987  L*= 98.2  C*= 58.5  h=  107  dE76 vs 0deg =  25.7
+          theta=60 deg  peak   540 nm  Rmax 0.968  L*= 96.9  C*= 37.1  h=  122  dE76 vs 0deg =  47.8
+
+4. Thickness tolerance: each layer thickness x (1 + N(0, s)); 6-pair stack at 530 nm, 200 draws
+nominal: peak 530 nm  C*=28.1
+sigma=0.00  median dE76   0.0  90th pct   0.0  median C*  28.1
+sigma=0.02  median dE76   2.0  90th pct   4.8  median C*  28.1
+sigma=0.05  median dE76   5.8  90th pct  13.5  median C*  27.5
+sigma=0.10  median dE76   9.6  90th pct  23.0  median C*  27.4
+sigma=0.20  median dE76  17.5  90th pct  42.2  median C*  27.4

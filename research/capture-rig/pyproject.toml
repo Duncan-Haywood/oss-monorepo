@@ -1,0 +1,13 @@
+[project]
+name = "capture-rig"
+version = "0.1.0"
+description = "How many cameras and where: angular coverage and triangulation error of rings, arcs and mast stacks around a subject (2-D geometric model)"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

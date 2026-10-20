@@ -469,7 +469,13 @@ def check_venture_tests_run(paths, ventures_dir=VENTURES_DIR):
         if not tests:
             continue
         prefix = f"ventures/{venture.name}/"
-        if any(entry.startswith(prefix) for filters in runners for entry in filters):
+        # `ventures/**` is a portfolio-wide runner (ventures-tests.yml) that
+        # runs each touched venture's suite, so it covers every venture.
+        if any(
+            entry.startswith(prefix) or entry in ("ventures/**", "ventures/**/*")
+            for filters in runners
+            for entry in filters
+        ):
             continue
         names = ", ".join(str(t.relative_to(venture)) for t in tests)
         errors.append(

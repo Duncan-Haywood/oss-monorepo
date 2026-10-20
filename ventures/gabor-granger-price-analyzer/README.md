@@ -5,6 +5,8 @@ survey respondent said they would buy at and see the demand curve, the revenue-m
 profit-maximising price for a unit cost you enter, price elasticity between tested prices and a bootstrap
 band on the best price.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gabor-granger-price-analyzer/
+
 After using this, you can now **rank the prices you tested by revenue and profit and see how often a
 different sample would have picked a different one**.
 

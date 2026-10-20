@@ -92,3 +92,13 @@ test("parseNum accepts money formatting and rejects junk", () => {
   assert.equal(parseNum("$1,250"), 1250);
   assert.ok(Number.isNaN(parseNum("abc")));
 });
+
+test("boundaries: zero-term loan costs nothing, tiny net cost is allowed, inverter year caps at 40", () => {
+  assert.equal(loanPayment(1000, 5, 0), 0);
+  assert.equal(loanPayment(0, 5, 10), 0);
+  const s = sampleInput();
+  const total = Number(s.systemKw) * 1000 * Number(s.costPerWatt);
+  assert.equal(analyze({ ...s, incentives: String(total - 0.5), loan: "0" }).error, undefined);
+  assert.equal(analyze({ ...s, inverterYear: "40" }).error, undefined);
+  assert.match(analyze({ ...s, inverterYear: "41" }).error, /Inverter replacement year/);
+});

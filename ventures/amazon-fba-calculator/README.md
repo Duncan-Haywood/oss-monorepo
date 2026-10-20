@@ -8,6 +8,8 @@ unit, the break-even sale price, the price that hits a target margin, and the
 **maximum you can pay for inventory** both before the unit loses money and
 while preserving your target margin.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/
+
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
 an estimate of the fees Amazon will charge: enter the rates from your current
@@ -372,3 +374,14 @@ the zero-profit max-buy ceiling, not a recommendation to buy or pass.
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as
 static files.
+
+## Host your own copy
+
+Your data stays in your browser either way, but you can serve the page from an address you control. It is a static
+site: the server only hands out files and never sees a figure you type.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.

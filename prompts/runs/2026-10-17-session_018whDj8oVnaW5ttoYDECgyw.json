@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_018whDj8oVnaW5ttoYDECgyw",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "the new website is looking good. I want a blog page and also more work on what's automatically tracked more stats on the dev process. failed ci passed ci so on and so on and so on.",
+  "input_sha256": "a6204fff2d8d893e28b1be6c2838b2fc3f6577bfa3d16a453725e9cfb64131ff",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-16T23:56:36Z",
+  "ended": "2026-10-17T00:06:07Z",
+  "wall_minutes": 20.27,
+  "tokens_in": 6913154,
+  "tokens_out": 45677,
+  "cost_usd": 3.3145,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7587",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/devstats/devstats.mjs",
+      "issue": "the existing CI metrics read 2-3 pages of runs as if complete; at ~10,000 runs/day that is the last ~30 minutes, and the runs API caps total_count at 2,500 (undocumented in-repo)"
+    },
+    {
+      "file": "platform/marketing/front-door-tools.test.mjs",
+      "issue": "front-door alias map stale on main, so the pages/marketing test line in CLAUDE.md's checklist fails for every PR until someone runs regen.mjs"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "the owner asked for a blog page; open PR #7578 already builds one (writing/), so I did not build a second and left a top-nav Blog link as a follow-up after it lands, per 'Duplicate PRs'"
+    }
+  ],
+  "goal": null,
+  "notes": "Added exact per-day CI outcome counts (total_count bisection), failing-workflows/trigger tables from a labelled sample, red-on-main-now and recovery time, PR/review extras to dev/. Live first reading: 49,518 runs in 14 days; Oct 4-12 ~2,000 failed vs ~40 passed per day (4-second failures, starvation period).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "15b28944-e4cf-55f1-9410-b9c55e6faafa",
+    "transcripts": 1,
+    "first": "2026-10-16T23:56:36Z",
+    "last": "2026-10-17T00:16:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 98,
+        "output": 45677,
+        "thinking": 11780,
+        "cache_read": 6782546,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130510,
+        "api_equivalent_usd": 3.3145,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 98,
+      "output": 45677,
+      "thinking": 11780,
+      "cache_read": 6782546,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130510,
+      "api_equivalent_usd": 3.3145,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 42,
+      "mcp__github__pull_request_read": 3,
+      "mcp__github__actions_list": 2,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "Read": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.27,
+      "active_minutes": 20.26,
+      "model_minutes": 7.79,
+      "tool_minutes": 12.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer designing, testing and verifying API-capped CI aggregation plus dashboard rendering against live data",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 181.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

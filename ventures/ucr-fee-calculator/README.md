@@ -4,6 +4,8 @@ A free browser tool for owner-operators, brokers and small fleets: **list each r
 Carrier Registration fee bracket, the fee, how many more trucks fit before the fee jumps, and the cost per vehicle and per mile.**
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ucr-fee-calculator/
+
 After using this, you can now **budget the UCR fee and see exactly where adding a truck costs more**, which used to be reading a
 six-row table on ucr.gov and doing the arithmetic yourself.
 

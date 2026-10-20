@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "outer-momentum"
+version = "0.1.0"
+description = "DiLoCo-style outer momentum on quadratics: H inner steps precondition the outer problem (kappa_H ~ kappa/H), exact outer rates, tuned momentum, and sync interval H* ~ communication cost"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

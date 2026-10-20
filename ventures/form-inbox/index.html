@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Form Inbox — Free Self-Hosted Form Backend With Spam Scoring</title>
+  <meta name="description" content="Point any HTML form at your own server: spam scoring with visible reasons, an inbox, CSV export and email or Slack notifications. Open source, MIT, no per-submission fee. Test the spam filter in your browser.">
+  <meta property="og:title" content="Form Inbox — a Formspree alternative you host yourself">
+  <meta property="og:description" content="Form endpoint, spam scoring, inbox, CSV and notifications in one zero-dependency Node server. Your server, your data.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Form Inbox", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted form backend: point any HTML form at it, get spam scoring, an inbox, CSV export and email or webhook notifications, with no per-submission fee."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Formspree, Basin, Getform or Netlify Forms?", "acceptedAnswer": {"@type": "Answer", "text": "Those hosted services are polished and the right call if you want zero setup. They meter submissions per month, put spam filtering, file storage or exports on higher tiers, and keep your visitors' messages on their servers. Form Inbox is one small Node server in your own account: unlimited forms and submissions within your disk, spam scoring, CSV export and notifications included. If a free hosted plan already covers your volume, keep it."}}, {"@type": "Question", "name": "How does the spam filter work?", "acceptedAnswer": {"@type": "Answer", "text": "Each submission gets a score from 0 to 100 from transparent signals: a hidden field bots fill in, a form submitted within two seconds of loading, link floods, common spam phrases, disposable email domains, and repeats of a recent submission. At 50 or more it goes to the Spam tab, no notification is sent, and the sender still sees a normal success page so bots learn nothing. Every flagged entry shows its reasons, and you can mark any entry as spam or not spam."}}, {"@type": "Question", "name": "Can anyone post to my form from any website?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you leave Allowed sites empty. Set it to your site's origin and browsers on other sites are refused; requests with no Origin header (curl, servers) are still accepted, so the rate limit and spam score do the rest. Posts are limited to ten a minute per address per form."}}, {"@type": "Question", "name": "Where do notifications go?", "acceptedAnswer": {"@type": "Answer", "text": "Real submissions can ping a Slack or Discord webhook and email the address set on the form through your own Resend account. Email starts in dry-run mode and sends nothing until you set DRY_RUN=false. Spam never notifies."}}, {"@type": "Question", "name": "What does it store?", "acceptedAnswer": {"@type": "Answer", "text": "The fields people submit, a timestamp and the spam score. No IP addresses are written to disk; they are held in memory only to rate limit. Delete a submission or a whole form from the admin page. You are the operator of any form you run and responsible for your privacy notice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2030; background: #f6f7fb; }
+    body { max-width: 920px; margin: auto; padding: 28px; }
+    a { color: #2342b8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14204f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14204f; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506b; }
+    .card { background: #fff; border: 1px solid #dde1ec; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b5bdd6; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    textarea { min-height: 120px; }
+    pre { background: #eef0f8; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3e6f1; vertical-align: top; }
+    .bar { display: inline-block; height: 10px; background: #2f5de0; border-radius: 5px; vertical-align: middle; }
+    .spam { color: #a3191f; font-weight: 700; } .ok { color: #12713a; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Your contact form, your server, no per-submission fee.</h1>
+  <p>Form Inbox is the open-source backend for the forms on your static site. Point a form's <code>action</code> at it and you get an inbox, spam filtering that shows its reasons, CSV export and email or Slack notifications. Below, test the spam filter on a message. Everything on this page runs in your browser, so nothing is uploaded.</p>
+
+  <section class="card" aria-labelledby="lab">
+    <h2 id="lab">Try the spam filter</h2>
+    <label for="msg">Submission (one <code>field: value</code> per line)</label>
+    <textarea id="msg" spellcheck="false">name: Ann Lee
+email: ann@example.com
+message: Hi, do you ship to Canada? I would like two of the blue ones.</textarea>
+    <p><label style="display:inline;font-weight:400"><input type="checkbox" id="trap"> The hidden trap field was filled in</label>
+    &nbsp; <label for="secs" style="display:inline;font-weight:400">Seconds on page before sending</label> <input id="secs" type="number" min="0" value="12" style="width:5em"></p>
+    <p aria-live="polite"><span id="verdict"></span> &nbsp;<span class="bar" id="bar" style="width:0"></span> <span id="num"></span></p>
+    <ul id="why"></ul>
+    <p class="note">The server uses this exact scoring. At 50 or more a submission goes to the Spam tab, nothing is sent, and the sender still sees a normal thank-you.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <table><thead><tr><th scope="col">Today</th><th scope="col">Catch</th><th scope="col">Form Inbox</th></tr></thead><tbody>
+      <tr><td>Formspree, Basin, Getform, Web3Forms</td><td>Submissions are metered per month; spam tools, exports or integrations sit on higher tiers; your visitors' messages live with them</td><td>Your server, unlimited forms, everything included</td></tr>
+      <tr><td>Netlify Forms and similar host features</td><td>Tied to one host; spam and volume limits come with the plan</td><td>Works with any static host, one endpoint URL</td></tr>
+      <tr><td>Your own mail script (PHP, serverless function)</td><td>You write, secure and maintain it; no inbox, spam review or export</td><td>Tested, escaped, rate limited, with an admin inbox</td></tr>
+    </tbody></table>
+    <p class="note">Honest limits: no file uploads, no autoresponder to the visitor, no multi-user logins (one admin key), and heuristic spam scoring rather than a trained model: expect to mark a few entries by hand.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/form-inbox
+node --test
+ADMIN_KEY=$(openssl rand -hex 16) COMPANY_NAME=Acme node server.mjs</pre>
+    <p class="note">Open <code>http://localhost:8080/admin</code> (any user name, <code>ADMIN_KEY</code> as the password), create a form, and paste its snippet into your site. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Formspree, Basin, Getform or Netlify Forms?</h3>
+    <p>Those hosted services are polished and the right call if you want zero setup. They meter submissions per month, put spam filtering, file storage or exports on higher tiers, and keep your visitors' messages on their servers. Form Inbox is one small Node server in your own account: unlimited forms and submissions within your disk, spam scoring, CSV export and notifications included. If a free hosted plan already covers your volume, keep it.</p>
+    <h3>How does the spam filter work?</h3>
+    <p>Each submission gets a score from 0 to 100 from transparent signals: a hidden field bots fill in, a form submitted within two seconds of loading, link floods, common spam phrases, disposable email domains, and repeats of a recent submission. At 50 or more it goes to the Spam tab, no notification is sent, and the sender still sees a normal success page so bots learn nothing. Every flagged entry shows its reasons, and you can mark any entry as spam or not spam.</p>
+    <h3>Can anyone post to my form from any website?</h3>
+    <p>Only if you leave Allowed sites empty. Set it to your site's origin and browsers on other sites are refused; requests with no Origin header (curl, servers) are still accepted, so the rate limit and spam score do the rest. Posts are limited to ten a minute per address per form.</p>
+    <h3>Where do notifications go?</h3>
+    <p>Real submissions can ping a Slack or Discord webhook and email the address set on the form through your own Resend account. Email starts in dry-run mode and sends nothing until you set DRY_RUN=false. Spam never notifies.</p>
+    <h3>What does it store?</h3>
+    <p>The fields people submit, a timestamp and the spam score. No IP addresses are written to disk; they are held in memory only to rate limit. Delete a submission or a whole form from the admin page. You are the operator of any form you run and responsible for your privacy notice.</p>
+  </section>
+
+  <footer>
+    <p>Same builder, other jobs: <a href="../feedback-board/">Feedback Board</a> collects feature requests, <a href="../status-keeper/">Status Keeper</a> runs a public status page, <a href="../mrr-pulse/">MRR Pulse</a> shows MRR and churn and <a href="../webhook-relay/">Webhook Relay</a> forwards webhooks reliably.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of any form you run, responsible for the messages it collects, a privacy notice, data-protection rules where you and your visitors live, and your own email sending. The spam score is a heuristic and can be wrong either way. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { normalize, score, SPAM_AT } from "./forms.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let first = true;
+    const run = () => {
+      const input = {};
+      for (const line of $("msg").value.split("\n")) { const i = line.indexOf(":"); if (i > 0) input[line.slice(0, i).trim()] = line.slice(i + 1).trim(); }
+      const secs = Number($("secs").value);
+      const t = 100_000;
+      const v = score(normalize(input), { honeypot: $("trap").checked ? "x" : "", now: t, loadedAt: Number.isFinite(secs) ? t - secs * 1000 : undefined });
+      $("verdict").textContent = v.spam ? "Spam" : "Looks real"; $("verdict").className = v.spam ? "spam" : "ok";
+      $("bar").style.width = `${v.score * 2}px`; $("num").textContent = `${v.score} / 100 (spam at ${SPAM_AT})`;
+      $("why").innerHTML = "";
+      for (const r of v.reasons) { const li = document.createElement("li"); li.textContent = r; $("why").append(li); }
+      if (!first) record("score"); first = false;
+    };
+    for (const id of ["msg", "trap", "secs"]) $(id).addEventListener("input", run);
+    run();
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

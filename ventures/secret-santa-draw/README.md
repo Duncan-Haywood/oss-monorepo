@@ -3,6 +3,8 @@
 Free, browser-only Secret Santa generator. No sign-up, no email addresses, and
 the organizer can play without seeing who drew whom.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/secret-santa-draw/
+
 - **Rules:** nobody draws themselves; groups you name (couples, siblings) do not
   draw each other; last year's pairs are not repeated; and one of three pairing
   rules: swaps allowed, no swaps, or one big loop.
@@ -26,6 +28,8 @@ step, no dependencies. `node --test *.test.mjs` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `secret-santa-rules-for-couples-and-no-repeats.html` - guide whose worked
   counts the test suite recomputes from the engine.
+- `how-many-people-do-you-need-for-secret-santa.html` - guide with a table of valid draws for 3 to 8 people under each pairing rule; the counts are recomputed by the test suite.
+- `secret-santa-for-remote-teams-without-email.html` - guide to running a remote-team exchange from one group link, with the honor-system limit stated.
 
 **No warranty.** Free and as-is; a friendly gift-exchange helper. The group link
 works on the honor system: it contains what is needed to recompute the draw, so

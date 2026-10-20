@@ -1,0 +1,20 @@
+{
+  "Men": {
+    "intervals": 16888,
+    "respondents": 2518,
+    "events": 369,
+    "person_years": 33954.500000000015,
+    "iterations": 6,
+    "matrix_rank": 25,
+    "parameters": 25
+  },
+  "Women": {
+    "intervals": 16569,
+    "respondents": 2602,
+    "events": 299,
+    "person_years": 33190.91666666667,
+    "iterations": 6,
+    "matrix_rank": 25,
+    "parameters": 25
+  }
+}

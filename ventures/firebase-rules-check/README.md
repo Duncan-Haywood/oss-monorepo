@@ -7,6 +7,8 @@ exposure documented since
 Appthority's 2018 "Firebase mismanagement" report (2,300+ apps found exposed, tens of millions of
 records) and recurring in security research and bug-bounty write-ups since.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/
+
 Both Firebase products default a new project to 30 days of **test mode** — a rule that allows any
 read and write with no authentication — so a team can build first and lock rules down later. What
 keeps a project safe after that is Security Rules, and only that: the client config

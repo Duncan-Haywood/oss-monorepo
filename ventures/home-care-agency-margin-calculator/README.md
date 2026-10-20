@@ -8,6 +8,8 @@ for each payer, the bill rate that reaches a target margin, what each extra doll
 wage costs per month, and the refill share at which dropping a payer breaks even.
 Rows are payers, never clients or caregivers; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/home-care-agency-margin-calculator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, loaded cost, margin, rate solve, wage-raise cost, refill, CSV.

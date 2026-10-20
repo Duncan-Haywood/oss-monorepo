@@ -4,6 +4,8 @@ A free browser tool for owner-operators, small carriers, dispatchers and freight
 more fuel surcharge programs, and see the surcharge each pays, the extra fuel your truck actually burned above the peg, and the gap that comes
 out of linehaul**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fuel-surcharge-schedule-calculator/
+
 After using this, you can now **see whether a broker's fuel surcharge really covers your fuel and what to ask for**, which used to be a peg, a step
 and an mpg assumption in a rate confirmation that nobody divided out.
 

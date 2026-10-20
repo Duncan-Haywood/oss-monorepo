@@ -1,0 +1,13 @@
+[project]
+name = "house-diaphragm"
+version = "0.1.0"
+description = "Rigid-diaphragm load split between the two gable-wall lines of the house-structure house, with a garage door in one of them"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-structure/src", "../house-framing/src"]

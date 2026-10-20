@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normCdf, normInv, sampleSize, daysToRun, srmCheck, mixtureSequential, peekingInflation, bayes, analyze, sampleText, reportCsv, pct, signedPct } from "./calc.mjs";
+import { normCdf, normInv, sampleSize, detectableEffect, daysToRun, srmCheck, mixtureSequential, peekingInflation, bayes, analyze, sampleText, reportCsv, pct, signedPct } from "./calc.mjs";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg || ""} ${a} vs ${b}`);
 
@@ -154,4 +154,100 @@ test("sample data, CSV and formatters", () => {
   assert.equal(pct(0.0523), "5.23%");
   assert.equal(signedPct(0.111), "+11.1%");
   assert.equal(signedPct(NaN), "n/a");
+});
+
+import { priceTest, priceSampleText, money } from "./calc.mjs";
+
+test("price test compares revenue per visitor and finds the break-even conversion", () => {
+  const r = priceTest(priceSampleText());
+  near(r.rpv1, 1.16, 1e-9);
+  near(r.rpv2, 0.0345 * 39, 1e-9);
+  near(r.diff, 0.0345 * 39 - 1.16, 1e-9);
+  // $29 -> $39 can lose up to 25.6% of buyers before revenue per visitor falls.
+  near(r.breakEvenRelativeDrop, 1 - 29 / 39, 1e-12);
+  near(r.breakEvenRate, (0.04 * 29) / 39, 1e-12);
+  assert.ok(r.conversionChange < 0 && r.diff > 0);
+  assert.ok(r.findings.some((f) => f.title === "Fewer buyers, more revenue"));
+  // Delta-method z-test against the hand calculation.
+  const se = Math.sqrt((29 ** 2 * 0.04 * 0.96) / 4000 + (39 ** 2 * 0.0345 * 0.9655) / 4000);
+  near(r.se, se, 1e-12);
+  near(r.z, r.diff / se, 1e-9);
+  near(r.p, 2 * normCdf(-Math.abs(r.z)), 1e-9);
+  assert.ok(r.ci.low < r.diff && r.diff < r.ci.high);
+});
+
+test("price test Bayesian view agrees with the sign of the evidence and is reproducible", () => {
+  const a = priceTest(priceSampleText());
+  const b = priceTest(priceSampleText());
+  assert.deepEqual(a.bayes, b.bayes);
+  assert.ok(a.bayes.probBBeatsA > 0.5 && a.bayes.probBBeatsA < 1);
+  assert.ok(a.bayes.liftLow < a.bayes.liftMedian && a.bayes.liftMedian < a.bayes.liftHigh);
+  // Swapping the arms mirrors the probability.
+  const s = priceTest({ n1: 4000, c1: 138, price1: 39, n2: 4000, c2: 160, price2: 29 });
+  near(a.bayes.probBBeatsA + s.bayes.probBBeatsA, 1, 0.02);
+  // A clearly losing higher price is flagged.
+  const bad = priceTest({ n1: 20000, c1: 800, price1: 29, n2: 20000, c2: 400, price2: 39 });
+  assert.ok(bad.significant && bad.diff < 0);
+  assert.ok(bad.findings.some((f) => f.severity === "high"));
+});
+
+test("price test validates input and reports monthly impact", () => {
+  assert.match(priceTest({ n1: 100, c1: 5, price1: 10, n2: 100, c2: 5, price2: 10 }).error, /same/);
+  assert.match(priceTest({ n1: 100, c1: 5, price1: 0, n2: 100, c2: 5, price2: 10 }).error, /greater than zero/);
+  assert.match(priceTest({ n1: 100, c1: 105, price1: 5, n2: 100, c2: 5, price2: 10 }).error, /exceed/);
+  assert.match(priceTest({ n1: 0, c1: 0, price1: 5, n2: 100, c2: 5, price2: 10 }).error, /at least one/);
+  const r = priceTest({ ...priceSampleText(), monthlyVisitors: 10000 });
+  near(r.monthly.revenueDelta, r.diff * 10000, 1e-9);
+  assert.equal(money(1.2346), "$1.235");
+  assert.equal(money(-12.5), "-$12.50");
+});
+
+test("always-valid interval stays sane when the control rate is near zero", () => {
+  const r = analyze({ n1: 50, c1: 0, n2: 50, c2: 5 });
+  assert.ok(r.priorSd >= 0.04, "default prior is not tighter than the standard error");
+  assert.ok(r.sequential.high - r.sequential.low < 1, "interval is narrower than the whole 0-1 range");
+});
+
+import { multiTest, parseArms, multiSampleText } from "./calc.mjs";
+
+test("A/B/n: Holm adjusts p-values and never lowers them", () => {
+  const { arms } = parseArms(multiSampleText());
+  const r = multiTest({ arms });
+  assert.equal(r.rows.length, 3);
+  for (const x of r.rows) { assert.ok(x.pHolm >= x.p && x.pHolm <= 1); }
+  // Smallest raw p is multiplied by the number of variants.
+  const min = r.rows.reduce((a, b) => (a.p < b.p ? a : b));
+  near(min.pHolm, Math.min(1, min.p * 3), 1e-12);
+  // Best-arm probabilities sum to one.
+  near(r.control.probBest + r.rows.reduce((s, x) => s + x.probBest, 0), 1, 1e-9);
+});
+
+test("A/B/n: a clear winner is found and identical arms are not", () => {
+  const win = multiTest({ arms: [{ name: "A", n: 10000, c: 500 }, { name: "B", n: 10000, c: 700 }, { name: "C", n: 10000, c: 505 }] });
+  assert.equal(win.winners[0].name, "B");
+  assert.equal(win.rows[1].significant, false);
+  const same = multiTest({ arms: [{ name: "A", n: 1000, c: 50 }, { name: "B", n: 1000, c: 50 }, { name: "C", n: 1000, c: 50 }] });
+  assert.equal(same.winners.length, 0);
+  assert.equal(same.rows[0].pHolm, 1);
+});
+
+test("A/B/n: rejects bad input and parses lines", () => {
+  assert.ok(multiTest({ arms: [{ name: "A", n: 10, c: 1 }, { name: "B", n: 10, c: 1 }] }).error);
+  assert.ok(multiTest({ arms: [{ name: "A", n: 10, c: 1 }, { name: "B", n: 10, c: 11 }, { name: "C", n: 10, c: 1 }] }).error);
+  assert.ok(parseArms("A, 100").error);
+  assert.deepEqual(parseArms("Big, red, 100, 5\n\nB,200,9\n").arms, [{ name: "Big, red", n: 100, c: 5 }, { name: "B", n: 200, c: 9 }]);
+});
+
+test("detectableEffect inverts sampleSize", () => {
+  const s = sampleSize({ baseline: 0.05, mde: 0.1 });
+  const d = detectableEffect({ baseline: 0.05, perArm: s.perArm });
+  assert.ok(Math.abs(d.relativeEffect - 0.1) < 0.002, String(d.relativeEffect));
+  assert.ok(sampleSize({ baseline: 0.05, mde: d.absoluteEffect, mode: "absolute" }).perArm <= s.perArm);
+});
+
+test("detectableEffect shrinks with traffic and rejects bad input", () => {
+  const a = detectableEffect({ baseline: 0.1, perArm: 2000 }), b = detectableEffect({ baseline: 0.1, perArm: 20000 });
+  assert.ok(b.absoluteEffect < a.absoluteEffect);
+  assert.ok(detectableEffect({ baseline: 0, perArm: 1000 }).error);
+  assert.ok(detectableEffect({ baseline: 0.5, perArm: 1 }).error);
 });

@@ -1,0 +1,40 @@
+{
+  "salt": "change-me",
+  "segments": {
+    "internal": { "description": "Our own team", "conditions": [{ "attr": "email", "op": "endsWith", "value": "@example.com" }] },
+    "beta-testers": { "description": "Opted into the beta", "include": ["user-1001", "user-1002"] }
+  },
+  "flags": {
+    "new-checkout": {
+      "key": "new-checkout",
+      "description": "Redesigned checkout. Staff first, beta testers, then 10% of everyone else; widen the rollout weight to ship it.",
+      "enabled": true,
+      "rules": [
+        { "id": "staff", "if": [{ "op": "inSegment", "value": ["internal", "beta-testers"] }], "serve": { "variant": "on" } },
+        { "id": "not-legacy-app", "if": [{ "attr": "appVersion", "op": "semverLt", "value": "3.2.0" }], "serve": { "variant": "off" } }
+      ],
+      "fallthrough": { "rollout": [{ "variant": "on", "weight": 10 }, { "variant": "off", "weight": 90 }] }
+    },
+    "pricing-page-test": {
+      "key": "pricing-page-test",
+      "description": "Three pricing page layouts. Bucketed by account so everyone in a team sees the same page.",
+      "enabled": true,
+      "variants": { "control": "pricing-v1", "tiers": "pricing-v2", "calculator": "pricing-v3", "off": "pricing-v1" },
+      "fallthrough": { "bucketBy": "account", "rollout": [{ "variant": "control", "weight": 34 }, { "variant": "tiers", "weight": 33 }, { "variant": "calculator", "weight": 33 }] }
+    },
+    "ai-summaries": {
+      "key": "ai-summaries",
+      "description": "Needs the new checkout's data model, so it is off wherever new-checkout is off.",
+      "enabled": true,
+      "prerequisites": [{ "flag": "new-checkout", "variant": "on" }],
+      "rules": [{ "id": "paid", "if": [{ "attr": "plan", "op": "in", "value": ["pro", "team"] }], "serve": { "variant": "on" } }],
+      "fallthrough": { "variant": "off" }
+    },
+    "kill-switch-exports": {
+      "key": "kill-switch-exports",
+      "description": "Flip to off to stop CSV exports during an incident. On by default.",
+      "enabled": true,
+      "fallthrough": { "variant": "on" }
+    }
+  }
+}

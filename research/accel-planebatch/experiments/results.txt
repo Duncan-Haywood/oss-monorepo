@@ -1,0 +1,28 @@
+20 RTL runs (P = 8 lanes, 2 random problems each, int4 weights, int8 inputs, 24-bit accumulators) and Yosys syntheses.
+bit-exact against NumPy in all runs: True; counts identical across the 2 problems: True
+weight fetches RTL == schedule model in all runs: True
+activation fetches RTL == schedule model in all runs: True
+OS: RTL cycles minus schedule-model cycles takes values [2] over 10 points
+WS: RTL cycles minus schedule-model cycles takes values [2] over 10 points
+
+shape      B design cycles  w_fetch  x_fetch  cells  flops  model_psum_wr(SRAM, not built)
+L1 64x70   1 OS      562     4480      560   3029    403       64
+L1 64x70   1 WS      562     4480      560   3024    403       64
+L1 64x70   2 OS     1122     8960     1120   3028    407      128
+L1 64x70   2 WS     1122     4480     1120   3441    600     8960
+L1 64x70   4 OS     2242    17920     2240   2982    409      256
+L1 64x70   4 WS     2242     4480     2240   4946    987    17920
+L1 64x70   8 OS     4482    35840     4480   2986    411      512
+L1 64x70   8 WS     4482     4480     4480   6500   1758    35840
+L1 64x70  16 OS     8962    71680     8960   3006    413     1024
+L1 64x70  16 WS     8962     4480     8960  12284   3297    71680
+L2 11x64   1 OS      130      704      128   3038    398       11
+L2 11x64   1 WS      130      704      128   2979    398       11
+L2 11x64   2 OS      258     1408      256   2970    402       22
+L2 11x64   2 WS      258      704      256   3417    595     1408
+L2 11x64   4 OS      514     2816      512   3021    404       44
+L2 11x64   4 WS      514      704      512   4909    982     2816
+L2 11x64   8 OS     1026     5632     1024   3035    406       88
+L2 11x64   8 WS     1026      704     1024   6467   1753     5632
+L2 11x64  16 OS     2050    11264     2048   3025    408      176
+L2 11x64  16 WS     2050      704     2048  12249   3292    11264

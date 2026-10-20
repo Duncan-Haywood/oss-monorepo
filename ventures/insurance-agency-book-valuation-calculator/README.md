@@ -5,6 +5,8 @@ servicing cost and required return, and see what keeping it is worth, how a purc
 share and a retention-tested holdback compares, the break-even price, and what one point of retention adds.**
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/insurance-agency-book-valuation-calculator/
+
 After using this, you can now **tell whether an offer for your book is above or below what the book is worth
 to you, and which assumption moves the answer most, before you sign**.
 

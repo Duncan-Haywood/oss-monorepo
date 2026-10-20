@@ -1,0 +1,55 @@
+{
+  "slug": "ev-charger-bid-calculator",
+  "name": "EV charger installation",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Level 2 EV charger installs priced from the base install, circuit run feet, permit and trenching.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 48,
+  "burdenRate": 32,
+  "overheadRate": 18,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Install 48 A hardwired charger on a 60 A breaker, spare slot",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.4,
+      "materialPerUnit": 155,
+      "source": "base 2 h (LABOR_RATES.baseHours) + spare-slot panel 0.4 h (PANEL_WORK); 60 A breaker $70 (BREAKER_COST, 48 A x 1.25 -> 60 A) + fittings $85 (MATERIAL_RATES); 48 A, indoor, hardwired, spare slot selected (index.html)"
+    },
+    {
+      "label": "Circuit run, #6 copper in EMT, indoor",
+      "unit": "linear ft",
+      "qty": 25,
+      "hoursPerUnit": 0.06,
+      "materialPerUnit": 5.6,
+      "source": "3.6 min/ft indoor (LABOR_RATES.indoorMinutesPerFoot); #6 Cu $3.80/ft (WIRE_TABLE via recommendWire) + EMT $1.80/ft (MATERIAL_RATES); 25 ft default (index.html runFeet)"
+    },
+    {
+      "label": "Load calculation, permit and inspection",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.75,
+      "materialPerUnit": 150,
+      "source": "loadCalcHours 0.75 + inspectionHours 1 (LABOR_RATES); permit & inspection fee $150 (index.html permitFee)"
+    },
+    {
+      "label": "Trench and restoration",
+      "unit": "linear ft",
+      "qty": 0,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 8,
+      "source": "trenchHoursPerFoot 0.12 (LABOR_RATES), restoration $8/ft (MATERIAL_RATES); the specialist also adds 1 h trench setup; 0 ft default (index.html)"
+    },
+    {
+      "label": "Charger hardware",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 0,
+      "source": "chargerHardware $0 (index.html default: owner-supplied); enter the unit price if you supply it"
+    }
+  ],
+  "specialistModels": "Breaker sizing at 125% continuous load, copper wire upsizing for 3% voltage drop, service headroom checks, outdoor disconnects, pedestals and NEMA 14-50 receptacles."
+}

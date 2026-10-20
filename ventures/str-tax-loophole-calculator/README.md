@@ -3,6 +3,8 @@
 A free browser calculator for short-term-rental owners. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/str-tax-loophole-calculator/
+
 After using this, you can now **see whether your Airbnb or VRBO loss can
 offset your other income in 2026, and how much a cost segregation study
 adds in year one** -- on the non-passive path and on the passive path.

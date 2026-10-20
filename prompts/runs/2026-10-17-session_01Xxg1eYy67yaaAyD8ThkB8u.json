@@ -1,0 +1,127 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01Xxg1eYy67yaaAyD8ThkB8u",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T19:38:10Z",
+  "ended": "2026-10-17T20:09:24Z",
+  "wall_minutes": 31.34,
+  "tokens_in": 4476806,
+  "tokens_out": 16709,
+  "cost_usd": 1.4274,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": 7824,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first experiment launch without OMP_NUM_THREADS=1 oversubscribed CPUs and did not finish in 30 min; relaunched"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "platform/ci/pyenv.py could not build an interpreter with mujoco; had to use a manual venv"
+    },
+    {
+      "file": "research/mimic-twinc2st/README.md",
+      "issue": "next steps (sample-size sweep) were already done by free-c2stpower; research_idea_dupe.py took >2 min"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Built mimic-mmdmujoco; no figure produced (milestone 9 figure still open for this project).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a02d4293-4e81-54cd-adc8-1e38362688d0",
+    "transcripts": 1,
+    "first": "2026-10-17T19:38:10Z",
+    "last": "2026-10-17T20:09:30Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 44,
+        "input": 93,
+        "output": 16709,
+        "thinking": 2119,
+        "cache_read": 4380721,
+        "cache_write_5m": 0,
+        "cache_write_1h": 95992,
+        "api_equivalent_usd": 1.4274,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 93,
+      "output": 16709,
+      "thinking": 2119,
+      "cache_read": 4380721,
+      "cache_write_5m": 0,
+      "cache_write_1h": 95992,
+      "api_equivalent_usd": 1.4274,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 31,
+      "Monitor": 8,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 31.34,
+      "active_minutes": 16.19,
+      "model_minutes": 2.24,
+      "tool_minutes": 13.95,
+      "waiting_on_human_minutes": 15.14,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "writing code, tests and a README for a small simulation study",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 420.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

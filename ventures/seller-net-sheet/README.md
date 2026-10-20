@@ -6,6 +6,8 @@ buyer-broker compensation, other concessions, title, transfer tax, and
 prorations — then compares **two offers on the same house** and solves for
 the sale price that hits a target net.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/seller-net-sheet/
+
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
 a closing disclosure: enter the rates from your title/escrow estimate, and
@@ -29,6 +31,12 @@ percentage. After the NAR settlement, that is the wrong model:
 A $425,000 offer that asks for 2.5% buyer-broker pay plus $8,000 in
 closing help can net less than a cleaner $417,000 offer. This tool keeps
 those lines separate and shows both nets on one page.
+
+**Break-even and sensitivity.** Under the offer comparison, the page states the most buyer-broker pay Offer A can ask before it nets less than Offer B (`breakEvenBuyerBrokerRate`, exact because net is linear in that rate) and a price × buyer-broker-rate grid of Offer A's net (`netGrid`), so "what does each half point cost" needs no re-typing.
+
+[Compare multiple offers](compare-multiple-offers.html) ranks up to twelve offers on net cash, then charges each for its days to close (at your daily cost of owning the house) and weighs it by your own chance that it falls through (`rankOffers` in `calc.mjs`; the chances are yours; the page's example rows are invented). Each offer also gets the exact fall-through chance at which it still beats the rest.
+
+[Who pays transfer tax, state by state](transfer-tax-by-state.html) lists the statewide starting rates behind the calculator's state menu (`transfer-tax.mjs`).
 
 [Higher offer vs cleaner offer](offer-comparison.html) answers that search
 question directly, and
@@ -83,3 +91,12 @@ instead of asking the visitor to do the day-count division themselves.
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as
 static files.
+
+## Host your own copy
+
+You do not need the author's site. Fork the repository and run your own:
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the site's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts, and nothing you type reaches a server. The Docker image has not been built in the session that added these files, so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.

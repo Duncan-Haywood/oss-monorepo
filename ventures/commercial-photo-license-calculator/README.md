@@ -2,6 +2,8 @@
 
 When a commercial client asks where, how long, and how widely they can use your images, this free browser-local worksheet turns that scope into a transparent starting quote. It separates the creative fee from usage rights, shows the assumptions, and creates a client-ready draft.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/commercial-photo-license-calculator/
+
 After using this, you can explain a commercial image license line by line, which used to take rebuilding a spreadsheet for every client request.
 
 ## Run it

@@ -1,6 +1,6 @@
 # 000N. Title, as a statement of the decision
 
-**Status:** proposed | accepted | superseded by [000M](000M-....md)
+**Status:** proposed | accepted | superseded by `[000M](000M-....md)`
 
 ## Context
 

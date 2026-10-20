@@ -4,6 +4,8 @@ A free tool for web developers and performance engineers: sends **one real
 HTTP GET request** to a URL you choose and classifies its caching headers
 into the misconfiguration patterns that actually break things:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cache-control-check/
+
 - **`Vary: *`** — RFC 9111 defines this as meaning the response is never
   reusable from cache, by any HTTP/1.1-compliant cache (browser or CDN),
   for any later request. It silently overrides any `Cache-Control` or

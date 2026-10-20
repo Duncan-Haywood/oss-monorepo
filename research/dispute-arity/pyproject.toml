@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dispute-arity"
+version = "0.1.0"
+description = "Optimal arity and leaf size of k-ary bisection dispute games for refereed verification of training traces"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

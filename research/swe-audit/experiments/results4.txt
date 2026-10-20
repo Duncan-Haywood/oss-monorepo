@@ -1,0 +1,4 @@
+serial re-run, timeout 2400 s each, one project at a time
+
+project                      status       difflines    secs
+simdesign-llm                identical            0  1332.8

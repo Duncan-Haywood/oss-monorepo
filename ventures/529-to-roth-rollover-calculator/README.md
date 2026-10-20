@@ -3,6 +3,8 @@
 A free browser tool: **type a 529 balance, what was added in the last five years and the beneficiary's income, and get a
 year-by-year plan for rolling leftover 529 money into the beneficiary's Roth IRA.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/529-to-roth-rollover-calculator/
+
 After using this, you can **see how much can move, in which years, and what it could grow to**, instead of reading
 SECURE 2.0 summaries and doing the five-year-lock arithmetic by hand.
 

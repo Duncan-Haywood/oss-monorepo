@@ -60,3 +60,40 @@ test("summarize gates on budget for the cheapest or a named provider", () => {
   assert.equal(s.errors, 1);
   assert.equal(summarize(rows, { provider: "nope" }).status, "error");
 });
+
+const flat = (label, price) => ({ label, freeEmails: 0, plans: [{ emails: 1e9, price }], overagePer1k: 1 });
+
+test("project: totals sort cheapest first, ties broken by label", () => {
+  const prov = { b: flat("Bravo", 10), a: flat("Alpha", 10), c: flat("Cheap", 5) };
+  const { totals } = project(1000, 0, 3, prov);
+  assert.deepEqual(totals.map((t) => t.label), ["Cheap", "Alpha", "Bravo"]);
+});
+
+test("cheapestSegments: starts at 0, ends exactly at maxVolume, segments are contiguous", () => {
+  const segs = cheapestSegments(DEFAULT_PROVIDERS, 5000);
+  assert.equal(segs[0].from, 0);
+  assert.equal(segs[segs.length - 1].to, 5000);
+  for (let i = 1; i < segs.length; i++) assert.equal(segs[i].from, segs[i - 1].to + 1);
+});
+
+test("cheapestSegments: the winner at the final volume is reported for the last segment", () => {
+  const flip = { x: { label: "X", freeEmails: 4999, plans: [{ emails: 1e9, price: 100 }], overagePer1k: 1 }, y: flat("Y", 50) };
+  const s = cheapestSegments(flip, 5000);
+  assert.equal(s[s.length - 1].key, "y");
+  assert.equal(s[s.length - 1].to, 5000);
+});
+
+test("summarize: a monthly cost equal to the budget is not over budget", () => {
+  const rows = compare(1000);
+  const exact = summarize(rows, { budget: rows[0].monthly });
+  assert.equal(exact.overBudget, false);
+  assert.equal(exact.status, "ok");
+  assert.equal(summarize(rows, { budget: rows[0].monthly - 0.01 }).overBudget, true);
+});
+
+test("summarize names the most expensive provider (the last row)", () => {
+  const rows = compare(500000);
+  const s = summarize(rows);
+  const last = rows[rows.length - 1];
+  assert.ok(s.text.includes(`The most expensive here, ${last.label}, is `));
+});

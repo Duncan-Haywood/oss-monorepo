@@ -7,6 +7,8 @@ leaves if it runs long, how the price climbs with distance, a check on a price
 you were offered, and how many jobs a month cover your fixed costs. Entirely
 client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mobile-welding-job-price-calculator/
+
 After using this, you can **quote a job knowing what the drive, the truck and a
 long day cost you**.
 

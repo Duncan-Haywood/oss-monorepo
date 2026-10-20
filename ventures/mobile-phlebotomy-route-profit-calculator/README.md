@@ -2,6 +2,8 @@
 
 A free browser tool for independent mobile phlebotomists: **enter your weekly draws by type (routine home or office, STAT, facility or batch visit), fees, on-site and drive minutes, supplies, the share of trips that fail at the door, mileage cost and fixed costs, and get profit per draw and per working hour including drive time, break-even draws per week, the fee each draw type needs for your target margin, what failed trips cost, what batching stops does to profit per hour, and the same route worked solo, as an agency contractor, or as an employee**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mobile-phlebotomy-route-profit-calculator/
+
 After using this, you can now **set a fee per draw and a trip fee that clear your target margin once the drive and the no-answer trips are counted, group stops where it pays, and judge an agency's take or a job offer against working for yourself**, which used to take a spreadsheet and a guess.
 
 ## Use

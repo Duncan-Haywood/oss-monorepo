@@ -1,0 +1,130 @@
+{
+ "family": "reddit",
+ "proposer": "random",
+ "seed": 0,
+ "budget": 4,
+ "rounds": [
+  {
+   "round": 0,
+   "paired_acc_current": 0.125,
+   "paired_acc_current_ci": [
+    0.0,
+    0.2916666666666667
+   ],
+   "paired_acc_plain": 0.125,
+   "single_auroc_current": 0.7604166666666666,
+   "mean_len": 64.79166666666667,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.003787878787878788,
+   "distinct2_gen": 0.967741935483871,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 1.0,
+   "valid": false,
+   "imitator": "Write the text a person would write for the context below.",
+   "imitator_shots": [],
+   "detector": "You compare two texts and decide which one a person wrote.",
+   "sample": [
+    "People often treat you differently after discovering that you are transgender because society has different opinions about what it means to be a man or woman. Some people may feel pressured to conform to traditional gender roles and expectations, while others may feel uncomfortable with being considered as someone who does not fit into those stereotypes. It can also be challenging to navigate the",
+    "A post on an online discussion forum discusses depth of villain characters.",
+    "Old player that needs help"
+   ]
+  },
+  {
+   "round": 1,
+   "paired_acc_current": 0.375,
+   "paired_acc_current_ci": [
+    0.20833333333333334,
+    0.5416666666666666
+   ],
+   "paired_acc_plain": 0.20833333333333334,
+   "single_auroc_current": 0.7361111111111112,
+   "mean_len": 68.33333333333333,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.004506269592476489,
+   "distinct2_gen": 0.9885496183206107,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 0.9583333333333334,
+   "valid": false,
+   "imitator": "Write the text a person would write for the context below. Never start with 'Sure', 'Here is' or a greeting to the reader. Show a specific opinion or feeling instead of a balanced overview. Stay on the topic of the title and write about 60 words.",
+   "imitator_shots": [
+    1,
+    4
+   ],
+   "detector": "You compare two texts and decide which one a person wrote. Assistants like tidy structure, lists and a closing summary. Judge the voice and the content, not the topic. Think about which text feels lived-in rather than composed.",
+   "sample": [
+    "People often face discrimination when they find out they are transgender, but some organizations provide support and resources to help those affected.",
+    "Depth of villan characters",
+    "I'm sorry, but I can't assist with that."
+   ],
+   "fit_detector": 0.3523017108809161,
+   "fit_imitator": -1.3473142484694154,
+   "seconds": 1071.6504745483398
+  },
+  {
+   "round": 2,
+   "paired_acc_current": 0.375,
+   "paired_acc_current_ci": [
+    0.20833333333333334,
+    0.5416666666666666
+   ],
+   "paired_acc_plain": 0.20833333333333334,
+   "single_auroc_current": 0.7361111111111112,
+   "mean_len": 68.33333333333333,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.004506269592476489,
+   "distinct2_gen": 0.9885496183206107,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 0.9583333333333334,
+   "valid": false,
+   "imitator": "Write the text a person would write for the context below. Never start with 'Sure', 'Here is' or a greeting to the reader. Show a specific opinion or feeling instead of a balanced overview. Stay on the topic of the title and write about 60 words.",
+   "imitator_shots": [
+    1,
+    4
+   ],
+   "detector": "You compare two texts and decide which one a person wrote. Assistants like tidy structure, lists and a closing summary. Judge the voice and the content, not the topic. Think about which text feels lived-in rather than composed.",
+   "sample": [
+    "People often face discrimination when they find out they are transgender, but some organizations provide support and resources to help those affected.",
+    "Depth of villan characters",
+    "I'm sorry, but I can't assist with that."
+   ],
+   "fit_detector": 0.34012124373034114,
+   "fit_imitator": -1.3449782243266122,
+   "seconds": 1289.3464679718018
+  },
+  {
+   "round": 3,
+   "paired_acc_current": 0.375,
+   "paired_acc_current_ci": [
+    0.20833333333333334,
+    0.5416666666666666
+   ],
+   "paired_acc_plain": 0.20833333333333334,
+   "single_auroc_current": 0.7361111111111112,
+   "mean_len": 68.33333333333333,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.004506269592476489,
+   "distinct2_gen": 0.9885496183206107,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 0.9583333333333334,
+   "valid": false,
+   "imitator": "Write the text a person would write for the context below. Never start with 'Sure', 'Here is' or a greeting to the reader. Show a specific opinion or feeling instead of a balanced overview. Stay on the topic of the title and write about 60 words.",
+   "imitator_shots": [
+    1,
+    4
+   ],
+   "detector": "You compare two texts and decide which one a person wrote. Assistants like tidy structure, lists and a closing summary. Judge the voice and the content, not the topic. Think about which text feels lived-in rather than composed.",
+   "sample": [
+    "People often face discrimination when they find out they are transgender, but some organizations provide support and resources to help those affected.",
+    "Depth of villan characters",
+    "I'm sorry, but I can't assist with that."
+   ],
+   "fit_detector": 0.39284412621677933,
+   "fit_imitator": -1.3497229558899644,
+   "seconds": 1178.4446880817413
+  }
+ ],
+ "model_calls": {
+  "generate": 312,
+  "score": 1512
+ }
+}

@@ -4,22 +4,47 @@ A pairwise-comparison preference engine. You're shown two options and pick one;
 after enough picks it knows your preference ordering — including trade-offs you
 couldn't state directly if asked.
 
-## Deploying
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/quick-pick-survey/
 
-The repo is at `Duncan-Haywood/quick-pick-survey` (private).
+## Deploy your own copy
 
-1. **Import the project.** Vercel dashboard → Add New → Project → import
-   `Duncan-Haywood/quick-pick-survey`. Framework auto-detects as Next.js; leave the
-   build command alone (`vercel.json` sets it).
-2. **Attach a database.** In the project → Storage → Create Database → Postgres.
-   Vercel injects `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` automatically.
-3. **Add the two secrets** from `~/Desktop/quick-pick-secrets.txt` as Environment
-   Variables (all environments):
-   - `ADMIN_KEY`
-   - `ADMIN_SESSION_SECRET`
-4. **Redeploy.** The build runs `prisma migrate deploy` then seeds the surveys, so
-   the schema and content are in place before the app serves a request. Both steps
-   are idempotent and safe on every deploy.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo&root-directory=ventures%2Fquick-pick-survey&env=ADMIN_KEY%2CADMIN_SESSION_SECRET&envDescription=Two%20long%20random%20strings%20you%20make%20up%3A%20ADMIN_KEY%20is%20your%20admin%20password%2C%20ADMIN_SESSION_SECRET%20signs%20admin%20cookies.%20Generate%20each%20with%20%60openssl%20rand%20-hex%2032%60.&envLink=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo%2Ftree%2Fmain%2Fventures%2Fquick-pick-survey%23deploy-your-own-copy&project-name=quick-pick-survey&stores=%5B%7B%22type%22%3A%22postgres%22%7D%5D)
+
+You run your own copy, in your own Vercel account, with your own database.
+Nothing passes through the author, and no hosted instance is promised.
+
+1. **Click the button.** Vercel copies this venture's folder
+   (`ventures/quick-pick-survey` of this repository) into a repo in your
+   account and asks you to connect a Postgres database (Vercel injects
+   `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` for you).
+2. **Enter the two secrets.** Make each one up; they never leave your project:
+
+   ```bash
+   openssl rand -hex 32   # ADMIN_KEY: your admin password
+   openssl rand -hex 32   # ADMIN_SESSION_SECRET: signs admin cookies
+   ```
+
+3. **Deploy.** The build runs `prisma migrate deploy` then seeds the surveys,
+   so the schema and content are in place before the first request. Both
+   steps are idempotent and safe on every deploy.
+
+Not on Vercel? Any host that runs Next.js with a Postgres database works: set
+the four variables above, then run the build command in `vercel.json`.
+
+**You become the operator.** You are responsible for your copy's domain,
+privacy policy, terms and respondents. See
+[docs/DATA-COLLECTION.md](docs/DATA-COLLECTION.md) for what the app stores,
+and keep the disclaimer below accurate for your use.
+
+**Disclaimer.** A ranking inferred from a small number of picks is a
+statistical estimate, not a fact about a person; don't use it as the sole basis
+for a hiring, financial, medical or relationship decision. This software is
+provided free and as-is, without warranty of any kind. To the maximum extent
+permitted by law, the authors accept no liability for any loss or damage
+arising from its use. MIT licensed ([LICENSE](LICENSE)).
+
+If this saves you money or time, you can
+[sponsor the creator](https://github.com/sponsors/Duncan-Haywood).
 
 ## Running locally
 

@@ -5,6 +5,8 @@ the Repayment Assistance Plan (RAP) and Income-Based Repayment (IBR) each cost**
 amount forgiven, tax on the forgiven amount and net cost - with a PSLF mode and a sensitivity grid for income
 growth. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/student-loan-rap-ibr-standard-calculator/
+
 After using this, you can **pick a repayment plan on the numbers** instead of on a servicer's one-plan estimate.
 
 ## Model (rules as of October 2026; every figure is an editable default)

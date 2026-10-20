@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, planCsv, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, planCsv, comparePlan, groceryList, groceryText, breakEvenPrices, stayInPrices, dropCosts, proteinPrices, encodeShare, decodeShare, sampleSpec, filterByStyle, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -120,4 +120,374 @@ test("the verifier catches a bad plan", () => {
   const r = solve(s);
   const bad = { ...r, servings: r.servings.map(() => 0) };
   assert.ok(verifyPlan(s, bad).length > 0);
+});
+
+test("variety limit caps each food's calorie share, costs no less, and rejects impossible limits", () => {
+  const base = { ...sampleSpec(), step: 0.5 };
+  const free = solve(base);
+  const lim = { ...base, maxShare: 30 };
+  assert.deepEqual(validateSpec(lim), []);
+  const r = solve(lim);
+  assert.equal(r.status, "optimal");
+  assert.deepEqual(verifyPlan(lim, r), []);
+  const kcal = r.totals[0];
+  r.items.forEach((it) => assert.ok(it.nutrients[0] <= 0.3 * kcal + 1e-6, it.name));
+  assert.ok(r.cost >= free.cost - 1e-9);
+  // continuous mode honours it too
+  const c = solve({ ...lim, step: 0 });
+  assert.equal(c.status, "optimal");
+  c.items.forEach((it) => assert.ok(it.nutrients[0] <= 0.3 * c.totals[0] + 1e-6));
+  assert.ok(validateSpec({ ...base, maxShare: 0 }).length);
+  assert.ok(validateSpec({ ...base, maxShare: 150 }).length);
+  assert.ok(validateSpec({ ...base, foods: base.foods.slice(0, 2), maxShare: 30 }).length);
+});
+
+test("variety limit agrees with brute force on a tiny menu", () => {
+  const spec = { foods: foods([["A", 1, [100, 5, 10, 1, 1]], ["B", 2, [100, 10, 10, 1, 1]], ["C", 3, [100, 12, 10, 1, 1]]]), kcalMin: 1200, kcalMax: 1300, proteinMin: 0, fatMin: 0, fatMax: "", carbsMin: "", carbsMax: "", fiberMin: 0, defaultMax: 12, step: 1, daysPerWeek: 7, maxShare: 50 };
+  let best = Infinity;
+  for (let a = 0; a <= 12; a++) for (let b = 0; b <= 12; b++) for (let c = 0; c <= 12; c++) if (planFeasible(spec, [a, b, c])) best = Math.min(best, planCost(spec, [a, b, c]));
+  const r = solve(spec);
+  assert.equal(r.status, "optimal");
+  assert.ok(Math.abs(r.cost - best) < 1e-6, `${r.cost} vs ${best}`);
+});
+
+test("share link round-trips foods and targets", async () => {
+  const { encodeShare, decodeShare, SAMPLE_FOODS } = await import("./calc.mjs");
+  const fields = { kmin: "2000", pmin: "120", share: "30", step: "0.5", cmin: "" };
+  const frag = encodeShare(SAMPLE_FOODS, fields);
+  const back = decodeShare("#" + frag);
+  assert.equal(back.foods, SAMPLE_FOODS);
+  assert.deepEqual(back.fields, { kmin: "2000", pmin: "120", share: "30", step: "0.5" });
+});
+
+test("share link drops unknown or non-numeric fields", async () => {
+  const { decodeShare } = await import("./calc.mjs");
+  const back = decodeShare("#foods=Rice%20%7C%200.1&kmin=%3Cscript%3E&evil=1&pmin=90");
+  assert.equal(back.foods, "Rice | 0.1");
+  assert.deepEqual(back.fields, { pmin: "90" });
+  assert.deepEqual(decodeShare("").fields, {});
+});
+
+test("parseFoods reads servings per pack and rejects a bad one", () => {
+  const r = parseFoods("Rice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7 | | 20\nEgg | 0.3 | 72 | 6 | 0 | 5 | 0 | 6\nOats | 0.2 | 150 | 5 | 27 | 3 | 4 | | 0");
+  assert.equal(r.foods[0].pack, 20);
+  assert.equal(r.foods[0].max, null);
+  assert.equal(r.foods[1].pack, null);
+  assert.equal(r.foods.length, 2);
+  assert.match(r.errors[0], /servings per pack/);
+});
+
+test("groceryList rounds up to whole packs and prices the leftover", () => {
+  const spec = { daysPerWeek: 7, foods: foods([["Rice", 0.2, [180, 3, 40, 0, 1]], ["Egg", 0.3, [72, 6, 0, 5, 0]]]) };
+  spec.foods[0].pack = 20;
+  const res = { cost: 0.2 * 3 + 0.3 * 2, items: [{ index: 0, name: "Rice", servings: 3, cost: 0.6 }, { index: 1, name: "Egg", servings: 2, cost: 0.6 }] };
+  const g = groceryList(spec, res);
+  assert.equal(g.lines[0].packs, 2); // 21 servings -> 2 packs of 20
+  assert.equal(g.lines[0].leftover, 19);
+  assert.ok(Math.abs(g.lines[0].spend - 8) < 1e-9); // 40 servings x 0.20
+  assert.equal(g.lines[1].packs, null);
+  assert.ok(Math.abs(g.lines[1].spend - 4.2) < 1e-9); // bought exactly: 14 x 0.30
+  assert.ok(Math.abs(g.extra - (8 + 4.2 - 1.2 * 7)) < 1e-9);
+  spec.foods[0].pack = 21; // exact multiple: no float round-up
+  assert.equal(groceryList(spec, res).lines[0].packs, 1);
+});
+
+test("groceryText lists packs and exact servings with the till total", () => {
+  const spec = { daysPerWeek: 7, foods: foods([["Rice", 0.2, [180, 3, 40, 0, 1]], ["Egg", 0.3, [72, 6, 0, 5, 0]]]) };
+  spec.foods[0].pack = 20;
+  const res = { cost: 1.2, items: [{ index: 0, name: "Rice", servings: 3, cost: 0.6 }, { index: 1, name: "Egg", servings: 2, cost: 0.6 }] };
+  assert.equal(groceryText(spec, res), "Shopping list (one week)\nRice: 2 x 20.0-serving pack\nEgg: 14.0 servings\nEstimated total: $12.20\n");
+});
+
+test("breakEvenPrices finds the price at which a left-out food starts to win", () => {
+  // Need 100 g protein. Egg: 10 g for 1.00. Bean: 10 g for 1.50 now; it wins below 1.00.
+  const spec = { ...DEFAULTS, kcalMin: "", kcalMax: "", fatMin: "", fatMax: "", fiberMin: "", step: 0, defaultMax: 20, foods: foods([["Egg", 1, [100, 10, 0, 0, 0]], ["Bean", 1.5, [100, 10, 0, 0, 0]]]) };
+  const res = solve(spec);
+  assert.equal(res.items[0].name, "Egg");
+  const be = breakEvenPrices(spec, res);
+  assert.equal(be.length, 1);
+  assert.equal(be[0].name, "Bean");
+  assert.ok(Math.abs(be[0].price - 1) < 1e-6);
+  assert.ok(Math.abs(be[0].drop - 1 / 3) < 1e-6);
+  const cheaper = { ...spec, foods: spec.foods.map((f) => (f.name === "Bean" ? { ...f, price: 0.99 } : f)) };
+  assert.equal(solve(cheaper).items[0].name, "Bean");
+});
+
+test("breakEvenPrices on the starter menu: every answer re-solves to a plan that uses the food", () => {
+  const spec = { ...sampleSpec(), step: 0 };
+  const res = solve(spec);
+  for (const b of breakEvenPrices(spec, res)) {
+    if (b.price === null) continue;
+    assert.ok(b.price < b.current);
+    const foodsLow = spec.foods.map((f, j) => (j === b.index ? { ...f, price: b.price * 0.98 } : f));
+    assert.ok(solve({ ...spec, foods: foodsLow }).servings[b.index] > 1e-6, b.name);
+  }
+});
+
+test("tightening the variety limit never makes the plan cheaper, and matches a direct solve", () => {
+  const base = sampleSpec();
+  const fr = varietyFrontier(base, [100, 50, 30]);
+  for (let i = 1; i < fr.length; i++) if (fr[i].cost !== null) assert.ok(fr[i].cost >= fr[i - 1].cost - 1e-9);
+  const direct = solve({ ...base, step: 0, maxShare: 30 });
+  assert.ok(Math.abs(direct.cost - fr[2].cost) < 1e-6);
+  assert.ok(fr[2].foods >= 4); // 30% per food needs at least 4 foods
+  assert.equal(varietyFrontier({ ...base, foods: base.foods.slice(0, 3) }, [20])[0].cost, null);
+});
+
+test("budgetFrontier: protein rises with the budget, and agrees with the cost frontier", () => {
+  const base = sampleSpec();
+  const min = solve({ ...base, step: 0 }).cost;
+  const fr = budgetFrontier(base, [min * 0.5, min, min * 1.5, min * 3]);
+  assert.equal(fr[0].protein, null); // half the cheapest feasible cost cannot meet calories and fiber
+  assert.ok(fr[1].protein >= base.proteinMin - 1e-6);
+  for (let i = 2; i < fr.length; i++) assert.ok(fr[i].protein >= fr[i - 1].protein - 1e-9);
+  // the cheapest way to reach the protein the budget buys costs no more than the budget
+  const p = fr[2].protein;
+  const back = proteinFrontier({ ...base, step: 0 }, [p * 0.999])[0].cost;
+  assert.ok(back <= min * 1.5 + 1e-6);
+});
+
+test("sodium column parses, blank counts as zero, and a bad value is reported", () => {
+  const ok = parseFoods("Bread | 0.15 | 70 | 3 | 12 | 1 | 2 | 6 | 20 | 140\nRice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7");
+  assert.deepEqual(ok.errors, []);
+  assert.equal(ok.foods[0].n[5], 140);
+  assert.equal(ok.foods[0].sodiumKnown, true);
+  assert.equal(ok.foods[1].n[5], 0);
+  assert.equal(ok.foods[1].sodiumKnown, false);
+  assert.equal(parseFoods("Bread | 0.15 | 70 | 3 | 12 | 1 | 2 | | | -5").errors.length, 1);
+});
+
+test("a sodium maximum is respected, verified, and never makes the plan cheaper", () => {
+  const base = { ...sampleSpec(), step: 0 };
+  const free = solve(base);
+  const cap = Math.round(free.totals[5] * 0.6);
+  const limited = solve({ ...base, sodiumMax: cap });
+  assert.equal(limited.status, "optimal");
+  assert.ok(limited.totals[5] <= cap + 1e-6);
+  assert.ok(limited.cost >= free.cost - 1e-9);
+  assert.deepEqual(verifyPlan({ ...base, sodiumMax: cap }, limited), []);
+  const salty = base.foods.filter((f) => /Tuna|Cheddar|bread|Whey/.test(f.name));
+  assert.notEqual(solve({ ...base, foods: salty, sodiumMax: 100 }).status, "optimal");
+  const whole = solve({ ...base, step: 0.5, sodiumMax: cap });
+  assert.ok(whole.totals[5] <= cap + 1e-6);
+});
+
+test("sodium cap survives a share link and is exported in the CSV", () => {
+  const enc = encodeShare("A | 1 | 2 | 3 | 4 | 5 | 6", { nacmax: "2300" });
+  assert.equal(decodeShare(enc).fields.nacmax, "2300");
+  const spec = { ...sampleSpec(), step: 0 };
+  const csv = planCsv(spec, solve(spec));
+  assert.ok(csv.split("\n")[0].endsWith("Potassium mg"));
+});
+
+test("weekMenu rotates the staples: every day feasible, several different menus, extra cost not negative", () => {
+  const s = { ...sampleSpec(), step: 0.5 };
+  const w = weekMenu(s);
+  assert.equal(w.days.length, 7);
+  assert.ok(w.complete);
+  for (const d of w.days) assert.ok(planFeasible(s, d.servings));
+  assert.ok(w.distinct >= 3, `only ${w.distinct} different menus`);
+  const cheapest = solve(s).cost;
+  assert.ok(Math.abs(w.days[0].cost - cheapest) < 1e-6);
+  assert.ok(w.extra >= -1e-6);
+  assert.ok(Math.abs(w.cost - w.days.reduce((t, d) => t + d.cost, 0)) < 1e-9);
+});
+
+test("weekMenu with no penalty repeats the cheapest plan every day at no extra cost", () => {
+  const s = { ...sampleSpec(), step: 0.5 };
+  const same = weekMenu(s, { penalty: 0 });
+  assert.equal(same.distinct, 1);
+  assert.ok(Math.abs(same.extra) < 1e-6);
+});
+
+test("weekText lists a line per day and the week's cost", () => {
+  const w = weekMenu({ ...sampleSpec(), step: 0.5 });
+  const txt = weekText(w);
+  assert.equal(txt.split("\n").filter((l) => l.startsWith("Day ")).length, 7);
+  assert.match(txt, /Estimated cost: \$/);
+});
+
+test("eating style drops animal foods by name, keeps plant lookalikes, and the vegan sample plan is still feasible", () => {
+  const foods = parseFoods([
+    "Chicken thigh (100 g) | 0.8 | 121 | 19 | 0 | 4 | 0",
+    "Tuna in water | 1 | 100 | 22 | 0 | 1 | 0",
+    "Egg, large | 0.3 | 72 | 6 | 0 | 5 | 0",
+    "Eggplant (100 g) | 0.3 | 25 | 1 | 6 | 0 | 3",
+    "Peanut butter | 0.2 | 190 | 7 | 7 | 16 | 2",
+    "Butternut squash | 0.3 | 45 | 1 | 12 | 0 | 2",
+    "Soy milk (1 cup) | 0.3 | 80 | 7 | 4 | 4 | 1",
+    "Whole milk (1 cup) | 0.35 | 149 | 8 | 12 | 8 | 0",
+    "Rice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7",
+  ].join("\n")).foods;
+  const names = (s) => filterByStyle(foods, s).foods.map((f) => f.name);
+  assert.equal(names("any").length, 9);
+  assert.deepEqual(filterByStyle(foods, "vegan").dropped, ["Chicken thigh (100 g)", "Tuna in water", "Egg, large", "Whole milk (1 cup)"]);
+  assert.ok(names("vegan").includes("Eggplant (100 g)") && names("vegan").includes("Peanut butter") && names("vegan").includes("Soy milk (1 cup)"));
+  assert.ok(names("vegetarian").includes("Egg, large") && !names("vegetarian").includes("Tuna in water"));
+  assert.ok(names("pescatarian").includes("Tuna in water") && !names("pescatarian").includes("Chicken thigh (100 g)"));
+  assert.deepEqual(filterByStyle(foods, "dairyfree").dropped, ["Whole milk (1 cup)"]);
+  assert.equal(filterByStyle(foods, "nonsense").foods.length, 9);
+  const spec = sampleSpec();
+  const veg = { ...spec, foods: filterByStyle(spec.foods, "vegan").foods };
+  const res = solve(veg);
+  assert.equal(res.status, "optimal");
+  assert.deepEqual(verifyPlan(veg, res), []);
+  assert.ok(res.cost >= solve(spec).cost - 1e-9);
+});
+
+test("calcium, iron and potassium columns parse; blank counts as zero and a bad value is reported", () => {
+  const ok = parseFoods("Milk | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | | | 105 | 276 | 0.1 | 322\nRice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7");
+  assert.deepEqual(ok.foods[0].n.slice(6), [276, 0.1, 322]);
+  assert.deepEqual(ok.foods[0].microKnown, [true, true, true]);
+  assert.deepEqual(ok.foods[1].n.slice(6), [0, 0, 0]);
+  assert.deepEqual(ok.foods[1].microKnown, [false, false, false]);
+  assert.equal(parseFoods("Milk | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | | | 105 | -1").errors.length, 1);
+  assert.equal(parseFoods("Milk | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | | | 105 | 276 | x").errors.length, 1);
+});
+
+test("micronutrient minimums are met, verified, never make the plan cheaper, and have a marginal cost", () => {
+  const base = { ...sampleSpec(), step: 0 };
+  const free = solve(base);
+  for (const [key, idx] of [["calciumMin", 6], ["ironMin", 7], ["potassiumMin", 8]]) {
+    const target = Math.ceil(free.totals[idx] * 1.5);
+    const spec = { ...base, [key]: target };
+    const r = solve(spec);
+    assert.equal(r.status, "optimal", key);
+    assert.ok(r.totals[idx] >= target - 1e-6, key);
+    assert.ok(r.cost >= free.cost - 1e-9, key);
+    assert.deepEqual(verifyPlan(spec, r), [], key);
+  }
+  const r = solve({ ...base, calciumMin: 1000 });
+  assert.ok(r.marginal.calcium && r.marginal.calcium.per === 100);
+  assert.notEqual(solve({ ...base, ironMin: 1000 }).status, "optimal");
+});
+
+test("micronutrient minimums survive a share link", () => {
+  const enc = encodeShare("A | 1 | 2 | 3 | 4 | 5 | 6", { camin: "1000", femin: "8", potmin: "3400" });
+  assert.deepEqual(decodeShare(enc).fields, { camin: "1000", femin: "8", potmin: "3400" });
+});
+
+test("groceryList scales the week by the number of people and groceryText says so", () => {
+  const spec = { daysPerWeek: 7, people: 3, foods: foods([["Rice", 0.2, [180, 3, 40, 0, 1]]]) };
+  spec.foods[0].pack = 20;
+  const res = { cost: 0.6, items: [{ index: 0, name: "Rice", servings: 3, cost: 0.6 }] };
+  const g = groceryList(spec, res);
+  assert.equal(g.people, 3);
+  assert.equal(g.lines[0].servings, 63); // 3 servings x 7 days x 3 people
+  assert.equal(g.lines[0].packs, 4);
+  assert.match(groceryText(spec, res), /one week for 3 people/);
+  for (const bad of [undefined, "", 0, -2, "abc"]) assert.equal(groceryList({ ...spec, people: bad }, res).people, 1);
+  assert.equal(groceryList({ ...spec, people: 500 }, res).people, 20);
+  assert.doesNotMatch(groceryText({ ...spec, people: 1 }, res), /people/);
+});
+
+test("people survives the share link and rejects non-numeric values", () => {
+  const frag = encodeShare("Rice | 0.2 | 180 | 3 | 40 | 0 | 1", { people: "4" });
+  assert.equal(decodeShare(frag).fields.people, "4");
+  assert.equal(decodeShare("foods=x&people=4%3Cb%3E").fields.people, undefined);
+});
+
+test("minimum servings force a food into the plan, cost more, and survive every solver path", () => {
+  const base = sampleSpec();
+  const plain = solve(base);
+  assert.equal(plain.status, "optimal");
+  // pick a food the cheapest plan leaves out and require one serving of it
+  const idx = base.foods.findIndex((f, i) => plain.servings[i] < 1e-6 && f.price > 0);
+  assert.ok(idx >= 0);
+  for (const step of [0.5, 1, 0]) {
+    const spec = { ...base, step, foods: base.foods.map((f, i) => (i === idx ? { ...f, min: 1, max: Math.max(f.max ?? 0, 2) || null } : f)) };
+    const forced = solve(spec);
+    assert.equal(forced.status, "optimal");
+    assert.ok(forced.servings[idx] >= 1 - 1e-9, `step ${step}`);
+    assert.deepEqual(verifyPlan(spec, forced), []);
+    assert.ok(forced.cost >= solve({ ...spec, foods: base.foods }).cost - 1e-9);
+    assert.ok(greedyPlan(spec).servings[idx] >= 1 - 1e-9);
+  }
+});
+
+test("parseFoods reads the minimum column and validateSpec refuses a minimum above the maximum", () => {
+  const ok = parseFoods("Eggs | 0.4 | 70 | 6 | 0.5 | 5 | 0 | 4 | | | | | | 2");
+  assert.deepEqual(ok.errors, []);
+  assert.equal(ok.foods[0].min, 2);
+  assert.equal(parseFoods("Rice | 0.2 | 180 | 3 | 40 | 0 | 1").foods[0].min, 0);
+  assert.match(parseFoods("Eggs | 0.4 | 70 | 6 | 0.5 | 5 | 0 | 4 | | | | | | -1").errors[0], /minimum servings/);
+  const bad = { ...sampleSpec(), foods: [{ ...sampleSpec().foods[0], max: 2, min: 3 }, ...sampleSpec().foods.slice(1)] };
+  assert.ok(validateSpec(bad).some((e) => /minimum of 3/.test(e)));
+});
+
+test("stayInPrices finds the price above which a used food is dropped", () => {
+  // Need 100 g protein. Egg: 10 g for 1.00 is used; Bean: 10 g for 1.50 is not. Egg is dropped above 1.50.
+  const spec = { ...DEFAULTS, kcalMin: "", kcalMax: "", fatMin: "", fatMax: "", fiberMin: "", step: 0, defaultMax: 20, foods: foods([["Egg", 1, [100, 10, 0, 0, 0]], ["Bean", 1.5, [100, 10, 0, 0, 0]]]) };
+  const res = solve(spec);
+  const st = stayInPrices(spec, res);
+  assert.equal(st.length, 1);
+  assert.equal(st[0].name, "Egg");
+  assert.ok(Math.abs(st[0].price - 1.5) < 1e-6);
+  assert.ok(Math.abs(st[0].rise - 0.5) < 1e-6);
+  const dearer = { ...spec, foods: spec.foods.map((f) => (f.name === "Egg" ? { ...f, price: 1.51 } : f)) };
+  assert.equal(solve(dearer).items[0].name, "Bean");
+});
+
+test("stayInPrices on the starter menu: raising a price 2% past the limit drops the food, 2% under keeps it", () => {
+  const spec = { ...sampleSpec(), step: 0 };
+  const res = solve(spec);
+  const st = stayInPrices(spec, res);
+  assert.ok(st.length > 0);
+  for (const b of st) {
+    if (b.price === null) continue;
+    assert.ok(b.price > b.current, b.name);
+    const at = (m) => solve({ ...spec, foods: spec.foods.map((f, j) => (j === b.index ? { ...f, price: b.price * m } : f)) }).servings[b.index];
+    assert.ok(at(0.98) > 1e-6, b.name + " kept");
+    assert.ok(at(1.02) < at(0.98), b.name + " reduced");
+  }
+});
+
+test("proteinPrices ranks foods by dollars per 100 g of protein and marks the ones in the plan", () => {
+  const spec = { ...DEFAULTS, kcalMin: "", kcalMax: "", fatMin: "", fatMax: "", fiberMin: "", step: 0, defaultMax: 20, foods: foods([["Egg", 1, [100, 10, 0, 0, 0]], ["Bean", 1.2, [100, 15, 0, 0, 0]], ["Oil", 0.2, [120, 0, 0, 14, 0]]]) };
+  const res = solve(spec);
+  const pp = proteinPrices(spec, res);
+  assert.deepEqual(pp.map((r) => r.name), ["Bean", "Egg", "Oil"]);
+  assert.ok(Math.abs(pp[0].per100gProtein - 8) < 1e-9);
+  assert.ok(Math.abs(pp[1].per100gProtein - 10) < 1e-9);
+  assert.equal(pp[2].per100gProtein, null);
+  assert.ok(Math.abs(pp[2].per1000kcal - (0.2 / 120) * 1000) < 1e-9);
+  assert.equal(pp.find((r) => r.name === "Oil").inPlan, false);
+});
+
+test("comparePlan prices what you eat now, flags missed bounds and reports the saving", () => {
+  const spec = sampleSpec();
+  const res = solve(spec);
+  assert.equal(res.status, "optimal");
+  const first = spec.foods[0].name;
+  const c = comparePlan(spec, res, `${first} 3\nnot a food 2\n# note`);
+  assert.equal(c.used, true);
+  assert.deepEqual(c.unmatched, ["not a food 2"]);
+  assert.ok(Math.abs(c.cost - spec.foods[0].price * 3) < 1e-9);
+  assert.ok(c.misses.length > 0 && !c.meets, "three servings of one food cannot meet every bound");
+  assert.ok(c.saving < 0 || c.saving > 0 || c.saving === 0);
+  assert.ok(Math.abs(c.saving - (c.cost - res.cost)) < 1e-9);
+  // The solved plan fed back in meets every bound and saves nothing.
+  const text = res.items.map((it) => `${it.name} ${it.servings}`).join("\n");
+  const same = comparePlan(spec, res, text);
+  assert.equal(same.meets, true);
+  assert.ok(Math.abs(same.saving) < 1e-9);
+  assert.equal(comparePlan(spec, res, "").used, false);
+  assert.equal(comparePlan(spec, res, "x 1").saving, null);
+});
+
+test("dropCosts prices losing each food in the plan, and flags a food the targets depend on", () => {
+  // Need 100 g protein. Egg 10 g for 1.00 (used), Bean 10 g for 1.50 (spare), Pill 10 g for 3.00 (spare).
+  const spec = { ...DEFAULTS, kcalMin: "", kcalMax: "", fatMin: "", fatMax: "", fiberMin: "", step: 0, defaultMax: 20, foods: foods([["Egg", 1, [100, 10, 0, 0, 0]], ["Bean", 1.5, [100, 10, 0, 0, 0]], ["Pill", 3, [100, 10, 0, 0, 0]]]) };
+  const res = solve(spec);
+  const d = dropCosts(spec, res);
+  assert.equal(d.length, 1);
+  assert.equal(d[0].name, "Egg");
+  assert.ok(Math.abs(res.cost - 10) < 1e-6);
+  assert.ok(Math.abs(d[0].cost - 15) < 1e-6);
+  assert.ok(Math.abs(d[0].extra - 5) < 1e-6);
+  // Only one protein source: removing it leaves no plan.
+  const solo = { ...spec, foods: spec.foods.slice(0, 1) };
+  const only = dropCosts(solo, solve(solo));
+  assert.equal(only[0].cost, null);
+  assert.equal(only[0].extra, null);
 });

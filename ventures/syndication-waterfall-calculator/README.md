@@ -3,6 +3,8 @@
 A free browser calculator for a real estate syndication distribution waterfall.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/syndication-waterfall-calculator/
+
 After using this, you can now **see what LPs and the sponsor each earn under a
 preferred return and tiered promote** — LP IRR and multiple, sponsor IRR, the
 promote in dollars, tier by tier and year by year — which used to mean a paid

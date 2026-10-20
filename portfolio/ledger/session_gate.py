@@ -576,12 +576,14 @@ def verdict(
         if proceed_targets == []:
             proceed_reasons.append(
                 "The `build-now` pipeline is empty (every scored candidate has already "
-                "graduated). Per `portfolio/DIRECTION.md` 'Owner direction, 2026-09-06', "
-                "new ventures rank first, not last, when a genuine one is available -- "
-                "if you have no in-progress venture work, screening a fresh niche against "
-                "`portfolio/pipeline/screened-out.md` and the liability/ethical gates in "
-                "`portfolio/pipeline/README.md`, and graduating it the same session if it "
-                "clears them, outranks a parity feature on a product nobody has visited."
+                "graduated). Do not answer that with one more small tool: the owner asked "
+                "(2026-10-20, `prompts/goals.md`) for most venture runs to deepen the "
+                "flagships in `portfolio/flagships.yaml`. Take the top 'Deepen (flagship N)' "
+                "row of `python3 portfolio/router/allocate.py` and land a working slice of "
+                "its milestone. Distribution and measurement for a flagship count. A "
+                "genuinely new product is still welcome when it is deep (a real workflow, "
+                "algorithm, integration or app), not another `*-<kind>-calculator` or "
+                "single-format checker: screen it against `portfolio/pipeline/screened-out.md`."
             )
         return "PROCEED", proceed_reasons
     reasons = [
@@ -621,9 +623,12 @@ def verdict(
             reasons.append(f"Also carrying an unbuilt `build-now` verdict: {rest}.")
     else:
         reasons.append(
-            "No `build-now` candidate is unbuilt — pick a super-niche product not in "
-            "`portfolio/pipeline/screened-out.md`, score it, graduate it, and ship. "
-            "Prefer ideas that run on this VM with low variable cost."
+            "No `build-now` candidate is unbuilt — first take the router's top 'Deepen "
+            "(flagship N)' row, then its 'Consolidate:' task "
+            "(`python3 portfolio/router/allocate.py`) if one is listed; otherwise pick "
+            "a product not in `portfolio/pipeline/screened-out.md` that is not another copy "
+            "of an existing template family, score it, graduate it, and ship. Prefer ideas "
+            "that run on this VM with low variable cost, web or not."
         )
     return "BUILD", reasons
 
@@ -664,11 +669,16 @@ def report(
         # DIRECTION.md ranks it above the work the verdict is about to name.
         reasons = [
             "THE LIVE SITE IS BEHIND `main`. Refresh the published snapshot "
-            "before anything else — `CONFIRM=publish-pages-branch PUSH=1 "
-            "./platform/pages/publish-branch.sh`, then `python3 "
-            "platform/ci/pages_state.py --require-current` to confirm. It needs "
-            "no runner, no cluster and no credential beyond the push you "
-            f"already have. Reason: {snap_reason}"
+            "AFTER your PR merges, not before: the script refuses any HEAD not "
+            "on `origin/main`. Do your work first, merge, then "
+            "`git fetch origin main && git checkout --detach origin/main` and "
+            "run `CONFIRM=publish-pages-branch PUSH=1 "
+            "./platform/pages/publish-branch.sh` with `run_in_background` (10+ "
+            "minutes in a shallow clone), then `python3 "
+            "platform/ci/pages_state.py --require-current` to confirm. If the "
+            "push is denied as a production deploy or fails, say so in your "
+            "reply and carry on instead of retrying. "
+            f"Reason: {snap_reason}"
         ] + reasons
     elif snap != "current":
         reasons = reasons + [

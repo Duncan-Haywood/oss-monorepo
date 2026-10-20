@@ -1,0 +1,63 @@
+name: hands-free-language-coach
+description: >-
+  Voice-only, hands-free language learning: gamified drills, conversation
+  practice and spaced review you do by ear and voice while driving, walking
+  or commuting. Ships first as a Claude skill and custom-GPT instructions
+  for assistant voice mode plus a browser drill on the Web Speech API;
+  iOS-first native app planned, then Android.
+stage: prototype
+
+owner: duncan
+
+# Origin (2026-10-19): the owner's own idea, asked for directly in this
+# session ("duolingo but only voice ... a chatgpt/other ai agent skill to
+# distribute on and an ios/android app ios first"), not a pipeline
+# candidate. duplicate_check.py on "voice-only hands-free gamified language
+# learning app and AI assistant skill" found nothing above 0.11, and no
+# open PR covers it.
+#
+# Shape: v0 costs $0 per learner. The assistant skill runs on the
+# learner's own ChatGPT/Claude plan; the browser drill uses the browser's
+# own speech APIs. Free-form AI conversation in the app goes behind the
+# learner's own key (PRODUCT_PLAYBOOK.md section 3), because
+# speech-to-speech models bill per minute.
+#
+# Owner-only steps when the native app is ready (not blocking v0):
+# an Apple Developer account and App Store listing, a CarPlay audio
+# entitlement request, and publishing the GPT to the GPT Store under the
+# portfolio's name. Anyone can already paste gpt/instructions.md into
+# their own GPT.
+hypotheses:
+  - claim: Commuters and walkers who already use a gamified language app will practise by voice alone if a session runs start to finish with no tap after Start.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Distributing the lesson protocol as an assistant skill reaches learners at zero marginal cost and converts some of them to the native app.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - Fewer than ten browser sessions finished (session_finished) within 90 days of the page being public.
+  - Learners who try it report that speech recognition in the target language is too unreliable to score answers, and on-device recognition does not fix it.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hands-free-language-coach/
+  analytics: null
+
+channel_notes: >-
+  First visitors: organic search for "hands-free language learning",
+  "learn a language while driving", "voice only language app" and
+  "duolingo without screen"; r/languagelearning and per-language
+  subreddits (where audio-only methods are a recurring question);
+  the skill and GPT themselves, shared as files; the streak share card.

@@ -1,0 +1,40 @@
+{
+  "slug": "popcorn-ceiling-bid-calculator",
+  "name": "Popcorn ceiling removal",
+  "group": "Interior & finishes",
+  "summary": "Popcorn ceiling removal priced from ceiling area, finish level, height, texture and extras.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 32,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "milesOneWay": 10,
+  "items": [
+    {
+      "label": "Scrape light popcorn and prime",
+      "unit": "sq ft",
+      "qty": 1200,
+      "hoursPerUnit": 0.022,
+      "materialPerUnit": 0.198,
+      "source": "40x30 ft ceiling (index.html); scrape 0.022 h/sq ft, primer $0.18/sq ft (suggestedScopeKit('scrape-prime')); debris bags 0.004/sq ft x $4.50 (suggestedTextureKit('light')) in calc.mjs"
+    },
+    {
+      "label": "Access setup, 8-ft ceilings",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.6,
+      "materialPerUnit": 0,
+      "source": "hoursAccess 0.6, no scaffold invoice (suggestedHeightKit('eight'))"
+    },
+    {
+      "label": "Trip, site time, travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.9,
+      "materialPerUnit": 75,
+      "source": "hoursTrip 1.5 + siteHours 1.4 (suggestedExtraKit); travel and equipment $75 (index.html). Per-mile time (0.035 h) and $2.80/mile left to the suite's mileage"
+    }
+  ],
+  "specialistModels": "Scrape-only vs Level 4 vs Level 5 plus paint scope kits, lift/scaffold height kits, heavy and painted-over texture, asbestos test, containment, furniture, closets and stain repairs."
+}

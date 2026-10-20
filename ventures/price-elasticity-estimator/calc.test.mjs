@@ -146,3 +146,23 @@ test("csv export has a row per scenario", () => {
   const r = analyze(series(-1.5), { trend: false, season: false, cost: 10 });
   assert.equal(reportCsv(r).split("\n").length, r.scenarios.length + 1);
 });
+
+// Kill criterion: the elasticity or its interval must agree with a standard
+// log-log OLS with HC1 robust errors. This reference uses the closed-form
+// simple-regression sandwich, not the matrix code in calc.mjs.
+test("agrees with an independent closed-form log-log OLS with HC1 errors", () => {
+  const rows = series(-1.4, { noise: 0.15, n: 70, seed: 42 });
+  const r = analyze(rows, { trend: false, season: false, dated: false });
+  const x = rows.map((q) => Math.log(q.price)), y = rows.map((q) => Math.log(q.units));
+  const n = rows.length;
+  const mx = x.reduce((s, v) => s + v, 0) / n, my = y.reduce((s, v) => s + v, 0) / n;
+  const sxx = x.reduce((s, v) => s + (v - mx) ** 2, 0);
+  const b = x.reduce((s, v, i) => s + (v - mx) * (y[i] - my), 0) / sxx;
+  const a = my - b * mx;
+  const meat = x.reduce((s, v, i) => s + ((v - mx) ** 2) * (y[i] - a - b * v) ** 2, 0);
+  const se = Math.sqrt((n / (n - 2)) * meat) / sxx;
+  assert.ok(Math.abs(r.elasticity - b) < 1e-9, `slope ${r.elasticity} vs ${b}`);
+  assert.ok(Math.abs(r.se - se) < 1e-9, `se ${r.se} vs ${se}`);
+  const t = tQuantile(0.975, n - 2);
+  assert.ok(Math.abs(r.ci95[0] - (b - t * se)) < 1e-9 && Math.abs(r.ci95[1] - (b + t * se)) < 1e-9);
+});

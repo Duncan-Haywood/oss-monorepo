@@ -61,7 +61,7 @@ export function effectiveHourly(o, invoice, hoursWorked) {
 
 export function schedule(o, invoice) {
   const deposit = invoice * o.deposit;
-  const n = Math.max(1, Math.round(o.milestones));
+  const n = Math.min(60, Math.max(1, Math.round(o.milestones)));
   const each = (invoice - deposit) / n;
   const rows = [["Deposit on signing", deposit]];
   for (let i = 1; i <= n; i++) rows.push([n === 1 ? "On delivery" : `Milestone ${i} of ${n}`, each]);

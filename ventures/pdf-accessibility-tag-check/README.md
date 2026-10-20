@@ -6,6 +6,8 @@ business is obligated (or just trying) to make accessible: reads a PDF's
 content streams — and reports which PDF/UA and Section 508 structural
 requirements are met.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/
+
 Specifically, it checks:
 
 - **Tagged PDF** — does the document catalog declare `/MarkInfo /Marked

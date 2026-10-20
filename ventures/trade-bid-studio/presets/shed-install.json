@@ -1,0 +1,39 @@
+{
+  "slug": "shed-install-bid-calculator",
+  "name": "Shed installation",
+  "group": "Landscaping & outdoor",
+  "summary": "Sheds priced as drop-and-set, kit or stick-built, with pad, delivery miles, access, extras and electrical.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 26,
+  "burdenRate": 28,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Factory-built 10x12 shed, drop and set",
+      "unit": "shed",
+      "qty": 1,
+      "hoursPerUnit": 4,
+      "materialPerUnit": 2400,
+      "source": "120 sq ft x 1/80 h/sq ft build = 1.5 h + 2.5 h set; shed unit $2,400 (suggestedFulfillmentKit('dropset') in calc.mjs; 12x10 index.html defaults)"
+    },
+    {
+      "label": "Delivery haul",
+      "unit": "mile",
+      "qty": 15,
+      "hoursPerUnit": 0.04,
+      "materialPerUnit": 3.4,
+      "source": "deliveryMiles 15 (index.html); 0.04 h/mile and $3.40/mile delivery (suggestedExtraKit)"
+    },
+    {
+      "label": "Trip, forklift access and site time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 4.2,
+      "materialPerUnit": 85,
+      "source": "hoursTrip 2.2 + siteHours 1.4 (suggestedExtraKit) + hoursAccess 0.6 (suggestedAccessKit('forklift')); existing pad adds nothing; travel & equipment $85 (index.html)"
+    }
+  ],
+  "specialistModels": "Drop-and-set vs kit vs stick-built rates, gravel or concrete pad volume with overhang, crane access, and window, door, ramp, loft, haul-away and electrical packages."
+}

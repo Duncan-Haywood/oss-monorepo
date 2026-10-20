@@ -7,6 +7,7 @@ import {
   compareOfferToList,
   compareReverbToEbay,
   offerThatMatchesEbayList,
+  offerLadder,
   counterOfferMessage,
   compareShippingPaths,
   compareSafeShipping,
@@ -71,9 +72,9 @@ test('a $720 offer leaves $73.45 on the table versus the $800 list', () => {
 
 test('Reverb at list still beats eBay at the same $800 on the default rates', () => {
   const comparison = compareReverbToEbay(REVERB_DEFAULTS, 800);
-  assert.equal(comparison.ebay.fees.finalValue, 115.9375);
-  assert.equal(Number(comparison.ebay.profit.toFixed(4)), 233.7625);
-  assert.equal(Number(comparison.reverbExtra.toFixed(4)), 47.835);
+  assert.equal(comparison.ebay.fees.finalValue, 119);
+  assert.equal(Number(comparison.ebay.profit.toFixed(4)), 230.6);
+  assert.equal(Number(comparison.reverbExtra.toFixed(4)), 50.9975);
 });
 
 test('the crossover offer matches eBay list cash on Reverb', () => {
@@ -566,4 +567,22 @@ test('waitForBetterOfferNote names an always-wins edge without a false crossover
   assert.ok(comparison.breakEvenProbPct <= 0 || comparison.breakEvenProbPct === null);
   const note = waitForBetterOfferNote(comparison);
   assert.match(note, /Even a 0% chance of reaching list still beats the offer/);
+});
+
+test('offer ladder prices each percent of list and agrees with the single-offer comparison', () => {
+  const ladder = offerLadder(REVERB_DEFAULTS);
+  assert.deepEqual(ladder.rows.map((row) => row.percent), [100, 95, 90, 85, 80, 75, 70]);
+  const at90 = ladder.rows.find((row) => row.percent === 90);
+  const single = compareOfferToList({ ...REVERB_DEFAULTS, offerPrice: REVERB_DEFAULTS.price * 0.9 });
+  assert.equal(at90.profit, single.offer.profit);
+  assert.equal(ladder.rows[0].givenUp, 0);
+  assert.ok(ladder.rows.every((row, i) => i === 0 || row.profit < ladder.rows[i - 1].profit));
+});
+
+test('offer ladder break-even offer nets zero and flags offers below it', () => {
+  const input = { ...REVERB_DEFAULTS, itemCost: 600 };
+  const ladder = offerLadder(input);
+  assert.ok(Math.abs(calculateReverbSale(input, ladder.breakEvenOffer).profit) < 1e-6);
+  for (const row of ladder.rows) assert.equal(row.pays, row.offerPrice >= ladder.breakEvenOffer - 1e-9);
+  assert.ok(ladder.rows.some((row) => !row.pays));
 });

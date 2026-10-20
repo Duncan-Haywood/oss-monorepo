@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_0133CDK2EwcSxWQxSQnr8PEo",
+  "track": "process",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7003",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first draft of the report had unverified counts (31 vs 33, 5 vs 3 pairs); corrected before merge"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-0.md",
+      "issue": "git fetch --unshallow origin main exceeds the 120s tool timeout in a cloud session, leaving history partial; sample audit and --tree were not run"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Very long checklist prose for a process run; only a small part applied to this track"
+    }
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR #7003 shows merged on GitHub; ci_failures_before_green not recoverable from the PR, left as recorded"
+    }
+  ],
+  "redteam": null
+}

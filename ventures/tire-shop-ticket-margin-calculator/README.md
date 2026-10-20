@@ -8,6 +8,8 @@ parts and labor, break-even tickets for your overhead, bay utilization, what mor
 attach on each upsell is worth, and how many extra tickets a discount must win
 back. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tire-shop-ticket-margin-calculator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, per-line and per-ticket net, capacity, attach lift, discount break-even, CSV.

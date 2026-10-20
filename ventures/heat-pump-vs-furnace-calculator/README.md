@@ -4,6 +4,8 @@ A free browser tool for homeowners replacing a furnace: **enter your gas use, yo
 the heat pump's COP and the two quotes, and see the heating cost per million BTU, the break-even COP, payback
 against a new furnace and AC, and the lifetime difference.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/heat-pump-vs-furnace-calculator/
+
 After using this, you can now **see the seasonal COP at which a heat pump costs the same to run as your gas
 furnace on your own prices**, which used to take a spreadsheet and a therm-to-kWh conversion.
 

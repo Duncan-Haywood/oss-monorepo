@@ -4,6 +4,8 @@ A free browser tool: **type your income and investment income and see whether th
 tax applies, how far over the threshold you are, what an extra gain costs, and whether splitting it across two
 years saves tax.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/niit-calculator/
+
 After using this, you can **decide whether to harvest a loss, make a pre-tax contribution or split a sale
 across two tax years** before the year closes, instead of finding the Form 8960 line at filing time.
 

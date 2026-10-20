@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01Be2Rg6bt9vT7V9Fb9fFqZh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T06:13:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "swe-orgs batch 6",
+  "projects": [
+    "swe-orgs"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7320",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pytest was missing for /usr/local/bin/python3; only apt python3-pytest worked via /usr/bin/python3"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Batch 6 of swe-orgs: 3 sources, 3 practices; no proposal clears 5%. Cost not attached (transcript unavailable).",
+  "corrections": [],
+  "redteam": null
+}

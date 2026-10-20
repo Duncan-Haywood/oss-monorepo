@@ -1,0 +1,27 @@
+coverage from 2026-10-16T11:20:31Z; first-parent commits touching research/: 122
+  joined to a same-repo merged PR: 122; subject names no PR: 0; PR not in the data: 0; fork head: 0
+
+lifetime (creation to merge), minutes, n=122
+  median 0.9  p25 0.3  p75 3.7  p90 16.0  max 206
+  merged within   5 min of creation: 98/122 (80%)
+  merged within  10 min of creation: 107/122 (88%)
+  merged within  30 min of creation: 116/122 (95%)
+  merged within  60 min of creation: 119/122 (98%)
+  merged within 240 min of creation: 122/122 (100%)
+
+PRs touching a shared index file: 58 of 122
+  their lifetime: median 1.8  p75 5.9  p90 19.0 min
+
+shared-file merges that landed on main while each such PR was open (real creation to real merge)
+  mean 0.40; PRs with at least one: 12/58 (21%)
+
+replay: each such PR's diff applied to main as of its creation, then merged with main just before its merge
+  conflict anywhere: 2/58 (3.4%)
+  conflict in a shared index file: 2/58 (3.4%, Wilson 95% 1.0-11.7%)
+  among PRs that saw at least one shared-file landing: 2/12 conflict anywhere (16.7%)
+  among PRs that saw none: 0/46 conflict anywhere
+
+by lifetime band (PRs touching a shared file): n, mean landings seen, conflict anywhere
+     0-  10 min: n= 47  mean landings 0.13  conflict 1/47
+    10-  30 min: n=  7  mean landings 0.43  conflict 1/7
+    30- 120 min: n=  4  mean landings 3.50  conflict 0/4

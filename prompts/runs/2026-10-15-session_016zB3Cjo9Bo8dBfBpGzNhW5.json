@@ -1,0 +1,473 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_016zB3Cjo9Bo8dBfBpGzNhW5",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "have a red team blue team set up with patches and fixes on the repo run regularly and evaluate the error and error catch rate within the repo. this should be 5-10% of work roughly",
+  "input_sha256": "aff6645368bcebcce85b6600df1bd2f96a2a062f6e84ff7a1881a6657c4b56f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Set up the red team / blue team track (owner's request) and run its first campaign",
+  "projects": [
+    "prompts",
+    "platform/ci/check_money_sign.py",
+    "overtime-pay-calculator",
+    "bridal-hair-makeup-pricing-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/6987",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "Wrote the first blue-team test for the wrong overtime mutant (line 51 is the rate, not the hours); redteam.py rerun reported caught_after_fix false and the right test was added.",
+    "First check_money_sign campaign mutated docstring lines; discarded, redteam.py fixed to skip docstrings and block comments, campaign re-run with the same seed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "goal": null,
+  "notes": "Three campaigns, 24 seeded faults: 16 caught, 6 escaped, 2 equivalent (catch rate 72.7%, 100% after the blue team's guards, verified by redteam.py rerun). The first campaign against check_money_sign.py found its baseline red on main, which led to 10 real defects patched (8 venture money formatters printing \"$-9.24\", plus the guard's name gap and the fixer's indentation bug). Router weight set to 7% by the owner's request.",
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR #6987 shows merged on GitHub; ci_failures_before_green not recoverable from the PR, left as recorded"
+    }
+  ],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/overtime-pay-calculator/calc.mjs",
+        "test": "node --test ventures/overtime-pay-calculator/**/*.test.mjs  (in .)",
+        "seed": 7,
+        "commit": "bbb309dc6d",
+        "sites": 93,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/overtime-pay-calculator/calc.mjs",
+            "line": 38,
+            "col": 15,
+            "operator": "and-to-or",
+            "before": "return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "after": "return n < 0 || /[1-9]/.test(text) ? `-${text}` : text;",
+            "line_text": "  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/overtime-pay-calculator/calc.mjs",
+            "line": 38,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "after": "return n < 0 && /[1-10]/.test(text) ? `-${text}` : text;",
+            "line_text": "  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "money() only ever receives non-negative values (every input is clamped to >= 0), so the sign branch is unreachable."
+          },
+          {
+            "file": "ventures/overtime-pay-calculator/calc.mjs",
+            "line": 51,
+            "col": 43,
+            "operator": "and-to-or",
+            "before": "const rate = Number.isFinite(hourlyRate) && hourlyRate > 0 ? hourlyRate : 0;",
+            "after": "const rate = Number.isFinite(hourlyRate) || hourlyRate > 0 ? hourlyRate : 0;",
+            "line_text": "  const rate = Number.isFinite(hourlyRate) && hourlyRate > 0 ? hourlyRate : 0;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/overtime-pay-calculator/calc.mjs",
+            "line": 53,
+            "col": 86,
+            "operator": "gt-to-ge",
+            "before": "const threshold = Number.isFinite(overtimeThresholdHours) && overtimeThresholdHours > 0 ? overtimeThresholdHours : 40;",
+            "after": "const threshold = Number.isFinite(overtimeThresholdHours) && overtimeThresholdHours >= 0 ? overtimeThresholdHours : 40;",
+            "line_text": "  const threshold = Number.isFinite(overtimeThresholdHours) && overtimeThresholdHours > 0 ? overtimeThresholdHours : 40;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/overtime-pay-calculator/calc.mjs",
+            "line": 83,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (multiplier !== 1.5) {",
+            "after": "if (multiplier === 1.5) {",
+            "line_text": "  if (multiplier !== 1.5) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/overtime-pay-calculator/calc.mjs",
+            "line": 116,
+            "col": 73,
+            "operator": "const-plus-one",
+            "before": "const hours = Number.isFinite(e?.hours) && e.hours > 0 ? e.hours : 0;",
+            "after": "const hours = Number.isFinite(e?.hours) && e.hours > 0 ? e.hours : 1;",
+            "line_text": "      const hours = Number.isFinite(e?.hours) && e.hours > 0 ? e.hours : 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/overtime-pay-calculator/calc.mjs",
+            "line": 125,
+            "col": 75,
+            "operator": "div-to-times",
+            "before": "const weightedAverageRate = totalHours > 0 ? round2(totalStraightTimePay / totalHours) : 0;",
+            "after": "const weightedAverageRate = totalHours > 0 ? round2(totalStraightTimePay * totalHours) : 0;",
+            "line_text": "  const weightedAverageRate = totalHours > 0 ? round2(totalStraightTimePay / totalHours) : 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/overtime-pay-calculator/calc.mjs",
+            "line": 152,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "if (overtimeHours === 0 && totalHours > 0) {",
+            "after": "if (overtimeHours === 0 || totalHours > 0) {",
+            "line_text": "  if (overtimeHours === 0 && totalHours > 0) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+        "test": "node --test ventures/bridal-hair-makeup-pricing-calculator/**/*.test.mjs  (in .)",
+        "seed": 2026,
+        "commit": "e3972d8fea",
+        "sites": 117,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 41,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "hairOnlyPrice: 85,",
+            "after": "hairOnlyPrice: 86,",
+            "line_text": "  hairOnlyPrice: 85,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 43,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "makeupOnlyPrice: 95,",
+            "after": "makeupOnlyPrice: 96,",
+            "line_text": "  makeupOnlyPrice: 95,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 118,
+            "col": 80,
+            "operator": "const-plus-one",
+            "before": "const trialRequested = number(input.trialRequested, 'Trial requested', { max: 1 });",
+            "after": "const trialRequested = number(input.trialRequested, 'Trial requested', { max: 2 });",
+            "line_text": "  const trialRequested = number(input.trialRequested, 'Trial requested', { max: 1 });",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 152,
+            "col": 67,
+            "operator": "plus-to-minus",
+            "before": "const preMinimumSubtotal = serviceRevenue + earlyStartFeeCharged + travelFeeCharged + travelSurcharge;",
+            "after": "const preMinimumSubtotal = serviceRevenue + earlyStartFeeCharged - travelFeeCharged + travelSurcharge;",
+            "line_text": "  const preMinimumSubtotal = serviceRevenue + earlyStartFeeCharged + travelFeeCharged + travelSurcharge;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 152,
+            "col": 86,
+            "operator": "plus-to-minus",
+            "before": "const preMinimumSubtotal = serviceRevenue + earlyStartFeeCharged + travelFeeCharged + travelSurcharge;",
+            "after": "const preMinimumSubtotal = serviceRevenue + earlyStartFeeCharged + travelFeeCharged - travelSurcharge;",
+            "line_text": "  const preMinimumSubtotal = serviceRevenue + earlyStartFeeCharged + travelFeeCharged + travelSurcharge;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 163,
+            "col": 46,
+            "operator": "plus-to-minus",
+            "before": "+ makeupOnlyCount * (minutesPerMakeupOnly + bufferMinutesPerPerson)",
+            "after": "+ makeupOnlyCount * (minutesPerMakeupOnly - bufferMinutesPerPerson)",
+            "line_text": "    + makeupOnlyCount * (minutesPerMakeupOnly + bufferMinutesPerPerson)",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 180,
+            "col": 54,
+            "operator": "minus-to-plus",
+            "before": "const weddingDayBalanceDue = weddingDayServiceTotal - trialCreditApplied;",
+            "after": "const weddingDayBalanceDue = weddingDayServiceTotal + trialCreditApplied;",
+            "line_text": "  const weddingDayBalanceDue = weddingDayServiceTotal - trialCreditApplied;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 183,
+            "col": 53,
+            "operator": "minus-to-plus",
+            "before": "const netAfterAssistantPayout = totalContractValue - assistantPayoutCost;",
+            "after": "const netAfterAssistantPayout = totalContractValue + assistantPayoutCost;",
+            "line_text": "  const netAfterAssistantPayout = totalContractValue - assistantPayoutCost;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_money_sign.py",
+        "test": "/usr/bin/python3 -m unittest test_check_money_sign  (in platform/ci)",
+        "seed": 11,
+        "commit": "28343f534c",
+        "sites": 28,
+        "baseline_seconds": 2.8,
+        "mutants": [
+          {
+            "file": "platform/ci/check_money_sign.py",
+            "line": 83,
+            "col": 24,
+            "operator": "plus-to-minus",
+            "before": "r\"(?:const|let)\\s+\" + NAME + r\"\\s*=\\s*\\(?[A-Za-z_$][\\w$]*\\)?\\s*=>\\s*\"",
+            "after": "r\"(?:const|let)\\s+\" - NAME + r\"\\s*=\\s*\\(?[A-Za-z_$][\\w$]*\\)?\\s*=>\\s*\"",
+            "line_text": "    r\"(?:const|let)\\s+\" + NAME + r\"\\s*=\\s*\\(?[A-Za-z_$][\\w$]*\\)?\\s*=>\\s*\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_money_sign.py",
+            "line": 110,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "depth -= 1",
+            "after": "depth -= 2",
+            "line_text": "            depth -= 1",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_money_sign.py",
+            "line": 111,
+            "col": 27,
+            "operator": "and-to-or",
+            "before": "elif char in \";\\n\" and depth == 0:",
+            "after": "elif char in \";\\n\" or depth == 0:",
+            "line_text": "        elif char in \";\\n\" and depth == 0:",
+            "caught": true,
+            "seconds": 2.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_money_sign.py",
+            "line": 111,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "elif char in \";\\n\" and depth == 0:",
+            "after": "elif char in \";\\n\" and depth == 1:",
+            "line_text": "        elif char in \";\\n\" and depth == 0:",
+            "caught": true,
+            "seconds": 2.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_money_sign.py",
+            "line": 124,
+            "col": 38,
+            "operator": "or-to-and",
+            "before": "if name.endswith(\".test.mjs\") or name.startswith(\"test_\") or name.endswith(\"_test.mjs\"):",
+            "after": "if name.endswith(\".test.mjs\") and name.startswith(\"test_\") or name.endswith(\"_test.mjs\"):",
+            "line_text": "        if name.endswith(\".test.mjs\") or name.startswith(\"test_\") or name.endswith(\"_test.mjs\"):",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_money_sign.py",
+            "line": 142,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "return number, lines[number - 1]",
+            "after": "return number, lines[number - 2]",
+            "line_text": "        return number, lines[number - 1]",
+            "caught": false,
+            "seconds": 2.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_money_sign.py",
+            "line": 174,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "        return 0",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_money_sign.py",
+            "line": 196,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if __name__ == \"__main__\":",
+            "after": "if __name__ != \"__main__\":",
+            "line_text": "if __name__ == \"__main__\":",
+            "caught": false,
+            "seconds": 2.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Script entry-point guard; importing the module never runs it. redteam.py now skips these lines."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/law-firm-realization-rate-calculator/calc.mjs",
+        "issue": "usd() printed a negative as \"$-1,234\" (sign inside the symbol); platform/ci/check_money_sign.py was red on main.",
+        "patched": true
+      },
+      {
+        "file": "ventures/supplier-price-creep-checker/calc.mjs",
+        "issue": "money() and dollars() printed a price decrease as \"$-0.0500\".",
+        "patched": true
+      },
+      {
+        "file": "ventures/truck-detention-pay-calculator/calc.mjs",
+        "issue": "money() printed a negative as \"$-9.24\".",
+        "patched": true
+      },
+      {
+        "file": "ventures/ugc-creator-rate-calculator/index.html",
+        "issue": "money() printed a negative as \"$-9\".",
+        "patched": true
+      },
+      {
+        "file": "ventures/rent-increase-notice-checker/calc.mjs",
+        "issue": "dollars() printed a rent decrease as \"an increase of $-50.00 per month\"; missed by the guard because it only read money-shaped names.",
+        "patched": true
+      },
+      {
+        "file": "ventures/actions-minutes-estimator/estimate.mjs",
+        "issue": "formatUsd() printed a negative under $10 as \"$-3.00\"; missed by the guard (name).",
+        "patched": true
+      },
+      {
+        "file": "ventures/medical-courier-route-margin/calc.mjs",
+        "issue": "dollars() signed inside the symbol; missed by the guard (name).",
+        "patched": true
+      },
+      {
+        "file": "ventures/sep-ira-vs-solo-401k-calculator/index.html",
+        "issue": "dollars() signed inside the symbol; missed by the guard (name).",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/check_money_sign.py",
+        "issue": "Guard read only money/usd names, so the same defect shipped under dollars/formatUsd; it also flagged a Math.abs magnitude formatter whose caller places the sign.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/fix_money_sign.mjs",
+        "issue": "Fixer indented rewritten `export const` formatters by the match column (9 spaces) instead of the line's indentation.",
+        "patched": true
+      }
+    ]
+  }
+}

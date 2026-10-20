@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01LrcXqbGHpiwq7nMtPbpM1z",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "review: seventh review of the day",
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "steps 1-2 (fill merged, random audit) cannot be done for ~260 mirrored records; only platform/deploy was auditable"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "did": "audited one output, wrote no candidate",
+      "why": "no track has ~10 candidate runs; most records mirrored",
+      "result": "unknown"
+    }
+  ],
+  "goal": null,
+  "notes": "Added one CLAUDE.md line on tool timeouts; drift report and E12 logged.",
+  "corrections": [],
+  "redteam": null
+}

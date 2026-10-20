@@ -145,3 +145,11 @@ test("validateLlmsTxt: title with no summary is a warning, not an error", () => 
   assert.ok(result.warnings.some((w) => /blockquote/.test(w)));
   assert.equal(result.valid, true);
 });
+
+test("KNOWN_BOTS: DuckAssistBot, MistralAI-User, FacebookBot and Google-CloudVertexBot are classified", () => {
+  const report = auditRobots("User-agent: *\nAllow: /\n\nUser-agent: FacebookBot\nDisallow: /\n");
+  const byToken = Object.fromEntries(report.rows.map((r) => [r.token, r]));
+  for (const t of ["DuckAssistBot", "MistralAI-User", "FacebookBot", "Google-CloudVertexBot"]) assert.ok(byToken[t], t);
+  assert.equal(byToken.FacebookBot.status, "blocked");
+  assert.equal(byToken.DuckAssistBot.status, "allowed");
+});

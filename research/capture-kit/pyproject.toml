@@ -1,0 +1,13 @@
+[project]
+name = "capture-kit"
+version = "0.1.0"
+description = "What a travel creator should pack to film from many angles under a weight budget and the 100 Wh airline battery limit: exact kit search against a greedy baseline"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

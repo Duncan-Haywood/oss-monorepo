@@ -71,8 +71,8 @@ export const REVERB_DEFAULTS = {
   givesRate: 0,
   bumpFee: 0,
   meetupCost: 0,
-  ebayFinalValueRate: 13.25,
-  ebayFixedFee: 0.3,
+  ebayFinalValueRate: 13.6,
+  ebayFixedFee: 0.4,
   shopSalePrice: 800,
   consignmentRate: 30,
   shopCashOffer: 520,
@@ -151,8 +151,8 @@ export function calculateEbaySale(input, salePrice = input?.price) {
   const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
-  const finalValueRate = number(input.ebayFinalValueRate, 'eBay final value rate', 13.25);
-  const fixedFee = number(input.ebayFixedFee, 'eBay fixed fee', 0.3);
+  const finalValueRate = number(input.ebayFinalValueRate, 'eBay final value rate', 13.6);
+  const fixedFee = number(input.ebayFixedFee, 'eBay fixed fee', 0.4);
   if (finalValueRate >= 100) throw new Error('eBay final value rate must be below 100%');
   const revenue = price + shippingCharged;
   const finalValueFee = revenue * finalValueRate / 100;
@@ -233,6 +233,36 @@ function solvePriceForReverbProfit(input, targetProfit) {
   if (keepRateCapped <= 0) throw new Error('Combined percentage fees must stay below 100%');
   const cappedPrice = (targetProfit - shippingTerm + fixedCost + marketplaceFeeCap) / keepRateCapped;
   return cappedPrice >= capThresholdPrice ? cappedPrice : uncappedPrice;
+}
+
+// The offers a buyer is likely to send, priced in advance: Reverb net at 100%
+// down to 70% of list, each against what the seller would net selling on eBay
+// at the full list price, plus the lowest offer that still covers costs. Lets
+// a seller answer a lowball from a table instead of re-typing the field.
+export const OFFER_LADDER_PERCENTS = [100, 95, 90, 85, 80, 75, 70];
+
+export function offerLadder(input, percents = OFFER_LADDER_PERCENTS) {
+  const listPrice = number(input.price, 'List price');
+  const ebayList = calculateEbaySale(input, listPrice);
+  const listProfit = calculateReverbSale(input, listPrice).profit;
+  const rows = percents.map((percent) => {
+    const offerPrice = listPrice * percent / 100;
+    const sale = calculateReverbSale(input, offerPrice);
+    return {
+      percent,
+      offerPrice,
+      profit: sale.profit,
+      margin: sale.margin,
+      givenUp: listProfit - sale.profit,
+      pays: sale.profit >= 0,
+      beatsEbayList: sale.profit >= ebayList.profit,
+    };
+  });
+  return {
+    rows,
+    ebayListProfit: ebayList.profit,
+    breakEvenOffer: Math.max(0, solvePriceForReverbProfit(input, 0)),
+  };
 }
 
 // Reverb offer that leaves the same cash as selling this item on eBay at the

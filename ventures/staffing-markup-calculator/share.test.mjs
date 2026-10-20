@@ -92,6 +92,12 @@ test('a crafted link cannot set a select to an option the form does not offer', 
   assert.deepEqual(decodeBid(SPEC, 'scope=free-labour&grade=plain'), { grade: 'plain' });
 });
 
+test('a zero is a usable number, so a deliberate 0 survives a link', () => {
+  // The bug this guards: rejecting 0 along with negatives drops a sender's
+  // "no margin" and the recipient prices with the form's default instead.
+  assert.deepEqual(decodeBid(SPEC, 'margin=0&wage=0'), { margin: '0', wage: '0' });
+});
+
 test('a crafted link cannot inject an unknown field or a bad number', () => {
   assert.deepEqual(
     decodeBid(SPEC, 'area=-40&wage=abc&margin=18&sneakyRate=999'),

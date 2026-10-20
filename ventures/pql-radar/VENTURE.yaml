@@ -1,0 +1,67 @@
+name: pql-radar
+description: >-
+  Self-hosted product-qualified-lead scoring for product-led SaaS: a signup's
+  first-week usage events in, a ranked hot-lead list out, with a reason per
+  signup. Logistic regression trained on your own past signups and paid
+  conversions, validated out-of-time (AUC and top-20% capture are reported, and
+  it says so when there is too little data; week-1 payers are excluded to avoid
+  label leakage). Stripe paid-subscription webhook, signed hot-lead webhook,
+  browser simulator running the real engine, zero-dependency Node server,
+  one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16. Paid market is real and proven: MadKudu, Pocus, Endgame,
+# Breadcrumbs and the lead-scoring add-ons of HubSpot and Salesforce sell
+# product-qualified-lead scoring to product-led SaaS, typically from a few
+# hundred to several thousand dollars a month. The gap: a small PLG team with an
+# events stream and a free plan that wants "which five signups should I email
+# today", learned from who actually paid, with the accuracy shown honestly, and
+# that will not send product data to a third party. Ninth product for the buyer
+# of churn-radar, trial-converter, dunning-engine, cancel-flow, drip-keeper and
+# meter-keeper: those retain, convert or bill; this one finds the signup worth a
+# human's time. duplicate_check: trial-conversion-timing-analyzer reads past
+# trials from a CSV; none scores live signups.
+#
+# First visitor: indie SaaS founders on Hacker News, r/SaaS, Indie Hackers
+# searching "product qualified lead scoring open source", "madkudu alternative",
+# "pql score without a data team". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup (instrumenting events, reading the first model), a hosted
+# copy under the deployer's own name, or GitHub Sponsors are the paid steps;
+# hosting under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Founders will paste a real signup export into the browser page, see an
+      out-of-time AUC on their own data, and deploy the server to get a daily
+      hot-lead list, because a ranked list with reasons is something they act on.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Six first-week usage features separate payers from non-payers better than
+      a coin flip on a typical small-SaaS event stream (out-of-time AUC above
+      0.65). Shown on synthetic data only so far.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a score or AUC that is wrong given their data (look-ahead leakage, a mislabelled row); the training and validation path comes before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pql-radar/
+  analytics: null

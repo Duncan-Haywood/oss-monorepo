@@ -4,6 +4,8 @@ A free, offline tool that reads a Terraform *structured* plan
 (`terraform show -json`) and answers one question before you apply it:
 **roughly what does this add to, or take off, the monthly AWS bill?**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/terraform-plan-cost-estimate/
+
 After using this, you can put a monthly dollar figure on a Terraform change
 in under a minute, with no signup, no API key and no upload, which used to
 mean installing a cost tool or building the change in the AWS pricing

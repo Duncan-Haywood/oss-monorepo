@@ -1,0 +1,82 @@
+name: open-tennis-robots CI
+
+# Two suites for one venture. Python (stdlib unittest, no dependencies):
+# the flight model, launcher aiming and calibration, ball tracker, catch-net
+# planner and its closed-loop study, collector routing, pure pursuit,
+# homography, serial protocol, ESP32 controller logic (run on CPython with a
+# fake board) and the Amazon listing builder (fake HTTP; nothing is sent).
+# Node: the browser port in sim.mjs checked against fixtures the Python model
+# writes, plus page wiring, disclaimers and the usage counter. The cad job
+# installs the pinned build123d, regenerates the collector's manufacturing
+# package and fails if the committed copy under manufacturing/ is stale, or if
+# any part collides, misses a mating hole or leaves the ground. Nothing here
+# publishes anything.
+on:
+  pull_request:
+    paths:
+      - "ventures/open-tennis-robots/**"
+      - ".github/workflows/open-tennis-robots-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/open-tennis-robots/**"
+      - ".github/workflows/open-tennis-robots-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: open-tennis-robots-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/open-tennis-robots
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Python tests
+        run: PYTHONPATH=src python -m unittest discover -s tests -v
+      - name: Fixtures are current
+        run: |
+          PYTHONPATH=src python -m tennisbots.fixtures
+          git diff --exit-code -- fixtures/
+      - name: Package installs and the CLI runs
+        run: |
+          python -m pip install .
+          tennisbots aim --x 9 --y -2 --speed 22 --topspin 1200
+          tennisbots drill drill.example.json
+      - name: Node tests (browser port, page, usage)
+        run: node --test sim.test.mjs page.test.mjs usage.test.mjs
+      - name: Disclaimer clauses on every page
+        working-directory: .
+        run: node platform/pages/clauses.mjs open-tennis-robots
+
+  cad:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install build123d (pinned)
+        run: python -m pip install -r cad/requirements.txt
+      - name: CAD checks and committed-package freshness
+        working-directory: ventures/open-tennis-robots/cad
+        run: python -m unittest discover -s tests -v

@@ -7,7 +7,10 @@ shape that got past a green test suite on 2026-08-26) and quiet (a decorative
 switched off within a week).
 """
 
+import contextlib
+import io
 import unittest
+from unittest import mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -72,6 +75,16 @@ class MarkersIn(unittest.TestCase):
 class Repository(unittest.TestCase):
     def test_the_repository_itself_is_clean(self):
         self.assertEqual(guard.main(), 0)
+
+    def test_a_committed_conflict_fails_the_check(self):
+        with TemporaryDirectory() as root:
+            bad = Path(root) / "ledger.yaml"
+            bad.write_text(f"{OPEN} HEAD\na: 1\n{SPLIT}\na: 2\n{CLOSE} main\n", encoding="utf-8")
+            with mock.patch.object(guard, "tracked_files", return_value=[bad]), \
+                    mock.patch.object(guard, "REPO_ROOT", Path(root)), \
+                    contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(guard.main(), 1)
+            self.assertIn("ledger.yaml:1", out.getvalue())
 
 
 if __name__ == "__main__":

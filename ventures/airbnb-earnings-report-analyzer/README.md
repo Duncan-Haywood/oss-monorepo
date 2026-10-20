@@ -5,6 +5,8 @@ CSV you downloaded from Airbnb and see which listings, months and stay lengths
 actually make money.** The file is read in the browser; nothing is uploaded and no
 account access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/airbnb-earnings-report-analyzer/
+
 After using this, you can now **see net earnings, Airbnb's fee share, average daily
 rate, net per booked night and occupancy per listing, your best and worst months,
 whether your cleaning fee covers what a clean costs you, and profit per night for

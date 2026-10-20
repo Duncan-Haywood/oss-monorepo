@@ -92,6 +92,12 @@
     <p class="note">Gain from cutting is per class: the instructor and room cost you stop paying, minus the margin from attendees who would not switch. The range is the 10th to 90th percentile of 300 seeded bootstrap resamples.</p>
     <div class="scroll"><table id="slots"><thead><tr><th>Slot</th><th class="n">Classes</th><th class="n">Adjusted avg</th><th class="n">Fill</th><th class="n">Earns per class</th><th class="n">Gain from cutting (range)</th><th>Verdict</th></tr></thead><tbody></tbody></table></div>
     <button type="button" id="download">Download slot CSV</button>
+    <h3>Compare with last term</h3>
+    <p class="note">Download the slot CSV each term. Next term, add the new classes to your log, analyse, then load the old CSV here to see which slots moved. The file is read in this tab only.</p>
+    <label for="prev">Last term's slot CSV</label>
+    <input id="prev" type="file" accept=".csv,text/csv,text/plain">
+    <p id="compare-status" role="status" class="note"></p>
+    <div class="scroll"><table id="compare" hidden><thead><tr><th>Slot</th><th>Change</th><th class="n">Adjusted avg now</th><th class="n">Shift</th><th>Verdict then → now</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <section class="card">
@@ -122,14 +128,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the attendance you supply; they do not guarantee what any class will draw in future.</p>
     <p><strong>Independent.</strong> Not affiliated with any studio-management or booking-software vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your attendance log is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your attendance log is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>, <code>comparison_run</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../class-price-and-minimum-optimizer/">class price and minimum optimizer</a> for what to charge per seat, the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a>, the <a href="../ad-slot-sell-through-planner/">ad slot sell-through planner</a> for another fixed-inventory slot business, the <a href="../3d-print-price-calculator/">3D print price calculator</a> for another small maker pricing their own hours, the <a href="../boutique-fitness-studio-pricing-planner/">boutique fitness studio pricing planner</a> for what unlimited, packs and drop-ins each earn, the <a href="../personal-trainer-package-pricing-calculator/">personal trainer package pricing calculator</a> the <a href="../shift-cover-optimizer/">shift cover optimizer</a> and, for a multi-court racquet-sport facility, the <a href="../pickleball-facility-pro-forma/">pickleball facility pro forma</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseRows, analyze, reportCsv, sampleText, money, pct } from "./calc.mjs";
+    import { parseRows, analyze, reportCsv, parseReport, compareReports, sampleText, money, pct } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -180,6 +186,22 @@
       a.download = "class-slot-verdicts.csv";
       a.click();
       record("report_downloaded");
+    });
+    $("#prev").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const cs = $("#compare-status"), ct = $("#compare");
+      if (!last) { cs.textContent = "Analyse your current log first, then load last term's file."; ct.hidden = true; return; }
+      const rd = new FileReader();
+      rd.onload = () => {
+        const p = parseReport(String(rd.result));
+        if (p.error) { cs.textContent = p.error; ct.hidden = true; return; }
+        const c = compareReports(p.rows, last);
+        $("#compare tbody").innerHTML = c.map((x) => `<tr><td>${esc(x.slot)}</td><td>${esc(x.status)}</td><td class="n">${x.adjMean === null ? "–" : x.adjMean.toFixed(1)}</td><td class="n">${x.delta === null ? "–" : (x.delta >= 0 ? "+" : "") + x.delta.toFixed(1)}</td><td>${esc(x.prevVerdict || "–")} → ${esc(x.verdict || "–")}</td></tr>`).join("");
+        ct.hidden = false;
+        cs.textContent = `${c.filter((x) => x.status === "changed").length} slot(s) changed verdict.`;
+        record("comparison_run");
+      };
+      rd.readAsText(f);
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }

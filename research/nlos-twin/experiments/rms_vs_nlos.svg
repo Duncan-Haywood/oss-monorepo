@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of rms position error in metres against NLOS probability: least squares rises fastest, dropping the largest-residual anchors helps">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">NLOS twin: rms error vs NLOS probability (8-anchor ring)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="251.9" y2="251.9" stroke="#ddd"/><text x="58" y="255.9" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="179.8" y2="179.8" stroke="#ddd"/><text x="58" y="183.8" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="107.7" y2="107.7" stroke="#ddd"/><text x="58" y="111.7" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">NLOS probability p</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">rms error (m)</text>
+<polyline points="64.0,293.4 204.0,187.4 344.0,135.9 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="293.4" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="187.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="135.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">least squares</text>
+<polyline points="64.0,286.1 204.0,264.3 344.0,223.5 624.0,146.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="286.1" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="264.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="223.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="146.3" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">drop 1 anchor</text>
+<polyline points="64.0,279.7 204.0,274.2 344.0,248.9 624.0,167.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="279.7" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="274.2" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="248.9" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="167.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">drop 2 anchors</text>
+</svg>

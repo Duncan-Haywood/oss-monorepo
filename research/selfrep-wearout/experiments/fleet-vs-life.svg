@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot on log axes of the steady fleet size of a self-replicating shop against the mean machine lifetime in hours, for the discrete-event simulation, the fluid ODE and the closed-form fixed point: all three rise with lifetime, and the simulation falls below the fixed point at the longest lifetime; lifetimes whose simulated fleet died out are omitted">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Wear-out: fleet size against mean machine life</text>
+<line x1="64" x2="624" y1="312.1" y2="312.1" stroke="#ddd"/><text x="58" y="316.1" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="122.3" y2="122.3" stroke="#ddd"/><text x="58" y="126.3" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">500</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2000</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">mean machine life L, hours (log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">machines in steady state (log scale)</text>
+<polyline points="64.0,309.6 344.0,187.6 624.0,80.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="187.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="80.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">simulation (DES)</text>
+<polyline points="64.0,299.1 344.0,184.6 624.0,77.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="299.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="184.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="77.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">fluid ODE</text>
+<polyline points="64.0,299.1 344.0,184.6 624.0,70.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="299.1" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="184.6" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">fixed point</text>
+</svg>

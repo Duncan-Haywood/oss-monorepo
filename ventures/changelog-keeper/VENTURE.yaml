@@ -1,0 +1,66 @@
+name: changelog-keeper
+description: >-
+  Self-hosted product changelog: write release notes in a safe Markdown subset,
+  schedule or draft them, and publish a public changelog page, Atom and JSON
+  feeds, and an embeddable What's new bell with an unread badge. Slack-style
+  webhook on each new entry. Zero-dependency server with a one-click Render
+  deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16. Paid market is real and proven: Headway, Beamer,
+# LaunchNotes, Canny (changelog), Announcekit and Noticeable sell changelog
+# pages and in-app What's-new widgets to SaaS teams, typically priced by tracked
+# users or seats, from tens to hundreds of dollars a month. The gap: a small
+# SaaS or app team that wants a public changelog, a feed and an unread bell
+# with unlimited entries and readers, the data in a file they own, and no
+# reader tracking. Ninth product for the buyer of dunning-engine, cancel-flow,
+# drip-keeper, meter-keeper, churn-radar, testimonial-keeper and feedback-board:
+# those collect requests and retain customers; this one tells customers what
+# shipped, which is what closes the loop with a feedback board.
+# duplicate_check: feedback-board collects requests and shows a roadmap, not
+# dated release notes; status-keeper reports incidents; none publishes a feed
+# or a widget for shipped changes.
+#
+# First visitor: indie SaaS founders on Hacker News, r/SaaS, Indie Hackers
+# searching "headway alternative", "beamer alternative open source", "self
+# hosted changelog", "whats new widget". Volume not measured with an external
+# tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; a hosted
+# version, done-for-you setup or GitHub Sponsors are the paid steps -- hosting
+# under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small SaaS teams will deploy their own changelog once the page, the feed
+      and the bell come from one file they can read in an evening, because the
+      paid tools price by tracked users and keep the release history.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The unread badge in the app, not the public page, is what makes customers
+      notice shipped work, and teams will keep using the bell once it is
+      installed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports an entry executing markup in the public page, a feed, or the embedded bell, or a draft or future-dated entry appearing publicly; the escaping and the publish gate come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/changelog-keeper/
+  analytics: null

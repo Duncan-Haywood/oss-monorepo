@@ -1,0 +1,43 @@
+name: s-corp-basis-tracker CI
+
+# Venture unit tests, independent of the portfolio-wide validation workflow
+# (which does not run venture unit tests).
+on:
+  pull_request:
+    paths:
+      - "ventures/s-corp-basis-tracker/**"
+      - ".github/workflows/s-corp-basis-tracker-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/s-corp-basis-tracker/**"
+      - ".github/workflows/s-corp-basis-tracker-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: s-corp-basis-tracker-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/s-corp-basis-tracker
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run unit tests
+        run: node --test
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs s-corp-basis-tracker

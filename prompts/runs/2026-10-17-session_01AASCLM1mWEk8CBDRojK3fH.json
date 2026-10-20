@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01AASCLM1mWEk8CBDRojK3fH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled brief)",
+  "input_sha256": "d41ea248a34510effde9c2001b3e18b52d1566fa24e32f9ded4dd50efc93c17d",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T22:00:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7850",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight 'regen.mjs' path is platform/marketing/regen.mjs, and its failure message says only 'exit 2' when the mirror is stale"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Deepened shift-roster-builder with team availability collection (availability.html + mergeAvailabilityReplies). Front-door mirror needed regen. Did not publish gh-pages snapshot this run.",
+  "corrections": [],
+  "redteam": null
+}

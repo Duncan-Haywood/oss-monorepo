@@ -5,6 +5,8 @@ whether a platform (eBay, Etsy, Poshmark, Venmo, PayPal, Cash App, StockX,
 and others) is likely to issue a Form 1099-K, per platform and per tax
 year.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/
+
 Open `index.html` in a browser. The calculation is local and works without
 an account, network request, or API key. It is arithmetic against the
 threshold history below, not a lookup of what any specific platform
@@ -58,3 +60,10 @@ does not replace a qualified tax preparer. You are responsible for
 reviewing and verifying its output before relying on it. To the maximum
 extent permitted by law, the authors accept no liability for any loss or
 damage arising from its use.
+
+## What you use today, and what this does differently
+
+- **The IRS 1099-K pages and instructions:** authoritative, but they describe the threshold history in prose, and the figure has changed more than once.
+- **"1099 tax calculators":** answer how much you will owe, which is a different question from whether a form will arrive at all.
+- **Each platform's own tax centre:** shows what that platform reports for you, usually after year end, and one platform at a time.
+- **What this adds:** an estimate per platform and per tax year of whether the legal threshold is met, including the four states with their own stricter threshold, from numbers you type. No account, no upload.

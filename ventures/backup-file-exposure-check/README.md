@@ -6,6 +6,8 @@ well-known backup filenames (`backup.zip`, `backup.tar.gz`, `backup.sql`, `backu
 verified against a real archive's magic bytes or a real SQL dump's line shape, not just an HTTP
 status.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/backup-file-exposure-check/
+
 **This tool never extracts a matched archive's contents, and it never quotes a SQL dump's row-data
 statements — only schema statements (table/column structure) are ever shown.** A backup file's
 whole purpose is holding a full copy of a site or database, so a checker for this exposure class

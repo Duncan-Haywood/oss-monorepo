@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareCombinedShipping({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -91,21 +91,21 @@ test('default inputs on the page match the worked example', () => {
     combinedShippingCost: 6.5,
     combinedPackagingCost: 1.25,
     combinedReturnShippingCost: 6.5,
-    combinedFixedFee: 0.3,
+    combinedFixedFee: 0.4,
     combinedReturnRatePercent: 10,
     monthlyCombinedOrders: 12,
   });
-  assert.ok(Math.abs(comparison.separate.expectedProfit - 36.689) < 1e-6, 'default separate');
-  assert.ok(Math.abs(comparison.combined.expectedProfit - 38.436) < 1e-6, 'default combined');
-  assert.ok(Math.abs(comparison.breakEvenCombinedCharged - 5.762407941082289) < 1e-6, 'default charge floor');
-  assert.match(html, /\$36\.69/);
-  assert.match(html, /\$38\.44/);
-  assert.match(html, /\$1\.75/);
-  assert.match(html, /\$20\.96/);
-  assert.match(html, /\$5\.76/);
-  assert.match(html, /\$8\.25/);
-  assert.match(html, /\$35\.31/);
-  assert.match(html, /\$1\.38/);
+  assert.ok(Math.abs(comparison.separate.expectedProfit - 36.2192) < 1e-6, 'default separate');
+  assert.ok(Math.abs(comparison.combined.expectedProfit - 38.0688) < 1e-6, 'default combined');
+  assert.ok(Math.abs(comparison.breakEvenCombinedCharged - 5.62139917695473) < 1e-6, 'default charge floor');
+  assert.match(html, /\$36\.22/);
+  assert.match(html, /\$38\.07/);
+  assert.match(html, /\$1\.85/);
+  assert.match(html, /\$22\.20/);
+  assert.match(html, /\$5\.62/);
+  assert.match(html, /\$8\.35/);
+  assert.match(html, /\$34\.96/);
+  assert.match(html, /\$1\.26/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

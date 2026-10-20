@@ -5,6 +5,8 @@ from two or more JUnit-XML test reports — the format pytest, Jest (via
 jest-junit), Go (via go-junit-report), PHPUnit, RSpec (via
 RSpecJUnitFormatter), and Maven/Gradle Surefire/Failsafe all produce.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/
+
 **What it is not:** a debugger, a root-cause finder, or a fix. It answers
 one narrow question — did this test flip between pass and fail across the
 runs you gave it — deterministically, from the reports themselves, with no

@@ -12,8 +12,8 @@ test('every DEFAULTS field has a matching input on the page', () => {
   }
 });
 
-test('the page imports calculate, payoutGap, and DEFAULTS from calc.mjs', () => {
-  assert.match(html, /import \{ calculate, payoutGap, DEFAULTS \} from '\.\/calc\.mjs'/);
+test('the page imports calculate, payoutGap, plusPlan, and DEFAULTS from calc.mjs', () => {
+  assert.match(html, /import \{ calculate, payoutGap, plusPlan, DEFAULTS \} from '\.\/calc\.mjs'/);
 });
 
 test('the page wires usage counting for both the month and gap calculators', () => {

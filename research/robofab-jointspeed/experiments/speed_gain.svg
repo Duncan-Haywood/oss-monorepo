@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="Optimised-to-minimum-jerk move-time ratio against joint-speed cap for nine arm configurations">
+<rect width="600" height="400" fill="#fff"/>
+<text x="257.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Time-optimal vs minimum-jerk move time</text>
+<line x1="64" x2="450" y1="293.3" y2="293.3" stroke="#ddd"/><text x="58" y="297.3" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="450" y1="242.7" y2="242.7" stroke="#ddd"/><text x="58" y="246.7" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="450" y1="192.0" y2="192.0" stroke="#ddd"/><text x="58" y="196.0" text-anchor="end" font-family="sans-serif" font-size="11">0.7</text>
+<line x1="64" x2="450" y1="141.3" y2="141.3" stroke="#ddd"/><text x="58" y="145.3" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="450" y1="90.7" y2="90.7" stroke="#ddd"/><text x="58" y="94.7" text-anchor="end" font-family="sans-serif" font-size="11">0.9</text>
+<line x1="64" x2="450" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">1.0</text>
+<text x="128.3" y="360" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="192.7" y="360" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="257.0" y="360" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="321.3" y="360" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="450.0" y="360" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<polyline points="128.3,274.6 192.7,272.0 257.0,266.8 321.3,259.4 450.0,242.7" fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="6 3"/>
+<line x1="460" x2="482" y1="54" y2="54" stroke="#c0392b" stroke-width="2" stroke-dasharray="6 3"/><text x="488" y="58" font-family="sans-serif" font-size="11">L=0.08, k=2</text>
+<polyline points="128.3,275.1 192.7,274.5 257.0,273.0 321.3,270.6 450.0,263.5" fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="2 3"/>
+<line x1="460" x2="482" y1="72" y2="72" stroke="#c0392b" stroke-width="2" stroke-dasharray="2 3"/><text x="488" y="76" font-family="sans-serif" font-size="11">L=0.08, k=5</text>
+<polyline points="128.3,275.1 192.7,275.1 257.0,275.0 321.3,274.8 450.0,274.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<line x1="460" x2="482" y1="90" y2="90" stroke="#c0392b" stroke-width="2"/><text x="488" y="94" font-family="sans-serif" font-size="11">L=0.08, k=none</text>
+<polyline points="128.3,275.1 192.7,273.4 257.0,269.7 321.3,264.4 450.0,248.9" fill="none" stroke="#1f6fb2" stroke-width="2" stroke-dasharray="6 3"/>
+<line x1="460" x2="482" y1="108" y2="108" stroke="#1f6fb2" stroke-width="2" stroke-dasharray="6 3"/><text x="488" y="112" font-family="sans-serif" font-size="11">L=0.12, k=2</text>
+<polyline points="128.3,275.1 192.7,274.8 257.0,273.4 321.3,271.0 450.0,264.2" fill="none" stroke="#1f6fb2" stroke-width="2" stroke-dasharray="2 3"/>
+<line x1="460" x2="482" y1="126" y2="126" stroke="#1f6fb2" stroke-width="2" stroke-dasharray="2 3"/><text x="488" y="130" font-family="sans-serif" font-size="11">L=0.12, k=5</text>
+<polyline points="128.3,275.1 192.7,275.1 257.0,275.1 321.3,275.0 450.0,273.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<line x1="460" x2="482" y1="144" y2="144" stroke="#1f6fb2" stroke-width="2"/><text x="488" y="148" font-family="sans-serif" font-size="11">L=0.12, k=none</text>
+<polyline points="128.3,273.3 192.7,263.8 257.0,247.8 321.3,224.7 450.0,182.2" fill="none" stroke="#2e8b57" stroke-width="2" stroke-dasharray="6 3"/>
+<line x1="460" x2="482" y1="162" y2="162" stroke="#2e8b57" stroke-width="2" stroke-dasharray="6 3"/><text x="488" y="166" font-family="sans-serif" font-size="11">L=0.2, k=2</text>
+<polyline points="128.3,274.9 192.7,271.0 257.0,264.3 321.3,254.8 450.0,227.4" fill="none" stroke="#2e8b57" stroke-width="2" stroke-dasharray="2 3"/>
+<line x1="460" x2="482" y1="180" y2="180" stroke="#2e8b57" stroke-width="2" stroke-dasharray="2 3"/><text x="488" y="184" font-family="sans-serif" font-size="11">L=0.2, k=5</text>
+<polyline points="128.3,275.1 192.7,274.6 257.0,272.3 321.3,269.1 450.0,260.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<line x1="460" x2="482" y1="198" y2="198" stroke="#2e8b57" stroke-width="2"/><text x="488" y="202" font-family="sans-serif" font-size="11">L=0.2, k=none</text>
+<text x="257.0" y="390" text-anchor="middle" font-family="sans-serif" font-size="12">joint-speed cap w_max</text>
+<text transform="translate(16 192.0) rotate(-90)" text-anchor="middle" font-family="sans-serif" font-size="12">T_opt / T_minjerk</text></svg>

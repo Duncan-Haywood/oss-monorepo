@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gravity-twin"
+version = "0.1.0"
+description = "Gravity a twin omits: exact PD sag equilibrium, loss of the upright hold below kp = g, shrinking basin, and residual offset from a mis-calibrated feedforward"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

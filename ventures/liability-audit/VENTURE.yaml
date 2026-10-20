@@ -1,0 +1,54 @@
+name: liability-audit
+description: 'Free, open-source, zero-dependency scanner (CLI, CI gate, SARIF, browser page, monorepo sweep, and an AI-agent playbook) that reads an application''s source, built pages, IaC and lockfile for signals of legal and financial exposure: tracking without consent, recurring billing without renewal and cancellation terms, missing privacy notice or terms, undisclosed affiliate links and AI, advice-topic tools without a disclaimer, comparison pages without a non-affiliation line, strong-copyleft dependencies, live secrets, LLM endpoints with no spend control, uncapped LLM calls and cloud IaC with no budget alarm. Observations with evidence, never legal advice.'
+stage: prototype
+
+owner: duncan
+
+# duplicate_check.py (2026-10-16): nothing above 0.24 (vendor-watch); the
+# single-topic checkers here (affiliate-disclosure-checker,
+# eu-ai-act-risk-checker, lockfile-license-check, cookie-security-check) each
+# read one artefact for one rule. This reads a whole repository for many, and
+# its wedge is putting runaway *spend* (leaked keys, open LLM endpoints, no
+# cloud budget) next to legal exposure, because both land on the owner.
+#
+# Where the first real visitor would come from: searches like "does my saas
+# need a privacy policy", "auto renewal law checklist", "gdpr cookie consent
+# check my site", "audit my app for legal issues", "startup compliance
+# checklist"; indie-hacker and r/SaaS / r/startups launch-checklist threads;
+# founders before a fundraise or acquisition diligence. Alternatives today:
+# hosted website scanners and privacy-compliance platforms (paid, and they
+# see the live site, not the repository), a lawyer (expensive, not
+# continuous), or nothing.
+hypotheses:
+  - claim: A founder preparing a launch or diligence will run the scan, find at least one real finding, and fix it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A sweep over a real monorepo produces few enough false positives that a team leaves --fail-on high on in CI.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: On this repository's 1,780 projects the tuned rules raise no high-severity false positives.
+    status: supported
+    checked: 2026-10-16
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page reads files in the visitor's browser; the
+  # CLI reads local files and makes no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a report) engage within 90 days of the page being reachable from the published site.
+  - No external repository is found running the CLI in CI within 120 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/liability-audit/
+  analytics: null

@@ -8,8 +8,8 @@
   <meta property="og:title" content="A/B Test Significance Calculator — free, private, in your browser">
   <meta property="og:description" content="Is your A/B test result real? Frequentist, Bayesian and peeking-safe answers, plus sample size planning.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "A/B Test Significance Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter visitors and conversions for a control and a variant and get the p-value, confidence interval, sample ratio mismatch check, Bayesian probability to beat control and an always-valid sequential result. Also plans sample size and test duration. Runs in your browser.", "featureList": "A/B test significance calculator, sample size calculator, sample ratio mismatch check, Bayesian A/B test, sequential testing always-valid p-value, peeking false positive rate, relative lift confidence interval, CSV download"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know if my A/B test result is statistically significant?", "acceptedAnswer": {"@type": "Answer", "text": "Compare the p-value from a two-proportion z-test with your significance level, usually 0.05. A p-value below 0.05 means a difference this large would show up less than 5% of the time if the two versions truly converted the same. This tool also shows the confidence interval for the difference, which tells you how big the effect could plausibly be, not just whether it is zero."}}, {"@type": "Question", "name": "How many visitors do I need for an A/B test?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your baseline conversion rate, the smallest lift you care about, your significance level and your power. As a guide, detecting a 10% relative lift on a 5% baseline at 95% confidence and 80% power takes about 31,000 visitors per group. Use the planner above to enter your own numbers and see how many days that takes at your traffic."}}, {"@type": "Question", "name": "What is sample ratio mismatch (SRM)?", "acceptedAnswer": {"@type": "Answer", "text": "If you planned a 50/50 split but the groups came out 5,000 and 4,500, something is wrong with assignment or tracking. A chi-square test on the group sizes flags splits that are too lopsided to be chance. When SRM fires, the conversion comparison cannot be trusted, so fix the cause first."}}, {"@type": "Question", "name": "Why is peeking at an A/B test a problem?", "acceptedAnswer": {"@type": "Answer", "text": "A fixed-sample p-value is only valid if you look once at a sample size chosen in advance. If you check repeatedly and stop the first time p drops below 0.05, the real false-positive rate climbs to about 14% with five looks and 19% with ten. The always-valid p-value and interval this tool shows stay valid however often you look, at the cost of being more conservative."}}, {"@type": "Question", "name": "What does the Bayesian result mean?", "acceptedAnswer": {"@type": "Answer", "text": "It uses a uniform Beta prior on each conversion rate and reports the probability that the variant's true rate is higher than the control's, plus the expected loss if you choose each option. A 96% probability means that, given the data and the prior, the variant is better with about 96% credibility. It is not the same number as one minus the p-value."}}, {"@type": "Question", "name": "Which result should I trust, frequentist, Bayesian or always-valid?", "acceptedAnswer": {"@type": "Answer", "text": "On a test you planned for a fixed sample size and looked at once, the ordinary p-value and interval are right. If you monitored the test as it ran, use the always-valid result. The Bayesian probability is a useful second view of the same data, but decide your stopping rule before you start whichever you use."}}, {"@type": "Question", "name": "Is my conversion data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. You type four numbers and everything is computed in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "A/B Test Significance Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter visitors and conversions for a control and a variant and get the p-value, confidence interval, sample ratio mismatch check, Bayesian probability to beat control and an always-valid sequential result. Also plans sample size and test duration. Runs in your browser.", "featureList": "A/B test significance calculator, price test revenue per visitor comparison, sample size calculator, sample ratio mismatch check, Bayesian A/B test, sequential testing always-valid p-value, peeking false positive rate, relative lift confidence interval, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know if my A/B test result is statistically significant?", "acceptedAnswer": {"@type": "Answer", "text": "Compare the p-value from a two-proportion z-test with your significance level, usually 0.05. A p-value below 0.05 means a difference this large would show up less than 5% of the time if the two versions truly converted the same. This tool also shows the confidence interval for the difference, which tells you how big the effect could plausibly be, not just whether it is zero."}}, {"@type": "Question", "name": "How many visitors do I need for an A/B test?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your baseline conversion rate, the smallest lift you care about, your significance level and your power. As a guide, detecting a 10% relative lift on a 5% baseline at 95% confidence and 80% power takes about 31,000 visitors per group. Use the planner above to enter your own numbers and see how many days that takes at your traffic."}}, {"@type": "Question", "name": "What is sample ratio mismatch (SRM)?", "acceptedAnswer": {"@type": "Answer", "text": "If you planned a 50/50 split but the groups came out 5,000 and 4,500, something is wrong with assignment or tracking. A chi-square test on the group sizes flags splits that are too lopsided to be chance. When SRM fires, the conversion comparison cannot be trusted, so fix the cause first."}}, {"@type": "Question", "name": "Why is peeking at an A/B test a problem?", "acceptedAnswer": {"@type": "Answer", "text": "A fixed-sample p-value is only valid if you look once at a sample size chosen in advance. If you check repeatedly and stop the first time p drops below 0.05, the real false-positive rate climbs to about 14% with five looks and 19% with ten. The always-valid p-value and interval this tool shows stay valid however often you look, at the cost of being more conservative."}}, {"@type": "Question", "name": "What does the Bayesian result mean?", "acceptedAnswer": {"@type": "Answer", "text": "It uses a uniform Beta prior on each conversion rate and reports the probability that the variant's true rate is higher than the control's, plus the expected loss if you choose each option. A 96% probability means that, given the data and the prior, the variant is better with about 96% credibility. It is not the same number as one minus the p-value."}}, {"@type": "Question", "name": "Which result should I trust, frequentist, Bayesian or always-valid?", "acceptedAnswer": {"@type": "Answer", "text": "On a test you planned for a fixed sample size and looked at once, the ordinary p-value and interval are right. If you monitored the test as it ran, use the always-valid result. The Bayesian probability is a useful second view of the same data, but decide your stopping rule before you start whichever you use."}}, {"@type": "Question", "name": "How do I know if a price increase worked in an A/B test?", "acceptedAnswer": {"@type": "Answer", "text": "Compare revenue per visitor, which is conversion rate times price, not conversion alone. A higher price usually converts worse, so a conversion test will often call it a loss even when it earns more. The price panel above tests the difference in revenue per visitor and shows the break-even conversion: raising $29 to $39 can lose up to about 26% of buyers before revenue per visitor falls. It looks only at first-purchase revenue, so also check refunds and churn before rolling out."}}, {"@type": "Question", "name": "Is my conversion data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. You type four numbers and everything is computed in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -90,6 +90,42 @@
     <button type="button" id="download">Download CSV</button>
   </section>
 
+  <section class="card" id="price-test">
+    <h2>Testing two prices? Compare revenue per visitor, not conversion</h2>
+    <p class="note">A higher price almost always converts worse. What matters is whether it earns more per visitor. Enter each price and how many visitors saw it and bought.</p>
+    <div class="row2">
+      <fieldset><legend>Current price (A)</legend>
+        <label for="pn1">Visitors</label><input id="pn1" inputmode="numeric" placeholder="4000">
+        <label for="pc1">Buyers</label><input id="pc1" inputmode="numeric" placeholder="160">
+        <label for="pp1">Price ($)</label><input id="pp1" inputmode="decimal" placeholder="29">
+      </fieldset>
+      <fieldset><legend>Test price (B)</legend>
+        <label for="pn2">Visitors</label><input id="pn2" inputmode="numeric" placeholder="4000">
+        <label for="pc2">Buyers</label><input id="pc2" inputmode="numeric" placeholder="138">
+        <label for="pp2">Price ($)</label><input id="pp2" inputmode="decimal" placeholder="39">
+      </fieldset>
+    </div>
+    <div class="grid"><div><label for="pmonthly">Visitors per month (optional)</label><input id="pmonthly" inputmode="numeric" placeholder="10000"></div></div>
+    <button type="button" id="price-run">Compare prices</button>
+    <button type="button" class="secondary" id="price-example">Load an example</button>
+    <p id="price-status" role="status" class="note">Uses the significance level chosen above. Two-sided test.</p>
+    <div class="big" id="price-big"></div>
+    <div id="price-findings"></div>
+    <div class="scroll"><table id="price-table" hidden><thead><tr><th>Measure</th><th class="n">Result</th><th>How to read it</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card" id="multi-test">
+    <h2>More than one variant? Test A/B/n without fooling yourself</h2>
+    <p class="note">One line per arm: name, visitors, conversions. The first line is the control. Each variant is compared with control, and p-values are Holm-adjusted so testing several variants does not make a false winner likely.</p>
+    <label for="multi-text">Arms</label>
+    <textarea id="multi-text" rows="5" placeholder="Control, 5000, 250&#10;Variant B, 5000, 290&#10;Variant C, 5000, 262"></textarea>
+    <button type="button" id="multi-run">Compare variants</button>
+    <button type="button" class="secondary" id="multi-example">Load an example</button>
+    <p id="multi-status" role="status" class="note">Uses the significance level chosen above. Two-sided test.</p>
+    <div id="multi-findings"></div>
+    <div class="scroll"><table id="multi-table" hidden><thead><tr><th>Arm</th><th class="n">Rate</th><th class="n">Lift vs control</th><th class="n">p (raw)</th><th class="n">p (Holm)</th><th class="n">Chance best</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
   <section class="card">
     <h2>Plan a test: how many visitors do you need?</h2>
     <div class="grid">
@@ -102,12 +138,18 @@
     <button type="button" id="plan">Calculate sample size</button>
     <p id="plan-status" role="status" class="note">Uses the significance level chosen above. Two-sided test.</p>
     <div class="big" id="plan-big"></div>
+    <h3>Or: what lift can your traffic detect?</h3>
+    <div class="grid">
+      <div><label for="avail">Visitors per group you can get</label><input id="avail" inputmode="numeric" placeholder="10000"></div>
+    </div>
+    <button type="button" class="secondary" id="detect">Find the smallest detectable lift</button>
+    <div class="big" id="detect-big"></div>
   </section>
 
   <section class="card">
     <h2>How it is calculated</h2>
-    <p><strong>Fixed-sample test:</strong> pooled two-proportion z-test, two-sided. The interval on the difference uses the unpooled standard error; the interval on relative lift uses the log risk ratio (Katz). <strong>Sample ratio mismatch:</strong> chi-square goodness of fit on the two group sizes against your planned split; a p-value below 0.001 is flagged as a likely broken test. <strong>Bayesian:</strong> uniform Beta(1,1) priors, 20,000 seeded posterior draws; reports the probability the variant is better, the expected loss from choosing each side, and a 95% credible interval on relative lift. <strong>Always-valid:</strong> a mixture sequential probability ratio test (mSPRT) with a normal mixing distribution whose spread is 10% of the control rate; its p-value and interval remain valid at every look, so they are wider than the fixed-sample ones. <strong>Peeking:</strong> the false-positive rate for stopping the first time p &lt; your level across evenly spaced looks, from 20,000 seeded simulations. <strong>Sample size:</strong> the standard two-proportion formula with unpooled variance under the alternative.</p>
-    <p><strong>Not modelled:</strong> more than two variants (correct for multiple comparisons yourself), non-conversion metrics such as revenue per visitor, variance reduction, novelty effects, and weekly seasonality. <strong>Unverified:</strong> checked against published reference values and simulation in unit tests only, not against a commercial platform.</p>
+    <p><strong>Fixed-sample test:</strong> pooled two-proportion z-test, two-sided. The interval on the difference uses the unpooled standard error; the interval on relative lift uses the log risk ratio (Katz). <strong>Sample ratio mismatch:</strong> chi-square goodness of fit on the two group sizes against your planned split; a p-value below 0.001 is flagged as a likely broken test. <strong>Bayesian:</strong> uniform Beta(1,1) priors, 20,000 seeded posterior draws; reports the probability the variant is better, the expected loss from choosing each side, and a 95% credible interval on relative lift. <strong>Always-valid:</strong> a mixture sequential probability ratio test (mSPRT) with a normal mixing distribution whose spread is 10% of the control rate; its p-value and interval remain valid at every look, so they are wider than the fixed-sample ones. <strong>Peeking:</strong> the false-positive rate for stopping the first time p &lt; your level across evenly spaced looks, from 20,000 seeded simulations. <strong>Sample size:</strong> the standard two-proportion formula with unpooled variance under the alternative. <strong>Price test:</strong> revenue per visitor is conversion rate times price; the difference is tested with a delta-method z-test (variance price&sup2;&middot;p(1&minus;p)/n per group), the Bayesian chance that B earns more uses the same seeded Beta draws scaled by each price, and the break-even conversion is the control rate times the price ratio.</p>
+    <p><strong>Not modelled:</strong> more than two variants (correct for multiple comparisons yourself), revenue per visitor with varying order values (the price panel assumes one fixed price per group), retention after purchase, variance reduction, novelty effects, and weekly seasonality. <strong>Unverified:</strong> checked against published reference values and simulation in unit tests only, not against a commercial platform.</p>
   </section>
 
   <section class="card">
@@ -124,6 +166,8 @@
     <p>It uses a uniform Beta prior on each conversion rate and reports the probability that the variant's true rate is higher than the control's, plus the expected loss if you choose each option. A 96% probability means that, given the data and the prior, the variant is better with about 96% credibility. It is not the same number as one minus the p-value.</p>
     <h3>Which result should I trust, frequentist, Bayesian or always-valid?</h3>
     <p>On a test you planned for a fixed sample size and looked at once, the ordinary p-value and interval are right. If you monitored the test as it ran, use the always-valid result. The Bayesian probability is a useful second view of the same data, but decide your stopping rule before you start whichever you use.</p>
+    <h3>How do I know if a price increase worked in an A/B test?</h3>
+    <p>Compare revenue per visitor, which is conversion rate times price, not conversion alone. A higher price usually converts worse, so a conversion test will often call it a loss even when it earns more. The price panel above tests the difference in revenue per visitor and shows the break-even conversion: raising $29 to $39 can lose up to about 26% of buyers before revenue per visitor falls. It looks only at first-purchase revenue, so also check refunds and churn before rolling out.</p>
     <h3>Is my conversion data uploaded anywhere?</h3>
     <p>No. You type four numbers and everything is computed in this browser tab. There are no accounts, cookies or analytics vendors.</p>
     <p>Testing ads across regions or stores instead of page visitors? The <a href="../ad-incrementality-test-analyzer/">ad incrementality test analyzer</a> reads a geo holdout and measures the lift with an interval.</p>
@@ -133,14 +177,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the numbers you enter; they do not guarantee what will happen when you roll out a change. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any experimentation platform, analytics vendor or research firm, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>plan_run</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>plan_run</code>, <code>price_test_run</code>, <code>multi_test_run</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Running experiments on pricing or growth? See the <a href="../gabor-granger-price-analyzer/">Gabor-Granger price analyzer</a>, the <a href="../van-westendorp-pricing-analyzer/">Van Westendorp pricing analyzer</a> and the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>. Setting a trial length? The <a href="../trial-conversion-timing-analyzer/">trial conversion timing analyzer</a> shows on which day of a trial people first pay.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { analyze, sampleSize, daysToRun, reportCsv, sampleText, pct, signedPct } from "./calc.mjs";
+    import { analyze, sampleSize, detectableEffect, daysToRun, reportCsv, sampleText, pct, signedPct, priceTest, priceSampleText, money, multiTest, parseArms, multiSampleText } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -201,6 +245,70 @@
       ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       ps.textContent = "Decide this sample size and your stopping rule before you start, then do not stop early on a good-looking result.";
       record("plan_run");
+    });
+
+    $("#detect").addEventListener("click", () => {
+      const r = detectableEffect({ baseline: num("base") / 100, perArm: num("avail"), alpha: Number($("#alpha").value), power: Number($("#power").value) });
+      const ps = $("#plan-status");
+      if (r.error) { ps.textContent = r.error; $("#detect-big").innerHTML = ""; return; }
+      $("#detect-big").innerHTML = [
+        [signedPct(r.relativeEffect), "Smallest relative lift you can reliably detect"],
+        [`${pct(r.p1)} → ${pct(r.p2)}`, "Rates the test can tell apart"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      ps.textContent = "Smaller true lifts will usually look like noise at this traffic. Uses the baseline, significance level and power above.";
+      record("detect_run");
+    });
+
+    function runPrice() {
+      const r = priceTest({ n1: num("pn1"), c1: num("pc1"), price1: num("pp1"), n2: num("pn2"), c2: num("pc2"), price2: num("pp2"), alpha: Number($("#alpha").value), monthlyVisitors: num("pmonthly") });
+      const ps = $("#price-status"), tbl = $("#price-table");
+      if (r.error) { ps.textContent = r.error; $("#price-big").innerHTML = ""; $("#price-findings").innerHTML = ""; tbl.hidden = true; return false; }
+      const b = r.bayes, cl = Math.round((1 - r.alpha) * 100);
+      $("#price-big").innerHTML = [
+        [signedPct(r.relative), "Revenue per visitor, B vs A"],
+        [pct(b.probBBeatsA, 1), "Chance B earns more per visitor"],
+        [signedPct(r.conversionChange), "Change in conversion"],
+        [pct(r.breakEvenRate), "Conversion B needs to break even"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#price-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      const rows = [
+        ["Revenue per visitor, A", money(r.rpv1), `${pct(r.p1)} conversion at ${money(r.price1)}`],
+        ["Revenue per visitor, B", money(r.rpv2), `${pct(r.p2)} conversion at ${money(r.price2)}`],
+        ["Difference", money(r.diff), `${cl}% interval ${money(r.ci.low)} to ${money(r.ci.high)} per visitor`],
+        ["p-value", r.p.toFixed(4), r.significant ? `Below ${r.alpha}: unlikely to be chance` : `Not below ${r.alpha}`],
+        ["Expected loss if you ship B", money(b.expectedLossChoosingB), `Expected loss if you keep A: ${money(b.expectedLossChoosingA)} per visitor`],
+        ["Lift credible interval", `${signedPct(b.liftLow)} to ${signedPct(b.liftHigh)}`, "95% Bayesian interval on revenue per visitor"],
+        ["Tolerable conversion drop", pct(Math.max(0, r.breakEvenRelativeDrop), 1), r.breakEvenRelativeDrop > 0 ? "Share of buyers the higher price can lose before revenue per visitor falls" : "B is cheaper, so it must win volume instead"],
+      ];
+      if (r.monthly) rows.push(["Monthly revenue change", money(r.monthly.revenueDelta), `At ${r.monthly.visitors.toLocaleString("en-US")} visitors a month if the result holds`]);
+      tbl.querySelector("tbody").innerHTML = rows.map(([m, v, n]) => `<tr><td>${esc(m)}</td><td class="n">${esc(v)}</td><td>${esc(n)}</td></tr>`).join("");
+      tbl.hidden = false;
+      ps.textContent = "Done. Decide your stopping rule before you start, and do not stop early on a good-looking result.";
+      return true;
+    }
+    function runMulti() {
+      const ms = $("#multi-status"), tbl = $("#multi-table");
+      const parsed = parseArms($("#multi-text").value);
+      const r = parsed.error ? parsed : multiTest({ arms: parsed.arms, alpha: Number($("#alpha").value) });
+      if (r.error) { ms.textContent = r.error; $("#multi-findings").innerHTML = ""; tbl.hidden = true; return false; }
+      ms.textContent = `${r.rows.length} variants against ${r.control.name}.`;
+      $("#multi-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      const row = (n, rate, lift, p, ph, best) => `<tr><td>${esc(n)}</td><td class="n">${pct(rate)}</td><td class="n">${lift}</td><td class="n">${p}</td><td class="n">${ph}</td><td class="n">${pct(best, 1)}</td></tr>`;
+      tbl.querySelector("tbody").innerHTML = row(r.control.name, r.control.rate, "control", "", "", r.control.probBest) +
+        r.rows.map((x) => row(x.name, x.rate, signedPct(x.lift), x.p.toFixed(4), x.pHolm.toFixed(4) + (x.significant ? " *" : ""), x.probBest)).join("");
+      tbl.hidden = false;
+      return true;
+    }
+    $("#multi-run").addEventListener("click", () => { if (runMulti()) record("multi_test_run"); });
+    $("#multi-example").addEventListener("click", () => {
+      $("#multi-text").value = multiSampleText();
+      if (runMulti()) { record("example_loaded"); $("#multi-status").textContent = "Sample data: an invented test, not a real experiment."; }
+    });
+    $("#price-run").addEventListener("click", () => { if (runPrice()) record("price_test_run"); });
+    $("#price-example").addEventListener("click", () => {
+      const o = priceSampleText();
+      $("#pn1").value = o.n1; $("#pc1").value = o.c1; $("#pp1").value = o.price1; $("#pn2").value = o.n2; $("#pc2").value = o.c2; $("#pp2").value = o.price2;
+      if (runPrice()) { record("example_loaded"); $("#price-status").textContent = "Sample data: an invented test, not a real experiment."; }
     });
     $("#download").addEventListener("click", () => {
       if (!last) return;

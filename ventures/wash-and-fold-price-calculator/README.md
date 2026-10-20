@@ -8,6 +8,8 @@ what they charge today. **After using this, you can set a per-pound price and a
 minimum charge you can defend from your own numbers, which used to mean copying
 the price off a competitor's sign and hoping.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wash-and-fold-price-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The calculation is deterministic and works with no
 account, API key, upload, or paid dependency.

@@ -24768,6 +24768,30 @@ ventures:
       ethical_robustness: pass
     gate_note: >-
       Liability: arithmetic on user-typed dates, never states anyone's tax residency, rule table labelled as commonly published and overridable, no tax filing, nothing stored. Ethics: helps people keep an honest record of where they were.
+  - slug: s-corp-basis-tracker
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 4
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Algorithmic, browser-local (S corporation stock and debt basis roll-forward in Form 7203 order); no language model and no paid API.
+    basis: >-
+      Scored 2026-10-17 in the session that added the venture; see its VENTURE.yaml comment for the
+      screening. Distribution 6: shareholders and preparers searching "S corp basis calculator" and "Form 7203 worksheet"
+      (volume not measured with an external tool). Defensibility 5: basis modules are bundled in paid preparer software and
+      spreadsheets often get the ordering wrong; a free private roll-forward with suspended-loss flags is uncommon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed K-1 figures, never files a form or says a figure is right for a return, unmodelled limits named on the page, nothing stored. Ethics: helps owners avoid losing deductions to unnoticed suspension and avoid unreported excess distributions.
   - slug: nsa-idr-offer-calculator
     scores:
       ai_leverage: 4
@@ -27126,7 +27150,7 @@ ventures:
       gross_margin: 10
       defensibility: 2
       distribution: 5
-    composite: 5.2
+    composite: 5.167
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -27159,7 +27183,7 @@ ventures:
       gross_margin: 10
       defensibility: 2
       distribution: 5
-    composite: 5.2
+    composite: 5.167
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -27791,7 +27815,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 6
-    composite: 5.5
+    composite: 5.667
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -27825,7 +27849,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 6
-    composite: 5.5
+    composite: 5.667
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -27889,7 +27913,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 6
-    composite: 5.5
+    composite: 5.667
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -27922,7 +27946,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 5
-    composite: 5.3
+    composite: 5.5
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -28062,7 +28086,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 8
-    composite: 6.1
+    composite: 6.167
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -28486,7 +28510,6 @@ ventures:
       requirement presets labelled as such, not veterinary or nutritionist advice, unmodelled
       items (trace minerals, ionophores, urea limits, mycotoxins) stated. Ethics: nothing leaves
       the browser, no dark patterns, nothing is sold.
-  - slug: ball-python-morph-pairing-planner
   - slug: fertilizer-blend-optimizer
     scores:
       ai_leverage: 1
@@ -28832,7 +28855,7 @@ ventures:
       gross_margin: 10
       defensibility: 5
       distribution: 5
-    composite: 6.2
+    composite: 6.167
     rater_b: null
     floor: 2
     floor_dimension: ai_leverage
@@ -28949,7 +28972,7 @@ ventures:
       gross_margin: 10
       defensibility: 5
       distribution: 6
-    composite: 6.3
+    composite: 6.333
     rater_b: null
     floor: 2
     floor_dimension: ai_leverage
@@ -29001,7 +29024,6 @@ ventures:
       advice on eligibility, deadlines or whether to elect, defaults labelled as placeholders, no
       taxpayer identifiers requested. Ethics: nothing leaves the browser, no dark patterns,
       nothing is sold.
-  - slug: container-demurrage-detention-calculator
   - slug: roofing-insurance-supplement-finder
     scores:
       ai_leverage: 2
@@ -29181,7 +29203,6 @@ ventures:
       Liability: arithmetic on user-typed numbers, editable rates, defaults labelled as placeholders,
       no determination of eligibility, no taxpayer identifiers requested. Ethics: nothing leaves the
       browser, no dark patterns, nothing is sold.
-  - slug: contract-vs-fte-rate-calculator
   - slug: crop-insurance-coverage-calculator
     scores:
       ai_leverage: 2
@@ -29462,3 +29483,76 @@ ventures:
       2026-10-11 and must be confirmed on nodejs.org, and that a clean
       result is evidence about declared versions only, not that the code
       runs on any of them.
+
+  - slug: job-application-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Stores only what the user types, in their own browser; no advice of
+      record, no upload, follow-up timing labelled a convention; reply-rate
+      figures carry a small-sample caveat.
+    floor_note: >-
+      Deterministic date arithmetic, counting and CSV/ICS formatting over
+      what the user typed. There is no inference step a model would improve.
+    basis: >-
+      Graduated 2026-10-15 as a local-first job application tracker:
+      follow-up dates, silent-30-day flags, reply rate by source, CSV and
+      calendar export. Screened with duplicate_check.py (nearest existing
+      venture scored 0.31) after eight other niches came back as existing
+      ventures. Different audience and shape from the trade calculators;
+      the paid incumbents (Huntr, Teal and similar) sit behind an account.
+      Autonomous ops 10 / gross margin 10: no server, data stays in the
+      browser. Time to revenue 4: job seekers have the least disposable
+      income of any audience here, so donations are scored lowest.
+      Defensibility 3: a tracker is easy to copy; the edge is "no account,
+      nothing uploaded" and the source funnel. Distribution 6: "job
+      application tracker" and "job application spreadsheet" are
+      high-volume searches, and r/jobs and r/resumes ask for this weekly.
+  - slug: youtube-sponsorship-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a price range framed as a negotiation starting point,
+      never a quote or valuation; being wrong costs a creator a
+      miscalibrated ask, not a filing or a contract obligation. Every input
+      is a number the creator already knows about their own channel.
+    floor_note: >-
+      There is no AI in the product. The value is arithmetic on CPM
+      benchmarks and percentage uplifts against the creator's own median
+      views, and inference would only make the result less checkable.
+    basis: >-
+      Graduated 2026-10-15 as a browser-local YouTube sponsorship pricing
+      calculator. duplicate_check.py found no YouTube sponsorship pricing
+      venture (nearest: the podcast and newsletter siblings at 0.56, on
+      shared words only; youtube-revenue-rpm-analyzer reads AdSense, not
+      sponsorships). What the siblings do not do is price paid-usage /
+      whitelisting and category exclusivity as separate lines, the terms
+      that most often move a real deal. Defensibility 3: CPM logic is
+      public; the edge is no sign-up and the itemised add-ons.
+      Distribution 6: "youtube sponsorship rates" and "how much to charge
+      for a youtube sponsorship" are recurring named-intent queries in
+      r/NewTubers and creator Discords.

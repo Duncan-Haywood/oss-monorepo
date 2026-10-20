@@ -1,0 +1,56 @@
+{
+  "slug": "basement-finishing-bid-calculator",
+  "name": "Basement finishing",
+  "group": "Interior & finishes",
+  "summary": "Basement finishes priced from finished square feet by scope, ceiling and floor, plus travel and punch list.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 9.4,
+  "hourlyWage": 38,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Rec-room shell: paint and light carpentry",
+      "unit": "sq ft",
+      "qty": 800,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 3.9,
+      "source": "finishedSf 800, 8 ft (heightFactor 1) (index.html); suggestedScopeKit rec-room: hoursShellPerSf 0.12, drywallPerSf $0.40 + shellInvoicePerSf $3.50 (calc.mjs)"
+    },
+    {
+      "label": "Drop ceiling",
+      "unit": "sq ft",
+      "qty": 800,
+      "hoursPerUnit": 0.06,
+      "materialPerUnit": 2.8,
+      "source": "suggestedCeilingKit drop-ceiling: hoursCeilingPerSf 0.06, ceilingPerSf $2.80 (calc.mjs)"
+    },
+    {
+      "label": "Carpet (8% waste)",
+      "unit": "sq ft",
+      "qty": 800,
+      "hoursPerUnit": 0.05,
+      "materialPerUnit": 3.456,
+      "source": "suggestedFloorKit carpet: hoursFloorPerSf 0.05, floorPerSf $3.20 x (1 + wasteRate 0.08) (calc.mjs)"
+    },
+    {
+      "label": "Travel",
+      "unit": "mile",
+      "qty": 12,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "travelMiles 12 (index.html); suggestedExtraKit hoursPerMile 0.035, travelPerMile $2.80 (calc.mjs)"
+    },
+    {
+      "label": "Travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 180,
+      "source": "travelAndEquipment $180 (index.html default)"
+    }
+  ],
+  "specialistModels": "Rec-room vs framed vs legal-living scope kits, ceiling-height scaling, half/full baths, egress windows, bedrooms, stairs, wet bar, HVAC extension and permit coordination."
+}

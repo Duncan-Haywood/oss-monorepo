@@ -1,0 +1,23 @@
+survivors of the 16 directed vectors: 27; formal outcome {'undecided': 9, 'killed': 2, 'equivalent': 16}
+Formal stage over survivors only; leave-one-out predictions; formal runs only where the predictor says 'equivalent'.
+policy                             formal_runs   cpu_s equiv_found kills_lost  LOO_acc
+-- leave-one-out
+always run formal                           27    7414    16/16             0     0.59
+never run formal                             0       0     0/16             2     0.41
+same-kind majority                          19    5627     8/16             0     0.30
+nearest line (1-NN)                         14    3298    14/16             2     0.93
+3 nearest lines (3-NN)                      14    3298    14/16             2     0.93
+best one-split rule on line                 17    4650    14/16             2     0.81
+-- leave-one-line-out
+always run formal                           27    7414    16/16             0     0.59
+never run formal                             0       0     0/16             2     0.41
+same-kind majority                          18    5177     8/16             0     0.33
+nearest line (1-NN)                         14    3298    14/16             2     0.93
+3 nearest lines (3-NN)                      14    3753    12/16             2     0.78
+best one-split rule on line                 15    4204    12/16             2     0.74
+oracle (knows the label)                    16    3746    16/16             2     1.00
+
+Survivors by source line (E equivalent, U undecided, K killed by formal):
+  60K 123U 123U 123U 123U 123U 123U 125K 127E 135U 137E 137U 137U 140E 140E 140E 141E 144E 145E 151E 151E 151E 151E 151E 151E 151E 151E
+
+Timing artifact (excluded feature): mean logged 64-vector random seconds, equivalent 0.157 vs undecided 0.133

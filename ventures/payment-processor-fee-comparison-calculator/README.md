@@ -4,6 +4,8 @@ A free browser tool for small merchants, market vendors, food trucks, salons and
 processor's quote, and see the monthly bill, the yearly bill and the effective rate on your sales**, plus how that rate moves as your average sale shrinks or
 grows. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/payment-processor-fee-comparison-calculator/
+
 After using this, you can now **compare flat-rate, interchange-plus and subscription quotes on the same footing**, which used to be reading three pricing
 pages and guessing how a 30-cent fixed fee behaves on a $6 coffee.
 

@@ -1,0 +1,11 @@
+Half-MBB 60x20, vf 0.5, fixed p 3, rmin 1.5 el. Uniform start (1 run) and 20 random starts of noise +/-0.3.
+c = compliance at p 3; spread = max/min-1; dist-u = median share of elements differing (x>0.5) from the uniform-start design at the same iteration;
+pair = median share differing between two random starts; gray = share of elements with 0.1<x<0.9; maxchg = median over starts of max|dx| in the last update.
+
+iters  uniform_c   c_min    c_median  c_max    spread   beat_uniform  dist-u   pair    holes(min-med-max)  gray    maxchg
+  150    203.21   203.19   203.58   206.10   1.43%    3/20         3.9%  15.4%   2-2-5               21.3%  0.0053
+  300    203.28   203.23   203.36   204.81   0.78%    4/20         1.0%  14.8%   2-2-5               21.3%  0.0009
+  600    203.29   202.75   203.29   204.68   0.95%    7/20         0.2%  14.6%   2-2-5               21.3%  0.0001
+ 1200    203.29   202.84   203.29   204.56   0.85%    5/20         0.0%   0.5%   2-2-5               21.3%  0.0000
+
+total time 426 s

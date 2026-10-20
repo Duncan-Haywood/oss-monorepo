@@ -1,0 +1,25 @@
+Share of 200 random job mixes in which a robot per job is the cheapest fleet (ded_*), with no spares (bare) and
+with spares bought until the service target is met per job (job) or for every job at once (all); and the median cost of
+the cheapest shared fleet relative to dedicated (sh/ded). A = unit availability MTBF/(MTBF+MTTR). Changeover 600 s,
+trays 0.1 to 0.4 m, tolerance 1, 2 or 5 mm. Seed 7.
+
+1. Availability and target: 4 jobs, scatter 0.4 m, demand 0.2
+  J scatter   phi      A target | ded_bare ded_job ded_all | sh/ded bare    job    all
+  4    0.40  0.20  0.900  0.990 |     0.00    0.00    0.00 |        0.68   0.68   0.45
+  4    0.40  0.20  0.900  0.999 |     0.00    0.00    0.00 |        0.68   0.68   0.51
+  4    0.40  0.20  0.950  0.990 |     0.00    0.00    0.00 |        0.68   0.68   0.68
+  4    0.40  0.20  0.950  0.999 |     0.00    0.00    0.00 |        0.68   0.68   0.68
+  4    0.40  0.20  0.990  0.990 |     0.00    0.00    0.00 |        0.68   0.68   0.34
+  4    0.40  0.20  0.990  0.999 |     0.00    0.00    0.00 |        0.68   0.68   0.68
+
+2. Job count: scatter 0.4 m, demand 0.2, A = 0.95, target 0.99
+  J scatter   phi      A target | ded_bare ded_job ded_all | sh/ded bare    job    all
+  2    0.40  0.20  0.950  0.990 |     0.57    0.57    0.57 |        1.03   1.03   1.03
+  4    0.40  0.20  0.950  0.990 |     0.00    0.00    0.00 |        0.68   0.68   0.68
+  8    0.40  0.20  0.950  0.990 |     0.00    0.00    0.00 |        0.81   0.61   0.41
+
+3. Demand (shared load vs one machine): 4 jobs, scatter 0.4 m, A = 0.95, target 0.99
+  J scatter   phi      A target | ded_bare ded_job ded_all | sh/ded bare    job    all
+  4    0.40  0.10  0.950  0.990 |     0.00    0.00    0.00 |        0.67   0.67   0.67
+  4    0.40  0.20  0.950  0.990 |     0.00    0.00    0.00 |        0.68   0.68   0.68
+  4    0.40  0.30  0.950  0.990 |     0.99    0.52    0.52 |        1.34   1.01   1.01

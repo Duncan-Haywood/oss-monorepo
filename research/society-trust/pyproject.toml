@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "society-trust"
+version = "0.1.0"
+description = "Stylised trust dynamics for a robot fleet among people: how one bad incident, gossip with a negativity bias, and robots that explain failures change whether the fleet's reputation recovers"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

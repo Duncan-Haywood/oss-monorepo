@@ -1,0 +1,42 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# It starts in DRY_RUN: set DRY_RUN=false only after you have watched the log.
+services:
+  - type: web
+    name: trial-converter
+    runtime: docker
+    dockerContext: ventures/trial-converter
+    dockerfilePath: ventures/trial-converter/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: DRY_RUN
+        value: "true"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: LINK_SECRET
+        generateValue: true
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: COMPANY_NAME
+        sync: false
+      - key: COMPANY_ADDRESS
+        sync: false
+      - key: EXTEND_DAYS
+        value: "0"
+      - key: ALERT_WEBHOOK_URL
+        sync: false

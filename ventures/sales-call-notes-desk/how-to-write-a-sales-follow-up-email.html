@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to write a sales follow-up email after a call (with a worked example)</title>
+  <meta name="description" content="How to write a sales follow-up email after a discovery call: send it the same day, recap their problem in their words, date every next step, and never add a number you did not hear. Worked example from real-style notes.">
+  <link rel="canonical" href="./how-to-write-a-sales-follow-up-email.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"How to write a sales follow-up email after a call","step":[{"@type":"HowToStep","name":"Send it the same day","text":"Send the recap while both sides remember the call."},{"@type":"HowToStep","name":"Recap the problem in their words","text":"Quote what the contact said about the problem, so they see you listened."},{"@type":"HowToStep","name":"List what each side agreed to do, with dates","text":"Put a date on every step, yours and theirs."},{"@type":"HowToStep","name":"Ask only for what is missing","text":"Ask at most two questions, about decision makers, timeline or budget."},{"@type":"HowToStep","name":"End on one clear next step","text":"Propose a specific time rather than leaving the next move open."}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How long should a sales follow-up email be?","acceptedAnswer":{"@type":"Answer","text":"Under 200 words. It is read on a phone between meetings, so the recap, the agreed steps with dates and one question fit and nothing else needs to."}},{"@type":"Question","name":"When should I send the follow-up email after a call?","acceptedAnswer":{"@type":"Answer","text":"The same day, while both sides remember the call. A recap sent three days later reads as an afterthought and gives the other side time to cool off."}},{"@type":"Question","name":"Should the follow-up email include pricing?","acceptedAnswer":{"@type":"Answer","text":"Only a number the contact said or you both agreed on. A price that first appears in the recap reopens the call in writing. If a quote is the agreed next step, say it is coming by a date and send it separately."}},{"@type":"Question","name":"What if the contact said send me some info?","acceptedAnswer":{"@type":"Answer","text":"Treat it as a request for a meeting, not a document. Ask what they would want to see in it and book fifteen minutes to go through it together, because a deck sent into silence is rarely read."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f4f4f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #2b4ea8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f2a55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f2a55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f5e; }
+    .card { background: #fff; border: 1px solid #d6d9e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f2a5512; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6076; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2b4ea8; color: #fff; font-weight: 700; cursor: pointer; margin: 10px 8px 0 0; }
+    button.secondary { background: #e4e7f2; color: #1f2a55; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef0f8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f2a55; }
+    .rev { border: 1px solid #d6d9e4; border-radius: 12px; padding: 14px; margin: 14px 0; background: #fcfcfe; }
+    .rev blockquote { margin: 6px 0 10px; padding-left: 12px; border-left: 3px solid #b8bfdc; color: #333a52; }
+    .rev textarea { min-height: 120px; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin: 0 6px 4px 0; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.mid { background: #fdf0d5; color: #5c4508; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 8px 12px; margin: 8px 0; color: #5c4508; font-size: .9rem; }
+    .err { background: #f8d9d6; border-radius: 10px; padding: 8px 12px; margin: 8px 0; color: #7d1f16; font-size: .9rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d6d9e4; padding-top: 16px; }
+    details summary { cursor: pointer; font-weight: 700; color: #1f2a55; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  
+    .ev { font-size: .86rem; color: #4a4f5e; margin: 2px 0 0 14px; }
+    table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #d6d9e4; vertical-align: top; }
+    .scroll { overflow-x: auto; }
+    pre { white-space: pre-wrap; background: #fcfcfe; border: 1px solid #d6d9e4; border-radius: 10px; padding: 12px; font: 14px/1.5 system-ui, sans-serif; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">Sales Call Notes Desk</a> · guide</p>
+    <h1>How to write a sales follow-up email after a call</h1>
+    <p>The follow-up email decides whether the next call happens. It should take two minutes to write and be impossible to misread: what you heard, who does what by when, and the one thing you still need. Here is the method, with a worked example produced from the call notes below by the free <a href="./index.html">Sales Call Notes Desk</a>.</p>
+  </header>
+  <section class="card">
+    <h2>The five rules</h2>
+    <ol>
+      <li><strong>Send it the same day.</strong> A recap three days later reads as an afterthought.</li>
+      <li><strong>Recap their problem in their words.</strong> A quoted sentence proves you listened better than any adjective.</li>
+      <li><strong>Date every next step, yours and theirs.</strong> An undated step is a hope. The tool flags a call with no dated next step.</li>
+      <li><strong>Ask for at most two things.</strong> Pick from decision maker, timeline and budget, whichever the call left blank.</li>
+      <li><strong>Add nothing you did not hear.</strong> No new price, discount or promise. A number first appearing in the recap reopens the call in writing.</li>
+    </ol>
+  </section>
+  <section class="card">
+    <h2>Worked example</h2>
+    <p>The notes (invented):</p>
+    <pre id="ex-notes">Call with Dana Reyes (Ops Director), Brightline Logistics, 45 min.
+Dana: Right now dispatch builds the weekly routes by hand in spreadsheets. It takes two people about 12 hours a week and we still get errors, maybe 8% of stops are wrong.
+Dana: We looked at RouteWorks last year but it was too expensive for our size.
+Dana: Budget is roughly $20k a year, I'd have to check with Marcus (CFO) because he signs off on anything over $15k.
+Dana: We have to be live before peak season starts on January 15.
+Dana: Security review with their IT team takes about three weeks. Must have a QuickBooks integration.
+Me: I'll send the sample route comparison by Tuesday.
+Dana: I'll loop in Marcus and get you thirty minutes with him.
+Me: I'll book a follow-up with Marcus for next Thursday.</pre>
+    <p>The tool finds 9 of 9 qualification fields answered, flags no risks, and drafts this email, which you edit and send yourself:</p>
+    <pre id="ex-email">Hi Dana,
+
+Thanks for the time on Brightline Logistics. A quick recap so we are working from the same page.
+
+What I heard:
+- Right now dispatch builds the weekly routes by hand in spreadsheets.
+- It takes two people about 12 hours a week and we still get errors, maybe 8% of stops are wrong.
+
+What we agreed:
+- I will send the sample route comparison by Tuesday (Tue, Oct 20)
+- I will book a follow-up with Marcus for next Thursday (Thu, Oct 22)
+
+On your side, as I noted it:
+- “I'll loop in Marcus and get you thirty minutes with him”
+
+Let me know if I got anything wrong.
+
+Sam</pre>
+    <p class="note">Dates are worked out from a call on Saturday 17 October 2026. <a href="./index.html">Paste your own notes</a> to do the same, free, in your browser.</p>
+  </section>
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>How long should a sales follow-up email be?</h3>
+    <p>Under 200 words. It is read on a phone between meetings, so the recap, the agreed steps with dates and one question fit and nothing else needs to.</p>
+    <h3>When should I send the follow-up email after a call?</h3>
+    <p>The same day, while both sides remember the call. A recap sent three days later reads as an afterthought and gives the other side time to cool off.</p>
+    <h3>Should the follow-up email include pricing?</h3>
+    <p>Only a number the contact said or you both agreed on. A price that first appears in the recap reopens the call in writing. If a quote is the agreed next step, say it is coming by a date and send it separately.</p>
+    <h3>What if the contact said send me some info?</h3>
+    <p>Treat it as a request for a meeting, not a document. Ask what they would want to see in it and book fifteen minutes to go through it together, because a deck sent into silence is rarely read.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal or sales-compliance advice; follow the laws that apply to your outreach, such as CAN-SPAM, GDPR and call-recording consent.</p>
+    <p><a href="./index.html">Sales Call Notes Desk</a> runs in your browser and uploads nothing. <a href="LICENSE">MIT licence</a>.</p>
+  </footer>
+</body>
+</html>

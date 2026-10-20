@@ -5,6 +5,8 @@ and cross-references a chosen set of US states against a fixed table of
 which ones currently require a posted pay range — citing the law, effective
 date, and employer-size threshold.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/
+
 **What it is not:** legal advice, a substitute for a licensed employment
 attorney, or a guarantee that a specific posting is compliant. It is a
 literal text-pattern scan plus a reference lookup against a fixed table —

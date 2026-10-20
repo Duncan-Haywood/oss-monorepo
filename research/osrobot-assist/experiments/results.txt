@@ -1,0 +1,60 @@
+# Sweep 1: design against head-sway amplitude (200 trials each; safe = fed with peak lip force <= 2.0 N; touch = share of trials with any lip contact)
+design                       amp_mm     fed   safe  touch peak_mean peak_max   time_s
+open loop, 0.05 m/s              0    1.00   1.00   0.00      0.00     0.00     2.81
+open loop, 0.20 m/s              0    1.00   1.00   0.00      0.00     0.00     0.71
+camera, 0.05 m/s                 0    1.00   1.00   0.00      0.00     0.00     2.89
+camera, 0.20 m/s                 0    1.00   1.00   0.00      0.00     0.00     0.73
+camera, 0.20 m/s, 1 N cap        0    1.00   1.00   0.00      0.00     0.00     0.75
+camera, 0.20 m/s, 0.5 N cap      0    1.00   1.00   0.00      0.00     0.00     0.78
+
+open loop, 0.05 m/s             10    1.00   1.00   0.07      0.05     1.00     2.82
+open loop, 0.20 m/s             10    1.00   0.93   0.08      0.26     3.99     0.72
+camera, 0.05 m/s                10    1.00   1.00   0.00      0.00     0.00     2.94
+camera, 0.20 m/s                10    1.00   1.00   0.00      0.00     0.00     0.74
+camera, 0.20 m/s, 1 N cap       10    1.00   1.00   0.00      0.00     0.00     0.76
+camera, 0.20 m/s, 0.5 N cap     10    1.00   1.00   0.00      0.00     0.00     0.81
+
+open loop, 0.05 m/s             20    1.00   1.00   0.56      0.55     1.00     3.07
+open loop, 0.20 m/s             20    1.00   0.36   0.65      2.53     4.00     1.00
+camera, 0.05 m/s                20    1.00   1.00   0.21      0.19     1.00     3.14
+camera, 0.20 m/s                20    1.00   0.91   0.12      0.39     4.00     0.78
+camera, 0.20 m/s, 1 N cap       20    1.00   0.89   0.12      0.32     2.70     0.82
+camera, 0.20 m/s, 0.5 N cap     20    1.00   0.84   0.15      0.38     2.44     0.90
+
+open loop, 0.05 m/s             30    1.00   1.00   0.72      0.69     1.00     3.22
+open loop, 0.20 m/s             30    1.00   0.21   0.80      3.12     4.00     1.19
+camera, 0.05 m/s                30    1.00   1.00   0.40      0.37     1.00     3.47
+camera, 0.20 m/s                30    1.00   0.71   0.30      1.15     4.00     0.88
+camera, 0.20 m/s, 1 N cap       30    1.00   0.63   0.38      1.00     2.70     0.96
+camera, 0.20 m/s, 0.5 N cap     30    1.00   0.60   0.41      0.99     2.44     1.07
+
+open loop, 0.05 m/s             50    1.00   1.00   0.83      0.81     1.00     3.36
+open loop, 0.20 m/s             50    1.00   0.14   0.86      3.40     4.00     1.31
+camera, 0.05 m/s                50    1.00   1.00   0.56      0.52     1.00     4.41
+camera, 0.20 m/s                50    1.00   0.42   0.58      2.26     4.00     1.12
+camera, 0.20 m/s, 1 N cap       50    1.00   0.44   0.57      1.52     2.70     1.21
+camera, 0.20 m/s, 0.5 N cap     50    1.00   0.41   0.61      1.46     2.44     1.41
+
+# Sweep 2: approach speed, camera design, sway amplitude 30 mm
+design                       amp_mm     fed   safe  touch peak_mean peak_max   time_s
+camera, 0.02 m/s                30    1.00   1.00   0.28      0.10     0.40     8.60
+camera, 0.05 m/s                30    1.00   1.00   0.40      0.37     1.00     3.47
+camera, 0.10 m/s                30    1.00   1.00   0.47      0.91     2.00     1.77
+camera, 0.20 m/s                30    1.00   0.71   0.30      1.15     4.00     0.88
+camera, 0.30 m/s                30    1.00   0.79   0.21      0.83     4.01     0.59
+camera, 0.50 m/s                30    1.00   0.66   0.35      1.38     4.02     0.38
+
+# Sweep 3: sensing latency, camera design at 0.10 m/s, sway amplitude 30 mm
+design                       amp_mm     fed   safe  touch peak_mean peak_max   time_s
+camera, delay 0.00 s            30    1.00   1.00   0.07      0.10     2.00     1.71
+camera, delay 0.05 s            30    1.00   1.00   0.30      0.57     2.00     1.74
+camera, delay 0.10 s            30    1.00   1.00   0.47      0.91     2.00     1.77
+camera, delay 0.20 s            30    1.00   1.00   0.61      1.15     2.00     1.80
+camera, delay 0.40 s            30    1.00   1.00   0.71      1.37     2.00     1.83
+
+# Sweep 4: sensing noise, camera design at 0.10 m/s, sway amplitude 30 mm
+design                       amp_mm     fed   safe  touch peak_mean peak_max   time_s
+camera, noise 0 mm              30    1.00   1.00   0.49      0.92     2.00     1.68
+camera, noise 3 mm              30    1.00   1.00   0.47      0.91     2.00     1.77
+camera, noise 6 mm              30    1.00   1.00   0.38      0.71     2.00     2.04
+camera, noise 12 mm             30    1.00   1.00   0.46      0.78     2.00     2.93

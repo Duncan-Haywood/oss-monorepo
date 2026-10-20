@@ -51,7 +51,7 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./plan.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   assert.doesNotMatch(page("calc.mjs"), /^\s*import\s/m);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
@@ -84,7 +84,7 @@ test("page documents the rules and what it leaves out", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["analysis_run", "example_loaded", "file_loaded", "report_downloaded"]) {
+  for (const e of ["analysis_run", "example_loaded", "file_loaded", "report_downloaded", "plan_run", "design_run"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
@@ -98,4 +98,12 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: ad-incrementality-test-analyzer$/m);
+});
+
+test("the design planner is on the page, wired to its own usage event, and stays local", () => {
+  const html = page("index.html");
+  assert.match(html, /id="design-planner"/);
+  assert.match(html, /record\("design_run"\)/);
+  assert.match(html, /<code>design_run<\/code>/);
+  assert.doesNotMatch(page("plan.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
 });

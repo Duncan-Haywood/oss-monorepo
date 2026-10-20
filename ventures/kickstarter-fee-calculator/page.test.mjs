@@ -69,13 +69,14 @@ test('the worked example on load matches calculateCampaign for the shipped defau
   assert.match(markup, /value="150"/);
 });
 
-test('index links one hop to the stockx-seller-payout-calculator sibling', () => {
-  assert.match(
-    markup,
-    /href="\.\.\/stockx-seller-payout-calculator\/"/,
-    'index must link ../stockx-seller-payout-calculator/ so crawlers reach that calculator in one hop',
-  );
-  assert.match(markup, /StockX seller payout calculator/i);
+test('index links one hop to the patreon and merchant-of-record siblings', () => {
+  for (const slug of ['patreon-fee-calculator', 'merchant-of-record-fee-calculator']) {
+    assert.match(
+      markup,
+      new RegExp(`href="\\.\\./${slug}/"`),
+      `index must link ../${slug}/ so crawlers reach that calculator in one hop`,
+    );
+  }
 });
 
 test('the FAQPage JSON-LD questions match the visible FAQ headings', () => {

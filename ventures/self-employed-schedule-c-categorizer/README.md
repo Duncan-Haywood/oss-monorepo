@@ -4,6 +4,8 @@ A free browser tool for freelancers, sole proprietors and gig workers: **drop in
 CSV and get every transaction sorted into an IRS Schedule C line.** The file is read in the
 browser; nothing is uploaded and no bank login is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/self-employed-schedule-c-categorizer/
+
 After using this, you can now **see gross receipts and each expense line per business, which
 transactions could not be categorised, whether your deposits are short of your 1099 gross because
 platforms took their fees first, what was held out because it is not a Schedule C expense, and

@@ -236,3 +236,18 @@ test("formatting helpers and defaults", () => {
   assert.ok(parseSeasons(sampleSeasons()).rows.length === 3);
   assert.equal(parseSeasons(sampleSeasons()).warnings.length, 0);
 });
+
+test("sub-renting overflow adds its margin to profit and never raises the best fleet size", () => {
+  const se = seasons("S,100,2");
+  const base = analyticYear(2, se, 1.5, E);
+  const ov = analyticYear(2, se, 1.5, { ...E, overflowMargin: 20, overflowShare: 50 });
+  assert.ok(Math.abs(ov.overflow - base.turnedAway * 10) < 1e-9);
+  assert.ok(Math.abs(ov.profit - (base.profit + base.turnedAway * 10)) < 1e-9);
+  const dur = [{ days: 1, share: 1 }, { days: 2, share: 1 }].map((d) => ({ ...d, share: 0.5 }));
+  const a = analyze(se, dur, { ...E, years: 40 });
+  const b = analyze(se, dur, { ...E, years: 40, overflowMargin: 40, overflowShare: 100 });
+  assert.ok(b.recommendedUnits <= a.recommendedUnits);
+  assert.match(b.verdict, /sub-rent/);
+  assert.ok(analyze(se, dur, { ...E, overflowShare: 120 }).error);
+  assert.ok(analyze(se, dur, { ...E, overflowMargin: -1 }).error);
+});

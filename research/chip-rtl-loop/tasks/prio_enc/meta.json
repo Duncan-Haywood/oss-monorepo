@@ -1,0 +1,20 @@
+{
+ "top": "prio_enc",
+ "kind": "comb",
+ "inputs": [
+  [
+   "req",
+   8
+  ]
+ ],
+ "outputs": [
+  [
+   "idx",
+   3
+  ],
+  [
+   "valid",
+   1
+  ]
+ ]
+}

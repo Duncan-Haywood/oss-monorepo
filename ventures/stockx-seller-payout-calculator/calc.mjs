@@ -141,6 +141,53 @@ export function calculate(input) {
 }
 
 /**
+ * The sale price that leaves exactly `targetProfit` after the percentage fees
+ * (which scale with the price) and the flat costs (which do not): the
+ * calculation run backwards. `targetProfit` 0 is the break-even price.
+ * Returns null when the percentage fees take the whole price or more, since
+ * no price can then reach the target.
+ */
+export function priceForProfit(input, targetProfit = 0) {
+  const itemCostBasis = number(input.itemCostBasis, 'Item cost basis');
+  const sellerFeePct = number(input.sellerFeePct, 'Seller fee percentage', { max: 100 });
+  const fastShippingDiscountPct = number(input.fastShippingDiscountPct, 'Fast Shipping discount percentage', { max: 100 });
+  const paymentProcessingFeePct = number(input.paymentProcessingFeePct, 'Payment processing fee percentage', { max: 100 });
+  const shippingCost = number(input.shippingCost, 'Shipping cost');
+  const otherCost = number(input.otherCost ?? 0, 'Other per-sale costs');
+  const target = number(targetProfit, 'Target profit');
+  const keep = 1 - (Math.max(0, sellerFeePct - fastShippingDiscountPct) + paymentProcessingFeePct) / 100;
+  if (keep <= 0) return null;
+  return (itemCostBasis + shippingCost + otherCost + target) / keep;
+}
+
+/**
+ * What a Seller Level change (or Fast Shipping enrollment) is worth: the same
+ * sale re-priced at each candidate seller-fee percentage, with the profit
+ * difference against the sale as entered, per sale and over a month.
+ * The rates are the seller's own to read off the dashboard; none is assumed.
+ *
+ * @param {object} input The same fields `calculate` takes (the baseline).
+ * @param {number[]} feeRates Candidate seller-fee percentages (before the
+ *   Fast Shipping discount, which stays as entered).
+ * @param {number} salesPerMonth Sales a month at this price, for the
+ *   monthly figure. 0 gives a per-sale view only.
+ */
+export function levelLadder(input, feeRates, salesPerMonth = 0) {
+  const sales = number(salesPerMonth, 'Sales per month');
+  const base = calculate(input).netProfit;
+  return feeRates.map((rate) => {
+    const r = calculate({ ...input, sellerFeePct: rate });
+    const deltaPerSale = r.netProfit - base;
+    return {
+      sellerFeePct: rate,
+      netProfit: r.netProfit,
+      deltaPerSale,
+      deltaPerMonth: deltaPerSale * sales,
+    };
+  });
+}
+
+/**
  * Roll a list of sales' net profit up into total profit for the month.
  * @param {{netProfit: number}[]} sales
  */

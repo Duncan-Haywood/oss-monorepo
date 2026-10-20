@@ -1,0 +1,55 @@
+{
+  "slug": "paver-patio-bid-calculator",
+  "name": "Paver patio",
+  "group": "Paving, concrete & masonry",
+  "summary": "Interlocking paver patios priced from area, pattern waste, base depth, edge restraint and haul-away.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 32,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 22,
+  "items": [
+    {
+      "label": "Excavate and haul spoils",
+      "unit": "sq ft",
+      "qty": 192,
+      "hoursPerUnit": 0.01447,
+      "materialPerUnit": 1.591,
+      "source": "12x16 ft patio (index.html); dig 6 in base + 1 in bedding + 2.375 in paver = 9.375 in = 0.02894 cu yd/sq ft at 2 cu yd/h; haul-away $55/cu yd, haul checked (index.html defaults, calc.mjs formulas)"
+    },
+    {
+      "label": "Gravel base and bedding sand",
+      "unit": "sq ft",
+      "qty": 192,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 1.049,
+      "source": "6 in gravel at $48/cu yd + 1 in bedding sand at $52/cu yd per sq ft (index.html defaults); the specialist puts base placement inside install hours"
+    },
+    {
+      "label": "Lay running-bond pavers and polymeric sand",
+      "unit": "sq ft",
+      "qty": 192,
+      "hoursPerUnit": 0.08,
+      "materialPerUnit": 5.253,
+      "source": "0.08 h/finished sq ft x pattern factor 1; pavers $4.50/sq ft x 1.07 (7% running-bond waste) + polymeric sand 3 bags (80 sq ft/bag, rounded up) x $28 over 192 sq ft (index.html, PATTERN_PRESETS)"
+    },
+    {
+      "label": "Edge restraint",
+      "unit": "linear ft",
+      "qty": 56,
+      "hoursPerUnit": 0.05,
+      "materialPerUnit": 3.75,
+      "source": "Perimeter 2 x (12 + 16) = 56 lf (patioPerimeterLf in calc.mjs); 0.05 h and $3.75 per foot (index.html)"
+    },
+    {
+      "label": "Travel, machine and dump fee",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 375,
+      "source": "travelAndEquipment $375 (index.html default)"
+    }
+  ],
+  "specialistModels": "Pattern waste and cut-labor factors, base depth by use (patio vs driveway), excavation volume from total depth, and whole-bag polymeric sand."
+}

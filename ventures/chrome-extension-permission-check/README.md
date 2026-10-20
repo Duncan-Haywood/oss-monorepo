@@ -6,6 +6,8 @@ source for **`chrome.*` API usage** and cross-checks it against your
 `host_permissions`. It names the exact permission behind the two problems that
 matter here:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/
+
 - **Declared, not used** -- a permission sits in the manifest with no matching
   API call anywhere in the source you point it at. This is what Chrome Web
   Store's own troubleshooting documentation calls the single most common

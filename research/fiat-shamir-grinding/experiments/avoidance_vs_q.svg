@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the probability that q grinding samples all avoid the bad set, against q: the exact value falls below the with-replacement and exponential approximations">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Fiat-Shamir grinding: probability of avoiding the k bad slots</text>
+<line x1="64" x2="624" y1="282.2" y2="282.2" stroke="#ddd"/><text x="58" y="286.2" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="163.4" y2="163.4" stroke="#ddd"/><text x="58" y="167.4" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="144.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="304.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">samples q</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">avoidance probability</text>
+<polyline points="64.0,71.1 144.0,99.2 304.0,160.3 624.0,309.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.1" r="3" fill="#c0392b"/>
+<circle cx="144.0" cy="99.2" r="3" fill="#c0392b"/>
+<circle cx="304.0" cy="160.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="309.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">exact</text>
+<polyline points="64.0,70.5 144.0,96.4 304.0,148.3 624.0,252.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="70.5" r="3" fill="#1f6fb2"/>
+<circle cx="144.0" cy="96.4" r="3" fill="#1f6fb2"/>
+<circle cx="304.0" cy="148.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="252.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">with replacement</text>
+<polyline points="64.0,70.4 144.0,96.2 304.0,147.7 624.0,250.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#2e8b57"/>
+<circle cx="144.0" cy="96.2" r="3" fill="#2e8b57"/>
+<circle cx="304.0" cy="147.7" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="250.9" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">exp(-qk/T)</text>
+</svg>

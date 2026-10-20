@@ -4,6 +4,8 @@ Free, browser-only wedding day timeline. Enter the date, a nearby city, the
 ceremony time and the time the music has to stop, and get a minute-by-minute
 schedule:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wedding-day-timeline-builder/
+
 - **hair and makeup** start time worked backwards from when the dress goes on,
   with the list split across your artists (longest job first) and each person's
   start and finish shown;

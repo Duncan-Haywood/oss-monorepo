@@ -1,0 +1,71 @@
+# Meeting Action Items
+
+A free tool that turns meeting notes or a transcript into **action items with an owner and a due date, the decisions made,
+the questions still open, and a follow-up email grouped by person**. It runs in your browser; nothing is uploaded unless you turn on the optional AI pass.
+
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/meeting-action-items/
+
+After using this, you can **leave a meeting with a list of who does what by when, and send it the same day**, without a
+recording bot joining the call or sending your audio to a vendor's servers.
+
+## What you use today, and what this does differently
+
+- **Recording note-takers** (Otter, Fireflies, Fathom and similar): they join the call, transcribe it and keep the audio on
+  their servers, usually on a paid plan once free minutes run out. Better at capturing a call you did not take notes on.
+- **By hand:** free, and the step most teams skip.
+- **This:** starts from notes or a transcript you already have, uses fixed rules you can read in `extract.mjs`, works
+  offline, and **flags an item that has no owner instead of guessing one**. It will miss a commitment worded in an unusual
+  way; it will not make one up.
+
+## What it recognises
+
+- `Ben: I'll fix the toggle by Wednesday.` (speaker commits; owner is the speaker)
+- `Cleo will book the venue next Friday.`, `Mike and Priya will prepare the deck.` (named owner, one or two people)
+- `John, can you check the contract?` followed by John's `I will check it.` (one item, not two)
+- `ACTION: Ana to draft the email by Nov 3`, `TODO: @ben renew the domain`, `- [ ] Dev follow up with legal in 2 weeks`,
+  `Send invoices - Cleo`, `(owner: Dev)`
+- `We need to update the checklist.` (an item with **no owner**, listed as such)
+- `We decided to keep the free tier`, `Decision: ...` (decisions); `Q: ...` and open "who/when/how" questions
+- Hedges (`maybe`, `if there's time`) lower the confidence; past tense and `will be` are ignored.
+
+Dates are worked out from the meeting date you give: a bare weekday is the next one after the meeting, `next Friday` is
+Friday of next week, `end of the week` is Friday, plus `tomorrow`, `EOD`, `in 2 weeks`, `Nov 3`, `11/3`, `the 28th`,
+ISO dates. Without a meeting date the phrase is kept as written and the row says so.
+
+## CLI
+
+```
+node cli.mjs notes.txt --date 2026-10-19 --attendees "Ana,Ben,Cleo" --format email   # md | csv | ics | email | slack | json
+node cli.mjs notes.txt --date 2026-10-26 --previous last-week.json   # last week's `--format json` output
+```
+
+`--format slack` prints Slack formatting to paste into a channel. `--previous` adds a "From the last meeting" section: last meeting's
+actions that are past due and not mentioned today, those discussed again, and those not yet due. It never marks anything done;
+silence in the notes is a prompt to ask, not a verdict.
+
+md, slack and email output end with a "Heads-up: loaded owners" section when someone has 3+ actions or 2+ due the same day (JSON carries `workload`). It counts only what the notes say.
+
+Exit 0 when every action has an owner, 1 when one does not (usable as a check), 2 on unreadable input. Zero dependencies,
+Node 18+.
+
+## Optional AI pass (your own key)
+
+For messy transcripts the rules miss, add `--ai` on the CLI (key from `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` or
+`LLM_*`) or pick a provider under "Optional: add an AI pass" on the page. It is off by default, and the notes go straight to the
+provider you choose, so use it only on notes you may share. The model is never trusted: each suggestion must quote your notes
+word for word, its owner must be named in the notes or attendee list (otherwise it is left without one), its date is worked out
+from that quote by the same date rules, and anything unsupported is dropped and counted. Kept items are marked low confidence.
+Without a key, or if the call fails, you get the rules result and a line saying so. Shared client: `platform/llm/byok.mjs`
+(`byok.mjs` here is a synced copy; `ai.test.mjs` fails if they drift).
+
+## Limits
+
+Pattern matching, not language understanding, unless you add the AI pass. English only. It reads what was written; it is not a
+record of what anyone agreed. Review the list before you send it.
+
+## Files
+
+`extract.mjs` (engine, shared by page and CLI), `ai.mjs` + `byok.mjs` (optional AI pass), `cli.mjs`, `index.html`, `how-to-write-meeting-action-items.html`,
+`usage.mjs` (opt-out local counters), tests: `node --test ventures/meeting-action-items/*.test.mjs`.
+
+MIT licensed. Free; support via GitHub Sponsors is optional.

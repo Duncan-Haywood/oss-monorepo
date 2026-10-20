@@ -78,3 +78,9 @@ test("num and money parse and format", () => {
   assert.ok(Number.isNaN(num("")));
   assert.equal(money(-1234.4), "-$1,234");
 });
+
+test("an absurd loan term is refused instead of looping over billions of months", () => {
+  const r = analyze({ ...DEFAULTS, loan: 400000, term: 1e12 });
+  assert.equal(r.rows.length, 0);
+  assert.ok(r.warnings.some((w) => /100 years or less/.test(w)));
+});

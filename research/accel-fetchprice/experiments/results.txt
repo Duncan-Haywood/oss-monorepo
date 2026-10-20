@@ -1,0 +1,15 @@
+Breakeven constants from RTL counts (accel-planebatch, P = 8). No energy constant here is measured.
+e_flop* = weight-fetch energies saved / (extra flops x cycles), in units of one weight fetch per flop-cycle.
+r_psum* = psum SRAM word energy / weight fetch energy at which the model's WS (psum in SRAM) ties OS.
+
+shape      B w_saved extra_flops cycles  e_flop*/e_w psum_extra  r_psum*
+L1 64x70   1       0           0    562            -          0        -
+L1 64x70   2    4480         193   1122     2.07e-02      17664    0.254
+L1 64x70   4   13440         578   2242     1.04e-02      35328    0.380
+L1 64x70   8   31360        1347   4482     5.19e-03      70656    0.444
+L1 64x70  16   67200        2884   8962     2.60e-03     141312    0.476
+L2 11x64   1       0           0    130            -          0        -
+L2 11x64   2     704         193    258     1.41e-02       2772    0.254
+L2 11x64   4    2112         578    514     7.11e-03       5544    0.381
+L2 11x64   8    4928        1347   1026     3.57e-03      11088    0.444
+L2 11x64  16   10560        2884   2050     1.79e-03      22176    0.476

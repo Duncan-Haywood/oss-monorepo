@@ -5,6 +5,8 @@ A free browser tool for people who want to draw on an IRA before age 59½ withou
 fixed amortization, the lock-in length, the balance needed for an income target, and the penalty exposure if the
 schedule is broken.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rule-72t-sepp-calculator/
+
 After using this, you can now **see how large an IRA you need to fund early retirement through a 72(t) schedule,
 and what stopping it would cost, before you take the first payment**.
 

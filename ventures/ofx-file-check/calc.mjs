@@ -329,6 +329,12 @@ function analyze(input) {
     if (a.acct.ACCTTYPE?.value && !ACCT_TYPES.has(a.acct.ACCTTYPE.value.toUpperCase())) add("error", a.acct.ACCTTYPE.off, "Invalid ACCTTYPE", `"${a.acct.ACCTTYPE.value}" is not CHECKING, SAVINGS, MONEYMRKT, CREDITLINE or CD.`);
     if (a.acct.ACCTID?.value && a.acct.ACCTID.value.length > 22) add("warning", a.acct.ACCTID.off, "ACCTID longer than 22 characters", "OFX 1.x limits ACCTID to 22 characters; some importers truncate or reject longer ones.");
     if (!a.f.CURDEF?.value) add("warning", a.off, "Statement has no CURDEF", "The currency (for example USD) is expected on every statement.");
+    else if (!/^[A-Z]{3}$/.test(a.f.CURDEF.value)) add("error", a.f.CURDEF.off, "CURDEF is not an ISO 4217 code", `"${a.f.CURDEF.value}" must be three capital letters such as USD, EUR or GBP. Not changed: the right currency depends on the account.`);
+    const bid = a.acct.BANKID?.value;
+    if (bid && /^\d{9}$/.test(bid)) {
+      const d = [...bid].map(Number);
+      if ((3 * (d[0] + d[3] + d[6]) + 7 * (d[1] + d[4] + d[7]) + (d[2] + d[5] + d[8])) % 10 !== 0) add("warning", a.acct.BANKID.off, "BANKID fails the ABA routing-number checksum", `${bid} is nine digits but is not a valid US routing number (check digit mismatch). Ignore this for non-US banks; a mistyped routing number makes QuickBooks match the file to the wrong bank.`);
+    }
     const s = a.f.DTSTART, e = a.f.DTEND;
     {
       if (!s || !s.value) add("error", a.off, "BANKTRANLIST has no DTSTART", "The statement period start date is required.");
@@ -359,6 +365,7 @@ function analyze(input) {
     }
     const tt = f.TRNTYPE?.value;
     if (tt && !TRN_TYPES.has(tt.toUpperCase())) add("warning", f.TRNTYPE.off, "Unknown TRNTYPE", `"${tt}" is not an OFX transaction type (CREDIT, DEBIT, CHECK, XFER, ...).`);
+    if (tt && tt.toUpperCase() === "CHECK" && !f.CHECKNUM?.value) add("info", f.TRNTYPE.off, "CHECK transaction has no CHECKNUM", "Importers show the check number in the register; without it the entry cannot be matched to the paper check.");
     let day = "";
     if (f.DTPOSTED?.value) {
       const ck = checkOfxDate(f.DTPOSTED.value);
@@ -514,7 +521,7 @@ export function sampleFile() {
     "OFXHEADER:100", "DATA:OFXSGML", "VERSION:102", "SECURITY:NONE", "ENCODING:USASCII", "CHARSET:1252", "COMPRESSION:NONE", "OLDFILEUID:NONE", "NEWFILEUID:NONE", "",
     "<OFX>", "<SIGNONMSGSRSV1>", "<SONRS>", "<STATUS>", "<CODE>0", "<SEVERITY>INFO", "</STATUS>", "<DTSERVER>20240315120000", "<LANGUAGE>ENG", "</SONRS>", "</SIGNONMSGSRSV1>",
     "<BANKMSGSRSV1>", "<STMTTRNRS>", "<TRNUID>1", "<STATUS>", "<CODE>0", "<SEVERITY>INFO", "</STATUS>",
-    "<STMTRS>", "<CURDEF>USD", "<BANKACCTFROM>", "<BANKID>123456789", "<ACCTID>000111222", "<ACCTTYPE>CHECKING", "</BANKACCTFROM>",
+    "<STMTRS>", "<CURDEF>USD", "<BANKACCTFROM>", "<BANKID>021000021", "<ACCTID>000111222", "<ACCTTYPE>CHECKING", "</BANKACCTFROM>",
     "<BANKTRANLIST>", "<DTSTART>20240301", "<DTEND>20240315",
     "<STMTTRN>", "<TRNTYPE>DEBIT", "<DTPOSTED>20240304120000", "<TRNAMT>-45.20", "<FITID>2024030401", "<NAME>CORNER COFFEE", "<MEMO>Card purchase", "</STMTTRN>",
     "<STMTTRN>", "<TRNTYPE>CREDIT", "<DTPOSTED>20240308120000", "<TRNAMT>1250.00", "<FITID>2024030802", "<NAME>CLIENT PAYMENT", "</STMTTRN>",
@@ -528,7 +535,7 @@ export function sampleBrokenFile() {
     "OFXHEADER:100", "DATA:OFXSGML", "VERSION:102", "SECURITY:NONE", "ENCODING:USASCII", "CHARSET:1252", "OLDFILEUID:NONE", "",
     "<OFX>", "<SIGNONMSGSRSV1>", "<SONRS>", "<STATUS>", "<CODE>0", "<SEVERITY>INFO", "</STATUS>", "<DTSERVER>20240315120000", "<LANGUAGE>ENG", "</SONRS>", "</SIGNONMSGSRSV1>",
     "<BANKMSGSRSV1>", "<STMTTRNRS>", "<TRNUID>1", "<STATUS>", "<CODE>0", "<SEVERITY>INFO", "</STATUS>",
-    "<STMTRS>", "<CURDEF>USD", "<BANKACCTFROM>", "<BANKID>123456789", "<ACCTID>000111222", "<ACCTTYPE>CHECKING", "</BANKACCTFROM>",
+    "<STMTRS>", "<CURDEF>USD", "<BANKACCTFROM>", "<BANKID>021000021", "<ACCTID>000111222", "<ACCTTYPE>CHECKING", "</BANKACCTFROM>",
     "<BANKTRANLIST>", "<DTSTART>20240301", "<DTEND>20240310",
     "<STMTTRN>", "<TRNTYPE>DEBIT", "<DTPOSTED>2024-03-04", "<TRNAMT>-45.20", "<FITID>2024030401", "<NAME>AT&T WIRELESS", "<MEMO>Card purchase", "</STMTTRN>",
     "<STMTTRN>", "<TRNTYPE>CREDIT", "<DTPOSTED>20240308120000", "<TRNAMT>1250.00", "<FITID>2024030401", "<NAME>CLIENT PAYMENT", "</STMTTRN>",

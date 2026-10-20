@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Range bias in cells against speed over unambiguous speed: compensating with the wrapped Doppler speed removes the bias below V and is no better than none above it">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Range-Doppler bias, fast preset: with and without compensation (stylised)</text>
+<line x1="64" x2="624" y1="328.0" y2="328.0" stroke="#ddd"/><text x="58" y="332.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="262.5" y2="262.5" stroke="#ddd"/><text x="58" y="266.5" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="197.1" y2="197.1" stroke="#ddd"/><text x="58" y="201.1" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="131.6" y2="131.6" stroke="#ddd"/><text x="58" y="135.6" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<line x1="64" x2="624" y1="66.2" y2="66.2" stroke="#ddd"/><text x="58" y="70.2" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<text x="92.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="148.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.9</text>
+<text x="204.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">1.1</text>
+<text x="260.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="316.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">1.9</text>
+<text x="372.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">2.5</text>
+<text x="428.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">2.9</text>
+<text x="484.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">3.3</text>
+<text x="540.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">3.7</text>
+<text x="596.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">speed v / V (V = unambiguous speed)</text>
+<text x="14" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 184.0)">range bias (cells)</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="92.0,306.2 148.0,288.7 204.0,280.0 260.0,262.5 316.0,245.1 372.0,218.9 428.0,201.5 484.0,184.0 540.0,166.5 596.0,109.8"/>
+<circle cx="92.0" cy="306.2" r="3" fill="#1f6fb2"/>
+<circle cx="148.0" cy="288.7" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="280.0" r="3" fill="#1f6fb2"/>
+<circle cx="260.0" cy="262.5" r="3" fill="#1f6fb2"/>
+<circle cx="316.0" cy="245.1" r="3" fill="#1f6fb2"/>
+<circle cx="372.0" cy="218.9" r="3" fill="#1f6fb2"/>
+<circle cx="428.0" cy="201.5" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="184.0" r="3" fill="#1f6fb2"/>
+<circle cx="540.0" cy="166.5" r="3" fill="#1f6fb2"/>
+<circle cx="596.0" cy="109.8" r="3" fill="#1f6fb2"/>
+<line x1="390" x2="414" y1="74" y2="74" stroke="#1f6fb2" stroke-width="2"/><text x="420" y="78" font-family="sans-serif" font-size="11">uncorrected</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="92.0,328.0 148.0,328.0 204.0,240.7 260.0,240.7 316.0,240.7 372.0,240.7 428.0,240.7 484.0,153.5 540.0,153.5 596.0,66.2"/>
+<circle cx="92.0" cy="328.0" r="3" fill="#c0392b"/>
+<circle cx="148.0" cy="328.0" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="240.7" r="3" fill="#c0392b"/>
+<circle cx="260.0" cy="240.7" r="3" fill="#c0392b"/>
+<circle cx="316.0" cy="240.7" r="3" fill="#c0392b"/>
+<circle cx="372.0" cy="240.7" r="3" fill="#c0392b"/>
+<circle cx="428.0" cy="240.7" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="153.5" r="3" fill="#c0392b"/>
+<circle cx="540.0" cy="153.5" r="3" fill="#c0392b"/>
+<circle cx="596.0" cy="66.2" r="3" fill="#c0392b"/>
+<line x1="390" x2="414" y1="90" y2="90" stroke="#c0392b" stroke-width="2"/><text x="420" y="94" font-family="sans-serif" font-size="11">wrapped-speed corrected</text>
+</svg>

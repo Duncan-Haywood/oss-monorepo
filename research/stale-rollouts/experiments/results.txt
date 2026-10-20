@@ -1,0 +1,24 @@
+E1 ESS fraction e^{-d^2}: exact vs Kish ESS from 200000 simulated weights (seed 4)
+  delta=0.25  exact 0.9394  simulated 0.9398  Var w exact 0.0645
+  delta=0.50  exact 0.7788  simulated 0.7783  Var w exact 0.2840
+  delta=1.00  exact 0.3679  simulated 0.3654  Var w exact 1.7183
+  delta=1.50  exact 0.1054  simulated 0.1285  Var w exact 8.4877
+E2 truncated IS: closed-form bias/variance vs simulation (delta=1, c=3, 1e6 draws, seed 5)
+  mean  closed 0.7253 sim 0.7264 (true 1.0);  E[(w_c z)^2] closed 3.1699 sim 3.1776; weight mass lost 0.1099
+E3 MSE of the policy-shift estimate, n=100 stale samples: plain IS vs best cap
+  delta=0.5  plain       0.0232  best cap c=   2.23 MSE   0.0185  ratio       1.3x
+  delta=1.0  plain       0.1259  best cap c=   5.26 MSE   0.0669  ratio       1.9x
+  delta=1.5  plain       0.9263  best cap c=  11.25 MSE   0.2375  ratio       3.9x
+  delta=2.0  plain       9.2417  best cap c=  21.33 MSE   0.7228  ratio      12.8x
+  delta=3.0  plain    2998.0511  best cap c=  54.60 MSE   3.9595  ratio     757.2x
+E4 staleness window k_max = floor(sqrt(ln(1/rho))/drift)
+  rho=0.50  drift 0.05: k_max=16  drift 0.1: k_max=8  drift 0.25: k_max=3  drift 0.5: k_max=1
+  rho=0.25  drift 0.05: k_max=23  drift 0.1: k_max=11  drift 0.25: k_max=4  drift 0.5: k_max=2
+  rho=0.10  drift 0.05: k_max=30  drift 0.1: k_max=15  drift 0.25: k_max=6  drift 0.5: k_max=3
+E5 value of a stale batch: n=1000 samples at lag k with drift 0.2 -> effective fresh samples
+  lag  0  delta=0.00  ESS   1000.0
+  lag  1  delta=0.20  ESS    960.8
+  lag  2  delta=0.40  ESS    852.1
+  lag  4  delta=0.80  ESS    527.3
+  lag  8  delta=1.60  ESS     77.3
+  lag 12  delta=2.40  ESS      3.2

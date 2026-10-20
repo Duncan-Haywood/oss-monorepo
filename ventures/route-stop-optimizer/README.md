@@ -5,6 +5,8 @@ A free browser tool for mobile service businesses, couriers, inspectors, sales r
 cuts drive time, split across as many drivers as you have**, with arrival times, what it saves against the order you had,
 and what your customer windows cost. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/route-stop-optimizer/
+
 After using this, you can now **see how many miles, hours and dollars a better stop order saves per day and per year, and
 open the route in Google Maps**, which used to be a guess or a paid route-planning subscription.
 

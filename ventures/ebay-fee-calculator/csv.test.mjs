@@ -32,3 +32,10 @@ test("exports only supported calculated columns", () => {
 test("rejects missing rows", () => {
   assert.throws(() => repricingCsv(), /rows are required/);
 });
+
+test("falls back to 1 unit for zero, negative or fractional quantities", () => {
+  for (const quantity of [0, -2, 1.5, "3", NaN]) {
+    const csv = repricingCsv([{ price: 40, offset: 0, profit: 6.25, margin: 13.6, unitProfit: 6.25, profitDelta: 0, quantity }]);
+    assert.match(csv, /\r\n40\.00,1,0%,/, `quantity ${String(quantity)}`);
+  }
+});

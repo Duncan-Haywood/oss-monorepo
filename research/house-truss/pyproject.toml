@@ -1,0 +1,16 @@
+[project]
+name = "house-truss"
+version = "0.1.0"
+description = "Open W-truss roof model: a pin-jointed stiffness solver with NDS chord and web checks, compared with stick-built rafters and ceiling joists"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[project.scripts]
+house-truss = "house_truss.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-spans/src", "../house-framing/src"]

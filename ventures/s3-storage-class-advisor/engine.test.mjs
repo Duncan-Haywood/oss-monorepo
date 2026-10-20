@@ -54,3 +54,39 @@ test("price overrides apply", () => {
   const free = { ...DEFAULT_PRICES, standard: { gbMonth: 0, per1kGet: 0, retrievalPerGb: 0 } };
   assert.equal(priceRow(row(), "standard", free).cost, 0);
 });
+
+test("parseRows skips a row whose life column is present but not a number", () => {
+  const { records, skipped } = parseRows("a,100,1000,5,10,abc\nb,100,1000,5,10,");
+  assert.deepEqual(records.map((r) => r.name), ["b"]);
+  assert.equal(records[0].lifeDays, null);
+  assert.equal(skipped, 1);
+});
+
+test("minimum duration only applies to objects that live shorter than it", () => {
+  const base = priceRow(row({ lifeDays: null, objects: 1000 }), "standard-ia").cost;
+  assert.equal(priceRow(row({ lifeDays: 60, objects: 1000 }), "standard-ia").cost, base); // lives past 30 days
+  assert.equal(priceRow(row({ lifeDays: 30, objects: 1000 }), "standard-ia").cost, base); // exactly the minimum
+  const zero = priceRow(row({ lifeDays: 0, objects: 1000 }), "standard-ia");
+  assert.equal(zero.cost, base);
+  assert.deepEqual(zero.notes, []);
+  const short = priceRow(row({ lifeDays: 15, objects: 1000 }), "standard-ia");
+  assert.ok(Math.abs(short.cost - (1000 * 0.0125 * 2 + 0)) < 1e-9);
+  assert.match(short.notes[0], /x2\.0/);
+});
+
+test("Intelligent-Tiering is exact arithmetic over hot, infrequent and archive-instant shares", () => {
+  // 1000 GB, 100 read -> 900 cold; 30% of cold infrequent, 70% archive instant.
+  const r = row({ sizeGb: 1000, objects: 2_000_000, readGb: 100, gets: 1_000_000 });
+  const expected = 100 * 0.023 + 900 * 0.3 * 0.0125 + 900 * 0.7 * 0.004 + 2000 * 0.0025 + 1000 * 0.0004;
+  assert.ok(Math.abs(priceRow(r, "intelligent-tiering").cost - expected) < 1e-9);
+});
+
+test("analyze totals sum the per-row current and best costs", () => {
+  const rows = [row({ name: "a", objects: 100000, readGb: 5 }), row({ name: "b", sizeGb: 500, objects: 50000, readGb: 1 })];
+  const rep = analyze({ records: rows });
+  const cur = rep.rows.reduce((s, x) => s + x.current, 0);
+  const best = rep.rows.reduce((s, x) => s + x.costs[x.best], 0);
+  assert.ok(Math.abs(rep.totals.current - cur) < 1e-9);
+  assert.ok(Math.abs(rep.totals.best - best) < 1e-9);
+  assert.ok(rep.totals.current > 0 && rep.totals.best > 0 && rep.totals.saving > 0);
+});

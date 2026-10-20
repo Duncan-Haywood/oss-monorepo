@@ -4,6 +4,8 @@ A free browser tool for self-published authors: **drop in your KDP royalty repor
 see what each book, store and royalty option actually paid.** The file is read in the
 browser; nothing is uploaded and no Amazon account access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-report-analyzer/
+
 After using this, you can now **see net royalty per title, marketplace, royalty option and
 month, refund rates, Kindle Unlimited pages read (valued at a rate you type), delivery and
 printing costs, 35%-option sales priced inside the 70% range, and what your ad spend left**,

@@ -5,6 +5,8 @@ reads its `<link rel="canonical">` tag(s), and — when there is exactly one —
 URL too, then classifies the evidence into the canonicalization mistakes that quietly tell
 search engines to index the wrong page, or nothing at all:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/
+
 - **Multiple conflicting canonical tags** — two or more `<link rel="canonical">` tags naming
   different URLs. Browsers and search engines only honor the first one found and ignore the
   rest, so this is the page's own markup contradicting itself — commonly two systems (a CMS

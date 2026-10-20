@@ -3,6 +3,8 @@
 A free browser calculator for independent towing and roadside operators: **a defensible
 price per tow job from your own costs.** Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tow-truck-rate-calculator/
+
 After using this, you can now **see the true cost of a tow (including the empty deadhead
 drive), your margin at the price you charge, the break-even price, the price for your
 target margin, and which lever adds the most profit**, which used to mean guessing from

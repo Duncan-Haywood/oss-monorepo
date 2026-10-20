@@ -1,0 +1,13 @@
+reporting_sex,husband_band,contrast,rate_ratio,ci_low,ci_high,zero_wife_events,comparison_events,caution
+All,Q4,Wife zero vs wife Q1,1.416556208094809,0.8279793428232285,2.423528446796474,40,25,Crude within husband wage band; not adjusted for other characteristics
+All,Q4,Wife zero vs wife Q2,1.248437904411899,0.6759757673839065,2.3056998140692233,40,24,Crude within husband wage band; not adjusted for other characteristics
+All,Q4,Wife zero vs wife Q3,0.5917569982680827,0.3586940042200547,0.9762536894383727,40,37,Crude within husband wage band; not adjusted for other characteristics
+All,Q4,Wife zero vs wife Q4,1.0504346658807544,0.5649891374398014,1.9529808878875639,40,18,Crude within husband wage band; not adjusted for other characteristics
+Men,Q4,Wife zero vs wife Q1,1.5197941295043322,0.7489163631796758,3.0841550667543407,25,13,Crude within husband wage band; not adjusted for other characteristics
+Men,Q4,Wife zero vs wife Q2,1.2378390218055035,0.5485217012010222,2.7934089764351344,25,13,Crude within husband wage band; not adjusted for other characteristics
+Men,Q4,Wife zero vs wife Q3,0.8180427166310884,0.4130330841775239,1.6201943908821308,25,15,Crude within husband wage band; not adjusted for other characteristics
+Men,Q4,Wife zero vs wife Q4,1.3974959095800148,0.583259984951107,3.3484121449829733,25,9,Crude within husband wage band; not adjusted for other characteristics
+Women,Q4,Wife zero vs wife Q1,1.2232523490653033,0.5341071139389804,2.801584683001872,15,12,Crude within husband wage band; not adjusted for other characteristics
+Women,Q4,Wife zero vs wife Q2,1.2040371832332375,0.480447252699681,3.0174083220628045,15,11,Crude within husband wage band; not adjusted for other characteristics
+Women,Q4,Wife zero vs wife Q3,0.37867194166773405,0.17939550171270144,0.7993090018279951,15,22,Crude within husband wage band; not adjusted for other characteristics
+Women,Q4,Wife zero vs wife Q4,0.7324616556631309,0.2990795545909931,1.7938373545810136,15,9,Crude within husband wage band; not adjusted for other characteristics

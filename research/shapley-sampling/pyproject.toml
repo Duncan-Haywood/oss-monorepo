@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shapley-sampling"
+version = "0.1.0"
+description = "Auditing sampled Shapley payments for decentralised training contributors: exact estimator variances, stratification gain, efficiency of permutation sampling, Hoeffding sample-count looseness"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

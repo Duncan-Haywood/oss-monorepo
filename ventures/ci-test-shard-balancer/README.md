@@ -4,6 +4,8 @@ A free, offline tool that reads the JUnit XML your test runner already writes
 and answers one question: **how do I split this suite into N CI shards that
 finish at the same time, and how many shards are worth paying for?**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ci-test-shard-balancer/
+
 After using this, you can put an evenly timed set of test files on each CI
 shard and know which shard count to pay for, in a few minutes with no signup
 and no timing data sent anywhere, which used to mean guessing at a split,

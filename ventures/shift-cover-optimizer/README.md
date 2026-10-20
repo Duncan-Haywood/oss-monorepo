@@ -4,6 +4,8 @@ A free browser tool for restaurants, cafés, salons, shops and any small busines
 many people (or how much demand) you expect in each open hour, and get the cheapest set of shifts that keeps every hour
 covered**, what it saves against a fixed 8-hour template, and what your own scheduling rules cost. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shift-cover-optimizer/
+
 After using this, you can now **see exactly how much a fixed shift template, a 4-hour minimum or a 10% busier week costs
 in payroll, and get a shift list you can copy into your schedule**, which used to be a whiteboard and a guess.
 

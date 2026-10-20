@@ -1,0 +1,17 @@
+# Any box with Docker:
+#   ADMIN_KEY=$(openssl rand -hex 16) SERVER_KEY=$(openssl rand -hex 16) CLIENT_KEY=$(openssl rand -hex 16) docker compose up -d
+services:
+  flag-keeper:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data", "./examples:/examples:ro"]
+    environment:
+      STATE: /data/flags.json
+      FLAGS_FILE: /examples/flags.json
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY}
+      SERVER_KEY: ${SERVER_KEY:-}
+      CLIENT_KEY: ${CLIENT_KEY:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+volumes:
+  state:

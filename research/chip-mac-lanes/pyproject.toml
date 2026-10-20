@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chip-mac-lanes"
+version = "0.1.0"
+description = "Exhaustive MAC-lane count sweep (P = 1..20) for a tiny quantised MLP: RTL checked against NumPy, generic-gate counts"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

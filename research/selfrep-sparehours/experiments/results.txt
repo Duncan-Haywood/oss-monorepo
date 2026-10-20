@@ -1,0 +1,28 @@
+inputs (assumed) as selfrep-spares: W=50.0 h, V=170.34; B=4/h, s=0.9, base downtime 5.0 h, reserve 1.0 V; DES 100 runs/row, horizon 20000 h, seed 0
+reference: stock LM8UU bearings, spares c=0.0213, L=365.9 h, downtime 5.0 h
+
+stock bearings (reference): fleet   62.5 [  55.0-  68.1] dead 0.23
+
+A. printed bushing, life k x LM8UU life, each bushing repair waits print_h extra hours (mean-downtime approximation)
+== A1. k=1.0: 0.457 of breakdowns need a printed bushing
+none h print  downtime     5.0  fleet   64.2  [  57.7-  71.8]  dead 0.23  vs-stock   +1.8
+  10 h print  downtime     9.6  fleet   63.7  [  56.1-  71.5]  dead 0.23  vs-stock   +1.3
+  50 h print  downtime    27.9  fleet   63.7  [  56.3-  69.3]  dead 0.23  vs-stock   +1.2
+ 100 h print  downtime    50.7  fleet   64.5  [  56.8-  70.5]  dead 0.23  vs-stock   +2.1
+ 200 h print  downtime    96.5  fleet   63.0  [  56.5-  68.7]  dead 0.23  vs-stock   +0.6
+ 500 h print  downtime   233.7  fleet   62.7  [  56.3-  70.2]  dead 0.23  vs-stock   +0.2
+1000 h print  downtime   462.3  fleet   58.5  [  53.2-  63.0]  dead 0.23  vs-stock   -4.0
+2000 h print  downtime   919.6  fleet   52.3  [  48.3-  56.0]  dead 0.23  vs-stock  -10.2
+5000 h print  downtime  2291.6  fleet   36.0  [  33.7-  39.6]  dead 0.23  vs-stock  -26.4
+
+== A2. k=0.5: 0.628 of breakdowns need a printed bushing
+none h print  downtime     5.0  fleet   43.3  [  38.0-  49.1]  dead 0.34  vs-stock  -19.1
+  10 h print  downtime    11.3  fleet   43.3  [  39.2-  50.3]  dead 0.34  vs-stock  -19.1
+  50 h print  downtime    36.4  fleet   42.6  [  38.2-  48.5]  dead 0.34  vs-stock  -19.8
+ 100 h print  downtime    67.8  fleet   42.9  [  37.3-  50.7]  dead 0.34  vs-stock  -19.6
+ 200 h print  downtime   130.5  fleet   42.8  [  37.8-  45.8]  dead 0.34  vs-stock  -19.7
+ 500 h print  downtime   318.8  fleet   41.5  [  36.5-  46.1]  dead 0.34  vs-stock  -20.9
+1000 h print  downtime   632.6  fleet   38.9  [  35.5-  42.5]  dead 0.34  vs-stock  -23.5
+2000 h print  downtime  1260.2  fleet   32.6  [  30.2-  35.1]  dead 0.34  vs-stock  -29.8
+5000 h print  downtime  3143.1  fleet   20.2  [  18.2-  22.2]  dead 0.34  vs-stock  -42.3
+

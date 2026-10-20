@@ -3,6 +3,8 @@
 A free tool that reads a Terraform *structured* plan (`terraform show -json`)
 and answers one question before you apply it: **what does this take away?**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/terraform-plan-blast-radius-check/
+
 - Action counts (create / update / replace / destroy / no-op) grouped **by
   resource type** and **by module**.
 - **Every destroy and replace, individually**, with the `replace_paths`

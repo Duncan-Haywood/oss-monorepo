@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stripe Decline Codes: Which to Retry and Which Never to | Dunning Engine</title>
+  <meta name="description" content="Every Stripe decline code Dunning Engine knows, in plain words, with what it does about each: never retry lost or expired cards, spread retries for insufficient funds, ask the customer to confirm 3D Secure.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./stripe-decline-codes.html">
+  <meta property="og:title" content="Stripe decline codes: which to retry and which never to">
+  <meta property="og:description" content="A plain-words table of Stripe decline codes and the recovery plan for each class: never retry, retry on a schedule, or ask the customer.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which Stripe decline codes should I retry?","acceptedAnswer":{"@type":"Answer","text":"Retry only decline codes where the payment can succeed later without the customer doing anything: insufficient_funds, the velocity and withdrawal-limit codes, and the generic or temporary issuer declines such as generic_decline, do_not_honor, try_again_later and processing_error. Do not retry lost_card, stolen_card, pickup_card, fraudulent or restricted_card, and do not retry expired or incorrect card details until the customer has replaced the card."}},{"@type":"Question","name":"What does do_not_honor mean in Stripe?","acceptedAnswer":{"@type":"Answer","text":"do_not_honor is the issuer's vague refusal: the bank declined the payment and chose not to say why. It is not proof the card is bad. Dunning Engine treats it as a soft decline: it retries on a spaced schedule and emails the customer an update-card link in case the bank keeps refusing."}},{"@type":"Question","name":"Where do I find the decline code for a failed Stripe payment?","acceptedAnswer":{"@type":"Answer","text":"Open the failed payment in the Stripe Dashboard, or read last_payment_error.decline_code on the PaymentIntent behind the invoice, or the same field on the charge. Some failures have only an error code and no decline code; Dunning Engine treats a missing code as a soft decline."}}]}</script>
+  <style>
+    :root { color-scheme: light dark; --bg:#fbfbfa; --fg:#1a1a19; --muted:#5c5c58; --card:#fff; --border:#e2e2dd; --accent:#1c5d3a; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#17181a; --fg:#ececeb; --muted:#a3a39e; --card:#202124; --border:#34353a; --accent:#6fcf97; } }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+    .wrap { max-width:62rem; margin:0 auto; padding:2rem 1.1rem 4rem; }
+    h1 { font-size:1.8rem; line-height:1.2; margin:0 0 .5rem; max-width:28ch; }
+    h2 { font-size:1.15rem; margin:0 0 .6rem; } h3 { font-size:1rem; margin:1.2rem 0 .4rem; }
+    p.lede { color:var(--muted); max-width:44rem; font-size:1.05rem; }
+    a { color:var(--accent); overflow-wrap:anywhere; }
+    section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.1rem 1.15rem; margin-top:1.25rem; }
+    .scroll { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.93rem; }
+    th, td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--border); vertical-align:top; }
+    thead th { font-size:.82rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+    code { font-size:.88em; }
+    .fine { font-size:.87rem; color:var(--muted); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <p class="fine"><a href="./">&larr; Dunning Engine</a></p>
+  <h1>Stripe decline codes: which to retry, which never to</h1>
+  <p class="lede">When a Stripe subscription payment fails, the <code>decline_code</code> says what recovery can do. Some codes mean a retry may work tomorrow. Others mean every retry is wasted and the only fix is a new card. This is the table Dunning Engine, a free self-hosted recovery server, acts on.</p>
+
+  <section>
+    <h2>The five classes and the default plan</h2>
+    <p>Day numbers count from the failed payment, using the default policy (14-day grace period). Everything is configurable.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Class</th><th scope="col">Retries</th><th scope="col">Why</th><th scope="col">Emails</th><th scope="col">Retry days</th></tr></thead>
+        <tbody>
+          <tr><td>hard</td><td>Never retried</td><td>Hard decline. Retrying cannot help and can look like card testing. Customer is asked for a different card.</td><td>day 0, day 3, day 7, day 11</td><td>none</td></tr>
+          <tr><td>update</td><td>Never retried</td><td>The card itself is unusable until it is replaced or corrected. Customer is asked to update it.</td><td>day 0, day 3, day 7, day 11</td><td>none</td></tr>
+          <tr><td>funds</td><td>Retried on a spread schedule</td><td>May clear later. Retries are spaced out and, by default, nudged toward payday.</td><td>day 0, day 3, day 7, day 11</td><td>day 4, day 5, day 10, day 13</td></tr>
+          <tr><td>auth</td><td>Customer only</td><td>Only the cardholder can complete authentication. The email asks them to confirm the payment with their bank.</td><td>day 0, day 3, day 7, day 11</td><td>none</td></tr>
+          <tr><td>soft</td><td>Retried on a spaced schedule</td><td>Generic or temporary. Retries 1, 3, 6 and 10 days out by default.</td><td>day 0, day 3, day 7, day 11</td><td>day 1, day 3, day 6, day 10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Retry days for <code>funds</code> are shown after the optional payday nudge (the 1st, 2nd, 15th, 16th or a Friday), so they shift with the calendar. The days above are for a failure on Monday 5 January.</p>
+  </section>
+
+  <section>
+    <h2>Every decline code it knows</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">decline_code</th><th scope="col">What it means</th><th scope="col">Class</th></tr></thead>
+        <tbody>
+          <tr><td><code>stolen_card</code></td><td>The issuer reports the card stolen.</td><td>hard</td></tr>
+          <tr><td><code>lost_card</code></td><td>The issuer reports the card lost.</td><td>hard</td></tr>
+          <tr><td><code>pickup_card</code></td><td>The issuer wants the card taken out of use.</td><td>hard</td></tr>
+          <tr><td><code>fraudulent</code></td><td>The issuer suspects fraud on this payment.</td><td>hard</td></tr>
+          <tr><td><code>restricted_card</code></td><td>The card is restricted and cannot be used for this kind of payment.</td><td>hard</td></tr>
+          <tr><td><code>invalid_account</code></td><td>The card or the account it is linked to is not valid.</td><td>hard</td></tr>
+          <tr><td><code>new_account_information_failed</code></td><td>The issuer rejected the new account information.</td><td>hard</td></tr>
+          <tr><td><code>expired_card</code></td><td>The card has expired.</td><td>update</td></tr>
+          <tr><td><code>incorrect_number</code></td><td>The card number is wrong.</td><td>update</td></tr>
+          <tr><td><code>invalid_number</code></td><td>The card number is not valid.</td><td>update</td></tr>
+          <tr><td><code>invalid_expiry_month</code></td><td>The expiry month is not valid.</td><td>update</td></tr>
+          <tr><td><code>invalid_expiry_year</code></td><td>The expiry year is not valid.</td><td>update</td></tr>
+          <tr><td><code>invalid_cvc</code></td><td>The security code is not valid.</td><td>update</td></tr>
+          <tr><td><code>incorrect_cvc</code></td><td>The security code is wrong.</td><td>update</td></tr>
+          <tr><td><code>incorrect_zip</code></td><td>The postal code does not match the card.</td><td>update</td></tr>
+          <tr><td><code>card_not_supported</code></td><td>The card does not support this type of purchase.</td><td>update</td></tr>
+          <tr><td><code>currency_not_supported</code></td><td>The card does not support this currency.</td><td>update</td></tr>
+          <tr><td><code>insufficient_funds</code></td><td>Not enough available balance or credit.</td><td>funds</td></tr>
+          <tr><td><code>withdrawal_count_limit_exceeded</code></td><td>The card hit its transaction-count limit.</td><td>funds</td></tr>
+          <tr><td><code>card_velocity_exceeded</code></td><td>The card hit a spending or velocity limit.</td><td>funds</td></tr>
+          <tr><td><code>authentication_required</code></td><td>The bank needs the customer to authenticate (3D Secure / SCA).</td><td>auth</td></tr>
+          <tr><td><code>authentication_not_handled</code></td><td>The payment needed authentication that was not completed.</td><td>auth</td></tr>
+          <tr><td><code>generic_decline</code></td><td>The issuer declined without saying why.</td><td>soft</td></tr>
+          <tr><td><code>do_not_honor</code></td><td>The issuer declined without saying why (the most common vague decline).</td><td>soft</td></tr>
+          <tr><td><code>try_again_later</code></td><td>The issuer asked for the payment to be tried again later.</td><td>soft</td></tr>
+          <tr><td><code>issuer_not_available</code></td><td>The issuer could not be reached.</td><td>soft</td></tr>
+          <tr><td><code>processing_error</code></td><td>An error occurred while processing the card.</td><td>soft</td></tr>
+          <tr><td><code>reenter_transaction</code></td><td>The issuer could not process it and asks for a retry.</td><td>soft</td></tr>
+          <tr><td><code>call_issuer</code></td><td>The issuer wants the cardholder to contact them.</td><td>soft</td></tr>
+          <tr><td><code>transaction_not_allowed</code></td><td>The issuer does not allow this transaction on the card.</td><td>soft</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Any code not listed, and a failure with no decline code at all, is treated as <code>soft</code>. <code>call_issuer</code> and <code>transaction_not_allowed</code> also land there: the bank has to act, so if the spaced retries keep failing the customer's emails ask for another card.</p>
+    <p class="fine">Meanings are paraphrased from Stripe's public documentation of decline codes and can change; Stripe's own page is the authority, and the classification above is a policy choice, not a Stripe statement. Not affiliated with Stripe.</p>
+  </section>
+
+  <section>
+    <h2>Run this plan on your own Stripe account</h2>
+    <p><a href="./">Dunning Engine</a> is MIT-licensed, one Node process with no dependencies. It starts in dry-run, plans recovery per decline class, sends neutral emails with a never-expiring update-card link, and runs in your account with your keys, with no share of what it recovers. Preview the plan for any code in the <a href="./">browser simulator</a>.</p>
+  </section>
+
+  <section>
+    <h2>Common questions</h2>
+    <h3>Which Stripe decline codes should I retry?</h3>
+    <p>Retry only decline codes where the payment can succeed later without the customer doing anything: insufficient_funds, the velocity and withdrawal-limit codes, and the generic or temporary issuer declines such as generic_decline, do_not_honor, try_again_later and processing_error. Do not retry lost_card, stolen_card, pickup_card, fraudulent or restricted_card, and do not retry expired or incorrect card details until the customer has replaced the card.</p>
+    <h3>What does do_not_honor mean in Stripe?</h3>
+    <p>do_not_honor is the issuer's vague refusal: the bank declined the payment and chose not to say why. It is not proof the card is bad. Dunning Engine treats it as a soft decline: it retries on a spaced schedule and emails the customer an update-card link in case the bank keeps refusing.</p>
+    <h3>Where do I find the decline code for a failed Stripe payment?</h3>
+    <p>Open the failed payment in the Stripe Dashboard, or read last_payment_error.decline_code on the PaymentIntent behind the invoice, or the same field on the charge. Some failures have only an error code and no decline code; Dunning Engine treats a missing code as a soft decline.</p>
+  </section>
+
+  <section>
+    <h2>Use it safely</h2>
+    <p class="fine"><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not legal, tax, or financial advice. <strong>You are responsible for verifying anything before relying on it</strong>, including the email and consumer-protection rules for payment-failure notices in your country. To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
+    <p class="fine"><strong>Best-effort hosting, no SLA.</strong> These pages are free and experimental and may be moved or taken offline without notice.</p>
+    <p class="fine">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Sponsoring</a> is optional and never changes what the tool does.</p>
+  </section>
+</div>
+</body>
+</html>

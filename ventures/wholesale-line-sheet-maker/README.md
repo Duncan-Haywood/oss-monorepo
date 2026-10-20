@@ -3,6 +3,8 @@
 After using this, you can send a boutique a professional priced line sheet and
 know your margin at wholesale, which used to take an evening in a spreadsheet.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wholesale-line-sheet-maker/
+
 Free, no account, no watermark, works offline. Everything runs in your browser;
 products are stored in `localStorage` on your device and never uploaded.
 

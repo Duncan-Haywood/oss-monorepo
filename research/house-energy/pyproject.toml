@@ -1,0 +1,13 @@
+[project]
+name = "house-energy"
+version = "0.1.0"
+description = "Cost-optimal envelope by climate: net present cost of building plus 30 years of heating and cooling energy, swept exhaustively over walls, attic, windows, air tightness and slab edge"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-framing/src"]

@@ -115,13 +115,12 @@ test('a venture with no browser surface yields no pages rather than throwing', a
   // `index.html` on 2026-09-05. Both were picked because they had no page
   // *yet*, which is a fact about the day rather than about the venture.
   //
-  // So the fixture is now a venture that cannot acquire a browser surface at
-  // all: `garmin-world-traveler-watchface` is a Connect IQ watchface, built
-  // from `manifest.xml` and Monkey C in `source/`, and it has no web target to
-  // ship even in principle. Keep that property when changing it -- a native-only
+  // So the fixture is now `local-site-studio`, a Next.js app with no static
+  // build target here. (It was `quick-pick-survey` until 2026-10-15 when that app got a static landing page, and before that `garmin-world-traveler-watchface`, a Connect IQ
+  // watchface, until 2026-10-15 when that venture got a static landing page.) Keep that property when changing it -- a native-only
   // venture (a watchface, a Swift app) is stable here; a CLI is not, because a
   // CLI growing a browser page is a thing this portfolio actively does.
-  const { pages, surfaces, known } = await collectPages({ slug: 'garmin-world-traveler-watchface' });
+  const { pages, surfaces, known } = await collectPages({ slug: 'local-site-studio' });
   assert.deepEqual(surfaces, []);
   assert.deepEqual(pages, []);
   assert.equal(known, true);

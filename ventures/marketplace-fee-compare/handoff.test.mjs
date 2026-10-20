@@ -36,6 +36,10 @@ import { FIELD_IDS as ETSY_FIELDS } from '../etsy-profit-calculator/share.mjs';
 import { INPUT_FIELDS as AMAZON_FIELDS } from '../amazon-fba-calculator/calc.mjs';
 import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculator/calc.mjs';
 import { FIELD_IDS as TIKTOK_FIELDS } from '../tiktok-shop-fee-calculator/calc.mjs';
+import { INPUT_IDS as MERCARI_FIELDS } from '../mercari-fee-calculator/calc.mjs';
+import { INPUT_IDS as DEPOP_FIELDS } from '../depop-fee-calculator/calc.mjs';
+import { INPUT_IDS as POSHMARK_FIELDS } from '../poshmark-fee-calculator/calc.mjs';
+import { INPUT_IDS as FACEBOOK_FIELDS } from '../facebook-marketplace-fee-calculator/calc.mjs';
 import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs';
 
 // The two excluded channels whose item still travels. Imported from the target
@@ -43,6 +47,7 @@ import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs
 // than silently start dropping a field on arrival.
 import { INPUT_IDS as WHATNOT_FIELDS } from '../whatnot-seller-payout/calc.mjs';
 import { INPUT_FIELDS as REVERB_FIELDS } from '../reverb-fee-calculator/calc.mjs';
+import { FIELD_IDS as STOCKX_FIELDS } from '../stockx-seller-payout-calculator/share.mjs';
 
 // The other comparison page in this portfolio, imported so the two tables can
 // be checked against each other rather than kept in sync by hand.
@@ -54,6 +59,10 @@ const TARGET_FIELDS = {
   'amazon-fba-calculator': AMAZON_FIELDS,
   'walmart-marketplace-calculator': WALMART_FIELDS,
   'tiktok-shop-fee-calculator': TIKTOK_FIELDS,
+  'mercari-fee-calculator': MERCARI_FIELDS,
+  'depop-fee-calculator': DEPOP_FIELDS,
+  'facebook-marketplace-fee-calculator': FACEBOOK_FIELDS,
+  'poshmark-fee-calculator': POSHMARK_FIELDS,
   'shopify-fee-calculator': SHOPIFY_FIELDS,
 };
 
@@ -94,7 +103,7 @@ test('every channel we hand off to is a channel this page ranks', () => {
 });
 
 test('every channel this page ranks has a handoff', () => {
-  // The point of this page is that all six rows are comparable, so all six
+  // The point of this page is that all seven rows are comparable, so all seven
   // deserve the same way out. A channel added to `CHANNELS` without an entry
   // here would keep only the bare link it has always had, and the omission
   // would be invisible — nothing renders differently except a missing row in a
@@ -268,8 +277,8 @@ test('values ride in the fragment, not the query string', () => {
 });
 
 test('an unknown channel gets no link rather than a broken one', () => {
-  assert.equal(handoffFor('poshmark'), null);
-  assert.equal(handoffUrl('poshmark', ITEM), null);
+  assert.equal(handoffFor('not-a-channel'), null);
+  assert.equal(handoffUrl('not-a-channel', ITEM), null);
 });
 
 test('handoffValues on no entry is empty rather than throwing', () => {
@@ -307,6 +316,7 @@ test('handoffsForRows on an empty comparison returns nothing', () => {
 const EXCLUDED_TARGET_FIELDS = {
   'whatnot-seller-payout': WHATNOT_FIELDS,
   'reverb-fee-calculator': REVERB_FIELDS,
+  'stockx-seller-payout-calculator': STOCKX_FIELDS,
 };
 
 test('every field we send an excluded channel is one its calculator reads', () => {
@@ -455,4 +465,42 @@ test('a blank item produces a bare link rather than one full of zeroes', () => {
   // on arrival, so an untouched form must not override the target's defaults.
   const url = excludedHandoffUrl('reverb-fee-calculator', {});
   assert.equal(url, '../reverb-fee-calculator/');
+});
+
+// ---------------------------------------------------------------------------
+// where-to-sell bridge
+// ---------------------------------------------------------------------------
+
+import { whereToSellUrl, WHERE_TO_SELL_FIELDS } from './handoff.mjs';
+import { decodeComparison } from '../where-to-sell-calculator/share.mjs';
+
+test('the item arrives on where-to-sell and decodes with its own decoder', () => {
+  const url = whereToSellUrl(ITEM);
+  assert.ok(url.startsWith('../where-to-sell-calculator/#c='));
+  const c = new URLSearchParams(url.slice(url.indexOf('#') + 1)).get('c');
+  const decoded = decodeComparison(c);
+  assert.deepEqual(decoded.shared, {
+    price: 40, shippingCharged: 6, itemCost: 12, shippingCost: 5.2, otherCost: 1.1, monthlyOrders: 50,
+  });
+});
+
+test('every field carried to where-to-sell is one its decoder keeps', () => {
+  const full = Object.fromEntries(WHERE_TO_SELL_FIELDS.map((k) => [k, 3]));
+  const c = new URLSearchParams(whereToSellUrl(full).split('#')[1]).get('c');
+  assert.deepEqual(Object.keys(decodeComparison(c).shared).sort(), [...WHERE_TO_SELL_FIELDS].sort());
+});
+
+test('a blank or nonsense item gives the bare where-to-sell link', () => {
+  assert.equal(whereToSellUrl({}), '../where-to-sell-calculator/');
+  assert.equal(whereToSellUrl({ price: '', itemCost: -4, otherCost: 'x' }), '../where-to-sell-calculator/');
+});
+
+test('the item arrives on StockX under StockX names, without postage the buyer pays', () => {
+  const params = paramsOf(excludedHandoffUrl('stockx-seller-payout-calculator', ITEM));
+  assert.equal(params.get('salePrice'), '40', 'price should arrive as salePrice');
+  assert.equal(params.get('itemCostBasis'), '12');
+  assert.equal(params.get('shippingCost'), '5.2');
+  assert.equal(params.get('otherCost'), '1.1');
+  assert.ok(!params.has('shippingCharged'), 'StockX buyers pay StockX for delivery');
+  assert.ok(!params.has('monthlyOrders'), 'StockX has no monthly plan to amortise');
 });

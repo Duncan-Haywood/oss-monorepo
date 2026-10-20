@@ -205,3 +205,69 @@ export function breakdownRows(result) {
     ['Total landed cost', result.totalLandedCost],
   ];
 }
+
+/**
+ * One customs entry carrying several products (HTS lines). Duty and the
+ * supplemental tariff are per line, each at its own rate. Freight and
+ * insurance are shared and split across lines in proportion to item cost.
+ * The Merchandise Processing Fee, Harbor Maintenance Fee and broker fee are
+ * charged once per entry -- the MPF floor and ceiling apply to the entry's
+ * total customs value, not to each line -- and are then split across lines by
+ * customs value so each product shows its own landed cost per unit.
+ *
+ * Lines: [{ name, itemCost, quantity, dutyRatePct, supplementalRatePct }].
+ * Shared: { freightCost, insuranceCost, brokerFee, entryType, oceanFreight }.
+ */
+export function calculateEntry(lines, shared = {}) {
+  if (!Array.isArray(lines) || lines.length === 0) throw new Error('Add at least one product line');
+  const freightCost = number(shared.freightCost, 'Freight cost', 0);
+  const insuranceCost = number(shared.insuranceCost, 'Insurance cost', 0);
+  const brokerFee = number(shared.brokerFee, 'Broker / entry fee', LANDED_COST_DEFAULTS.brokerFee);
+  const entry = entryType(shared.entryType, 'formal');
+  const ocean = boolean(shared.oceanFreight, false);
+
+  const parsed = lines.map((line, i) => {
+    const label = line.name || `Line ${i + 1}`;
+    const quantity = number(line.quantity, `${label}: quantity`, 1);
+    if (quantity < 1 || !Number.isInteger(quantity)) throw new Error(`${label}: quantity must be a whole number of at least 1`);
+    return {
+      name: label,
+      itemCost: number(line.itemCost, `${label}: item cost`, 0),
+      quantity,
+      dutyRatePct: number(line.dutyRatePct, `${label}: duty rate`, LANDED_COST_DEFAULTS.dutyRatePct),
+      supplementalRatePct: number(line.supplementalRatePct, `${label}: supplemental rate`, 0),
+    };
+  });
+
+  const totalItemCost = parsed.reduce((s, l) => s + l.itemCost, 0);
+  const share = l => (totalItemCost === 0 ? 1 / parsed.length : l.itemCost / totalItemCost);
+  const withValue = parsed.map(l => {
+    const freight = freightCost * share(l);
+    const insurance = insuranceCost * share(l);
+    return { ...l, freight, insurance, customsValue: l.itemCost + freight };
+  });
+  const customsValue = withValue.reduce((s, l) => s + l.customsValue, 0);
+  const mpf = calculateMpf(customsValue, entry);
+  const hmf = calculateHmf(customsValue, ocean);
+  const vshare = l => (customsValue === 0 ? 1 / withValue.length : l.customsValue / customsValue);
+
+  const out = withValue.map(l => {
+    const duty = l.customsValue * l.dutyRatePct / 100;
+    const supplementalTariff = l.customsValue * l.supplementalRatePct / 100;
+    const entryFees = (mpf + hmf + brokerFee) * vshare(l);
+    const totalLandedCost = l.itemCost + l.freight + l.insurance + duty + supplementalTariff + entryFees;
+    return { ...l, duty, supplementalTariff, entryFees, totalLandedCost, perUnitLandedCost: totalLandedCost / l.quantity };
+  });
+
+  const duties = out.reduce((s, l) => s + l.duty + l.supplementalTariff, 0);
+  const totalLandedCost = out.reduce((s, l) => s + l.totalLandedCost, 0);
+  const tariffBurden = duties + mpf + hmf;
+  return {
+    lines: out,
+    customsValue,
+    fees: { duty: out.reduce((s, l) => s + l.duty, 0), supplementalTariff: out.reduce((s, l) => s + l.supplementalTariff, 0), mpf, hmf, brokerFee },
+    totalLandedCost,
+    tariffBurden,
+    effectiveTariffBurdenPct: totalItemCost === 0 ? 0 : tariffBurden / totalItemCost * 100,
+  };
+}

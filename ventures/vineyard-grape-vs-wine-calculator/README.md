@@ -6,6 +6,8 @@ get per bottle direct and through a distributor. You get net profit each way, yo
 grape price that would match the wine, and the direct-sales share at which bottling starts to win.** A table
 shows how wine profit moves with direct share and unsold bottles. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vineyard-grape-vs-wine-calculator/
+
 After using this, you can now **put a dollar figure on "should we make our own wine?"** before buying tanks,
 barrels and a bottling run, which used to be an optimistic spreadsheet or a gut feeling.
 

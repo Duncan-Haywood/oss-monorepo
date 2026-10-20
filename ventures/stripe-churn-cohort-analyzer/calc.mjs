@@ -257,6 +257,33 @@ export function simulatePriceIncrease(subs, { plan = "all", increasePct = 10, ex
   };
 }
 
+// What cutting monthly logo churn is worth. Projects MRR forward `months` with the recent monthly
+// churn and recent new MRR held flat, then again with churn lowered by `reductionPts` points.
+// New MRR is the average over the last three complete months. Arithmetic on stated assumptions,
+// not a forecast: it ignores expansion, seasonality and any change in what it costs to win customers.
+export function simulateChurnReduction(subs, { reductionPts = 1, months = 12, asOf = null } = {}) {
+  if (!subs.length) return { invalid: "No subscriptions to project." };
+  const now = nowIndex(subs, asOf);
+  const mrr0 = subs.filter((s) => activeAt(s, endOfIndex(now))).reduce((t, s) => t + s.mrr, 0);
+  if (!(mrr0 > 0)) return { invalid: "No active subscriptions to project." };
+  const base = Math.min(0.99, planChurn(subs, "all", { asOf }));
+  const better = Math.max(0, base - Math.max(0, reductionPts) / 100);
+  let added = 0;
+  for (let i = now - 3; i < now; i++) added += subs.filter((s) => monthIndex(s.start) === i).reduce((t, s) => t + s.mrr, 0);
+  const newMrr = added / 3;
+  const project = (c) => { let m = mrr0; const path = []; for (let k = 1; k <= months; k++) { m = m * (1 - c) + newMrr; path.push({ month: k, mrr: m }); } return path; };
+  const without = project(base), withCut = project(better);
+  const last = (a) => a[a.length - 1].mrr;
+  return {
+    currentMrr: mrr0, baselineChurn: base, reducedChurn: better, newMrrPerMonth: newMrr, months,
+    baselineMrr: last(without), reducedMrr: last(withCut),
+    mrrGain: last(withCut) - last(without), arrGain: 12 * (last(withCut) - last(without)),
+    cumulativeGain: withCut.reduce((t, p, i) => t + p.mrr - without[i].mrr, 0),
+    lifetimeBase: base > 0 ? 1 / base : null, lifetimeReduced: better > 0 ? 1 / better : null,
+    path: without.map((p, i) => ({ month: p.month, without: p.mrr, withCut: withCut[i].mrr })),
+  };
+}
+
 // Deterministic demo data so the example is reproducible.
 export function sampleCsv() {
   let seed = 20260929;

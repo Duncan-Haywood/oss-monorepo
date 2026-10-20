@@ -3,6 +3,8 @@
 A free browser calculator for the 2026 Medicare **IRMAA** (income-related monthly adjustment amount)
 tiers on Part B and Part D. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/medicare-irmaa-cliff-calculator/
+
 After using this, you can now **see which IRMAA tier your income from two years ago puts you in, what
 it costs, how many dollars you are from the next cliff (up and down), what one dollar over costs, and
 how much of a Roth conversion, capital gain or IRA distribution fits under your current tier**, which

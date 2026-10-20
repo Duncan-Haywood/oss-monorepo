@@ -108,3 +108,7 @@ test("links to the rental rent optimizer, which prices the unit the DSCR test as
 test("links to the syndication waterfall calculator, the equity-side counterpart of the DSCR loan test", () => {
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/syndication-waterfall-calculator\/"/);
 });
+
+test("links to the commercial property cap rate calculator, which values larger buildings on NOI", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/commercial-property-cap-rate-calculator\/"/);
+});

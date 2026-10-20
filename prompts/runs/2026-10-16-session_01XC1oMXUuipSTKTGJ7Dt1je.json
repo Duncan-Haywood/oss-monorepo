@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01XC1oMXUuipSTKTGJ7Dt1je",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T13:41:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "project-pages figures",
+  "projects": [
+    "gossip-consensus",
+    "escalation-bonds"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7422",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "The 'about 203 projects have none' count is stale, and a naive ls-based check for figures is misleading (a failing glob made ls exit nonzero, so existing figures looked missing); I overwrote nothing only because git showed it."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added figures for two projects from results.txt. Stale figure count updated. Cost not attached (no transcript tooling run).",
+  "corrections": [],
+  "redteam": null
+}

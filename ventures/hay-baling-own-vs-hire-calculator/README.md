@@ -7,6 +7,8 @@ cost both ways, finds the break-even acreage, gives your cost per bale and the
 sale price that earns your margin, and shows what to charge neighbours so
 outside baling pays for its share of the machine. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hay-baling-own-vs-hire-calculator/
+
 After using this, you can **see how many acres justify your own baler**, and
 whether baling for neighbours would undercut the local contractor and still pay.
 

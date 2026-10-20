@@ -1,0 +1,75 @@
+# sensing-burst: small-sensor burst vs one frame of a larger sensor (synthetic scenes, Poisson-Gaussian noise)
+48x48 px scenes, 16 scenes per cell; PSNR is display-referred (gamma 1/2.2, scene peak = 1), border cropped.
+A = area ratio (large/small pixel); P = electrons per unit radiance in ONE large-sensor frame; read = read noise (e-).
+Small sensor has P/A electrons per unit radiance per frame. Equal exposure time per frame (the burst takes N times longer).
+
+== A. Frames N* for the small-sensor burst to match one large frame (no motion, perfect merge)
+A read P | N*_sim | N*_formula(mean radiance) | N*_formula(radiance 0.1) | A^2 | large_psnr
+2 2 30 | 2.6 | 2.5 | 3.1 | 4 | 18.39
+2 2 300 | 2.0 | 2.1 | 2.2 | 4 | 30.55
+2 2 3000 | 2.0 | 2.0 | 2.0 | 4 | 40.79
+2 8 30 | 3.6 | 3.7 | 3.9 | 4 | 11.18
+2 8 300 | 2.8 | 2.7 | 3.4 | 4 | 28.32
+2 8 3000 | 2.2 | 2.1 | 2.4 | 4 | 40.51
+4 2 30 | 7.9 | 7.0 | 10.9 | 16 | 18.52
+4 2 300 | 4.5 | 4.4 | 5.4 | 16 | 30.55
+4 2 3000 | 4.0 | 4.0 | 4.2 | 16 | 40.77
+4 8 30 | 14.4 | 14.1 | 15.5 | 16 | 11.26
+4 8 300 | 8.8 | 8.1 | 12.2 | 16 | 28.32
+4 8 3000 | 4.8 | 4.6 | 6.1 | 16 | 40.51
+8 2 30 | 26.2 | 21.9 | 40.0 | 64 | 18.58
+8 2 300 | 10.6 | 9.8 | 14.6 | 64 | 30.60
+8 2 3000 | 8.4 | 8.2 | 8.7 | 64 | 40.77
+8 8 30 | 54.9 | 55.1 | 61.5 | 64 | 11.24
+8 8 300 | 31.6 | 27.4 | 46.1 | 64 | 28.41
+8 8 3000 | 11.7 | 10.8 | 17.8 | 64 | 40.51
+
+== A1. PSNR (dB) against N for A=4, read=8, P=300
+N burst large
+1 18.22 28.32
+2 21.45 28.32
+3 23.43 28.32
+4 24.79 28.32
+6 26.59 28.32
+8 27.96 28.32
+12 29.79 28.32
+16 31.03 28.32
+24 32.84 28.32
+32 33.99 28.32
+48 35.82 28.32
+64 37.01 28.32
+
+== B. Closed-form variance of the radiance estimate vs 4000 Monte Carlo draws of one pixel (x = 0.4, A = 4, read = 3, s = 50)
+burst N=1: formula 1.160e-02 MC 1.223e-02
+burst N=4: formula 2.900e-03 MC 2.896e-03
+burst N=16: formula 7.250e-04 MC 7.201e-04
+large: formula 2.225e-03 MC 2.283e-03
+N* formula 5.21
+
+== C. Same total exposure time as the large frame (N frames each with 1/N of the light), A=4, read=3, P=300
+N | variance ratio burst/large at x=0.4 | PSNR burst | PSNR large
+1 | 4.84 | 23.08 | 30.33
+2 | 5.95 | 21.70 | 30.37
+4 | 8.19 | 20.06 | 30.31
+8 | 12.65 | 17.63 | 30.34
+16 | 21.58 | 15.02 | 30.34
+
+== D. Hand shake (random shifts up to +-2 px in quarter-pixel steps), A=4, read=3, N=8 frames
+P | PSNR known | PSNR estimated | PSNR unregistered | large frame | RMS shift error (px)
+30 | 18.70 | 17.60 | 15.71 | 16.83 | 3.123
+100 | 25.84 | 25.26 | 23.49 | 24.64 | 0.791
+300 | 31.93 | 31.67 | 26.50 | 30.29 | 0.287
+3000 | 40.02 | 40.01 | 27.73 | 40.74 | 0.085
+
+== D2. Frames needed with alignment, A=4, read=3 (interpolated N matching one large frame; grid 4,6,8,12,16,24,32)
+P | N* known | N* estimated
+100 | 5.9 | 6.8
+300 | 5.3 | 5.7
+3000 | 20.9 | 20.6
+
+== E. Highlights: scene with a disc of radiance 6, sensor clips at radiance 3 (full well = 3 P), A=4, read=3, P=1000, no motion, 8 frames
+method | PSNR (dB) | highlight (disc) mean radiance estimate (true 6)
+large, 1 frame | 22.40 | 3.00
+large, 8-frame bracket | 48.66 | 5.95
+small, 8 equal frames | 22.41 | 3.00
+small, 8-frame bracket | 42.01 | 5.92

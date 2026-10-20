@@ -1,0 +1,27 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+services:
+  - type: web
+    name: visit-keeper
+    runtime: docker
+    dockerContext: ventures/visit-keeper
+    dockerfilePath: ventures/visit-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: TRUST_PROXY
+        value: "1"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: SITES
+        sync: false
+      - key: TITLE
+        sync: false
+      - key: PUBLIC_SITES
+        sync: false

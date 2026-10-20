@@ -4,6 +4,8 @@ A free browser tool for small-business owners holding several financing offers q
 term loan, SBA-style loan or merchant cash advance and get the true APR after fees, the cash actually received, total
 repaid, cost per dollar and the cost of repaying early, side by side**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/business-loan-offer-comparator/
+
 After using this, you can now **put a 1.32 factor rate, a 22% weekly-pay loan and a 9.5% bank loan in one column and see
 which costs what, which used to take a spreadsheet and an IRR function most owners do not trust themselves with**.
 

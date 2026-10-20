@@ -4,6 +4,8 @@ After using this, you can now see which supplier invoices to pay early when seve
 there is not enough cash to take them all, with every combination checked exactly, which used to mean paying whoever called
 first or ranking by gut feel.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/early-pay-discount-picker/
+
 Free, runs in the browser, nothing is uploaded. Open `index.html`.
 
 - Up to 14 invoices, each with an amount, a discount percentage, a last day to take the discount and a due day.

@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01RiTDcNCrEqUCQaoSfwJVTy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled routine)",
+  "input_sha256": "06803603fe2aa19203b94097a4e6666d9fdd6c696580e63c7dd3bd9b079c39f5",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T22:56:17Z",
+  "ended": null,
+  "wall_minutes": 29.23,
+  "tokens_in": 6913035,
+  "tokens_out": 56251,
+  "cost_usd": 2.4893,
+  "tool_calls": 54,
+  "task": "new venture: UK crypto CGT (Section 104)",
+  "projects": [
+    "uk-crypto-cgt-calculator"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 38,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Router rows were all Explore/Consolidate on ventures already deep (where-to-sell handoff to all 15 channels and back-links already exist); a real gap (no UK crypto matching rules anywhere, grep 'Section 104' empty) took several reads to find. Adding a venture also needs hand edits to two count tests plus two regen commands (regen.mjs then front-door-tools.mjs --write)."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added uk-crypto-cgt-calculator: HMRC same-day, 30-day and Section 104 matching, per-tax-year estimate with 30 Oct 2024 rate split, CLI, guide with test-recomputed numbers. Python pytest gitops/tests mirror tests pass after regen.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f05058dd-66a9-53ea-be91-1ea79671942f",
+    "transcripts": 1,
+    "first": "2026-10-18T22:56:17Z",
+    "last": "2026-10-18T23:25:31Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 54,
+        "input": 108,
+        "output": 56251,
+        "thinking": 12136,
+        "cache_read": 6769776,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143151,
+        "api_equivalent_usd": 2.4893,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 108,
+      "output": 56251,
+      "thinking": 12136,
+      "cache_read": 6769776,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143151,
+      "api_equivalent_usd": 2.4893,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 54
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.23,
+      "active_minutes": 29.23,
+      "model_minutes": 6.84,
+      "tool_minutes": 22.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "one engineer: HMRC matching rules research, engine, CLI, page, guide, tests, repo registration",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 482.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

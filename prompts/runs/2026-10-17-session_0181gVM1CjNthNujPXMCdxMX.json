@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_0181gVM1CjNthNujPXMCdxMX",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T05:22:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "free-choice",
+  "projects": [
+    "free-robusttails"
+  ],
+  "pr": 7662,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Picking work step 1 says draw uniform random but gives no command; I used python random."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Free-choice draw 0.028. Follow-up to free-robustpaired: t(2) cells, bad runs, estimated Huber scale. No statistic wins both noise models. Cost not attached (runcost transcript unavailable in this routine); human-hours estimate not measured.",
+  "corrections": [],
+  "redteam": null
+}

@@ -6,6 +6,8 @@ every structural fault with its segment number, plus the documents as tables and
 After using this, you can know in seconds why a retailer rejected an EDI file or what a 997 is
 complaining about, which used to mean a ticket to an EDI provider or reading `*` and `~` by eye.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/edi-x12-order-checker/
+
 **No data leaves the browser.** The file is read locally; a test asserts no network calls.
 
 ## Checks

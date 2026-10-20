@@ -4,6 +4,8 @@ Price an H100, A100, L40S or RTX 4090 workload on RunPod, Lambda, Vast.ai, CoreW
 Cloud and Modal side by side at your busy GPU-hours and real utilisation, see the 12-month spend
 under growth, and find the busy hours a month above which buying the card beats renting.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/training-gpu-pricing-calculator/
+
 ```
 node cli.mjs compare --gpu h100 --hours 200 --utilization 60 --growth 5
 node cli.mjs compare --gpu a100 --gpus 4 --hours 300 --provider aws --budget 2000   # CI gate: exit 1 over budget

@@ -1,0 +1,31 @@
+{
+  "_comment": "Copy to seller.json (git-ignored), fill in, then: tennisbots listing build seller.json. Price and quantity are placeholders, not a recommendation.",
+  "brand": "YourBrand",
+  "manufacturer": "Your Company LLC",
+  "model": "OTR-F1",
+  "product": "feeder",
+  "sku": "OTR-F1-US-001",
+  "product_type": "",
+  "marketplace_id": "ATVPDKIKX0DER",
+  "region": "na",
+  "language_tag": "en_US",
+  "currency": "USD",
+  "price": 1499.00,
+  "quantity": 5,
+  "condition": "new_new",
+  "fulfillment": "merchant",
+  "gtin": "",
+  "gtin_type": "upc",
+  "gtin_exempt": false,
+  "country_of_origin": "US",
+  "images": [],
+  "brand_registry": false,
+  "compliance": {
+    "product_safety_tested": false,
+    "radio_compliance": false,
+    "battery_un38_3": false,
+    "battery_safety_data_sheet": false,
+    "warnings_and_manual": false,
+    "product_liability_insurance": false
+  }
+}

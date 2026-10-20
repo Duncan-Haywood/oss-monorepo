@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_019sefTHsRTkHZVSW7e7njQU",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T09:19:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "eda-checkorder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7356",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Track 7 milestones all done; no free milestone, had to pick from eda-verify next steps. Tools (yosys, iverilog, pytest) absent in the container so new simulation was not possible."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Stdlib-only replay of eda-verify log. runcost not attached (no transcript access).",
+  "corrections": [],
+  "redteam": null
+}

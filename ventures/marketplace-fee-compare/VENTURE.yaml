@@ -1,13 +1,13 @@
 name: marketplace-fee-compare
-description: A private browser comparison that takes one item once — price, landed cost, category, monthly volume — and ranks net profit across eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store side by side, spreading subscriptions over the seller's own order count and naming what each channel's headline rate leaves out.
+description: A private browser comparison that takes one item once — price, landed cost, category, monthly volume — and ranks net profit across eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop, Poshmark, Facebook Marketplace, and an own Shopify store side by side, spreading subscriptions over the seller's own order count and naming what each channel's headline rate leaves out.
 stage: prototype
 owner: duncan
 hypotheses:
-  - claim: Multi-channel sellers will use a one-item cross-channel comparison before opening any single-channel calculator, because the question they start with is "where do I list this" and no tool in the portfolio answers it.
+  - claim: Multi-channel sellers will use a one-item cross-channel comparison before opening any single-channel calculator, because the question they start with is "where do I list this" and the per-channel calculators each answer only their own channel. (The deeper where-to-sell-calculator also answers it, with returns and shelf time; this tool is the quick headline triage plus a bulk catalogue view, so the hypothesis is whether sellers start here or there.)
     status: untested
     checked: null
     evidence: customer-contact
-  - claim: Seeing category referral rates diverge between marketplaces on the same item (8% electronics vs 20% jewelry on Amazon, flat 13.25% on eBay) changes a listing decision that a flat "eBay takes 13%" estimate would not.
+  - claim: Seeing category referral rates diverge between marketplaces on the same item (8% electronics vs 20% jewelry on Amazon, flat 13.6% on eBay) changes a listing decision that a flat "eBay takes 13%" estimate would not.
     status: untested
     checked: null
     evidence: customer-contact

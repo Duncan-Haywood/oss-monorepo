@@ -1,0 +1,41 @@
+{
+  "slug": "mobile-detailing-bid-calculator",
+  "name": "Mobile auto detailing",
+  "group": "Vehicles & mobile",
+  "summary": "Mobile detail jobs priced from hands-on hours, setup, supplies and round-trip miles.",
+  "fit": "partial",
+  "crewSize": 1,
+  "setupHours": 0.25,
+  "hourlyWage": 0,
+  "burdenRate": 25,
+  "overheadRate": 0,
+  "targetMargin": 35,
+  "milesOneWay": 12,
+  "items": [
+    {
+      "label": "Hands-on detail",
+      "unit": "vehicle",
+      "qty": 1,
+      "hoursPerUnit": 3,
+      "materialPerUnit": 18,
+      "source": "laborHours 3; supplies and chemicals $18 (defaults in calc.mjs, index.html). Wage defaults to $0 (owner-operator, '0 to skip')"
+    },
+    {
+      "label": "Cleanup",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.25,
+      "materialPerUnit": 0,
+      "source": "cleanupHours 0.25 (defaults in calc.mjs)"
+    },
+    {
+      "label": "Job overhead allocation",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 12,
+      "source": "overhead $12 per job (defaults in calc.mjs); the specialist allocates overhead in dollars, so overheadRate is 0. Travel hours 0.75 and $0.67/mile on 24 round-trip miles are left to the suite's mileage"
+    }
+  ],
+  "specialistModels": "Checks a proposed quote against cost with a 3% payment fee taken from the price, break-even, and effective hourly rate."
+}

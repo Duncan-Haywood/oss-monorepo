@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of absolute quoted-minus-true bias and regret against rollouts per plan n: both fall as n grows">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Explanation twin: optimism falls with rollouts n (K=5)</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#ddd"/><text x="58" y="313.6" text-anchor="end" font-family="sans-serif" font-size="11">0.0001</text>
+<line x1="64" x2="624" y1="247.5" y2="247.5" stroke="#ddd"/><text x="58" y="251.5" text-anchor="end" font-family="sans-serif" font-size="11">0.001</text>
+<line x1="64" x2="624" y1="185.4" y2="185.4" stroke="#ddd"/><text x="58" y="189.4" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="123.3" y2="123.3" stroke="#ddd"/><text x="58" y="127.3" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="61.2" y2="61.2" stroke="#ddd"/><text x="58" y="65.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="160.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="234.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="307.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="404.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="477.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">rollouts per plan n</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">value</text>
+<polyline points="64.0,70.4 160.8,87.4 234.1,102.6 307.4,120.1 404.2,149.2 477.5,180.7 624.0,309.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#c0392b"/>
+<circle cx="160.8" cy="87.4" r="3" fill="#c0392b"/>
+<circle cx="234.1" cy="102.6" r="3" fill="#c0392b"/>
+<circle cx="307.4" cy="120.1" r="3" fill="#c0392b"/>
+<circle cx="404.2" cy="149.2" r="3" fill="#c0392b"/>
+<circle cx="477.5" cy="180.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="309.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">|quoted-true bias|</text>
+<polyline points="64.0,96.6 160.8,107.5 234.1,118.9 307.4,133.0 404.2,157.7 477.5,186.3 624.0,309.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="96.6" r="3" fill="#1f6fb2"/>
+<circle cx="160.8" cy="107.5" r="3" fill="#1f6fb2"/>
+<circle cx="234.1" cy="118.9" r="3" fill="#1f6fb2"/>
+<circle cx="307.4" cy="133.0" r="3" fill="#1f6fb2"/>
+<circle cx="404.2" cy="157.7" r="3" fill="#1f6fb2"/>
+<circle cx="477.5" cy="186.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="309.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">regret</text>
+</svg>

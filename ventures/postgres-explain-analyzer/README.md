@@ -3,6 +3,8 @@
 Find out why a PostgreSQL query is slow — from one `EXPLAIN (ANALYZE, BUFFERS)`
 plan, text or JSON, before you start guessing at indexes.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/postgres-explain-analyzer/
+
 ```
 psql -At -c "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT ..." | node cli.mjs analyze -
 node cli.mjs analyze plan.txt

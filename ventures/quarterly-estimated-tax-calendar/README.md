@@ -8,6 +8,8 @@ for each quarter (adjusted for weekends and federal holidays, not just "the
 15th"), and exports a downloadable `.ics` calendar with a reminder before
 each one. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/quarterly-estimated-tax-calendar/
+
 After using this, you can now **know exactly what to pay the IRS each
 quarter and by which real date, and get a reminder on your own calendar
 before it's due** — which used to mean guessing at "the 15th" (wrong three

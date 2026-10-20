@@ -2,6 +2,8 @@
 
 The free appliance repair quote calculator helps an independent technician price a job before sending the customer a number. Enter the diagnostic and repair hours, loaded labor cost, trip cost, parts, parts markup, callback reserve, overhead, and target margin. It shows a quote target, walk-away floor, effective hourly rate, a price sensitivity table, and whether finishing that repair still beats recommending replace — customer cost per remaining year versus what you keep if they decline.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/appliance-repair-quote-calculator/
+
 Open `index.html` in a browser. It works without an account, network request, API key, or paid service. All arithmetic is deterministic and the inputs remain in the browser.
 
 ## Why this niche

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deadband-twin"
+version = "0.1.0"
+description = "Actuator deadband a twin does not model: exact stall error d/k, excitation-dependent fitted gain 2Q(d/sigma), and bisection identification cost"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

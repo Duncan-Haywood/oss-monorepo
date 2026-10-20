@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The TCGplayer $0.30 Fee: Why a $1 Card Loses 43.3% to Fees</title>
+  <meta name="description" content="TCGplayer charges 10.75% commission plus 2.5% + $0.30 per order. Worked examples show a one-card $1 order losing 43.3% to fees and a 20-card order losing 14.8%.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./tcgplayer-30-cent-fee-and-order-size.html">
+  <meta property="og:title" content="The TCGplayer $0.30 Fee, Worked Through">
+  <meta property="og:description" content="A $1 card alone loses 43.3% to TCGplayer fees; twenty of them in one order lose 14.8%. The flat $0.30 is per order, not per card.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the TCGplayer $0.30 fee?","acceptedAnswer":{"@type":"Answer","text":"The flat part of TCGplayer's transaction fee: 2.5% of the order total plus $0.30, charged once per order. A one-card $5.00 order pays $0.43 in transaction fees, but a five-card $25.00 order pays $0.93, only $0.50 more."}},{"@type":"Question","name":"What is the cheapest card worth selling on TCGplayer?","acceptedAnswer":{"@type":"Answer","text":"It depends on the order, not the card. A single $1.00 card with no buyer-paid shipping keeps $0.57; if your postage is higher than that, it loses money on its own. The same card in a 20-card cart keeps $0.85 each. Selling low-value singles only pays when buyers combine them into bigger orders."}},{"@type":"Question","name":"Should I charge for shipping on TCGplayer?","acceptedAnswer":{"@type":"Answer","text":"Shipping the buyer pays is inside the commission base, so TCGplayer takes 10.75% of it plus 2.5%. On $1.31 of shipping that is about $0.17. Charging it is almost always better than absorbing postage, but it is not free money: only about 86.8 cents of each dollar of shipping reaches you."}}]}
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #13262a; background: #eef7f7; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { font-size: 1.15rem; }
+    section.card { background: #fff; border: 1px solid #c7e0e2; border-radius: 14px; padding: 18px 22px; box-shadow: 0 8px 24px #0a2a2d10; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c7e0e2; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #456466; }
+    .note { font-size: .9rem; color: #456466; }
+    footer { margin-top: 28px; font-size: .82rem; color: #456466; border-top: 1px solid #c7e0e2; padding-top: 16px; }
+    footer p { margin: .6rem 0; }
+    a { color: #0d5c63; }
+    @media (max-width: 700px) { table { display: block; overflow-x: auto; max-width: 100%; } }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; TCGplayer fee calculator</a></p>
+  <h1>The TCGplayer $0.30 fee, and why order size decides your margin</h1>
+  <p>TCGplayer's marketplace takes a 10.75% commission on the order subtotal (cards plus shipping the buyer pays) and a transaction fee of 2.5% of the order total plus a flat $0.30. The $0.30 is charged once per <em>order</em>, which makes the effective rate depend heavily on how many cards the buyer puts in the cart. The figures below are the same arithmetic the <a href="./">TCGplayer fee calculator</a> runs; the rates are those on TCGplayer's published fee table as of its 10 February 2026 change.</p>
+  <section class="card">
+  <h2>Same fee schedule, different order sizes</h2>
+  <table>
+    <thead><tr><th>Order</th><th>Subtotal</th><th>Commission</th><th>Transaction fee</th><th>You keep</th><th>Effective rate</th></tr></thead>
+    <tbody>
+      <tr><td>1 card at $1.00</td><td>$1.00</td><td>$0.11</td><td>$0.33</td><td>$0.57</td><td>43.3%</td></tr>
+      <tr><td>1 card at $2.00</td><td>$2.00</td><td>$0.22</td><td>$0.35</td><td>$1.44</td><td>28.2%</td></tr>
+      <tr><td>1 card at $5.00</td><td>$5.00</td><td>$0.54</td><td>$0.43</td><td>$4.04</td><td>19.2%</td></tr>
+      <tr><td>1 card at $10.00</td><td>$10.00</td><td>$1.08</td><td>$0.55</td><td>$8.38</td><td>16.3%</td></tr>
+      <tr><td>1 card at $25.00</td><td>$25.00</td><td>$2.69</td><td>$0.93</td><td>$21.39</td><td>14.4%</td></tr>
+      <tr><td>20 cards at $1.00 each</td><td>$20.00</td><td>$2.15</td><td>$0.80</td><td>$17.05</td><td>14.8%</td></tr>
+      <tr><td>50 cards at $1.00 each</td><td>$50.00</td><td>$5.38</td><td>$1.55</td><td>$43.08</td><td>13.8%</td></tr>
+    </tbody>
+  </table>
+  <p>No buyer-paid shipping and no sales tax in these rows; postage and supplies are not deducted. Adding shipping raises the base, and tax raises the 2.5% charge, by a little.</p>
+  </section>
+
+  <section class="card">
+  <h2>What to do with it</h2>
+  <p>If you sell many cheap singles, the price of any one card barely moves your margin; getting buyers to fill the cart does. Bulk and playset listings, a minimum-order note, and pricing the $1 cards so a typical cart clears a few dollars all work on the $0.30. At the other end, the $75 per-product cap makes expensive cards cheaper to sell as a percentage: a $1,000 card pays 10.0% all in.</p>
+  <p>The <a href="./">TCGplayer fee calculator</a> runs this on your own card price, quantity, buyer shipping, tax, postage and supplies, and solves for the card price that hits a profit target. Nothing you type leaves your browser. Ranking channels for the same card? Open the <a href="../where-to-sell-calculator/">where-to-sell calculator</a>.</p>
+  </section>
+  <section class="card">
+  <h2>Common questions</h2>
+  <h3>What is the TCGplayer $0.30 fee?</h3>
+  <p>The flat part of TCGplayer's transaction fee: 2.5% of the order total plus $0.30, charged once per order. A one-card $5.00 order pays $0.43 in transaction fees, but a five-card $25.00 order pays $0.93, only $0.50 more.</p>
+  <h3>What is the cheapest card worth selling on TCGplayer?</h3>
+  <p>It depends on the order, not the card. A single $1.00 card with no buyer-paid shipping keeps $0.57; if your postage is higher than that, it loses money on its own. The same card in a 20-card cart keeps $0.85 each. Selling low-value singles only pays when buyers combine them into bigger orders.</p>
+  <h3>Should I charge for shipping on TCGplayer?</h3>
+  <p>Shipping the buyer pays is inside the commission base, so TCGplayer takes 10.75% of it plus 2.5%. On $1.31 of shipping that is about $0.17. Charging it is almost always better than absorbing postage, but it is not free money: only about 86.8 cents of each dollar of shipping reaches you.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic, not legal, tax, financial, or selling advice, and it does not replace a qualified professional. Rates change -- check one real TCGplayer payout against every figure before you reprice. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><strong>Nothing leaves your browser.</strong> This page runs no calculator of its own; the linked tool runs entirely client-side.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by TCGplayer. TCGplayer is a trademark of its owner, named here only to describe the fee schedule this page walks through. The rates come from TCGplayer's published fee table as relayed by search results, not from a direct read of its help centre.</p>
+    <p class="support">Free and open source. If it helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

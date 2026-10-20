@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot over the nine cases of table 2 of the ratio of the twin-predicted error and the real error of the arithmetic rule to the optimal error; the real error is larger">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Shot-noise twin: predicted vs real error of the arithmetic rule</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="254.9" y2="254.9" stroke="#ddd"/><text x="58" y="258.9" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="185.8" y2="185.8" stroke="#ddd"/><text x="58" y="189.8" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="116.8" y2="116.8" stroke="#ddd"/><text x="58" y="120.8" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">7</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">9</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">case (row of table 2 in results.txt)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">ratio to optimal error</text>
+<line x1="64" x2="624" y1="185.8" y2="185.8" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,181.7 134.0,156.8 204.0,151.3 274.0,169.3 344.0,149.9 414.0,180.3 484.0,163.7 554.0,181.7 624.0,184.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="181.7" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="156.8" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="151.3" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="169.3" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="149.9" r="3" fill="#c0392b"/>
+<circle cx="414.0" cy="180.3" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="163.7" r="3" fill="#c0392b"/>
+<circle cx="554.0" cy="181.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="184.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">twin-predicted / optimal</text>
+<polyline points="64.0,173.4 134.0,132.0 204.0,97.4 274.0,151.3 344.0,71.2 414.0,173.4 484.0,83.6 554.0,170.6 624.0,180.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="173.4" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="132.0" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="97.4" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="151.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="414.0" cy="173.4" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="83.6" r="3" fill="#1f6fb2"/>
+<circle cx="554.0" cy="170.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="180.3" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">arith rule real / optimal</text>
+</svg>

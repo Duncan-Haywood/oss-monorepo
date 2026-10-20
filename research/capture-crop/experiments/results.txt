@@ -1,0 +1,28 @@
+A. Longest native full-frame-equivalent focal length (mm) cropped from a 360 equirect
+equirect class              1080x1920 vertical    2160x3840 vertical   1920x1080 landscape
+5.7K                                      18.0                   9.0                  18.0
+8K                                        24.0                  12.0                  24.0
+11.5K (hypothetical)                      36.0                  18.0                  36.0
+15K (hypothetical)                        48.0                  24.0                  48.0
+
+B. Equirect width (px) needed to crop each lens natively, and the 8K camera's upscale factor
+lens (mm eq)     1080x1920 width   2160x3840 width   8K upscale @1080x1920
+16                          5119             10237                    1.00
+24                          7678             15356                    1.00
+35                         11197             22393                    1.46
+50                         15995             31991                    2.08
+85                         27192             54384                    3.54
+135                        43187             86375                    5.62
+
+C. Perspective: head-and-shoulders (0.6 m) filling a vertical frame; feature depth 0.1 m; background 20 m behind
+setup                               distance m  nose enlarged %  background x vs stick
+360 cam on stick, any crop                0.80             14.3                   1.00
+24 mm eq from framing distance            0.40             33.3                   0.51
+35 mm eq from framing distance            0.58             20.7                   0.74
+50 mm eq from framing distance            0.83             13.6                   1.04
+85 mm eq from framing distance            1.42              7.6                   1.72
+135 mm eq from framing distance           2.25              4.7                   2.63
+
+Summary
+8K 360 to 1080x1920 vertical: native up to 24.0 mm eq; 85 mm needs 27192 px (3.5x the 8K width)
+stick at 0.8 m enlarges a 10 cm-deep feature 14.3%; an 85 mm framing distance of 1.42 m, 7.6%

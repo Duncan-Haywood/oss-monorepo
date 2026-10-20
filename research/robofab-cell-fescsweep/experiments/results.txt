@@ -1,0 +1,15 @@
+Percent error of the decomposition against the exact chain as the inspection time varies (Erlang-4 print).
+t* = 1/H(N): inspection time at which the inspector alone caps the cell at the subsystem's rate H(N).
+
+print 20 P=2 N= 4  H(N)   4.86/h  t*  12.3 min  peak error -5.00% at inspect   10 min (= 0.81 t*)  error at 0.1 min -0.000%, at 100 min -0.020%, largest positive -0.000%
+print 20 P=4 N= 6  H(N)   8.97/h  t*   6.7 min  peak error -3.25% at inspect    6 min (= 0.90 t*)  error at 0.1 min -0.000%, at 100 min -0.000%, largest positive -0.000%
+print 20 P=4 N= 8  H(N)   8.97/h  t*   6.7 min  peak error -3.46% at inspect    6 min (= 0.90 t*)  error at 0.1 min -0.000%, at 100 min -0.000%, largest positive -0.000%
+print 20 P=6 N= 8  H(N)  11.90/h  t*   5.0 min  peak error -2.35% at inspect    5 min (= 0.99 t*)  error at 0.1 min -0.000%, at 100 min -0.000%, largest positive -0.000%
+print 20 P=6 N=12  H(N)  11.90/h  t*   5.0 min  peak error -2.59% at inspect    5 min (= 0.99 t*)  error at 0.1 min +0.000%, at 100 min -0.000%, largest positive +0.000%
+print 60 P=2 N= 4  H(N)   1.87/h  t*  32.1 min  peak error -4.71% at inspect   30 min (= 0.93 t*)  error at 0.1 min -0.000%, at 100 min -0.517%, largest positive -0.000%
+print 60 P=4 N= 6  H(N)   3.70/h  t*  16.2 min  peak error -2.88% at inspect   16 min (= 0.99 t*)  error at 0.1 min -0.000%, at 100 min -0.004%, largest positive -0.000%
+print 60 P=4 N= 8  H(N)   3.70/h  t*  16.2 min  peak error -3.34% at inspect   16 min (= 0.99 t*)  error at 0.1 min -0.000%, at 100 min -0.000%, largest positive -0.000%
+print 60 P=6 N= 8  H(N)   5.48/h  t*  10.9 min  peak error -2.18% at inspect   10 min (= 0.91 t*)  error at 0.1 min -0.000%, at 100 min -0.000%, largest positive -0.000%
+print 60 P=6 N=12  H(N)   5.48/h  t*  10.9 min  peak error -2.59% at inspect   10 min (= 0.91 t*)  error at 0.1 min +0.000%, at 100 min -0.000%, largest positive +0.000%
+
+10 cells: peak error -5.00% to -2.18% (mean -3.24%); peak at 0.81 to 0.99 t* (median 0.92); |error| at 0.1 min <= 0.000%, at 100 min <= 0.517%; largest positive error anywhere +0.000%

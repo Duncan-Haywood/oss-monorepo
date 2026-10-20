@@ -89,6 +89,12 @@ class Cli(unittest.TestCase):
         root = self._repo("on: push\njobs:\n  a:\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n")
         self.assertEqual(check.main([root, "--fail-on-risk"]), 0)
 
+    def test_single_file_path(self):
+        root = self._repo(SAMPLE)
+        f = Path(root) / ".github" / "workflows" / "ci.yml"
+        self.assertEqual(len(check.scan_path(str(f))), 3)
+        self.assertEqual(check.main([str(f), "--fail-on-risk"]), 2)
+
     def test_json_output(self):
         root = self._repo(SAMPLE)
         import io, contextlib

@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01BCvJhCmFLKQqwWd5q2NC2D",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-19T02:09:10Z",
+  "ended": "2026-10-19T02:12:25Z",
+  "wall_minutes": 3.48,
+  "tokens_in": 2907527,
+  "tokens_out": 16547,
+  "cost_usd": 1.1025,
+  "tool_calls": 36,
+  "task": "crypto-cost-basis-calculator: column mapper for unrecognised exports",
+  "projects": [
+    "crypto-cost-basis-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8238",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Picked a venture with no open PR after the router top rows (shift-roster-builder) each had 1-2 open PRs. Mobile/PWA packaging already exists in platform/distribution, so not rebuilt. Own mistake: pkill in the same shell call killed it, and a concurrent background preflight briefly held git's index lock; no doc was at fault.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fe2507c1-c5f8-5635-9e53-de111e2a92a0",
+    "transcripts": 1,
+    "first": "2026-10-19T02:09:10Z",
+    "last": "2026-10-19T02:12:38Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 30,
+        "input": 60,
+        "output": 16547,
+        "thinking": 2346,
+        "cache_read": 2813940,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93527,
+        "api_equivalent_usd": 1.1025,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 60,
+      "output": 16547,
+      "thinking": 2346,
+      "cache_read": 2813940,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93527,
+      "api_equivalent_usd": 1.1025,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 30,
+      "mcp__github__search_pull_requests": 3,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.48,
+      "active_minutes": 3.48,
+      "model_minutes": 2.06,
+      "tool_minutes": 1.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, implement and browser-check an importer plus UI with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 544.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

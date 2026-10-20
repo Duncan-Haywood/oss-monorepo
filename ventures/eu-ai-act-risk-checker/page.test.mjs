@@ -69,3 +69,16 @@ test("the sample loads through the same path the page uses", async () => {
   const { compute, SAMPLE } = await import("./calc.mjs");
   assert.equal(compute(SAMPLE).errors.length, 0);
 });
+
+test("footer links the whistleblower channel checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/eu-whistleblower-channel-checker\/"/);
+});
+
+test("footer links the platform work and product liability directive checkers", () => {
+  assert.match(page("index.html"), /href="\.\.\/eu-platform-work-directive-checker\/"/);
+  assert.match(page("index.html"), /href="\.\.\/eu-product-liability-directive-checker\/"/);
+});
+
+test("footer links the DORA readiness checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/eu-dora-readiness-checker\/"/);
+});

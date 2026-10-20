@@ -72,3 +72,9 @@ test("defaults are the ones the page tells the reader to verify", () => {
   assert.equal(r.method, "per-diem");
   assert.ok(r.totalSaving > 0);
 });
+
+test("a DOT percentage just over 100 is rejected", () => {
+  const r = calculatePerDiem({ fullDays: 100, dailyRate: 80, dotPct: 101 });
+  assert.match(r.error, /DOT percentage/);
+  assert.equal(calculatePerDiem({ fullDays: 100, dailyRate: 80, dotPct: 100 }).error, undefined);
+});

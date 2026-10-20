@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Ratio of real expected energy to the twin's claim against real wind half-width, finite rows only">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Real energy / twin claim vs wind half-width a</text>
+<rect x="64" y="40" width="560" height="284" fill="none" stroke="#999"/>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#eee"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0.957</text>
+<line x1="64" x2="624" y1="267.2" y2="267.2" stroke="#eee"/><text x="58" y="271.2" text-anchor="end" font-family="sans-serif" font-size="11">1.08</text>
+<line x1="64" x2="624" y1="210.4" y2="210.4" stroke="#eee"/><text x="58" y="214.4" text-anchor="end" font-family="sans-serif" font-size="11">1.21</text>
+<line x1="64" x2="624" y1="153.6" y2="153.6" stroke="#eee"/><text x="58" y="157.6" text-anchor="end" font-family="sans-serif" font-size="11">1.34</text>
+<line x1="64" x2="624" y1="96.8" y2="96.8" stroke="#eee"/><text x="58" y="100.8" text-anchor="end" font-family="sans-serif" font-size="11">1.47</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#eee"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">1.59</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="107.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="193.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="279.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="365.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="451.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="537.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="344.0" y="372" text-anchor="middle" font-family="sans-serif" font-size="12">real wind half-width a (mean 0.3)</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">real / claim</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,304.4 107.1,302.6 193.2,295.3 279.4,282.1 365.5,260.9 451.7,227.5 537.8,171.9 624.0,59.6"/>
+<circle cx="64.0" cy="304.4" r="3" fill="#1f6fb2"/>
+<circle cx="107.1" cy="302.6" r="3" fill="#1f6fb2"/>
+<circle cx="193.2" cy="295.3" r="3" fill="#1f6fb2"/>
+<circle cx="279.4" cy="282.1" r="3" fill="#1f6fb2"/>
+<circle cx="365.5" cy="260.9" r="3" fill="#1f6fb2"/>
+<circle cx="451.7" cy="227.5" r="3" fill="#1f6fb2"/>
+<circle cx="537.8" cy="171.9" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="59.6" r="3" fill="#1f6fb2"/>
+<rect x="434" y="48" width="12" height="10" fill="#1f6fb2"/><text x="452" y="57" font-family="sans-serif" font-size="11">real / claim</text>
+</svg>

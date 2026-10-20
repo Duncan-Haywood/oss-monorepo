@@ -1,0 +1,61 @@
+name: mrr-pulse
+description: >-
+  Self-hosted Stripe revenue metrics: MRR, ARR, new/expansion/contraction/churned
+  MRR, logo churn, net revenue retention and quick ratio, with a 12-month history
+  rebuilt on first sync. Read-only key, zero-dependency server, browser demo on a
+  pasted subscription export, one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Baremetrics, ChartMogul,
+# ProfitWell Metrics (Paddle), Churnkey analytics and Stripe's own Billing
+# overview serve subscription founders; hosted tools price by MRR. The gap:
+# small SaaS teams that want the six weekly numbers without a revenue-scaled
+# fee or handing customer data to a third party. Third product for the same
+# buyer as dunning-engine (failed payments) and cancel-flow (voluntary churn):
+# this one measures them, so the three are a retention suite. duplicate_check:
+# mrr-waterfall-calculator is a form on typed numbers; stripe-churn-cohort-analyzer
+# is a one-off CSV cohort view; this is a live, scheduled read of Stripe.
+#
+# First visitor: indie SaaS founders on Indie Hackers, r/SaaS, r/stripe and
+# Hacker News asking "baremetrics alternative", "self hosted mrr dashboard",
+# "stripe mrr churn open source". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; done-for-you
+# setup, a hosted copy under the deployer's own name, or GitHub Sponsors are the
+# paid steps; hosting under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Indie SaaS founders will paste a subscription export into the browser demo
+      and then deploy the read-only server, because the paid metrics tools bill
+      by MRR and the free Stripe overview shows no churn or retention history.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A history rebuilt from start and end dates is accurate enough on new and
+      churned MRR that founders trust the dashboard from day one, and the
+      expansion and contraction it adds from the first sync on is what makes
+      them keep the server running.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports an MRR figure off by more than 5% from their own books on active, normal-priced subscriptions; the normalisation and coupon paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mrr-pulse/
+  analytics: null

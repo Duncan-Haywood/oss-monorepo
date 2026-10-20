@@ -9,6 +9,8 @@ splitting evenly regardless of usage or negotiating it by eye every month.
 Each tenant can also carry a flat monthly base/access fee, charged before the
 proportional split. Produces a clean, itemized per-tenant bill.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/commissary-kitchen-cost-split-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. See
 [`vs-splitting-evenly.html`](vs-splitting-evenly.html) for the comparison

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-label="Grouped bars of the percentage time saved by the time-optimal solver versus the trapezoid baseline at 400 nodes, 6400 nodes and the extrapolated limit for twelve cases">
+<rect width="720" height="400" fill="#fff"/>
+<text x="360.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Edge of time-optimal solver over trapezoid (%); groups are L/k/w</text>
+<rect x="56" y="40" width="648" height="290" fill="none" stroke="#999"/>
+<line x1="56" x2="704" y1="330.0" y2="330.0" stroke="#eee"/><text x="50" y="334.0" text-anchor="end" font-family="sans-serif" font-size="11">-0.4</text>
+<line x1="56" x2="704" y1="272.0" y2="272.0" stroke="#eee"/><text x="50" y="276.0" text-anchor="end" font-family="sans-serif" font-size="11">-0.1</text>
+<line x1="56" x2="704" y1="214.0" y2="214.0" stroke="#eee"/><text x="50" y="218.0" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="56" x2="704" y1="156.0" y2="156.0" stroke="#eee"/><text x="50" y="160.0" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="56" x2="704" y1="98.0" y2="98.0" stroke="#eee"/><text x="50" y="102.0" text-anchor="end" font-family="sans-serif" font-size="11">0.7</text>
+<line x1="56" x2="704" y1="40.0" y2="40.0" stroke="#eee"/><text x="50" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">1.0</text>
+<line x1="56" x2="704" y1="246.4" y2="246.4" stroke="#333"/>
+<text x="14" y="185.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 185.0)">edge (%)</text>
+<rect x="61.4" y="214.7" width="13.4" height="31.8" fill="#1f6fb2"/>
+<rect x="75.8" y="172.3" width="13.4" height="74.2" fill="#c0392b"/>
+<rect x="90.2" y="170.2" width="13.4" height="76.3" fill="#2e8b57"/>
+<text x="83.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.080/5/2</text>
+<rect x="115.4" y="246.4" width="13.4" height="42.4" fill="#1f6fb2"/>
+<rect x="129.8" y="210.4" width="13.4" height="36.0" fill="#c0392b"/>
+<rect x="144.2" y="206.2" width="13.4" height="40.3" fill="#2e8b57"/>
+<text x="137.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.080/5/1</text>
+<rect x="169.4" y="246.4" width="13.4" height="50.8" fill="#1f6fb2"/>
+<rect x="183.8" y="208.3" width="13.4" height="38.1" fill="#c0392b"/>
+<rect x="198.2" y="204.1" width="13.4" height="42.4" fill="#2e8b57"/>
+<text x="191.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.080/inf/2</text>
+<rect x="223.4" y="246.4" width="13.4" height="61.4" fill="#1f6fb2"/>
+<rect x="237.8" y="210.4" width="13.4" height="36.0" fill="#c0392b"/>
+<rect x="252.2" y="204.1" width="13.4" height="42.4" fill="#2e8b57"/>
+<text x="245.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.080/inf/1</text>
+<rect x="277.4" y="225.3" width="13.4" height="21.2" fill="#1f6fb2"/>
+<rect x="291.8" y="204.1" width="13.4" height="42.4" fill="#c0392b"/>
+<rect x="306.2" y="204.1" width="13.4" height="42.4" fill="#2e8b57"/>
+<text x="299.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.120/5/2</text>
+<rect x="331.4" y="246.4" width="13.4" height="55.1" fill="#1f6fb2"/>
+<rect x="345.8" y="223.1" width="13.4" height="23.3" fill="#c0392b"/>
+<rect x="360.2" y="221.0" width="13.4" height="25.4" fill="#2e8b57"/>
+<text x="353.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.120/5/1</text>
+<rect x="385.4" y="246.4" width="13.4" height="53.0" fill="#1f6fb2"/>
+<rect x="399.8" y="216.8" width="13.4" height="29.7" fill="#c0392b"/>
+<rect x="414.2" y="214.7" width="13.4" height="31.8" fill="#2e8b57"/>
+<text x="407.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.120/inf/2</text>
+<rect x="439.4" y="246.4" width="13.4" height="63.6" fill="#1f6fb2"/>
+<rect x="453.8" y="210.4" width="13.4" height="36.0" fill="#c0392b"/>
+<rect x="468.2" y="204.1" width="13.4" height="42.4" fill="#2e8b57"/>
+<text x="461.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.120/inf/1</text>
+<rect x="493.4" y="62.1" width="13.4" height="184.3" fill="#1f6fb2"/>
+<rect x="507.8" y="60.0" width="13.4" height="186.4" fill="#c0392b"/>
+<rect x="522.2" y="60.0" width="13.4" height="186.4" fill="#2e8b57"/>
+<text x="515.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.200/5/2</text>
+<rect x="547.4" y="193.5" width="13.4" height="53.0" fill="#1f6fb2"/>
+<rect x="561.8" y="180.8" width="13.4" height="65.7" fill="#c0392b"/>
+<rect x="576.2" y="180.8" width="13.4" height="65.7" fill="#2e8b57"/>
+<text x="569.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.200/5/1</text>
+<rect x="601.4" y="163.8" width="13.4" height="82.6" fill="#1f6fb2"/>
+<rect x="615.8" y="159.6" width="13.4" height="86.9" fill="#c0392b"/>
+<rect x="630.2" y="159.6" width="13.4" height="86.9" fill="#2e8b57"/>
+<text x="623.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.200/inf/2</text>
+<rect x="655.4" y="246.4" width="13.4" height="36.0" fill="#1f6fb2"/>
+<rect x="669.8" y="212.5" width="13.4" height="33.9" fill="#c0392b"/>
+<rect x="684.2" y="212.5" width="13.4" height="33.9" fill="#2e8b57"/>
+<text x="677.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">.200/inf/1</text>
+<rect x="56" y="376" width="12" height="10" fill="#1f6fb2"/><text x="72" y="385" font-family="sans-serif" font-size="11">400 nodes</text>
+<rect x="191" y="376" width="12" height="10" fill="#c0392b"/><text x="207" y="385" font-family="sans-serif" font-size="11">6400 nodes</text>
+<rect x="326" y="376" width="12" height="10" fill="#2e8b57"/><text x="342" y="385" font-family="sans-serif" font-size="11">extrapolated</text>
+</svg>

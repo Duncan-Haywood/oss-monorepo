@@ -6,6 +6,8 @@ other per-order costs — including return on the cash you put into materials an
 shipping, and a side-by-side of organic vs 12% vs 15% Offsite Ads. Use it
 before changing a price, publishing a listing, or taking an attributed ad sale.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/
+
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
 fees Etsy will charge: enter the rates and costs that apply to your shop and

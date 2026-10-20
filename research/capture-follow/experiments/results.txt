@@ -1,0 +1,50 @@
+capture-follow: 10 seeds x 240 s walks, plaza 30 m x 30 m, target distance 2.5 m
+
+A. density 0.02 people/m2 (18 pedestrians)
+platform | framed % | clear view % | blocked % | close s/h | contacts/h | Wh/h
+tripod | 2.2 | 87.2 | 0.0 | 212 | 82.5 | 5.0
+wheeled, no avoidance | 25.4 | 89.9 | 41.8 | 239 | 118.5 | 46.7
+wheeled | 21.2 | 90.1 | 41.5 | 224 | 82.5 | 47.0
+wheel-legs | 70.0 | 95.7 | 0.0 | 198 | 48.0 | 106.4
+drone, no avoidance | 99.9 | 100.0 | 0.0 | 231 | 109.5 | 66.8
+drone | 92.7 | 100.0 | 0.0 | 154 | 24.0 | 66.8
+
+A. density 0.1 people/m2 (90 pedestrians)
+platform | framed % | clear view % | blocked % | close s/h | contacts/h | Wh/h
+tripod | 2.1 | 48.3 | 0.0 | 997 | 405.0 | 5.0
+wheeled, no avoidance | 21.6 | 59.4 | 44.8 | 1026 | 492.0 | 45.2
+wheeled | 10.5 | 59.2 | 43.3 | 982 | 427.5 | 45.9
+wheel-legs | 32.8 | 79.9 | 0.0 | 851 | 301.5 | 107.3
+drone, no avoidance | 99.7 | 100.0 | 0.0 | 958 | 513.0 | 66.7
+drone | 68.6 | 100.0 | 0.0 | 714 | 148.5 | 67.1
+
+A. density 0.3 people/m2 (270 pedestrians)
+platform | framed % | clear view % | blocked % | close s/h | contacts/h | Wh/h
+tripod | 2.5 | 16.5 | 0.0 | 2215 | 993.0 | 5.0
+wheeled, no avoidance | 17.5 | 25.0 | 46.8 | 2235 | 1149.0 | 44.3
+wheeled | 3.7 | 23.6 | 44.7 | 2156 | 1041.0 | 44.9
+wheel-legs | 4.5 | 44.5 | 0.0 | 2116 | 1050.0 | 108.2
+drone, no avoidance | 99.9 | 100.0 | 0.0 | 2265 | 1249.5 | 66.7
+drone | 38.7 | 100.0 | 0.0 | 1889 | 699.0 | 67.6
+
+== D. framed % against density; columns: tripod, wheeled, no avoidance, wheeled, wheel-legs, drone, no avoidance, drone
+0.02 2.2 25.4 21.2 70.0 99.9 92.7
+0.1 2.1 21.6 10.5 32.8 99.7 68.6
+0.3 2.5 17.5 3.7 4.5 99.9 38.7
+
+B. the same walks on a flat plaza (no step lines), density 0.1
+platform | framed % | clear view % | contacts/h | Wh/h
+wheeled, no avoidance | 97.9 | 81.1 | 507.0 | 67.7
+wheeled | 40.9 | 79.9 | 325.5 | 68.8
+wheel-legs | 41.6 | 79.9 | 322.5 | 105.6
+drone, no avoidance | 99.7 | 100.0 | 513.0 | 66.7
+drone | 68.6 | 100.0 | 148.5 | 67.1
+
+C. packed size, mass and battery per hour of filming (assumed; battery at 200 Wh/kg, density 0.1)
+platform | litres | kg | battery kg per hour
+tripod | 3 | 1.2 | 0.03
+wheeled, no avoidance | 25 | 6 | 0.19
+wheeled | 25 | 6 | 0.19
+wheel-legs | 40 | 10 | 0.53
+drone, no avoidance | 1.5 | 0.25 | 0.33
+drone | 1.5 | 0.25 | 0.34

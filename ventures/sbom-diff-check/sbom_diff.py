@@ -73,14 +73,24 @@ def _version_or_none(value):
 
 
 def extract_cyclonedx(doc):
-    """Return a list of {name, version, purl} dicts from a CycloneDX document."""
+    """Return a list of {name, version, purl} dicts from a CycloneDX document.
+
+    Walks nested `components` (cdxgen and Maven/Gradle plugins nest them), and
+    prefixes the optional `group` so `@types` + `node` is `@types/node`, not
+    a bare `node` that collides with an unrelated package.
+    """
     components = []
-    for c in doc.get("components") or []:
+    stack = list(reversed(doc.get("components") or []))
+    while stack:
+        c = stack.pop()
         if not isinstance(c, dict):
             continue
+        stack.extend(reversed(c.get("components") or []))
         name = c.get("name")
         if not name:
             continue
+        if c.get("group"):
+            name = f"{c['group']}/{name}"
         components.append({"name": name, "version": c.get("version") or None, "purl": c.get("purl") or None})
     return components
 

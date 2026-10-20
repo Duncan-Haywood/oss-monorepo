@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 320" role="img" aria-label="Bars: best systolic array divided by best MAC engine, by ABC script and layer width F; every bar is above 1">
+<rect width="560" height="320" fill="#fff"/>
+<text x="280.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Best array / best MAC engine (above 1: MAC engine wins)</text>
+<line x1="60" x2="544" y1="260.0" y2="260.0" stroke="#ddd"/><text x="54" y="264.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="60" x2="544" y1="198.9" y2="198.9" stroke="#ddd"/><text x="54" y="202.9" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="60" x2="544" y1="137.8" y2="137.8" stroke="#333"/><text x="54" y="141.8" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="60" x2="544" y1="76.7" y2="76.7" stroke="#ddd"/><text x="54" y="80.7" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<rect x="71.6" y="101.1" width="34.8" height="158.9" fill="#1f6fb2"/><text x="89.0" y="97.1" text-anchor="middle" font-family="sans-serif" font-size="10">1.30</text>
+<rect x="110.3" y="103.6" width="34.8" height="156.4" fill="#c0392b"/><text x="127.8" y="99.6" text-anchor="middle" font-family="sans-serif" font-size="10">1.28</text>
+<text x="108.4" y="278" text-anchor="middle" font-family="sans-serif" font-size="11">yosys_default</text>
+<rect x="168.4" y="92.6" width="34.8" height="167.4" fill="#1f6fb2"/><text x="185.8" y="88.6" text-anchor="middle" font-family="sans-serif" font-size="10">1.37</text>
+<rect x="207.1" y="64.4" width="34.8" height="195.6" fill="#c0392b"/><text x="224.6" y="60.4" text-anchor="middle" font-family="sans-serif" font-size="10">1.60</text>
+<text x="205.2" y="278" text-anchor="middle" font-family="sans-serif" font-size="11">strash_map</text>
+<rect x="265.2" y="98.7" width="34.8" height="161.3" fill="#1f6fb2"/><text x="282.6" y="94.7" text-anchor="middle" font-family="sans-serif" font-size="10">1.32</text>
+<rect x="303.9" y="97.4" width="34.8" height="162.6" fill="#c0392b"/><text x="321.4" y="93.4" text-anchor="middle" font-family="sans-serif" font-size="10">1.33</text>
+<text x="302.0" y="278" text-anchor="middle" font-family="sans-serif" font-size="11">dc2_map</text>
+<rect x="362.0" y="98.7" width="34.8" height="161.3" fill="#1f6fb2"/><text x="379.4" y="94.7" text-anchor="middle" font-family="sans-serif" font-size="10">1.32</text>
+<rect x="400.7" y="103.6" width="34.8" height="156.4" fill="#c0392b"/><text x="418.2" y="99.6" text-anchor="middle" font-family="sans-serif" font-size="10">1.28</text>
+<text x="398.8" y="278" text-anchor="middle" font-family="sans-serif" font-size="11">dch_map</text>
+<rect x="458.8" y="93.8" width="34.8" height="166.2" fill="#1f6fb2"/><text x="476.2" y="89.8" text-anchor="middle" font-family="sans-serif" font-size="10">1.36</text>
+<rect x="497.5" y="85.2" width="34.8" height="174.8" fill="#c0392b"/><text x="515.0" y="81.2" text-anchor="middle" font-family="sans-serif" font-size="10">1.43</text>
+<text x="495.6" y="278" text-anchor="middle" font-family="sans-serif" font-size="11">resyn2_map</text>
+<text x="60" y="308" font-family="sans-serif" font-size="11"><tspan fill="#1f6fb2">&#9632;</tspan> F = 16   <tspan fill="#c0392b">&#9632;</tspan> F = 32</text></svg>

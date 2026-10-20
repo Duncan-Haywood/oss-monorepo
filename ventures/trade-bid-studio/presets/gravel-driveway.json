@@ -1,0 +1,32 @@
+{
+  "slug": "gravel-driveway-bid-calculator",
+  "name": "Gravel driveway installation",
+  "group": "Paving, concrete & masonry",
+  "summary": "Crushed-stone drives priced from area, compacted depth, compaction tons, prep and delivery.",
+  "fit": "partial",
+  "crewSize": 1,
+  "setupHours": 1.7,
+  "hourlyWage": 24,
+  "burdenRate": 28,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Spread and compact 4\" crusher run",
+      "unit": "sq ft",
+      "qty": 600,
+      "hoursPerUnit": 0.0025,
+      "materialPerUnit": 0.6481,
+      "source": "50x12 ft, 4\" depth, 25% compaction (index.html defaults); spread 1/400 h per sq ft, 1.5 tons/cu yd, $28/ton (suggestedStoneKit crusher-run); quarry pickup so no truck loads"
+    },
+    {
+      "label": "Travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 55.0,
+      "source": "Travel & equipment $55 (index.html default)"
+    }
+  ],
+  "specialistModels": "Converts depth and compaction into ordered tons, rounds delivered stone to whole truckloads, and adds prep (grade or excavate-and-haul with dump tickets), fabric, apron, culvert and slope factors."
+}

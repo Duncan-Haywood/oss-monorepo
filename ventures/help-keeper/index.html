@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Help Keeper — Self-Hosted Help Center, a Help Scout Docs Alternative</title>
+  <meta name="description" content="A help center you host yourself: Markdown articles, typo-tolerant ranked search, helpful votes and a report of what visitors searched for and could not find. Open source, MIT, no per-seat fee. Try the search in your browser.">
+  <meta property="og:title" content="Help Keeper — a help center that tells you what to write next">
+  <meta property="og:description" content="Ranked search that forgives typos, article feedback and a content-gap report in one zero-dependency Node server. No per-seat fee.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Help Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted help center: Markdown articles, collections, typo-tolerant ranked search, helpful votes and a report of what visitors searched for and could not find, with no per-seat fee."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Help Scout Docs, Document360, Intercom Articles or GitBook?", "acceptedAnswer": {"@type": "Answer", "text": "Those are polished and the right call if you need a team of editors with separate logins, translations, versioning workflows or an AI chatbot. They charge by the month, often per author, and your content and search data live on their servers. Help Keeper is one small Node server in your own account: Markdown articles, collections, ranked search that forgives typos, helpful votes and a report of what people searched for and did not find, with no per-seat fee. It suits a product or shop with a few dozen to a few hundred articles and one or two writers."}}, {"@type": "Question", "name": "What is the content-gap report?", "acceptedAnswer": {"@type": "Answer", "text": "Every search is counted without any identity. The report lists searches that matched none of your articles in full, and searches people ran three or more times but rarely opened a result for, biggest first, each with a link to start an article with that title. It also lists articles readers marked not helpful and the comments they left. It tells you what to write next, which is usually the cheapest way to reduce support email."}}, {"@type": "Question", "name": "How does the search work, and is it AI?", "acceptedAnswer": {"@type": "Answer", "text": "It is classic ranked search, not a language model. Words are reduced to their stems, scored with BM25 across the title, headings, tags and body (title matches count most), articles that match every word outrank partial ones, and words that are not in your articles are matched to the closest word you do use, so a typo like pasword still finds password. Everything runs on your server with no outside service."}}, {"@type": "Question", "name": "Can I use it with Support Desk or my own site?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Add your support email or contact link in the admin and every no-result page and article ends with a Still stuck link. A JSON endpoint, /api/search?q=, returns titles, links and excerpts and allows cross-origin requests, so you can put a search box in your app or suggest articles in your support replies."}}, {"@type": "Question", "name": "Is it good for SEO?", "acceptedAnswer": {"@type": "Answer", "text": "Published articles have clean addresses, a sitemap, a robots file, a canonical link when you set PUBLIC_URL, a description taken from the article and Article structured data. Search result pages and draft previews are marked noindex. Pages are plain server-rendered HTML with no scripts."}}, {"@type": "Question", "name": "What does it store?", "acceptedAnswer": {"@type": "Answer", "text": "Your articles, aggregate counts of normalized search words with no identity (queries that look like an email address, a URL or a long number are dropped), view and vote counts, and short comments from readers who say an article was not helpful, in one JSON file you control. IP addresses are held in memory only for rate limiting. You are the operator and responsible for your privacy notice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2030; background: #f6f7fb; }
+    body { max-width: 920px; margin: auto; padding: 28px; }
+    a { color: #2342b8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14204f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14204f; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506b; }
+    .card { background: #fff; border: 1px solid #dde1ec; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b5bdd6; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 150px; font: 14px ui-monospace, monospace; }
+    pre { background: #eef0f8; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3e6f1; vertical-align: top; }
+    mark { background: #fff0a8; }
+    .hit { border-left: 4px solid #2342b8; padding-left: 12px; margin: 10px 0; }
+    .gap { color: #a3191f; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>A help center that tells you what to write next.</h1>
+  <p>Help Keeper is the open-source help site for a small product or shop. Write articles in Markdown, give customers a search that forgives typos, and read a weekly list of what they searched for and did not find. Below is the search the server uses, running on sample articles you can replace. Everything on this page runs in your browser; nothing you type is uploaded.</p>
+
+  <section class="card" aria-labelledby="lab">
+    <h2 id="lab">Try the search and the gap report</h2>
+    <label for="arts">Your articles (separate with a line of <code>=====</code>; first line <code># Title</code>)</label>
+    <textarea id="arts" spellcheck="false"># How to reset your password
+Click **Forgot password** on the login page and we email you a reset link that expires in one hour.
+=====
+# Download your invoices
+Open Settings, then Billing, and choose an invoice to download it as a PDF. Billing happens monthly.
+=====
+# Export your data
+Go to Settings, then Data, and export everything as a CSV. Large exports are emailed to you.
+=====
+# Change your email address
+Open Settings, then Profile. We send a confirmation link to the new address.</textarea>
+    <label for="q">Search</label>
+    <input id="q" value="pasword reset" autocomplete="off">
+    <div id="results" aria-live="polite"></div>
+    <label for="log">What visitors typed last week (one search per line)</label>
+    <textarea id="log" spellcheck="false" style="min-height:110px">cancel subscription
+pasword reset
+dark mode
+cancel subscription
+invoice pdf
+delete my account
+cancel subscription</textarea>
+    <h3>Content gaps</h3>
+    <p class="note">Searches no article answers in full, most frequent first. These are your next articles.</p>
+    <ul id="gaps"></ul>
+    <p class="note">The server uses this exact code. It ranks with BM25 over the title, headings, tags and body, stems words, and matches words you have not used to the closest word you have. It is classic search, not a language model.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <table><thead><tr><th scope="col">Today</th><th scope="col">Catch</th><th scope="col">Help Keeper</th></tr></thead><tbody>
+      <tr><td>Help Scout Docs, Document360, Intercom Articles, HelpDocs</td><td>Monthly fees, often per author; your content and search data live with them</td><td>Your server, unlimited articles, no seat fee</td></tr>
+      <tr><td>Docusaurus, MkDocs, a static docs site</td><td>No customer feedback, and no idea what people searched for and did not find</td><td>Votes, comments and a content-gap report built in</td></tr>
+      <tr><td>A Notion or Google Docs page</td><td>Weak search, no analytics, awkward to brand or embed</td><td>Search, collections, clean addresses and a sitemap</td></tr>
+    </tbody></table>
+    <p class="note">Honest limits: one admin key (no separate editor logins or approval workflow), no translations or article versions, no image uploads (link to https images), and search is keyword-based rather than semantic. For a large team or a big documentation set, use a full documentation platform.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/help-keeper
+node --test
+ADMIN_KEY=$(openssl rand -hex 16) SITE_NAME="Acme Help" CONTACT=help@acme.com node server.mjs</pre>
+    <p class="note">Open <code>http://localhost:8080/admin</code> (any user name, <code>ADMIN_KEY</code> as the password), write or import articles, and link to the site from your product. One-click Render deploy, Fly.io and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Help Scout Docs, Document360, Intercom Articles or GitBook?</h3>
+    <p>Those are polished and the right call if you need a team of editors with separate logins, translations, versioning workflows or an AI chatbot. They charge by the month, often per author, and your content and search data live on their servers. Help Keeper is one small Node server in your own account: Markdown articles, collections, ranked search that forgives typos, helpful votes and a report of what people searched for and did not find, with no per-seat fee. It suits a product or shop with a few dozen to a few hundred articles and one or two writers.</p>
+    <h3>What is the content-gap report?</h3>
+    <p>Every search is counted without any identity. The report lists searches that matched none of your articles in full, and searches people ran three or more times but rarely opened a result for, biggest first, each with a link to start an article with that title. It also lists articles readers marked not helpful and the comments they left. It tells you what to write next, which is usually the cheapest way to reduce support email.</p>
+    <h3>How does the search work, and is it AI?</h3>
+    <p>It is classic ranked search, not a language model. Words are reduced to their stems, scored with BM25 across the title, headings, tags and body (title matches count most), articles that match every word outrank partial ones, and words that are not in your articles are matched to the closest word you do use, so a typo like pasword still finds password. Everything runs on your server with no outside service.</p>
+    <h3>Can I use it with Support Desk or my own site?</h3>
+    <p>Yes. Add your support email or contact link in the admin and every no-result page and article ends with a Still stuck link. A JSON endpoint, /api/search?q=, returns titles, links and excerpts and allows cross-origin requests, so you can put a search box in your app or suggest articles in your support replies.</p>
+    <h3>Is it good for SEO?</h3>
+    <p>Published articles have clean addresses, a sitemap, a robots file, a canonical link when you set PUBLIC_URL, a description taken from the article and Article structured data. Search result pages and draft previews are marked noindex. Pages are plain server-rendered HTML with no scripts.</p>
+    <h3>What does it store?</h3>
+    <p>Your articles, aggregate counts of normalized search words with no identity (queries that look like an email address, a URL or a long number are dropped), view and vote counts, and short comments from readers who say an article was not helpful, in one JSON file you control. IP addresses are held in memory only for rate limiting. You are the operator and responsible for your privacy notice.</p>
+  </section>
+
+  <footer>
+    <p>Same builder, other jobs: <a href="../support-desk/">Support Desk</a> answers customer email, <a href="../feedback-board/">Feedback Board</a> collects feature requests, <a href="../status-keeper/">Status Keeper</a> runs a status page and <a href="../form-inbox/">Form Inbox</a> collects website forms.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of any help center you run, responsible for its content, a privacy notice and data-protection rules where you and your readers live. Search results and the gap report are heuristics and can be wrong. This is not legal, tax, or financial advice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+  </footer>
+    <p class="note">Part of the <a href="../self-hosted-saas-stack/">self-hosted SaaS stack</a>: 27 open-source tools you run yourself.</p>
+  </main>
+  <script type="module">
+    import { buildIndex, search, snippet, tokens } from "./search.mjs";
+    import { plain } from "./markdown.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let first = true;
+    const docs = () => $("arts").value.split(/^={5,}\s*$/m).map((d, i) => {
+      const body = d.trim(), h = /^#\s+(.+)$/m.exec(body);
+      return h ? { id: String(i), title: h[1].trim(), headings: [], tags: [], body: plain(body.replace(/^#\s+.+\n?/m, "")) } : null;
+    }).filter(Boolean);
+    const run = () => {
+      const ds = docs(), ix = buildIndex(ds), q = $("q").value, out = $("results"), byId = Object.fromEntries(ds.map((d) => [d.id, d]));
+      out.innerHTML = "";
+      const rs = q.trim() ? search(ix, q, { limit: 5 }) : [];
+      if (q.trim() && !rs.length) { const p = document.createElement("p"); p.className = "gap"; p.textContent = "Nothing matched: this search would be logged as a content gap."; out.append(p); }
+      for (const r of rs) {
+        const d = byId[r.id], div = document.createElement("div"), b = document.createElement("b"), p = document.createElement("p");
+        div.className = "hit"; b.textContent = d.title + (r.matchedAll ? "" : " (partial match)");
+        for (const s of snippet(d.body, q)) { if (s.hit) { const m = document.createElement("mark"); m.textContent = s.text; p.append(m); } else p.append(document.createTextNode(s.text)); }
+        div.append(b, p); out.append(div);
+      }
+      const counts = new Map();
+      for (const line of $("log").value.split("\n")) {
+        const key = line.trim().toLowerCase().replace(/\s+/g, " "); if (key.length < 2) continue;
+        if (!counts.has(key)) { const r = search(ix, key, { limit: 5 }); counts.set(key, { n: 0, answered: r.some((x) => x.matchedAll) }); }
+        counts.get(key).n++;
+      }
+      const gaps = [...counts].filter(([, v]) => !v.answered).sort((a, b) => b[1].n - a[1].n);
+      $("gaps").innerHTML = "";
+      for (const [k, v] of gaps) { const li = document.createElement("li"); li.textContent = `${k} (${v.n} time${v.n === 1 ? "" : "s"})`; $("gaps").append(li); }
+      if (!gaps.length) { const li = document.createElement("li"); li.textContent = "None: every search matched an article in full."; $("gaps").append(li); }
+      if (!first) record("search"); first = false;
+    };
+    for (const id of ["arts", "q", "log"]) $(id).addEventListener("input", run);
+    run();
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

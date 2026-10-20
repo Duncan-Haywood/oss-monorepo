@@ -1,0 +1,41 @@
+tool versions:
+  Yosys 0.33 (git sha1 2584903a060)
+  Icarus Verilog version 12.0 (stable) ()
+  Verilator 5.020 2024-01-01 rev (Debian 5.020-1)
+
+== 1. session-written attempts, replayed through the checker ==
+absdiff8   rounds_used=1 final=PASS
+crc8       rounds_used=1 final=PASS
+divmod10   rounds_used=1 final=PASS
+edge_det   rounds_used=1 final=PASS
+fifo4      rounds_used=1 final=PASS
+gray2bin8  rounds_used=1 final=PASS
+popcount8  rounds_used=1 final=PASS
+prio_enc8  rounds_used=1 final=PASS
+rotl8      rounds_used=1 final=PASS
+rr_arb4    rounds_used=1 final=PASS
+sat_add8   rounds_used=1 final=PASS
+updown4    rounds_used=1 final=PASS
+passed 12/12 tasks, all at round 0 where passed
+
+== 2. single-point mutants of round-0 designs: first failing stage ==
+absdiff8   mutants= 12 lint=0 sim=7 formal=5 survived=0
+crc8       mutants=109 lint=16 sim=81 formal=3 survived=9
+divmod10   mutants= 31 lint=2 sim=13 formal=5 survived=11
+edge_det   mutants=  4 lint=0 sim=4 formal=0 survived=0
+fifo4      mutants= 55 lint=0 sim=50 formal=2 survived=3
+gray2bin8  mutants= 57 lint=20 sim=35 formal=2 survived=0
+popcount8  mutants= 28 lint=2 sim=24 formal=2 survived=0
+prio_enc8  mutants= 22 lint=0 sim=20 formal=2 survived=0
+rotl8      mutants= 15 lint=0 sim=12 formal=3 survived=0
+rr_arb4    mutants= 53 lint=13 sim=38 formal=2 survived=0
+sat_add8   mutants= 18 lint=3 sim=10 formal=3 survived=2
+updown4    mutants= 10 lint=0 sim=9 formal=1 survived=0
+TOTAL mutants=414 lint=56 sim=303 formal=30 survived=25
+sim-escapes (pass lint+sim, fail formal): 30 of 389 non-surviving mutants
+survived = passes all three stages (equivalent mutant, or a difference no stage can see)
+
+== 3. random-mutation repair baseline (one mutation of the broken design per round, feedback ignored) ==
+starts: 12 tasks, one sim/formal-failing mutant each; 3 seeds
+budget  4 proposals after the broken start: repaired 11/36
+budget 16 proposals after the broken start: repaired 22/36

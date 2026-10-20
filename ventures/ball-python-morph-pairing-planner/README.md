@@ -6,6 +6,8 @@ Mendelian odds for every pairing, expected hatchlings, revenue after fees and ra
 cost, and ranks pairings by expected profit or by the chance of a target morph.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ball-python-morph-pairing-planner/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - gene table, animal and price parsing, the per-gene cross

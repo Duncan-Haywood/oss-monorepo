@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean simulated trust over 800 rounds; both curves dip at the incident; with silent robots trust recovers only to about 0.87 because some people never return, with explaining robots it returns to about 0.98">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Mean trust through a bad incident (rounds 100–149)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="272.5" y2="272.5" stroke="#ddd"/><text x="58" y="276.5" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="221.0" y2="221.0" stroke="#ddd"/><text x="58" y="225.0" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="169.5" y2="169.5" stroke="#ddd"/><text x="58" y="173.5" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="118.0" y2="118.0" stroke="#ddd"/><text x="58" y="122.0" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="66.5" y2="66.5" stroke="#ddd"/><text x="58" y="70.5" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="136.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="208.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="280.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">300</text>
+<text x="353.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="425.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">500</text>
+<text x="497.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">600</text>
+<text x="569.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">700</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">round</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean trust</text>
+<polyline points="64.0,79.4 82.1,82.5 100.1,82.8 118.2,82.5 136.3,82.8 154.3,233.1 172.4,249.6 190.5,235.2 208.5,165.1 226.6,121.1 244.6,103.6 262.7,100.3 280.8,99.5 298.8,99.2 316.9,99.0 335.0,99.5 353.0,99.7 371.1,99.5 389.2,99.5 407.2,99.0 425.3,99.7 443.4,99.2 461.4,99.5 479.5,100.0 497.5,99.2 515.6,99.0 533.7,99.5 551.7,99.2 569.8,99.5 587.9,99.2 605.9,99.5 624.0,99.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="79.4" r="3" fill="#c0392b"/>
+<circle cx="82.1" cy="82.5" r="3" fill="#c0392b"/>
+<circle cx="100.1" cy="82.8" r="3" fill="#c0392b"/>
+<circle cx="118.2" cy="82.5" r="3" fill="#c0392b"/>
+<circle cx="136.3" cy="82.8" r="3" fill="#c0392b"/>
+<circle cx="154.3" cy="233.1" r="3" fill="#c0392b"/>
+<circle cx="172.4" cy="249.6" r="3" fill="#c0392b"/>
+<circle cx="190.5" cy="235.2" r="3" fill="#c0392b"/>
+<circle cx="208.5" cy="165.1" r="3" fill="#c0392b"/>
+<circle cx="226.6" cy="121.1" r="3" fill="#c0392b"/>
+<circle cx="244.6" cy="103.6" r="3" fill="#c0392b"/>
+<circle cx="262.7" cy="100.3" r="3" fill="#c0392b"/>
+<circle cx="280.8" cy="99.5" r="3" fill="#c0392b"/>
+<circle cx="298.8" cy="99.2" r="3" fill="#c0392b"/>
+<circle cx="316.9" cy="99.0" r="3" fill="#c0392b"/>
+<circle cx="335.0" cy="99.5" r="3" fill="#c0392b"/>
+<circle cx="353.0" cy="99.7" r="3" fill="#c0392b"/>
+<circle cx="371.1" cy="99.5" r="3" fill="#c0392b"/>
+<circle cx="389.2" cy="99.5" r="3" fill="#c0392b"/>
+<circle cx="407.2" cy="99.0" r="3" fill="#c0392b"/>
+<circle cx="425.3" cy="99.7" r="3" fill="#c0392b"/>
+<circle cx="443.4" cy="99.2" r="3" fill="#c0392b"/>
+<circle cx="461.4" cy="99.5" r="3" fill="#c0392b"/>
+<circle cx="479.5" cy="100.0" r="3" fill="#c0392b"/>
+<circle cx="497.5" cy="99.2" r="3" fill="#c0392b"/>
+<circle cx="515.6" cy="99.0" r="3" fill="#c0392b"/>
+<circle cx="533.7" cy="99.5" r="3" fill="#c0392b"/>
+<circle cx="551.7" cy="99.2" r="3" fill="#c0392b"/>
+<circle cx="569.8" cy="99.5" r="3" fill="#c0392b"/>
+<circle cx="587.9" cy="99.2" r="3" fill="#c0392b"/>
+<circle cx="605.9" cy="99.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="99.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">robots stay silent</text>
+<polyline points="64.0,79.4 82.1,72.2 100.1,71.4 118.2,71.4 136.3,71.4 154.3,155.1 172.4,186.0 190.5,90.5 208.5,73.2 226.6,71.7 244.6,71.7 262.7,71.4 280.8,71.7 298.8,71.7 316.9,71.4 335.0,71.4 353.0,71.4 371.1,71.7 389.2,71.4 407.2,71.7 425.3,71.4 443.4,71.4 461.4,71.7 479.5,71.4 497.5,71.4 515.6,71.2 533.7,71.4 551.7,71.7 569.8,71.4 587.9,71.4 605.9,71.4 624.0,71.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="79.4" r="3" fill="#1f6fb2"/>
+<circle cx="82.1" cy="72.2" r="3" fill="#1f6fb2"/>
+<circle cx="100.1" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="118.2" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="136.3" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="154.3" cy="155.1" r="3" fill="#1f6fb2"/>
+<circle cx="172.4" cy="186.0" r="3" fill="#1f6fb2"/>
+<circle cx="190.5" cy="90.5" r="3" fill="#1f6fb2"/>
+<circle cx="208.5" cy="73.2" r="3" fill="#1f6fb2"/>
+<circle cx="226.6" cy="71.7" r="3" fill="#1f6fb2"/>
+<circle cx="244.6" cy="71.7" r="3" fill="#1f6fb2"/>
+<circle cx="262.7" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="280.8" cy="71.7" r="3" fill="#1f6fb2"/>
+<circle cx="298.8" cy="71.7" r="3" fill="#1f6fb2"/>
+<circle cx="316.9" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="335.0" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="353.0" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="371.1" cy="71.7" r="3" fill="#1f6fb2"/>
+<circle cx="389.2" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="407.2" cy="71.7" r="3" fill="#1f6fb2"/>
+<circle cx="425.3" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="443.4" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="461.4" cy="71.7" r="3" fill="#1f6fb2"/>
+<circle cx="479.5" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="497.5" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="515.6" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="533.7" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="551.7" cy="71.7" r="3" fill="#1f6fb2"/>
+<circle cx="569.8" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="587.9" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="605.9" cy="71.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">robots explain failures</text>
+</svg>

@@ -1,0 +1,62 @@
+{
+  "candidate_fields": 11,
+  "candidates_selected_in_existing_annual_extract": [],
+  "candidates": [
+    {
+      "ref": "R6592900",
+      "name": "CPSOCC80.01",
+      "wave": "2000"
+    },
+    {
+      "ref": "R6738700",
+      "name": "OCCALL-SPOUSE",
+      "wave": "2000"
+    },
+    {
+      "ref": "R7386001",
+      "name": "OCCALL-SPOUSE",
+      "wave": "2002"
+    },
+    {
+      "ref": "R8078500",
+      "name": "OCCALL-SPOUSE",
+      "wave": "2004"
+    },
+    {
+      "ref": "T0310301",
+      "name": "OCCALL-SPOUSE",
+      "wave": "2006"
+    },
+    {
+      "ref": "T1460201",
+      "name": "OCCALL-SPOUSE",
+      "wave": "2008"
+    },
+    {
+      "ref": "T2509000",
+      "name": "OCCALL-SPOUSE",
+      "wave": "2010"
+    },
+    {
+      "ref": "T3495400",
+      "name": "OCCALL-SPOUSE",
+      "wave": "2012"
+    },
+    {
+      "ref": "T4467000",
+      "name": "OCCALL-SPOUSE",
+      "wave": "2014"
+    },
+    {
+      "ref": "T5423400",
+      "name": "OCCALL-SPOUSE",
+      "wave": "2016"
+    },
+    {
+      "ref": "T7979100",
+      "name": "OCCALL-SPOUSE",
+      "wave": "2018"
+    }
+  ],
+  "detail": "Original baseline respondent/spouse occupations exist but are not extracted into current annual model. Need validate current/main-job selection, changing Census occupation systems, spouses and degree measurement at baseline; small PhD/professional cells likely limit crossproducts."
+}

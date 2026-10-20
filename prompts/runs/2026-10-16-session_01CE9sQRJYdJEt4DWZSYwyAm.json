@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01CE9sQRJYdJEt4DWZSYwyAm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled routine)",
+  "input_sha256": "06803603fe2aa19203b94097a4e6666d9fdd6c696580e63c7dd3bd9b079c39f5",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T00:10:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New venture slot-keeper: self-hosted booking pages (Calendly alternative)",
+  "projects": [
+    "slot-keeper"
+  ],
+  "pr": 7223,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 41,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Router sent the run to the review track (25 runs since last review), but the scheduled brief asks for revenue products; built a venture instead and left the review to a run drawn for it."
+    }
+  ],
+  "goal": null,
+  "notes": "Routed to research/review; followed the owner's brief (ventures). Deepened the keeper suite with a scheduler; 41 node tests, venture-preflight clean, gitops tests 602 pass. Next: write-ups of the review due.",
+  "corrections": [],
+  "redteam": null
+}

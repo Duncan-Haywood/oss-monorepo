@@ -2,6 +2,8 @@
 
 A free browser tool for independent swim instructors and small swim schools that rent pool time: **enter private, semi-private and group lesson prices, class sizes, pool rental per hour, instructor pay and cancellations, and get profit per lesson and per pool hour, the price each format needs for your target margin, the swimmers per class you need to break even, and what empty rented hours cost**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/swim-lesson-pool-rental-profit-calculator/
+
 After using this, you can now **choose which lesson format earns a rented pool hour best and what a swim lesson has to cost to clear your target margin once the pool and the empty hours are counted**, which used to take a spreadsheet and a guess.
 
 ## Use

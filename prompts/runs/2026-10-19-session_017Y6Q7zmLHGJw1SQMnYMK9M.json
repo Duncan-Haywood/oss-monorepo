@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_017Y6Q7zmLHGJw1SQMnYMK9M",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-19T08:17:38Z",
+  "ended": "2026-10-19T08:17:49Z",
+  "wall_minutes": 3.62,
+  "tokens_in": 1005215,
+  "tokens_out": 4155,
+  "cost_usd": 0.4265,
+  "tool_calls": 16,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8334",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Target ventures/league-schedule-generator/calc.mjs, 8 mutants, 4 escaped (3 gaps guarded, 1 cosmetic CSS equivalent). Real-bug hunt was brief and found no reproducible defect. Primary dir shifted mid-run via cd (harmless).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/league-schedule-generator/calc.mjs",
+        "test": "node --test ventures/league-schedule-generator/**/*.test.mjs  (in .)",
+        "seed": 31024457,
+        "commit": "a9875afb0",
+        "sites": 1975,
+        "baseline_seconds": 15.2,
+        "mutants": [
+          {
+            "file": "ventures/league-schedule-generator/calc.mjs",
+            "line": 120,
+            "col": 19,
+            "operator": "lt-to-le",
+            "before": "if (teams.length < 2) errors.push(\"Enter at least two teams, one per line.\");",
+            "after": "if (teams.length <= 2) errors.push(\"Enter at least two teams, one per line.\");",
+            "line_text": "  if (teams.length < 2) errors.push(\"Enter at least two teams, one per line.\");",
+            "caught": false,
+            "seconds": 12.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "two-team league wrongly rejected; test added"
+          },
+          {
+            "file": "ventures/league-schedule-generator/calc.mjs",
+            "line": 416,
+            "col": 25,
+            "operator": "plus-to-minus",
+            "before": "let c = sumSq(cc[x]) + sumSq(tc[x]);",
+            "after": "let c = sumSq(cc[x]) - sumSq(tc[x]);",
+            "line_text": "    let c = sumSq(cc[x]) + sumSq(tc[x]);",
+            "caught": true,
+            "seconds": 12.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/calc.mjs",
+            "line": 705,
+            "col": 118,
+            "operator": "const-plus-one",
+            "before": "return { matches, courtHours, courtCost, officialCost, total, perTeam: n ? Math.ceil(Math.round(total * 100) / n) / 100 : 0 };",
+            "after": "return { matches, courtHours, courtCost, officialCost, total, perTeam: n ? Math.ceil(Math.round(total * 100) / n) / 101 : 0 };",
+            "line_text": "  return { matches, courtHours, courtCost, officialCost, total, perTeam: n ? Math.ceil(Math.round(total * 100) / n) / 100 : 0 };",
+            "caught": true,
+            "seconds": 11.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/calc.mjs",
+            "line": 1174,
+            "col": 38,
+            "operator": "or-to-and",
+            "before": "const cl = (cfg.courtLimits || {})[t];",
+            "after": "const cl = (cfg.courtLimits && {})[t];",
+            "line_text": "          const cl = (cfg.courtLimits || {})[t];",
+            "caught": false,
+            "seconds": 13.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "only differs when a saved schedule lacks courtLimits; test added"
+          },
+          {
+            "file": "ventures/league-schedule-generator/calc.mjs",
+            "line": 1651,
+            "col": 552,
+            "operator": "const-plus-one",
+            "before": "<style>body{font:16px/1.5 system-ui,sans-serif;max-width:46rem;margin:0 auto;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%;margin-bottom:1rem}th,td{text-align:left;padding:.3rem .5rem;border-bottom:1px solid #ddd}h3 span{font-weight:400;color:#555}select{font:inherit;padding:.3rem}.bye td{color:#555;font-style:italic}pre{background:#f5f5f5;padding:.75rem;overflow:auto}footer{color:#555;font-size:.85rem;margin-top:2rem}@media print{select,label{display:none}}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#333}pre{background:#1c1c1c}h3 span,.bye td,footer{color:#aaa}}</style></head>",
+            "after": "<style>body{font:16px/1.5 system-ui,sans-serif;max-width:46rem;margin:0 auto;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%;margin-bottom:1rem}th,td{text-align:left;padding:.3rem .5rem;border-bottom:1px solid #ddd}h3 span{font-weight:400;color:#555}select{font:inherit;padding:.3rem}.bye td{color:#555;font-style:italic}pre{background:#f5f5f5;padding:.75rem;overflow:auto}footer{color:#555;font-size:.85rem;margin-top:2rem}@media print{select,label{display:none}}@media(prefers-color-scheme:dark){body{background:#112;color:#eee}th,td{border-color:#333}pre{background:#1c1c1c}h3 span,.bye td,footer{color:#aaa}}</style></head>",
+            "line_text": "<style>body{font:16px/1.5 system-ui,sans-serif;max-width:46rem;margin:0 auto;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%;margin-bottom:1rem}th,td{text-align:left;padding:.3rem .5rem;border-bottom:1px solid #ddd}h3 span{font-weight:400;color:#555}select{font:inherit;padding:.3rem}.bye td{color:#555;font-style:italic}pre{background:#f5f5f5;padding:.75rem;overflow:auto}footer{color:#555;font-size:.85rem;margin-top:2rem}@media print{select,label{display:none}}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#333}pre{background:#1c1c1c}h3 span,.bye td,footer{color:#aaa}}</style></head>",
+            "caught": false,
+            "seconds": 13.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "inline CSS spacing constant on the shared league page; cosmetic, no behaviour a test can assert without pinning the stylesheet"
+          },
+          {
+            "file": "ventures/league-schedule-generator/calc.mjs",
+            "line": 1834,
+            "col": 12,
+            "operator": "minus-to-plus",
+            "before": "|| y.gd - x.gd || y.gf - x.gf || x.index - y.index);",
+            "after": "|| y.gd + x.gd || y.gf - x.gf || x.index - y.index);",
+            "line_text": "    || y.gd - x.gd || y.gf - x.gf || x.index - y.index);",
+            "caught": true,
+            "seconds": 12.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/calc.mjs",
+            "line": 2463,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "for (const r of rows) r.byes = byeSet.get(r.index) ?? 0;",
+            "after": "for (const r of rows) r.byes = byeSet.get(r.index) ?? 1;",
+            "line_text": "  for (const r of rows) r.byes = byeSet.get(r.index) ?? 0;",
+            "caught": true,
+            "seconds": 12.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/calc.mjs",
+            "line": 2583,
+            "col": 60,
+            "operator": "minus-to-plus",
+            "before": "const byes = order.slice(0, n - seats).sort((x, y) => x - y);",
+            "after": "const byes = order.slice(0, n - seats).sort((x, y) => x + y);",
+            "line_text": "    const byes = order.slice(0, n - seats).sort((x, y) => x - y);",
+            "caught": false,
+            "seconds": 11.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "bye list order; test added"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6b6cc528-3de5-5db8-b10a-c00ff195dc39",
+    "transcripts": 1,
+    "first": "2026-10-19T08:17:38Z",
+    "last": "2026-10-19T08:21:15Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 15,
+        "input": 30,
+        "output": 4155,
+        "thinking": 819,
+        "cache_read": 956802,
+        "cache_write_5m": 0,
+        "cache_write_1h": 48383,
+        "api_equivalent_usd": 0.4265,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 15,
+      "input": 30,
+      "output": 4155,
+      "thinking": 819,
+      "cache_read": 956802,
+      "cache_write_5m": 0,
+      "cache_write_1h": 48383,
+      "api_equivalent_usd": 0.4265,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.952,
+    "tool_calls": 16,
+    "tools": {
+      "Bash": 14,
+      "Read": 2
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.62,
+      "active_minutes": 3.62,
+      "model_minutes": 0.69,
+      "tool_minutes": 2.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "estimate: read target, write 3 tests, triage",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 234.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

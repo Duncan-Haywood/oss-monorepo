@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Employer Payroll Tax Calculator — True Cost of a Hire by State</title>
+  <meta name="description" content="Free employer payroll tax calculator: enter a salary and state to see Social Security, Medicare, FUTA, state unemployment, workers' comp, match and health cost, and the true cost of a hire. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Employer payroll tax and true cost of a hire. Free, private">
+  <meta property="og:description" content="What a hire really costs on top of wages: FICA, FUTA, SUI, workers' comp and benefits, with the wage-base caps applied.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Employer Payroll Tax Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does it really cost to hire an employee?", "acceptedAnswer": {"@type": "Answer", "text": "Beyond wages, an employer pays 6.2% Social Security (up to the wage base) and 1.45% Medicare, federal unemployment tax (effectively 0.6% on the first $7,000 when the state credit applies), state unemployment tax, workers' compensation, and any benefits. For a $52,000 hire in Texas with typical benefits that is roughly 25-30% on top of pay."}}, {"@type": "Question", "name": "Why do unemployment taxes hit hardest early in the year?", "acceptedAnswer": {"@type": "Answer", "text": "FUTA and state unemployment tax apply only to the first slice of each employee's pay (the wage base, $7,000 federally). A new or low-paid hire hits the cap fast, so the tax per dollar of pay is highest for part-year and low-wage workers."}}, {"@type": "Question", "name": "What is the FUTA credit reduction?", "acceptedAnswer": {"@type": "Answer", "text": "If a state has an unpaid federal unemployment loan, the 5.4% credit employers get shrinks by 0.3 point per year, raising FUTA. Enter the percentage your Form 940 instructions list for your state, or 0."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EMPLOYER PAYROLL TAX CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a new hire really cost you on top of their pay?</h1>
+    <p>Enter a salary and a state. You get Social Security, Medicare, federal and state unemployment tax with the wage-base caps applied, plus workers' comp, retirement match and health, and the all-in cost per hire.</p>
+    <p class="note">Federal 2026 figures. State unemployment wage bases and new-employer rates are editable starting points written from memory: replace them with the numbers on your state rate notice. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="state">State</label><select id="state"><option value="">Choose</option></select></div>
+      <div><label for="salary">Annual salary or wages ($)</label><input id="salary" type="number" min="1" step="any"></div>
+      <div><label for="months">Months employed this year</label><input id="months" type="number" min="1" max="12" step="1"></div>
+      <div><label for="hires">Identical hires</label><input id="hires" type="number" min="1" step="1"></div>
+      <div><label for="suiBase">State unemployment wage base ($)</label><input id="suiBase" type="number" min="1" step="any"></div>
+      <div><label for="suiRate">State unemployment rate (%)</label><input id="suiRate" type="number" min="0" max="15" step="0.01"></div>
+      <div><label for="creditReduction">FUTA credit reduction (%)</label><input id="creditReduction" type="number" min="0" max="5.4" step="0.1"></div>
+      <div><label for="comp">Workers' comp rate (% of payroll)</label><input id="comp" type="number" min="0" max="50" step="0.01"></div>
+      <div><label for="health">Employer health premium ($ per month)</label><input id="health" type="number" min="0" step="10"></div>
+      <div><label for="match">Retirement match (% of pay)</label><input id="match" type="number" min="0" max="100" step="0.5"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Calculate</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the answers, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Per hire</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> employer Social Security and Medicare, FUTA with the 5.4% state credit and any credit reduction, state unemployment on the wage base you enter, workers' comp, retirement match and employer health premium, prorated for a part-year hire.</li>
+      <li><strong>Gives:</strong> the all-in cost per hire, the burden as a percent of wages, and where the unemployment caps bite.</li>
+      <li><strong>Not decided:</strong> experience-rated SUI after the first years, state disability or family-leave contributions, local and city taxes, paid leave, recruiting and equipment cost, tax credits, and anything that changed after this page was written. Your payroll provider, CPA or state agency decides these.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What does it really cost to hire an employee?</h3>
+    <p>Beyond wages, an employer pays 6.2% Social Security (up to the wage base) and 1.45% Medicare, federal unemployment tax (effectively 0.6% on the first $7,000 when the state credit applies), state unemployment tax, workers' compensation, and any benefits. For a $52,000 hire in Texas with typical benefits that is roughly 25-30% on top of pay.</p>
+    <h3>Why do unemployment taxes hit hardest early in the year?</h3>
+    <p>FUTA and state unemployment tax apply only to the first slice of each employee's pay (the wage base, $7,000 federally). A new or low-paid hire hits the cap fast, so the tax per dollar of pay is highest for part-year and low-wage workers.</p>
+    <h3>What is the FUTA credit reduction?</h3>
+    <p>If a state has an unpaid federal unemployment loan, the 5.4% credit employers get shrinks by 0.3 point per year, raising FUTA. Enter the percentage your Form 940 instructions list for your state, or 0.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your payroll provider, CPA or state agency before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../paid-sick-leave-accrual-calculator/">paid sick leave accrual calculator</a>, the <a href="../worker-classification-checker/">worker classification checker</a> and the <a href="../payroll-tax-deposit-penalty-calculator/">payroll tax deposit penalty calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { STATE_LIST, STATES, compute, SAMPLE, summaryText, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { state: "state", salary: "salary", months: "months", hires: "hires", suiBase: "suiBase", suiRate: "suiRate", creditReduction: "creditReduction", comp: "comp", health: "health", match: "match" };
+    const IDLE = "Fill in the answers, then click Calculate.";
+    const DEFAULTS = { months: "12", hires: "1", creditReduction: "0", comp: "1", health: "0", match: "0" };
+
+    $("#state").innerHTML += STATE_LIST.map((t) => `<option value="${t.id}">${esc(t.label)}</option>`).join("");
+    for (const [id, v] of Object.entries(DEFAULTS)) $("#" + id).value = v;
+    $("#state").addEventListener("change", (e) => {
+      const s = STATES[e.target.value];
+      if (s) { $("#suiBase").value = s.base; $("#suiRate").value = +(s.rate * 100).toFixed(3); }
+    });
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${money(r.total)} per hire all-in · ${money(r.burden)} on top of ${money(r.wages)} wages` + (r.input.hires > 1 ? ` · ${money(r.totalAll)} for ${r.input.hires}` : "");
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${money(v)}</td></tr>`).join("") + `<tr class="total"><td>Total employer cost</td><td class="n">${money(r.total)}</td></tr>`;
+      report.hidden = false;
+      status.textContent = "Done. Verify against the sources named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a $52,000 hire in Texas with typical benefits.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("employer-payroll-cost.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

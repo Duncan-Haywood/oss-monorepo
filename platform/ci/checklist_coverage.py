@@ -372,7 +372,7 @@ def find_venture_glob_gaps(claude_md_text, repo_root):
     block = read_checklist_block(claude_md_text)
     if block is None:
         raise ValueError(
-            "could not find the merge-checklist code block in CLAUDE.md "
+            "could not find the merge-checklist code block in verify-and-merge.md "
             f"(looked for a fenced block containing {BLOCK_START_MARKER!r})"
         )
     tokens = sorted(
@@ -454,7 +454,7 @@ def find_py_gaps(claude_md_text, repo_root):
     block = read_checklist_block(claude_md_text)
     if block is None:
         raise ValueError(
-            "could not find the merge-checklist code block in CLAUDE.md "
+            "could not find the merge-checklist code block in verify-and-merge.md "
             f"(looked for a fenced block containing {BLOCK_START_MARKER!r})"
         )
     prefixes = checklist_paths(block)
@@ -472,7 +472,7 @@ def find_gaps(claude_md_text, repo_root):
     block = read_checklist_block(claude_md_text)
     if block is None:
         raise ValueError(
-            "could not find the merge-checklist code block in CLAUDE.md "
+            "could not find the merge-checklist code block in verify-and-merge.md "
             f"(looked for a fenced block containing {BLOCK_START_MARKER!r})"
         )
     checklist_dirs = checklist_directories(block)
@@ -489,8 +489,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--claude-md",
-        default=str(REPO_ROOT / "CLAUDE.md"),
-        help="path to CLAUDE.md (default: repo root)",
+        default=str(REPO_ROOT / ".github" / "prompts" / "verify-and-merge.md"),
+        help="path to the file holding the checklist (default: .github/prompts/verify-and-merge.md)",
     )
     parser.add_argument(
         "--repo-root",
@@ -544,14 +544,14 @@ def main(argv=None):
         else:
             noun = f"{len(py_gaps)} directories that carry"
         print(
-            "checklist_coverage: CLAUDE.md's merge checklist does not name "
+            "checklist_coverage: the merge checklist (verify-and-merge.md) does not name "
             f"{noun} Python tests:\n"
         )
         for d in py_gaps:
             print(f"  {d}/  ->  add: python3 -m pytest {d} -q")
         print(
-            "\nAdd each line to the checklist in CLAUDE.md's \"Ship without "
-            "review ceremony\" section, in the same commit as whatever put "
+            "\nAdd each line to the checklist in verify-and-merge.md (\"Ship without "
+            "review ceremony\" in CLAUDE.md links to it), in the same commit as whatever put "
             "tests there. If the directory is its own project root -- its own "
             "pyproject.toml, or modules importing siblings by bare name -- it "
             "needs its own `cd` invocation, like the platform/ci line, or a "
@@ -565,14 +565,14 @@ def main(argv=None):
         else:
             noun = f"{len(gaps)} directories that carry"
         print(
-            "checklist_coverage: CLAUDE.md's merge checklist does not name "
+            "checklist_coverage: the merge checklist (verify-and-merge.md) does not name "
             f"{noun} *.test.mjs files:\n"
         )
         for d in gaps:
             print(f"  {d}/  ->  add: node --test {d}/*.test.mjs")
         print(
-            "\nAdd each line to the checklist in CLAUDE.md's \"Ship without "
-            "review ceremony\" section, in the same commit as whatever put "
+            "\nAdd each line to the checklist in verify-and-merge.md (\"Ship without "
+            "review ceremony\" in CLAUDE.md links to it), in the same commit as whatever put "
             "tests there -- see the file's own note on platform/proposal, "
             "platform/privacy and platform/webcheck for why this recurs."
         )
@@ -581,7 +581,7 @@ def main(argv=None):
     print(
         f"checklist_coverage: {len(disk_dirs)} test.mjs "
         f"director{'y' if len(disk_dirs) == 1 else 'ies'} outside ventures/, "
-        f"all named in CLAUDE.md's checklist ({len(checklist_dirs)} entries)."
+        f"all named in the checklist ({len(checklist_dirs)} entries)."
     )
     print(
         f"checklist_coverage: {len(py_dirs)} Python test "

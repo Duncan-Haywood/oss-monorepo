@@ -31,7 +31,7 @@
         "name": "Should I send an offer to eBay watchers?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "A seller-initiated offer is a pricing decision on a listing that already exists. You either wait for Buy It Now at the listed price or send a percent-off offer to watchers. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 10% offer, 40% wait sell-through, 55% accept rate) waiting expects $7.34 and the offer expects $8.37. The offer keeps $1.03 more. The offer has to be accepted about 48.2% of the time, or stay at or below about 16.0% off ($33.59), before it matches waiting. That is arithmetic on your inputs, not advice to send the offer."
+          "text": "A seller-initiated offer is a pricing decision on a listing that already exists. You either wait for Buy It Now at the listed price or send a percent-off offer to watchers. On the calculator defaults ($40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 10% offer, 40% wait sell-through, 55% accept rate) waiting expects $7.24 and the offer expects $8.25. The offer keeps $1.01 more. The offer has to be accepted about 48.3% of the time, or stay at or below about 15.9% off ($33.65), before it matches waiting. That is arithmetic on your inputs, not advice to send the offer."
         }
       },
       {
@@ -39,7 +39,7 @@
         "name": "When does waiting beat a seller-initiated eBay offer?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "When the discount eats more leftover than the conversion lift returns. On the same $40 listing, a 20% offer at a 55% accept rate expects $6.65 against $7.34 for waiting — $0.69 less. Waiting at 50% sell-through already beats a 10% offer ($9.17 vs $8.37)."
+          "text": "When the discount eats more leftover than the conversion lift returns. On the same $40 listing, a 20% offer at a 55% accept rate expects $6.54 against $7.24 for waiting — $0.70 less. Waiting at 50% sell-through already beats a 10% offer ($9.05 vs $8.25)."
         }
       },
       {
@@ -115,8 +115,8 @@
       <div class="fields">
         <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
         <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
-        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
-        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40"></label>
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
         <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
         <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
@@ -171,21 +171,21 @@
       discount can leave less than sitting at the listed price.
     </p>
     <p>
-      On the defaults — $40 item, $6 shipping charged, 13.25%
-      final value fee, $0.30 fixed, $12 cost, $5 outbound, $1 pack,
+      On the defaults — $40 item, $6 shipping charged, 13.6%
+      final value fee, $0.40 fixed, $12 cost, $5 outbound, $1 pack,
       $5 return label, 10% returns, 10% offer, 40% wait
       sell-through, 55% accept rate, forty offers — waiting
-      expects $7.34 and the offer expects $8.37. The offer keeps
-      $1.03 more on this listing and +$41.36 across forty offers.
-      The offer has to be accepted about 48.2% of the time, or stay
-      at or below about 16.0% off ($33.59), before it matches
+      expects $7.24 and the offer expects $8.25. The offer keeps
+      $1.01 more on this listing and +$40.23 across forty offers.
+      The offer has to be accepted about 48.3% of the time, or stay
+      at or below about 15.9% off ($33.65), before it matches
       waiting.
     </p>
     <p>
       A deeper coupon flips. Keep the same listing and send 20%
-      off. Waiting still expects $7.34; the 20% offer expects
-      $6.65 — $0.69 less. Waiting at 50% sell-through already
-      beats a 10% offer ($9.17 vs $8.37). The conversion you
+      off. Waiting still expects $7.24; the 20% offer expects
+      $6.54 — $0.70 less. Waiting at 50% sell-through already
+      beats a 10% offer ($9.05 vs $8.25). The conversion you
       thought you bought did not cover the leftover you gave away.
     </p>
     <p>
@@ -207,9 +207,9 @@
   </section>
   <h2>Common questions</h2>
   <h3>Should I send an offer to eBay watchers?</h3>
-  <p>A seller-initiated offer is a pricing decision on a listing that already exists. You either wait for Buy It Now at the listed price or send a percent-off offer to watchers. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 10% offer, 40% wait sell-through, 55% accept rate) waiting expects $7.34 and the offer expects $8.37. The offer keeps $1.03 more. The offer has to be accepted about 48.2% of the time, or stay at or below about 16.0% off ($33.59), before it matches waiting. That is arithmetic on your inputs, not advice to send the offer.</p>
+  <p>A seller-initiated offer is a pricing decision on a listing that already exists. You either wait for Buy It Now at the listed price or send a percent-off offer to watchers. On the calculator defaults ($40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 10% offer, 40% wait sell-through, 55% accept rate) waiting expects $7.24 and the offer expects $8.25. The offer keeps $1.01 more. The offer has to be accepted about 48.3% of the time, or stay at or below about 15.9% off ($33.65), before it matches waiting. That is arithmetic on your inputs, not advice to send the offer.</p>
   <h3>When does waiting beat a seller-initiated eBay offer?</h3>
-  <p>When the discount eats more leftover than the conversion lift returns. On the same $40 listing, a 20% offer at a 55% accept rate expects $6.65 against $7.34 for waiting — $0.69 less. Waiting at 50% sell-through already beats a 10% offer ($9.17 vs $8.37).</p>
+  <p>When the discount eats more leftover than the conversion lift returns. On the same $40 listing, a 20% offer at a 55% accept rate expects $6.54 against $7.24 for waiting — $0.70 less. Waiting at 50% sell-through already beats a 10% offer ($9.05 vs $8.25).</p>
   <h3>Is sending an offer the same as taking a Best Offer?</h3>
   <p>No. An incoming Best Offer is the buyer naming a price. A seller-initiated offer is you naming the discount and sending it to watchers. Auction versus Buy It Now is a listing-format choice before anyone watches. The repricing table moves the list price without a typed conversion lift.</p>
 

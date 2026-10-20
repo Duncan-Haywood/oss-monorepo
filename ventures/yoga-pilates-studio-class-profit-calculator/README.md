@@ -2,6 +2,8 @@
 
 A free browser tool for boutique yoga, pilates and barre studio owners: **enter classes per week, reservations per class, how those reservations pay (drop-in, class pack or monthly membership), your late-cancel rate and fee, the room's rent and other fixed costs, and a teacher pay model, and get profit per class and per room hour, break-even attendance, the drop-in price for your target margin, what late cancels cost, and what the same timetable nets with you teaching it, with hired teachers, or in a room you rent by the hour**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/yoga-pilates-studio-class-profit-calculator/
+
 After using this, you can now **choose between teaching your own classes, hiring teachers on a flat, per-head or revenue-share deal, and giving up the lease for hourly room rental, and see the attendance each one needs to break even**, which used to take a spreadsheet and a guess.
 
 ## Use

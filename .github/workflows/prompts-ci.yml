@@ -1,0 +1,40 @@
+name: Prompts
+
+# The prompt system under prompts/ and the master prompt.md: routing, every
+# sub-prompt version, and every run record must stay valid for the router and
+# the review track to trust them.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "prompt.md"
+      - "prompts/**"
+      - ".github/workflows/prompts-ci.yml"
+  pull_request:
+    paths:
+      - "prompt.md"
+      - "prompts/**"
+      - ".github/workflows/prompts-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prompts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 prompts/promptctl.py validate
+      - run: python3 -m unittest discover -s prompts -v

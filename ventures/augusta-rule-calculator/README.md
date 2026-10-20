@@ -5,6 +5,8 @@ own business, a fair daily rent and your tax rates, and see the rent excluded fr
 self-employment and state tax saved, the net after costs, and what happens if the daily rate is cut back.**
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/augusta-rule-calculator/
+
 After using this, you can now **see in dollars what the 14-day home-rental rule (IRC section 280A(g)) is worth
 to you and whether the paperwork is worth the saving**, which used to take a spreadsheet and a guess at how
 each entity type is taxed.

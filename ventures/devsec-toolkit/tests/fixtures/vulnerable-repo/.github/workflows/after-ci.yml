@@ -1,0 +1,19 @@
+# Deliberately vulnerable demo workflow (artifact poisoning): never runs, see pr.yml.
+name: after-ci
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+permissions:
+  contents: read
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - uses: actions/setup-node@v3
+      - run: bash ./report.sh

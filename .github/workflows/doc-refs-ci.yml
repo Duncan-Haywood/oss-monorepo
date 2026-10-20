@@ -1,0 +1,38 @@
+name: Doc references
+
+# Fails a pull request that leaves a dead pointer in the Markdown the agents
+# are routed by: a `[text](path)` link (check_md_links.py) or a backticked repo
+# path (check_code_refs.py). Both were written as local-only checks, so a moved
+# file went unnoticed until a run failed to read it. Reads tracked files only;
+# publishes nothing, pushes nothing, calls no paid API.
+
+on:
+  pull_request:
+    paths: ["**/*.md", "platform/ci/check_md_links.py", "platform/ci/check_code_refs.py", ".github/workflows/doc-refs-ci.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dead Markdown links
+        run: python3 platform/ci/check_md_links.py
+
+      - name: Dead backticked repo paths
+        run: python3 platform/ci/check_code_refs.py
+
+      - name: Guard unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_md_links test_check_code_refs

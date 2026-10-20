@@ -197,3 +197,9 @@ test("STANDARD_DEDUCTION table has both tax years the venture supports, for ever
     }
   }
 });
+
+test("a $1 tax bill is a real figure, so no 'enter your taxes' prompt", () => {
+  const prompt = (r) => r.findings.some((f) => /Enter your state and local taxes/.test(f.title));
+  assert.equal(prompt(saltCapOutcome({ magi: 100_000, stateLocalTaxesPaid: 0 })), true);
+  assert.equal(prompt(saltCapOutcome({ magi: 100_000, stateLocalTaxesPaid: 1 })), false);
+});

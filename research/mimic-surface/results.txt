@@ -1,0 +1,31 @@
+mimic-surface: held-out-family AUROC of the n-gram detector (poetry, reviews, wiki)
+
+prefix chars                  matched fit       fit on raw full text
+50             0.653 [0.625,0.674]   0.580 [0.551,0.604]
+100            0.753 [0.727,0.772]   0.700 [0.674,0.723]
+200            0.780 [0.757,0.800]   0.757 [0.735,0.776]
+400            0.838 [0.819,0.855]   0.809 [0.786,0.827]
+800            0.893 [0.877,0.908]   0.875 [0.860,0.892]
+1500           0.927 [0.916,0.940]   0.927 [0.916,0.940]
+
+view                                  matched fit       fit on raw full text
+raw                    0.927 [0.916,0.940]   0.927 [0.916,0.940]
+lowercase              0.927 [0.916,0.940]   0.927 [0.916,0.940]
+no punctuation         0.930 [0.919,0.942]   0.931 [0.919,0.943]
+whitespace flattened   0.927 [0.916,0.940]   0.927 [0.916,0.940]
+lower+nopunct+flat     0.930 [0.919,0.942]   0.931 [0.919,0.943]
+shuffled words         0.913 [0.900,0.926]   0.914 [0.902,0.926]
+
+by held-out family (matched):
+  raw                    poetry=0.95  reviews=0.98  wiki=0.89
+  lowercase              poetry=0.95  reviews=0.98  wiki=0.89
+  no punctuation         poetry=0.95  reviews=0.98  wiki=0.88
+  whitespace flattened   poetry=0.95  reviews=0.98  wiki=0.89
+  lower+nopunct+flat     poetry=0.95  reviews=0.98  wiki=0.88
+  shuffled words         poetry=0.94  reviews=0.97  wiki=0.88
+  prefix 50              poetry=0.64  reviews=0.65  wiki=0.67
+  prefix 100             poetry=0.74  reviews=0.80  wiki=0.73
+  prefix 200             poetry=0.80  reviews=0.79  wiki=0.76
+  prefix 400             poetry=0.88  reviews=0.87  wiki=0.77
+  prefix 800             poetry=0.94  reviews=0.96  wiki=0.82
+  prefix 1500            poetry=0.95  reviews=0.98  wiki=0.89

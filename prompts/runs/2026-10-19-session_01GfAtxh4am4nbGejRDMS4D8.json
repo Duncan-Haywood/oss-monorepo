@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01GfAtxh4am4nbGejRDMS4D8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T23:59:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "nsa-idr-offer-calculator: fit the win-chance curve from the practice's own closed IDR disputes (logistic, ridge-to-prior), UI + CLI",
+  "projects": [
+    "nsa-idr-offer-calculator"
+  ],
+  "pr": 8563,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/marketing/regen.mjs",
+      "issue": "venture-preflight's regen --verify aborts when an untracked prompts/runs record exists (generator output outside gitops/prod); commit the run record before running preflight."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Picked the thinnest of the router's top Explore ventures. Win-chance inputs were pure assumption; the VENTURE.yaml named outcome-calibration as the revenue path. Verified in headless Chromium; 43 venture tests pass.",
+  "corrections": [],
+  "redteam": null
+}

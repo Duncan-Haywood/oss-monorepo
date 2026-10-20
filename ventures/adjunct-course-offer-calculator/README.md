@@ -2,6 +2,8 @@
 
 A free browser tool for adjunct and part-time instructors: **type each offer's pay, weeks, hours, class size, travel and costs, and see what the course really pays per hour of your time.** It ranks up to three offers, shows the per-course pay that would reach your target hourly rate, the largest class worth accepting at the pay on offer, and annual totals. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/adjunct-course-offer-calculator/
+
 After using this, you can **say yes, no or "not at that class size" to an adjunct contract with the real hourly figure in hand**, which used to take a spreadsheet and a guess at how long grading would take.
 
 ## Model

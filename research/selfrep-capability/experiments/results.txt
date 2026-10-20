@@ -1,0 +1,85 @@
+9 assumed capabilities (total effort 40); 28 of 29 imported lines reachable, controller electronics never
+
+== efficient capability sets by mass closure (exact, all 512 subsets): effort, points gained, set
+    0.0  +  0.0  (none)
+    2.0  +  0.1  tube-extrusion
+    3.0  +  0.2  stamping
+    4.0  + 30.7  lathe
+    6.0  + 30.8  lathe, tube-extrusion
+    7.0  + 32.0  heat-treat, lathe
+    9.0  + 32.0  heat-treat, lathe, tube-extrusion
+   10.0  + 32.2  heat-treat, lathe, stamping
+   11.0  + 35.4  glass-casting, lathe
+   12.0  + 53.1  lathe, stamping, winding
+   14.0  + 53.2  lathe, stamping, tube-extrusion, winding
+   15.0  + 54.4  heat-treat, lathe, stamping, winding
+   17.0  + 54.4  heat-treat, lathe, stamping, tube-extrusion, winding
+   19.0  + 57.8  glass-casting, lathe, stamping, winding
+   21.0  + 57.9  glass-casting, lathe, stamping, tube-extrusion, winding
+   21.0  + 69.0  grinding, heat-treat, lathe, stamping, winding
+   23.0  + 69.1  grinding, heat-treat, lathe, stamping, tube-extrusion, winding
+   26.0  + 71.4  ball-forming, grinding, heat-treat, lathe, stamping, winding
+   28.0  + 71.5  ball-forming, grinding, heat-treat, lathe, stamping, tube-extrusion, winding
+   28.0  + 73.7  glass-casting, grinding, heat-treat, lathe, stamping, winding
+   30.0  + 73.8  glass-casting, grinding, heat-treat, lathe, stamping, tube-extrusion, winding
+   33.0  + 76.1  ball-forming, glass-casting, grinding, heat-treat, lathe, stamping, winding
+   35.0  + 76.2  ball-forming, glass-casting, grinding, heat-treat, lathe, stamping, tube-extrusion, winding
+   38.0  + 76.3  ball-forming, belt-casting, glass-casting, grinding, heat-treat, lathe, stamping, winding
+   40.0  + 76.3  ball-forming, belt-casting, glass-casting, grinding, heat-treat, lathe, stamping, tube-extrusion, winding
+
+== efficient capability sets by cost closure (exact, all 512 subsets): effort, points gained, set
+    0.0  +  0.0  (none)
+    2.0  +  0.2  tube-extrusion
+    3.0  +  1.6  stamping
+    4.0  + 10.1  lathe
+    6.0  + 10.3  lathe, tube-extrusion
+    7.0  + 22.1  heat-treat, lathe
+    8.0  + 30.2  stamping, winding
+   10.0  + 30.4  stamping, tube-extrusion, winding
+   12.0  + 40.3  lathe, stamping, winding
+   14.0  + 40.5  lathe, stamping, tube-extrusion, winding
+   15.0  + 52.2  heat-treat, lathe, stamping, winding
+   17.0  + 52.4  heat-treat, lathe, stamping, tube-extrusion, winding
+   20.0  + 54.3  belt-casting, heat-treat, lathe, stamping, winding
+   21.0  + 57.4  grinding, heat-treat, lathe, stamping, winding
+   23.0  + 57.6  grinding, heat-treat, lathe, stamping, tube-extrusion, winding
+   26.0  + 64.2  ball-forming, grinding, heat-treat, lathe, stamping, winding
+   28.0  + 64.4  ball-forming, grinding, heat-treat, lathe, stamping, tube-extrusion, winding
+   31.0  + 66.3  ball-forming, belt-casting, grinding, heat-treat, lathe, stamping, winding
+   33.0  + 66.5  ball-forming, belt-casting, grinding, heat-treat, lathe, stamping, tube-extrusion, winding
+   38.0  + 68.3  ball-forming, belt-casting, glass-casting, grinding, heat-treat, lathe, stamping, winding
+   40.0  + 68.5  ball-forming, belt-casting, glass-casting, grinding, heat-treat, lathe, stamping, tube-extrusion, winding
+
+== closure points gained at a budget: exact capability optimum vs line-by-line rules (same real cost, sharing paid once)
+metric budget  optimum  ratio rule  raw-gain rule
+mass        5     30.7        30.7           30.7
+mass        8     32.0        22.4           22.4
+mass       12     53.1        53.1           53.1
+mass       16     54.4        54.4           54.4
+mass       24     69.1        59.2           69.1
+cost        5     10.1        10.1            2.6
+cost        8     30.2        30.2           30.2
+cost       12     40.3        40.3           40.3
+cost       16     52.2        52.2           52.2
+cost       24     57.6        54.5           54.5
+
+== stability: every capability's effort scaled 0.5x to 2x (2000 draws); nominal choice vs each draw's optimum
+metric budget  still optimal  unaffordable  mean regret (pts)
+mass        8            26%           40%               2.12
+mass       16            20%           51%               2.19
+cost        8            28%           57%               0.89
+cost       16            23%           51%               0.80
+
+== closure (points) vs budget, best capability set for each metric
+budget    mass    cost
+0            0.0     0.0
+4           30.7    10.1
+8           32.0    30.2
+12          53.1    40.3
+16          54.4    52.2
+20          57.8    54.3
+24          69.1    57.6
+28          73.7    64.4
+32          73.8    66.3
+36          76.2    66.5
+40          76.3    68.5

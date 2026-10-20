@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Grouped bars of the increase in dry heat loss in W per square metre when a garment is opened, for our model and the reference at 3 hours and steady state in a hot and a cool room: our model agrees with the reference within 0.7">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Opening the garment: extra dry heat loss</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="264.6" y2="264.6" stroke="#ddd"/><text x="58" y="268.6" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="205.2" y2="205.2" stroke="#ddd"/><text x="58" y="209.2" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="145.7" y2="145.7" stroke="#ddd"/><text x="58" y="149.7" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<line x1="64" x2="624" y1="86.3" y2="86.3" stroke="#ddd"/><text x="58" y="90.3" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<rect x="92.0" y="139.8" width="54.0" height="184.2" fill="#c0392b"/>
+<rect x="148.0" y="160.6" width="54.0" height="163.4" fill="#1f6fb2"/>
+<rect x="204.0" y="139.8" width="54.0" height="184.2" fill="#2e8b57"/>
+<rect x="260.0" y="160.6" width="54.0" height="163.4" fill="#8e44ad"/>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">hot room 31 C</text>
+<rect x="372.0" y="89.3" width="54.0" height="234.7" fill="#c0392b"/>
+<rect x="428.0" y="80.4" width="54.0" height="243.6" fill="#1f6fb2"/>
+<rect x="484.0" y="89.3" width="54.0" height="234.7" fill="#2e8b57"/>
+<rect x="540.0" y="95.2" width="54.0" height="228.8" fill="#8e44ad"/>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">cool room 16 C</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">open minus closed, dry loss (W/m2)</text>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">ours 3h</text>
+<rect x="194" y="32" width="14" height="10" fill="#1f6fb2"/><text x="214" y="41" font-family="sans-serif" font-size="11">ref 3h</text>
+<rect x="324" y="32" width="14" height="10" fill="#2e8b57"/><text x="344" y="41" font-family="sans-serif" font-size="11">ours steady</text>
+<rect x="454" y="32" width="14" height="10" fill="#8e44ad"/><text x="474" y="41" font-family="sans-serif" font-size="11">ref steady</text>
+</svg>

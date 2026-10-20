@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseCsv, parseDate, parseTransactions, normalizeType, holdingTerm, matchLots, analyze, estimateTax,
-  toForm8949Csv, SAMPLE_CSV, METHODS,
+  toForm8949Csv, toTurboTaxCsv, turboTaxSkipped, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan, planSale, idRecord, donationPlan, waitPlan,
 } from "./calc.mjs";
 
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.005, `${msg ?? ""} ${a} != ${b}`);
@@ -18,6 +18,8 @@ test("dates: ISO, US format, timestamps; impossible dates rejected", () => {
   assert.equal(parseDate("2024-03-05T14:22:00Z"), "2024-03-05");
   assert.equal(parseDate("2024-02-30"), null);
   assert.equal(parseDate("yesterday"), null);
+  assert.equal(parseDate("2024-3-5"), "2024-03-05");
+  assert.equal(parseDate("2024-12-5 08:00"), "2024-12-05");
 });
 
 test("type words map to buy, income, sell, transfer", () => {
@@ -246,4 +248,480 @@ test("the sample CSV parses cleanly", () => {
   const r = analyze(SAMPLE_CSV);
   assert.deepEqual(r.errors, []);
   assert.equal(r.count, 6);
+});
+
+test("empty or header-only input returns no transactions and no errors", () => {
+  assert.deepEqual(parseTransactions(""), { transactions: [], skipped: [], errors: [] });
+  assert.deepEqual(parseTransactions("date,type,asset,quantity,total\n"), { transactions: [], skipped: [], errors: [] });
+});
+
+test("parsePrices reads several separators and reports bad entries", () => {
+  const r = parsePrices("btc=65,000\nETH: $3200.5; SOL 150, junk");
+  assert.deepEqual(r.prices, { BTC: 65000, ETH: 3200.5, SOL: 150 });
+  assert.equal(r.errors.length, 1);
+  assert.equal(parsePrices("BTC=0").errors.length, 1);
+});
+
+test("harvestPlan: loss lots offset realized gains at the right rates", () => {
+  const lots = [
+    { asset: "BTC", wallet: "", acquired: "2024-01-10", qty: 1, basis: 60000 },  // long by 2026-10-16, price 50000 -> -10000
+    { asset: "ETH", wallet: "", acquired: "2026-05-01", qty: 10, basis: 40000 }, // short, price 3000 -> -10000
+    { asset: "SOL", wallet: "", acquired: "2026-01-01", qty: 10, basis: 1000 },  // gain, ignored
+    { asset: "DOGE", wallet: "", acquired: "2026-01-01", qty: 1, basis: 5 },     // no price
+  ];
+  const h = harvestPlan(lots, { BTC: 50000, ETH: 3000, SOL: 200 }, {
+    asOf: "2026-10-16", summary: { shortGain: 20000, longGain: 5000 }, shortRate: 0.3, longRate: 0.2,
+  });
+  assert.equal(h.losers.length, 2);
+  assert.deepEqual(h.unpriced, ["DOGE"]);
+  assert.equal(h.shortLoss, -10000);
+  assert.equal(h.longLoss, -10000);
+  // before: 20000*.3 + 5000*.2 = 7000. after: short 10000, long -5000 -> 10000-5000=5000 * .3 = 1500
+  assert.equal(h.taxBefore, 7000);
+  assert.equal(h.taxAfter, 1500);
+  assert.equal(h.taxSaved, 5500);
+  assert.equal(h.losers[0].asset, "ETH"); // short loss saves more tax per dollar
+  assert.equal(h.unusedLoss, 0);
+});
+
+test("harvestPlan: no realized gains means the loss is unused, not tax saved", () => {
+  const h = harvestPlan([{ asset: "BTC", wallet: "", acquired: "2026-02-01", qty: 1, basis: 100 }], { BTC: 40 },
+    { asOf: "2026-10-16", summary: { shortGain: 0, longGain: 0 } });
+  assert.equal(h.taxSaved, 0);
+  assert.equal(h.unusedLoss, 60);
+});
+
+test("analyze exposes open lots that add up to the holdings", () => {
+  const r = analyze(SAMPLE_CSV);
+  const basis = r.openLots.reduce((a, l) => a + l.basis, 0);
+  const held = r.holdings.reduce((a, h) => a + h.basis, 0);
+  assert.ok(Math.abs(basis - held) < 0.05);
+});
+
+test("Form 8949 totals: parts add up to the rows and to the summary", () => {
+  const r = analyze(SAMPLE_CSV, { method: "FIFO" });
+  const t = form8949Totals(r.rows);
+  const sum = (k) => Math.round(r.rows.reduce((a, x) => a + x[k], 0) * 100) / 100;
+  assert.equal(t.total.rows, r.rows.length);
+  assert.equal(t.total.proceeds, sum("proceeds"));
+  assert.equal(t.total.basis, sum("basis"));
+  assert.equal(t.total.gain, Math.round((t.total.proceeds - t.total.basis) * 100) / 100);
+  assert.equal(t.short.gain, r.summary.shortGain);
+  assert.equal(t.long.gain, r.summary.longGain);
+  assert.deepEqual(form8949Totals([]).total, { rows: 0, proceeds: 0, basis: 0, gain: 0, noBasis: 0 });
+});
+
+test("Form 8949 totals: rows with no basis on record are counted", () => {
+  const t = form8949Totals([
+    { proceeds: 100, basis: 0, gain: 100, term: "Short", missingBasis: true },
+    { proceeds: 50, basis: 20, gain: 30, term: "Long", missingBasis: false },
+  ]);
+  assert.equal(t.short.noBasis, 1);
+  assert.equal(t.total.noBasis, 1);
+  assert.equal(t.total.gain, 130);
+});
+
+test("per-wallet transfer moves lots with their date and basis, so the sale in the new wallet is long-term on the old purchase", () => {
+  const csv = [
+    "date,type,asset,quantity,total,fee,wallet,to wallet",
+    "2023-01-10,buy,BTC,1,10000,0,Exchange,",
+    "2023-06-01,buy,BTC,1,20000,0,Exchange,",
+    "2024-03-01,transfer,BTC,1,0,0,Exchange,Ledger",
+    "2024-03-02,sell,BTC,1,30000,0,Ledger,",
+  ].join("\n");
+  const r = analyze(csv, { method: "FIFO", year: 2024, perWallet: true });
+  assert.equal(r.rows.length, 1);
+  assert.equal(r.rows[0].acquired, "2023-01-10");
+  assert.equal(r.rows[0].term, "Long");
+  close(r.rows[0].basis, 10000);
+  assert.deepEqual(r.warnings, []);
+  assert.deepEqual(r.openLots.map((l) => [l.wallet, l.acquired, l.basis]), [["Exchange", "2023-06-01", 20000]]);
+  // HIFO chooses which lot travels: the dearer one goes, so the sale there has the bigger basis.
+  const h = analyze(csv, { method: "HIFO", year: 2024, perWallet: true });
+  close(h.rows[0].basis, 20000);
+});
+
+test("a transfer moves part of a lot and keeps the unit basis; a pooled run ignores it", () => {
+  const csv = "date,type,asset,quantity,total,wallet,to wallet\n2024-01-01,buy,ETH,4,8000,A,\n2024-02-01,transfer,ETH,1,0,A,B\n2024-03-01,sell,ETH,1,3000,B,\n";
+  const w = analyze(csv, { perWallet: true });
+  close(w.rows[0].basis, 2000);
+  assert.deepEqual(w.openLots.map((l) => [l.wallet, l.qty, l.basis]), [["A", 3, 6000]]);
+  const pooled = analyze(csv, { perWallet: false });
+  close(pooled.rows[0].basis, 2000);
+  assert.equal(pooled.warnings.length, 0);
+});
+
+test("transferring more than the wallet holds warns and moves only what is on record; selling there then has no basis", () => {
+  const csv = "date,type,asset,quantity,total,wallet,to wallet\n2024-01-01,buy,BTC,1,10000,A,\n2024-02-01,transfer,BTC,2,0,A,B\n2024-03-01,sell,BTC,2,50000,B,\n";
+  const r = analyze(csv, { perWallet: true });
+  assert.ok(r.warnings.some((w) => /transferred 1 BTC more than the lots on record/.test(w)));
+  assert.ok(r.warnings.some((w) => /sold 1 BTC more/.test(w)));
+  close(r.summary.totalGain, 50000 - 10000);
+});
+
+test("transfers without a destination stay skipped; a transfer with no source wallet is an error", () => {
+  const r = parseTransactions("date,type,asset,quantity,total,wallet,to wallet\n2024-01-01,transfer,BTC,1,0,A,\n2024-01-02,transfer,BTC,1,0,,B\n2024-01-03,transfer,BTC,1,0,A,A\n");
+  assert.equal(r.transactions.length, 0);
+  assert.equal(r.skipped.length, 2);
+  assert.equal(r.errors.length, 1);
+});
+
+// ---- capital-loss netting and carryover ----------------------------------
+
+import { netCapital, carryoverChain } from "./calc.mjs";
+
+test("netCapital: a net loss deducts up to $3,000 and carries the rest with its character", () => {
+  const r = netCapital(-5000, -2000);
+  assert.equal(r.deduction, 3000);
+  assert.equal(r.carryShortOut, 2000); // short-term loss is used up first
+  assert.equal(r.carryLongOut, 2000);
+  assert.equal(r.tax, 0);
+});
+
+test("netCapital: a long gain absorbs a short loss before the limit applies", () => {
+  const r = netCapital(-5000, 2000);
+  assert.equal(r.totalNet, -3000);
+  assert.equal(r.deduction, 3000);
+  assert.equal(r.carryShortOut, 0);
+  assert.equal(r.carryLongOut, 0);
+});
+
+test("netCapital: an all-long loss carries as long-term, the $1,500 limit is honoured", () => {
+  const r = netCapital(0, -10000, { limit: 1500 });
+  assert.equal(r.deduction, 1500);
+  assert.equal(r.carryLongOut, 8500);
+  assert.equal(r.carryShortOut, 0);
+});
+
+test("netCapital: carried loss reduces tax on a later gain, bucket by bucket", () => {
+  const r = netCapital(1000, 6000, { carryLong: 4000, shortRate: 0.3, longRate: 0.2 });
+  assert.equal(r.longNet, 2000);
+  assert.equal(r.tax, 1000 * 0.3 + 2000 * 0.2);
+  const cross = netCapital(1000, 500, { carryShort: 3000, shortRate: 0.3, longRate: 0.2 });
+  assert.equal(cross.shortNet, -2000);
+  assert.equal(cross.totalNet, -1500);
+  assert.equal(cross.deduction, 1500);
+  assert.equal(cross.tax, 0);
+});
+
+test("carryoverChain: a big loss year feeds the next years until it is used", () => {
+  const c = carryoverChain([
+    { year: 2023, shortGain: 0, longGain: -10000 },
+    { year: 2022, shortGain: 500, longGain: 0 },
+    { year: 2024, shortGain: 0, longGain: 2000 },
+  ], { longRate: 0.15, shortRate: 0.24 });
+  assert.deepEqual(c.map((y) => y.year), [2022, 2023, 2024]);
+  assert.equal(c[1].carryLongOut, 7000);
+  assert.equal(c[2].carryLongIn, 7000);
+  assert.equal(c[2].deduction, 3000);
+  assert.equal(c[2].carryLongOut, 2000); // 2000 gain - 7000 carry = -5000, minus the 3000 deduction
+});
+
+test("analyze: reports the netting for the chosen year with the earlier-year loss carried in", () => {
+  const csv = `date,type,asset,quantity,total,fee,wallet
+2022-01-10,buy,BTC,1,30000,0,A
+2022-12-01,sell,BTC,0.5,5000,0,A
+2023-02-01,buy,ETH,1,1000,0,A
+2023-06-01,sell,BTC,0.5,20000,0,A
+`;
+  const r = analyze(csv, { method: "FIFO", year: 2023 });
+  const y22 = r.carryChain.find((c) => c.year === 2022);
+  assert.equal(y22.shortNet, -10000);
+  assert.equal(y22.carryShortOut, 7000);
+  assert.equal(r.netting.carryShortIn, 7000);
+  assert.equal(r.netting.longGain, 5000); // 0.5 BTC: 20000 proceeds against 15000 basis
+  assert.equal(r.netting.shortNet, -7000);
+  assert.equal(r.netting.totalNet, -2000);
+  assert.equal(r.netting.deduction, 2000);
+});
+
+test("SAMPLE_CSV dates are zero-padded ISO and the sample sells land on the dates shown", () => {
+  const dates = SAMPLE_CSV.trim().split("\n").slice(1).map((l) => l.split(",")[0]);
+  for (const d of dates) assert.match(d, /^\d{4}-\d{2}-\d{2}$/, d);
+  const r = analyze(SAMPLE_CSV, { method: "FIFO", year: 2024 });
+  assert.ok(r.rows.some((x) => x.sold === "2024-11-02"));
+});
+
+test("planSale: methods pick different lots and the extra tax differs by hand calculation", () => {
+  const lots = [
+    { asset: "BTC", wallet: "", acquired: "2024-01-01", qty: 1, basis: 20000 }, // long, cheap
+    { asset: "BTC", wallet: "", acquired: "2026-03-01", qty: 1, basis: 60000 }, // short, dear
+    { asset: "ETH", wallet: "", acquired: "2026-03-01", qty: 5, basis: 100 },   // other asset, ignored
+  ];
+  const p = planSale(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 1, shortRate: 0.3, longRate: 0.2 });
+  const by = Object.fromEntries(p.options.map((o) => [o.method, o]));
+  assert.equal(p.capped, false);
+  assert.equal(by.FIFO.longGain, 30000);        // sells the 2024 lot
+  assert.equal(by.FIFO.extraTax, 6000);
+  assert.equal(by.HIFO.shortGain, -10000);      // sells the 60k lot at a loss
+  assert.equal(by.HIFO.extraTax, 0);
+  assert.equal(by[p.bestMethod].extraTax, 0);   // LIFO ties HIFO here; the first lowest is named
+  assert.equal(by.HIFO.keep, 50000);
+});
+
+test("planSale: a loss offsets the year's realized gain, cash target converts to coins, over-asking is capped", () => {
+  const lots = [{ asset: "BTC", wallet: "w", acquired: "2026-03-01", qty: 2, basis: 120000 }];
+  const p = planSale(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", cash: 25000, summary: { shortGain: 10000, longGain: 0 }, shortRate: 0.3, longRate: 0.2 });
+  assert.equal(p.qty, 0.5);
+  assert.equal(p.options[0].gain, -5000);        // 0.5 coin: 25000 proceeds - 30000 basis
+  assert.equal(p.options[0].extraTax, -1500);    // the loss cancels 5000 of the 10000 short gain: 5000 * 0.3 less tax
+  const big = planSale(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 5 });
+  assert.equal(big.capped, true);
+  assert.equal(big.qty, 2);
+  assert.equal(planSale(lots, { asset: "SOL", price: 1, asOf: "2026-10-16", qty: 1 }).qty, 0);
+});
+
+test("incomeReport groups receipts by coin for the year and exports CSV", async () => {
+  const { incomeReport, toIncomeCsv, parseTransactions } = await import("./calc.mjs");
+  const csv = `date,type,asset,quantity,total,fee,wallet
+2023-12-30,income,ETH,0.5,900,0,
+2024-01-15,income,ETH,0.25,600.10,0,
+2024-02-20,income,eth,0.25,650.20,0,
+2024-02-21,income,SOL,10,1500,0,
+2024-03-01,buy,BTC,1,60000,0,`;
+  const r = incomeReport(parseTransactions(csv).transactions, 2024);
+  assert.equal(r.count, 3);
+  assert.equal(r.total, 2750.3);
+  assert.deepEqual(r.assets.map((a) => [a.asset, a.count, a.qty, a.usd, a.first, a.last]), [["SOL", 1, 10, 1500, "2024-02-21", "2024-02-21"], ["ETH", 2, 0.5, 1250.3, "2024-01-15", "2024-02-20"]]);
+  assert.deepEqual(r.months.map((m) => m.month), ["2024-01", "2024-02"]);
+  assert.equal(incomeReport(parseTransactions(csv).transactions, null).count, 4);
+  assert.equal(toIncomeCsv(r), "Asset,Receipts,Quantity,First received,Last received,Fair market value (USD)\nSOL,1,10,2024-02-21,2024-02-21,1500.00\nETH,2,0.5,2024-01-15,2024-02-20,1250.30\nTotal,3,,,,2750.30\n");
+  const a = analyze(csv + "\n2024-04-01,sell,BTC,0.1,7000,0,", { year: 2024 });
+  assert.equal(a.incomeReport.total, a.income);
+});
+
+test("waitPlan: short-term gains turning long-term inside the window, with tax saved and break-even fall", () => {
+  const lots = [
+    { asset: "BTC", wallet: "", acquired: "2025-12-01", qty: 1, basis: 40000 },  // long from 2026-12-02, 47 days out, gain 10000
+    { asset: "ETH", wallet: "", acquired: "2026-03-01", qty: 10, basis: 20000 }, // 136+ days out, outside 90-day window
+    { asset: "SOL", wallet: "", acquired: "2025-11-20", qty: 10, basis: 3000 },  // loss, waiting would not help
+    { asset: "ADA", wallet: "", acquired: "2024-01-01", qty: 1, basis: 1 },      // already long
+    { asset: "DOGE", wallet: "", acquired: "2026-01-01", qty: 1, basis: 5 },     // no price
+  ];
+  const w = waitPlan(lots, { BTC: 50000, ETH: 3000, SOL: 100, ADA: 5 }, { asOf: "2026-10-16", shortRate: 0.3, longRate: 0.2 });
+  assert.equal(w.lots.length, 1);
+  assert.deepEqual(w.unpriced, ["DOGE"]);
+  const l = w.lots[0];
+  assert.equal(l.asset, "BTC");
+  assert.equal(l.longFrom, "2026-12-02");
+  assert.equal(l.days, 47);
+  assert.equal(l.taxSaved, 1000); // 10000 * (0.30 - 0.20)
+  // after-tax cash equal when value falls by gain*(s-l)/(1-l) = 10000*0.1/0.8 = 1250
+  assert.equal(l.breakEvenFall, 1250);
+  const keepNow = 50000 - 10000 * 0.3;
+  const later = 50000 - 1250;
+  close(later - (later - 40000) * 0.2, keepNow, "break-even keeps the same cash");
+  assert.equal(w.taxSaved, 1000);
+});
+
+test("waitPlan: the anniversary day itself is still short-term; the next day counts as long", () => {
+  const lot = [{ asset: "BTC", wallet: "", acquired: "2025-10-16", qty: 1, basis: 100 }];
+  const w = waitPlan(lot, { BTC: 200 }, { asOf: "2026-10-16" });
+  assert.equal(w.lots[0].longFrom, "2026-10-17");
+  assert.equal(w.lots[0].days, 1);
+});
+
+import { niit, NIIT_THRESHOLDS } from "./calc.mjs";
+
+test("niit: 3.8% of the smaller of investment income and the excess over the threshold", () => {
+  // $100k gain on top of $150k other income: MAGI 250k, 50k over 200k, NII 100k -> base 50k.
+  const n = niit(netCapital(0, 100000), { magi: 150000 });
+  assert.equal(n.over, 50000);
+  assert.equal(n.base, 50000);
+  assert.equal(n.tax, 1900);
+  assert.equal(n.fromCrypto, 1900);
+  // Far over the threshold: the investment income is the smaller figure.
+  const big = niit(netCapital(0, 100000), { magi: 500000 });
+  assert.equal(big.base, 100000);
+  assert.equal(big.tax, 3800);
+});
+
+test("niit: thresholds by filing status, nothing under the line, other investment income counts", () => {
+  assert.deepEqual(NIIT_THRESHOLDS, { single: 200000, hoh: 200000, mfj: 250000, qw: 250000, mfs: 125000 });
+  const g = netCapital(0, 40000);
+  assert.equal(niit(g, { magi: 150000, status: "single" }).tax, 0);      // 190k
+  assert.equal(niit(g, { magi: 150000, status: "mfs" }).tax, 1520); // 190k vs 125k: NII 40k < 65k excess
+  assert.equal(niit(g, { magi: 220000, status: "mfj" }).tax, 380);       // 260k, 10k over
+  // $30k of dividends already pushes a $230k earner over: crypto adds only its own share.
+  const d = niit(netCapital(0, 10000), { magi: 230000, otherNii: 30000 });
+  assert.equal(d.tax, cents2((Math.min(40000, 40000)) * 0.038));
+  assert.equal(d.fromCrypto, cents2(10000 * 0.038));
+});
+
+test("niit: a net loss lowers income by the allowed deduction only", () => {
+  const n = niit(netCapital(0, -20000), { magi: 210000, otherNii: 50000 });
+  assert.equal(n.totalMagi, 207000);        // 210k less the $3,000 deduction
+  assert.equal(n.nii, 47000);
+  assert.equal(n.base, 7000);
+  assert.equal(n.tax, 266);
+  assert.equal(niit(netCapital(0, 1), { magi: -1 }), null);
+  assert.equal(niit(netCapital(0, 1), { magi: 1, status: "bogus" }), null);
+});
+
+test("analyze with magi reports the surtax per method and leaves it off otherwise", () => {
+  const csv = "date,type,asset,quantity,total,fee,wallet\n2022-01-10,buy,BTC,1,20000,0,A\n2022-02-10,buy,BTC,1,60000,0,A\n2024-09-20,sell,BTC,1,100000,0,A\n";
+  const off = analyze(csv, { method: "FIFO" });
+  assert.equal(off.niit, null);
+  assert.equal(off.comparison[0].niit, undefined);
+  const on = analyze(csv, { method: "FIFO", magi: 180000 });
+  const hifo = on.comparison.find((c) => c.method === "HIFO"), fifo = on.comparison.find((c) => c.method === "FIFO");
+  assert.equal(fifo.totalGain, 80000);
+  assert.equal(hifo.totalGain, 40000);
+  assert.equal(fifo.niit, cents2(0.038 * Math.min(80000, 180000 + 80000 - 200000)));  // 60k over -> 2280
+  assert.equal(hifo.niit, cents2(0.038 * Math.min(40000, 180000 + 40000 - 200000)));  // 20k over -> 760
+  assert.equal(on.niit.tax, fifo.niit);
+});
+function cents2(n) { return Math.round(n * 100) / 100; }
+
+import { form8949Box, form8949BoxTotals } from "./calc.mjs";
+
+test("a reported column sorts sales into Form 8949 boxes G to L", () => {
+  const csv = `date,type,asset,quantity,total,reported
+2022-01-01,buy,BTC,1,10000,
+2024-01-01,buy,BTC,1,20000,
+2024-02-01,sell,BTC,1,30000,basis
+2024-03-01,sell,BTC,1,30000,nobasis
+2024-04-01,buy,ETH,1,1000,
+2024-05-01,sell,ETH,1,900,`;
+  const r = analyze(csv, { method: "FIFO" });
+  const boxes = Object.fromEntries(form8949BoxTotals(r.rows).map((b) => [b.box, b]));
+  assert.deepEqual(Object.keys(boxes), ["H", "I", "J"]);
+  assert.equal(boxes.J.rows, 1);
+  assert.equal(boxes.J.gain, 20000);
+  assert.equal(boxes.G ?? null, null);
+  assert.equal(r.rows.find((x) => x.asset === "ETH").box, "I");
+  const total = form8949BoxTotals(r.rows).reduce((s, b) => s + b.gain, 0);
+  close(total, r.summary.totalGain, "box totals add to the summary");
+  const out = toForm8949Csv(r.rows);
+  assert.match(out.split("\n")[0], /,Term,Box,Note$/);
+});
+
+test("form8949Box maps term and report status; unknown values warn and count as unreported", () => {
+  assert.equal(form8949Box("Short", "basis"), "G");
+  assert.equal(form8949Box("Short", "nobasis"), "H");
+  assert.equal(form8949Box("Short", ""), "I");
+  assert.equal(form8949Box("Long", "basis"), "J");
+  assert.equal(form8949Box("Long", "nobasis"), "K");
+  assert.equal(form8949Box("Long", ""), "L");
+  const p = parseTransactions("date,type,asset,quantity,total,reported\n2024-01-01,sell,BTC,1,100,maybe\n");
+  assert.equal(p.transactions.length, 1);
+  assert.equal(p.transactions[0].reported, undefined);
+  assert.equal(p.skipped.length, 1);
+});
+
+test("without a reported column the Form 8949 CSV keeps its original columns", () => {
+  const r = analyze(SAMPLE_CSV, { method: "FIFO" });
+  assert.match(toForm8949Csv(r.rows).split("\n")[0], /,Term,Note$/);
+});
+
+test("donationPlan: gives long-term lots with the most gain first, skips short-term, avoids tax on the gain", () => {
+  const lots = [
+    { asset: "BTC", acquired: "2020-01-01", qty: 1, basis: 10000, wallet: "" },
+    { asset: "BTC", acquired: "2021-01-01", qty: 1, basis: 40000, wallet: "" },
+    { asset: "BTC", acquired: "2026-09-01", qty: 1, basis: 1000, wallet: "" },
+  ];
+  const d = donationPlan(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 1.5, longRate: 0.2, deductionRate: 0.3 });
+  assert.equal(d.longQty, 2);
+  assert.equal(d.qty, 1.5);
+  assert.equal(d.lots[0].basis, 10000);
+  assert.equal(d.value, 75000);
+  assert.equal(d.basis, 30000);
+  assert.equal(d.gain, 45000);
+  assert.equal(d.taxAvoided, 9000);
+  assert.equal(d.deductionValue, 22500);
+  const big = donationPlan(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 5 });
+  assert.equal(big.capped, true);
+  assert.equal(big.qty, 2);
+});
+
+test("washLookalike flags losses re-bought within 30 days and ignores the lot sold", async () => {
+  const { washLookalike, matchLots, parseTransactions, analyze } = await import("./calc.mjs");
+  const csv = `date,type,asset,quantity,total
+2024-01-01,buy,BTC,1,50000
+2024-06-01,sell,BTC,1,40000
+2024-06-15,buy,BTC,0.5,20000
+2024-08-01,buy,BTC,1,60000
+2024-09-01,sell,ETH,1,100
+`;
+  const txs = parseTransactions(csv).transactions;
+  const w = washLookalike(matchLots(txs).pieces, txs, 2024);
+  assert.equal(w.items.length, 1);
+  assert.equal(w.items[0].loss, 10000);
+  assert.equal(w.items[0].replacedQty, 0.5);
+  assert.equal(w.items[0].deferred, 5000);
+  assert.equal(w.deferred, 5000);
+  assert.deepEqual(analyze(csv, { year: 2024 }).washLookalike, w);
+  // a gain, or a repurchase outside 30 days, defers nothing
+  const none = parseTransactions("date,type,asset,quantity,total\n2024-01-01,buy,BTC,1,50000\n2024-06-01,sell,BTC,1,40000\n2024-07-02,buy,BTC,1,45000\n").transactions;
+  assert.equal(washLookalike(matchLots(none).pieces, none, 2024).items.length, 0);
+});
+
+test("reconcile1099da compares per-coin proceeds and basis with the broker's figures", async () => {
+  const { analyze, parse1099da, reconcile1099da } = await import("./calc.mjs");
+  const csv = `date,type,asset,quantity,total
+2024-01-01,buy,BTC,1,50000
+2024-01-01,buy,ETH,10,20000
+2024-06-01,sell,BTC,1,60000
+2024-07-01,sell,ETH,10,25000
+`;
+  const rows = analyze(csv, { year: 2024 }).rows;
+  const b = parse1099da("Asset,Gross Proceeds,Cost Basis\nbtc,\"$60,000.00\",0\nETH,25000.50,20000\nSOL,10,\n");
+  assert.deepEqual(b.errors, []);
+  const rec = reconcile1099da(rows, b.entries);
+  const by = Object.fromEntries(rec.items.map((i) => [i.asset, i]));
+  assert.equal(by.BTC.status, "basis differs");
+  assert.equal(by.BTC.basisDiff, -50000);
+  assert.equal(by.ETH.status, "matches");
+  assert.equal(by.SOL.status, "not in your sales");
+  assert.equal(rec.mismatches, 2);
+  assert.match(parse1099da("a,b\n1,2").errors[0], /asset column/);
+});
+
+test("idRecord lists exactly the lots planSale picks, with wallet, date, quantity and basis, and a matching CSV", () => {
+  const lots = [
+    { asset: "BTC", wallet: "A", acquired: "2022-01-10", qty: 1, basis: 20000 },
+    { asset: "BTC", wallet: "B", acquired: "2024-03-01", qty: 1, basis: 60000 },
+  ];
+  const p = planSale(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 1.5 });
+  const r = idRecord(p, "HIFO");
+  assert.match(r.text, /Planned quantity: 1\.5 BTC at an assumed 50000 USD/);
+  assert.match(r.text, /B; acquired 2024-03-01; 1 BTC; basis 60000\.00/);
+  assert.match(r.text, /A; acquired 2022-01-10; 0\.5 BTC; basis 10000\.00/);
+  assert.equal(r.csv.trim().split("\n").length, 3);
+  assert.equal(idRecord(p, "NOPE"), null);
+  assert.equal(idRecord(planSale(lots, { asset: "SOL", price: 1, asOf: "2026-10-16", qty: 1 }), "FIFO"), null);
+});
+
+test("swap rows split into a sale of the coin given up and a buy of the coin received", () => {
+  const csv = [
+    "date,type,asset,quantity,total,fee,to asset,to quantity",
+    "2023-01-10,buy,ETH,2,3000,0,,",
+    "2024-03-01,swap,ETH,1,3500,10,SOL,35",
+    "2024-06-01,sell,SOL,35,4000,0,,",
+  ].join("\n");
+  const parsed = parseTransactions(csv);
+  assert.deepEqual(parsed.errors, []);
+  assert.equal(parsed.transactions.length, 4);
+  const r = analyze(csv, { method: "FIFO" });
+  const eth = r.rows.find((x) => x.asset === "ETH");
+  close(eth.proceeds, 3490, "swap proceeds are value minus fee");
+  close(eth.basis, 1500, "ETH basis");
+  const sol = r.rows.find((x) => x.asset === "SOL");
+  close(sol.basis, 3500, "received coin takes the swap's USD value as basis");
+  close(sol.proceeds - sol.basis, 500, "SOL gain");
+});
+
+test("swap rows without the received coin or a value are reported, not guessed", () => {
+  const bad = parseTransactions("date,type,asset,quantity,total,to asset,to quantity\n2024-03-01,swap,ETH,1,3500,ETH,5\n2024-03-01,swap,ETH,1,3500,,\n2024-03-01,swap,ETH,1,,SOL,5\n");
+  assert.equal(bad.transactions.length, 0);
+  assert.equal(bad.errors.length, 3);
+});
+
+test("tax-software CSV: five columns, US dates, rows with no purchase left out and counted", () => {
+  const r = analyze("date,type,asset,quantity,total\n2023-01-10,buy,BTC,1,10000\n2024-02-01,sell,BTC,1,15000\n2024-03-01,sell,ETH,1,100\n", { year: 2024 });
+  const lines = toTurboTaxCsv(r.rows).trim().split("\n");
+  assert.equal(lines[0], "Currency Name,Purchase Date,Cost Basis,Date Sold,Proceeds");
+  assert.equal(lines[1], "BTC,01/10/2023,10000.00,02/01/2024,15000.00");
+  assert.equal(lines.length, 2);
+  assert.equal(turboTaxSkipped(r.rows), 1);
 });

@@ -1,0 +1,61 @@
+A. Heat held per cubic metre and per tonne, charged to the top temperature, usable down to the cut-off.
+store                            kWh/m3      kWh/t      kg/m3
+sand 500 -> 100 C                 142.2       88.9       1600
+water 90 -> 40 C                   56.3       58.1        970
+
+B. Share of the usable heat left after standby (sphere, mineral-wool insulation, ambient 10 C). Rows: store volume.
+medium   ins_m        V_m3    30d_%    90d_%   180d_%     tau_days
+sand     0.25            1      0.0      0.0      0.0          7.1
+sand     0.25           10     12.5      0.0      0.0         18.3
+sand     0.25          100     53.5     11.2      0.0         44.4
+sand     0.25         1000     77.7     52.1     28.5        105.6
+sand     0.50            1      0.0      0.0      0.0         10.8
+sand     0.50           10     30.9      0.0      0.0         30.9
+sand     0.50          100     67.0     28.6      0.0         79.1
+sand     0.50         1000     85.0     64.4     42.6        190.5
+sand     1.00            1      0.0      0.0      0.0         14.8
+sand     1.00           10     45.9      0.9      0.0         47.9
+sand     1.00          100     76.8     46.4     17.4        135.0
+sand     1.00         1000     90.1     75.6     58.1        342.8
+water    0.25            1     14.1      0.0      0.0         38.9
+water    0.25           10     58.0      4.7      0.0         99.3
+water    0.25          100     80.6     48.9     14.2        234.1
+water    0.25         1000     91.1     74.9     53.8        527.3
+water    0.50            1     36.3      0.0      0.0         60.0
+water    0.50           10     73.3     34.0      0.0        170.2
+water    0.50          100     88.7     69.4     45.1        429.7
+water    0.50         1000     95.1     86.1     73.6       1006.2
+water    1.00            1     48.9      0.0      0.0         82.7
+water    1.00           10     81.0     53.0     21.0        266.4
+water    1.00          100     92.6     80.9     65.0        745.4
+water    1.00         1000     96.9     92.0     84.8       1864.4
+
+C. Store sized to still give 10000 kWh of heat after 120 days of standby (charged to the top temperature).
+medium   ins_m          V_m3     diam_m   charge_kWh ideal_V_m3
+sand     0.25          317.4        8.5        55298       70.3
+sand     0.50          222.0        7.5        38675       70.3
+sand     1.00          160.8        6.7        28023       70.3
+water    0.25          327.1        8.5        29469      177.6
+water    0.50          250.0        7.8        22522      177.6
+water    1.00          217.5        7.5        19595      177.6
+
+D. Resistance-charged store against a heat pump, per kWh of heat delivered (heat pump COP 3.96 at 35 C sink, 0 C source, Carnot fraction 0.45, assumed).
+medium   ins_m      delivered/in   kWh_el_per_kWh price_ratio_needed
+sand     0.25              0.181             5.53              21.91
+sand     0.50              0.259             3.87              15.32
+sand     1.00              0.357             2.80              11.10
+water    0.25              0.339             2.95              11.68
+water    0.50              0.444             2.25               8.92
+water    1.00              0.510             1.96               7.76
+(price_ratio_needed: how many times dearer the heat pump's electricity must be than the store's for the store to cost less per kWh of heat, before any capital cost.)
+
+E. The same 10 MWh store (0.5 m insulation) against how long it stands before use: heat delivered per kWh put in.
+medium       days       V_m3   delivered/in
+sand            1       72.4          0.793
+sand            7       79.0          0.726
+sand           30      104.2          0.551
+sand          120      222.0          0.259
+water           1      178.8          0.621
+water           7      182.2          0.609
+water          30      194.8          0.570
+water         120      250.0          0.444

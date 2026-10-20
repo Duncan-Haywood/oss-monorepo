@@ -2,6 +2,8 @@
 
 **Find what a hire really costs you in Connects and writing time, the win rate you need to break even, and the most Connects one proposal can spend before it loses money.** Enter proposals per month, Connects per proposal and their price, minutes per proposal and what your time is worth, your win rate, and the contract you usually win. Browser page, no install.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/upwork-connects-roi-calculator/
+
 After using this, you know whether to send fewer, better proposals or more of them, and whether paying extra Connects to boost one is plausible at your win rate.
 
 ## Your numbers, not advice

@@ -1,0 +1,8 @@
+{
+  "n_matches_original_compact": true,
+  "events_match_original_compact": true,
+  "all81_denominator_totals_match": true,
+  "all81_event_totals_match": true,
+  "no_unmapped_occupation": true,
+  "all_predetermined_cells": true
+}

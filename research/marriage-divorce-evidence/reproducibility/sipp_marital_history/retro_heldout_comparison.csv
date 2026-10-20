@@ -1,0 +1,10 @@
+model,sample,deviance_improvement_percent,improvement_over_duration_only_percent,observed_expected_ratio,ci95_low,ci95_high,c_index_10y,top_decile_lift_10y,bottom_decile_ratio_10y
+constant,all five surveys,0,-1.91472,0.99998,0,0,,,
+duration_only,all five surveys,1.87875,0,0.999972,1.7962,1.98235,,,
+additive_spline,all five surveys,4.07229,2.23554,0.999832,3.93454,4.21212,0.650614,1.92247,0.37911
+tree_depth4,all five surveys,3.19944,1.34597,0.999996,3.09781,3.32846,0.612108,1.47391,0.556253
+gradient_boosting,all five surveys,4.82383,3.00147,0.998823,4.68846,4.97202,0.653066,1.94975,0.374928
+constant,2001-2008 modules,0,-1.91324,0.999951,0,0,,,
+duration_only,2001-2008 modules,1.87733,0,0.99995,1.79538,1.97684,,,
+additive_spline_tm2,2001-2008 modules,4.1449,2.31096,0.999771,3.97327,4.31323,0.652777,1.92978,0.375086
+additive_spline_education,2001-2008 modules,4.41039,2.58153,0.999695,4.25042,4.58751,0.661601,1.95085,0.38166

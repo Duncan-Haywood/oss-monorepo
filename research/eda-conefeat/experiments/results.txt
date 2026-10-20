@@ -1,0 +1,13 @@
+survivors 27: equivalent 16, other 11
+majority-class accuracy 0.593
+miter cells range 1188..1199
+feature      AUC(eq vs not)  LOLO one-split hits/n
+delta        0.412           5/27
+abs_delta    0.793           16/27
+cells        0.412           5/27
+miter        0.591           1/27
+same_types   0.486           7/27
+identical cell-type histogram to golden: 2 mutants -> op@140:>>>->>>=equivalent, rom@60:+1=killed
+zero cell delta: 10 mutants, equivalent 3, undecided 6, killed 1
+undecided |delta|: 0, 0, 0, 0, 0, 0, 37, 1, 2
+equivalent |delta|: 8, 4, 0, 98, 178, 172, 70, 0, 7, 9, 0, 6, 6, 9, 76, 161

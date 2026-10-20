@@ -29,6 +29,12 @@ import { INPUT_IDS as WHATNOT_FIELDS } from '../whatnot-seller-payout/calc.mjs';
 import { INPUT_IDS as POSHMARK_FIELDS } from '../poshmark-fee-calculator/calc.mjs';
 import { FIELD_IDS as STOCKX_FIELDS } from '../stockx-seller-payout-calculator/share.mjs';
 import { INPUT_IDS as MERCARI_FIELDS } from '../mercari-fee-calculator/calc.mjs';
+import { INPUT_IDS as DEPOP_FIELDS } from '../depop-fee-calculator/calc.mjs';
+import { INPUT_IDS as GRAILED_FIELDS } from '../grailed-fee-calculator/calc.mjs';
+import { INPUT_IDS as FB_FIELDS } from '../facebook-marketplace-fee-calculator/calc.mjs';
+import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculator/calc.mjs';
+import { INPUT_IDS as TCGPLAYER_FIELDS } from '../tcgplayer-fee-calculator/calc.mjs';
+import { INPUT_IDS as DISCOGS_FIELDS } from '../discogs-fee-calculator/calc.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
@@ -41,6 +47,12 @@ const TARGET_FIELDS = {
   'poshmark-fee-calculator': POSHMARK_FIELDS,
   'stockx-seller-payout-calculator': STOCKX_FIELDS,
   'mercari-fee-calculator': MERCARI_FIELDS,
+  'depop-fee-calculator': DEPOP_FIELDS,
+  'grailed-fee-calculator': GRAILED_FIELDS,
+  'facebook-marketplace-fee-calculator': FB_FIELDS,
+  'walmart-marketplace-calculator': WALMART_FIELDS,
+  'tcgplayer-fee-calculator': TCGPLAYER_FIELDS,
+  'discogs-fee-calculator': DISCOGS_FIELDS,
 };
 
 const SHARED = {
@@ -300,4 +312,90 @@ test('each offered handoff carries a usable href and both labels', () => {
   assert.equal(offered[0].channelLabel, 'eBay');
   assert.match(offered[0].label, /calculator/i);
   assert.match(offered[0].href, /^\.\.\/ebay-fee-calculator\/#/);
+});
+
+test('Depop and Facebook Marketplace receive the item, packaging folded in', () => {
+  for (const channel of ['depop', 'facebook-marketplace']) {
+    const params = paramsOf(handoffUrl(channel, SHARED));
+    assert.equal(params.get('itemPrice'), '40', channel);
+    assert.equal(params.get('buyerShipping'), '6', channel);
+    assert.equal(params.get('labelCost'), '5.2', channel);
+    assert.equal(params.get('itemCost'), '12', channel);
+    assert.equal(params.get('otherCost'), String(SHARED.otherCost + SHARED.packagingCost), channel);
+    assert.equal(params.get('region'), null, 'defaults match this page\'s presets');
+    assert.equal(params.get('channel'), null, 'defaults match this page\'s presets');
+  }
+});
+
+test('a link handed to Depop and Facebook Marketplace is read back by their own decoders', async () => {
+  const { decodeInputs: depop } = await import('../depop-fee-calculator/share.mjs');
+  const { decodeInputs: fb } = await import('../facebook-marketplace-fee-calculator/share.mjs');
+  for (const [channel, decode] of [['depop', depop], ['facebook-marketplace', fb]]) {
+    const got = decode(handoffUrl(channel, SHARED).split('#')[1]);
+    assert.equal(got.itemPrice, 40, channel);
+    assert.equal(got.buyerShipping, 6, channel);
+    assert.equal(got.labelCost, 5.2, channel);
+    assert.equal(got.itemCost, 12, channel);
+    assert.equal(got.otherCost, SHARED.otherCost + SHARED.packagingCost, channel);
+  }
+});
+
+test('Walmart receives the item with seller shipping and packaging as their own fields, and no buyer shipping', async () => {
+  const params = paramsOf(handoffUrl('walmart', SHARED));
+  assert.equal(params.get('salePrice'), '40');
+  assert.equal(params.get('sellerShippingCost'), '5.2');
+  assert.equal(params.get('costOfGoods'), '12');
+  assert.equal(params.get('packagingCost'), '1.1');
+  assert.equal(params.get('otherCost'), '0.9');
+  assert.equal(params.get('shippingCharged'), null, 'Walmart prices shipping into the item price');
+  const { decodeInputs } = await import('../walmart-marketplace-calculator/share.mjs');
+  const got = decodeInputs(handoffUrl('walmart', SHARED).split('#')[1]);
+  assert.equal(got.salePrice, 40);
+  assert.equal(got.sellerShippingCost, 5.2);
+  assert.equal(got.costOfGoods, 12);
+});
+
+test('TCGplayer receives the item with packaging folded into other costs and decodes it back', async () => {
+  const params = paramsOf(handoffUrl('tcgplayer', SHARED));
+  assert.equal(params.get('itemPrice'), '40');
+  assert.equal(params.get('buyerShipping'), '6');
+  assert.equal(params.get('shippingCost'), '5.2');
+  assert.equal(params.get('itemCost'), '12');
+  assert.equal(params.get('otherCost'), String(SHARED.otherCost + SHARED.packagingCost));
+  const { decodeInputs } = await import('../tcgplayer-fee-calculator/share.mjs');
+  const got = decodeInputs(handoffUrl('tcgplayer', SHARED).split('#')[1]);
+  assert.equal(got.itemPrice, 40);
+  assert.equal(got.buyerShipping, 6);
+  assert.equal(got.itemCost, 12);
+});
+
+test('quickCompareUrl carries the item into marketplace-fee-compare under its own decoder', async () => {
+  const { quickCompareUrl } = await import('./handoff.mjs');
+  const { decodeShare } = await import('../marketplace-fee-compare/share.mjs');
+  const url = quickCompareUrl({
+    price: '40', shippingCharged: '5', shippingCost: '6', itemCost: '12',
+    packagingCost: '1', otherCost: '0.5', monthlyOrders: '30', targetProfit: '9',
+  });
+  assert.match(url, /^\.\.\/marketplace-fee-compare\/#/);
+  const decoded = decodeShare(url.split('#')[1]);
+  assert.deepEqual(decoded.item, {
+    price: 40, shippingCharged: 5, shippingCost: 6, itemCost: 12, otherCost: 1.5, monthlyOrders: 30,
+  });
+});
+
+test('quickCompareUrl leaves blank fields out and gives the bare link for an empty item', async () => {
+  const { quickCompareUrl } = await import('./handoff.mjs');
+  assert.equal(quickCompareUrl({}), '../marketplace-fee-compare/');
+  assert.equal(quickCompareUrl({ price: '', itemCost: 'abc', shippingCost: '-3' }), '../marketplace-fee-compare/');
+});
+
+test('README discloses a usage event for every handoff channel', async () => {
+  const { readFileSync } = await import('node:fs');
+  const readme = readFileSync(new URL('./README.md', import.meta.url), 'utf8');
+  for (const entry of HANDOFFS) {
+    assert.ok(
+      readme.includes(`\`handoff_${entry.channel}\``),
+      `README does not list handoff_${entry.channel}`,
+    );
+  }
 });

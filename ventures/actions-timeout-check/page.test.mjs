@@ -128,3 +128,11 @@ test('index links one hop to the actions-permissions-check sibling', () => {
     'index must link ../actions-permissions-check/ so crawlers reach the permissions checker in one hop',
   );
 });
+
+test('index links one hop to the actions-schedule-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/actions-schedule-check\/"/,
+    'index must link ../actions-schedule-check/ so crawlers reach the schedule cron checker in one hop',
+  );
+});

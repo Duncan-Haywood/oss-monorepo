@@ -2,6 +2,8 @@
 
 Independent consultants and freelancers can use this free browser calculator to turn a take-home income goal into a sustainable hourly floor and monthly retainer. It accounts for non-billable time, business costs, and a visible scope buffer instead of hiding those assumptions inside a generic rate.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/
+
 **Value:** After using this, you can send a retainer price with included hours and an out-of-scope rate, compare 10–30 hour packages against the same capacity so you can quote a range, see whether that price still covers your hourly floor at 50%, 75%, 100%, and 125% usage, see whether a client's offered monthly price still clears the floor, see whether the month as a whole still reaches your income goal, see whether unused-hour rollover still covers the floor after a light first month, and see how much cash prepaid / Net 15 / Net 30 / month-end billing forces you to float — which used to take guesswork or a spreadsheet. The proposal summary can be copied or downloaded as a plain-text file for reliable handoff, and **Copy shareable link** puts the same assumptions — including income-goal, offered price, and payment terms — in the URL so a partner or future-you can reopen the exact plan.
 
 ## Clearing the floor is not reaching the goal

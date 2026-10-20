@@ -1,0 +1,43 @@
+== A. Benefit (C) per scenario [warm room 28 C, sunny outdoors 32 C, cool room 16 C]; replica trench added retail ==
+ir_transparent: +2.37, -0.31, -7.31; added retail $45
+ir_gated: +2.37, +0.00, +0.00; added retail $90
+white: +0.00, +3.57, +0.00; added retail $2
+low_emissivity: -1.57, -0.84, +4.00; added retail $22
+thick: -1.24, +1.40, +4.04; added retail $21
+thin: +0.89, -1.38, -3.10; added retail $-10
+white+thick: -1.24, +3.77, +4.04; added retail $23
+ir_gated+white: +2.37, +3.80, +0.00; added retail $91
+
+== B. Break-even wearing share: fixed infrared-transparent shell helps only if enough time is spent in the warm room ==
+ir_transparent: warm room share must exceed 0.755 (rest in cool room 16 C)
+ir_transparent: warm room share must exceed 0.116 (rest in sunny outdoors 32 C)
+white: warm room vs sunny outdoors crossing = None (it never harms)
+
+== C. Expected benefit (C-weighted) of the best lever set under an added-retail budget, replica, by wearing mix ==
+budget <= 20, office (80% warm room): white+thin, expected +0.73 C for $-9
+budget <= 20, outdoor (70% sun): white, expected +2.50 C for $2
+budget <= 20, cold-climate (70% cool room): low_emissivity+white+thin, expected +2.06 C for $14
+budget <= 20, even: low_emissivity+white+thin, expected +1.37 C for $14
+budget <= 50, office (80% warm room): ir_transparent+white+thin, expected +1.56 C for $36
+budget <= 50, outdoor (70% sun): low_emissivity+white+thick, expected +3.55 C for $45
+budget <= 50, cold-climate (70% cool room): low_emissivity+white+thick, expected +5.30 C for $45
+budget <= 50, even: low_emissivity+white+thick, expected +2.60 C for $45
+
+== D. Which set wins across the whole wearing-mix simplex (66 mixes in steps of 0.1), replica ==
+budget <= 20, gate x2: low_emissivity+white+thin 26; white 17; white+thin 12; low_emissivity+thin 7; thin 3; none 1
+budget <= 50, gate x2: low_emissivity+white+thick 34; ir_transparent+white 11; low_emissivity+thick 8; white+thick 5; ir_transparent+white+thin 5; ir_transparent+thin 2; ir_transparent 1
+budget <= 100, gate x2: low_emissivity+white+thick 30; white+ir_gated 14; low_emissivity+thick 6; ir_transparent+white+thick 4; ir_gated 4; ir_transparent+white+thin 4; ir_transparent+white 2; white+thick 1; ir_transparent+thin 1
+budget <= 50, no gated lever offered: low_emissivity+white+thick 34; ir_transparent+white 11; low_emissivity+thick 8; white+thick 5; ir_transparent+white+thin 5; ir_transparent+thin 2; ir_transparent 1
+
+== E. Value of the gate: expected benefit of the best set with the gate offered minus without, budget <= 100, by gate premium multiple ==
+gate x1 the fixed premium: chosen in 65 of 66 mixes; mean gain +0.887 C, max gain +2.655 C
+gate x2 the fixed premium: chosen in 18 of 66 mixes; mean gain +0.203 C, max gain +1.438 C
+gate x4 the fixed premium: chosen in 0 of 66 mixes; mean gain +0.000 C, max gain +0.000 C
+gate x8 the fixed premium: chosen in 0 of 66 mixes; mean gain +0.000 C, max gain +0.000 C
+
+== F. Expected benefit per added dollar (C per USD, replica) for single garments, by wearing mix ==
+ir_transparent ($45): office +0.025, outdoor -0.032, cold-climate -0.126, even -0.039
+ir_gated ($90): office +0.021, outdoor +0.003, cold-climate +0.003, even +0.009
+white ($2): office +0.191, outdoor +1.340, cold-climate +0.191, even +0.638
+low_emissivity ($22): office -0.042, outdoor +0.002, cold-climate +0.132, even +0.024
+thick ($21): office -0.021, outdoor +0.079, cold-climate +0.155, even +0.067

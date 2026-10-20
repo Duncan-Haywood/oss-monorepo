@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swe-friction"
+version = "0.1.0"
+description = "Where do agent runs say the documentation hurts, and do the same complaints keep coming back? Measured from the doc_friction field of the run records"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

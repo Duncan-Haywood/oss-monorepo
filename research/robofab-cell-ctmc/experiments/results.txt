@@ -1,0 +1,78 @@
+1. Validation: exact CTMC against a discrete-event simulation with the same rules (10 seeds, 200000 min, 5000 min warm-up).
+   z = (sim - ctmc) / s.e.; rates in good parts/h; ln = lognormal print time with the same mean and cv.
+
+   print 20 P=2 N= 3 k=1  states     18  ctmc  4.063  sim  4.067+/-0.011  z +0.40
+   print 20 P=4 N= 4 k=4  states    238  ctmc  6.708  sim  6.710+/-0.007  z +0.44
+   print 20 P=4 N= 8 k=4  states    826  ctmc  7.620  sim  7.618+/-0.010  z -0.13
+   print 20 P=6 N= 6 k=4  states   1134  ctmc  9.019  sim  9.032+/-0.010  z +1.28
+   print 20 P=6 N=12 k=4  states   4662  ctmc 10.111  sim 10.116+/-0.009  z +0.55
+   print 60 P=4 N= 6 k=4  states    532  ctmc  3.144  sim  3.134+/-0.005  z -1.73
+   print 60 P=6 N=12 k=4  states   4662  ctmc  4.658  sim  4.667+/-0.006  z +1.56
+   print 20 P=4 N= 8 k=9  states   5711  ctmc  7.614  sim  7.608+/-0.008  z -0.71
+   print 60 P=4 N= 8 k=9  states   5711  ctmc  3.145  sim  3.149+/-0.005  z +0.81
+   print 20 P=4 N= 8 k=1  states    129  ctmc  7.630  sim  7.617+/-0.017  z -0.77
+
+   rows 10, |z| max 1.73, mean z +0.17, rows with |z|>2: 0
+
+2. Where the MVA error comes from. exact(k) is the CTMC with Erlang-k print (cv = 1/sqrt(k)).
+   The k=1 rows use exponential times throughout, as MVA assumes, so the gap between MVA and exact(k=1) is the cell's
+   structure alone (printer held through load and unload, finite printers, unload priority). The last column,
+   exact(k=1) against exact(k), is what variability in the print time adds. Other columns: percent error of each
+   predictor against exact(k).
+
+   print 20 P=2 N= 2 k=1  exact  3.653  plain   -0.0  held  -12.2  bound   +3.4  bound-h   -9.9  exact(k=1)   +0.0
+   print 20 P=2 N= 2 k=4  exact  3.653  plain   -0.0  held  -12.2  bound   +3.4  bound-h   -9.9  exact(k=1)   -0.0
+   print 20 P=2 N= 2 k=9  exact  3.653  plain   -0.0  held  -12.2  bound   +3.4  bound-h   -9.9  exact(k=1)   -0.0
+   print 20 P=2 N= 4 k=1  exact  4.125  plain  +16.8  held   -0.6  bound  +23.6  bound-h   +3.0  exact(k=1)   +0.0
+   print 20 P=2 N= 4 k=4  exact  4.133  plain  +16.6  held   -0.8  bound  +23.4  bound-h   +2.8  exact(k=1)   -0.2
+   print 20 P=2 N= 4 k=9  exact  4.134  plain  +16.5  held   -0.8  bound  +23.4  bound-h   +2.8  exact(k=1)   -0.2
+   print 20 P=4 N= 4 k=1  exact  6.716  plain   +0.1  held  -10.3  bound  +12.5  bound-h   -2.0  exact(k=1)   +0.0
+   print 20 P=4 N= 4 k=4  exact  6.708  plain   +0.2  held  -10.2  bound  +12.6  bound-h   -1.9  exact(k=1)   +0.1
+   print 20 P=4 N= 4 k=9  exact  6.703  plain   +0.3  held  -10.2  bound  +12.7  bound-h   -1.8  exact(k=1)   +0.2
+   print 20 P=4 N= 6 k=1  exact  7.544  plain  +10.9  held   -1.4  bound  +35.2  bound-h  +12.7  exact(k=1)   +0.0
+   print 20 P=4 N= 6 k=4  exact  7.554  plain  +10.7  held   -1.5  bound  +35.0  bound-h  +12.5  exact(k=1)   -0.1
+   print 20 P=4 N= 6 k=9  exact  7.556  plain  +10.7  held   -1.5  bound  +35.0  bound-h  +12.5  exact(k=1)   -0.2
+   print 20 P=4 N= 8 k=1  exact  7.630  plain  +20.0  held   +5.3  bound  +33.7  bound-h  +11.4  exact(k=1)   +0.0
+   print 20 P=4 N= 8 k=4  exact  7.620  plain  +20.2  held   +5.4  bound  +33.9  bound-h  +11.6  exact(k=1)   +0.1
+   print 20 P=4 N= 8 k=9  exact  7.614  plain  +20.3  held   +5.5  bound  +34.0  bound-h  +11.6  exact(k=1)   +0.2
+   print 20 P=6 N= 6 k=1  exact  9.058  plain   +0.1  held   -8.0  bound  +25.1  bound-h   +9.0  exact(k=1)   +0.0
+   print 20 P=6 N= 6 k=4  exact  9.019  plain   +0.6  held   -7.6  bound  +25.7  bound-h   +9.4  exact(k=1)   +0.4
+   print 20 P=6 N= 8 k=1  exact  9.949  plain   +5.3  held   -2.1  bound  +28.2  bound-h  +28.2  exact(k=1)   +0.0
+   print 20 P=6 N= 8 k=4  exact  9.903  plain   +5.8  held   -1.7  bound  +28.7  bound-h  +28.7  exact(k=1)   +0.5
+   print 20 P=6 N=12 k=1  exact 10.183  plain  +15.5  held   +8.4  bound  +25.2  bound-h  +25.2  exact(k=1)   +0.0
+   print 20 P=6 N=12 k=4  exact 10.111  plain  +16.4  held   +9.2  bound  +26.1  bound-h  +26.1  exact(k=1)   +0.7
+   print 60 P=2 N= 2 k=1  exact  1.514  plain   +0.0  held   -5.6  bound   +0.6  bound-h   -5.1  exact(k=1)   +0.0
+   print 60 P=2 N= 2 k=4  exact  1.514  plain   +0.0  held   -5.6  bound   +0.6  bound-h   -5.1  exact(k=1)   +0.0
+   print 60 P=2 N= 2 k=9  exact  1.514  plain   -0.0  held   -5.6  bound   +0.6  bound-h   -5.1  exact(k=1)   -0.0
+   print 60 P=2 N= 4 k=1  exact  1.587  plain   +6.8  held   +0.2  bound   +7.1  bound-h   +0.4  exact(k=1)   +0.0
+   print 60 P=2 N= 4 k=4  exact  1.588  plain   +6.8  held   +0.1  bound   +7.1  bound-h   +0.4  exact(k=1)   -0.0
+   print 60 P=2 N= 4 k=9  exact  1.588  plain   +6.8  held   +0.1  bound   +7.1  bound-h   +0.4  exact(k=1)   -0.0
+   print 60 P=4 N= 4 k=1  exact  2.989  plain   +0.0  held   -5.4  bound   +1.9  bound-h   -3.9  exact(k=1)   +0.0
+   print 60 P=4 N= 4 k=4  exact  2.989  plain   +0.0  held   -5.4  bound   +1.9  bound-h   -3.9  exact(k=1)   +0.0
+   print 60 P=4 N= 4 k=9  exact  2.989  plain   +0.0  held   -5.4  bound   +1.9  bound-h   -3.9  exact(k=1)   +0.0
+   print 60 P=4 N= 6 k=1  exact  3.143  plain   +6.9  held   +0.4  bound   +8.2  bound-h   +1.4  exact(k=1)   +0.0
+   print 60 P=4 N= 6 k=4  exact  3.144  plain   +6.9  held   +0.4  bound   +8.2  bound-h   +1.4  exact(k=1)   -0.0
+   print 60 P=4 N= 6 k=9  exact  3.144  plain   +6.9  held   +0.4  bound   +8.2  bound-h   +1.4  exact(k=1)   -0.0
+   print 60 P=4 N= 8 k=1  exact  3.145  plain   +8.0  held   +1.3  bound   +8.1  bound-h   +1.4  exact(k=1)   +0.0
+   print 60 P=4 N= 8 k=4  exact  3.145  plain   +8.0  held   +1.3  bound   +8.1  bound-h   +1.4  exact(k=1)   +0.0
+   print 60 P=4 N= 8 k=9  exact  3.145  plain   +8.0  held   +1.3  bound   +8.1  bound-h   +1.4  exact(k=1)   +0.0
+   print 60 P=6 N= 6 k=1  exact  4.415  plain   +0.1  held   -5.2  bound   +3.5  bound-h   -2.4  exact(k=1)   +0.0
+   print 60 P=6 N= 6 k=4  exact  4.414  plain   +0.1  held   -5.2  bound   +3.5  bound-h   -2.4  exact(k=1)   +0.0
+   print 60 P=6 N= 8 k=1  exact  4.650  plain   +6.7  held   +0.5  bound   +9.7  bound-h   +2.8  exact(k=1)   +0.0
+   print 60 P=6 N= 8 k=4  exact  4.652  plain   +6.7  held   +0.5  bound   +9.6  bound-h   +2.8  exact(k=1)   -0.0
+   print 60 P=6 N=12 k=1  exact  4.659  plain   +9.4  held   +2.6  bound   +9.5  bound-h   +2.6  exact(k=1)   +0.0
+   print 60 P=6 N=12 k=4  exact  4.658  plain   +9.4  held   +2.6  bound   +9.5  bound-h   +2.6  exact(k=1)   +0.0
+
+   mean |error| vs exact, all rows: plain 6.8, held 4.3, bound 14.4, bound_h 7.0, exp_vs_k 0.1  (42 rows)
+   mean |error| vs exact, k=1 (exponential): plain 6.7, held 4.3, bound 14.7, bound_h 7.6, exp_vs_k 0.0  (16 rows)
+   mean |error| vs exact, k=4 (cv 0.5): plain 6.8, held 4.4, bound 14.8, bound_h 7.7, exp_vs_k 0.1  (16 rows)
+   mean |error| vs exact, k=9 (cv 0.33): plain 6.9, held 4.3, bound 13.4, bound_h 5.1, exp_vs_k 0.1  (10 rows)
+   mean |error| vs exact, N = 2P (saturated): plain 12.8, held 2.8, bound 18.0, bound_h 6.6, exp_vs_k 0.1  (16 rows)
+   mean |error| vs exact, N < 2P (not saturated): plain 3.0, held 5.3, bound 12.3, bound_h 7.3, exp_vs_k 0.1  (26 rows)
+
+3. Does the Erlang choice matter? Same mean and cv, lognormal print time, simulated (10 seeds), against the Erlang CTMC.
+
+   print 20 P=4 N= 8 cv 0.50  erlang ctmc  7.620  lognormal sim  7.627+/-0.008  z +0.93
+   print 20 P=6 N=12 cv 0.50  erlang ctmc 10.111  lognormal sim 10.106+/-0.014  z -0.30
+   print 60 P=4 N= 8 cv 0.50  erlang ctmc  3.145  lognormal sim  3.139+/-0.006  z -0.98
+   print 20 P=4 N= 8 cv 0.33  erlang ctmc  7.614  lognormal sim  7.620+/-0.008  z +0.76

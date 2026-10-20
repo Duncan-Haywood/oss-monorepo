@@ -1,4 +1,4 @@
-# sql-migration-lock-check
+# SQL Migration Lock Check — Will This Migration Take Your Database Down?
 
 **Will this migration lock the table and take the app down?**
 

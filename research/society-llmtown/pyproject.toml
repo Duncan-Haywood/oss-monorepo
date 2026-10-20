@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "society-llmtown"
+version = "0.1.0"
+description = "A small town of policy-driven robot agents with memory among scripted people: which norms do they state, which do they keep? Harness with a deterministic stub and an optional LLM adapter"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

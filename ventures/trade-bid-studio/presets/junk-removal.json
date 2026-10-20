@@ -1,0 +1,55 @@
+{
+  "slug": "junk-removal-bid-calculator",
+  "name": "Junk removal",
+  "group": "Specialty & remediation",
+  "summary": "Junk hauls priced from cubic yards and weight by material, dump fees, crew time and dump runs.",
+  "fit": "good",
+  "crewSize": 2,
+  "hourlyWage": 18,
+  "burdenRate": 28,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Mixed household junk",
+      "unit": "cu yd",
+      "qty": 6,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 7.15,
+      "source": "200 lb per cu yd (MATERIAL_PRESETS) x $65/ton + 10% dump surcharge (index.html); 6 cu yd in STARTING_PILES"
+    },
+    {
+      "label": "Furniture / bulky items",
+      "unit": "cu yd",
+      "qty": 2,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 4.469,
+      "source": "125 lb per cu yd x $65/ton + 10% surcharge; 2 cu yd in STARTING_PILES"
+    },
+    {
+      "label": "Appliances",
+      "unit": "each",
+      "qty": 2,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 32.15,
+      "source": "200 lb each x $65/ton + 10% surcharge, plus $25 special fee each; 2 in STARTING_PILES"
+    },
+    {
+      "label": "Load out on site",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.0,
+      "materialPerUnit": 0,
+      "source": "On-site clock hours 2 (index.html default), crew of 2"
+    },
+    {
+      "label": "Drive and dump run",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.1,
+      "materialPerUnit": 18.0,
+      "source": "18 min one-way travel x 2 + one 30-min dump run (11 cu yd fits one 12-yd truck); fuel $18 (index.html)"
+    }
+  ],
+  "specialistModels": "Rounds volume to truckloads and dump runs, applies a $45 dump minimum ticket, stairs and long-carry time, and a $149 minimum charge."
+}

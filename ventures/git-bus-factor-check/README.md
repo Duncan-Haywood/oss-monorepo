@@ -5,6 +5,8 @@ folder, who actually owns it, whether they are still around, and who to pair
 with. It computes a recency-weighted **bus factor** (truck factor): the fewest
 people whose changes add up to half of a folder.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/git-bus-factor-check/
+
 | Status | Meaning |
 | --- | --- |
 | `orphaned` | the largest contributor (at least 50% of the folder) has made no commit anywhere in the last 90 days |

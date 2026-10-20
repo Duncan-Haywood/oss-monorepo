@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-field"
+version = "0.1.0"
+description = "Weeding-robot coverage planning with a cheap sensor on muddy terrain: inline treat versus scout-then-treat, lane overlap, speed and sensor quality"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

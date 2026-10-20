@@ -1,0 +1,42 @@
+A. Design heating load, required rated capacity and selected heat pump size (baseline vs tight package)
+climate	design_F	base_load_btuh	tight_load_btuh	base_need_kbtuh	tight_need_kbtuh	base_size	tight_size	credit_usd
+Houston (2A)	33	5761	3657	7.5	4.7	9	6	450
+Baltimore (4A)	17	8252	5238	12.5	7.9	18	9	1350
+Chicago (5A)	0	10899	6918	20.1	12.7	24	18	900
+Minneapolis (6A)	-11	12611	8005	27.1	17.2	30	18	1800
+
+B. Whole package: energy break-even plus credit, 3% rate (USD, heat pump)
+climate	energy_breakeven	credit	total
+Houston (2A)	1409	450	1859
+Baltimore (4A)	2134	1350	3484
+Chicago (5A)	2607	900	3507
+Minneapolis (6A)	3104	1800	4904
+
+C. The three costed upgrades (attic, windows, air sealing; assumed extra cost $2211): does the credit close the gap?
+climate	energy_breakeven	credit	total	gap_without_credit	gap_with_credit	size_base	size_costed
+Houston (2A)	604	0	604	1607	1607	9	9
+Baltimore (4A)	848	900	1748	1363	463	18	12
+Chicago (5A)	1024	900	1924	1187	287	24	18
+Minneapolis (6A)	1213	900	2113	998	98	30	24
+
+D. Selected size as one upgrade at a time is added to the baseline (kBtu/h)
+climate	baseline	wall_r	attic_r	window_u	ach50	floor_batt_r	all
+Houston (2A)	9	9	9	9	9	9	6
+Baltimore (4A)	18	12	18	12	12	12	9
+Chicago (5A)	24	18	24	24	24	24	18
+Minneapolis (6A)	30	24	30	30	30	30	18
+
+E. Sensitivity of the whole-package credit to the sizing margin (Chicago; USD)
+oversize	base_size	tight_size	credit
+1.0	18	12	900
+1.15	24	18	900
+1.3	24	18	900
+1.5	30	18	1800
+
+F. Credit and size across design-temperature error (Chicago, tight vs baseline; USD)
+design_F	base_size	tight_size	credit
+-10	30	18	1800
+-5	24	18	900
+0	24	18	900
+5	18	12	900
+10	18	12	900

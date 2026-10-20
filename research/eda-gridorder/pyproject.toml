@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eda-gridorder"
+version = "0.1.0"
+description = "Does the order a grid proposer walks a chip-design space change how fast it finds the Pareto front? Lexicographic vs stride vs farthest-point vs random"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

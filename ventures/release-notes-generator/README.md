@@ -5,6 +5,8 @@ Turn `git log` into release notes. Commits are grouped by Conventional Commit ty
 semantic version is suggested. Histories that do not follow any convention still work:
 the section is guessed from the first word and the tool says how many were guesses.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/
+
 [`index.html`](index.html) runs in a browser; nothing is uploaded and the page makes no
 network calls. [`how-to-write-a-changelog.html`](how-to-write-a-changelog.html) is the
 editorial guide.

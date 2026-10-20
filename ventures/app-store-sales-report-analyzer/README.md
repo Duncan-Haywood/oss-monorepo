@@ -5,6 +5,8 @@ report and see what your apps earn after Apple's cut, by product, country and mo
 The file is read in the browser; nothing is uploaded and no App Store Connect login or
 API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/app-store-sales-report-analyzer/
+
 After using this, you can now **see net proceeds by product, type of sale, country and
 month, refund rates by product, the share of the customer price you keep, subscription
 units at the after-one-year rate, downloads against paid units, and whether your paid

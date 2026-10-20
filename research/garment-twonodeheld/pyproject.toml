@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodeheld"
+version = "0.1.0"
+description = "Tuning a thermostat infrared-gating band on training rooms and testing it on held-out rooms and steps"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

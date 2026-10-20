@@ -2,6 +2,8 @@
 
 **How many quota-carrying reps must you hire, and by when, to hit next year's bookings target?** Enter the target, per-rep quota, ramp, attainment, attrition, recruiting lead time and your existing reps with their start dates. The planner counts ramped-rep-equivalents month by month, shows expected bookings and the gap to target, finds the fewest hires that close it, and works backwards to the **latest start date and requisition-open date for each hire cohort**. It also shows how the answer moves with attainment and attrition, and prices hiring early against hiring late from your fully loaded cost per rep.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sales-quota-capacity-planner/
+
 Open `index.html` in a browser. It needs no account, network request, API key or CRM connection. Export the month-by-month plan as CSV, or copy a shareable link (the inputs live in the link itself).
 
 ## The model

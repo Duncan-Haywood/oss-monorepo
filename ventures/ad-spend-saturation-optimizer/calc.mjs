@@ -145,6 +145,58 @@ export function fitBest(points) {
   return h.aicc < e.aicc - 2 ? h : e;
 }
 
+// Carry-over (adstock): this week's effect on revenue also comes from earlier
+// spend. e_t = (1 - lam) s_t + lam e_(t-1), so a constant spend has e = s and
+// the fitted curve stays in steady-state weekly spend. Weeks absent from the
+// file count as zero spend.
+export const LAMBDAS = [0, 0.2, 0.4, 0.6, 0.8];
+export function adstock(pts, lam) {
+  if (!lam) return pts.map((p) => ({ ...p }));
+  let prev = 0, week = null;
+  return pts.map((p) => {
+    if (week !== null) for (let w = week + 7; w < p.week; w += 7) prev = lam * prev;
+    prev = (1 - lam) * p.s + lam * prev;
+    week = p.week;
+    return { ...p, s: prev };
+  });
+}
+
+// Pick the carry-over rate by small-sample AIC on the saturating curve. A
+// non-zero rate has to beat the best so far by more than 2 points.
+// Weeks flagged `skip` (promotions, stock-outs) still feed the carry-over
+// but are left out of every fit.
+export const kept = (pts) => pts.filter((p) => !p.skip);
+export function fitAdstock(pts, { enabled = true } = {}) {
+  if (!enabled || kept(pts).length < 12) return { fit: fitBest(kept(pts)), lambda: 0, eff: pts };
+  let bestL = 0, bestA = fitCurve(kept(pts), "exp").aicc;
+  for (const lam of LAMBDAS.slice(1)) {
+    const a = fitCurve(kept(adstock(pts, lam)), "exp").aicc;
+    if (a < bestA - 2) { bestA = a; bestL = lam; }
+  }
+  const eff = bestL ? adstock(pts, bestL) : pts;
+  return { fit: fitBest(kept(eff)), lambda: bestL, eff };
+}
+
+// "2025-11-24..2025-12-07; 2025-12-26" -> [{ from, to }] in day numbers. A week
+// is left out when any day of it falls inside a range.
+export function parseSkipWeeks(text) {
+  const out = [], bad = [];
+  for (const part of String(text ?? "").split(/[;\n,]+/).map((x) => x.trim()).filter(Boolean)) {
+    const [a, b] = part.split(/\s*(?:\.\.|\bto\b|–|—)\s*/);
+    const from = parseDay(a), to = b === undefined ? from : parseDay(b);
+    if (Number.isNaN(from) || Number.isNaN(to) || to < from) bad.push(part); else out.push({ from, to });
+  }
+  return { ranges: out, bad };
+}
+export function applySkipWeeks(by, ranges) {
+  let n = 0;
+  if (!ranges || !ranges.length) return n;
+  for (const pts of by.values()) for (const p of pts) {
+    if (ranges.some((r) => p.week + 6 >= r.from && p.week <= r.to)) { p.skip = true; n++; }
+  }
+  return n;
+}
+
 // ---------- exact budget allocation (dynamic programme) ----------
 
 // curves: [{ f: (spend) => revenue, lo, hi }] in money per week.
@@ -280,7 +332,7 @@ export function weekly(rows) {
 const MIN_WEEKS = 8;
 const CURRENT_WEEKS = 8;
 
-function currentSpend(pts) { return mean(pts.slice(-CURRENT_WEEKS).map((p) => p.s)); }
+function currentSpend(pts) { const k = kept(pts); return mean((k.length >= 4 ? k : pts).slice(-CURRENT_WEEKS).map((p) => p.s)); }
 
 function bootstrapChannel(pts, fit, B, u) {
   const out = [];
@@ -297,17 +349,21 @@ function bootstrapChannel(pts, fit, B, u) {
 
 // Refit on weeks before the cutoff, predict revenue in the final weeks from the
 // spend that really happened, and compare with a constant-ROAS line.
-export function backtestChannel(pts, holdout) {
-  const train = pts.slice(0, pts.length - holdout), test = pts.slice(-holdout);
-  if (train.length < MIN_WEEKS + 2 || test.length < 3) return null;
-  const fit = fitBest(train);
+export function backtestChannel(pts, holdout, { adstock: useAds = true } = {}) {
+  const rawTrain = pts.slice(0, pts.length - holdout);
+  if (kept(rawTrain).length < MIN_WEEKS + 2 || holdout < 3) return null;
+  const { fit, lambda } = fitAdstock(rawTrain, { enabled: useAds });
+  const eff = adstock(pts, lambda);
+  const train = kept(pts.slice(0, pts.length - holdout)), test = pts.slice(-holdout);
+  const effTest = eff.slice(-holdout);
   const roas = train.reduce((a, p) => a + p.r, 0) / (train.reduce((a, p) => a + p.s, 0) || 1);
   let actual = 0, pc = 0, pl = 0, ec = 0, el = 0;
-  for (const p of test) {
-    const c = curveValue(fit, p.s), l = roas * p.s;
+  for (let i = 0; i < test.length; i++) {
+    if (test[i].skip) continue;
+    const p = test[i], c = curveValue(fit, effTest[i].s), l = roas * p.s;
     actual += p.r; pc += c; pl += l; ec += Math.abs(c - p.r); el += Math.abs(l - p.r);
   }
-  return { weeks: test.length, actual, curve: pc, linear: pl, wapeCurve: ec / (actual || 1), wapeLinear: el / (actual || 1), model: fit.type };
+  return { weeks: kept(test).length, actual, curve: pc, linear: pl, wapeCurve: ec / (actual || 1), wapeLinear: el / (actual || 1), model: fit.type, lambda };
 }
 
 export function analyze(rows, opts = {}) {
@@ -318,6 +374,8 @@ export function analyze(rows, opts = {}) {
   const u = rng(seed);
   const by = weekly(rows);
   if (!by.size) return { error: "No usable rows." };
+  const skip = parseSkipWeeks(opts.skipWeeks);
+  const skipped = applySkipWeeks(by, skip.ranges);
 
   const allWeeks = [...by.values()].flat().map((p) => p.week);
   const firstWeek = Math.min(...allWeeks), lastWeek = Math.max(...allWeeks);
@@ -326,21 +384,24 @@ export function analyze(rows, opts = {}) {
   const channels = [];
   for (const [name, pts] of [...by.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
     const totalS = pts.reduce((a, p) => a + p.s, 0), totalR = pts.reduce((a, p) => a + p.r, 0);
+    const nKept = kept(pts).length;
     const cur = currentSpend(pts);
     const maxS = Math.max(...pts.map((p) => p.s));
     const ch = { name, pts, weeks: pts.length, totalSpend: totalS, totalRevenue: totalR, roas: totalS > 0 ? totalR / totalS : NaN, current: cur, maxSpend: maxS, modelled: false, reason: null };
-    const spends = pts.map((p) => p.s), ms = mean(spends);
+    const spends = kept(pts).map((p) => p.s), ms = mean(spends);
     ch.spendCv = ms > 0 ? Math.sqrt(mean(spends.map((x) => (x - ms) ** 2))) / ms : 0;
-    if (pts.length < MIN_WEEKS) ch.reason = `only ${pts.length} weeks of data (need ${MIN_WEEKS})`;
+    if (nKept < MIN_WEEKS) ch.reason = `only ${nKept} weeks of data${nKept < pts.length ? " after leaving out the weeks you listed" : ""} (need ${MIN_WEEKS})`;
     else if (totalS <= 0 || totalR <= 0) ch.reason = "no spend or no revenue";
     else if (new Set(spends.map((x) => Math.round(x * 100))).size < 4) ch.reason = "spend barely changed, so no curve can be fitted";
     else {
       ch.modelled = true;
-      ch.fit = fitBest(pts);
+      const ad = fitAdstock(pts, { enabled: opts.adstock !== false });
+      ch.fit = ad.fit; ch.lambda = ad.lambda; ch.fitPts = ad.eff;
+      ch.maxSpend = Math.max(...kept(ad.eff).map((p) => p.s), cur);
       ch.mroas = marginal(ch.fit, cur);
       ch.fitted = curveValue(ch.fit, cur);
       ch.saturation = ch.fit.type === "exp" ? 1 - Math.exp(-cur / ch.fit.p[1]) : Math.pow(cur, ch.fit.p[2]) / (Math.pow(ch.fit.p[1], ch.fit.p[2]) + Math.pow(cur, ch.fit.p[2]));
-      ch.boot = bootstrapChannel(pts, ch.fit, B, u);
+      ch.boot = bootstrapChannel(kept(ch.fitPts), ch.fit, B, u);
       const ms2 = ch.boot.filter(Boolean).map((f) => marginal(f, cur)).filter(Number.isFinite).sort((a, b) => a - b);
       ch.mroasLo = percentile(ms2, 0.1); ch.mroasHi = percentile(ms2, 0.9);
       ch.lowSpread = ch.spendCv < 0.15;
@@ -386,7 +447,7 @@ export function analyze(rows, opts = {}) {
   // Back-test on the last weeks of the file.
   const holdout = opts.holdoutWeeks ?? Math.max(4, Math.min(12, Math.floor(spanWeeks / 5)));
   const bt = [];
-  for (const c of modelled) { const r = backtestChannel(c.pts, holdout); if (r) bt.push({ name: c.name, ...r }); }
+  for (const c of modelled) { const r = backtestChannel(c.pts, holdout, { adstock: opts.adstock !== false }); if (r) bt.push({ name: c.name, ...r }); }
   const btTotal = bt.length ? {
     actual: bt.reduce((a, r) => a + r.actual, 0), curve: bt.reduce((a, r) => a + r.curve, 0), linear: bt.reduce((a, r) => a + r.linear, 0),
     wapeCurve: bt.reduce((a, r) => a + r.wapeCurve * r.actual, 0) / (bt.reduce((a, r) => a + r.actual, 0) || 1),
@@ -396,14 +457,47 @@ export function analyze(rows, opts = {}) {
 
   const summary = {
     channels: channels.length, modelled: modelled.length, weeks: spanWeeks, rows: rows.length,
-    firstWeek, lastWeek, margin, budget, fixedSpend, currentRevenue: curRev, recommendedRevenue: alloc.revenue,
+    firstWeek, lastWeek, skippedWeeks: skipped, skipBad: skip.bad, margin, budget, fixedSpend, currentRevenue: curRev, recommendedRevenue: alloc.revenue,
     gain, gainLo: percentile(gains, 0.1), gainMid: percentile(gains, 0.5), gainHi: percentile(gains, 0.9),
     pGain: gains.length ? gains.filter((g) => g > 0).length / gains.length : NaN, boots: gains.length,
-    profitAtBudget, profitAtCurrent, breakevenRoas: 1 / margin,
+    profitAtBudget, profitAtCurrent, breakevenRoas: 1 / margin, frontier: fr,
   };
   const res = { channels, modelled, summary, optimum, backtest: bt, backtestTotal: btTotal };
   res.findings = findings(res);
   return res;
+}
+
+// Budget what-if: the best split of a different weekly total, read off the
+// frontier analyze() already built (no refit). Returns null outside the range the
+// per-channel limits allow. `prorata` is the same total spread in proportion to
+// today's spend, the "cut or raise every channel by the same percent" baseline.
+export function budgetPlan(res, total) {
+  if (!res || !res.modelled || !Number.isFinite(total) || total <= 0) return null;
+  const fr = res.modelled.length ? res.summary.frontier : null;
+  if (!fr) return null;
+  const unit = fr.unit, b = Math.round(total / unit);
+  const at = fr.at(b);
+  if (!at) return null;
+  const margin = res.summary.margin;
+  const spend = at.units.map((u) => u * unit), spent = b * unit;
+  const k = Math.max(1, Math.round(b * 0.02));
+  const lo = fr.revenueAt(Math.max(fr.minUnits, b - k)), hi = fr.revenueAt(Math.min(fr.maxUnits, b + k));
+  const span = (Math.min(fr.maxUnits, b + k) - Math.max(fr.minUnits, b - k)) * unit;
+  const mult = spent / res.summary.budget;
+  const prorata = res.modelled.reduce((a, c) => a + curveValue(c.fit, c.current * mult), 0);
+  return {
+    total: spent, mult, revenue: at.revenue, contribution: margin * at.revenue - spent,
+    marginalRoas: span > 0 ? (hi - lo) / span : NaN,
+    prorataRevenue: prorata, splitGain: at.revenue - prorata,
+    channels: res.modelled.map((c, i) => ({ name: c.name, current: c.current, spend: spend[i], revenue: curveValue(c.fit, spend[i]) })),
+  };
+}
+
+// A short ladder of budgets from a cut to a raise, for a "what if I spend X%
+// more or less" table. Steps outside the feasible range are left out.
+export function budgetLadder(res, mults = [0.7, 0.8, 0.9, 1, 1.1, 1.25, 1.5]) {
+  if (!res || !res.summary) return [];
+  return mults.map((m) => budgetPlan(res, res.summary.budget * m)).filter(Boolean);
 }
 
 function findings(res) {
@@ -418,6 +512,7 @@ function findings(res) {
     const be = s.breakevenRoas;
     if (c.mroasHi < be) f.push({ severity: "medium", title: `${c.name}: the next dollar loses money`, detail: `Marginal return at ${money(c.current)} a week is ${c.mroas.toFixed(2)} per dollar (range ${c.mroasLo.toFixed(2)} to ${c.mroasHi.toFixed(2)}), below the ${be.toFixed(2)} needed to break even at ${pct(s.margin, 0)} margin. The average ROAS of ${c.roas.toFixed(2)} hides this.` });
     else if (c.mroasLo > be * 1.3 && c.saturation < 0.6) f.push({ severity: "info", title: `${c.name}: room to grow`, detail: `Marginal return at ${money(c.current)} a week is ${c.mroas.toFixed(2)} per dollar (range ${c.mroasLo.toFixed(2)} to ${c.mroasHi.toFixed(2)}) and the fitted curve is only ${pct(c.saturation, 0)} of the way to its ceiling. It is fitted on spend up to ${money(c.maxSpend)} a week; beyond that it is extrapolation.` });
+    if (c.lambda > 0) f.push({ severity: "info", title: `${c.name}: spend keeps working into later weeks`, detail: `Fitting carry-over improved the fit: about ${pct(c.lambda, 0)} of each week's effect carries into the next (a half-life of ${(Math.log(0.5) / Math.log(c.lambda)).toFixed(1)} weeks). The curve is fitted on that smoothed spend and read at steady spend, so cutting a channel pays back slowly and a short test will understate its effect.` });
     if (c.lowSpread) f.push({ severity: "info", title: `${c.name}: spend barely varied`, detail: `Weekly spend varied by only ${pct(c.spendCv, 0)}, so the data shows one point on the curve and the rest is the model's shape. The marginal-return range above is wide for that reason; vary spend on purpose to learn more.` });
     if (c.atLimit) f.push({ severity: "info", title: `${c.name} hits its ${c.atLimit} limit`, detail: `The best split wants ${c.atLimit === "upper" ? "more" : "less"} here than the limit of ${money(c.atLimit === "upper" ? c.limits[1] : c.limits[0])} a week (the limits keep the advice near spend you have actually tried).` });
   }
@@ -460,18 +555,85 @@ export function reportCsv(res) {
   return [h, ...rows].join("\n") + "\n";
 }
 
+// ---------- snapshots: come back with new weeks, see what moved ----------
+
+// A snapshot keeps the answer, never the data: per channel the spend, marginal
+// return and recommendation, nothing from the rows. The user holds the file.
+export function snapshot(res) {
+  if (!res || !res.modelled) return null;
+  return {
+    v: 1, tool: "ad-spend-saturation-optimizer", asOf: dayToIso(res.summary.lastWeek + 6),
+    margin: res.summary.margin, budget: res.summary.budget, gain: res.summary.gain,
+    channels: res.modelled.map((c) => ({ name: c.name, current: c.current, mroas: c.mroas, recommended: c.recommended })),
+  };
+}
+
+export function parseSnapshot(text) {
+  let o;
+  try { o = JSON.parse(text); } catch { return { error: "That file is not a snapshot from this tool (not valid JSON)." }; }
+  if (!o || o.tool !== "ad-spend-saturation-optimizer" || o.v !== 1 || !Array.isArray(o.channels)) return { error: "That file is not a snapshot from this tool." };
+  const ok = o.channels.every((c) => c && typeof c.name === "string" && [c.current, c.mroas, c.recommended].every(Number.isFinite));
+  return ok && typeof o.asOf === "string" ? { snap: o } : { error: "That snapshot is damaged or from a different version." };
+}
+
+// Per channel: how much of last time's recommended move was made (followed:
+// 0 = none, 1 = all, null when the advice was to hold) and how the marginal
+// return changed. Channels new or gone since then are listed apart.
+export function compareSnapshot(prev, res) {
+  const now = snapshot(res);
+  if (!prev || !now) return null;
+  const before = new Map(prev.channels.map((c) => [c.name, c]));
+  const rows = [];
+  for (const c of now.channels) {
+    const p = before.get(c.name);
+    if (!p) continue;
+    const asked = p.recommended - p.current, did = c.current - p.current;
+    const small = Math.abs(asked) < 0.05 * Math.max(p.current, 1);
+    rows.push({ name: c.name, prevSpend: p.current, spend: c.current, prevRecommended: p.recommended, recommended: c.recommended,
+      prevMroas: p.mroas, mroas: c.mroas, dMroas: c.mroas - p.mroas,
+      followed: small ? null : did / asked, direction: small ? "hold" : asked > 0 ? "raise" : "cut" });
+  }
+  return {
+    since: prev.asOf, until: now.asOf, rows,
+    added: now.channels.filter((c) => !before.has(c.name)).map((c) => c.name),
+    dropped: prev.channels.filter((c) => !now.channels.some((n) => n.name === c.name)).map((c) => c.name),
+    dBudget: now.budget - prev.budget,
+  };
+}
+
+export function describeComparison(cmp) {
+  if (!cmp) return [];
+  const out = [];
+  for (const r of cmp.rows) {
+    let t = `${r.name}: spend ${money(r.prevSpend)} -> ${money(r.spend)}, marginal return ${r.prevMroas.toFixed(2)} -> ${r.mroas.toFixed(2)}.`;
+    if (r.followed === null) t += " Last time the advice was to hold.";
+    else if (r.followed >= 0.5) t += ` You made ${Math.round(Math.min(r.followed, 9.99) * 100)}% of the ${r.direction} suggested last time.`;
+    else if (r.followed <= 0.1) t += ` The suggested ${r.direction} was not made.`;
+    else t += ` About ${Math.round(r.followed * 100)}% of the suggested ${r.direction} was made.`;
+    if (r.followed !== null && r.followed >= 0.5 && Math.abs(r.dMroas) >= 0.05) t += r.direction === "raise" ? (r.dMroas < 0 ? " The extra spend lowered its marginal return, as a saturating curve predicts." : " Its marginal return held up or rose, so the extra spend was not yet in the flat part.") : (r.dMroas > 0 ? " Its marginal return rose after the cut, as a saturating curve predicts." : " Its marginal return did not rise after the cut.");
+    out.push(t);
+  }
+  if (cmp.added.length) out.push(`New since then: ${cmp.added.join(", ")}.`);
+  if (cmp.dropped.length) out.push(`No longer modelled: ${cmp.dropped.join(", ")}.`);
+  return out;
+}
+
 // ---------- simulation (sample data, and the tests' ground truth) ----------
 
 // channels: [{ name, type, p, mean, cv, noise }]; weekly rows, revenue = R(spend) * (1 + noise * z).
+// An optional lambda gives the channel carry-over: revenue follows the adstocked spend.
 export function simulateSpend({ channels = SAMPLE_CHANNELS, weeks = 78, seed = 5 } = {}) {
   const u = rng(seed);
   const start = weekStart(Math.floor(Date.UTC(2025, 0, 6) / DAY_MS));
   const rows = [];
   for (const c of channels) {
+    let eff = null;
     for (let w = 0; w < weeks; w++) {
       const wave = 1 + 0.35 * Math.sin((2 * Math.PI * (w + c.mean % 7)) / 17);
       const spend = Math.max(0, c.mean * wave * Math.exp(c.cv * normal(u) - (c.cv * c.cv) / 2));
-      const rev = Math.max(0, CURVES[c.type].f(c.p, spend) * (1 + c.noise * normal(u)));
+      const lam = c.lambda || 0;
+      eff = eff === null || !lam ? spend : (1 - lam) * spend + lam * eff;
+      const rev = Math.max(0, CURVES[c.type].f(c.p, eff) * (1 + c.noise * normal(u)));
       rows.push({ channel: c.name, day: start + 7 * w, spend: Math.round(spend * 100) / 100, revenue: Math.round(rev * 100) / 100 });
     }
   }

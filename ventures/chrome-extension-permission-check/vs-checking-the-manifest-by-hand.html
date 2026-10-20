@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chrome Extension Permission Checker vs. checking the manifest by hand</title>
-<meta name="description" content="Skimming manifest.json against your source catches an obviously unused permission. It also depends on knowing every code shape a permission can appear as (clipboardRead is two different APIs), telling a host pattern buried inside permissions apart from an API permission, and re-checking the whole source tree every time code changes.">
+<meta name="description" content="Skimming manifest.json catches an unused permission but not every code shape a permission can take, or drift as code changes. A repeatable check compares them.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/chrome-extension-permission-check/vs-checking-the-manifest-by-hand.html">
 <meta property="og:type" content="article">

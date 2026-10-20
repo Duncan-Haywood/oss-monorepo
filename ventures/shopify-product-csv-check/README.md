@@ -5,6 +5,8 @@ products by CSV: **paste or drop the file and see every problem with its line nu
 the import fails or quietly creates the wrong products, then download a cleaned copy.** The
 file is read in the browser; nothing is uploaded and no login or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-product-csv-check/
+
 After using this, you can now **find the variant row that repeats an option combination, the
 price that says `$24.00`, the barcode with a wrong check digit, the SKU Excel turned into
 `1.23457E+12`, and the product whose rows got split, and get a CSV with the mechanical faults

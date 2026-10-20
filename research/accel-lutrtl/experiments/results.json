@@ -1,0 +1,156 @@
+[
+ {
+  "N": 8,
+  "K": 16,
+  "mac": {
+   "bit_exact_3_seeds": true,
+   "cycles": 512,
+   "rom_ge": 1507.0,
+   "dp_ge": 1934.5,
+   "dp_ff": 91,
+   "dp_ge_logic": 1479.5,
+   "stored_bits": 4096
+  },
+  "table": {
+   "bit_exact_3_seeds": true,
+   "cycles": 1544,
+   "rom_ge": 896.0,
+   "dp_ge": 4613.5,
+   "dp_ff": 445,
+   "dp_ge_logic": 2388.5,
+   "stored_bits": 2176
+  }
+ },
+ {
+  "N": 16,
+  "K": 16,
+  "mac": {
+   "bit_exact_3_seeds": true,
+   "cycles": 1024,
+   "rom_ge": 2665.0,
+   "dp_ge": 1941.5,
+   "dp_ff": 91,
+   "dp_ge_logic": 1486.5,
+   "stored_bits": 8192
+  },
+  "table": {
+   "bit_exact_3_seeds": true,
+   "cycles": 2064,
+   "rom_ge": 1602.0,
+   "dp_ge": 5838.0,
+   "dp_ff": 606,
+   "dp_ge_logic": 2808.0,
+   "stored_bits": 4224
+  }
+ },
+ {
+  "N": 32,
+  "K": 16,
+  "mac": {
+   "bit_exact_3_seeds": true,
+   "cycles": 2048,
+   "rom_ge": 4635.0,
+   "dp_ge": 1950.0,
+   "dp_ff": 91,
+   "dp_ge_logic": 1495.0,
+   "stored_bits": 16384
+  },
+  "table": {
+   "bit_exact_3_seeds": true,
+   "cycles": 3104,
+   "rom_ge": 2910.0,
+   "dp_ge": 8279.5,
+   "dp_ff": 927,
+   "dp_ge_logic": 3644.5,
+   "stored_bits": 8320
+  }
+ },
+ {
+  "N": 64,
+  "K": 16,
+  "mac": {
+   "bit_exact_3_seeds": true,
+   "cycles": 4096,
+   "rom_ge": 8737.0,
+   "dp_ge": 1957.0,
+   "dp_ff": 91,
+   "dp_ge_logic": 1502.0,
+   "stored_bits": 32768
+  },
+  "table": {
+   "bit_exact_3_seeds": true,
+   "cycles": 5184,
+   "rom_ge": 5431.0,
+   "dp_ge": 13155.5,
+   "dp_ff": 1568,
+   "dp_ge_logic": 5315.5,
+   "stored_bits": 16512
+  }
+ },
+ {
+  "N": 128,
+  "K": 16,
+  "mac": {
+   "bit_exact_3_seeds": true,
+   "cycles": 8192,
+   "rom_ge": 15278.0,
+   "dp_ge": 1965.0,
+   "dp_ff": 91,
+   "dp_ge_logic": 1510.0,
+   "stored_bits": 65536
+  },
+  "table": {
+   "bit_exact_3_seeds": true,
+   "cycles": 9344,
+   "rom_ge": 9229.5,
+   "dp_ge": 22877.0,
+   "dp_ff": 2849,
+   "dp_ge_logic": 8632.0,
+   "stored_bits": 32896
+  }
+ },
+ {
+  "N": 32,
+  "K": 8,
+  "mac": {
+   "bit_exact_3_seeds": true,
+   "cycles": 2048,
+   "rom_ge": 4878.0,
+   "dp_ge": 1950.0,
+   "dp_ff": 91,
+   "dp_ge_logic": 1495.0,
+   "stored_bits": 16384
+  },
+  "table": {
+   "bit_exact_3_seeds": true,
+   "cycles": 2592,
+   "rom_ge": 2245.5,
+   "dp_ge": 7546.0,
+   "dp_ff": 831,
+   "dp_ge_logic": 3391.0,
+   "stored_bits": 6208
+  }
+ },
+ {
+  "N": 32,
+  "K": 4,
+  "mac": {
+   "bit_exact_3_seeds": true,
+   "cycles": 2048,
+   "rom_ge": 2684.0,
+   "dp_ge": 1950.0,
+   "dp_ff": 91,
+   "dp_ge_logic": 1495.0,
+   "stored_bits": 16384
+  },
+  "table": {
+   "bit_exact_3_seeds": true,
+   "cycles": 2336,
+   "rom_ge": 1598.0,
+   "dp_ge": 7171.0,
+   "dp_ff": 783,
+   "dp_ge_logic": 3256.0,
+   "stored_bits": 4128
+  }
+ }
+]

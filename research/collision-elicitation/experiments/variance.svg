@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of exact estimator variance against number of runs n for the all-pairs and disjoint-pairs estimators">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Agreement-rate estimator variance: all pairs vs disjoint pairs</text>
+<line x1="64" x2="624" y1="203.2" y2="203.2" stroke="#ddd"/><text x="58" y="207.2" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="81.8" y2="81.8" stroke="#ddd"/><text x="58" y="85.8" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="223.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="414.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">runs n</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">variance (exact)</text>
+<polyline points="64.0,106.2 223.4,175.1 414.5,242.6 624.0,309.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="106.2" r="3" fill="#c0392b"/>
+<circle cx="223.4" cy="175.1" r="3" fill="#c0392b"/>
+<circle cx="414.5" cy="242.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="309.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">all pairs</text>
+<polyline points="64.0,70.4 223.4,118.7 414.5,176.6 624.0,240.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#1f6fb2"/>
+<circle cx="223.4" cy="118.7" r="3" fill="#1f6fb2"/>
+<circle cx="414.5" cy="176.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="240.1" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">disjoint pairs</text>
+</svg>

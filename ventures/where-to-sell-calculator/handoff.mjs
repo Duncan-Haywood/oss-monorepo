@@ -254,6 +254,115 @@ export const HANDOFFS = [
     // prevent.
     combine: { otherCost: ['otherCost', 'packagingCost'] },
   },
+  {
+    channel: 'depop',
+    slug: 'depop-fee-calculator',
+    label: 'Depop fee calculator',
+    // What it adds: the UK and rest-of-world schedules this page does not
+    // price (the preset here is the US one), and Boosted Listings' extra 12%.
+    // `region` is deliberately not sent: the receiving page defaults to the US
+    // schedule, which is the one this page's preset prices, so the two agree.
+    // Depop has no packaging input; packaging folds into `otherCost`.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
+    channel: 'grailed',
+    slug: 'grailed-fee-calculator',
+    label: 'Grailed fee calculator',
+    // What it adds: the $1.99 minimum commission, international buyers, the
+    // old flat 9% for comparison, and the $120 cliff worked out for the
+    // shipping on screen. `schedule` is not sent: the receiving page
+    // defaults to the domestic tiered schedule this page's row prices.
+    // Packaging folds into `otherCost`.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
+    channel: 'facebook-marketplace',
+    slug: 'facebook-marketplace-fee-calculator',
+    label: 'Facebook Marketplace fee calculator',
+    // What it adds: the $0.80 minimum fee (only bites under $8), the $20
+    // dispute penalty, and the local-pickup case where the fee is zero.
+    // `channel` is not sent: it defaults to shipped checkout, the case this
+    // page's row prices. Packaging folds into `otherCost`.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
+    channel: 'tcgplayer',
+    slug: 'tcgplayer-fee-calculator',
+    label: 'TCGplayer fee calculator',
+    // What it adds: order size (the $0.30 is per order, not per card), the
+    // Pro seller schedule, the $75-per-product commission cap, and the sales
+    // tax the processing fee is charged on. Packaging folds into
+    // `otherCost`; `quantity` is left at its default of one card.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'shippingCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
+    channel: 'discogs',
+    slug: 'discogs-fee-calculator',
+    label: 'Discogs fee calculator',
+    // What it adds: the processing rate as an input, the $0.10 floor and $150
+    // cap on the selling fee, the price that hits a target profit, and a fee
+    // ladder from a $3 single to a $2,500 grail. Packaging folds into
+    // `otherCost`, which that page documents as the packaging bucket.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
+    channel: 'walmart',
+    slug: 'walmart-marketplace-calculator',
+    label: 'Walmart Marketplace calculator',
+    // What it adds: WFS versus shipping it yourself (fulfilment by size tier,
+    // storage, aged-inventory removal), Walmart Connect ads, returns, the
+    // Buy Box price match, and two-day shipping.
+    //
+    // `shippingCharged` is deliberately not mapped: Walmart shows one price
+    // with shipping included, and the dedicated calculator has no input for
+    // buyer-paid postage. This page's Walmart preset starts it at zero for
+    // the same reason, so nothing is lost on the trip. Our `shippingCost`
+    // is what the seller pays to ship it themselves, which is exactly its
+    // `sellerShippingCost`. The page opens on WFS by default; the
+    // seller-fulfilled number it compares against is the one priced here.
+    fields: {
+      price: 'salePrice',
+      shippingCost: 'sellerShippingCost',
+      itemCost: 'costOfGoods',
+      packagingCost: 'packagingCost',
+      otherCost: 'otherCost',
+    },
+  },
 ];
 
 const bySlugSafe = (value) => /^[a-z0-9-]+$/.test(value);
@@ -341,4 +450,32 @@ export function handoffsForResults(results = [], shared = {}) {
       };
     })
     .filter(Boolean);
+}
+
+/**
+ * A relative link to `../marketplace-fee-compare/` carrying the item, for the
+ * seller who wants the quick headline triage or the bulk catalogue view
+ * instead of this page's returns-and-shelf-time depth.
+ *
+ * That page reads `#<encoded JSON>` with the item under `item` (its
+ * `share.mjs`). Packaging has no field there, so it is folded into
+ * `otherCost` rather than dropped, as for every other target. A blank item
+ * gives the bare link, so the target shows its own defaults only when nothing
+ * was entered.
+ */
+export function quickCompareUrl(shared = {}) {
+  const entry = {
+    fields: {
+      price: 'price',
+      shippingCharged: 'shippingCharged',
+      shippingCost: 'shippingCost',
+      itemCost: 'itemCost',
+      monthlyOrders: 'monthlyOrders',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  };
+  const item = handoffValues(entry, shared);
+  const base = '../marketplace-fee-compare/';
+  if (Object.keys(item).length === 0) return base;
+  return `${base}#${encodeURIComponent(JSON.stringify({ item }))}`;
 }

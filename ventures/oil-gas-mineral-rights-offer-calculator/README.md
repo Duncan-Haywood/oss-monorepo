@@ -7,6 +7,8 @@ the annual return the buyer earns at the offered price, the offer as a multiple 
 much of the price rests on wells not yet drilled, an after-tax comparison, and discount-rate by decline
 and price sensitivity grids. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/oil-gas-mineral-rights-offer-calculator/
+
 After using this, you can **see whether a royalty buyout pays you what the checks are worth**, instead
 of judging it from a "x months of income" multiple.
 

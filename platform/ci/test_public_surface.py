@@ -276,6 +276,13 @@ class ServingTests(unittest.TestCase):
         self.assertTrue(result.serving)
         self.assertTrue(result.agrees)
 
+    def test_the_body_size_threshold_is_inclusive_at_the_minimum(self):
+        at = self.probe_with({APEX: served(ps.MIN_SERVED_BYTES)})
+        below = self.probe_with({APEX: served(ps.MIN_SERVED_BYTES - 1)})
+        self.assertEqual(ps.MIN_SERVED_BYTES, 512)
+        self.assertTrue(at.serving)
+        self.assertFalse(below.serving)
+
     def test_a_200_with_a_stub_body_is_not_serving(self):
         result = self.probe_with({APEX: (200, b"ok", {})})
         self.assertFalse(result.serving)
@@ -286,6 +293,10 @@ class ServingTests(unittest.TestCase):
         self.assertFalse(result.serving)
         self.assertEqual(result.redirected_to, TOOLS)
         self.assertIn(TOOLS, result.summary())
+
+    def test_only_a_3xx_records_a_redirect_target(self):
+        result = self.probe_with({APEX: (200, b"x" * 600, {"Location": TOOLS})})
+        self.assertEqual(result.redirected_to, "")
 
     def test_a_503_is_an_answer_not_an_error(self):
         result = self.probe_with({APEX: (503, b"unavailable", {})})
@@ -415,6 +426,14 @@ class EgressGatewayTests(unittest.TestCase):
         self.assertEqual(payload["unmeasured"], 0)
 
 
+class ContentTypeTests(unittest.TestCase):
+    def test_run_probe_reports_the_content_type_served(self):
+        url = "https://example.test/"
+        probe = ps.Probe(url=url, expect="serves", why="test")
+        opener = StubOpener({url: served(ctype="text/html")})
+        self.assertEqual(ps.run_probe(probe, opener=opener).content_type, "text/html")
+
+
 class SampleTests(unittest.TestCase):
     def test_sample_is_deterministic(self):
         urls = [f"u{i}" for i in range(100)]
@@ -429,6 +448,19 @@ class SampleTests(unittest.TestCase):
 
     def test_sample_returns_everything_when_the_limit_exceeds_the_list(self):
         self.assertEqual(ps.sample(["a", "b"], 10), ["a", "b"])
+
+    def test_default_sample_size_is_24(self):
+        self.assertEqual(ps.DEFAULT_SAMPLE, 24)
+        urls = [f"u{i}" for i in range(100)]
+        self.assertEqual(len(ps.sitemap_probes(urls=urls)), 24)
+
+    def test_sample_at_exactly_the_limit_returns_everything(self):
+        urls = [f"u{i}" for i in range(5)]
+        self.assertEqual(ps.sample(urls, 5), urls)
+
+    def test_sample_steps_forward_through_the_list(self):
+        urls = [f"u{i}" for i in range(100)]
+        self.assertEqual(ps.sample(urls, 4), ["u0", "u25", "u50", "u75"])
 
     def test_sample_of_zero_returns_everything(self):
         """`--all` passes 0 through `limit or len(urls)`; guard the raw call."""
@@ -552,6 +584,21 @@ class PagesSitemapTests(unittest.TestCase):
         ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub(table)):
             urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/monorepo-projects/")
         self.assertEqual(urls, [])
+
+    def test_the_base_url_defaults_to_the_one_build_mjs_exports(self):
+        table = {
+            ("show", "origin/gh-pages:sitemap.xml"): (
+                "<sitemapindex><sitemap><loc>https://pages.test/x/sitemap-a.xml</loc></sitemap></sitemapindex>"
+            ),
+            ("show", "origin/gh-pages:sitemap-a.xml"): "<urlset><url><loc>https://pages.test/x/p/</loc></url></urlset>",
+        }
+        with unittest.mock.patch.object(
+            ps.publish_surface, "pages_branch_survey", return_value={"ref": "origin/gh-pages"}
+        ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub(table)), unittest.mock.patch.object(
+            ps, "pages_base_url", return_value="https://pages.test/x/"
+        ):
+            urls = ps.pages_sitemap_urls()
+        self.assertEqual(urls, ["https://pages.test/x/p/"])
 
     def test_probes_expect_a_document(self):
         probes = ps.pages_sitemap_probes(limit=2, urls=["https://a/", "https://b/", "https://c/"])

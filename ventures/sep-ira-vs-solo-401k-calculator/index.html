@@ -144,7 +144,11 @@
       status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
       table: $("#result-table"), findings: $("#report-findings"), sweep: $("#sweep-table"),
     };
-    const dollars = (n) => (n == null ? "never below $2,000,000" : `$${n.toLocaleString()}`);
+    const dollars = (n) => {
+        if (n == null) return "never below $2,000,000";
+        const text = `$${Math.abs(n).toLocaleString()}`;
+        return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+      };
 
     function runCalculate() {
       const age = Number(els.age.value) || 0;

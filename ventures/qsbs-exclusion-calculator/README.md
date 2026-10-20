@@ -4,6 +4,8 @@ A free browser calculator for the Section 1202 Qualified Small Business
 Stock (QSBS) gain exclusion, expanded by the One Big Beautiful Bill Act.
 Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/qsbs-exclusion-calculator/
+
 After using this, you can now **see your excluded and taxable gain under
 the old all-or-nothing rule or the new tiered rule**, whichever applies to
 your stock's acquisition date — which used to take reading a law-firm

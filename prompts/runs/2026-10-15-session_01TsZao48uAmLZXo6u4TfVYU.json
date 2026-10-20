@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01TsZao48uAmLZXo6u4TfVYU",
+  "track": "process",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "process study 2026-10-15",
+  "projects": [],
+  "pr": 7005,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pkill -f run_workflow_locally matched and killed my own shell command once",
+    "git fetch --unshallow origin main took several minutes and the first command timed out"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "says pip install pytest; bare pip installed into a different interpreter than python3 so numpy import failed, and apt had no python3-pytest (fixed the pip line in this PR)"
+    },
+    {
+      "file": "prompts/process/prompt-0.md",
+      "issue": "duplicate-claim check is 'open PR titled process: study'; another run merged its study between my check and my push, so two runs did the same study. A branch or title check at push time would catch it"
+    },
+    {
+      "file": "prompts/process/prompt-0.md",
+      "issue": "audit step says pick PRs at random but gives no command, and many merged PRs are doc-only or upstream-repo"
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--tree had not finished after about 15 minutes; no per-workflow timeout"
+    }
+  ],
+  "goal": null,
+  "notes": "Landed as an addendum because #7003 (another process run) took prompts/process/reports/2026-10-15.md first.",
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 7005 shows merged=true via REST API (review 2026-10-15 third)"
+    }
+  ],
+  "redteam": null
+}

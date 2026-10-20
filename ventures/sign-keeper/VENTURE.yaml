@@ -1,0 +1,63 @@
+name: sign-keeper
+description: >-
+  Self-hosted e-signature requests: paste a document, send a link, the signer
+  types their name and ticks a consent box, and you keep a certificate with the
+  text's SHA-256 and a hash-chained audit trail anyone can re-verify.
+  Zero-dependency server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16. Paid market is large and per-seat: DocuSign, Dropbox Sign
+# (HelloSign), PandaDoc, SignNow, Adobe Sign and SignWell charge per user or per
+# envelope, and free tiers cap documents at a handful a month. The gap: a freelancer,
+# agency or small landlord who sends a few simple agreements (NDAs, SOWs, approvals)
+# and wants unlimited signing, no signer account, and a record they can prove
+# unaltered, without paying per envelope. duplicate_check.py top score 0.30
+# (proposal-maker, which writes the proposal; this collects the signature).
+#
+# Liability boundary: a simple (typed-name) electronic signature only; no identity
+# verification, no claim any document is enforceable, "not legal advice" stated on
+# the page, the certificate and the README. The audit trail is tamper-evident, not
+# tamper-proof. No raw IP stored (salted HMAC only).
+#
+# First visitor: freelancers and small agencies searching "free e-signature",
+# "docusign alternative self hosted", "sign nda online free"; Indie Hackers, r/selfhosted,
+# r/freelance. Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; a hosted
+# version, done-for-you setup (templates, PDF, reminders) or GitHub Sponsors are the
+# paid steps -- hosting under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Freelancers and small agencies will deploy their own signing-link server
+      when the demo shows the certificate is verifiable, because per-envelope
+      plans are the part of e-signature they resent for one-page agreements.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A document fingerprint plus a re-checkable /c/<token>.json is what makes a
+      client accept a typed-name signature from a small shop, and the certificate
+      (not the signing page) is what owners actually keep.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A report that a signed document's text could be changed without the certificate flagging it, or that a signer's raw network address was stored; integrity and privacy come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sign-keeper/
+  analytics: null

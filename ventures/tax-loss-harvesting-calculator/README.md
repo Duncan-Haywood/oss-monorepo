@@ -5,6 +5,8 @@ loss carried from last year, and the positions sitting at a loss, and see the ta
 $3,000 ordinary-income deduction, the carryforward and which losses a wash sale would disallow.** Nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tax-loss-harvesting-calculator/
+
 After using this, you can now **see whether selling losers before year end is worth doing, and how much**,
 which used to mean rebuilding Schedule D netting by hand.
 

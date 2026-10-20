@@ -1,0 +1,23 @@
+# Challenge windows against censorship: what stake can and cannot buy in optimistic verification
+
+*Duncan Haywood. MIT licence. Code and experiments: `../src`, `../tests`, `../experiments`.*
+
+## Abstract
+In optimistic verification a result is final unless someone posts a challenge within a window of `w` blocks. A fraudster gains `G` if no challenge lands and loses stake `S` if one does. If each block's proposer is controlled by the attacker with probability `ρ` and otherwise can be paid `b` to censor, we solve the attacker's problem exactly. Value with `n` blocks left obeys `V(n) = ρV(n−1) + (1−ρ)·max(−S, V(n−1) − b)`, `V(0)=G`, and the deterrence window (smallest `w` with `V(w) ≤ 0`) has a closed form (matched to the recursion on 5000 random instances, and to Monte Carlo within 1.5 s.e.). The optimal attack is *gamble first, bribe last*: gamble on early blocks and pay to censor only the last `j` blocks. The consequences are: (i) a luck-only analysis (`(G+S)ρ^w ≤ S`) underestimates the window by 100–170× at `G=S=100`, `b=1`; (ii) with an exogenous bribe price the window is `⌈G/((1−ρ)b)⌉` and **no amount of stake shortens it**; (iii) if the challenger's bounty is paid as a priority fee to the includer, the censorship price becomes `b = θS` and the window scales as `1/S` (S·w ≈ G/((1−ρ)θ), measured exactly 250 for S=10–50), so stake buys latency only through the bounty channel. Stylised single-attacker model; no equilibrium among proposers.
+
+## 1. Model
+One fraud, committed at block 0. Each of the `w` window blocks has a proposer who is the attacker w.p. `ρ` (censorship free) and otherwise honest-but-bribable: a challenge in that block is included unless the attacker pays `b`. The attacker sees the proposer before deciding. Detection costs the attacker `S` (the fraud payoff `G` is forfeited too, folded into `S` as a loss relative to not cheating). Not cheating is worth 0, so deterrence means `V(w) ≤ 0`.
+
+## 2. Exact value and the window
+On a non-owned block the attacker either pays `b` and survives (`V(n−1) − b`) or lets the challenge land (`−S`), so the recursion above is the whole problem. While `V(n−1) ≥ b − S` he bribes and `V(n) = G − (1−ρ)b·n` (linear in blocks left). Once `V` falls below `b − S` he stops bribing and gambles: `V(j+m) = (V_j + S)ρ^m − S`. Hence with `a=(1−ρ)b`, `j = ⌊1+(G−(b−S))/a⌋` (0 if `G<b−S`), the window is `⌈G/a⌉` if `G − aj ≤ 0`, else `j + ⌈ln((V_j+S)/S)/ln(1/ρ)⌉`. Two pure limits: `b→∞` gives the luck window `ln((G+S)/S)/ln(1/ρ)`; `S→∞` gives the bribe window `G/a`. The exact window is never below the smaller of the two, and equals the bribe window whenever the bribe price is below the stake (E3: 63 blocks for every `S` from 10 to 1600 at `b=2`, against a luck window of 1–2).
+
+Order matters: bribing costs are paid only on survival, so *gamble on the early blocks, bribe the last `j`* dominates the non-adaptive "bribe first `k`, gamble the rest" plan in value (E6: −17.6 vs −28.0 at w=4). In the parameter sets we ran, the two plans gave the same deterrence *window*, so the adaptive structure changes the attacker's expected loss, not the window (we do not claim it always does).
+
+## 3. What stake can buy
+Under exogenous `b` the window is stake-independent once `b ≤ S` — a stark limit for designs that lean on slashing alone. If the challenger attaches the bounty as a priority fee, including the challenge earns the proposer `θS`, so the attacker must outbid: `b = θS`. Then `w ≈ G/((1−ρ)θS)`; E4 gives `S·w = 250` at `S=10, 25, 50` (predicted 250; integer rounding lifts it to 300–400 when `w` is 1–3 blocks). Stake for a 10-block window at `G=100, ρ=0.2`: 25.0 at `θ=½`, 12.5 at `θ=1`, infinite with exogenous `b=2` (E7). Caveat: a fee that large is a payout only when fraud occurs, so honest users bear only latency, but the model ignores that a proposer could collude with the attacker off-chain at a price other than `b`.
+
+## 4. Limitations
+(1) One attacker, one fraud; `ρ` and `b` exogenous and constant across blocks. (2) A proposer paid `b` never defects; no dynamic game among proposers, no bribing contracts contingent on inclusion. (3) Challenger is assumed always present and immediate; a slower watcher shifts the window up by their delay. (4) Not a claim about any deployed protocol. Contributions: exact adaptive-attacker recursion and closed-form deterrence window with its two pure limits, the gamble-then-bribe structure, the stake-independence result for exogenous bribes, and the `S·w` law for bounty-funded fees.
+
+## Reproduce
+`PYTHONPATH=src python3 -m unittest discover -s tests -v` (9 tests) and `PYTHONPATH=src python3 experiments/run.py` (deterministic; seconds).

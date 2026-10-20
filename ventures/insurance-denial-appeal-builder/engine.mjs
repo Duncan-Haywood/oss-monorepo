@@ -60,6 +60,14 @@ export const CARC = {
   22: "cob",
   109: "cob",
   119: "benefit_limit",
+  97: "bundled",
+  59: "bundled",
+  234: "bundled",
+  236: "bundled",
+  26: "eligibility",
+  27: "eligibility",
+  31: "eligibility",
+  32: "eligibility",
 };
 
 export const REASONS = {
@@ -216,6 +224,54 @@ export const REASONS = {
     argument:
       "I ask the plan to confirm how the limit was counted and to review whether an exception applies given my clinician's recommendation.",
   },
+  bundled: {
+    label: "Bundled or paid at a lower level of service",
+    firstStep: "Ask the provider's billing office whether the codes were billed correctly (a missing modifier is the usual cause) before you appeal.",
+    asks: [
+      "the payment policy or coding edit that combined or reduced these lines",
+      "which line was treated as the primary service and which as included in it",
+      "whether the claim can be reprocessed with the modifier or documentation the provider can supply",
+    ],
+    evidence: [
+      "the provider's operative or visit note showing the services were separate and distinct",
+      "a corrected claim or a note from billing about the modifier used",
+      "the explanation of benefits showing which lines were bundled or reduced",
+    ],
+    argument:
+      "The services on this claim were separate and each was medically necessary. I ask the plan to show the policy it applied in combining or reducing them and to reprocess the claim on review of the enclosed records.",
+  },
+  eligibility: {
+    label: "Coverage not active or patient not eligible",
+    firstStep: "Confirm the coverage dates with your employer's benefits office or the plan before anything else; terminations backdated in error and late premium processing are common and quick to fix.",
+    asks: [
+      "the coverage dates the plan has on file and the reason any coverage was ended",
+      "the date and notice by which the plan told you coverage had ended",
+      "that the claim be reprocessed if coverage is shown to have been active on the date of service",
+    ],
+    evidence: [
+      "proof of coverage on the date of service (insurance card, premium payment record, employer confirmation)",
+      "any notice of termination or reinstatement, and the dates you received it",
+      "the denial letter and the explanation of benefits",
+    ],
+    argument:
+      "My coverage was in force on the date of service. I ask the plan to check its enrollment records against the enclosed proof and, if coverage was active, to reprocess the claim for payment.",
+  },
+  surprise_bill: {
+    label: "Out-of-network bill after emergency or at an in-network facility",
+    firstStep: "Do not pay the balance yet. For emergency care, and for out-of-network clinicians at an in-network hospital, federal law generally limits what you can be charged to your in-network cost sharing; ask the provider to bill again at that level.",
+    asks: [
+      "whether the claim was processed under the No Surprises Act protections for emergency or facility-based care",
+      "the in-network cost-sharing amount the plan says applies and how it was calculated",
+      "the qualifying payment amount the plan used for this service",
+    ],
+    evidence: [
+      "proof the care was an emergency or took place at an in-network facility (admission record, facility name)",
+      "the provider's bill and the explanation of benefits showing the balance you were asked to pay",
+      "any notice and consent form you were given before treatment, if there was one",
+    ],
+    argument:
+      "This care was an emergency, or was provided by an out-of-network clinician at an in-network facility. I did not choose the out-of-network provider. I ask the plan to reprocess the claim with in-network cost sharing as federal surprise-billing protections generally require, and to tell me how that amount was calculated.",
+  },
   other: {
     label: "Other or unclear",
     firstStep: "Ask the plan in writing which specific rule it applied; an appeal is stronger once you know.",
@@ -240,6 +296,9 @@ const PHRASES = [
   ["duplicate", /duplicate\s+(?:claim|service|charge)|already\s+(?:been\s+)?(?:paid|processed)/i, 3],
   ["cob", /coordination\s+of\s+benefits|other\s+(?:insurance|coverage)|primary\s+(?:payer|insurance)|wrong\s+payer/i, 3],
   ["benefit_limit", /benefit\s+(?:maximum|limit)|visit\s+limit|(?:limit|maximum)\s+(?:has\s+been\s+)?reached|annual\s+maximum/i, 3],
+  ["bundled", /bundl(?:ed|ing)|(?:included|incidental)\s+(?:in|to)\s+(?:another|the\s+primary)\s+(?:service|procedure)|downcod|unbundl|reduced\s+to\s+a\s+lower\s+level/i, 3],
+  ["eligibility", /coverage\s+(?:was\s+)?(?:not\s+(?:in\s+effect|active)|terminated|cancel+ed|ended|lapsed)|not\s+eligible\s+(?:on|for\s+benefits)|patient\s+not\s+(?:covered|eligible)|policy\s+(?:was\s+)?(?:terminated|inactive)|no\s+active\s+coverage/i, 3],
+  ["surprise_bill", /no\s+surprises\s+act|surprise\s+(?:bill|billing)|balance\s+bill|emergency\s+(?:room|services?|care)[^.]{0,80}out[\s-]of[\s-]network|out[\s-]of[\s-]network[^.]{0,80}(?:in[\s-]network\s+(?:hospital|facility)|emergency)/i, 4],
 ];
 
 const MONEY = /\$\s?([\d,]+(?:\.\d{2})?)/g;
@@ -418,6 +477,117 @@ export function appealLetter(c) {
   lines.push("");
   lines.push(`[Sent by a method that records the date: ${plan.label.startsWith("Medicare") ? "mail with tracking, fax with confirmation or the plan's portal" : "certified mail, fax with confirmation or the insurer's portal"}. Keep a copy.]`);
   return lines.join("\n");
+}
+
+const phold = (v, hint) => (v && String(v).trim() ? String(v).trim() : `[${hint}]`);
+
+/**
+ * Letter for the treating clinician to review, edit and sign. Written from the
+ * patient's side as a starting draft; clinical facts are placeholders because
+ * only the clinician can state them.
+ */
+export function providerLetter(c) {
+  const reason = REASONS[c.reason] || REASONS.other;
+  const L = [];
+  L.push(`Dr. ${phold(c.provider, "clinician name")}`);
+  L.push("");
+  L.push(c.date || "[date]");
+  L.push("");
+  L.push(`To: Appeals Department, ${phold(c.insurer, "insurer name")}`);
+  L.push(`Re: ${c.urgent ? "URGENT / EXPEDITED " : ""}${reason.label.toLowerCase()} denial. Patient: ${phold(c.patient, "patient name")}, Member ID ${phold(c.memberId, "member ID")}, claim ${phold(c.claimNumber, "claim number")}`);
+  L.push(`Service: ${phold(c.service, "service or treatment")}   Date of service: ${phold(c.serviceDate, "date of service")}`);
+  L.push("");
+  L.push("To the Appeals Department:");
+  L.push("");
+  L.push(`I am the treating clinician for ${phold(c.patient, "patient name")}. I write in support of the appeal of the denial of the service above and ask that it be reviewed by a clinician in the same or a similar specialty.`);
+  L.push("");
+  L.push("Diagnosis and history (clinician to complete):");
+  L.push(`- Diagnosis and codes: [diagnosis, ICD-10 code(s)]`);
+  L.push(`- Symptoms and findings: [what the patient presents with and what the exam or tests show]`);
+  L.push(`- Treatments already tried and the result: [for example therapy, medication, dates and outcomes]`);
+  L.push("");
+  L.push("Why this service is needed (clinician to complete):");
+  if (c.reason === "medical_necessity") {
+    L.push("- [Explain why this service is appropriate for this patient and how it changes management.]");
+    L.push("- [Cite the guideline or study relied on, and say how the patient meets it.]");
+    L.push("- [State the risk of not providing it or of a less costly alternative that was considered.]");
+  } else if (c.reason === "experimental") {
+    L.push("- [Explain why standard treatments are not suitable or have failed for this patient.]");
+    L.push("- [Cite the published evidence for this use and any professional society position.]");
+  } else if (c.reason === "prior_auth") {
+    L.push("- [State whether authorization was requested, when and by whom, with the reference number.]");
+    L.push("- [If emergent or time-sensitive, state why the service could not wait for authorization.]");
+  } else {
+    L.push("- [Explain why this service was needed for this patient.]");
+  }
+  if (c.why && c.why.trim()) {
+    L.push("");
+    L.push("Facts the patient has given for this letter (confirm before relying on them):");
+    L.push(c.why.trim());
+  }
+  L.push("");
+  if (c.urgent) {
+    L.push("In my professional judgment, waiting for the standard review timeframe could seriously jeopardize this patient's life, health or ability to regain maximum function. I request an expedited review.");
+    L.push("");
+  }
+  L.push("I am available for a peer-to-peer discussion with the plan's reviewing physician and ask that the plan call my office at [office phone] to arrange one before a final decision is made.");
+  L.push("");
+  L.push("Sincerely,");
+  L.push("[clinician name, credentials, specialty]");
+  L.push("[practice, address, phone, NPI]");
+  L.push("");
+  L.push("[The clinician must review and sign this draft. It states no clinical fact for them.]");
+  return L.join("\n");
+}
+
+/**
+ * Request for independent external review after the plan has upheld its
+ * denial on internal appeal. Dates and outcome come from the user.
+ */
+export function externalReviewLetter(c) {
+  const reason = REASONS[c.reason] || REASONS.other;
+  const L = [];
+  L.push(phold(c.patient, "your name"));
+  L.push("");
+  L.push(c.date || "[date]");
+  L.push("");
+  L.push(`To: External Review Request, ${phold(c.insurer, "insurer name, or the external review organization named on your final denial")}`);
+  L.push(`Re: ${c.urgent ? "EXPEDITED " : ""}request for independent external review`);
+  L.push(`Member: ${phold(c.patient, "name")}   Member ID: ${phold(c.memberId, "member ID")}`);
+  L.push(`Claim number: ${phold(c.claimNumber, "claim number")}   Date of service: ${phold(c.serviceDate, "date of service")}`);
+  if (c.service) L.push(`Service: ${c.service}`);
+  L.push("");
+  L.push("To whom it may concern:");
+  L.push("");
+  L.push(`I request an independent external review of the plan's final internal denial dated ${phold(c.finalDenialDate, "date of the final internal denial")}. The plan's stated reason was: ${reason.label.toLowerCase()}.`);
+  L.push("");
+  L.push(`I filed an internal appeal on ${phold(c.appealDate, "date you filed the internal appeal")} and the plan upheld its decision. A copy of the original denial, my internal appeal and the final denial are enclosed.`);
+  L.push("");
+  L.push(reason.argument);
+  if (c.why && c.why.trim()) {
+    L.push("");
+    L.push("Details specific to my case:");
+    L.push(c.why.trim());
+  }
+  L.push("");
+  L.push("I ask the reviewer to decide the case on the enclosed medical records and the clinician's letter, and to require the plan to cover the service. I also ask that the plan send the reviewer the complete claim file and the criteria it relied on.");
+  if (c.urgent) {
+    L.push("");
+    L.push("I request an expedited review. My clinician has indicated that waiting for the standard timeframe could seriously jeopardize my health or my ability to regain function.");
+  }
+  L.push("");
+  L.push("Enclosed:");
+  L.push("- the original denial letter and explanation of benefits");
+  L.push("- my internal appeal and the plan's final internal denial");
+  reason.evidence.filter((e) => !/denial letter/.test(e)).forEach((e) => L.push(`- ${e}`));
+  L.push("- the external review request form, if your state or plan uses one");
+  L.push("");
+  L.push("Sincerely,");
+  L.push(phold(c.patient, "your name"));
+  L.push(`Phone: ${phold(c.phone, "phone")}`);
+  L.push("");
+  L.push("[Check the final denial for the exact address, form and deadline. For most commercial plans the request is due four months after that notice, and the review is free to you. Keep a copy and send by a method that records the date.]");
+  return L.join("\n");
 }
 
 /** What to collect before sending, in the order that matters. */

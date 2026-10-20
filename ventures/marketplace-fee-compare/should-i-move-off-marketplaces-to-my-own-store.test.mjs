@@ -23,7 +23,11 @@ const BASE = {
   categoryId: "home",
 };
 
-const rowsAt = (monthlyOrders) => compareChannels(loadItem({ ...BASE, monthlyOrders }));
+// The article ranks the seven channels the page launched with; Depop and
+// Facebook Marketplace were added to the tool later and are not in its tables.
+const ARTICLE_CHANNELS = new Set(["ebay", "etsy", "amazon", "walmart", "tiktok", "mercari", "shopify"]);
+const rowsAt = (monthlyOrders) =>
+  compareChannels(loadItem({ ...BASE, monthlyOrders })).filter((row) => ARTICLE_CHANNELS.has(row.id));
 const byId = (rows, id) => rows.find((row) => row.id === id);
 const money = (value) => `$${value.toFixed(2)}`;
 
@@ -48,10 +52,10 @@ test("the article's sixty-orders-a-month table matches what the calculator compu
   }
 });
 
-test("the claim that Shopify moves from fifth to first still holds", () => {
+test("the claim that Shopify moves from sixth to first still holds", () => {
   const rankLow = low.findIndex((row) => row.id === "shopify");
   const rankModerate = moderate.findIndex((row) => row.id === "shopify");
-  assert.equal(rankLow, 4, "Shopify is no longer fifth at five orders a month");
+  assert.equal(rankLow, 5, "Shopify is no longer sixth at five orders a month");
   assert.equal(rankModerate, 0, "Shopify is no longer first at sixty orders a month");
 });
 

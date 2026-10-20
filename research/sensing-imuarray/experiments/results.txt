@@ -1,0 +1,52 @@
+# sensing-imuarray: n cheap gyros vs one better gyro at equal cost (single axis, stylised)
+cheap grade: N = 0.005 deg/sqrt(s), K = 8.660e-05 deg/s/sqrt(s); white = bias-walk variance at T = 100 s
+better grade: both densities k times lower; price ratio c => the equal-cost array has n = c cheap units
+
+## A. Allan-variance fit of one simulated cheap unit (400,000 s at 1 Hz, one run)
+fitted N = 0.00500 (true 0.005), K = 8.471e-05 (true 8.660e-05)
+
+## B. Smallest n (= price ratio c) at which n fused cheap units tie the better unit, equal rho on white and bias terms
+
+k = 3 (better unit 3x lower noise; independent-error tie needs n = k^2 = 9; rho floor 1/k^2 = 0.1111)
+T (s) | rho=0 | rho=0.001 | rho=0.003 | rho=0.01 | rho=0.03 | rho=0.1
+   10 | 9 | 10 | 10 | 10 | 12 | 81
+  100 | 9 | 10 | 10 | 10 | 12 | 81
+ 1000 | 9 | 10 | 10 | 10 | 12 | 81
+ 3600 | 9 | 10 | 10 | 10 | 12 | 81
+
+k = 10 (better unit 10x lower noise; independent-error tie needs n = k^2 = 100; rho floor 1/k^2 = 0.0100)
+T (s) | rho=0 | rho=0.001 | rho=0.003 | rho=0.01 | rho=0.03 | rho=0.1
+   10 | 101 | 112 | 143 | none | none | none
+  100 | 101 | 112 | 143 | none | none | none
+ 1000 | 100 | 111 | 143 | none | none | none
+ 3600 | 100 | 111 | 143 | none | none | none
+
+## C. Only the bias walk is shared (rho_b = 0.3, e.g. common temperature drift), white noise independent (rho_w = 0)
+k = 3: T=1: 10; T=10: 10; T=100: none; T=300: none; T=1000: none; T=3600: none
+k = 10: T=1: 101; T=10: 142; T=100: none; T=300: none; T=1000: none; T=3600: none
+
+## D. Largest common rho at which c = n cheap units still tie (T = 100 s)
+k = 3: c=2: <0 (loses even at rho=0); c=4: <0 (loses even at rho=0); c=9: 0.0000; c=16: 0.0519; c=32: 0.0824; c=100: 0.1021; c=300: 0.1081; c=1000: 0.1102
+k = 10: c=2: <0 (loses even at rho=0); c=4: <0 (loses even at rho=0); c=9: <0 (loses even at rho=0); c=16: <0 (loses even at rho=0); c=32: <0 (loses even at rho=0); c=100: <0 (loses even at rho=0); c=300: 0.0067; c=1000: 0.0090
+
+## E. Monte Carlo check of the closed form (k = 4, T = 200 s, dt = 1 s, 4,000 trials, rho_w = rho_b = rho)
+n | rho | MC fused/better RMS | formula | MC single/better RMS | formula
+4 | 0.0 | 2.015 | 2.000 | 4.035 | 4.000
+4 | 0.02 | 2.013 | 2.059 | 3.947 | 4.000
+4 | 0.1 | 2.254 | 2.280 | 3.877 | 4.000
+16 | 0.0 | 1.015 | 1.000 | 3.946 | 4.000
+16 | 0.02 | 1.148 | 1.140 | 3.990 | 4.000
+16 | 0.1 | 1.602 | 1.581 | 4.063 | 4.000
+32 | 0.0 | 0.706 | 0.707 | 3.916 | 4.000
+32 | 0.02 | 0.890 | 0.900 | 4.045 | 4.000
+32 | 0.1 | 1.429 | 1.432 | 4.005 | 4.000
+
+## F. Unequal improvement: better unit has kN = 10x lower ARW but kK = 3x lower rate random walk (independent errors)
+T (s) | n to tie, rho=0 | n to tie, rho=0.01 | n to tie, rho=0.05
+    1 | 100 | none | none
+   10 | 91 | 989 | none
+   30 | 55 | 119 | none
+  100 | 17 | 20 | 90
+  300 | 10 | 11 | 19
+ 1000 | 10 | 10 | 16
+ 3600 | 10 | 10 | 16

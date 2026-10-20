@@ -6,6 +6,8 @@ transaction count) into each US state, and see which states' economic-nexus
 sales-tax-registration thresholds you've crossed, per state, against each
 state's own published figure.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/economic-nexus-threshold-tracker/
+
 Open `index.html` in a browser. The calculation is local and works without
 an account, network request, or API key. It is arithmetic against the
 published threshold table below, not a live lookup — enter what you've
@@ -40,6 +42,22 @@ continuously by connecting to your sales channels and charge an ongoing
 subscription for it — useful once you're registered in several states and
 filing returns on a recurring schedule. This tool answers the narrower,
 free, one-time-or-periodic question: *where do I stand today?*
+
+## Import your orders instead of typing states
+
+Already have an order export? Drop the CSV from Shopify, Etsy, Amazon or
+WooCommerce onto the page (or click "Try a sample file"). `orders.mjs` finds the
+ship-to state, order subtotal and date columns by header name, keeps the last 12
+months, skips refunds, repeat order ids and rows it cannot read (and reports how
+many), and totals sales and orders per state. States still under their line get
+a projected crossing date: the last 90 days of selling replayed forward while
+the oldest sales roll out of the window. "Use these states in the tracker" fills
+the table above, and "Export plan (CSV)" saves the per-state plan.
+
+The file is read in the browser and never uploaded. The projection is a
+straight-line estimate, not a forecast, and it uses a trailing 12-month window
+where some states use a calendar year. Run `node --test` in this directory for
+the importer's tests.
 
 ## What this does not cover
 

@@ -4,6 +4,8 @@ A free, local-first browser calculator for independent HVAC contractors who
 need to price a preventive-maintenance agreement without losing money on
 scheduled visits, callbacks, parts reserve, travel, or overhead.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hvac-maintenance-contract-calculator/
+
 Open [`index.html`](index.html) directly or serve this directory as static
 files. There is no build step, account, upload, network call, paid API, or
 payment flow. The calculator is ready for a future static deployment, but is

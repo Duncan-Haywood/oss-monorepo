@@ -13,7 +13,11 @@ import unittest
 from decimal import Decimal
 from pathlib import Path
 
-from check_input_bounds import check_input, check_venture, guards
+import contextlib
+import io
+import os
+
+from check_input_bounds import check_input, check_venture, guards, main, percent_scaled
 
 
 class GuardParsing(unittest.TestCase):
@@ -142,5 +146,78 @@ class VentureScan(unittest.TestCase):
         self.assertEqual(check_venture(directory), [])
 
 
+class MainExitCodes(unittest.TestCase):
+    """The exit code is what CI reads: 0 clean, 1 problems, 2 bad root."""
+
+    def _run(self, argv):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            return main(argv), out.getvalue(), err.getvalue()
+
+    def _tree(self, module: str, page: str) -> Path:
+        root = Path(tempfile.mkdtemp())
+        venture = root / "v"
+        venture.mkdir()
+        (venture / "calc.mjs").write_text(module, encoding="utf-8")
+        (venture / "index.html").write_text(page, encoding="utf-8")
+        return root
+
+    def test_missing_root_exits_2(self):
+        code, _, err = self._run(["check", str(Path(tempfile.mkdtemp()) / "nope")])
+        self.assertEqual(code, 2)
+        self.assertIn("does not exist", err)
+
+    def test_problem_exits_1(self):
+        root = self._tree(
+            'if (pct < 0 || pct >= 100) throw new Error("x");',
+            '<input id="pct" type="number" min="0">',
+        )
+        code, out, _ = self._run(["check", str(root)])
+        self.assertEqual(code, 1)
+        self.assertIn("pct", out)
+
+    def test_clean_tree_exits_0(self):
+        root = self._tree(
+            'if (pct < 0 || pct >= 100) throw new Error("x");',
+            '<input id="pct" type="number" min="0" max="99">',
+        )
+        self.assertEqual(self._run(["check", str(root)])[0], 0)
+
+    def test_no_argument_defaults_to_ventures_in_cwd(self):
+        cwd = Path.cwd()
+        work = Path(tempfile.mkdtemp())
+        (work / "ventures").mkdir()
+        os.chdir(work)
+        try:
+            self.assertEqual(self._run(["check"])[0], 0)
+        finally:
+            os.chdir(cwd)
+
+
 if __name__ == "__main__":
     unittest.main()
+
+
+class PercentScaling(unittest.TestCase):
+    """A percent field whose calculator divides by 100 before the guard."""
+
+    def test_finds_scaled_module_variables_and_page_fields(self):
+        src = 'const fee = num(o.feePct, "Fee") / 100;\nconst x = num("#margin") / 100;'
+        self.assertEqual(percent_scaled(src), {"fee", "x", "margin"})
+
+    def _venture(self, module: str, page: str) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "engine.mjs").write_text(module)
+            (root / "index.html").write_text(page)
+            return check_venture(root)
+
+    def test_percent_max_satisfies_a_fraction_guard(self):
+        module = 'const fee = num(o.feePct) / 100;\nif (fee >= 1) throw new Error("x");'
+        self.assertEqual(self._venture(module, '<input type="number" id="fee" max="99">'), [])
+
+    def test_percent_max_at_the_limit_still_fails(self):
+        module = 'const fee = num(o.feePct) / 100;\nif (fee >= 1) throw new Error("x");'
+        self.assertEqual(
+            len(self._venture(module, '<input type="number" id="fee" max="100">')), 1
+        )

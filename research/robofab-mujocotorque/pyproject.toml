@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofab-mujocotorque"
+version = "0.1.0"
+description = "Does MuJoCo agree with the hand-written two-link arm torques behind the robofab carry results? (stylised)"
+requires-python = ">=3.9"
+dependencies = ["mujoco", "numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

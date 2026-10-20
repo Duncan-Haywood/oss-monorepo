@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>On-Page SEO Checklist for a Single Page</title>
+  <meta name="description" content="The markup checks that decide how a page appears in search and AI answers: title, description, h1, canonical, Open Graph, JSON-LD, alt text and server-rendered text.">
+  <link rel="canonical" href="./seo-checklist-for-a-single-page.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"On-page SEO checklist for a single page","author":{"@type":"Person","name":"Duncan Haywood"},"about":"On-page SEO"}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 110px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 9px 11px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px ui-monospace, monospace; margin-bottom: 6px; }
+    label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 5px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .verdict { font-size: 1.3rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    .urlrow { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-size: .88rem; margin-bottom: 4px; }
+    .urlrow code { overflow-wrap: anywhere; word-break: break-word; }
+    .urlrow .tag { color: #55606f; font-size: .78rem; white-space: nowrap; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.critical { background: #fde8e8; color: #9a3412; }
+    .pill.warning { background: #fff4d6; color: #7a5b00; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    .pill.pass { background: #dcefe4; color: #14532d; }
+    .finding { border-bottom: 1px solid #e6eaf0; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 6px 0 4px; }
+    .finding .fix { font-size: .88rem; color: #17324a; background: #f7f9fb; border-left: 3px solid #17604a; padding: 8px 10px; border-radius: 0 6px 6px 0; margin-top: 8px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; font-size: .9rem; font-weight: 600; color: #17324a; }
+  </style>
+</head>
+<body>
+  <header><p class="note"><a href="index.html">Page SEO Audit</a> · guide</p><h1>On-page SEO checklist for a single page</h1>
+  <p>These are the checks <a href="index.html">Page SEO Audit</a> runs, in order of how much a miss costs. All of them are visible in the page source; none needs a paid tool.</p></header>
+  <section class="card">
+    <h2>Things that can remove you from results</h2>
+    <h3>noindex</h3><p>A <code>&lt;meta name="robots" content="noindex"&gt;</code> left over from staging tells engines to drop the page. Check it first on any page that is not appearing.</p>
+    <h3>Structured data that does not parse</h3><p>A trailing comma in JSON-LD makes the whole block invisible. Engines do not warn you; they skip it. Validate the JSON before you publish.</p>
+    <h3>Text that only exists after JavaScript</h3><p>Many crawlers and most AI assistants read the raw HTML. If the served document is an empty <code>&lt;div id="app"&gt;</code>, they see an empty page. Server-render or pre-render the main content.</p>
+    <h2>Things that shape how you look in results</h2>
+    <h3>Title (about 30–60 characters)</h3><p>The headline of your result. Lead with what the page is, then the brand. Every page gets its own.</p>
+    <h3>Meta description (about 70–160 characters)</h3><p>Not a ranking factor, but it is the sales copy under the title and is often used as the snippet.</p>
+    <h3>One h1 and an orderly outline</h3><p>Headings are the table of contents that screen readers, engines and AI summarisers navigate by. Do not skip levels.</p>
+    <h3>Canonical link</h3><p>States the one preferred URL, so <code>?utm_source=</code> variants and www/non-www copies do not split signals. Make it absolute.</p>
+    <h3>Open Graph tags</h3><p><code>og:title</code>, <code>og:description</code> and <code>og:image</code> decide the card shown when someone shares the page in chat or social feeds, which is free distribution you control.</p>
+    <h2>Things that help machines and people</h2>
+    <h3>JSON-LD</h3><p>Match the type to the page: SoftwareApplication, Product, Article, FAQPage, Organization. If the page has visible question-and-answer pairs, mark them up as FAQPage with the same text.</p>
+    <h3>Image alt text, descriptive link text, viewport, lang</h3><p>Alt text feeds image search and accessibility; "click here" tells a crawler nothing about the target; the viewport tag is the mobile-friendly baseline; <code>lang</code> helps translation and screen readers.</p>
+    <p class="note">Limits: markup only. Speed, backlinks, content quality and competition are outside what a single page's source can show, so a perfect score is not a ranking promise.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee about your site's search visibility or ranking, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming what each search engine reports for your own site. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the page makes no network calls. Anonymous feature events (<code>audit_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p></p>
+    <p>Related one-slice checkers: <a href="../canonical-tag-check/">Canonical Tag Check</a>, <a href="../json-ld-rich-result-validator/">JSON-LD Rich Result Validator</a>, <a href="../ai-crawler-access-check/">AI Crawler Access Check</a> and <a href="../llms-txt-generator/">llms.txt Generator</a>. This tool is the whole-page overview; they go deeper on one thing each.</p>
+    <p class="support">Free and open source. If this found something worth fixing, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

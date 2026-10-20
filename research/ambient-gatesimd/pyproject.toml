@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-gatesimd"
+version = "0.1.0"
+description = "Cheaper variants of the ambient-gatefw adaptive voice gate for Cortex-M4 (dual-MAC energy loop, divide-free threshold), built with clang and counted in a Thumb-2 emulator"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy", "unicorn"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

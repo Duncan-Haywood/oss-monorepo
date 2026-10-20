@@ -8,6 +8,8 @@ charter, margin and profit per vehicle hour**, the **lowest quote that earns you
 margin**, how many charters a vehicle needs to **pay for itself**, break-even charters a year,
 and compares two charters side by side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/party-bus-charter-profit-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

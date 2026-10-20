@@ -1,0 +1,48 @@
+# Worst admitted count in any rolling window of W ticks (limit L)
+
+L=10 W=20
+limiter	flood+idle	two bursts	ratio to L
+fixed window	20	20	2.00
+sliding log	10	10	1.00
+sliding counter	14	14	1.40
+token bucket	19	19	1.90
+leaky bucket	19	19	1.90
+
+L=20 W=40
+limiter	flood+idle	two bursts	ratio to L
+fixed window	40	40	2.00
+sliding log	20	20	1.00
+sliding counter	29	29	1.45
+token bucket	39	39	1.95
+leaky bucket	39	39	1.95
+
+L=50 W=100
+limiter	flood+idle	two bursts	ratio to L
+fixed window	100	n/a	2.00
+sliding log	50	n/a	1.00
+sliding counter	74	n/a	1.48
+token bucket	99	n/a	1.98
+leaky bucket	99	n/a	1.98
+
+# Poisson overload, L=50 W=100, 2000 windows, seed 1
+load	limiter	admitted per window	share of rolling windows over L
+0.8	fixed window	39.7	0.057
+0.8	sliding log	39.1	0.000
+0.8	sliding counter	39.3	0.026
+0.8	token bucket	39.8	0.068
+0.8	leaky bucket	39.8	0.068
+1.5	fixed window	50.0	0.469
+1.5	sliding log	48.5	0.000
+1.5	sliding counter	48.3	0.088
+1.5	token bucket	50.0	0.394
+1.5	leaky bucket	50.0	0.394
+3.0	fixed window	50.0	0.443
+3.0	sliding log	49.7	0.000
+3.0	sliding counter	48.9	0.010
+3.0	token bucket	50.0	0.196
+3.0	leaky bucket	50.0	0.196
+10.0	fixed window	50.0	0.333
+10.0	sliding log	50.0	0.000
+10.0	sliding counter	49.0	0.000
+10.0	token bucket	50.0	0.007
+10.0	leaky bucket	50.0	0.007

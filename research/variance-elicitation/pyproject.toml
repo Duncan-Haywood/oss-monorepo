@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "variance-elicitation"
+version = "0.1.0"
+description = "Multi-observation elicitation of drift variance for verifiable ML: two re-executions make variance elicitable, exact misreport costs, detection sample size, pairs vs sample variance, heavy tails"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

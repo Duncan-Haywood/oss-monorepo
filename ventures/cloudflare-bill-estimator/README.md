@@ -3,6 +3,8 @@
 Estimate a monthly Cloudflare developer-platform bill (Workers, KV, R2) from the usage numbers in your dashboard, and
 see which changes cut it most, each with a dollar figure — before the invoice.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cloudflare-bill-estimator/
+
 ```
 node cli.mjs template > usage.csv                 # product,usage CSV to fill in
 node cli.mjs estimate usage.csv

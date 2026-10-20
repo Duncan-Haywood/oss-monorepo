@@ -1,0 +1,39 @@
+{
+  "slug": "spray-foam-bid-calculator",
+  "name": "Spray foam insulation",
+  "group": "Interior & finishes",
+  "summary": "Spray foam priced by board feet: open, closed or hybrid cell, waste, rim joists, ignition coating and access.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 32,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "8 in open-cell foam, attic floor",
+      "unit": "sq ft",
+      "qty": 1200,
+      "hoursPerUnit": 0.01344,
+      "materialPerUnit": 4.84,
+      "source": "40 x 30 ft = 1,200 sf x 8 in = 9,600 bf at 1.4 h per 1,000 bf = 13.44 h; order 10,560 bf (10% waste) at $0.55/bf = $5,808 (index.html defaults; suggestedCellKit('open'), suggestedWastePercent in calc.mjs)"
+    },
+    {
+      "label": "Trip/setup and travel time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 3.3,
+      "materialPerUnit": 0,
+      "source": "hoursTrip 2.5 + travel siteHours 0.8 (index.html)"
+    },
+    {
+      "label": "Suits/tape/tips, mobilization, travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 645,
+      "source": "consumablesLump $185 + mobilizationFee $275 + travelAndEquipment $185 (index.html)"
+    }
+  ],
+  "specialistModels": "Board-foot math for open, closed and hybrid cell with nominal R-value, pitch-adjusted cathedral areas, closed-cell rim joists, ignition coating, access presets and a cell-type comparison."
+}

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseDay, dayToIso, parseRows, groupVisits, fitModel, predict, analyze, sampleText, reportCsv, money, pct } from "./calc.mjs";
+import { parseDay, dayToIso, parseRows, groupVisits, fitModel, predict, analyze, sampleText, reportCsv, contactPlan, fillTemplate, planCsv, money, pct } from "./calc.mjs";
 
 const D = (iso) => parseDay(iso);
 
@@ -144,4 +144,24 @@ test("formatters tolerate missing values", () => {
   assert.equal(money(NaN), "n/a");
   assert.equal(pct(undefined), "n/a");
   assert.equal(money(1234.6), "$1,235");
+});
+
+test("contact plan ranks overdue by expected revenue, puts due after, and respects the weekly cap", () => {
+  const r = analyze(parseRows(sampleText()).rows, { hasAmount: true });
+  const plan = contactPlan(r, { perWeek: 5, weeks: 2 });
+  assert.equal(plan.items.length, Math.min(10, r.overdue.length + r.due.length));
+  assert.ok(plan.items.every((c) => c.segment !== "lost"));
+  assert.deepEqual(plan.items.map((c) => c.week).slice(0, 5), [1, 1, 1, 1, 1]);
+  const nOver = plan.items.filter((c) => c.segment === "overdue").length;
+  assert.ok(plan.items.slice(0, nOver).every((c) => c.segment === "overdue"));
+  for (let i = 1; i < nOver; i++) assert.ok(plan.items[i - 1].pBack * plan.items[i - 1].avg >= plan.items[i].pBack * plan.items[i].avg - 1e-9);
+  assert.ok(plan.expectedRevenue > 0 && plan.expectedReturns > 0 && plan.expectedReturns <= plan.items.length);
+  assert.equal(contactPlan({ ...r, hasAmount: false }).expectedRevenue, null);
+});
+
+test("template fills name, last visit and usual weeks; plan CSV quotes names", () => {
+  const c = { client: "Ann", last: D("2026-03-07"), typicalGap: 30 };
+  assert.equal(fillTemplate("Hi {name}, since {last_visit} (about {usual_weeks} weeks). {name}!", c), "Hi Ann, since 2026-03-07 (about 4 weeks). Ann!");
+  const csv = planCsv({ items: [{ week: 1, client: 'a, "b"', segment: "due", last: D("2026-03-07"), pBack: 0.5, avg: null }] });
+  assert.equal(csv.split("\n")[1], '1,"a, ""b""",due,2026-03-07,0.500,');
 });

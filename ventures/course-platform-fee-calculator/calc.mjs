@@ -29,12 +29,24 @@ function number(value, name, { min = 0, max = null } = {}) {
  * processor's percentage + flat is charged in addition.
  */
 export const PRESETS = [
-  { id: "gumroad", name: "Gumroad", monthlyFee: 0, txPercent: 10, txFlat: 0.5, processorOnTop: false, note: "Flat 10% + $0.50 per sale; processing assumed included." },
+  { id: "gumroad", name: "Gumroad", monthlyFee: 0, txPercent: 10, txFlat: 0.5, processorOnTop: true, note: "10% + $0.50 per direct sale, card processing charged on top (as reported by 2026 fee guides; confirm on gumroad.com/pricing)." },
   { id: "podia-free", name: "Podia (free plan)", monthlyFee: 0, txPercent: 8, txFlat: 0, processorOnTop: true, note: "No monthly fee, transaction fee, processing on top." },
   { id: "podia-paid", name: "Podia (paid plan)", monthlyFee: 39, txPercent: 0, txFlat: 0, processorOnTop: true, note: "Paid plan removes the platform transaction fee." },
   { id: "teachable-basic", name: "Teachable (entry plan)", monthlyFee: 39, txPercent: 5, txFlat: 0, processorOnTop: true, note: "Entry plan with a platform transaction fee." },
   { id: "thinkific-paid", name: "Thinkific (paid plan)", monthlyFee: 49, txPercent: 0, txFlat: 0, processorOnTop: true, note: "Paid plan, no platform transaction fee." },
   { id: "kajabi", name: "Kajabi (entry plan)", monthlyFee: 149, txPercent: 0, txFlat: 0, processorOnTop: true, note: "Higher fixed fee, no platform transaction fee." },
+  // Added 2026-10-18 from secondary 2026 fee guides only (the platforms' own
+  // pricing pages were not reachable from the build environment). `listed: false`
+  // keeps the first-load table to the original course platforms; the page's
+  // picker adds any of these.
+  { id: "lemon-squeezy", name: "Lemon Squeezy", monthlyFee: 0, txPercent: 5, txFlat: 0.5, processorOnTop: false, listed: false, note: "5% + $0.50 per sale as a merchant of record, processing included; guides report small extra surcharges for international cards, PayPal and subscriptions." },
+  { id: "paddle", name: "Paddle", monthlyFee: 0, txPercent: 5, txFlat: 0.5, processorOnTop: false, listed: false, note: "5% + $0.50 per sale as a merchant of record, processing and sales-tax handling included." },
+  { id: "payhip-free", name: "Payhip (free plan)", monthlyFee: 0, txPercent: 5, txFlat: 0, processorOnTop: true, listed: false, note: "5% per sale on the free plan, processing on top; a paid plan removes the platform fee." },
+  { id: "kofi-free", name: "Ko-fi (free plan, shop sales)", monthlyFee: 0, txPercent: 5, txFlat: 0, processorOnTop: true, listed: false, note: "5% of shop and membership income on the free plan (tips are not charged); processing on top." },
+  { id: "kofi-gold", name: "Ko-fi Gold", monthlyFee: 6, txPercent: 0, txFlat: 0, processorOnTop: true, listed: false, note: "Flat monthly plan with no platform fee. Guides disagree on the price ($6 or $12): edit it." },
+  { id: "buymeacoffee", name: "Buy Me a Coffee", monthlyFee: 0, txPercent: 5, txFlat: 0, processorOnTop: true, listed: false, note: "5% platform fee, card processing on top." },
+  { id: "patreon-standard", name: "Patreon (Standard plan)", monthlyFee: 0, txPercent: 10, txFlat: 0, processorOnTop: true, listed: false, note: "10% platform fee, processing on top; see the patreon-fee-calculator for tier-by-tier pledges." },
+  { id: "stan-store", name: "Stan Store", monthlyFee: 29, txPercent: 0, txFlat: 0, processorOnTop: true, listed: false, note: "Flat monthly plan with no transaction fee (guides give $29 to $99 depending on plan); processing on top." },
   { id: "udemy-marketplace", name: "Udemy (marketplace sale)", monthlyFee: 0, txPercent: 63, txFlat: 0, processorOnTop: false, note: "Instructor keeps roughly 37% of a Udemy-sourced sale; far more on your own coupon links." },
 ];
 

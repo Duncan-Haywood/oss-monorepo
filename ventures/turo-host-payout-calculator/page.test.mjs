@@ -66,3 +66,11 @@ test("index links one hop to rv-rental-host-profit-calculator", () => {
   const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /href="\.\.\/rv-rental-host-profit-calculator\/"/);
 });
+
+test("the page ships save-and-share, and a shared link replaces the saved draft via formValues", () => {
+  const html = page("index.html");
+  assert.match(html, /import \{ encodeInputs, decodeInputs, formValues, FIELD_IDS \} from "\.\/share\.mjs"/);
+  assert.match(html, /id="copy-link"/);
+  assert.match(html, /applyFields\(formValues\(fromLink\)\)/);
+  assert.match(html, /link-copied/);
+});

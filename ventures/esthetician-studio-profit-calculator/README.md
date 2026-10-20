@@ -2,6 +2,8 @@
 
 A free browser tool for independent esthetician studio owners: **enter your facial, waxing and peel prices, chair minutes, supplies, no-show rate, rent, equipment, retail attach and commission, and get profit per treatment and per chair hour, the price each service needs for your target margin, break-even treatments per week, what no-shows cost, and what the same chair nets you working it yourself, employing an esthetician on commission, or renting it by the week**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/esthetician-studio-profit-calculator/
+
 After using this, you can now **decide whether to work it yourself, employ or rent out a chair, and what a facial or wax appointment has to cost to clear your target margin once rent and empty slots are counted**, which used to take a spreadsheet and a guess.
 
 ## Use

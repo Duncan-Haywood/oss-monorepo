@@ -1,0 +1,47 @@
+== 1. RMSE slope: RMSE ~ n^slope, fitted over n = 64..4096 (100 randomisations per cell)
+return function            mc      lhs   halton       rd
+smooth d=2              -0.49    -0.48    -0.92    -0.92
+smooth d=5              -0.52    -0.53    -0.76    -0.45
+smooth d=10             -0.54    -0.52    -0.63    -0.56
+smooth d=10 decay       -0.50    -0.52    -0.83    -0.87
+kink d=2                -0.51    -0.51    -0.85    -0.86
+kink d=5                -0.53    -0.51    -0.72    -0.47
+kink d=10               -0.52    -0.53    -0.71    -0.67
+kink d=10 decay         -0.53    -0.50    -0.73    -0.79
+jump d=2                -0.48    -0.50    -0.79    -1.02
+jump d=5                -0.48    -0.54    -0.65    -0.51
+jump d=10               -0.51    -0.49    -0.59    -0.56
+jump d=10 decay         -0.54    -0.50    -0.60    -0.66
+
+== 2. RMSE against n, smooth d=5 (exact mean 1)
+     n        mc       lhs    halton        rd
+    64   0.17446   0.10522   0.08555   0.07789
+   256   0.08488   0.04375   0.02792   0.03301
+  1024   0.04250   0.02377   0.00929   0.01921
+  4096   0.01960   0.01102   0.00376   0.01192
+
+== 3. MSE reduction vs iid sampling at n = 1024: MSE(mc) / MSE(method), i.e. how many iid scenarios one scenario is worth
+return function           lhs   halton       rd
+smooth d=2                9.7    148.8    136.9
+smooth d=5                3.2     20.9      4.9
+smooth d=10               1.6      5.3      3.0
+smooth d=10 decay        12.2    106.4     39.6
+kink d=2                  5.3     82.5     65.7
+kink d=5                  3.7     30.5      8.5
+kink d=10                 3.6     14.8      7.6
+kink d=10 decay           6.3     41.1     14.6
+jump d=2                  2.4     24.2     74.7
+jump d=5                  3.0      7.4      4.6
+jump d=10                 2.8      4.2      5.7
+jump d=10 decay           2.9      5.7      6.1
+
+== 4. Coverage of the 95% t-interval from 8 independent randomisations of 128 points (n = 1024), 400 trials
+return function            mc      lhs   halton       rd
+smooth d=5              0.950    0.948    0.945    0.955
+kink d=5                0.953    0.968    0.943    0.943
+jump d=5                0.970    0.948    0.945    0.953
+jump d=10 decay         0.960    0.945    0.958    0.945
+
+== 5. Scope
+Stylised: uniform scenario parameters, return functions with exact means; no robot data or simulator.
+(runtime 119 s)

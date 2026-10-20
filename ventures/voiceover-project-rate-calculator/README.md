@@ -8,6 +8,8 @@ audiobook priced per finished hour from manuscript word count, using
 commonly cited voice-over rate-guide conventions. Entirely client-side;
 nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/
+
 After using this, you can now **turn a script's word count and the buyer's
 intended usage into a defensible project rate in seconds**, which used to
 mean guessing at a usage multiplier from memory or hunting for a rate-guide

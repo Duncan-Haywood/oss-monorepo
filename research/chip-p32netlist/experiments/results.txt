@@ -1,0 +1,28 @@
+F=16 MAC engine, Yosys 0.33. cells (flip-flops) after each stage; gap = P32 - P16
+
+seed stage   P16          P32          gap_cells gap_comb
+0    coarse    970 (  0)  1608 (  0)       638      638
+0    fine     7249 (368)  6735 (368)      -514     -514
+0    abc      6043 (364)  5637 (363)      -406     -405
+1    coarse    865 (  0)  1638 (  0)       773      773
+1    fine     7511 (368)  6989 (368)      -522     -522
+1    abc      6355 (364)  5972 (363)      -383     -382
+2    coarse    970 (  0)  1610 (  0)       640      640
+2    fine     7278 (368)  6780 (368)      -498     -498
+2    abc      6150 (364)  5879 (363)      -271     -270
+
+cell types after abc, seed 0 (P16 / P32):
+  $_ANDNOT_          260   162
+  $_AND_             924   962
+  $_DFF_P_             4     4
+  $_MUX_             152   193
+  $_NAND_           2055  1853
+  $_NOR_              96    84
+  $_NOT_               9    24
+  $_ORNOT_           290   180
+  $_OR_              366   397
+  $_SDFFE_PP0N_        0    64
+  $_SDFFE_PP0P_      359   294
+  $_SDFF_PP0_          1     1
+  $_XNOR_            657   509
+  $_XOR_             870   910

@@ -3955,3 +3955,159 @@ entries:
         top score 0.18; no CBAM tool existed in ventures/. First visitor: an EU importer or buyer who has received a CBAM supplier questionnaire;
         volume unmeasured. Preset emission figures are labelled illustrative.
     mrr_end: 0
+  - venture: eaa-accessibility-act-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built eaa-accessibility-act-checker: a browser-only first read of whether the European Accessibility Act (Directive 2019/882,
+        applying since 28 June 2025) covers a business. A product or service from Article 2, a role (manufacturer, importer, distributor, service
+        provider), whole-group size on the Recommendation 2003/361 microenterprise ceilings, B2C versus B2B and Union-market answers give an in-scope,
+        microenterprise-exempt (Art 4(5), services only) or out-of-scope result with the Article it rests on, the result at the other size class,
+        role-specific duties, and text and CSV downloads. Rejects roles that do not fit the category. 13 hand-checked unit tests plus page and usage
+        tests. No EAA tool existed in ventures/. First visitor: EU online-shop owners and agencies asked "does the Accessibility Act apply to us?";
+        volume unmeasured. National transposition is not modelled and the page says so.
+    mrr_end: 0
+  - venture: indoor-play-center-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built indoor-play-center-profit-calculator: a browser-only pro forma for an indoor playground or soft-play cafe. Weekday and
+        weekend child visits, walk-in and member prices, birthday parties, cafe spend, staff hours with payroll load, rent, fit-out, equipment and a loan
+        give monthly profit, break-even visits a week (operating and with the loan), the admission and party price factor that reaches a target margin,
+        attendance, price and wage sensitivity tables, a sixty-month ramp-up with the cash reserve and payback, and text and CSV downloads. 15 hand-checked
+        unit tests plus page and usage tests. Nearest sibling trampoline-park-profit-calculator models jumper capacity and sessions, not attendance with
+        cafe and ramp-up. First visitor: first-time owners sizing a lease and loan; volume unmeasured. Every figure is the user's own; the example is
+        labelled illustrative.
+    mrr_end: 0
+  - venture: padel-club-profit-calculator
+  - venture: eu-data-act-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built padel-club-profit-calculator: a browser-only pro forma for a padel club. Courts, opening hours, peak and off-peak court-hour prices and
+        utilisation, member discount, coaching with a coach share, food and drink, pro shop, staff hours with payroll load, rent, court and fit-out cost
+        and a loan give monthly profit, break-even booked court-hours and utilisation (reported only when the courts can hold them), the court and lesson
+        price factor that reaches a target margin, booking, price and wage sensitivity tables, a sixty-month ramp-up with the cash reserve and payback,
+        and text and CSV downloads. 17 hand-checked unit tests plus page and usage tests. No padel tool existed in ventures/; nearest siblings are
+        pickleball-facility-pro-forma and golf-simulator-bay-profit-calculator. First visitor: would-be club owners sizing a lease and loan; volume
+        unmeasured. Every figure is the user's own; the example is labelled illustrative.
+        Graduated and built eu-data-act-checker: a browser-only first read of whether the EU Data Act (Regulation 2023/2854, applying since 12 September
+        2025) covers a business. A role (connected-product maker, related-service provider, data holder, third-party recipient, cloud or SaaS provider),
+        whole-group size on the Recommendation 2003/361 micro and small ceilings, a larger-partner flag and a subcontracting flag give an in-scope,
+        micro-or-small-exempt (Art 7) or out-of-scope result with the Article it rests on, the result at each size class, role-specific duties with the
+        Art 3(1) (12 Sep 2026) and switching-charge (12 Jan 2027) dates, and text and CSV downloads. Cloud switching duties carry no size exemption.
+        12 hand-checked unit tests plus page and usage tests. No Data Act tool existed in ventures/. First visitor: EU hardware and SaaS vendors asked
+        "does the Data Act apply to us, are we exempt as an SME?"; volume unmeasured. National enforcement is not modelled and the page says so.
+    mrr_end: 0
+  - venture: bowling-center-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bowling-center-profit-calculator: a browser-only pro forma for a bowling center. Lanes, opening hours, peak and off-peak
+        lane-hour prices and utilization, league share and discount, birthday parties with their cost share, food and bar, arcade and shoe rental,
+        staff hours with payroll load, rent, refurbishment cost and a loan give monthly profit, break-even booked lane-hours and utilization (reported
+        only when the lanes can hold them), the price factor that reaches a target margin, booking, price and wage sensitivity tables, a sixty-month
+        ramp-up with the cash reserve and payback, and text and CSV downloads. Hand-checked unit tests plus page and usage tests. No bowling tool existed
+        in ventures/; nearest siblings are padel-club-profit-calculator and trampoline-park-profit-calculator. First visitor: buyers and operators of
+        independent centers sizing a lease and loan; volume unmeasured. Every figure is the user's own; the example is labelled illustrative.
+    mrr_end: 0
+  - venture: tenant-security-deposit-deadline-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tenant-security-deposit-deadline-checker: a browser-only tool for renters. A state (19
+        covered: AZ CA CO DC FL GA MA MD MI MN NC NJ NY OH OR PA TX VA WA), deposit, move-out date, forwarding-address
+        date and amount returned give the day the landlord's statutory return deadline ran out (calendar days, business
+        days, months, Florida's second clock, forwarding-address-triggered clocks), the statute cited, what the statute
+        says about a missed deadline with a for-scale multiple where the statute has a flat one, and a forwarding-address,
+        overdue-demand or deduction-dispute letter that fills itself in. 10 hand-checked unit tests plus page and usage
+        tests. Niche screened with duplicate_check.py (best match 0.26, not a tenant tool); the archetype is not another
+        trade bid calculator. First visitor: renters searching "how long does a landlord have to return a security
+        deposit [state]" or asking in r/Tenant whether a landlord is late; volume unmeasured. The statute table is the
+        author's reading and not lawyer-reviewed; the page says so and the first wrong-deadline report is the priority
+        fix. Published the gh-pages snapshot first (it was stale against main).
+    mrr_end: 0
+  - venture: aid-award-letter-comparator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built aid-award-letter-comparator: a browser-only tool for families holding college
+        financial aid award letters. Pasted label: amount blocks (cost of attendance, grants, one-time
+        first-year grant, work-study, subsidized, unsubsidized, Parent PLUS and private loans) give each
+        offer's multi-year net price, loans with accrued interest and an amortised payment, origination
+        fees as cash, and a total cost to the family (cash plus repayment) that ranks the offers. It flags
+        a year-2 net-price jump from first-year-only aid, federal dependent loan limits, borrowing beyond
+        the bill, heavy work-study loads and payment-to-salary squeeze, and bisects the extra yearly grant
+        that would make a dearer offer match the cheapest, the figure for a financial aid appeal. 15
+        hand-checked unit tests (annuity formula, simple-interest accrual, parser, bisection) plus page,
+        usage and guide tests whose worked example is recomputed from the calculator; run in headless
+        Chromium. Screened with duplicate_check.py (best match 0.21, a single-school discount tool); no
+        FAFSA, scholarship or award-letter venture existed. First visitor: seniors' families searching
+        "compare financial aid offers" in the October to April peak; volume unmeasured. Rates default to
+        2025-26 federal values and the page tells the user to replace them. Also refreshed the gh-pages
+        snapshot, which the session gate reported stale.
+    mrr_end: 0
+  - venture: hands-free-language-coach
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner's idea, added as two ventures. hands-free-language-coach: voice-only, hands-free language
+        practice with streaks, XP and spaced review. Ships a Claude skill and custom-GPT instructions that
+        run the lesson in assistant voice mode in any language ($0 per learner: it runs on the learner's
+        own plan), and a browser drill on the Web Speech API (five starter packs, speech-recognition
+        scoring, spoken repeat/skip/stop commands, Leitner review, streak share card). 11 logic tests plus
+        usage tests; a mocked-speech session ran end to end in headless Chromium. iOS-first native app is
+        on the roadmap with on-device speech; Apple account and GPT Store listing are owner steps later.
+    mrr_end: 0
+  - venture: listen-and-learn-audio
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Sibling venture for listening: a Claude skill and GPT instructions for long-form stories,
+        two-host podcast-style episodes and serials on any topic, pitched to the listener's language
+        level, plus a browser player of five graded A1-A2 bilingual stories (Spanish, French, German,
+        Italian) written for the project and read by device voices, with three interleave modes and
+        shadowing pauses. Playlist tests plus usage tests; a mocked-speech playthrough ran in headless
+        Chromium. Volume for "learn by listening" searches unmeasured.
+    mrr_end: 0
+  - venture: open-tennis-robots
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Built open-tennis-robots at the owner's request (2026-10-19): open-source hardware and software
+        for a tennis ball machine that tracks the player's return and slides a catch net to catch it,
+        and a ball-collecting rover. Python package tennisbots (stdlib only): flight model with drag,
+        spin lift and a friction-limited bounce; launcher aiming and wheel-rpm solving with calibration;
+        drag-aware per-axis Kalman tracker; catch planner and a closed-loop study; collector routing
+        (visibility-graph detours, nearest-neighbour + 2-opt, hopper dump trips, blind lawn-mower
+        sweep); pure pursuit; homography; a serial protocol shared with MicroPython ESP32 firmware
+        (role filter, clamps, 300 ms watchdog, latched e-stop, bumper rule); and an Amazon SP-API
+        listing tool on the seller's own credentials, dry run by default and refusing --live until
+        compliance items are confirmed (owner asked that people can sell it, on Amazon in one step).
+        Design docs, pin maps, BOMs (~$1,200 / ~$600, estimates), safety and a seller's guide. The
+        browser page ports the model to JS, tested against Python fixtures to 1e-6. Simulation result
+        (300 returns per cell): a fixed 3 m net catches 31% of club-level returns; on a 2.5 m/s base it
+        catches 91%, 97% at 4 m/s, so drive speed matters more than net width. Nothing built yet; the
+        page and README say so. 38 Python + 17 Node tests.
+      - >-
+        Owner asked mid-session for manufacturable designs ("one clickable to get it manufactured"), not
+        high-level ones. Added parametric code-CAD (build123d, pinned) that generates the collector's
+        complete fab package: 6 laser-cut DXFs (flat 5052, no bends or taps), 5 PETG STLs, STEP per part
+        plus assembly, cut list, BOM with every fastener, assembly drawings, manifest with hashes. The
+        build fails on design-rule violations, part collisions (bought-in parts as envelopes) or any part
+        not touching the ground; tests also prove printed-part pilot holes land on base-plate holes and
+        that builds are byte-reproducible (STEP/DXF timestamps, GUIDs, OCC counters and ezdxf class
+        order normalised). The committed package is served as a one-click zip and CI fails if it goes
+        stale. The CAD replaced v0.1's paddle roller and ramp with a passive rod-cage drum (ball-mower
+        mechanism, ~118 balls) after the ramp geometry could not drop balls into a hopper reliably.
+        Feeder CAD is next.
+    mrr_end: 0

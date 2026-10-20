@@ -1,0 +1,65 @@
+{
+  "id": "P017",
+  "title": "Load instructions by path and task instead of making every run read ~40k tokens",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "A ventures run is told to read CLAUDE.md (auto-loaded), prompt.md, prompts/goals.md, its sub-prompt, portfolio/DIRECTION.md, AGENTS.md, PRODUCT_PLAYBOOK.md and land-your-work.md: about 41k tokens before it starts, held in context and re-read (cached) on every request. DIRECTION.md alone is ~15k tokens, says goals.md wins where they differ, and is mostly notes on earlier sessions' mistakes. CLAUDE.md spends ~150 of its ~480 lines on the pre-merge CI checklist that only a merging run needs. Estimated share of a run's API-equivalent cost spent carrying these files: ~45% for a short (~20-request) run, ~15% for a long (~50-request) run, assuming standard relative prices (cache read 0.1x, 1h cache write 2x, output 5x base input). The owner does not see this as a problem in itself (2026-10-16); the payoff is cheaper short runs and less overlap between rule sets.",
+  "evidence": [
+    "chars/4 on origin/main bc4dcc3b05: CLAUDE.md 6.5k, AGENTS.md 2.5k, portfolio/DIRECTION.md 15.0k, PRODUCT_PLAYBOOK.md 6.5k, prompts/goals.md 5.9k, prompt.md 1.2k, prompts/ventures/prompt-1.md 1.7k, .github/prompts/land-your-work.md 2.0k tokens",
+    "prompts/runs/2026-10-16-session_011XJrMH1EoDe4RmpwTAJ*: 19 requests, 1.42M cache-read, 62k 1h cache-write, 6.8k output, $0.60",
+    "prompts/runs/2026-10-16-session_01V1T9eEFeANvWqBTz5xq*: 52 requests, 7.94M cache-read, $5.54",
+    "CLAUDE.md line 15: 'Read portfolio/DIRECTION.md and AGENTS.md first.'"
+  ],
+  "change": "Claude Code loads a subdirectory's CLAUDE.md only when the session reads files there, and a skill only when invoked. (1) Drop 'read DIRECTION.md and AGENTS.md first' from CLAUDE.md; make DIRECTION.md a reference and move its dated history to docs/history/. (2) Move the pre-merge checklist and CI-reading rules into a skill (.claude/skills/verify-and-merge/) that land-your-work.md invokes. (3) Move the product rules into ventures/CLAUDE.md and hosting rules into portfolio/hosting/, the way research/CLAUDE.md already works. (4) Keep root CLAUDE.md to what every run needs: public-repo safety, land-your-work, routing. Nothing is deleted; every rule keeps one home. Check checklist_coverage.py and any test that greps CLAUDE.md before moving text.",
+  "touches": [
+    "CLAUDE.md",
+    "portfolio/DIRECTION.md",
+    "AGENTS.md",
+    "ventures/CLAUDE.md",
+    ".claude/skills/",
+    ".github/prompts/land-your-work.md",
+    "platform/ci/checklist_coverage.py"
+  ],
+  "metric": "Tokens of instruction text a ventures run and a research run must read before starting (chars/4), and median api_equivalent_usd per run for each track",
+  "baseline": "ventures ~41k tokens; research ~17k tokens; median api_equivalent_usd over the 8 measured runs on 2026-10-16: $0.53",
+  "opened": "2026-10-16",
+  "source": "Owner review of repo standards in a Claude Code session, 2026-10-16 (cost share is an estimate from 8 runs with usage recorded; see problem)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7664",
+  "result": "helped (chars/4 at ba0c6702e5): CLAUDE.md 6.5k -> 4.4k tokens (checklist moved to verify-and-merge.md, P030; product rules to ventures/CLAUDE.md, P031); DIRECTION.md is read by section (873 lines, was 1,015) instead of whole. Ventures run before-start reading ~41k -> ~26k worst case (CLAUDE 4.4k, AGENTS 2.5k, PLAYBOOK 6.9k, goals 6.9k, prompt 1.2k, sub-prompt 1.7k, land 2.1k) with DIRECTION by section. Cost median not re-measured (too few runs since).",
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Step 1 partial: CLAUDE.md and AGENTS.md no longer say to read all of DIRECTION.md first (~15k tokens); read by section heading. Steps 2-4 remain open: CLAUDE.md is parsed by checklist_coverage.py, validate_workflows.py, sync_tree_counts.py and ~15 other tools, so moving the checklist needs those repointed first."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Merged CLAUDE.md 'Fork PRs and outside text' into 'Public repository' (duplicate rule). Measured blocker for step 2: ~40 files (platform/ci/*, gitops/tests) reference CLAUDE.md by path or heading; repoint them with checklist_coverage.py before moving the checklist."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Step 3 partial: moved two Hosting bullets from CLAUDE.md to portfolio/hosting/README.md (CLAUDE.md -9 lines, nothing else referenced them). Small by design: checklist_coverage.py and ~40 files still pin CLAUDE.md's checklist, so steps 2 and 4 remain open."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Step 2 partial: moved the checklist's explanatory traps, browser checks and post-merge gh-pages refresh (~85 lines) from CLAUDE.md to .github/prompts/verify-and-merge.md. The checklist code block and the 'Ship without review ceremony' heading stay in CLAUDE.md because checklist_coverage.py, test_manifests.py and the queue prompts pin them. Remaining: move the block itself after repointing those, and steps 3-4."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Step 1 partial: moved DIRECTION.md's 92-line 'fleet-parity trap' section (2026-09-06 measurements, partly superseded) to docs/history/direction-fleet-parity-trap-2026-09-06.md, leaving a 12-line rule. DIRECTION.md 1,015 -> 922 lines. Steps 2-4 still open."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Step 4 partial: CLAUDE.md's two direction sections (~45 lines, duplicated in goals.md) condensed to one 20-line pointer section. CLAUDE.md 391 -> 383 lines; nothing else referenced the old headings. Steps 2-3 still open."
+    },
+    {
+      "date": "2026-10-17",
+      "note": "Split into one-PR rows P030 (repoint pins, move checklist block) and P031 (product rules to ventures/CLAUDE.md). Step 4 follows once those land."
+    },
+    {
+      "date": "2026-10-17",
+      "note": "Steps 1-4 landed via P030/P031 and earlier partials; closed with measured result."
+    }
+  ]
+}

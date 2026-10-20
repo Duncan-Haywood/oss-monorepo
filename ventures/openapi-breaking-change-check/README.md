@@ -7,6 +7,8 @@ removed enum value a client could still send, or a request body that became
 required. Everything else — a new optional parameter, a new endpoint, a
 widened enum — is reported separately as non-breaking.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/
+
 **What it is not:** a full request/response body schema diff, a security
 review, or a compatibility guarantee. It is a shallow, structural comparison
 of paths, operations, and parameter/request-body shape; it makes no claim

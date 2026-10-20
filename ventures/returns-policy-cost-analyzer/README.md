@@ -5,6 +5,8 @@ optional return label) and see what each return costs you, which product categor
 returns are counted, and whether a return fee or restocking fee would pay against free returns. Browser
 page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/returns-policy-cost-analyzer/
+
 ```
 node cli.mjs analyze orders.csv
 cat orders.csv | node cli.mjs analyze -

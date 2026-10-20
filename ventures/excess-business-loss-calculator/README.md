@@ -4,6 +4,8 @@ A free browser calculator for the IRC Section 461(l) excess business loss
 limitation, made permanent by the One Big Beautiful Bill Act. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/excess-business-loss-calculator/
+
 After using this, you can now **see how much of your net business loss is
 deductible this year against the 2025/2026 threshold, and how much becomes
 a net operating loss carryforward** — including the counterintuitive fact

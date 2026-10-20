@@ -8,6 +8,8 @@ empty goes back), gives each clock's last free day, what one more day costs, and
 what pulling the whole chain earlier is worth. Entirely client-side; no shipment
 numbers or company names are asked for.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/container-demurrage-detention-calculator/
+
 After using this, you can **see the bill before the container is late, and know
 the most a rush fee for an earlier pickup is worth paying** — which used to mean
 finding the tier table in the tariff and doing it by hand, or finding out from

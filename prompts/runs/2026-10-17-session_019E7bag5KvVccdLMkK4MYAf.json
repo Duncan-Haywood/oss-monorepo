@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_019E7bag5KvVccdLMkK4MYAf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T14:00:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7761",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "update_pull_request_branch refused on stale PRs (conflicts); shallow clone needed unshallow before merging"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Names regen.mjs and sync_tree_counts.py without paths; regen.mjs is platform/marketing/regen.mjs and sync_tree_counts.py cannot run in a fresh clone (needs front_door_mirror from gitops/tests on path)."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Cloud session has no way to poll CI except PR subscription; run record step assumes merge happens in same session, but waiting on CI took ~45 min so the record had to ride a follow-up PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "Merged #7553 with gitops/build red because both failures were red on main and not in its diff; commented the evidence on the PR."
+    }
+  ],
+  "goal": "land stranded finished work",
+  "notes": "Landed #7553 (HOA reserve guide, stranded since September) after merging main and regenerating mirrors; closed #7559 as superseded by #7558; fixed faq-visible test red on main (PR 7761). #7553 merged with gitops and build red from main, named in PR comments. Did not deepen a venture: the run went to landing stranded work. Other adopted drafts (#7548 duplicate of a page on main, #7549/#7551 unchecked) left open.",
+  "corrections": [],
+  "redteam": null
+}

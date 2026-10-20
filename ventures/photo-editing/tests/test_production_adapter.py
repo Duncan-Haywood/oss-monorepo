@@ -50,6 +50,8 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                 "grade-production-local",
                 "story-production-local",
                 "package-production-local",
+                "ffmpeg-proxy-production-local",
+                "ffmpeg-grade-production-local",
             ),
         )
         self.assertIsNone(supported_production_adapter_output_kinds("dry-run-production-local"))

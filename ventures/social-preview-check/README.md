@@ -6,6 +6,8 @@ Open Graph and Twitter Card meta tags, fetches enough of its `og:image` /
 file's own header**, and classifies the result into the problems that
 actually break a shared link's preview:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/social-preview-check/
+
 - **Missing `og:title` / `og:description` / preview image** — nothing for a
   platform to render.
 - **A relative `og:image` URL** — the Open Graph protocol (ogp.me) requires

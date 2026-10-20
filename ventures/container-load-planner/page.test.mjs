@@ -98,9 +98,16 @@ test("page documents the rules and what it leaves out", () => {
   assert.match(html, /<canvas id="view-side"/);
 });
 
+test("the swap table prices the load from quotes the visitor types, and states no rate itself", () => {
+  const html = page("index.html");
+  assert.match(html, /id="rates"/);
+  assert.match(html, /priceOptions\(rows, parseRates\(txt\)/);
+  assert.doesNotMatch(html, /id="rates"[^>]*value=/);
+});
+
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["plan_run", "example_loaded", "report_downloaded"]) {
+  for (const e of ["plan_run", "example_loaded", "report_downloaded", "packet_downloaded", "rates_priced"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
@@ -176,4 +183,12 @@ test("the guide page carries the clauses, links both ways, and its worked exampl
   assert.equal(floor(120, 80, "20ft"), 11);
   assert.ok(floor(121.9, 101.6, "20ft") >= 10);
   assert.ok(floor(121.9, 101.6, "40ft") >= 20);
+});
+
+test("page wires the share link to the encoder and reads it back on load", () => {
+  const html = page("index.html");
+  assert.match(html, /id="share-link"/);
+  assert.match(html, /encodeShare\(/);
+  assert.match(html, /decodeShare\(location\.hash\)/);
+  assert.match(html, /never sent to a server/);
 });

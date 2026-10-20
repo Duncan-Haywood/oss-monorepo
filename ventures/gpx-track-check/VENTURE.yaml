@@ -24,3 +24,19 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-every-service clause,
 # trademarks used nominatively, no acceptance promise, no route-safety claim.
+
+# 2026-10-20: built the CLI half of the stated revenue path (`cli.mjs`: check/fix files and folders,
+# --json/--strict, CI exit codes). No npm publish (owner gate).
+# Hypothesis to test: people who publish route libraries reach the CLI section of the README from search;
+# reading is the opt-in usage counter on the page, not a download count.
+
+# 2026-10-20: added track thinning (page button and `cli.mjs thin`): Ramer-Douglas-Peucker to a user-set
+# point cap, kept points byte-identical. Device point limits are not asserted; the user sets the cap.
+hypotheses:
+  - claim: >-
+      People whose watch or head unit refuses a long imported course will search for how to reduce the
+      points in a GPX file and use a free, local thinning tool that keeps times and elevations on the
+      points it keeps.
+    status: untested
+    checked: null
+    evidence: customer-contact

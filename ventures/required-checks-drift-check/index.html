@@ -58,7 +58,7 @@
   <section class="card">
     <h2>1. Paste your required status check names</h2>
     <p class="note">From <strong>Settings → Branches → Branch protection rules → Require status checks to pass</strong>, one per line — or paste the JSON from <code>gh api repos/:owner/:repo/branches/:branch/protection</code> directly, contexts array and all. Leave this blank to just see the check names your workflows would currently report.</p>
-    <textarea id="required" spellcheck="false" placeholder="build
+    <textarea aria-label="Required status checks" id="required" spellcheck="false" placeholder="build
 lint
 Build and Test (18)"></textarea>
   </section>

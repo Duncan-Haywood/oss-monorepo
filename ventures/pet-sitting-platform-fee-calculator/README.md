@@ -4,6 +4,8 @@ A free browser tool: **type your bookings, price and the marketplace's cut, and 
 hour on Rover, Wag or another platform versus booking clients directly.** It shows the break-even number of direct
 bookings per month, the platform price that would net the same, and take-home at 0-100% direct. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pet-sitting-platform-fee-calculator/
+
 After using this, you can **decide whether building a direct client base is worth the software and marketing cost**, and
 what to charge on the platform so a marketplace booking pays what a direct one does.
 

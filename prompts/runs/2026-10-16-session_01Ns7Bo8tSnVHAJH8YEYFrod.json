@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01Ns7Bo8tSnVHAJH8YEYFrod",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "continue work on the repo (scheduled brief: develop, deploy, market revenue generating products)",
+  "input_sha256": "ea7421344da4d243ad7ef96657289fcde5c68c9cd2bb0243398054b0c2d88eac",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T00:19:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "slot-keeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7230",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A generic brief with an empty build-now queue sends concurrent sessions to the same niche; the open-PR check could not see #7223 until it merged mid-run."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Built a complete slot-keeper (Calendly alternative) in parallel with another session whose #7223 landed first; dropped my duplicate and landed only the two hardening fixes it lacked (stale-feed fail-closed, PUBLIC_URL required to send email). Follow-up PR exempts Stripe's client_reference_id query parameter from the share-location guard, which was red on main for referral-keeper/pages.mjs:74.",
+  "corrections": [],
+  "redteam": null
+}

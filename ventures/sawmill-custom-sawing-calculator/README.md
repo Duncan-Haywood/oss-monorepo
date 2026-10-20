@@ -6,6 +6,8 @@ break-even and target quote per board foot and per hour, which pricing model pay
 which log diameters lose money at your flat per-board-foot rate.** The page also shows how far the Doyle log
 scale undercounts the board feet you actually sawed. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sawmill-custom-sawing-calculator/
+
 After using this, you can now **quote a custom sawing job at a rate that covers your blades, fuel, helper and
 your own time**, which used to be a number copied from the next sawyer over.
 

@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareStandardEnvelope({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -94,19 +94,19 @@ test('default inputs on the page match the worked example', () => {
     envelopeSellThroughPct: 85,
     monthlyEnvelopeListings: 40,
   });
-  assert.ok(Math.abs(comparison.tracked.expectedProfit - 16.51005) < 1e-6, 'default tracked');
-  assert.ok(Math.abs(comparison.envelope.expectedProfit - 19.91261) < 1e-6, 'default envelope');
-  assert.ok(Math.abs(comparison.breakEvenClaimRate - 18.107339388223405) < 1e-6, 'default claim ceiling');
-  assert.match(html, /\$16\.51/);
-  assert.match(html, /\$19\.91/);
-  assert.match(html, /\$3\.40/);
-  assert.match(html, /\$136\.10/);
-  assert.match(html, /18\.1%/);
-  assert.match(html, /\$4\.66/);
-  assert.match(html, /\$21\.40/);
-  assert.match(html, /\$19\.18/);
-  assert.match(html, /\$2\.23/);
-  assert.match(html, /4\.2%/);
+  assert.ok(Math.abs(comparison.tracked.expectedProfit - 16.29864) < 1e-6, 'default tracked');
+  assert.ok(Math.abs(comparison.envelope.expectedProfit - 19.708508) < 1e-6, 'default envelope');
+  assert.ok(Math.abs(comparison.breakEvenClaimRate - 18.196241896514596) < 1e-6, 'default claim ceiling');
+  assert.match(html, /\$16\.30/);
+  assert.match(html, /\$19\.71/);
+  assert.match(html, /\$3\.41/);
+  assert.match(html, /\$136\.39/);
+  assert.match(html, /18\.2%/);
+  assert.match(html, /\$4\.67/);
+  assert.match(html, /\$21\.07/);
+  assert.match(html, /\$18\.88/);
+  assert.match(html, /\$2\.19/);
+  assert.match(html, /4\.3%/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

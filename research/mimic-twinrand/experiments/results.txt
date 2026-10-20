@@ -1,0 +1,30 @@
+Real system: {'visc': 0.1, 'coul': 0.3, 'sd': 0.02, 'kind': 'student3', 'glo': 9.81}. PD grid of 48 pairs; tuned on 200 start angles spread over 8 twins; scored on 2000 held-out real start angles.
+Randomized twin: every parameter (sd, coul, visc, g/L) uniform on nominal +- width x its real value (clipped at 0). Regret as in mimic-twinregret. 24 tuning seeds.
+Best real cost on the grid (mean of per-seed minima): 0.2509
+
+nominal twin           width    regret       sd    worst  seeds at 0
+exact twin              0.00   0.00000  0.00000  0.00000       24/24
+exact twin              0.25   0.00006  0.00029  0.00146       23/24
+exact twin              0.50   0.00006  0.00029  0.00146       23/24
+exact twin              1.00   0.00006  0.00029  0.00146       23/24
+exact twin              2.00   0.00006  0.00029  0.00146       23/24
+no sensor noise         0.00   0.00981  0.00016  0.01007        0/24
+no sensor noise         0.25   0.00335  0.00461  0.01007       15/24
+no sensor noise         0.50   0.00006  0.00029  0.00146       23/24
+no sensor noise         1.00   0.00006  0.00029  0.00146       23/24
+no sensor noise         2.00   0.00006  0.00029  0.00146       23/24
+noise sd x2             0.00   0.00297  0.00185  0.00563        1/24
+noise sd x2             0.25   0.00335  0.00194  0.00563        2/24
+noise sd x2             0.50   0.00344  0.00212  0.00563        5/24
+noise sd x2             1.00   0.00295  0.00240  0.00563        9/24
+noise sd x2             2.00   0.00570  0.01369  0.04244       18/24
+no Coulomb friction     0.00   0.00138  0.00010  0.00155        0/24
+no Coulomb friction     0.25   0.00087  0.00068  0.00153        9/24
+no Coulomb friction     0.50   0.00046  0.00066  0.00153       16/24
+no Coulomb friction     1.00   0.00012  0.00039  0.00146       22/24
+no Coulomb friction     2.00   0.00012  0.00039  0.00146       22/24
+g/L +20%                0.00   0.00138  0.00010  0.00155        0/24
+g/L +20%                0.25   0.00138  0.00010  0.00155        0/24
+g/L +20%                0.50   0.00093  0.00066  0.00153        8/24
+g/L +20%                1.00   0.00041  0.00064  0.00153       17/24
+g/L +20%                2.00   0.00012  0.00039  0.00146       22/24

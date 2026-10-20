@@ -1,0 +1,33 @@
+{
+  "name": "paint-estimator fixture",
+  "timeoutMs": 5000,
+  "scenarios": [
+    {
+      "name": "estimate one wall",
+      "path": "/",
+      "steps": [
+        { "fill": "Wall width (ft)", "value": "35" },
+        { "fill": "Wall height (ft)", "value": "10" },
+        { "select": "Coats", "value": "2" },
+        { "click": "Calculate" },
+        { "expectText": "You need 2 gallons of paint." },
+        { "screenshot": "result" }
+      ]
+    },
+    {
+      "name": "empty form explains itself",
+      "path": "/",
+      "steps": [
+        { "click": "Calculate" },
+        { "expectText": "Enter a width and a height." },
+        { "expectNoText": "NaN" }
+      ]
+    },
+    {
+      "name": "agent: estimate paint",
+      "path": "/",
+      "goal": "Find out how much paint a 12 ft by 8 ft wall needs with two coats.",
+      "expect": "The page shows a number of gallons greater than zero."
+    }
+  ]
+}

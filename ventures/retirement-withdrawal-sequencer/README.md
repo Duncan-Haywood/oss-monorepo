@@ -5,6 +5,8 @@ spending and Social Security, and it runs the plan year by year to your end age 
 usual withdrawal orders with bracket-filling and Roth-conversion strategies, and shows which leaves you the most after
 tax and how much tax each pays over the whole retirement.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/retirement-withdrawal-sequencer/
+
 After using this, you can now **see whether spending taxable money first is costing you tens of thousands of dollars
 of avoidable lifetime tax, and which bracket to fill with traditional withdrawals or Roth conversions**, which used to
 take a paid planning-software seat or an advisor meeting.

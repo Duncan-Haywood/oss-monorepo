@@ -269,6 +269,33 @@ class VentureRegressionTest(unittest.TestCase):
         self.commit("really drop beta")
         self.assertEqual(self.run_check(), cvr.EXIT_REGRESSION)
 
+    def test_genuine_divergence_is_reported_as_diverged(self) -> None:
+        """Two branches off a common commit: a merge base exists, so the head
+        is not "behind" and not "unknown" either."""
+        self.base_with(["alpha"])
+        fork = git(self.repo, "rev-parse", "HEAD").strip()
+        self.write_venture("beta")
+        self.commit("base moves on")
+        git(self.repo, "update-ref", "refs/remotes/origin/main", "HEAD")
+        git(self.repo, "checkout", "-q", "-b", "side", fork)
+        self.write_venture("gamma")
+        head = self.commit("side moves on")
+        self.assertEqual(cvr._ancestry(head, "origin/main"), "diverged")
+
+    def test_base_with_ventures_but_no_launched_registry_is_a_catalogue(self) -> None:
+        """Either registry alone is enough to compare against; only both
+        empty is "not a catalogue"."""
+        self.write_venture("alpha")
+        self.commit("ventures only")
+        git(self.repo, "update-ref", "refs/remotes/origin/main", "HEAD")
+        self.assertEqual(self.run_check(), cvr.EXIT_OK)
+
+    def test_base_with_launched_registry_but_no_ventures_is_a_catalogue(self) -> None:
+        self.write_launched(["alpha"])
+        self.commit("registry only")
+        git(self.repo, "update-ref", "refs/remotes/origin/main", "HEAD")
+        self.assertEqual(self.run_check(), cvr.EXIT_OK)
+
     def test_unreadable_launched_json_is_unrun_not_pass(self) -> None:
         self.base_with(["alpha"])
         (self.repo / "platform" / "pages" / "launched.json").write_text("{not json")

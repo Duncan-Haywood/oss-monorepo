@@ -1,0 +1,247 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01QZSN82fzyji2x6c3zsAajL",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T03:38:40Z",
+  "ended": "2026-10-20T03:38:50Z",
+  "wall_minutes": 0.83,
+  "tokens_in": 1026311,
+  "tokens_out": 4161,
+  "cost_usd": 0.4279,
+  "tool_calls": 16,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8623",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": " 8/8 mutants on platform/llm/byok.mjs caught; one real defect found by reading and patched with a regression test.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/llm/byok.mjs",
+        "test": "node --test platform/llm/byok.test.mjs  (in .)",
+        "seed": 947398178,
+        "commit": "da8d86b1",
+        "sites": 102,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "platform/llm/byok.mjs",
+            "line": 27,
+            "col": 73,
+            "operator": "false-to-true",
+            "before": "'openai-compatible': { baseUrl: null, defaultModel: null, keyRequired: false },",
+            "after": "'openai-compatible': { baseUrl: null, defaultModel: null, keyRequired: true },",
+            "line_text": "  'openai-compatible': { baseUrl: null, defaultModel: null, keyRequired: false },",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/llm/byok.mjs",
+            "line": 54,
+            "col": 4,
+            "operator": "or-to-and",
+            "before": "|| (env.OLLAMA_HOST && 'ollama')",
+            "after": "&& (env.OLLAMA_HOST && 'ollama')",
+            "line_text": "    || (env.OLLAMA_HOST && 'ollama')",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/llm/byok.mjs",
+            "line": 59,
+            "col": 14,
+            "operator": "or-to-and",
+            "before": "}[provider] || 'LLM_API_KEY';",
+            "after": "}[provider] && 'LLM_API_KEY';",
+            "line_text": "  }[provider] || 'LLM_API_KEY';",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/llm/byok.mjs",
+            "line": 74,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "if (u.hostname === '0.0.0.0') u.hostname = 'localhost';  // a bind address, not a destination",
+            "after": "if (u.hostname !== '0.0.0.0') u.hostname = 'localhost';  // a bind address, not a destination",
+            "line_text": "  if (u.hostname === '0.0.0.0') u.hostname = 'localhost';  // a bind address, not a destination",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/llm/byok.mjs",
+            "line": 81,
+            "col": 11,
+            "operator": "or-to-and",
+            "before": "if (!cfg || typeof cfg !== 'object') throw new ByokError('no model provider configured');",
+            "after": "if (!cfg && typeof cfg !== 'object') throw new ByokError('no model provider configured');",
+            "line_text": "  if (!cfg || typeof cfg !== 'object') throw new ByokError('no model provider configured');",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/llm/byok.mjs",
+            "line": 89,
+            "col": 21,
+            "operator": "or-to-and",
+            "before": "model: cfg.model || spec.defaultModel,",
+            "after": "model: cfg.model && spec.defaultModel,",
+            "line_text": "    model: cfg.model || spec.defaultModel,",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/llm/byok.mjs",
+            "line": 109,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "return host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host === '::1'",
+            "after": "return host !== 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host === '::1'",
+            "line_text": "  return host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host === '::1'",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/llm/byok.mjs",
+            "line": 160,
+            "col": 128,
+            "operator": "const-plus-one",
+            "before": "return { text, usage: { input: (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0), output: u.output_tokens || 0 } };",
+            "after": "return { text, usage: { input: (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 1), output: u.output_tokens || 0 } };",
+            "line_text": "    return { text, usage: { input: (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0), output: u.output_tokens || 0 } };",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/llm/byok.mjs",
+        "issue": "isLocal() matched hostnames such as 10.evil.com / 127.attacker.net as private addresses (prefix regex without full-IPv4 anchor), so a page could claim 'nothing leaves your computer' for a remote server",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d7d59e28-c28e-511a-8603-c0830245537d",
+    "transcripts": 1,
+    "first": "2026-10-20T03:38:40Z",
+    "last": "2026-10-20T03:39:29Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 15,
+        "input": 30,
+        "output": 4161,
+        "thinking": 297,
+        "cache_read": 978647,
+        "cache_write_5m": 0,
+        "cache_write_1h": 47634,
+        "api_equivalent_usd": 0.4279,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 15,
+      "input": 30,
+      "output": 4161,
+      "thinking": 297,
+      "cache_read": 978647,
+      "cache_write_5m": 0,
+      "cache_write_1h": 47634,
+      "api_equivalent_usd": 0.4279,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.954,
+    "tool_calls": 16,
+    "tools": {
+      "Bash": 11,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 0.83,
+      "active_minutes": 0.83,
+      "model_minutes": 0.64,
+      "tool_minutes": 0.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "estimate: read module, seed mutants, fix and test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 233.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

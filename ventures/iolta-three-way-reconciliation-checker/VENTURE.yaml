@@ -1,0 +1,37 @@
+name: iolta-three-way-reconciliation-checker
+description: >-
+  Free browser tool for solo and small-firm lawyers: paste the client trust (IOLTA) journal and bank balance to check bank vs journal vs client ledgers, negative client balances, payments from uncleared funds, commingled firm money and stale checks. Nothing is uploaded. Not legal or accounting advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check top match law-firm-realization-rate-calculator at 0.35 (billing metrics, not trust accounting); not in screened-out.md.
+#
+# First visitor: solo lawyer or firm bookkeeper searching "IOLTA three way reconciliation template", "trust account reconciliation spreadsheet", "how to do a three-way reconciliation"; state bar trust-accounting CLE pages and r/LegalAdvice-adjacent solo practitioner forums link such templates. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: multi-month history, bank CSV import, per-state rule packs, behind an env-var switch.
+#
+# Liability: checks arithmetic only. Every result carries no-warranty and not-legal/accounting-advice clauses and says it does not decide jurisdiction-specific rules, reporting duties or whether a fee is earned. Client data stays in the browser (no network calls, enforced by page.test.mjs). Ethical risk is false comfort that an account is compliant; mitigated by wording ("the three balances agree", never "compliant") and the verify line.
+hypotheses:
+  - claim: >-
+      Solo lawyers who reconcile trust accounts by hand will use a free private checker and download the reconciliation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the tool called an unbalanced account balanced.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/iolta-three-way-reconciliation-checker/
+  analytics: null

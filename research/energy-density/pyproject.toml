@@ -1,0 +1,13 @@
+[project]
+name = "energy-density"
+version = "0.1.0"
+description = "Theoretical ceilings on how much energy each storage technology can hold per kilogram and per litre, from first principles"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

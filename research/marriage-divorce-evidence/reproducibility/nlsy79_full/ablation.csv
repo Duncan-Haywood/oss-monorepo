@@ -1,0 +1,15 @@
+block,columns,gain_full,gain_without_block,loss_in_gain,loss_ci95_low,loss_ci95_high
+"spouse (age, schooling, worked, in household)",spouse_age_at_marriage spouse_education spouse_worked spouse_in_household,4.96412,4.42061,0.543503,0.302681,0.821042
+"age and timing (age at marriage, wedding year)",age_at_marriage wedding_year,4.96412,4.56219,0.401925,0.171493,0.633431
+delinquency (1980),delinquency delinquency_missing,4.96412,4.77207,0.192049,0.0535576,0.339467
+"pre-wedding household (cohabiting partner, parents)",cohabiting_before lived_with_parents,4.96412,4.88683,0.0772824,-0.0240214,0.175479
+religion raised and attendance,religion_raised attendance,4.96412,4.9203,0.0438154,-0.0631332,0.146162
+region and urban residence,region urban,4.96412,4.92144,0.0426787,-0.074059,0.156951
+sex,sex,4.96412,4.96694,-0.00282186,-0.0179729,0.0114195
+own schooling and enrolment,own_education enrolled,4.96412,4.96754,-0.00342559,-0.0960966,0.0840892
+race-ethnicity,race,4.96412,4.97612,-0.012009,-0.0359252,0.011859
+AFQT (1980),afqt afqt_missing,4.96412,4.98431,-0.0201953,-0.081468,0.0424126
+premarital birth,premarital_birth,4.96412,4.98444,-0.0203203,-0.0334768,-0.00825046
+family income and poverty,income_percentile income_missing poverty,4.96412,5.00007,-0.0359579,-0.110216,0.0346176
+Rotter and Rosenberg,rotter rosenberg rosenberg_missing,4.96412,5.04646,-0.0823446,-0.135533,-0.0268699
+parents' schooling and family at 14,mother_education father_education family_at_14,4.96412,5.05156,-0.0874418,-0.199369,0.00834564

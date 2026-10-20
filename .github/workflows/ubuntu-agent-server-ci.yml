@@ -27,10 +27,12 @@ defaults:
 
 jobs:
   ansible:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -44,10 +46,12 @@ jobs:
         run: ansible-lint
 
   shellcheck:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       # Same gap the `yaml-sanity` job below already carries a comment about,
       # one tool over: bare `shellcheck` exists on GitHub-hosted ubuntu-latest
       # and nowhere on the self-hosted runner image (curl, jq, unzip and git
@@ -74,10 +78,12 @@ jobs:
           shellcheck roles/agent_runner/files/runners/*.sh bootstrap.sh
 
   python:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -93,10 +99,12 @@ jobs:
         run: pytest tests/ -v
 
   yaml-sanity:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       # The self-hosted runner image ships no Python (curl, jq, unzip and git
       # only -- see gitops/ci/README.md). This step used to run bare
       # `python3`, which exists on GitHub-hosted ubuntu-latest by default but

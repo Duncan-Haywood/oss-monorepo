@@ -4,6 +4,8 @@ A free browser tool for owners of rental and commercial property: **estimate wha
 save in year one, and whether it still pays after the study fee, passive-loss limits and recapture on sale.**
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cost-segregation-study-calculator/
+
 After using this, you can now **decide whether to book a $5,000-$15,000 study before talking to a firm**, which
 used to mean taking the firm's year-one number on trust.
 

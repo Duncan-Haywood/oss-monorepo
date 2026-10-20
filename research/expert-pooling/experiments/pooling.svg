@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of log-loss against correlation rho for four pooling rules: linear pool stays near 0.4 to 0.48 while the tuned geometric pool a=a* tracks the Bayes loss">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Mean log-loss of pooling rules vs expert correlation (n=8)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="271.7" y2="271.7" stroke="#ddd"/><text x="58" y="275.7" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="219.4" y2="219.4" stroke="#ddd"/><text x="58" y="223.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="167.2" y2="167.2" stroke="#ddd"/><text x="58" y="171.2" text-anchor="end" font-family="sans-serif" font-size="11">0.3</text>
+<line x1="64" x2="624" y1="114.9" y2="114.9" stroke="#ddd"/><text x="58" y="118.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="62.6" y2="62.6" stroke="#ddd"/><text x="58" y="66.6" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.9</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">rho</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean log-loss</text>
+<polyline points="64.0,114.1 250.7,102.8 437.3,89.1 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="114.1" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="102.8" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="89.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">linear</text>
+<polyline points="64.0,147.4 250.7,120.3 437.3,95.3 624.0,71.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="147.4" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="120.3" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="95.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">geo a=1</text>
+<polyline points="64.0,292.1 250.7,166.0 437.3,105.2 624.0,71.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="292.1" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="166.0" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="105.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.9" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">a=a*</text>
+<polyline points="64.0,292.4 250.7,168.6 437.3,108.2 624.0,74.9" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="292.4" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="168.6" r="3" fill="#8e44ad"/>
+<circle cx="437.3" cy="108.2" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="74.9" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">bayes</text>
+</svg>

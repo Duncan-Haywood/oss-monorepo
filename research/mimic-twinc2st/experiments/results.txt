@@ -1,0 +1,23 @@
+Real system: {'visc': 0.1, 'coul': 0.3, 'sd': 0.02, 'kind': 'student3'}. 800 real + 800 twin trajectories of 100 steps (dt 0.02), 5-fold CV C2ST AUROC, mean+-sd over seeds (0, 1, 2).
+Chance AUROC is 0.5. paired RMSE = noise-free twin vs noise-free real from the same start angle (radians).
+
+== 1. Coulomb-friction mismatch (noise model correct)
+twin                        pairedRMSE  raw/logreg        raw/gboost        raw+resid/gboost
+coul=0.3                       0.00000  0.514+-0.010  0.523+-0.023  0.513+-0.008
+coul=0.27                      0.00553  0.514+-0.010  0.719+-0.018  0.581+-0.016
+coul=0.24                      0.01110  0.514+-0.010  0.906+-0.007  0.823+-0.013
+coul=0.2                       0.01858  0.514+-0.010  0.979+-0.004  0.960+-0.006
+coul=0.1                       0.03759  0.514+-0.010  0.998+-0.000  0.997+-0.001
+coul=0.0                       0.05708  0.514+-0.010  1.000+-0.000  0.999+-0.000
+
+== 2. Noise-shape mismatch (dynamics exact, Gaussian noise of the same sd)
+twin                        pairedRMSE  raw/logreg        raw/gboost        raw+resid/gboost
+gauss noise, sd=0.02           0.00000  0.514+-0.012  0.591+-0.006  0.922+-0.001
+exact twin (null)              0.00000  0.514+-0.010  0.523+-0.023  0.513+-0.008
+
+== 3. Noise-level mismatch (dynamics exact, Student-t noise)
+twin                        pairedRMSE  raw/logreg        raw/gboost        raw+resid/gboost
+sd=0.015                       0.00000  0.513+-0.011  0.587+-0.011  0.861+-0.000
+sd=0.018                       0.00000  0.514+-0.010  0.529+-0.014  0.617+-0.005
+sd=0.022                       0.00000  0.514+-0.009  0.534+-0.019  0.615+-0.004
+sd=0.025                       0.00000  0.515+-0.008  0.567+-0.025  0.806+-0.007

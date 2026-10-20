@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-uavnogo"
+version = "0.1.0"
+description = "Launch go/no-go wind limit versus oversizing for an observation UAV, with forecast error: extends osrobot-uavgust (stylised)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

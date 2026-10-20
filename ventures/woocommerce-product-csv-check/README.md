@@ -5,6 +5,8 @@ products by CSV: **paste or drop the file and see every problem with its line nu
 the import fails or quietly creates orphaned variations, then download a cleaned copy.** The
 file is read in the browser; nothing is uploaded and no login or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/woocommerce-product-csv-check/
+
 After using this, you can now **find the variation whose Parent matches no row, the SKU used
 twice, the sale price above the regular price, the date written 27/11/2026, the barcode with a
 wrong check digit and the SKU Excel turned into `1.23457E+12`, and get a CSV with the

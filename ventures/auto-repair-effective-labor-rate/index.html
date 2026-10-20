@@ -24,6 +24,9 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input { width: 100%; box-sizing: border-box; border: 1px solid #a8b7c8; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #a8b7c8; border-radius: 7px; padding: 10px; font: .82rem ui-monospace, monospace; background: #fff; resize: vertical; }
+    .techs { width: 100%; border-collapse: collapse; font-size: .84rem; font-variant-numeric: tabular-nums; }
+    .techs th, .techs td { text-align: right; padding: 4px 0; } .techs th:first-child, .techs td:first-child { text-align: left; }
     input[aria-invalid="true"] { border-color: #9b2c1f; background: #fdf4f2; }
     button { font: inherit; border-radius: 7px; border: 1px solid #a8b7c8; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
     button:hover { background: #e2eaf2; }
@@ -76,6 +79,15 @@
 
   <main class="layout">
     <form id="elrForm">
+      <section>
+        <h2>Start from your repair orders</h2>
+        <p class="hint">Export the month&rsquo;s labor lines from your management system (or copy the cells from a spreadsheet) and paste them here. The first row must be column names: pay type, hours billed and labor sales are needed; technician and clock hours are optional. The totals fill the boxes below, and a per-technician rate appears under the result. Nothing is uploaded.</p>
+        <label>Labor lines <textarea id="roPaste" rows="5" spellcheck="false" placeholder="Tech,Pay Type,Hours Billed,Labor Sales,Clock Hours&#10;Ana,Customer Pay,2.0,330.00,2.5&#10;Ben,Warranty,1.5,142.50,1.0"></textarea></label>
+        <div class="actions">
+          <button type="button" id="roImport">Fill the boxes from these lines</button>
+        </div>
+        <p class="hint" id="roStatus" role="status" style="margin:8px 0 0"></p>
+      </section>
       <section>
         <h2>The month you billed</h2>
         <p class="hint">One month, straight off your management system&rsquo;s labor sales report. Hours are book hours billed, not clock hours.</p>
@@ -174,6 +186,7 @@
   <script type="module">
     import { calculateEffectiveLaborRate, ALL_INPUT_IDS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { importRepairOrders } from './ro-import.mjs';
 
     // All twelve figures, on this device only. Deliberately no URL encoding and
     // no shareable link: a shop's labor sales, payroll and fixed expenses are
@@ -303,6 +316,7 @@
           <dt>Net before tax</dt><dd>${escapeHtml(money(r.netBeforeTax))}</dd>
         </dl>
         ${required}
+        ${renderTechs()}
         <ul class="note-list">${r.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join('')}</ul>`;
     }
 
@@ -331,6 +345,40 @@
       showingExample = false;
       paint(result);
       if (result.ok) recordUsage(globalThis.localStorage, optedOut(), 'rate_calculated');
+    });
+
+
+    // Technician rates come from the pasted lines only. They are not stored,
+    // not saved with the month, and not part of any usage count.
+    let techRows = [];
+
+    function renderTechs() {
+      if (techRows.length === 0) return '';
+      const rows = techRows
+        .map((t) => `<tr><td>${escapeHtml(t.name)}</td><td>${escapeHtml(hours(t.soldHours))} h</td><td>${t.effectiveRate === null ? '&mdash;' : escapeHtml(money2(t.effectiveRate))}</td></tr>`)
+        .join('');
+      return `<div class="panel"><h3>By technician, from your lines</h3>
+        <table class="techs"><thead><tr><th>Tech</th><th>Sold</th><th>Rate</th></tr></thead><tbody>${rows}</tbody></table>
+        <p style="margin-top:8px">Sold hours only; comeback and internal hours are left out of the rate, as in the headline.</p></div>`;
+    }
+
+    el('roImport').addEventListener('click', () => {
+      const imported = importRepairOrders(el('roPaste').value);
+      if (!imported.ok) {
+        el('roStatus').textContent = imported.error;
+        return;
+      }
+      for (const [id, value] of Object.entries(imported.fields)) el(id).value = value;
+      techRows = imported.byTech;
+      const skipped = imported.skipped.length;
+      const first = imported.skipped.slice(0, 3).map((s) => `line ${s.line}: ${s.reason}`).join('; ');
+      el('roStatus').textContent =
+        `Read ${imported.lines} line${imported.lines === 1 ? '' : 's'} into the boxes.` +
+        (skipped > 0 ? ` Left out ${skipped} (${first}${skipped > 3 ? '; …' : ''}).` : '') +
+        (imported.clockSeen ? '' : ' Clock hours, payroll, overhead and parts profit are not in repair orders; check those boxes yourself.');
+      showingExample = false;
+      paint(calculateEffectiveLaborRate(readForm()));
+      recordUsage(globalThis.localStorage, optedOut(), 'repair_orders_imported');
     });
 
     el('saveScenario').addEventListener('click', () => {

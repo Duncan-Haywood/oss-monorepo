@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>This checker vs. reviewing a Dockerfile by eye — Docker Cache Order Check</title>
-<meta name="description" content="Reading a Dockerfile top to bottom catches an obvious COPY . . at the very top, and misses everything that depends on tracking state across the file: which manifest was copied where, whether an install ever got an isolated copy at all, and whether a later apt-get install silently relies on an earlier, separately-cached update.">
+<meta name="description" content="Reading a Dockerfile catches COPY . . at the top but not which manifest was copied where or an apt-get install relying on a stale cached update.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="./vs-manually-reviewing-a-dockerfile.html">
 <meta property="og:type" content="website">

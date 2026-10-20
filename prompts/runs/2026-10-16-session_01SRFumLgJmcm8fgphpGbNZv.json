@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01SRFumLgJmcm8fgphpGbNZv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T10:37:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7372",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight takes ~5 min and failed on a stale front-door mirror that regen.mjs fixes; the prompt does not mention running regen first."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Refreshed stale gh-pages snapshot (session_gate verdict); shipped head-to-head tiebreak in league-schedule-generator. IndexNow had no egress.",
+  "corrections": [],
+  "redteam": null
+}

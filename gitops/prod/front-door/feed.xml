@@ -1,170 +1,170 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1126 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <title>Open Tools and Research — tools on marisstella.dev</title>
+  <subtitle>The 1300 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-13T00:00:00Z</updated>
+  <updated>2026-10-20T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
-    <title>Boba Tea Shop Profit Calculator — Break-Even and Ramp-Up</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/boba-tea-shop-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/boba-tea-shop-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free pro forma for boba, bubble tea and specialty drink shops: profit per cup, break-even cups a day with the loan, the price for your target margin, delivery-app cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.</summary>
+    <title>CSV to SEPA Payment File (pain.001) — Free Bulk Credit Transfer Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sepa-pain001/"/>
+    <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain001</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free CSV to SEPA converter: turn a spreadsheet of supplier or payroll payments into a pain.001 XML file for your bank&#39;s bulk upload. Checks every IBAN and amount first, writes exact control totals, and never uploads your list.</summary>
   </entry>
   <entry>
-    <title>cargo audit Triage — Which RustSec Advisories Does Your Rust Code Actually Use?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cargo-audit-triage/"/>
-    <id>tag:marisstella.dev,2026:tool/cargo-audit-triage</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste cargo audit --json and your Rust source: see which flagged crates your code actually uses and which are test-only or unreferenced noise. Free cargo audit triage, runs in your browser, nothing uploaded.</summary>
+    <title>CSV to SEPA Direct Debit File (pain.008) — Free Mandate Collection Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sepa-pain008/"/>
+    <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain008</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free CSV to SEPA direct debit converter: turn a spreadsheet of member or customer collections into a pain.008 XML file for your bank. Checks every IBAN, mandate and your creditor identifier first, groups FRST/RCUR/OOFF/FNAL batches, and never uploads your list.</summary>
   </entry>
   <entry>
-    <title>CBAM Cost Estimator — What Will the EU Carbon Border Levy Cost on My Imports?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cbam-cost-estimator/"/>
-    <id>tag:marisstella.dev,2026:tool/cbam-cost-estimator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free CBAM cost estimator for EU importers of steel, aluminium, cement, fertilisers and hydrogen: embedded emissions, free-allocation phase-out 2026 to 2034, certificates needed, cost per tonne, and the 50-tonne threshold. Runs in your browser; nothing is uploaded.</summary>
+    <title>Personality Conversation Simulator: Fictional Characters (Free)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/persona-conversation-simulator/"/>
+    <id>tag:marisstella.dev,2026:tool/persona-conversation-simulator</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Build fictional characters with Big Five personalities and simulate negotiations, team meetings and arguments between them. Free, private, runs in your browser.</summary>
   </entry>
   <entry>
-    <title>Convenience Store and Gas Station Profit Calculator — Fuel Margin After Card Fees</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/convenience-store-gas-station-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/convenience-store-gas-station-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free convenience store and gas station profit calculator: fuel margin after card fees, inside sales mix, labor and rent become monthly profit, break-even gallons, debt coverage and fuel margin sensitivity. Private, runs in your browser.</summary>
+    <title>Bid Price Engine — Job Bid Calculator for 120+ Trades, Margin Not Markup</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bid-price-engine/"/>
+    <id>tag:marisstella.dev,2026:tool/bid-price-engine</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">Free job bid calculator for contractors and service trades: labor with payroll burden, materials with waste, subs, contingency and overhead turned into a price at the profit margin you choose. Shows your walk-away price and how far labor can overrun. Private, no signup.</summary>
   </entry>
   <entry>
-    <title>Dry Cleaner Profit Calculator — Break-Even Pieces and Price Per Piece</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dry-cleaner-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/dry-cleaner-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free dry cleaner profit calculator: pieces, price, supplies, claims, card fees, labor and rent become monthly profit, break-even pieces, the price increase that covers your costs and debt coverage. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>EU AI Act Risk Checker — Is My AI System High-Risk?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-ai-act-risk-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/eu-ai-act-risk-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU AI Act risk checker: tick what your AI system does and your role to see whether it is prohibited, high-risk, or only has transparency duties under Regulation (EU) 2024/1689, with the Articles, your duties and the dates. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EUDR Scope Checker — Is My Product Covered?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eudr-scope-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/eudr-scope-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU Deforestation Regulation (EUDR) checker: tick your role, size and commodities to see whether Regulation (EU) 2023/1115 covers you, your duties with the Articles, and your application date. Screens customs codes against Annex I. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Ice Cream Shop Seasonal Profit Calculator — Break-Even and Off-Season Cash</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ice-cream-shop-seasonal-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ice-cream-shop-seasonal-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free ice cream shop profit calculator: twelve months of days open and customers per day become monthly profit, break-even customers, open-or-close verdicts, loan coverage and the cash reserve the slow months need. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Kombucha Brewery Profit Calculator — Break-Even, Gallons a Week, Payback</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/kombucha-brewery-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/kombucha-brewery-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free kombucha brewery profit calculator: fermenter capacity, batch cycle, wholesale and taproom prices, packaging, labour and rent become gallons a week, monthly profit, break-even, the cash reserve for ramp-up, loan coverage and payback. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>NIS2 Scope Checker — Am I an Essential or Important Entity?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nis2-scope-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/nis2-scope-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free NIS2 scope checker: pick your sector and enter staff, turnover and balance sheet to see whether Directive (EU) 2022/2555 likely applies to you, as an essential or important entity, with the main duties. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>npm Audit Triage — Which npm audit Vulnerabilities Does Your Code Actually Use?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/npm-audit-triage/"/>
-    <id>tag:marisstella.dev,2026:tool/npm-audit-triage</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste npm audit --json and your source imports: see which vulnerable packages your code actually imports, which are only reached through a dependency, and which are test-only noise. Free npm audit triage, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Pet Boarding and Daycare Profit Calculator — Occupancy, Staffing, Break-Even</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pet-boarding-daycare-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pet-boarding-daycare-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free dog boarding and daycare profit calculator: runs, daycare spots, prices, occupancy and attendant ratio become monthly profit, staffing steps, break-even occupancy, the cash reserve for ramp-up, loan coverage and payback. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>pip-audit Triage — Which Python Vulnerabilities Does Your Code Actually Import?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pip-audit-triage/"/>
-    <id>tag:marisstella.dev,2026:tool/pip-audit-triage</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste pip-audit -f json and your Python source: see which vulnerable packages your code actually imports and which are test-only or unreferenced noise. Free pip-audit triage, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Pizzeria Profit Calculator — Break-Even Orders and Ramp-Up</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pizzeria-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pizzeria-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free pro forma for pizzerias and pizza takeout shops: profit per order, break-even orders a day with the loan, the ticket for your target margin, delivery-app and own-driver cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>3PL Invoice Audit Checker — Did Your 3PL Overbill You?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/3pl-invoice-audit-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/3pl-invoice-audit-checker</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Check a 3PL invoice against your contract rate card and your own records. Flags rates above contract, duplicate lines, charges not in the rate card, minimum double billing and storage over average on-hand, totals the recoverable dollars and writes the dispute email. Free, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Arcade Game Payback Calculator — Which Games to Keep, Move or Cut</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/arcade-game-payback-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/arcade-game-payback-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free arcade game payback calculator: plays, credits, ticket payout, floor space and upkeep become weekly profit, payback, break-even plays and a keep, watch or cut verdict for every game. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Axe Throwing Bar Profit Calculator — monthly profit, payback and break-even fill</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/axe-throwing-bar-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/axe-throwing-bar-profit-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
+    <title>Discogs Fee Calculator — What You Keep After the 9% Fee and Processing</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/discogs-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/discogs-fee-calculator</id>
+    <updated>2026-10-19T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
-    <summary type="text">Free calculator for axe throwing bars and venues. Enter thrower capacity, sessions, fill, ticket price, private events, leagues, staff, rent and the build; it shows monthly profit, margin, payback, break-even fill and the lowest ticket for your target margin and payback. Private, in your browser.</summary>
+    <summary type="text">Free Discogs seller fee calculator: the 9% selling fee on item price plus shipping ($0.10 minimum, $150 maximum), editable payment processing, your payout and profit after postage and cost, the price that hits a target profit, and a fee ladder from $3 singles to $2,500 grails. Nothing leaves your browser.</summary>
   </entry>
   <entry>
-    <title>Bail Bond Agency Exposure Calculator — Free, Runs in Your Browser</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bail-bond-agency-exposure-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/bail-bond-agency-exposure-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
+    <title>Hands-Free Language Coach — voice-only language practice while you drive or walk</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hands-free-language-coach/"/>
+    <id>tag:marisstella.dev,2026:tool/hands-free-language-coach</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Learning &amp; practice"/>
+    <summary type="text">Learn a language by voice alone: the coach says a phrase, you say it back, it listens and scores you, and moves on. No tapping, no screen. Streaks, XP and spaced review like a language game, free in your browser, plus a skill for Claude and ChatGPT voice mode.</summary>
+  </entry>
+  <entry>
+    <title>Listen &amp; Learn Audio — bilingual audio stories for language learners, hands-free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/listen-and-learn-audio/"/>
+    <id>tag:marisstella.dev,2026:tool/listen-and-learn-audio</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Learning &amp; practice"/>
+    <summary type="text">Short graded stories read aloud in Spanish, French, German and Italian, each line followed by English. Press play and listen while you walk or commute. Free in your browser, plus an AI skill for Claude and ChatGPT voice mode that tells new stories and podcast-style episodes on any topic, at your level.</summary>
+  </entry>
+  <entry>
+    <title>Open Tennis Robots — open-source tennis ball machine with a catch net, and a ball pickup robot</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-tennis-robots/"/>
+    <id>tag:marisstella.dev,2026:tool/open-tennis-robots</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Build your own tennis ball machine that catches your returns with a moving net, and a robot that picks up tennis balls while you practise. Open-source hardware designs, firmware and software (MIT), plus a shot simulator you can try in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Tutoring Group Schedule Optimizer — which group sessions to run and who sits where</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tutoring-group-schedule-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/tutoring-group-schedule-optimizer</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free group schedule optimizer for tutoring centres, music, swim and language schools. Paste your possible weekly sessions and student availability to get the most profitable timetable. Exact for up to 10 slots. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>US Substantial Presence Test Calculator — 183-Day Weighted Count</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/us-substantial-presence-test-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/us-substantial-presence-test-calculator</id>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the IRS substantial presence test: enter your days in the US and see the 183-day weighted count (this year + a third of last year + a sixth of the year before), how many more days you can spend before you become a US tax resident, and when you crossed the line.</summary>
+  </entry>
+  <entry>
+    <title>Demand Forecast Back-Tester — safety stock and reorder points from your sales</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/demand-forecast-backtester/"/>
+    <id>tag:marisstella.dev,2026:tool/demand-forecast-backtester</id>
+    <updated>2026-10-18T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
-    <summary type="text">Free tool for bail bond agents: enter your open bonds, collateral and surety terms to see net premium, the loss if bonds are forfeited, whether cash covers the largest ones, and a court-date call list. Runs in your browser.</summary>
+    <summary type="text">Free demand forecasting for small sellers. Upload a sales CSV to get a back-tested forecast per SKU, safety stock and reorder points at your service level, ABC-XYZ classes, and an honest check of whether the forecast beats repeating last month. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
-    <title>Band Tour Profit Planner — free tour budget and gig profit calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/band-tour-profit-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/band-tour-profit-planner</id>
-    <updated>2026-10-12T00:00:00Z</updated>
+    <title>Grailed Fee Calculator — What You Keep After the New 6% / 9% Commission</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grailed-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/grailed-fee-calculator</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Grailed seller fee calculator for the tiered commission (6% under $120 with a $1.99 minimum, 9% from $120) plus 3.49% + $0.49 payment processing. See your payout, profit, the price for a target profit, and the $120 step where the whole sale jumps to 9%. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Meeting Notes to Action Items Extractor (Free)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meeting-action-items/"/>
+    <id>tag:marisstella.dev,2026:tool/meeting-action-items</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Paste meeting notes or a transcript and get action items with owner and due date, decisions and open questions, plus a follow-up email. Free, private, no upload.</summary>
+  </entry>
+  <entry>
+    <title>Free On-Page SEO Audit and AI-Readiness Checker — Page SEO Audit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/page-seo-audit/"/>
+    <id>tag:marisstella.dev,2026:tool/page-seo-audit</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a page&#39;s HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.</summary>
+  </entry>
+  <entry>
+    <title>Free Price Drop and Back-in-Stock Alerts (Self-Hosted)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/price-drop-watcher/"/>
+    <id>tag:marisstella.dev,2026:tool/price-drop-watcher</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Get price drop and back-in-stock alerts for any product page, free. Runs on your own GitHub Actions, alerts your phone, no account or tracking. Test a page in your browser first.</summary>
+  </entry>
+  <entry>
+    <title>TCGplayer Fee Calculator — What You Keep After 10.75% Commission and the $0.30 Order Fee</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tcgplayer-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/tcgplayer-fee-calculator</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free TCGplayer seller fee calculator: 10.75% marketplace commission (capped at $75 per product, charged on cards plus shipping) and 2.5% + $0.30 per-order transaction fee. See your payout, profit per order, the price for a target profit, and Pro or pre-February-2026 rates side by side. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>UK Crypto CGT Calculator — Section 104 pool, same-day and 30-day rules, in your browser</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-crypto-cgt-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-crypto-cgt-calculator</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="UK tax, pay &amp; benefits"/>
+    <summary type="text">Free UK crypto capital gains calculator. Paste your buys, sales, swaps and staking income as a CSV and it applies HMRC&#39;s same-day, 30-day and Section 104 pooling rules, works out each tax year&#39;s gain, exempt amount and estimated CGT, and exports the working. Nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>UK Statutory Residence Test Checker — Days, Ties and Automatic Tests</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-statutory-residence-test-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-statutory-residence-test-checker</id>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="UK tax, pay &amp; benefits"/>
+    <summary type="text">Free UK Statutory Residence Test checker: enter your UK stays and ties to see which test decides, whether you are UK resident, and how many more days you can spend in the UK before that changes. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Youth Lineup Rotator — fair playing time for every kid, free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/youth-lineup-rotator/"/>
+    <id>tag:marisstella.dev,2026:tool/youth-lineup-rotator</id>
+    <updated>2026-10-18T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free band tour profit planner. Enter your shows, venue deals (flat, door or versus), miles, rooms and merch and see profit per show and for the tour, break-even attendance, the guarantee to ask for and which dates to drop. Runs in your browser; nothing is uploaded.</summary>
+    <summary type="text">Free youth sports lineup generator for volunteer coaches. Equal playing time, nobody benched twice in a row, goalkeeper turns shared, subs planned per period. Soccer, basketball, hockey and more. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
-    <title>Business Insurance Policy Reader</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/business-insurance-policy-reader/"/>
-    <id>tag:marisstella.dev,2026:tool/business-insurance-policy-reader</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free business insurance policy reader: paste a general liability, professional liability or BOP policy and get the limits, deductible, claims-made trigger and renewal dates (downloadable .ics), whether the limits meet a client&#39;s contract requirement, and the exclusions to ask your broker about. Private, runs in your browser.</summary>
+    <title>GitHub Actions Schedule Cron Check — Invalid, Too-Frequent and Top-of-Hour Crons</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-schedule-check/"/>
+    <id>tag:marisstella.dev,2026:tool/actions-schedule-check</id>
+    <updated>2026-10-17T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your GitHub Actions workflow YAML and find every schedule cron that is invalid, faster than GitHub&#39;s 5-minute minimum, or pinned to the top of the hour where scheduled runs get delayed. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

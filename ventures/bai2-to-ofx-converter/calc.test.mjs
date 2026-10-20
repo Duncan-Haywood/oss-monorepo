@@ -106,3 +106,11 @@ test("the converter never touches the network", async () => {
   const { readFileSync } = await import("node:fs");
   assert.doesNotMatch(readFileSync(new URL("./calc.mjs", import.meta.url), "utf8"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
 });
+
+test("a file with no transaction records counts zero transactions, not an empty list", () => {
+  // The summary once declared `transactions` twice (0, then []), so the later
+  // [] won and a file without 16 records rendered as ",  transactions" on the
+  // page. Found by `tsc --checkJs` (TS1117, duplicate object key).
+  const noDetail = sampleFile().split(/\r?\n/).filter((l) => !l.startsWith("16,") && !l.startsWith("88,")).join("\n");
+  assert.equal(validate(noDetail).summary.transactions, 0);
+});

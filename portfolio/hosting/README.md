@@ -3,16 +3,28 @@
 **Decided 2026-08-25.** This is the portfolio's default host. When other
 docs still mention Cloudflare or Vercel as a menu, this file wins.
 
-The portfolio already pays for two Hetzner boxes and already has SSH keys
-in GitHub Actions secrets. Do not add a third cloud to host a calculator.
+> **Amended 2026-10-01: the Hetzner boxes are deleted.** The owner deleted
+> the hel1 pair (89.167.29.39, 157.180.80.188), the k3s cluster, Argo CD and
+> the self-hosted runner host. The Hetzner rows in the table below, and every
+> Hetzner/`marisstella.dev` amendment further down, are history: that route
+> is retired, not down, and nothing should SSH to those addresses again (a
+> released IP can be reassigned to a stranger). **GitHub Pages remains the
+> host for static surfaces; anything with a process needs a new host
+> decision** from the owner. `marisstella.dev` DNS (apex, `www`, `tools` and
+> the wildcard `A *` record) still points at the released IP: repointing or
+> removing it is the `pages-custom-domain` row in
+> `portfolio/ledger/asks.yaml`.
+
+The portfolio used to pay for two Hetzner boxes (deleted 2026-10-01). Do not
+add a third cloud to host a calculator.
 
 ## Split
 
 | Surface | Host | Why |
 |---|---|---|
 | Browser calculators, SEO landings, most docs | **GitHub Pages** | $0, no box to patch, no user data on our disk. Custom domain is registrar A/CNAME to GitHub — no Cloudflare. |
-| Anything with a process, disk, or webhook | **Hetzner product box** | Incremental cost is ~0. Deploy with the existing GHA SSH keys (Caddy + compose/systemd, or the OpenTofu/Argo path in flight on #1486). |
-| Headless agent fleet | **Hetzner agent box** | `ventures/ubuntu-agent-server`. Keep this off the public product path. |
+| Anything with a process, disk, or webhook | ~~**Hetzner product box**~~ — deleted 2026-10-01; needs a new host decision | Incremental cost was ~0. Deploy with the existing GHA SSH keys (Caddy + compose/systemd, or the OpenTofu/Argo path in flight on #1486). |
+| Headless agent fleet | ~~**Hetzner agent box**~~ — deleted 2026-10-01 | `ventures/ubuntu-agent-server`. Keep this off the public product path. |
 
 Do not put public sites on the agent box. Do not put a static calculator on
 Hetzner just because the box is there.
@@ -308,3 +320,15 @@ Actions, and `.github/workflows/portfolio-pages.yml`'s `deploy` job would
 have stayed permanently skipped. The variable is `PAGES_ENABLED` now; the
 workflow, `platform/ci/publish_surface.py`, and the decision queue all read
 that name.
+
+## Rules moved from CLAUDE.md
+
+- **Prefer a reading from something present** (a run id, a conclusion, a
+  date) over reasoning from manifests or from an absence. This file once
+  told sessions for days that the catalogue was live while nothing listened
+  on port 443, and later that it was dark while Pages served it. The story
+  is in the history file.
+- **The front-door mirror imports, never restates, the build rules.**
+  `venturePageRoot` imports its entry-point candidates and
+  `ENTRY_OVERRIDES` from `platform/pages/build.mjs`. A copied list has cost
+  live product twice.

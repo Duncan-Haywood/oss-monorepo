@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Form 7203 basis order: how S corp stock and debt basis are adjusted, with a worked example</title>
+  <meta name="description" content="The order S corporation shareholder basis is adjusted in: income, then distributions, then nondeductible expenses, then losses against stock and debt basis. A three-year worked example with suspended losses and debt basis restoration.">
+  <link rel="canonical" href="./form-7203-basis-order.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "The order S corporation basis is adjusted in, with a three-year example", "description": "The order S corporation shareholder basis is adjusted in: income, then distributions, then nondeductible expenses, then losses against stock and debt basis. A three-year worked example with suspended losses and debt basis restoration.", "author": {"@type": "Organization", "name": "S-Corp Basis Tracker"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does debt basis come back before stock basis?", "acceptedAnswer": {"@type": "Answer", "text": "When income follows a year of losses that ate into debt basis, the rules put the loan back to its face amount first, because that basis was used last. Only the remainder rebuilds stock basis."}}, {"@type": "Question", "name": "Do losses or distributions come first?", "acceptedAnswer": {"@type": "Answer", "text": "Distributions. They reduce stock basis before nondeductible expenses and losses, so a loss in the same year cannot make a distribution tax free."}}, {"@type": "Question", "name": "Can I just keep a spreadsheet?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if you follow the same order. The tracker applies it for you and checks that basis is conserved from step to step."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1d2330; background: #f4f2ee; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    a { color: #1b5e7a; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.4rem); line-height: 1.12; color: #3b3a2e; }
+    h2 { font-size: 1.2rem; color: #3b3a2e; margin-top: 28px; }
+    h3 { font-size: 1.02rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; } th, td { border-bottom: 1px solid #ddd8cc; padding: 6px; text-align: left; } td.n, th.n { text-align: right; }
+    footer { margin-top: 32px; border-top: 1px solid #ddd8cc; padding-top: 14px; font-size: .86rem; color: #54503f; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./index.html">S-Corp Shareholder Basis Tracker</a> · free, in your browser</p>
+  <h1>The order S corporation basis is adjusted in, with a three-year example</h1>
+  <p>Form 7203 asks for your stock basis and debt basis in a fixed sequence. The sequence matters because basis cannot go below zero and each step uses what the one before it left.</p>
+  <ol>
+    <li><strong>Add</strong> capital contributions and stock purchases, and the year's income items, including tax-exempt income. A new loan you make directly to the company adds debt basis.</li>
+    <li>If debt basis was reduced by earlier losses, the year's <strong>net increase</strong> (income less distributions and nondeductible expenses) <strong>restores debt basis first</strong>, up to what you are still owed, and only then stock basis.</li>
+    <li><strong>Subtract distributions</strong> from stock basis, but not below zero. What is left over is the excess distribution.</li>
+    <li><strong>Subtract nondeductible expenses</strong>, again not below zero. Any excess carries forward.</li>
+    <li><strong>Subtract losses and deductions</strong>, including losses suspended from earlier years, first from stock basis and then from debt basis. What neither can absorb is suspended.</li>
+    <li><strong>Loan repayments</strong> come last. Repaying debt whose basis was reduced gives gain on the reduced share.</li>
+  </ol>
+  <h2>A worked example (invented)</h2>
+  <p>A shareholder starts 2022 with $20,000 of stock basis and lends the company $30,000.</p>
+  <table>
+    <tr><th>Year</th><th class="n">Income</th><th class="n">Distributions</th><th class="n">Loss</th><th class="n">Result</th></tr>
+    <tr><td>2022</td><td class="n">$0</td><td class="n">$0</td><td class="n">$70,000</td><td>$1,500 of nondeductible expenses take stock to $18,500. The loss uses $18,500 of stock and $30,000 of debt basis; <strong>$21,500 is suspended</strong>.</td></tr>
+    <tr><td>2023</td><td class="n">$40,000</td><td class="n">$10,000</td><td class="n">$0</td><td>The $30,000 net increase restores debt basis, then the $21,500 suspended loss is used against it. Stock basis ends at $0, debt basis at $8,500.</td></tr>
+    <tr><td>2024</td><td class="n">$90,500</td><td class="n">$60,000</td><td class="n">$0</td><td>$21,500 of net increase restores debt basis first. After $2,000 of nondeductible expenses stock basis is $7,000; repaying $15,000 of the loan leaves debt basis of $15,000.</td></tr>
+  </table>
+  <p>The same three rows are in the tracker's "Load an invented example" button, so you can change a number and watch the rest move.</p>
+  <h2>Questions</h2>
+  <h3>Why does debt basis come back before stock basis?</h3>
+  <p>When income follows a year of losses that ate into debt basis, the rules put the loan back to its face amount first, because that basis was used last. Only the remainder rebuilds stock basis.</p>
+  <h3>Do losses or distributions come first?</h3>
+  <p>Distributions. They reduce stock basis before nondeductible expenses and losses, so a loss in the same year cannot make a distribution tax free.</p>
+  <h3>Can I just keep a spreadsheet?</h3>
+  <p>Yes, if you follow the same order. The tracker applies it for you and checks that basis is conserved from step to step.</p>
+  <p><a href="./index.html">Open the tracker</a> and put your own K-1 figures through it. Nothing is uploaded.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Not legal, tax, financial or accounting advice; the example is invented and the rules are summarised from commonly published guidance that may be out of date. Check Form 7203 instructions and your K-1, or ask a tax professional.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These pages may be slow, moved or taken offline without notice.</p>
+</footer>
+</body>
+</html>

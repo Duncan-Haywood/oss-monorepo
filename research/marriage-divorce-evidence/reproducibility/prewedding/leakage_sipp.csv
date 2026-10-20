@@ -1,0 +1,25 @@
+dataset,predictor,existing_lens_uses,measured_when,source,leaks,note
+sipp,marriage_years,yes,after wedding,wedding year to end/interview year,no,"time axis of the Poisson model (years since the wedding), not a baseline input"
+sipp,age_at_marriage,yes,fixed at birth,TAGE at interview minus years since the wedding,no,computed from age at interview and the wedding year (+/-1 year); equals age on the wedding day
+sipp,marriage_year,yes,at wedding,"TLMYEAR/TFMYEAR (2001-2008), TMAR1_YR (2021/2025)",no,retrospective report of the wedding year; recall error only
+sipp,sex,yes,fixed at birth,ESEX,no,respondent sex
+sipp,race_ethnicity,yes,fixed at birth,"ERACE, EORIGIN (reported at interview)",no,"treated as fixed; self-identification can change, but not plausibly because of the marriage outcome"
+sipp,nativity,yes,fixed at birth,"TBRSTATE (2001-2008), EBORNUS (2021/2025)",no,place of birth
+sipp,education_at_wedding,yes,before wedding,"EEDUCATE at interview + THSYR, TCOLLSTR, TBACHYR (2001-2008)",possible,"education model only (2001-2008): level dated by the year of diploma / first college / bachelor by the end of the wedding year (a completion in the wedding year counts even if after the wedding); the universe and the Unknown level (attained by interview, year missing) come from interview attainment"
+sipp,education_now,no,at interview,EEDUCATE / EEDUC,yes,descriptive only in the lens; can follow the wedding or the divorce; never used here
+sipp,times_married,no,at interview,EXMAR,yes,counts remarriages after the first marriage ended; not used
+sipp,spouse traits,no,at interview,current-spouse pointers,yes,only the current spouse is described (exists for intact marriages); not used; all spouse columns Unknown
+sipp,weight,yes,at interview,"WPFINWGT, normalised to mean 1 within each survey, then within dataset",no,"survey weight, not a predictor"
+sipp,duration_years,yes,after wedding,lens timing rules (train_retro.load),no,outcome time
+sipp,event,yes,after wedding,EMS / EWIDIV1 / separation and end years,no,outcome
+sipp,wedding_year,yes,at wedding,marriage_year,no,same as marriage_year
+sipp,respondent_sex,yes,fixed at birth,ESEX,no,same as sex
+sipp,wife_age / husband_age,yes,fixed at birth,age_at_marriage,no,respondent's slot only (by respondent sex; assumes an opposite-sex first marriage); spouse age blank
+sipp,wife_educ / husband_educ,yes,before wedding,education_at_wedding,possible,"respondent's slot: lens's dated-completion rule (2001-2008), Unknown for 2021/2025 (interview education only); spouse Unknown"
+sipp,wife_prior_marriage / husband_prior_marriage,no,at wedding,construction,no,respondent No by construction (first marriage); spouse Unknown
+sipp,wife_prior_children / husband_prior_children,no,before wedding,"RPREMAR, TMOMCHL, TFRCHL (2001-2008); TCEB, TYEAR_FB (2021/2025)",no,"respondent's slot: No if no children ever born/fathered by the interview; else Yes / No if the first birth year (TFBRTHYR, women 15-64, 2001-2008; TYEAR_FB, both sexes, 2021/2025) is before / after the wedding year; same year: Census's month-based recode RPREMAR (2001-2008, agrees with the years in ~99% of women whose years differ) or Unknown (2021/2025); men and women 65+ with children in 2001-2008 Unknown (no birth date); spouse Unknown"
+sipp,cohabited_first,no,before wedding,not collected,no,Unknown for everyone
+sipp,wife_race / husband_race,yes,fixed at birth,race_ethnicity,no,respondent's slot (Asian -> Other); spouse Unknown
+sipp,intact_family,no,before wedding,not collected,no,Unknown for everyone
+sipp,religion_raised,no,before wedding,not collected,no,Unknown for everyone
+sipp,country,no,fixed at birth,constant,no,US

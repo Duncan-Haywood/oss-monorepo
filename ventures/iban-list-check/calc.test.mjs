@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mod97, checkOk, classify, validate, repair, computeCheckDigits, printFormat, findingsCsv, sampleFile, sampleBrokenFile, COUNTRIES } from "./calc.mjs";
+import { SEPA_CORE, nationalCheck, mod97, checkOk, classify, validate, repair, computeCheckDigits, printFormat, findingsCsv, sampleFile, sampleBrokenFile, COUNTRIES } from "./calc.mjs";
 
 // Public example IBANs from the national/registry documentation.
 const GOOD = ["DE89370400440532013000", "GB82WEST12345698765432", "FR1420041010050500013M02606", "NL91ABNA0417164300", "ES9121000418450200051332", "BE68539007547034", "CH9300762011623852957", "IT60X0542811101000000123456"];
@@ -95,4 +95,24 @@ test("empty input does not throw", () => {
   const r = validate("");
   assert.equal(r.summary.rows, 0);
   assert.equal(repair("").text, "\n");
+});
+
+test("sepaOnly flags valid IBANs from outside the core SEPA list, per line, and is off by default", () => {
+  const text = "iban\nDE89370400440532013000\nBR1800360305000010009795493C1\nCH9300762011623852957\n";
+  assert.ok(!validate(text).findings.some((f) => /SEPA/.test(f.title)));
+  const hits = validate(text, { sepaOnly: true }).findings.filter((f) => /SEPA/.test(f.title));
+  assert.deepEqual(hits.map((f) => f.line), [3]);
+  assert.equal(hits[0].severity, "warning");
+  assert.ok(SEPA_CORE.has("DE") && SEPA_CORE.has("GB") && !SEPA_CORE.has("BR"));
+});
+
+test("national check digits verify real BE, ES, FR and IT examples and flag a recomputed-IBAN forgery", () => {
+  for (const i of ["BE68539007547034", "ES9121000418450200051332", "FR1420041010050500013M02606", "IT60X0542811101000000123456"]) assert.equal(nationalCheck(i), true, i);
+  assert.equal(nationalCheck("DE89370400440532013000"), null);
+  // account digit changed, then the IBAN check digits recomputed so mod-97 still passes
+  const forged = "ES" + computeCheckDigits("ES", "21000418450200051333") + "21000418450200051333";
+  assert.ok(checkOk(forged)); assert.equal(nationalCheck(forged), false);
+  const r = validate("iban\n" + forged + "\n");
+  assert.equal(r.summary.errors, 0); assert.equal(r.summary.warnings, 1);
+  assert.match(r.findings[0].title, /National check digits/);
 });

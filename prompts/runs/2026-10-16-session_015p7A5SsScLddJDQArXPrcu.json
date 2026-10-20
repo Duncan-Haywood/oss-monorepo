@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_015p7A5SsScLddJDQArXPrcu",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "i sort of want to work on projects and research in architectural engineering and residential engineering. doing models and research into how to reduce cost for new construction design and building process open sourcing designs etc. long term thing to look into .",
+  "input_sha256": "3f9f780541b30dede9a031442f935b785dc3c9c2fc12d13f6eab28a182547e71",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-16T21:14:17Z",
+  "ended": "2026-10-16T21:25:38Z",
+  "wall_minutes": 11.54,
+  "tokens_in": 5555588,
+  "tokens_out": 50364,
+  "cost_usd": 3.1386,
+  "tool_calls": 44,
+  "task": "meta",
+  "projects": [
+    "house-framing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7538",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Adding a track means editing the track count in three files (PROJECTS.md twice, prompts/research/prompt-0.md and prompt-1.md); nothing checks they agree."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Owner asked for a new long-term direction, so I added a track and its first project instead of routing to an existing track's milestone, following the 2026-10-14 track-11 precedent."
+    }
+  ],
+  "goal": null,
+  "notes": "Owner-directed, not a prompt.md run: added PROJECTS.md track 12 (house, open-source residential construction) with nine milestones and guardrails, and shipped milestone 1, research/house-framing (conventional vs OVE framing takeoff, NDS stud/header checks, parallel-path R). Track count set to twelve in PROJECTS.md and prompts/research/prompt-{0,1}.md. Citations checked by web search (HUD OVE guideline record, NAHB 2024 cost survey, Carpenter and Schumacher 2003 record, NELMA reprint of SPF No.2 values); awc.org was blocked by the proxy, Emin derived from the NDS App. D formula instead. Lumber prices are assumed ranges, not sourced.",
+  "corrections": [],
+  "redteam": null,
+  "build_ok": true,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2518da50-0e84-5b2e-96c4-b14a26f829bb",
+    "transcripts": 1,
+    "first": "2026-10-16T21:14:17Z",
+    "last": "2026-10-16T21:25:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 78,
+        "output": 50364,
+        "thinking": 18556,
+        "cache_read": 5424753,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130757,
+        "api_equivalent_usd": 3.1386,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 78,
+      "output": 50364,
+      "thinking": 18556,
+      "cache_read": 5424753,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130757,
+      "api_equivalent_usd": 3.1386,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 30,
+      "WebSearch": 5,
+      "Write": 3,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.54,
+      "active_minutes": 11.54,
+      "model_minutes": 8.51,
+      "tool_minutes": 3.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an engineer writing a framing takeoff, NDS checks, tests and the track plan",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 509.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

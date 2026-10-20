@@ -5,6 +5,8 @@ A free tool that scans Dockerfiles for build-time secret exposure: `ENV` or
 handful of well-known credential files (`.env`, `id_rsa`, `.npmrc`,
 `.aws/credentials`, ...) into the build context.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/docker-build-secrets-check/
+
 **What it is not:** a security audit, a compliance attestation, a value
 scanner, or a guarantee that your build has no secret exposure. It is a
 name-pattern heuristic over Dockerfile text -- it never sees what a build

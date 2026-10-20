@@ -2,6 +2,8 @@
 
 A free browser tool for paint protection film (PPF) and ceramic coating shops: **enter the car, the package and your costs, and get a price, the film to buy with waste, the bay days the car occupies, and which package earns the most per bay day**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ppf-ceramic-coating-price-calculator/
+
 After using this, you can now **quote PPF and coating from the film, correction hours and bay days a job really takes**, which used to take a rate card by vehicle class and a guess about cure days and redos.
 
 ## Use

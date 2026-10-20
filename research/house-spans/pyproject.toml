@@ -1,0 +1,16 @@
+[project]
+name = "house-spans"
+version = "0.1.0"
+description = "Open span and sizing tool for sawn-lumber joists, rafters, headers and beams: NDS allowable-stress bending, shear, deflection and bearing checks"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[project.scripts]
+house-spans = "house_spans.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

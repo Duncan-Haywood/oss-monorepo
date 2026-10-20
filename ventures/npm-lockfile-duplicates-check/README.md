@@ -5,6 +5,8 @@ at more than one version, who requires each copy, and the likely fix. **Same-maj
 copies (2.0.0 and 2.1.3) come first because `npm dedupe` can usually collapse them;
 **cross-major** copies (3.9.0 and 4.3.4) follow with an `overrides` suggestion.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/npm-lockfile-duplicates-check/
+
 [`index.html`](index.html) runs it in a browser: paste the lockfile, read the table.
 Nothing is uploaded and the page makes no network requests.
 [`duplicate-packages-npm-guide.html`](duplicate-packages-npm-guide.html) is a checklist.

@@ -5,6 +5,8 @@ A free browser tool for small-business owners about to talk to a lender. Lenders
 DSCR) supports, how the loan you want measures up, and how term, rate and a weak year change the answer.** Nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sba-loan-capacity-calculator/
+
 After using this, you can now **walk into a lender knowing how large a loan your books support and how much cash you
 must bring, which used to mean guessing or waiting for a banker to run it**.
 

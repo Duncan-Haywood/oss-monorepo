@@ -7,6 +7,8 @@ wages plus fringe meet the project's wage determination, computes overtime
 bona fide benefit plan, and flags apprentices who exceed the approved
 apprentice-to-journeyman ratio.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts.

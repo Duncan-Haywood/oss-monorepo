@@ -150,3 +150,19 @@ test('formatComparisonSummary renders both models, the deltas, and the disclaime
   assert.match(text, /Effective hourly difference/);
   assert.ok(text.includes(COMPARISON_DISCLAIMER));
 });
+
+test('a block shorter than an hour still reports the pay-per-session effective hourly', () => {
+  const r = comparePricing({ singleSessionPrice: 20, packageSessions: 1, packagePrice: 20, noShowRate: 0, sessionMinutes: 30 });
+  assert.equal(r.single.hours, 0.5);
+  assert.equal(r.single.effectiveHourly, 40);
+  assert.equal(r.hourlyDelta, 0);
+});
+
+test('a package that pays slightly more per hour does not raise the revenue-safe-but-worse-hourly warning', () => {
+  const r = comparePricing({ singleSessionPrice: 50, packageSessions: 1, packagePrice: 50.5, noShowRate: 0, sessionMinutes: 60 });
+  assert.equal(r.revenueDelta, 0.5);
+  assert.equal(r.hourlyDelta, 0.5);
+  assert.ok(!r.findings.some((f) => f.id === 'revenue-safe-hourly-worse'));
+  const worse = comparePricing({ singleSessionPrice: 50, packageSessions: 1, packagePrice: 50, noShowRate: 0, sessionMinutes: 60, prepMinutes: 0 });
+  assert.ok(!worse.findings.some((f) => f.id === 'revenue-safe-hourly-worse')); // equal hourly: no warning either
+});

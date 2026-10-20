@@ -8,6 +8,8 @@ which windows are actually being tinted, film tier, cutting waste, and
 whether old tint has to come off first — which used to take a flat
 per-vehicle price copied from a posted list.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/window-tinting-bid-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. Run the tests with:
 

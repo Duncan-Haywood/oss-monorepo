@@ -32,7 +32,9 @@
  * `calculateChannel` then prices, breaks even and solves for a target on
  * whichever side of the cliff the item actually sits. A channel that omits
  * both fields is unaffected, down to the arithmetic: every coefficient below
- * collapses to what it was before the cliff existed.
+ * collapses to what it was before the cliff existed. Grailed's step is a
+ * lower percentage below the threshold rather than a flat fee, which a channel
+ * says with `commissionRateBelow`.
  */
 
 export const CHANNEL_PRESETS = [
@@ -40,9 +42,9 @@ export const CHANNEL_PRESETS = [
     id: "ebay",
     label: "eBay",
     note: "The final value fee normally covers payment processing, so the separate processor rate is 0 here. Sell-through and days to sell are illustrative starting points, not a claim about how fast eBay actually sells.",
-    commissionRate: 13.25,
+    commissionRate: 13.6,
     paymentRate: 0,
-    paymentFixed: 0.3,
+    paymentFixed: 0.4,
     perListingFee: 0,
     monthlyFee: 0,
     adRate: 0,
@@ -368,9 +370,178 @@ export const CHANNEL_PRESETS = [
     enabled: false,
   },
   {
+    id: "depop",
+    label: "Depop (fashion & vintage, US)",
+    note: "Off by default because it mostly suits fashion, vintage and streetwear. For a US seller Depop's selling fee is 0%; what comes off is Depop Payments processing at 3.3% of the item plus buyer-paid shipping and $0.45 per sale -- the old \"Depop takes 10%\" figure is still quoted everywhere but no longer applies in the US or UK. UK sellers pay 2.9% + £0.30 and sellers elsewhere a flat 10%, so replace the rates if that is you; `ventures/depop-fee-calculator` covers all three regions and Boosted Listings (an extra 12% on boosted sales), which this page does not. The buyer's own Marketplace fee is added on top of what they pay and never comes out of your payout. Sell-through and days to sell are illustrative starting points, not a claim about Depop velocity.",
+    // Matches ventures/depop-fee-calculator's US REGIONS row (0% selling,
+    // 3.3% + $0.45 processing, as of October 2026). `channel-parity.test.mjs`
+    // imports that table rather than restating it, like the other rows.
+    commissionRate: 0,
+    paymentRate: 3.3,
+    paymentFixed: 0.45,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions: Depop has no buyer's-remorse return
+    // window, so returns are rare and happen as not-as-described disputes.
+    returnRate: 3,
+    returnShippingCost: 6,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire or renew,
+    // but one-off fashion pieces sit longer than a general-marketplace item.
+    sellThroughPct: 35,
+    daysToSell: 45,
+    listingRenewalDays: 0,
+    // Off until the seller says this is fashion: enabled by default it would
+    // add a channel most sellers cannot list on, like Poshmark and StockX.
+    enabled: false,
+  },
+  {
+    id: "facebook-marketplace",
+    label: "Facebook Marketplace (shipped)",
+    note: "Off by default because shipped checkout is not available for every item or seller. Prices a shipped Facebook Marketplace order: a 10% selling fee on the item price plus buyer-paid shipping. A local-pickup sale costs nothing, so for a locally sold item the direct-sale row is the better comparison. Facebook also applies an $0.80 minimum fee per shipped sale, which this page does not model (it only matters under $8) -- `ventures/facebook-marketplace-fee-calculator` does, along with the $20 dispute penalty. Sell-through and days to sell are illustrative starting points, not a claim about Marketplace velocity.",
+    // Matches ventures/facebook-marketplace-fee-calculator's FEE_RATE (10%,
+    // shipped checkout, as of October 2026); parity-tested by import.
+    commissionRate: 10,
+    paymentRate: 0,
+    paymentFixed: 0,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions: casual, mostly used goods.
+    returnRate: 6,
+    returnShippingCost: 6,
+    resellableRate: 88,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire and cost
+    // nothing to keep up, and a large local audience moves cheap goods fast.
+    sellThroughPct: 50,
+    daysToSell: 20,
+    listingRenewalDays: 0,
+    // Off by default: shipped checkout is not available for every item or
+    // seller, and it would otherwise add a ninth row to every comparison.
+    enabled: false,
+  },
+  {
+    id: "walmart",
+    label: "Walmart Marketplace (seller-fulfilled)",
+    note: "Off by default because Walmart Marketplace is invitation-based and only applies to sellers approved there. Prices a seller-fulfilled order: the referral fee is a percentage of the item price (the 'Everything else' 15% starting point from `ventures/walmart-marketplace-calculator`; electronics and grocery are 8%, jewelry 20%, so edit the rate for your category), with no separate payment processing and no monthly plan. Walmart prices shipping into the item price, so buyer-paid shipping starts at zero here. The $0.30 minimum referral fee is not modelled (it only matters under $2), and neither is Walmart Fulfillment Services -- `ventures/walmart-marketplace-calculator` compares WFS against shipping it yourself, which is the follow-up question once Walmart wins here. Sell-through and days to sell are illustrative starting points, not a claim about Walmart velocity.",
+    // Matches ventures/walmart-marketplace-calculator's 'Everything else'
+    // referral rate, which is also its default; parity-tested by import.
+    commissionRate: 15,
+    commissionBase: "item",
+    paymentRate: 0,
+    paymentFixed: 0,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Walmart shows one price with shipping included, so nothing is charged
+    // to the buyer on top. The shipping cost the seller pays stays shared.
+    shippingCharged: 0,
+    // Illustrative return assumptions: a general-merchandise mix, between
+    // eBay's and Amazon's.
+    returnRate: 10,
+    returnShippingCost: 7,
+    resellableRate: 85,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire, and a new
+    // seller starts without the review history that drives Walmart.com sales.
+    sellThroughPct: 40,
+    daysToSell: 30,
+    listingRenewalDays: 0,
+    // Off by default: approval is required, and it would otherwise add a row
+    // most sellers cannot act on to every comparison.
+    enabled: false,
+  },
+  {
+    id: "tcgplayer",
+    label: "TCGplayer (trading cards, US)",
+    note: "Off by default because it only suits Magic, Pokemon, Yu-Gi-Oh! and other trading-card singles and sealed product. Prices one single-product order at the Marketplace Level 1-4 schedule: a 10.75% commission on the cards plus the shipping the buyer pays, and a 2.5% + $0.30 transaction fee on the order total. The $0.30 is per order, not per card, so a one-card sale feels it far more than a twenty-card cart; `ventures/tcgplayer-fee-calculator` takes the order size, the Pro seller schedule and the $75-per-product commission cap, none of which this page models (the cap only bites above roughly $700). TCGplayer Direct is not modelled either. The fee table was taken from a search, not the help centre, so check one real payout before repricing a binder. Sell-through and days to sell are illustrative starting points, not a claim about TCGplayer velocity.",
+    // Matches ventures/tcgplayer-fee-calculator's standard schedule for a
+    // one-card order (10.75% commission, 2.5% + $0.30 transaction fee);
+    // parity-tested by import.
+    commissionRate: 10.75,
+    commissionBase: "order",
+    paymentRate: 2.5,
+    paymentFixed: 0.3,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions: card orders rarely come back, and
+    // mostly as condition disputes on higher-value singles.
+    returnRate: 3,
+    returnShippingCost: 4,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire, and a
+    // fully priced single in demand moves quickly while a bulk common does not.
+    sellThroughPct: 45,
+    daysToSell: 21,
+    listingRenewalDays: 0,
+    // Off by default: it only suits trading cards.
+    enabled: false,
+  },
+  {
+    id: "grailed",
+    label: "Grailed (menswear & streetwear, US)",
+    note: "Off by default because it only suits menswear, designer and streetwear. Since 20 May 2026 Grailed's commission is a step: 6% on a sale under $120 and 9% on a sale of $120 or more, applied to the whole sale, plus 3.49% + $0.49 payment processing -- so a $120 item can pay you less than a $119.99 one. Grailed's $1.99 minimum commission (it only matters under about $33) is not modelled here; `ventures/grailed-fee-calculator` does, along with international buyers and the $120 cliff. These rates come from third-party fee guides, not Grailed's own help centre, so check one real payout. Sell-through and days to sell are illustrative starting points, not a claim about Grailed velocity.",
+    // Matches ventures/grailed-fee-calculator's TIER_THRESHOLD, LOW_RATE,
+    // HIGH_RATE and domestic processing; parity-tested by import above $33.
+    commissionRate: 9,
+    commissionBase: "order",
+    commissionThreshold: 120,
+    commissionRateBelow: 6,
+    paymentRate: 3.49,
+    paymentFixed: 0.49,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions: Grailed has no buyer's-remorse return
+    // window; returns are not-as-described disputes, so they are rare.
+    returnRate: 3,
+    returnShippingCost: 8,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire, but
+    // designer menswear is a narrow audience and sits.
+    sellThroughPct: 30,
+    daysToSell: 50,
+    listingRenewalDays: 0,
+    // Off until the seller says this is menswear: enabled by default it would
+    // add a channel most sellers cannot list on, like Poshmark and Depop.
+    enabled: false,
+  },
+  {
+    id: "discogs",
+    label: "Discogs (records, CDs & music media)",
+    note: "Off by default because it only suits vinyl, CDs, tapes and other music media. Prices Discogs' published 9% selling fee on the item price plus buyer-paid shipping (the $0.10 minimum and $150 maximum per order are not modelled; the cap only bites above about $1,667) and 2.9% + $0.30 payment processing on the same total. The selling fee is from Discogs' own fee page; Discogs does not publish one processing rate for everyone and third-party figures disagree (2.7% + $0.25 to 3.49% + $0.49), so check one real payout before repricing a crate. Discogs's listing grading, shipping-rate rules and per-country payout differences are not modelled. Sell-through and days to sell are illustrative starting points, not a claim about Discogs velocity.",
+    commissionRate: 9,
+    commissionBase: "order",
+    paymentRate: 2.9,
+    paymentFixed: 0.3,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions: media is described by grade, so returns
+    // are mostly condition disputes.
+    returnRate: 4,
+    returnShippingCost: 6,
+    resellableRate: 80,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire, and a
+    // common record can sit while a sought-after pressing sells quickly.
+    sellThroughPct: 35,
+    daysToSell: 45,
+    listingRenewalDays: 0,
+    // Off until the seller says this is music media: enabled by default it
+    // would add a channel most sellers cannot list on.
+    enabled: false,
+  },
+  {
     id: "other",
     label: "Other channel",
-    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — Depop, GOAT, a craft fair, a wholesale account. Mercari, Poshmark and StockX have their own rows above.",
+    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — GOAT, a craft fair, a wholesale account. Mercari, Poshmark, StockX, Depop, Grailed, Discogs, Facebook Marketplace and Walmart have their own rows above.",
     commissionRate: 0,
     paymentRate: 0,
     paymentFixed: 0,
@@ -446,6 +617,9 @@ export function calculateChannel(channel, shared = {}) {
   // Poshmark, and leaves every coefficient below exactly as it was.
   const commissionThreshold = number(channel.commissionThreshold, `${label} commission threshold`, 0);
   const commissionFlatBelow = number(channel.commissionFlatBelow, `${label} flat commission`, 0);
+  // Grailed's rule below its $120 step is a lower *percentage*, not a flat fee.
+  // When set it replaces the flat fee on that side; unset leaves Poshmark's.
+  const commissionRateBelow = number(channel.commissionRateBelow, `${label} commission rate below the threshold`, 0);
   const paymentRate = number(channel.paymentRate, `${label} payment rate`, 0);
   const adRate = number(channel.adRate, `${label} ads rate`, 0);
   const paymentFixed = number(channel.paymentFixed, `${label} payment fixed fee`, 0);
@@ -511,13 +685,13 @@ export function calculateChannel(channel, shared = {}) {
     commissionBase === "item" ? itemPrice : itemPrice + shippingCharged;
   // `chargesRate` false is the flat-fee side of the cliff.
   const branchRates = (chargesRate) => {
-    const rate = chargesRate ? commissionRate : 0;
+    const rate = chargesRate ? commissionRate : commissionRateBelow;
     return {
       orderRate: (paymentRate + adRate + (commissionBase === "order" ? rate : 0)) / 100,
       itemRate: (commissionBase === "item" ? rate : 0) / 100,
     };
   };
-  const flatCommissionOn = (chargesRate) => (chargesRate ? 0 : commissionFlatBelow);
+  const flatCommissionOn = (chargesRate) => (chargesRate || commissionRateBelow > 0 ? 0 : commissionFlatBelow);
 
   const commissionBaseAmount = commissionBaseAt(price);
   // Which side this item is actually on. Poshmark's switch is at exactly
@@ -538,7 +712,9 @@ export function calculateChannel(channel, shared = {}) {
       // reachable below the flat fee itself, and never inside a break-even
       // answer: the solved flat-branch price is at least the flat fee
       // whenever there is any cash to recover.
-      : Math.min(commissionFlatBelow, commissionBaseAmount),
+      : commissionRateBelow > 0
+        ? (commissionBaseAmount * commissionRateBelow) / 100
+        : Math.min(commissionFlatBelow, commissionBaseAmount),
     payment: (revenue * paymentRate) / 100 + paymentFixed,
     ads: (revenue * adRate) / 100,
     listing: perListingFee,

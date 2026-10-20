@@ -1,0 +1,32 @@
+baseline (steel rods, no substitutions), yield 0.8, stock cost fraction 0.3 (both assumed):
+  vitamin mass 4935 g, stock mass 1781 g, import mass 6716 g; vitamin cost 161.8, stock cost 11.4, import cost 173.3 (BOM units)
+
+== objective: minimise import mass (g); printer+router+laser shop
+budget  best import | mass-closure pick (selfrep-alusearch) -> its import | minimiser's choice
+  0.0     6716.1  | steel rods, 0 subs ->    6716.1  | steel rods; -
+  0.5     6184.8  | aluminium 12 mm, 1 subs ->    6670.7  | aluminium 8 mm; -
+  1.0     5889.5  | aluminium 12 mm, 2 subs ->    6665.7  | hardwood 8 mm; -
+  2.0     5865.0  | aluminium 12 mm, 4 subs ->    6802.4  | hardwood 8 mm; printed-idlers, printed-m8-nuts
+  3.0     5852.5  | aluminium 12 mm, 5 subs ->    6797.4  | hardwood 8 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-hobbed-bolt
+  4.0     5852.5  | aluminium 12 mm, 6 subs ->    6789.9  | hardwood 8 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-hobbed-bolt
+
+== objective: minimise import cost (BOM units); printer+router+laser shop
+budget  best import | mass-closure pick (selfrep-alusearch) -> its import | minimiser's choice
+  0.0      173.3  | steel rods, 0 subs ->     173.3  | steel rods; -
+  0.5      164.0  | aluminium 12 mm, 1 subs ->     179.7  | aluminium 12 mm; -
+  1.0      155.8  | aluminium 12 mm, 2 subs ->     171.6  | aluminium 12 mm; printed-bushings
+  2.0      150.3  | aluminium 12 mm, 4 subs ->     182.6  | aluminium 12 mm; printed-bushings, printed-idlers, printed-belt-drive
+  3.0      147.5  | aluminium 12 mm, 5 subs ->     174.5  | aluminium 12 mm; printed-bushings, printed-idlers, printed-belt-drive, printed-hobbed-bolt
+  4.0      147.5  | aluminium 12 mm, 6 subs ->     171.6  | aluminium 12 mm; printed-bushings, printed-idlers, printed-belt-drive, printed-hobbed-bolt
+
+== rod picked by the import-mass minimiser as yield varies (budget 2.0 / 4.0)
+yield 0.3: budget 2.0: hardwood 8 mm, 0 subs, 9031 g | budget 4.0: hardwood 8 mm, 0 subs, 9031 g
+yield 0.5: budget 2.0: hardwood 8 mm, 0 subs, 7020 g | budget 4.0: hardwood 8 mm, 0 subs, 7020 g
+yield 0.8: budget 2.0: hardwood 8 mm, 2 subs, 5865 g | budget 4.0: hardwood 8 mm, 4 subs, 5853 g
+yield 1.0: budget 2.0: hardwood 8 mm, 2 subs, 5439 g | budget 4.0: hardwood 8 mm, 4 subs, 5409 g
+
+== rod picked by the import-cost minimiser as stock cost fraction varies (budget 2.0 / 4.0), yield 0.8
+frac 0.1: budget 2.0: aluminium 12 mm, 3 subs, 140.0 | budget 4.0: aluminium 12 mm, 4 subs, 137.1
+frac 0.3: budget 2.0: aluminium 12 mm, 3 subs, 150.3 | budget 4.0: aluminium 12 mm, 4 subs, 147.5
+frac 0.6: budget 2.0: aluminium 12 mm, 3 subs, 165.8 | budget 4.0: aluminium 12 mm, 4 subs, 163.2
+frac 1.0: budget 2.0: aluminium 12 mm, 2 subs, 185.7 | budget 4.0: aluminium 12 mm, 3 subs, 183.3

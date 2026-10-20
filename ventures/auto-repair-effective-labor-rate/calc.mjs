@@ -299,7 +299,11 @@ export function gapShares({ customerPayGap, warrantyGap, totalBillingGap }) {
 export function notes(f) {
   const out = [];
   const perHour = (value) => `$${Math.abs(value).toFixed(2)}`;
-  const dollars = (value) => `$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;
+  const dollars = (value) => {
+    const format = (value) => `$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
 
   if (f.totalBillingGap > 0) {
     out.push(

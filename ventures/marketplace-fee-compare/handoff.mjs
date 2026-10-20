@@ -1,6 +1,6 @@
 // Carry the item you just ranked into the winning channel's own calculator.
 //
-// This page ranks six channels on headline fees and stops there, deliberately:
+// This page ranks ten channels on headline fees and stops there, deliberately:
 // its whole value is that one set of inputs produces a comparable table. Every
 // channel on it then has a dedicated calculator in this portfolio that models
 // the things a flat percentage cannot — Promoted Listings, FBA size tiers, WFS,
@@ -16,7 +16,7 @@
 //
 // `ventures/where-to-sell-calculator/handoff.mjs` solved the same problem for
 // the other comparison page in this portfolio, and this is the same mechanism
-// pointed at this page's six channels. It is a separate table rather than an
+// pointed at this page's ten channels. It is a separate table rather than an
 // import because the two pages do not share an input vocabulary — this page
 // folds packaging into one `otherCost`, where-to-sell keeps `packagingCost`
 // separate — and a runtime import across ventures would make one page's link
@@ -33,7 +33,7 @@
 // that target's own page actually offers.
 
 /**
- * The six ranked channels, and how this page's item maps onto each deep tool.
+ * The ten ranked channels, and how this page's item maps onto each deep tool.
  *
  * `fields` maps this page's item key to the target's input id. A channel absent
  * from this table gets no item-carrying link — deliberately, since a link that
@@ -49,7 +49,7 @@ export const HANDOFFS = [
     channel: 'ebay',
     slug: 'ebay-fee-calculator',
     label: 'eBay fee & profit calculator',
-    // What it adds beyond the flat 13.25% here: Promoted Listings at whatever
+    // What it adds beyond the flat 13.6% here: Promoted Listings at whatever
     // you bid, returns, Top Rated Plus, store subscription tiers, offers and
     // international fees.
     fields: {
@@ -172,6 +172,76 @@ export const HANDOFFS = [
     },
   },
   {
+    channel: 'mercari',
+    slug: 'mercari-fee-calculator',
+    label: 'Mercari fee calculator',
+    // What it adds: the listing-date switch between Mercari's two fee
+    // schedules (a listing created before 6 Jan 2025 and never edited still
+    // pays the old 10% plus processing), and a target-profit price solver.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    drops: {
+      // Mercari has no subscription, so there is nothing to amortise.
+      monthlyOrders: 'no monthly fee there; nothing to spread over orders',
+    },
+  },
+  {
+    channel: 'depop',
+    slug: 'depop-fee-calculator',
+    label: 'Depop fee calculator',
+    // What it adds: region switch (US, UK, rest of world), Boosted Listings, and a target-profit price solver.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    drops: {
+      monthlyOrders: 'no monthly fee there; nothing to spread over orders',
+    },
+  },
+  {
+    channel: 'facebook',
+    slug: 'facebook-marketplace-fee-calculator',
+    label: 'Facebook Marketplace fee calculator',
+    // What it adds: local pickup versus shipped, the dispute penalty, and a target-profit price solver.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    drops: {
+      monthlyOrders: 'no monthly fee there; nothing to spread over orders',
+    },
+  },
+  {
+    channel: 'poshmark',
+    slug: 'poshmark-fee-calculator',
+    label: 'Poshmark fee calculator',
+    // What it adds: the offer-and-bundle arithmetic around the $15 cliff, the
+    // break-even price either side of it, and a target-profit price solver.
+    // Both shipping inputs stay behind: the buyer buys Poshmark's prepaid
+    // label, so postage is neither revenue nor cost there.
+    fields: {
+      price: 'salePrice',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    drops: {
+      shippingCharged: 'the buyer pays Poshmark for a prepaid label; it never reaches the seller',
+      shippingCost: 'the buyer-paid prepaid label means the seller carries no postage',
+      monthlyOrders: 'no monthly fee there; nothing to spread over orders',
+    },
+  },
+  {
     channel: 'shopify',
     slug: 'shopify-fee-calculator',
     label: 'Shopify fee & profit calculator',
@@ -198,9 +268,9 @@ export const HANDOFFS = [
 /**
  * The same courtesy for the channels this page deliberately does *not* rank.
  *
- * `EXCLUDED_CHANNELS` in `calc.mjs` names three marketplaces that would be an
+ * `EXCLUDED_CHANNELS` in `calc.mjs` names four marketplaces that would be an
  * unfair row here — Faire is wholesale, Whatnot is a livestream auction,
- * Reverb is category-restricted — and gives each "a pointer instead of a row".
+ * Reverb and StockX are category-restricted — and gives each "a pointer instead of a row".
  * That pointer was a bare `../<slug>/`, so it walked a seller into exactly the
  * empty form this module was written to stop: the fix above reached the six
  * ranked channels and left the same defect on the way out to these three.
@@ -254,6 +324,28 @@ export const EXCLUDED_HANDOFFS = [
       monthlyOrders:
         'Reverb has no monthly plan fee, so there is nothing for an order count '
         + 'to spread across, and the calculator offers no input for it.',
+    },
+  },  {
+    slug: 'stockx-seller-payout-calculator',
+    label: 'StockX seller payout calculator',
+    // Names match `where-to-sell-calculator`'s vetted StockX mapping, which the
+    // sibling-agreement test asserts rather than trusts. The sale is one item
+    // at one price; what the deep tool adds is the Seller Level fee band and
+    // Fast Shipping, which no single preset rate can express.
+    fields: {
+      price: 'salePrice',
+      shippingCost: 'shippingCost',
+      itemCost: 'itemCostBasis',
+      otherCost: 'otherCost',
+    },
+    drops: {
+      shippingCharged:
+        'StockX is a bid/ask marketplace where the buyer pays StockX for '
+        + 'delivery, so no postage a buyer pays ever reaches the seller. '
+        + 'Sending it would credit revenue StockX never pays out.',
+      monthlyOrders:
+        'StockX has no monthly plan fee, so there is nothing for an order '
+        + 'count to spread across, and the calculator offers no input for it.',
     },
   },
 ];
@@ -384,4 +476,38 @@ export function handoffsForRows(rows = [], item = {}) {
       };
     })
     .filter(Boolean);
+}
+
+/**
+ * Inputs this page shares with `where-to-sell-calculator`, by that page's id.
+ *
+ * Its shared-input vocabulary matches this page's except that it keeps
+ * packaging apart; this page folds packaging into `otherCost`, which it reads
+ * as its own `otherCost`, so nothing is dropped. The category never travels:
+ * where-to-sell has its own channel switches instead.
+ */
+export const WHERE_TO_SELL_FIELDS = [
+  'price', 'shippingCharged', 'shippingCost', 'itemCost', 'otherCost', 'monthlyOrders',
+];
+
+/**
+ * A relative link into the where-to-sell calculator carrying the item.
+ *
+ * That page reads `#c=<encoded JSON>` (`share.mjs` there). The payload is built
+ * inline rather than imported so renaming that page's inputs cannot move this
+ * link's target at runtime; `handoff.test.mjs` imports its decoder and checks
+ * the round trip instead. A blank item gives the bare link.
+ */
+export function whereToSellUrl(item = {}) {
+  const shared = {};
+  for (const key of WHERE_TO_SELL_FIELDS) {
+    const value = item[key];
+    if (value === null || value === undefined) continue;
+    if (typeof value === 'string' && value.trim() === '') continue;
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed >= 0) shared[key] = parsed;
+  }
+  const base = '../where-to-sell-calculator/';
+  if (Object.keys(shared).length === 0) return base;
+  return `${base}#c=${encodeURIComponent(JSON.stringify({ shared }))}`;
 }

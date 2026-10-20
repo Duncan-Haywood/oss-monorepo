@@ -4,6 +4,8 @@ Compare the monthly cost of **AWS Lambda, Google Cloud Run, AWS Fargate and EC2*
 and find the request volume where always-on containers beat pay-per-request. Browser page or
 zero-dependency CLI; nothing is uploaded and no cloud account is contacted.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/lambda-vs-fargate-cost-breakeven/
+
 ```
 node cli.mjs compare --requests 20M --duration-ms 120 --memory 0.5 --vcpu 0.25 --concurrency 10
 node cli.mjs compare workload.txt --json

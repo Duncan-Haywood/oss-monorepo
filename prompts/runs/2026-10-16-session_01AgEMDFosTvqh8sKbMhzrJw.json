@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01AgEMDFosTvqh8sKbMhzrJw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: follow ./prompt.md",
+  "input_sha256": "2842a2a6e18a29c8ffafb43f6b70cbfae6a7252cbacd6e537e94b1e7286196b2",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-16T18:39:15Z",
+  "ended": "2026-10-16T20:07:02Z",
+  "wall_minutes": 88.19,
+  "tokens_in": 9493370,
+  "tokens_out": 23935,
+  "cost_usd": 2.5601,
+  "tool_calls": 84,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7515",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Session gate and router rank shift-roster-builder/state-residency-day-counter as open work while sibling sessions edit them; my shift-pinning PR #7501 duplicated #7509 and was closed. git fetch --unshallow exceeds the 120s tool timeout; venture-preflight's stale-mirror failure only shows after a ~10 min build, regen.mjs --verify could run first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Added two state rules to an existing calculator rather than a deep new product: after losing a collision on shift-roster-builder, took the smallest verified-accurate increment. Also ran publish-branch.sh (gh-pages refresh) per session gate."
+    }
+  ],
+  "goal": null,
+  "notes": "PR 7501 (who: pinning) closed as duplicate of 7509. gh-pages snapshot refreshed. PR 7515 adds MD and ME residency tests, sourced from marylandtaxes.gov and Maine statute/Rule 807; Michigan excluded (domicile rule).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0035d939-7b18-5674-a134-22420be46331",
+    "transcripts": 1,
+    "first": "2026-10-16T18:39:15Z",
+    "last": "2026-10-16T20:07:26Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 92,
+        "input": 211,
+        "output": 23935,
+        "thinking": 3294,
+        "cache_read": 9382195,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110964,
+        "api_equivalent_usd": 2.5601,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 211,
+      "output": 23935,
+      "thinking": 3294,
+      "cache_read": 9382195,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110964,
+      "api_equivalent_usd": 2.5601,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 64,
+      "Monitor": 10,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__add_issue_comment": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 88.19,
+      "active_minutes": 19.32,
+      "model_minutes": 4.05,
+      "tool_minutes": 15.27,
+      "waiting_on_human_minutes": 68.87,
+      "human_prompts": 16,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "research two state statutes, implement, test, document",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 78.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

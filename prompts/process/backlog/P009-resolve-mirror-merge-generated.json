@@ -1,0 +1,23 @@
+{
+  "id": "P009",
+  "title": "resolve-mirror-merge.sh should regenerate generated files, not refuse",
+  "status": "done",
+  "owner": "agent",
+  "effect": 1,
+  "cost": 1,
+  "problem": "The script refuses when 00-mirror-alias.conf conflicts, calling it authored code, though front-door-tools.mjs generates it.",
+  "evidence": [
+    "platform/marketing/resolve-mirror-merge.sh friction report: python3 prompts/promptctl.py measure (doc friction), 2026-10-15"
+  ],
+  "change": "Treat 00-mirror-alias.conf as generated: take either side and rerun the generator.",
+  "touches": [
+    "platform/marketing/resolve-mirror-merge.sh"
+  ],
+  "metric": "Friction reports naming the script",
+  "baseline": "1",
+  "opened": "2026-10-15",
+  "source": "prompts/process/reports/2026-10-15*.md",
+  "pr": 7146,
+  "result": "too early: resolve-mirror-merge friction baseline 1; 2 records mention the script but all are dated 2026-10-15, so none can be ordered after PR 7146.",
+  "history": []
+}

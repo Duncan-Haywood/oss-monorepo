@@ -1,0 +1,63 @@
+sample,feature,odds_ratio,ci_low,ci_high
+"ever-married 25+, 1972-2024",cat__age_band_25-34,0.5662,0.5260,0.6093
+"ever-married 25+, 1972-2024",cat__age_band_45-54,1.1579,1.1058,1.2355
+"ever-married 25+, 1972-2024",cat__age_band_55-64,1.1276,1.0482,1.2062
+"ever-married 25+, 1972-2024",cat__age_band_65+,0.7396,0.6867,0.7986
+"ever-married 25+, 1972-2024",cat__survey_decade_1970s,0.5347,0.4937,0.5845
+"ever-married 25+, 1972-2024",cat__survey_decade_1980s,0.7906,0.7370,0.8398
+"ever-married 25+, 1972-2024",cat__survey_decade_2000s,1.1862,1.1148,1.2506
+"ever-married 25+, 1972-2024",cat__survey_decade_2010s,1.2853,1.2018,1.3700
+"ever-married 25+, 1972-2024",cat__survey_decade_2020s,1.2683,1.1651,1.3865
+"ever-married 25+, 1972-2024",cat__sex_Female,1.1863,1.1393,1.2399
+"ever-married 25+, 1972-2024",cat__sex_Unknown,0.9922,0.7612,1.2228
+"ever-married 25+, 1972-2024",cat__race_Black,1.5451,1.4471,1.6556
+"ever-married 25+, 1972-2024",cat__race_Other,0.7574,0.6726,0.8271
+"ever-married 25+, 1972-2024",cat__race_Unknown,1.0987,0.8581,2.5054
+"ever-married 25+, 1972-2024",cat__degree_Bachelor,0.6006,0.5630,0.6363
+"ever-married 25+, 1972-2024",cat__degree_Graduate,0.5673,0.5226,0.6127
+"ever-married 25+, 1972-2024",cat__degree_Junior college,0.9680,0.8803,1.0482
+"ever-married 25+, 1972-2024",cat__degree_Less than high school,0.9611,0.9152,1.0126
+"ever-married 25+, 1972-2024",cat__degree_Unknown,0.9596,0.5854,1.3470
+"ever-married 25+, 1972-2024",cat__religion_raised_Catholic,0.7872,0.7506,0.8310
+"ever-married 25+, 1972-2024",cat__religion_raised_None,0.8847,0.8139,0.9797
+"ever-married 25+, 1972-2024",cat__religion_raised_Other,0.6551,0.5796,0.7283
+"ever-married 25+, 1972-2024",cat__religion_raised_Unknown,0.7534,0.6453,0.8593
+"ever-married 25+, 1972-2024",cat__attend_band_2-3 times a month to nearly weekly,0.7480,0.6999,0.7955
+"ever-married 25+, 1972-2024",cat__attend_band_Never or under once a year,1.2938,1.2136,1.3672
+"ever-married 25+, 1972-2024",cat__attend_band_Unknown,0.7004,0.5731,0.8913
+"ever-married 25+, 1972-2024",cat__attend_band_Weekly or more,0.5300,0.5053,0.5543
+"ever-married 25+, 1972-2024",cat__family_at_16_Other,1.5245,1.4184,1.6603
+"ever-married 25+, 1972-2024",cat__family_at_16_Parent died,1.1940,1.1172,1.2765
+"ever-married 25+, 1972-2024",cat__family_at_16_Parents divorced or separated,1.6051,1.5008,1.7244
+"ever-married 25+, 1972-2024",cat__family_at_16_Unknown,1.4120,1.1905,1.8030
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__age_band_25-34,0.5862,0.5250,0.6317
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__age_band_45-54,0.8718,0.7864,0.9647
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__age_band_55-64,0.7359,0.6599,0.8122
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__age_band_65+,0.5008,0.4479,0.5561
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__survey_decade_1970s,0.5735,0.5267,0.6211
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__survey_decade_1980s,0.8259,0.7681,0.8949
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__survey_decade_2000s,1.4328,1.2740,19.7919
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__sex_Female,0.9428,0.8883,1.0078
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__race_Black,1.8828,1.7041,2.0862
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__race_Other,1.0097,0.7812,1.2493
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__degree_Bachelor,0.7336,0.6589,0.8141
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__degree_Graduate,0.8024,0.6878,0.9459
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__degree_Junior college,1.0590,0.9001,1.2700
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__degree_Less than high school,0.9609,0.8887,1.0433
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__degree_Unknown,1.0404,0.7195,1.9881
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__religion_raised_Catholic,0.9128,0.8343,1.0072
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__religion_raised_None,1.0728,0.8897,1.2909
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__religion_raised_Other,0.6935,0.5636,0.8476
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__religion_raised_Unknown,0.7823,0.6500,0.9267
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__attend_band_2-3 times a month to nearly weekly,0.7424,0.6698,0.8084
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__attend_band_Never or under once a year,1.4132,1.3147,1.5296
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__attend_band_Unknown,0.8850,0.5487,1.1968
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__attend_band_Weekly or more,0.4925,0.4541,0.5304
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__family_at_16_Other,1.5784,1.3493,1.9028
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__family_at_16_Parent died,1.1634,1.0433,1.2987
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__family_at_16_Parents divorced or separated,1.7301,1.5150,1.9789
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__family_at_16_Unknown,1.3467,0.1055,1.5387
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__age_first_married_20-22,1.4435,1.3085,1.5953
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__age_first_married_26-29,0.8574,0.7566,0.9898
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__age_first_married_30+,0.7302,0.6074,0.8514
+"ever-married 25+, AGEWED years (1972-1994, 2006)",cat__age_first_married_under 20,2.5223,2.2823,2.7972

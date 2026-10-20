@@ -2,6 +2,8 @@
 
 Independent food truck and trailer operators can use this free browser-local calculator to find the real price for one private event, catering, or festival booking — after commissary prep and breakdown time, travel, staff labor, propane and generator fuel, the commissary fee, amortized truck and equipment cost, and the one-off special-event permit fee many jurisdictions require — then check a price already on the table against the breakeven, and see the recommended rate for an extra guest. **After using this, you can quote a booking on the time and cost it actually takes, which used to take a flat per-head price that hid the prep hours, the drive, and how much of the margin a better-than-expected turnout was quietly eating.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/food-truck-event-margin-calculator/
+
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
 ## Why a per-head price is the wrong number to build a quote from

@@ -1,0 +1,20 @@
+# Any box with Docker:
+#   ADMIN_KEY=$(openssl rand -hex 16) PLANS_JSON='...' docker compose up -d
+# Put it behind HTTPS (Caddy, nginx, a tunnel) before real use.
+services:
+  license-keeper:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data"]
+    environment:
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY}
+      PLANS_JSON: ${PLANS_JSON:?set PLANS_JSON}
+      STATE: /data/state.json
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      COMPANY_NAME: ${COMPANY_NAME:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+volumes:
+  state:

@@ -1,0 +1,121 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01Jb5bzP2FAFuk4Dak9Kw1bE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T05:18:12Z",
+  "ended": "2026-10-20T05:20:21Z",
+  "wall_minutes": 2.43,
+  "tokens_in": 1579939,
+  "tokens_out": 8510,
+  "cost_usd": 0.6423,
+  "tool_calls": 22,
+  "task": "iban-list-check CLI",
+  "projects": [],
+  "pr": 8655,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/iban-list-check/README.md",
+      "issue": "`node --test ventures/iban-list-check/` fails on Node 22 (directory arg not resolved); needs *.test.mjs glob"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Picked a missing CLI on a prototype *-check venture after the router's Explore rows were all settled/awaiting visitors. node --test needs a glob here, the README's directory form fails on Node 22.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0d6f3c41-f615-56b1-8578-1f9e9891b57c",
+    "transcripts": 1,
+    "first": "2026-10-20T05:18:12Z",
+    "last": "2026-10-20T05:20:38Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 20,
+        "input": 40,
+        "output": 8510,
+        "thinking": 478,
+        "cache_read": 1516433,
+        "cache_write_5m": 0,
+        "cache_write_1h": 63466,
+        "api_equivalent_usd": 0.6423,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 20,
+      "input": 40,
+      "output": 8510,
+      "thinking": 478,
+      "cache_read": 1516433,
+      "cache_write_5m": 0,
+      "cache_write_1h": 63466,
+      "api_equivalent_usd": 0.6423,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 22,
+    "tools": {
+      "Bash": 17,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.43,
+      "active_minutes": 2.43,
+      "model_minutes": 1.05,
+      "tool_minutes": 1.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "small CLI plus tests and README",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 311.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

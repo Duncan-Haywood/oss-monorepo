@@ -3,6 +3,8 @@
 A free tool that scans GitHub Actions workflow files for two documented
 injection patterns:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/
+
 1. **Pwn request checkout** — a `pull_request_target` or `workflow_run`
    workflow that checks out an untrusted head (`github.event.pull_request.head.sha`,
    `head.ref`, `github.head_ref`, or the `workflow_run` equivalents), so a

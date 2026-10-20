@@ -9,6 +9,8 @@ minimum-job floor. **After using this, you can quote a job from what it
 actually costs to staff and dispose of, instead of a flat day rate plus a
 per-pound hazmat guess that quietly undercounts both PPE and disposal.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/biohazard-cleanup-bid-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The deterministic calculation works with no
 account, API key, upload, or paid dependency. See

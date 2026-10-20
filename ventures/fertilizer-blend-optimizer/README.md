@@ -8,6 +8,8 @@ field total and tons to buy, the cost of one more pound of each nutrient, the
 price at which an unused product would start to pay, and what the obvious
 one-product-per-nutrient plan costs against the optimum. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fertilizer-blend-optimizer/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, a two-phase simplex (Bland's rule), nutrient prices and

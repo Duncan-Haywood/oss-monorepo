@@ -9,6 +9,8 @@ disputed shipped order can carry. It shows real profit after your item and
 shipping-label cost, and the item price you need to hit a target profit.
 Nothing is uploaded; the arithmetic runs on the visitor's own device.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/facebook-marketplace-fee-calculator/
+
 ```
 cd ventures/facebook-marketplace-fee-calculator && node --test
 ```
@@ -103,3 +105,5 @@ describe the published fee schedule this tool computes against.
 MIT licensed — see [`LICENSE`](LICENSE). Optional
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) support does
 not change what the tool does.
+
+**Open from a link.** `share.mjs` lets the page open from a `#...` link (a shared sale, or the item handed over from the [where-to-sell calculator](../where-to-sell-calculator/)); numbers stay in the URL fragment and are never sent anywhere. "Copy shareable link" makes one.

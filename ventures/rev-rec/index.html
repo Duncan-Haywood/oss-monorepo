@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rev Rec — Free Stripe Deferred Revenue &amp; Revenue Recognition Schedule</title>
+  <meta name="description" content="Turn Stripe invoices into a monthly revenue recognition schedule: billings, revenue recognised, deferred revenue and journal entries for your bookkeeper. Paste an invoice export to try it in the browser, then run the open-source read-only server in your own account. Free, MIT.">
+  <meta property="og:title" content="Rev Rec — Stripe deferred revenue schedule, self-hosted">
+  <meta property="og:description" content="Annual plans spread across the months they cover, with journal entries to import. Your server, a read-only key, no percentage-of-volume fee.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Rev Rec", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source deferred revenue and revenue recognition schedule for Stripe invoices, with month-end journal entries."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is this different from Stripe Revenue Recognition?", "acceptedAnswer": {"@type": "Answer", "text": "Stripe Revenue Recognition is a paid add-on billed as a share of your Billing volume, with accounting-grade reports, multi-entity features and support. Rev Rec produces the core schedule most small SaaS companies hand to a bookkeeper (billings, revenue recognised, deferred revenue by month and the journal entries) on a server you run with a read-only key. It does not replace an audit-ready system."}}, {"@type": "Question", "name": "What does it recognise, exactly?", "acceptedAnswer": {"@type": "Answer", "text": "Each paid invoice line is spread evenly per day across its service period, net of discounts and of tax that is included in the price. One-off charges are recognised on their date. Credit notes reduce revenue in the month they are issued."}}, {"@type": "Question", "name": "Can it change anything in my Stripe account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It lists paid invoices and credit notes with a restricted key (Invoices: read, Credit notes: read) and the tests assert every request is a plain GET."}}, {"@type": "Question", "name": "Where does my Stripe key live?", "acceptedAnswer": {"@type": "Answer", "text": "In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your numbers."}}, {"@type": "Question", "name": "Is this accounting advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a working schedule for your bookkeeping. Your revenue policy, your jurisdiction and your accountant decide what is correct for your books."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f7f5; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0f5132; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0f5132; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0f5132; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #3d4f47; }
+    .card { background: #fff; border: 1px solid #cfe0d8; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 12px 0; }
+    .tiles div { background: #eaf3ee; border-radius: 10px; padding: 10px 12px; }
+    .tiles b { display: block; font-size: 1.35rem; color: #0f5132; }
+    label { display: block; font-weight: 600; margin: 8px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #9db8ac; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f5132; color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; }
+    button.alt { background: #d7eadf; color: #0f5132; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid #e3eee9; }
+    th:first-child, td:first-child { text-align: left; }
+    table[style] th, table[style] td { text-align: left; }
+    tr.f { color: #5b6b64; }
+    pre { background: #eaf3ee; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Annual plans, spread across the months they cover</h1>
+  <p>When a customer pays $2,900 up front for a year, only a twelfth of it is revenue this month. Bookkeepers want that as a schedule: <strong>billings, revenue recognised and deferred revenue by month, plus journal entries</strong>. Stripe sells this as an add-on priced on your volume. Rev Rec builds it from your paid invoices and credit notes. Try it below on an invoice-line export (nothing is uploaded), then <a href="#run">run the open-source server</a> with a read-only key.</p>
+
+  <section class="card" aria-labelledby="try">
+    <h2 id="try">Try it on an invoice export</h2>
+    <p class="note">One row per invoice line. Needs columns for amount, billing date and period start; period end, id and currency are used when present. Put credit notes in as negative amounts, or in parentheses. Or load made-up sample data.</p>
+    <label for="csv">Paste CSV</label>
+    <textarea id="csv" spellcheck="false" placeholder="id,date,period start,period end,amount"></textarea>
+    <button id="run" type="button">Build schedule</button><button id="sample" class="alt" type="button">Load sample data</button><button id="dl" class="alt" type="button" hidden>Download journal CSV</button>
+    <p class="note" id="msg" role="status" aria-live="polite"></p>
+    <div id="out" hidden>
+      <div class="tiles" id="tiles"></div>
+      <div style="overflow-x:auto" id="table"></div>
+      <p class="note">Rows marked ↗ are future months of revenue that is already invoiced. Closing deferred revenue is billed to date minus recognised to date.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <table style="text-align:left">
+      <thead><tr><th>Today</th><th>Cost / catch</th></tr></thead>
+      <tbody>
+        <tr><td>Stripe Revenue Recognition</td><td>Accounting-grade and supported, but billed as a share of volume; more than a small SaaS needs for a monthly close</td></tr>
+        <tr><td>A spreadsheet of annual invoices</td><td>Free, but the day-count maths, proration lines and refunds drift after a few months</td></tr>
+        <tr><td>Your bookkeeper, by hand</td><td>Billable hours every month for something a script does the same way every time</td></tr>
+        <tr><td><strong>Rev Rec</strong></td><td>Free, MIT, read-only key, your server. Honest limits: one currency per instance, daily straight-line only (no usage-based or milestone rules), credit notes hit the month they are issued</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card" id="run">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/rev-rec
+STRIPE_SECRET_KEY=rk_live_...  ADMIN_KEY=$(openssl rand -hex 16) \
+COMPANY_NAME=Acme node server.mjs
+# open http://localhost:8080 and sign in with any user name and ADMIN_KEY</pre>
+    <p class="note">The key needs <em>Invoices: read</em> and <em>Credit notes: read</em> and nothing else. A one-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Related tools</h2>
+    <p>Same buyer: <a href="../mrr-pulse/">MRR Pulse</a> shows MRR and churn, <a href="../dunning-engine/">Dunning Engine</a> recovers failed cards, and <a href="../stripe-payout-to-journal/">Stripe Payout to Journal</a> turns payouts into cash-side entries.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>How is this different from Stripe Revenue Recognition?</h3>
+    <p>Stripe Revenue Recognition is a paid add-on billed as a share of your Billing volume, with accounting-grade reports, multi-entity features and support. Rev Rec produces the core schedule most small SaaS companies hand to a bookkeeper (billings, revenue recognised, deferred revenue by month and the journal entries) on a server you run with a read-only key. It does not replace an audit-ready system.</p>
+    <h3>What does it recognise, exactly?</h3>
+    <p>Each paid invoice line is spread evenly per day across its service period, net of discounts and of tax that is included in the price. One-off charges are recognised on their date. Credit notes reduce revenue in the month they are issued.</p>
+    <h3>Can it change anything in my Stripe account?</h3>
+    <p>No. It lists paid invoices and credit notes with a restricted key (Invoices: read, Credit notes: read) and the tests assert every request is a plain GET.</p>
+    <h3>Where does my Stripe key live?</h3>
+    <p>In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your numbers.</p>
+    <h3>Is this accounting advice?</h3>
+    <p>No. It is a working schedule for your bookkeeping. Your revenue policy, your jurisdiction and your accountant decide what is correct for your books.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. The figures are estimates computed from the data you give it; check them against your books before relying on them for investors, taxes or audits. It is not legal, tax, or financial advice, and not accounting or audit advice. Everything on this page runs in your browser; nothing you paste is uploaded or stored. The only thing kept is an anonymous count of button clicks in your own browser, which you can switch off below.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { linesFromCsv, sampleCsv } from "./csv.mjs";
+    import { schedule, summary, journal, journalCsv, formatMoney } from "./revrec.mjs";
+    import { scheduleTable, esc } from "./page.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let csvOut = "";
+    function run() {
+      const { lines, skipped, missing } = linesFromCsv($("csv").value);
+      $("dl").hidden = true;
+      if (missing.length) { $("out").hidden = true; $("msg").textContent = `Missing column(s): ${missing.join(", ")}. Check the header row.`; return; }
+      if (!lines.length) { $("out").hidden = true; $("msg").textContent = "No usable rows."; return; }
+      const cur = lines.find((l) => l.currency)?.currency || "usd", now = Date.now();
+      const rows = schedule(lines, { asOf: now }), s = summary(rows, now), M = (v) => formatMoney(v, cur);
+      $("msg").textContent = `${lines.length} lines read` + (skipped.length ? `; ${skipped.length} skipped (first: line ${skipped[0].line}, ${skipped[0].why})` : "") + ".";
+      $("tiles").innerHTML = [["Deferred revenue now", M(s.deferredNow)], ["Recognised last month", s.lastMonth ? M(s.lastMonth.recognized) : "n/a"], ["Billed last month", s.lastMonth ? M(s.lastMonth.billed) : "n/a"], ["Still to recognise", M(s.backlog)]].map(([l, v]) => `<div>${esc(l)}<b>${esc(v)}</b></div>`).join("");
+      $("table").innerHTML = scheduleTable(rows, cur);
+      csvOut = journalCsv(journal(rows.filter((r) => !r.future)));
+      $("dl").hidden = false; $("out").hidden = false;
+      record("compute");
+    }
+    $("run").addEventListener("click", run);
+    $("sample").addEventListener("click", () => { $("csv").value = sampleCsv(); run(); record("sample"); });
+    $("dl").addEventListener("click", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csvOut], { type: "text/csv" })); a.download = "rev-rec-journal.csv"; a.click(); URL.revokeObjectURL(a.href); record("download"); });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

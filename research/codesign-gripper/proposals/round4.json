@@ -1,0 +1,2 @@
+{"round": 4, "notes": "After round 3: the round-1 design (20, 2.5, 30, 30) held everything but every neighbour I tried failed the large cylinder, and (22, 2.5, 30, 30) and (20, 3, 30, 30) held everything. So the feasible region is thin and ragged, not a smooth basin. Round 4 stays within a few percent of the three successes, trading a little length or width for plastic.",
+ "designs": [[21,2.5,30,30],[22,2.5,28,30],[22,2.5,26,30],[24,2.5,30,30],[22,2.3,30,30],[21,2.7,28,30],[19,3,28,30],[22,2.5,30,31],[23,2.5,24,30],[20,2.8,26,30]]}

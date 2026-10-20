@@ -221,7 +221,7 @@ test("a shared link is applied before the first paint, not after", () => {
 
 test("the share link button copies a URL, updates the address bar, and counts the action", () => {
   assert.match(markup, /id="copyShare"/);
-  assert.match(scriptSource, /encodeShare\(readItem\(\), readOverrides\(\)\)/);
+  assert.match(scriptSource, /encodeShare\(readItem\(\), readOverrides\(\), readAdRates\(\)\)/);
   assert.match(scriptSource, /history\.replaceState\(null, "", `#\$\{hash\}`\)/);
   assert.match(scriptSource, /count\("share_link_copied"\)/);
 });

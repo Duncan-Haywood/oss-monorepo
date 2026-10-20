@@ -9,7 +9,7 @@
   <meta property="og:description" content="Send a priced, scoped proposal in 15 minutes instead of an afternoon in Word. Print to PDF, track sent, accepted and declined. No account, no watermark.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Proposal Maker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free proposal generator that runs in your browser: client and project summary, goals, scope with included and excluded lists, phases with dates, fixed, good-better-best, hourly-with-cap or monthly retainer pricing, deposit and payment milestones, assumptions, change-order wording, validity date, acceptance block and a print-to-PDF layout. No account, no watermark; data stays on your device.", "featureList": "Scope with included and excluded lists, phases with dates, four pricing models, deposit and payment milestones, assumptions, change-order and other template clauses, validity date, signature block, print to PDF, saved proposals with draft sent accepted declined status, duplicate, JSON backup and restore, send to Estimate Maker, works offline"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this proposal maker really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no watermark, no proposal limit, no account and no trial. It runs in your browser, so it costs nothing to serve, and it stays free."}}, {"@type": "Question", "name": "How is this different from Bonsai, PandaDoc, Proposify or HoneyBook?", "acceptedAnswer": {"@type": "Answer", "text": "Those are paid platforms with online signing, payments and client portals. This is a free, private document builder: you fill in the scope, timeline and price, print a clean PDF and send it yourself. Nothing is uploaded and there is no signup, so it suits one-person shops that mainly need the document."}}, {"@type": "Question", "name": "What pricing models can a proposal use?", "acceptedAnswer": {"@type": "Answer", "text": "Four: a fixed price from line items, good-better-best options the client picks between, hourly with a not-to-exceed cap, and a monthly retainer with included hours. Each can carry a tax rate, a deposit and payment milestones."}}, {"@type": "Question", "name": "Are the contract clauses legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. The change-order, revision, payment, ownership and cancellation wording is generic template text filled in from the numbers you enter. It is not legal advice and it may not suit where you work or what you sell. Have a lawyer review any contract before you rely on it."}}, {"@type": "Question", "name": "Can the client sign it electronically?", "acceptedAnswer": {"@type": "Answer", "text": "Not in this tool. The printed acceptance block has signature lines for a pen or for a signed PDF, or a client can reply to accept in writing. If you need an audit trail, use a dedicated e-signature service."}}, {"@type": "Question", "name": "Where are my proposals stored?", "acceptedAnswer": {"@type": "Answer", "text": "In your browser on this device only. Clearing site data removes them, so use Download backup now and then; the file restores on any device. Nothing is uploaded."}}, {"@type": "Question", "name": "What happens when a client accepts?", "acceptedAnswer": {"@type": "Answer", "text": "Mark the proposal accepted and choose the option they picked. Send to Estimate Maker then adds the pricing as a draft estimate in Estimate Maker on this device, from where a won job can become an invoice in Invoice Maker."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this proposal maker really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no watermark, no proposal limit, no account and no trial. It runs in your browser, so it costs nothing to serve, and it stays free."}}, {"@type": "Question", "name": "How is this different from Bonsai, PandaDoc, Proposify or HoneyBook?", "acceptedAnswer": {"@type": "Answer", "text": "Those are paid platforms with online signing, payments and client portals. This is a free, private document builder: you fill in the scope, timeline and price, print a clean PDF and send it yourself. Nothing is uploaded and there is no signup, so it suits one-person shops that mainly need the document."}}, {"@type": "Question", "name": "What pricing models can a proposal use?", "acceptedAnswer": {"@type": "Answer", "text": "Four: a fixed price from line items, good-better-best options the client picks between, hourly with a not-to-exceed cap, and a monthly retainer with included hours. Each can carry a tax rate, a deposit and payment milestones."}}, {"@type": "Question", "name": "Are the contract clauses legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. The change-order, revision, payment, ownership and cancellation wording is generic template text filled in from the numbers you enter. It is not legal advice and it may not suit where you work or what you sell. Have a lawyer review any contract before you rely on it."}}, {"@type": "Question", "name": "Can the client sign it electronically?", "acceptedAnswer": {"@type": "Answer", "text": "Not in this page, which never uploads anything. The printed acceptance block has signature lines for a pen or for a signed PDF. If you want a private signing link with a typed-name acceptance, a timestamped certificate and an email when it is opened or signed, deploy the optional open-source signing server (server.mjs, one-click on Render, Fly.io or Docker) in your own account and upload the downloaded HTML file to it. Whether a typed-name acceptance is enough for your contract is a question for a lawyer."}}, {"@type": "Question", "name": "Where are my proposals stored?", "acceptedAnswer": {"@type": "Answer", "text": "In your browser on this device only. Clearing site data removes them, so use Download backup now and then; the file restores on any device. Nothing is uploaded."}}, {"@type": "Question", "name": "What happens when a client accepts?", "acceptedAnswer": {"@type": "Answer", "text": "Mark the proposal accepted and choose the option they picked. Send to Estimate Maker then adds the pricing as a draft estimate in Estimate Maker on this device, from where a won job can become an invoice in Invoice Maker."}}, {"@type": "Question", "name": "Does it use AI, and is my data sent anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you choose to. The wording draft works with no key, building a starter from the nearest trade template. If you add your own API key for Anthropic, OpenAI, Gemini or an OpenAI-compatible endpoint, your short brief is sent from your browser straight to that provider, never to us. The AI never writes prices, dates or contract clauses, and every draft needs your review."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4f8; }
     body { max-width: 1040px; margin: auto; padding: 28px; }
@@ -91,6 +91,7 @@
   <section class="card noprint" id="dash" aria-live="polite">
     <h2>Your proposals</h2>
     <div class="kpis" id="kpis"></div>
+    <div id="followups" hidden></div>
     <div class="scroll"><table><thead><tr><th scope="col">Proposal</th><th scope="col">Client</th><th scope="col">Project</th><th scope="col">Valid until</th><th scope="col">Status</th><th class="n" scope="col">Value</th><th scope="col"><span class="sr">Actions</span></th></tr></thead><tbody id="list"></tbody></table></div>
     <p class="note" id="empty" hidden>No proposals yet. Fill in the form below and press Save proposal, or load the example.</p>
   </section>
@@ -201,8 +202,33 @@
     <p>
       <button type="button" id="save">Save proposal</button>
       <button type="button" class="secondary" id="print">Print / Save as PDF</button>
+      <button type="button" class="secondary" id="download-html">Download as HTML file</button>
       <button type="button" class="secondary" id="new">New proposal</button>
     </p>
+    <p>
+      <label for="tpl">Or start from a template (replaces the form; your details and numbering are kept)</label>
+      <select id="tpl"><option value="">Choose a trade…</option></select>
+      <button type="button" class="secondary" id="use-tpl">Use template</button>
+    </p>
+    <details class="noprint" id="ai-box">
+      <summary>Draft the wording from a short brief (optional AI on your own key)</summary>
+      <p class="note">Describe the job in a few lines and get a first draft of the summary, problem, goals, scope and assumptions in the form above. It never writes prices, dates or contract clauses. With no key it builds a starter from the nearest trade template. With your own key, your brief goes straight from this browser to the provider you pick, and nowhere else. Read and edit every line before you send: it is a draft, not advice.</p>
+      <div class="grid">
+        <div><label for="ai-work">Work you are offering</label><textarea id="ai-work" placeholder="Redesign and rebuild a 6-page site on WordPress"></textarea></div>
+        <div><label for="ai-situation">Client's situation (optional)</label><textarea id="ai-situation" placeholder="Site is slow, not mobile friendly, gets no enquiries"></textarea></div>
+        <div><label for="ai-leave">Leave out (optional)</label><textarea id="ai-leave" placeholder="Copywriting, hosting"></textarea></div>
+      </div>
+      <p class="note">To keep everything on your own computer, run a model locally with Ollama, LM Studio or llama.cpp and pick it below: no key, no cost per use, and the text goes only to your machine. Name a model you have downloaded (for Ollama, <code>ollama list</code> shows them). The local server must allow this page: start Ollama with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code> set, or switch on CORS in LM Studio's server settings. Your browser may ask whether this site may reach devices on your network.</p>
+      <div class="grid">
+        <div><label for="ai-provider">Provider</label><select id="ai-provider"><option value="">None (starter only)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="ollama">Ollama (on your computer, no key)</option><option value="lmstudio">LM Studio (on your computer, no key)</option><option value="llamacpp">llama.cpp server (on your computer, no key)</option><option value="openai-compatible">Other (OpenAI-compatible, e.g. OpenRouter, Ollama)</option></select></div>
+        <div><label for="ai-model">Model (required except Anthropic)</label><input id="ai-model" autocomplete="off"></div>
+        <div><label for="ai-base">Base URL (other providers only)</label><input id="ai-base" autocomplete="off" placeholder="http://localhost:11434/v1"></div>
+        <div><label for="ai-key">API key</label><input id="ai-key" type="password" autocomplete="off"></div>
+      </div>
+      <p><label class="inline" for="ai-remember"><input id="ai-remember" type="checkbox"> Remember the key in this browser</label>
+        <button type="button" class="secondary" id="ai-go">Draft the wording</button></p>
+      <p class="note" id="ai-status" aria-live="polite"></p>
+    </details>
     <p class="note" id="status"></p>
   </section>
 
@@ -229,7 +255,7 @@
       <li><strong>Maths in whole cents.</strong> Each price is a sum of lines plus one tax rate on the whole price. Deposit and milestones are percentages of the total, and the final balance is the remainder, so the schedule always adds up exactly.</li>
       <li><strong>Dates are computed, not guessed.</strong> Phases run back to back from your start date in calendar days. The finish date is a plan, not a promise, and moves if the client is late.</li>
       <li><strong>Clauses are templates.</strong> Change orders, revisions, client responsibilities, payment, ownership and cancellation are generic wording that follows the numbers you type. They are not legal advice and are not tailored to where you work; have a lawyer review any contract.</li>
-      <li><strong>Not modelled:</strong> e-signatures and audit trails (the signature block is for a pen or a signed PDF), online payment, multiple tax rates, per-line tax, currency conversion, and any rule about what a contract must contain where you work.</li>
+      <li><strong>Not modelled:</strong> e-signatures in the page itself (the signature block is for a pen or a signed PDF; the optional signing server adds a typed-name acceptance with a certificate), online payment, multiple tax rates, per-line tax, currency conversion, and any rule about what a contract must contain where you work.</li>
     </ul>
   </section>
 
@@ -244,25 +270,29 @@
     <h3>Are the contract clauses legal advice?</h3>
     <p>No. The change-order, revision, payment, ownership and cancellation wording is generic template text filled in from the numbers you enter. It is not legal advice and it may not suit where you work or what you sell. Have a lawyer review any contract before you rely on it.</p>
     <h3>Can the client sign it electronically?</h3>
-    <p>Not in this tool. The printed acceptance block has signature lines for a pen or for a signed PDF, or a client can reply to accept in writing. If you need an audit trail, use a dedicated e-signature service.</p>
+    <p>Not in this page, which never uploads anything. The printed acceptance block has signature lines for a pen or for a signed PDF. If you want a private signing link with a typed-name acceptance, a timestamped certificate and an email when it is opened or signed, deploy the optional open-source signing server (server.mjs, one-click on Render, Fly.io or Docker) in your own account and upload the downloaded HTML file to it. Whether a typed-name acceptance is enough for your contract is a question for a lawyer.</p>
     <h3>Where are my proposals stored?</h3>
     <p>In your browser on this device only. Clearing site data removes them, so use Download backup now and then; the file restores on any device. Nothing is uploaded.</p>
     <h3>What happens when a client accepts?</h3>
     <p>Mark the proposal accepted and choose the option they picked. Send to Estimate Maker then adds the pricing as a draft estimate in Estimate Maker on this device, from where a won job can become an invoice in Invoice Maker.</p>
+    <h3>Does it use AI, and is my data sent anywhere?</h3>
+    <p>Only if you choose to. The wording draft works with no key, building a starter from the nearest trade template. If you add your own API key for Anthropic, OpenAI, Gemini or an OpenAI-compatible endpoint, your short brief is sent from your browser straight to that provider, never to us. The AI never writes prices, dates or contract clauses, and every draft needs your review.</p>
   </section>
 
   <footer class="noprint">
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. The contract wording it prints is generic template text, not legal advice: have a lawyer review any contract before you rely on it. It formats the numbers you enter; whether a proposal binds you, which tax rate applies, and what a contract must contain depend on where you work, so confirm them with the relevant authority or a professional.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
-    <p>Everything runs in your browser. Your proposals are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>proposal_saved</code>, <code>proposal_printed</code>, <code>backup_downloaded</code>, <code>example_loaded</code>, <code>estimate_exported</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p>Everything runs in your browser. Your proposals are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>proposal_saved</code>, <code>proposal_printed</code>, <code>proposal_html_downloaded</code>, <code>backup_downloaded</code>, <code>example_loaded</code>, <code>template_used</code>, <code>estimate_exported</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Accepted the job? Send the pricing to <a href="../estimate-maker/">Estimate Maker</a>, then bill it with <a href="../invoice-maker/">Invoice Maker</a>. Track the hours in <a href="../time-tracker/">Time Tracker</a> and see everything at once on the <a href="../freelance-dashboard/">Freelance Dashboard</a>. Checking a contract someone sent you? Try the <a href="../freelance-contract-checker/">freelance contract checker</a>. Setting your price? Try the <a href="../quote-margin-check/">quote margin check</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { esc, normalizeProposal, pricingOptions, paymentSchedule, finishDate, status, proposalValue, nextNumber, duplicateNumbers, pipeline, duplicateProposal, validUntil, validate, renderProposal, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, formatMoney, addDays, CLAUSE_KEYS, MAX_TIERS } from "./calc.mjs";
+    import { esc, followUps, followUpText, normalizeProposal, pricingOptions, paymentSchedule, finishDate, status, proposalValue, nextNumber, duplicateNumbers, pipeline, duplicateProposal, validUntil, validate, renderProposal, standaloneHtml, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, formatMoney, addDays, CLAUSE_KEYS, MAX_TIERS } from "./calc.mjs";
+    import { TEMPLATES, applyTemplate } from "./templates.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { draftProposal } from "./ai.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "proposal-maker-data";
     const today = () => new Date().toISOString().slice(0, 10);
@@ -431,6 +461,10 @@
       const s = pipeline(data.proposals, t0);
       const money = (c) => esc(formatMoney(c, "USD"));
       $("#kpis").innerHTML = `<div class="kpi"><b>${s.winRate === null ? "–" : Math.round(s.winRate * 100) + "%"}</b><span>Win rate (decided proposals)</span></div><div class="kpi"><b>${money(s.openValue)}</b><span>${s.open} open proposal${s.open === 1 ? "" : "s"}</span></div><div class="kpi"><b>${money(s.wonValue)}</b><span>Accepted (${s.accepted})</span></div><div class="kpi"><b>${s.sent}</b><span>Sent in total</span></div>`;
+      const fu = followUps(data.proposals, t0);
+      const fuNote = (f) => f.reason === "expiring" ? (f.daysLeft <= 0 ? "expires today" : "expires in " + f.daysLeft + (f.daysLeft === 1 ? " day" : " days")) : "sent " + f.quietDays + " days ago, no answer";
+      $("#followups").hidden = !fu.length;
+      $("#followups").innerHTML = fu.length ? `<h3>Follow up (${esc(fu.length)})</h3><ul>` + fu.map((f) => `<li data-id="${esc(f.id)}">${esc(f.number)} ${esc(f.clientName)}: ${esc(fuNote(f))} <button type="button" class="secondary small" data-fu="1">Copy follow-up note</button></li>`).join("") + "</ul>" : "";
       $("#empty").hidden = data.proposals.length > 0;
       const sorted = [...data.proposals].sort((a, b) => (b.issued || "").localeCompare(a.issued || "") || String(b.number).localeCompare(String(a.number)));
       $("#list").innerHTML = sorted.map((e) => {
@@ -445,6 +479,13 @@
     }
 
     const download = (name, text, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+
+    $("#followups").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-fu]"); if (!btn) return;
+      const f = followUps(data.proposals, today()).find((x) => x.id === btn.closest("li").dataset.id); if (!f) return;
+      const txt = followUpText(f);
+      (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => { btn.textContent = "Copied"; }, () => { prompt("Copy this note:", txt); });
+    });
 
     $("#list").addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-a]"); if (!btn) return;
@@ -515,7 +556,43 @@
 
     $("#save").onclick = save;
     $("#print").onclick = () => { record("proposal_printed"); window.print(); };
+    $("#download-html").onclick = () => {
+      const p = read();
+      const css = [...document.querySelectorAll("style")].map((s) => s.textContent).join("\n").split("\n").filter((l) => l.includes("#preview")).join("\n");
+      download(`${(p.number || "proposal").replace(/[^\w.-]+/g, "-")}.html`, standaloneHtml(p, { css, today: today() }), "text/html");
+      record("proposal_html_downloaded");
+    };
     $("#new").onclick = () => { fill(blank()); $("#status").textContent = ""; };
+    for (const t of TEMPLATES) { const o = document.createElement("option"); o.value = t.id; o.textContent = t.label; $("#tpl").appendChild(o); }
+    $("#use-tpl").onclick = () => {
+      const id = $("#tpl").value;
+      if (!id) { $("#status").textContent = "Choose a template first."; return; }
+      fill(applyTemplate(blank(), id)); record("template_used");
+      $("#status").textContent = "Template loaded with placeholder rates and wording. Replace every [bracket] and price with your own.";
+    };
+    // ----- optional AI draft (own key, browser to provider) -----
+    const AIKEY = "proposal-maker-ai";
+    try { const c = JSON.parse(localStorage.getItem(AIKEY) || "null"); if (c) { $("#ai-provider").value = c.provider || ""; $("#ai-model").value = c.model || ""; $("#ai-base").value = c.baseUrl || ""; $("#ai-key").value = c.apiKey || ""; $("#ai-remember").checked = !!c.apiKey; } } catch { /* optional */ }
+    $("#ai-go").onclick = async () => {
+      const cfg = { provider: $("#ai-provider").value, model: $("#ai-model").value.trim(), baseUrl: $("#ai-base").value.trim(), apiKey: $("#ai-key").value.trim(), browser: true };
+      try { if ($("#ai-remember").checked) localStorage.setItem(AIKEY, JSON.stringify(cfg)); else localStorage.removeItem(AIKEY); } catch { /* optional */ }
+      const st = $("#ai-status");
+      st.textContent = "Drafting…"; $("#ai-go").disabled = true;
+      try {
+        const r = await draftProposal(cfg.provider ? cfg : {}, { work: $("#ai-work").value, situation: $("#ai-situation").value, leaveOut: $("#ai-leave").value, client: $("#c-name").value });
+        const d = r.draft;
+        if (d.summary) $("#i-summary").value = d.summary;
+        if (d.problem) $("#i-problem").value = d.problem;
+        if (d.goals) $("#i-goals").value = d.goals;
+        if (d.assumptions) $("#i-assume").value = d.assumptions;
+        if (d.deliverables.length) { $("#deliverables").innerHTML = ""; d.deliverables.forEach(deliverableBlock); }
+        refresh();
+        record(r.source === "model" ? "ai_draft_model" : "ai_draft_starter");
+        st.textContent = r.source === "model" ? "Draft written by your model into the form above. Check every line, and add your own prices and dates."
+          : "Starter filled in without AI" + (r.error ? ` (the model call failed: ${r.error})` : cfg.provider ? " (key or model missing)" : " (no provider chosen)") + ". Replace every [bracket].";
+      } catch (e) { st.textContent = e.message; }
+      $("#ai-go").disabled = false;
+    };
     $("#add-deliverable").onclick = () => { deliverableBlock({}); refresh(); };
     $("#add-phase").onclick = () => { phaseRow({ days: 7 }); refresh(); };
     $("#add-milestone").onclick = () => { milestoneRow({}); refresh(); };

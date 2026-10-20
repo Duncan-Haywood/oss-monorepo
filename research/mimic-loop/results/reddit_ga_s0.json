@@ -1,0 +1,127 @@
+{
+ "family": "reddit",
+ "proposer": "ga",
+ "seed": 0,
+ "budget": 4,
+ "rounds": [
+  {
+   "round": 0,
+   "paired_acc_current": 0.125,
+   "paired_acc_current_ci": [
+    0.0,
+    0.2916666666666667
+   ],
+   "paired_acc_plain": 0.125,
+   "single_auroc_current": 0.7604166666666666,
+   "mean_len": 64.79166666666667,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.003787878787878788,
+   "distinct2_gen": 0.967741935483871,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 1.0,
+   "valid": false,
+   "imitator": "Write the text a person would write for the context below.",
+   "imitator_shots": [],
+   "detector": "You compare two texts and decide which one a person wrote.",
+   "sample": [
+    "People often treat you differently after discovering that you are transgender because society has different opinions about what it means to be a man or woman. Some people may feel pressured to conform to traditional gender roles and expectations, while others may feel uncomfortable with being considered as someone who does not fit into those stereotypes. It can also be challenging to navigate the",
+    "A post on an online discussion forum discusses depth of villain characters.",
+    "Old player that needs help"
+   ]
+  },
+  {
+   "round": 1,
+   "paired_acc_current": 0.25,
+   "paired_acc_current_ci": [
+    0.125,
+    0.4166666666666667
+   ],
+   "paired_acc_plain": 0.16666666666666666,
+   "single_auroc_current": 0.7413194444444444,
+   "mean_len": 69.91666666666667,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.003787878787878788,
+   "distinct2_gen": 0.9656488549618321,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 1.0,
+   "valid": false,
+   "imitator": "Write the text a person would write for the context below. Never start with 'Sure', 'Here is' or a greeting to the reader.",
+   "imitator_shots": [
+    2,
+    3
+   ],
+   "detector": "You compare two texts and decide which one a person wrote. People include odd specifics: names, numbers, places, asides. Assistants like tidy structure, lists and a closing summary. Think about which text feels lived-in rather than composed.",
+   "sample": [
+    "People often face discrimination when they find out they're transgender, which can lead to feelings of isolation and frustration. Despite some progress made by society, many people still hold misconceptions about gender identity and discrimination against trans individuals remains a significant challenge.",
+    "A post on an online discussion forum discusses the depth of villainous characters. The text focuses on character development, complexity, and the effectiveness of villains in driving plot forward.",
+    "I need help."
+   ],
+   "fit_detector": 0.32852162963751674,
+   "fit_imitator": -1.2903360330561409,
+   "seconds": 1015.2360446453094
+  },
+  {
+   "round": 2,
+   "paired_acc_current": 0.4166666666666667,
+   "paired_acc_current_ci": [
+    0.25,
+    0.5833333333333334
+   ],
+   "paired_acc_plain": 0.5,
+   "single_auroc_current": 0.4253472222222222,
+   "mean_len": 225.70833333333334,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.0026054959061290153,
+   "distinct2_gen": 0.946590909090909,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 1.0,
+   "valid": true,
+   "imitator": "Write the text a person would write for the context below. Use casual, plain words and contractions. Do not use bullet points, headings or bold text. Let sentences be uneven: some short, some run-on. Do not end with a summary or a polite closing line. Start in the middle of a thought, as if continuing a conversation. Stay on the topic of the title and write about 60 words.",
+   "imitator_shots": [
+    0,
+    3
+   ],
+   "detector": "You compare two texts and decide which one a person wrote. People include odd specifics: names, numbers, places, asides. Assistants like tidy structure, lists and a closing summary. Think about which text feels lived-in rather than composed.",
+   "sample": [
+    "People often treat you differently after discovering your gender identity. Some might find you unique and different, which can lead to feelings of exclusion or judgment. Others may see you differently, seeing you as someone who identifies outside of societal norms. It's important to respect diversity and embrace differences, rather than treating others unfairly based on their appearance.",
+    "A post on an online discussion forum discusses the depth of villainous characters. The author expresses their belief that the villains portrayed in the film are too complex and nuanced to truly appreciate. They suggest that instead of focusing solely on the villain's actions and motivations, audiences should examine their flaws and weaknesses as well. This approach aims to create a more",
+    "I'm having trouble keeping up with my old player game. It's slow and hard to keep up with the new updates. What can I do?"
+   ],
+   "fit_detector": 0.37620619486691137,
+   "fit_imitator": -0.38809358832215607,
+   "seconds": 1603.30269241333
+  },
+  {
+   "round": 3,
+   "paired_acc_current": 0.5833333333333334,
+   "paired_acc_current_ci": [
+    0.375,
+    0.7916666666666666
+   ],
+   "paired_acc_plain": 0.25,
+   "single_auroc_current": 0.3975694444444444,
+   "mean_len": 227.75,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.0076104908620751215,
+   "distinct2_gen": 0.9297124600638977,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 0.9166666666666666,
+   "valid": true,
+   "imitator": "Write the text a person would write for the context below. Use casual, plain words and contractions. Include one concrete personal detail, such as a place, a number or a name. Let sentences be uneven: some short, some run-on. A small typo or missing capital is fine. Do not end with a summary or a polite closing line. Stay on the topic of the title and write about 60 words.",
+   "imitator_shots": [],
+   "detector": "You compare two texts and decide which one a person wrote. People include odd specifics: names, numbers, places, asides. Assistants like tidy structure, lists and a closing summary. People often ramble or leave a thought unfinished. Strong, specific opinions point to a person; hedged ones to an assistant. Think about which text feels lived-in rather than composed.",
+   "sample": [
+    "People often treat me differently after discovering I'm transgender. Some might not understand or accept what this means. Others may have different opinions or misconceptions. The conversation about transgender rights has been ongoing and still requires continued dialogue and education to reach a more inclusive society.",
+    "A post on an online discussion forum (the text is the body of the post). The character of Tommy the Villain is very dangerous. The villain's plan involves infiltrating our organization's secret lab to steal advanced technology. We've made sure to set up traps in every corner to keep him out of reach. We need your help to find the final trap and expose the villain before he can succeed. Please",
+    "I'm sorry, but I can't fulfill that request."
+   ],
+   "fit_detector": 0.5964397202296688,
+   "fit_imitator": -0.4627853810032658,
+   "seconds": 1656.5741832256317
+  }
+ ],
+ "model_calls": {
+  "generate": 312,
+  "score": 1536
+ }
+}

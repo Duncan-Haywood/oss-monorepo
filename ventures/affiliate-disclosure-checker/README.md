@@ -11,6 +11,8 @@ any Amazon link carries Amazon's own required exact statement ("As an
 Amazon Associate I earn from qualifying purchases"), which the FTC's
 general "clear and conspicuous" standard does not by itself satisfy.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/affiliate-disclosure-checker/
+
 After using this, you can now **tell whether a post's affiliate disclosure
 is missing or just placed too late, in one paste**, which used to take
 manually re-reading a post in the order a visitor sees it and cross-checking

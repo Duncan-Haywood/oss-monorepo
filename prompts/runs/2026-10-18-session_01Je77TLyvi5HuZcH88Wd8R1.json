@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01Je77TLyvi5HuZcH88Wd8R1",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T22:17:41Z",
+  "ended": "2026-10-18T22:17:52Z",
+  "wall_minutes": 3.02,
+  "tokens_in": 1166356,
+  "tokens_out": 4535,
+  "cost_usd": 0.4569,
+  "tool_calls": 19,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Target platform/ci/adopt_stranded.py: 8 seeded, 6 caught, 2 gaps (age divisor, ellipsis boundary) now guarded; rerun catch_rate_after_fix 1.0. Brief read of the target found no real defects.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/adopt_stranded.py",
+        "test": "/usr/local/bin/python3 -m unittest test_adopt_stranded  (in platform/ci)",
+        "seed": 364968458,
+        "commit": "4150d816",
+        "sites": 51,
+        "baseline_seconds": 5.8,
+        "mutants": [
+          {
+            "file": "platform/ci/adopt_stranded.py",
+            "line": 78,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "DEFAULT_MIN_AGE_HOURS = 6",
+            "after": "DEFAULT_MIN_AGE_HOURS = 7",
+            "line_text": "DEFAULT_MIN_AGE_HOURS = 6",
+            "caught": true,
+            "seconds": 5.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/adopt_stranded.py",
+            "line": 95,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "TITLE_LIMIT = 200",
+            "after": "TITLE_LIMIT = 201",
+            "line_text": "TITLE_LIMIT = 200",
+            "caught": true,
+            "seconds": 5.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/adopt_stranded.py",
+            "line": 117,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "subject = self.commits[0].subject.strip() or self.branch",
+            "after": "subject = self.commits[1].subject.strip() or self.branch",
+            "line_text": "        subject = self.commits[0].subject.strip() or self.branch",
+            "caught": true,
+            "seconds": 6.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/adopt_stranded.py",
+            "line": 164,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "return (now - int(stamp)) / 3600",
+            "after": "return (now - int(stamp)) / 3601",
+            "line_text": "    return (now - int(stamp)) / 3600",
+            "caught": false,
+            "seconds": 6.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in platform/ci/test_adopt_stranded.py"
+          },
+          {
+            "file": "platform/ci/adopt_stranded.py",
+            "line": 203,
+            "col": 36,
+            "operator": "eq-flip",
+            "before": "(unlanded if main.get(path) == forked.get(path) else contested).append(path)",
+            "after": "(unlanded if main.get(path) != forked.get(path) else contested).append(path)",
+            "line_text": "        (unlanded if main.get(path) == forked.get(path) else contested).append(path)",
+            "caught": true,
+            "seconds": 6.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/adopt_stranded.py",
+            "line": 228,
+            "col": 53,
+            "operator": "plus-to-minus",
+            "before": "shown = \", \".join(contested[:3]) + (\" ...\" if len(contested) > 3 else \"\")",
+            "after": "shown = \", \".join(contested[:3]) - (\" ...\" if len(contested) > 3 else \"\")",
+            "line_text": "                    shown = \", \".join(contested[:3]) + (\" ...\" if len(contested) > 3 else \"\")",
+            "caught": true,
+            "seconds": 6.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/adopt_stranded.py",
+            "line": 228,
+            "col": 81,
+            "operator": "gt-to-ge",
+            "before": "shown = \", \".join(contested[:3]) + (\" ...\" if len(contested) > 3 else \"\")",
+            "after": "shown = \", \".join(contested[:3]) + (\" ...\" if len(contested) >= 3 else \"\")",
+            "line_text": "                    shown = \", \".join(contested[:3]) + (\" ...\" if len(contested) > 3 else \"\")",
+            "caught": false,
+            "seconds": 6.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in platform/ci/test_adopt_stranded.py"
+          },
+          {
+            "file": "platform/ci/adopt_stranded.py",
+            "line": 336,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "return 1 if failed else 0",
+            "after": "return 1 if failed else 1",
+            "line_text": "    return 1 if failed else 0",
+            "caught": true,
+            "seconds": 7.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4449ab3b-5136-5b3e-bc46-8d2761124134",
+    "transcripts": 1,
+    "first": "2026-10-18T22:17:41Z",
+    "last": "2026-10-18T22:20:42Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 17,
+        "input": 34,
+        "output": 4535,
+        "thinking": 311,
+        "cache_read": 1119429,
+        "cache_write_5m": 0,
+        "cache_write_1h": 46893,
+        "api_equivalent_usd": 0.4569,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 17,
+      "input": 34,
+      "output": 4535,
+      "thinking": 311,
+      "cache_read": 1119429,
+      "cache_write_5m": 0,
+      "cache_write_1h": 46893,
+      "api_equivalent_usd": 0.4569,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 19,
+    "tools": {
+      "Bash": 17,
+      "Read": 2
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.02,
+      "active_minutes": 3.02,
+      "model_minutes": 0.73,
+      "tool_minutes": 2.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "estimate: seed, triage and write two boundary tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 218.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

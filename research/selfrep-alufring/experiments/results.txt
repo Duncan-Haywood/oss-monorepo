@@ -1,0 +1,27 @@
+carriage 0.3 kg, rod 420 mm, zeta 0.01, ringing tolerance 50 um (assumptions)
+== max acceleration (m/s^2) inside the ringing tolerance, abrupt step (worst case)
+d mm   steel  aluminium  hardwood
+   8      4.34      1.50      0.22
+  10     10.60      3.66      0.53
+  12     21.98      7.58      1.10
+
+== smallest diameter (mm) for a target acceleration, abrupt step ('-' = none under 100 mm)
+a m/s^2  steel  aluminium  hardwood
+     1        5.6       7.2      11.8
+     2        6.6       8.6      14.0
+     3        7.3       9.6      15.5
+     5        8.3      10.9      17.6
+    10        9.9      12.9      20.9
+
+== same, with the force ramped over 20 ms (ramp shaping)
+a m/s^2  steel  aluminium  hardwood
+     1        5.2       6.8      11.0
+     2        6.0       7.8      12.5
+     3        6.4       8.2      13.4
+     5        6.9       8.9      14.3
+    10        7.5       9.6      15.5
+
+== ring-down to 10% of amplitude at 10 mm (ms)
+steel      f= 61.5 Hz  settle     596 ms
+aluminium  f= 40.2 Hz  settle     911 ms
+hardwood   f= 16.1 Hz  settle    2278 ms

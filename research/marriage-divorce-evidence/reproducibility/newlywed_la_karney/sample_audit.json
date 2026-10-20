@@ -1,0 +1,142 @@
+{
+ "couples": 368,
+ "divorced": 145,
+ "person_periods": 2671,
+ "events_by_period": {
+  "02": 11,
+  "03": 13,
+  "04": 12,
+  "05": 18,
+  "06": 57,
+  "07": 19,
+  "08": 5,
+  "09": 5,
+  "10": 5
+ },
+ "events_reported_after_a_missed_wave": 36,
+ "status_reversals": 1,
+ "missing_inputs": {
+  "H_educ_D": 1,
+  "income_k": 2,
+  "Low_income_D": 2,
+  "H_substance_D": 13,
+  "H_ACE_D": 34,
+  "H_abuse_D": 2,
+  "W_substance_D": 17,
+  "W_ACE_D": 35,
+  "H_Positivity": 11,
+  "W_Positivity": 11,
+  "H_Negativity": 11,
+  "W_Negativity": 11,
+  "H_Effective": 11,
+  "W_Effective": 11
+ },
+ "tuned_choices_outer": {
+  "period_only": {
+   "None": 100
+  },
+  "ses": {
+   "0.0003": 20,
+   "0.001": 3,
+   "0.003": 46,
+   "0.01": 29,
+   "0.03": 2
+  },
+  "vulnerabilities": {
+   "0.0003": 14,
+   "0.003": 2,
+   "0.01": 27,
+   "0.03": 54,
+   "0.1": 3
+  },
+  "satisfaction": {
+   "0.0003": 17,
+   "0.01": 10,
+   "0.03": 38,
+   "0.1": 28,
+   "0.3": 7
+  },
+  "observed": {
+   "0.0003": 43,
+   "0.001": 2,
+   "0.003": 9,
+   "0.01": 34,
+   "0.03": 9,
+   "0.1": 3
+  },
+  "hostility": {
+   "0.0003": 16,
+   "0.003": 2,
+   "0.01": 44,
+   "0.03": 32,
+   "0.1": 5,
+   "0.3": 1
+  },
+  "sat_observed": {
+   "0.0003": 17,
+   "0.003": 5,
+   "0.01": 29,
+   "0.03": 44,
+   "0.1": 5
+  },
+  "ses_vul_sat": {
+   "0.0003": 7,
+   "0.003": 13,
+   "0.01": 74,
+   "0.03": 6
+  },
+  "ses_vul_sat_host": {
+   "0.0003": 5,
+   "0.003": 17,
+   "0.01": 76,
+   "0.03": 2
+  },
+  "ses_vul_sat_obs": {
+   "0.0003": 10,
+   "0.003": 10,
+   "0.01": 74,
+   "0.03": 6
+  },
+  "all": {
+   "0.0003": 5,
+   "0.003": 15,
+   "0.01": 76,
+   "0.03": 4
+  },
+  "all_lasso": {
+   "0.02": 12,
+   "0.05": 8,
+   "0.1": 55,
+   "0.2": 24,
+   "0.5": 1
+  },
+  "tree": {
+   "(1, 60)": 40,
+   "(2, 120)": 38,
+   "(2, 60)": 17,
+   "(3, 120)": 4,
+   "(3, 240)": 1
+  }
+ },
+ "final_hyperparameters": {
+  "period_only": null,
+  "ses": 0.01,
+  "vulnerabilities": 0.03,
+  "satisfaction": 0.01,
+  "observed": 0.03,
+  "hostility": 0.1,
+  "sat_observed": 0.01,
+  "ses_vul_sat": 0.01,
+  "ses_vul_sat_host": 0.01,
+  "ses_vul_sat_obs": 0.01,
+  "all": 0.01,
+  "all_lasso": 0.2,
+  "tree": [
+   1,
+   60
+  ]
+ },
+ "ood_heldout_d2_p99": 72.31984846005834,
+ "python_sklearn": "1.7.2",
+ "runtime_seconds": 51
+}

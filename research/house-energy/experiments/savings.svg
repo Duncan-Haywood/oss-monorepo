@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-label="Bar chart of the 30-year net present cost saving of the cost-optimal envelope over a baseline house, by city: Miami (1A): gas $2,173, heat pump $2,175; Houston (2A): gas $2,133, heat pump $2,164; Atlanta (3A): gas $2,137, heat pump $2,289; Albuquerque (4B): gas $2,310, heat pump $2,695; Baltimore (4A): gas $2,376, heat pump $2,821; Chicago (5A): gas $2,704, heat pump $3,329; Minneapolis (6A): gas $3,053, heat pump $3,877; Duluth (7): gas $3,514, heat pump $4,561">
+<rect width="720" height="420" fill="#fff"/>
+<text x="360.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">What the cost-optimal envelope saves over the baseline house, 30-year net present cost</text>
+<text x="360.0" y="40" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">Stylised degree-day model; assumed prices; most of it is advanced framing at no extra cost</text>
+<rect x="60" y="48" width="10" height="10" fill="#b5651d"/><text x="74" y="57" font-family="sans-serif" font-size="11">gas furnace + AC</text>
+<rect x="190" y="48" width="10" height="10" fill="#2a6f97"/><text x="204" y="57" font-family="sans-serif" font-size="11">heat pump</text>
+<line x1="60" x2="700" y1="330.0" y2="330.0" stroke="#ddd"/>
+<text x="54" y="334.0" text-anchor="end" font-family="sans-serif" font-size="11">$0</text>
+<line x1="60" x2="700" y1="278.0" y2="278.0" stroke="#ddd"/>
+<text x="54" y="282.0" text-anchor="end" font-family="sans-serif" font-size="11">$1,000</text>
+<line x1="60" x2="700" y1="226.0" y2="226.0" stroke="#ddd"/>
+<text x="54" y="230.0" text-anchor="end" font-family="sans-serif" font-size="11">$2,000</text>
+<line x1="60" x2="700" y1="174.0" y2="174.0" stroke="#ddd"/>
+<text x="54" y="178.0" text-anchor="end" font-family="sans-serif" font-size="11">$3,000</text>
+<line x1="60" x2="700" y1="122.0" y2="122.0" stroke="#ddd"/>
+<text x="54" y="126.0" text-anchor="end" font-family="sans-serif" font-size="11">$4,000</text>
+<line x1="60" x2="700" y1="70.0" y2="70.0" stroke="#ddd"/>
+<text x="54" y="74.0" text-anchor="end" font-family="sans-serif" font-size="11">$5,000</text>
+<rect x="69.6" y="217.0" width="28.4" height="113.0" fill="#b5651d"/>
+<rect x="100.0" y="216.9" width="28.4" height="113.1" fill="#2a6f97"/>
+<text x="100.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">Miami</text>
+<text x="100.0" y="360" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">(1A)</text>
+<rect x="149.6" y="219.1" width="28.4" height="110.9" fill="#b5651d"/>
+<rect x="180.0" y="217.5" width="28.4" height="112.5" fill="#2a6f97"/>
+<text x="180.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">Houston</text>
+<text x="180.0" y="360" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">(2A)</text>
+<rect x="229.6" y="218.9" width="28.4" height="111.1" fill="#b5651d"/>
+<rect x="260.0" y="211.0" width="28.4" height="119.0" fill="#2a6f97"/>
+<text x="260.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">Atlanta</text>
+<text x="260.0" y="360" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">(3A)</text>
+<rect x="309.6" y="209.9" width="28.4" height="120.1" fill="#b5651d"/>
+<rect x="340.0" y="189.9" width="28.4" height="140.1" fill="#2a6f97"/>
+<text x="340.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">Albuquerque</text>
+<text x="340.0" y="360" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">(4B)</text>
+<rect x="389.6" y="206.4" width="28.4" height="123.6" fill="#b5651d"/>
+<rect x="420.0" y="183.3" width="28.4" height="146.7" fill="#2a6f97"/>
+<text x="420.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">Baltimore</text>
+<text x="420.0" y="360" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">(4A)</text>
+<rect x="469.6" y="189.4" width="28.4" height="140.6" fill="#b5651d"/>
+<rect x="500.0" y="156.9" width="28.4" height="173.1" fill="#2a6f97"/>
+<text x="500.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">Chicago</text>
+<text x="500.0" y="360" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">(5A)</text>
+<rect x="549.6" y="171.2" width="28.4" height="158.8" fill="#b5651d"/>
+<rect x="580.0" y="128.4" width="28.4" height="201.6" fill="#2a6f97"/>
+<text x="580.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">Minneapolis</text>
+<text x="580.0" y="360" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">(6A)</text>
+<rect x="629.6" y="147.3" width="28.4" height="182.7" fill="#b5651d"/>
+<rect x="660.0" y="92.8" width="28.4" height="237.2" fill="#2a6f97"/>
+<text x="660.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="11">Duluth</text>
+<text x="660.0" y="360" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">(7)</text>
+</svg>

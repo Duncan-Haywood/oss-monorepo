@@ -5,6 +5,8 @@ A free browser calculator for the One Big Beautiful Bill Act's permanent
 exclusion amount — $15,000,000 per person, up to $30,000,000 for a married
 couple who elects portability. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/estate-tax-exemption-calculator/
+
 After using this, you can now **project your federal estate tax exposure
 under the 2026 exclusion, with your own prior taxable gifts and any
 portability election factored in** — which used to take reading a law-firm

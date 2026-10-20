@@ -1,0 +1,69 @@
+house-unequal experiments (SPF No. 2, 2 spans, 1.5 in end bearing, 3.5 in at the beam, pattern loading)
+ratio = short clear span / long clear span; total = both clear spans added
+
+A. floor, 2x10 at 16 in: total clear width, long span, governing check
+  ratio 1.0: total 30' 6"  long span 15' 3"  total vs centred  +0.0%  governed by bending
+  ratio 0.9: total 30' 4"  long span 15'11"  total vs centred  -0.4%  governed by bending
+  ratio 0.8: total 29'11"  long span 16' 7"  total vs centred  -1.8%  governed by bending
+  ratio 0.7: total 29' 2"  long span 17' 2"  total vs centred  -4.3%  governed by bending
+  ratio 0.6: total 28' 0"  long span 17' 6"  total vs centred  -8.2%  governed by bending
+  ratio 0.5: total 26' 5"  long span 17' 7"  total vs centred -13.3%  governed by bending
+
+A. floor, 2x8 at 16 in: total clear width, long span, governing check
+  ratio 1.0: total 24'11"  long span 12' 5"  total vs centred  +0.0%  governed by bending
+  ratio 0.9: total 24' 9"  long span 13' 0"  total vs centred  -0.4%  governed by bending
+  ratio 0.8: total 24' 5"  long span 13' 7"  total vs centred  -1.8%  governed by bending
+  ratio 0.7: total 23'10"  long span 14' 0"  total vs centred  -4.3%  governed by bending
+  ratio 0.6: total 22' 8"  long span 14' 2"  total vs centred  -8.8%  governed by deflection live
+  ratio 0.5: total 21' 7"  long span 14' 4"  total vs centred -13.4%  governed by deflection live
+
+A. floor, 2x12 at 16 in: total clear width, long span, governing check
+  ratio 1.0: total 35' 5"  long span 17' 8"  total vs centred  +0.0%  governed by bending
+  ratio 0.9: total 35' 3"  long span 18' 6"  total vs centred  -0.4%  governed by bending
+  ratio 0.8: total 34' 9"  long span 19' 4"  total vs centred  -1.8%  governed by bending
+  ratio 0.7: total 33'10"  long span 19'11"  total vs centred  -4.3%  governed by bending
+  ratio 0.6: total 32' 6"  long span 20' 3"  total vs centred  -8.2%  governed by bending
+  ratio 0.5: total 30' 8"  long span 20' 5"  total vs centred -13.3%  governed by bending
+
+A. ceiling, 2x8 at 16 in: total clear width, long span, governing check
+  ratio 1.0: total 45' 8"  long span 22'10"  total vs centred  +0.0%  governed by bending
+  ratio 0.9: total 43' 4"  long span 22'10"  total vs centred  -5.1%  governed by deflection total
+  ratio 0.8: total 41' 0"  long span 22' 9"  total vs centred -10.2%  governed by deflection total
+  ratio 0.7: total 38'10"  long span 22'10"  total vs centred -15.1%  governed by deflection total
+  ratio 0.6: total 36' 8"  long span 22'11"  total vs centred -19.7%  governed by deflection total
+  ratio 0.5: total 34' 8"  long span 23' 1"  total vs centred -24.1%  governed by deflection total
+
+A. ceiling, 2x6 at 16 in: total clear width, long span, governing check
+  ratio 1.0: total 34' 8"  long span 17' 4"  total vs centred  +0.0%  governed by deflection total
+  ratio 0.9: total 32'10"  long span 17' 3"  total vs centred  -5.4%  governed by deflection total
+  ratio 0.8: total 31' 1"  long span 17' 3"  total vs centred -10.5%  governed by deflection total
+  ratio 0.7: total 29' 5"  long span 17' 3"  total vs centred -15.3%  governed by deflection total
+  ratio 0.6: total 27' 9"  long span 17' 4"  total vs centred -19.9%  governed by deflection total
+  ratio 0.5: total 26' 3"  long span 17' 6"  total vs centred -24.4%  governed by deflection total
+
+A. roof-snow30, 2x10 at 16 in: total clear width, long span, governing check
+  ratio 1.0: total 34' 6"  long span 17' 3"  total vs centred  +0.0%  governed by bending
+  ratio 0.9: total 34' 4"  long span 18' 1"  total vs centred  -0.4%  governed by bending
+  ratio 0.8: total 33'10"  long span 18'10"  total vs centred  -1.8%  governed by bending
+  ratio 0.7: total 33' 0"  long span 19' 5"  total vs centred  -4.3%  governed by bending
+  ratio 0.6: total 31' 8"  long span 19' 9"  total vs centred  -8.2%  governed by bending
+  ratio 0.5: total 29'11"  long span 19'11"  total vs centred -13.3%  governed by bending
+
+B. Beam offset from the middle that still clears a given floor width (2x10 SPF at 16 in, floor)
+  24 ft wide: beam may sit 5.5 ft from the middle (spans 17' 5" + 6' 6", ratio 0.37); at the middle the limit is 30' 6"
+  26 ft wide: beam may sit 4.6 ft from the middle (spans 17' 7" + 8' 4", ratio 0.47); at the middle the limit is 30' 6"
+  28 ft wide: beam may sit 3.5 ft from the middle (spans 17' 6" + 10' 5", ratio 0.60); at the middle the limit is 30' 6"
+  30 ft wide: beam may sit 1.6 ft from the middle (spans 16' 7" + 13' 4", ratio 0.80); at the middle the limit is 30' 6"
+
+C. Smallest end reaction over the live-load patterns (lb per joist; negative = the short end lifts off), longest long span beside each short span
+  floor 2x10 at 16 in, short  2 ft, long 16' 2": end reaction -913 lb
+  floor 2x10 at 16 in, short  4 ft, long 16'10": end reaction -445 lb
+  floor 2x10 at 16 in, short  6 ft, long 17' 4": end reaction -271 lb
+  floor 2x10 at 16 in, short  8 ft, long 17' 7": end reaction -172 lb
+  floor 2x10 at 16 in, short 10 ft, long 17' 6": end reaction -103 lb
+  ceiling 2x8 at 16 in, short  2 ft, long 23'10": end reaction -615 lb
+  ceiling 2x8 at 16 in, short  4 ft, long 24' 6": end reaction -302 lb
+  ceiling 2x8 at 16 in, short  6 ft, long 24' 0": end reaction -170 lb
+  ceiling 2x8 at 16 in, short  8 ft, long 23' 7": end reaction -104 lb
+  ceiling 2x8 at 16 in, short 10 ft, long 23' 3": end reaction -64 lb
+

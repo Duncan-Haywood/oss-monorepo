@@ -1,0 +1,39 @@
+Robust (gap 0.2) half-MBB, vf 0.5, p 3, beta 1..64 (30 it each); re-analysed at 0.5 +/- 0.2; one deterministic run per row.
+mean mv: mean move limit over the 210 iterations. FAIL: blueprint compliance > 1.5x the best of the three rules.
+
+mesh    r(px)  rule         c_e           c_b      c_d     spikes  mean mv   time  status
+ 60x20    2.0  fixed 0.2         223.8   196.11   170.80      0    0.200     8s  ok
+ 60x20    2.0  fixed 0.05        198.6   196.58   167.18      0    0.050     9s  ok
+ 60x20    2.0  adaptive          223.8   196.11   170.80      0    0.200     8s  ok
+ 60x20    2.5  fixed 0.2         259.1   202.04   173.57      1    0.200     9s  ok
+ 60x20    2.5  fixed 0.05        212.3   199.86   171.23      0    0.050     9s  ok
+ 60x20    2.5  adaptive          236.9   201.89   173.14      1    0.198     9s  ok
+ 60x20    3.0  fixed 0.2        1347.3   741.88   474.09      3    0.200     9s  FAIL
+ 60x20    3.0  fixed 0.05        224.0   200.29   169.49      0    0.050     9s  ok
+ 60x20    3.0  adaptive          237.5   201.58   170.11      2    0.182     9s  ok
+ 60x20    3.5  fixed 0.2        1361.3   737.20   491.57      1    0.200     9s  FAIL
+ 60x20    3.5  fixed 0.05        252.9   200.58   170.09      0    0.050     9s  ok
+ 60x20    3.5  adaptive         1332.3   746.94   490.52      1    0.190     9s  FAIL
+ 60x20    4.0  fixed 0.2        1441.9   746.72   460.36      2    0.200     9s  FAIL
+ 60x20    4.0  fixed 0.05        271.4   201.25   166.96      0    0.050     9s  ok
+ 60x20    4.0  adaptive          611.1   356.45   258.29      3    0.174     9s  FAIL
+ 60x20    5.0  fixed 0.2        1810.2   949.91   580.86      4    0.200     9s  FAIL
+ 60x20    5.0  fixed 0.05        384.8   230.67   165.37      0    0.050     9s  ok
+ 60x20    5.0  adaptive          406.5   229.30   167.92      4    0.156     9s  ok
+120x40    4.0  fixed 0.2         226.3   194.66   176.95      0    0.200    74s  ok
+120x40    4.0  fixed 0.05        216.8   193.69   177.17      0    0.050    73s  ok
+120x40    4.0  adaptive          226.3   194.66   176.95      0    0.200    73s  ok
+120x40    6.0  fixed 0.2         261.0   200.40   173.61      0    0.200    78s  ok
+120x40    6.0  fixed 0.05        236.3   198.25   171.28      0    0.050    76s  ok
+120x40    6.0  adaptive          261.0   200.40   173.61      0    0.200    76s  ok
+120x40    8.0  fixed 0.2         902.1   402.66   269.44      2    0.200    81s  FAIL
+120x40    8.0  fixed 0.05        284.0   203.38   169.78      0    0.050    79s  ok
+120x40    8.0  adaptive         2838.9   206.41   170.20      1    0.191    80s  ok
+
+fixed 0.2 : 5 of 9 runs failed
+fixed 0.05: 0 of 9 runs failed
+adaptive  : 2 of 9 runs failed
+
+fixed 0.2 : blueprint compliance / best-of-three, mean 2.360, max 4.143
+fixed 0.05: blueprint compliance / best-of-three, mean 1.001, max 1.006
+adaptive  : blueprint compliance / best-of-three, mean 1.394, max 3.724

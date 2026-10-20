@@ -7,6 +7,8 @@ on cost, simple payback, equity IRR and NPV over your hold period (with an
 optional appraised value uplift at sale), the rent you need to break even, and
 how the result moves with rent and build cost. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/adu-payback-calculator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, loan maths, year-by-year projection, IRR/NPV, sensitivities, CSV.

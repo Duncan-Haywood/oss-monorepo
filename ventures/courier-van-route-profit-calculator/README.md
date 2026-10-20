@@ -7,6 +7,8 @@ reserve and a tax set-aside. It shows **true profit per route, per hour and per 
 per mile, break-even stops, the **lowest route pay that hits your hourly target** after the
 set-aside, weekly and annual take-home, and compares two route offers side by side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/courier-van-route-profit-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

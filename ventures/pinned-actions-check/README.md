@@ -5,6 +5,8 @@ third-party action referenced by a mutable tag or branch (`@v4`, `@main`)
 instead of a pinned 40-character commit SHA — a documented GitHub Actions
 supply-chain hardening practice, not a novel claim.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/
+
 **What it is not:** a security audit, a compliance attestation, or a
 guarantee that your CI is safe from supply-chain attacks. It answers one
 narrow question — is this specific `uses:` reference pinned to a fixed

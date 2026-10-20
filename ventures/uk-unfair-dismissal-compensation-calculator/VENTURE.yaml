@@ -1,0 +1,37 @@
+name: uk-unfair-dismissal-compensation-calculator
+description: >-
+  Free browser tool for dismissed UK employees: enter dates and pay to estimate unfair dismissal compensation (basic award, compensatory award, the 52-week cap, Polkey and ACAS adjustments) and the three-months-less-a-day claim deadline. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; the portfolio has UK redundancy, holiday and sick pay tools but no unfair dismissal compensation estimate.
+#
+# First visitor: a recently dismissed employee searching "unfair dismissal compensation calculator" or "how much can I claim for unfair dismissal". High-intent, time-limited (3-month deadline) and under-served by free tools; volume not measured. Rivals are law-firm blog calculators that exist to capture the lead.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: employment-solicitor referral or document pack behind an env-var switch.
+#
+# Liability: weekly cap (751) and compensatory cap (118,223, April 2025 figure) written from memory and flagged on every result; the compensatory cap is editable. Every result tells the reader to verify on GOV.UK, carries no-warranty and not-legal-advice clauses and says what it does not decide (whether the dismissal was unfair, injury to feelings, tax, notice pay).
+hypotheses:
+  - claim: >-
+      Dismissed UK employees will use a free private estimator to size a claim and learn their deadline before contacting ACAS, because the alternatives are lead-capture forms.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a cap or rule differs from GOV.UK guidance.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-unfair-dismissal-compensation-calculator/
+  analytics: null

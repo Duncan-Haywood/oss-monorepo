@@ -1,0 +1,7 @@
+sample,model,reference,deviance_improvement_per_person_year,ci95_low,ci95_high
+currently_married_only,tree_depth2,additive_poisson,-0.0011076491233223003,-0.0015708485808821335,-0.0006606478579103594
+currently_married_only,tree_depth3,additive_poisson,-0.001371601520836565,-0.0018849613065280537,-0.0008507881745284477
+currently_married_only,spline_additive_poisson,additive_poisson,-6.549173472549251e-05,-0.00020974930838349936,7.126965283302643e-05
+legally_married_including_separated,tree_depth2,additive_poisson,0.0006284241460422948,-0.00011902736564102322,0.001391602279101663
+legally_married_including_separated,tree_depth3,additive_poisson,0.00039263308238429435,-0.00036923712782542745,0.0011365834561928266
+legally_married_including_separated,spline_additive_poisson,additive_poisson,3.842668028844753e-05,-0.00011190545235842282,0.00019514055488261423

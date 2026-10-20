@@ -1,0 +1,57 @@
+{
+ "tools": {
+  "yosys": "Yosys 0.33 (git sha1 2584903a060)",
+  "iverilog": "Icarus Verilog version 12.0 (stable) ()",
+  "openroad": false
+ },
+ "systolic": {
+  "r": 2,
+  "c": 4,
+  "wb": 4,
+  "bound_cycles": 43,
+  "sat_timeout": 60,
+  "induct_timeout": 120,
+  "sim_batches": 32,
+  "n_enumerated": 231,
+  "n_sampled": 160,
+  "n_compile": 143,
+  "n_survive": 32,
+  "golden_cells": 3269,
+  "golden_sig": {
+   "$_ANDNOT_": 145,
+   "$_AND_": 595,
+   "$_DFF_P_": 4,
+   "$_MUX_": 158,
+   "$_NAND_": 1040,
+   "$_NOR_": 41,
+   "$_NOT_": 9,
+   "$_ORNOT_": 42,
+   "$_OR_": 250,
+   "$_SDFFE_PP0N_": 64,
+   "$_SDFFE_PP0P_": 221,
+   "$_SDFF_PP0_": 1,
+   "$_XNOR_": 328,
+   "$_XOR_": 371
+  }
+ },
+ "mac": {
+  "p": 8,
+  "wb": 4,
+  "golden_cells": 2800,
+  "golden_sig": {
+   "$_ANDNOT_": 111,
+   "$_AND_": 443,
+   "$_DFF_P_": 4,
+   "$_MUX_": 46,
+   "$_NAND_": 968,
+   "$_NOR_": 38,
+   "$_NOT_": 5,
+   "$_ORNOT_": 118,
+   "$_OR_": 180,
+   "$_SDFFE_PP0P_": 174,
+   "$_SDFF_PP0_": 1,
+   "$_XNOR_": 333,
+   "$_XOR_": 379
+  }
+ }
+}

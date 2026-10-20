@@ -389,6 +389,57 @@ export function analyze(skus, boxes, opts = {}) {
   };
 }
 
+// "What if the carrier changes its rates or divisor?" Re-solves with the
+// changed postage fields and prices the sets you would otherwise keep. Only
+// dimDivisor, firstLb and addlLb change; a pasted rate card is dropped when
+// either postage field changes, because the card would override it.
+export function whatIf(skus, boxes, opts = {}, change = {}) {
+  const base = analyze(skus, boxes, opts);
+  if (base.error) return base;
+  const next = { ...opts };
+  let any = false;
+  for (const k of ["dimDivisor", "firstLb", "addlLb"]) {
+    if (change[k] !== undefined && change[k] !== "" && String(change[k]) !== String(opts[k] ?? DEFAULTS[k])) { next[k] = change[k]; any = true; }
+  }
+  if (!any) return { error: "Change at least one of the DIM divisor, first-pound price or additional-pound price." };
+  if (next.firstLb !== opts.firstLb || next.addlLb !== opts.addlLb) next.rateTable = "";
+  const after = analyze(skus, boxes, next);
+  if (after.error) return after;
+
+  // Price a set of boxes (by inside size) under the new rates.
+  const key = (b) => b.dims.join("x");
+  const priceSet = (set) => {
+    const keys = new Set(set.map(key));
+    const chosen = after.candidates.filter((b) => keys.has(key(b)));
+    let monthly = 0, lost = [];
+    for (const s of after.skus) {
+      let best = Infinity;
+      for (const b of chosen) { const d = landedCost(s, b, after.options, after.rateTable); if (d && d.total < best) best = d.total; }
+      if (best === Infinity) lost.push(s.name); else monthly += s.qty * best;
+    }
+    return { monthly, lost };
+  };
+  const oldRec = base.recommended.plan.boxes;
+  const newRec = after.recommended.plan.boxes;
+  const oldKeys = new Set(oldRec.map(key)), newKeys = new Set(newRec.map(key));
+  const keepOld = priceSet(oldRec);
+  const today = base.baseline ? priceSet(base.baseline.boxes) : null;
+  const sameSet = oldKeys.size === newKeys.size && [...oldKeys].every((k) => newKeys.has(k));
+  const sameK = base.recommended.k === after.recommended.k;
+  // Fair comparison: optimum at the old size count under the new rates.
+  const sameCount = after.curve.find((c) => c.k === base.recommended.k) || after.recommended;
+  const regret = keepOld.lost.length ? NaN : keepOld.monthly - sameCount.monthly;
+  return {
+    base, after, change: Object.fromEntries(["dimDivisor", "firstLb", "addlLb"].filter((k) => next[k] !== opts[k]).map((k) => [k, next[k]])),
+    keepOldMonthly: keepOld.monthly, keepOldLost: keepOld.lost,
+    todayUnderNew: today && !today.lost.length ? today.monthly : null,
+    newBestMonthly: sameCount.monthly, regret, sameSet, sameK,
+    added: newRec.filter((b) => !oldKeys.has(key(b))).map((b) => b.name),
+    dropped: oldRec.filter((b) => !newKeys.has(key(b))).map((b) => b.name),
+    baseMonthly: base.recommended.monthly, afterMonthly: after.recommended.monthly,
+  };
+}
+
 export function money(x) {
   if (!Number.isFinite(x)) return "—";
   const s = Math.abs(x).toLocaleString("en-US", { maximumFractionDigits: 0 });

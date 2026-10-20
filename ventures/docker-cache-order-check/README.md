@@ -6,6 +6,8 @@ installed **after** a whole-build-context `COPY . .` already ran, an install
 command with **no isolated manifest copy** at all, and an `apt-get update`
 run **without install** in the same layer.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/docker-cache-order-check/
+
 **What it is not:** a Dockerfile linter that checks individual instructions
 against a rule (that is `docker-base-image-pin-check` and
 `docker-build-secrets-check`, this portfolio's other two Dockerfile

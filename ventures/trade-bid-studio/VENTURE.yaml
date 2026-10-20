@@ -1,0 +1,31 @@
+name: trade-bid-studio
+description: A private browser bid studio for any contracting trade that turns labor hours, burden, materials, subcontractors and overhead into a price at a target margin, the walk-away price below which the job loses money, a markup-versus-margin converter, and a check of what a competitor's lower quote leaves you, with a line-item takeoff for 119 trades whose starting rates come from each trade's own calculator, and a searchable directory that consolidates the 121 trade-specific bid calculators into one front door.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Contractors who arrive searching "markup vs margin" or "how much to charge" will use one trade-agnostic bid studio and then follow the directory to their trade's deeper calculator, so a single front door earns more repeat use than 121 separate undiscoverable pages.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A contractor who picks their trade and gets a prefilled takeoff (lines, crew hours per unit, materials per unit) finishes a bid more often than one facing a blank labor-hours field, because the hours estimate is the step they otherwise guess.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the competitor-quote check change a contractor's go/no-go decision more than the target-margin price does.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three contractors use the studio twice within 90 days.
+  - Contractors report the trade-specific calculators are reached without ever using the studio, so the front door adds nothing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/trade-bid-studio/
+  analytics: null

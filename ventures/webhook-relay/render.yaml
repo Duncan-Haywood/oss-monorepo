@@ -1,0 +1,23 @@
+# Self-deploy: Render > New > Blueprint > your fork, file path ventures/webhook-relay/render.yaml
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+services:
+  - type: web
+    name: webhook-relay
+    runtime: docker
+    dockerContext: ventures/webhook-relay
+    dockerfilePath: ventures/webhook-relay/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: ROUTES_JSON
+        sync: false
+      - key: ALERT_WEBHOOK_URL
+        sync: false

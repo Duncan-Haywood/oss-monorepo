@@ -11,6 +11,8 @@ after-hours premium and the minimum charge built in, which used to mean doing
 that math in your head on the phone or rounding to a number that quietly
 underpriced the trip.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/locksmith-bid-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The deterministic calculation works with no
 account, API key, upload, or paid dependency.

@@ -1,0 +1,56 @@
+== pop16: reference `for-loop sum of 16 bits` -> cells 64, depth 14, cells*depth 896
+-- proposer (session-written), 5 attempts
+  p0_pair_tree             cells   64 depth  14 cells*depth 896
+  p1_nibble_case           cells   89 depth  15 cells*depth 1335
+  p2_full_adder_csa        cells   63 depth  14 cells*depth 882
+  p3_wrong_bug             REJECTED (not equivalent)
+  p4_split_8               cells   64 depth  14 cells*depth 896
+-- sweep: 7 configs, 0 not equivalent; exhaustive best cells*depth 882 at ('csa',)
+  ('flat',)              cells   64 depth  14 cells*depth 896
+  ('pair',)              cells   64 depth  14 cells*depth 896
+  ('csa',)               cells   63 depth  14 cells*depth 882
+  ('group', 2)           cells   64 depth  14 cells*depth 896
+  ('group', 4)           cells   64 depth  14 cells*depth 896
+  ('group', 8)           cells   64 depth  14 cells*depth 896
+  ('lut4',)              cells   89 depth  15 cells*depth 1335
+-- equal budget = 5 evaluations; reference counted as the starting point for both
+   proposer best cells*depth 882 (0.984 x reference)
+   sweep (random 5 of 7, 200 seeds): mean best 886.6, min 882, max 896; beats proposer in 0/200, ties in 134/200
+
+== clz16: reference `for-loop, last set bit wins` -> cells 41, depth 15, cells*depth 615
+-- proposer (session-written), 5 attempts
+  c0_casez                 cells   66 depth  11 cells*depth 726
+  c1_binary_search         cells   45 depth  11 cells*depth 495
+  c2_nibble_combine        cells   42 depth  12 cells*depth 504
+  c3_bug_noZero            REJECTED (not equivalent)
+  c4_isolate_msb           cells   46 depth  20 cells*depth 920
+-- sweep: 6 configs, 0 not equivalent; exhaustive best cells*depth 344 at ('tree', 8)
+  ('loop_up',)           cells   41 depth  15 cells*depth 615
+  ('loop_down',)         cells   55 depth  17 cells*depth 935
+  ('chain',)             cells   41 depth  15 cells*depth 615
+  ('tree', 8)            cells   43 depth   8 cells*depth 344
+  ('tree', 4)            cells   43 depth  12 cells*depth 516
+  ('nibble',)            cells   43 depth  12 cells*depth 516
+-- equal budget = 5 evaluations; reference counted as the starting point for both
+   proposer best cells*depth 495 (0.805 x reference)
+   sweep (random 5 of 6, 200 seeds): mean best 371.5, min 344, max 516; beats proposer in 168/200, ties in 0/200
+
+== absd8: reference `(a > b) ? a - b : b - a` -> cells 66, depth 17, cells*depth 1122
+-- proposer (session-written), 5 attempts
+  d0_sub_negate            cells   57 depth  17 cells*depth 969
+  d1_max_minus_min         cells   64 depth  29 cells*depth 1856
+  d2_xor_borrow            cells   57 depth  23 cells*depth 1311
+  d3_bug_ones_comp         REJECTED (not equivalent)
+  d4_two_subtractors       cells   73 depth  18 cells*depth 1314
+-- sweep: 6 configs, 0 not equivalent; exhaustive best cells*depth 969 at ('sub_neg',)
+  ('cmp_mux',)           cells   66 depth  17 cells*depth 1122
+  ('cmp_mux_lt',)        cells   73 depth  18 cells*depth 1314
+  ('sub_neg',)           cells   57 depth  17 cells*depth 969
+  ('sub_xor',)           cells   57 depth  23 cells*depth 1311
+  ('two_sub',)           cells   73 depth  18 cells*depth 1314
+  ('minmax',)            cells   64 depth  29 cells*depth 1856
+-- equal budget = 5 evaluations; reference counted as the starting point for both
+   proposer best cells*depth 969 (0.864 x reference)
+   sweep (random 5 of 6, 200 seeds): mean best 995.0, min 969, max 1122; beats proposer in 0/200, ties in 166/200
+
+summary {"pop16": {"ref": 896, "proposer": 882, "sweep_exhaustive": 882, "sweep_mean": 886.62}, "clz16": {"ref": 615, "proposer": 495, "sweep_exhaustive": 344, "sweep_mean": 371.52}, "absd8": {"ref": 1122, "proposer": 969, "sweep_exhaustive": 969, "sweep_mean": 995.01}}

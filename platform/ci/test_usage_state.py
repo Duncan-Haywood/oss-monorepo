@@ -122,6 +122,10 @@ class ClaimScanning(unittest.TestCase):
         body = 'This clause used to open\n"As of 2026-09-02 it recorded zero observed users across ~184 products".\n'
         self.assertEqual(self._scan(body), [])
 
+    def test_ignores_a_correction_whose_marker_is_on_the_line_after(self):
+        body = 'As of 2026-09-02 it recorded zero observed users across ~184 products.\nThat sentence was wrong and has been corrected, it used to say so.\n'
+        self.assertEqual(self._scan(body), [])
+
     def test_an_honest_sentence_does_not_trip_it(self):
         body = "No visitor reading has ever been taken; `live_url_visitors` is null throughout.\n"
         self.assertEqual(self._scan(body), [])
@@ -211,6 +215,59 @@ class AgainstTheRealTree(unittest.TestCase):
         """
         report = state.build_report()
         self.assertEqual(report["visitors"], "never-measured")
+
+
+class Render(unittest.TestCase):
+    def _report(self, **over):
+        report = {
+            "products": 3,
+            "visitor_readings": 5,
+            "visitor_real": 0,
+            "visitors": "never-measured",
+            "events": "self-test-only",
+            "not_external": [],
+            "possibly_external": [],
+            "claims": [],
+            "claims_verdict": "honest",
+            "honest": True,
+        }
+        report.update(over)
+        return report
+
+    def test_a_snippet_of_exactly_88_characters_is_not_truncated(self):
+        text = "x" * 88
+        out = state.render(
+            self._report(claims=[("CLAUDE.md", 1, text)], honest=False)
+        )
+        self.assertIn(text, out)
+        self.assertNotIn("...", out)
+
+    def test_a_longer_snippet_is_truncated(self):
+        out = state.render(
+            self._report(claims=[("CLAUDE.md", 1, "y" * 89)], honest=False)
+        )
+        self.assertIn("y" * 85 + "...", out)
+
+    def test_never_measured_and_honest_says_nothing_is_overclaimed(self):
+        self.assertIn("Nothing is overclaimed", state.render(self._report()))
+
+    def test_a_real_reading_says_to_rank_it(self):
+        out = state.render(self._report(visitors="measured", visitor_real=[("a", "2026-09-01", 2)]))
+        self.assertIn("A real reading exists", out)
+        self.assertNotIn("Nothing is overclaimed", out)
+
+
+class Cli(unittest.TestCase):
+    def test_help_uses_the_first_docstring_line(self):
+        import contextlib
+        import io
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), self.assertRaises(SystemExit):
+            state.main(["--help"])
+        first = state.__doc__.splitlines()[0]
+        self.assertIn(first.split()[0], buf.getvalue())
+        self.assertIn(first, " ".join(buf.getvalue().split()))
 
 
 if __name__ == "__main__":

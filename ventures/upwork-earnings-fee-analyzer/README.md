@@ -4,6 +4,8 @@ A free browser tool for freelancers: **drop in your Upwork (or similar) transact
 history CSV and see what you actually keep.** The file is read in the browser; nothing
 is uploaded and no account access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/upwork-earnings-fee-analyzer/
+
 After using this, you can now **see the service fee you really paid, what Connects,
 membership and withdrawal fees add on top, take-home by contract and by month, and net
 pay per hour where hours are in the file**, which used to mean building the pivot table

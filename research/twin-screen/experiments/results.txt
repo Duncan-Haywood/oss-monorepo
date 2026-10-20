@@ -1,0 +1,31 @@
+K=50 designs, real budget B=20 unit-variance trials, 20000 Monte-Carlo draws per cell; values in sd of the design distribution
+oracle (best design known) = 2.249; real-only (m=K) uses s_each=sqrt(K/B)=1.581
+
+== E1 value of the chosen design vs shortlist size m (columns: rho)
+m   rho=0.0   rho=0.3   rho=0.6   rho=0.8   rho=0.95 
+1       0.006     0.673     1.348     1.797     2.141
+2       0.527     1.127     1.672     1.979     2.165
+3       0.783     1.327     1.789     2.031     2.145
+5       1.043     1.514     1.869     2.029     2.078
+8       1.202     1.595     1.874     1.967     1.978
+12      1.287     1.614     1.812     1.863     1.860
+20      1.325     1.550     1.660     1.672     1.668
+35      1.273     1.377     1.406     1.395     1.387
+50      1.207     1.197     1.198     1.205     1.203
+
+== E2 twin-only value rho*c_K (exact) and best shortlist size on the grid, by rho
+rho  twin_only  best_m  best_value  real_only(m=K)  gain_over_real_only
+0.0      0.000  20          1.325          1.207      0.117
+0.3      0.675  12          1.614          1.197      0.417
+0.6      1.349  8           1.874          1.198      0.676
+0.8      1.799  3           2.031          1.205      0.826
+0.95     2.137  2           2.165          1.203      0.962
+
+== E3 best m (and value) vs real budget B at rho=0.6
+B     best_m  value
+5     3       1.659
+10    5       1.774
+20    5       1.873
+50    12      1.988
+200   20      2.133
+1000  20      2.208

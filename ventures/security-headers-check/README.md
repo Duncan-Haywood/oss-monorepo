@@ -5,6 +5,8 @@ GET request** to a URL you choose and classifies the response's frame-
 protection and Content-Security-Policy headers into the misconfiguration
 patterns that actually get exploited:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/security-headers-check/
+
 - **Missing clickjacking protection** — neither a CSP `frame-ancestors`
   directive nor `X-Frame-Options` is present, so any site on the web can
   frame the page and trick a visitor into clicking something they didn't

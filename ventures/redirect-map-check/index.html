@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Redirect Map Checker — Find Loops, Chains and 404 Targets Before You Migrate</title>
-  <meta name="description" content="Free 301 redirect map checker for site migrations: finds redirect loops, chains, conflicting duplicates, mass redirects to the homepage, spaces and fragments in URLs, targets missing from the new site and old URLs with no rule, then writes a flattened map for Shopify, Netlify, Apache or nginx. Runs in your browser; the file is never uploaded.">
+  <meta name="description" content="Free 301 redirect map checker for site migrations: finds redirect loops, chains, conflicting duplicates, mass redirects to the homepage, spaces and fragments in URLs, targets missing from the new site and old URLs with no rule, then writes a flattened map for Shopify, Netlify, Apache or nginx.">
   <meta property="og:title" content="Redirect Map Check — free, private, in your browser">
   <meta property="og:description" content="Catch loops, chains and redirects to 404s in your migration map before launch. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
@@ -123,6 +123,7 @@
       <li><strong>Loops:</strong> /a to /b to /a, or a page sent to itself (also with or without a trailing slash). Left out of the cleaned map: a human has to decide.</li>
       <li><strong>Chains:</strong> any redirect whose target is itself redirected. Google follows a few hops but recommends one. The cleaned map points every source at the end of its chain.</li>
       <li><strong>Duplicates:</strong> the same old URL listed twice. Identical rows are merged; different targets are an error, and the first is kept so you can see it. Paths are compared ignoring letter case unless you say your server is case-sensitive.</li>
+      <li><strong>Staging targets:</strong> a destination on <code>localhost</code>, <code>staging.</code>, <code>*.vercel.app</code>, <code>*.myshopify.com</code> and similar preview hosts is warned, since a map copied from a test build often keeps them.</li>
       <li><strong>Homepage:</strong> more than a tenth of a map (of ten rows or more) ending at <code>/</code> reads as soft 404s to Google. A few are noted but not warned.</li>
       <li><strong>URL shape:</strong> spaces (written as %20 in the cleaned map), a <code>#fragment</code> in a source (never sent to the server; removed), a source with no leading slash (added), wildcards and regular expressions (exact-match importers ignore them), sources on another host, relative or http targets, over-long URLs, malformed %-escapes.</li>
       <li><strong>Status codes:</strong> 301 and 308 are permanent; 302, 303 and 307 are flagged for a migration. 410 rows are carried through. The cleaned map uses 301 unless a row says otherwise.</li>
@@ -155,7 +156,7 @@
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
     <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Related tools: the <a href="../redirect-chain-check/">redirect chain check</a> follows a live URL's real hops, the <a href="../sitemap-lastmod-freshness-check/">sitemap lastmod check</a>, the <a href="../canonical-tag-check/">canonical tag check</a> and the <a href="../shopify-product-csv-check/">Shopify product CSV check</a> cover the other files a migration touches.</p>
+    <p>Related tools: the <a href="../redirect-chain-check/">redirect chain check</a> follows a live URL's real hops, the <a href="../sitemap-lastmod-freshness-check/">sitemap lastmod check</a>, the <a href="../canonical-tag-check/">canonical tag check</a> and the <a href="../shopify-product-csv-check/">Shopify product CSV check</a> cover the other files a migration touches. After the move, the <a href="../internal-link-planner/">internal link planner</a> finds the pages nothing links to.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

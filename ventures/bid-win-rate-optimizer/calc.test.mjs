@@ -147,3 +147,64 @@ test("the built-in example parses, analyses and is usable", () => {
   assert.equal(r.verdict, "usable");
   assert.ok(reportCsv(r).split("\n").length === 8);
 });
+
+// ---- job types ----
+import { analyzeSegments, chi2Sf, fitGrouped } from "./calc.mjs";
+
+function typed({ n = 600, seed = 11 } = {}) {
+  let s = seed;
+  const rnd = () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(2 * Math.PI * rnd());
+  // repeat jobs are easy to win (a = +1.2), tenders hard (a = -1.2); same slope
+  const types = [["repeat", 1.2], ["tender", -1.2], ["walk-in", 0]];
+  return Array.from({ length: n }, (_, i) => {
+    const [segment, a] = types[i % 3];
+    const cost = 2000 + rnd() * 20000, markup = Math.exp(Math.log(1.3) + 0.15 * gauss());
+    const p = 1 / (1 + Math.exp(-(a - 8 * (Math.log(markup) - Math.log(1.3)))));
+    return { price: cost * markup, cost, won: rnd() < p ? 1 : 0, segment };
+  });
+}
+
+test("chi-square survival matches known values", () => {
+  assert.ok(Math.abs(chi2Sf(3.841, 1) - 0.05) < 1e-3);
+  assert.ok(Math.abs(chi2Sf(5.991, 2) - 0.05) < 1e-3);
+  assert.equal(chi2Sf(0, 3), 1);
+});
+
+test("parseRows reads a job-type column only when a header names one", () => {
+  const p = parseRows("type,quote,won,cost\nrepeat,1300,1,1000\ntender,1500,0,1100");
+  assert.equal(p.rows[0].segment, "repeat");
+  assert.equal(p.rows[0].price, 1300);
+  assert.equal(p.hasSegments, true);
+  assert.equal("segment" in parseRows("quote,won,cost\n1300,1,1000").rows[0], false);
+});
+
+test("grouped fit recovers per-type intercepts and the shared slope", () => {
+  const rows = typed({ n: 3000 });
+  const g = rows.map((r) => ["repeat", "tender", "walk-in"].indexOf(r.segment));
+  const f = fitGrouped(rows.map((r) => Math.log(r.price / r.cost)), rows.map((r) => r.won), g, 3);
+  assert.ok(Math.abs(f.b - -8) < 1.2, `slope ${f.b}`);
+  assert.ok(f.a[0] > f.a[2] && f.a[2] > f.a[1], "ordering of intercepts");
+});
+
+test("segments: types that differ are detected, and easy types can carry a higher markup", () => {
+  const r = analyzeSegments(typed());
+  assert.equal(r.differ, true);
+  assert.ok(r.pValue < 0.001);
+  const by = Object.fromEntries(r.segments.map((s) => [s.name, s]));
+  assert.ok(by.repeat.winRate > by.tender.winRate);
+  assert.ok(by.repeat.bestMarkup >= by.tender.bestMarkup);
+  assert.ok(r.segments.every((s) => s.markupRange80[0] <= s.markupRange80[1]));
+});
+
+test("segments: identical types are not declared different, and thin data is refused", () => {
+  const rows = typed({ n: 300, seed: 3 }).map((r, i) => ({ ...r, segment: ["a", "b", "c"][Math.floor(i / 100) % 3] }));
+  const r = analyzeSegments(rows);
+  assert.equal(r.differ, false);
+  assert.ok(r.warnings.some((w) => /do not differ/.test(w)));
+  assert.ok(analyzeSegments(typed({ n: 20 })).error);
+  assert.ok(analyzeSegments(rows.map((x) => ({ ...x, cost: null }))).error);
+  const small = typed({ n: 60 }).map((x, i) => ({ ...x, segment: i < 30 ? "big" : i < 55 ? "mid" : "t" + i }));
+  const rs = analyzeSegments(small);
+  assert.ok(rs.segments.some((s) => s.name === "Other (small groups)"));
+});

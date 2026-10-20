@@ -6,6 +6,8 @@ speed, setup and drive, then prices the job for your overhead and target margin,
 with a price for each stump, your minimum charge, and a check on your usual
 per-inch quote. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/stump-grinding-price-calculator/
+
 After using this, you can **see whether a flat per-inch quote makes money on a
 small job or a hard stump**, and what to charge instead.
 

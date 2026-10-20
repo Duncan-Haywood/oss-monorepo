@@ -1,0 +1,13 @@
+priced runs with a model: 354 of 355
+  claude-opus-5-5: 12 runs
+  claude-sonnet-5-5: 342 runs
+
+cost ratio, Opus median / Sonnet median, within track (95% bootstrap)
+  process   opus n= 8 sonnet n= 41  ratio   7.9 (6.7 to 11.7)
+  research  opus n= 3 sonnet n=161  ratio   9.1 (3.7 to 12.1)
+
+projects landed per Sonnet research run: CV 1.43 over 161 runs
+  runs per arm to detect a 25% difference in projects per run: 515
+  runs per arm to detect a 50% difference in projects per run: 129
+  runs per arm to detect a 100% difference in projects per run: 33
+  (an Opus arm of the same size would cost the ratio above times the Sonnet arm)

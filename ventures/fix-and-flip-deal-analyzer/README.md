@@ -4,6 +4,8 @@ A free browser tool for house flippers: **enter the after-repair value, purchase
 cash needed, return on cash, the maximum allowable offer for your target profit, the break-even sale price, and how profit moves with
 sale price and time on the market.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fix-and-flip-deal-analyzer/
+
 After using this, you can now **tell the most you can pay for a flip and still hit your target profit once financing, holding and selling costs are counted**.
 
 ## Model

@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_018ibNipq7oh4ppsBrXMdPZM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T10:11:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8013",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Brief asks for ambitious new ventures but the router queue is calculator-heavy; a small deepening of an existing venture was the pragmatic ship."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runcost.py",
+      "why": "Skipped runcost attach: no transcript available in this scheduled cloud session."
+    }
+  ],
+  "goal": null,
+  "notes": "Added homeAwayReport + fairness-note line to league-schedule-generator. No CI check runs appeared on the PR; ran node --test locally (150 pass).",
+  "corrections": [],
+  "redteam": null
+}

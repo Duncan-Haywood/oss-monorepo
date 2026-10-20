@@ -1,0 +1,128 @@
+model,input,level,reference,marriages,dissolutions,rate_ratio,ci95_low,ci95_high,log_rr_se
+fixed_at_marriage,age_band,25-29,20-24,12917,3146,0.7555,0.7106,0.8032,0.0313
+fixed_at_marriage,age_band,30-34,20-24,4819,1038,0.6844,0.6237,0.7510,0.0474
+fixed_at_marriage,age_band,35+,20-24,2807,537,0.5989,0.5235,0.6851,0.0686
+fixed_at_marriage,age_band,<20,20-24,6937,2794,1.4889,1.3987,1.5849,0.0319
+fixed_at_marriage,wedding_period,1950-69,1980-89,13048,3792,0.6368,0.5937,0.6829,0.0357
+fixed_at_marriage,wedding_period,1970-79,1980-89,11036,4116,0.9338,0.8733,0.9985,0.0342
+fixed_at_marriage,wedding_period,1990-99,1980-89,7662,2003,1.0375,0.9587,1.1228,0.0403
+fixed_at_marriage,wedding_period,2000-09,1980-89,6051,891,1.0281,0.9240,1.1440,0.0545
+fixed_at_marriage,wedding_period,2010-17,1980-89,1775,106,0.7936,0.6059,1.0394,0.1377
+fixed_at_marriage,respondent_sex,Male,Female,21173,5843,1.0244,0.9797,1.0711,0.0228
+fixed_at_marriage,cohabited_first,Unknown,No,106,54,2.6795,1.8515,3.8778,0.1886
+fixed_at_marriage,cohabited_first,Yes,No,12059,4089,1.8089,1.7026,1.9218,0.0309
+fixed_at_marriage,prior_union,Yes,No,2673,697,0.9424,0.8427,1.0538,0.0570
+fixed_at_marriage,premarital_birth,Yes,No,5228,1947,1.5387,1.4346,1.6504,0.0358
+fixed_at_marriage,intact_family_15,No,Yes,7137,2563,1.2970,1.2244,1.3740,0.0294
+fixed_at_marriage,intact_family_15,Unknown,Yes,70,22,1.5281,0.9541,2.4475,0.2403
+fixed_at_marriage,born_outside_canada,Unknown,No,481,148,1.9290,1.2945,2.8744,0.2035
+fixed_at_marriage,born_outside_canada,Yes,No,9716,2343,0.9939,0.9191,1.0748,0.0399
+fixed_at_marriage,first_language,French,English,8660,2935,0.8448,0.7779,0.9175,0.0421
+fixed_at_marriage,first_language,Multiple,English,1654,430,0.7385,0.6481,0.8414,0.0666
+fixed_at_marriage,first_language,Other,English,7750,1568,0.6120,0.5571,0.6724,0.0480
+fixed_at_marriage,first_language,Unknown,English,589,149,0.3867,0.2606,0.5739,0.2014
+fixed_at_marriage,region,Atlantic,Ontario,9960,2667,0.7451,0.6960,0.7976,0.0347
+fixed_at_marriage,region,British Columbia,Ontario,5824,1941,1.1314,1.0582,1.2096,0.0341
+fixed_at_marriage,region,Prairies,Ontario,10774,2823,0.8834,0.8329,0.9370,0.0300
+fixed_at_marriage,region,Quebec,Ontario,8258,2773,1.1009,1.0063,1.2044,0.0458
+fixed_at_marriage,survey_cycle,1995,2017,6081,1596,1.1263,1.0310,1.2303,0.0451
+fixed_at_marriage,survey_cycle,2006,2017,14968,4482,1.0717,1.0084,1.1391,0.0311
+fixed_at_marriage,survey_cycle,2011,2017,14771,4329,0.9862,0.9269,1.0494,0.0317
+sensitivity_interview_time_education_religion,age_band,25-29,20-24,12917,3146,0.7633,0.7162,0.8134,0.0325
+sensitivity_interview_time_education_religion,age_band,30-34,20-24,4819,1038,0.6922,0.6299,0.7607,0.0481
+sensitivity_interview_time_education_religion,age_band,35+,20-24,2807,537,0.5977,0.5199,0.6871,0.0711
+sensitivity_interview_time_education_religion,age_band,<20,20-24,6937,2794,1.4553,1.3635,1.5532,0.0332
+sensitivity_interview_time_education_religion,wedding_period,1950-69,1980-89,13048,3792,0.6788,0.6311,0.7302,0.0372
+sensitivity_interview_time_education_religion,wedding_period,1970-79,1980-89,11036,4116,0.9300,0.8685,0.9958,0.0349
+sensitivity_interview_time_education_religion,wedding_period,1990-99,1980-89,7662,2003,1.0490,0.9683,1.1364,0.0408
+sensitivity_interview_time_education_religion,wedding_period,2000-09,1980-89,6051,891,1.0279,0.9218,1.1462,0.0556
+sensitivity_interview_time_education_religion,wedding_period,2010-17,1980-89,1775,106,0.7966,0.6083,1.0432,0.1376
+sensitivity_interview_time_education_religion,respondent_sex,Male,Female,21173,5843,0.9727,0.9293,1.0181,0.0233
+sensitivity_interview_time_education_religion,cohabited_first,Unknown,No,106,54,2.5278,1.6950,3.7699,0.2039
+sensitivity_interview_time_education_religion,cohabited_first,Yes,No,12059,4089,1.5978,1.5021,1.6996,0.0315
+sensitivity_interview_time_education_religion,prior_union,Yes,No,2673,697,0.9389,0.8378,1.0523,0.0581
+sensitivity_interview_time_education_religion,premarital_birth,Yes,No,5228,1947,1.5284,1.4197,1.6454,0.0376
+sensitivity_interview_time_education_religion,intact_family_15,No,Yes,7137,2563,1.2624,1.1914,1.3376,0.0295
+sensitivity_interview_time_education_religion,intact_family_15,Unknown,Yes,70,22,1.5480,0.9601,2.4960,0.2437
+sensitivity_interview_time_education_religion,born_outside_canada,Unknown,No,481,148,2.1181,1.4313,3.1344,0.2000
+sensitivity_interview_time_education_religion,born_outside_canada,Yes,No,9716,2343,1.0075,0.9303,1.0912,0.0407
+sensitivity_interview_time_education_religion,first_language,French,English,8660,2935,0.8935,0.8226,0.9704,0.0422
+sensitivity_interview_time_education_religion,first_language,Multiple,English,1654,430,0.7995,0.6996,0.9137,0.0681
+sensitivity_interview_time_education_religion,first_language,Other,English,7750,1568,0.6712,0.6107,0.7378,0.0483
+sensitivity_interview_time_education_religion,first_language,Unknown,English,589,149,0.5351,0.3326,0.8608,0.2426
+sensitivity_interview_time_education_religion,region,Atlantic,Ontario,9960,2667,0.7989,0.7460,0.8554,0.0349
+sensitivity_interview_time_education_religion,region,British Columbia,Ontario,5824,1941,1.0253,0.9563,1.0993,0.0355
+sensitivity_interview_time_education_religion,region,Prairies,Ontario,10774,2823,0.8814,0.8306,0.9352,0.0303
+sensitivity_interview_time_education_religion,region,Quebec,Ontario,8258,2773,1.0642,0.9723,1.1648,0.0461
+sensitivity_interview_time_education_religion,survey_cycle,1995,2017,6081,1596,1.1916,1.0900,1.3026,0.0454
+sensitivity_interview_time_education_religion,survey_cycle,2006,2017,14968,4482,1.1087,1.0413,1.1805,0.0320
+sensitivity_interview_time_education_religion,survey_cycle,2011,2017,14771,4329,1.0085,0.9472,1.0738,0.0320
+sensitivity_interview_time_education_religion,education_at_interview,Bachelor+,High school,12149,2953,0.9298,0.8667,0.9976,0.0359
+sensitivity_interview_time_education_religion,education_at_interview,College/trade,High school,14806,4545,0.9986,0.9393,1.0617,0.0312
+sensitivity_interview_time_education_religion,education_at_interview,Less than high school,High school,8076,2378,0.8589,0.7963,0.9264,0.0386
+sensitivity_interview_time_education_religion,education_at_interview,Unknown,High school,813,221,1.0308,0.8437,1.2592,0.1022
+sensitivity_interview_time_education_religion,religion_at_interview,No affiliation,Affiliated,7495,2672,1.1496,1.0759,1.2285,0.0338
+sensitivity_interview_time_education_religion,religion_at_interview,Unknown,Affiliated,1231,320,1.0341,0.8135,1.3146,0.1224
+sensitivity_interview_time_education_religion,attendance_at_interview,Less than monthly,Not at all,13328,3868,0.7857,0.7415,0.8325,0.0295
+sensitivity_interview_time_education_religion,attendance_at_interview,Monthly,Not at all,5235,1186,0.6536,0.5998,0.7123,0.0438
+sensitivity_interview_time_education_religion,attendance_at_interview,Unknown,Not at all,989,233,0.5088,0.3636,0.7119,0.1714
+sensitivity_interview_time_education_religion,attendance_at_interview,Weekly,Not at all,10127,1858,0.4807,0.4471,0.5169,0.0370
+sensitivity_partner_age_gap_1995_2011_2017,age_band,25-29,20-24,8982,2189,0.7371,0.6806,0.7982,0.0407
+sensitivity_partner_age_gap_1995_2011_2017,age_band,30-34,20-24,3450,721,0.6164,0.5474,0.6941,0.0606
+sensitivity_partner_age_gap_1995_2011_2017,age_band,35+,20-24,2078,396,0.5513,0.4648,0.6539,0.0871
+sensitivity_partner_age_gap_1995_2011_2017,age_band,<20,20-24,4722,1889,1.3787,1.2735,1.4927,0.0405
+sensitivity_partner_age_gap_1995_2011_2017,wedding_period,1950-69,1980-89,8348,2421,0.6342,0.5798,0.6938,0.0458
+sensitivity_partner_age_gap_1995_2011_2017,wedding_period,1970-79,1980-89,7801,2871,0.9379,0.8679,1.0135,0.0396
+sensitivity_partner_age_gap_1995_2011_2017,wedding_period,1990-99,1980-89,4799,1291,1.1016,0.9970,1.2172,0.0509
+sensitivity_partner_age_gap_1995_2011_2017,wedding_period,2000-09,1980-89,4490,756,1.1752,1.0438,1.3232,0.0605
+sensitivity_partner_age_gap_1995_2011_2017,wedding_period,2010-17,1980-89,1775,106,0.9743,0.7412,1.2808,0.1395
+sensitivity_partner_age_gap_1995_2011_2017,respondent_sex,Male,Female,14778,4029,0.9068,0.8475,0.9702,0.0345
+sensitivity_partner_age_gap_1995_2011_2017,cohabited_first,Unknown,No,64,31,1.8519,1.0813,3.1719,0.2745
+sensitivity_partner_age_gap_1995_2011_2017,cohabited_first,Yes,No,9083,2977,1.7265,1.6088,1.8529,0.0360
+sensitivity_partner_age_gap_1995_2011_2017,prior_union,Yes,No,1996,489,0.9027,0.7842,1.0390,0.0718
+sensitivity_partner_age_gap_1995_2011_2017,premarital_birth,Yes,No,3638,1329,1.4150,1.2974,1.5432,0.0443
+sensitivity_partner_age_gap_1995_2011_2017,intact_family_15,No,Yes,4894,1740,1.2263,1.1366,1.3231,0.0388
+sensitivity_partner_age_gap_1995_2011_2017,intact_family_15,Unknown,Yes,50,10,0.7973,0.3229,1.9692,0.4613
+sensitivity_partner_age_gap_1995_2011_2017,born_outside_canada,Unknown,No,250,78,1.9816,1.1820,3.3221,0.2636
+sensitivity_partner_age_gap_1995_2011_2017,born_outside_canada,Yes,No,6856,1623,0.9706,0.8791,1.0716,0.0505
+sensitivity_partner_age_gap_1995_2011_2017,first_language,French,English,5961,2052,0.8841,0.7931,0.9857,0.0555
+sensitivity_partner_age_gap_1995_2011_2017,first_language,Multiple,English,1435,363,0.7042,0.6105,0.8122,0.0728
+sensitivity_partner_age_gap_1995_2011_2017,first_language,Other,English,5315,1044,0.5820,0.5152,0.6574,0.0622
+sensitivity_partner_age_gap_1995_2011_2017,first_language,Unknown,English,336,75,0.3281,0.2022,0.5322,0.2469
+sensitivity_partner_age_gap_1995_2011_2017,region,Atlantic,Ontario,7011,1882,0.7669,0.7049,0.8343,0.0430
+sensitivity_partner_age_gap_1995_2011_2017,region,British Columbia,Ontario,4050,1328,1.1038,1.0157,1.1995,0.0424
+sensitivity_partner_age_gap_1995_2011_2017,region,Prairies,Ontario,7882,2070,0.9249,0.8579,0.9971,0.0383
+sensitivity_partner_age_gap_1995_2011_2017,region,Quebec,Ontario,5768,1939,1.1346,1.0066,1.2787,0.0610
+sensitivity_partner_age_gap_1995_2011_2017,survey_cycle,1995,2017,6081,1596,1.2009,1.0980,1.3134,0.0457
+sensitivity_partner_age_gap_1995_2011_2017,survey_cycle,2011,2017,14771,4329,0.9424,0.8830,1.0058,0.0332
+sensitivity_partner_age_gap_1995_2011_2017,gap_band,Spouse 2-5 older,Within 1 year,8109,2239,0.9138,0.8467,0.9862,0.0389
+sensitivity_partner_age_gap_1995_2011_2017,gap_band,Spouse 2-5 younger,Within 1 year,6238,1589,1.1042,1.0115,1.2055,0.0448
+sensitivity_partner_age_gap_1995_2011_2017,gap_band,Spouse 6+ years older,Within 1 year,3581,974,1.0437,0.9415,1.1570,0.0526
+sensitivity_partner_age_gap_1995_2011_2017,gap_band,Spouse 6+ years younger,Within 1 year,1968,492,1.2860,1.1116,1.4877,0.0744
+sensitivity_partner_age_gap_1995_2011_2017,gap_band,Unknown,Within 1 year,1575,1246,5.3264,4.8285,5.8757,0.0501
+sensitivity_1995_partner_prev_married_parents_separated,age_band,25-29,20-24,1420,276,0.7423,0.6107,0.9022,0.0996
+sensitivity_1995_partner_prev_married_parents_separated,age_band,30-34,20-24,424,76,0.6038,0.4149,0.8785,0.1914
+sensitivity_1995_partner_prev_married_parents_separated,age_band,35+,20-24,225,33,0.4944,0.3089,0.7912,0.2399
+sensitivity_1995_partner_prev_married_parents_separated,age_band,<20,20-24,960,358,1.6103,1.3462,1.9260,0.0914
+sensitivity_1995_partner_prev_married_parents_separated,wedding_period,1950-69,1980-89,2217,610,0.4387,0.3576,0.5382,0.1043
+sensitivity_1995_partner_prev_married_parents_separated,wedding_period,1970-79,1980-89,1486,516,0.7664,0.6301,0.9322,0.0999
+sensitivity_1995_partner_prev_married_parents_separated,wedding_period,1990-99,1980-89,744,59,1.4105,0.9283,2.1430,0.2134
+sensitivity_1995_partner_prev_married_parents_separated,respondent_sex,Male,Female,2723,652,0.9193,0.8017,1.0541,0.0698
+sensitivity_1995_partner_prev_married_parents_separated,cohabited_first,Unknown,No,9,3,2.4143,0.0049,1178.0917,3.1583
+sensitivity_1995_partner_prev_married_parents_separated,cohabited_first,Yes,No,1085,306,1.7263,1.4023,2.1251,0.1061
+sensitivity_1995_partner_prev_married_parents_separated,prior_union,Yes,No,275,55,0.8900,0.5826,1.3595,0.2162
+sensitivity_1995_partner_prev_married_parents_separated,premarital_birth,Yes,No,574,191,1.3655,1.0684,1.7454,0.1252
+sensitivity_1995_partner_prev_married_parents_separated,intact_family_15,No,Yes,854,282,1.2555,1.0038,1.5703,0.1142
+sensitivity_1995_partner_prev_married_parents_separated,intact_family_15,Unknown,Yes,8,3,3.0355,0.0074,1240.3798,3.0678
+sensitivity_1995_partner_prev_married_parents_separated,born_outside_canada,Yes,No,1076,245,0.9858,0.7831,1.2408,0.1174
+sensitivity_1995_partner_prev_married_parents_separated,first_language,French,English,1649,515,1.0561,0.8284,1.3463,0.1239
+sensitivity_1995_partner_prev_married_parents_separated,first_language,Multiple,English,238,51,0.7270,0.4925,1.0734,0.1988
+sensitivity_1995_partner_prev_married_parents_separated,first_language,Other,English,747,147,0.6830,0.5278,0.8838,0.1315
+sensitivity_1995_partner_prev_married_parents_separated,first_language,Unknown,English,121,19,0.3842,0.2035,0.7254,0.3243
+sensitivity_1995_partner_prev_married_parents_separated,region,Atlantic,Ontario,1162,261,0.7064,0.5683,0.8781,0.1110
+sensitivity_1995_partner_prev_married_parents_separated,region,British Columbia,Ontario,686,210,1.1841,0.9636,1.4552,0.1052
+sensitivity_1995_partner_prev_married_parents_separated,region,Prairies,Ontario,1388,326,0.8322,0.6875,1.0074,0.0975
+sensitivity_1995_partner_prev_married_parents_separated,region,Quebec,Ontario,1653,491,0.9064,0.7045,1.1661,0.1286
+sensitivity_1995_partner_prev_married_parents_separated,partner_prev_married,Yes,No,387,123,1.3758,1.0626,1.7815,0.1318
+sensitivity_1995_partner_prev_married_parents_separated,parents_ever_separated,Unknown,No,159,50,0.9172,0.5702,1.4752,0.2425
+sensitivity_1995_partner_prev_married_parents_separated,parents_ever_separated,Yes,No,715,268,1.5039,1.2251,1.8462,0.1046

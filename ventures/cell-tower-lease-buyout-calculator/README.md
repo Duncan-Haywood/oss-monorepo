@@ -7,6 +7,8 @@ rate, the annual return the buyer earns at the offered price, how much of the pr
 carriers not yet signed, the offer that would match your rate, an after-tax comparison and a
 discount-rate by exit-chance grid. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cell-tower-lease-buyout-calculator/
+
 After using this, you can **see whether a tower lease buyout pays you what the rent is worth**,
 instead of guessing from a multiple of one year's income.
 

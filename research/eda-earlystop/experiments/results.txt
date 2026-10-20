@@ -1,0 +1,41 @@
+mutants 91; formal outcome in the eda-verify log: killed 47, equivalent 16, undecided 28
+  logged formal seconds, killed: min 21, median 41, max 164
+  logged formal seconds, equivalent: min 221, median 223, max 402
+  logged formal seconds, undecided: min 55, median 450, max 451
+
+Sweep: random-N -> directed-16 -> formal capped at T s (mean over 20 seeds; T=inf is the uncapped cascade)
+  N     T   cpu_s  killed  equiv  unres  saved_vs_uncapped
+  4   inf    7408    66.0   16.0    9.0                 0%
+  4   300    6432    66.0   15.0   10.0                13%
+  4   230    5732    66.0   15.0   10.0                23%
+  4   200    5088    66.0    0.0   25.0                31%
+  4   170    4338    66.0    0.0   25.0                41%
+  4   120    3088    66.0    0.0   25.0                58%
+  4    60    1588    66.0    0.0   25.0                79%
+  4    30     813    64.4    0.0   26.6                89%
+  4     0      15    64.4    0.0   26.6               100%
+ 16   inf    7404    66.0   16.0    9.0                 0%
+ 16   300    6428    66.0   15.0   10.0                13%
+ 16   230    5728    66.0   15.0   10.0                23%
+ 16   200    5084    66.0    0.0   25.0                31%
+ 16   170    4334    66.0    0.0   25.0                41%
+ 16   120    3084    66.0    0.0   25.0                58%
+ 16    60    1584    66.0    0.0   25.0                79%
+ 16    30     816    64.8    0.0   26.1                89%
+ 16     0      32    64.8    0.0   26.1               100%
+ 64   inf    7433    66.0   16.0    9.0                 0%
+ 64   300    6457    66.0   15.0   10.0                13%
+ 64   230    5757    66.0   15.0   10.0                23%
+ 64   200    5112    66.0    0.0   25.0                31%
+ 64   170    4362    66.0    0.0   25.0                41%
+ 64   120    3112    66.0    0.0   25.0                58%
+ 64    60    1612    66.0    0.0   25.0                78%
+ 64    30     860    65.8    0.0   25.2                88%
+ 64     0     104    65.8    0.0   25.2                99%
+
+Held-out check: cap = 1.1 x longest formal kill in the training half, scored on the other half (split by log index parity; cap 0 if no training formal kill)
+    N/train  test  cap_s   cpu_s  uncapped  killed  uncapped  equiv  uncapped
+N=4    even    48     58     645      3266    37.0      37.0    0.0       7.0
+N=4     odd    43      0       5      4143    27.4      29.0    0.0       9.0
+N=16   even    48     58     661      3282    37.0      37.0    0.0       7.0
+N=16    odd    43      0       6      4123    27.9      29.0    0.0       9.0

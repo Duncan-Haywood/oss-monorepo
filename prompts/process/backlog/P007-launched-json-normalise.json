@@ -1,0 +1,24 @@
+{
+  "id": "P007",
+  "title": "Stop launched.json ordering from failing parallel branches",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "launched.json has a byte-for-byte sort test, and parallel branches each append an entry, so main needs repair commits after merges.",
+  "evidence": [
+    "4 repair commits on 2026-10-14 (#6936, #6962, #6963, #6975): prompts/process/reports/2026-10-15.md, finding 1"
+  ],
+  "change": "Have the check normalise (or `launched.mjs --write` run in regen) instead of failing on order alone; keep failing on missing dates.",
+  "touches": [
+    "platform/pages/launched.mjs",
+    "platform/pages/launched.test.mjs"
+  ],
+  "metric": "launched.json repair commits per week",
+  "baseline": "4 in one day (2026-10-14)",
+  "opened": "2026-10-15",
+  "source": "prompts/process/reports/2026-10-15*.md",
+  "pr": 7047,
+  "result": "mechanism holds: `node --test platform/pages/launched.test.mjs` passes 23/0 on b5b9aaf3c0. Repair-commit rate cannot be measured yet: the baseline is one day (2026-10-14) and the clone has no later day to compare.",
+  "history": []
+}

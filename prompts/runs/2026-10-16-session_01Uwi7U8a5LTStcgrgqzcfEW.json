@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01Uwi7U8a5LTStcgrgqzcfEW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T01:22:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "mirror-sync",
+  "projects": [],
+  "pr": 7248,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Says research work lands upstream and to route to ventures if add_repo fails; mirror-sync milestone is the only action here while cutover (#7243) is in flight, which the brief does not mention."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Final pre-cutover mirror sync to upstream f22c8c6; upstream moved past c33179e pin. Cost attach skipped: no transcript access.",
+  "corrections": [],
+  "redteam": null
+}

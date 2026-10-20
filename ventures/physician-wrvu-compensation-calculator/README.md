@@ -5,6 +5,8 @@ from the contract and see annual pay under base-then-productivity, pure producti
 break-even wRVUs, effective dollars per wRVU, pay per hour worked, shortfall and clawback exposure, an 80% to 120%
 sensitivity table, and a side-by-side comparison of two offers.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-compensation-calculator/
+
 After using this, you can now **tell whether a wRVU offer beats a fixed salary at your expected volume, how many
 wRVUs you need for productivity to win, and how much you could owe back if you fall short**, which used to take a
 spreadsheet and a lawyer's hour.

@@ -2,6 +2,8 @@
 
 A free browser tool for hoarding and heavy-clutter cleanout contractors: **enter the space, the work rate and your costs, and get a price, the crew days and containers the job needs, a per-cubic-yard rate for the change-order clause, and how far the real pile can exceed your walkthrough estimate before the price stops covering cost**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hoarding-cleanout-bid-calculator/
+
 After using this, you can now **bid a cleanout from the volume, the whole crew days and the containers it really takes, and write an overrun rate into the contract**, which used to take a per-square-foot special and a guess at how full the house was.
 
 ## Use

@@ -132,3 +132,11 @@ test('incomeGap with a zero average price cannot say how many visits close the g
 test('incomeGap rejects a negative target', () => {
   assert.throws(() => incomeGap(-1, 0, 10), /zero or greater/);
 });
+
+test('unbilled cancellations gross the price up so completed visits cover the lost ones', () => {
+  const base = calculate({ ...DEFAULTS });
+  const r = calculate({ ...DEFAULTS, unbilledCancellationPct: 10 });
+  assert.ok(Math.abs(r.finalPrice * 0.9 - base.finalPrice) < 1e-9);
+  assert.ok(Math.abs(r.cancellationAmount - (r.finalPrice - base.finalPrice)) < 1e-9);
+  assert.throws(() => calculate({ ...DEFAULTS, unbilledCancellationPct: 100 }), /below 100/);
+});

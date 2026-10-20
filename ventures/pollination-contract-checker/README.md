@@ -6,6 +6,8 @@ labour, feed, hive losses, hives that fail inspection (unpaid but still hauled),
 the income the hives would have earned at home. A second card gives growers the cost per acre and
 the yield lift that pays for it. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pollination-contract-checker/
+
 After using this, you can now **tell whether a pollination contract clears your costs and what
 fee you need to ask for**, which used to be a gut call or a spreadsheet rebuilt every season.
 

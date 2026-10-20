@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Best feasible mass in grams for rules-based and free designs, per setting and process">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Best mass by setting and process: rules vs free design</text>
+<line x1="64" x2="624" y1="310.0" y2="310.0" stroke="#ddd"/><text x="58" y="314.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="258.7" y2="258.7" stroke="#ddd"/><text x="58" y="262.7" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="207.4" y2="207.4" stroke="#ddd"/><text x="58" y="211.4" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="156.1" y2="156.1" stroke="#ddd"/><text x="58" y="160.1" text-anchor="end" font-family="sans-serif" font-size="11">30</text>
+<line x1="64" x2="624" y1="104.8" y2="104.8" stroke="#ddd"/><text x="58" y="108.8" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="53.5" y2="53.5" stroke="#ddd"/><text x="58" y="57.5" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<text x="14" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 175.0)">mass (g)</text>
+<text x="87.3" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 87.3 324)">A FDM</text>
+<rect x="68.7" y="226.5" width="17.7" height="83.5" fill="#1f6fb2"/>
+<rect x="87.3" y="226.5" width="17.7" height="83.5" fill="#c0392b"/>
+<text x="134.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 134.0 324)">A CNC routing</text>
+<rect x="115.3" y="237.7" width="17.7" height="72.3" fill="#1f6fb2"/>
+<rect x="134.0" y="251.7" width="17.7" height="58.3" fill="#c0392b"/>
+<text x="180.7" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 180.7 324)">A laser cutting</text>
+<rect x="162.0" y="128.6" width="17.7" height="181.4" fill="#1f6fb2"/>
+<rect x="180.7" y="137.9" width="17.7" height="172.1" fill="#c0392b"/>
+<text x="227.3" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 227.3 324)">A casting</text>
+<rect x="208.7" y="179.7" width="17.7" height="130.3" fill="#1f6fb2"/>
+<rect x="227.3" y="218.6" width="17.7" height="91.4" fill="#c0392b"/>
+<text x="274.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 274.0 324)">B FDM</text>
+<rect x="255.3" y="199.4" width="17.7" height="110.6" fill="#1f6fb2"/>
+<rect x="274.0" y="199.4" width="17.7" height="110.6" fill="#c0392b"/>
+<text x="320.7" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 320.7 324)">B CNC routing</text>
+<rect x="302.0" y="225.3" width="17.7" height="84.7" fill="#1f6fb2"/>
+<rect x="320.7" y="240.8" width="17.7" height="69.2" fill="#c0392b"/>
+<text x="367.3" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 367.3 324)">B laser cutting</text>
+<rect x="348.7" y="64.5" width="17.7" height="245.5" fill="#1f6fb2"/>
+<rect x="367.3" y="108.8" width="17.7" height="201.2" fill="#c0392b"/>
+<text x="414.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 414.0 324)">B casting</text>
+<rect x="395.3" y="156.1" width="17.7" height="153.9" fill="#1f6fb2"/>
+<rect x="414.0" y="199.9" width="17.7" height="110.1" fill="#c0392b"/>
+<text x="460.7" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 460.7 324)">C FDM</text>
+<rect x="442.0" y="222.1" width="17.7" height="87.9" fill="#1f6fb2"/>
+<rect x="460.7" y="222.1" width="17.7" height="87.9" fill="#c0392b"/>
+<text x="507.3" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 507.3 324)">C CNC routing</text>
+<rect x="488.7" y="232.0" width="17.7" height="78.0" fill="#1f6fb2"/>
+<rect x="507.3" y="247.1" width="17.7" height="62.9" fill="#c0392b"/>
+<text x="554.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 554.0 324)">C laser cutting</text>
+<rect x="535.3" y="126.4" width="17.7" height="183.6" fill="#1f6fb2"/>
+<rect x="554.0" y="128.2" width="17.7" height="181.8" fill="#c0392b"/>
+<text x="600.7" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 600.7 324)">C casting</text>
+<rect x="582.0" y="171.4" width="17.7" height="138.6" fill="#1f6fb2"/>
+<rect x="600.7" y="212.0" width="17.7" height="98.0" fill="#c0392b"/>
+<rect x="74" y="42" width="12" height="10" fill="#1f6fb2"/><text x="92" y="51" font-family="sans-serif" font-size="11">rules</text>
+<rect x="74" y="57" width="12" height="10" fill="#c0392b"/><text x="92" y="66" font-family="sans-serif" font-size="11">free</text>
+</svg>

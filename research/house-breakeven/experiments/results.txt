@@ -1,0 +1,45 @@
+A. Whole tight package vs baseline: annual saving and break-even extra first cost (3% real rate, 30 years, assumed prices)
+climate	system	annual_saving_usd	breakeven_usd
+Houston (2A)	heat pump	72	1409
+Houston (2A)	gas furnace + AC	65	1267
+Baltimore (4A)	heat pump	109	2134
+Baltimore (4A)	gas furnace + AC	84	1656
+Chicago (5A)	heat pump	133	2607
+Chicago (5A)	gas furnace + AC	101	1976
+Minneapolis (6A)	heat pump	158	3104
+Minneapolis (6A)	gas furnace + AC	119	2330
+
+B. Break-even by upgrade, heat pump (USD; assumed cost where house-energy has a unit price)
+upgrade	Houston (2A)	Baltimore (4A)	Chicago (5A)	Minneapolis (6A)	assumed_extra_cost
+wall (advanced 2x6 + R-5 foam)	726	1019	1231	1459	n/a
+attic R-30 to R-49	158	222	268	317	319
+windows U-0.35 to U-0.27	256	359	433	514	1392
+air sealing 5 to 3 ACH50	190	267	323	382	500
+floor batt R-19 to R-30	79	267	352	431	n/a
+
+C. Same, gas furnace + AC
+upgrade	Houston (2A)	Baltimore (4A)	Chicago (5A)	Minneapolis (6A)	assumed_extra_cost
+wall (advanced 2x6 + R-5 foam)	660	798	939	1100	n/a
+attic R-30 to R-49	144	173	204	239	319
+windows U-0.35 to U-0.27	232	281	330	387	1392
+air sealing 5 to 3 ACH50	173	209	246	288	500
+floor batt R-19 to R-30	58	195	257	315	n/a
+
+D. Energy-price multiplier needed for break-even at the assumed extra cost (heat pump, 3%; above 1 means it does not pay at assumed prices)
+upgrade	Houston (2A)	Baltimore (4A)	Chicago (5A)	Minneapolis (6A)
+attic R-30 to R-49	2.02	1.44	1.19	1.01
+windows U-0.35 to U-0.27	5.45	3.88	3.21	2.71
+air sealing 5 to 3 ACH50	2.63	1.87	1.55	1.31
+
+E. Whole-package break-even against the discount rate (heat pump, USD)
+rate	Houston (2A)	Baltimore (4A)	Chicago (5A)	Minneapolis (6A)
+0.00	2157	3266	3990	4750
+0.03	1409	2134	2607	3104
+0.07	892	1351	1651	1965
+
+F. Whole-package break-even against the energy price multiplier (Chicago, 3%, USD)
+multiplier	heat pump	gas furnace + AC
+0.5	1304	988
+1.0	2607	1976
+1.5	3911	2964
+2.0	5214	3952

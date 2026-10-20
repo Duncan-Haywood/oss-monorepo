@@ -31,7 +31,7 @@
         "name": "Should I offer free shipping on eBay?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "On eBay, final-value fee sits on item plus shipping. Folding the exact shipping charged into the item therefore leaves the same completed-sale leftover. The decision is sell-through versus an under-baked list. On the calculator defaults (a $40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 55% buyer-pays sell-through, 70% free-ship sell-through) buyer-pays expects $10.09 and baked-in free shipping expects $12.84. Free shipping keeps $2.75 more. Leave the list at $40 and free shipping expects $9.56 — $0.53 less. That is arithmetic on your inputs, not advice to offer free shipping."
+          "text": "On eBay, final-value fee sits on item plus shipping. Folding the exact shipping charged into the item therefore leaves the same completed-sale leftover. The decision is sell-through versus an under-baked list. On the calculator defaults (a $40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 55% buyer-pays sell-through, 70% free-ship sell-through) buyer-pays expects $9.96 and baked-in free shipping expects $12.68. Free shipping keeps $2.72 more. Leave the list at $40 and free shipping expects $9.41 — $0.55 less. That is arithmetic on your inputs, not advice to offer free shipping."
         }
       },
       {
@@ -39,7 +39,7 @@
         "name": "Does eBay charge final-value fee on shipping?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "This calculator treats final-value fee as a percent of item plus shipping charged, which is how eBay bills most categories. Baking $6 of shipping into a $46 list therefore leaves the same $18.34 leftover after a 10% return mix as charging $6. Reverb is different: marketplace fee sits on the item only, so folding postage into the list costs extra. Enter the blended rate from your last payout."
+          "text": "This calculator treats final-value fee as a percent of item plus shipping charged, which is how eBay bills most categories. Baking $6 of shipping into a $46 list therefore leaves the same $18.11 leftover after a 10% return mix as charging $6. Reverb is different: marketplace fee sits on the item only, so folding postage into the list costs extra. Enter the blended rate from your last payout."
         }
       },
       {
@@ -47,7 +47,7 @@
         "name": "What if I offer free shipping and leave the list at $40?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "You still buy the $5 label. Revenue drops from $46 to $40, so leftover after returns falls to $13.66. At 70% sell-through that listing expects $9.56 against $10.09 for buyer-pays — $0.53 less. Free shipping then has to convert about 73.9% of the time before it matches. The free-ship list that ties buyer-pays leftover at 70% sell-through is $40.97."
+          "text": "You still buy the $5 label. Revenue drops from $46 to $40, so leftover after returns falls to $13.44. At 70% sell-through that listing expects $9.41 against $9.96 for buyer-pays — $0.55 less. Free shipping then has to convert about 74.1% of the time before it matches. The free-ship list that ties buyer-pays leftover at 70% sell-through is $41.01."
         }
       }
     ]
@@ -108,8 +108,8 @@
       is two already-sold items. Here the item still ships. On
       eBay, baking the exact shipping charged into the list leaves
       the same leftover per completed sale. A 15-point sell-through
-      lift on that $46 list keeps $2.75 more. Leaving the list at
-      $40 loses $0.53.
+      lift on that $46 list keeps $2.72 more. Leaving the list at
+      $40 loses $0.55.
     </p>
   </header>
   <main class="layout">
@@ -118,8 +118,8 @@
       <div class="fields">
         <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
         <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
-        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
-        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40"></label>
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
         <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
         <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
@@ -176,23 +176,23 @@
       sits on the item only.
     </p>
     <p>
-      On the defaults — a $40 item, $6 shipping charged, 13.25%
-      final value fee, $0.30 fixed, $12 cost, $5 outbound, $1
+      On the defaults — a $40 item, $6 shipping charged, 13.6%
+      final value fee, $0.40 fixed, $12 cost, $5 outbound, $1
       pack, $5 return label, 10% returns, 55% buyer-pays
       sell-through, 70% free-ship sell-through — buyer-pays
-      expects $10.09 and baked-in free shipping expects $12.84.
-      Free shipping keeps $2.75 more (+$2.75) on this listing
-      and +$110.07 across forty listings. Free shipping has to
+      expects $9.96 and baked-in free shipping expects $12.68.
+      Free shipping keeps $2.72 more (+$2.72) on this listing
+      and +$108.66 across forty listings. Free shipping has to
       convert about 55.0% of the time, or the free-ship list
-      has to stay at about $40.97, before it matches buyer-pays.
+      has to stay at about $41.01, before it matches buyer-pays.
     </p>
     <p>
       Leaving the list at $40 flips. Keep the 70% lift and still
-      buy the $5 label. Buyer-pays still expects $10.09; free
-      shipping expects $9.56 — $0.53 less. Sell-through then
-      has to reach about 73.9%. A $44 list still wins (+$1.66).
+      buy the $5 label. Buyer-pays still expects $9.96; free
+      shipping expects $9.41 — $0.55 less. Sell-through then
+      has to reach about 74.1%. A $44 list still wins (+$1.63).
       A 50% free-ship close rate on the baked-in $46 list
-      expects $9.17 — $0.92 less.
+      expects $9.05 — $0.91 less.
     </p>
     <p>
       It does not tell you to offer free shipping, and it is
@@ -212,11 +212,11 @@
   </section>
   <h2>Common questions</h2>
   <h3>Should I offer free shipping on eBay?</h3>
-  <p>On eBay, final-value fee sits on item plus shipping. Folding the exact shipping charged into the item therefore leaves the same completed-sale leftover. The decision is sell-through versus an under-baked list. On the calculator defaults (a $40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 55% buyer-pays sell-through, 70% free-ship sell-through) buyer-pays expects $10.09 and baked-in free shipping expects $12.84. Free shipping keeps $2.75 more. Leave the list at $40 and free shipping expects $9.56 — $0.53 less. That is arithmetic on your inputs, not advice to offer free shipping.</p>
+  <p>On eBay, final-value fee sits on item plus shipping. Folding the exact shipping charged into the item therefore leaves the same completed-sale leftover. The decision is sell-through versus an under-baked list. On the calculator defaults (a $40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 55% buyer-pays sell-through, 70% free-ship sell-through) buyer-pays expects $9.96 and baked-in free shipping expects $12.68. Free shipping keeps $2.72 more. Leave the list at $40 and free shipping expects $9.41 — $0.55 less. That is arithmetic on your inputs, not advice to offer free shipping.</p>
   <h3>Does eBay charge final-value fee on shipping?</h3>
-  <p>This calculator treats final-value fee as a percent of item plus shipping charged, which is how eBay bills most categories. Baking $6 of shipping into a $46 list therefore leaves the same $18.34 leftover after a 10% return mix as charging $6. Reverb is different: marketplace fee sits on the item only, so folding postage into the list costs extra. Enter the blended rate from your last payout.</p>
+  <p>This calculator treats final-value fee as a percent of item plus shipping charged, which is how eBay bills most categories. Baking $6 of shipping into a $46 list therefore leaves the same $18.11 leftover after a 10% return mix as charging $6. Reverb is different: marketplace fee sits on the item only, so folding postage into the list costs extra. Enter the blended rate from your last payout.</p>
   <h3>What if I offer free shipping and leave the list at $40?</h3>
-  <p>You still buy the $5 label. Revenue drops from $46 to $40, so leftover after returns falls to $13.66. At 70% sell-through that listing expects $9.56 against $10.09 for buyer-pays — $0.53 less. Free shipping then has to convert about 73.9% of the time before it matches. The free-ship list that ties buyer-pays leftover at 70% sell-through is $40.97.</p>
+  <p>You still buy the $5 label. Revenue drops from $46 to $40, so leftover after returns falls to $13.44. At 70% sell-through that listing expects $9.41 against $9.96 for buyer-pays — $0.55 less. Free shipping then has to convert about 74.1% of the time before it matches. The free-ship list that ties buyer-pays leftover at 70% sell-through is $41.01.</p>
 
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>

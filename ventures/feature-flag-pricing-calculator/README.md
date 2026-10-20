@@ -4,6 +4,8 @@ Price PostHog, Flagsmith and ConfigCat side by side at your monthly
 flag-request volume (thousands), see the 12-month spend under your growth rate, and find the volumes where the
 cheapest provider changes — before you build on one.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/feature-flag-pricing-calculator/
+
 ```
 node cli.mjs compare --kreq 300 --growth 6
 node cli.mjs compare --kreq 800 --provider posthog --budget 300   # CI gate: exit 1 over budget

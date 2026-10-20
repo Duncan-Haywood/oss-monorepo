@@ -1,0 +1,73 @@
+{
+  "slug": "water-well-drilling-bid-calculator",
+  "name": "Water well drilling",
+  "group": "Specialty & remediation",
+  "summary": "Finished water wells priced from depth by formation, casing, grout, pump system, trench and mobilization.",
+  "fit": "partial",
+  "crewSize": 1,
+  "setupHours": 4,
+  "hourlyWage": 185,
+  "burdenRate": 0,
+  "overheadRate": 12,
+  "targetMargin": 25,
+  "tripFee": 650,
+  "items": [
+    {
+      "label": "Drill overburden (soil, clay, gravel)",
+      "unit": "ft",
+      "qty": 40,
+      "hoursPerUnit": 0.04,
+      "materialPerUnit": 6,
+      "source": "DEFAULTS (calc.mjs): overburdenFt 40, 1 / overburdenFtPerHour 25 rig h/ft, overburdenCostFt $6; rig hours priced at rigRate $185 (rig, compressor and crew)"
+    },
+    {
+      "label": "Drill rock",
+      "unit": "ft",
+      "qty": 210,
+      "hoursPerUnit": 0.08333,
+      "materialPerUnit": 11,
+      "source": "DEFAULTS: depthFt 250 - 40 overburden = 210 ft; 1 / rockFtPerHour 12 rig h/ft; rockCostFt $11"
+    },
+    {
+      "label": "Casing and shoe",
+      "unit": "ft",
+      "qty": 60,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 14,
+      "source": "DEFAULTS casingFt 60, casingCostFt $14"
+    },
+    {
+      "label": "Grout / bentonite seal",
+      "unit": "ft",
+      "qty": 20,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 6,
+      "source": "DEFAULTS groutFt 20, groutCostFt $6"
+    },
+    {
+      "label": "Pitless adapter, pump, pressure tank and install",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 2710,
+      "source": "DEFAULTS pitlessCost $380 + pumpCost $1,450 + tankCost $520 + pumpInstallHours 4 x installRate $90 (install crew is a separate $90/h cost, folded in as dollars so it is not billed at the $185 rig rate)"
+    },
+    {
+      "label": "Trench, water line and wire to house",
+      "unit": "ft",
+      "qty": 100,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 9,
+      "source": "DEFAULTS trenchFt 100, trenchCostFt $9"
+    },
+    {
+      "label": "Permit, well log and water test",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 300,
+      "source": "DEFAULTS permitTest $300"
+    }
+  ],
+  "specialistModels": "Adds a dry-hole allowance (8% chance x drilling, casing, move, permit and $600 abandonment), plus depth and dry-risk price ladders; wage is the $185 rig-hour rate with no burden, setupHours is rig setup/development and tripFee is mobilization."
+}

@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01Un6HACboJ3w6ixY7DMyVzz",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-16T03:38:53Z",
+  "ended": "2026-10-16T03:41:23Z",
+  "wall_minutes": 2.65,
+  "tokens_in": 1415488,
+  "tokens_out": 5983,
+  "cost_usd": 0.5788,
+  "tool_calls": 19,
+  "task": null,
+  "projects": [],
+  "pr": 7280,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "step 1 derive.py fetch crashed on a 403 with no token; fixed in this PR. Steps 2 audit unrunnable again (mirrored/doc-only)."
+    },
+    {
+      "file": "prompts/derive.py",
+      "issue": "no handling of API 403 in sessions without GITHUB_TOKEN"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "skipped audit and step 4 (no candidate with ~10 runs)"
+    }
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fce001dd-a210-5417-b99a-1b67a45b0d01",
+    "transcripts": 1,
+    "first": "2026-10-16T03:38:53Z",
+    "last": "2026-10-16T03:41:33Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 18,
+        "input": 36,
+        "output": 5983,
+        "thinking": 635,
+        "cache_read": 1353390,
+        "cache_write_5m": 0,
+        "cache_write_1h": 62062,
+        "api_equivalent_usd": 0.5788,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 18,
+      "input": 36,
+      "output": 5983,
+      "thinking": 635,
+      "cache_read": 1353390,
+      "cache_write_5m": 0,
+      "cache_write_1h": 62062,
+      "api_equivalent_usd": 0.5788,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.956,
+    "tool_calls": 19,
+    "tools": {
+      "Bash": 16,
+      "Read": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.65,
+      "active_minutes": 2.65,
+      "model_minutes": 0.84,
+      "tool_minutes": 1.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "estimate: measure, small fix, reports",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 172.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -3,6 +3,8 @@
 A free browser calculator for the 2026 FLSA white-collar overtime-exemption
 salary threshold. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/exempt-salary-threshold-checker/
+
 After using this, you can now **see whether a weekly salary clears the
 applicable federal or state overtime-exemption threshold, and by how much
 it falls short if not** — which used to take reading a payroll-compliance

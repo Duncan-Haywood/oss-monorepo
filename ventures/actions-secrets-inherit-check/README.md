@@ -3,6 +3,8 @@
 A free tool that scans GitHub Actions workflow files for two documented
 `secrets: inherit` risks on a reusable-workflow call:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-secrets-inherit-check/
+
 1. **`secrets-inherit-external-workflow`** — `secrets: inherit` on a job
    whose `uses:` calls a reusable workflow hosted in a *different*
    repository (`uses: OWNER/REPO/.github/workflows/file.yml@ref`, not a

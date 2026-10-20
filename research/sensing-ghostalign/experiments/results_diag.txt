@@ -1,0 +1,18 @@
+# sensing-ghostalign diagnostics (synthetic, 16 scenes per cell, N = 8, A = 4, read 3 e-)
+
+== D. Search bound: oracle (v_max = v + 0.5) against a loose bound (v_max = 4), true speed v = 1
+bound | all | static | trail | obj0   (aligned+rej)
+oracle 1.5 | 31.66 | 32.71 | 27.62 | 27.84
+loose 4 | 31.78 | 32.72 | 28.03 | 27.89
+
+== E. Ceiling: subject footprint (obj0) PSNR against N at v = 1, noise only (integer-shift oracle)
+N | region | oracle shift | aligned+rej | refguided | one large frame
+(obj0 = footprint +1 px ring, which includes background that the oracle shifts wrongly; disc core = footprint eroded 2 px)
+4 | obj0 | 28.99 | 27.96 | 26.56 | 32.13
+4 | disc core | 33.11 | 34.08 | 31.29 | 32.77
+8 | obj0 | 27.56 | 27.84 | 26.77 | 32.13
+8 | disc core | 35.32 | 36.97 | 31.48 | 32.77
+16 | obj0 | 26.97 | 27.91 | 27.38 | 32.13
+16 | disc core | 37.50 | 39.58 | 31.46 | 32.77
+24 | obj0 | 26.00 | 27.99 | 27.40 | 32.13
+24 | disc core | 39.61 | 40.97 | 31.44 | 32.77

@@ -257,3 +257,41 @@ test('the customer summary names the drive and omits wages', () => {
   assert.doesNotMatch(text, /burden/i);
   assert.match(text, /not a civil specification/i);
 });
+
+test('job presets carry the fabric flag the label promises', () => {
+  assert.deepEqual(JOB_PRESETS.map((p) => p.fabric), [false, true, true, true]);
+});
+
+test('an unpriced culvert adds no cost and zero total hours give zero hour shares', () => {
+  const base = { ...special(), culvert: true };
+  delete base.culvertEach;
+  assert.equal(calculateBid(base).culvertMaterial, 0);
+  const zeroHours = {
+    ...special(),
+    hoursTrip: 0, hoursPerSqFtGrade: 0, hoursPerSqFtSpread: 0, hoursPerTruck: 0,
+    hoursApron: 0, hoursCulvert: 0, siteHours: 0,
+  };
+  const idle = calculateBid(zeroHours);
+  assert.equal(idle.totalHours, 0);
+  for (const share of Object.values(idle.hourShares)) assert.equal(share, 0);
+});
+
+test('string flags from a shared link mean what they say', () => {
+  const off = calculateBid({ ...special(), slope: 'false', fabric: '0', apron: '', culvert: null });
+  const base = calculateBid(special());
+  assert.equal(off.hoursSpread, base.hoursSpread);
+  assert.equal(off.fabricMaterial, 0);
+  const on = calculateBid({ ...special(), slope: 'true' });
+  assert.ok(on.hoursSpread > base.hoursSpread);
+});
+
+test('pea gravel preset is a 40x10 walk and the crusher-run kit budgets 3 culvert hours', () => {
+  assert.equal(JOB_PRESETS[3].widthFt, 10);
+  assert.equal(suggestedStoneKit('crusher-run').hoursCulvert, 3);
+});
+
+test('cost shares are percentages of total cost and sum to 100', () => {
+  const r = calculateBid(special());
+  const sum = Object.values(r.shares).reduce((a, b) => a + b, 0);
+  assert.ok(Math.abs(sum - 100) < 1e-6, `shares summed to ${sum}`);
+});

@@ -5,6 +5,8 @@ costs, and see which pairs of products customers already buy together, the bundl
 the break-even** &mdash; how much more often shoppers must add the second item before the discount stops losing money.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bundle-discount-optimizer/
+
 After using this, you can now **pick the two or three bundles worth running and know the discount that pays for itself**,
 which used to be a guess on a "frequently bought together" app.
 

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run A Ladder League: Rules For Challenges And Moving Up</title>
+  <meta name="description" content="How a challenge ladder works for tennis, pickleball, squash and table tennis clubs: who can challenge whom, how a win moves you up, and a worked 6-player example. Then run yours free.">
+  <meta property="og:title" content="How To Run A Ladder League: Rules For Challenges And Moving Up">
+  <meta property="og:description" content="Challenge rules and rung moves with a 6-player example. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-run-a-ladder-league.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does a ladder league work?", "acceptedAnswer": {"@type": "Answer", "text": "Players are ranked on rungs. You challenge someone a few rungs above you, play one match, and if you win you take their rung while they and everyone between drop one place. If the higher-ranked player wins, nothing changes. There is no fixed schedule, so it suits clubs where players arrange their own matches."}}, {"@type": "Question", "name": "How many rungs up can you challenge?", "acceptedAnswer": {"@type": "Answer", "text": "Most clubs allow two or three rungs. The tool defaults to three, shows who each player can challenge now, and flags any result beyond the limit so the organiser can overrule it. You can also set it higher."}}, {"@type": "Question", "name": "What is the difference between insert and swap?", "acceptedAnswer": {"@type": "Answer", "text": "Insert, the usual rule, puts the winner on the loser's rung and moves everyone in between down one. Swap only trades the two players' places. Swap is gentler on the players between but lets a player leapfrog slowly."}}, {"@type": "Question", "name": "Is a ladder the same as a round robin?", "acceptedAnswer": {"@type": "Answer", "text": "No. A round robin schedules every pair to meet once. A ladder has no fixed fixtures: the ranking is whatever the results so far say. Use a round robin when you want a fair season, and a ladder when you want an always-open club ranking."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to run a ladder league: challenges and moving up</h1>
+  <p>A ladder is a ranking that plays itself. Everyone starts on a rung. You challenge someone a few rungs above you, and if you win you take their place. Clubs use it for tennis, pickleball, squash, table tennis and darts because nobody needs a fixed fixture list: players arrange their own matches and the ranking is always current.</p>
+  <p><a class="cta" href="./">Open the free ladder</a> (the Ladder card on the page: enter players in rank order, then paste results)</p>
+  <h2>A worked example: 6 players, reach of 2</h2>
+  <p>Start order: Ana, Ben, Cy, Dee, Eli, Fay. Results, oldest first:</p>
+  <pre>Cy beat Ana
+Eli beat Cy
+Fay beat Dee</pre>
+  <table>
+    <thead><tr><th>Rung</th><th>After 3 results</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Eli</td></tr>
+      <tr><td>2</td><td>Cy</td></tr>
+      <tr><td>3</td><td>Ana</td></tr>
+      <tr><td>4</td><td>Ben</td></tr>
+      <tr><td>5</td><td>Fay</td></tr>
+      <tr><td>6</td><td>Dee</td></tr>
+    </tbody>
+  </table>
+  <p>Cy (3rd) beat Ana (1st) and took rung 1, so Ana and Ben each dropped a place. Eli (5th) then beat Cy, who now held rung 1, so Eli takes rung 1 and Cy, Ana, Ben and Dee each drop one. Fay (6th) beat Dee, who had slipped to 5th, and swaps up into that rung. Eli's win was 4 rungs up, beyond a reach of 2, so the tool applies it but lists it for you to overrule. A separate test recomputes this table from the same code the tool runs.</p>
+  <p><a class="cta" href="./">Run your own ladder</a></p>
+  <h2>Questions</h2>
+  <h3>How does a ladder league work?</h3>
+  <p>Players are ranked on rungs. You challenge someone a few rungs above you, play one match, and if you win you take their rung while they and everyone between drop one place. If the higher-ranked player wins, nothing changes. There is no fixed schedule, so it suits clubs where players arrange their own matches.</p>
+  <h3>How many rungs up can you challenge?</h3>
+  <p>Most clubs allow two or three rungs. The tool defaults to three, shows who each player can challenge now, and flags any result beyond the limit so the organiser can overrule it. You can also set it higher.</p>
+  <h3>What is the difference between insert and swap?</h3>
+  <p>Insert, the usual rule, puts the winner on the loser's rung and moves everyone in between down one. Swap only trades the two players' places. Swap is gentler on the players between but lets a player leapfrog slowly.</p>
+  <h3>Is a ladder the same as a round robin?</h3>
+  <p>No. A round robin schedules every pair to meet once. A ladder has no fixed fixtures: the ranking is whatever the results so far say. Use a round robin when you want a fair season, and a ladder when you want an always-open club ranking.</p>
+  <p>Related: <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>, <a href="./how-to-run-a-swiss-tournament.html">how a Swiss tournament works</a> and <a href="./how-to-run-a-mexicano-tournament.html">how a Mexicano draw works</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Your club's own rules apply. The example players are invented.</p>
+    <p>Everything the tool does runs in your browser; player names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

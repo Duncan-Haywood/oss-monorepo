@@ -1,0 +1,71 @@
+{
+  "slug": "egress-window-bid-calculator",
+  "name": "Egress windows",
+  "group": "Paving, concrete & masonry",
+  "summary": "Basement egress windows priced per opening: cut, sash, well, cover, ladder, drain, haul and finish.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Egress window: retrofit opening, vinyl hopper, plastic well",
+      "unit": "window",
+      "qty": 1,
+      "hoursPerUnit": 5.5,
+      "materialPerUnit": 600,
+      "source": "window 1.8 h + cut 0 h + well base 1.2 h + well 2.5 h; hopper $380 + plastic well $220 (suggestedScopeKit retrofit-existing, suggestedWindowKit vinyl-hopper, suggestedWellKit plastic); 1 window default (index.html)"
+    },
+    {
+      "label": "Well cover or grate",
+      "unit": "window",
+      "qty": 0,
+      "hoursPerUnit": 0.6,
+      "materialPerUnit": 185,
+      "source": "hoursCoverEach 0.6, coverEach $185 (suggestedExtraKit); unchecked by default"
+    },
+    {
+      "label": "Escape ladder",
+      "unit": "window",
+      "qty": 0,
+      "hoursPerUnit": 0.45,
+      "materialPerUnit": 95,
+      "source": "hoursLadderEach 0.45, ladderEach $95 (suggestedExtraKit); unchecked by default"
+    },
+    {
+      "label": "Well drain to daylight or sump",
+      "unit": "window",
+      "qty": 0,
+      "hoursPerUnit": 2.2,
+      "materialPerUnit": 165,
+      "source": "hoursDrainEach 2.2, drainKitEach $165 (suggestedExtraKit); unchecked by default"
+    },
+    {
+      "label": "Dirt haul and dump ticket",
+      "unit": "window",
+      "qty": 0,
+      "hoursPerUnit": 1.8,
+      "materialPerUnit": 280,
+      "source": "hoursHaulEach 1.8, haulEach $280 (suggestedExtraKit); unchecked by default"
+    },
+    {
+      "label": "Interior finish (trim, drywall, paint)",
+      "unit": "window",
+      "qty": 0,
+      "hoursPerUnit": 2.4,
+      "materialPerUnit": 140,
+      "source": "hoursFinishEach 2.4, finishEach $140 (suggestedExtraKit); unchecked by default"
+    },
+    {
+      "label": "Site, travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.48,
+      "materialPerUnit": 120.6,
+      "source": "site 0.8 h + trip 1.4 h + 8 mi x 0.035 h/mi (suggestedExtraKit); 8 mi x $3.20/mi + travel & equipment $95 (suggestedExtraKit travelPerMile; index.html travelMiles, travelAndEquipment)"
+    }
+  ],
+  "specialistModels": "New-cut scopes in wood, block and poured concrete with saw and lintel hours, slider/casement/fiberglass sashes, and steel or stone wells."
+}

@@ -1,0 +1,50 @@
+name: uk-statutory-residence-test-checker
+description: >-
+  Free browser tool for people moving to or from the UK: list your UK stays and answer a few questions about home, work and family, and it runs the Statutory Residence Test (automatic overseas tests, automatic UK tests, sufficient ties for leavers and arrivers), shows which step decided, and how many more UK days change the answer. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-18 in a ventures run. duplicate_check: ventures/ has schengen-90-180-day-calculator (a different rule)
+# and state-residency-day-counter (US states); nothing covers the UK Statutory Residence Test.
+#
+# Why this niche: UK expats, returners, retirees abroad, digital nomads and non-doms arriving all face a real
+# money question (UK tax on worldwide income vs only UK income) decided by a rules-engine that RDR3 explains in
+# a very long PDF. Paid and lead-gen calculators exist; a private one that shows the deciding test and the
+# day count that flips the answer does not. It is a natural companion to the Schengen and US state counters.
+#
+# First visitor: people searching "statutory residence test calculator", "UK 183 day rule", "sufficient ties
+# test", "how many days can I spend in the UK", "UK tax residence leaver arriver". Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed dates and yes/no answers; never states anyone's tax residence;
+# written from the published test without a live lookup and names HMRC's RDR3 as the source to verify; says
+# what is not modelled (split year, deeming rule, deaths, Crown employees); the example is invented.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural front end for a paid
+# cross-border tax adviser referral, a multi-year residence log, or an annual tax-year evidence pack.
+
+hypotheses:
+  - claim: >-
+      People who split time between the UK and elsewhere will use a private Statutory Residence Test checker
+      because it shows which test decided and how many UK days change the answer, which HMRC's questionnaire
+      and adviser lead-gen calculators do not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a result differs from HMRC's guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-statutory-residence-test-checker/
+  analytics: null

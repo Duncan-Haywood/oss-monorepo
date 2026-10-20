@@ -12,6 +12,8 @@ hallucinate; the next developer who copies an AI's install suggestion gets
 the attacker's package instead of an install error. This is now called
 **slopsquatting**.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/slopsquatting-check/
+
 **What it is not:** a malware scanner, a security audit, or a verdict on
 any specific package. A flagged name is a prompt to read that package
 before trusting it, not a claim that it is malicious.

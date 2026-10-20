@@ -1,0 +1,40 @@
+{
+  "slug": "gutter-install-bid-calculator",
+  "name": "Gutter installation",
+  "group": "Exterior & roofing",
+  "summary": "Seamless gutters priced by the foot with miters, extra downspouts, story access, tear-off and fascia.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2,
+  "hourlyWage": 38,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 32,
+  "items": [
+    {
+      "label": "Hang 5\" K-style aluminum gutter",
+      "unit": "linear ft",
+      "qty": 140,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 3.4,
+      "source": "0.035 h per gutter foot, $3.40/ft (suggestedProfileKit five-alum, index.html); 140 lf default"
+    },
+    {
+      "label": "Outside miters",
+      "unit": "each",
+      "qty": 4,
+      "hoursPerUnit": 0.3,
+      "materialPerUnit": 12.0,
+      "source": "0.3 h and $12 per outside miter (index.html defaults); 4 miters default"
+    },
+    {
+      "label": "Travel, truck, recovery",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 95.0,
+      "source": "Travel, truck, recovery $95 (index.html default)"
+    }
+  ],
+  "specialistModels": "Subtracts the downspouts included in a per-foot special, scales story and steep-access hours with footage, and prices profiles, inside miters, tear-off, fascia and hidden hangers."
+}

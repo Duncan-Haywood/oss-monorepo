@@ -46,10 +46,9 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 /**
  * The workflow carrying the staleness step for *venture* edits.
  *
- * `hetzner-gitops-ci.yml` runs the same suite but triggers on `gitops/**` and
- * `platform/marketing/**`, neither of which a venture edit touches — so it is
- * deliberately not a second line of defence here, and asserting against it
- * would only encode a coincidence.
+ * It is also the only workflow that runs this suite: `hetzner-gitops-ci.yml`
+ * carried a duplicate copy until 2026-10-20, when it was dropped for pushing
+ * that job past its timeout.
  */
 const WORKFLOW = '.github/workflows/portfolio-validate.yml';
 

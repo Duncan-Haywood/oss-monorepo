@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "speed-race"
+version = "0.1.0"
+description = "Paying the fastest k of n workers for speed: an exponential race as a contest, closed-form symmetric equilibrium speed, rent dissipation, and the optimal number of winners under a budget"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

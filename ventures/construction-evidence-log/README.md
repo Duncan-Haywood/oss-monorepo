@@ -2,6 +2,8 @@
 
 A free, browser-local construction daily log and change-order documentation tool for small contractors. Record observable work, site conditions, crew, delays, and scope changes, then download a dated JSON evidence pack before details disappear into texts and memory. Each entry is saved in your browser, so at the end of a job you can pull one combined, multi-day pack instead of hunting down a week of separate downloads.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/construction-evidence-log/
+
 **After using this, you can now** hand a project manager or customer a dated record spanning the whole job — every day, in order, with review notes carried through — **which used to take** reconstructing a site day from scattered messages, one download at a time, with nothing tying the days together.
 
 ## Run it

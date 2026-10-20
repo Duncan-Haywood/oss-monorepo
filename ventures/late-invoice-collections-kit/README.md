@@ -3,6 +3,8 @@
 A free browser tool for freelancers and small agencies with an overdue invoice: **type the
 amount, due date, client type and state and get a dated plan to get paid.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/late-invoice-collections-kit/
+
 After using this, you can now **see the late fee and interest owed today and on later dates,
 copy four letters (friendly reminder, firm notice, final demand, referral) with your numbers
 filled in, see whether small claims is worth it against your own filing fee, time and odds, and

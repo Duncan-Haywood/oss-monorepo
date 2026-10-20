@@ -1,0 +1,15 @@
+{
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2023/1-Year/csv_pus.zip",
+  "year": 2023,
+  "files": [
+    "psam_pusa.csv",
+    "psam_pusb.csv"
+  ],
+  "sha256": "98b6ecb14b4830d1f2b54c265a5bd997828415c2dab14e17369c40e98b78d9d4",
+  "age_range": [
+    30,
+    64
+  ],
+  "sample_n": 1499259,
+  "method": "SDR variance 4/80 sum((replicate-estimate)^2), normal 95% CI. Age standard pooled eligible population ages 30-64 in 5-year bins, recomputed per replicate. All estimates descriptive."
+}

@@ -286,3 +286,32 @@ test('customer-facing summary omits wages and names the pit and backup', () => {
   assert.doesNotMatch(text, /42/);
   assert.doesNotMatch(text, /wage/i);
 });
+
+test('an omitted payroll burden prices as zero burden', () => {
+  const { burdenRate, ...rest } = brochure();
+  const result = calculateBid(rest);
+  assert.ok(Math.abs(result.laborCost - result.totalHours * 42) < 1e-9);
+});
+
+test('a $0 proposed price scores a 0% margin, not a made-up one', () => {
+  assert.equal(calculateBid({ ...brochure(), proposedPrice: 0 }).proposed.margin, 0);
+});
+
+test('hour shares are all zero when the job has no hours', () => {
+  const result = calculateBid({
+    ...brochure(),
+    hoursTrip: 0, hoursSwap: 0, hoursAlarm: 0, siteHours: 0, hoursFreeze: 0,
+    hoursPerExtraDischargeFoot: 0,
+  });
+  assert.equal(result.totalHours, 0);
+  assert.deepEqual(result.hourShares, { trip: 0, swap: 0, extras: 0, site: 0 });
+});
+
+test('feature flags accept form strings: "false", "0", "" and null are off, "true" and "1" are on', () => {
+  for (const off of ['false', '0', '', null, 0, false]) {
+    assert.equal(calculateBid({ ...brochure(), addAlarm: off }).addAlarm, false, `off: ${String(off)}`);
+  }
+  for (const on of ['true', '1', 1, true]) {
+    assert.equal(calculateBid({ ...brochure(), addAlarm: on }).addAlarm, true, `on: ${String(on)}`);
+  }
+});

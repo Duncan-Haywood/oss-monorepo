@@ -125,3 +125,7 @@ test('every finding type the scanner can emit is described on the guide page', a
 test('index links one hop to the cors-misconfig-check sibling', () => {
   assert.match(index, /href="\.\.\/cors-misconfig-check\/"/);
 });
+
+test('index links one hop to the jwt-security-check sibling', () => {
+  assert.match(index, /href="\.\.\/jwt-security-check\/"/);
+});

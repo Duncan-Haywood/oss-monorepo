@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of net whole-body metabolic change in percent for a shank-mounted and a waist-mounted power train against the ratio of the per-kg penalty at the shank to that at the waist; the shank layout rises steeply">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Net whole-body change by where the power train sits</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="262.9" y2="262.9" stroke="#ddd"/><text x="58" y="266.9" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="201.9" y2="201.9" stroke="#ddd"/><text x="58" y="205.9" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="140.8" y2="140.8" stroke="#ddd"/><text x="58" y="144.8" text-anchor="end" font-family="sans-serif" font-size="11">15</text>
+<line x1="64" x2="624" y1="79.7" y2="79.7" stroke="#ddd"/><text x="58" y="83.7" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="134.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="274.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">shank/waist penalty ratio</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">net whole-body change (%, negative = saving)</text>
+<polyline points="64.0,286.1 134.0,284.9 204.0,283.7 274.0,282.5 344.0,281.3 484.0,277.6 624.0,272.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="286.1" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="284.9" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="283.7" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="282.5" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="281.3" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="277.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="272.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">waist layout</text>
+<polyline points="64.0,71.2 134.0,71.2 204.0,71.2 274.0,71.2 344.0,71.2 484.0,71.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">shank layout</text>
+</svg>

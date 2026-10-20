@@ -52,3 +52,9 @@ test("usage events are recorded and the script cannot reach the network", () => 
 test("the page tells the visitor the preset fees are unverified", () => {
   assert.match(page("index.html"), /not verified/);
 });
+
+test("the page offers the extra platform presets through a labelled picker", () => {
+  const html = page("index.html");
+  assert.match(html, /<label for="preset-picker">/);
+  assert.match(html, /id="add-preset"/);
+});

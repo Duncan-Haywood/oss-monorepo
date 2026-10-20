@@ -5,6 +5,8 @@
 // are matched by alias and no real bank export was available when this was
 // written. Pure functions, no DOM, no network.
 
+import { identifyService, storeBiller } from "./services.mjs";
+
 export const DAY = 86400000;
 export const CADENCES = [
   { id: "weekly", label: "Weekly", days: 7, lo: 5, hi: 9, perYear: 52, needs: 4, fixedOnly: true },
@@ -150,6 +152,8 @@ export function merchantKey(desc) {
 }
 
 export function kindOf(key) {
+  const svc = identifyService(key);
+  if (svc) return svc.kind;
   for (const [name, re] of KINDS) if (re.test(key)) return name;
   return null;
 }
@@ -236,8 +240,11 @@ export function analyze(rows, opts = {}) {
 
   const groups = new Map();
   for (const r of rows) {
-    const key = merchantKey(r.desc);
+    let key = merchantKey(r.desc);
     if (!key) continue;
+    // Descriptor variants of one known service share a line.
+    const known = identifyService(key);
+    if (known) key = known.name.toUpperCase();
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(r);
   }
@@ -275,9 +282,9 @@ export function analyze(rows, opts = {}) {
     const endedBefore = last.day + Math.round(cadence.days * 1.5);
     const status = endedBefore < asOf ? "ended" : "active";
     subs.push({
-      merchant: key, sample: last.desc, kind: kindOf(key), cadence: cadence.id, cadenceLabel: cadence.label, fixed,
+      merchant: key, sample: last.desc, kind: kindOf(key), site: identifyService(key)?.site ?? null, via: storeBiller(last.desc), cadence: cadence.id, cadenceLabel: cadence.label, fixed,
       count: cycle.length, first: days[0], last: last.day, amount: r2(current), perMonth: r2(perYear / 12), perYear: r2(perYear),
-      total: r2(amounts.reduce((a, b) => a + b, 0)), rises, riseImpactYear: r2(rises.length ? (current - amounts[0]) * cadence.perYear : 0),
+      total: r2(amounts.reduce((a, b) => a + b, 0)), history: cycle.map((r) => ({ day: r.day, amount: r2(r.spend) })), rises, riseImpactYear: r2(rises.length ? (current - amounts[0]) * cadence.perYear : 0),
       next, nextInDays: next - asOf, status,
     });
   }
@@ -298,11 +305,33 @@ export function analyze(rows, opts = {}) {
   for (const d of doubleCharges) findings.push({ severity: "high", title: `${d.merchant} charged ${usd(d.amount)} twice within two days`, detail: `Two identical charges, ${isoDay(d.first)} and ${isoDay(d.day)}. It can be a pending charge shown twice; if it stays on the statement, ask the merchant or the card issuer.` });
   for (const o of overlaps) findings.push({ severity: "medium", title: `${o.merchants.length} ${o.kind.toLowerCase()} services at once`, detail: `${o.merchants.join(", ")} together cost about ${usd(o.perMonth)} a month. The category is guessed from the names. Keep the one you use most.` });
   for (const s of upcoming) findings.push({ severity: "info", title: `${s.merchant} renews ${s.nextInDays <= 0 ? "about now" : `in about ${s.nextInDays} days`}`, detail: `${s.cadenceLabel} charge of ${usd(s.amount)}, next expected around ${isoDay(s.next)}. This is the one to cancel before, if you are going to.` });
+  const viaStore = active.filter((s) => s.via && !identifyService(s.merchant));
+  for (const b of new Set(viaStore.map((s) => s.via))) {
+    const mine = viaStore.filter((s) => s.via === b);
+    findings.push({ severity: "medium", title: `${mine.length} recurring charge(s) billed through ${b.label} hide what they are for`, detail: `${mine.map((s) => `${usd(s.amount)} ${s.cadenceLabel.toLowerCase()}`).join("; ")} (about ${usd(mine.reduce((a, s) => a + s.perYear, 0))} a year). The statement names ${b.label}, not the app. ${b.where}` });
+  }
   const ended = subs.filter((s) => s.status === "ended");
   if (ended.length) findings.push({ severity: "info", title: `${ended.length} recurring charge(s) seem to have stopped`, detail: ended.map((s) => `${s.merchant} (last ${isoDay(s.last)})`).join("; ") + ". Not counted in the totals. If one was not something you cancelled, look at it." });
 
   const totals = { perMonth: r2(active.reduce((a, s) => a + s.perMonth, 0)), perYear: r2(active.reduce((a, s) => a + s.perYear, 0)), active: active.length, ended: ended.length };
   return { subs, active, ended, doubleCharges, overlaps, upcoming, findings, totals, range: { first: firstDay, last: lastDay, asOf, days: spanDays }, charges: rows.length, merchants: groups.size, shortFile: spanDays < 75 };
+}
+
+// Recurring money actually charged in each calendar month of the file, from the
+// detected subscriptions only (ended ones included: they were paid then). The
+// first and last months are partial when the export starts or stops mid-month.
+export function monthlyTimeline(a) {
+  const by = new Map();
+  for (const s of a.subs) for (const h of s.history) {
+    const m = isoDay(h.day).slice(0, 7);
+    const e = by.get(m) || { month: m, total: 0, charges: 0 };
+    e.total = r2(e.total + h.amount); e.charges++;
+    by.set(m, e);
+  }
+  const rows = [...by.values()].sort((x, y) => (x.month < y.month ? -1 : 1));
+  const first = isoDay(a.range.first).slice(0, 7), lastM = isoDay(a.range.last).slice(0, 7);
+  for (const r of rows) r.partial = (r.month === first && isoDay(a.range.first).slice(8) !== "01") || (r.month === lastM && r.month !== first && new Date(Date.UTC(+r.month.slice(0, 4), +r.month.slice(5, 7), 0)).getUTCDate() > +isoDay(a.range.last).slice(8));
+  return rows;
 }
 
 // What cancelling a set of merchants saves. Names come from analyze().
@@ -322,6 +351,29 @@ export function reportCsv(a) {
   const lines = [head.join(",")];
   for (const s of a.subs) lines.push([s.merchant, s.status, s.cadenceLabel, s.fixed ? "yes" : "no", s.count, s.amount.toFixed(2), s.perMonth.toFixed(2), s.perYear.toFixed(2), isoDay(s.last), s.status === "active" ? isoDay(s.next) : "", s.rises.length].map(csvCell).join(","));
   return lines.join("\n") + "\n";
+}
+
+const icsText = (v) => String(v ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const icsDate = (day) => isoDay(day).replace(/-/g, "");
+
+// Calendar file of the next expected charge for each active subscription that
+// bills monthly or less often (weekly and two-weekly ones would bury the
+// calendar), each with a reminder `leadDays` before so there is time to cancel.
+// The date is the last charge plus one cycle: a guess from the statement.
+export function renewalsIcs(a, { leadDays = 3, stamp = null } = {}) {
+  const lead = Number.isInteger(leadDays) && leadDays >= 0 && leadDays <= 60 ? leadDays : 3;
+  const dtstamp = stamp || new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//subscription-audit-from-statement//EN", "CALSCALE:GREGORIAN", "X-WR-CALNAME:Subscription renewals"];
+  for (const s of a.active) {
+    if (s.cadence === "weekly" || s.cadence === "biweekly") continue;
+    out.push("BEGIN:VEVENT", `UID:${icsDate(s.next)}-${icsText(s.merchant).replace(/[^A-Za-z0-9]+/g, "-")}@subscription-audit-from-statement`, `DTSTAMP:${dtstamp}`,
+      `DTSTART;VALUE=DATE:${icsDate(s.next)}`, `DTEND;VALUE=DATE:${icsDate(s.next + 1)}`,
+      `SUMMARY:${icsText(`${s.merchant} renews: ${usd(s.amount)}`)}`,
+      `DESCRIPTION:${icsText(`${s.cadenceLabel} charge of ${usd(s.amount)} (about ${usd(s.perYear)} a year). Expected date is a guess from your statement. Cancel before this day if you do not want it.`)}`,
+      "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsText(`${s.merchant} renews in ${lead} day(s)`)}`, `TRIGGER:-P${lead}D`, "END:VALARM", "END:VEVENT");
+  }
+  out.push("END:VCALENDAR");
+  return out.join("\r\n") + "\r\n";
 }
 
 export function summaryText(a, cancelled = []) {
@@ -350,6 +402,7 @@ export function sampleCsv() {
     add(`${m}-08`, `SQ *BLUE BOTTLE COFFEE ${100 + i} OAKLAND CA`, (-(4.5 + (i % 3))).toFixed(2));
     add(`${m}-${9 + (i % 4)}`.replace(/-(\d)$/, "-0$1"), `WHOLEFDS MKT ${200 + i} SEATTLE WA`, (-(60 + i * 7.3)).toFixed(2));
     add(`${m}-24`, `WHOLEFDS MKT ${300 + i} SEATTLE WA`, (-(41 + i * 3.1)).toFixed(2));
+    add(`${m}-16`, "APPLE.COM/BILL 866-712-7753 CA", "-4.99");
     if (i < 4) add(`${m}-05`, "SKILLSHARE.COM NEW YORK NY", "-19.00");
   });
   add("2025-09-17", "DROPBOX*ANNUAL 8005555 CA", "-119.88");

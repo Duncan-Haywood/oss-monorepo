@@ -7,6 +7,8 @@ shows host payout, the price the guest actually pays, the listed-price
 raise that restores the old 3% deposit, and how many stays you must keep
 going direct before the fee gap is real money.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/
+
 **After using this, you can now see which channel actually pays you on
 the same stay — and how much occupancy you can lose leaving a
 marketplace — which used to take a spreadsheet that mixed percentages
@@ -14,10 +16,7 @@ taken from different bases.**
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no
-build step, no network calls, no accounts. Not yet deployed to a public
-URL — publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is
-ready to deploy as-is.
+build step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally
@@ -56,7 +55,10 @@ It is “which annual payout survives the bookings I actually keep.”
 5. **Vrbo subscription.** No 5% commission; processing remains; the
    annual invoice is spread over the year’s bookings. Renewals only
    for many hosts in 2026 — turn the row off if you do not pay it.
-6. **Direct.** Card processing (default 2.9% + $0.30) plus website /
+6. **Reverse: what to list.** Enter a target payout per stay and each
+   channel's fee shape is inverted exactly (processing on the subtotal or
+   on the guest payment) into the nightly rate to publish.
+7. **Direct.** Card processing (default 2.9% + $0.30) plus website /
    channel-manager cost, then an occupancy-keep percentage.
 7. **Restore the old payout.** New list = old subtotal × (1 − old host
    rate) ÷ (1 − new host rate). For 3% → 15.5% that is about a 14.8%

@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculate, computeMonthProfit, DEFAULTS } from './calc.mjs';
+import { calculate, computeMonthProfit, priceForProfit, DEFAULTS } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const guideHtml = readFileSync(new URL('./how-much-does-stockx-take-from-sellers.html', import.meta.url), 'utf8');
@@ -13,7 +13,7 @@ test('every DEFAULTS field has a matching input on the page', () => {
 });
 
 test('the page imports calculate, computeMonthProfit, and incomeGap from calc.mjs', () => {
-  assert.match(html, /import \{ calculate, computeMonthProfit, incomeGap, DEFAULTS \} from '\.\/calc\.mjs'/);
+  assert.match(html, /import \{ calculate, computeMonthProfit, incomeGap, priceForProfit, levelLadder, DEFAULTS \} from '\.\/calc\.mjs'/);
 });
 
 test('the page wires usage counting for both the sale and month calculators', () => {
@@ -209,4 +209,9 @@ test('index links one hop to the kickstarter-fee-calculator sibling', () => {
     'index must link ../kickstarter-fee-calculator/ so crawlers reach that calculator in one hop',
   );
   assert.match(html, /Kickstarter fee calculator/i);
+});
+
+test('the page has the seller-level ladder inputs and table, wired to levelLadder', () => {
+  for (const id of ['ladderRates', 'ladderSales', 'ladderRows', 'ladderErrors']) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /levelLadder\(saleInputs\(\)/);
 });

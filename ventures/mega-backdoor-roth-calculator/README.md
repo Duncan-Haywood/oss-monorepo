@@ -7,6 +7,8 @@ after-tax headroom left under the IRS's 415(c) overall limit for 2025 or
 2026, plus the per-paycheck contribution that would use it up by
 year-end.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mega-backdoor-roth-calculator/
+
 Open `index.html` in a browser. The calculation is local and works
 without an account, network request, or API key. It is arithmetic
 against the published IRS limits and whatever you enter about your own

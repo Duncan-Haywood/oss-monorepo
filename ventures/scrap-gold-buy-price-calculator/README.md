@@ -2,6 +2,8 @@
 
 A free browser tool: **type the karat and weight of each piece of scrap gold, today's gold price and your refiner's terms, and see the highest offer that still pays** — after assay loss, the refiner's payout share and fee, shipping, your overhead, the cost of money while you wait, and a fall in the gold price. It also shows an offer ladder and the profit at several gold price moves, with an estimate of the chance of a loss. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/scrap-gold-buy-price-calculator/
+
 After using this, you can **quote sellers a number you know leaves your margin**, which used to mean a rule of thumb like "80% of melt".
 
 ## Model

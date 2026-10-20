@@ -1,0 +1,124 @@
+{
+ "family": "reviews",
+ "proposer": "random",
+ "seed": 0,
+ "budget": 4,
+ "rounds": [
+  {
+   "round": 0,
+   "paired_acc_current": 0.125,
+   "paired_acc_current_ci": [
+    0.0,
+    0.2916666666666667
+   ],
+   "paired_acc_plain": 0.125,
+   "single_auroc_current": 0.4878472222222222,
+   "mean_len": 175.91666666666666,
+   "ref_len": 395.0833333333333,
+   "copy4": 0.00390625,
+   "distinct2_gen": 0.9470588235294117,
+   "distinct2_human": 0.9047340736411456,
+   "judge_on_topic": 0.9166666666666666,
+   "valid": true,
+   "imitator": "Write the text a person would write for the context below.",
+   "imitator_shots": [],
+   "detector": "You compare two texts and decide which one a person wrote.",
+   "sample": [
+    "The Big Lebowski",
+    "South Park: Bigger, Longer & Uncut is an animated television series created by Trey Parker and Matt Stone that aired on Comedy Central from 2005 to 2013. The show follows the adventures of a group of friends who live in Colorado and have trouble understanding each other due to their different backgrounds, beliefs, and personalities. Despite their challenges, they eventually learn to understand",
+    "Antz is an exciting adventure movie that will keep you on the edge of your seat with its thrilling action sequences and memorable characters. The film features a dynamic cast of leading actors, including Robert Duvall as Antz, and a captivating storyline that keeps viewers hooked from start to finish. The movie is rated PG-13 and contains some mature themes, but overall it's an entertaining and"
+   ]
+  },
+  {
+   "round": 1,
+   "paired_acc_current": 0.16666666666666666,
+   "paired_acc_current_ci": [
+    0.041666666666666664,
+    0.3333333333333333
+   ],
+   "paired_acc_plain": 0.125,
+   "single_auroc_current": 0.421875,
+   "mean_len": 175.91666666666666,
+   "ref_len": 395.0833333333333,
+   "copy4": 0.00390625,
+   "distinct2_gen": 0.9470588235294117,
+   "distinct2_human": 0.9047340736411456,
+   "judge_on_topic": 0.9166666666666666,
+   "valid": true,
+   "imitator": "Write the text a person would write for the context below.",
+   "imitator_shots": [],
+   "detector": "You compare two texts and decide which one a person wrote. Assistants like tidy structure, lists and a closing summary. Judge the voice and the content, not the topic. Think about which text feels lived-in rather than composed.",
+   "sample": [
+    "The Big Lebowski",
+    "South Park: Bigger, Longer & Uncut is an animated television series created by Trey Parker and Matt Stone that aired on Comedy Central from 2005 to 2013. The show follows the adventures of a group of friends who live in Colorado and have trouble understanding each other due to their different backgrounds, beliefs, and personalities. Despite their challenges, they eventually learn to understand",
+    "Antz is an exciting adventure movie that will keep you on the edge of your seat with its thrilling action sequences and memorable characters. The film features a dynamic cast of leading actors, including Robert Duvall as Antz, and a captivating storyline that keeps viewers hooked from start to finish. The movie is rated PG-13 and contains some mature themes, but overall it's an entertaining and"
+   ],
+   "fit_detector": 0.3232907157516872,
+   "fit_imitator": -0.23876339812901903,
+   "seconds": 1591.444263935089
+  },
+  {
+   "round": 2,
+   "paired_acc_current": 0.4166666666666667,
+   "paired_acc_current_ci": [
+    0.25,
+    0.5833333333333334
+   ],
+   "paired_acc_plain": 0.125,
+   "single_auroc_current": 0.3072916666666667,
+   "mean_len": 344.2083333333333,
+   "ref_len": 395.0833333333333,
+   "copy4": 0.009299832293548103,
+   "distinct2_gen": 0.8834080717488789,
+   "distinct2_human": 0.9047340736411456,
+   "judge_on_topic": 0.9583333333333334,
+   "valid": true,
+   "imitator": "Write the text a person would write for the context below. Write the way a real person types online, not like an assistant. Do not use bullet points, headings or bold text. Include one concrete personal detail, such as a place, a number or a name. Let sentences be uneven: some short, some run-on. Show a specific opinion or feeling instead of a balanced overview. Avoid words like 'significant', 'overall', 'moreover' and 'delve'.",
+   "imitator_shots": [
+    1,
+    3
+   ],
+   "detector": "You compare two texts and decide which one a person wrote. Assistants like tidy structure, lists and a closing summary. Judge the voice and the content, not the topic. Words like 'significant', 'overall' and 'moreover' point to an assistant. Strong, specific opinions point to a person; hedged ones to an assistant.",
+   "sample": [
+    "The Big Lebowski was a flawed indie horror flick that failed to deliver on its premise. The story follows a man who buys a used gun from a vlogger and becomes obsessed with it. He eventually learns that he's been hired by the FBI to track down the killer who killed his mother years ago. While the movie tries to appeal to modern sensibilities, it fails to find any connection between the characters",
+    "South Park: Bigger, Longer & Uncut is a highly acclaimed animated television series that explores the life of a kid named Ollie on an all-nude street in Santa Fe, New Mexico during the late 90s. The show features hilarious humor, heartfelt dialogue, and a blend of dark satire and positive social commentary.",
+    "Antz is a film starring Timothy Spall as a man named Antz who becomes a soldier in World War II. He learns to be an ant at the camp, which helps him in his mission. As he trains, he grows stronger and eventually fights through the war, saving thousands of people. His story shows the importance of friendship, loyalty and courage in battle."
+   ],
+   "fit_detector": 0.28180884699502357,
+   "fit_imitator": -0.3157968412606645,
+   "seconds": 1695.034741640091
+  },
+  {
+   "round": 3,
+   "paired_acc_current": 0.375,
+   "paired_acc_current_ci": [
+    0.20833333333333334,
+    0.5833333333333334
+   ],
+   "paired_acc_plain": 0.16666666666666666,
+   "single_auroc_current": 0.4913194444444444,
+   "mean_len": 194.08333333333334,
+   "ref_len": 395.0833333333333,
+   "copy4": 0.0042973134118967455,
+   "distinct2_gen": 0.8776881720430108,
+   "distinct2_human": 0.9047340736411456,
+   "judge_on_topic": 0.6666666666666666,
+   "valid": true,
+   "imitator": "Write the text a person would write for the context below. Write the way a real person types online, not like an assistant. Start in the middle of a thought, as if continuing a conversation. Avoid words like 'significant', 'overall', 'moreover' and 'delve'. Stay on the topic of the title and write about 60 words.",
+   "imitator_shots": [],
+   "detector": "You compare two texts and decide which one a person wrote. Assistants like tidy structure, lists and a closing summary. Judge the voice and the content, not the topic. Words like 'significant', 'overall' and 'moreover' point to an assistant. Strong, specific opinions point to a person; hedged ones to an assistant.",
+   "sample": [
+    "The Big Lebowski is a disappointing movie that disappoints me.",
+    "A review from a customer who enjoyed \"South Park\" but found it to be more than just fun; the movie offers a darker take on reality TV and its consequences.",
+    "Antz is a great movie! The acting was superb, the plot was well-crafted, and the music was outstanding. I highly recommend this film to anyone who likes action, adventure, and memorable characters."
+   ],
+   "fit_detector": 0.44406221332858253,
+   "fit_imitator": -0.280271422539408,
+   "seconds": 1739.3379712104797
+  }
+ ],
+ "model_calls": {
+  "generate": 312,
+  "score": 1512
+ }
+}

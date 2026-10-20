@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>status-keeper — Free Self-Hosted Status Page and Uptime Monitor</title>
+  <meta name="description" content="A free, self-hosted status page with uptime monitoring, 90-day bars, incidents, maintenance windows and alerts. An open-source alternative to Statuspage, Instatus and Better Stack. MIT, zero dependencies.">
+  <meta property="og:title" content="status-keeper — your own status page, free">
+  <meta property="og:description" content="Uptime checks, certificate and domain expiry alerts, a public status page, incident updates, an Atom feed and a README badge. Runs in your own account.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "status-keeper", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; Node.js 22+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted uptime monitor and public status page. HTTP and heartbeat checks, 90-day uptime bars, incidents with updates, scheduled maintenance, Atom feed, JSON API, SVG badge and webhook alerts. Zero dependencies, MIT.", "featureList": "TLS certificate and domain-registration expiry alerts, HTTP checks with status and keyword matching, heartbeat monitors for cron jobs, consecutive-failure threshold to avoid false alarms, 90-day uptime bars, incident timeline, scheduled maintenance that does not count against uptime, Atom feed, JSON API, README badge, Slack and Discord compatible alerts"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why host my own status page?", "acceptedAnswer": {"@type": "Answer", "text": "A status page hosted next to your app goes down with it. Run it on a different provider from the thing it watches, in your own account, and customers can still read it during an outage. You also avoid per-seat and per-subscriber pricing."}}, {"@type": "Question", "name": "How does it avoid false alarms?", "acceptedAnswer": {"@type": "Answer", "text": "A monitor only opens an incident after failAfter checks in a row fail (2 by default), and the incident is dated from the first failure. One dropped request does not page anyone."}}, {"@type": "Question", "name": "Can it watch a cron job?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. A push monitor expects your job to POST to /ping/<id> with a secret token every interval. If a ping is late by more than the grace period, it goes down."}}, {"@type": "Question", "name": "Does maintenance count against my uptime?", "acceptedAnswer": {"@type": "Answer", "text": "No. Checks that run inside a scheduled maintenance window are not counted, and they cannot open an incident."}}, {"@type": "Question", "name": "Does it email subscribers?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, once you add your own Resend API key and a verified sender. Visitors confirm by email first (double opt-in), every notice has a one-click unsubscribe, and addresses stay in your own state file. Without a key it still posts alerts to a Slack or Discord compatible webhook and publishes an Atom feed."}}, {"@type": "Question", "name": "Where does my data live?", "acceptedAnswer": {"@type": "Answer", "text": "On the disk of the server you deploy in your own account. The author runs nothing in between and never sees your monitors or results."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f6fa; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0b5cad; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0a3d73; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0a3d73; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46515f; }
+    .card { background: #fff; border: 1px solid #d3dde8; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bccd; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3eaf1; }
+    pre { background: #eef3f8; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .big { font-size: 1.3rem; font-weight: 800; color: #0a3d73; }
+    .bars { display: flex; gap: 2px; height: 28px; } .bars i { flex: 1; border-radius: 2px; background: #2da44e; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Your status page should not go down with your app.</h1>
+  <p>status-keeper watches your sites, APIs and cron jobs, and publishes a <strong>public status page</strong> with 90-day uptime bars, an incident timeline, scheduled maintenance, an Atom feed, a JSON API and a README badge. One Node process, no dependencies, <a href="server.mjs">open source</a>, running in your own account on a different host from the thing it watches.</p>
+  <p>It also watches the two things that take sites down by surprise: the <strong>TLS certificate</strong> and the <strong>domain registration</strong>. You get one alert at 30, 14, 7, 3 and 1 days left, not a daily nag.</p>
+
+  <section class="card" aria-labelledby="sla">
+    <h2 id="sla">What does "99.9% uptime" actually allow?</h2>
+    <p class="note">Check this before you promise a number on your pricing page.</p>
+    <div class="grid">
+      <div><label for="target">Availability target (%)</label><input id="target" type="number" min="90" max="100" step="0.001" value="99.9"></div>
+      <div><label for="period">Period</label><select id="period"><option value="1">Day</option><option value="7">Week</option><option value="30" selected>Month (30 days)</option><option value="365">Year</option></select></div>
+    </div>
+    <p id="verdict" aria-live="polite"></p>
+    <table><thead><tr><th scope="col">Target</th><th scope="col">Per month</th><th scope="col">Per year</th></tr></thead><tbody id="rows"></tbody></table>
+    <p class="note">With a 60-second check interval you cannot see an outage shorter than a minute, and failAfter=2 means the incident opens after about two minutes.</p>
+  </section>
+
+  <section class="card" aria-labelledby="cfg">
+    <h2 id="cfg">Build your monitors</h2>
+    <div class="grid">
+      <div><label for="name">Name on the page</label><input id="name" value="Website"></div>
+      <div><label for="url">URL to check</label><input id="url" value="https://example.com/health"></div>
+      <div><label for="contains">Response must contain (optional)</label><input id="contains" placeholder="ok"></div>
+      <div><label for="every">Check every (seconds)</label><input id="every" type="number" min="30" value="60"></div>
+      <div><label for="fails">Failures in a row before an incident</label><input id="fails" type="number" min="1" value="2"></div>
+    </div>
+    <pre id="cfgout"></pre>
+    <p id="detect" aria-live="polite"></p>
+    <p class="note">Set it as <code>MONITORS_JSON</code>. For a cron job use <code>{"id":"backup","type":"push","token":"&lt;12+ random characters&gt;","intervalSec":86400}</code> and have the job run <code>curl -fsS -X POST "https://&lt;your-host&gt;/ping/backup?token=..."</code> when it finishes.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/status-keeper
+ADMIN_KEY=$(openssl rand -hex 16) TITLE="Acme" MONITORS_JSON='[...]' node server.mjs
+# status page: http://localhost:8080/   badge: /badge.svg   feed: /feed.xml</pre>
+    <p class="note">Post an incident: <code>curl -X POST -H "Authorization: Bearer $ADMIN_KEY" -d '{"title":"Slow checkout","impact":"minor","message":"Investigating"}' https://&lt;host&gt;/v1/incidents</code>. One-click Render deploy and Docker are in the <a href="https://github.com/Duncan-Haywood/fp-monorepo/blob/main/ventures/status-keeper/README.md">README</a>. Mount a persistent disk at the path in <code>STATE</code> or history is lost on restart.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why host my own status page?</h3>
+    <p>A status page hosted next to your app goes down with it. Run it on a different provider from the thing it watches, in your own account, and customers can still read it during an outage. You also avoid per-seat and per-subscriber pricing.</p>
+    <h3>How does it avoid false alarms?</h3>
+    <p>A monitor only opens an incident after failAfter checks in a row fail (2 by default), and the incident is dated from the first failure. One dropped request does not page anyone.</p>
+    <h3>Can it watch a cron job?</h3>
+    <p>Yes. A push monitor expects your job to POST to /ping/&lt;id&gt; with a secret token every interval. If a ping is late by more than the grace period, it goes down.</p>
+    <h3>Does maintenance count against my uptime?</h3>
+    <p>No. Checks that run inside a scheduled maintenance window are not counted, and they cannot open an incident.</p>
+    <h3>Does it email subscribers?</h3>
+    <p>Yes, once you add your own Resend API key and a verified sender. Visitors confirm by email first (double opt-in), every notice has a one-click unsubscribe, and addresses stay in your own state file. Without a key it still posts alerts to a Slack or Discord compatible webhook and publishes an Atom feed.</p>
+    <h3>Where does my data live?</h3>
+    <p>On the disk of the server you deploy in your own account. The author runs nothing in between and never sees your monitors or results.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. A single process on a single host is not a high-availability service, and a monitor can miss an outage shorter than its check interval. You are the operator and responsible for what you publish on your status page. It is not legal, tax, or financial advice. Everything on this page runs in your browser; nothing you type is sent anywhere.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <a href="../cron-heartbeat/">Cron Heartbeat</a> &middot; <a href="../webhook-relay/">webhook-relay</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { allowedDowntimeSec, humanDuration } from "./monitor.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const row = (t) => `<tr><td>${t}%</td><td>${humanDuration(allowedDowntimeSec(t, 30))}</td><td>${humanDuration(allowedDowntimeSec(t, 365))}</td></tr>`;
+    $("rows").innerHTML = [99, 99.5, 99.9, 99.95, 99.99, 99.999].map(row).join("");
+    function sla() {
+      const t = Number($("target").value), d = Number($("period").value);
+      const s = allowedDowntimeSec(t, d);
+      $("verdict").innerHTML = s === null ? "Enter a target between 0 and 100." : `<span class="big">${humanDuration(s)}</span> of downtime allowed per ${$("period").selectedOptions[0].text.toLowerCase()}.`;
+      record("sla");
+    }
+    function cfg() {
+      const id = ($("name").value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "site").slice(0, 40);
+      const every = Math.max(30, Number($("every").value) || 60), fails = Math.max(1, Number($("fails").value) || 2);
+      const m = { id, name: $("name").value.trim() || id, url: $("url").value.trim(), intervalSec: every, failAfter: fails };
+      if ($("contains").value) m.contains = $("contains").value;
+      $("cfgout").textContent = `MONITORS_JSON='${JSON.stringify([m])}'`;
+      $("detect").textContent = `An outage is detected after about ${humanDuration(every * fails)} and is dated from the first failed check.`;
+    }
+    for (const id of ["target", "period"]) $(id).addEventListener("input", sla);
+    for (const id of ["name", "url", "contains", "every", "fails"]) $(id).addEventListener("input", cfg);
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    sla(); cfg();
+  </script>
+</body>
+</html>

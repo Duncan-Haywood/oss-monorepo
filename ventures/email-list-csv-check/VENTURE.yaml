@@ -38,3 +38,15 @@ owner: duncan
 # consent determination, not legal advice (CAN-SPAM/GDPR/CASL stay the user's responsibility), no
 # warranty, independent-of-every-platform clause, trademarks used nominatively, heading names stated
 # as read from memory.
+
+hypotheses:
+  - claim: >-
+      Small-list owners moving contacts between platforms will use the optional
+      do-not-email box (added 2026-10-20) to strip people who unsubscribed or
+      bounced before the import, because platform imports otherwise re-subscribe
+      them; measured as the share of file checks that supply a suppression list.
+    status: untested
+    # 2026-10-20: counters are local-only, so no reading existed. The footer now offers visitors an opt-in
+    # "share my anonymous counts" link (prefilled GitHub issue, event counts only); read the issues for the share.
+    checked: null
+    evidence: in-repo

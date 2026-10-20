@@ -1,0 +1,46 @@
+house: 28 x 40 ft, 8 ft walls (house-framing); net exterior wall area 927 sq ft after openings
+all per-sq-ft inputs are stylised ranges from memory, not quotes or EPDs; heating: 5000 HDD, $0.15/kWh, COP 3, 30 yr at 5%
+
+A. Midpoint inputs, whole house
+system                     cost $  $/sf   kgCO2e    R  crew h  heat PV $  cost+heat $
+wood 2x6 + batt             7,415   8.0    1,854   15     111      1,670        9,086
+steel stud + batt           9,269  10.0    5,561    9     120      2,784       12,053
+ICF                        15,757  17.0   12,977   22     139      1,139       16,896
+SIP                        12,977  14.0    4,635   21      65      1,193       14,170
+CLT + exterior foam        20,392  22.0    5,561   15      46      1,670       22,062
+3D-printed double wall     13,904  15.0   10,196   12      56      2,088       15,992
+
+B. Not dominated at midpoints on (cost, carbon, R)
+wood 2x6 + batt, ICF, SIP
+
+C. Monte Carlo: 20,000 independent triangular draws per system between its low and high
+system                    cheapest  lowest CO2e  lowest cost+heat  first cost < wood
+wood 2x6 + batt              96.8%       100.0%             99.9%               0.0%
+steel stud + batt             3.2%         0.0%              0.1%               3.2%
+ICF                           0.0%         0.0%              0.0%               0.0%
+SIP                           0.0%         0.0%              0.0%               0.0%
+CLT + exterior foam           0.0%         0.0%              0.0%               0.0%
+3D-printed double wall        0.0%         0.0%              0.0%               0.0%
+
+D. Heat-loss price: cost + heat PV at midpoints as electricity price rises (COP 3)
+ $/kWh  wood 2x6 +   steel stud           ICF          SIP  CLT + exter  3D-printed   best
+  0.10        8,529       11,125       16,517       13,772       21,506       15,296  wood 2x6 + batt
+  0.15        9,086       12,053       16,896       14,170       22,062       15,992  wood 2x6 + batt
+  0.25       10,199       13,909       17,656       14,965       23,176       17,384  wood 2x6 + batt
+  0.40       11,870       16,693       18,795       16,159       24,847       19,472  wood 2x6 + batt
+  0.80       16,324       24,118       21,832       19,340       29,301       25,040  wood 2x6 + batt
+
+E. Cold climates: cost + heat PV at midpoints by heating degree days (electricity $0.15)
+   HDD  wood 2x6 +   steel stud           ICF          SIP  CLT + exter  3D-printed   best
+  2000        8,083       10,383       16,213       13,454       21,060       14,739  wood 2x6 + batt
+  5000        9,086       12,053       16,896       14,170       22,062       15,992  wood 2x6 + batt
+  8000       10,088       13,724       17,580       14,886       23,065       17,245  wood 2x6 + batt
+ 12000       11,424       15,951       18,491       15,840       24,401       18,915  wood 2x6 + batt
+
+F. How far would an alternative's first cost have to fall to tie wood on cost + heat PV (midpoints)?
+system                    cost now $/sf  tie $/sf  cut needed
+steel stud + batt                  10.0       6.8         32%
+ICF                                17.0       8.6         50%
+SIP                                14.0       8.5         39%
+CLT + exterior foam                22.0       8.0         64%
+3D-printed double wall             15.0       7.5         50%

@@ -1,0 +1,97 @@
+name: devsec-toolkit CI
+
+# devsec-toolkit runs 22 checks that live in their own ventures, so a change to
+# any of them re-runs this suite: its drift tests (risk sets, fixture
+# coverage, example report) are what notice a check whose output changed.
+on:
+  pull_request:
+    paths:
+      - "ventures/actions-artifact-poisoning-check/**"
+      - "ventures/actions-cache-poisoning-check/**"
+      - "ventures/actions-checkout-credentials-check/**"
+      - "ventures/actions-injection-check/**"
+      - "ventures/actions-permissions-check/**"
+      - "ventures/actions-runtime-deprecation-check/**"
+      - "ventures/actions-secret-leak-check/**"
+      - "ventures/actions-secrets-inherit-check/**"
+      - "ventures/actions-self-hosted-exposure-check/**"
+      - "ventures/actions-timeout-check/**"
+      - "ventures/agent-permission-config-check/**"
+      - "ventures/dependabot-config-check/**"
+      - "ventures/dependency-confusion-check/**"
+      - "ventures/devsec-toolkit/**"
+      - "ventures/docker-base-image-eol-check/**"
+      - "ventures/docker-base-image-pin-check/**"
+      - "ventures/docker-build-secrets-check/**"
+      - "ventures/docker-compose-security-check/**"
+      - "ventures/jwt-verification-misuse-check/**"
+      - "ventures/k8s-pod-security-check/**"
+      - "ventures/node-version-drift-check/**"
+      - "ventures/pinned-actions-check/**"
+      - "ventures/regex-redos-check/**"
+      - ".github/workflows/devsec-toolkit-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/actions-artifact-poisoning-check/**"
+      - "ventures/actions-cache-poisoning-check/**"
+      - "ventures/actions-checkout-credentials-check/**"
+      - "ventures/actions-injection-check/**"
+      - "ventures/actions-permissions-check/**"
+      - "ventures/actions-runtime-deprecation-check/**"
+      - "ventures/actions-secret-leak-check/**"
+      - "ventures/actions-secrets-inherit-check/**"
+      - "ventures/actions-self-hosted-exposure-check/**"
+      - "ventures/actions-timeout-check/**"
+      - "ventures/agent-permission-config-check/**"
+      - "ventures/dependabot-config-check/**"
+      - "ventures/dependency-confusion-check/**"
+      - "ventures/devsec-toolkit/**"
+      - "ventures/docker-base-image-eol-check/**"
+      - "ventures/docker-base-image-pin-check/**"
+      - "ventures/docker-build-secrets-check/**"
+      - "ventures/docker-compose-security-check/**"
+      - "ventures/jwt-verification-misuse-check/**"
+      - "ventures/k8s-pod-security-check/**"
+      - "ventures/node-version-drift-check/**"
+      - "ventures/pinned-actions-check/**"
+      - "ventures/regex-redos-check/**"
+      - ".github/workflows/devsec-toolkit-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: devsec-toolkit-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/devsec-toolkit
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Runner, adapters, SARIF, baseline, bundle, drift guards
+        run: python3 -m unittest test_devsec -v
+      - name: Report viewer and page
+        run: node --test viewer.test.mjs page.test.mjs
+      - name: Disclaimer clauses on every page
+        working-directory: .
+        run: node platform/pages/clauses.mjs devsec-toolkit
+      - name: Scan the vulnerable fixture (smoke test of the CLI as users run it)
+        run: |
+          python3 devsec.py scan tests/fixtures/vulnerable-repo --format markdown >> "$GITHUB_STEP_SUMMARY"
+          python3 devsec.py scan tests/fixtures/vulnerable-repo --strict --format json -o "$RUNNER_TEMP/report.json"

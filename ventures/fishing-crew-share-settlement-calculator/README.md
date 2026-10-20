@@ -7,6 +7,8 @@ payout, the day rate per hand, the boat's trip profit after its own daily
 cost, the gross sales needed for a deckhand to clear your target, and a price
 sensitivity. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fishing-crew-share-settlement-calculator/
+
 After using this, you can **settle a trip and see what a price drop does to crew
 pay and to the boat**, instead of redoing the lay on paper at the dock.
 

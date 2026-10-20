@@ -1,0 +1,64 @@
+name: meter-keeper
+description: >-
+  Self-hosted usage metering for small SaaS teams that bill through Stripe:
+  idempotent usage events, flat, graduated, volume and package pricing, invoice
+  previews and month-end projections, hard-limit entitlement checks, and a
+  retrying, dead-lettering feed into Stripe Billing Meters. Browser pricing
+  simulator, plus a zero-dependency server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Lago, Orb, Metronome,
+# OpenMeter and Amberflo meter usage for usage-based pricing, priced by volume or
+# as a platform fee; Stripe's own Billing Meters cover the invoicing half but not
+# the counting, the limits or the "what will this customer owe" question. The gap:
+# a small team already on Stripe that wants exactly-once counting, tier pricing
+# and limit checks in its own account with no per-event fee and nothing to
+# operate. Seventh product for the buyer of dunning-engine, mrr-pulse,
+# license-keeper, cancel-flow, status-keeper and waitlist-keeper (a small
+# software seller). duplicate_check: usage-based-pricing-simulator is a pricing
+# what-if calculator; no venture meters live events.
+#
+# First visitor: indie SaaS and API founders on Hacker News, r/SaaS, Indie
+# Hackers and Stripe's own usage-based-billing threads asking "open source
+# usage metering", "lago alternative", "stripe meter events idempotency".
+# Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name and billing are
+# owner-gated.
+
+hypotheses:
+  - claim: >-
+      Founders weighing usage-based pricing will paste their real per-customer
+      usage into the browser simulator and change a tier boundary because of the
+      per-unit column, then deploy the meter to collect the numbers for real.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A small team prefers one idempotent HTTP call and a JSON file to adopting a
+      billing platform, as long as the Stripe feed retries and shows what it
+      could not deliver.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports an event counted twice or a Stripe meter event lost without appearing in the dead-letter list; the counting and queue paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/meter-keeper/
+  analytics: null

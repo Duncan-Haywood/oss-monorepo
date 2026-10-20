@@ -1,0 +1,45 @@
+{
+ "date": "2026-10-18",
+ "session": "https://claude.ai/code/session_019rVSzKtbGvNBg9r5wqcQkf",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "follow the instructions in ./prompt.md",
+ "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-18T12:49:23Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "research track 11 (mimic), new question after next-step chain went to micro-variants",
+ "projects": [
+  "mimic-threshold"
+ ],
+ "pr": 8047,
+ "repo": "Duncan-Haywood/oss-monorepo",
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": true,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 5,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "says use platform/ci/pyenv.py for sklearn, but it failed (PEP 668); a plain python3 -m venv + pip worked"
+  }
+ ],
+ "deviations": [],
+ "goal": null,
+ "notes": "Mimic chain next steps were pendulum micro-variants; asked a new threshold-transfer question on the stored suite. Cost not attached via runcost (not run).",
+ "corrections": [],
+ "redteam": null
+}

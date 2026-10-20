@@ -6,6 +6,8 @@ range versions, a second `--extra-index-url` (dependency confusion), plain-http
 sources, unpinned git or URL dependencies, editable installs, duplicates and,
 optionally, exact pins with no `--hash`.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/requirements-pin-check/
+
 [`index.html`](index.html) runs it in a browser: paste the file, read the table.
 Nothing is uploaded and the page makes no network requests.
 [`pin-python-dependencies-guide.html`](pin-python-dependencies-guide.html) is a

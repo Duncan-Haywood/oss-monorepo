@@ -1,0 +1,38 @@
+[
+  {
+    "sex": "Men",
+    "model": "income_group",
+    "max_iterations": 6,
+    "cells": 1789,
+    "n": 559456,
+    "events": 6487,
+    "weights": 56068918
+  },
+  {
+    "sex": "Men",
+    "model": "employment",
+    "max_iterations": 6,
+    "cells": 829,
+    "n": 559456,
+    "events": 6487,
+    "weights": 56068918
+  },
+  {
+    "sex": "Women",
+    "model": "income_group",
+    "max_iterations": 6,
+    "cells": 1786,
+    "n": 623141,
+    "events": 7301,
+    "weights": 60181155
+  },
+  {
+    "sex": "Women",
+    "model": "employment",
+    "max_iterations": 6,
+    "cells": 782,
+    "n": 623141,
+    "events": 7301,
+    "weights": 60181155
+  }
+]

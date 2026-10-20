@@ -1,0 +1,61 @@
+Sweep twin: real = 2-D lidar sweeping while the platform moves; twin = snapshot scan (all beams at t=0).
+room: front wall x=+10, back wall x=-8, side walls y=+-5; sensor 10 Hz, 3600 beams/rev, seam on a side wall
+
+== 1. Naive placement at v=10 m/s along x (twin predicts every wall at its true position) ==
+front wall mean x: 9.7500 (true 10.0, shift -0.2500 = -v*tau/4 = -0.2500)
+back wall mean x: -8.7500 (true -8.0, shift -0.7500 = -v*3tau/4 = -0.7500)
+apparent room length 18.5000 vs true 18.0: bias 0.5000 m; closed form v*tau/2 = 0.5000 m
+side wall y (parallel to motion) spread: max |y - w| = 0.00e+00 m (width unbiased)
+deskew with the true v: max front-wall error 0.00e+00 m, max back-wall error 8.88e-16 m
+naive front x vs closed form d1 - v t(phi), max |diff| over fan: 0.00e+00 m
+
+== 2. Wall tilt and convergence (TLS fit over +-0.3 rad fans) ==
+v (m/s)  tau (s)   front tilt (deg)  first order   back tilt (deg)  first order   converge (deg)  first order
+    1.0     0.10            -0.0898      -0.0912            0.1109       0.1140           0.2006       0.2052
+    5.0     0.10            -0.4533      -0.4559            0.5345       0.5699           0.9879       1.0259
+   10.0     0.10            -0.9182      -0.9119            1.0232       1.1399           1.9414       2.0518
+   20.0     0.10            -1.8843      -1.8238            1.8843       2.2797           3.7685       4.1035
+    1.0     0.05            -0.0448      -0.0456            0.0557       0.0570           0.1005       0.1026
+    5.0     0.05            -0.2252      -0.2280            0.2734       0.2850           0.4986       0.5129
+   10.0     0.05            -0.4533      -0.4559            0.5345       0.5699           0.9879       1.0259
+   20.0     0.05            -0.9182      -0.9119            1.0232       1.1399           1.9414       2.0518
+clockwise spin at v=10 (phi0=+pi/2, seam on a side wall): front tilt 0.9182 deg, converge -1.9414 deg (counter-clockwise: -0.9182, 1.9414)
+reversing the platform (v=-10) flips the sign (magnitude differs because the wall is then at a different range): front tilt 0.8735 deg
+
+== 3. What one scan reveals: velocity from the convergence angle, theta_c -> v = 2 pi theta_c / (tau (1/d1+1/d2)) ==
+range noise 1 cm, 200 trials per row, seeded; d1, d2 taken from the scan's own wall means
+true v   mean v_hat   std v_hat   relative bias of the first-order inversion
+   0.0        0.005       0.129   n/a (mean +0.005 m/s)
+   1.0        0.996       0.124   -0.4%
+   5.0        4.909       0.138   -1.8%
+  10.0        9.829       0.133   -1.7%
+  20.0       19.638       0.119   -1.8%
+
+== 4. Yaw during the sweep: bearing bias of a landmark (phi0 = 0 scan, spin +1, tau = 0.1 s) ==
+omega (rad/s)  beta (deg)  actual azimuth (deg)  bias (deg, bisection)  closed form -k beta/(1+k)
+          0.5        90.0               89.2895                -0.7105                    -0.7105
+          0.5       180.0              178.5789                -1.4211                    -1.4211
+          1.0        90.0               88.5900                -1.4100                    -1.4100
+          1.0       180.0              177.1801                -2.8199                    -2.8199
+          2.0        90.0               87.2236                -2.7764                    -2.7764
+          2.0       180.0              174.4472                -5.5528                    -5.5528
+
+== 5. Constant acceleration: front-wall odometry from consecutive naive scans ==
+v0 (m/s)  a (m/s^2)   v_hat     true mean v over [0,tau]   bias      a*t_f (t_f = tau/4)
+     5.0         0.0    5.000                    5.000    0.0000    0.0000
+     5.0         2.0    5.150                    5.100    0.0500    0.0500
+     5.0        -3.0    4.775                    4.850   -0.0750   -0.0750
+     0.0         5.0    0.375                    0.250    0.1250    0.1250
+summing per-scan displacements telescopes to X(T+t_f) - X(t_f) - [X(T) - X(0)] = (v_end - v_start) t_f: bounded, does not accumulate (0 -> 10 m/s: 0.250 m; arithmetic from the derivation, not a simulation)
+
+== 6. Speed limits for a twin-certified length tolerance: v_max = 2 tol/tau, each checked by simulating the scan there ==
+tol (m)   tau (s)   v_max (m/s)   simulated length bias (m)
+   0.01     0.100          0.20                     0.01000
+   0.01     0.050          0.40                     0.01000
+   0.01     0.025          0.80                     0.01000
+   0.02     0.100          0.40                     0.02000
+   0.02     0.050          0.80                     0.02000
+   0.02     0.025          1.60                     0.02000
+   0.05     0.100          1.00                     0.05000
+   0.05     0.050          2.00                     0.05000
+   0.05     0.025          4.00                     0.05000

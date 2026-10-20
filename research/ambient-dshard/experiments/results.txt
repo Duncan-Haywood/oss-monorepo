@@ -1,0 +1,23 @@
+Mean utility per message over 48 contexts. Two auditors, each of overall accuracy 0.8; a fraction h of messages is hard for both (accuracy hard_acc), the rest easy (accuracy chosen to keep the overall 0.8).
+naive = auditor 1 taken as truth; em-known = EM with auditor 1's overall matrix supplied (oracle, ignores auditor 2); ds = plain Dawid-Skene; dsH = hardness-aware Dawid-Skene (informed start)
+
+== label accuracy 0.7: blind 0.3824, true-parameter Bayes 0.3917 (gain 0.0093)
+   h  hard | population: naive em-known ds dsH | ds est. auditor acc, dsH est. C acc | n=200: naive em-known ds dsH [P(ds<blind) P(dsH<blind)] | n=1000: naive em-known ds dsH
+  0.1 0.50 | 0.3873 0.3917 0.3917 0.3917 | 0.810 0.700 | 0.3871 0.3900 0.3900 0.3890 [0.00 0.00] | 0.3877 0.3912 0.3912 0.3911
+  0.2 0.50 | 0.3873 0.3917 0.3914 0.3917 | 0.822 0.700 | 0.3873 0.3902 0.3898 0.3895 [0.00 0.02] | 0.3877 0.3910 0.3910 0.3911
+  0.3 0.50 | 0.3873 0.3917 0.3914 0.3917 | 0.837 0.700 | 0.3873 0.3902 0.3895 0.3896 [0.00 0.00] | 0.3877 0.3912 0.3909 0.3912
+  0.2 0.33 | 0.3873 0.3917 0.3910 0.3917 | 0.850 0.700 | 0.3875 0.3900 0.3894 0.3894 [0.00 0.02] | 0.3877 0.3911 0.3907 0.3911
+  0.3 0.33 | 0.3873 0.3917 0.3900 0.3917 | 0.878 0.699 | 0.3874 0.3897 0.3882 0.3895 [0.02 0.00] | 0.3874 0.3911 0.3884 0.3911
+
+== label accuracy 0.9: blind 0.3824, true-parameter Bayes 0.4066 (gain 0.0241)
+   h  hard | population: naive em-known ds dsH | ds est. auditor acc, dsH est. C acc | n=200: naive em-known ds dsH [P(ds<blind) P(dsH<blind)] | n=1000: naive em-known ds dsH
+  0.1 0.50 | 0.3992 0.4066 0.4066 0.4066 | 0.810 0.900 | 0.3985 0.4056 0.4058 0.4058 [0.00 0.00] | 0.3993 0.4063 0.4064 0.4064
+  0.2 0.50 | 0.3992 0.4066 0.4066 0.4066 | 0.822 0.900 | 0.3990 0.4056 0.4055 0.4058 [0.00 0.00] | 0.3995 0.4063 0.4062 0.4064
+  0.3 0.50 | 0.3992 0.4066 0.4060 0.4066 | 0.836 0.900 | 0.3983 0.4054 0.4047 0.4057 [0.00 0.00] | 0.3991 0.4062 0.4056 0.4063
+  0.2 0.33 | 0.3992 0.4066 0.4051 0.4066 | 0.849 0.899 | 0.3987 0.4056 0.4045 0.4055 [0.00 0.00] | 0.3992 0.4062 0.4050 0.4063
+  0.3 0.33 | 0.3992 0.4066 0.3992 0.4066 | 0.872 0.898 | 0.3988 0.4058 0.4015 0.4052 [0.00 0.00] | 0.3993 0.4063 0.4004 0.4064
+
+Hardness share is not identified (population fit of the hardness-aware model, label accuracy 0.7, h=0.3, hard_acc=0.5):
+  start easy/hard/P(hard)/C = (0.9, 0.5, 0.3, 0.7): P(hard) 0.282, easy acc 0.923, hard acc 0.486, C acc 0.700, overall 0.800
+  start easy/hard/P(hard)/C = (0.95, 0.4, 0.2, 0.7): P(hard) 0.242, easy acc 0.911, hard acc 0.452, C acc 0.700, overall 0.800
+  start easy/hard/P(hard)/C = (0.85, 0.6, 0.4, 0.7): P(hard) 0.354, easy acc 0.945, hard acc 0.535, C acc 0.700, overall 0.800

@@ -7,6 +7,8 @@ missing-**Row Level Security (RLS)** exposure behind
 [CVE-2025-48757](https://dev.to/keymelgaston/missing-rls-the-most-underrated-breach-cause-of-2026-1o4a)
 and the 170+ applications it affected in 2025-2026.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/
+
 Supabase's REST API (PostgREST) is meant to be called directly from a browser — the anon key is
 already public in every client app that uses the project. What keeps a table's actual data safe
 is Row Level Security, and only that: the anon role has a schema-level `USAGE` grant by default,

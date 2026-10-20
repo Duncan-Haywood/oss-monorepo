@@ -7,6 +7,8 @@ party displaces, and your yearly rent, insurance and utilities. It shows **true 
 party, margin and profit per room hour**, the **lowest package price that earns your target
 margin** (and per child), break-even parties a year, and compares two packages side by side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/kids-birthday-party-package-profit-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

@@ -5,6 +5,8 @@ DoorDash, Uber Eats, Grubhub, and your own driver** each leave after
 commission, card processing, packaging, and extra bagging time — plus the
 delivery-menu price each app needs to match dine-in.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/delivery-app-margin-calculator/
+
 After using this, you can price a delivery menu so a DoorDash order keeps the
 same cash as dine-in, which used to take a messy spreadsheet and a guess at
 whether the headline commission was the whole cost.

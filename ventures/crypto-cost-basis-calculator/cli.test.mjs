@@ -1,0 +1,128 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { mkdtemp, writeFile, readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { execFileSync, spawnSync } from "node:child_process";
+import { parseArgs, run, render } from "./cli.mjs";
+import { SAMPLE_CSV, analyze } from "./calc.mjs";
+
+const CLI = new URL("./cli.mjs", import.meta.url).pathname;
+
+test("parseArgs reads options and files", () => {
+  const o = parseArgs(["--method", "hifo", "--year", "2024", "--per-wallet", "--short-rate", "30", "a.csv", "b.csv"]);
+  assert.equal(o.method, "HIFO");
+  assert.equal(o.year, 2024);
+  assert.equal(o.perWallet, true);
+  assert.equal(o.shortRate, 0.3);
+  assert.deepEqual(o.files, ["a.csv", "b.csv"]);
+});
+
+test("parseArgs rejects bad input", () => {
+  assert.throws(() => parseArgs(["--method", "RANDOM"]), /one of/);
+  assert.throws(() => parseArgs(["--year", "24"]), /four-digit/);
+  assert.throws(() => parseArgs(["--long-rate", "150"]), /percent/);
+  assert.throws(() => parseArgs(["--year"]), /needs a value/);
+  assert.throws(() => parseArgs(["--nope"]), /unknown option/);
+});
+
+test("run agrees with analyze on the same CSV", () => {
+  const r = run([{ name: "s.csv", text: SAMPLE_CSV }], { method: "HIFO" });
+  const direct = analyze(SAMPLE_CSV, { method: "HIFO" });
+  assert.equal(r.result.summary.totalGain, direct.summary.totalGain);
+  assert.equal(r.result.tax, direct.tax);
+  assert.equal(r.error, null);
+});
+
+test("render reports gains, comparison and holdings", () => {
+  const text = render(run([{ name: "s.csv", text: SAMPLE_CSV }], { method: "FIFO" }), { shortRate: 0.24, longRate: 0.15 });
+  assert.match(text, /Sales in 2024/);
+  assert.match(text, /total \$23,748\.00/);
+  assert.match(text, /lowest estimated tax/);
+  assert.match(text, /Still held/);
+});
+
+test("a file with no sales says so instead of printing zeros", () => {
+  const csv = "date,type,asset,quantity,total,fee,wallet\n2023-01-10,buy,BTC,1,20000,0,A\n";
+  assert.match(render(run([{ name: "b.csv", text: csv }], {})), /No sales found/);
+});
+
+test("missing-basis sale is flagged in the summary", () => {
+  const csv = "date,type,asset,quantity,total,fee,wallet\n2024-05-01,sell,BTC,1,60000,0,A\n";
+  const text = render(run([{ name: "m.csv", text: csv }], {}));
+  assert.match(text, /no purchase on record/);
+  assert.match(text, /warning:/);
+});
+
+test("command line: file in, Form 8949 rows out, exit codes", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "cbc-"));
+  const input = join(dir, "h.csv"), out = join(dir, "8949.csv");
+  await writeFile(input, SAMPLE_CSV);
+  const stdout = execFileSync("node", [CLI, "--method", "HIFO", "--form8949", out, input], { encoding: "utf8" });
+  assert.match(stdout, /Highest cost first/);
+  const rows = (await readFile(out, "utf8")).trim().split("\n");
+  assert.equal(rows.length, 4);
+  assert.match(rows[1], /^0\.35 BTC,2023-06-15,2024-09-20,20979\.00,10510\.50,10468\.50,Long/);
+  const bad = spawnSync("node", [CLI, "--method", "x", input], { encoding: "utf8" });
+  assert.equal(bad.status, 2);
+  const none = spawnSync("node", [CLI], { encoding: "utf8" });
+  assert.equal(none.status, 2);
+  const json = JSON.parse(execFileSync("node", [CLI, "--json", "--example"], { encoding: "utf8" }));
+  assert.equal(json.year, 2024);
+});
+
+test("--sell prints a sell plan that agrees with planSale and rejects missing inputs", async () => {
+  const { main, parseArgs } = await import("./cli.mjs");
+  assert.equal(parseArgs(["--sell", "btc", "--price", "9", "--qty", "1", "x.csv"]).sell, "BTC");
+  assert.throws(() => parseArgs(["--price", "0"]), /above zero/);
+  assert.throws(() => parseArgs(["--sale-date", "tomorrow"]), /yyyy-mm-dd/);
+  assert.equal(await main(["--example", "--sell", "BTC"]), 2);
+});
+
+test("--magi adds the 3.8% surtax line and per-method column; bad --filing is rejected", () => {
+  const o = parseArgs(["--magi", "180000", "--filing", "mfj", "x.csv"]);
+  assert.equal(o.magi, 180000);
+  assert.equal(o.filing, "mfj");
+  assert.throws(() => parseArgs(["--filing", "nope"]), /--filing must be one of/);
+  const csv = "date,type,asset,quantity,total,fee,wallet\n2022-01-10,buy,BTC,1,20000,0,A\n2024-09-20,sell,BTC,1,300000,0,A\n";
+  const out = render(run([{ name: "a.csv", text: csv }], { magi: 100000 }), {});
+  assert.match(out, /Net investment income tax \(3\.8%, single, threshold \$200,000\.00\): \$6,840\.00 on \$180,000\.00/);
+  assert.match(out, /NIIT/);
+  assert.doesNotMatch(render(run([{ name: "a.csv", text: csv }], {}), {}), /Net investment income tax/);
+});
+
+test("--prices adds the harvesting and wait views, and rejects bad prices", () => {
+  const o = parseArgs(["--prices", "BTC=20000, ETH 1000", "--example"]);
+  assert.deepEqual(o.prices, { BTC: 20000, ETH: 1000 });
+  assert.throws(() => parseArgs(["--prices", "BTC=abc"]), /--prices: Could not read/);
+  const out = spawnSync("node", [CLI, "--example", "--prices", "BTC=20000,ETH=1000", "--sale-date", "2024-12-20"], { encoding: "utf8" });
+  assert.equal(out.status, 0);
+  assert.match(out.stdout, /Tax-loss harvesting on 2024-12-20/);
+  assert.match(out.stdout, /saves \$1,950\.33/);
+  const j = JSON.parse(spawnSync("node", [CLI, "--example", "--json", "--prices", "BTC=20000,ETH=1000", "--sale-date", "2024-12-20"], { encoding: "utf8" }).stdout);
+  assert.equal(j.harvest.taxSaved, 1950.33);
+  assert.ok(Array.isArray(j.wait.lots));
+});
+
+test("--donate prints a gift plan and rejects missing inputs", async () => {
+  const { main, parseArgs } = await import("./cli.mjs");
+  assert.equal(parseArgs(["--donate", "btc", "--price", "9", "--qty", "1", "x.csv"]).donate, "BTC");
+  assert.equal(await main(["--example", "--donate", "BTC"]), 2);
+});
+
+test("--id-record needs --sell and a known method", async () => {
+  const { main, parseArgs } = await import("./cli.mjs");
+  assert.equal(parseArgs(["--id-record", "hifo", "x.csv"]).idRecord, "HIFO");
+  assert.throws(() => parseArgs(["--id-record", "nope"]), /--id-record must be one of/);
+  assert.equal(await main(["--example", "--id-record", "HIFO"]), 2);
+});
+
+test("--tax-software writes the five-column import file", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "cbc-"));
+  const out = join(dir, "ts.csv");
+  execFileSync("node", [CLI, "--example", "--tax-software", out], { encoding: "utf8" });
+  const lines = (await readFile(out, "utf8")).trim().split("\n");
+  assert.equal(lines[0], "Currency Name,Purchase Date,Cost Basis,Date Sold,Proceeds");
+  assert.ok(lines.length > 1);
+  assert.match(lines[1], /^[A-Z0-9]+,\d\d\/\d\d\/\d{4},\d+\.\d\d,\d\d\/\d\d\/\d{4},-?\d+\.\d\d$/);
+});

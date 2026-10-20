@@ -1,0 +1,148 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01TTWGu1H8M6GNkYTdNrP1Rp",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "i want to work on societies of ai agents in robots among people. in simulation as a research and entertainment direction.",
+  "input_sha256": "d4c09275925d1c593e43134964b0ded747b2914e8d6e0be80599e3e04bcb328e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-19T07:43:19Z",
+  "ended": "2026-10-19T07:59:29Z",
+  "wall_minutes": 18.24,
+  "tokens_in": 18947280,
+  "tokens_out": 62344,
+  "cost_usd": 6.5735,
+  "tool_calls": 109,
+  "task": "new track 17 (society) and milestone 1 society-robotnorms",
+  "projects": [
+    "society-robotnorms"
+  ],
+  "pr": 8324,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 2,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [
+    "pkill -f experiments/run.py matched its own shell and killed it (exit 144) before the following edits ran; re-applied them.",
+    "First experiment launch used a foreground '&' with timeout 590 s for a ~25 min job; restarted with run_in_background.",
+    "Pushed a WIP README that linked figures not yet generated: check_md_links failed twice on the PR until results landed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Owner-added tracks race for the next number: PR 8311 claimed 16 while open, so this track took 17 and had to land PR 8311 first (resolving its pick_track.py conflict) to keep pick_track.py consistent."
+    },
+    {
+      "file": ".github/workflows/research-ci.yml",
+      "issue": "Research CI runs only the homepage build; project unit tests are not run in CI, so each run must run them locally (energy-density needs pytest, which plain python3 lacks)."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Does not mention platform/ci/research_live_links.py or check_md_links.py, both of which fail a PR on a README without a live link or with a link to a not-yet-generated figure."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "Picking work says draw a track at random; the user named a new direction, so this run added a track (as PR 8304 did for tracks 14-15) instead of drawing."
+    }
+  ],
+  "goal": "Start an owner-requested research and entertainment direction: simulated societies of AI agents in robots among people.",
+  "notes": "Track 17 with 7 milestones and checked references; society-robotnorms: committed-robot tipping share 0.16/0.22/0.28/0.32 for memory 5/9/17/25 vs mean field 0.158/0.217/0.272/0.302; cost peak 0.27 vs 0.020 conflicts per meeting at rho=0.20; ring placement result. Also resolved and landed PR 8311 (track 16) first.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e14f7036-fecd-5f2a-859f-7a21c530c690",
+    "transcripts": 1,
+    "first": "2026-10-19T07:43:19Z",
+    "last": "2026-10-19T08:01:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 105,
+        "input": 225,
+        "output": 62344,
+        "thinking": 17739,
+        "cache_read": 18750093,
+        "cache_write_5m": 0,
+        "cache_write_1h": 196962,
+        "api_equivalent_usd": 6.5735,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 105,
+      "input": 225,
+      "output": 62344,
+      "thinking": 17739,
+      "cache_read": 18750093,
+      "cache_write_5m": 0,
+      "cache_write_1h": 196962,
+      "api_equivalent_usd": 6.5735,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 109,
+    "tools": {
+      "Bash": 76,
+      "mcp__github__pull_request_read": 7,
+      "WebSearch": 6,
+      "ReadNotifications": 5,
+      "ToolSearch": 4,
+      "mcp__github__get_job_logs": 2,
+      "Write": 2,
+      "Read": 2,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1,
+      "mcp__github__add_issue_comment": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.24,
+      "active_minutes": 15.99,
+      "model_minutes": 12.82,
+      "tool_minutes": 3.17,
+      "waiting_on_human_minutes": 2.25,
+      "human_prompts": 10,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a researcher designing the model, deriving the mean field, running and writing up the sweeps, plus drafting a new track with checked references: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 182.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

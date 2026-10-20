@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-label="Bar chart of the 30-year net present cost difference between the best and worst glazing orientation split, by city: Miami (1A): gas $416, heat pump $416; Houston (2A): gas $558, heat pump $636; Atlanta (3A): gas $636, heat pump $753; Albuquerque (4B): gas $1,333, heat pump $1,738; Baltimore (4A): gas $501, heat pump $699; Chicago (5A): gas $459, heat pump $659; Minneapolis (6A): gas $590, heat pump $838; Duluth (7): gas $531, heat pump $745">
+<rect width="720" height="400" fill="#fff"/>
+<text x="360.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">What choosing window orientation is worth, 30-year net present cost (best minus worst split)</text>
+<text x="360.0" y="40" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">stylised degree-day model, assumed prices; blue = gas furnace, orange = heat pump</text>
+<line x1="60" x2="700" y1="310.0" y2="310.0" stroke="#ddd"/><text x="54" y="314.0" text-anchor="end" font-family="sans-serif" font-size="11">$0</text>
+<line x1="60" x2="700" y1="247.5" y2="247.5" stroke="#ddd"/><text x="54" y="251.5" text-anchor="end" font-family="sans-serif" font-size="11">$500</text>
+<line x1="60" x2="700" y1="185.0" y2="185.0" stroke="#ddd"/><text x="54" y="189.0" text-anchor="end" font-family="sans-serif" font-size="11">$1,000</text>
+<line x1="60" x2="700" y1="122.5" y2="122.5" stroke="#ddd"/><text x="54" y="126.5" text-anchor="end" font-family="sans-serif" font-size="11">$1,500</text>
+<line x1="60" x2="700" y1="60.0" y2="60.0" stroke="#ddd"/><text x="54" y="64.0" text-anchor="end" font-family="sans-serif" font-size="11">$2,000</text>
+<rect x="69.6" y="258.0" width="28.4" height="52.0" fill="#1f6fb2"/>
+<rect x="100.0" y="258.0" width="28.4" height="52.0" fill="#d9822b"/>
+<text x="100.0" y="326" text-anchor="end" transform="rotate(-35 100.0 326)" font-family="sans-serif" font-size="11">Miami (1A)</text>
+<rect x="149.6" y="240.2" width="28.4" height="69.8" fill="#1f6fb2"/>
+<rect x="180.0" y="230.5" width="28.4" height="79.5" fill="#d9822b"/>
+<text x="180.0" y="326" text-anchor="end" transform="rotate(-35 180.0 326)" font-family="sans-serif" font-size="11">Houston (2A)</text>
+<rect x="229.6" y="230.5" width="28.4" height="79.5" fill="#1f6fb2"/>
+<rect x="260.0" y="215.9" width="28.4" height="94.1" fill="#d9822b"/>
+<text x="260.0" y="326" text-anchor="end" transform="rotate(-35 260.0 326)" font-family="sans-serif" font-size="11">Atlanta (3A)</text>
+<rect x="309.6" y="143.4" width="28.4" height="166.6" fill="#1f6fb2"/>
+<rect x="340.0" y="92.8" width="28.4" height="217.2" fill="#d9822b"/>
+<text x="340.0" y="326" text-anchor="end" transform="rotate(-35 340.0 326)" font-family="sans-serif" font-size="11">Albuquerque (4B)</text>
+<rect x="389.6" y="247.4" width="28.4" height="62.6" fill="#1f6fb2"/>
+<rect x="420.0" y="222.6" width="28.4" height="87.4" fill="#d9822b"/>
+<text x="420.0" y="326" text-anchor="end" transform="rotate(-35 420.0 326)" font-family="sans-serif" font-size="11">Baltimore (4A)</text>
+<rect x="469.6" y="252.6" width="28.4" height="57.4" fill="#1f6fb2"/>
+<rect x="500.0" y="227.6" width="28.4" height="82.4" fill="#d9822b"/>
+<text x="500.0" y="326" text-anchor="end" transform="rotate(-35 500.0 326)" font-family="sans-serif" font-size="11">Chicago (5A)</text>
+<rect x="549.6" y="236.2" width="28.4" height="73.8" fill="#1f6fb2"/>
+<rect x="580.0" y="205.2" width="28.4" height="104.8" fill="#d9822b"/>
+<text x="580.0" y="326" text-anchor="end" transform="rotate(-35 580.0 326)" font-family="sans-serif" font-size="11">Minneapolis (6A)</text>
+<rect x="629.6" y="243.6" width="28.4" height="66.4" fill="#1f6fb2"/>
+<rect x="660.0" y="216.9" width="28.4" height="93.1" fill="#d9822b"/>
+<text x="660.0" y="326" text-anchor="end" transform="rotate(-35 660.0 326)" font-family="sans-serif" font-size="11">Duluth (7)</text>
+</svg>

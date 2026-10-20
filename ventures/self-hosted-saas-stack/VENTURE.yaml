@@ -1,0 +1,49 @@
+name: self-hosted-saas-stack
+description: >-
+  Directory and landing page for the 27 self-hosted, MIT-licensed small-SaaS
+  tools in this repository (booking, help center, error tracking, feature
+  flags, analytics, lifecycle email, referrals, Stripe revenue metrics,
+  e-signature), grouped by job and named against the paid products they
+  replace, so a founder searching for an open-source alternative lands on the
+  right one.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16. Not a new product: the missing front door for the
+# 27 self-hosted servers already on main. Each tool had its own page and none
+# was reachable by someone searching "open source alternatives to Calendly /
+# Sentry / LaunchDarkly / Help Scout", and nothing linked the set together.
+# duplicate_check: grep of ventures/ on 2026-10-16 found no stack or suite hub.
+# surface-budget: this is the one hub for the family, not a per-tool page.
+#
+# First visitor: r/selfhosted, Indie Hackers, Hacker News "self-hosted
+# alternative to X" searches.
+# Path to revenue (payments stay off): lead magnet for the tools; done-for-you
+# setup and sponsors; hosting under the public name is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Founders arriving from an "open-source alternative to X" search will open
+      a tool's page from a single grouped directory more often than they would
+      find the same tool from its own page alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage within 90 days of the page being reachable from the published site.
+  - A listed tool is renamed or removed and the page still links it (the page test catches this; a broken link reported by a visitor means the test missed something).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/self-hosted-saas-stack/
+  analytics: null

@@ -5,6 +5,8 @@ net-worth gap at the year you plan to move, and the starting rent at which renti
 level.** A sensitivity grid shows how far home-price growth and investment return move the answer. Nothing
 is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rent-vs-buy-breakeven-calculator/
+
 After using this, you can **know how long you need to stay and what rent makes buying worthwhile** instead
 of comparing a mortgage payment with a rent number.
 

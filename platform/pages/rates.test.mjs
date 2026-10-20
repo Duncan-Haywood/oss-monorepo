@@ -257,6 +257,13 @@ test('a round trip through storage preserves the rates', () => {
   assert.deepEqual(parseStoredRates(serializeRates(rates)), rates);
 });
 
+test('serializeRates writes the versioned shape, so a later shape can be told apart', () => {
+  assert.equal(
+    serializeRates({ hourlyWage: 40 }),
+    '{"v":1,"rates":{"hourlyWage":40}}',
+  );
+});
+
 test('serializeRates refuses to write an empty payload', () => {
   assert.equal(serializeRates({ linearFeet: 80 }), null);
 });
@@ -526,6 +533,28 @@ test('the injected script rejects a blank field before Number()', () => {
   // persists a $0 wage onto the next trade.
   assert.match(script, /raw === '' \|\| raw === null \|\| raw === undefined/);
   assert.match(script, /kept === FIELDS\.length \? out : null/);
+});
+
+test('the injected script only saves on the save button, and only counts a real apply', () => {
+  // Inverting either guard would save on every other button, or count an
+  // "applied" event on a page where nothing was applied.
+  assert.match(script, /if \(name === 'save'\) \{/);
+  assert.match(script, /if \(outcome && outcome\.applied\.length\) bump\('shop_rates_applied'\)/);
+});
+
+test('the injected script skips an unusable field instead of storing it', () => {
+  assert.match(script, /if \(value === null\) return;\s+out\[f\.id\] = value; kept\+\+;/);
+});
+
+test('the injected script keeps zero, checks every field, reads both stored shapes and hides Clear when empty', () => {
+  // Seeded faults that escaped (redteam 2026-10-19): a field loop starting at 1
+  // skips the first field's presence check; `value < 1` rejects a saved 0%
+  // overhead; `||` for `&&` reads a bare `{rates: null}` as a rates map; and
+  // `hidden = false` shows a Clear button when nothing is saved.
+  assert.match(script, /for \(var i = 0; i < FIELDS\.length; i\+\+\) \{\s+if \(!fieldFor\(FIELDS\[i\]\)\)/);
+  assert.match(script, /if \(!isFinite\(value\) \|\| value < 0 \|\| value > max\) return null;/);
+  assert.match(script, /var source = parsed\.rates && typeof parsed\.rates === 'object' \? parsed\.rates : parsed;/);
+  assert.match(script, /button\('apply'\)\.hidden = true;\s+button\('clear'\)\.hidden = true;/);
 });
 
 test('the page that produces the rates does not also receive the bar', () => {

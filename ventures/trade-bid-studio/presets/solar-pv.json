@@ -1,0 +1,39 @@
+{
+  "slug": "solar-pv-bid-calculator",
+  "name": "Solar PV installation",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Residential solar priced from modules, inverter, racking, BOS per watt, roof factor and electrical extras.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 38,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Install 390 W module with racking and BOS (easy comp roof)",
+      "unit": "module",
+      "qty": 26,
+      "hoursPerUnit": 3.9,
+      "materialPerUnit": 255.2,
+      "source": "26 x 390 W = 10.14 kW (index.html); 10 crew-hours per kW x roof factor 1.0 = 3.9 h/module; module $140 + racking $45 + BOS $0.18/W x 390 W = $70.20 (index.html, calculateBid in calc.mjs)"
+    },
+    {
+      "label": "Inverter / hybrid",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 1800,
+      "source": "inverterCost default $1,800 (index.html)"
+    },
+    {
+      "label": "Permit, interconnection, design, travel, dumpster and lift",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 1500,
+      "source": "permitAndInterconnection $850 + designEngineering $400 + travelDumpsterLift $250 (index.html)"
+    }
+  ],
+  "specialistModels": "Price per watt, roof-type labor factors from metal to ground mount, electrical presets from panel taps to 400 A service upgrades, and battery/backup add-ons."
+}

@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01FbBBnkbxpGNvkug8c6597u",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T07:25:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "pre-commit hooks distribution channel",
+  "projects": [],
+  "pr": 7687,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/distribution/ghaction.mjs",
+      "issue": "main had a stale generated action (actions-schedule-check) failing ghaction.test.mjs; the generator is not enforced on the PR that adds a linter"
+    },
+    {
+      "file": "platform/pages/publish-branch.sh",
+      "issue": "takes over 2 min foreground and builds from local HEAD, which was behind origin/main; first run published a stale source commit"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Pages snapshot refresh run in background; result not confirmed at record time.",
+  "corrections": [],
+  "redteam": null
+}

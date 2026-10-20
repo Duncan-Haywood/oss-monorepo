@@ -1,0 +1,52 @@
+Setup: worker cost C=100, value V=120, price P=110, relationship value W=W_r+W_w.
+
+E1. Milestones needed: equal split ceil(C/W) vs geometric front-loaded ceil(ln(1+(V-C)/W)/ln(V/C))
+       W   equal  geometric   ratio   first milestone %
+   20.00       5          4     1.2                33.3
+    5.00      20          9     2.2                20.8
+    1.00     100         17     5.9                17.5
+    0.20     500         26    19.2                16.8
+    0.05    2000         33    60.6                16.7
+    0.01   10000         42   238.1                16.7
+
+E2. Schedule at W=1 (C=100, V=120): milestone sizes and a self-enforcing pre-payment fraction range
+feasible per exact recursion: True  n=17
+k  cost    cum%   theta range (pre-paid share of the milestone's price)
+1   17.50   17.5   [0.551, 0.551]
+2   14.58   32.1   [0.552, 0.552]
+3   12.15   44.2   [0.553, 0.553]
+4   10.13   54.4   [0.554, 0.554]
+5    8.44   62.8   [0.556, 0.556]
+...
+16   1.14   99.3   [0.625, 0.625]
+17   0.68  100.0   [0.465, 0.894]
+
+E3. Who carries the relationship value? Equal milestones, C=100, P=110, W_r+W_w=5
+   W_r   W_w  pay after  pay before  best split
+   0.5   4.5        220          23          20
+   1.0   4.0        110          25          20
+   2.5   2.5         44          40          20
+   4.0   1.0         28         100          20
+   4.5   0.5         25         200          20
+
+E4. Cheap re-entry caps the relationship value: W=5, milestones vs identity entry cost e
+       e   W_eff   equal  geometric
+  100.00    5.00      20          9
+    5.00    5.00      20          9
+    2.00    2.00      50         14
+    1.00    1.00     100         17
+    0.50    0.50     200         21
+    0.10    0.10    1000         30
+    0.02    0.02    5000         38
+
+E5. Value/cost margin: milestones at W=1 vs V/C (C=100)
+    V/C  equal  geometric  first %
+  1.001    100         96      1.1
+  1.050    100         37      5.7
+  1.200    100         17     17.5
+  1.500    100         10     34.0
+  2.000    100          7     50.5
+  4.000    100          5     75.2
+
+E6. Random validation (seeded): greedy count == formula and schedule feasible; nothing shorter found
+formula+feasibility: 2000/2000; feasible schedules with one fewer milestone found in 10000 random draws: 0

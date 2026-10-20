@@ -8,6 +8,8 @@ the election, splits the difference into its causes, and finds the income at
 which the election starts to pay. Entirely client-side; no taxpayer identifiers
 are asked for.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pte-tax-election-calculator/
+
 After using this, you can **tell whether the election saves you money, why, and
 what it costs you if it doesn't** — which used to take a CPA's engagement-letter
 hour or a spreadsheet you would have to trust.

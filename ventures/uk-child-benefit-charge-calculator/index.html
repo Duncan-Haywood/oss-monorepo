@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Child Benefit Charge Calculator — Pay It, Avoid It or Opt Out?</title>
+  <meta name="description" content="Free UK High Income Child Benefit Charge calculator: enter your income, pension and Gift Aid to see the clawback, how much pension avoids it, and whether to opt out of payments. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK Child Benefit charge calculator: how much do you lose over £60,000? Free, private">
+  <meta property="og:description" content="See the charge, the pension contribution that removes it, and the opt-out trade-off.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Child Benefit Charge Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the High Income Child Benefit Charge?", "acceptedAnswer": {"@type": "Answer", "text": "A tax charge on the higher earner in a household once their adjusted net income passes \u00a360,000. It claws back 1% of the Child Benefit for every \u00a3200 over the line, so the whole benefit is gone at \u00a380,000."}}, {"@type": "Question", "name": "How do I avoid the Child Benefit charge?", "acceptedAnswer": {"@type": "Answer", "text": "Cut adjusted net income to \u00a360,000 or less. Personal pension contributions and Gift Aid donations are grossed up and deducted from your income, so paying them can remove the charge entirely and move that money into your pension."}}, {"@type": "Question", "name": "Should I opt out of Child Benefit payments or pay the charge?", "acceptedAnswer": {"@type": "Answer", "text": "If the charge is under 100%, keeping the payments and paying the charge through Self Assessment leaves you with some of the benefit. Opting out of payments avoids the bill but gives up that cash. If the charge is 100% the payments are worth nothing, so many people opt out of payment."}}, {"@type": "Question", "name": "Should I still claim if my income is over \u00a380,000?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Making the claim (and opting out of the payments) gives the claimant a National Insurance credit toward their state pension and registers the child's NI number."}}, {"@type": "Question", "name": "Which Child Benefit rates does this use?", "acceptedAnswer": {"@type": "Answer", "text": "The fields are prefilled with the 2025/26 weekly rates of \u00a326.05 for the eldest child and \u00a317.25 for each other child. Rates are reset each April, so check GOV.UK and edit them for your year."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK CHILD BENEFIT CHARGE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much Child Benefit does the £60,000 charge take back?</h1>
+    <p>Enter the higher earner's income, any pension and Gift Aid payments, and how many children you claim for. You get the clawback, the pension payment that would remove it, and the pay-or-opt-out choice.</p>
+    <p class="note">A first read written from HMRC's published rules without a live lookup. Rules and weekly rates change each April; confirm the current text. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="year">Tax year</label><select id="year"><option value="2025">2025/26 (6 Apr 2025 – 5 Apr 2026)</option><option value="2026">2026/27 (6 Apr 2026 – 5 Apr 2027)</option></select></div>
+      <div><label for="income">Higher earner's income before reductions (£)</label><input id="income" type="number" min="0" step="1"></div>
+      <div><label for="pension">Personal pension paid by you, net (£, optional)</label><input id="pension" type="number" min="0" step="1"></div>
+      <div><label for="giftAid">Gift Aid donations, net (£, optional)</label><input id="giftAid" type="number" min="0" step="1"></div>
+      <div><label for="children">Children you claim for</label><input id="children" type="number" min="1" max="20" step="1"></div>
+      <div><label for="weeks">Weeks of benefit in the year</label><input id="weeks" type="number" min="1" max="53" step="1" value="52"></div>
+      <div><label for="rateFirst">Weekly rate, eldest child (£)</label><input id="rateFirst" type="number" min="0" step="0.01" value="26.05"></div>
+      <div><label for="rateOther">Weekly rate, each other child (£)</label><input id="rateOther" type="number" min="0" step="0.01" value="17.25"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the charge</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out the charge.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The numbers</h2>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h2>What you must do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the £60,000 to £80,000 taper at 1% per £200, pension and Gift Aid reductions grossed up, the net benefit you keep, and the pension payment that removes the charge.</li>
+      <li><strong>Gives:</strong> the charge, the avoid-it figure, the pay-or-opt-out trade-off and a checklist.</li>
+      <li><strong>Not decided:</strong> which partner is the higher earner, your exact adjusted net income (other deductions exist), Scottish rates, backdated claims, the tax relief on the pension payment itself, and anything that changed after this was written. For the Self Assessment cash side see the <a href="../uk-payments-on-account-calculator/">payments on account calculator</a>.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is the High Income Child Benefit Charge?</h3>
+    <p>A tax charge on the higher earner in a household once their adjusted net income passes £60,000. It claws back 1% of the Child Benefit for every £200 over the line, so the whole benefit is gone at £80,000.</p>
+    <h3>How do I avoid the Child Benefit charge?</h3>
+    <p>Cut adjusted net income to £60,000 or less. Personal pension contributions and Gift Aid donations are grossed up and deducted from your income, so paying them can remove the charge entirely and move that money into your pension.</p>
+    <h3>Should I opt out of Child Benefit payments or pay the charge?</h3>
+    <p>If the charge is under 100%, keeping the payments and paying the charge through Self Assessment leaves you with some of the benefit. Opting out of payments avoids the bill but gives up that cash. If the charge is 100% the payments are worth nothing, so many people opt out of payment.</p>
+    <h3>Should I still claim if my income is over £80,000?</h3>
+    <p>Yes. Making the claim (and opting out of the payments) gives the claimant a National Insurance credit toward their state pension and registers the child's NI number.</p>
+    <h3>Which Child Benefit rates does this use?</h3>
+    <p>The fields are prefilled with the 2025/26 weekly rates of £26.05 for the eldest child and £17.25 for each other child. Rates are reset each April, so check GOV.UK and edit them for your year.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-payments-on-account-calculator/">UK payments on account calculator</a>, the <a href="../uk-trading-allowance-calculator/">UK trading allowance calculator</a>, the <a href="../uk-mtd-income-tax-checker/">UK Making Tax Digital checker</a> the <a href="../uk-sole-trader-vs-limited-company-calculator/">UK sole trader vs limited company calculator</a> the <a href="../uk-student-loan-repayment-calculator/">UK student loan repayment calculator</a> and the <a href="../uk-100k-tax-trap-calculator/">UK £100k tax trap calculator</a>.</p>
+    <p>Paying for childcare? The <a href="../uk-tax-free-childcare-calculator/">UK Tax-Free Childcare and 30 hours calculator</a> shows your bill after free hours and the 20% top-up.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { year: "year", income: "income", pension: "pension", giftAid: "giftAid", children: "children", weeks: "weeks", rateFirst: "rateFirst", rateOther: "rateOther" };
+    const IDLE = "Fill in the figures, then click Work out the charge.";
+    const DEFAULTS = { year: "2025", weeks: "52", rateFirst: "26.05", rateOther: "17.25" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.pct === 0 ? `No charge: you keep all ${gbp(r.benefit)}` : `${r.pct}% charge: ${gbp(r.charge)} of ${gbp(r.benefit)} taken back`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["Adjusted net income", r.ani], ["Child Benefit for the year", r.benefit], ["Charge (" + r.pct + "%)", r.charge], ["Kept after the charge", r.net]];
+      $("#rows").innerHTML = rows.map((x) => `<tr><td>${esc(x[0])}</td><td class="n">${gbp(x[1])}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: £68,000 income, two children, no pension payments.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-child-benefit-charge.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

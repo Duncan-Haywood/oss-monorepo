@@ -1,0 +1,73 @@
+name: uk-crypto-cgt-calculator
+description: >-
+  Free browser tool for UK crypto holders: paste or open a CSV of buys, sales,
+  swaps and staking income and it applies HMRC's same-day, 30-day and Section 104
+  pooling rules to every disposal, shows which rule matched each one, estimates
+  each tax year's capital gains tax after the annual exempt amount (including the
+  30 October 2024 rate change), and exports the working. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Gap found 2026-10-18: the portfolio holds a US crypto lot matcher
+# (crypto-cost-basis-calculator, FIFO/HIFO/Form 8949) and a UK CGT calculator for
+# shares and property, but nothing anywhere implements the UK matching rules for
+# cryptoassets (grep for "Section 104" found no hit in ventures/ or research/).
+# Those rules are not FIFO and cannot be fudged with it: a pooled average cost
+# plus same-day and 30-day matching changes the gain on almost any history with
+# repeat purchases.
+#
+# Why this niche: UK crypto tax software (Koinly, CoinTracker, Recap, Awaken and
+# others) charges a yearly fee that rises with transaction count, and wants API
+# keys or a full upload. Many holders have a handful of exchange exports and need
+# the matching step plus a working they can show an adviser or keep for HMRC.
+# HMRC has run letter campaigns on crypto holders and exchanges share data with
+# it, so the audience is motivated every self-assessment season (January filing,
+# April year end).
+#
+# First visitor: searches such as "Section 104 pool crypto calculator", "HMRC
+# crypto 30 day rule", "crypto capital gains tax UK calculator", r/UKPersonalFinance
+# and r/BitcoinUK threads each January. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed pound values; no prices fetched;
+# omissions stated (DeFi, NFTs, forks, spousal gifts, income tax on staking,
+# trading treatment); the estimate takes rates as built in per tax year and says
+# the 2026-27 row assumes 2025-26 rules continue; no payment code.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. If usage
+# appears, the paid-tier candidates are exchange-format importers (Coinbase, Kraken,
+# Binance UK) and an SA108 box-by-box summary, both local only; not built.
+
+hypotheses:
+  - claim: >-
+      UK crypto holders with a few exchange exports will use a private,
+      no-signup Section 104 calculator at self-assessment time instead of paying a
+      per-transaction tax service, because the matching and the estimate are all
+      they need.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The per-disposal working CSV (which rule matched each sale, and against which
+      purchase) is what makes people keep and return to the tool, because it is the
+      artefact an adviser or HMRC enquiry asks for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a gain that differs from a hand calculation under HMRC's matching rules on the same rows and the difference is a bug in the matching.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-crypto-cgt-calculator/
+  analytics: null

@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodeperson"
+version = "0.1.0"
+description = "Does an infrared-gating band tuned on one person and one clothing level still help for other clothing and body sizes?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

@@ -7,6 +7,8 @@ properties that are missing and the recommended ones that would help, and flags 
 plain string, an Event with no location, a remote job with no applicant location. A second panel builds starter
 JSON-LD (FAQ, Product, local business, article, breadcrumbs) and checks it as you type. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/json-ld-rich-result-validator/
+
 After using this, you can now **fix structured data that Google ignores, and ship valid markup for a new page
 in minutes**.
 

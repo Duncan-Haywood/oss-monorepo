@@ -1,0 +1,12 @@
+laser cutting (steel sheet), h=1.5 mm, peak von Mises, DE popsize 6 maxiter 20, seeds (0, 1, 2)
+buckling guard: governing LTB factor >= 3.0; slender guard: w/b <= 8.0
+guard     seed   b(mm)  w(mm)  r(mm)  mass(g)  peak(MPa)  tip(mm)  LTB factor  n_fe
+slender      0    2.00  15.61  13.27    35.99      98.7    0.330       6.73   837
+slender      1    2.00  15.54  13.43    35.85     100.0    0.335       6.70   895
+slender      2    2.00  15.56  12.62    35.82      99.7    0.336       6.71   900
+buckling     0    1.50  18.72   8.26    31.32      98.6    0.252       3.54   951
+buckling     1    1.50  18.81   7.67    31.43      99.8    0.249       3.56   985
+buckling     2    1.50  18.49  10.10    31.06     100.0    0.258       3.49  1004
+none         0    1.50  18.26  14.54    31.01      99.7    0.254       3.44   982
+none         1    1.50  18.81   7.65    31.43      99.9    0.249       3.56  1000
+none         2    1.50  18.32  13.21    31.00     100.0    0.256       3.45  1018

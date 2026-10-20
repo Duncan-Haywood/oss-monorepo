@@ -5,6 +5,8 @@ tutors, mobile detailers): **drop in your booking or sales export and see which 
 most and the least per booked hour.** The file is read in the browser. Nothing is uploaded and no
 scheduling-app login is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/service-hourly-yield-analyzer/
+
 After using this, you can now **see revenue per booked hour by service, staff member, weekday and
 hour of day, which services earn under your average for the chair time they take, what a price
 change on them could be worth, and what an idle hour costs**, which used to mean a pivot table over

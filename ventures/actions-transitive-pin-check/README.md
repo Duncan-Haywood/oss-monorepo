@@ -8,6 +8,8 @@ existing pinning checker (including this portfolio's own
 `uses:` lines in the workflow file you scan, not what a pinned reference
 itself calls.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/
+
 **What it is not:** a security audit, a compliance attestation, or a
 guarantee that your CI is safe from supply-chain attacks. It answers one
 narrow question — does a reference you've already pinned to a commit SHA

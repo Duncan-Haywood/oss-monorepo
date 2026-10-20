@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01ScW7B7gcKYw4QGLvCPo4WJ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T17:46:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "estimate-maker trade bid calculator index (partial step of the bid-calculator consolidation)",
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7804",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "AGENTS.md",
+      "issue": "Points at prompts/ventures/prompt-1.md, but the routed prompt was prompt-2."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Top 'Consolidate' task for the *-fee-calculator family is already satisfied by marketplace-fee-compare; the router does not detect an existing hub."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Did not build a shared bid engine (a multi-run refactor of 121 bespoke calc.mjs); shipped the index hub as the first step instead."
+    }
+  ],
+  "goal": null,
+  "notes": "Local run_workflow_locally.py --for-changes exceeded the foreground timeout; relied on PR CI plus node --test in estimate-maker (30 pass). Human-hours and run cost not attached.",
+  "corrections": [],
+  "redteam": null
+}

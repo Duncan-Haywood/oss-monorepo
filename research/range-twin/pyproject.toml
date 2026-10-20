@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "range-twin"
+version = "0.1.0"
+description = "Sensor range limit a twin lacks: exact convergence-time law, speed-capped approach, integrator windup, and the gain a twin fits from logs of a given range"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

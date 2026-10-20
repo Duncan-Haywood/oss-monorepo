@@ -8,7 +8,7 @@ of them against six open PRs, so `git branch -r` -- the thing a session reads to
 find out what work already exists -- was ~99% noise, and the branch behind a
 closed-unmerged PR was indistinguishable from live work.
 
-Two rules, both keyed to a pull request rather than to a branch's age:
+Three rules. The first two are keyed to a pull request, the third to `main`:
 
   merged           -> delete now. The commits are on the base branch; the ref
                       is a duplicate pointer to history that is already safe.
@@ -21,6 +21,18 @@ Two rules, both keyed to a pull request rather than to a branch's age:
                       be restored from its own page, but the delay is what
                       makes the automation reversible without needing to know
                       that.
+  in main already  -> delete a branch whose tip is an ancestor of `main`
+                      (GitHub compare `main...tip` ahead_by == 0), whether its
+                      PR "moved" or it never had a PR. Every commit it points
+                      at is on `main`, so deleting it loses nothing.
+
+Why the third rule (measured 2026-10-16, 1,465 remote branches): sessions
+reset their local branch to origin/main after a merge and push it again, which
+recreates the branch the on-close job just deleted. Its tip is then main's own
+squash commit, so the old "has moved" guard kept 872 of 875 surviving
+merged-PR branches forever, and 285 never-PR branches that also hold nothing
+beyond `main` had no rule at all. A branch holding even one commit that is not
+on `main` is still never deleted by that rule.
 
 `decide()` holds every rule and touches no network, so the guards below are
 unit-testable. They exist because each one is a way this automation could
@@ -32,9 +44,14 @@ destroy work:
                      branch-protected ref anyway, but do not rely on the
                      repository's settings to be the only guard.
   branch has moved   The branch tip no longer matches the PR's head SHA:
-                     somebody pushed after the PR closed. That commit is on no
-                     PR and deleting the ref would be the only reference to it
-                     lost. Leave it.
+                     somebody pushed after the PR closed. Unless that tip is
+                     already in `main`, it may be on no PR and deleting the
+                     ref would lose the only reference to it. Leave it.
+  not provably in    A no-PR branch is deleted only when its tip is known to
+  main, or young     be in `main` and that tip commit is older than 48h (a
+                     session may have just reset to main and be about to
+                     commit). "Could not tell" (compare failed, budget spent)
+                     keeps the branch.
   reserved ref       The branch is the head or the base of some *other* open
                      PR. Deleting a head ref closes its PR unmerged; deleting a
                      base ref orphans one.
@@ -42,7 +59,7 @@ destroy work:
 
 Usage:
   python3 platform/ci/branch_cleanup.py --pr 123          # one PR, after it closes
-  python3 platform/ci/branch_cleanup.py --sweep           # backlog + grace expiries
+  python3 platform/ci/branch_cleanup.py --sweep           # backlog, grace expiries, no-PR branches
   ... --dry-run                                           # decide, delete nothing
 
 Reads GITHUB_TOKEN (or GH_TOKEN) and GITHUB_REPOSITORY from the environment.
@@ -62,21 +79,41 @@ from datetime import datetime, timedelta, timezone
 API_ROOT = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 
 # Never deleted, whatever a PR says. The default branch is added at runtime.
-DEFAULT_PROTECTED = ("main", "master", "develop", "gh-pages", "release/*", "hotfix/*")
+DEFAULT_PROTECTED = ("main", "master", "develop", "gh-pages", "release/*", "hotfix/*", "archive/*")
 
 DEFAULT_GRACE_HOURS = 24.0
 
-# A single sweep keeps this many closed PRs that still have a head branch,
-# most-recently-updated first. Already-gone heads do not count toward the cap,
-# so a later run advances past them instead of revisiting the same window.
-# Bounded so one run always terminates.
-DEFAULT_MAX_PRS = 500
+# A branch with no PR whose tip is in `main` is kept until that tip commit is
+# this old: a session that just reset to main may be about to commit on it.
+DEFAULT_STRAY_MIN_AGE_HOURS = 48.0
 
-# How many closed PR rows one sweep will page through while filling
-# DEFAULT_MAX_PRS live-head slots. Deleting a ref does not drop the PR from
-# GitHub's updated-desc list, so without a deeper scan the same already-gone
-# rows would occupy the whole window forever.
-DEFAULT_SWEEP_SCAN = 5000
+# A single sweep considers this many closed PRs that still have a head branch,
+# most-recently-updated first. Already-gone heads do not count toward the cap.
+# It used to be 500, and the 875 kept "moved" branches alone filled it, so the
+# oldest closed-unmerged PRs were never reached (59 of them on 2026-10-16).
+# Reading a PR row costs nothing beyond the page it is on; the bound on API
+# spend is DEFAULT_MAX_DELETES and DEFAULT_COMPARE_BUDGET instead.
+DEFAULT_MAX_PRS = 50000
+
+# How many closed PR rows one sweep pages through (100 per request). The repo
+# had ~6,800 closed PRs on 2026-10-16, past the old 5,000, so the oldest were
+# never seen. The sweep reads every closed PR to know which live branches have
+# none; if it stops short, the no-PR rule is skipped for that run.
+DEFAULT_SWEEP_SCAN = 50000
+
+# Each deletion costs ~3 requests (live tip, open-PR refs, the delete) and a
+# GITHUB_TOKEN gets ~1,000 an hour, so one run stops after this many. The
+# 6-hourly schedule works through a backlog over a few runs.
+DEFAULT_MAX_DELETES = 200
+
+# `main...tip` compares one run may issue for tips that are not among main's
+# recent commits. Answers are cached per SHA. A spent budget means "cannot
+# tell", which keeps the branch.
+DEFAULT_COMPARE_BUDGET = 200
+
+# How much of main's history to list (100 commits per request) so that a tip
+# which IS a main commit -- the usual reset-to-main case -- needs no compare.
+DEFAULT_MAIN_HISTORY = 5000
 
 # Pause between deletions. GitHub's secondary rate limit asks for no more than
 # 80 content-generating requests a minute, and the first sweep over this repo's
@@ -141,7 +178,7 @@ def iter_closed_for_sweep(payloads, cap, live_refs=None):
 
 
 def decide(pr, branch_shas, reserved_refs, now, grace_hours=DEFAULT_GRACE_HOURS,
-           protected=DEFAULT_PROTECTED, grace_refs=()):
+           protected=DEFAULT_PROTECTED, grace_refs=(), contained=None):
     """Decide whether `pr`'s head ref should be deleted.
 
     pr            mapping with number, state, merged_at, closed_at, head_ref,
@@ -151,6 +188,9 @@ def decide(pr, branch_shas, reserved_refs, now, grace_hours=DEFAULT_GRACE_HOURS,
     now           aware datetime, the moment the decision is made
     grace_refs    refs that some *other* closed-unmerged PR still holds inside
                   its grace period (branch reuse; see `refs_in_grace`)
+    contained     callable sha -> True (tip is in main) / False / None (cannot
+                  tell); asked only about a branch that moved. None (the
+                  default) keeps every moved branch, as before.
     """
     ref = pr["head_ref"]
     number = pr["number"]
@@ -165,7 +205,8 @@ def decide(pr, branch_shas, reserved_refs, now, grace_hours=DEFAULT_GRACE_HOURS,
         return Decision(False, "PR #%d is still open" % number)
     if ref not in branch_shas:
         return Decision(False, "%s is already gone" % ref)
-    if branch_shas[ref] != pr["head_sha"]:
+    moved = branch_shas[ref] != pr["head_sha"]
+    if moved and not (contained and contained(branch_shas[ref]) is True):
         return Decision(
             False,
             "%s has moved since PR #%d closed (%s != %s)"
@@ -173,6 +214,19 @@ def decide(pr, branch_shas, reserved_refs, now, grace_hours=DEFAULT_GRACE_HOURS,
         )
     if ref in reserved_refs:
         return Decision(False, "%s is the head or base of another open PR" % ref)
+    if moved:
+        # Pushed again after the close, but only to commits `main` already
+        # has (typically main's own squash commit after a reset). The PR's
+        # own head stays reachable from refs/pull/N/head.
+        if ref in grace_refs:
+            return Decision(
+                False, "%s is still inside another PR's grace period" % ref
+            )
+        return Decision(
+            True,
+            "%s: moved past PR #%d, but its tip %s is already in main"
+            % (ref, number, branch_shas[ref][:7]),
+        )
 
     if pr["merged_at"]:
         if ref in grace_refs:
@@ -203,6 +257,78 @@ def decide(pr, branch_shas, reserved_refs, now, grace_hours=DEFAULT_GRACE_HOURS,
     return Decision(
         True, "%s: PR #%d closed unmerged %.1fh ago" % (ref, number, age_hours)
     )
+
+
+def decide_stray(ref, sha, reserved_refs, now, contained, tip_time,
+                 protected=DEFAULT_PROTECTED,
+                 min_age_hours=DEFAULT_STRAY_MIN_AGE_HOURS):
+    """Decide whether a branch that no pull request ever used should go.
+
+    contained  True / False / None for "the tip is an ancestor of main"
+    tip_time   aware datetime of the tip commit, or None if unknown
+    """
+    if is_protected(ref, protected):
+        return Decision(False, "%s is protected" % ref)
+    if ref in reserved_refs:
+        return Decision(False, "%s is the head or base of an open PR" % ref)
+    if contained is None:
+        return Decision(
+            False, "%s: could not tell whether %s is in main" % (ref, sha[:7])
+        )
+    if not contained:
+        return Decision(False, "%s has no PR and commits not in main" % ref)
+    if tip_time is None:
+        return Decision(False, "%s: tip %s has no known date" % (ref, sha[:7]))
+    age_hours = (now - tip_time).total_seconds() / 3600.0
+    if age_hours < min_age_hours:
+        return Decision(
+            False, "%s: no PR, tip in main but only %.1fh old" % (ref, age_hours)
+        )
+    return Decision(
+        True, "%s: no PR, tip %s in main, %.1fh old" % (ref, sha[:7], age_hours)
+    )
+
+
+class MainContainment:
+    """Answers "is this SHA an ancestor of main?" with few requests.
+
+    First against main's recent commit list (one request per 100 commits),
+    which covers the usual case: a branch reset to main and pushed, whose tip
+    IS a main commit. Otherwise one `main...sha` compare per SHA, cached,
+    until the budget is spent; after that the answer is None (cannot tell).
+    """
+
+    def __init__(self, main_commits, compare, budget=DEFAULT_COMPARE_BUDGET):
+        self._known = dict(main_commits)  # sha -> ISO committer date
+        self._compare = compare  # sha -> (ahead_by, ISO date) or None
+        self._budget = budget
+        self._cache = {}
+
+    def check(self, sha):
+        """(contained True/False/None, tip datetime or None)."""
+        if not sha:
+            return None, None
+        if sha in self._known:
+            return True, parse_time(self._known[sha])
+        if sha in self._cache:
+            return self._cache[sha]
+        if self._budget <= 0:
+            return None, None
+        self._budget -= 1
+        try:
+            answer = self._compare(sha)
+        except (urllib.error.URLError, OSError, ValueError, KeyError):
+            answer = None
+        if answer is None:
+            result = (None, None)
+        else:
+            ahead_by, date = answer
+            result = (ahead_by == 0, parse_time(date) if ahead_by == 0 else None)
+        self._cache[sha] = result
+        return result
+
+    def __call__(self, sha):
+        return self.check(sha)[0]
 
 
 def summarise_pr(payload):
@@ -356,6 +482,34 @@ class GitHub:
             cap,
         )
 
+    def main_commits(self, branch, cap=DEFAULT_MAIN_HISTORY):
+        """{sha: committer date} for the newest `cap` commits on `branch`."""
+        return {
+            item["sha"]: ((item.get("commit") or {}).get("committer") or {}).get("date")
+            for item in self._paginate(
+                "/repos/%s/commits" % self.repo, {"sha": branch}, cap
+            )
+        }
+
+    def compare_to(self, base):
+        """A function sha -> (ahead_by, sha's committer date) against `base`."""
+        def compare(sha):
+            payload = self._request(
+                "GET",
+                "/repos/%s/compare/%s...%s"
+                % (self.repo, urllib.parse.quote(base, safe=""), sha),
+                {"per_page": 1},
+                expect_missing=True,
+            )
+            if not payload:
+                return None
+            merge_base = payload.get("merge_base_commit") or {}
+            date = ((merge_base.get("commit") or {}).get("committer") or {}).get("date")
+            # ahead_by == 0 means sha is an ancestor of base, so it is the
+            # merge base and this date is the tip's own.
+            return int(payload.get("ahead_by", -1)), date
+        return compare
+
     def delete_branch(self, ref):
         """Delete a ref. A ref that vanished under us is not an error."""
         path = "/repos/%s/git/refs/heads/%s" % (
@@ -387,8 +541,16 @@ def expand_grace_prs(prs, lookup):
 
 
 def run(github, prs, protected, grace_hours, dry_run, out,
-        delete_delay=DELETE_DELAY_SECONDS, sleep=time.sleep, now=None):
+        delete_delay=DELETE_DELAY_SECONDS, sleep=time.sleep, now=None,
+        containment=None, strays=(), max_deletes=None,
+        stray_min_age_hours=DEFAULT_STRAY_MIN_AGE_HOURS):
     """Apply `decide` to each PR, deleting what it approves. Returns the count.
+
+    containment  a MainContainment (.check(sha), and callable -> True/False/
+                 None); None keeps every moved branch and every stray.
+    strays       refs no pull request has ever used; each goes through
+                 `decide_stray` after the PRs.
+    max_deletes  stop after this many deletions (None: no limit).
 
     `now` is the decision clock. Tests pin it; production leaves it unset so
     each run uses the wall clock. The live tip/reserved recheck uses the same
@@ -409,11 +571,16 @@ def run(github, prs, protected, grace_hours, dry_run, out,
     deleted = 0
     for pr in prs:
         decision = decide(
-            pr, branch_shas, reserved, now, grace_hours, protected, grace_refs
+            pr, branch_shas, reserved, now, grace_hours, protected, grace_refs,
+            containment,
         )
         if not decision.delete:
             print("skip   %s" % decision.reason, file=out)
             continue
+        if max_deletes is not None and deleted >= max_deletes:
+            print("stop   reached --max-deletes %d; the next run continues"
+                  % max_deletes, file=out)
+            return deleted
         if not dry_run:
             if deleted and delete_delay:
                 sleep(delete_delay)
@@ -431,6 +598,7 @@ def run(github, prs, protected, grace_hours, dry_run, out,
                 grace_hours,
                 protected,
                 grace_refs,
+                containment,
             )
             if not decision.delete:
                 print("skip   %s" % decision.reason, file=out)
@@ -448,7 +616,70 @@ def run(github, prs, protected, grace_hours, dry_run, out,
         branch_shas.pop(pr["head_ref"], None)
         deleted += 1
         print("%s %s" % ("would  delete" if dry_run else "delete", decision.reason), file=out)
+
+    for ref in strays:
+        sha = branch_shas.get(ref)
+        if sha is None:
+            continue
+        contained, tip_time = containment.check(sha) if containment else (None, None)
+        decision = decide_stray(ref, sha, reserved, now, contained, tip_time,
+                                protected, stray_min_age_hours)
+        if not decision.delete:
+            print("skip   %s" % decision.reason, file=out)
+            continue
+        if max_deletes is not None and deleted >= max_deletes:
+            print("stop   reached --max-deletes %d; the next run continues"
+                  % max_deletes, file=out)
+            return deleted
+        if not dry_run:
+            if deleted and delete_delay:
+                sleep(delete_delay)
+            # Same live recheck as for PRs: a push or a new PR since the
+            # snapshot must stop the delete.
+            live_sha = github.branch_sha(ref)
+            if live_sha is None:
+                print("skip   %s is already gone" % ref, file=out)
+                continue
+            live_reserved = github.open_pr_refs()
+            if live_sha != sha:
+                contained, tip_time = containment.check(live_sha)
+            decision = decide_stray(ref, live_sha, live_reserved, now, contained,
+                                    tip_time, protected, stray_min_age_hours)
+            if not decision.delete:
+                print("skip   %s" % decision.reason, file=out)
+                continue
+            github.delete_branch(ref)
+        branch_shas.pop(ref, None)
+        deleted += 1
+        print("%s %s" % ("would  delete" if dry_run else "delete", decision.reason), file=out)
     return deleted
+
+
+def stray_refs(branch_shas, pr_head_refs):
+    """Live branches that no pull request (open or closed) has as its head."""
+    return sorted(ref for ref in branch_shas if ref not in pr_head_refs)
+
+
+def sweep_inputs(closed_payloads, live_refs, open_refs, max_prs=DEFAULT_MAX_PRS,
+                 scan_cap=DEFAULT_SWEEP_SCAN):
+    """(prs, strays, complete) for a sweep.
+
+    Every closed PR row is read, not only those with a live head, so the set
+    of refs any PR ever used is complete; the no-PR rule depends on that. If
+    the scan stops at scan_cap the set may be incomplete and strays is empty.
+    """
+    rows = []
+    for payload in closed_payloads:
+        rows.append(summarise_pr(payload))
+        if len(rows) >= scan_cap:
+            break
+    same_repo = [row for row in rows if row["head_repo"] == row["base_repo"]]
+    prs = [row for row in same_repo if row["head_ref"] in live_refs][:max_prs]
+    complete = len(rows) < scan_cap
+    if not complete:
+        return prs, [], False
+    pr_heads = {row["head_ref"] for row in same_repo} | set(open_refs)
+    return prs, stray_refs(live_refs, pr_heads), True
 
 
 def main(argv=None, out=sys.stdout):
@@ -456,7 +687,8 @@ def main(argv=None, out=sys.stdout):
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--pr", type=int, help="consider this one pull request")
     group.add_argument(
-        "--sweep", action="store_true", help="consider recently closed pull requests"
+        "--sweep", action="store_true",
+        help="consider every closed pull request, and branches with no PR",
     )
     parser.add_argument("--dry-run", action="store_true", help="decide, delete nothing")
     parser.add_argument(
@@ -470,6 +702,18 @@ def main(argv=None, out=sys.stdout):
         type=int,
         default=DEFAULT_MAX_PRS,
         help="how many closed PRs with a live head one sweep keeps (default %(default)s)",
+    )
+    parser.add_argument(
+        "--max-deletes",
+        type=int,
+        default=DEFAULT_MAX_DELETES,
+        help="stop after this many deletions in one run (default %(default)s)",
+    )
+    parser.add_argument(
+        "--compare-budget",
+        type=int,
+        default=DEFAULT_COMPARE_BUDGET,
+        help="main...tip compares one run may issue (default %(default)s)",
     )
     parser.add_argument(
         "--protect",
@@ -491,20 +735,33 @@ def main(argv=None, out=sys.stdout):
     default_branch = github.default_branch()
     if default_branch:
         protected.append(default_branch)
+    base = default_branch or "main"
+    containment = MainContainment(
+        github.main_commits(base), github.compare_to(base), args.compare_budget
+    )
 
+    strays = []
     if args.pr:
         prs = [summarise_pr(github.pull_request(args.pr))]
     else:
         live_refs = set(github.branch_shas())
-        prs = [
-            summarise_pr(p)
-            for p in github.closed_pull_requests(args.max_prs, live_refs)
-        ]
+        prs, strays, complete = sweep_inputs(
+            github.closed_pull_requests(DEFAULT_SWEEP_SCAN),
+            live_refs,
+            github.open_pr_refs(),
+            args.max_prs,
+        )
+        if not complete:
+            print("note   closed-PR scan hit %d rows; no-PR branches skipped this run"
+                  % DEFAULT_SWEEP_SCAN, file=out)
 
-    deleted = run(github, prs, protected, args.grace_hours, args.dry_run, out)
+    deleted = run(github, prs, protected, args.grace_hours, args.dry_run, out,
+                  containment=containment, strays=strays,
+                  max_deletes=args.max_deletes)
     print(
-        "%s %d branch(es) across %d pull request(s)"
-        % ("Would delete" if args.dry_run else "Deleted", deleted, len(prs)),
+        "%s %d branch(es) across %d pull request(s) and %d no-PR branch(es)"
+        % ("Would delete" if args.dry_run else "Deleted", deleted, len(prs),
+           len(strays)),
         file=out,
     )
     return 0

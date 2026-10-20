@@ -4,6 +4,8 @@ A free browser tool for shaved ice, lemonade and frozen-treat stands: **enter yo
 fee, and see the margin per cup, the cups an event must sell to break even, profit on a hot, normal and rainy day, and the
 most booth fee the event can bear.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shaved-ice-stand-profit-calculator/
+
 After using this, you can now **say yes or no to an event with a number behind it**, which used to be a guess about the weather.
 
 ## Use

@@ -6,6 +6,8 @@ the exact set and order of signings with the highest profit for the day, the dri
 signing it turns down would need to pay, and what first-come and highest-fee-first booking leave behind. Browser
 page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mobile-signing-agent-day-picker/
+
 ```
 node cli.mjs plan signings.csv --start 08:00 --end 17:00 --hourly 35 --per-mile 0.70 --json
 cat signings.csv | node cli.mjs plan - --speed 25

@@ -1,0 +1,15 @@
+priced runs 366   dates 2026-10-14 to 2026-10-18   total spend $344.42
+status: merged PR on main 273, record names no PR 92, PR not found on main 1
+merged share 75% (Wilson 70% to 79%)
+cost per merged run $1.26 (bootstrap 1.08 to 1.49); cost per priced run $0.94
+spend on runs with no merged PR on record: 19%
+
+track     runs merged no_pr  merged%(Wilson)    $/merged (bootstrap)    $/run  spend_unmerged%
+  research  167    157      9   94% (89-97)   1.03 (0.90 to 1.20)          0.96     10%
+  ventures   83     61     22   73% (63-82)   1.10 (0.91 to 1.36)          0.81     21%
+  process    51     32     19   63% (49-75)   2.52 (1.38 to 4.16)          1.58     21%
+  redteam    34      0     34    0% (0-10)   n/a                          0.45    100%
+  explore    20     16      4   80% (58-92)   0.94 (0.74 to 1.24)          0.75     15%
+  review     11      7      4   64% (35-85)   0.76 (0.56 to 1.28)          0.48     31%
+
+median cost, merged runs $0.74 (n=273); runs naming no PR $0.47 (n=92)

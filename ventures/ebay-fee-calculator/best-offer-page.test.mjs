@@ -78,28 +78,28 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareBestOffer({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
     targetMargin: 20,
   });
   assert.equal(comparison.winner, 'offer');
-  assert.ok(Math.abs(comparison.listing.profit - 21.605) < 1e-6);
-  assert.ok(Math.abs(comparison.offer.profit - 16.4) < 1e-6);
-  assert.ok(Math.abs(comparison.expectedWaitProfit - 10.8025) < 1e-6);
-  assert.ok(Math.abs(comparison.extraKeptOnAccept - 5.5975) < 1e-6);
+  assert.ok(Math.abs(comparison.listing.profit - 21.344) < 1e-6);
+  assert.ok(Math.abs(comparison.offer.profit - 16.16) < 1e-6);
+  assert.ok(Math.abs(comparison.expectedWaitProfit - 10.672) < 1e-6);
+  assert.ok(Math.abs(comparison.extraKeptOnAccept - 5.488) < 1e-6);
   assert.match(html, /id="incomingBestOffer"[^>]*value="34"/);
   assert.match(html, /id="incomingWaitChancePct"[^>]*value="50"/);
-  assert.match(html, /\$21\.61/);
-  assert.match(html, /\$16\.40/);
-  assert.match(html, /\$10\.80/);
-  assert.match(html, /\$5\.60/);
-  assert.match(html, /\$5\.21/);
-  assert.match(html, /75\.9%/);
-  assert.match(html, /\$21\.42/);
-  assert.match(html, /\$0\.08/);
+  assert.match(html, /\$21\.34/);
+  assert.match(html, /\$16\.16/);
+  assert.match(html, /\$10\.67/);
+  assert.match(html, /\$5\.49/);
+  assert.match(html, /\$5\.18/);
+  assert.match(html, /75\.7%/);
+  assert.match(html, /\$21\.71/);
+  assert.match(html, /\$0\.26/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

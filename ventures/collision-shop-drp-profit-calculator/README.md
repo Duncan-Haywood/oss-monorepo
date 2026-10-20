@@ -8,6 +8,8 @@ your month with and without the program, the new volume you need to break even, 
 one program job gives up, what an hour earns each way, and the lowest labor rate
 worth accepting. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/collision-shop-drp-profit-calculator/
+
 After using this, you can **put a number on the program before you sign it** and
 hold a floor rate and a written volume promise in the negotiation.
 

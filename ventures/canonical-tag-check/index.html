@@ -115,7 +115,7 @@
 
 <div class="card">
   <h2>2. Paste the JSON output here</h2>
-  <textarea id="payload" spellcheck="false" placeholder='{"target": "https://example.com/...", "page": {...}, "canonicalTarget": null}'></textarea>
+  <textarea aria-label="Pasted JSON output" id="payload" spellcheck="false" placeholder='{"target": "https://example.com/...", "page": {...}, "canonicalTarget": null}'></textarea>
   <p>
     <button type="button" class="primary" id="check">Check</button>
     <button type="button" id="load-example">Load worked example (conflicting canonicals)</button>
@@ -304,6 +304,7 @@
   <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
   — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
   optional and never changes what the tool does.</p>
+  <p>For the whole page rather than one tag, run the <a href="../page-seo-audit/">Page SEO Audit</a>: title, description, headings, structured data and more in one scored pass.</p>
   <p>Also worth a pass: <a href="../structured-data-drift-check/">Structured Data drift checker</a>
   covers a different "does what search engines read still match the page" question — whether a
   page's own JSON-LD still matches its visible text, rather than which URL the page claims is

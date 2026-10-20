@@ -1,0 +1,1 @@
+Module `absdiff8`: ports `input signed [7:0] a, input signed [7:0] b, output [8:0] y`. Combinational. `y` is the absolute difference |a - b| of the two signed inputs, as an unsigned 9-bit value (it can reach 255).

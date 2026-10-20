@@ -4,6 +4,8 @@ A free browser tool for freelancers, agencies, trades and any small business tha
 terms: **load an invoice export and see who owes you, how late it is, and who always pays
 slow.** The file is read in the browser; nothing is uploaded and no accounting login is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/invoice-aging-late-payer-analyzer/
+
 After using this, you can now **see an aging report, days sales outstanding, how long each
 client really takes to pay, the habitual late payers, a chase list ranked by balance times days
 late, what waiting past the due date has cost, and how much of the open balance the clients'

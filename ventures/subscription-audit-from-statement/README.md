@@ -3,6 +3,8 @@
 A free browser tool: **drop in a CSV export from your bank or credit card and see every recurring
 charge.** The file is read in the browser; nothing is uploaded and no bank connection is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/subscription-audit-from-statement/
+
 After using this, you can now **see each subscription's monthly and yearly cost, which ones rose in
 price and when, which were charged twice, which yearly renewals are coming, which seem to have
 stopped, and where you pay for several services of one kind**, and tick the ones you would cancel to
@@ -18,6 +20,9 @@ a subscription-manager app.
 **Column names are matched by alias and unverified against real bank exports.** Comma, semicolon and
 tab files, UTF-16, `$` signs, parentheses and thousands separators are read.
 
+- Renewal reminders: "Download renewal reminders (.ics)" writes one all-day calendar event per active monthly, quarterly, six-monthly or yearly charge on its expected next date, each with a reminder three days before so there is time to cancel (`renewalsIcs` in `calc.mjs`). The date is the last charge plus one cycle, a guess from the statement.
+- Month-by-month table: how much recurring money was charged in each calendar month of the file, ended subscriptions included, with the first or last month marked partial when the export covers only part of it (`monthlyTimeline` in `calc.mjs`). It shows whether the bill is creeping up.
+
 ## Model
 
 Charges are grouped by a cleaned merchant name. A group is recurring when at least 60% of the gaps
@@ -26,6 +31,10 @@ quarterly must hold a steady price. Cost is the median of the last three charges
 year. A price rise is a charge 2% and 25 cents above the one before. A charge with no follow-up for
 one and a half cycles is "ended" and left out of the totals. Not modelled: unbilled free trials,
 app-store or payment-app charges that hide the merchant, shared plans, taxes, currency, refunds.
+
+## Service directory
+
+`services.mjs` recognises about 100 well-known services (streaming, music, storage, news, fitness, software, VPN, shopping memberships, learning). Variants of one service merge into one line and show its own site. Recurring charges billed through Apple, Google Play, Amazon digital or PayPal hide the app's name, so they are flagged with where to look on your account. The directory lists only each service's domain; a recognised name is a guess from bank text, not proof of the plan.
 
 ## Run
 

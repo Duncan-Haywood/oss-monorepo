@@ -5,6 +5,8 @@ their words, what you deliver, a timeline with real dates, up to three priced
 options with deposits worked out, and an expiry date, ready to print, save as
 PDF or paste into an email.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freelance-proposal-maker/
+
 Free, no account, no watermark, works offline. Everything runs in your browser;
 your answers are stored in `localStorage` on your device and never uploaded.
 

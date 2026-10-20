@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-wakeburst"
+version = "0.1.0"
+description = "Day-to-day spread (Fano factor) of false-wake counts of an always-on trigger on autocorrelated scores, with noise-scale drift and lockout"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

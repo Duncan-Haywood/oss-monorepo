@@ -4,6 +4,8 @@ A free browser tool for wineries and cideries: **enter the cases, bottles and bu
 and see the federal excise tax before and after the Craft Beverage Modernization Act credit, the tax built into each bottle, and
 what growth past 30,000 and 130,000 wine gallons does to the bill.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/winery-excise-tax-calculator/
+
 After using this, you can now **price a bottle knowing the federal tax inside it and see the cost of crossing the credit tiers
 before you plan the expansion**, which used to be a tier calculation redone by hand each time.
 

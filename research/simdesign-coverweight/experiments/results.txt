@@ -1,0 +1,96 @@
+## family 'log', geometry only (n=20000, seeds 0..4; mean over seeds)
+process alone, count-weighted vs mass-weighted coverage:
+  fdm    count 0.893  mass 0.971 [0.971, 0.971]
+  cnc    count 0.202  mass 0.298 [0.292, 0.307]
+  laser  count 0.280  mass 0.220 [0.214, 0.227]
+  cast   count 0.386  mass 0.580 [0.574, 0.590]
+shop coverage (fdm always present):
+  fdm+-                count 0.893  mass 0.971
+  fdm+cnc              count 0.893  mass 0.971
+  fdm+laser            count 0.893  mass 0.971
+  fdm+cast             count 0.893  mass 0.971
+  fdm+cnc+laser        count 0.893  mass 0.971
+  fdm+cnc+cast         count 0.893  mass 0.971
+  fdm+laser+cast       count 0.893  mass 0.971
+  fdm+cnc+laser+cast   count 0.893  mass 0.971
+machine choice by budget, seed 0 (assumed prices cnc 800, laser 600, cast 300):
+  budget   300: count: exh [] 0.893 greedy [] 0.893 | mass: exh [] 0.971 greedy [] 0.971
+  budget   600: count: exh [] 0.893 greedy [] 0.893 | mass: exh [] 0.971 greedy [] 0.971
+  budget   800: count: exh [] 0.893 greedy [] 0.893 | mass: exh [] 0.971 greedy [] 0.971
+  budget   900: count: exh [] 0.893 greedy [] 0.893 | mass: exh [] 0.971 greedy [] 0.971
+  budget  1100: count: exh [] 0.893 greedy [] 0.893 | mass: exh [] 0.971 greedy [] 0.971
+  budget  1400: count: exh [] 0.893 greedy [] 0.893 | mass: exh [] 0.971 greedy [] 0.971
+  budget  1700: count: exh [] 0.893 greedy [] 0.893 | mass: exh [] 0.971 greedy [] 0.971
+
+## family 'log', with tip load F 1-1000 N (n=20000, seeds 0..4; mean over seeds)
+process alone, count-weighted vs mass-weighted coverage:
+  fdm    count 0.300  mass 0.583 [0.574, 0.591]
+  cnc    count 0.160  mass 0.258 [0.254, 0.266]
+  laser  count 0.178  mass 0.178 [0.173, 0.183]
+  cast   count 0.218  mass 0.461 [0.450, 0.470]
+shop coverage (fdm always present):
+  fdm+-                count 0.300  mass 0.583
+  fdm+cnc              count 0.347  mass 0.649
+  fdm+laser            count 0.368  mass 0.635
+  fdm+cast             count 0.355  mass 0.654
+  fdm+cnc+laser        count 0.381  mass 0.663
+  fdm+cnc+cast         count 0.382  mass 0.689
+  fdm+laser+cast       count 0.403  mass 0.690
+  fdm+cnc+laser+cast   count 0.409  mass 0.702
+machine choice by budget, seed 0 (assumed prices cnc 800, laser 600, cast 300):
+  budget   300: count: exh ['casting setup'] 0.360 greedy ['casting setup'] 0.360 | mass: exh ['casting setup'] 0.661 greedy ['casting setup'] 0.661
+  budget   600: count: exh ['laser cutter'] 0.374 greedy ['casting setup'] 0.360 | mass: exh ['casting setup'] 0.661 greedy ['casting setup'] 0.661
+  budget   800: count: exh ['laser cutter'] 0.374 greedy ['casting setup'] 0.360 | mass: exh ['casting setup'] 0.661 greedy ['casting setup'] 0.661
+  budget   900: count: exh ['casting setup', 'laser cutter'] 0.409 greedy ['casting setup', 'laser cutter'] 0.409 | mass: exh ['casting setup', 'laser cutter'] 0.696 greedy ['casting setup', 'laser cutter'] 0.696
+  budget  1100: count: exh ['casting setup', 'laser cutter'] 0.409 greedy ['casting setup', 'laser cutter'] 0.409 | mass: exh ['casting setup', 'laser cutter'] 0.696 greedy ['casting setup', 'laser cutter'] 0.696
+  budget  1400: count: exh ['casting setup', 'laser cutter'] 0.409 greedy ['casting setup', 'laser cutter'] 0.409 | mass: exh ['casting setup', 'laser cutter'] 0.696 greedy ['casting setup', 'laser cutter'] 0.696
+  budget  1700: count: exh ['casting setup', 'cnc router', 'laser cutter'] 0.415 greedy ['casting setup', 'cnc router', 'laser cutter'] 0.415 | mass: exh ['casting setup', 'cnc router', 'laser cutter'] 0.708 greedy ['casting setup', 'cnc router', 'laser cutter'] 0.708
+
+## family 'small', with tip load F 1-1000 N (n=20000, seeds 0..4; mean over seeds)
+process alone, count-weighted vs mass-weighted coverage:
+  fdm    count 0.050  mass 0.093 [0.089, 0.095]
+  cnc    count 0.013  mass 0.032 [0.031, 0.034]
+  laser  count 0.115  mass 0.175 [0.172, 0.178]
+  cast   count 0.098  mass 0.159 [0.156, 0.163]
+shop coverage (fdm always present):
+  fdm+-                count 0.050  mass 0.093
+  fdm+cnc              count 0.056  mass 0.108
+  fdm+laser            count 0.134  mass 0.206
+  fdm+cast             count 0.115  mass 0.184
+  fdm+cnc+laser        count 0.134  mass 0.206
+  fdm+cnc+cast         count 0.117  mass 0.190
+  fdm+laser+cast       count 0.165  mass 0.248
+  fdm+cnc+laser+cast   count 0.165  mass 0.248
+machine choice by budget, seed 0 (assumed prices cnc 800, laser 600, cast 300):
+  budget   300: count: exh ['casting setup'] 0.114 greedy ['casting setup'] 0.114 | mass: exh ['casting setup'] 0.182 greedy ['casting setup'] 0.182
+  budget   600: count: exh ['laser cutter'] 0.135 greedy ['casting setup'] 0.114 | mass: exh ['laser cutter'] 0.207 greedy ['casting setup'] 0.182
+  budget   800: count: exh ['laser cutter'] 0.135 greedy ['casting setup'] 0.114 | mass: exh ['laser cutter'] 0.207 greedy ['casting setup'] 0.182
+  budget   900: count: exh ['casting setup', 'laser cutter'] 0.166 greedy ['casting setup', 'laser cutter'] 0.166 | mass: exh ['casting setup', 'laser cutter'] 0.249 greedy ['casting setup', 'laser cutter'] 0.249
+  budget  1100: count: exh ['casting setup', 'laser cutter'] 0.166 greedy ['casting setup', 'laser cutter'] 0.166 | mass: exh ['casting setup', 'laser cutter'] 0.249 greedy ['casting setup', 'laser cutter'] 0.249
+  budget  1400: count: exh ['casting setup', 'laser cutter'] 0.166 greedy ['casting setup', 'laser cutter'] 0.166 | mass: exh ['casting setup', 'laser cutter'] 0.249 greedy ['casting setup', 'laser cutter'] 0.249
+  budget  1700: count: exh ['casting setup', 'laser cutter'] 0.166 greedy ['casting setup', 'laser cutter'] 0.166 | mass: exh ['casting setup', 'laser cutter'] 0.249 greedy ['casting setup', 'laser cutter'] 0.249
+
+## family 'large', with tip load F 1-1000 N (n=20000, seeds 0..4; mean over seeds)
+process alone, count-weighted vs mass-weighted coverage:
+  fdm    count 0.660  mass 0.730 [0.725, 0.737]
+  cnc    count 0.408  mass 0.325 [0.317, 0.330]
+  laser  count 0.280  mass 0.181 [0.177, 0.184]
+  cast   count 0.581  mass 0.643 [0.639, 0.648]
+shop coverage (fdm always present):
+  fdm+-                count 0.660  mass 0.730
+  fdm+cnc              count 0.769  mass 0.809
+  fdm+laser            count 0.736  mass 0.776
+  fdm+cast             count 0.752  mass 0.820
+  fdm+cnc+laser        count 0.784  mass 0.819
+  fdm+cnc+cast         count 0.803  mass 0.856
+  fdm+laser+cast       count 0.797  mass 0.848
+  fdm+cnc+laser+cast   count 0.818  mass 0.865
+machine choice by budget, seed 0 (assumed prices cnc 800, laser 600, cast 300):
+  budget   300: count: exh ['casting setup'] 0.760 greedy ['casting setup'] 0.760 | mass: exh ['casting setup'] 0.826 greedy ['casting setup'] 0.826
+  budget   600: count: exh ['casting setup'] 0.760 greedy ['casting setup'] 0.760 | mass: exh ['casting setup'] 0.826 greedy ['casting setup'] 0.826
+  budget   800: count: exh ['cnc router'] 0.778 greedy ['casting setup'] 0.760 | mass: exh ['casting setup'] 0.826 greedy ['casting setup'] 0.826
+  budget   900: count: exh ['casting setup', 'laser cutter'] 0.805 greedy ['casting setup', 'laser cutter'] 0.805 | mass: exh ['casting setup', 'laser cutter'] 0.855 greedy ['casting setup', 'laser cutter'] 0.855
+  budget  1100: count: exh ['casting setup', 'cnc router'] 0.811 greedy ['casting setup', 'laser cutter'] 0.805 | mass: exh ['casting setup', 'cnc router'] 0.863 greedy ['casting setup', 'laser cutter'] 0.855
+  budget  1400: count: exh ['casting setup', 'cnc router'] 0.811 greedy ['casting setup', 'laser cutter'] 0.805 | mass: exh ['casting setup', 'cnc router'] 0.863 greedy ['casting setup', 'laser cutter'] 0.855
+  budget  1700: count: exh ['casting setup', 'cnc router', 'laser cutter'] 0.826 greedy ['casting setup', 'cnc router', 'laser cutter'] 0.826 | mass: exh ['casting setup', 'cnc router', 'laser cutter'] 0.872 greedy ['casting setup', 'cnc router', 'laser cutter'] 0.872
+

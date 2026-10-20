@@ -5,6 +5,8 @@ roles and the vacation requests you have, set the minimum on duty per role, and 
 never drops a role below its minimum, with the reason and the nearest alternative dates for every request it cannot
 approve**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/time-off-request-planner/
+
 After using this, you can now **settle a summer of competing vacation requests in one pass instead of one email at a time,
 see what first come, first served would have cost you, and tell each person who is turned down which day clashes and which
 dates would work**.

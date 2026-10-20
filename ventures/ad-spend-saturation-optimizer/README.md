@@ -6,6 +6,8 @@ does not.** It fits a diminishing-returns curve to each channel's own history, r
 spend, finds the split of the same total budget that earns most, and back-tests itself on your last weeks. Nothing
 is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ad-spend-saturation-optimizer/
+
 After using this, you can now **move budget from saturated channels to ones with headroom, see whether a channel's
 next dollar loses money at your margin, and know how much to trust the advice before you act on it**.
 
@@ -15,16 +17,26 @@ One row per date and channel: a date, a channel (or source, platform, campaign),
 credit to that channel. Columns are found by header name; a file without a channel column is treated as one channel.
 Daily rows are summed into Monday weeks. Amounts in one currency.
 
+## In a terminal
+
+`node cli.mjs spend.csv` runs the same analysis from a file or `-` (stdin), with no dependencies and no network: `--margin 45`, `--skip "2025-11-24..2025-12-07"`, `--budget 12000` (best split of another weekly total), `--csv`, `--json`, `--example`, `--snapshot-out jan.json` (save the answers only, no rows) and `--since jan.json` (next month: how much of the suggested move was made and how each channel's marginal return changed). The web page has the same Save snapshot / Compare buttons. Tests in `cli.test.mjs`.
+
 ## Model
 
 - Per channel, two response curves are fitted by least squares (Nelder-Mead in log space, multiple starts):
   saturating exponential `a (1 - exp(-s/k))` and S-shaped Hill `a s^h / (k^h + s^h)` with `h` in [0.5, 3]. The Hill
   curve is chosen only when it beats the exponential by more than 2 on small-sample AIC.
+- Carry-over (adstock): for channels with 12+ weeks, a geometric carry-over rate of 0, 0.2, 0.4, 0.6 or 0.8 is
+  tried (`e = (1 - r) spend + r e_previous`, so steady spend is unchanged) and kept only if it beats no carry-over
+  by more than 2 on small-sample AIC. The curve is then fitted on the carried spend and read at steady weekly spend;
+  weeks missing from the file count as zero spend. The back-test re-picks the rate on its training weeks only.
+- Promotion weeks: list date ranges in "Weeks to leave out" (`2025-11-24..2025-12-07; 2025-12-26`). Those weeks stay in the carry-over but are left out of the curve fit, the resamples, the "today's spend" average and the back-test score, so one Black Friday does not pull a channel's ceiling up (`parseSkipWeeks`, `kept` in `calc.mjs`). A channel left with under 8 weeks says so.
 - Marginal return at today's spend (mean of the last 8 weeks) is the curve's slope there.
 - Allocation: exact dynamic programme over the channels on a 400-step budget grid, so S-shaped curves are handled
   properly. Each channel is limited to 0.25x to 2x its current spend and never beyond 1.25x its highest week.
 - Uncertainty: 100 seeded resamples of the channel's own weeks give a 10th to 90th percentile range on marginal
   return and on the gain from the recommended split.
+- Budget what-if: `budgetPlan` / `budgetLadder` read the best split of a different weekly total (-30% to +50%, or one you type) off the same frontier, with revenue, the marginal return of the last dollar, contribution, and the gain over cutting or raising every channel pro rata.
 - Profit view: contribution = margin x revenue - spend; the tool reports where it peaks along the fitted frontier.
 - Back-test: refit on the weeks before the last 4 to 12, predict revenue in those weeks from the spend that really
   happened, compare with a flat-ROAS line.
@@ -32,7 +44,7 @@ Daily rows are summed into Monday weeks. Amounts in one currency.
   optimum, a brute-force check on S-shaped curves, and a check that the recommended split beats the current one
   under the true curves.
 
-Not modelled: carry-over (adstock) between weeks, seasonality, promotions and price changes, overlap or halo
+Not modelled: carry-over longer or shaped differently from a single geometric rate, seasonality and price changes (promotions only if you list the weeks), overlap or halo
 between channels, attribution error (revenue is whatever the file credits to each channel, often platform-reported
 and overstated), incrementality, and any channel with under 8 weeks or nearly constant spend (left where it is).
 The resample range covers noise in the fit, not a wrong curve shape. Unverified against a published marketing
@@ -41,6 +53,17 @@ dataset.
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+## Host your own copy
+
+Your data stays in the browser, but you can serve the page from an address you control. It is a static site: the
+server only hands out files and never sees what you load.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
 
 ## Disclaimer
 

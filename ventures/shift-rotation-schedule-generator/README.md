@@ -5,6 +5,8 @@ and 24/48 / 48/96** patterns. See the real hours per week, the worst 7-day stret
 full weekends off a year; find your crew and cycle day from a few dates you remember; export an
 `.ics` calendar for Google, Apple or Outlook.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shift-rotation-schedule-generator/
+
 [`index.html`](index.html) runs in a browser; nothing is uploaded and the page makes no network
 calls. [`rotating-shift-schedules-compared.html`](rotating-shift-schedules-compared.html)
 compares the patterns.

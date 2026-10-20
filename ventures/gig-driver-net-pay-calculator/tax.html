@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Standard Mileage Rate vs Actual Expenses for Gig Drivers: 2026 Tax Calculator</title>
+  <meta name="description" content="Free calculator for DoorDash, Uber, Lyft and Instacart drivers: compare the 2026 IRS standard mileage rate with actual car expenses, and see the self-employment tax and quarterly payment each leaves you.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="tax.html">
+  <meta property="og:title" content="Standard mileage vs actual expenses for gig drivers">
+  <meta property="og:description" content="Which car deduction leaves less tax, and what to pay each quarter. Nothing leaves your browser.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I use the standard mileage rate or actual expenses as a DoorDash or Uber driver?", "acceptedAnswer": {"@type": "Answer", "text": "Whichever deducts more, as long as you are allowed to use it. The standard mileage rate deducts every business mile at one national figure (72.5 cents in 2026) and replaces gas, repairs, insurance and depreciation. Actual expenses deduct what the car really cost, times its business-use share. On this page's starting figures (a $40,000 year, 25,000 business miles, a 28 MPG car) the standard rate leaves about $5,379 of self-employment and income tax and actual expenses about $7,517, because 25,000 miles at 72.5 cents is far more than that car cost to run. A thirsty or expensive-to-own car can flip the answer. Ask a tax preparer before the first year you deduct a car: rules limit switching between the methods."}}, {"@type": "Question", "name": "How is self-employment tax calculated for gig drivers?", "acceptedAnswer": {"@type": "Answer", "text": "Self-employment tax is 15.3% (12.4% Social Security plus 2.9% Medicare) of 92.35% of your net profit, with the Social Security part capped at a yearly wage base ($184,500 for 2026, reduced by any W-2 wages). Net profit is your 1099 income minus your deductions, so a bigger car deduction lowers this tax as well as income tax. Half of it is then deductible when working out income tax. Profit under $400 owes none."}}, {"@type": "Question", "name": "How much should I pay in quarterly estimated taxes?", "acceptedAnswer": {"@type": "Answer", "text": "Quarterly payments roughly equal a quarter of the year's self-employment tax plus income tax. This page estimates both from your figures, using the marginal income-tax rate you type, and shows a quarterly amount for each deduction method. It is an estimate for planning, not a payment instruction: your filing status, other income, credits and state tax are not modelled."}}, {"@type": "Question", "name": "Why does the page let me edit the mileage rate?", "acceptedAnswer": {"@type": "Answer", "text": "The IRS sets the standard mileage rate each year and the Social Security wage base changes too, so both are boxes with the 2026 figures filled in. If you are working on a different year, type that year's figures."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 960px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.5; }
+    a { color: #1a5a8a; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1; letter-spacing: -.04em; margin: 0 0 12px; }
+    section { background: #fff; border: 1px solid #c4cedb; border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 18px; align-items: start; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8e9bab; border-radius: 7px; padding: 10px; font: inherit; }
+    .result { position: sticky; top: 15px; background: #12233a; color: #f2f6fa; border-color: #12233a; }
+    .result a { color: #9fd0ff; }
+    .hero { font-size: 2.6rem; font-weight: 750; letter-spacing: -.04em; margin: 6px 0; }
+    .result a { color: #9fd0ff; }
+    .verdict { padding: 12px; border-radius: 9px; font-weight: 650; background: #1d5a3a; }
+    .verdict.bad { background: #7d2317; }
+    .verdict.neutral { background: #ffffff1a; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 16px 0 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5967; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Gig driver net pay calculator</a></p>
+  <h1>Standard mileage or actual expenses?</h1>
+  <p>At tax time a gig driver chooses how to deduct the car, and the choice moves both income tax and self-employment tax. Type your year and see what each method leaves you owing, the quarterly payment that implies, and the per-mile cost at which the two would tie. Rates are editable and start at the published 2026 figures.</p>
+  <main class="layout">
+    <section>
+      <h2>Your year</h2>
+      <div class="fields">
+          <label>Year's 1099 income, all apps incl. tips ($) <input id="grossIncome" type="number" min="0" step="100" value="40000"></label>
+          <label>Business miles for the year <input id="businessMiles" type="number" min="0" step="100" value="25000"></label>
+          <label>All miles the car drove (optional) <input id="totalMiles" type="number" min="0" step="100" value=""></label>
+          <label>Miles per gallon <input id="mpg" type="number" min="0" step="0.1" value="28"></label>
+          <label>Gas price ($/gal) <input id="gasPrice" type="number" min="0" step="0.01" value="3.49"></label>
+          <label>Upkeep per mile ($) <input id="maintenancePerMile" type="number" min="0" step="0.01" value="0.07"></label>
+          <label>Insurance for the year ($) <input id="insuranceAnnual" type="number" min="0" step="50" value="1800"></label>
+          <label>Car depreciation or lease for the year ($) <input id="depreciationAnnual" type="number" min="0" step="100" value="3000"></label>
+          <label>Parking and tolls ($) <input id="parkingTolls" type="number" min="0" step="10" value="0"></label>
+          <label>Phone share, hot bag, supplies ($) <input id="otherDeductible" type="number" min="0" step="10" value="600"></label>
+          <label>Standard mileage rate ($/mi) <input id="standardRate" type="number" min="0" step="0.005" value="0.725"></label>
+          <label>Your marginal income-tax rate (%, 0 to skip) <input id="incomeTaxRatePercent" type="number" min="0" step="1" value="12"></label>
+          <label>W-2 wages from another job ($) <input id="otherWages" type="number" min="0" step="100" value="0"></label>
+          <label>Social Security wage base ($) <input id="socialSecurityWageBase" type="number" min="0" step="100" value="184500"></label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Less tax with</h2>
+      <div id="hero" class="hero">&mdash;</div>
+      <div id="verdict" class="verdict neutral">Enter your year.</div>
+      <dl>
+        <dt>Car deduction, standard rate</dt><dd id="stdDed"></dd>
+        <dt>Car deduction, actual expenses</dt><dd id="actDed"></dd>
+        <dt>Net profit, standard / actual</dt><dd id="profit"></dd>
+        <dt>Self-employment tax, standard / actual</dt><dd id="se"></dd>
+        <dt>Total tax, standard rate</dt><dd id="stdTax"></dd>
+        <dt>Total tax, actual expenses</dt><dd id="actTax"></dd>
+        <dt>Quarterly payment, standard / actual</dt><dd id="qtr"></dd>
+        <dt>Your car's actual cost per business mile</dt><dd id="breakEven"></dd>
+      </dl>
+    </section>
+  </main>
+  <p>Back to a single shift: <a href="./">session net pay</a>, <a href="offer.html">is this order worth it?</a>, or <a href="how-much-should-i-set-aside-for-gig-driving-taxes.html">how much to set aside</a>. Income tax is applied only through the marginal rate you type; state tax, credits and the 0.9% additional Medicare tax are not modelled. A mileage log is what supports either method.</p>
+  <h2>Common questions</h2>
+  <h3>Should I use the standard mileage rate or actual expenses as a DoorDash or Uber driver?</h3>
+  <p>Whichever deducts more, as long as you are allowed to use it. The standard mileage rate deducts every business mile at one national figure (72.5 cents in 2026) and replaces gas, repairs, insurance and depreciation. Actual expenses deduct what the car really cost, times its business-use share. On this page's starting figures (a $40,000 year, 25,000 business miles, a 28 MPG car) the standard rate leaves about $5,379 of self-employment and income tax and actual expenses about $7,517, because 25,000 miles at 72.5 cents is far more than that car cost to run. A thirsty or expensive-to-own car can flip the answer. Ask a tax preparer before the first year you deduct a car: rules limit switching between the methods.</p>
+  <h3>How is self-employment tax calculated for gig drivers?</h3>
+  <p>Self-employment tax is 15.3% (12.4% Social Security plus 2.9% Medicare) of 92.35% of your net profit, with the Social Security part capped at a yearly wage base ($184,500 for 2026, reduced by any W-2 wages). Net profit is your 1099 income minus your deductions, so a bigger car deduction lowers this tax as well as income tax. Half of it is then deductible when working out income tax. Profit under $400 owes none.</p>
+  <h3>How much should I pay in quarterly estimated taxes?</h3>
+  <p>Quarterly payments roughly equal a quarter of the year's self-employment tax plus income tax. This page estimates both from your figures, using the marginal income-tax rate you type, and shows a quarterly amount for each deduction method. It is an estimate for planning, not a payment instruction: your filing status, other income, credits and state tax are not modelled.</p>
+  <h3>Why does the page let me edit the mileage rate?</h3>
+  <p>The IRS sets the standard mileage rate each year and the Social Security wage base changes too, so both are boxes with the 2026 figures filled in. If you are working on a different year, type that year's figures.</p>
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or legal advice, and it does not replace a qualified professional. It is arithmetic on the figures you type, not a claim about what any platform pays or what you should accept. <strong>You are responsible for checking its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Income, miles and every other figure stay on this device. Usage counts are anonymous local tallies of which feature was used, never include your numbers, and are off with Do Not Track / Global Privacy Control or the box above.</p>
+    <p>Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareDeductions } from './tax.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    const IDS = ["grossIncome", "businessMiles", "totalMiles", "mpg", "gasPrice", "maintenancePerMile", "insuranceAnnual", "depreciationAnnual", "parkingTolls", "otherDeductible", "standardRate", "incomeTaxRatePercent", "otherWages", "socialSecurityWageBase"];
+    const el = id => document.getElementById(id);
+    const usd = v => (v < 0 ? '-' : '') + '$' + Math.round(Math.abs(v)).toLocaleString('en-US');
+    let counted = false;
+    function update() {
+      let r;
+      try { r = compareDeductions(Object.fromEntries(IDS.map(id => [id, el(id).value]))); }
+      catch (e) { el('hero').textContent = '\u2014'; el('verdict').className = 'verdict bad'; el('verdict').textContent = e.message; return; }
+      const name = { standard: 'Standard rate', actual: 'Actual expenses', tie: 'Either' }[r.better];
+      el('hero').textContent = name;
+      el('verdict').className = 'verdict' + (r.better === 'tie' ? ' neutral' : '');
+      el('verdict').textContent = r.better === 'tie' ? 'Both methods leave the same tax.' : `Saves about ${usd(r.taxDifference)} a year in tax.`;
+      el('stdDed').textContent = usd(r.standard.deduction);
+      el('actDed').textContent = usd(r.actual.deduction);
+      el('profit').textContent = `${usd(r.standard.netProfit)} / ${usd(r.actual.netProfit)}`;
+      el('se').textContent = `${usd(r.standard.se.total)} / ${usd(r.actual.se.total)}`;
+      el('stdTax').textContent = usd(r.standard.totalTax);
+      el('actTax').textContent = usd(r.actual.totalTax);
+      el('qtr').textContent = `${usd(r.standard.quarterly)} / ${usd(r.actual.quarterly)}`;
+      el('breakEven').textContent = r.breakEvenPerMile === null ? 'n/a' : '$' + r.breakEvenPerMile.toFixed(3) + '/mi';
+      if (!counted) { counted = true; try { recordUsage(localStorage, el('usageOptOut').checked, 'tax_compared'); } catch {} }
+    }
+    IDS.forEach(id => el(id).addEventListener('input', update));
+    try { el('usageOptOut').checked = readOptOut(localStorage); } catch {}
+    el('usageOptOut').addEventListener('change', () => { try { writeOptOut(localStorage, el('usageOptOut').checked); } catch {} });
+    update();
+  </script>
+</body>
+</html>

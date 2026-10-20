@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Churn Buster and Churnkey Alternative: Self-Hosted Dunning | Dunning Engine</title>
+  <meta name="description" content="A free, self-hosted alternative to paid Stripe failed-payment recovery services: your schedule, your emails, your server, no share of recovered revenue. What you give up, plainly. Not affiliated with those services.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-paid-recovery-services.html">
+  <meta property="og:title" content="Dunning Engine vs paid Stripe recovery services">
+  <meta property="og:description" content="Free and self-hosted versus hosted and paid: what each is for, and when to pick the paid one.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Dunning Engine an alternative to Churn Buster, Churnkey or Baremetrics Recover?","acceptedAnswer":{"@type":"Answer","text":"For one job, yes: recovering failed Stripe subscription payments. Paid recovery services run that for you as a hosted product, usually with a monthly fee or a share of what they recover, and some add other features such as cancellation flows or analytics. Dunning Engine is the recovery part only, as free MIT-licensed software you run in your own account, with your own schedule and email wording. If you want someone else to operate it and support it, a paid service is the better fit."}},{"@type":"Question","name":"Does it recover more than Stripe Smart Retries?","acceptedAnswer":{"@type":"Answer","text":"Nobody can say that in advance, and this page does not claim it. Smart Retries is free and works well for many businesses. Dunning Engine adds control over schedule and wording and skips retries that cannot work, such as on expired or lost cards. Setting HOLDOUT_PCT leaves a small share of customers alone, so your own data shows whether it beats the baseline for you, with an interval on the difference."}},{"@type":"Question","name":"Who sees my customers' data?","acceptedAnswer":{"@type":"Answer","text":"Only you. Dunning Engine runs on a server in your own account with your own Stripe key and email key. The author runs nothing in between and never sees your key or your customers."}},{"@type":"Question","name":"Is this page affiliated with those services?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Churn Buster, Churnkey, Baremetrics or Stripe. Their names are trademarks of their owners, used only to say what this tool is and is not, based on how they describe themselves publicly."}}]}</script>
+  <style>
+    :root { color-scheme: light dark; --bg:#fbfbfa; --fg:#1a1a19; --muted:#5c5c58; --card:#fff; --border:#e2e2dd; --accent:#1c5d3a; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#17181a; --fg:#ececeb; --muted:#a3a39e; --card:#202124; --border:#34353a; --accent:#6fcf97; } }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+    .wrap { max-width:62rem; margin:0 auto; padding:2rem 1.1rem 4rem; }
+    h1 { font-size:1.8rem; line-height:1.2; margin:0 0 .5rem; max-width:28ch; }
+    h2 { font-size:1.15rem; margin:0 0 .6rem; } h3 { font-size:1rem; margin:1.2rem 0 .4rem; }
+    p.lede { color:var(--muted); max-width:44rem; font-size:1.05rem; }
+    a { color:var(--accent); overflow-wrap:anywhere; }
+    section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.1rem 1.15rem; margin-top:1.25rem; }
+    .scroll { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.93rem; }
+    th, td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--border); vertical-align:top; }
+    thead th { font-size:.82rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+    code { font-size:.88em; }
+    .fine { font-size:.87rem; color:var(--muted); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <p class="fine"><a href="./">&larr; Dunning Engine</a></p>
+  <h1>Dunning Engine vs paid Stripe recovery services</h1>
+  <p class="lede">Services such as Churn Buster, Churnkey and Baremetrics Recover run failed-payment recovery for you as a hosted product. Dunning Engine is the same job as free software you run yourself. Which is right depends on who you want operating it.</p>
+
+  <section>
+    <h2>Side by side</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col"></th><th scope="col">Hosted recovery service</th><th scope="col">Dunning Engine</th></tr></thead>
+        <tbody>
+          <tr><td>Who runs it</td><td>The vendor</td><td>You, in your own account (one Node process or Docker image)</td></tr>
+          <tr><td>Cost model</td><td>Set by each vendor; check their current pricing</td><td>Free, MIT licence; you pay only for your own hosting and email sending</td></tr>
+          <tr><td>Customer data</td><td>Shared with the vendor</td><td>Stays on your server</td></tr>
+          <tr><td>Schedule and wording</td><td>Depends on the vendor</td><td>Fully yours: a JSON policy and plain-text templates</td></tr>
+          <tr><td>Retry logic</td><td>Depends on the vendor</td><td>Never retries lost, stolen or expired cards; payday-aware spacing for insufficient funds; see <a href="./stripe-decline-codes.html">the decline-code table</a></td></tr>
+          <tr><td>Proof it helps</td><td>Vendor reporting</td><td>Optional holdout group, with an interval on the difference, on your own data</td></tr>
+          <tr><td>Support and setup</td><td>Usually included</td><td>Community and docs; you do the setup</td></tr>
+          <tr><td>Extras (analytics, cancellation flows, other billing systems)</td><td>Varies by vendor</td><td>Stripe only. A sibling <a href="../cancel-flow/">cancel-flow</a> project covers cancellation</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>If you would rather pay someone to run and support recovery, pick a hosted service; this page does not evaluate any of them. If you are comfortable deploying a small server and want control of the wording, the schedule and your customers' data, <a href="./">start in dry-run</a> and watch what it would have done before you switch it on.</p>
+  </section>
+
+  <section>
+    <h2>Common questions</h2>
+    <h3>Is Dunning Engine an alternative to Churn Buster, Churnkey or Baremetrics Recover?</h3>
+    <p>For one job, yes: recovering failed Stripe subscription payments. Paid recovery services run that for you as a hosted product, usually with a monthly fee or a share of what they recover, and some add other features such as cancellation flows or analytics. Dunning Engine is the recovery part only, as free MIT-licensed software you run in your own account, with your own schedule and email wording. If you want someone else to operate it and support it, a paid service is the better fit.</p>
+    <h3>Does it recover more than Stripe Smart Retries?</h3>
+    <p>Nobody can say that in advance, and this page does not claim it. Smart Retries is free and works well for many businesses. Dunning Engine adds control over schedule and wording and skips retries that cannot work, such as on expired or lost cards. Setting HOLDOUT_PCT leaves a small share of customers alone, so your own data shows whether it beats the baseline for you, with an interval on the difference.</p>
+    <h3>Who sees my customers' data?</h3>
+    <p>Only you. Dunning Engine runs on a server in your own account with your own Stripe key and email key. The author runs nothing in between and never sees your key or your customers.</p>
+    <h3>Is this page affiliated with those services?</h3>
+    <p>No. This site is not affiliated with, endorsed by, or sponsored by Churn Buster, Churnkey, Baremetrics or Stripe. Their names are trademarks of their owners, used only to say what this tool is and is not, based on how they describe themselves publicly.</p>
+  </section>
+
+  <section>
+    <h2>Use it safely</h2>
+    <p class="fine"><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not legal, tax, or financial advice. <strong>You are responsible for verifying anything before relying on it</strong>, including the email and consumer-protection rules for payment-failure notices in your country. To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
+    <p class="fine"><strong>Best-effort hosting, no SLA.</strong> These pages are free and experimental and may be moved or taken offline without notice.</p>
+    <p class="fine">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Sponsoring</a> is optional and never changes what the tool does.</p>
+  </section>
+</div>
+</body>
+</html>

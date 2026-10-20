@@ -6,6 +6,8 @@ piece, the retail and wholesale price that reaches your target margin, your
 hourly return, and how breakage, half-empty kilns and electricity prices move
 it. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pottery-piece-pricing-calculator/
+
 After using this, you can **see what a mug really costs and what to charge for
 it**, including the firings and the pieces that never sell.
 

@@ -1,0 +1,13 @@
+[project]
+name = "house-foundation"
+version = "0.1.0"
+description = "Slab, frost-protected shallow, crawlspace and basement foundations for the house-framing house: footing sizing from soil bearing and loads, quantities, cost and carbon, with Monte Carlo over stylised prices and a sweep of frost depth"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-framing/src"]

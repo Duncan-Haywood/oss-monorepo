@@ -1,0 +1,33 @@
+runs: 1027; with at least one recorded error: 175 (17.0%, 95% Wilson 14.9% to 19.5%)
+error entries: 222
+
+category share of entries (keyword rules)
+  environment     62  27.9%
+  unclassified    54  24.3%
+  own-mistake     47  21.2%
+  collision       38  17.1%
+  timeout         15   6.8%
+  ci-or-tooling    6   2.7%
+
+runs with an error, by track
+  explore     2/ 52   3.8%  (1.1% to 13.0%)
+  process     8/ 92   8.7%  (4.5% to 16.2%)
+  redteam     2/ 71   2.8%  (0.8% to 9.7%)
+  research  131/534  24.5%  (21.1% to 28.4%)
+  review      2/ 36   5.6%  (1.5% to 18.1%)
+  ventures   30/242  12.4%  (8.8% to 17.1%)
+
+partial outcome rate, with vs without a recorded error
+  with error  22/175  12.6%  (8.5% to 18.3%)
+  no error    51/852   6.0%  (4.6% to 7.8%)
+
+median cost USD, runs with vs without an error (priced runs)
+  with error n=30 median 1.29; no error n=362 median 0.64; diff +0.59 (+0.30 to +0.89)
+
+entries per category by month half (early = before 2026-10-15)
+  ci-or-tooling early   2  late   4
+  collision     early  16  late  22
+  environment   early  39  late  23
+  own-mistake   early  18  late  29
+  timeout       early   2  late  13
+  unclassified  early  22  late  32

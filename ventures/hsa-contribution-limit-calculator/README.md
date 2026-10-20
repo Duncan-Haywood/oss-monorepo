@@ -3,6 +3,8 @@
 A free browser calculator for the 2026 HSA (Health Savings Account)
 contribution limit. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hsa-contribution-limit-calculator/
+
 After using this, you can now **see how much you can contribute to your
 HSA in 2026, prorated for partial-year HDHP eligibility or the full
 amount under the last-month rule** — which used to mean cross-referencing

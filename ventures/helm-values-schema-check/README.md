@@ -4,6 +4,8 @@ A free tool that validates a Helm chart's `values.yaml` against its own
 `values.schema.json` (the JSON Schema format Helm itself has supported since
 3.5) without running Helm at all.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/
+
 **What it catches that `helm lint` usually doesn't:** a field `values.yaml`
 sets that the schema never declares. Helm's Go template engine returns the
 zero value for an undefined map key rather than erroring, so a typo like

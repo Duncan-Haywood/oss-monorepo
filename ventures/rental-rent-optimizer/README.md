@@ -4,6 +4,8 @@ A free browser tool for small landlords (1-50 units): **paste or upload your pas
 market and leased or still vacant, add today's market rent and your costs, and get the asking rent with the highest
 expected net income after vacancy and turnover.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rental-rent-optimizer/
+
 After using this, you can now **see how many days each extra 5% of rent adds to your wait, which asking rent earns the
 most once empty months are counted, and what asking 5% too high costs you**, which used to take a spreadsheet and a guess.
 

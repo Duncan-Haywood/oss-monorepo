@@ -97,3 +97,10 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: ab-test-significance-calculator$/m);
 });
+
+test("A/B/n panel is wired up", () => {
+  const html = page("index.html");
+  assert.match(html, /id="multi-test"/);
+  assert.match(html, /<label for="multi-text">/);
+  assert.match(html, /record\("multi_test_run"\)/);
+});

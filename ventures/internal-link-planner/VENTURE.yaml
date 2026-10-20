@@ -1,0 +1,68 @@
+name: internal-link-planner
+description: >-
+  Free, private internal-link planner for any site that produces HTML. Reads a build folder (or a sitemap
+  from the command line), builds the internal link graph, and reports orphan pages, pages linked only from
+  menus and footers, deep pages, dead ends and broken internal links. Then it names the exact sentence on
+  each existing page that should link to a page that needs links (the target's headline or title words are
+  already in the text), ranked by TF-IDF similarity, the source's link equity and phrase specificity, and
+  shows PageRank before and after the whole plan. Browser page plus zero-dependency Node CLI; nothing is
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16 in a depth-first session (fleet at 1,265 ventures, brief asks for algorithmic,
+# ambitious products). Archetype: a planner with a real algorithm (weighted PageRank, TF-IDF cosine,
+# phrase matching with plural tolerance, whole-plan re-ranking), not a form plus arithmetic.
+#
+# Paid alternatives today: Link Whisper (WordPress-only plugin, roughly $77/year), Ahrefs and Semrush
+# site-audit "internal link opportunities" (inside $100+/month suites), Screaming Frog and Sitebulb (paid
+# desktop crawlers that report orphans and inlink counts but leave the "what to link where" step to the
+# user), InLinks and LinkStorm (entity-based, subscription). The gap: a static-site or headless-CMS owner
+# with a build folder who wants the planner step, offline and free, as a command that can run in CI.
+#
+# Not a duplicate: redirect-map-check, canonical-tag-check, sitemap-lastmod-freshness-check and
+# redirect-chain-check each read one tag or one file. None builds the link graph; link-keeper is short
+# links and UTM tagging.
+#
+# First visitor: people searching "orphan pages", "internal linking tool free", "link whisper alternative
+# for static site", "find pages that should link to my post". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): lead magnet for the technical-SEO audience; the paid step would be
+# a scheduled live-site crawl with a diff against last week's graph and a PR-comment bot, behind env vars,
+# on the deployer's own keys. None built. Support is GitHub Sponsors only.
+#
+# Liability: analysis of files the user supplies; no ranking or traffic promise (stated on the page and in
+# the README); the fetcher touches only the sitemap's own host, identifies itself, and is pointed at sites
+# the user owns.
+
+hypotheses:
+  - claim: >-
+      Owners of static or headless sites will run the planner on their own build folder and add at least
+      some of the suggested links, because the suggestion names the sentence and the page.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      On a real 100-page site, most suggestions have an anchor that reads naturally in context. Measured
+      only on a synthetic site so far.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a suggestion that links a page to itself, to a noindex page, or with anchor text that is not on the source page; the matching and graph code come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/internal-link-planner/
+  analytics: null

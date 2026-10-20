@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01XNnCbm7PaVPqsQwpi1gSXk",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "scheduled: follow the instructions in ./prompt.md",
+  "input_sha256": "4325b93fe1160d5747607839884de39e05ead59d747a45f9e07f4b62f1b498e3",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T06:39:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7677",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Step 2 audit and step 4 candidate again unrunnable (mirrored/doc-only records, no candidate with 10 runs); third review in one day."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Skipped derive fetch, audit and drift report: third review today, nothing new to measure; shipped small doc fixes instead."
+    }
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

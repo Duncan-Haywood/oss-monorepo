@@ -67,3 +67,20 @@ test("helpers parse and format", () => {
   assert.equal(money(-1234.4), "-$1,234");
   assert.match(toCsv(analyze({})), /^labor_hours,/);
 });
+
+test("one birth a year is valid, a fraction is not", () => {
+  assert.deepEqual(analyze({ birthsPerYear: 1 }).warnings, []);
+  assert.ok(analyze({ birthsPerYear: 0.5 }).warnings.length);
+});
+
+test("default sensitivity table covers the five labor lengths", () => {
+  assert.deepEqual(sensitivity(DEFAULTS).map((r) => r.labor), [8, 14, 20, 30, 40]);
+});
+
+test("csv has a header, one row per labor length and two-decimal numbers", () => {
+  const lines = toCsv(analyze({})).trimEnd().split("\n");
+  assert.equal(lines.length, 6);
+  assert.equal(lines[0], "labor_hours,worked_hours,net_per_birth_usd,hourly_usd,hourly_after_on_call_usd,fee_for_target_usd");
+  assert.equal(lines[1].split(",")[0], "8");
+  for (const l of lines.slice(1)) assert.ok(l.split(",").slice(1).every((c) => /^-?\d+\.\d{2}$/.test(c)), l);
+});

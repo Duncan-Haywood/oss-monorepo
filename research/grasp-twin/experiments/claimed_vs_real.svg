@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-y line plot of the grasp loss against the twin friction spread: the twin-claimed loss collapses from 1.4e-2 to 3.5e-8 as the spread shrinks, while the real loss rises from 0.014 to 0.17">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Grasp twin: claimed vs real loss as the twin spread shrinks</text>
+<line x1="64" x2="624" y1="293.1" y2="293.1" stroke="#ddd"/><text x="58" y="297.1" text-anchor="end" font-family="sans-serif" font-size="11">1e-07</text>
+<line x1="64" x2="624" y1="257.4" y2="257.4" stroke="#ddd"/><text x="58" y="261.4" text-anchor="end" font-family="sans-serif" font-size="11">1e-06</text>
+<line x1="64" x2="624" y1="221.7" y2="221.7" stroke="#ddd"/><text x="58" y="225.7" text-anchor="end" font-family="sans-serif" font-size="11">1e-05</text>
+<line x1="64" x2="624" y1="186.0" y2="186.0" stroke="#ddd"/><text x="58" y="190.0" text-anchor="end" font-family="sans-serif" font-size="11">0.0001</text>
+<line x1="64" x2="624" y1="150.3" y2="150.3" stroke="#ddd"/><text x="58" y="154.3" text-anchor="end" font-family="sans-serif" font-size="11">0.001</text>
+<line x1="64" x2="624" y1="114.6" y2="114.6" stroke="#ddd"/><text x="58" y="118.6" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="78.9" y2="78.9" stroke="#ddd"/><text x="58" y="82.9" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.15</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">twin friction spread s_twin</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">loss J</text>
+<polyline points="624.0,109.7 400.0,142.3 288.0,171.8 176.0,220.4 64.0,309.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="109.7" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="142.3" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="171.8" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="220.4" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">twin-claimed J</text>
+<polyline points="624.0,109.7 400.0,103.8 288.0,95.8 176.0,84.7 64.0,70.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="109.7" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="103.8" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="95.8" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="84.7" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">real J</text>
+</svg>

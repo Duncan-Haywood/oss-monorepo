@@ -1,0 +1,68 @@
+name: error-keeper
+description: >-
+  Self-hosted error tracking for small teams: a 1 KB browser snippet and a Node
+  client send crashes to a server you run; it groups the same bug across deploys
+  (error type plus top in-app frames, never line numbers), alerts on new
+  issues, regressions after a "resolved in release" and hourly spikes against
+  each issue's own baseline, masks emails and tokens before storing, and shows
+  releases that introduced new bugs. Signed Slack-compatible alert webhook,
+  browser grouping demo running the real engine, zero-dependency server,
+  one-click Render, Fly.io and Docker deploys.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16. Paid market is real and proven: Sentry, Rollbar, Bugsnag,
+# Honeybadger, Raygun and Datadog Error Tracking sell crash reporting to nearly
+# every shipped web app, billed by event volume; GlitchTip and self-hosted
+# Sentry are the free routes and need Postgres/Redis (GlitchTip) or a dozen
+# containers with Kafka and ClickHouse (Sentry). The gap: a solo founder or
+# small team that wants "new / came back / getting worse" alerts and a stack,
+# in one process they can read, with no event cap and no stack traces leaving
+# their server. Sibling of status-keeper, cron-heartbeat, visit-keeper,
+# support-desk, meter-keeper and churn-radar: those say who is down, who is
+# silent, who visits, who writes in; this says what is breaking.
+# duplicate_check: error-tracking-pricing-calculator prices the vendors; no
+# venture collects or groups errors.
+#
+# First visitor: developers searching "sentry alternative self hosted", "glitchtip
+# alternative", "lightweight error tracking node", on Hacker News, r/selfhosted,
+# r/webdev, Indie Hackers. Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name and billing are
+# owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small teams will deploy a one-process error tracker in their own account
+      when the page shows their own stack traces grouping correctly, because the
+      hosted tools bill by volume and the self-hosted ones need a stack of services.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Grouping on error type plus the top three in-app function and file names
+      (no line numbers) keeps one bug in one group across deploys without
+      merging unrelated bugs. Shown on constructed traces only so far.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports two unrelated bugs merged into one group, or the same bug split across deploys; the grouping key comes before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/error-keeper/
+  analytics: null

@@ -1,0 +1,13 @@
+[project]
+name = "garment-wearwrong"
+version = "0.1.0"
+description = "How often can a wearer pick the wrong garment before a second garment stops paying"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../garment-thermal/src", "../garment-teardown/src", "../garment-comfortcost/src", "../garment-wearmix/src", "../garment-wearpair/src"]

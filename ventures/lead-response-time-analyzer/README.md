@@ -4,6 +4,8 @@ A free browser tool for home-service and other lead-driven businesses: **paste o
 (minutes until your first reply, won or lost, optional job value) and see your win rate by reply-time band, a fitted
 curve, and the extra jobs and monthly revenue a faster reply would have won, with a range.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/lead-response-time-analyzer/
+
 After using this, you can now **see what your own slow replies cost, and how much of the gain sits in the first five
 minutes versus the first hour**, which used to be a blog-post statistic about other people's businesses.
 

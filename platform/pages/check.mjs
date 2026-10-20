@@ -35,6 +35,7 @@ import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { checkPageIdentity, loadPages } from './page-identity.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -109,12 +110,31 @@ export const COMPARE_DIR = 'compare';
 // by trade and by tool. Same shape as `about` and `compare`: a page the build
 // writes about the site, not a venture.
 export const GUIDES_DIR = 'guides';
+// The research portfolio's homepage (`research/_homepage/build.py`). Same
+// shape again: a page about the repository, not a venture.
+export const RESEARCH_DIR = 'research';
+// The engineering status page (`engineering.mjs`): about how the repository is
+// worked on, not a tool. `noindex`, so it is exempt from the sitemap checks.
+export const ENGINEERING_DIR = 'engineering';
+// Essays from `docs/posts/` (`writing.mjs`): indexed pages about the repository.
+export const WRITING_DIR = 'writing';
+// The open book (`updates.mjs`): indexed pages about what the repository ships.
+export const UPDATES_DIR = 'updates';
+export const CHANGELOG_DIR = 'changelog';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
 // them — the hub links these from its footer, which is the right weight for a
 // page about the site rather than a tool.
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR]);
+// The self-deploy page (`platform/deploy/build.mjs`). publish-branch.sh writes
+// it after this check runs, because its ~1,200 data files would read as
+// orphans, so the hub's footer link to it cannot resolve here.
+export const DEPLOY_DIR = 'deploy';
+// The development dashboard (`platform/devstats/build.mjs`), written after this
+// check on the same terms as the deploy page.
+export const DEV_DIR = 'dev';
+
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -581,6 +601,12 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // link with nothing behind it is a 404 a visitor sees. A product with no hub
   // link is worse and quieter: it built, deployed, passed every other check,
   // and no visitor can reach it.
+  //
+  // The hub is a front door now, not the whole catalogue: it links a few tools
+  // directly and every category page, and each category page links all of its
+  // tools. So "the hub links it" means "the hub, or a category page the hub
+  // links, links it" — two clicks at most, which is the promise this check
+  // keeps. A product reachable by neither is still the defect it always was.
   let hubCategoryLinks = new Set();
   const hubHtml = await fs.readFile(path.join(site, 'index.html'), 'utf8').catch(() => null);
   if (hubHtml !== null) {
@@ -590,16 +616,24 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     // to a product called `' + slug + '` and fails the check on a healthy site.
     const markupOnly = hubHtml.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
     const linked = new Set([...markupOnly.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
-    if (linked.size > 0) {
-      for (const slug of linked) {
-        if (!productDirs.includes(slug)) problems.push(`index.html: hub links "${slug}" but no such product shipped`);
-      }
+    hubCategoryLinks = new Set([...markupOnly.matchAll(/data-category="([^"]+)"/g)].map((m) => m[1]));
+    for (const slug of linked) {
+      if (!productDirs.includes(slug)) problems.push(`index.html: hub links "${slug}" but no such product shipped`);
+    }
+    const reachable = new Set(linked);
+    for (const id of hubCategoryLinks) {
+      const page = await fs.readFile(path.join(site, CATEGORY_DIR, id, 'index.html'), 'utf8').catch(() => '');
+      const markup = page.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+      for (const m of markup.matchAll(/data-tool="([^"]+)"/g)) reachable.add(m[1]);
+    }
+    if (reachable.size > 0) {
       for (const product of productDirs) {
-        if (!linked.has(product)) problems.push(`${product}/: shipped but the hub does not link it, so nobody can reach it`);
+        if (!reachable.has(product)) {
+          problems.push(`${product}/: shipped but the hub does not link it, directly or through a category page it links, so nobody can reach it`);
+        }
       }
     }
     if (!DISCLAIMER_MARKER.test(hubHtml)) problems.push('index.html: carries no disclaimer');
-    hubCategoryLinks = new Set([...markupOnly.matchAll(/data-category="([^"]+)"/g)].map((m) => m[1]));
   }
 
   // ---- Category landing pages ---------------------------------------------
@@ -650,8 +684,71 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
+  {
+    // Optional: a fixture build has no posts directory. Every page under it
+    // (the index and each post) carries the disclaimer, and the hub links it.
+    const dir = path.join(site, WRITING_DIR);
+    const pages = await fs
+      .readdir(dir, { recursive: true })
+      .then((names) => names.filter((n) => n.endsWith('index.html')))
+      .catch(() => null);
+    if (pages !== null) {
+      for (const name of pages) {
+        const html = await fs.readFile(path.join(dir, name), 'utf8');
+        if (!DISCLAIMER_MARKER.test(html)) {
+          problems.push(`${path.join(WRITING_DIR, name)}: carries no disclaimer, so it must not ship`);
+        }
+      }
+      if (hubHtml !== null && !/href="writing\/"/.test(hubHtml)) {
+        problems.push(`${WRITING_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+    }
+  }
+
+  for (const dir of [UPDATES_DIR, CHANGELOG_DIR]) {
+    // Optional, like the writing pages: a fixture build may write neither.
+    const relative = path.join(dir, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) continue;
+    if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+    if (hubHtml !== null && !new RegExp(`href="${dir}/"`).test(hubHtml)) {
+      problems.push(`${dir}/: shipped but the hub does not link it, so nobody can reach it`);
+    }
+  }
+
   // ---- About page ----------------------------------------------------------
   //
+  {
+    const relative = path.join(RESEARCH_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    // Optional: a fixture or a build without the research tree has none.
+    if (html !== null) {
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      if (hubHtml !== null && !/href="research\/"/.test(hubHtml)) {
+        problems.push(`${RESEARCH_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+    }
+  }
+
+  {
+    const relative = path.join(ENGINEERING_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    // Optional, like research: a fixture build has none.
+    if (html !== null) {
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      if (!NOINDEX_RE.test(html)) {
+        problems.push(`${relative}: must be noindex -- it is a status page, not a search landing`);
+      }
+      if (hubHtml !== null && !/href="engineering\/"/.test(hubHtml)) {
+        problems.push(`${ENGINEERING_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+    }
+  }
+
   // Exempted from the product sweep above (it is not a tool), so it needs its
   // own reachability check or it has none at all. It is the page that answers
   // "is this thing going to email my numbers to someone" and the one a linker
@@ -1087,7 +1184,20 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       else if (!path.extname(resolved)) {
         // A extension-less link is served as a directory if one is there.
         if (await exists(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
+        else if (extension !== '.html') {
+          // A bundler-style import ('./App', './src/store') names a module
+          // without its extension (React Native sources shipped as files).
+          for (const ext of ['.js', '.jsx', '.mjs', '.ts', '.tsx']) {
+            if (await exists(resolved + ext)) { resolved += ext; break; }
+          }
+        }
       }
+      // Every tool page footer links `deploy/?app=<slug>` (the "Run your own copy" link), and the page is
+      // written after this check runs.
+      if (resolved === path.resolve(site, DEPLOY_DIR, 'index.html')) continue;
+      // Everything under dev/ (the dashboard, its stats.json and dev/analyses/)
+      // is written by publish-branch.sh after this check, on the same terms.
+      if (resolved.startsWith(path.resolve(site, DEV_DIR) + path.sep)) continue;
       if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
       else {
         inboundLinks.add(resolved);
@@ -1229,11 +1339,16 @@ const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basenam
 if (invokedDirectly) {
   const positional = process.argv.slice(2).find((a) => !a.startsWith('--'));
   const flag = process.argv.find((a) => a.startsWith('--dist='))?.slice('--dist='.length);
-  const site = path.resolve(flag ?? positional ?? 'dist');
+  const site = path.resolve(flag ?? positional ?? fileURLToPath(new URL('./dist', import.meta.url)));
 
   // Deliberately well below the ~38 products on `main`, so a venture landing
   // does not require touching this number, while a collapse still fails.
-  const problems = await checkSite(site, { minProducts: 20 });
+  // Real-site search hygiene (unique titles, one h1). Kept out of checkSite
+  // so the minimal fixtures in check.test.mjs need no <title>/<h1>.
+  const problems = [
+    ...(await checkSite(site, { minProducts: 20 })),
+    ...(await exists(site) ? checkPageIdentity(await loadPages(site)) : []),
+  ];
 
   if (problems.length > 0) {
     console.error(`${problems.length} problem(s) in ${site}:`);

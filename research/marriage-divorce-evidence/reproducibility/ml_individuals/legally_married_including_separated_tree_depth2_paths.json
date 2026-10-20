@@ -1,0 +1,34 @@
+[
+  {
+    "leaf_id": 2,
+    "conditions": [
+      "cat__baseline_status_Separated <= 0.5",
+      "age <= 49.5"
+    ],
+    "training_fitted_rate_per_1000": 12.307047172271645
+  },
+  {
+    "leaf_id": 3,
+    "conditions": [
+      "cat__baseline_status_Separated <= 0.5",
+      "age > 49.5"
+    ],
+    "training_fitted_rate_per_1000": 6.070828974618595
+  },
+  {
+    "leaf_id": 5,
+    "conditions": [
+      "cat__baseline_status_Separated > 0.5",
+      "age <= 47.5"
+    ],
+    "training_fitted_rate_per_1000": 157.65891341368118
+  },
+  {
+    "leaf_id": 6,
+    "conditions": [
+      "cat__baseline_status_Separated > 0.5",
+      "age > 47.5"
+    ],
+    "training_fitted_rate_per_1000": 86.63585770310355
+  }
+]

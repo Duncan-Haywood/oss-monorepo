@@ -2,6 +2,8 @@
 
 A free browser tool for dental and orthodontic practices: **compare third-party patient financing, an in-house payment plan and pay-in-full for a large treatment fee**, in what the practice keeps in today's money and in expected value once you weigh each by how many presented cases patients accept.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dental-patient-financing-fee-calculator/
+
 After using this, you can **say whether patient financing earns back its merchant fee on your own numbers**, instead of taking a vendor's word that it "raises case acceptance", and see the merchant fee at which your own plan would be the better deal.
 
 ## Model

@@ -1,0 +1,103 @@
+feature,coef
+num__age_sp_0,0.179758
+num__age_sp_1,0.0196959
+num__age_sp_2,0
+num__age_sp_3,-0.478114
+num__childs_sp_0,0
+num__childs_sp_1,0
+num__childs_sp_2,0
+num__childs_sp_3,0
+num__attend_sp_0,0.0255611
+num__attend_sp_1,0.0475524
+num__attend_sp_2,-0.12136
+num__attend_sp_3,0
+num__missingindicator_age_sp_0,0
+num__missingindicator_age_sp_1,0
+num__missingindicator_age_sp_2,-0.00731409
+num__missingindicator_age_sp_3,0.0472894
+num__missingindicator_childs_sp_0,0
+num__missingindicator_childs_sp_1,0
+num__missingindicator_childs_sp_2,0
+num__missingindicator_childs_sp_3,0
+num__missingindicator_attend_sp_0,0
+num__missingindicator_attend_sp_1,0
+num__missingindicator_attend_sp_2,0
+num__missingindicator_attend_sp_3,0
+cat__hapmar_Pretty happy,0.239812
+cat__hapmar_Not too happy,1.45996
+cat__hapmar_Unknown,0
+cat__happy_Pretty happy,0
+cat__happy_Not too happy,0
+cat__happy_Unknown,0
+cat__sex_Female,0
+cat__race_Black,0.273192
+cat__race_Other,0
+cat__degree_Less than high school,0
+cat__degree_Junior college,0
+cat__degree_Bachelor,0
+cat__degree_Graduate,0
+cat__degree_Unknown,0
+cat__spouse_degree_Less than high school,0
+cat__spouse_degree_Junior college,0
+cat__spouse_degree_Bachelor,0
+cat__spouse_degree_Graduate,-0.0487357
+cat__spouse_degree_Unknown,0
+cat__work_Part-time,0
+cat__work_Not working,0
+cat__work_Retired,0
+cat__work_Keeping house,0
+cat__work_Other,0
+cat__work_Unknown,0
+cat__spouse_work_Part-time,0
+cat__spouse_work_Not working,0
+cat__spouse_work_Retired,0
+cat__spouse_work_Keeping house,0
+cat__spouse_work_Other,0
+cat__spouse_work_Unknown,0
+cat__family_income_Under $20k,0
+cat__family_income_$20k-$40k,0
+cat__family_income_$75k+,-0.366943
+cat__family_income_Unknown,0
+cat__religion_Catholic,0
+cat__religion_None,0
+cat__religion_Other,0
+cat__religion_Unknown,0
+cat__spouse_religion_Catholic,-0.0670863
+cat__spouse_religion_None,0
+cat__spouse_religion_Other,0
+cat__spouse_religion_Unknown,0
+cat__same_religion_Different,0
+cat__same_religion_Unknown,0
+cat__divorced_before_Yes,0.514559
+cat__divorced_before_Unknown,0
+cat__family_at_16_Parents divorced or separated,0.0143151
+cat__family_at_16_Parent died,0
+cat__family_at_16_Other,0
+cat__family_at_16_Unknown,0
+cat__health_Good,-0.0399937
+cat__health_Fair,0
+cat__health_Poor,0
+cat__health_Unknown,0
+cat__fefam_Agree,0
+cat__fefam_Disagree,0
+cat__fefam_Strongly disagree,0
+cat__fefam_Unknown,0
+cat__sexfreq_Not at all,0
+cat__sexfreq_Once a month or less,0
+cat__sexfreq_2+ times a week,0
+cat__sexfreq_Unknown,0
+cat__evstray_Yes,0
+cat__evstray_Unknown,0
+cat__satfin_More or less,0
+cat__satfin_Not at all,0.167632
+cat__satfin_Unknown,0
+cat__xmarsex_Almost always wrong,0
+cat__xmarsex_Sometimes or not wrong,0
+cat__xmarsex_Unknown,0
+cat__region_Northeast,0
+cat__region_Midwest,-0.118421
+cat__region_West,0
+cat__place_Large central city,0
+cat__place_Other urban,0
+cat__place_Rural,0
+cat__place_Unknown,0

@@ -214,9 +214,10 @@ def test_ci_never_applies_tofu() -> None:
     wf = (ROOT.parent / ".github" / "workflows" / "hetzner-gitops-ci.yml").read_text()
     assert not re.search(r"(?m)^\s+tofu apply\b", wf)
     assert "assert_hcloud_read_only.sh" in wf
-    assert "preflight.sh" in wf
     assert "secrets.HETZNERREADAPIKEY" in wf
-    assert "secrets.HETZNERSSHKEY" in wf
+    # The servers were deleted on 2026-10-01 and their IPs released, so no job
+    # may hold the SSH key or reach for a box that is now someone else's.
+    assert "secrets.HETZNERSSHKEY" not in wf
     assert "secrets.HCLOUD_TOKEN" not in wf
     assert "HETZNER_SSH_PRIVATE_KEY" not in wf
 

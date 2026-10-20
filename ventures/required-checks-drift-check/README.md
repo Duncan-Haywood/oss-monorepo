@@ -6,6 +6,8 @@ report, and flags every required check nothing can ever satisfy again —
 the reason a pull request sits at *"Expected — Waiting for status to be
 reported"* forever.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/
+
 **What it is not:** a security audit, a compliance attestation, or a full
 review of your branch-protection configuration. It answers one narrow
 question — does this required check name still match a job that would

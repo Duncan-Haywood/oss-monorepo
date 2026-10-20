@@ -188,3 +188,37 @@ test('compareOffer requires both prices', () => {
   assert.equal(result.ok, false);
   assert.equal(result.errors[0].id, 'listedPrice');
 });
+
+// --- red-team guards (escaped mutants and a real defect) ---
+
+test('compareOffer does not call an offer above the listed price a discount', () => {
+  const result = compareOffer({ listedPrice: 10, offerPrice: 20, itemCost: 0, otherCost: 0 });
+  assert.equal(result.notes.length, 1);
+  assert.match(result.notes[0], /above the listed price/);
+  assert.ok(!result.notes.some(n => /\$-/.test(n)), 'no negative dollar amounts in prose');
+});
+
+test('compareOffer: an offer exactly at $15.00 does not cross the threshold', () => {
+  const result = compareOffer({ listedPrice: 20, offerPrice: 15, itemCost: 0, otherCost: 0 });
+  assert.equal(result.crossesThreshold, false);
+});
+
+test('null and undefined sale price are rejected as missing, not read as zero', () => {
+  for (const value of [null, undefined, '   ']) {
+    const result = calculateSale({ salePrice: value });
+    assert.equal(result.ok, false, `salePrice ${String(value)} should be rejected`);
+    assert.equal(result.errors[0].id, 'salePrice');
+  }
+});
+
+test('at the break-even price the flat fee is neither a bargain nor a penalty note', () => {
+  const result = calculateSale({ salePrice: BREAK_EVEN_PRICE });
+  assert.equal(result.tier, 'flat');
+  assert.ok(!result.notes.some(n => /more than 20%|bargain/.test(n)), result.notes.join(' | '));
+});
+
+test('a flat-tier sale under $16 gets no "just over the line" note', () => {
+  const result = calculateSale({ salePrice: 10 });
+  assert.equal(result.tier, 'flat');
+  assert.ok(!result.notes.some(n => /just over/.test(n)));
+});

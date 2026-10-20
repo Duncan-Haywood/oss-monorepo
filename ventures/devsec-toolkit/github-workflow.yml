@@ -1,0 +1,78 @@
+# devsec-toolkit for GitHub Actions: copy this file to .github/workflows/devsec.yml
+# in your own repository. (Here, under ventures/, it is a template and never runs.)
+#
+# What it does on every pull request and push to main:
+#   1. fetches only devsec-toolkit and the check files it runs (sparse, about 3 MB),
+#      pinned to the commit in DEVSEC_REF;
+#   2. scans your checkout: GitHub Actions, Dockerfiles, Compose, Kubernetes,
+#      dependency manifests, source code, AI-agent configs;
+#   3. writes a Markdown summary to the job page, uploads SARIF to code scanning
+#      (Security tab, plus inline annotations on the pull request), and fails
+#      the job on any finding at or above FAIL_ON.
+#
+# Adopting it on an existing repository: run
+#   python3 devsec.py scan . --write-baseline .devsec-baseline.json
+# once, commit the file, and add {"baseline": ".devsec-baseline.json"} to
+# .devsec.json. The job then fails only on findings that are new.
+#
+# Every action below is pinned to a full commit SHA (the tag is in the comment).
+name: devsec
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: devsec-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write # upload SARIF to code scanning
+    env:
+      # A commit SHA of github.com/Duncan-Haywood/oss-monorepo. Pin it; "main" is a moving target.
+      DEVSEC_REF: main
+      FAIL_ON: high # high | medium | low | none
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+
+      - name: Fetch devsec-toolkit
+        run: |
+          src="$RUNNER_TEMP/devsec-src"
+          git init --quiet "$src"
+          git -C "$src" remote add origin https://github.com/Duncan-Haywood/oss-monorepo.git
+          git -C "$src" sparse-checkout set --cone ventures/devsec-toolkit
+          git -C "$src" fetch --quiet --depth 1 --filter=blob:none origin "$DEVSEC_REF"
+          git -C "$src" checkout --quiet FETCH_HEAD
+          git -C "$src" sparse-checkout add $(python3 "$src/ventures/devsec-toolkit/devsec.py" list --paths)
+          python3 "$src/ventures/devsec-toolkit/devsec.py" --version
+
+      - name: Scan
+        run: |
+          devsec="$RUNNER_TEMP/devsec-src/ventures/devsec-toolkit/devsec.py"
+          python3 "$devsec" scan . --format sarif -o "$RUNNER_TEMP/devsec.sarif"
+          python3 "$devsec" scan . --format markdown >> "$GITHUB_STEP_SUMMARY"
+          python3 "$devsec" scan . --fail-on "$FAIL_ON"
+
+      # Pull requests from forks get a read-only token, so they cannot upload.
+      - name: Upload to code scanning
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
+        with:
+          sarif_file: ${{ runner.temp }}/devsec.sarif
+          category: devsec-toolkit

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-robust"
+version = "0.1.0"
+description = "Robust (eroded, blueprint, dilated) projection topology optimisation, tested against threshold errors across mesh refinement"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,22 @@
+# Yosys 0.33 (git sha1 2584903a060); Icarus Verilog version 12.0 (stable) (); openroad installed: False
+# 40 grid evaluations then 20 random evaluations, one shared cache, 24 RTL test vectors per design
+
+passed all stages: 40/40 (grid)
+random-search cache hits: 20/20
+
+wall time by stage over 40 uncached evaluations (total 424 s):
+  generate         0.0 s    0.0%
+  lint             4.8 s    1.1%
+  rtl_sim          1.4 s    0.3%
+  gate_equiv     219.2 s   51.7%
+  synth          198.9 s   46.9%
+
+Pareto front (cells, cycles) over the grid:
+  p wb cells cycles int_acc
+  1  4    861   110 0.935
+  2  4   1098    56 0.935
+  4  4   1674    29 0.935
+  8  4   2800    20 0.935
+
+random search (20 draws): best cells*cycles 79576 vs grid optimum 48546
+distinct designs hit by random search: 19 of 40

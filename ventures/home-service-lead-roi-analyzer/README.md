@@ -4,6 +4,8 @@ A free browser tool for plumbers, electricians, HVAC techs, roofers and other ho
 pros who buy leads: **load a lead log and see which sources actually book jobs.** The file is
 read in the browser; nothing is uploaded and no platform account access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/home-service-lead-roi-analyzer/
+
 After using this, you can now **see cost per lead, close rate, cost per booked job, job value
 and profit for every lead source (Thumbtack, Angi, HomeAdvisor, Google Local Services, Yelp,
 ads, referrals), the close rate each one has to beat to break even, the paid sources that

@@ -1,0 +1,44 @@
+Assumptions: subject 1.8 m at origin, cameras look at it, radius 3.0 m, vertical FOV 60.0 deg,
+3840 px long side (portrait), matching noise 0.5 px. All assumed; 2-D geometry, no occlusion.
+Pixels on subject height at 3.0 m: 1995; whole subject in frame: True
+
+A. Full ring of N cameras: gap, mean miss to wanted direction, centre error (mm)
+N  gap_deg  miss_deg  err_mm
+2    180.0    45.00    n/a (collinear rays)
+3    120.0    30.00     0.52
+4     90.0    22.50     0.45
+6     60.0    15.00     0.37
+8     45.0    11.25     0.32
+12    30.0     7.50     0.26
+16    22.5     5.63     0.23
+
+B. Same N on a 90 deg front arc (what a creator can put in front of themselves): error (mm)
+N  err_mm  arc_span_deg
+2     0.64     90.0
+3     0.55     90.0
+4     0.50     90.0
+6     0.43     90.0
+8     0.38     90.0
+
+C. Two cameras, baseline between them (convergence angle), error (mm)
+conv_deg  baseline_m  err_mm
+5              0.26     7.32
+10             0.52     3.67
+20             1.04     1.87
+40             2.05     0.99
+90             4.24     0.64
+180            6.00    n/a (collinear rays)
+
+D. Lens choice, 4-camera full ring at 3 m: error (mm) and whether the subject fits
+vfov_deg  err_mm  fits  px_on_subject
+30           0.21  False  4299
+45           0.32  True   2781
+60           0.45  True   1995
+90           0.78  True   1152
+120          1.35  True   665
+
+E. Cameras needed on a full ring so no wanted direction is further than half the gap from a camera
+max gap <= 30 deg -> N = 13, mean miss 6.9 deg
+max gap <= 20 deg -> N = 19, mean miss 4.7 deg
+max gap <= 15 deg -> N = 25, mean miss 3.6 deg
+max gap <= 10 deg -> N = 37, mean miss 2.4 deg

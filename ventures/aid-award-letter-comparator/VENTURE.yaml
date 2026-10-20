@@ -1,0 +1,61 @@
+name: aid-award-letter-comparator
+description: >-
+  Free browser tool: paste each college's award letter (cost of attendance,
+  grants, loans, work-study) and get the true multi-year cost of every offer,
+  with loan interest and repayment, first-year-only scholarship jumps, borrowing
+  you do not need, and the extra grant that would make a dearer offer match the
+  cheapest one for a financial aid appeal. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-17 in an explore-track run. duplicate_check.py: closest row
+# was private-school-tuition-discount-calculator at 0.21 (one school's discount,
+# not a multi-offer comparison); nothing near the 0.45 line. No FAFSA,
+# scholarship or award-letter venture exists in ventures/.
+#
+# Why this niche: "compare financial aid offers", "financial aid award letter
+# comparison" and "how to compare college offers" are searched every
+# October to April by seniors' families, a seasonal peak that is beginning now.
+# Award letters list loans beside grants, so families compare headline "aid"
+# figures that mix gift aid with debt. Existing free tools (the College Board
+# and federal net price calculators, College Scorecard) estimate prices before
+# applying; few compare actual letters or price the loans and the year-2 drop.
+#
+# First visitor: a family holding two to five award letters. Volume not
+# measured with an external tool.
+#
+# Liability boundary: arithmetic on numbers the user types. Not financial,
+# tax, legal or educational advice; the example colleges are made up; rates
+# are user-editable, defaulting to 2025-26 federal values with a prompt to
+# replace them; no college, lender or Department of Education endorsement is
+# implied; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# hosted layer could take a PDF of a letter (parsing is not built).
+
+hypotheses:
+  - claim: >-
+      Families holding two or more award letters will paste them into a
+      private comparator, and the loan-inclusive total and the grant-to-match
+      figure change which offer they accept or what they ask for in an appeal.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a total that disagrees with an independent loan-payment calculation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/aid-award-letter-comparator/
+  analytics: null

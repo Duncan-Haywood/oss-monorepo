@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofab-torquebound"
+version = "0.1.0"
+description = "Converged time-optimal carry vs ramp-resolved trapezoid in the torque- and jaw-bound rows (stylised)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

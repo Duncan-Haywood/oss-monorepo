@@ -272,3 +272,27 @@ test('the annual figures are twelve times the period figures', () => {
   assert.equal(r.annualWriteOff, r.totalWriteOff * 12);
   for (const p of r.plans) assert.equal(p.annualWriteOff, p.writeOff * 12);
 });
+
+test('shortfall to break-even is the rate gap times production, only for plans below it', () => {
+  const r = effectiveReimbursement({
+    plans: [
+      { planName: 'Good', grossProduction: 50000, writeOff: 5000 },
+      { planName: 'Thin', grossProduction: 40000, writeOff: 28000 },
+    ],
+    selfPayProduction: 10000,
+    chairHours: 200,
+    providerCompensation: 20000,
+    practiceOverhead: 20000,
+  });
+  assert.equal(r.ok, true);
+  const thin = r.plans.find((p) => p.name === 'Thin');
+  const good = r.plans.find((p) => p.name === 'Good');
+  // cost/hr 200, gross/hr 500 => break-even 0.4; Thin pays 0.3
+  assert.equal(r.breakEvenReimbursementRate, 0.4);
+  assert.equal(thin.shortfallToBreakEven, 4000);
+  assert.equal(thin.payRiseToBreakEven, 0.3333);
+  assert.equal(good.shortfallToBreakEven, 0);
+  assert.equal(good.payRiseToBreakEven, null);
+  assert.equal(r.totalShortfallToBreakEven, 4000);
+  assert.equal(r.annualShortfallToBreakEven, 48000);
+});

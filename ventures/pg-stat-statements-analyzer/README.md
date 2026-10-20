@@ -6,6 +6,8 @@ query shapes use the most database time, which look like N+1 loops, which miss
 cache or spill to temp files, and what fixing the top few would be worth.** It
 never connects to your database and the pasted text is not uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/
+
 After using this, you can now **name the three queries behind most of your
 database load and know which one to run `EXPLAIN (ANALYZE, BUFFERS)` on first**,
 without installing an agent or giving a SaaS access to your database, which used

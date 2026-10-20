@@ -4,6 +4,8 @@ A free browser tool for HSA holders: **paste the medical receipts you paid out o
 tax-free withdrawal room today, and what leaving the HSA invested and reimbursing yourself later saves
 after tax compared with reimbursing every year.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hsa-shoebox-reimbursement-planner/
+
 After using this, you can **put a number on the "save your receipts" strategy** instead of trusting a blog
 post, and see how big your reimbursable pile really is.
 

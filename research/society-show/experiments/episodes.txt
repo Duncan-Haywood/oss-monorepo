@@ -1,0 +1,29 @@
+Episode 1: The Dent | seed 0 | {'beta': 1.0} | outcome recovered
+  Round 60: the robots begin to fail 80% of their jobs.
+  Round 80: Ivo's trust drops to 0.286, below the 0.30 line, and Ivo stops using robots at all.
+  Round 94: 25 of 48 townspeople now avoid the robots.
+  Round 108: the town's average trust is at its lowest during the incident, at 0.30 (it was 0.95), with 40 people avoiding.
+  Round 110: the robots are fixed. Average trust is 0.30; 41 still avoid them.
+  Round 156: trust is back within 0.05 of normal (0.90), 46 rounds after the fix.
+Episode 2: The Lockout | seed 0 | {'beta': 4.0} | outcome locked out
+  Round 60: the robots begin to fail 80% of their jobs.
+  Round 76: Jory's trust drops to 0.294, below the 0.30 line, and Jory stops using robots at all.
+  Round 86: 27 of 48 townspeople now avoid the robots.
+  Round 110: the robots are fixed. Average trust is 0.29; 47 still avoid them.
+  Round 399: the story ends with the town's trust at 0.28 and 48 of 48 still avoiding robots that now work. Avoiders meet no robots, so only gossip can bring them back.
+Episode 3: The Apology | seed 0 | {'beta': 4.0, 'tau': 0.3} | outcome recovered
+  Round 60: the robots begin to fail 80% of their jobs. When one fails it explains why.
+  Round 110: the robots are fixed. Average trust is 0.49; 0 still avoid them.
+  Round 139: trust is back within 0.05 of normal (0.90), 29 rounds after the fix.
+Episode 4: Two Towns, One Ending | seed 0 | {'beta': 2.0} | outcome recovered
+  Round 60: the robots begin to fail 80% of their jobs.
+  Round 79: Bo's trust drops to 0.295, below the 0.30 line, and Bo stops using robots at all.
+  Round 93: 25 of 48 townspeople now avoid the robots.
+  Round 110: the robots are fixed. Average trust is 0.30; 43 still avoid them.
+  Round 164: trust is back within 0.05 of normal (0.90), 54 rounds after the fix.
+Episode 5: Two Towns, Another Ending | seed 1 | {'beta': 2.0} | outcome locked out
+  Round 60: the robots begin to fail 80% of their jobs.
+  Round 77: Sol's trust drops to 0.291, below the 0.30 line, and Sol stops using robots at all.
+  Round 93: 24 of 48 townspeople now avoid the robots.
+  Round 110: the robots are fixed. Average trust is 0.29; 47 still avoid them.
+  Round 399: the story ends with the town's trust at 0.29 and 48 of 48 still avoiding robots that now work. Avoiders meet no robots, so only gossip can bring them back.

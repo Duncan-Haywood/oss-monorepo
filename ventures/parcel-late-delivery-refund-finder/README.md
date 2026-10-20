@@ -5,6 +5,8 @@ delivered after the promised day**, the shipping charge on each, the last day to
 duplicate charges, then copy a draft claim request for the carrier. The file is read in the
 browser. Nothing is uploaded, and no carrier login is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/parcel-late-delivery-refund-finder/
+
 After using this, you can now **list the late deliveries on guaranteed services with the charge and
 claim deadline for each**, which used to mean checking tracking pages one parcel at a time or paying
 a refund-recovery service a share of what it finds.

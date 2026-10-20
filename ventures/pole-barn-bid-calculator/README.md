@@ -5,6 +5,8 @@ a building the way the trade actually loses money — bays to posts and
 trusses, then extra eave height, overhead doors, a lean-to, and gravel
 versus a slab — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pole-barn-bid-calculator/
+
 **After using this, you can now** send a walk-away pole-barn price that
 sees eave height and the floor, **which used to take** matching a published
 $45-a-foot special that treats a 10-foot gravel ag shell as the same job
@@ -12,10 +14,7 @@ as a 16-foot shop slab.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

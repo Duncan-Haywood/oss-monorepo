@@ -1,0 +1,23 @@
+# 40 designs (p 1..8 x wb 4..8) from the committed eda-harness log; Yosys 0.33, Icarus 12.0; no place and route
+# objective = cells x cycles; true optimum 48546 at p=4, wb=4
+# total tool seconds: rung 1 6.2, rung 2 205.1
+
+rank agreement of each rung with the rung-2 objective (cells x cycles)
+rung  what                               spearman  kendall  top-5 overlap  seconds for all 40
+  0   analytic cells and cycles (free)      0.741    0.549  2/5               0.0
+  1   analytic cells x simulated cycles     0.798    0.592  2/5               6.2
+  2   synthesis (reference)                 1.000    1.000  5/5             205.1
+
+components: rank agreement of analytic p*wb^2 with synthesised cells, and of ceil(110/p) with simulated cycles
+  cells  spearman 0.947  kendall 0.814
+  cycles spearman 0.939  kendall 0.886
+  cells x cycles at p = 1..8 only (wb = 6): analytic cells ratio to synthesised cells = 0.026 0.040 0.034 0.050 0.037 0.047 0.039 0.060
+
+search at equal tool seconds, 2000 random orders: best true cells x cycles found, as a ratio to the optimum
+budget_s   random: mean [95% interval]  P(optimum)    halving: mean [95% interval]  P(optimum)  halving designs screened
+     5      2.295 [2.248,2.345]    0.02      1.440 [1.422,1.458]    0.20       12.9   (runs with nothing finished: random 852, halving 30)
+    10      2.326 [2.284,2.368]    0.05      1.070 [1.063,1.077]    0.79       31.3   (runs with nothing finished: random 51, halving 0)
+    20      1.785 [1.759,1.812]    0.10      1.000 [1.000,1.000]    1.00       40.0
+    40      1.435 [1.419,1.452]    0.18      1.000 [1.000,1.000]    1.00       40.0
+    80      1.197 [1.187,1.206]    0.36      1.000 [1.000,1.000]    1.00       40.0
+   160      1.046 [1.042,1.050]    0.75      1.000 [1.000,1.000]    1.00       40.0

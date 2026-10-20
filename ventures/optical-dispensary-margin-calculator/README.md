@@ -2,6 +2,8 @@
 
 A free browser tool for optical shops and optometry practices: **type your sale types and costs and see what each kind of eyeglass sale really earns** after the frame, lenses, coatings, a remake allowance, card and vision-plan claim fees, free adjustments and the optician's time, which sales use an optician hour best, the patient price that hits your target margin, how plan sales compare with cash sales, and how many sales a month cover fixed costs.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/optical-dispensary-margin-calculator/
+
 After using this, you can **see which vision-plan sales earn less than a cash sale after remakes and fees, and what to charge the patient to reach your target**, which used to be a spreadsheet nobody kept current.
 
 ## Model

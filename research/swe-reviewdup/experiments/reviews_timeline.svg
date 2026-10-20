@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 210" role="img" aria-label="Review-track pull requests merged, by UTC day and hour; pairs merged within 10 minutes are red">
+<style>text{font:12px sans-serif;fill:#444}.g{stroke:#ddd}</style><rect width="100%" height="100%" fill="#fff"/>
+<line class="g" x1="70.0" y1="24" x2="70.0" y2="200"/><text x="70.0" y="18" text-anchor="middle">00</text>
+<line class="g" x1="181.7" y1="24" x2="181.7" y2="200"/><text x="181.7" y="18" text-anchor="middle">04</text>
+<line class="g" x1="293.3" y1="24" x2="293.3" y2="200"/><text x="293.3" y="18" text-anchor="middle">08</text>
+<line class="g" x1="405.0" y1="24" x2="405.0" y2="200"/><text x="405.0" y="18" text-anchor="middle">12</text>
+<line class="g" x1="516.7" y1="24" x2="516.7" y2="200"/><text x="516.7" y="18" text-anchor="middle">16</text>
+<line class="g" x1="628.3" y1="24" x2="628.3" y2="200"/><text x="628.3" y="18" text-anchor="middle">20</text>
+<line class="g" x1="740.0" y1="24" x2="740.0" y2="200"/><text x="740.0" y="18" text-anchor="middle">24</text>
+<text x="6" y="48">2026-10-15</text>
+<circle cx="88.6" cy="44" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="188.6" cy="44" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="200.3" cy="44" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="396.2" cy="44" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="466.4" cy="44" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="548.8" cy="44" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<text x="6" y="82">2026-10-16</text>
+<circle cx="88.1" cy="78" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="172.4" cy="78" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="325.4" cy="78" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="668.8" cy="78" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<text x="6" y="116">2026-10-17</text>
+<circle cx="144.0" cy="112" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="144.9" cy="112" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="255.6" cy="112" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="256.1" cy="112" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="387.3" cy="112" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="508.3" cy="112" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="646.9" cy="112" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<text x="6" y="150">2026-10-18</text>
+<circle cx="101.6" cy="146" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="213.3" cy="146" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="325.9" cy="146" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="325.9" cy="146" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="436.2" cy="146" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="437.6" cy="146" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="548.3" cy="146" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="646.5" cy="146" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<text x="6" y="184">2026-10-19</text>
+<circle cx="73.7" cy="180" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="80.7" cy="180" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="184.9" cy="180" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="284.5" cy="180" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="285.0" cy="180" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="381.7" cy="180" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="470.1" cy="180" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<circle cx="608.8" cy="180" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="609.3" cy="180" r="5" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="715.8" cy="180" r="5" fill="#2c6fb0" fill-opacity=".75"/>
+<text x="740" y="208" text-anchor="end">UTC hour; red = merged within 10 min of another review PR</text></svg>

@@ -72,6 +72,41 @@ class ParseSbomTests(unittest.TestCase):
         self.assertEqual([c["name"] for c in components], ["keep-me"])
 
 
+class NestedAndGroupedComponentTests(unittest.TestCase):
+    DOC = {
+        "bomFormat": "CycloneDX",
+        "components": [
+            {
+                "name": "app",
+                "version": "1.0.0",
+                "components": [
+                    {"name": "inner", "version": "2.0.0", "components": [{"name": "deep", "version": "3.0.0"}]},
+                ],
+            },
+            {"group": "@types", "name": "node", "version": "20.1.0"},
+            {"name": "node", "version": "18.0.0"},
+        ],
+    }
+
+    def test_nested_components_are_included_in_document_order(self):
+        _, comps = sbom_diff.parse_sbom(json.dumps(self.DOC))
+        self.assertEqual([c["name"] for c in comps], ["app", "inner", "deep", "@types/node", "node"])
+
+    def test_group_keeps_same_named_packages_apart(self):
+        _, old = sbom_diff.parse_sbom(json.dumps(self.DOC))
+        newer = json.loads(json.dumps(self.DOC))
+        newer["components"][1]["version"] = "20.2.0"
+        _, new = sbom_diff.parse_sbom(json.dumps(newer))
+        diff = sbom_diff.diff_components(old, new)
+        self.assertEqual(diff["version_changed"], [{"name": "@types/node", "from": ["20.1.0"], "to": ["20.2.0"]}])
+        self.assertEqual(diff["added"] + diff["removed"], [])
+
+    def test_nameless_parent_still_yields_its_children(self):
+        doc = {"components": [{"components": [{"name": "kid", "version": "1"}]}]}
+        _, comps = sbom_diff.parse_sbom(json.dumps(doc))
+        self.assertEqual([c["name"] for c in comps], ["kid"])
+
+
 class DiffComponentsTests(unittest.TestCase):
     def test_added_removed_and_version_changed(self):
         _, old = sbom_diff.parse_sbom(json.dumps(CYCLONEDX_OLD))

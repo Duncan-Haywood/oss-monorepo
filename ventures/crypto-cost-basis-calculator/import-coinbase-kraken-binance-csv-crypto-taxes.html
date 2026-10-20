@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Import Coinbase, Kraken, Binance And Other Exchange CSVs For Crypto Taxes, Privately</title>
+  <meta name="description" content="Read the transaction exports you already have from Coinbase, Kraken, Binance, Binance.US, Gemini, Bitstamp, Crypto.com, Cash App, Robinhood or Koinly in your browser, match lots under five methods, and export Form 8949 style rows. No account, no upload.">
+  <meta property="og:title" content="Import Coinbase, Kraken, Binance And Other Exchange CSVs For Crypto Taxes, Privately">
+  <meta property="og:description" content="Drop in the CSV from your exchange and get five lot-matching methods side by side. Nothing leaves your device.">
+  <link rel="canonical" href="./import-coinbase-kraken-binance-csv-crypto-taxes.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is my transaction history uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The files are read and matched in your browser and are not sent anywhere. Anonymous feature counts stay in local storage and can be switched off."}}, {"@type": "Question", "name": "Why does a row have an empty total?", "acceptedAnswer": {"@type": "Answer", "text": "Because the export did not carry a dollar value for it, for example a coin-for-coin swap or a staking reward. Fill it in from that day's price; the importer leaves it empty on purpose rather than writing zero."}}, {"@type": "Question", "name": "Can I combine several exchanges?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Load every export, optionally turn on per-wallet matching, and record transfers between wallets with a to-wallet column so basis follows the coins."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #2d4fa3; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    th.n, td.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #2d4fa3; color: #fff; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 40px; font-size: .86rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Crypto cost basis calculator</a></p>
+  <h1>Import Coinbase, Kraken, Binance and other exchange CSVs for crypto taxes</h1>
+  <p>Most exchanges let you download your history as a CSV. The free calculator reads those files directly in your browser, converts them to one plain format, and runs FIFO, LIFO, HIFO, LOFO and a tax-aware rule across all of them together, so a coin bought on one exchange and sold on another is matched correctly. Nothing is uploaded.</p>
+  <p><a class="cta" href="./">Open the free calculator</a></p>
+
+  <h2>Exports it recognises</h2>
+  <ul>
+    <li>Coinbase transaction history</li>
+    <li>Coinbase Pro / Advanced Trade fills</li>
+    <li>Kraken ledger</li>
+    <li>Binance.US transaction history</li>
+    <li>Binance spot trade history</li>
+    <li>Crypto.com App transaction history</li>
+    <li>Gemini transaction history</li>
+    <li>Bitstamp transaction export</li>
+    <li>Cash App account activity</li>
+    <li>Robinhood account activity (crypto rows only; stock rows are ignored)</li>
+    <li>Koinly universal CSV</li>
+  </ul>
+  <p>The page detects the format from the column headers. Several files can be loaded at once, or use the command-line version: <code>node cli.mjs --method HIFO --year 2024 --form8949 8949.csv coinbase.csv kraken.csv</code>.</p>
+
+  <h2>What it will not guess</h2>
+  <p>A coin-for-coin swap, a staking reward or an airdrop often has no dollar value in the export. The importer leaves the total empty and lists the row so you can fill it in from that day's price. It never writes a silent zero, because a zero would overstate your gain on the next sale. Fees paid in a coin rather than dollars are likewise left at zero with a note when the export carries no dollar value for them.</p>
+  <p>These readers were written from the column layouts the exchanges publish and have not been checked against every real account, so open the result, compare one or two rows with your exchange, and read the notes the importer prints.</p>
+
+  <h2>If your export is not on the list</h2>
+  <p>The page offers a column mapper: pick which column is the date, type, asset, quantity, USD total or price and fee, say what each type value means (buy, sell, income, transfer or leave out), and it rewrites the file in the plain format on your device. Rows it cannot read, or that have no dollar value, are listed instead of being zeroed.</p>
+
+  <h2>Leaving a paid tax service</h2>
+  <p>If you have a Koinly universal CSV, the calculator reads buys and sales against USD, splits coin-for-coin swaps into a sale and a buy at Koinly's USD value, and treats labelled staking, mining and airdrop receipts as income. Unlabelled transfers, non-USD fiat and non-USD fees are skipped with a note. It lets you re-run the five-method comparison locally, without an account.</p>
+  <h2>Common questions</h2>
+  <h3>Is my transaction history uploaded?</h3>
+  <p>No. The files are read and matched in your browser and are not sent anywhere. Anonymous feature counts stay in local storage and can be switched off.</p>
+  <h3>Why does a row have an empty total?</h3>
+  <p>Because the export did not carry a dollar value for it, for example a coin-for-coin swap or a staking reward. Fill it in from that day's price; the importer leaves it empty on purpose rather than writing zero.</p>
+  <h3>Can I combine several exchanges?</h3>
+  <p>Yes. Load every export, optionally turn on per-wallet matching, and record transfers between wallets with a to-wallet column so basis follows the coins.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or investment advice. Every person, trade and price on this page is invented. Tax rules, rates and which lot-identification methods you may use depend on your jurisdiction, your records and the date; confirm with a qualified tax professional.</p>
+    <p><a href="./">Use the calculator</a> &middot; <a href="./fifo-vs-hifo-crypto-cost-basis.html">FIFO vs HIFO</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a></p>
+  </footer>
+</body>
+</html>

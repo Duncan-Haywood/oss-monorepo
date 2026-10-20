@@ -7,6 +7,8 @@ price, a recommended price move, whether the next run is on booking pace, and
 what a last-minute floor or a multi-run package is worth. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ad-slot-sell-through-planner/
+
 After using this, you can now **tell whether to raise, hold or lower your
 sponsorship price, and whether the next issue needs outreach now**, which used
 to be a guess or a spreadsheet.

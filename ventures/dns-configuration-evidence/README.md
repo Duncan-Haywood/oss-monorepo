@@ -5,6 +5,8 @@ what named resolvers answer now, capture again after a change, and emit a
 source-linked report that distinguishes changed, unchanged, and inconclusive
 observations.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/
+
 This is operational evidence, not a DNS or security authority. It does not
 write records, send mail, test uptime, or claim that a domain is secure,
 deliverable, or compliant. The customer remains responsible for authorization

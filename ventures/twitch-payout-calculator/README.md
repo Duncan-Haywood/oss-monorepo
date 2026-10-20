@@ -2,6 +2,8 @@
 
 Twitch streamers can use this free browser-local calculator to find real monthly take-home from Tier 1/2/3 subscriptions and Bits — after their revenue split (50% default, or 60%/70% under the Plus Program) — plus any other income they supply, then check it against a monthly payout goal. **After using this, you can tell how many more Tier 1 subs close an income gap, instead of guessing from a dashboard total that doesn't show the split.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/
+
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
 ## Why the dashboard number is the wrong one to plan from
@@ -13,6 +15,10 @@ Open `index.html` directly, or serve this directory with `python3 -m http.server
 - **Bits are flat, not split.** A cheered Bit is worth $0.01 to the streamer regardless of the subscription split, because Twitch's cut is already built into what a viewer pays for the Bits bundle.
 
 This tool deliberately does not estimate ad revenue — Twitch publishes no standard ad CPM a static calculator could model honestly — so any ad, sponsorship, or other income is a single figure the streamer supplies, never computed here.
+
+## Plus Points plan
+
+Enter how many of your subs earn Plus Points (1 per Tier 1, 2 per Tier 2, 6 per Tier 3; Prime earns none) and the page shows your points, the next split level (100 points for 60%, 300 for 70%), how many more Tier 1 or Tier 3 subs reach it, and what the identical month pays at 50%, 60% and 70% (`plusPlan` in `calc.mjs`). Sources disagree on whether gifted subs count, so the counts are your input, not an assumption. Twitch also requires a level to be sustained; check your dashboard.
 
 ## Privacy and usage
 

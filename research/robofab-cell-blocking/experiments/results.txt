@@ -1,0 +1,59 @@
+Predictors vs simulation (hold semantics, 20 seeds, 24 h, 4 h warm-up). Rates in good parts/h.
+plain = MVA on plain demands; held = MVA with printer demand incl. load+unload; block_prio = held + fitted
+stall from an unload-priority M/G/1 arm; block_mva = held + stall from the MVA's own arm delay; split = plain-demand MVA plus that stall, capped at the held capacity. err = (pred - sim)/sim in percent.
+
+cv 1.0
+   P= 4 wip  2 sim   2.14+/-0.10  err plain   -2.5  held   -9.8  block_prio  -10.3  block_mva  -10.1  split   -3.2
+   P= 4 wip  4 sim   4.17+/-0.12  err plain   -2.4  held   -9.4  block_prio  -10.5  block_mva  -10.2  split   -3.8
+   P= 4 wip  6 sim   4.32+/-0.10  err plain  +10.5  held   +1.5  block_prio   -0.2  block_mva   -0.3  split   +2.3
+   P= 4 wip  8 sim   4.45+/-0.14  err plain  +10.4  held   +0.8  block_prio   -1.0  block_mva   -1.4  split   -0.7
+   P= 8 wip  4 sim   4.17+/-0.12  err plain   -2.4  held   -9.4  block_prio  -10.5  block_mva  -10.2  split   -3.8
+   P= 8 wip  8 sim   7.82+/-0.10  err plain   -3.1  held   -8.9  block_prio  -11.0  block_mva  -11.1  split   -5.5
+   P= 8 wip 10 sim   8.31+/-0.12  err plain   +3.7  held   -2.8  block_prio   -5.5  block_mva   -6.3  split   +0.5
+   P= 8 wip 16 sim   8.53+/-0.12  err plain  +12.9  held   +4.2  block_prio   +0.1  block_mva   -2.8  split   +0.9
+   P=12 wip  6 sim   5.93+/-0.12  err plain   -0.2  held   -6.9  block_prio   -8.6  block_mva   -8.4  split   -2.3
+   P=12 wip 12 sim  10.28+/-0.11  err plain   -0.7  held   -5.1  block_prio   -7.6  block_mva   -8.6  split   -3.5
+   P=12 wip 14 sim  11.08+/-0.10  err plain   -0.6  held   -4.3  block_prio   -6.9  block_mva   -8.6  split   -3.3
+   P=12 wip 24 sim  11.36+/-0.13  err plain   +9.1  held   +6.6  block_prio   +3.3  block_mva   -3.9  split   +6.8
+   P=16 wip  8 sim   7.82+/-0.10  err plain   -3.1  held   -8.9  block_prio  -11.0  block_mva  -11.1  split   -5.5
+   P=16 wip 16 sim  11.76+/-0.10  err plain   -0.3  held   -2.7  block_prio   -4.7  block_mva   -6.6  split   -2.2
+   P=16 wip 18 sim  12.27+/-0.13  err plain   -1.1  held   -2.8  block_prio   -4.4  block_mva   -6.6  split   -2.6
+   P=16 wip 32 sim  12.56+/-0.14  err plain   +1.1  held   +1.0  block_prio   +0.8  block_mva   -3.8  split   +1.0
+
+cv 0.3
+   P= 4 wip  2 sim   2.09+/-0.05  err plain   -0.2  held   -7.7  block_prio   -8.1  block_mva   -8.0  split   -0.6
+   P= 4 wip  4 sim   4.19+/-0.07  err plain   -2.7  held   -9.7  block_prio  -10.3  block_mva  -10.5  split   -3.5
+   P= 4 wip  6 sim   4.45+/-0.07  err plain   +7.2  held   -1.6  block_prio   -2.5  block_mva   -3.3  split   +0.0
+   P= 4 wip  8 sim   4.40+/-0.06  err plain  +11.6  held   +1.9  block_prio   +0.9  block_mva   -0.3  split   +1.2
+   P= 8 wip  4 sim   4.19+/-0.07  err plain   -2.7  held   -9.7  block_prio  -10.3  block_mva  -10.5  split   -3.5
+   P= 8 wip  8 sim   8.07+/-0.08  err plain   -6.0  held  -11.7  block_prio  -12.8  block_mva  -13.8  split   -7.4
+   P= 8 wip 10 sim   8.41+/-0.10  err plain   +2.5  held   -3.9  block_prio   -5.4  block_mva   -7.3  split   +0.7
+   P= 8 wip 16 sim   8.48+/-0.10  err plain  +13.6  held   +4.8  block_prio   +2.5  block_mva   -2.2  split   +3.5
+   P=12 wip  6 sim   6.26+/-0.09  err plain   -5.5  held  -11.9  block_prio  -12.7  block_mva  -13.3  split   -6.6
+   P=12 wip 12 sim  11.06+/-0.11  err plain   -7.7  held  -11.8  block_prio  -13.1  block_mva  -15.0  split   -9.2
+   P=12 wip 14 sim  11.62+/-0.10  err plain   -5.2  held   -8.8  block_prio  -10.1  block_mva  -12.8  split   -6.6
+   P=12 wip 24 sim  11.70+/-0.11  err plain   +6.0  held   +3.5  block_prio   +1.8  block_mva   -6.7  split   +4.9
+   P=16 wip  8 sim   8.07+/-0.08  err plain   -6.0  held  -11.7  block_prio  -12.8  block_mva  -13.8  split   -7.4
+   P=16 wip 16 sim  12.43+/-0.08  err plain   -5.7  held   -7.9  block_prio   -9.0  block_mva  -11.7  split   -6.7
+   P=16 wip 18 sim  12.61+/-0.09  err plain   -3.8  held   -5.4  block_prio   -6.2  block_mva   -9.1  split   -4.5
+   P=16 wip 32 sim  12.58+/-0.09  err plain   +0.9  held   +0.8  block_prio   +0.8  block_mva   -3.9  split   +0.9
+
+Mean absolute error, all rows: plain 4.7, held 6.2, block_prio 6.7, block_mva 7.9, split 3.6  (32 rows)
+Mean absolute error, saturated rows (wip = 2P): plain 8.2, held 2.9, block_prio 1.4, block_mva 3.1, split 2.5  (8 rows)
+Mean absolute error, other rows (wip < 2P): plain 3.6, held 7.3, block_prio 8.5, block_mva 9.5, split 4.0  (24 rows)
+
+Held-out mix (not used to design the predictors): C weight 2: print 10, load 1.5, unload 3, inspect 2, q 0.05;
+E weight 1: print 40, load 1.5, unload 3, inspect 5, q 0.30; cv 0.5; 2 inspectors.
+   P= 4 wip  2 sim   3.28+/-0.07  err plain   +1.8  held  -11.1  block_prio  -12.3  block_mva  -11.8  split   -0.0
+   P= 4 wip  4 sim   6.60+/-0.11  err plain   -4.9  held  -15.6  block_prio  -17.9  block_mva  -17.8  split   -8.2
+   P= 4 wip  6 sim   7.40+/-0.14  err plain   +5.5  held   -7.2  block_prio  -10.9  block_mva  -12.2  split   -2.9
+   P= 4 wip  8 sim   7.29+/-0.11  err plain  +15.8  held   +0.5  block_prio   -4.4  block_mva   -7.5  split   -1.4
+   P= 8 wip  4 sim   6.60+/-0.11  err plain   -4.9  held  -15.6  block_prio  -17.9  block_mva  -17.8  split   -8.2
+   P= 8 wip  8 sim  10.39+/-0.10  err plain   -2.7  held   -8.6  block_prio  -12.4  block_mva  -13.6  split   -6.8
+   P= 8 wip 10 sim  10.84+/-0.09  err plain   +0.1  held   -3.8  block_prio   -7.5  block_mva   -9.9  split   -3.1
+   P= 8 wip 16 sim  11.10+/-0.10  err plain   +1.8  held   +0.8  block_prio   -1.5  block_mva   -8.3  split   +0.8
+   P=12 wip  6 sim   8.87+/-0.11  err plain   -3.2  held  -11.9  block_prio  -15.2  block_mva  -15.7  split   -7.5
+   P=12 wip 12 sim  11.12+/-0.10  err plain   +0.9  held   -0.5  block_prio   -2.5  block_mva   -4.7  split   -0.4
+   P=12 wip 14 sim  11.38+/-0.12  err plain   -0.7  held   -1.1  block_prio   -2.1  block_mva   -4.2  split   -1.1
+   P=12 wip 24 sim  11.29+/-0.11  err plain   +0.3  held   +0.3  block_prio   +0.3  block_mva   -2.0  split   +0.3
+Mean absolute error, held-out mix: plain 3.5, held 6.4, block_prio 8.7, block_mva 10.5, split 3.4  (12 rows)

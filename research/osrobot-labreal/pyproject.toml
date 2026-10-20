@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-labreal"
+version = "0.1.0"
+description = "Does the real Opentrons protocol simulator catch the faults the stdlib liquid-handling twin catches? Same 522 mutants through both (stylised twin, real simulator)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+real = ["opentrons==8.0.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

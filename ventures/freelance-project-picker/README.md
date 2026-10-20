@@ -5,6 +5,8 @@ project offers on the table (fee, hours, deadline week) and see the exact set to
 why each other offer loses, and the fee a declined project would need to earn its place — your counter-offer
 number. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freelance-project-picker/
+
 ```
 node cli.mjs plan projects.csv --buffer 20
 cat projects.csv | node cli.mjs plan - --json

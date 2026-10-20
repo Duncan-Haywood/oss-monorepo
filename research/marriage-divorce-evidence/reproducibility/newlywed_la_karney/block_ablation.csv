@@ -1,0 +1,67 @@
+question,model,reference,metric,model_value,reference_value,delta,ci_lo,ci_hi,share_of_bootstraps_positive
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test),ses_vul_sat_obs,ses_vul_sat,gain_vs_period_only_pct,2.9501,3.0021,-0.05201,-0.51198,0.39113,0.413
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test),ses_vul_sat_obs,ses_vul_sat,c_index,0.61119,0.60749,0.0036996,-0.009565,0.017676,0.709
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test),ses_vul_sat_obs,ses_vul_sat,auc_12y,0.64812,0.64463,0.0034947,-0.013167,0.019531,0.668
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test),ses_vul_sat_obs,ses_vul_sat,auc_4.2y,0.54715,0.53945,0.0076993,-0.012693,0.029978,0.764
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test),ses_vul_sat_obs,ses_vul_sat,brier_skill_12y_pct,7.1346,7.2552,-0.12061,-1.3507,1.0769,0.438
+Observed interaction over SES + vulnerabilities + satisfaction (the Gottman test),ses_vul_sat_obs,ses_vul_sat,gain_12y_vs_base_pct,5.3305,5.463,-0.13251,-1.1053,0.80084,0.397
+Observed interaction over satisfaction alone,sat_observed,satisfaction,gain_vs_period_only_pct,1.6235,1.683,-0.0595,-0.73049,0.55264,0.446
+Observed interaction over satisfaction alone,sat_observed,satisfaction,c_index,0.57179,0.5578,0.013993,-0.012782,0.041329,0.852
+Observed interaction over satisfaction alone,sat_observed,satisfaction,auc_12y,0.5939,0.57432,0.019576,-0.012874,0.05365,0.875
+Observed interaction over satisfaction alone,sat_observed,satisfaction,auc_4.2y,0.53572,0.53684,-0.0011279,-0.038653,0.036996,0.475
+Observed interaction over satisfaction alone,sat_observed,satisfaction,brier_skill_12y_pct,2.9583,3.1185,-0.16017,-1.9137,1.5356,0.458
+Observed interaction over satisfaction alone,sat_observed,satisfaction,gain_12y_vs_base_pct,2.1496,2.3104,-0.16079,-1.5224,1.1132,0.437
+Satisfaction over observed interaction alone,sat_observed,observed,gain_vs_period_only_pct,1.6235,0.63308,0.99045,-0.023238,2.0328,0.968
+Satisfaction over observed interaction alone,sat_observed,observed,c_index,0.57179,0.53469,0.037101,-0.0070025,0.079697,0.949
+Satisfaction over observed interaction alone,sat_observed,observed,auc_12y,0.5939,0.5517,0.042198,-0.0091123,0.090539,0.945
+Satisfaction over observed interaction alone,sat_observed,observed,auc_4.2y,0.53572,0.4552,0.080517,0.011871,0.14909,0.987
+Satisfaction over observed interaction alone,sat_observed,observed,brier_skill_12y_pct,2.9583,-0.16855,3.1269,0.25266,5.9731,0.983
+Satisfaction over observed interaction alone,sat_observed,observed,gain_12y_vs_base_pct,2.1496,-0.11457,2.2642,0.11251,4.4193,0.979
+Self-reported hostility over SES + vulnerabilities + satisfaction,ses_vul_sat_host,ses_vul_sat,gain_vs_period_only_pct,3.3857,3.0021,0.38362,-0.3782,1.1532,0.847
+Self-reported hostility over SES + vulnerabilities + satisfaction,ses_vul_sat_host,ses_vul_sat,c_index,0.62281,0.60749,0.015324,-0.0013944,0.032693,0.961
+Self-reported hostility over SES + vulnerabilities + satisfaction,ses_vul_sat_host,ses_vul_sat,auc_12y,0.66226,0.64463,0.017633,-0.0019551,0.037887,0.959
+Self-reported hostility over SES + vulnerabilities + satisfaction,ses_vul_sat_host,ses_vul_sat,auc_4.2y,0.56119,0.53945,0.021742,-0.0065127,0.050967,0.939
+Self-reported hostility over SES + vulnerabilities + satisfaction,ses_vul_sat_host,ses_vul_sat,brier_skill_12y_pct,8.485,7.2552,1.2298,-0.76888,3.1611,0.901
+Self-reported hostility over SES + vulnerabilities + satisfaction,ses_vul_sat_host,ses_vul_sat,gain_12y_vs_base_pct,6.3363,5.463,0.87324,-0.67566,2.4098,0.874
+Observed interaction + hostility over SES + vulnerabilities + satisfaction,all,ses_vul_sat,gain_vs_period_only_pct,3.4238,3.0021,0.42167,-0.51159,1.3358,0.833
+Observed interaction + hostility over SES + vulnerabilities + satisfaction,all,ses_vul_sat,c_index,0.62617,0.60749,0.018686,-0.0022352,0.040901,0.956
+Observed interaction + hostility over SES + vulnerabilities + satisfaction,all,ses_vul_sat,auc_12y,0.6651,0.64463,0.020478,-0.0032092,0.046187,0.949
+Observed interaction + hostility over SES + vulnerabilities + satisfaction,all,ses_vul_sat,auc_4.2y,0.57003,0.53945,0.030579,-0.0024705,0.063703,0.96
+Observed interaction + hostility over SES + vulnerabilities + satisfaction,all,ses_vul_sat,brier_skill_12y_pct,8.6699,7.2552,1.4147,-0.74576,3.6983,0.892
+Observed interaction + hostility over SES + vulnerabilities + satisfaction,all,ses_vul_sat,gain_12y_vs_base_pct,6.483,5.463,1.02,-0.65264,2.7854,0.881
+Self-reported hostility over everything else,all,ses_vul_sat_obs,gain_vs_period_only_pct,3.4238,2.9501,0.47368,-0.36647,1.3135,0.883
+Self-reported hostility over everything else,all,ses_vul_sat_obs,c_index,0.62617,0.61119,0.014987,-0.0014069,0.031311,0.968
+Self-reported hostility over everything else,all,ses_vul_sat_obs,auc_12y,0.6651,0.64812,0.016983,-0.0013379,0.036057,0.968
+Self-reported hostility over everything else,all,ses_vul_sat_obs,auc_4.2y,0.57003,0.54715,0.02288,-0.0043196,0.051081,0.952
+Self-reported hostility over everything else,all,ses_vul_sat_obs,brier_skill_12y_pct,8.6699,7.1346,1.5353,-0.41727,3.4737,0.948
+Self-reported hostility over everything else,all,ses_vul_sat_obs,gain_12y_vs_base_pct,6.483,5.3305,1.1525,-0.40729,2.7135,0.931
+SES + vulnerabilities over satisfaction,ses_vul_sat,satisfaction,gain_vs_period_only_pct,3.0021,1.683,1.3191,0.14489,2.696,0.988
+SES + vulnerabilities over satisfaction,ses_vul_sat,satisfaction,c_index,0.60749,0.5578,0.049687,0.010624,0.090758,0.996
+SES + vulnerabilities over satisfaction,ses_vul_sat,satisfaction,auc_12y,0.64463,0.57432,0.070307,0.019266,0.12355,0.998
+SES + vulnerabilities over satisfaction,ses_vul_sat,satisfaction,auc_4.2y,0.53945,0.53684,0.0026023,-0.057821,0.067704,0.533
+SES + vulnerabilities over satisfaction,ses_vul_sat,satisfaction,brier_skill_12y_pct,7.2552,3.1185,4.1367,0.87538,7.711,0.995
+SES + vulnerabilities over satisfaction,ses_vul_sat,satisfaction,gain_12y_vs_base_pct,5.463,2.3104,3.1526,0.58386,5.963,0.993
+Observed interaction over the baseline hazard,observed,period_only,gain_vs_period_only_pct,0.63308,0,0.63308,-0.074392,1.2596,0.963
+Observed interaction over the baseline hazard,observed,period_only,c_index,0.53469,0.49583,0.038868,-0.0039965,0.082689,0.962
+Observed interaction over the baseline hazard,observed,period_only,auc_12y,0.5517,0.49731,0.054388,0.0030004,0.1059,0.983
+Observed interaction over the baseline hazard,observed,period_only,auc_4.2y,0.4552,0.43381,0.021392,-0.03566,0.080349,0.772
+Observed interaction over the baseline hazard,observed,period_only,brier_skill_12y_pct,-0.16855,0,-0.16855,-1.3171,0.94617,0.408
+Observed interaction over the baseline hazard,observed,period_only,gain_12y_vs_base_pct,-0.11457,0,-0.11457,-0.98298,0.72636,0.418
+Satisfaction over the baseline hazard,satisfaction,period_only,gain_vs_period_only_pct,1.683,0,1.683,0.3963,2.9167,0.994
+Satisfaction over the baseline hazard,satisfaction,period_only,c_index,0.5578,0.49583,0.061976,0.015416,0.10939,0.995
+Satisfaction over the baseline hazard,satisfaction,period_only,auc_12y,0.57432,0.49731,0.07701,0.018631,0.13799,0.996
+Satisfaction over the baseline hazard,satisfaction,period_only,auc_4.2y,0.53684,0.43381,0.10304,0.017003,0.18656,0.992
+Satisfaction over the baseline hazard,satisfaction,period_only,brier_skill_12y_pct,3.1185,0,3.1185,-0.089743,6.2038,0.971
+Satisfaction over the baseline hazard,satisfaction,period_only,gain_12y_vs_base_pct,2.3104,0,2.3104,-0.10699,4.6415,0.971
+"Lasso vs ridge, all inputs",all_lasso,all,gain_vs_period_only_pct,2.0711,3.4238,-1.3527,-1.8566,-0.85795,0
+"Lasso vs ridge, all inputs",all_lasso,all,c_index,0.59425,0.62617,-0.031921,-0.047327,-0.017367,0
+"Lasso vs ridge, all inputs",all_lasso,all,auc_12y,0.62657,0.6651,-0.038533,-0.056298,-0.021235,0
+"Lasso vs ridge, all inputs",all_lasso,all,auc_4.2y,0.5441,0.57003,-0.025926,-0.049409,-0.0025049,0.016
+"Lasso vs ridge, all inputs",all_lasso,all,brier_skill_12y_pct,5.1324,8.6699,-3.5375,-4.7819,-2.2823,0
+"Lasso vs ridge, all inputs",all_lasso,all,gain_12y_vs_base_pct,3.5502,6.483,-2.9328,-4.0202,-1.8976,0
+"Small tree vs ridge, all inputs",tree,all,gain_vs_period_only_pct,0.032309,3.4238,-3.3915,-5.6084,-1.0441,0.001
+"Small tree vs ridge, all inputs",tree,all,c_index,0.53994,0.62617,-0.086235,-0.12306,-0.051583,0
+"Small tree vs ridge, all inputs",tree,all,auc_12y,0.557,0.6651,-0.1081,-0.15099,-0.065884,0
+"Small tree vs ridge, all inputs",tree,all,auc_4.2y,0.51542,0.57003,-0.054609,-0.12763,0.014746,0.066
+"Small tree vs ridge, all inputs",tree,all,brier_skill_12y_pct,0.53444,8.6699,-8.1355,-12.279,-4.1878,0
+"Small tree vs ridge, all inputs",tree,all,gain_12y_vs_base_pct,0.35451,6.483,-6.1285,-9.4317,-3.0296,0.001

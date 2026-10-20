@@ -62,6 +62,10 @@ const HEADER_ALIASES = {
   price: ["price", "price per unit", "spot price", "unit price", "price usd", "rate"],
   fee: ["fee", "fees", "fee usd", "fees usd", "commission"],
   wallet: ["wallet", "account", "exchange", "platform", "source"],
+  reported: ["reported", "broker reported", "1099-da", "form 1099-da", "reported on 1099-da"],
+  toAsset: ["to asset", "received asset", "asset received", "buy asset", "to coin", "to currency"],
+  toQuantity: ["to quantity", "received quantity", "quantity received", "buy quantity", "to amount", "received amount"],
+  toWallet: ["to wallet", "to account", "to", "destination", "destination wallet", "to exchange"],
 };
 
 export function mapHeaders(headerRow) {
@@ -80,6 +84,7 @@ const TYPE_WORDS = {
   buy: ["buy", "purchase", "bought", "advanced trade buy", "market buy", "limit buy"],
   income: ["income", "reward", "rewards", "staking", "staking reward", "airdrop", "mining", "interest", "earn", "learning reward", "referral", "payment received"],
   sell: ["sell", "sale", "sold", "spend", "market sell", "limit sell", "advanced trade sell", "payment sent", "convert out"],
+  swap: ["swap", "trade", "exchange", "convert", "dex swap", "token swap"],
   transfer: ["transfer", "send", "receive", "deposit", "withdrawal", "withdraw", "move"],
 };
 
@@ -112,6 +117,18 @@ function parseNumber(raw) {
   return Number.isFinite(n) ? n : NaN;
 }
 
+// Whether the broker reported a sale on Form 1099-DA: "basis" (reported with
+// cost basis), "nobasis" (reported, basis not) or "" (not reported). undefined
+// means the cell held something else.
+function parseReported(raw) {
+  const t = norm(raw).replace(/[\s_-]+/g, "");
+  if (t === "") return "";
+  if (["basis", "withbasis", "yes"].includes(t)) return "basis";
+  if (["nobasis", "basisnotreported"].includes(t)) return "nobasis";
+  if (["none", "no", "notreported", "n", "0"].includes(t)) return "";
+  return undefined;
+}
+
 // ---- rows --------------------------------------------------------------
 
 // Returns { transactions, skipped, errors }. A transaction is
@@ -133,13 +150,45 @@ export function parseTransactions(text) {
     const get = (f) => (map[f] === undefined ? "" : (r[map[f]] ?? ""));
     const kind = normalizeType(get("type"));
     if (kind === null) { out.errors.push(`Line ${line}: unrecognised type "${get("type")}" (use buy, sell, income or transfer).`); continue; }
-    if (kind === "transfer") { out.skipped.push(`Line ${line}: transfer ignored (not a taxable event).`); continue; }
+    const toWallet = map.toWallet === undefined ? "" : (r[map.toWallet] ?? "");
+    if (kind === "swap") {
+      // A coin-for-coin swap is a sale of the coin given up and a buy of the coin received,
+      // both at the USD value you give for the swap.
+      const date = parseDate(get("date"));
+      if (!date) { out.errors.push(`Line ${line}: unreadable date "${get("date")}" (use YYYY-MM-DD or MM/DD/YYYY).`); continue; }
+      const asset = get("asset").toUpperCase();
+      const toAsset = map.toAsset === undefined ? "" : (r[map.toAsset] ?? "").toUpperCase();
+      const qty = Math.abs(parseNumber(get("quantity")));
+      const toQty = map.toQuantity === undefined ? NaN : Math.abs(parseNumber(r[map.toQuantity]));
+      if (!asset || !toAsset) { out.errors.push(`Line ${line}: a swap needs the coin given up (asset) and the coin received (to asset).`); continue; }
+      if (asset === toAsset) { out.errors.push(`Line ${line}: a swap needs two different coins.`); continue; }
+      if (!(qty > 0) || !(toQty > 0)) { out.errors.push(`Line ${line}: a swap needs a positive quantity and to quantity.`); continue; }
+      const totalRaw = map.total === undefined ? null : parseNumber(get("total"));
+      const priceRaw = map.price === undefined ? null : parseNumber(get("price"));
+      let usd = totalRaw !== null && !Number.isNaN(totalRaw) ? Math.abs(totalRaw) : null;
+      if (usd === null && priceRaw !== null && !Number.isNaN(priceRaw)) usd = Math.abs(priceRaw) * qty;
+      if (usd === null) { out.errors.push(`Line ${line}: a swap needs the USD value of the swap (total) on that day.`); continue; }
+      const feeRaw = map.fee === undefined ? 0 : parseNumber(get("fee"));
+      const fee = Number.isNaN(feeRaw) || feeRaw === null ? 0 : Math.abs(feeRaw);
+      const wallet = get("wallet") || "";
+      out.transactions.push({ line, date, kind: "sell", asset, qty, usd, fee, wallet, swap: true });
+      out.transactions.push({ line, date, kind: "buy", asset: toAsset, qty: toQty, usd, fee: 0, wallet, swap: true });
+      continue;
+    }
+    if (kind === "transfer" && !toWallet) { out.skipped.push(`Line ${line}: transfer ignored (not a taxable event; add a "to wallet" column to move its lots in per-wallet mode).`); continue; }
     const date = parseDate(get("date"));
     if (!date) { out.errors.push(`Line ${line}: unreadable date "${get("date")}" (use YYYY-MM-DD or MM/DD/YYYY).`); continue; }
     const asset = get("asset").toUpperCase();
     if (!asset) { out.errors.push(`Line ${line}: missing asset.`); continue; }
     const qty = Math.abs(parseNumber(get("quantity")));
     if (!(qty > 0)) { out.errors.push(`Line ${line}: quantity must be a positive number.`); continue; }
+    if (kind === "transfer") {
+      const from = get("wallet");
+      if (!from) { out.errors.push(`Line ${line}: a transfer needs a wallet to move the coins out of.`); continue; }
+      if (from === toWallet) { out.skipped.push(`Line ${line}: transfer from and to the same wallet ignored.`); continue; }
+      out.transactions.push({ line, date, kind, asset, qty, usd: 0, fee: 0, wallet: from, toWallet });
+      continue;
+    }
     const totalRaw = map.total === undefined ? null : parseNumber(get("total"));
     const priceRaw = map.price === undefined ? null : parseNumber(get("price"));
     let usd = totalRaw !== null && !Number.isNaN(totalRaw) ? Math.abs(totalRaw) : null;
@@ -148,7 +197,13 @@ export function parseTransactions(text) {
     const feeRaw = map.fee === undefined ? 0 : parseNumber(get("fee"));
     const fee = Number.isNaN(feeRaw) || feeRaw === null ? 0 : Math.abs(feeRaw);
     const wallet = get("wallet") || "";
-    out.transactions.push({ line, date, kind, asset, qty, usd, fee, wallet });
+    const tx = { line, date, kind, asset, qty, usd, fee, wallet };
+    if (kind === "sell") {
+      const rep = parseReported(get("reported"));
+      if (rep === undefined) out.skipped.push(`Line ${line}: "${get("reported")}" in the reported column is not basis, nobasis or none; treated as none.`);
+      else if (rep) tx.reported = rep;
+    }
+    out.transactions.push(tx);
   }
   return out;
 }
@@ -190,7 +245,7 @@ function orderLots(lots, method, sale, unitProceeds, rates) {
   }
 }
 
-const PRIORITY = { buy: 0, income: 0, sell: 1 };
+const PRIORITY = { buy: 0, income: 0, transfer: 1, sell: 2 };
 
 // Runs one method over every transaction. Returns pieces (one per lot consumed)
 // and the lots still open at the end.
@@ -204,6 +259,26 @@ export function matchLots(transactions, { method = "FIFO", perWallet = false, sh
   const pieces = [];
   const shortfalls = [];
   for (const t of ordered) {
+    if (t.kind === "transfer") {
+      // Moving coins between your own wallets is not a sale. With one pool there is nothing to move;
+      // per wallet, the chosen lots keep their purchase date and basis in the new wallet.
+      if (!perWallet) continue;
+      const from = books.get(bookKey(t)) || [];
+      const dest = bookKey({ asset: t.asset, wallet: t.toWallet });
+      if (!books.has(dest)) books.set(dest, []);
+      let left = t.qty;
+      const order = method === "TAXMIN" ? "FIFO" : method;
+      for (const lot of orderLots(from.filter((l) => l.qty > EPS), order, t, 0, rates)) {
+        if (left <= EPS) break;
+        const take = Math.min(lot.qty, left);
+        const basis = (lot.basis / lot.qtyOriginal) * take;
+        books.get(dest).push({ ...lot, wallet: t.toWallet, qty: take, qtyOriginal: take, basis });
+        lot.qty -= take;
+        left -= take;
+      }
+      if (left > EPS) shortfalls.push({ asset: t.asset, wallet: t.wallet, line: t.line, date: t.date, qty: left, transfer: true });
+      continue;
+    }
     const key = bookKey(t);
     if (!books.has(key)) books.set(key, []);
     const lots = books.get(key);
@@ -227,6 +302,7 @@ export function matchLots(transactions, { method = "FIFO", perWallet = false, sh
         proceeds: netProceeds * share,
         basis: (lot.basis / lot.qtyOriginal) * take,
         term: holdingTerm(lot.date, t.date),
+        reported: t.reported || "",
         missingBasis: false,
       });
       lot.qty -= take;
@@ -237,13 +313,60 @@ export function matchLots(transactions, { method = "FIFO", perWallet = false, sh
       shortfalls.push({ asset: t.asset, wallet: t.wallet, line: t.line, date: t.date, qty: remaining });
       pieces.push({
         asset: t.asset, wallet: t.wallet, qty: remaining, saleLine: t.line, lotLine: null,
-        acquired: null, sold: t.date, proceeds: netProceeds * share, basis: 0, term: "Short", missingBasis: true,
+        acquired: null, sold: t.date, proceeds: netProceeds * share, basis: 0, term: "Short", reported: t.reported || "", missingBasis: true,
       });
     }
   }
   const openLots = [];
   for (const lots of books.values()) for (const l of lots) if (l.qty > EPS) openLots.push({ ...l });
   return { pieces, openLots, shortfalls };
+}
+
+// ---- wash-sale lookalike ----------------------------------------------
+
+function dayNumber(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return Math.round(Date.UTC(y, m - 1, d) / 86400000);
+}
+
+// Crypto is not covered by the wash-sale rule today (IRC 1091 names stock and
+// securities), but bills to extend it recur. For each sale at a loss, find
+// coins of the same asset bought or received within 30 days either side (other
+// than the lots the sale itself used) and show how much loss a stock-style rule
+// would defer. Each replacement purchase is used once. Informational only.
+export function washLookalike(pieces, txs, year = null) {
+  const buys = txs.filter((t) => t.kind === "buy" || t.kind === "income").map((t) => ({ ...t, left: t.qty }));
+  const bySale = new Map();
+  for (const p of pieces) {
+    if (p.missingBasis || (year !== null && yearOf(p.sold) !== year)) continue;
+    const g = bySale.get(p.saleLine) || { saleLine: p.saleLine, asset: p.asset, sold: p.sold, lots: new Set(), pieces: [] };
+    g.lots.add(p.lotLine);
+    g.pieces.push(p);
+    bySale.set(p.saleLine, g);
+  }
+  const items = [];
+  for (const g of [...bySale.values()].sort((a, b) => (a.sold < b.sold ? -1 : a.sold > b.sold ? 1 : a.saleLine - b.saleLine))) {
+    const losing = g.pieces.filter((p) => p.proceeds < p.basis);
+    if (losing.length === 0) continue;
+    const lossQty = losing.reduce((a, p) => a + p.qty, 0);
+    const loss = losing.reduce((a, p) => a + (p.basis - p.proceeds), 0);
+    const sd = dayNumber(g.sold);
+    let replaced = 0;
+    const lines = [];
+    for (const b of buys) {
+      if (replaced >= lossQty - EPS) break;
+      if (b.asset !== g.asset || b.left <= EPS || g.lots.has(b.line)) continue;
+      if (Math.abs(dayNumber(b.date) - sd) > 30) continue;
+      const take = Math.min(b.left, lossQty - replaced);
+      b.left -= take;
+      replaced += take;
+      lines.push(b.line);
+    }
+    if (replaced <= EPS) continue;
+    const share = Math.min(1, replaced / lossQty);
+    items.push({ saleLine: g.saleLine, asset: g.asset, sold: g.sold, qty: Number(lossQty.toFixed(8)), replacedQty: Number(replaced.toFixed(8)), loss: cents(loss), deferred: cents(loss * share), buyLines: lines });
+  }
+  return { items, deferred: cents(items.reduce((a, i) => a + i.deferred, 0)) };
 }
 
 // ---- reporting ---------------------------------------------------------
@@ -261,8 +384,17 @@ export function toRow(p) {
     basis,
     gain: cents(proceeds - basis),
     term: p.term,
+    reported: p.reported || "",
+    box: form8949Box(p.term, p.reported),
     missingBasis: p.missingBasis,
   };
+}
+
+// Form 8949 digital-asset boxes (2025 forms): short-term G (1099-DA, basis
+// reported), H (1099-DA, basis not reported), I (no 1099-DA); long-term J, K, L.
+export function form8949Box(term, reported) {
+  const i = reported === "basis" ? 0 : reported === "nobasis" ? 1 : 2;
+  return (term === "Long" ? "JKL" : "GHI")[i];
 }
 
 function trimQty(q) {
@@ -282,6 +414,48 @@ export function summarize(rows) {
   return s;
 }
 
+// Column totals for each part of Form 8949 (Part I short-term, Part II
+// long-term) and the combined figure, the numbers that carry to Schedule D.
+// Sums the already-rounded rows, so the totals equal what the rows add up to on
+// paper. `noBasis` counts rows with no purchase on record, whose zero basis
+// overstates the gain until the missing buy is added.
+export function form8949Totals(rows) {
+  const blank = () => ({ rows: 0, proceeds: 0, basis: 0, gain: 0, noBasis: 0 });
+  const t = { short: blank(), long: blank() };
+  for (const r of rows) {
+    const part = t[r.term === "Long" ? "long" : "short"];
+    part.rows += 1;
+    part.proceeds += r.proceeds;
+    part.basis += r.basis;
+    part.gain += r.gain;
+    if (r.missingBasis) part.noBasis += 1;
+  }
+  for (const part of [t.short, t.long]) {
+    for (const k of ["proceeds", "basis", "gain"]) part[k] = cents(part[k]);
+  }
+  t.total = {
+    rows: t.short.rows + t.long.rows,
+    proceeds: cents(t.short.proceeds + t.long.proceeds),
+    basis: cents(t.short.basis + t.long.basis),
+    gain: cents(t.short.gain + t.long.gain),
+    noBasis: t.short.noBasis + t.long.noBasis,
+  };
+  return t;
+}
+
+// Column totals per Form 8949 box (G to L), only for boxes that have rows, so a
+// return can carry each box to its own Form 8949 page.
+export function form8949BoxTotals(rows) {
+  const t = {};
+  for (const r of rows) {
+    const b = (t[r.box] ||= { box: r.box, rows: 0, proceeds: 0, basis: 0, gain: 0 });
+    b.rows += 1; b.proceeds += r.proceeds; b.basis += r.basis; b.gain += r.gain;
+  }
+  return Object.values(t).sort((a, b) => (a.box < b.box ? -1 : 1)).map((b) => ({
+    ...b, proceeds: cents(b.proceeds), basis: cents(b.basis), gain: cents(b.gain),
+  }));
+}
+
 // Federal-style netting of short and long results, ignoring NIIT, the $3,000
 // ordinary-income loss deduction and carryforwards. A net loss costs nothing here.
 export function estimateTax(summary, { shortRate, longRate }) {
@@ -295,16 +469,106 @@ export function estimateTax(summary, { shortRate, longRate }) {
   return cents(tax);
 }
 
+// Capital-loss netting with the $3,000 annual limit and indefinite carryforward
+// (Schedule D and its Capital Loss Carryover Worksheet, simplified): short-term
+// and long-term results net within their own bucket, then against each other; a
+// net loss is deductible up to `limit` ($3,000, or $1,500 married filing
+// separately) and the rest carries to next year keeping its character, with the
+// deduction taken from the short-term loss first. Tax on a net gain uses the
+// short and long rates on whatever remains of each bucket. Ignores NIIT, state
+// tax and the effect of the deduction on ordinary tax (`deduction` is reported,
+// not valued).
+export function netCapital(shortGain, longGain, { carryShort = 0, carryLong = 0, limit = 3000, shortRate = 0.24, longRate = 0.15 } = {}) {
+  const s = cents(shortGain - Math.abs(carryShort));
+  const l = cents(longGain - Math.abs(carryLong));
+  const total = cents(s + l);
+  let deduction = 0, outShort = 0, outLong = 0, tax = 0;
+  if (total < 0) {
+    deduction = Math.min(limit, -total);
+    const rest = cents(-total - deduction);
+    if (s < 0 && l < 0) { outShort = Math.max(0, cents(-s - deduction)); outLong = cents(rest - outShort); }
+    else if (s < 0) outShort = rest;
+    else outLong = rest;
+  } else if (s >= 0 && l >= 0) tax = s * shortRate + l * longRate;
+  else if (s < 0) tax = total * longRate;
+  else tax = total * shortRate;
+  return { shortNet: s, longNet: l, totalNet: total, deduction: cents(deduction), carryShortOut: cents(outShort), carryLongOut: cents(outLong), tax: cents(tax) };
+}
+
+// Net investment income tax (IRC section 1411, Form 8960): 3.8% of the smaller of
+// net investment income and the amount modified AGI exceeds a threshold that is not
+// indexed for inflation. `magi` is the user's income for the year EXCLUDING these
+// crypto results (include wages and any staking or mining income); `otherNii` is
+// other net investment income (interest, dividends, other gains). The crypto
+// result enters both at its netted amount, a net loss only by the allowed
+// deduction. Whether staking or mining income is net investment income depends on
+// facts (a trade or business is excluded), so it is left to the user via `otherNii`.
+export const NIIT_THRESHOLDS = { single: 200000, hoh: 200000, mfj: 250000, qw: 250000, mfs: 125000 };
+export const NIIT_RATE = 0.038;
+export function niit(netting, { magi, otherNii = 0, status = "single" } = {}) {
+  const threshold = NIIT_THRESHOLDS[status];
+  if (threshold === undefined || !Number.isFinite(magi) || magi < 0 || !Number.isFinite(otherNii)) return null;
+  const crypto = netting.totalNet >= 0 ? netting.totalNet : -netting.deduction;
+  const nii = cents(Math.max(0, crypto + otherNii));
+  const totalMagi = cents(magi + crypto);
+  const over = cents(Math.max(0, totalMagi - threshold));
+  const base = Math.min(nii, over);
+  const tax = cents(base * NIIT_RATE);
+  // What the crypto result alone adds: the same calculation without it.
+  const without = cents(Math.min(Math.max(0, otherNii), Math.max(0, magi - threshold)) * NIIT_RATE);
+  return { status, threshold, totalMagi, nii, over, base, tax, fromCrypto: cents(tax - without) };
+}
+
+// Chains `netCapital` over several years: [{ year, shortGain, longGain }] in
+// any order, years with no sales between them carry through unchanged.
+export function carryoverChain(yearSummaries, opts = {}) {
+  let carryShort = Math.abs(opts.carryShort || 0), carryLong = Math.abs(opts.carryLong || 0);
+  const out = [];
+  for (const y of [...yearSummaries].sort((a, b) => a.year - b.year)) {
+    const r = netCapital(y.shortGain, y.longGain, { ...opts, carryShort, carryLong });
+    out.push({ year: y.year, carryShortIn: cents(carryShort), carryLongIn: cents(carryLong), shortGain: y.shortGain, longGain: y.longGain, ...r });
+    carryShort = r.carryShortOut; carryLong = r.carryLongOut;
+  }
+  return out;
+}
+
 export function yearOf(iso) {
   return Number(iso.slice(0, 4));
 }
 
+// Ordinary income received (staking, mining, airdrops, rewards) in a tax year, by coin and
+// by month, valued at the USD amounts the user entered. Each row is also a lot, so the
+// same figures are the basis of the coins when they are later sold.
+export function incomeReport(txs, year = null) {
+  const rows = txs.filter((t) => t.kind === "income" && (year === null || yearOf(t.date) === year));
+  const byAsset = new Map(), byMonth = new Map();
+  for (const t of rows) {
+    const a = byAsset.get(t.asset) || { asset: t.asset, count: 0, qty: 0, usd: 0, first: t.date, last: t.date };
+    a.count++; a.qty += t.qty; a.usd += t.usd;
+    if (t.date < a.first) a.first = t.date;
+    if (t.date > a.last) a.last = t.date;
+    byAsset.set(t.asset, a);
+    const m = t.date.slice(0, 7);
+    byMonth.set(m, (byMonth.get(m) || 0) + t.usd);
+  }
+  const assets = [...byAsset.values()].map((a) => ({ ...a, qty: Number(a.qty.toFixed(8)), usd: cents(a.usd) })).sort((a, b) => b.usd - a.usd);
+  const months = [...byMonth].map(([month, usd]) => ({ month, usd: cents(usd) })).sort((a, b) => (a.month < b.month ? -1 : 1));
+  return { year, count: rows.length, total: cents(rows.reduce((n, t) => n + t.usd, 0)), assets, months };
+}
+
+export function toIncomeCsv(report) {
+  const lines = [["Asset", "Receipts", "Quantity", "First received", "Last received", "Fair market value (USD)"].join(",")];
+  for (const a of report.assets) lines.push([a.asset, a.count, a.qty, a.first, a.last, a.usd.toFixed(2)].map(q).join(","));
+  lines.push(["Total", report.count, "", "", "", report.total.toFixed(2)].map(q).join(","));
+  return lines.join("\n") + "\n";
+}
+
 export function analyze(text, options = {}) {
-  const { method = "FIFO", year = null, perWallet = false, shortRate = 0.24, longRate = 0.15 } = options;
+  const { method = "FIFO", year = null, perWallet = false, shortRate = 0.24, longRate = 0.15, carryShort = 0, carryLong = 0, lossLimit = 3000, magi = null, otherNii = 0, filing = "single" } = options;
   const parsed = parseTransactions(text);
   const result = {
     errors: parsed.errors, skipped: parsed.skipped, warnings: [], years: [], year: null,
-    rows: [], summary: null, tax: null, comparison: [], holdings: [], income: 0, method, count: parsed.transactions.length,
+    rows: [], washLookalike: { items: [], deferred: 0 }, summary: null, tax: null, netting: null, niit: null, carryChain: [], comparison: [], holdings: [], openLots: [], income: 0, incomeReport: null, method, count: parsed.transactions.length,
   };
   if (parsed.errors.length && parsed.transactions.length === 0) return result;
   const txs = parsed.transactions;
@@ -335,10 +599,39 @@ export function analyze(text, options = {}) {
       totalGain: r.summary.totalGain, tax: r.tax,
     });
   }
+  {
+    const { pieces } = matchLots(txs, { method, perWallet, shortRate, longRate });
+    const byYear = new Map();
+    for (const p of pieces) {
+      const row = toRow(p), y = yearOf(row.sold);
+      const a = byYear.get(y) || [];
+      a.push(row);
+      byYear.set(y, a);
+    }
+    const sums = [...byYear].map(([y, rs]) => { const sm = summarize(rs); return { year: y, shortGain: sm.shortGain, longGain: sm.longGain }; });
+    result.carryChain = carryoverChain(sums, { carryShort, carryLong, limit: lossLimit, shortRate, longRate });
+    result.netting = result.carryChain.find((c) => c.year === chosen) || null;
+    if (magi !== null && result.netting) result.niit = niit(result.netting, { magi, otherNii, status: filing });
+    // The same year under every method, so a method that lowers income tax but
+    // raises the 3.8% surtax (or the reverse) shows up in the comparison.
+    if (magi !== null && chosen !== null) {
+      for (const c of result.comparison) {
+        const { pieces: mp } = matchLots(txs, { method: c.method, perWallet, shortRate, longRate });
+        const byY = new Map();
+        for (const p of mp) { const row = toRow(p), y = yearOf(row.sold); byY.set(y, [...(byY.get(y) || []), row]); }
+        const ms = [...byY].map(([y, rs]) => { const sm = summarize(rs); return { year: y, shortGain: sm.shortGain, longGain: sm.longGain }; });
+        const n = carryoverChain(ms, { carryShort, carryLong, limit: lossLimit, shortRate, longRate }).find((x) => x.year === chosen);
+        const nn = n ? niit(n, { magi, otherNii, status: filing }) : null;
+        c.niit = nn ? nn.tax : 0;
+      }
+    }
+  }
   const best = result.comparison.reduce((a, b) => (b.tax < a.tax || (b.tax === a.tax && b.totalGain < a.totalGain) ? b : a));
   result.bestMethod = best.method;
+  result.washLookalike = washLookalike(matchLots(txs, { method, perWallet, shortRate, longRate }).pieces, txs, chosen);
 
   for (const s of main.shortfalls) {
+    if (s.transfer) { result.warnings.push(`Line ${s.line} (${s.date}): transferred ${trimQty(s.qty)} ${s.asset} more than the lots on record in wallet "${s.wallet}". Only the coins on record were moved; add the missing buy, income or transfer-in history.`); continue; }
     result.warnings.push(`Line ${s.line} (${s.date}): sold ${trimQty(s.qty)} ${s.asset} more than the lots on record${perWallet && s.wallet ? ` in wallet "${s.wallet}"` : ""}. That part is shown with zero basis; add the missing buy, income or transfer-in history.`);
   }
   const holdings = new Map();
@@ -350,8 +643,158 @@ export function analyze(text, options = {}) {
     holdings.set(k, h);
   }
   result.holdings = [...holdings.values()].map((h) => ({ asset: h.asset, qty: Number(h.qty.toFixed(8)), basis: cents(h.basis) })).sort((a, b) => b.basis - a.basis);
+  result.openLots = main.openLots.map((l) => ({
+    asset: l.asset, wallet: l.wallet, acquired: l.date, qty: Number(l.qty.toFixed(8)), basis: cents((l.basis / l.qtyOriginal) * l.qty),
+  }));
   result.income = cents(txs.filter((t) => t.kind === "income" && (chosen === null || yearOf(t.date) === chosen)).reduce((a, t) => a + t.usd, 0));
+  result.incomeReport = incomeReport(txs, chosen);
   return result;
+}
+
+// "BTC=65000, ETH 3200" or one per line -> { BTC: 65000, ETH: 3200 }. Bad entries are reported, never guessed.
+export function parsePrices(text) {
+  const prices = {};
+  const errors = [];
+  for (const part of String(text || "").split(/[\n;]+|,(?=\s*[A-Za-z])/)) {
+    const t = part.trim();
+    if (!t) continue;
+    const m = t.match(/^([A-Za-z0-9.\-]+)\s*[=:\s]\s*\$?\s*([0-9][0-9,]*(?:\.[0-9]+)?)$/);
+    if (!m) { errors.push(`Could not read "${t}". Write it as BTC=65000.`); continue; }
+    const v = Number(m[2].replace(/,/g, ""));
+    if (!(v > 0)) { errors.push(`Price for ${m[1]} must be above zero.`); continue; }
+    prices[m[1].toUpperCase()] = v;
+  }
+  return { prices, errors };
+}
+
+// Tax-loss harvesting view of the lots still open. For each lot with a price you
+// typed: unrealized gain or loss and its term if sold on `asOf`. Then the tax
+// saved by selling every losing lot against the year's realized result
+// (`summary` from analyze, already net of the chosen method). Biggest tax saved
+// per lot first. No wash-sale rule is applied; see the page for why that is a
+// question of current law, not of arithmetic.
+export function harvestPlan(openLots, prices, { asOf, summary = null, shortRate = 0.24, longRate = 0.15 } = {}) {
+  const base = summary || { shortGain: 0, longGain: 0 };
+  const lots = [];
+  const unpriced = new Set();
+  for (const l of openLots) {
+    const price = prices[l.asset];
+    if (!price) { unpriced.add(l.asset); continue; }
+    const value = cents(l.qty * price);
+    const gain = cents(value - l.basis);
+    const term = holdingTerm(l.acquired, asOf);
+    lots.push({ asset: l.asset, wallet: l.wallet, acquired: l.acquired, qty: l.qty, basis: l.basis, value, gain, term });
+  }
+  const losers = lots.filter((l) => l.gain < 0);
+  const net = (extraShort, extraLong) => estimateTax({ shortGain: base.shortGain + extraShort, longGain: base.longGain + extraLong }, { shortRate, longRate });
+  const shortLoss = cents(losers.filter((l) => l.term === "Short").reduce((a, l) => a + l.gain, 0));
+  const longLoss = cents(losers.filter((l) => l.term === "Long").reduce((a, l) => a + l.gain, 0));
+  const taxBefore = net(0, 0);
+  const taxAfter = net(shortLoss, longLoss);
+  // Standalone saving per lot (against the current result), for ranking only.
+  for (const l of losers) l.taxSaved = cents(taxBefore - (l.term === "Short" ? net(l.gain, 0) : net(0, l.gain)));
+  losers.sort((a, b) => b.taxSaved - a.taxSaved || a.gain - b.gain);
+  return {
+    asOf, lots, losers, unpriced: [...unpriced].sort(),
+    unrealizedGain: cents(lots.reduce((a, l) => a + l.gain, 0)),
+    shortLoss, longLoss, taxBefore, taxAfter, taxSaved: cents(taxBefore - taxAfter),
+    unusedLoss: cents(Math.max(0, -(base.shortGain + shortLoss + base.longGain + longLoss))),
+  };
+}
+
+function addDays(iso, n) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+
+// Wait-for-long-term view: lots you hold at a gain that are still short-term on `asOf` but
+// turn long-term within `windowDays`. A lot is long-term from the day after its first
+// anniversary (holdingTerm). For each: the first long-term sale date, days to wait, the
+// estimated tax saved by selling then instead of on `asOf` at the same price (against the
+// year's result in `summary`), and `breakEvenFall`, how far the lot's value can drop while
+// waiting before waiting leaves you with less cash after tax than selling now. Prices are
+// yours; fees, state tax and the year the sale lands in are not modelled.
+export function waitPlan(openLots, prices, { asOf, windowDays = 90, summary = null, shortRate = 0.24, longRate = 0.15 } = {}) {
+  const base = summary || { shortGain: 0, longGain: 0 };
+  const rates = { shortRate, longRate };
+  const unpriced = new Set();
+  const lots = [];
+  for (const l of openLots) {
+    const price = prices[l.asset];
+    if (!price) { unpriced.add(l.asset); continue; }
+    if (holdingTerm(l.acquired, asOf) !== "Short") continue;
+    const longFrom = addDays(addOneYear(l.acquired), 1);
+    const days = Math.round((Date.parse(longFrom) - Date.parse(asOf)) / 86400000);
+    if (days > windowDays) continue;
+    const value = cents(l.qty * price);
+    const gain = cents(value - l.basis);
+    if (gain <= 0) continue;
+    const taxNow = estimateTax({ shortGain: base.shortGain + gain, longGain: base.longGain }, rates) - estimateTax(base, rates);
+    const taxLater = estimateTax({ shortGain: base.shortGain, longGain: base.longGain + gain }, rates) - estimateTax(base, rates);
+    const taxSaved = cents(taxNow - taxLater);
+    if (taxSaved <= 0) continue;
+    const fall = cents(Math.max(0, gain * (shortRate - longRate) / (1 - longRate)));
+    lots.push({ asset: l.asset, wallet: l.wallet, acquired: l.acquired, qty: l.qty, basis: l.basis, value, gain, longFrom, days, taxSaved, breakEvenFall: fall, breakEvenFallPct: value > 0 ? Number((fall / value * 100).toFixed(1)) : 0 });
+  }
+  lots.sort((a, b) => a.days - b.days || b.taxSaved - a.taxSaved);
+  return { asOf, windowDays, lots, unpriced: [...unpriced].sort(), taxSaved: cents(lots.reduce((a, l) => a + l.taxSaved, 0)) };
+}
+
+// Sell planner: which of the lots you still hold to sell for `asset` at a price you typed,
+// under each method, and what each choice adds to the year's estimated tax. Give `qty`
+// (coins) or `cash` (dollars of proceeds wanted, before the fee). `summary` is the year's
+// realized result so far, so a sale of losing lots can offset it and a sale of gains stacks on it.
+// A request larger than the holding is cut to the holding and flagged, never invented.
+export function planSale(openLots, { asset, price, asOf, qty = null, cash = null, feeRate = 0, summary = null, shortRate = 0.24, longRate = 0.15 }) {
+  const rates = { shortRate, longRate };
+  const base = summary || { shortGain: 0, longGain: 0 };
+  const held = openLots.filter((l) => l.asset === asset && l.qty > EPS)
+    .map((l, i) => ({ date: l.acquired, seq: i, wallet: l.wallet, qty: l.qty, qtyOriginal: l.qty, basis: l.basis }));
+  const heldQty = held.reduce((a, l) => a + l.qty, 0);
+  const wanted = qty !== null ? qty : cash !== null ? cash / (price * (1 - feeRate)) : 0;
+  const target = Math.min(wanted, heldQty);
+  const taxBefore = estimateTax(base, rates);
+  const sale = { date: asOf };
+  const options = METHODS.map((method) => {
+    const lots = held.map((l) => ({ ...l }));
+    let left = target;
+    const taken = [];
+    for (const lot of orderLots(lots, method, sale, price * (1 - feeRate), rates)) {
+      if (left <= EPS) break;
+      const take = Math.min(lot.qty, left);
+      const proceeds = take * price * (1 - feeRate);
+      const basis = (lot.basis / lot.qtyOriginal) * take;
+      taken.push({ wallet: lot.wallet, acquired: lot.date, qty: Number(take.toFixed(8)), proceeds: cents(proceeds), basis: cents(basis), gain: cents(proceeds - basis), term: holdingTerm(lot.date, asOf) });
+      left -= take;
+    }
+    const sum = (term) => cents(taken.filter((t) => t.term === term).reduce((a, t) => a + t.gain, 0));
+    const shortGain = sum("Short"), longGain = sum("Long");
+    const proceeds = cents(taken.reduce((a, t) => a + t.proceeds, 0));
+    const extraTax = cents(estimateTax({ shortGain: base.shortGain + shortGain, longGain: base.longGain + longGain }, rates) - taxBefore);
+    return { method, label: METHOD_LABELS[method], lots: taken, proceeds, basis: cents(taken.reduce((a, t) => a + t.basis, 0)), shortGain, longGain, gain: cents(shortGain + longGain), extraTax, keep: cents(proceeds - extraTax) };
+  });
+  const best = options.reduce((a, b) => (b.extraTax < a.extraTax ? b : a));
+  return { asset, price, asOf, requested: Number(wanted.toFixed(8)), qty: Number(target.toFixed(8)), heldQty: Number(heldQty.toFixed(8)), capped: wanted > heldQty + EPS, taxBefore, options, bestMethod: best.method };
+}
+
+// Written lot-identification record for one option of a sell plan: the units a sale is to
+// use, in a form to date and keep (or send to the platform) before selling. Specific
+// identification generally depends on the choice being made no later than the sale and being
+// provable, which is what this page is for; whether it is enough for you is for your preparer.
+export function idRecord(plan, method) {
+  const o = plan.options.find((x) => x.method === method);
+  if (!o || !o.lots.length) return null;
+  const lines = [
+    `Specific identification of units to be sold: ${plan.asset}`,
+    `Planned sale date: ${plan.asOf}`,
+    `Planned quantity: ${o.lots.reduce((a, l) => a + l.qty, 0).toFixed(8).replace(/\.?0+$/, "")} ${plan.asset} at an assumed ${plan.price} USD per coin`,
+    "",
+    "Units to be treated as sold (wallet / account, date acquired, quantity, cost basis in USD):",
+  ];
+  for (const l of o.lots) lines.push(`  - ${l.wallet || "(no wallet recorded)"}; acquired ${l.acquired}; ${l.qty} ${plan.asset}; basis ${l.basis.toFixed(2)}`);
+  lines.push("", "Written before the sale. Date and time it, and keep it with the exchange or wallet records. Lots chosen by the " + o.label + " rule from the transaction file as typed; prices are assumed, not fetched.", "Arithmetic on figures you typed, not tax advice: confirm with a tax professional that specific identification is available to you and that this record meets the rule.");
+  const csv = ["wallet,asset,date_acquired,quantity,cost_basis_usd"].concat(o.lots.map((l) => [q(l.wallet || ""), q(plan.asset), l.acquired, l.qty, l.basis.toFixed(2)].join(","))).join("\n") + "\n";
+  return { method, text: lines.join("\n") + "\n", csv };
 }
 
 const q = (v) => {
@@ -360,17 +803,110 @@ const q = (v) => {
 };
 
 // CSV in Form 8949 column order, ready to paste into tax software or hand to a preparer.
+// Gift of appreciated coins to a public charity: only lots held over a year count at
+// market value, so pick those with the most gain per coin first. Compares with selling
+// the same lots (gain tax avoided). `deductionRate` is yours (0 = ignore the deduction).
+export function donationPlan(openLots, { asset, price, asOf, qty, longRate = 0.15, deductionRate = 0 }) {
+  const held = openLots.filter((l) => l.asset === asset && l.qty > EPS && holdingTerm(l.acquired, asOf) === "Long")
+    .map((l) => ({ wallet: l.wallet, acquired: l.acquired, qty: l.qty, perCoin: l.basis / l.qty, basis: l.basis }))
+    .sort((a, b) => a.perCoin - b.perCoin);
+  const longQty = held.reduce((a, l) => a + l.qty, 0);
+  const target = Math.min(qty, longQty);
+  let left = target;
+  const lots = [];
+  for (const l of held) {
+    if (left <= EPS) break;
+    const take = Math.min(l.qty, left);
+    const value = take * price, basis = l.perCoin * take;
+    lots.push({ wallet: l.wallet, acquired: l.acquired, qty: Number(take.toFixed(8)), value: cents(value), basis: cents(basis), gain: cents(value - basis) });
+    left -= take;
+  }
+  const value = cents(lots.reduce((a, l) => a + l.value, 0));
+  const basis = cents(lots.reduce((a, l) => a + l.basis, 0));
+  const gain = cents(value - basis);
+  const taxAvoided = cents(Math.max(0, gain) * longRate);
+  const deductionValue = cents(value * deductionRate);
+  return { asset, price, asOf, requested: qty, qty: Number(target.toFixed(8)), longQty: Number(longQty.toFixed(8)), capped: qty > longQty + EPS, lots, value, basis, gain, taxAvoided, deductionValue, totalBenefit: cents(taxAvoided + deductionValue) };
+}
+
+// Reconcile against the broker's Form 1099-DA: type or paste the per-asset (or
+// per-sale) proceeds and basis the broker reported, and compare each coin with
+// what your own lot matching produced. A basis gap is the usual cause of an
+// inflated gain on a 1099-DA (the broker saw only its own purchases).
+const REC_ALIASES = {
+  asset: ["asset", "coin", "token", "symbol", "digital asset", "code"],
+  proceeds: ["proceeds", "gross proceeds", "proceeds usd", "amount received"],
+  basis: ["basis", "cost basis", "cost", "basis usd"],
+};
+export function parse1099da(text) {
+  const grid = parseCsv(text).filter((r) => r.some((c) => String(c).trim()));
+  const out = { entries: {}, errors: [] };
+  if (grid.length < 2) { out.errors.push("Need a header row and at least one coin."); return out; }
+  const head = grid[0].map((h) => String(h).trim().toLowerCase());
+  const col = {};
+  for (const [k, names] of Object.entries(REC_ALIASES)) col[k] = head.findIndex((h) => names.includes(h));
+  if (col.asset < 0 || col.proceeds < 0) { out.errors.push("Header needs an asset column and a proceeds column."); return out; }
+  const num = (v) => { const n = Number(String(v ?? "").replace(/[$,\s]/g, "")); return String(v ?? "").trim() === "" || !Number.isFinite(n) ? null : n; };
+  grid.slice(1).forEach((r, i) => {
+    const asset = String(r[col.asset] ?? "").trim().toUpperCase();
+    const proceeds = num(r[col.proceeds]);
+    if (!asset || proceeds === null) { out.errors.push(`Row ${i + 2}: needs an asset and a number for proceeds.`); return; }
+    const basis = col.basis >= 0 ? num(r[col.basis]) : null;
+    const e = (out.entries[asset] ||= { proceeds: 0, basis: null });
+    e.proceeds += proceeds;
+    if (basis !== null) e.basis = (e.basis ?? 0) + basis;
+  });
+  return out;
+}
+
+export function reconcile1099da(rows, broker, { tolerance = 1 } = {}) {
+  const mine = {};
+  for (const r of rows) {
+    const m = (mine[r.asset] ||= { proceeds: 0, basis: 0 });
+    m.proceeds += r.proceeds;
+    m.basis += r.basis;
+  }
+  const items = [];
+  for (const asset of [...new Set([...Object.keys(mine), ...Object.keys(broker)])].sort()) {
+    const m = mine[asset], b = broker[asset];
+    const it = { asset, myProceeds: m ? cents(m.proceeds) : null, myBasis: m ? cents(m.basis) : null, brokerProceeds: b ? cents(b.proceeds) : null, brokerBasis: b && b.basis !== null ? cents(b.basis) : null };
+    it.proceedsDiff = m && b ? cents(b.proceeds - m.proceeds) : null;
+    it.basisDiff = m && b && it.brokerBasis !== null ? cents(it.brokerBasis - m.basis) : null;
+    it.status = !b ? "not on 1099-DA" : !m ? "not in your sales" : Math.abs(it.proceedsDiff) > tolerance ? "proceeds differ" : it.basisDiff !== null && Math.abs(it.basisDiff) > tolerance ? "basis differs" : "matches";
+    items.push(it);
+  }
+  return { items, mismatches: items.filter((i) => i.status !== "matches").length };
+}
+
 export function toForm8949Csv(rows) {
-  const head = ["Description of property", "Date acquired", "Date sold", "Proceeds", "Cost or other basis", "Gain or loss", "Term", "Note"];
+  // Box column only when the file says which sales a broker reported on a 1099-DA.
+  const boxes = rows.some((r) => r.reported);
+  const head = ["Description of property", "Date acquired", "Date sold", "Proceeds", "Cost or other basis", "Gain or loss", "Term", ...(boxes ? ["Box"] : []), "Note"];
   const lines = [head.join(",")];
   for (const r of rows) {
     lines.push([
       r.description, r.acquired || "VARIOUS", r.sold, r.proceeds.toFixed(2), r.basis.toFixed(2), r.gain.toFixed(2), r.term,
+      ...(boxes ? [r.box] : []),
       r.missingBasis ? "No basis on record" : "",
     ].map(q).join(","));
   }
   return lines.join("\n") + "\n";
 }
+
+// Tax-software import rows (the five-column crypto template that online
+// filing products document: currency, purchase date, cost basis, sale date,
+// proceeds; dates MM/DD/YYYY). Rows with no purchase on record are left out, never
+// given a basis of zero; turboTaxSkipped counts them so the caller can say so.
+const usDate = (iso) => (/^\d{4}-\d{2}-\d{2}/.test(iso || "") ? `${iso.slice(5, 7)}/${iso.slice(8, 10)}/${iso.slice(0, 4)}` : "Various");
+export function toTurboTaxCsv(rows) {
+  const lines = ["Currency Name,Purchase Date,Cost Basis,Date Sold,Proceeds"];
+  for (const r of rows) {
+    if (r.missingBasis) continue;
+    lines.push([r.asset, usDate(r.acquired), r.basis.toFixed(2), usDate(r.sold), r.proceeds.toFixed(2)].map(q).join(","));
+  }
+  return lines.join("\n") + "\n";
+}
+export const turboTaxSkipped = (rows) => rows.filter((r) => r.missingBasis).length;
 
 export const SAMPLE_CSV = `date,type,asset,quantity,total,fee,wallet
 2023-01-10,buy,BTC,0.50,10000,10,Exchange A

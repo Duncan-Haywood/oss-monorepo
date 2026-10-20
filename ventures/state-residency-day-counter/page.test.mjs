@@ -18,7 +18,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 });
 
 test("JSON-LD blocks parse and every FAQ question is on the page", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html", "nyc-resident-tax-183-day-test.html", "georgia-new-mexico-louisiana-days-only-residency.html", "six-month-residency-nebraska-colorado-arkansas-kansas.html", "over-200-day-residency-oregon-hawaii-idaho.html", "ohio-212-contact-period-safe-harbor.html"]) {
     const html = page(name);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
     const faq = blocks.find((b) => b["@type"] === "FAQPage");
@@ -80,7 +80,7 @@ test("every element the script looks up exists on the page", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["count_run", "example_loaded", "report_downloaded"]) {
+  for (const e of ["count_run", "example_loaded", "report_downloaded", "daily_log_downloaded", "audit_packet_downloaded", "deadlines_downloaded", "trip_checked", "remembered_entries_restored", "count_run_new_day"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
@@ -97,7 +97,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
 });
 
 test("related-tool links point at ventures that exist", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html", "nyc-resident-tax-183-day-test.html", "georgia-new-mexico-louisiana-days-only-residency.html", "six-month-residency-nebraska-colorado-arkansas-kansas.html", "over-200-day-residency-oregon-hawaii-idaho.html", "ohio-212-contact-period-safe-harbor.html"]) {
     for (const m of page(name).matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
@@ -124,4 +124,190 @@ test("the guide's worked example matches the counter", () => {
 test("footer links back to the quarterly estimated tax calendar, which links here", () => {
   assert.match(page("index.html"), /href="\.\.\/quarterly-estimated-tax-calendar\/"/);
   assert.match(readFileSync(new URL("../quarterly-estimated-tax-calendar/index.html", import.meta.url), "utf8"), /href="\.\.\/state-residency-day-counter\/"/);
+});
+
+test("the employer-rule guide's figures match the counter", async () => {
+  const { sampleSpec, analyze } = await import("./calc.mjs");
+  const spec = sampleSpec();
+  spec.employerState = "NY";
+  const r = analyze(spec);
+  const guide = page("remote-work-convenience-of-the-employer-rule.html");
+  const usd = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  const ny = r.states.find((s) => s.code === "NY");
+  const fl = r.states.find((s) => s.code === "FL");
+  assert.ok(guide.includes(`<td class="n">${r.employer.physicalDays}</td><td class="n">${usd(ny.wages)}</td>`));
+  assert.ok(guide.includes(`<td class="n">${r.employer.claimableDays}</td><td class="n">${usd(r.employer.claimableWages)}</td>`));
+  assert.ok(guide.includes(`${r.employer.remoteDays} Florida workdays carry ${usd(fl.wages)}`));
+  assert.match(guide, /<link rel="canonical" href="\.\/remote-work-convenience-of-the-employer-rule\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/remote-work-convenience-of-the-employer-rule\.html"/);
+  assert.match(page("sitemap.xml"), /remote-work-convenience-of-the-employer-rule\.html/);
+});
+
+test("the snowbird guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay } = await import("./calc.mjs");
+  const guide = page("snowbird-days-in-new-york.html");
+  const ny = (text, convention = "inclusive") => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "FL", abode: { NY: true, FL: true }, asOf: toDay(2025, 12, 31), convention, wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === "NY");
+  };
+  const may = ny("2025-05-01 to 2025-10-31 NY");
+  assert.equal(may.days, 184);
+  assert.ok(guide.includes(`<td class="n">${may.days}</td><td>Over by ${-may.room}</td>`));
+  assert.equal(ny("2025-05-01 to 2025-10-31 NY", "nights").days, 183);
+  const sep = ny("2025-05-01 to 2025-09-30 NY");
+  assert.ok(guide.includes(`<td class="n">${sep.days}</td><td>${sep.room} days of room</td>`));
+  const hol = ny("2025-05-15 to 2025-10-10 NY\n2025-12-20 to 2025-12-31 NY");
+  const base = ny("2025-05-15 to 2025-10-10 NY");
+  assert.ok(guide.includes(`<td class="n">${hol.days}</td><td>${hol.room} days of room</td>`));
+  assert.ok(guide.includes(`costs ${hol.days - base.days} days of the ${base.room} the person`));
+  assert.match(guide, /<link rel="canonical" href="\.\/snowbird-days-in-new-york\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/snowbird-days-in-new-york\.html"/);
+  assert.match(page("sitemap.xml"), /snowbird-days-in-new-york\.html/);
+});
+
+test("the Maryland/Utah guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay, RULES } = await import("./calc.mjs");
+  const guide = page("maryland-utah-182-day-limit.html");
+  const md = (text, convention = "inclusive") => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "FL", abode: { MD: true, FL: true }, asOf: toDay(2025, 12, 31), convention, wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === "MD");
+  };
+  assert.equal(RULES.MD.limit, 182);
+  assert.equal(RULES.UT.limit, 182);
+  const a = md("2025-05-01 to 2025-10-28 MD");
+  assert.ok(guide.includes(`<td class="n">${a.days}</td><td>${a.room} day of room</td>`));
+  const b = md("2025-05-01 to 2025-10-29 MD");
+  assert.equal(b.room, 0);
+  assert.ok(guide.includes(`<td class="n">${b.days}</td><td>No room left</td>`));
+  const c = md("2025-06-01 to 2025-11-30 MD");
+  assert.ok(guide.includes(`<td class="n">${c.days}</td><td>Over by ${-c.room}</td>`));
+  assert.equal(md("2025-06-01 to 2025-11-30 MD", "nights").days, 182);
+  assert.equal(md("2025-05-01 to 2025-10-31 MD").room, -2);
+  assert.match(guide, /<link rel="canonical" href="\.\/maryland-utah-182-day-limit\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/maryland-utah-182-day-limit\.html"/);
+  assert.match(page("sitemap.xml"), /maryland-utah-182-day-limit\.html/);
+});
+
+test("the California guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay, RULES } = await import("./calc.mjs");
+  const guide = page("california-nine-month-residency-presumption.html");
+  const ca = (text, convention = "inclusive") => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "NV", abode: { NV: true }, asOf: toDay(2025, 12, 31), convention, wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === "CA");
+  };
+  assert.equal(RULES.CA.limit, 270);
+  assert.equal(RULES.CA.kind, "presumption");
+  const a = ca("2025-01-01 to 2025-09-26 CA");
+  assert.ok(guide.includes(`<td class="n">${a.days}</td><td>${a.room} day of room</td>`));
+  const b = ca("2025-01-01 to 2025-09-27 CA");
+  assert.equal(b.room, 0);
+  assert.ok(guide.includes(`<td class="n">${b.days}</td><td>No room left</td>`));
+  const c = ca("2025-01-01 to 2025-09-30 CA");
+  assert.ok(guide.includes(`<td class="n">${c.days}</td><td>Over by ${-c.room}</td>`));
+  assert.match(guide, /<link rel="canonical" href="\.\/california-nine-month-residency-presumption\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/california-nine-month-residency-presumption\.html"/);
+  assert.match(page("sitemap.xml"), /california-nine-month-residency-presumption\.html/);
+});
+
+test("the days-only residency guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay, RULES } = await import("./calc.mjs");
+  const guide = page("georgia-new-mexico-louisiana-days-only-residency.html");
+  const run = (text, code) => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "TX", abode: { TX: true }, asOf: toDay(2025, 12, 31), convention: "inclusive", wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === code);
+  };
+  assert.equal(RULES.GA.limit, 182);
+  assert.equal(RULES.NM.limit, 184);
+  assert.equal(RULES.LA.limit, 182);
+  for (const code of ["GA", "NM", "LA"]) assert.equal(RULES[code].requiresAbode, false);
+  const room = (r) => (r.room > 0 ? `${r.room} day${r.room === 1 ? "" : "s"} of room` : r.room === 0 ? "No room left" : `Over by ${-r.room}`);
+  for (const [text, code] of [["2025-01-01 to 2025-06-30 GA", "GA"], ["2025-01-01 to 2025-07-01 GA", "GA"], ["2025-01-01 to 2025-07-02 GA", "GA"], ["2025-01-01 to 2025-07-03 NM", "NM"], ["2025-01-01 to 2025-07-04 NM", "NM"]]) {
+    const r = run(text, code);
+    assert.ok(guide.includes(`<td class="n">${r.days}</td><td>${room(r)}</td>`), text);
+  }
+  assert.match(guide, /<link rel="canonical" href="\.\/georgia-new-mexico-louisiana-days-only-residency\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/georgia-new-mexico-louisiana-days-only-residency\.html"/);
+  assert.match(page("sitemap.xml"), /georgia-new-mexico-louisiana-days-only-residency\.html/);
+});
+
+test("the NYC guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay } = await import("./calc.mjs");
+  const guide = page("nyc-resident-tax-183-day-test.html");
+  const nyc = (text) => analyze({ year: 2025, stays: parseStays(text, 2025).stays, homeState: "NJ", abode: { NYC: true, NY: true, NJ: true }, asOf: toDay(2025, 12, 31), convention: "inclusive", wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === "NYC");
+  const a = nyc("2025-01-01 to 2025-07-02 NYC");
+  assert.equal(a.room, 0);
+  assert.ok(guide.includes(`<td class="n">${a.days}</td><td>No room left</td>`));
+  for (const text of ["2025-01-01 to 2025-07-03 NYC", "2025-05-01 to 2025-10-31 NYC"]) {
+    const c = nyc(text);
+    assert.ok(guide.includes(`<td class="n">${c.days}</td><td>Over by ${-c.room}</td>`), text);
+  }
+  assert.match(guide, /<link rel="canonical" href="\.\/nyc-resident-tax-183-day-test\.html">/);
+  assert.match(page("index.html"), /href="\.\/nyc-resident-tax-183-day-test\.html"/);
+  assert.match(page("sitemap.xml"), /nyc-resident-tax-183-day-test\.html/);
+});
+
+test("the Ohio guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay, RULES } = await import("./calc.mjs");
+  const guide = page("ohio-212-contact-period-safe-harbor.html");
+  const oh = (text) => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "PA", abode: { PA: true }, asOf: toDay(2025, 12, 31), convention: "nights", wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === "OH");
+  };
+  assert.equal(RULES.OH.limit, 212);
+  const a = oh("2025-04-01 to 2025-10-29 OH");
+  assert.ok(guide.includes(`<td class="n">${a.days}</td><td>${a.room} day of room</td>`));
+  const b = oh("2025-04-01 to 2025-10-30 OH");
+  assert.equal(b.room, 0);
+  assert.ok(guide.includes(`<td class="n">${b.days}</td><td>No room left</td>`));
+  const c = oh("2025-04-01 to 2025-10-31 OH");
+  assert.ok(guide.includes(`<td class="n">${c.days}</td><td>Over by ${-c.room}</td>`));
+  assert.match(guide, /<link rel="canonical" href="\.\/ohio-212-contact-period-safe-harbor\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/ohio-212-contact-period-safe-harbor\.html"/);
+  assert.match(page("sitemap.xml"), /ohio-212-contact-period-safe-harbor\.html/);
+});
+
+test("the six-month guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay, RULES } = await import("./calc.mjs");
+  const guide = page("six-month-residency-nebraska-colorado-arkansas-kansas.html");
+  const run = (text, code) => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "TX", abode: { TX: true, NE: true, CO: true, AR: true, KS: true }, asOf: toDay(2025, 12, 31), convention: "inclusive", wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === code);
+  };
+  for (const code of ["NE", "CO", "AR", "KS"]) assert.equal(RULES[code].limit, 182);
+  const room = (r) => (r.room > 0 ? `${r.room} day${r.room === 1 ? "" : "s"} of room` : r.room === 0 ? "No room left" : `Over by ${-r.room}`);
+  for (const [text, code] of [["2025-01-01 to 2025-06-30 NE", "NE"], ["2025-01-01 to 2025-07-01 NE", "NE"], ["2025-01-01 to 2025-07-02 CO", "CO"], ["2025-01-01 to 2025-07-01 AR", "AR"], ["2025-01-01 to 2025-07-02 KS", "KS"]]) {
+    const r = run(text, code);
+    assert.ok(guide.includes(`<td class="n">${r.days}</td><td>${room(r)}</td>`), text);
+  }
+  assert.match(guide, /<link rel="canonical" href="\.\/six-month-residency-nebraska-colorado-arkansas-kansas\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/six-month-residency-nebraska-colorado-arkansas-kansas\.html"/);
+  assert.match(page("sitemap.xml"), /six-month-residency-nebraska-colorado-arkansas-kansas\.html/);
+});
+
+test("the 200/270-day guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay, RULES } = await import("./calc.mjs");
+  const guide = page("over-200-day-residency-oregon-hawaii-idaho.html");
+  const run = (text, code) => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "TX", abode: { TX: true, OR: true, ID: true, HI: false }, asOf: toDay(2025, 12, 31), convention: "inclusive", wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === code);
+  };
+  assert.equal(RULES.OR.limit, 200);
+  assert.equal(RULES.HI.limit, 200);
+  assert.equal(RULES.ID.limit, 270);
+  const room = (r) => (r.room > 0 ? `${r.room} day${r.room === 1 ? "" : "s"} of room` : r.room === 0 ? "No room left" : `Over by ${-r.room}`);
+  for (const [text, code] of [["2025-01-01 to 2025-07-18 OR", "OR"], ["2025-01-01 to 2025-07-19 OR", "OR"], ["2025-01-01 to 2025-07-20 HI", "HI"], ["2025-01-01 to 2025-09-27 ID", "ID"], ["2025-01-01 to 2025-09-28 ID", "ID"]]) {
+    const r = run(text, code);
+    assert.ok(guide.includes(`<td class="n">${r.days}</td><td>${room(r)}</td>`), text);
+  }
+  assert.match(guide, /<link rel="canonical" href="\.\/over-200-day-residency-oregon-hawaii-idaho\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/over-200-day-residency-oregon-hawaii-idaho\.html"/);
+  assert.match(page("sitemap.xml"), /over-200-day-residency-oregon-hawaii-idaho\.html/);
 });

@@ -1,0 +1,56 @@
+{
+  "slug": "pressure-washing-bid-calculator",
+  "name": "Pressure washing and soft washing",
+  "group": "Cleaning & janitorial",
+  "summary": "Driveways, siding, decks and walks priced per surface from wash rate, chemicals, drive time and setup.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.3333,
+  "hourlyWage": 22,
+  "burdenRate": 25,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Concrete driveway",
+      "unit": "sq ft",
+      "qty": 1200,
+      "hoursPerUnit": 0.001,
+      "materialPerUnit": 0.015,
+      "source": "Default surface row (index.html): 1,200 sq ft at 1,000 sq ft/h, chemical $18; matches SURFACE_PRESETS 'Concrete driveway' (calc.mjs)"
+    },
+    {
+      "label": "House siding (soft wash)",
+      "unit": "sq ft",
+      "qty": 2200,
+      "hoursPerUnit": 0.002,
+      "materialPerUnit": 0.02,
+      "source": "Default surface row (index.html): 2,200 sq ft at 500 sq ft/h, chemical $44; matches SURFACE_PRESETS 'House siding (soft wash)'"
+    },
+    {
+      "label": "Sidewalk / walkway",
+      "unit": "sq ft",
+      "qty": 250,
+      "hoursPerUnit": 0.001111,
+      "materialPerUnit": 0.012,
+      "source": "Default surface row (index.html): 250 sq ft at 900 sq ft/h, chemical $3; matches SURFACE_PRESETS 'Sidewalk / walkway'"
+    },
+    {
+      "label": "Round-trip drive time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.6667,
+      "materialPerUnit": 0,
+      "source": "roundTripMinutes default 40 (index.html), billed as labor hours in calculateBid (calc.mjs)"
+    },
+    {
+      "label": "Water and equipment wear",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 23,
+      "source": "waterCost $8 + equipmentWear $15 defaults (index.html)"
+    }
+  ],
+  "specialistModels": "A $175 minimum-job floor, after-travel hourly rate card ($40-$75), maintenance-package discounts, and a per-surface share of wash hours."
+}

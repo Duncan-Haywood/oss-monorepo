@@ -1,0 +1,33 @@
+== A. Best single garment vs best pair, same total added-retail budget, replica, by wearing mix ==
+budget <= 20, office (80% warm room): one white+thin +0.73 C ($-9); pair thin | white+thick +1.49 C ($12)
+budget <= 20, outdoor (70% sun): one white +2.50 C ($2); pair thin | white+thick +3.54 C ($12)
+budget <= 20, cold-climate (70% cool room): one low_emissivity+white+thin +2.06 C ($14); pair thin | white+thick +3.70 C ($12)
+budget <= 20, even: one low_emissivity+white+thin +1.37 C ($14); pair thin | white+thick +2.90 C ($12)
+budget <= 50, office (80% warm room): one ir_transparent+white+thin +1.56 C ($36); pair low_emissivity+thin | ir_transparent+white+thin +2.65 C ($48)
+budget <= 50, outdoor (70% sun): one low_emissivity+white+thick +3.55 C ($45); pair thin | low_emissivity+white+thick +3.85 C ($35)
+budget <= 50, cold-climate (70% cool room): one low_emissivity+white+thick +5.30 C ($45); pair thin | low_emissivity+white+thick +5.61 C ($35)
+budget <= 50, even: one low_emissivity+white+thick +2.60 C ($45); pair thin | low_emissivity+white+thick +3.63 C ($35)
+
+== B. Gain from owning two garments over one, same total budget, across 66 wearing mixes (steps of 0.1) ==
+budget <= 20: pair beats the single garment in 65 of 66 mixes; mean gain +1.168 C, max gain +1.930 C
+budget <= 50: pair beats the single garment in 58 of 66 mixes; mean gain +0.672 C, max gain +2.150 C
+budget <= 100: pair beats the single garment in 60 of 66 mixes; mean gain +1.051 C, max gain +3.337 C
+
+== C. Which pair wins across the 66 mixes, replica ==
+budget <= 20: thin | white+thick x55; thick | thin x10; thin | thin x1
+budget <= 50: low_emissivity+white+thick | thin x27; low_emissivity+thick | white x9; ir_transparent+white+thin | low_emissivity+thin x9; low_emissivity+thick | thin x8; ir_transparent+white | thin x6
+budget <= 100: ir_transparent+white | low_emissivity+thick x28; ir_transparent+thin | low_emissivity+white+thick x16; ir_transparent+thin | low_emissivity+thick x9; ir_transparent+thin | ir_transparent+white x6; ir_transparent+white+thick | thin x4
+
+== D. Pair at budget B vs one garment at budget 2B (is a second coat better than a dearer coat?), 66 mixes ==
+pair at $20 total vs single at $10 (the price of adding the second garment): mean +1.626 C, max +4.040 C
+pair at $50 total vs single at $25 (the price of adding the second garment): mean +1.465 C, max +2.449 C
+pair at $100 total vs single at $50 (the price of adding the second garment): mean +1.072 C, max +3.337 C
+
+== F. Control: thin cloth removed (it has a negative added cost by garment-comfortcost's linear price assumption, which funds the other garment) ==
+budget <= 20: pair beats the single garment in 0 of 66 mixes; mean gain +0.000 C, max gain +0.000 C; top pairs: none | white x55; none | none x11
+budget <= 50: pair beats the single garment in 54 of 66 mixes; mean gain +0.485 C, max gain +1.530 C; top pairs: low_emissivity+thick | white x37; ir_transparent+white | none x18; low_emissivity+thick | none x8
+budget <= 100: pair beats the single garment in 54 of 66 mixes; mean gain +1.016 C, max gain +3.188 C; top pairs: ir_transparent+white | low_emissivity+thick x44; ir_transparent | low_emissivity+thick x9; ir_transparent+white | none x6
+
+== E. Pair uses its two garments in different scenarios? share of mixes where each owned garment is worn somewhere, budget <= 50 ==
+both garments are the winner in at least one scenario in 59 of 66 mixes
+scenarios: warm room 28 C, sunny outdoors 32 C, cool room 16 C

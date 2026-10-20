@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot against the number of candidates K from 1 to 10000 on a log axis; the claimed cost of the selected winner falls to about -5.4 while its real cost falls only to about -2.7">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Selection twin: claimed vs real cost of the best of K candidates</text>
+<line x1="64" x2="624" y1="303.3" y2="303.3" stroke="#ddd"/><text x="58" y="307.3" text-anchor="end" font-family="sans-serif" font-size="11">-5</text>
+<line x1="64" x2="624" y1="256.8" y2="256.8" stroke="#ddd"/><text x="58" y="260.8" text-anchor="end" font-family="sans-serif" font-size="11">-4</text>
+<line x1="64" x2="624" y1="210.4" y2="210.4" stroke="#ddd"/><text x="58" y="214.4" text-anchor="end" font-family="sans-serif" font-size="11">-3</text>
+<line x1="64" x2="624" y1="164.0" y2="164.0" stroke="#ddd"/><text x="58" y="168.0" text-anchor="end" font-family="sans-serif" font-size="11">-2</text>
+<line x1="64" x2="624" y1="117.6" y2="117.6" stroke="#ddd"/><text x="58" y="121.6" text-anchor="end" font-family="sans-serif" font-size="11">-1</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">K candidates (log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">cost (units of s)</text>
+<polyline points="64.0,71.2 106.1,108.2 161.9,147.5 204.0,172.2 301.9,218.8 386.1,251.4 484.0,283.9 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="106.1" cy="108.2" r="3" fill="#c0392b"/>
+<circle cx="161.9" cy="147.5" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="172.2" r="3" fill="#c0392b"/>
+<circle cx="301.9" cy="218.8" r="3" fill="#c0392b"/>
+<circle cx="386.1" cy="251.4" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="283.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">claimed (best of K twin scores)</text>
+<polyline points="64.0,71.2 106.1,89.7 161.9,109.3 204.0,121.7 301.9,145.0 386.1,161.3 484.0,177.6 624.0,197.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="106.1" cy="89.7" r="3" fill="#1f6fb2"/>
+<circle cx="161.9" cy="109.3" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="121.7" r="3" fill="#1f6fb2"/>
+<circle cx="301.9" cy="145.0" r="3" fill="#1f6fb2"/>
+<circle cx="386.1" cy="161.3" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="177.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="197.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">real cost of the winner</text>
+</svg>

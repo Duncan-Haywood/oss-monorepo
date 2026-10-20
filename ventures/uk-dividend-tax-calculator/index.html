@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Dividend Tax Calculator 2025/26 and 2026/27</title>
+  <meta name="description" content="Free UK dividend tax calculator for 2025/26 and 2026/27: enter your other income and dividends to see tax by band, the £500 dividend allowance and the cost of your next £1,000. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK dividend tax calculator: how much tax on my dividends? Free, private">
+  <meta property="og:description" content="See dividend tax by band, the allowance used and what the next £1,000 costs.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Dividend Tax Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is dividend tax in the UK?", "acceptedAnswer": {"@type": "Answer", "text": "For 2025/26 dividends above the \u00a3500 allowance are taxed at 8.75% in the basic-rate band, 33.75% in the higher-rate band and 39.35% above \u00a3125,140. Dividends are taxed on top of your other income."}}, {"@type": "Question", "name": "What changes in 2026/27?", "acceptedAnswer": {"@type": "Answer", "text": "The ordinary and upper dividend rates were announced to rise by two points, to 10.75% and 35.75%, from April 2026; the additional rate stays at 39.35%. Confirm the enacted rates on GOV.UK."}}, {"@type": "Question", "name": "Does the dividend allowance use up my band?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The first \u00a3500 of dividends is taxed at 0% but still counts towards your basic-rate band, which can push later dividends into the higher rate."}}, {"@type": "Question", "name": "Does my personal allowance cover dividends?", "acceptedAnswer": {"@type": "Answer", "text": "Any personal allowance not used by your salary or other income covers dividends first. It is withdrawn \u00a31 for every \u00a32 of income over \u00a3100,000."}}, {"@type": "Question", "name": "When do I report and pay?", "acceptedAnswer": {"@type": "Answer", "text": "Dividends over the allowance normally go on your Self Assessment return due 31 January after the tax year. Large bills can trigger payments on account."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK DIVIDEND TAX CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much tax will I pay on my dividends?</h1>
+    <p>Enter your other income and your dividends. You get the tax by band for 2025/26 or 2026/27, the dividend allowance used, and what the next £1,000 would cost.</p>
+    <p class="note">A first read written from HMRC's published rules without a live lookup. Rules change; confirm the current text. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="year">Tax year</label><select id="year"><option value="2025">2025/26</option><option value="2026">2026/27 (announced rates)</option></select></div>
+      <div><label for="other">Other taxable income: salary, profits, pensions (&pound;)</label><input id="other" type="number" min="0" step="1"></div>
+      <div><label for="dividends">Total dividends for the year (&pound;)</label><input id="dividends" type="number" min="0" step="1"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out dividend tax</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out dividend tax.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The numbers</h2>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="tests"></tbody></table></div>
+    <h2>What you must do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> 2025/26 and 2026/27 dividend rates, the &pound;500 dividend allowance, the personal allowance and its taper, and the marginal cost of the next &pound;1,000.</li>
+      <li><strong>Gives:</strong> dividend tax split by band, income tax on your other income, the effective rate and a reporting checklist.</li>
+      <li><strong>Not decided:</strong> Scottish income tax bands, pension or Gift Aid extending the basic-rate band, savings interest, the marriage allowance, the Child Benefit charge, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much is dividend tax in the UK?</h3>
+    <p>For 2025/26 dividends above the &pound;500 allowance are taxed at 8.75% in the basic-rate band, 33.75% in the higher-rate band and 39.35% above &pound;125,140. Dividends are taxed on top of your other income.</p>
+    <h3>What changes in 2026/27?</h3>
+    <p>The ordinary and upper dividend rates were announced to rise by two points, to 10.75% and 35.75%, from April 2026; the additional rate stays at 39.35%. Confirm the enacted rates on GOV.UK.</p>
+    <h3>Does the dividend allowance use up my band?</h3>
+    <p>Yes. The first &pound;500 of dividends is taxed at 0% but still counts towards your basic-rate band, which can push later dividends into the higher rate.</p>
+    <h3>Does my personal allowance cover dividends?</h3>
+    <p>Any personal allowance not used by your salary or other income covers dividends first. It is withdrawn &pound;1 for every &pound;2 of income over &pound;100,000.</p>
+    <h3>When do I report and pay?</h3>
+    <p>Dividends over the allowance normally go on your Self Assessment return due 31 January after the tax year. Large bills can trigger payments on account.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-capital-gains-tax-calculator/">UK Capital Gains Tax calculator</a>, the <a href="../uk-child-benefit-charge-calculator/">UK Child Benefit charge calculator</a>, the <a href="../uk-trading-allowance-calculator/">UK trading allowance calculator</a>, the <a href="../uk-mtd-income-tax-checker/">UK Making Tax Digital checker</a>, the <a href="../uk-sole-trader-vs-limited-company-calculator/">UK sole trader vs limited company calculator</a> and the <a href="../uk-cis-deduction-refund-calculator/">UK CIS deduction refund calculator</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { year: "year", other: "other", dividends: "dividends" };
+    const IDLE = "Fill in the figures, then click Work out dividend tax.";
+    const DEFAULTS = { year: "2025" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.divTax > 0 ? `Dividend tax: ${gbp(r.divTax)} (${r.effectiveDiv}% of your dividends)` : "No dividend tax due";
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["Other income", r.other], ["Dividends", r.dividends], ["Personal allowance available", r.allowance], ["Dividend allowance used", r.inAllowance], ["Dividends charged", r.divCharged], ["Tax at basic dividend rate", Math.round(r.divParts[0] * r.rates[0] * 100) / 100], ["Tax at upper dividend rate", Math.round(r.divParts[1] * r.rates[1] * 100) / 100], ["Tax at additional dividend rate", Math.round(r.divParts[2] * r.rates[2] * 100) / 100], ["Dividend tax", r.divTax], ["Income tax on other income", r.incomeTax], ["Total tax", r.totalTax], ["Dividends kept after dividend tax", r.takeHome]];
+      $("#tests").innerHTML = rows.map((x) => `<tr><td>${esc(x[0])}</td><td class="n">${gbp(x[1])}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: £12,570 salary and £40,000 of dividends in 2025/26.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-dividend-tax.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

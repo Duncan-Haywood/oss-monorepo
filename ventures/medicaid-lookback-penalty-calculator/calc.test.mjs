@@ -72,3 +72,23 @@ test("summary and csv render", () => {
   assert.match(sweepCsv(r), /^application_date,months_later/);
   assert.ok(parse(raw()).input.gifts.length === 5);
 });
+
+test("dates accept one- or two-digit month and day but not three-digit days", () => {
+  assert.equal(iso(parseDate("2026-1-5")), "2026-01-05");
+  assert.equal(iso(parseDate("1/5/2026")), "2026-01-05");
+  assert.equal(parseDate("2026-10-001"), null);
+});
+
+test("blank monthly income is treated as zero; a gift on the application date is allowed", () => {
+  const r = compute(raw({ monthlyIncome: "", gifts: "2026-10-01, 10500" }));
+  assert.equal(r.errors.length, 0);
+  assert.equal(r.input.monthlyIncome, 0);
+  assert.equal(r.s.gross, 10500);
+  assert.ok(compute(raw({ gifts: "2026-10-02, 10500" })).errors.some((e) => /after the application date/.test(e)));
+});
+
+test("non-finite or fractional figures are rejected, not turned into a zero penalty", () => {
+  for (const o of [{ divisor: "Infinity" }, { monthlyCost: "Infinity" }, { monthlyIncome: "Infinity" }, { returned: "Infinity" }, { lookbackMonths: "60.5" }]) {
+    assert.ok(compute(raw(o)).errors.length > 0, JSON.stringify(o));
+  }
+});

@@ -1,0 +1,17 @@
+Real: MuJoCo {'integrator': 'rk4', 'dt': 0.002, 'damping': 0.025, 'frictionloss': 0.075}, Student-t(3) sensor noise sd 0.02 rad. Rejection threshold = 95th percentile of the exact twin's statistic at the same n and detector.
+Replicates per cell: MMD 100, C2ST 20. Power with Wilson 95% interval. Null rows are about 0.05 by construction.
+twin                  n  mmd/raw               mmd/resid             c2st/both           
+null                100  0.05 [0.02,0.11]      0.05 [0.02,0.11]      0.05 [0.01,0.24]    
+null                200  0.05 [0.02,0.11]      0.05 [0.02,0.11]      0.05 [0.01,0.24]    
+euler dt=0.01       100  0.01 [0.00,0.05]      0.06 [0.03,0.12]      0.00 [0.00,0.16]    
+euler dt=0.01       200  0.06 [0.03,0.12]      0.02 [0.01,0.07]      0.90 [0.70,0.97]    
+euler dt=0.02       100  0.02 [0.01,0.07]      0.04 [0.02,0.10]      0.70 [0.48,0.85]    
+euler dt=0.02       200  0.06 [0.03,0.12]      0.00 [0.00,0.04]      1.00 [0.84,1.00]    
+frictionloss-10%    100  0.03 [0.01,0.08]      0.01 [0.00,0.05]      0.05 [0.01,0.24]    
+frictionloss-10%    200  0.05 [0.02,0.11]      0.03 [0.01,0.08]      0.00 [0.00,0.16]    
+frictionloss-20%    100  0.00 [0.00,0.04]      0.04 [0.02,0.10]      0.05 [0.01,0.24]    
+frictionloss-20%    200  0.02 [0.01,0.07]      0.02 [0.01,0.07]      0.00 [0.00,0.16]    
+gauss-noise         100  0.04 [0.02,0.10]      0.03 [0.01,0.08]      1.00 [0.84,1.00]    
+gauss-noise         200  0.06 [0.03,0.12]      0.07 [0.03,0.14]      1.00 [0.84,1.00]    
+noise-sd+25%        100  0.02 [0.01,0.07]      0.95 [0.89,0.98]      1.00 [0.84,1.00]    
+noise-sd+25%        200  0.03 [0.01,0.08]      1.00 [0.96,1.00]      1.00 [0.84,1.00]    

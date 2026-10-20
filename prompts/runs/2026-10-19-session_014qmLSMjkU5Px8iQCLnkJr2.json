@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_014qmLSMjkU5Px8iQCLnkJr2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T03:39:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8255",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Keeps ranking reverb-fee-calculator for 'Explore: test hypothesis' though the hypotheses cannot be tested without measured visitors."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Router's top candidate (reverb-fee-calculator) is saturated: 7 untested hypotheses, no visitor data to test them. Shipped a small Preferred Seller rate button and re-verified defaults. Search could not confirm whether the 5% fee applies to buyer-paid shipping; left unchanged.",
+  "corrections": [],
+  "redteam": null
+}

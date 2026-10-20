@@ -5,6 +5,8 @@ for one hourly rate, plus the FLSA weighted-average ("blended rate")
 calculator for a workweek where an employee worked at two or more different
 hourly rates. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/overtime-pay-calculator/
+
 After using this, you can now **turn an hourly rate and hours worked into a
 correct overtime pay total in seconds, and get the correct blended overtime
 rate for a week worked at two or more different pay rates — the case that is

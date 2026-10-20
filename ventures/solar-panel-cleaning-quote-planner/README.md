@@ -7,6 +7,8 @@ where your minimum call-out stops mattering, a day-by-day pack of a list of jobs
 an annual-plan estimate, and a payback check you can show the homeowner.
 Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/solar-panel-cleaning-quote-planner/
+
 After using this, you can **quote any array at a price that earns your margin,
 and show the customer why the clean pays for itself** instead of guessing a flat
 rate or copying a competitor's.

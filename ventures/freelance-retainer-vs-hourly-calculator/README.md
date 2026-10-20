@@ -10,6 +10,8 @@ retainer that would have hit a target rate in a chosen share of months. A hold-o
 check says when the hours have shifted enough that the history is not a forecast.
 Clients with fewer than 6 months are refused. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-vs-hourly-calculator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, monthly hours per client, percentiles, bootstrap, retainer maths, hold-out, CSV.

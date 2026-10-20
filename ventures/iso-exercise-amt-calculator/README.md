@@ -4,6 +4,8 @@ A free browser tool for employees with incentive stock options: **enter your inc
 how many you can exercise this year before the alternative minimum tax starts, and the AMT and cash
 needed if you exercise more.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/iso-exercise-amt-calculator/
+
 After using this, you can now **pick an exercise size that uses your AMT headroom instead of guessing**,
 which used to take a tax preparer running Form 6251 by hand at several sizes.
 

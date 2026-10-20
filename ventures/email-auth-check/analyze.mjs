@@ -481,6 +481,21 @@ function spfFindings(walk, transportError) {
     ));
   }
 
+  const voids = walk.voidLookups || [];
+  if (voids.length > 2) {
+    findings.push(finding(
+      'spf-too-many-void-lookups', 'danger', `SPF has ${voids.length} void lookups (limit is 2)`,
+      `${voids.length} a/mx/exists terms in ${walk.domain}'s SPF chain point at names that return no records. RFC 7208 s4.6.4 lets a receiver return a permanent error (PermError) after more than 2 such "void lookups", failing SPF for every message. These are usually left over from vendors that were retired: remove them.`,
+      voids.map((v) => `${v.mechanism}:${v.target} (in ${v.domain})`).join('; '),
+    ));
+  } else if (voids.length > 0) {
+    findings.push(finding(
+      'spf-void-lookup', 'notice', `SPF has ${voids.length} void lookup${voids.length === 1 ? '' : 's'} (limit is 2)`,
+      `${voids.length} a/mx/exists term(s) in ${walk.domain}'s SPF chain point at names that return no records. RFC 7208 allows 2 per evaluation and a third is a PermError, so this is a stale entry to remove before it becomes one.`,
+      voids.map((v) => `${v.mechanism}:${v.target} (in ${v.domain})`).join('; '),
+    ));
+  }
+
   if (walk.loopDetected) {
     findings.push(finding(
       'spf-loop', 'danger', 'SPF include/redirect chain loops back on itself',

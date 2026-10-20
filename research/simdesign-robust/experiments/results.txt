@@ -1,0 +1,12 @@
+Half-MBB, vf 0.5, p 3, filter radius rmin = nx/30 elements, beta 1..64 (30 iterations each).
+c_e / c_b / c_d: compliance of the design projected at thresholds 0.7 / 0.5 / 0.3 (eroded / blueprint / dilated).
+spread = c_e / c_d - 1. Ms, Mv: minimum length scale (pixels) of solid and void in the blueprint thresholded at 0.5;
+Ms/nx: Ms as a share of the beam length (98% opening rule, `simdesign-heaviside`).
+
+mesh    formulation   c_e      c_b      c_d     spread   grey_b   Ms  Mv  Ms/nx  Mv/nx   time
+ 60x20  heaviside   4379453301.79   189.64   181.63 2411175879.1%    0.2%    1   1  0.017  0.017     6s
+ 60x20  robust        223.84   196.11   170.80   31.1%    2.2%    1   1  0.017  0.017    15s
+120x40  heaviside   2133327643.23   192.89   173.36 1230597981.7%    1.4%    3   3  0.025  0.025    50s
+120x40  robust        226.30   194.66   176.95   27.9%    1.4%    3   5  0.025  0.042   123s
+180x60  heaviside   117361.46   194.74   174.91 66999.7%    1.2%    5   7  0.028  0.039   140s
+180x60  robust        223.52   196.29   178.61   25.1%    1.7%    5   7  0.028  0.039   343s

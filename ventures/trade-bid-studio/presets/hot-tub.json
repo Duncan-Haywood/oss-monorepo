@@ -1,0 +1,40 @@
+{
+  "slug": "hot-tub-bid-calculator",
+  "name": "Hot tub installation",
+  "group": "Landscaping & outdoor",
+  "summary": "Spa deliveries priced from size, access path, power scope and add-ons like pads, haul-away and steps.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2,
+  "hourlyWage": 48,
+  "burdenRate": 34,
+  "overheadRate": 18,
+  "targetMargin": 32,
+  "items": [
+    {
+      "label": "Set compact spa (driveway drop)",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 2.5,
+      "materialPerUnit": 4800.0,
+      "source": "2.5 h to set, $4,800 unit cost x 1.0 size multiplier (suggestedSizeKit compact, index.html); driveway access adds 0 h"
+    },
+    {
+      "label": "Permit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 165.0,
+      "source": "Permit fee $165 (index.html default)"
+    },
+    {
+      "label": "Travel, truck, recovery",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 145.0,
+      "source": "Travel, truck, recovery $145 (index.html default)"
+    }
+  ],
+  "specialistModels": "Adds gate or crane access, new 50A/60A circuit runs by the foot, crane fees, and pad, haul-away, cover lift, steps and gas packages."
+}

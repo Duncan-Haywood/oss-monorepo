@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-lipsweep"
+version = "0.1.0"
+description = "Lip stiffness and force-loop gain swept on osrobot-assist's feeding-arm twin: what sets the peak force on the lips (stylised)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

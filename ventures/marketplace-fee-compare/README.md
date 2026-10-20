@@ -2,13 +2,16 @@
 
 **Which channel nets the most on this item?** Type one item once — price,
 landed cost, category, monthly order volume — and see net profit side by side
-on eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store.
+on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop, Facebook Marketplace, Poshmark, and your own Shopify store.
+
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/
 
 Free, no signup, and nothing you type leaves the browser.
 
 - `index.html` — the comparison
 - `which-marketplace-has-the-lowest-fees.html` — the worked explainer
 - `calc.mjs` — the fee models and the ranking
+- `bulk.html` / `bulk.mjs` — paste a whole catalogue (CSV or spreadsheet rows), get the best buyer-bringing channel per item and the monthly cost of staying on one channel
 - `share.mjs` — allowlisted encode/decode for the "Copy share link" URL fragment
 - `usage.mjs` — anonymous, local, opt-out event counting
 
@@ -21,19 +24,36 @@ the most in my pocket? Today that means opening six tabs, retyping the same
 item six times, and comparing six numbers by hand — which is the point at which
 most sellers stop and guess.
 
+[`where-to-sell-calculator`](../where-to-sell-calculator/) now answers the same
+question more deeply (returns, shelf time, 17 channels including Reverb,
+Discogs, StockX, Whatnot, Grailed and TCGplayer). This tool stays as the fast
+headline view and the only one with a bulk catalogue mode (`bulk.html`); reach
+for the other when returns or time-to-sell matter to the ranking.
+
 So this is a triage tool, not a seventh fee engine. It models each channel's
 **headline** fee structure and then points at the deep calculator for the parts
 a headline rate cannot carry.
+
+## Price to match
+
+Each row also shows the list price that channel needs for this item to net what
+the best buyer-bringing channel nets. That turns the ranking into a repricing
+answer ("charge $X on Walmart to keep what eBay leaves me") and leaves the
+own-store row out as the yardstick, since it brings no buyers.
 
 ## What it models
 
 | Channel | Rate | Fixed | Subscription |
 | --- | --- | --- | --- |
-| eBay | 13.25% final value | $0.30 | — |
+| eBay | 13.6% final value (up to $7,500) | $0.40 over $10 ($0.30 at $10 or less) | — |
 | Etsy | 6.5% transaction + 3% payment | $0.20 listing + $0.25 payment | — |
 | Amazon (seller-fulfilled) | referral by category, 8–20% | — | $39.99/mo Professional |
 | Walmart Marketplace | referral by category, 8–20% | — | — |
 | TikTok Shop | 6% US referral | — | — |
+| Mercari | 10% selling fee on item + buyer-paid shipping (current schedule) | — | — |
+| Depop (US) | 0% selling fee; 3.3% payment processing on item + buyer-paid shipping | $0.45 | — |
+| Facebook Marketplace (shipped) | 10% selling fee on the buyer-paid total, $0.80 minimum per shipped order (local pickup is free and not modelled) | — | — |
+| Poshmark | flat $2.95 under $15.00, 20% of the sale price from $15.00 (buyer pays the prepaid label, so shipping is ignored on both sides) | — | — |
 | Your own Shopify store | 2.9% payment processing | $0.30 | $39/mo Basic |
 
 Every rate is an **editable default**, taken from the matching calculator in
@@ -43,7 +63,7 @@ schedule; a seller's own statement wins, and the page says so.
 Three modelling decisions worth knowing about:
 
 - **Percentages are charged on the whole order**, item price plus any shipping
-  the buyer paid. That is how all six actually bill, and it is the most common
+  the buyer paid. That is how every modelled channel actually bills, and it is the most common
   way a "free shipping" margin quietly goes negative.
 - **Subscriptions are spread over the seller's own monthly order count**, not
   ignored. Ignoring them is what makes a $39.99 Amazon plan look free at three
@@ -51,6 +71,15 @@ Three modelling decisions worth knowing about:
 - **Marketplace fees are not counted as invested cash.** They come out of
   proceeds, not out of pocket, so counting them would understate ROI by a
   different amount on every channel and make the ranking meaningless.
+
+## Advertising spend (optional)
+
+An "Advertising you pay on each channel" box takes a percentage of sales per
+channel (Etsy Offsite Ads, eBay Promoted Listings, sponsored products). It is
+blank by default because ad spend differs by seller far more than any fee, and
+when filled it is charged on the same base as the channel's fee, shown inside
+the fees column, carried into break-even and price-to-match, and encoded in the
+share link.
 
 ## What it deliberately does not model
 
@@ -61,7 +90,7 @@ Shopify plan tiers, Walmart WFS.
 
 **Faire is excluded from the ranking on purpose.** It is wholesale: the buyer is
 a shop paying roughly half retail, and the economics turn on order size and
-reorder rate rather than one retail order. Ranking it beside six retail
+reorder rate rather than one retail order. Ranking it beside the ten retail
 channels would produce a number that looks comparable and is not. It gets a
 pointer instead of a row.
 
@@ -69,7 +98,16 @@ pointer instead of a row.
 livestream auction: commission is on the hammer and processing is on the
 checkout total (item plus buyer-paid shipping and tax), with published category
 caps a flat retail referral rate cannot express. It gets a pointer to
-`whatnot-seller-payout` instead of a row.
+`whatnot-seller-payout` instead of a row in the ranking. For trading cards it
+appears in the specialist section (below) with the $1,500 commission cap modelled.
+
+**StockX is excluded like Reverb, on category grounds.** It lists only sneakers,
+streetwear and graded cards, the buyer pays StockX for delivery (so no postage
+reaches you), and the fee rate falls with your own Seller Level. It gets a
+pointer to `stockx-seller-payout-calculator` with price, cost basis, shipping
+and other cost already filled in. For clothing and sneakers it also appears in
+the specialist section, at the 9% + 3% default with the buyer's shipping kept
+out of your revenue.
 
 **The own-store row carries a caveat attached to the win, not to the footnotes.**
 A Shopify checkout charges no referral fee and therefore tops the table on
@@ -77,6 +115,20 @@ almost any item — arithmetically true and operationally misleading, because it
 also sends you no buyers. When it wins, the page names the best channel that
 *does* bring demand and the gap between them, and calls that gap the
 advertising budget.
+
+## Bulk catalogue mode
+
+`bulk.html` takes a header row plus up to 500 items (`price` and `cost`
+required; `name`, `shipping_charged`, `shipping_cost`, `other_cost`,
+`category`, `orders` optional), runs each through the same `compareChannels`
+model, and reports the winner per item, how many items each channel wins, and
+the monthly gain over the channel you list on today. Rows that fail to parse
+are reported by line number without hiding the rest. Own store is never the
+recommended channel (it sends no buyers). The monthly figure assumes each
+item's full order volume moves, so it is an upper bound. The CSV export
+prefixes cells that start with `=`, `+`, `-` or `@` so a spreadsheet will not
+run them as formulas. Nothing is uploaded; the only counter is an anonymous
+local `catalog_compared` event.
 
 ## Sharing a comparison
 
@@ -110,7 +162,7 @@ three.
 node --test "ventures/marketplace-fee-compare/*.test.mjs"
 ```
 
-64 tests across five files: the fee arithmetic and ranking (`calc.test.mjs`),
+Run `node --test "ventures/marketplace-fee-compare/*.test.mjs"` for the current count. The files cover the fee arithmetic and ranking (`calc.test.mjs`),
 the usage counter's privacy guarantees (`usage.test.mjs`), the share link's
 round-trip and allowlist guarantees (`share.test.mjs`), the page's structure
 and wiring (`page.test.mjs`), and the explainer article's worked numbers pinned
@@ -133,3 +185,26 @@ rate-specific one: fee rates change, the defaults here are inputs rather than a
 schedule, and they should be confirmed against the seller's own statement
 before a catalogue is priced against them. This is an arithmetic comparison,
 not tax, financial, or business advice.
+
+## Specialist marketplaces
+
+Reverb (musical gear), Grailed, Poshmark, Depop and Mercari (fashion), StockX
+(sneakers and streetwear), TCGplayer and Whatnot (trading cards) and Discogs
+(records) only take one kind of item, so they are not in the ten-row ranking.
+When the category is *Musical instruments & gear*, *Clothing & accessories*,
+*Trading cards & collectibles* or *Records, CDs & music media*, a separate
+section (`specialists.mjs`) shows what the item nets there and how that
+compares with the best general channel. Poshmark's flat-under-$15 cliff, Depop's
+0% selling fee with 3.3% processing, Mercari's 10% on item plus shipping and
+Discogs' capped 9% are all in the table. Fee schedules match the sibling calculators, which a test asserts.
+
+## Host your own copy
+
+Your data stays in your browser either way, but you can serve the page from an address you control. It is a static
+site: the server only hands out files and never sees a figure you type.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.

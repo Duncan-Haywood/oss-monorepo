@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fantasy Football Schedule Maker: 12 Teams, 14 Weeks, Fair Matchups</title>
+  <meta name="description" content="Make a fair fantasy football schedule: one full round robin, then repeat the first weeks, so every team plays 14 games with equal opponents. Worked 12-team example, free in your browser.">
+  <meta property="og:title" content="Fantasy Football Schedule Maker: 12 Teams, 14 Weeks, Fair Matchups">
+  <meta property="og:description" content="Round robin plus repeat weeks: equal opponents for every team. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-make-a-fantasy-football-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do you make a fantasy football schedule for 12 teams and 14 weeks?", "acceptedAnswer": {"@type": "Answer", "text": "Play one full round robin first: 12 teams need 11 weeks so everyone meets everyone once. Then fill weeks 12 to 14 by repeating the pairings of weeks 1 to 3. Every team ends with 14 games, 11 different opponents and exactly 3 rematches, and no team plays two games in a week."}}, {"@type": "Question", "name": "Why not just pick random opponents each week?", "acceptedAnswer": {"@type": "Answer", "text": "Random draws let one team face the league's best three times and another face the worst, and nothing stops a pair meeting four times. A round robin makes the opponents equal for everyone; only the 3 repeat weeks differ, and they are the same rounds for every team."}}, {"@type": "Question", "name": "Which weeks should the repeat games fall in?", "acceptedAnswer": {"@type": "Answer", "text": "Repeating the first rounds in the last weeks keeps the gap between a rematch and its first meeting at 11 weeks, the longest possible with this plan, so rematches do not feel back to back. Another common choice is to repeat divisional or rival pairings, which this tool leaves to you."}}, {"@type": "Question", "name": "Does it work for 10 or 14 teams?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Enter the team names, pick the weekday, tick double round robin and set Rounds to play to your regular-season weeks. A 10-team league with 13 weeks gets 9 unique opponents and 4 rematches; a 14-team league with 13 weeks is just 13 games, a single round robin."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to make a fantasy football schedule: 12 teams, 14 weeks</h1>
+  <p>Most fantasy leagues have more regular-season weeks than a single round robin needs. Twelve teams meet everyone once in 11 weeks, which leaves 3 weeks over. The fair way to fill them is to keep the round robin intact and repeat a few early weeks, so every team has the same opponents except for the same 3 rematches.</p>
+  <p><a class="cta" href="./">Make my league schedule</a> (paste your team names, pick the weekday, tick double round robin, set Rounds to play to 14)</p>
+  <h2>A worked example: 12 teams, 14 weeks</h2>
+  <p>Teams: Ace, Bolt, Colt, Dash, Echo, Fox, Gale, Hawk, Iris, Jinx, Kite, Lynx. Settings: double round robin, Rounds to play 14, Thursday weeks. The tool plays the 11 weeks of a full round robin and then replays weeks 1 to 3 with home and away swapped (home and away do not matter in fantasy; the tool still keeps them even).</p>
+  <table>
+    <thead><tr><th>Weeks</th><th>What happens</th><th>Games per team</th></tr></thead>
+    <tbody>
+      <tr><td>1 to 11</td><td>Every team meets each of the other 11 teams once</td><td>11</td></tr>
+      <tr><td>12 to 14</td><td>Weeks 1 to 3 are repeated</td><td>3</td></tr>
+      <tr><td>Total</td><td>66 different pairings, 18 of them played twice</td><td>14</td></tr>
+    </tbody>
+  </table>
+  <p>Each team has exactly 3 rematches, and the shortest gap between a pair's two games is 11 weeks. A separate test rebuilds this schedule from the same code the tool runs and checks every number above.</p>
+  <p><a class="cta" href="./">Build yours</a></p>
+  <h2>Questions</h2>
+  <h3>How do you make a fantasy football schedule for 12 teams and 14 weeks?</h3>
+  <p>Play one full round robin first: 12 teams need 11 weeks so everyone meets everyone once. Then fill weeks 12 to 14 by repeating the pairings of weeks 1 to 3. Every team ends with 14 games, 11 different opponents and exactly 3 rematches, and no team plays two games in a week.</p>
+  <h3>Why not just pick random opponents each week?</h3>
+  <p>Random draws let one team face the league's best three times and another face the worst, and nothing stops a pair meeting four times. A round robin makes the opponents equal for everyone; only the 3 repeat weeks differ, and they are the same rounds for every team.</p>
+  <h3>Which weeks should the repeat games fall in?</h3>
+  <p>Repeating the first rounds in the last weeks keeps the gap between a rematch and its first meeting at 11 weeks, the longest possible with this plan, so rematches do not feel back to back. Another common choice is to repeat divisional or rival pairings, which this tool leaves to you.</p>
+  <h3>Does it work for 10 or 14 teams?</h3>
+  <p>Yes. Enter the team names, pick the weekday, tick double round robin and set Rounds to play to your regular-season weeks. A 10-team league with 13 weeks gets 9 unique opponents and 4 rematches; a 14-team league with 13 weeks is just 13 games, a single round robin.</p>
+  <p>Related: <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>, <a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">how byes work with an odd number of teams</a> and <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Your league's own rules apply. The example teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

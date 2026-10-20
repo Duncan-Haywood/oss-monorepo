@@ -5,6 +5,8 @@ cash for a few months; it works out growth, net burn, runway, burn multiple and 
 default-alive check, then writes the update email with your highlights, lowlights, asks
 and hiring.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/investor-update-builder/
+
 - growth month over month and compound over the last three months;
 - net burn that excludes money raised, averaged over three months, with the month the cash runs out;
 - burn multiple (with the usual amazing / great / good / suspect / bad bands), SaaS quick ratio, MRR churn and net revenue retention from the month's MRR movements, with a check that the movements add up;

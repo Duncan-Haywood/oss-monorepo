@@ -2,6 +2,8 @@
 
 **Compare booth or chair rent, a commission split and an hourly job by take-home per hour worked, not per hour booked, and audit which arrangement has actually paid you.** Enter a typical week: hours at the salon, clients, ticket, chair minutes, unpaid admin hours, tips, retail and supplies, then the rent, split or wage you are weighing. Get take-home per week and per hour worked after idle chair time, supplies, card fees, insurance and a self-employment tax estimate, the break-even clients per week and where booth rent overtakes the others. Paste past weeks and see take-home per hour worked by arrangement. Browser page or zero-dependency CLI, for nail techs and other independent beauty professionals.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/nail-tech-booth-rent-calculator/
+
 After using this, you can now tell whether a chair at $275 a week beats a 55 percent split at the number of clients you really book, which used to take a napkin and a guess about slow weeks.
 
 ```

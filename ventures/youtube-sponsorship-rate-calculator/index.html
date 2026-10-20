@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>YouTube Sponsorship Rate Calculator — Free, No Sign-Up</title>
+  <meta name="description" content="Free YouTube sponsorship rate calculator. Enter your median views, niche and format to get a price range for an integration, dedicated video or mention, plus what to add for whitelisting and exclusivity. No sign-up, nothing uploaded.">
+  <meta property="og:title" content="YouTube Sponsorship Rate Calculator — free, no sign-up">
+  <meta property="og:description" content="Turn your median views into a defensible sponsorship price range, with add-ons for paid usage rights and category exclusivity. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "YouTube Sponsorship Rate Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Calculates a sponsorship price range for a YouTube integration, dedicated video or short mention from a channel's median views, niche, paid-usage rights and exclusivity. Runs in the browser; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I charge for a YouTube sponsorship?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your median views, niche, and the format you are selling. This calculator applies commonly cited CPM-per-1000-views ranges to your own median views, then adds percentage uplifts for paid-usage rights and category exclusivity, to give a starting price range."}}, {"@type": "Question", "name": "Why median views instead of subscribers?", "acceptedAnswer": {"@type": "Answer", "text": "A sponsor pays for views the sponsored video will actually get. Subscriber counts include people who stopped watching, and a single viral video inflates an average. The median of your last 10 long-form videos, measured about 30 days after upload, is the number sponsors can defend to their own boss."}}, {"@type": "Question", "name": "What are whitelisting and usage rights worth?", "acceptedAnswer": {"@type": "Answer", "text": "When a sponsor runs your video as an ad from your handle or their account, they get paid distribution of your face and voice. Creators commonly charge an extra 20% to 100% of the base fee depending on length; perpetual rights are usually worth more than the top of that range, so treat the figure as a floor."}}, {"@type": "Question", "name": "Is this price a guarantee of what a sponsor will pay?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a starting point for negotiation based on general market ranges, not a quote or a valuation. Actual rates vary with audience quality, conversion history and how much a specific sponsor wants your audience this quarter."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .85rem; color: #4c5a68; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">YOUTUBE SPONSORSHIP RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you charge for a YouTube sponsorship?</h1>
+    <p>Enter your median views, niche and the deal format. This turns them into a price range using the cost-per-1000-views logic sponsors already quote against, then shows separately what to add if the sponsor wants paid-usage (whitelisting) rights or category exclusivity — the two terms that most often change the real price.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device — see the privacy note in the footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your channel and the deal</h2>
+    <div class="grid">
+      <div>
+        <label for="views">Median views of your last 10 long-form videos (at ~30 days)</label>
+        <input type="number" id="views" min="0" step="1" placeholder="e.g. 60000">
+      </div>
+      <div>
+        <label for="niche">Niche</label>
+        <select id="niche">
+          <option value="general">General interest / entertainment</option>
+          <option value="business">Business / finance / career</option>
+          <option value="tech">Tech / software / science</option>
+          <option value="gaming">Gaming</option>
+          <option value="lifestyle">Lifestyle / beauty / travel / food</option>
+        </select>
+      </div>
+      <div>
+        <label for="format">Format</label>
+        <select id="format">
+          <option value="integration">Integration (60–90s segment)</option>
+          <option value="dedicated">Dedicated video</option>
+          <option value="mention">Short mention (15–30s)</option>
+        </select>
+      </div>
+      <div>
+        <label for="usage">Paid usage / whitelisting</label>
+        <select id="usage">
+          <option value="none">None</option>
+          <option value="30d">30 days paid usage / whitelisting</option>
+          <option value="90d">90 days paid usage / whitelisting</option>
+          <option value="perpetual">Perpetual paid usage</option>
+        </select>
+      </div>
+      <div>
+        <label for="exclusivity">Category exclusivity</label>
+        <select id="exclusivity">
+          <option value="none">None</option>
+          <option value="30d">30-day category exclusivity</option>
+          <option value="90d">90-day category exclusivity</option>
+        </select>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="calculate">Calculate my rate</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="copy-link">Copy shareable link</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter your numbers above and click Calculate my rate.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Suggested price range</h2>
+    <p class="stats" id="stats"></p>
+    <table>
+      <thead><tr><th>Line</th><th>Suggested range</th></tr></thead>
+      <tbody id="rates-body"></tbody>
+    </table>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This applies commonly cited CPM-per-1000-views benchmark ranges — wide ranges, by design — and conventional percentage uplifts for usage and exclusivity to the numbers you enter. It does <strong>not</strong> know your audience's buying power, your conversion history, or what a specific sponsor will pay this quarter. Treat the output as a starting point for a negotiation, not a quote.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for a YouTube sponsorship?</h3>
+    <p>It depends on your median views, niche, and the format you are selling. This calculator applies commonly cited CPM-per-1000-views ranges to your own median views, then adds percentage uplifts for paid-usage rights and category exclusivity, to give a starting price range.</p>
+    <h3>Why median views instead of subscribers?</h3>
+    <p>A sponsor pays for views the sponsored video will actually get. Subscriber counts include people who stopped watching, and a single viral video inflates an average. The median of your last 10 long-form videos, measured about 30 days after upload, is the number sponsors can defend to their own boss.</p>
+    <h3>What are whitelisting and usage rights worth?</h3>
+    <p>When a sponsor runs your video as an ad from your handle or their account, they get paid distribution of your face and voice. Creators commonly charge an extra 20% to 100% of the base fee depending on length; perpetual rights are usually worth more than the top of that range, so treat the figure as a floor.</p>
+    <h3>Is this price a guarantee of what a sponsor will pay?</h3>
+    <p>No. It is a starting point for negotiation based on general market ranges, not a quote or a valuation. Actual rates vary with audience quality, conversion history and how much a specific sponsor wants your audience this quarter.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for negotiating your own sponsorship terms. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. The shareable link is the one thing that travels, and only when you press the button for it: it carries your views, niche, format, usage and exclusivity choices inside the URL itself rather than sending them to a server, so send it to the sponsor you are quoting rather than posting it publicly. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>, <code>link_copied</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Also sell podcast ads? The <a href="../podcast-sponsorship-rate-calculator/">podcast sponsorship rate calculator</a> prices pre-, mid- and post-roll spots from your downloads.</p>
+    <p>Already earning from video? The <a href="../youtube-revenue-rpm-analyzer/">YouTube revenue and RPM analyzer</a> shows which of your videos pay per view, from your own Studio export. Selling on other channels too? See the <a href="../brand-deal-rate-calculator/">brand deal rate calculator</a> and the <a href="../newsletter-sponsorship-rate-calculator/">newsletter sponsorship rate calculator</a>.</p>
+  </footer>
+
+  
+  <script type="module">
+    import { computeRate } from "./calculator.mjs";
+    import { SHARE_FIELDS, encodeInputs, decodeInputs, formValues } from "./share.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      views: $("#views"), niche: $("#niche"), format: $("#format"), usage: $("#usage"), exclusivity: $("#exclusivity"),
+      status: $("#status"), reportCard: $("#report-card"),
+      stats: $("#stats"), ratesBody: $("#rates-body"), findings: $("#findings"),
+    };
+    const FIELD_ELEMENTS = { views: els.views, niche: els.niche, format: els.format, usage: els.usage, exclusivity: els.exclusivity };
+    const DEFAULTS = { niche: "general", format: "integration", usage: "none", exclusivity: "none" };
+
+    const money = (n) => {
+      const format = (n) => `$${n.toLocaleString()}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const range = (lo, hi) => `${money(lo)} – ${money(hi)}`;
+
+    function renderFindings(findings) {
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <p>${esc(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function currentInput() {
+      return { views: Number(els.views.value), niche: els.niche.value, format: els.format.value, usage: els.usage.value, exclusivity: els.exclusivity.value };
+    }
+
+    // `scroll` is false when drawn from a shared link or a live edit: the
+    // visitor did not press the button, and moving the viewport is motion
+    // nobody asked for.
+    function runCalculate({ scroll = true } = {}) {
+      const r = computeRate(currentInput());
+      els.stats.textContent = `${r.views.toLocaleString()} median views · CPM $${r.cpmLow.toFixed(0)}–$${r.cpmHigh.toFixed(0)} per 1,000 views for this format.`;
+      const rows = [["Base sponsorship fee", range(r.baseLow, r.baseHigh)]];
+      if (r.usageHigh > 0) rows.push(["+ Paid usage / whitelisting", range(r.usageLow, r.usageHigh)]);
+      if (r.exclusivityHigh > 0) rows.push(["+ Category exclusivity", range(r.exclusivityLow, r.exclusivityHigh)]);
+      rows.push(["Total to quote", range(r.totalLow, r.totalHigh)]);
+      els.ratesBody.innerHTML = rows.map(([label, value], i) =>
+        `<tr><td>${label}</td><td class="price">${i === rows.length - 1 ? "<strong>" + value + "</strong>" : value}</td></tr>`).join("");
+      renderFindings(r.findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      if (scroll) els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", () => {
+      if (!els.views.value) {
+        els.status.innerHTML = `<span class="error">Enter your median views above first.</span>`;
+        return;
+      }
+      runCalculate();
+      record("calculate_run");
+    });
+
+    // Editing a field after calculating must reprice the on-screen table, or
+    // a link copied a moment later would carry numbers the table does not
+    // show. Live repricing does not itself count as a calculate_run.
+    function syncFromInputs() {
+      if (els.views.value) runCalculate({ scroll: false });
+      else els.reportCard.hidden = true;
+    }
+    for (const el of Object.values(FIELD_ELEMENTS)) {
+      el.addEventListener("input", syncFromInputs);
+      el.addEventListener("change", syncFromInputs);
+    }
+
+    $("#load-example").addEventListener("click", () => {
+      els.views.value = "60000";
+      els.niche.value = "tech";
+      els.format.value = "integration";
+      els.usage.value = "30d";
+      els.exclusivity.value = "30d";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a tech channel with 60,000 median views, one integration, 30 days of whitelisting and 30 days of exclusivity.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.views.value = "";
+      for (const [k, v] of Object.entries(DEFAULTS)) FIELD_ELEMENTS[k].value = v;
+      els.reportCard.hidden = true;
+      els.status.textContent = "Enter your numbers above and click Calculate my rate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // A rate quote exists to be sent to a sponsor. The link carries the
+    // inputs in the URL itself; nothing is uploaded.
+    $("#copy-link").addEventListener("click", async () => {
+      const values = Object.fromEntries(SHARE_FIELDS.map((id) => [id, FIELD_ELEMENTS[id].value]));
+      const url = `${location.origin}${location.pathname}#${encodeInputs(values)}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        els.status.textContent = "Link copied. Whoever opens it sees these same numbers and ranges.";
+      } catch {
+        els.status.textContent = url;
+      }
+      record("link_copied");
+    });
+
+    // Applied through formValues so every field is written: a box the sender
+    // cleared arrives cleared. See platform/ci/check_shared_link_clears.py.
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (Object.keys(fromLink).length > 0) {
+      const values = formValues(fromLink, DEFAULTS);
+      for (const id of SHARE_FIELDS) FIELD_ELEMENTS[id].value = values[id];
+      if (els.views.value) {
+        runCalculate({ scroll: false });
+        els.status.textContent = "These numbers came in from a shared link. Change anything to price your own channel.";
+      }
+    }
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

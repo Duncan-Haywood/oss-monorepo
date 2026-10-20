@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swe-briefab"
+version = "0.1.0"
+description = "Research brief v0 vs v1 on the concurrent run ledger: permutation tests and intervals on errors, cost, time and friction"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

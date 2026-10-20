@@ -6,6 +6,8 @@ a sealed encapsulate, hatch versus belly-crawl versus standing water,
 then a dehumidifier, a dedicated circuit, and a clean-out — and shows
 the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/crawl-space-encapsulation-bid-calculator/
+
 **After using this, you can now** send a walk-away encapsulation price
 that sees the liner and the access, **which used to take** matching a
 published $4 / sq ft liner special that treats a dry ranch as the same
@@ -13,10 +15,7 @@ job as a wet belly crawl.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

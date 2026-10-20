@@ -4,6 +4,8 @@ A local, read-only scanner for GitHub-heavy teams that need to understand stale
 branches before deleting anything. It turns a portable snapshot into a report
 and a recovery manifest.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/repository-branch-hygiene/
+
 ```bash
 python3 src/branch_hygiene.py examples/snapshot.json --report report.txt --manifest recovery.json
 ```

@@ -1,0 +1,16 @@
+{
+  "name": "Where to Sell Calculator",
+  "short_name": "Where to Sell",
+  "description": "One item, every marketplace: net profit after fees and returns, and which channel to list on. Works offline; nothing leaves your device.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f4fc",
+  "theme_color": "#4b32a8",
+  "categories": ["business", "finance", "shopping"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

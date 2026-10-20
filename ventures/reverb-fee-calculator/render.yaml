@@ -1,0 +1,13 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render serves the files as a static site in YOUR account; nothing runs on the author's.
+services:
+  - type: web
+    name: reverb-fee-calculator
+    runtime: static
+    rootDir: ventures/reverb-fee-calculator
+    staticPublishPath: .
+    buildCommand: "true"
+    headers:
+      - path: /*.mjs
+        name: Content-Type
+        value: text/javascript

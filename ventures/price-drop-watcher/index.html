@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free Price Drop and Back-in-Stock Alerts (Self-Hosted)</title>
+  <meta name="description" content="Get price drop and back-in-stock alerts for any product page, free. Runs on your own GitHub Actions, alerts your phone, no account or tracking. Test a page in your browser first.">
+  <meta property="og:title" content="Price drop alerts for any shop, on your own GitHub">
+  <meta property="og:description" content="Watch any product page for a price drop or restock. Free, self-hosted, no tracking links.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Price Drop Watcher", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; watcher needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Watch product pages for price drops and back-in-stock, running on your own free GitHub Actions with alerts to your phone. Test any page in your browser first; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I get a price drop alert for free without giving an app my email?", "acceptedAnswer": {"@type": "Answer", "text": "Copy the watcher into your own GitHub repository, list the product URLs in watch.json and turn on the scheduled workflow. It checks every six hours on your own Actions minutes and sends a push through ntfy or a Discord webhook. No account here, no email list."}}, {"@type": "Question", "name": "Will it work on any shop?", "acceptedAnswer": {"@type": "Answer", "text": "It reads the structured data most shops publish for Google (schema.org Product, Open Graph price tags, microdata). Paste a page's source into the tester above to see what it finds. If a page has none, give it a priceRegex for that page."}}, {"@type": "Question", "name": "Is it allowed to check a shop's page?", "acceptedAnswer": {"@type": "Answer", "text": "It identifies itself, reads robots.txt first and skips any page the shop disallows, and makes one request every two seconds. It is for watching a handful of pages for yourself, not for scraping a catalogue. Check the shop's terms."}}, {"@type": "Question", "name": "How is this different from CamelCamelCamel, Keepa or Honey?", "acceptedAnswer": {"@type": "Answer", "text": "Those track a fixed set of big retailers on their servers and earn money from affiliate links or subscriptions. This watches any page you choose, runs in your own repository, has no tracking links, and is free. It has no price history charts or shared database."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 110px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 9px 11px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px ui-monospace, monospace; margin-bottom: 6px; }
+    label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 5px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .verdict { font-size: 1.3rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    .urlrow { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-size: .88rem; margin-bottom: 4px; }
+    .urlrow code { overflow-wrap: anywhere; word-break: break-word; }
+    .urlrow .tag { color: #55606f; font-size: .78rem; white-space: nowrap; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.critical { background: #fde8e8; color: #9a3412; }
+    .pill.warning { background: #fff4d6; color: #7a5b00; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    .pill.pass { background: #dcefe4; color: #14532d; }
+    .finding { border-bottom: 1px solid #e6eaf0; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 6px 0 4px; }
+    .finding .fix { font-size: .88rem; color: #17324a; background: #f7f9fb; border-left: 3px solid #17604a; padding: 8px 10px; border-radius: 0 6px 6px 0; margin-top: 8px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; font-size: .9rem; font-weight: 600; color: #17324a; }
+    .own-miss { color: #9a3412; font-weight: 600; }
+    input[type=date] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px system-ui; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .row { grid-template-columns: 1fr; } body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PRICE DROP WATCHER · FREE · SELF-HOSTED</p>
+    <h1>Price drop and back-in-stock alerts for any product page</h1>
+    <p>Check a page here, copy two small files into your own GitHub repository, and your phone buzzes when the price falls or the item is back. It runs on your own free Actions minutes, so nobody else holds your watch list.</p>
+    <p class="note">The tester below reads the page source you paste in this browser. This page makes no network calls and nothing you paste leaves your device.</p>
+  </header>
+  <section class="card">
+    <h2>1. Test a product page</h2>
+    <p class="note">Open the product page, choose View Source (or Ctrl+U), copy everything and paste it here.</p>
+    <label for="html">Page source</label>
+    <textarea id="html" style="min-height:160px" spellcheck="false" placeholder="&lt;html&gt;...paste the page source..."></textarea>
+    <div class="row">
+      <div><label for="url">Product URL</label><input id="url" type="text" placeholder="https://shop.example/products/trail-runner-2"></div>
+      <div><label for="name">Name (optional)</label><input id="name" type="text" placeholder="Trail Runner 2"></div>
+      <div><label for="target">Alert at or below (optional)</label><input id="target" type="text" placeholder="99"></div>
+      <div><label for="mindrop">Ignore drops smaller than % (optional)</label><input id="mindrop" type="text" placeholder="5"></div>
+    </div>
+    <details><summary>This shop publishes no price data? Add your own pattern</summary>
+      <label for="priceRegex">Price pattern, one capture group around the number</label><input id="priceRegex" type="text" placeholder="Now\s*\$([\d.,]+)">
+      <label for="stockRegex">Text that appears only when it is in stock</label><input id="stockRegex" type="text" placeholder="Add to cart">
+    </details>
+    <p>
+      <button type="button" id="run">What does the watcher see?</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+    </p>
+    <p class="note" id="status" role="status">Paste a page's source and click the button.</p>
+    <p class="verdict" id="verdict"></p>
+  </section>
+  <section class="card" id="out" hidden>
+    <h2>2. Your watch.json</h2>
+    <p class="note">Add one entry per product. Put this file in the root of your repository.</p>
+    <pre class="cmd" id="json"></pre>
+    <button type="button" class="secondary" id="copy-json">Copy watch.json</button>
+    <button type="button" class="secondary" id="dl-json">Download watch.json</button>
+    <p class="note" id="export-status" role="status"></p>
+  </section>
+  <section class="card">
+    <h2>3. Turn it on in your own repository</h2>
+    <ol>
+      <li>Create a repository (private is fine) and add <a href="extract.mjs">extract.mjs</a>, <a href="watch.mjs">watch.mjs</a> and your <code>watch.json</code>.</li>
+      <li>Save the workflow below as <code>.github/workflows/price-watch.yml</code>.</li>
+      <li>Pick a hard-to-guess topic name, install the free <a href="https://ntfy.sh" rel="noopener">ntfy</a> app on your phone, subscribe to it, and add the same name as a repository secret called <code>NTFY_TOPIC</code> (or <code>DISCORD_WEBHOOK</code> for Discord).</li>
+      <li>Run the workflow once from the Actions tab. It records the starting prices; later runs alert on changes.</li>
+    </ol>
+    <pre class="cmd" id="yml"># Copy to .github/workflows/price-watch.yml in YOUR OWN repository (a private one is fine).
+# Runs on your GitHub Actions minutes and your secrets; nothing passes through anyone else.
+name: price-watch
+on:
+  schedule: [{ cron: &quot;17 */6 * * *&quot; }]
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node watch.mjs --config watch.json --state state.json
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      - run: |
+          git config user.name &quot;price-watch&quot;; git config user.email &quot;price-watch@users.noreply.github.com&quot;
+          git add state.json &amp;&amp; (git diff --cached --quiet || git commit -m &quot;price-watch: update state&quot; &amp;&amp; git push)
+</pre>
+    <button type="button" class="secondary" id="copy-yml">Copy workflow</button>
+    <p class="note">Try it on your computer first: <code>node watch.mjs --dry-run</code> prints what it sees and sends nothing.</p>
+  </section>
+  <section class="card">
+    <h2>What you use today, and what this does differently</h2>
+    <p class="note"><strong>CamelCamelCamel, Keepa and Honey</strong> track a fixed set of big retailers on their servers and earn from affiliate links or subscriptions. <strong>Visualping and Distill</strong> watch any page but cap the free tier and keep your watch list on their service. <strong>Refreshing the page</strong> costs you the evening. This watches any shop you choose, lives in your own repository, adds no tracking links and costs nothing. It has no price history charts and no shared database of other people's prices.</p>
+  </section>
+  <section class="card">
+    <h2>Questions people actually ask</h2>
+    <h3>How do I get a price drop alert for free without giving an app my email?</h3>
+    <p>Copy the watcher into your own GitHub repository, list the product URLs in watch.json and turn on the scheduled workflow. It checks every six hours on your own Actions minutes and sends a push through ntfy or a Discord webhook. No account here, no email list.</p>
+    <h3>Will it work on any shop?</h3>
+    <p>It reads the structured data most shops publish for Google (schema.org Product, Open Graph price tags, microdata). Paste a page&#x27;s source into the tester above to see what it finds. If a page has none, give it a priceRegex for that page.</p>
+    <h3>Is it allowed to check a shop&#x27;s page?</h3>
+    <p>It identifies itself, reads robots.txt first and skips any page the shop disallows, and makes one request every two seconds. It is for watching a handful of pages for yourself, not for scraping a catalogue. Check the shop&#x27;s terms.</p>
+    <h3>How is this different from CamelCamelCamel, Keepa or Honey?</h3>
+    <p>Those track a fixed set of big retailers on their servers and earn money from affiliate links or subscriptions. This watches any page you choose, runs in your own repository, has no tracking links, and is free. It has no price history charts or shared database.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Shops change their pages, so it can miss a drop, misread a price, or show a stale one. It is not financial advice. <strong>You are responsible for reviewing and verifying a price on the shop's own page before you buy.</strong> You are also responsible for checking that watching a page is allowed by the shop's terms. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. The watcher is plain files you run yourself: <a href="watch.mjs" rel="noopener">watch.mjs</a>.</p>
+    <p>Everything here runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the page makes no network calls. Anonymous feature events (<code>page_tested</code>, <code>export_used</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../subscription-audit-from-statement/">Subscription Audit</a> finds recurring charges in a bank statement, and <a href="../meeting-action-items/">Meeting Action Items</a> turns notes into owned tasks.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { extractProduct, SAMPLE_HTML, money } from "./extract.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let entry = null;
+    function run() {
+      const rule = {};
+      if ($("priceRegex").value.trim()) rule.priceRegex = $("priceRegex").value.trim();
+      if ($("stockRegex").value.trim()) rule.stockRegex = $("stockRegex").value.trim();
+      const r = extractProduct($("html").value, rule);
+      const status = $("status"), v = $("verdict");
+      if (!r.ok) { $("out").hidden = true; entry = null; v.textContent = ""; status.textContent = r.error; status.className = "error"; return; }
+      record("page_tested");
+      v.textContent = `Found ${money(r)}${r.availability ? ", " + r.availability.replace("_", " ") : ""} (${r.source})`;
+      status.textContent = r.title ? `Page title: ${r.title}` : "Found a price.";
+      status.className = "note";
+      entry = { name: $("name").value.trim() || r.title || undefined, url: $("url").value.trim() || "https://shop.example/product" };
+      const t = Number.parseFloat($("target").value), m = Number.parseFloat($("mindrop").value);
+      if (Number.isFinite(t)) entry.targetPrice = t;
+      if (Number.isFinite(m)) entry.minDropPercent = m;
+      Object.assign(entry, rule);
+      $("json").textContent = JSON.stringify({ items: [entry] }, null, 2);
+      $("out").hidden = false;
+    }
+    const copy = async (text, note) => {
+      try { await navigator.clipboard.writeText(text); note.textContent = "Copied."; record("export_used"); }
+      catch { note.textContent = "Could not copy here: select the text and copy it by hand."; }
+    };
+    $("run").addEventListener("click", run);
+    $("load-example").addEventListener("click", () => { $("html").value = SAMPLE_HTML; $("url").value = "https://fell.example/products/trail-runner-2"; $("target").value = "99"; $("mindrop").value = "5"; record("example_loaded"); run(); });
+    $("copy-json").addEventListener("click", () => entry && copy($("json").textContent, $("export-status")));
+    $("copy-yml").addEventListener("click", () => copy($("yml").textContent, $("export-status")));
+    $("dl-json").addEventListener("click", () => {
+      if (!entry) return;
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([$("json").textContent + "\n"], { type: "application/json" })); a.download = "watch.json"; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000); record("export_used");
+    });
+    const optout = $("optout");
+    const paint = () => { optout.textContent = usageOptedOut() ? "Usage counting is off — turn it back on" : "Turn usage counting off"; };
+    optout.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+    paint();
+  </script>
+</body>
+</html>

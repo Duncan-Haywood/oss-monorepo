@@ -16,20 +16,20 @@ pull request unless the user explicitly asks" or "push to your branch". That
 default does not apply here. The user has asked, for every session in this
 repository, whatever the brief says.
 
-## Why this has its own prompt (measured 2026-10-05)
+**No `gh` or GraphQL in cloud sessions?** Use the GitHub MCP tools
+(`create_pull_request`, `merge_pull_request`, `pull_request_read`) for every
+step below; they are the supported route there.
 
-- **PRs that get opened land.** In the two weeks to 2026-10-05, 1,251 PRs
-  merged, 23 closed unmerged, and 3 were open.
-- **Branches without a PR do not.** Over branch tips dated 2026-09-21 onward,
-  102 branches held 186 commits that were in no pull request and not on
-  `main`, and 100 of those branches never had a PR at all. Four of them are
-  complete, tested ventures that `main` still lacks:
-  `sep-ira-contribution-calculator`, `recipe-costing-calculator`,
-  `s3-bucket-exposure-check` and `agent-permission-config-check`.
+If `create_pull_request` returns HTTP 500, search open PRs for your branch
+(`search_pull_requests`, `head:` or the title) before retrying: it can succeed
+on the second or third call, and a 500 may still have created the PR.
 
-So the work gets done and then dropped at the last step, between `git push`
-and opening the PR. Nothing reports it, because every guard here runs on a PR
-or on `main`.
+## Why this has its own prompt
+
+Measured 2026-10-05: PRs that get opened land (1,251 merged, 23 closed in two
+weeks), but 100 branches with 186 commits never got a PR, including four
+finished ventures. Work was dropped between `git push` and opening the PR, and
+every guard here runs on a PR or on `main`.
 
 ## The finish line: do all of it, in this order
 
@@ -46,11 +46,13 @@ or on `main`.
    `python3 platform/ci/ci_starvation.py --run <id>` says runners are starved,
    run the local checklist in `CLAUDE.md` ("Ship without review ceremony")
    instead and paste its results into the PR.
-5. **Merge it yourself.** Mark the draft ready and squash-merge. Don't wait
-   for a human or for bot approvals. `ventures/*` product code counts too:
+5. **Merge it yourself.** Mark the draft ready and squash-merge. A research
+   mirror PR is the one exception: it merges with a merge commit, never a
+   squash (`prompt.md`). Don't wait for a human or for bot approvals.
+   `ventures/*` product code counts too:
    `CLAUDE.md` settled that on 2026-08-25. If the merge won't go:
    - **Conflict:** merge `origin/main` into your branch, re-run what the
-     checklist says (`regen.mjs`, `sync_tree_counts.py`), re-verify, and
+     checklist says (`node platform/marketing/regen.mjs`, `sync_tree_counts.py`), re-verify, and
      merge. A conflict is never a reason to stop.
    - **A check your change turned red:** fix forward on the same PR.
    - **A check that is red on `main` too:** it isn't yours. If a fix exists,
@@ -79,14 +81,21 @@ your PR merges, open a **new** PR for the follow-up. Reusing the same branch
 is fine, and `unlanded_work.py` names the old PR and tells you to. Never end a
 session on a push to a merged PR's branch.
 
+**Never push a branch that holds nothing beyond `main`.** Resetting to
+`origin/main` after the merge is fine locally, but pushing it recreates the
+branch cleanup just deleted (872 of 875 surviving merged-PR branches on
+2026-10-16). Push again only once it has a new commit, and open a new PR for it.
+
+If `git push --force-with-lease` is rejected with "stale info" after you reset
+the branch, the remote ref was deleted and your tracking ref is stale (reported
+by five runs). Don't retry the flag: `git fetch --prune origin`, then a plain
+`git push -u origin <branch>`.
+
 ## Not shipping something? Leave nothing to push
 
-Claude Code cloud sessions are told to commit and push their branch before
-they stop, and a stop hook asks again while the working tree is dirty. So
-"leave `main` alone" becomes a branch with no PR unless you also leave nothing
-to push. Of the 248 branches with no PR at all (tips from 2026-08 to
-2026-10-05), 43 held nothing but ledger entries, `infra_state.yaml` readings or
-other records.
+Cloud sessions push their branch before stopping, so "leave `main` alone"
+becomes a branch with no PR unless you also leave nothing to push (43 of 248
+PR-less branches held only ledger entries or readings).
 
 When you decide a change will not ship, take it off your branch before you
 stop and say in your reply what you dropped. Examples: ledger prose that
@@ -109,17 +118,20 @@ These are the owner-only items in `CLAUDE.md`:
 - a secret only the owner holds
 
 Even then, **open the PR** and leave it open with one comment naming the
-blocker and its `decision_queue.py` row. A PR with a named blocker is visible.
-A branch is not.
+blocker and its `decision_queue.py` row: a named blocker is visible, a branch is not.
 
 These are **not** reasons:
 
 - **CI is starved.** Run the checklist.
-- **Waiting for review.** There is no review gate.
-- **The branch conflicts.** Resolve it.
-- **Another session may be doing the same thing.** Check open PRs, then
-  either land yours or close it with a pointer to the survivor (`CLAUDE.md`,
-  "Duplicate PRs").
+- **Waiting for review, or a conflict.** No review gate; resolve it.
+- **Another session may be doing the same thing.** Check open PRs and run
+  `python3 platform/ci/slug_dupe.py <slug>` (exit 1: already on `main` or
+  landed in the last 14 days), then land yours or close it with a pointer to
+  the survivor (`CLAUDE.md`, "Duplicate PRs").
+  To check open PRs cheaply, use `search_pull_requests` with
+  `is:open repo:duncan-haywood/oss-monorepo <slug or keyword> in:title` and
+  `minimal_output`; `list_pull_requests` returns tens of KB of unrelated PRs
+  (reported by research, ventures and review runs).
 - **The brief didn't say to open a PR.** This file says so.
 
 ## Other agents' unlanded work is yours too
@@ -138,7 +150,8 @@ Merging is every agent's job, not only the author's:
 - **Stranded branches.** Before claiming new work, run
   `python3 platform/ci/unlanded_work.py --sweep`. A finished venture or fix
   with no PR is the cheapest product in the repo to ship. Read it first.
-  - A tip that says "parked" or "not for merge" was left on purpose.
+  - "Parked" or "not for merge" was left on purpose; a tip whose content is
+    already on `main` (`supersede_check.py`) needs no PR.
   - For a venture, run `portfolio/pipeline/duplicate_check.py`, because
     `main` may have shipped the same niche under another slug.
   - To land one, copy its files onto your own branch
@@ -146,6 +159,11 @@ Merging is every agent's job, not only the author's:
     `git checkout FETCH_HEAD -- ventures/<slug>`), regenerate and re-verify
     against today's `main`, credit the source branch in the PR body, and
     merge.
+  - You will usually meet these as **adopted drafts** ("Adopt stranded
+    branch ...", opened by `adopt-stranded-branches.yml`). Treat one as an
+    orphan draft (above): merge `main` in (that push also starts its CI),
+    verify, and merge, or close it with the reason. Run
+    `platform/ci/adopt_stranded.py` without `--apply` to see what it would adopt.
 
 ## End every session's reply with
 

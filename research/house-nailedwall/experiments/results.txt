@@ -1,0 +1,50 @@
+house 28 x 40 ft; wind across the ridge at 115 mph, total ASD base shear 4,655 lb on the two gable lines
+line A = garage-door gable wall (centred door); line B = other gable wall; four-term pier stiffness, secant at v
+
+hold-down slip on, reference unit shear v = 100 plf
+ door       kA       kB  kA/kB rigid A lb D/C flex D/C rigid B D/C rigid
+  9ft    11720    19574   0.60      2,165     0.25      0.23        0.20
+ 12ft     8415    19574   0.43      2,027     0.30      0.26        0.21
+ 16ft     4746    19574   0.24      1,725     0.41      0.31        0.24
+ 20ft     2029    19574   0.10      1,183     0.67      0.34        0.28
+ 22ft     1070    19574   0.05        793     1.05      0.36        0.31
+
+hold-down slip on, reference unit shear v = 250 plf
+ door       kA       kB  kA/kB rigid A lb D/C flex D/C rigid B D/C rigid
+  9ft     7633    11003   0.69      2,186     0.25      0.24        0.20
+ 12ft     6002    11003   0.55      2,075     0.30      0.27        0.21
+ 16ft     3922    11003   0.36      1,842     0.41      0.33        0.23
+ 20ft     2028    11003   0.18      1,413     0.67      0.40        0.26
+ 22ft     1205    11003   0.11      1,063     1.05      0.48        0.29
+
+hold-down slip on, reference unit shear v = 500 plf
+ door       kA       kB  kA/kB rigid A lb D/C flex D/C rigid B D/C rigid
+  9ft     2219     3006   0.74      2,197     0.25      0.24        0.20
+ 12ft     1827     3006   0.61      2,101     0.30      0.27        0.21
+ 16ft     1305     3006   0.43      1,911     0.41      0.34        0.22
+ 20ft      787     3006   0.26      1,581     0.67      0.45        0.25
+ 22ft      533     3006   0.18      1,309     1.05      0.59        0.27
+
+hold-down slip off, reference unit shear v = 100 plf
+ door       kA       kB  kA/kB rigid A lb D/C flex D/C rigid B D/C rigid
+  9ft    27476    42549   0.65      2,175     0.25      0.24        0.20
+ 12ft    20614    42549   0.48      2,050     0.30      0.27        0.21
+ 16ft    12429    42549   0.29      1,778     0.41      0.31        0.23
+ 20ft     5747    42549   0.14      1,282     0.67      0.37        0.27
+ 22ft     3169    42549   0.07        901     1.05      0.41        0.31
+
+hold-down slip off, reference unit shear v = 250 plf
+ door       kA       kB  kA/kB rigid A lb D/C flex D/C rigid B D/C rigid
+  9ft     8974    12524   0.72      2,192     0.25      0.24        0.20
+ 12ft     7221    12524   0.58      2,088     0.30      0.27        0.21
+ 16ft     4929    12524   0.39      1,876     0.41      0.33        0.23
+ 20ft     2735    12524   0.22      1,492     0.67      0.43        0.26
+ 22ft     1717    12524   0.14      1,173     1.05      0.53        0.28
+
+hold-down slip off, reference unit shear v = 500 plf
+ door       kA       kB  kA/kB rigid A lb D/C flex D/C rigid B D/C rigid
+  9ft     2269     3057   0.74      2,198     0.25      0.24        0.20
+ 12ft     1875     3057   0.61      2,103     0.30      0.27        0.21
+ 16ft     1351     3057   0.44      1,917     0.41      0.34        0.22
+ 20ft      829     3057   0.27      1,599     0.67      0.46        0.25
+ 22ft      570     3057   0.19      1,338     1.05      0.60        0.27

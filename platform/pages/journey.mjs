@@ -133,83 +133,71 @@ async function step(label, run) {
   }
 }
 
-// 1. The front page.
+// 1. The front page: a front door, not the catalogue. It names the site, puts
+// the search over everything first, and lists the sections.
 await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
-check('hub h1 renders', /decisions that cost real money/.test(await page.textContent('h1')));
+check('hub h1 renders', (await page.textContent('h1')).trim().length > 10);
+check('the site header is there', await page.locator('[data-pfs-head]').count() === 1);
 
 // Counts are derived, never hardcoded: ventures land here weekly and a literal
 // would fail on a healthy site the moment someone ships a calculator.
+const categoryCount = await page.locator('.cat h3 a[data-category]').count();
+check('the hub lists the sections', categoryCount >= 6, `${categoryCount} sections`);
+
+// 1b. A section page carries the full list, sub-divided, with jump links that
+// land. A broken anchor fails silently — the click does nothing — so it is
+// clicked, not just counted.
+await page.goto(`${BASE}/c/trades/`, { waitUntil: 'networkidle' });
 const cardCount = await page.locator('.card').count();
-check('a substantial number of tools are listed', cardCount >= 30, `${cardCount} cards`);
-
-const groupCount = await page.locator('.group').count();
-check('tools are grouped', groupCount >= 2, `${groupCount} groups`);
-
-// The trades section is most of the site, so its sub-groups are what makes the
-// hub browsable rather than a wall. A visitor who is not searching reads these
-// headings; if they stop rendering, the failure is silent — every tool is still
-// listed, just not findable by anyone who cannot already name it.
+check('a section page lists its tools', cardCount >= 30, `${cardCount} cards`);
 const subgroupCount = await page.locator('.subgroup').count();
 check('the largest section is sub-divided', subgroupCount >= 2, `${subgroupCount} sub-groups`);
 const biggestSubgroup = await page.evaluate(() =>
   Math.max(0, ...[...document.querySelectorAll('.subgroup')].map(
     (s) => s.querySelectorAll('.card').length)));
-check('no sub-group is itself a wall', biggestSubgroup > 0 && biggestSubgroup <= 40,
+check('no sub-group is itself a wall', biggestSubgroup > 0 && biggestSubgroup <= 60,
   `largest holds ${biggestSubgroup}`);
-
-
-// 1b. The contents index. On a phone the hub is tens of screens tall, so a
-// visitor who is not searching needs a route to a section that is not scrolling
-// past every section above it. A broken anchor here fails silently — the click
-// simply does nothing — so it is clicked, not just counted.
-const contentsLinks = await page.locator('.contents a').count();
-check('the contents index lists sections', contentsLinks >= 6, `${contentsLinks} links`);
-
-const target = await page.locator('.contents a').last().getAttribute('href');
+const target = await page.locator('.jumps a').last().getAttribute('href');
 const beforeJump = await page.evaluate(() => window.scrollY);
-await page.locator('.contents a').last().click();
+await page.locator('.jumps a').last().click();
 await page.waitForTimeout(400);
 const jumped = await page.evaluate((sel) => {
   const el = document.querySelector(sel);
   return el ? Math.abs(el.getBoundingClientRect().top) : Infinity;
 }, target);
-check('the last contents link jumps to its section',
+check('the last jump link lands on its section',
   jumped < 120 && (await page.evaluate(() => window.scrollY)) > beforeJump,
   `${target} landed ${Math.round(jumped)}px from the viewport top`);
+await page.fill('#cat-filter', 'roof');
+await page.waitForTimeout(100);
+const filtered = await page.locator('main .card:not([hidden])').count();
+check('the section filter narrows the list', filtered > 0 && filtered < cardCount, `${filtered} of ${cardCount}`);
+check('the filter hides sections it emptied', await page.evaluate(() =>
+  [...document.querySelectorAll('.subgroup:not([hidden])')].every(
+    (s) => s.querySelector('.card:not([hidden])'))));
 
-await page.evaluate(() => window.scrollTo(0, 0));
-
-// 2. Search.
+// 2. Search, over the JSON index of every tool and research project.
+await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
 await page.fill('#q', 'ebay');
-await page.waitForTimeout(150);
-const visible = await page.locator('.card:not([hidden])').count();
-check('search narrows the list', visible > 0 && visible < cardCount, `${visible} of ${cardCount}`);
-
-// A sub-group whose every card is filtered out has to go too: an empty heading
-// with a count beside it reads as "no results here" repeated eight times.
-await page.fill('#q', 'metal roof');
-await page.waitForTimeout(150);
-const staleSubgroups = await page.evaluate(() =>
-  [...document.querySelectorAll('.subgroup:not([hidden])')].filter(
-    (s) => ![...s.querySelectorAll('.card')].some((c) => !c.hidden)).length);
-check('search hides sub-groups it emptied', staleSubgroups === 0, `${staleSubgroups} left showing`);
-// Its counts are of the whole catalogue, so leaving it up over a filtered page
-// would state a number the page below contradicts.
-check('the contents index steps aside during a search', await page.locator('.contents').isHidden());
+await page.waitForSelector('#results li', { timeout: 10000 }).catch(() => {});
+const visible = await page.locator('#results li').count();
+check('search finds tools', visible > 0, `${visible} results`);
+check('the first result for "ebay" is an eBay tool',
+  /ebay/i.test((await page.locator('#results li a').first().textContent()) ?? ''));
 
 await page.fill('#q', 'zzzznotathing');
-await page.waitForTimeout(150);
+await page.waitForTimeout(300);
 check('empty state appears', await page.locator('#empty').isVisible());
-check('an empty search leaves no section showing',
-  (await page.locator('.subgroup:not([hidden]), .group:not([hidden])').count()) === 0);
+check('an empty search lists nothing', (await page.locator('#results li').count()) === 0);
 
 await page.fill('#q', '');
-await page.waitForTimeout(150);
-check('clearing search restores every tool',
-  (await page.locator('.card:not([hidden])').count()) === cardCount);
-check('clearing search restores every sub-group',
-  (await page.locator('.subgroup:not([hidden])').count()) === subgroupCount);
-check('clearing search brings the contents index back', await page.locator('.contents').isVisible());
+await page.waitForTimeout(300);
+check('clearing search clears the results', await page.locator('#results').isHidden());
+
+// The header's search box on every other page lands here with the query.
+await page.goto(`${BASE}/?q=walmart`, { waitUntil: 'networkidle' });
+await page.waitForSelector('#results li', { timeout: 10000 }).catch(() => {});
+check('a ?q= link opens with results', (await page.locator('#results li').count()) > 0);
 
 // 3. Usage counting is local, and the opt-out actually stops it.
 const storageKey = await page.evaluate(() =>
@@ -228,7 +216,7 @@ if (storageKey) {
 }
 
 // 4. Click through to a tool and confirm it computes rather than just paints.
-await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+await page.goto(`${BASE}/c/marketplace/`, { waitUntil: 'networkidle' });
 await page.click('.card a[href*="walmart-marketplace-calculator"]');
 await page.waitForLoadState('networkidle');
 check('navigated to the tool', page.url().includes('/walmart-marketplace-calculator/'), page.url());

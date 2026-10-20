@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Social Preview Checker — Open Graph, Twitter Card, LinkedIn link previews</title>
-<meta name="description" content="Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter's large-image card, and the twitter:image -> og:image fallback chain. Also check any image URL's real pixel dimensions right in this page. Nothing uploaded.">
+<meta name="description" content="Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter's large-image card, and the twitter:image -&gt; og:image fallback chain.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/social-preview-check/">
 <meta property="og:type" content="website">
@@ -124,7 +124,7 @@
 
 <div class="card">
   <h2>2. Paste the JSON output here</h2>
-  <textarea id="payload" spellcheck="false" placeholder='{"target": "https://example.com/", "probe": {"ok": true, "status": 200, "tags": {...}, "images": {...}}}'></textarea>
+  <textarea aria-label="Pasted JSON output" id="payload" spellcheck="false" placeholder='{"target": "https://example.com/", "probe": {"ok": true, "status": 200, "tags": {...}, "images": {...}}}'></textarea>
   <p>
     <button type="button" class="primary" id="check">Check</button>
     <button type="button" id="load-example">Load worked example (broken)</button>
@@ -148,7 +148,7 @@
     works for a third-party image URL directly in this page -- nothing is uploaded, the image loads straight
     from its own host to your browser.
   </p>
-  <input type="url" id="image-url" placeholder="https://example.com/social-image.jpg">
+  <input aria-label="Image URL" type="url" id="image-url" placeholder="https://example.com/social-image.jpg">
   <p><button type="button" class="primary" id="check-image">Check image size</button></p>
   <p class="status-note" id="image-status"></p>
   <img id="image-preview" alt="">
@@ -366,6 +366,7 @@
   <a href="./vs-facebook-sharing-debugger.html">how this checker compares to Facebook Sharing Debugger</a>.
   Already running a whole-site crawler? See
   <a href="vs-screamingfrog.html">how this checker compares to Screaming Frog SEO Spider</a>.</p>
+    <p>Also: <a href="vs-checking-tags-by-eye.html">Social Preview Checker vs. checking your tags by eye</a></p>
 </footer>
 </body>
 </html>

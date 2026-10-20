@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01AdL7DfQs2GJ3DHU6jnviX5",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T10:07:50Z",
+  "ended": "2026-10-18T10:24:23Z",
+  "wall_minutes": 16.74,
+  "tokens_in": 5137747,
+  "tokens_out": 20510,
+  "cost_usd": 1.621,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8014",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pyenv.py found no interpreter after pip/apt in the first call, though plain pip install into python3 worked",
+    "Hugging Face mirror returned HTTP 429 mid-download; download.sh has set -e and aborted, needed a retry loop"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/accel-sparse/README.md",
+      "issue": "says 14 designs; the code defines 13"
+    },
+    {
+      "file": "platform/ci/pyenv.py",
+      "issue": "reported no usable interpreter while python3 -m pip install numpy scipy pyarrow ... succeeded"
+    },
+    {
+      "file": "research/accel-kws/experiments/download.sh",
+      "issue": "no retry on 429; aborts the whole 3.3 GB download"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d94ff8cb-60fb-5ca3-ae3c-3342f95daac5",
+    "transcripts": 1,
+    "first": "2026-10-18T10:07:50Z",
+    "last": "2026-10-18T10:24:35Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 49,
+        "input": 106,
+        "output": 20510,
+        "thinking": 2802,
+        "cache_read": 5035485,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102156,
+        "api_equivalent_usd": 1.621,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 106,
+      "output": 20510,
+      "thinking": 2802,
+      "cache_read": 5035485,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102156,
+      "api_equivalent_usd": 1.621,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 38,
+      "Monitor": 4,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "bash_placeholder": 1,
+      "ReadNotifications": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.74,
+      "active_minutes": 9.17,
+      "model_minutes": 2.88,
+      "tool_minutes": 6.29,
+      "waiting_on_human_minutes": 7.56,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "data download, feature extraction, sweep code, README for a comparable re-run",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 740.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

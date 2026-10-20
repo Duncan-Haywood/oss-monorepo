@@ -1,0 +1,79 @@
+{
+  "slug": "electrical-panel-upgrade-bid-calculator",
+  "name": "Electrical panel upgrade",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Panel swaps and service upgrades priced from the panel, feeder feet, circuits, AFCI breakers and add-ons.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 52,
+  "burdenRate": 34,
+  "overheadRate": 18,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Swap 100A main-breaker panel, overhead mast kit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 4,
+      "materialPerUnit": 465,
+      "source": "hoursPanelSwap 4 (index.html); panel $280 (suggestedPanelCost main-breaker <140A; index.html) + mast/weatherhead kit $185 (suggestedServiceKit overhead; index.html)"
+    },
+    {
+      "label": "Feeder / SE cable",
+      "unit": "linear ft",
+      "qty": 8,
+      "hoursPerUnit": 0.15,
+      "materialPerUnit": 8,
+      "source": "hoursPerFeederFoot 0.15, SE/SER $8/ft (index.html; suggestedServiceKit overhead); 8 ft default (index.html feederFeet)"
+    },
+    {
+      "label": "Land circuits on standard breakers",
+      "unit": "circuit",
+      "qty": 10,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 12,
+      "source": "hoursPerCircuit 0.35, breaker $12 each (index.html); 10 circuits default (index.html circuitCount)"
+    },
+    {
+      "label": "AFCI / GFCI breaker upgrade",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.2,
+      "materialPerUnit": 48,
+      "source": "hoursPerAfci 0.2, AFCI/GFCI $48 each, on top of the circuit line (index.html); 0 default"
+    },
+    {
+      "label": "Service amp upgrade with utility coordination",
+      "unit": "job",
+      "qty": 0,
+      "hoursPerUnit": 7.5,
+      "materialPerUnit": 250,
+      "source": "hoursServiceChange 6 + hoursUtilityCoordination 1.5; utility disconnect/reconnect $250 (index.html); default is a same-amp swap, so 0"
+    },
+    {
+      "label": "Replace meter socket",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 3,
+      "materialPerUnit": 320,
+      "source": "hoursMeterSocket 3, meterSocketCost $320 (index.html); unchecked by default (the specialist also adds utility coordination when checked)"
+    },
+    {
+      "label": "New grounding electrodes",
+      "unit": "job",
+      "qty": 0,
+      "hoursPerUnit": 2.5,
+      "materialPerUnit": 95,
+      "source": "hoursGrounding 2.5, ground-rod kit $95 (index.html); unchecked by default"
+    },
+    {
+      "label": "Permit, site, travel, lift and dump fees",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2,
+      "materialPerUnit": 350,
+      "source": "siteHours 2; permit $185 + travel, lift, dump fees $165 (index.html siteHours, permitFee, travelAndEquipment)"
+    }
+  ],
+  "specialistModels": "Amp-tier panel pricing, meter-main combos, underground laterals, finished-space access, temporary power, and automatic utility coordination when amps rise."
+}

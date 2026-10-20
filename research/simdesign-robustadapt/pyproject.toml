@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-robustadapt"
+version = "0.1.0"
+description = "Can an adaptive optimality-criteria move limit that shrinks after a compliance spike match a fixed small one in robust topology optimisation?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

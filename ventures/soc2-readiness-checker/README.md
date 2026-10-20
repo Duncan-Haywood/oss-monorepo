@@ -5,6 +5,8 @@ A free browser tool (and small Node CLI) for startup founders and security leads
 ranked by value per day of effort, the evidence to collect, and a rough timeline to a Type I
 date and a Type II report.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/soc2-readiness-checker/
+
 After using this, you can now **tell how far you are from a SOC 2 report and what to fix first**,
 which used to mean a sales call with a compliance vendor or a consultant's gap analysis.
 

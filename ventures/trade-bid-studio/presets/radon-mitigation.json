@@ -1,0 +1,39 @@
+{
+  "slug": "radon-mitigation-bid-calculator",
+  "name": "Radon mitigation",
+  "group": "Specialty & remediation",
+  "summary": "Sub-slab depressurization systems priced from footprint, suction points, fan, discharge and extras.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 34,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "items": [
+    {
+      "label": "Base SSD system (1 suction point, standard fan, sidewall discharge)",
+      "unit": "system",
+      "qty": 1,
+      "hoursPerUnit": 4,
+      "materialPerUnit": 330,
+      "source": "hoursBaseSystem 4 (index.html; suggestedFoundationHours('basement') in calc.mjs); fan kit $185 (suggestedFan('standard')) + pipe, fittings and slab seal $145 (index.html)"
+    },
+    {
+      "label": "Site / travel time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 0,
+      "source": "siteHours default 1 (index.html)"
+    },
+    {
+      "label": "Travel, manometer, PPE",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 85,
+      "source": "travelAndEquipment default $85 (index.html)"
+    }
+  ],
+  "specialistModels": "Footprint and suction points beyond what the base system includes, foundation and fan presets, roof discharge, crawl membrane, new circuit, post-test, permit and firestop adders."
+}

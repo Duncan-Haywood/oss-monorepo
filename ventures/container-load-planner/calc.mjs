@@ -22,8 +22,8 @@
 // exactly. `verifyPacking` re-checks a result with a separate implementation:
 // bounds, pairwise overlap, payload, orientation, support, layers and load.
 //
-// It is a planning aid. It does not model load securing, axle weights, centre
-// of gravity, dunnage, pallet overhang rules, hazardous goods separation,
+// It is a planning aid. It reports where the centre of gravity sits (`balanceReport`) but does not
+// model load securing, axle weights, dunnage, pallet overhang rules, hazardous goods separation,
 // carrier or legal limits, and it asserts no freight rate.
 
 export const SYSTEMS = Object.freeze({
@@ -111,8 +111,14 @@ export function buildLine(f, sys, index = 0) {
     if (!Number.isFinite(m) || m < 0) return { error: `${name}: weight allowed on top must be zero or more.` };
     maxTop = toKg(m, sys);
   }
+  let stop = null;
+  if (f.stop !== "" && f.stop !== undefined && f.stop !== null) {
+    const m = num(f.stop, NaN);
+    if (!Number.isFinite(m) || m < 1 || Math.floor(m) !== m) return { error: `${name}: delivery stop must be a whole number of at least 1 (1 is unloaded first).` };
+    stop = m;
+  }
   return {
-    line: { name, dims: [toMm(l, sys), toMm(w, sys), toMm(h, sys)], weight: toKg(weight, sys), qty, rotation, maxLayers, maxTop },
+    line: { name, dims: [toMm(l, sys), toMm(w, sys), toMm(h, sys)], weight: toKg(weight, sys), qty, rotation, maxLayers, maxTop, stop },
   };
 }
 
@@ -132,7 +138,7 @@ export function parseCargo(text, sys = SYSTEMS.metric) {
       if (lines.length || !/name|length|weight|qty|quantity/i.test(row)) skipped++;
       continue;
     }
-    const r = buildLine({ name: c[0], l: c[1], w: c[2], h: c[3], weight: c[4], qty: c[5], rotation: c[6], maxLayers: c[7], maxTop: c[8] }, sys, lines.length);
+    const r = buildLine({ name: c[0], l: c[1], w: c[2], h: c[3], weight: c[4], qty: c[5], rotation: c[6], maxLayers: c[7], maxTop: c[8], stop: c[9] }, sys, lines.length);
     if (r.error) { warnings.push(r.error); skipped++; continue; }
     lines.push(r.line);
   }
@@ -409,9 +415,14 @@ function buildSeq(lines, remaining, attempt, rng) {
     const noisy = idx.map((i) => [i, key(lines[i]) / mx + rng() * (0.2 + 0.6 * rng())]);
     order = noisy.sort((a, b) => a[1] - b[1]).map((p) => p[0]);
   }
+  // Multi-drop: the last stop is loaded first (deepest, at the back wall), so
+  // the first stop ends up nearest the doors. Lines with no stop count as stop 1.
+  const stops = lines.some((l) => l.stop != null);
+  const stopOf = (i) => lines[i].stop ?? 1;
+  if (stops) order = order.slice().sort((a, b) => stopOf(b) - stopOf(a));
   let seq = [];
   for (const i of order) for (let k = 0; k < remaining[i]; k++) seq.push(i);
-  if (attempt >= 30 && attempt % 5 === 4) {
+  if (!stops && attempt >= 30 && attempt % 5 === 4) {
     // Fully interleave: a different packing family from line-by-line blocks.
     for (let i = seq.length - 1; i > 0; i--) {
       const j = Math.floor(rng() * (i + 1));
@@ -570,6 +581,53 @@ export function verifyPacking(cont, lines, placements, opts = {}) {
   return { ok: errors.length === 0, errors };
 }
 
+// ----- balance --------------------------------------------------------------
+
+// Where the weight sits. Each unit is treated as uniform in density, so its
+// mass is at the centre of its box. Fractions run 0..1 from the back wall, the
+// left wall and the floor, so 0.5 is the middle of the container. `ok` is
+// false when the centre of gravity is further from the middle than the
+// tolerances (fractions of length / width, and a height ceiling). The defaults
+// are planning figures, not a rule from any carrier or code; pass your own.
+export function balanceReport(cont, lines, placements, { longTol = 0.1, latTol = 0.05, maxHeight = 0.6 } = {}) {
+  let w = 0, mx = 0, my = 0, mz = 0, back = 0, left = 0;
+  for (const p of placements) {
+    const m = lines[p.line].weight;
+    const cx = p.x + p.l / 2, cy = p.y + p.w / 2, cz = p.z + p.h / 2;
+    w += m; mx += m * cx; my += m * cy; mz += m * cz;
+    if (cx < cont.l / 2) back += m;
+    if (cy < cont.w / 2) left += m;
+  }
+  if (!(w > 0)) return { weight: 0, x: NaN, y: NaN, z: NaN, backShare: NaN, leftShare: NaN, ok: true, warnings: [] };
+  const x = mx / w / cont.l, y = my / w / cont.w, z = mz / w / cont.h;
+  const warnings = [];
+  const dir = (f, lo, hi) => (f < 0.5 ? lo : hi);
+  if (Math.abs(x - 0.5) > longTol) warnings.push(`The centre of gravity is ${Math.round(Math.abs(x - 0.5) * 100)}% of the length off the middle, toward the ${dir(x, "back wall", "doors")}. Move heavy lines toward the middle.`);
+  if (Math.abs(y - 0.5) > latTol) warnings.push(`The centre of gravity is ${Math.round(Math.abs(y - 0.5) * 100)}% of the width off the middle, toward the ${dir(y, "left", "right")} wall.`);
+  if (z > maxHeight) warnings.push(`The centre of gravity is ${Math.round(z * 100)}% of the way up the container; put heavy lines on the floor.`);
+  return { weight: w, x, y, z, backShare: back / w, leftShare: left / w, ok: warnings.length === 0, warnings };
+}
+
+// Multi-drop check. A unit is blocked when a unit for a later stop sits nearer
+// the doors (larger x) in front of it, overlapping its width and height range,
+// so it cannot come out first. Returns the blocked pairs; empty when no line
+// has a stop or the plan is clean.
+export function stopReport(lines, placements) {
+  if (!lines.some((l) => l.stop != null)) return { used: false, blocked: [], blockedUnits: 0, ok: true };
+  const stopOf = (p) => lines[p.line].stop ?? 1;
+  const blocked = [];
+  const hit = new Set();
+  for (const a of placements) {
+    for (const b of placements) {
+      if (stopOf(b) <= stopOf(a) || b.x < a.x + a.l) continue;
+      if (b.y >= a.y + a.w || b.y + b.w <= a.y || b.z >= a.z + a.h || b.z + b.h <= a.z) continue;
+      blocked.push({ unit: a, by: b });
+      hit.add(a);
+    }
+  }
+  return { used: true, blocked, blockedUnits: hit.size, ok: blocked.length === 0 };
+}
+
 // ----- pallets and comparison ---------------------------------------------
 
 // Pack loose cargo onto pallets, then express each loaded pallet as a cargo
@@ -618,6 +676,41 @@ export function compareOptions(lines, opts = {}) {
     }
   }
   return { options, pallet: pal };
+}
+
+// Price each comparison option from per-container rates the user types
+// (`rates` maps a preset id such as "40ft" to what one such container costs).
+// An option that leaves cargo behind is not a quote for the whole shipment, so
+// it is marked incomplete and never named cheapest. Cost per unit divides by `units`, the
+// cartons you ordered (pallet options pack pallets, not cartons).
+export function priceOptions(options, rates, units = null) {
+  const priced = [];
+  for (const o of options) {
+    const base = String(o.id).replace(/\+pallets$/, "");
+    const rate = rates[base];
+    if (!Number.isFinite(rate) || rate < 0) continue;
+    const left = o.plan.unfit.reduce((s, u) => s + u.qty, 0) + o.plan.unplaced.reduce((s, n) => s + n, 0);
+    const total = rate * o.plan.containersNeeded;
+    priced.push({
+      id: o.id, label: o.label, containers: o.plan.containersNeeded, rate, total,
+      perUnit: (units || o.plan.packedUnits) ? total / (units || o.plan.packedUnits) : null,
+      complete: left === 0 && o.plan.containersNeeded > 0, unitsLeftOut: left, cheapest: false,
+    });
+  }
+  const best = priced.filter((p) => p.complete).reduce((a, p) => (!a || p.total < a.total ? p : a), null);
+  if (best) best.cheapest = true;
+  return priced.sort((a, b) => (b.complete - a.complete) || a.total - b.total);
+}
+
+export function parseRates(text) {
+  const rates = {};
+  for (const part of String(text).split(",").map((p) => p.trim()).filter(Boolean)) {
+    const m = /^([a-z0-9]+)\s*=\s*([0-9]+(?:\.[0-9]+)?)$/i.exec(part);
+    if (!m) throw new Error(`rate "${part}" should look like 40ft=3800`);
+    rates[m[1].toLowerCase()] = Number(m[2]);
+  }
+  if (!Object.keys(rates).length) throw new Error("--rates needs at least one id=cost pair");
+  return rates;
 }
 
 // ----- views ----------------------------------------------------------------
@@ -669,15 +762,111 @@ export function reportCsv(plan, lines, sys) {
   return rows.map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
 }
 
+const PACKET_COLORS = ["#0072b2", "#e69f00", "#009e73", "#cc79a7", "#56b4e9", "#d55e00", "#7a7a1f", "#8a5cf6", "#2c8c99", "#b5446e"];
+const htmlEsc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const lineLetter = (i) => (i < 26 ? String.fromCharCode(65 + i) : String(i + 1));
+
+// One to-scale view as inline SVG (no script, so it prints and e-mails as is).
+function packetSvg(cont, placements, view, width = 640) {
+  const across = cont.l, down = view === "top" ? cont.w : cont.h;
+  const k = width / across, h = Math.max(20, Math.round(down * k));
+  const rects = viewRects(placements, view).map((r) => {
+    const x = r.a * k, y = view === "top" ? r.b * k : (down - r.b - r.db) * k, w = r.da * k, hh = r.db * k;
+    const label = w >= 15 && hh >= 15 ? `<text x="${(x + w / 2).toFixed(1)}" y="${(y + hh / 2 + 4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">${lineLetter(r.line)}</text>` : "";
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${hh.toFixed(1)}" fill="${PACKET_COLORS[r.line % PACKET_COLORS.length]}" stroke="#fff" stroke-width="1"/>${label}`;
+  }).join("");
+  const name = view === "top" ? "Top-down view" : "Side view";
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 ${width + 4} ${h + 4}" width="100%" role="img" aria-label="${name}, to scale"><rect x="0" y="0" width="${width}" height="${h}" fill="#eef2f6" stroke="#1f4a5d" stroke-width="2"/>${rects}</svg>`;
+}
+
+// A self-contained, printable load plan: to-scale views, the per-line counts,
+// the balance check and the loading list for every container, plus the
+// disclaimer. `notes` are the planner's notices; `when` is a date string.
+export function planReportHtml(plan, lines, sys, { title = "Container load plan", notes = [], when = "" } = {}) {
+  const cont = plan.container;
+  const dims = `${dimsText([cont.l, cont.w, cont.h], sys)} ${sys.len}`;
+  const sections = plan.containers.map((c, ci) => {
+    const bal = balanceReport(cont, lines, c.placements);
+    const legend = lines.map((l, k) => (c.counts[k] ? `<span class="lg"><i style="background:${PACKET_COLORS[k % PACKET_COLORS.length]}"></i>${lineLetter(k)} · ${htmlEsc(l.name)} × ${c.counts[k]}</span>` : "")).join("");
+    const rows = loadingOrder(c.placements).map((p) => `<tr><td>${p.step}</td><td>${lineLetter(p.line)} · ${htmlEsc(lines[p.line].name)}</td><td>${lenText(p.x, sys)}</td><td>${lenText(p.y, sys)}</td><td>${lenText(p.z, sys)}</td><td>${wtText(lines[p.line].weight, sys)}</td></tr>`).join("");
+    const balText = bal.weight > 0
+      ? `Centre of gravity ${pct(bal.x)} from the back wall, ${pct(bal.y)} from the left wall, ${pct(bal.z)} up. ` + (bal.ok ? "Near the middle." : bal.warnings.join(" "))
+      : "No weight entered, so no balance to report.";
+    return `<section><h2>Container ${ci + 1} of ${plan.containers.length}</h2>
+<p>${c.count} units, ${pct(c.util, 1)} of the volume, ${wtText(c.weight, sys)} ${sys.wt} (${pct(c.payloadPct)} of the payload).</p>
+${packetSvg(cont, c.placements, "top")}${packetSvg(cont, c.placements, "side")}
+<p>${legend}</p><p>${htmlEsc(balText)}</p>
+<table><thead><tr><th>Step</th><th>Line</th><th>From back (${sys.len})</th><th>From left (${sys.len})</th><th>From floor (${sys.len})</th><th>Weight (${sys.wt})</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+  }).join("");
+  const summary = lines.map((l, k) => {
+    const packed = plan.containers.reduce((s, c) => s + c.counts[k], 0);
+    return `<tr><td>${lineLetter(k)} · ${htmlEsc(l.name)}</td><td>${l.qty}</td><td>${packed}</td><td>${l.qty - packed}</td></tr>`;
+  }).join("");
+  const noteHtml = notes.map((n) => `<li>${htmlEsc(n)}</li>`).join("");
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${htmlEsc(title)}</title>
+<style>body{font:14px/1.5 system-ui,sans-serif;color:#1d2330;max-width:760px;margin:24px auto;padding:0 16px}h1{font-size:22px}h2{font-size:17px;margin-top:28px;break-before:page}table{border-collapse:collapse;width:100%;margin:8px 0}th,td{border-bottom:1px solid #d6dbe1;padding:3px 6px;text-align:left}.lg{display:inline-block;margin:0 14px 4px 0}.lg i{display:inline-block;width:11px;height:11px;margin-right:4px;border-radius:2px}svg{display:block;margin:8px 0}.disc{margin-top:28px;font-size:12px;color:#4c5a68}</style></head>
+<body><h1>${htmlEsc(title)}</h1>
+<p>${htmlEsc(cont.name || "Container")}: ${dims}, payload ${wtText(cont.payload, sys)} ${sys.wt}.${when ? " Planned " + htmlEsc(when) + "." : ""} ${plan.containersNeeded} container${plan.containersNeeded === 1 ? "" : "s"} for ${plan.totalUnits} units.</p>
+${noteHtml ? `<ul>${noteHtml}</ul>` : ""}
+<h2 style="break-before:auto">Cargo</h2>
+<table><thead><tr><th>Line</th><th>Ordered</th><th>Packed</th><th>Not packed</th></tr></thead><tbody>${summary}</tbody></table>
+${sections}
+<p class="disc"><strong>No warranty.</strong> A planning aid made in the browser by Container Load Planner; not a load-securing, axle-weight or compliance certificate. The packer is a heuristic, container sizes and payloads are nominal, and nothing here has been checked against a real loading. Confirm with your carrier or forwarder before booking.</p>
+</body></html>
+`;
+}
+
 export function sampleCargo(sys = SYSTEMS.metric) {
   // Invented goods, written in cm and kg and converted for imperial display.
   const rows = [
     ["Carton A (spare parts)", 60, 40, 40, 18, 300, "upright", "", ""],
     ["Carton B (boxed fittings)", 50, 40, 30, 12, 450, "upright", "", ""],
     ["Fragile glassware", 45, 35, 35, 9, 100, "upright", 2, 5],
-    ["Euro pallet, floor only", 120, 80, 110, 420, 10, "upright", 1, 0],
+    ["Euro pallet (floor only)", 120, 80, 110, 420, 10, "upright", 1, 0],
     ["Long tube bundle", 200, 25, 25, 20, 10, "any", "", ""],
   ];
   const f = (n, k) => (sys.id === "metric" ? n : +(n / k).toFixed(2));
   return rows.map((r) => [r[0], f(r[1], 2.54), f(r[2], 2.54), f(r[3], 2.54), sys.id === "metric" ? r[4] : +(r[4] / 0.45359237).toFixed(1), r[5], r[6], r[7], r[8] === "" ? "" : sys.id === "metric" ? r[8] : +(r[8] / 0.45359237).toFixed(1)].join(",")).join("\n");
+}
+
+// ----- share link: the whole form as text in the URL hash, so a plan can be sent to a forwarder or a colleague -----
+const SHARE_ROW_KEYS = ["name", "l", "w", "h", "weight", "qty", "rotation", "maxLayers", "maxTop"];
+const SHARE_MAX_CHARS = 6000;
+const b64urlEncode = (s) => {
+  const bytes = new TextEncoder().encode(s);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
+const b64urlDecode = (t) => {
+  const bin = atob(t.replace(/-/g, "+").replace(/_/g, "/"));
+  return new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+};
+
+// state: { units: "metric"|"imperial", preset, container: {l,w,h,payload}, rows: [{name,l,w,h,weight,qty,rotation,maxLayers,maxTop}] }
+// Values stay as the typed display-unit text, so the link reopens exactly what was on screen.
+export function encodeShare(state) {
+  const rows = (state.rows || []).slice(0, MAX_LINES).map((r) => SHARE_ROW_KEYS.map((k) => String(r[k] ?? "")));
+  const c = state.container || {};
+  const payload = { v: 1, u: state.units === "imperial" ? "i" : "m", p: String(state.preset || "custom"), c: [c.l, c.w, c.h, c.payload].map((x) => String(x ?? "")), r: rows };
+  const token = b64urlEncode(JSON.stringify(payload));
+  return token.length > SHARE_MAX_CHARS ? { error: "This plan is too long to fit in a link. Use the CSV or printable plan instead." } : { token };
+}
+
+export function decodeShare(token) {
+  const bad = { error: "That link does not hold a plan this tool can read." };
+  let o;
+  try { o = JSON.parse(b64urlDecode(String(token || "").replace(/^#?plan=/, ""))); } catch { return bad; }
+  if (!o || o.v !== 1 || !Array.isArray(o.r) || !Array.isArray(o.c) || o.c.length !== 4 || o.r.length > MAX_LINES) return bad;
+  const str = (x) => typeof x === "string" && x.length <= 200;
+  if (![o.p, ...o.c].every(str) || !o.r.every((r) => Array.isArray(r) && r.length === SHARE_ROW_KEYS.length && r.every(str))) return bad;
+  const known = PRESETS.some((p) => p.id === o.p) || o.p === "pallet" || o.p === "custom";
+  const rows = o.r.map((r) => {
+    const row = Object.fromEntries(SHARE_ROW_KEYS.map((k, i) => [k, r[i]]));
+    if (!ROTATIONS.includes(row.rotation)) row.rotation = "upright";
+    return row;
+  });
+  return { units: o.u === "i" ? "imperial" : "metric", preset: known ? o.p : "custom", container: { l: o.c[0], w: o.c[1], h: o.c[2], payload: o.c[3] }, rows };
 }

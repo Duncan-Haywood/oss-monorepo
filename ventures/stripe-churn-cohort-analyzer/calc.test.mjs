@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, normalizeRows, analyze, sampleCsv, parseDate, simulatePriceIncrease, planChurn } from "./calc.mjs";
+import { parseCsv, normalizeRows, analyze, sampleCsv, parseDate, simulatePriceIncrease, simulateChurnReduction, planChurn } from "./calc.mjs";
 
 const csv = (rows) => rows.join("\n");
 
@@ -148,4 +148,28 @@ test("price rise: unknown plan and empty input are reported, not invented", () =
   assert.match(simulatePriceIncrease(subs, { plan: "Nope" }).invalid, /No active/);
   assert.match(simulatePriceIncrease([]).invalid, /No subscriptions/);
   assert.ok(planChurn(subs, "Starter") > planChurn(subs, "Team"));
+});
+
+test("churn reduction: zero points changes nothing, more points gain more", () => {
+  const { subs } = normalizeRows(parseCsv(sampleCsv()));
+  const none = simulateChurnReduction(subs, { reductionPts: 0 });
+  assert.ok(Math.abs(none.mrrGain) < 1e-9 && Math.abs(none.cumulativeGain) < 1e-9);
+  const one = simulateChurnReduction(subs, { reductionPts: 1 });
+  const two = simulateChurnReduction(subs, { reductionPts: 2 });
+  assert.ok(one.mrrGain > 0 && two.mrrGain > one.mrrGain);
+  assert.equal(one.arrGain, 12 * one.mrrGain);
+  assert.equal(one.path.length, 12);
+});
+
+test("churn reduction: matches a hand-rolled one-month step", () => {
+  const { subs } = normalizeRows(parseCsv(sampleCsv()));
+  const r = simulateChurnReduction(subs, { reductionPts: 1, months: 1 });
+  assert.ok(Math.abs(r.baselineMrr - (r.currentMrr * (1 - r.baselineChurn) + r.newMrrPerMonth)) < 1e-6);
+  assert.ok(Math.abs(r.reducedMrr - (r.currentMrr * (1 - r.reducedChurn) + r.newMrrPerMonth)) < 1e-6);
+});
+
+test("churn reduction: floors at zero churn and reports empty input", () => {
+  const { subs } = normalizeRows(parseCsv(sampleCsv()));
+  assert.equal(simulateChurnReduction(subs, { reductionPts: 99 }).reducedChurn, 0);
+  assert.match(simulateChurnReduction([]).invalid, /No subscriptions/);
 });

@@ -2,6 +2,8 @@
 
 A free browser tool for water damage restoration contractors: **enter the wet floor, wall and ceiling area, the water class and your rates, and get the air movers and dehumidifiers the loss needs, the equipment-day bill, the job margin, and what an extra drying day or a short carrier approval does to it**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/water-damage-drying-estimate-calculator/
+
 After using this, you can now **size the equipment and see the margin before the carrier approves fewer days than you plan to dry**, which used to take a rule of thumb at the loss and a surprise when the invoice was cut.
 
 ## Use

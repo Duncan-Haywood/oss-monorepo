@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>security.txt Checker vs. checking it by eye</title>
-  <meta name="description" content="Reading a security.txt file and eyeballing it for problems genuinely works for one obvious thing: a completely missing Contact line. It misses an expired date buried in a list of fields, a bare email address where RFC 9116 requires a URI, a silent misspelling, and a missing colon that still reads as ordinary text. This checker runs the same RFC 9116 rules as a deterministic parser, on every field, every time.">
+  <meta name="description" content="Reading a security.txt file and eyeballing it for problems genuinely works for one obvious thing: a completely missing Contact line.">
   <meta property="og:type" content="article">
   <meta property="og:title" content="security.txt Checker vs. checking it by eye">
   <meta property="og:description" content="Eyeballing a security.txt catches an obviously missing field. It misses an expired date, a bare-address Contact, a silent British-spelling typo, and a missing colon — all of which still look like an ordinary, complete file to a person reading it.">

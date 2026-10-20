@@ -1,0 +1,26 @@
+cover, a_up=400, bound 2.4392 N, refsafe on; ratio mujoco/bound; rows solref ms, columns timestep ms 0.4 0.2 0.1 0.05
+ 0.5 |   none    none    none    none 
+ 0.3 |   none    1.01    1.02    none 
+ 0.2 |   none    1.01    1.01    1.01 
+ 0.1 |   none    1.01    1.01    1.01 
+
+cover, a_up=400, bound 2.4392 N, refsafe off; ratio mujoco/bound; rows solref ms, columns timestep ms 0.4 0.2 0.1 0.05
+ 0.5 |  13.26    none    none    none 
+ 0.3 |   none*   1.02    1.02    none 
+ 0.2 |   none*   none*   1.01    1.01 
+ 0.1 |   none    none*   none*   1.01 
+
+cover, a_up=800, bound 4.8200 N, refsafe on; ratio mujoco/bound; rows solref ms, columns timestep ms 0.4 0.2 0.1 0.05
+ 0.5 |   none    none    none    none 
+ 0.3 |   none    none    none    none 
+ 0.2 |   none    none    1.01    none 
+ 0.1 |   none    none    1.01    1.01 
+
+cover, a_up=800, bound 4.8200 N, refsafe off; ratio mujoco/bound; rows solref ms, columns timestep ms 0.4 0.2 0.1 0.05
+ 0.5 |   6.71    none    none    none 
+ 0.3 |   none*   1.03    none    none 
+ 0.2 |   none*   none*   1.01    none 
+ 0.1 |   none    none*   none*   1.01 
+
+* = at least one run in that cell had a bad-acceleration (unstable) warning (counted as not held; 10 such runs in total)
+cells holding: refsafe on 11 of 32, off 10 of 32

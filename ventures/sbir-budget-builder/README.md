@@ -4,6 +4,8 @@ A free browser tool: **type your people, subawards and rates and get the SF424 R
 the share of work your company keeps, the STTR research-institution share, the fee ceiling and the solicitation
 maximum.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sbir-budget-builder/
+
 After using this, you can **see before you submit whether a university subaward or a high fee breaks the
 percentage-of-work rule** and paste a clean budget into the agency form, instead of rebuilding a spreadsheet for each
 solicitation and finding the problem in a contracting officer's email.

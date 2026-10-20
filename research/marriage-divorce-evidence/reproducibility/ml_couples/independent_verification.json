@@ -1,0 +1,40 @@
+{
+  "fold_people_never_overlap": true,
+  "records_per_model": 40818,
+  "events_per_model": 726,
+  "recomputed_metrics": [
+    {
+      "model": "Additive core",
+      "independent_deviance": 0.07667896098024654,
+      "independent_OE": 0.9970233792469828
+    },
+    {
+      "model": "Additive enriched",
+      "independent_deviance": 0.07594908802196515,
+      "independent_OE": 0.9957362664997162
+    },
+    {
+      "model": "Constant",
+      "independent_deviance": 0.07862353390856476,
+      "independent_OE": 0.9993659443876206
+    },
+    {
+      "model": "Poisson tree depth 2",
+      "independent_deviance": 0.07671274078539014,
+      "independent_OE": 0.9988218758084227
+    },
+    {
+      "model": "Poisson tree depth 3",
+      "independent_deviance": 0.0768084340028364,
+      "independent_OE": 1.000085988512402
+    },
+    {
+      "model": "Spline + pair interactions",
+      "independent_deviance": 0.07635097150137665,
+      "independent_OE": 0.9925395051290639
+    }
+  ],
+  "leaf_event_support_min": 20,
+  "leaf_person_support_min": 1740,
+  "checks": "Passed every-person heldout fold uniqueness, one prediction per input interval/model, independent count/exposure Poisson deviance and aggregate calibration, calibration event conservation, final leaf support."
+}

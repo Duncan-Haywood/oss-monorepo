@@ -6,6 +6,8 @@ offer's yearly value, your effective percentage after lab fees and collections, 
 stops mattering, the production where the offers pay the same, and how each moves if production runs low or high.**
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dental-associate-pay-calculator/
+
 After using this, you can now **see that a "30%" offer pays a lot less than 30% of what you produce**, because the
 percentage is applied to collections after lab fees; the tool shows the effective percentage and its dollar cost.
 

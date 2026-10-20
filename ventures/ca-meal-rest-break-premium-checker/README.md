@@ -4,6 +4,8 @@ Free, browser-only audit for California meal and rest break premium pay (Labor
 Code section 226.7). Paste timecards with the meal period and rest breaks taken.
 It reports:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/
+
 - **Meal periods**: first meal not started by the end of hour five, shorter than
   30 minutes, or missing on a shift over five hours; the same for the second meal
   after ten hours.

@@ -1,0 +1,13 @@
+One-sided rejection rate at alpha=0.05: share of replicates with p<=alpha (Wilson 95% interval). Real system {'visc': 0.1, 'coul': 0.3, 'sd': 0.02, 'kind': 'student3'}.
+cv_perm: 5-fold CV pooled AUROC, p-value from 39 label permutations (exact size 0.05); cv_naive and holdout as in free-c2stexact, same data.
+Each replicate draws fresh n real + n twin trajectories; HistGradientBoosting (60 iterations). Under the null the rate should be about 0.05.
+
+== exact twin (null), raw  (100 replicates per n)
+    n                cv_naive                 cv_perm                 holdout
+  100       0.080 [0.04,0.15]       0.040 [0.02,0.10]       0.060 [0.03,0.12]
+  200       0.040 [0.02,0.10]       0.020 [0.01,0.07]       0.050 [0.02,0.11]
+
+== Coulomb -10%, raw  (60 replicates per n)
+    n                cv_naive                 cv_perm                 holdout
+  200       0.600 [0.47,0.71]       0.367 [0.26,0.49]       0.183 [0.11,0.30]
+

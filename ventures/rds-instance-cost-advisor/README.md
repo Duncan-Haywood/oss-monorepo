@@ -5,6 +5,8 @@ you pay double for outside production, io1 provisioned IOPS that a gp3 volume co
 a cheaper Graviton twin and idle instances, each with the `aws rds` command. Browser page or
 zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rds-instance-cost-advisor/
+
 ```
 node cli.mjs analyze instances.csv
 cat instances.csv | node cli.mjs analyze -

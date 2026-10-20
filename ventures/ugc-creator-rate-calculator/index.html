@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UGC Creator Rate Calculator — What to Charge Per Video, Usage Rights and Whitelisting</title>
+  <meta name="description" content="Free UGC rate calculator: price your videos plus paid-ad usage rights, whitelisting, exclusivity, raw footage and rush fees. Get a quote range, a walk-away floor and a message to send the brand. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UGC rate calculator: price the video and the rights, free and private">
+  <meta property="og:description" content="Usage rights, whitelisting, exclusivity and raw footage each change the price. Build a quote in a minute.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UGC Creator Rate Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a UGC creator charge per video?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on experience, video length, the brand's category and, above all, the rights the brand wants. A new creator might open around $75 to $150 for organic use of a short video, while paid-ad rights, access to your handle, exclusivity and raw footage each add a share of that fee. This calculator adds those up so you quote the content and the rights separately."}}, {"@type": "Question", "name": "What is the difference between UGC and influencer rates?", "acceptedAnswer": {"@type": "Answer", "text": "An influencer is paid for posting to their own audience. A UGC creator is paid for content the brand posts or runs as ads on its own channels, so reach does not matter and usage rights do. That is why this prices rights and not follower count."}}, {"@type": "Question", "name": "What is whitelisting?", "acceptedAnswer": {"@type": "Answer", "text": "Whitelisting, also called partnership ads or Spark ads, lets a brand run ads from your own social handle. It puts ads under your name, so it is priced above plain ad usage and should have an end date and an approval step."}}, {"@type": "Question", "name": "Should I agree to perpetual usage rights?", "acceptedAnswer": {"@type": "Answer", "text": "Rarely at the headline price. A perpetual licence lets the brand use the content forever. Many creators cap rights at 6 to 12 months and sell renewals; if you do agree to perpetual, price it as a buyout."}}, {"@type": "Question", "name": "Is this a market quote or contract advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies rule-of-thumb multipliers to your inputs to give a starting range and a walk-away floor. It is not legal advice, and the contract with the brand is what governs. Nothing is uploaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f5f3f8; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #5b2a86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2d1745; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2d1745; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4d4458; }
+    .card { background: #fff; border: 1px solid #ddd4e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2d174510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b5a8c4; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5b2a86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ece4f3; color: #2d1745; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece6f2; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4d4458; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { font-size: 1.9rem; font-weight: 800; color: #2d1745; }
+    .finding { border-bottom: 1px solid #ece6f2; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #ece6f2; color: #2d1745; }
+    .error { color: #9a3412; font-weight: 600; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #faf8fc; border: 1px solid #ddd4e6; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd4e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UGC CREATOR RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you charge for UGC videos?</h1>
+    <p>Brands pay UGC creators for the content <strong>and the right to run it as ads</strong>. Enter the deal, and you get a <strong>quote range</strong>, a <strong>walk-away floor</strong>, each add-on as its own line, and a message to send.</p>
+    <p class="note">Rule-of-thumb multipliers, not a market survey. Check them against current rates and the brand's contract. Not legal or financial advice. Pricing for posts to your own audience instead? See the <a href="../brand-deal-rate-calculator/">brand deal rate calculator</a>, and put the result in an <a href="../influencer-media-kit-generator/">influencer media kit</a>.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="tier">Your experience level</label><select id="tier"></select></div>
+      <div><label for="format">Deliverable</label><select id="format"></select></div>
+      <div><label for="niche">Brand category</label><select id="niche"></select></div>
+      <div><label for="videos">Number of deliverables</label><input id="videos" type="number" min="1" max="100" step="1" inputmode="numeric" value="1"></div>
+      <div><label for="usage">Paid-ad usage rights</label><select id="usage"></select></div>
+      <div><label for="whitelist">Ads through your handle (whitelisting)</label><select id="whitelist"></select></div>
+      <div><label for="exclusivity">Exclusivity</label><select id="exclusivity"></select></div>
+      <div><label for="rawFootage">Raw footage handed over</label><select id="rawFootage"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="rush">Rush (under 72 hours)</label><select id="rush"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="extraHooks">Extra hook / intro variants</label><input id="extraHooks" type="number" min="0" max="20" step="1" inputmode="numeric" value="0"></div>
+      <div><label for="extraRevisions">Revision rounds beyond the 2 included</label><input id="extraRevisions" type="number" min="0" max="20" step="1" inputmode="numeric" value="0"></div>
+      <div><label for="productCost">Product / props you pay for ($)</label><input id="productCost" type="number" min="0" step="1" inputmode="decimal" value="0"></div>
+    </div>
+    <p><button type="button" id="calc">Build my quote</button><button type="button" class="secondary" id="example">Load an example</button></p>
+    <p id="msg" class="error" role="alert"></p>
+  </section>
+
+  <section class="card" id="result" hidden aria-live="polite">
+    <h2>Your quote</h2>
+    <p class="big" id="range"></p>
+    <p class="note" id="floor"></p>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Added to the base fee</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <div id="findings"></div>
+    <h3>Message to send the brand</h3>
+    <pre class="sum" id="quote"></pre>
+    <p><button type="button" class="secondary" id="download">Download as text</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>How the price is built</h2>
+    <p>A base fee from your level, deliverable and the brand's category is multiplied by the number of deliverables. Each right the brand wants adds a share of the base: 30 to 90 days of paid-ad use, 6 to 12 months, or perpetual; ads through your handle; exclusivity; raw footage; a rush turnaround. Three or more deliverables earn a small bundle discount. The walk-away floor is 80% of the low end. <strong>Not decided here:</strong> the contract terms, taxes, and whether a particular brand has the budget.</p>
+  </section>
+
+  <section class="card" id="faq"><h2>Common questions</h2><h3>How much should a UGC creator charge per video?</h3><p>It depends on experience, video length, the brand's category and, above all, the rights the brand wants. A new creator might open around $75 to $150 for organic use of a short video, while paid-ad rights, access to your handle, exclusivity and raw footage each add a share of that fee. This calculator adds those up so you quote the content and the rights separately.</p><h3>What is the difference between UGC and influencer rates?</h3><p>An influencer is paid for posting to their own audience. A UGC creator is paid for content the brand posts or runs as ads on its own channels, so reach does not matter and usage rights do. That is why this prices rights and not follower count.</p><h3>What is whitelisting?</h3><p>Whitelisting, also called partnership ads or Spark ads, lets a brand run ads from your own social handle. It puts ads under your name, so it is priced above plain ad usage and should have an end date and an approval step.</p><h3>Should I agree to perpetual usage rights?</h3><p>Rarely at the headline price. A perpetual licence lets the brand use the content forever. Many creators cap rights at 6 to 12 months and sell renewals; if you do agree to perpetual, price it as a buyout.</p><h3>Is this a market quote or contract advice?</h3><p>No. It applies rule-of-thumb multipliers to your inputs to give a starting range and a walk-away floor. It is not legal advice, and the contract with the brand is what governs. Nothing is uploaded.</p></section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not legal, tax, accounting, compliance, or financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing its output and the contract before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_built</code>, <code>example_loaded</code>, <code>quote_downloaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { priceUgc, quoteText, TIERS, FORMATS, NICHES, USAGE, WHITELIST, EXCLUSIVITY, SAMPLE } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const lists = { tier: TIERS, format: FORMATS, niche: NICHES, usage: USAGE, whitelist: WHITELIST, exclusivity: EXCLUSIVITY };
+    for (const [id, list] of Object.entries(lists)) $(id).innerHTML = list.map((o) => `<option value="${o.id}">${o.label}</option>`).join("");
+    const ids = ["tier", "format", "niche", "videos", "usage", "whitelist", "exclusivity", "rawFootage", "rush", "extraHooks", "extraRevisions", "productCost"];
+    const read = () => Object.fromEntries(ids.map((id) => [id, $(id).value]));
+    const money = (n) => {
+      const format = (n) => `$${n.toLocaleString()}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastText = "";
+    function run() {
+      const input = read();
+      const r = priceUgc(input);
+      if (!r.ok) { $("msg").textContent = r.errors.join(" "); $("result").hidden = true; return false; }
+      $("msg").textContent = "";
+      $("range").textContent = `${money(r.low)} to ${money(r.high)}`;
+      $("floor").textContent = `Open at the top figure. Walk-away floor: ${money(r.walkAway)}. About ${money(r.perVideoLow)} to ${money(r.perVideoHigh)} per deliverable before any bundle discount.`;
+      $("lines").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.label)}</td><td class="n">${l.share === 1 ? "base" : "+" + Math.round(l.share * 100) + "%"}</td></tr>`).join("");
+      $("findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span><strong>${esc(f.title)}</strong><p>${esc(f.detail)}</p></div>`).join("");
+      lastText = quoteText(input, r);
+      $("quote").textContent = lastText;
+      $("result").hidden = false;
+      return true;
+    }
+    $("calc").addEventListener("click", () => { if (run()) record("quote_built"); });
+    for (const id of ids) { $(id).addEventListener("input", () => { if (!$("result").hidden) run(); }); $(id).addEventListener("change", () => { if (!$("result").hidden) run(); }); }
+    $("example").addEventListener("click", () => { for (const id of ids) $(id).value = SAMPLE[id] ?? ""; run(); record("example_loaded"); });
+    $("download").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lastText], { type: "text/plain" }));
+      a.download = "ugc-quote.txt"; a.click(); URL.revokeObjectURL(a.href);
+      record("quote_downloaded");
+    });
+    $("optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

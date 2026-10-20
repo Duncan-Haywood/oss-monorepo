@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   CURVES, curveValue, marginal, fitCurve, fitBest, frontier, allocate, parseSpend, parseDay, dayToIso, weekStart,
-  weekly, analyze, backtestChannel, reportCsv, simulateSpend, sampleText, percentile, nelderMead, money,
+  weekly, parseSkipWeeks, budgetPlan, budgetLadder, adstock, fitAdstock, analyze, backtestChannel, reportCsv, simulateSpend, sampleText, percentile, nelderMead, money, snapshot, parseSnapshot, compareSnapshot, describeComparison,
 } from "./calc.mjs";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ""} ${a} vs ${b}`);
@@ -296,4 +296,110 @@ test("the calculation is offline: no network or dynamic import in the source", a
   globalThis.fetch = () => { called++; throw new Error("network"); };
   try { analyze(SAMPLE.rows, { boots: 5 }); } finally { globalThis.fetch = realFetch; }
   assert.equal(called, 0);
+});
+
+test("adstock: constant spend is unchanged in steady state, a gap decays, lambda 0 is the identity", () => {
+  const pts = [0, 1, 2, 3, 6].map((i) => ({ week: 7 * i, s: 100, r: 1 }));
+  near(adstock(pts, 0.5)[3].s, 100 * (1 - 0.5 ** 4), 1e-9, "warms up from zero");
+  const gap = adstock(pts, 0.5);
+  assert.ok(gap[4].s < gap[3].s * 0.7, "two empty weeks pull the carried spend down");
+  assert.deepEqual(adstock(pts, 0).map((p) => p.s), pts.map((p) => p.s));
+});
+
+test("fitAdstock recovers carry-over from simulated data and leaves memoryless channels alone", () => {
+  const ch = (lambda) => [{ name: "A", type: "exp", p: [40000, 8000], mean: 6000, cv: 0.45, noise: 0.03, lambda }];
+  const withLag = analyze(simulateSpend({ channels: ch(0.6), weeks: 104, seed: 3 }));
+  const lag = withLag.modelled[0].lambda;
+  assert.ok(lag >= 0.4 && lag <= 0.8, `carry-over found: ${lag}`);
+  assert.ok(withLag.findings.some((f) => /keeps working into later weeks/.test(f.title)));
+  const none = analyze(simulateSpend({ channels: ch(0), weeks: 104, seed: 3 }));
+  assert.equal(none.modelled[0].lambda, 0);
+  assert.ok(!none.findings.some((f) => /later weeks/.test(f.title)));
+});
+
+test("carry-over model fits lagged data better than the memoryless one, and can be switched off", () => {
+  const rows = simulateSpend({ channels: [{ name: "A", type: "exp", p: [40000, 8000], mean: 6000, cv: 0.45, noise: 0.03, lambda: 0.6 }], weeks: 104, seed: 3 });
+  const on = analyze(rows), off = analyze(rows, { adstock: false });
+  assert.equal(off.modelled[0].lambda, 0);
+  assert.ok(on.modelled[0].fit.rmse < off.modelled[0].fit.rmse * 0.8, `${on.modelled[0].fit.rmse} vs ${off.modelled[0].fit.rmse}`);
+});
+
+test("budgetPlan: today's budget reproduces the recommended split, and revenue rises with budget", () => {
+  const r = analyze(SAMPLE.rows, { boots: 20 });
+  const p = budgetPlan(r, r.summary.budget);
+  near(p.total, r.summary.budget, r.summary.budget / 400 + 1e-9);
+  rel(p.revenue, r.summary.recommendedRevenue, 0.01);
+  const up = budgetPlan(r, r.summary.budget * 1.25), down = budgetPlan(r, r.summary.budget * 0.8);
+  assert.ok(down.revenue < p.revenue && p.revenue < up.revenue);
+  assert.ok(up.marginalRoas < p.marginalRoas, "diminishing returns on the total");
+  assert.ok(up.splitGain >= -1e-6, "best split never loses to pro rata");
+  near(up.channels.reduce((a, c) => a + c.spend, 0), up.total, 1e-6);
+});
+
+test("budgetPlan: out-of-range or bad totals return null; ladder keeps only feasible rows", () => {
+  const r = analyze(SAMPLE.rows, { boots: 20 });
+  assert.equal(budgetPlan(r, r.summary.budget * 10), null);
+  assert.equal(budgetPlan(r, -5), null);
+  assert.equal(budgetPlan(r, NaN), null);
+  const l = budgetLadder(r);
+  assert.ok(l.length >= 5);
+  for (let i = 1; i < l.length; i++) assert.ok(l[i].total > l[i - 1].total);
+});
+
+test("parseSkipWeeks reads ranges, single days and reports what it cannot read", () => {
+  const { ranges, bad } = parseSkipWeeks("2025-11-24..2025-12-07; 2025-12-26, nonsense");
+  assert.equal(ranges.length, 2);
+  assert.equal(ranges[0].to - ranges[0].from, 13);
+  assert.equal(ranges[1].from, ranges[1].to);
+  assert.deepEqual(bad, ["nonsense"]);
+});
+
+test("leaving out promotion weeks removes their pull on the fitted curve", () => {
+  const sim = simulateSpend({ channels: [{ name: "X", type: "exp", p: [30000, 8000], mean: 7000, cv: 0.45, noise: 0.03 }], weeks: 78, seed: 9 });
+  const wk = [...weekly(sim).get("X")];
+  const promo = wk.filter((_, i) => i % 13 === 6).map((p) => p.week);
+  const rows = sim.map((r) => (promo.includes(weekStart(r.day)) ? { ...r, revenue: r.revenue * 2.2 } : r));
+  const skipText = promo.map((w) => dayToIso(w)).join("; ");
+  const plain = analyze(rows, { boots: 20 }).modelled[0];
+  const clean = analyze(rows, { boots: 20, skipWeeks: skipText });
+  const c = clean.modelled[0];
+  assert.equal(clean.summary.skippedWeeks, promo.length);
+  const err = (f) => Math.abs(curveValue(f, 7000) - CURVES.exp.f([30000, 8000], 7000));
+  assert.ok(err(c.fit) < err(plain.fit) / 2, `skipped ${err(c.fit)} vs plain ${err(plain.fit)}`);
+});
+
+test("a skip range that removes too many weeks says so", () => {
+  const sim = simulateSpend({ weeks: 30, seed: 2 });
+  const r = analyze(sim, { boots: 10, skipWeeks: "1990-01-01..2100-01-01" });
+  assert.ok(r.error && /after leaving out/.test(r.error), r.error);
+});
+
+test("snapshot holds answers only and round-trips", () => {
+  const res = analyze(parseSpend(sampleText()).rows, { boots: 10 });
+  const snap = snapshot(res);
+  assert.equal(snap.channels.length, res.modelled.length);
+  const text = JSON.stringify(snap);
+  assert.ok(!/"pts"|"revenue"|"week"/.test(text), "no row data in a snapshot");
+  assert.deepEqual(parseSnapshot(text).snap, snap);
+  assert.ok(parseSnapshot("{").error);
+  assert.ok(parseSnapshot('{"tool":"x"}').error);
+  assert.ok(parseSnapshot(JSON.stringify({ ...snap, channels: [{ name: "a", current: "1" }] })).error);
+});
+
+test("compareSnapshot reads follow-through from last time's recommendation", () => {
+  const res = analyze(parseSpend(sampleText()).rows, { boots: 10 });
+  const prev = snapshot(res);
+  const mover = prev.channels.find((c) => Math.abs(c.recommended - c.current) > 0.05 * c.current);
+  assert.ok(mover, "sample has a channel with advice to move");
+  // Pretend last time spend was at half-way back toward the current figure: we then made 2x... use direct arithmetic.
+  const old = { ...prev, asOf: "2025-01-05", channels: prev.channels.map((c) => c.name === mover.name ? { ...c, current: c.current - 2 * (c.recommended - c.current), recommended: c.current } : c) };
+  const cmp = compareSnapshot(old, res);
+  const row = cmp.rows.find((r) => r.name === mover.name);
+  near(row.followed, 1, 1e-9, "full move made");
+  const same = compareSnapshot(prev, res).rows.find((r) => r.name === mover.name);
+  near(same.followed, 0, 1e-9, "no move since identical snapshot");
+  assert.equal(compareSnapshot(prev, res).dBudget, 0);
+  const gone = compareSnapshot({ ...prev, channels: [...prev.channels, { name: "Podcast", current: 1, mroas: 1, recommended: 1 }] }, res);
+  assert.deepEqual(gone.dropped, ["Podcast"]);
+  assert.ok(describeComparison(cmp).some((t) => t.startsWith(mover.name) && /You made 100%/.test(t)));
 });

@@ -1,0 +1,26 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# No third-party key is required. ALERT_WEBHOOK_URL (Slack/Discord) and Resend email are optional.
+services:
+  - type: web
+    name: form-inbox
+    runtime: docker
+    dockerContext: ventures/form-inbox
+    dockerfilePath: ventures/form-inbox/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: COMPANY_NAME
+        sync: false
+      - key: ALERT_WEBHOOK_URL
+        sync: false

@@ -1,0 +1,35 @@
+Label accuracy 0.7, three auditors of overall accuracy 0.8. Blind 0.3824, true-parameter Bayes 0.3917.
+Single informed start (0.9, 0.5, 0.3, 0.7); single poor start (0.8, 0.8, 0.5, 0.6) (no easy/hard difference); multistart = best log-likelihood over 8 grid starts (0.95, 0.4, 0.15, 0.7)...(0.85, 0.6, 0.4, 0.7) (none is the truth).
+
+Population (counts = exact joint x 1e9): P(hard) estimate, loglik/n
+  h=0.0 hard=0.50: informed 0.255 (-3.555904); poor 0.500 (-3.555904); multistart 0.138 (-3.555904)
+  h=0.3 hard=0.50: informed 0.300 (-3.400945); poor 0.500 (-3.418695); multistart 0.300 (-3.400945)
+  h=0.3 hard=0.33: informed 0.300 (-3.070421); poor 0.500 (-3.140679); multistart 0.300 (-3.070421)
+
+== h=0.0 hard accuracy 0.50
+   n | method: mean P(hard) (sd), mean |C-acc error|, mean utility, share of draws with utility < blind, share of draws where fit is degenerate (P(hard)>0.45 or <0.02)
+    200 | informed  : P(hard) 0.388 (0.145), C err 0.0590, utility 0.3900, <blind 0.00, degenerate 0.42
+    200 | poor      : P(hard) 0.500 (0.000), C err 0.0462, utility 0.3905, <blind 0.00, degenerate 1.00
+    200 | multistart: P(hard) 0.343 (0.149), C err 0.0652, utility 0.3901, <blind 0.00, degenerate 0.30
+   1000 | informed  : P(hard) 0.362 (0.132), C err 0.0285, utility 0.3912, <blind 0.00, degenerate 0.23
+   1000 | poor      : P(hard) 0.500 (0.000), C err 0.0170, utility 0.3914, <blind 0.00, degenerate 1.00
+   1000 | multistart: P(hard) 0.321 (0.156), C err 0.0396, utility 0.3910, <blind 0.00, degenerate 0.25
+
+== h=0.3 hard accuracy 0.50
+   n | method: mean P(hard) (sd), mean |C-acc error|, mean utility, share of draws with utility < blind, share of draws where fit is degenerate (P(hard)>0.45 or <0.02)
+    200 | informed  : P(hard) 0.379 (0.087), C err 0.0605, utility 0.3897, <blind 0.00, degenerate 0.15
+    200 | poor      : P(hard) 0.500 (0.000), C err 0.0440, utility 0.3898, <blind 0.00, degenerate 1.00
+    200 | multistart: P(hard) 0.362 (0.090), C err 0.0625, utility 0.3897, <blind 0.00, degenerate 0.12
+   1000 | informed  : P(hard) 0.352 (0.082), C err 0.0175, utility 0.3912, <blind 0.00, degenerate 0.10
+   1000 | poor      : P(hard) 0.500 (0.000), C err 0.0463, utility 0.3908, <blind 0.00, degenerate 1.00
+   1000 | multistart: P(hard) 0.357 (0.085), C err 0.0176, utility 0.3911, <blind 0.00, degenerate 0.10
+
+== h=0.3 hard accuracy 0.33
+   n | method: mean P(hard) (sd), mean |C-acc error|, mean utility, share of draws with utility < blind, share of draws where fit is degenerate (P(hard)>0.45 or <0.02)
+    200 | informed  : P(hard) 0.285 (0.048), C err 0.0452, utility 0.3905, <blind 0.00, degenerate 0.00
+    200 | poor      : P(hard) 0.500 (0.000), C err 0.1105, utility 0.3851, <blind 0.23, degenerate 1.00
+    200 | multistart: P(hard) 0.292 (0.056), C err 0.0472, utility 0.3905, <blind 0.00, degenerate 0.00
+   1000 | informed  : P(hard) 0.290 (0.020), C err 0.0201, utility 0.3913, <blind 0.00, degenerate 0.00
+   1000 | poor      : P(hard) 0.500 (0.000), C err 0.1156, utility 0.3843, <blind 0.00, degenerate 1.00
+   1000 | multistart: P(hard) 0.290 (0.021), C err 0.0203, utility 0.3913, <blind 0.00, degenerate 0.00
+

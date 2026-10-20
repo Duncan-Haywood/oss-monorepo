@@ -26,7 +26,11 @@ module CityData {
     // Bangkok alongside Jakarta, Beijing+Singapore instead of Shanghai --
     // while still keeping a real, large city at every offset. UTC-2 has no
     // real city (mid-Atlantic islands only); Fernando de Noronha is used
-    // as the token IANA-recognized zone anchor.
+    // as the token IANA-recognized zone anchor. Cities whose government
+    // changed DST rules recently are avoided (Cairo resumed DST in 2023,
+    // Santiago observes a Southern-hemisphere rule this file does not
+    // model); test/citydata.test.mjs checks every entry against the tz
+    // database, so add a city there only if its rule is one of the five.
     //
     // :ring selects which of the two concentric label rings a city draws
     // on (0 = outer/primary, 1 = inner/secondary) so that a same-offset
@@ -54,7 +58,7 @@ module CityData {
         { :name => "New York",            :abbr => "NYC", :offset => -5 * 3600,       :dst => :us,   :ring => 0 },
         { :name => "Toronto",             :abbr => "TOR", :offset => -5 * 3600,       :dst => :us,   :ring => 1 },
 
-        { :name => "Santiago",            :abbr => "SCL", :offset => -4 * 3600,       :dst => :none, :ring => 0 },
+        { :name => "Caracas",             :abbr => "CCS", :offset => -4 * 3600,       :dst => :none, :ring => 0 },
 
         { :name => "Sao Paulo",           :abbr => "SAO", :offset => -3 * 3600,       :dst => :none, :ring => 0 },
         { :name => "Rio de Janeiro",      :abbr => "RIO", :offset => -3 * 3600,       :dst => :none, :ring => 1 },
@@ -70,7 +74,7 @@ module CityData {
         { :name => "Paris",               :abbr => "PAR", :offset => 1 * 3600,        :dst => :eu,   :ring => 0 },
         { :name => "Lagos",               :abbr => "LOS", :offset => 1 * 3600,        :dst => :none, :ring => 1 },
 
-        { :name => "Cairo",               :abbr => "CAI", :offset => 2 * 3600,        :dst => :none, :ring => 0 },
+        { :name => "Johannesburg",        :abbr => "JNB", :offset => 2 * 3600,        :dst => :none, :ring => 0 },
         { :name => "Athens",              :abbr => "ATH", :offset => 2 * 3600,        :dst => :eu,   :ring => 1 },
 
         { :name => "Moscow",              :abbr => "MOW", :offset => 3 * 3600,        :dst => :none, :ring => 0 },

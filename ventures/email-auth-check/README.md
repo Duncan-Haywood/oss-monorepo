@@ -8,6 +8,8 @@ page) that looks up your domain's **SPF**, **DKIM**, **DMARC**, and **BIMI**
 DNS records over public DNS-over-HTTPS and reports what each one actually
 says and why it matters:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/email-auth-check/
+
 - **SPF** -- parses the record and **recursively follows every
   `include:`/`redirect=` mechanism**, summing the total against RFC 7208's
   10-DNS-lookup limit across the *whole* chain, not just the top-level
@@ -93,8 +95,10 @@ replace a qualified professional.
 **Scope of the SPF lookup count**, stated plainly: it counts `include:` and
 `redirect=` recursively (each fetching and walking a further SPF record) plus
 one lookup for each `a`/`mx`/`ptr`/`exists` mechanism found, but it does not
-further resolve what an `a`/`mx`/`ptr` mechanism itself points at (a
-different DNS record type, requiring its own additional round trip). A
+further resolve what an `a`/`mx`/`ptr` mechanism itself points at for the
+10-lookup count. It does separately resolve the A/AAAA (or MX) target of each
+`a`/`mx`/`exists` term (up to 20 queries) to count **void lookups**, the
+RFC 7208 limit of 2 empty answers; macro targets are skipped. A
 domain whose `mx` mechanism resolves to several mail servers may cost
 slightly more than this tool shows -- a real but secondary contributor next
 to the dominant real-world cause of this bug, stacking one `include:` per

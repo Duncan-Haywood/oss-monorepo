@@ -2,6 +2,8 @@
 
 A free browser tool for small warehouses, 3PLs, online sellers with a stockroom and shops with a back room: **describe your shelf grid, list your SKUs with picks and size, and get the bay every SKU should live in to cut picker walking.** It also lists the few swaps and moves that save the most first, with the labor to make them and the weeks to pay back. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/warehouse-slotting-optimizer/
+
 After using this, you can **stop putting stock wherever there is space when it arrives**: see what the walk costs a year, move the handful of SKUs that matter, and know when the next move stops paying for itself.
 
 ## Model

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Salary Sacrifice Calculator 2026/27 (pension, NI saving, and the April 2029 cap)</title>
+  <meta name="description" content="Free UK salary sacrifice pension calculator for 2026/27: the same contribution by salary sacrifice, net pay and relief at source side by side, with income tax, National Insurance, student loan, employer NI saving and the April 2029 NI cap. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Salary sacrifice calculator: how much does my pension really cost me? Free, private">
+  <meta property="og:description" content="Compare salary sacrifice, net pay and relief at source for your own salary, and see what the 2029 National Insurance cap would cost.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Salary Sacrifice Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is salary sacrifice for a pension?", "acceptedAnswer": {"@type": "Answer", "text": "You agree to give up part of your gross salary and your employer pays that amount into your pension instead. Because your pay is lower, you pay less income tax, less employee National Insurance and, if you have one, a smaller student loan repayment. Your employer also pays less employer National Insurance, and some employers pass part of that saving into your pension."}}, {"@type": "Question", "name": "Is salary sacrifice better than a net pay arrangement or relief at source?", "acceptedAnswer": {"@type": "Answer", "text": "Usually yes for employees, because it is the only method that also saves National Insurance. On a £55,000 salary with an 8% contribution it costs about £2,156 of take-home pay against £2,640 for net pay or relief at source, for the same £4,400 in the pension. The gap is larger with a Plan 2 student loan because the loan is worked on the lower pay."}}, {"@type": "Question", "name": "What changes in April 2029?", "acceptedAnswer": {"@type": "Answer", "text": "The Autumn Budget 2025 announced that from April 2029 only the first £2,000 a year of salary-sacrificed pension contributions stays free of National Insurance. Anything above that is treated as pay for NI, though income tax relief is unchanged. It is not yet in force, so switch it on in the calculator to see the effect on your own figures."}}, {"@type": "Question", "name": "Can salary sacrifice bring me under the £100,000 tax trap?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Pension contributions reduce adjusted net income, and between £100,000 and £125,140 each £2 of income removes £1 of personal allowance. Sacrificing enough to get back under £100,000 restores the full £12,570 allowance, which makes the effective relief far higher than the headline rate."}}, {"@type": "Question", "name": "What are the downsides of salary sacrifice?", "acceptedAnswer": {"@type": "Answer", "text": "Your contractual pay is lower, which can reduce mortgage affordability, life cover linked to salary and statutory maternity or sick pay. Your employer must keep your pay at or above the National Minimum Wage after the sacrifice. You also cannot normally change it mid-year."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK SALARY SACRIFICE CALCULATOR · 2026/27 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does my pension really cost me by salary sacrifice?</h1>
+    <p>Enter your salary and the share you put into your pension. You get the same contribution worked three ways, salary sacrifice, net pay arrangement and relief at source, with the income tax, National Insurance and student loan each one saves, what your employer saves, and what the announced April 2029 cap on National Insurance relief would cost you.</p>
+    <p class="note">Rates for 2026/27 from GOV.UK and gov.scot. Student loan thresholds are 2025/26 figures. The 2029 rule is announced, not yet law. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="salary">Annual gross salary (&pound;)</label><input id="salary" type="number" min="0" step="1"></div>
+      <div><label for="pensionPct">Your pension contribution (% of salary)</label><input id="pensionPct" type="number" min="0" max="100" step="0.5"></div>
+      <div><label for="region">Where you pay income tax</label><select id="region"><option value="england">England, Wales or Northern Ireland</option><option value="scotland">Scotland</option></select></div>
+      <div><label for="plan">Student loan</label><select id="plan"><option value="none">None</option><option value="1">Plan 1</option><option value="2">Plan 2</option><option value="4">Plan 4 (Scotland)</option><option value="5">Plan 5</option></select></div>
+      <div><label for="pgl">Postgraduate Loan?</label><select id="pgl"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="employerShare">Share of employer NI saving your employer adds to your pension (%)</label><input id="employerShare" type="number" min="0" max="100" step="5"></div>
+      <div><label for="cap2029">Apply the April 2029 NI cap on sacrifice?</label><select id="cap2029"><option value="no">No (rules as they are today)</option><option value="yes">Yes (first &pound;2,000 only)</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare the three ways</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Compare the three ways.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The same contribution, three ways</h2>
+    <div class="scroll"><table><thead><tr><th>Method</th><th class="n">Income tax</th><th class="n">Employee NI</th><th class="n">Loans</th><th class="n">Take-home</th><th class="n">Cost to you</th><th class="n">Into pension</th></tr></thead><tbody id="compare"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> one employee on a standard tax code in England, Wales, Northern Ireland or Scotland: income tax with the personal allowance taper, employee and employer National Insurance, Student Loan Plans 1, 2, 4 and 5 and Postgraduate Loan, and a pension paid by salary sacrifice, net pay or relief at source.</li>
+      <li><strong>Gives:</strong> take-home pay and the true cost of the same contribution under each method, the employer NI saving, the effect of the announced April 2029 cap, and the marginal rate on your next pound.</li>
+      <li><strong>Not decided:</strong> other tax years, other tax codes, second jobs, the pension annual allowance and carry forward, taxable benefits, minimum wage checks, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is salary sacrifice for a pension?</h3>
+    <p>You agree to give up part of your gross salary and your employer pays that amount into your pension instead. Because your pay is lower, you pay less income tax, less employee National Insurance and, if you have one, a smaller student loan repayment. Your employer also pays less employer National Insurance, and some employers pass part of that saving into your pension.</p>
+    <h3>Is salary sacrifice better than a net pay arrangement or relief at source?</h3>
+    <p>Usually yes for employees, because it is the only method that also saves National Insurance. On a £55,000 salary with an 8% contribution it costs about £2,156 of take-home pay against £2,640 for net pay or relief at source, for the same £4,400 in the pension. The gap is larger with a Plan 2 student loan because the loan is worked on the lower pay.</p>
+    <h3>What changes in April 2029?</h3>
+    <p>The Autumn Budget 2025 announced that from April 2029 only the first £2,000 a year of salary-sacrificed pension contributions stays free of National Insurance. Anything above that is treated as pay for NI, though income tax relief is unchanged. It is not yet in force, so switch it on in the calculator to see the effect on your own figures.</p>
+    <h3>Can salary sacrifice bring me under the £100,000 tax trap?</h3>
+    <p>Yes. Pension contributions reduce adjusted net income, and between £100,000 and £125,140 each £2 of income removes £1 of personal allowance. Sacrificing enough to get back under £100,000 restores the full £12,570 allowance, which makes the effective relief far higher than the headline rate.</p>
+    <h3>What are the downsides of salary sacrifice?</h3>
+    <p>Your contractual pay is lower, which can reduce mortgage affordability, life cover linked to salary and statutory maternity or sick pay. Your employer must keep your pay at or above the National Minimum Wage after the sacrifice. You also cannot normally change it mid-year.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a>, the <a href="../uk-scottish-income-tax-calculator/">Scottish income tax calculator</a>, the <a href="../uk-pension-annual-allowance-calculator/">UK pension annual allowance calculator</a>, the <a href="../uk-100k-tax-trap-calculator/">UK &pound;100k tax trap calculator</a>, the <a href="../uk-student-loan-repayment-calculator/">UK student loan repayment calculator</a> and, for employers, the <a href="../uk-employer-hiring-cost-calculator/">UK cost of hiring an employee calculator</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { salary: "salary", pensionPct: "pensionPct", region: "region", plan: "plan", pgl: "pgl", employerShare: "employerShare", cap2029: "cap2029" };
+    const IDLE = "Fill in the figures, then click Compare the three ways.";
+    const DEFAULTS = { region: "england", plan: "none", pgl: "no", cap2029: "no" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const s = r.compare[0];
+      $("#due").textContent = `Salary sacrifice costs you ${gbp(s.costToYou)} a year for ${gbp(s.intoPension)} in your pension; net pay would cost ${gbp(r.compare[1].costToYou)}.`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const base = `<tr><td>No pension</td><td class="n">${gbp(r.none.tax)}</td><td class="n">${gbp(r.none.ni)}</td><td class="n">${gbp(r.none.sl + r.none.pg)}</td><td class="n">${gbp(r.none.takeHome)}</td><td class="n">-</td><td class="n">-</td></tr>`;
+      $("#compare").innerHTML = base + r.compare.map((c) => `<tr><td>${esc(c.label)}</td><td class="n">${gbp(c.tax)}</td><td class="n">${gbp(c.ni)}</td><td class="n">${gbp(c.sl + c.pg)}</td><td class="n">${gbp(c.takeHome)}</td><td class="n">${gbp(c.costToYou)}</td><td class="n">${gbp(c.intoPension)}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a £55,000 salary, 8% pension, Plan 2 student loan, England.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("salary-sacrifice.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -7,6 +7,8 @@ order, a reorder, Faire Direct, and an off-Faire invoice so a brand can see
 whether the opening order still clears the floor — and, if that retailer
 reorders, how the first-order fee looks across the relationship.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/faire-wholesale-calculator/
+
 Open `index.html` in a browser. Independent retailers use `retailer.html` to
 see landed cost versus shelf price after an opening-order discount and the
 units that do not sell. `faire-direct-vs-marketplace.html` answers the Direct

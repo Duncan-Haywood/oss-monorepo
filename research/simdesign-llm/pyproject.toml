@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-llm"
+version = "0.1.0"
+description = "Scoring session-agent design proposals in a finite-element simulator against CMA-ES, Bayesian optimisation and random search at equal budget"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem", "cma", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

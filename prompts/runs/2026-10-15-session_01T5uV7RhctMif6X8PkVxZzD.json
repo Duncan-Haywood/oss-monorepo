@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01T5uV7RhctMif6X8PkVxZzD",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "mirror",
+  "projects": [],
+  "pr": null,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-1.md",
+      "issue": "Step 0 says to clone and work in the upstream repo, but the mirror-sync milestone itself lands here in oss-monorepo; the two instructions needed reconciling by reading upstream PROJECTS.md."
+    },
+    {
+      "file": "prompts/research/prompt-1.md",
+      "issue": "add_repo says to call register_repo_root, a tool this session lacks."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "mirror-sync to upstream c21e11b: sync, check ok, build ok (424 projects), validate ok. Upstream open PRs 553/555/557 left (<2h old or drafts).",
+  "corrections": [],
+  "redteam": null
+}

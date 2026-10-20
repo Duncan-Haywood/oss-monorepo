@@ -46,7 +46,7 @@
 
   <section class="card">
     <h2>Paste your timeline</h2>
-    <textarea id="log" spellcheck="false" placeholder="2026-10-03 14:02 deployed v412&#10;14:09 alert fired&#10;14:51 rolled back&#10;15:05 resolved"></textarea>
+    <textarea aria-label="Pasted log" id="log" spellcheck="false" placeholder="2026-10-03 14:02 deployed v412&#10;14:09 alert fired&#10;14:51 rolled back&#10;15:05 resolved"></textarea>
     <p><label>Title: <input type="text" id="title" placeholder="Checkout outage"></label></p>
     <p>
       <button type="button" id="check">Build timeline</button>
@@ -69,7 +69,7 @@
     <h4>Silent gaps</h4>
     <ul id="gaps"></ul>
     <h4>Postmortem draft (Markdown)</h4>
-    <textarea id="md" readonly spellcheck="false"></textarea>
+    <textarea aria-label="Postmortem draft (Markdown)" id="md" readonly spellcheck="false"></textarea>
     <p><button type="button" id="copy">Copy Markdown</button></p>
   </section>
 

@@ -1,0 +1,41 @@
+model,variant,couples,term,unit,published,reproduced,ci_lo,ci_hi
+Table S12 discrete-time survival,mean-imputed (368 couples),368,Husband_satT,2 SD (scale(x)*0.5),0.8600,0.8666,0.6168,1.2177
+Table S12 discrete-time survival,mean-imputed (368 couples),368,Wife_satT,2 SD (scale(x)*0.5),0.9700,0.7151,0.4955,1.0319
+Table S12 discrete-time survival,mean-imputed (368 couples),368,HOB,1 SD (latent factor),0.7700,0.8905,0.7318,1.0835
+Table S12 discrete-time survival,mean-imputed (368 couples),368,H_vul,2 SD (scale(x)*0.5),1.2900,1.3256,0.9067,1.9381
+Table S12 discrete-time survival,mean-imputed (368 couples),368,W_vul,2 SD (scale(x)*0.5),2.1800,2.0301,1.3892,2.9666
+Table S12 discrete-time survival,mean-imputed (368 couples),368,SER,2 SD (scale(x)*0.5),1.3000,1.4029,0.9795,2.0093
+Table S12 discrete-time survival,mean-imputed (368 couples),368,h(2) at predictor means,hazard,0.0300,0.0254,,
+Table S12 discrete-time survival,mean-imputed (368 couples),368,h(3) at predictor means,hazard,0.0300,0.0313,,
+Table S12 discrete-time survival,mean-imputed (368 couples),368,h(4) at predictor means,hazard,0.0300,0.0303,,
+Table S12 discrete-time survival,mean-imputed (368 couples),368,h(5) at predictor means,hazard,0.0500,0.0484,,
+Table S12 discrete-time survival,mean-imputed (368 couples),368,h(6) at predictor means,hazard,0.2000,0.1735,,
+Table S12 discrete-time survival,mean-imputed (368 couples),368,h(7) at predictor means,hazard,0.0800,0.0720,,
+Table S12 discrete-time survival,mean-imputed (368 couples),368,h(8) at predictor means,hazard,0.0200,0.0209,,
+Table S12 discrete-time survival,mean-imputed (368 couples),368,h(9) at predictor means,hazard,0.0200,0.0220,,
+Table S12 discrete-time survival,mean-imputed (368 couples),368,h(10) at predictor means,hazard,0.0300,0.0227,,
+Table S12 discrete-time survival,complete cases,310,Husband_satT,2 SD (scale(x)*0.5),0.8600,0.8021,0.5305,1.2126
+Table S12 discrete-time survival,complete cases,310,Wife_satT,2 SD (scale(x)*0.5),0.9700,0.9323,0.5775,1.5051
+Table S12 discrete-time survival,complete cases,310,HOB,1 SD (latent factor),0.7700,0.7946,0.6316,0.9996
+Table S12 discrete-time survival,complete cases,310,H_vul,2 SD (scale(x)*0.5),1.2900,1.3393,0.8721,2.0569
+Table S12 discrete-time survival,complete cases,310,W_vul,2 SD (scale(x)*0.5),2.1800,2.6404,1.7105,4.0756
+Table S12 discrete-time survival,complete cases,310,SER,2 SD (scale(x)*0.5),1.3000,1.3754,0.8983,2.1059
+Table S12 discrete-time survival,complete cases,310,h(2) at predictor means,hazard,0.0300,0.0000,,
+Table S12 discrete-time survival,complete cases,310,h(3) at predictor means,hazard,0.0300,0.0151,,
+Table S12 discrete-time survival,complete cases,310,h(4) at predictor means,hazard,0.0300,0.0268,,
+Table S12 discrete-time survival,complete cases,310,h(5) at predictor means,hazard,0.0500,0.0433,,
+Table S12 discrete-time survival,complete cases,310,h(6) at predictor means,hazard,0.2000,0.1562,,
+Table S12 discrete-time survival,complete cases,310,h(7) at predictor means,hazard,0.0800,0.0486,,
+Table S12 discrete-time survival,complete cases,310,h(8) at predictor means,hazard,0.0200,0.0174,,
+Table S12 discrete-time survival,complete cases,310,h(9) at predictor means,hazard,0.0200,0.0231,,
+Table S12 discrete-time survival,complete cases,310,h(10) at predictor means,hazard,0.0300,0.0240,,
+"Table S6 SEM, divorce by year 12 (probit)",mean-imputed (368 couples),368,Husband_satT,standardised beta,-0.0600,-0.0851,,
+"Table S6 SEM, divorce by year 12 (probit)",mean-imputed (368 couples),368,Wife_satT,standardised beta,-0.0900,-0.1478,,
+"Table S6 SEM, divorce by year 12 (probit)",mean-imputed (368 couples),368,HOB,standardised beta,-0.1800,-0.0891,,
+"Table S6 SEM, divorce by year 12 (probit)",mean-imputed (368 couples),368,H_vul,standardised beta,0.1400,0.1366,,
+"Table S6 SEM, divorce by year 12 (probit)",mean-imputed (368 couples),368,SER,standardised beta,0.0800,0.1078,,
+"Table S6 SEM, divorce by year 12 (probit)",complete cases,318,Husband_satT,standardised beta,-0.0600,-0.0899,,
+"Table S6 SEM, divorce by year 12 (probit)",complete cases,318,Wife_satT,standardised beta,-0.0900,-0.0919,,
+"Table S6 SEM, divorce by year 12 (probit)",complete cases,318,HOB,standardised beta,-0.1800,-0.1395,,
+"Table S6 SEM, divorce by year 12 (probit)",complete cases,318,H_vul,standardised beta,0.1400,0.1440,,
+"Table S6 SEM, divorce by year 12 (probit)",complete cases,318,SER,standardised beta,0.0800,0.0871,,

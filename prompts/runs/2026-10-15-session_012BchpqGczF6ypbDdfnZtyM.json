@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_012BchpqGczF6ypbDdfnZtyM",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "task": "extend",
+  "projects": [
+    "selfrep-extinction-qsd"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/596",
+  "commits": [
+    "130694718e60da6c47f2dc6b0d34542eec07a15f"
+  ],
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "first QSD rate formula wrong (-log vs 1-s); caught by tests",
+    "branch initially based on mimic-crossplay WIP, reset to main"
+  ],
+  "integrity_issues": [],
+  "notes": "Left #587 mimic-crossplay: needs HF model download (403) and torch, unavailable. Token usage not read.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

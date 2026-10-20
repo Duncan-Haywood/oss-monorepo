@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01R9BRhaBFVuKFghr9JejLJG",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "scheduled: follow the instructions in ./prompt.md",
+  "input_sha256": "4325b93fe1160d5747607839884de39e05ead59d747a45f9e07f4b62f1b498e3",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-19T13:38:28Z",
+  "ended": "2026-10-19T13:41:35Z",
+  "wall_minutes": 3.34,
+  "tokens_in": 2172034,
+  "tokens_out": 13832,
+  "cost_usd": 0.8621,
+  "tool_calls": 26,
+  "task": null,
+  "projects": [
+    "swe-fieldfill"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8409",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/linefig.py",
+      "issue": "docstring says section matches a heading line; heading must start with the literal '==' text, so stripping '=' before parsing fails (workcell-twin figure.py does strip it and uses a different section)"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "New swe-fieldfill project: field completeness of run records. Chose a new question since track 10 had many micro-variants.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3210c8a1-8852-54ad-a013-ced06e8f77fb",
+    "transcripts": 1,
+    "first": "2026-10-19T13:38:28Z",
+    "last": "2026-10-19T13:41:48Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 25,
+        "input": 50,
+        "output": 13832,
+        "thinking": 2033,
+        "cache_read": 2095855,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76129,
+        "api_equivalent_usd": 0.8621,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 25,
+      "input": 50,
+      "output": 13832,
+      "thinking": 2033,
+      "cache_read": 2095855,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76129,
+      "api_equivalent_usd": 0.8621,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 26,
+    "tools": {
+      "Bash": 22,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.34,
+      "active_minutes": 3.34,
+      "model_minutes": 2.56,
+      "tool_minutes": 0.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "estimate: scoping, code, README, build",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 348.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

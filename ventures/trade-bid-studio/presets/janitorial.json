@@ -1,0 +1,55 @@
+{
+  "slug": "janitorial-bid-calculator",
+  "name": "Janitorial contract cleaning",
+  "group": "Cleaning & janitorial",
+  "summary": "Monthly commercial cleaning contracts priced from area production rates, visits per week and supplies.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 17,
+  "burdenRate": 28,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Open office / cubicles, 5x a week (monthly)",
+      "unit": "sq ft",
+      "qty": 6000,
+      "hoursPerUnit": 0.005417,
+      "materialPerUnit": 0.005,
+      "source": "4,000 sq ft per cleaner-hour x 5 cleanings/week x 52/12 weeks per month (STARTING_AREAS, WEEKS_PER_MONTH); supplies $0.005/sq ft/month (index.html)"
+    },
+    {
+      "label": "Restrooms, 5x a week (monthly)",
+      "unit": "sq ft",
+      "qty": 600,
+      "hoursPerUnit": 0.01806,
+      "materialPerUnit": 0.005,
+      "source": "1,200 sq ft per cleaner-hour x 5/week x 52/12; supplies $0.005/sq ft/month"
+    },
+    {
+      "label": "Break room / kitchen, 5x a week (monthly)",
+      "unit": "sq ft",
+      "qty": 400,
+      "hoursPerUnit": 0.01083,
+      "materialPerUnit": 0.005,
+      "source": "2,000 sq ft per cleaner-hour x 5/week x 52/12; supplies $0.005/sq ft/month"
+    },
+    {
+      "label": "Lobby and corridors, 5x a week (monthly)",
+      "unit": "sq ft",
+      "qty": 1000,
+      "hoursPerUnit": 0.004333,
+      "materialPerUnit": 0.005,
+      "source": "5,000 sq ft per cleaner-hour x 5/week x 52/12; supplies $0.005/sq ft/month"
+    },
+    {
+      "label": "Equipment and travel",
+      "unit": "month",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 25.0,
+      "source": "Equipment & travel $25/month (index.html default)"
+    }
+  ],
+  "specialistModels": "Prices a recurring monthly contract with day-porter shifts, periodic floor care, one-time strip-and-wax projects, crew capacity checks and frequency, supply and initial-clean comparisons."
+}

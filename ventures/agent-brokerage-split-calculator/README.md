@@ -5,6 +5,8 @@ how many deals you close, then up to three brokerages, and see what you net afte
 deal count where one plan overtakes another, and the split you would need to ask for to match the best one.**
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/agent-brokerage-split-calculator/
+
 After using this, you can now **tell whether a capped or flat-fee brokerage beats a traditional split at your
 volume**, which used to mean rebuilding each brokerage's terms in a spreadsheet.
 

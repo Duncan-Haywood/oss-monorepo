@@ -2,6 +2,8 @@
 
 A free browser tool for craft and nano breweries: **enter your fermenters, bright tanks and beers, and get the brew-day and tank plan that finishes the most margin.** It books a fermenter and a bright tank for every batch (with cleaning days), respects your brewhouse limit, and shows how busy each tank is, how the plan compares with brewing in rotation, an upper bound on any plan, and what one more tank would add. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/brewery-tank-schedule-optimizer/
+
 After using this, you can **see whether a new fermenter would pay for itself and what to brew next**, which used to take a whiteboard and guesswork.
 
 ## Model

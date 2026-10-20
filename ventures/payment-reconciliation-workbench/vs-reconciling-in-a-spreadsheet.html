@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This workbench vs. reconciling in a spreadsheet | Payment Reconciliation Workbench</title>
+<meta name="description" content="A VLOOKUP or a sorted-and-scanned spreadsheet matches payouts to deposits by exact amount, on one row each. It misses a payout the bank split across several deposits and a deposit that landed outside your eyeballed date range. This free, local tool checks both automatically.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/payment-reconciliation-workbench/vs-reconciling-in-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This workbench vs. reconciling in a spreadsheet">
+<meta property="og:description" content="A spreadsheet VLOOKUP matches one payout to one deposit at an exact amount. It cannot see a payout the bank split into several deposits, and a scanned date range is easy to eyeball wrong. This tool checks both automatically, once, on the two CSVs you already have.">
+<meta property="og:url" content="https://example.invalid/payment-reconciliation-workbench/vs-reconciling-in-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a VLOOKUP or SUMIFS good enough to match payouts to deposits?","acceptedAnswer":{"@type":"Answer","text":"It handles the ordinary case -- one payout, one deposit, the same amount -- well. It breaks on the two cases that actually cost time: a payout the bank split across several smaller deposits, which a single-row lookup cannot see at all, and a deposit that landed a few days late, which either needs a fuzzy formula nobody builds for a one-off check or gets missed on a plain exact-amount match. Both are ordinary occurrences, not edge cases -- this workbench's own worked example produces one of each."}},{"@type":"Question","name":"How does the split-deposit case actually break a spreadsheet formula?","acceptedAnswer":{"@type":"Answer","text":"On this tool's own worked example, a $2,310.50 payout on March 5 lands at the bank as two separate deposits three days later: $1,200.00 and $1,110.50. A VLOOKUP or MATCH on the payout amount finds nothing, because no single deposit row equals $2,310.50 -- the row is genuinely not there. Finding it requires either noticing two deposits near that date happen to add up, or writing a SUMPRODUCT or Power Query step that checks combinations, which is more spreadsheet engineering than most people build for a single reconciliation run. This workbench searches deposit combinations for a matching sum automatically, up to 18 nearby candidates per payout."}},{"@type":"Question","name":"What does a scanned date range miss that this tool doesn't?","acceptedAnswer":{"@type":"Answer","text":"On the same worked example, an $890.00 payout has no exact deposit match, but a $864.35 deposit landed nearby -- a $25.65 gap, 2.88% of the payout, which is inside the roughly 0.1%-6% range typical of a processor fee. A person scanning a sorted list for 'close enough' either has to remember what a normal fee percentage looks like or skip the judgment entirely and leave the row as a flat unexplained gap. This tool computes the percentage, checks it against that range, and states the reading in one sentence -- still a lead to verify against your statement, never an asserted match."}},{"@type":"Question","name":"A blank amount cell in a spreadsheet formula is easy to miss -- what happens here?","acceptedAnswer":{"@type":"Answer","text":"In a spreadsheet, a blank cell inside a SUM or VLOOKUP range is silently treated as zero -- the formula still returns a number, so nothing flags that a row was incomplete. This workbench's CSV reader checks every date and amount cell before reconciling anything: a row with no digits in its amount column, or a date it cannot parse, stops the run with an error naming the file, rather than quietly reconciling a phantom $0.00 payout or deposit."}},{"@type":"Question","name":"Does this replace building my own reconciliation spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Not for every case -- a spreadsheet you already trust, already customized to your own processor's CSV columns, and already checked against a quarter of statements is a reasonable thing to keep using. What this tool removes is the two failure modes above on a file you have not already built formulas for: the split deposit a lookup cannot see, and the late deposit a date scan can miss or misjudge. It runs entirely in your browser on the two CSVs you already exported, with nothing to connect and no formula to maintain between runs."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#182230;background:#f4f1eb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#b0451c}.eyebrow{font-weight:700;letter-spacing:.04em;color:#b0451c;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#17324d}.lede{font-size:1.05rem;max-width:64ch;color:#4d5963}section{background:#fff;border:1px solid #d8d2c8;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #17324d12;margin:1rem 0}h2{margin-top:0;color:#17324d}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{border-bottom:1px solid #d8d2c8;padding:.55rem .5rem;text-align:left;vertical-align:top}th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#4d5963}pre{white-space:pre-wrap;background:#f4f1eb;padding:.8rem;border-radius:8px;font-size:.82rem}.fine{font-size:.88rem;color:#4d5963}footer{color:#4d5963;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Payment Reconciliation Workbench</a></p>
+<header>
+<h1>This workbench vs. reconciling in a spreadsheet</h1>
+<p class="lede">A VLOOKUP matches one payout to one deposit at one exact amount. It has no answer when the bank split a payout into two deposits, or posted one a few days later than you scanned for.</p>
+</header>
+
+<section>
+<h2>What a spreadsheet formula gets right</h2>
+<p>
+  Pasting a payout export and a bank export into two sheets and running a
+  VLOOKUP or MATCH on the amount column is the ordinary way anyone checks
+  payouts against deposits, and for the common case it works: same amount,
+  landed within a day or two, one row finds the other. Sorting both columns
+  and scanning by eye works about as well for a short list.
+</p>
+<p>
+  What both approaches assume is that every payout corresponds to exactly
+  one deposit row at exactly the amount you are looking up. That assumption
+  holds often enough to feel reliable -- until it doesn't.
+</p>
+</section>
+
+<section>
+<h2>A real pair, from this tool's own worked example</h2>
+<p>
+  This is not a hypothetical. It is the four-payout, five-deposit fixture
+  shipped with this workbench's own "Load a worked example" control,
+  reproduced exactly:
+</p>
+<pre>payouts.csv                    deposits.csv
+2026-03-02   1420.00           2026-03-03   1420.00
+2026-03-05   2310.50           2026-03-06   1200.00
+2026-03-09    890.00           2026-03-06   1110.50
+2026-03-16   1750.00           2026-03-10    864.35
+                                2026-03-30    455.00</pre>
+<p>
+  <code>=VLOOKUP(2310.50, deposits, 1, FALSE)</code> returns nothing, because
+  no single deposit row equals $2,310.50 -- the bank actually posted that
+  payout as two rows, $1,200.00 and $1,110.50, three days later. The row is
+  not missing from the export; it is simply not shaped like the amount you
+  looked up. Running this workbench against the same pair instead reports it
+  as one matched payout, explicitly naming both deposit rows that together
+  account for it.
+</p>
+<p>
+  The $890.00 payout is a second, quieter failure: the nearest deposit is
+  $864.35, a $25.65 gap (2.88%) that reads as a processor fee once you know
+  to check the percentage. A sorted scan either has to make that judgment by
+  eye or leave the row as an unexplained gap; this tool states it in one
+  line -- <em>"deposit is 25.65 (2.88%) short — consistent with a processor
+  fee deducted from the transfer"</em> -- still a lead to verify against your
+  statement, not an asserted match.
+</p>
+</section>
+
+<section>
+<h2>Side by side</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Spreadsheet formula or manual scan</th><th scope="col">This workbench</th></tr></thead>
+<tbody>
+<tr><td>A VLOOKUP or MATCH on amount finds a payout only if one deposit row equals it exactly.</td><td>Also checks whether a payout equals the <em>sum</em> of several nearby deposits, searching up to 18 candidates per payout.</td></tr>
+<tr><td>Judging whether a small gap "looks like a fee" is a call the person scanning has to make each time.</td><td>Computes the gap as a percentage and flags it when it falls in the roughly 0.1%&ndash;6% range typical of a processor fee.</td></tr>
+<tr><td>A blank amount cell inside a SUM or VLOOKUP range is silently treated as zero.</td><td>Rejects a row with no digits in its date or amount column before reconciling anything.</td></tr>
+<tr><td>An unmatched row has to be noticed while scrolling a sorted sheet.</td><td>Reports every payout and deposit exactly once, as matched, unmatched, or explained -- nothing to scroll past.</td></tr>
+<tr><td>Free, and needs only a spreadsheet you already have.</td><td>Also free, local, and needs only the two CSV exports you already have.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Using both together</h2>
+<p>
+  A spreadsheet you already trust, tuned to your own processor's column
+  names and checked against a quarter of statements, is a reasonable thing
+  to keep using. What this workbench removes is the two failure modes
+  above on a file you have not already built formulas for: the split
+  deposit a single-row lookup cannot see, and the late or short deposit a
+  date scan can miss or misjudge.
+</p>
+<p class="fine">
+  <a href="./">Open the workbench</a> and load the worked example above, or
+  upload your own payout and bank CSVs &mdash; no account, no connection, and
+  it keeps working once the page has loaded. Comparing against a paid,
+  connected sync instead of a spreadsheet? See
+  <a href="vs-synder.html">this workbench vs. Synder</a>.
+</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Isn't a VLOOKUP or SUMIFS good enough to match payouts to deposits?</h3>
+<p>It handles the ordinary case -- one payout, one deposit, the same amount -- well. It breaks on the two cases that actually cost time: a payout the bank split across several smaller deposits, which a single-row lookup cannot see at all, and a deposit that landed a few days late, which either needs a fuzzy formula nobody builds for a one-off check or gets missed on a plain exact-amount match. Both are ordinary occurrences, not edge cases -- this workbench's own worked example produces one of each.</p>
+<h3>How does the split-deposit case actually break a spreadsheet formula?</h3>
+<p>On this tool's own worked example, a $2,310.50 payout on March 5 lands at the bank as two separate deposits three days later: $1,200.00 and $1,110.50. A VLOOKUP or MATCH on the payout amount finds nothing, because no single deposit row equals $2,310.50 -- the row is genuinely not there. Finding it requires either noticing two deposits near that date happen to add up, or writing a SUMPRODUCT or Power Query step that checks combinations, which is more spreadsheet engineering than most people build for a single reconciliation run. This workbench searches deposit combinations for a matching sum automatically, up to 18 nearby candidates per payout.</p>
+<h3>What does a scanned date range miss that this tool doesn't?</h3>
+<p>On the same worked example, an $890.00 payout has no exact deposit match, but a $864.35 deposit landed nearby -- a $25.65 gap, 2.88% of the payout, which is inside the roughly 0.1%-6% range typical of a processor fee. A person scanning a sorted list for 'close enough' either has to remember what a normal fee percentage looks like or skip the judgment entirely and leave the row as a flat unexplained gap. This tool computes the percentage, checks it against that range, and states the reading in one sentence -- still a lead to verify against your statement, never an asserted match.</p>
+<h3>A blank amount cell in a spreadsheet formula is easy to miss -- what happens here?</h3>
+<p>In a spreadsheet, a blank cell inside a SUM or VLOOKUP range is silently treated as zero -- the formula still returns a number, so nothing flags that a row was incomplete. This workbench's CSV reader checks every date and amount cell before reconciling anything: a row with no digits in its amount column, or a date it cannot parse, stops the run with an error naming the file, rather than quietly reconciling a phantom $0.00 payout or deposit.</p>
+<h3>Does this replace building my own reconciliation spreadsheet?</h3>
+<p>Not for every case -- a spreadsheet you already trust, already customized to your own processor's CSV columns, and already checked against a quarter of statements is a reasonable thing to keep using. What this tool removes is the two failure modes above on a file you have not already built formulas for: the split deposit a lookup cannot see, and the late deposit a date scan can miss or misjudge. It runs entirely in your browser on the two CSVs you already exported, with nothing to connect and no formula to maintain between runs.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything runs in your browser. Your CSV files and financial data are never uploaded. We count only anonymous feature events in local storage, never people, content, or financial data, with an opt-out on the workbench page.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change the workbench.</p>
+</footer>
+</main>
+</body></html>

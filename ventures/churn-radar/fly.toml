@@ -1,0 +1,30 @@
+# Fly.io self-deploy, in your own account (needs flyctl and a card on file with Fly):
+#   fly launch --copy-config --no-deploy --dockerfile Dockerfile
+#   fly volumes create state --size 1
+#   fly secrets set API_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16)
+#   fly deploy
+# One machine that never auto-stops: a stopped server drops the events your app sends.
+app = "churn-radar-CHANGE-ME"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  STATE = "/data/state.json"
+
+[mounts]
+  source = "state"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = false
+  min_machines_running = 1
+  [[http_service.checks]]
+    path = "/healthz"
+    interval = "30s"
+    timeout = "5s"

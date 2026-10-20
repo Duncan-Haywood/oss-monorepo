@@ -1,0 +1,54 @@
+Team: error variance since last rendezvous V(t)=s2 t + b2 t^2 (s2=1 white, b2 = variance of a per-run bias rate).
+Rendezvous costs c=50, error costs lam=1 per unit mean variance. Twin fitted on short-horizon increments sees b2=0.
+Twin cost-optimal interval sqrt(2c/(lam s2)) = 10.00; twin error-budget interval eps^2/s2 = 9.00 (eps=3)
+
+== 1. Variance law by Monte Carlo (40000 runs; bias rate ~ N(0,b2), t iid N(0,s2) steps) ==
+t   b2    law V(t)   Monte Carlo +- s.e.
+1   0.1   1.100      1.090 +- 0.008
+5   0.1   7.500      7.494 +- 0.052
+10  0.1   20.000      20.117 +- 0.142
+10  0.3   40.000      39.831 +- 0.285
+20  0.03  32.000      31.826 +- 0.223
+
+== 2. Cost-rate planning: twin interval 10.0 vs real optimum ==
+rho=b2*T_twin/s2  b2     real T*  T*/T_twin  peak-std claim  real peak std at T_twin  ratio  regret of twin interval  real cost rate at T_twin/at T*
+0.1               0.01   9.43     0.943      3.16            3.32                     1.049  0.19%                    10.33 / 10.31
+0.3               0.03   8.62     0.862      3.16            3.61                     1.140  1.35%                    11.00 / 10.85
+1                 0.1    7.15     0.715      3.16            4.47                     1.414  8.65%                    13.33 / 12.27
+3                 0.3    5.57     0.557      3.16            6.32                     2.000  34.55%                   20.00 / 14.86
+Rendezvous counts per 1000 time units:
+  rho=0.1  twin 100 rendezvous, real optimum 106 (1.06x)
+  rho=0.3  twin 100 rendezvous, real optimum 116 (1.16x)
+  rho=1    twin 100 rendezvous, real optimum 140 (1.40x)
+  rho=3    twin 100 rendezvous, real optimum 180 (1.80x)
+
+== 3. Error-budget planning: keep peak error std <= eps=3 ==
+b2     twin interval  real interval  real/twin  real peak std at twin interval  fraction of each cycle over budget
+0.01   9.00           8.31           0.923      3.13                            0.077
+0.03   9.00           7.37           0.819      3.38                            0.181
+0.1    9.00           5.72           0.636      4.14                            0.364
+0.3    9.00           4.06           0.451      5.77                            0.549
+
+== 4. Pairwise relative frame (map merging needs relative error): V_rel(t)=2 s2 t + 2(1-kappa) b2 t^2, b2=0.1 ==
+kappa  b2_rel   Monte Carlo check of V_rel(10) (30000 pairs)      cost-optimal T*  T*/twin  twin regret
+0      0.200    law 40.00, MC 40.34 +- 0.33                         5.39             0.763     5.25%
+0.5    0.100    law 30.00, MC 29.52 +- 0.24                         5.98             0.846     1.77%
+0.9    0.020    law 22.00, MC 21.63 +- 0.17                         6.77             0.958     0.10%
+1      0.000    law 20.00, MC 19.89 +- 0.16                         7.07             1.000     0.00%
+(twin interval for the relative frame: 7.07)
+
+== 5. Repair: fit (s2,b2) from n runs with ground-truth error at lags 1 and L, then plan (400 replications) ==
+true b2=0.1 (rho=1); twin regret 8.65%; a short-lag-only fit is the twin
+L   n    mean regret  95th pct regret  mean b2_hat  sd b2_hat
+5   3    11.032%      35.471%         0.142        0.201
+5   5    6.094%       26.339%         0.116        0.145
+5   10   3.164%       11.499%         0.099        0.104
+5   20   2.271%       8.900%          0.094        0.081
+5   50   1.116%       4.413%          0.087        0.061
+5   200  0.320%       1.323%          0.080        0.030
+10  3    8.147%       32.267%         0.112        0.143
+10  5    4.023%       14.563%         0.103        0.118
+10  10   2.190%       9.005%          0.099        0.086
+10  20   1.446%       6.105%          0.092        0.067
+10  50   0.479%       1.753%          0.091        0.042
+10  200  0.117%       0.413%          0.092        0.021

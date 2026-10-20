@@ -1,0 +1,13 @@
+[project]
+name = "capture-trigger"
+version = "0.1.0"
+description = "Trigger-based recording against continuous recording under a battery budget: energy, coverage and break-even event rate on a synthetic day"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

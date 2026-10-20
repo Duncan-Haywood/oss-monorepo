@@ -199,7 +199,7 @@ class AgainstTheRealRepo(unittest.TestCase):
     disk state, or the guard would be failing CI on its own introduction."""
 
     def test_current_repo_has_no_gap(self):
-        claude_md_path = cc.REPO_ROOT / "CLAUDE.md"
+        claude_md_path = cc.REPO_ROOT / ".github" / "prompts" / "verify-and-merge.md"
         gaps, checklist_dirs, disk_dirs = cc.find_gaps(
             claude_md_path.read_text(), cc.REPO_ROOT
         )
@@ -325,7 +325,7 @@ class PythonGaps(unittest.TestCase):
 
 class LivePythonCoverage(unittest.TestCase):
     def test_current_repo_has_no_python_gap(self):
-        claude_md_path = cc.REPO_ROOT / "CLAUDE.md"
+        claude_md_path = cc.REPO_ROOT / ".github" / "prompts" / "verify-and-merge.md"
         gaps, _, disk_dirs = cc.find_py_gaps(claude_md_path.read_text(), cc.REPO_ROOT)
         self.assertEqual(
             gaps,
@@ -585,7 +585,7 @@ class LiveVentureCoverage(unittest.TestCase):
 
     def test_current_repo_has_no_venture_glob_gap(self):
         gaps, tokens = cc.find_venture_glob_gaps(
-            (cc.REPO_ROOT / "CLAUDE.md").read_text(), cc.REPO_ROOT
+            (cc.REPO_ROOT / ".github" / "prompts" / "verify-and-merge.md").read_text(), cc.REPO_ROOT
         )
         self.assertEqual(
             gaps,

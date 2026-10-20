@@ -1,0 +1,62 @@
+name: youth-lineup-rotator
+description: >-
+  Free browser lineup planner for volunteer youth-sports coaches: type the roster
+  and the positions on the field and get a period-by-period lineup where every
+  child plays about the same, nobody sits twice in a row, goalkeeper turns are
+  shared, strong players are spread across periods and each substitution is
+  spelled out. Late arrivals, early leavers, position limits, a printable
+  sideline sheet, and a copy-forward roster so kids who sat last game play first
+  next game. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-18 in a new-venture session. duplicate_check.py: closest rows
+# were volunteer-shift-scheduler 0.20 (adult rotas) and league-schedule-generator
+# 0.16 (fixtures between teams, not who plays inside one game); nothing near the
+# 0.45 line.
+#
+# Why this niche: millions of volunteer coaches build the "who plays where each
+# quarter" sheet on paper or in a spreadsheet before every game, and parents
+# notice unequal time. Paid team apps bundle lineups behind a team subscription
+# and an install; the search "soccer lineup generator" / "equal playing time
+# rotation" lands on printable templates that do not solve for the bench. A
+# solver that guarantees the fairness rules and says out loud when it cannot is
+# a real wedge.
+#
+# First visitor: the parent-coach with 9-14 kids and four quarters the night
+# before a game. Youth-coaching forums and club newsletters, nothing unsolicited.
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic and search on names the coach types; no
+# league-rules claims (minimum-play rules are the coach's to check, stated on the
+# page); no child data leaves the browser; no accounts.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for season-long team management or a club licence for a
+# self-hosted copy.
+
+hypotheses:
+  - claim: >-
+      Volunteer coaches will use a private, no-signup lineup planner before each
+      game, and will come back every week to paste in last game's sat: numbers.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a lineup that double-books a child or plays a child in a position they were barred from.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/youth-lineup-rotator/
+  analytics: null

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of decision loss against decision threshold: the optimum rises from 0.18 at tau_d=0.2 to 0.495 while the no-reserve loss stays at 0.5">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Decision loss vs decision threshold (plain Brier, q~U[0,1])</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.3</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="144.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="304.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="464.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.9</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">tau_d</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">decision loss</text>
+<polyline points="64.0,233.0 144.0,195.1 304.0,134.4 464.0,93.9 624.0,73.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="233.0" r="3" fill="#c0392b"/>
+<circle cx="144.0" cy="195.1" r="3" fill="#c0392b"/>
+<circle cx="304.0" cy="134.4" r="3" fill="#c0392b"/>
+<circle cx="464.0" cy="93.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="73.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">optimum</text>
+<polyline points="64.0,71.2 144.0,71.2 304.0,71.2 464.0,71.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="144.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="304.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="464.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">no reserve (c0=0)</text>
+</svg>

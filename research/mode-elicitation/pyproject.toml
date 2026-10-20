@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mode-elicitation"
+version = "0.1.0"
+description = "Eliciting the alpha-mode of drift with the window loss: exact regret, best window width, critical width for bimodal drift, and robustness to contamination"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

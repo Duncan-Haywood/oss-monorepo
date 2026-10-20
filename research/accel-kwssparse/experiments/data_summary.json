@@ -1,0 +1,61 @@
+{
+ "train": {
+  "n": 33895,
+  "unknown_fraction_kept": 0.05743980471206125,
+  "median_keyword_count": 3106,
+  "per_class": [
+   3228,
+   3130,
+   2948,
+   3134,
+   3037,
+   3019,
+   3086,
+   2970,
+   3111,
+   3106,
+   3126
+  ]
+ },
+ "validation": {
+  "n": 4084,
+  "unknown_fraction_kept": 0.05925453966231284,
+  "median_keyword_count": 372,
+  "per_class": [
+   397,
+   406,
+   350,
+   377,
+   352,
+   363,
+   363,
+   373,
+   350,
+   372,
+   381
+  ]
+ },
+ "test": {
+  "n": 4509,
+  "unknown_fraction_kept": 0.058577405857740586,
+  "median_keyword_count": 406,
+  "per_class": [
+   419,
+   405,
+   425,
+   406,
+   412,
+   396,
+   396,
+   402,
+   411,
+   402,
+   435
+  ]
+ },
+ "speaker_overlap": {
+  "train&validation": 0,
+  "train&test": 0,
+  "validation&test": 0
+ }
+}

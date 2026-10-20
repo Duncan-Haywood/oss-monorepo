@@ -1,0 +1,83 @@
+house-spans experiments (SPF/DF-L No. 2, simple span, uniform load; spans are clear spans, 1.5 in bearing)
+
+A. Maximum clear span, ft-in, and the governing check (bend/shea/defl=deflection/bear)
+floor, SPF
+  size               12 in            16 in          19.2 in            24 in
+  2x6       10' 1" defl    9' 2" defl    8' 7" defl    7'11" bend
+  2x8       13' 4" defl   12' 1" defl   11' 4" bend   10' 1" bend
+  2x10      17' 1" defl   15' 3" bend   13'11" bend   12' 5" bend
+  2x12      20' 5" bend   17' 8" bend   16' 1" bend   14' 5" bend
+floor, DF-L
+  size               12 in            16 in          19.2 in            24 in
+  2x6       10' 7" defl    9' 7" defl    9' 0" defl    8' 1" bend
+  2x8       14' 0" defl   12' 7" bend   11' 6" bend   10' 3" bend
+  2x10      17'10" bend   15' 5" bend   14' 1" bend   12' 7" bend
+  2x12      20' 9" bend   17'11" bend   16' 4" bend   14' 7" bend
+ceiling, SPF
+  size               12 in            16 in          19.2 in            24 in
+  2x6       16' 1" defl   14' 7" defl   13' 9" defl   12' 9" defl
+  2x8       21' 3" defl   19' 4" defl   18' 2" defl   16'10" defl
+  2x10      27' 3" defl   24' 8" defl   23' 3" defl   21' 7" defl
+  2x12      33' 2" defl   30' 1" defl   28' 4" defl   26' 3" defl
+ceiling, DF-L
+  size               12 in            16 in          19.2 in            24 in
+  2x6       16'10" defl   15' 3" defl   14' 5" defl   13' 4" defl
+  2x8       22' 3" defl   20' 3" defl   19' 0" defl   17' 8" defl
+  2x10      28' 5" defl   25'10" defl   24' 4" defl   22' 7" defl
+  2x12      34' 8" defl   31' 6" defl   29' 7" defl   26'10" bend
+roof-snow30, SPF
+  size               12 in            16 in          19.2 in            24 in
+  2x6       12' 3" defl   11' 1" bend   10' 1" bend    9' 0" bend
+  2x8       16' 3" defl   14' 1" bend   12'10" bend   11' 6" bend
+  2x10      19'11" bend   17' 3" bend   15' 9" bend   14' 0" bend
+  2x12      23' 1" bend   20' 0" bend   18' 3" bend   16' 4" bend
+roof-snow30, DF-L
+  size               12 in            16 in          19.2 in            24 in
+  2x6       12'10" defl   11' 3" bend   10' 3" bend    9' 2" bend
+  2x8       16' 6" bend   14' 3" bend   13' 0" bend   11' 7" bend
+  2x10      20' 2" bend   17' 6" bend   15'11" bend   14' 3" bend
+  2x12      23' 5" bend   20' 3" bend   18' 6" bend   16' 6" bend
+
+B. What governs? Count of (size, spacing, species) cells per case, 32 cells each
+  floor          bending 22  deflection live 10
+  floor-sleeping bending 18  deflection live 14
+  ceiling        bending 1  deflection total 31
+  roof-snow30    bending 29  deflection total 3
+  roof-snow50    bending 32
+
+C. Least lumber that passes: floor joists, SPF No. 2, board feet per sq ft of floor (nominal, no waste)
+  span   best option        bf/sf   2nd best           bf/sf   2x10 @16 bf/sf
+   8 ft  2x6 @19.2         0.625   2x8 @24           0.667   1.250
+  10 ft  2x8 @24           0.667   2x10 @24          0.833   1.250
+  12 ft  2x10 @24          0.833   2x12 @24          1.000   1.250
+  14 ft  2x12 @24          1.000   2x12 @19.2        1.250   1.250
+  16 ft  2x12 @19.2        1.250   2x12 @16          1.500   1.250
+
+D. Headers and beams carrying roof, 30 psf snow + 15 psf dead on a 28 ft truss span (tributary 15 ft with 1 ft overhang)
+   total-load limit L/240 to match house-framing, bearing 3.0 in (two jacks); sizes 2x6 to 2x12, smallest that passes
+  opening   2-ply            3-ply            governing at 2x12 2-ply
+  3 ft     2x6 bend         2x6 bend         bearing
+  4 ft     2x6 bend         2x6 bend         bearing
+  5 ft     2x8 bend         2x6 bend         bearing
+  6 ft     2x10 bend        2x8 bend         bending
+  7 ft     2x12 bend        2x10 bend        bending
+  8 ft     none             2x10 bend        bending
+
+E. How much of a span is policy? 2x10 SPF floor joists at 16 in, max clear span (ft-in)
+  L/360 live, L/240 total (as above)             15' 3"  bending
+  L/480 live (stiff floor)                       14' 1"  deflection live
+  L/240 live (code minimum for some surfaces)    15' 3"  bending
+  no deflection limit at all                     15' 3"  bending
+  creep factor 1.5 on dead load                  15' 3"  bending
+  repetitive-member factor off (a lone joist):  14' 2"
+  pitched rafters, 2x8 @16, snow 30, DF-L:     0/12 14' 3"  4/12 14' 2"  8/12 13' 4"  12/12 11' 8"
+
+F. Cross-check with house-framing's header sizing (same loads, one jack per side, 2-ply, bearing 1.5 in on jacks)
+  opening   house-framing   house-spans
+  3 ft     2x6             2x6
+  4 ft     2x6             2x6
+  5 ft     2x8             2x8
+  6 ft     2x10            none
+  7 ft     2x12            none
+  house-framing's bearing check uses the jack's full 5.5 in stud depth (8.25 in2 under a 2-ply header); a 2-ply header is
+  3 in wide, so a 1.5 in jack bears on 4.5 in2. At 6 and 7 ft the header passes on 8.25 in2 and fails on 4.5 in2.

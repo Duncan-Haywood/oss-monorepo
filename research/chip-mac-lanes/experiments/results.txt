@@ -1,0 +1,46 @@
+# Yosys 0.33 (git sha1 2584903a060); Icarus Verilog version 12.0 (stable) ()
+# F-16-4 MLP, WB=4, same data/seed/weights as chip-systolic-hidewide; cells = Yosys generic-gate cells incl. flip-flops
+# every P: RTL simulated on 32 vectors, compared bit for bit with the NumPy reference; cycles measured == formula
+F  P   cycles  cells  depth  cells*cycles  rtl==numpy
+16  1     342   1454    43      497268  True
+16  2     172   1780    41      306160  True
+16  3     138   2867    48      395646  True
+16  4      87   2277    40      198099  True
+16  5      87   4150    53      361050  True
+16  6      70   3888    41      272160  True
+16  7      70   5430    60      380100  True
+16  8      53   3560    38      188680  True
+16  9      53   6577    58      348581  True
+16 10      53   5817    42      308301  True
+16 11      53   7809    65      413877  True
+16 12      53   5790    39      306870  True
+16 13      53   9106    66      482618  True
+16 14      53   7939    48      420767  True
+16 15      53  10310    69      546430  True
+16 16      36   6043    38      217548  True
+16 17      36  11518    71      414648  True
+16 18      36   9576    50      344736  True
+16 19      36  12698    79      457128  True
+16 20      36   8866    39      319176  True
+F=16: best P = 8 (188680 cells*cycles)
+32  1     598   2407    46     1439386  True
+32  2     300   2818    44      845400  True
+32  3     234   4570    51     1069380  True
+32  4     151   3394    45      512494  True
+32  5     151   6686    50     1009586  True
+32  6     118   5286    50      623748  True
+32  7     118   8752    61     1032736  True
+32  8      85   4377    43      372045  True
+32  9      85  10716    53      910860  True
+32 10      85   8074    51      686290  True
+32 11      85  12747    61     1083495  True
+32 12      85   7072    47      601120  True
+32 13      85  14697    63     1249245  True
+32 14      85  10934    52      929390  True
+32 15      85  16679    69     1417715  True
+32 16      52   6941    43      360932  True
+32 17      52  18757    69      975364  True
+32 18      52  13524    53      703248  True
+32 19      52  20737    74     1078324  True
+32 20      52  11251    48      585052  True
+F=32: best P = 16 (360932 cells*cycles)

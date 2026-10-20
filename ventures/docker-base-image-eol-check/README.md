@@ -6,6 +6,8 @@ its publisher's own end-of-life date, or is due to soon — using a small,
 curated, dated table checked into the tool, never a live lookup. Also flags
 image repositories discontinued outright by their publisher (`openjdk`).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/
+
 **What it is not:** a vulnerability scan, a security audit, or a compliance
 attestation. It answers one narrow question — has this specific release line
 passed the date its own publisher (or that publisher's own stated

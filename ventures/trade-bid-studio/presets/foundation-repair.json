@@ -1,0 +1,79 @@
+{
+  "slug": "foundation-repair-bid-calculator",
+  "name": "Foundation repair",
+  "group": "Paving, concrete & masonry",
+  "summary": "Foundation repair priced per pier at depth, plus wall straps, I-beams, slab jacking, engineering and permit.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 34,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "items": [
+    {
+      "label": "Helical pier and bracket, 12 ft installed",
+      "unit": "pier",
+      "qty": 8,
+      "hoursPerUnit": 3.36,
+      "materialPerUnit": 456,
+      "source": "2.4 h per pier + 12 ft x 0.08 h/ft; pier + bracket $420 + 2 ft beyond 10 ft included x $18/ft (METHOD_PRESETS helical; index.html); 8 piers at 12 ft default (index.html)"
+    },
+    {
+      "label": "Interior bracket adder (crawl / basement)",
+      "unit": "pier",
+      "qty": 0,
+      "hoursPerUnit": 1.6,
+      "materialPerUnit": 95,
+      "source": "hoursInteriorPerPier 1.6, interior bracket adder $95 (index.html); unchecked by default"
+    },
+    {
+      "label": "Carbon-fiber wall strap",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 2.8,
+      "materialPerUnit": 185,
+      "source": "hoursPerStrap 2.8, $185 each (index.html); 0 default"
+    },
+    {
+      "label": "Steel I-beam wall brace",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 4.2,
+      "materialPerUnit": 420,
+      "source": "hoursPerIBeam 4.2, $420 each (index.html); 0 default"
+    },
+    {
+      "label": "Slab jacking",
+      "unit": "sq ft",
+      "qty": 0,
+      "hoursPerUnit": 0.018,
+      "materialPerUnit": 8,
+      "source": "1.8 h per 100 sf, $8/sf (index.html); 0 default"
+    },
+    {
+      "label": "Engineering stamp and coordination",
+      "unit": "job",
+      "qty": 0,
+      "hoursPerUnit": 2.5,
+      "materialPerUnit": 850,
+      "source": "hoursEngineering 2.5, engineering stamp fee $850 (index.html); unchecked by default"
+    },
+    {
+      "label": "Plumbing reroute under the slab",
+      "unit": "job",
+      "qty": 0,
+      "hoursPerUnit": 3.5,
+      "materialPerUnit": 650,
+      "source": "hoursPlumbingReroute 3.5, allowance $650 (index.html); unchecked by default"
+    },
+    {
+      "label": "Site, travel, permit, torque and dump fees",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 3,
+      "materialPerUnit": 560,
+      "source": "siteHours 3; permit $275 + travel, torque, dump fees $285 (index.html)"
+    }
+  ],
+  "specialistModels": "Push-pier vs helical depth allowances, poor lot access time, grade beams, and bowed-wall stabilization without piers."
+}

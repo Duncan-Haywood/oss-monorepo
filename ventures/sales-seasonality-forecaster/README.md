@@ -6,6 +6,8 @@ the cash cushion to get through them.** It fits Holt-Winters exponential smoothi
 and 95% ranges, tells you which months are peak and slow, and back-tests itself against "same month last year" so you
 can see whether to trust it at all. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sales-seasonality-forecaster/
+
 After using this, you can now **see how much cash the slow season will cost you before it arrives, and know whether the
 forecast is any better than just repeating last year**.
 

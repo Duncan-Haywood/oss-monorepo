@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareSellerCoupon({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -93,24 +93,24 @@ test('default inputs on the page match the worked example', () => {
     dropSellThroughPct: 50,
     monthlyCouponListings: 40,
   });
-  assert.ok(Math.abs(comparison.listed.expectedProfit - 7.3378) < 1e-6, 'default listed');
-  assert.ok(Math.abs(comparison.coupon.expectedProfit - 9.058885) < 1e-6, 'default coupon');
-  assert.ok(Math.abs(comparison.drop.expectedProfit - 6.83) < 1e-6, 'default drop');
-  assert.ok(Math.abs(comparison.breakEvenCouponSellThroughPct - 44.5506262636075) < 1e-6, 'default coupon ST floor');
-  assert.match(html, /\$7\.34/);
-  assert.match(html, /\$9\.06/);
-  assert.match(html, /\$1\.72/);
-  assert.match(html, /\$68\.84/);
+  assert.ok(Math.abs(comparison.listed.expectedProfit - 7.24384) < 1e-6, 'default listed');
+  assert.ok(Math.abs(comparison.coupon.expectedProfit - 8.933848) < 1e-6, 'default coupon');
+  assert.ok(Math.abs(comparison.drop.expectedProfit - 6.722) < 1e-6, 'default drop');
+  assert.ok(Math.abs(comparison.breakEvenCouponSellThroughPct - 44.595699411944324) < 1e-6, 'default coupon ST floor');
+  assert.match(html, /\$7\.24/);
+  assert.match(html, /\$8\.93/);
+  assert.match(html, /\$1\.69/);
+  assert.match(html, /\$67\.60/);
   assert.match(html, /44\.6%/);
-  assert.match(html, /66\.3%/);
+  assert.match(html, /66\.5%/);
   assert.match(html, /\$1\.87/);
-  assert.match(html, /\$18\.34/);
-  assert.match(html, /\$16\.47/);
-  assert.match(html, /\$6\.83/);
-  assert.match(html, /\$13\.66/);
-  assert.match(html, /\$6\.59/);
-  assert.match(html, /\$5\.80/);
-  assert.match(html, /\$10\.93/);
+  assert.match(html, /\$18\.11/);
+  assert.match(html, /\$16\.24/);
+  assert.match(html, /\$6\.72/);
+  assert.match(html, /\$13\.44/);
+  assert.match(html, /\$6\.50/);
+  assert.match(html, /\$5\.68/);
+  assert.match(html, /\$10\.76/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

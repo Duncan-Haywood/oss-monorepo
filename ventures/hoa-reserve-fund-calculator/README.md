@@ -11,6 +11,8 @@ that avoids that outcome, and both numbers are shown per unit: a one-time
 special-assessment estimate for doing nothing, and a phased monthly dues
 increase for fixing it now.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hoa-reserve-fund-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. Run the tests with:
 

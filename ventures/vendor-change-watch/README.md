@@ -5,6 +5,8 @@ service, privacy policy, subprocessor list, security page — and shows you a
 source-linked diff when the text changes. Built for security, procurement,
 and privacy practitioners who already track a handful of vendors by hand.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/
+
 **What it is not:** legal advice, a contract review, or a compliance
 attestation. It reports what changed in the text of pages you configured,
 with the source URL and the fetch timestamp on every report. You decide what

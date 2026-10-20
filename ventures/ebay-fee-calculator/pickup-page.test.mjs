@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareLocalPickup({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -93,20 +93,20 @@ test('default inputs on the page match the worked example', () => {
     pickupHourlyWage: 18,
     monthlyPickupListings: 8,
   });
-  assert.ok(Math.abs(comparison.ship.expectedProfit - 12.84115) < 1e-6, 'default ship');
-  assert.ok(Math.abs(comparison.pickup.expectedProfit - 3.52156) < 1e-6, 'default pickup');
-  assert.ok(Math.abs(comparison.breakEvenShippingCost - 18.3137) < 1e-6, 'default label ceiling');
-  assert.match(html, /\$12\.84/);
-  assert.match(html, /\$3\.52/);
-  assert.match(html, /\$9\.32/);
-  assert.match(html, /−\$9\.32|-\$9\.32/);
-  assert.match(html, /−\$74\.56|-\$74\.56/);
-  assert.match(html, /\$18\.31/);
-  assert.match(html, /−\$11\.66|-\$11\.66/);
-  assert.match(html, /\$15\.18/);
-  assert.match(html, /−\$5\.89|-\$5\.89/);
-  assert.match(html, /\$33\.82/);
-  assert.match(html, /\$39\.72/);
+  assert.ok(Math.abs(comparison.ship.expectedProfit - 12.67672) < 1e-6, 'default ship');
+  assert.ok(Math.abs(comparison.pickup.expectedProfit - 3.455704) < 1e-6, 'default pickup');
+  assert.ok(Math.abs(comparison.breakEvenShippingCost - 18.17288) < 1e-6, 'default label ceiling');
+  assert.match(html, /\$12\.68/);
+  assert.match(html, /\$3\.46/);
+  assert.match(html, /\$9\.22/);
+  assert.match(html, /−\$9\.22|-\$9\.22/);
+  assert.match(html, /−\$73\.77|-\$73\.77/);
+  assert.match(html, /\$18\.17/);
+  assert.match(html, /−\$11\.82|-\$11\.82/);
+  assert.match(html, /\$15\.28/);
+  assert.match(html, /−\$6\.36|-\$6\.36/);
+  assert.match(html, /\$33\.54/);
+  assert.match(html, /\$39\.90/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lens-twin"
+version = "0.1.0"
+description = "Pinhole twin of a radially distorted camera: ground-plane range is off by exactly 1/(1+k1 rho^2), a twin-trained braking policy stops short by a closed-form amount, focal-length calibration only moves the error, and one image of a known grid identifies k1"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

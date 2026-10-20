@@ -5,6 +5,8 @@ change report. It is designed for credentialing teams and specialist recruiters
 who need to notice that a public license record was added, removed, or changed
 without turning a register entry into a ranking of people.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/public-record-watch/
+
 After using this, you can now review what changed between two dated register
 exports, which used to require manually scanning every row. The tool is local,
 offline, free, and requires no account, API key, or hosted service.

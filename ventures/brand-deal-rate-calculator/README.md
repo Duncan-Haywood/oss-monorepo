@@ -7,6 +7,8 @@ a dedicated long-form video — using commonly cited creator-economy
 CPM-per-1000-engaged-followers benchmarks. Entirely client-side; nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/brand-deal-rate-calculator/
+
 After using this, you can now **turn your own follower count and engagement
 rate into a defensible brand-deal price range in seconds**, which used to
 mean guessing from a rate-card template found online or signing up with an

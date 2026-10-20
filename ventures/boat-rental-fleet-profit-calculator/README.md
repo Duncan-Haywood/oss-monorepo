@@ -2,6 +2,8 @@
 
 A free browser tool for owners who rent out a boat, pontoon, jet ski or paddleboards: **enter hourly, half-day and full-day prices, hours on the water, fuel and wear, dock and insurance, the boat's cost, the weeks you can rent and a weather cancellation rate, and get profit per rental and per boat hour, the price each offer needs for your target margin, break-even rentals per week, what weather cancellations cost, and what the same boat nets rented direct, listed on a rental marketplace for a commission, or run as a captained charter**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/boat-rental-fleet-profit-calculator/
+
 After using this, you can now **decide whether to rent your boat yourself, list it on a marketplace or charter it with a captain, and what a rental has to cost to clear your target margin once a year of dock and insurance is spread over a short season**, which used to take a spreadsheet and a guess.
 
 ## Use

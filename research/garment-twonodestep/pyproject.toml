@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodestep"
+version = "0.1.0"
+description = "A thermostat-driven infrared-gating textile against a step change in room temperature, compared with fixed states and an oracle schedule"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

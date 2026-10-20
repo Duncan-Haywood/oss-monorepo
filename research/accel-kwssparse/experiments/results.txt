@@ -1,0 +1,24 @@
+design | test acc mean (sd) | drop vs float32, paired mean (se) | nonzero weights | energy nJ | storage kbit | multiplier-free
+float32 dense | 0.726 (0.006) | +0.000 (0.000) | 5184 | 37.71 | 165.9 | False
+int8 dense | 0.727 (0.006) | -0.001 (0.002) | 5089 | 14.70 | 41.5 | False
+int4 dense | 0.694 (0.008) | +0.032 (0.002) | 3520 | 10.86 | 20.7 | False
+ternary | 0.538 (0.009) | +0.188 (0.004) | 1942 | 8.46 | 10.4 | True
+binary | 0.375 (0.011) | +0.351 (0.007) | 5184 | 7.91 | 5.2 | True
+int8 pruned 50% | 0.722 (0.003) | +0.004 (0.004) | 2591 | 10.19 | 38.5 | False
+int8 pruned 75% | 0.687 (0.008) | +0.039 (0.004) | 1296 | 5.10 | 19.3 | False
+int8 pruned 90% | 0.537 (0.005) | +0.189 (0.001) | 519 | 2.04 | 7.7 | False
+int8 pruned 95% | 0.379 (0.016) | +0.347 (0.009) | 260 | 1.02 | 3.9 | False
+int8 pruned 98% | 0.218 (0.015) | +0.508 (0.009) | 105 | 0.41 | 1.6 | False
+ternary pruned 50% | 0.535 (0.010) | +0.191 (0.003) | 1494 | 4.15 | 13.2 | True
+ternary pruned 75% | 0.532 (0.008) | +0.194 (0.006) | 913 | 2.54 | 8.1 | True
+ternary pruned 90% | 0.385 (0.022) | +0.342 (0.012) | 446 | 1.24 | 4.0 | True
+
+cheapest design within 1 points of float32: int8 pruned 50% (acc 0.722, 10.19 nJ, 69% of int8 dense); no multiplier-free design within tolerance
+cheapest design within 2 points of float32: int8 pruned 50% (acc 0.722, 10.19 nJ, 69% of int8 dense); no multiplier-free design within tolerance
+cheapest design within 5 points of float32: int8 pruned 75% (acc 0.687, 5.10 nJ, 35% of int8 dense); no multiplier-free design within tolerance
+
+sensitivity: multiplier energy scaled by f; cheapest design within 2 points of float32 (all / multiplier-free only)
+f=1: int8 pruned 50% 10.19 nJ / no multiplier-free design within 2 points
+f=3: int8 pruned 50% 11.23 nJ / no multiplier-free design within 2 points
+f=10: int8 pruned 50% 14.85 nJ / no multiplier-free design within 2 points
+f=30: int8 pruned 50% 25.22 nJ / no multiplier-free design within 2 points

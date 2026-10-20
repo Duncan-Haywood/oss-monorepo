@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01Mv2dbheKX8uBaQRqpi2iik",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T12:19:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "crypto-cost-basis-calculator: Coinbase and Kraken importers",
+  "projects": [
+    "crypto-cost-basis-calculator"
+  ],
+  "pr": 7407,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "venture-preflight reported a stale front-door mirror after a venture change; regen.mjs fixes it but the preflight message could say it also writes new .gz files to add."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Refreshed the stale gh-pages snapshot (session gate item), then deepened crypto-cost-basis-calculator with in-browser Coinbase and Kraken export importers (11 new tests). Unpriced rows are left empty and flagged. Importer formats follow published layouts, unverified against real accounts. Also closed the sign-keeper/changelog-keeper crawlable orphan that had reddened sibling-links on main, and refreshed gh-pages.",
+  "corrections": [],
+  "redteam": null
+}

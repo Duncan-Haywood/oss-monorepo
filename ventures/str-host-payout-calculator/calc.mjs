@@ -249,6 +249,43 @@ export function directBreakEvenBookings(targetAnnual, payoutPerStay, siteCostAnn
   return (target + cost) / payoutPerStay;
 }
 
+/**
+ * The listing a host must publish for one channel to leave a target payout
+ * per stay -- the question hosts actually ask ("I want $400 a stay; what do
+ * I list?"), which the forward calculation only answers by trial and error.
+ *
+ * Payout is linear in the subtotal S, so it inverts exactly. With processing
+ * on the subtotal:        payout = S(1 - h - p) - fixed
+ * with processing on the guest payment (S + tax + deposit, tax = t*S):
+ *                         payout = S(1 - h - p(1 + t)) - p*deposit - fixed
+ * The nightly rate is what is left of S after cleaning and other fees.
+ * Returns null when the fee rates leave nothing to scale (100% or more).
+ */
+export function listingForPayout(channel = {}, booking = {}, targetPayout = 0) {
+  if (booking.error) return { error: booking.error };
+  const target = num(targetPayout);
+  if (target < 0) return { error: "Target payout cannot be negative." };
+
+  const h = rate(channel.hostFeeRate);
+  const p = rate(channel.processingRate);
+  const fixed = num(channel.processingFixed);
+  const onGuest = channel.processingOnGuestPayment === true;
+  const t = rate(booking.taxRate);
+  const deposit = onGuest ? num(booking.securityDeposit) : 0;
+
+  const keep = 1 - h - (onGuest ? p * (1 + t) : p);
+  if (keep <= 0) return null;
+
+  const subtotal = (target + fixed + p * deposit * (onGuest ? 1 : 0)) / keep;
+  const nightlyRate = (subtotal - num(booking.cleaningFee) - num(booking.extraFees)) / booking.nights;
+  return {
+    subtotal,
+    nightlyRate,
+    belowZero: nightlyRate < 0,
+    guestPays: subtotal * (1 + rate(channel.guestFeeRate) + t),
+  };
+}
+
 export function compareChannels(input = {}, channels = CHANNEL_PRESETS) {
   const booking = bookingFrom(input);
   if (booking.error) return { error: booking.error, booking, channels: [] };
@@ -297,6 +334,14 @@ export function compareChannels(input = {}, channels = CHANNEL_PRESETS) {
   const breakEvenKeepPct = breakEven != null && booking.bookingsPerYear > 0
     ? (breakEven / booking.bookingsPerYear) * 100
     : null;
+
+  const targetPayout = num(input.targetPayout);
+  if (targetPayout > 0) {
+    for (const result of results) {
+      const channel = channels.find((c) => c.id === result.id);
+      result.listing = listingForPayout(channel, booking, targetPayout);
+    }
+  }
 
   return {
     booking,

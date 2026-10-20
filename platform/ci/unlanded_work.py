@@ -76,6 +76,9 @@ PROBE_DIRNAME = "unlanded-probe.git"
 DEFAULT_SINCE_DAYS = 14
 # Branches that are never anyone's unlanded work.
 NOT_WORK_BRANCHES = ("gh-pages",)
+# Prefixes of branches that only preserve history, such as the copies of
+# oss-research-monorepo's branches (research/_mirror/archive.py).
+NOT_WORK_PREFIXES = ("archive/",)
 LIST_LIMIT = 10
 
 
@@ -178,6 +181,43 @@ def earlier_prs(probe, tip_ref, base_ref):
     return sorted(numbers)
 
 
+def landed_by_content(probe, tip_ref, base_ref):
+    """True when everything the branch changes is already on base_ref under
+    other commit ids (a squash merge, or a cherry-pick). Conservative: an
+    added path counts if base has it, a modified path only if base's copy is
+    byte-identical, a deleted path only if base lacks it."""
+    out = git(["diff", "--name-status", "--no-renames", f"{base_ref}...{tip_ref}"],
+              probe, check=False)
+    changes = [line.split("\t", 1) for line in out.splitlines() if "\t" in line]
+    if not changes:
+        return True
+
+    def blob(ref, path):
+        return git(["rev-parse", "-q", "--verify", f"{ref}:{path}"], probe,
+                   check=False).strip()
+
+    for status, path in changes:
+        on_base = blob(base_ref, path)
+        if status[0] == "A" and on_base:
+            continue
+        if status[0] == "M" and on_base and on_base == blob(tip_ref, path):
+            continue
+        if status[0] == "D" and not on_base:
+            continue
+        return False
+    return True
+
+
+def is_ancestor(probe, tip_ref, base_ref):
+    """True when every commit on tip_ref is already on base_ref."""
+    proc = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", tip_ref, base_ref],
+        cwd=probe, capture_output=True, text=True,
+        env=dict(os.environ, GIT_TERMINAL_PROMPT="0"),
+    )
+    return proc.returncode == 0
+
+
 def uncommitted_paths(repo):
     out = git(["status", "--porcelain", "--untracked-files=normal"], repo)
     return [line[3:] for line in out.splitlines() if line.strip()]
@@ -205,8 +245,20 @@ def check_branch(repo, remote="origin", base="main", probe=None):
     remote_tip = heads.get(branch)
 
     if remote_tip is None:
+        gone_with = sorted(pulls.get(local_tip, []))
         if local_tip == heads.get(base):
             report.notes.append(f"{branch} has no commits of its own yet; nothing to land.")
+        elif gone_with:
+            # GitHub deletes a PR's head branch when it merges (the repository's
+            # auto-delete setting), so the branch is missing from the remote
+            # exactly when the work has landed. The PR's head ref still holds
+            # this tip, which is all "not stranded" means here.
+            prs = ", ".join(f"#{n}" for n in gone_with)
+            report.notes.append(
+                f"{branch} is gone from {remote}, but PR {prs} carries this tip (the "
+                "branch is deleted when its PR merges or closes). Nothing is stranded "
+                "-- but git cannot see whether it is merged."
+            )
         else:
             report.problems.append(
                 f"{branch} is not on {remote}.\n"
@@ -255,6 +307,15 @@ def check_branch(repo, remote="origin", base="main", probe=None):
         else:
             lines.append(f"    Open a pull request from {branch}, verify it, and merge it.")
         report.problems.append("\n".join(lines))
+    elif is_ancestor(probe, tip_ref, base_ref):
+        # Nothing is lost, so not a problem -- but this push recreated a
+        # spent branch (872 of 875 surviving merged-PR branches, 2026-10-16).
+        report.notes.append(
+            f"{remote}/{branch} holds nothing beyond {base}: it was pushed with no "
+            "new commit (often a reset to main after a merge).\n"
+            "  Do not push a spent branch; push it again only with a new commit, "
+            "and open a new PR. branch_cleanup.py deletes it otherwise."
+        )
     elif carrying:
         prs = ", ".join(f"#{n}" for n in carrying)
         report.notes.append(
@@ -283,7 +344,8 @@ def sweep(repo, remote="origin", base="main", since=None, probe=None):
     tips = {}
     for line in dated.splitlines():
         sha, day, branch = line.split("\t", 2)
-        if branch in (base, "HEAD") or branch in NOT_WORK_BRANCHES:
+        if (branch in (base, "HEAD") or branch in NOT_WORK_BRANCHES
+                or branch.startswith(NOT_WORK_PREFIXES)):
             continue
         if since and day < since:
             continue
@@ -327,7 +389,8 @@ def sweep(repo, remote="origin", base="main", since=None, probe=None):
             if len(parents) <= 1:
                 commits.append(commit)
             stack.extend(parents)
-        if commits:
+        if commits and not landed_by_content(
+                probe, f"refs/remotes/origin/{branch}", base_ref):
             commits.sort(key=lambda c: c.day, reverse=True)
             found.append((day, branch, commits, sorted(before)))
     found.sort(key=lambda row: (row[0], row[1]), reverse=True)

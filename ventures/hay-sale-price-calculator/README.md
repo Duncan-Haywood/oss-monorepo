@@ -5,6 +5,8 @@ and what each buyer offers per bale, and see the break-even price per ton and pe
 and which of small squares, large squares or round bales pays best.** A sensitivity table shows the best
 channel's net when yield or price moves 20%. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hay-sale-price-calculator/
+
 After using this, you can now **tell what your hay really costs per ton and which bale type to sell**, which
 used to be a gut number or a spreadsheet rebuilt every season.
 

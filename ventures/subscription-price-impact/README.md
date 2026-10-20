@@ -2,6 +2,8 @@
 
 The free SaaS price increase churn calculator answers a concrete question: **how much subscriber churn can a monthly price increase absorb before recurring revenue falls?** Enter subscriber count, current price, proposed price, and fixed monthly costs. Compare 0%, 5%, 10%, 15%, and 20% churn scenarios.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/subscription-price-impact/
+
 Open `index.html` in a browser. It needs no account, network request, API key, or customer export. The math is a planning aid, not a forecast: validate assumptions against your own retention data and run a controlled test where appropriate.
 
 [How much can I raise my SaaS price?](how-much-can-i-raise-my-saas-price.html) answers the search question directly. [This calculator vs. Baremetrics](vs-baremetrics.html) explains why a free, no-signup what-if calculator and a paid, connected analytics platform answer different questions.

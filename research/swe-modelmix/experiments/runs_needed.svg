@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-labelledby="t d" font-family="sans-serif" font-size="13">
+<title id="t">Runs per arm to compare two models on projects per run</title>
+<desc id="d">Bar chart of runs per arm needed to detect a 25%, 50% or 100% difference in projects landed per research run, given a coefficient of variation of 1.43 measured over 161 Sonnet runs.</desc>
+<rect width="640" height="380" fill="#fff"/>
+<text x="64" y="24" font-weight="bold" font-size="15">Runs per arm to detect a difference in projects per run</text>
+<text x="64" y="44" fill="#444">CV 1.43 measured over 161 Sonnet research runs</text>
+<line x1="64" y1="316" x2="616" y2="316" stroke="#333"/><line x1="64" y1="64" x2="64" y2="316" stroke="#333"/>
+<rect x="100.8" y="91.0" width="110.4" height="225.0" fill="#1f6fb2"/>
+<text x="156.0" y="85.0" text-anchor="middle">515</text>
+<text x="156.0" y="336" text-anchor="middle">25% difference</text>
+<rect x="284.8" y="259.6" width="110.4" height="56.4" fill="#1f6fb2"/>
+<text x="340.0" y="253.6" text-anchor="middle">129</text>
+<text x="340.0" y="336" text-anchor="middle">50% difference</text>
+<rect x="468.8" y="301.6" width="110.4" height="14.4" fill="#1f6fb2"/>
+<text x="524.0" y="295.6" text-anchor="middle">33</text>
+<text x="524.0" y="336" text-anchor="middle">100% difference</text>
+<text x="340.0" y="366" text-anchor="middle" fill="#444">effect size to detect</text>
+<text transform="translate(18 190.0) rotate(-90)" text-anchor="middle" fill="#444">runs per arm</text></svg>

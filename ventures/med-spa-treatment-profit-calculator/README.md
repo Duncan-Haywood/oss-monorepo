@@ -3,6 +3,8 @@
 A free browser calculator for med spas and aesthetics clinics. Nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/med-spa-treatment-profit-calculator/
+
 After using this, you can now **see which treatments on your menu earn the most
 per room hour and what price hits your target margin** — after product, card
 fees, provider time and room overhead — which used to mean a hand-built

@@ -15,7 +15,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 
 test("every form control has a label and the page never sends trips anywhere", () => {
   const html = page("index.html");
-  for (const id of ["year", "odo-start", "odo-end", "rate-business", "rate-medical", "rate-charity", "t-date", "t-cat", "t-from", "t-to", "t-purpose", "t-client", "t-odo-start", "t-odo-end", "t-miles", "t-tolls", "t-parking"]) {
+  for (const id of ["year", "odo-start", "odo-end", "rate-business", "rate-medical", "rate-charity", "t-date", "t-cat", "t-from", "t-to", "t-purpose", "t-client", "t-vehicle", "t-odo-start", "t-odo-end", "t-miles", "t-tolls", "t-parking"]) {
     assert.match(html, new RegExp(`<label for="${id}">`), id);
   }
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
@@ -38,4 +38,19 @@ test("footer links the mileage method calculator and the gig driver calculator",
 test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
+});
+
+test("page wires vehicles, repeat trips and the preparer report, all client-side", () => {
+  const html = page("index.html");
+  for (const id of ["routes", "vehicles", "preparer"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  assert.match(html, /preparerReportHtml/);
+  assert.match(html, /frequentRoutes/);
+});
+
+test("privacy policy page exists, is in the sitemap and makes no tracking claims it cannot keep", () => {
+  const html = page("privacy.html");
+  assert.match(html, /no analytics/);
+  assert.match(html, /Nothing\./);
+  assert.doesNotMatch(html, /<script(?![^>]*application\/ld\+json)|fetch\(/);
+  assert.match(page("sitemap.xml"), /privacy\.html/);
 });

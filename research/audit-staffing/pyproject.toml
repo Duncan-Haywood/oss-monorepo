@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audit-staffing"
+version = "0.1.0"
+description = "Staffing an audit pool for a refereed-verification protocol: Erlang-C waiting, square-root safety staffing, and the stake-versus-verifier-capacity trade-off"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

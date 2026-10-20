@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_015AAEMszUWjYQFmd7owtx9x",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-15T19:42:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pytest absent in fresh session; gitops/tests runs >2 min and was backgrounded"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added opt-in Peppol BIS Billing 3.0 profile (PP-001..005) to einvoice-preflight; CII reader now captures party endpoint and business process. 290 venture tests pass; regen.mjs ran.",
+  "corrections": [],
+  "redteam": null
+}

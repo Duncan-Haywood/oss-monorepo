@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01V3BEk1mNwi1ykRmTRiYphA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-18T20:39:18Z",
+  "ended": "2026-10-18T20:39:31Z",
+  "wall_minutes": 0.96,
+  "tokens_in": 637338,
+  "tokens_out": 3132,
+  "cost_usd": 0.3095,
+  "tool_calls": 11,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "One campaign on platform/deploy/sealedbox.mjs: 8 mutants, 5 caught, 1 gap (PRNG hook byte 0) now guarded, 2 equivalent buffer-wipe mutants.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/deploy/sealedbox.mjs",
+        "test": "node --test platform/deploy/sealedbox.test.mjs  (in .)",
+        "seed": 501163549,
+        "commit": "e0cb7ee936",
+        "sites": 14,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "platform/deploy/sealedbox.mjs",
+            "line": 19,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < n; i++) x[i] = b[i];",
+            "after": "for (let i = 1; i < n; i++) x[i] = b[i];",
+            "line_text": "  for (let i = 0; i < n; i++) x[i] = b[i];",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "PRNG hook skipped byte 0; added test drawing 64 random keys"
+          },
+          {
+            "file": "platform/deploy/sealedbox.mjs",
+            "line": 20,
+            "col": 9,
+            "operator": "const-plus-one",
+            "before": "b.fill(0);",
+            "after": "b.fill(1);",
+            "line_text": "  b.fill(0);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "zeroising a local/copied buffer after use; unobservable to callers"
+          },
+          {
+            "file": "platform/deploy/sealedbox.mjs",
+            "line": 23,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "const NONCE_BYTES = 24;",
+            "after": "const NONCE_BYTES = 25;",
+            "line_text": "const NONCE_BYTES = 24;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/deploy/sealedbox.mjs",
+            "line": 24,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const KEY_BYTES = 32;",
+            "after": "const KEY_BYTES = 33;",
+            "line_text": "const KEY_BYTES = 32;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/deploy/sealedbox.mjs",
+            "line": 27,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "const both = new Uint8Array(epk.length + pk.length);",
+            "after": "const both = new Uint8Array(epk.length - pk.length);",
+            "line_text": "  const both = new Uint8Array(epk.length + pk.length);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/deploy/sealedbox.mjs",
+            "line": 44,
+            "col": 40,
+            "operator": "plus-to-minus",
+            "before": "const out = new Uint8Array(epk.length + boxed.length);",
+            "after": "const out = new Uint8Array(epk.length - boxed.length);",
+            "line_text": "  const out = new Uint8Array(epk.length + boxed.length);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/deploy/sealedbox.mjs",
+            "line": 47,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "secretKey.fill(0);",
+            "after": "secretKey.fill(1);",
+            "line_text": "  secretKey.fill(0);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "zeroising a local/copied buffer after use; unobservable to callers"
+          },
+          {
+            "file": "platform/deploy/sealedbox.mjs",
+            "line": 62,
+            "col": 82,
+            "operator": "const-plus-one",
+            "before": "export const fromBase64 = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));",
+            "after": "export const fromBase64 = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(1));",
+            "line_text": "export const fromBase64 = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "43ac8178-cd41-5cc4-9c9f-f626f5ddb70f",
+    "transcripts": 1,
+    "first": "2026-10-18T20:39:18Z",
+    "last": "2026-10-18T20:40:16Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 10,
+        "input": 20,
+        "output": 3132,
+        "thinking": 465,
+        "cache_read": 597676,
+        "cache_write_5m": 0,
+        "cache_write_1h": 39642,
+        "api_equivalent_usd": 0.3095,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 10,
+      "input": 20,
+      "output": 3132,
+      "thinking": 465,
+      "cache_read": 597676,
+      "cache_write_5m": 0,
+      "cache_write_1h": 39642,
+      "api_equivalent_usd": 0.3095,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.938,
+    "tool_calls": 11,
+    "tools": {
+      "Bash": 10,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 0.96,
+      "active_minutes": 0.96,
+      "model_minutes": 0.47,
+      "tool_minutes": 0.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "one small test plus triage",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 161.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

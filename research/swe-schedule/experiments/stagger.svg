@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Redundant runs against start gap">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Redundant runs vs start gap (4 runs, 11 items; assumed timings)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="283.4" y2="283.4" stroke="#ddd"/><text x="58" y="287.4" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="242.9" y2="242.9" stroke="#ddd"/><text x="58" y="246.9" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="202.3" y2="202.3" stroke="#ddd"/><text x="58" y="206.3" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<line x1="64" x2="624" y1="161.7" y2="161.7" stroke="#ddd"/><text x="58" y="165.7" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<line x1="64" x2="624" y1="121.1" y2="121.1" stroke="#ddd"/><text x="58" y="125.1" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="80.6" y2="80.6" stroke="#ddd"/><text x="58" y="84.6" text-anchor="end" font-family="sans-serif" font-size="11">12</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">14</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="92.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="120.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">gap between starts (minutes)</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">runs redundant (%)</text>
+<polyline points="64.0,76.5 92.0,159.7 120.0,220.5 204.0,291.5 344.0,317.9 624.0,324.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="76.5" r="3" fill="#1f6fb2"/>
+<circle cx="92.0" cy="159.7" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="220.5" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="291.5" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="317.9" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<rect x="434" y="42" width="12" height="10" fill="#1f6fb2"/><text x="452" y="51" font-family="sans-serif" font-size="11">claim visible after mean 3 min</text>
+<polyline points="64.0,70.4 92.0,100.9 120.0,131.3 204.0,194.2 344.0,255.0 624.0,301.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#c0392b"/>
+<circle cx="92.0" cy="100.9" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="131.3" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="194.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="255.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="301.7" r="3" fill="#c0392b"/>
+<rect x="434" y="57" width="12" height="10" fill="#c0392b"/><text x="452" y="66" font-family="sans-serif" font-size="11">claim visible after mean 10 min</text>
+</svg>

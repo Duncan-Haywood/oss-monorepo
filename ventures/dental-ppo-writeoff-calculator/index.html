@@ -22,7 +22,8 @@
     .hint { font-size: .82rem; color: #4d5b6c; margin: -6px 0 14px; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
-    input { width: 100%; box-sizing: border-box; border: 1px solid #a8b7c8; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #a8b7c8; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    details.paste { margin-top: 14px; } details.paste summary { cursor: pointer; font-weight: 650; }
     input[aria-invalid="true"] { border-color: #9b2c1f; background: #fdf4f2; }
     button { font: inherit; border-radius: 7px; border: 1px solid #a8b7c8; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
     button:hover { background: #e2eaf2; }
@@ -104,6 +105,17 @@
         <div class="actions">
           <button type="button" id="addPlan">Add another plan</button>
         </div>
+        <details class="paste">
+          <summary>Paste a production-by-carrier report instead</summary>
+          <p class="hint">Copy the carrier, production and adjustment columns from your practice management report or a spreadsheet and paste them here. With a header row it finds the columns by name; without one the order is carrier, production, write-off. Totals rows are ignored. Parsed on this device and not stored.</p>
+          <label for="pasteReport">Report text
+            <textarea id="pasteReport" rows="6" autocomplete="off" spellcheck="false"></textarea>
+          </label>
+          <div class="actions">
+            <button type="button" id="usePaste">Fill the table from this report</button>
+          </div>
+          <p class="hint" id="pasteState" role="status"></p>
+        </details>
       </section>
 
       <section>
@@ -163,6 +175,17 @@
           <div class="plan-rows" id="planBars"></div>
         </div>
 
+        <div class="panel" id="gapPanel" hidden>
+          <h3>What each plan below break-even would have to pay</h3>
+          <p id="gapNote"></p>
+          <div class="plan-table-wrap">
+            <table>
+              <thead><tr><th scope="col">Plan</th><th scope="col">Rate now</th><th scope="col">Short, this month</th><th scope="col">Short, annualised</th><th scope="col">Allowed amounts up by</th></tr></thead>
+              <tbody id="gapRows"></tbody>
+            </table>
+          </div>
+        </div>
+
         <div class="panel" id="feePanel">
           <h3>If you raised your fee schedule</h3>
           <p id="feeNote"></p>
@@ -217,7 +240,7 @@
   <script type="module">
     import { effectiveReimbursement } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { resolvePlanRows } from './form.mjs';
+    import { resolvePlanRows, parsePlanReport } from './form.mjs';
 
     const SCENARIO_KEY = 'dental-ppo-writeoff-scenario';
     const OPT_OUT_KEY = 'dental-ppo-writeoff-optout';
@@ -345,6 +368,31 @@
       }
     }
 
+    function renderGap(result) {
+      const under = result.plans.filter((p) => p.belowBreakEven);
+      el('gapPanel').hidden = under.length === 0;
+      const body = el('gapRows');
+      body.textContent = '';
+      if (under.length === 0) return;
+      el('gapNote').textContent = `At the hours and production you entered, these plans paid ${money(result.totalShortfallToBreakEven)} less this month (${money(result.annualShortfallToBreakEven)} a year) than the ${pct(result.breakEvenReimbursementRate)} break-even rate would. This is the size of the gap; it does not say a contract can or cannot be changed.`;
+      for (const plan of under) {
+        const tr = document.createElement('tr');
+        const cells = [
+          plan.name,
+          pct(plan.reimbursementRate),
+          money(plan.shortfallToBreakEven),
+          money(plan.shortfallToBreakEven * 12),
+          plan.payRiseToBreakEven === null ? 'n/a' : pct(plan.payRiseToBreakEven),
+        ];
+        for (const text of cells) {
+          const td = document.createElement('td');
+          td.textContent = text;
+          tr.append(td);
+        }
+        body.append(tr);
+      }
+    }
+
     function render(result) {
       markInvalid(result.ok ? [] : result.errors);
       el('errors').hidden = result.ok;
@@ -379,6 +427,8 @@
       el('breakEven').textContent = pct(result.breakEvenReimbursementRate);
 
       renderPlanBars(result);
+
+      renderGap(result);
 
       const fee = result.feeRaiseImpact;
       el('feePanel').hidden = fee.percent === 0;
@@ -459,6 +509,19 @@
 
     el('addPlan').addEventListener('click', () => {
       addRow(el('planRows'), el('planRows').children.length);
+    });
+
+    el('usePaste').addEventListener('click', () => {
+      const parsed = parsePlanReport(el('pasteReport').value);
+      if (parsed.plans.length === 0) {
+        el('pasteState').textContent = parsed.note || 'No carrier rows with a production and an adjustment figure were found.';
+        return;
+      }
+      fillForm({ ...readForm(), plans: parsed.plans });
+      showingExample = false;
+      el('pasteState').textContent = `Filled ${parsed.plans.length} plan${parsed.plans.length === 1 ? '' : 's'}.${parsed.skipped.length ? ` Skipped ${parsed.skipped.length} line${parsed.skipped.length === 1 ? '' : 's'} it could not read.` : ''}`;
+      recordUsage(globalThis.localStorage, optedOut(), 'report_pasted');
+      recompute(false);
     });
 
     el('save').addEventListener('click', () => {

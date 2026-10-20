@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of median reply latency against the time after end of speech at which the reply pipeline starts: holding the reply until the endpoint is flat at about 1060 ms once the start is early enough, eager replies fall linearly, and no speculation stays at about 1740 ms">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Reply latency vs speculative start time (hangover 1000 ms)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="251.5" y2="251.5" stroke="#ddd"/><text x="58" y="255.5" text-anchor="end" font-family="sans-serif" font-size="11">500</text>
+<line x1="64" x2="624" y1="179.0" y2="179.0" stroke="#ddd"/><text x="58" y="183.0" text-anchor="end" font-family="sans-serif" font-size="11">1000</text>
+<line x1="64" x2="624" y1="106.5" y2="106.5" stroke="#ddd"/><text x="58" y="110.5" text-anchor="end" font-family="sans-serif" font-size="11">1500</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="188.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="312.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">600</text>
+<text x="561.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">800</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">speculative start S after end of speech (ms)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">median reply latency (ms)</text>
+<polyline points="64.0,170.2 126.2,170.2 188.4,170.2 250.7,170.2 312.9,158.2 375.1,143.7 437.3,129.2 499.6,114.7 561.8,100.2 624.0,85.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="170.2" r="3" fill="#c0392b"/>
+<circle cx="126.2" cy="170.2" r="3" fill="#c0392b"/>
+<circle cx="188.4" cy="170.2" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="170.2" r="3" fill="#c0392b"/>
+<circle cx="312.9" cy="158.2" r="3" fill="#c0392b"/>
+<circle cx="375.1" cy="143.7" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="129.2" r="3" fill="#c0392b"/>
+<circle cx="499.6" cy="114.7" r="3" fill="#c0392b"/>
+<circle cx="561.8" cy="100.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="85.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">hold until endpoint</text>
+<polyline points="64.0,216.1 126.2,201.6 188.4,187.1 250.7,172.6 312.9,158.2 375.1,143.7 437.3,129.2 499.6,114.7 561.8,100.2 624.0,85.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="216.1" r="3" fill="#1f6fb2"/>
+<circle cx="126.2" cy="201.6" r="3" fill="#1f6fb2"/>
+<circle cx="188.4" cy="187.1" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="172.6" r="3" fill="#1f6fb2"/>
+<circle cx="312.9" cy="158.2" r="3" fill="#1f6fb2"/>
+<circle cx="375.1" cy="143.7" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="129.2" r="3" fill="#1f6fb2"/>
+<circle cx="499.6" cy="114.7" r="3" fill="#1f6fb2"/>
+<circle cx="561.8" cy="100.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="85.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">eager (speak when ready)</text>
+<polyline points="64.0,71.2 126.2,71.2 188.4,71.2 250.7,71.2 312.9,71.2 375.1,71.2 437.3,71.2 499.6,71.2 561.8,71.2 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="126.2" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="188.4" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="312.9" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="375.1" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="499.6" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="561.8" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">no speculation</text>
+</svg>

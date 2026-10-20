@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Support Desk — Self-Hosted Shared Inbox, a Help Scout Alternative</title>
+  <meta name="description" content="A shared support inbox you host yourself: email and contact-form tickets, saved replies with suggestions, first-reply targets and a customer portal. Open source, MIT, no per-agent fee. Try the triage in your browser.">
+  <meta property="og:title" content="Support Desk — a help desk you host yourself">
+  <meta property="og:description" content="Tickets from email and your site, priority guesses with reasons, saved replies and reply targets in one zero-dependency Node server. No per-seat fee.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Support Desk", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted shared support inbox: email and contact-form tickets, saved replies with suggestions, first-reply targets, customer portal and CSV export, with no per-agent fee."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Help Scout, Front, Crisp or Zendesk?", "acceptedAnswer": {"@type": "Answer", "text": "Those are polished and the right call if you need live chat, a mobile app, a knowledge base or a team of agents with separate logins. They charge per agent per month, and customer conversations live on their servers. Support Desk is one small Node server in your own account: unlimited tickets and mailboxes within your disk, a shared inbox, saved replies, first-reply targets and a customer portal, with no per-seat fee. If you are a team of one to three answering email, it covers the job; if you need more, keep the hosted tool."}}, {"@type": "Question", "name": "How does email get in?", "acceptedAnswer": {"@type": "Answer", "text": "Create a mailbox and you get an inbound webhook URL. Point Postmark inbound, Mailgun routes, Resend inbound or any email-to-webhook forwarder at it, then forward your support address there. Postmark JSON, Mailgun form posts and plain JSON with from, subject and text are understood. Replies thread by the ticket number in the subject, or by In-Reply-To, and only when the sender is the original requester."}}, {"@type": "Question", "name": "How are replies sent?", "acceptedAnswer": {"@type": "Answer", "text": "Through your own Resend account with your verified sending domain. It starts in dry-run mode: replies are saved on the ticket but nothing is emailed until you set DRY_RUN=false with RESEND_API_KEY and MAIL_FROM. Customers answer your support address, so keep forwarding it to the inbound webhook."}}, {"@type": "Question", "name": "What does the priority and spam guess do?", "acceptedAnswer": {"@type": "Answer", "text": "Each new ticket is scored from visible signals: words like refund, charged twice, outage or locked out raise it, feature requests lower it, and obvious spam phrases or link floods go to the Spam tab. Every flag shows its reason on the ticket and you can change it. It decides the first-reply target: a quarter of your target for high priority, double for low. It is a heuristic, not a model."}}, {"@type": "Question", "name": "How are saved replies suggested?", "acceptedAnswer": {"@type": "Answer", "text": "Each saved reply has a title, optional trigger words and a body. The ticket page ranks them against the customer's message with keyword weighting (rare words count more) and fills the reply box when you pick one, with the customer's name, ticket number and your company name substituted. Nothing is sent without you pressing Send."}}, {"@type": "Question", "name": "What does it store?", "acceptedAnswer": {"@type": "Answer", "text": "Tickets, messages and the sender's email address and name in one JSON file you control. File attachments are not stored. IP addresses are held in memory only for rate limiting. Set RETENTION_DAYS to delete closed tickets after a while and AUTO_CLOSE_DAYS to close tickets waiting on the customer. You are the operator and responsible for your privacy notice and data-protection duties."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2030; background: #f6f7fb; }
+    body { max-width: 920px; margin: auto; padding: 28px; }
+    a { color: #2342b8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14204f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14204f; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506b; }
+    .card { background: #fff; border: 1px solid #dde1ec; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b5bdd6; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 110px; }
+    pre { background: #eef0f8; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3e6f1; vertical-align: top; }
+    .high { color: #a3191f; font-weight: 700; } .low { color: #12713a; font-weight: 700; } .normal { color: #14204f; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>A help desk for one to three people, with no per-agent fee.</h1>
+  <p>Support Desk is the open-source shared inbox for a small product or shop. Forward your support address and your contact form to your own server and get tickets, a reply box with suggested saved replies, first-reply targets that tighten for angry or money-related mail, and a link where customers follow their ticket. Below, paste a customer email to see how it would be triaged. Everything on this page runs in your browser, so nothing is uploaded.</p>
+
+  <section class="card" aria-labelledby="lab">
+    <h2 id="lab">Try the triage</h2>
+    <label for="subj">Subject</label>
+    <input id="subj" value="Charged twice for my March invoice">
+    <label for="msg">Customer message</label>
+    <textarea id="msg" spellcheck="false">Hi, I was charged twice for the same invoice on the 3rd. Can you refund the extra charge? I need this sorted before the end of the month.</textarea>
+    <label for="sla">Your first-reply target (hours)</label>
+    <input id="sla" type="number" min="1" max="720" value="24" style="width:6em">
+    <label for="macros">Your saved replies (one per line: <code>title | trigger words | body</code>)</label>
+    <textarea id="macros" spellcheck="false">Refund policy | refund, money back, charged twice | Hi {{name}}, sorry about that. We refund duplicate charges within 5 business days.
+Reset password | password, locked out, cannot log in | Hi {{name}}, use the reset link on the login page and it will arrive within a minute.
+Export your data | export, csv, download, backup | Hi {{name}}, you can export everything from Settings, then Data.</textarea>
+    <p aria-live="polite"><span id="prio" class="normal"></span> &nbsp;<span id="target"></span></p>
+    <ul id="why"></ul>
+    <p id="sugtitle"><b>Suggested saved replies</b></p>
+    <ul id="sug"></ul>
+    <p class="note">The server uses this exact code. A ticket flagged high gets a quarter of your target, low gets double. Suggestions rank saved replies against the message by keyword weight; you always press Send yourself.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <table><thead><tr><th scope="col">Today</th><th scope="col">Catch</th><th scope="col">Support Desk</th></tr></thead><tbody>
+      <tr><td>Help Scout, Front, Zendesk, Freshdesk</td><td>Priced per agent per month; conversations live with them; most features beyond a basic inbox sit on higher tiers</td><td>Your server, unlimited mailboxes and tickets, no seat fee</td></tr>
+      <tr><td>A shared Gmail inbox or a group alias</td><td>No owner, no status, replies collide, nothing shows what is overdue</td><td>Status, assignee, notes, reply targets and an overdue list</td></tr>
+      <tr><td>Open-source desks (Chatwoot, FreeScout, Zammad)</td><td>Full products that need a database, a queue and real operations work</td><td>One Node process and one JSON file; deploys in a click</td></tr>
+    </tbody></table>
+    <p class="note">Honest limits: no live chat, no file attachments, no mobile app, one admin key shared by the team (assignee is a name, not a login), and a keyword-based suggester rather than a language model. For more than a few agents or high volume, use a full help desk.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/support-desk
+node --test
+ADMIN_KEY=$(openssl rand -hex 16) COMPANY_NAME=Acme node server.mjs</pre>
+    <p class="note">Open <code>http://localhost:8080/admin</code> (any user name, <code>ADMIN_KEY</code> as the password), create a mailbox, and point your email forwarder at its inbound URL. One-click Render deploy, Fly.io and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Help Scout, Front, Crisp or Zendesk?</h3>
+    <p>Those are polished and the right call if you need live chat, a mobile app, a knowledge base or a team of agents with separate logins. They charge per agent per month, and customer conversations live on their servers. Support Desk is one small Node server in your own account: unlimited tickets and mailboxes within your disk, a shared inbox, saved replies, first-reply targets and a customer portal, with no per-seat fee. If you are a team of one to three answering email, it covers the job; if you need more, keep the hosted tool.</p>
+    <h3>How does email get in?</h3>
+    <p>Create a mailbox and you get an inbound webhook URL. Point Postmark inbound, Mailgun routes, Resend inbound or any email-to-webhook forwarder at it, then forward your support address there. Postmark JSON, Mailgun form posts and plain JSON with from, subject and text are understood. Replies thread by the ticket number in the subject, or by In-Reply-To, and only when the sender is the original requester.</p>
+    <h3>How are replies sent?</h3>
+    <p>Through your own Resend account with your verified sending domain. It starts in dry-run mode: replies are saved on the ticket but nothing is emailed until you set DRY_RUN=false with RESEND_API_KEY and MAIL_FROM. Customers answer your support address, so keep forwarding it to the inbound webhook.</p>
+    <h3>What does the priority and spam guess do?</h3>
+    <p>Each new ticket is scored from visible signals: words like refund, charged twice, outage or locked out raise it, feature requests lower it, and obvious spam phrases or link floods go to the Spam tab. Every flag shows its reason on the ticket and you can change it. It decides the first-reply target: a quarter of your target for high priority, double for low. It is a heuristic, not a model.</p>
+    <h3>How are saved replies suggested?</h3>
+    <p>Each saved reply has a title, optional trigger words and a body. The ticket page ranks them against the customer's message with keyword weighting (rare words count more) and fills the reply box when you pick one, with the customer's name, ticket number and your company name substituted. Nothing is sent without you pressing Send.</p>
+    <h3>What does it store?</h3>
+    <p>Tickets, messages and the sender's email address and name in one JSON file you control. File attachments are not stored. IP addresses are held in memory only for rate limiting. Set RETENTION_DAYS to delete closed tickets after a while and AUTO_CLOSE_DAYS to close tickets waiting on the customer. You are the operator and responsible for your privacy notice and data-protection duties.</p>
+  </section>
+
+  <footer>
+    <p>Same builder, other jobs: <a href="../form-inbox/">Form Inbox</a> collects website forms, <a href="../feedback-board/">Feedback Board</a> collects feature requests, <a href="../status-keeper/">Status Keeper</a> runs a public status page and <a href="../cancel-flow/">Cancel Flow</a> saves cancelling subscribers.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of any desk you run, responsible for the messages it collects, a privacy notice, data-protection rules where you and your customers live, and your own email sending. Priority, spam and reply suggestions are heuristics and can be wrong. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { triage, slaHoursFor, suggest, renderMacro } from "./desk.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let first = true;
+    const run = () => {
+      const subject = $("subj").value, text = $("msg").value;
+      const t = triage(subject, text);
+      const hours = slaHoursFor({ slaHours: Number($("sla").value) || 24 }, t.priority);
+      $("prio").textContent = t.spam ? "Spam" : `${t.priority[0].toUpperCase()}${t.priority.slice(1)} priority`;
+      $("prio").className = t.spam ? "high" : t.priority;
+      $("target").textContent = t.spam ? "goes to the Spam tab, no acknowledgement" : `first reply due within ${hours < 1 ? Math.round(hours * 60) + " minutes" : hours + " hours"}`;
+      $("why").innerHTML = "";
+      for (const r of t.reasons) { const li = document.createElement("li"); li.textContent = r; $("why").append(li); }
+      const macros = $("macros").value.split("\n").map((l, i) => { const [title, keywords, ...body] = l.split("|"); return { id: `r${i}`, title: (title || "").trim(), keywords: (keywords || "").trim(), body: body.join("|").trim() }; }).filter((m) => m.title && m.body);
+      const sug = suggest(`${subject}\n${text}`, macros);
+      $("sug").innerHTML = "";
+      for (const s of sug) { const li = document.createElement("li"); li.textContent = `${s.macro.title} (${Math.round(s.score * 100)}% match): ${renderMacro(s.macro.body, { name: "Ann" })}`; $("sug").append(li); }
+      $("sugtitle").hidden = !sug.length;
+      if (!first) record("triage"); first = false;
+    };
+    for (const id of ["subj", "msg", "sla", "macros"]) $(id).addEventListener("input", run);
+    run();
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

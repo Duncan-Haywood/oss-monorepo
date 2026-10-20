@@ -1,0 +1,10 @@
+baseline held-out AUROC 0.927
+edit                       machine-edited       95% CI of diff both-edited  adaptive
+lowercase                           0.927   ['0.000', '0.000']       0.927     0.927
+flatten whitespace                  0.927   ['0.000', '0.000']       0.927     0.927
+strip markdown/bullets              0.927 ['-0.001', '-0.000']       0.927     0.926
+drop preamble                       0.927 ['-0.001', '-0.000']       0.927     0.927
+contractions                        0.931   ['0.003', '0.005']       0.919     0.936
+2% typos                            0.915 ['-0.014', '-0.010']       0.925     0.956
+first half only                     0.876 ['-0.061', '-0.044']       0.850     0.969
+all but half                        0.919 ['-0.011', '-0.007']       0.915     0.961

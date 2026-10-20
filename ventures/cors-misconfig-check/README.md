@@ -4,6 +4,8 @@ A free tool for API developers: sends **six real HTTP GET requests** to a URL
 you choose, each with a different `Origin` header, and classifies the
 responses into the CORS misconfiguration patterns that actually get exploited:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/
+
 - **Reflects an unrelated origin** — `Access-Control-Allow-Origin` echoes back
   an origin with no relationship to the target at all, meaning no allow-list
   check is happening. Combined with `Access-Control-Allow-Credentials: true`,

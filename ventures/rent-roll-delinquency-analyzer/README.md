@@ -4,6 +4,8 @@ A free browser tool for small landlords: **load a rent ledger and see who owes w
 it is, and who pays late.** The file is read in the browser; nothing is uploaded, so tenant
 names stay on the landlord's device, and no property-management account access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rent-roll-delinquency-analyzer/
+
 After using this, you can now **see unpaid rent by age (1–30, 31–60, 61–90, over 90 days) and
 by unit, the units that habitually pay late, the share of rent collected and collected on
 time each month, and an upper bound on late fees**, which used to mean a pivot table over a

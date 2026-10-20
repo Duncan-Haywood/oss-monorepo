@@ -5,6 +5,8 @@ drop the pain.001 XML file and see every error with its line number before the b
 rejects it, then rebuild the counts and control sums after a hand edit.** The file is read
 in the browser; nothing is uploaded and no login, bank account or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sepa-payment-file-validator/
+
 After using this, you can now **find the IBAN that fails its check, the control sum that no
 longer matches the payments, the execution date that lands on a TARGET2 holiday and the
 accented name the bank will refuse, and download a corrected file**, which used to mean a

@@ -1,0 +1,36 @@
+# Sweep 1: arm joints, operational-space tip mass along the approach and servo cost (servos only; no other part priced)
+joints tip_mass_kg servo_usd_low servo_usd_high
+     2       0.628         52.00          98.44
+     3       0.591         78.00         147.66
+     4       0.589        104.00         196.88
+     5       0.492        130.00         246.10
+     6       0.502        156.00         295.32
+
+# Sweep 2: lip contact with the arm's own tip mass (camera design, 30 mm sway, 200 trials; safe = fed with peak <= 2.0 N)
+design                   speed   fed  safe touch peak_mean peak_max  time_s
+osrobot-assist, 0.30 kg   0.10  1.00  1.00  0.47      0.91     2.00    1.77
+2 joints, 0.63 kg         0.10  1.00  1.00  0.41      0.76     2.00    2.94
+3 joints, 0.59 kg         0.10  1.00  1.00  0.40      0.73     2.00    2.81
+4 joints, 0.59 kg         0.10  1.00  1.00  0.39      0.70     2.00    2.80
+5 joints, 0.49 kg         0.10  1.00  1.00  0.43      0.78     2.00    2.47
+6 joints, 0.50 kg         0.10  1.00  1.00  0.43      0.79     2.00    2.50
+
+osrobot-assist, 0.30 kg   0.20  1.00  0.71  0.30      1.15     4.00    0.88
+2 joints, 0.63 kg         0.20  1.00  0.60  0.43      1.60     4.00    1.47
+3 joints, 0.59 kg         0.20  1.00  0.61  0.42      1.52     4.00    1.40
+4 joints, 0.59 kg         0.20  1.00  0.61  0.41      1.51     4.00    1.39
+5 joints, 0.49 kg         0.20  1.00  0.65  0.36      1.38     4.00    1.21
+6 joints, 0.50 kg         0.20  1.00  0.65  0.36      1.38     4.00    1.23
+
+# Sweep 3: tip mass against the servo rotor inertia (the geared-up rotor dominates), 2 and 6 joints
+rotor_kg_m2 mass_2j_kg mass_6j_kg
+      0e+00      0.133      0.060
+      1e-08      0.182      0.163
+      1e-07      0.628      0.502
+      3e-07      1.619      1.193
+
+# Sweep 4: tip mass against the servo mass carried at each joint (rotor inertia 1e-07), 2 and 6 joints
+   servo_kg mass_2j_kg mass_6j_kg
+       0.03      0.609      0.463
+       0.06      0.628      0.502
+       0.12      0.667      0.576

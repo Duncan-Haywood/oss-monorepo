@@ -73,7 +73,7 @@ export function validate(text, opts = {}) {
   const { lines, eol } = splitRecords(text);
   const findings = [];
   const add = (sev, code, line, title, detail) => findings.push(newFinding(sev, code, line, title, detail));
-  const summary = { records: lines.length, groups: 0, accounts: 0, transactions: 0, credit: 0, debit: 0, header: null, accountList: [], transactions: [] };
+  const summary = { records: lines.length, groups: 0, accounts: 0, transactions: 0, credit: 0, debit: 0, header: null, accountList: [] };
   if (!lines.length) {
     add("error", "EMPTY", 0, "The file is empty", "Paste or choose a BAI2 file: comma-separated records beginning 01, 02, 03, 16, 49, 98 and 99.");
     return { findings, summary, eol, parsed: [] };

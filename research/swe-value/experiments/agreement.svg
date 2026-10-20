@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 440" role="img" aria-label="Heat map of 3 by 3 agreement between two automated value scores for 408 research projects; pass A rows, pass B columns: A=1,B=1: 43; A=1,B=2: 60; A=1,B=3: 75; A=2,B=1: 52; A=2,B=2: 49; A=2,B=3: 83; A=3,B=1: 1; A=3,B=2: 11; A=3,B=3: 34. 126 of 408 projects get the same score from both.">
+<rect width="520" height="440" fill="#fff"/>
+<text x="260.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Two value scores, 408 projects: 126 get the same score (31%)</text>
+<text x="260.0" y="40" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">Diagonal = agreement. Stylised proxies; no human rater.</text>
+<text x="245.0" y="68" text-anchor="middle" font-family="sans-serif" font-size="12">Pass B (README text): score</text>
+<text x="48" y="225.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 48 225.0)">Pass A (names and order): score</text>
+<text x="155.0" y="84" text-anchor="middle" font-family="sans-serif" font-size="12">1</text>
+<text x="102" y="139.0" text-anchor="end" font-family="sans-serif" font-size="12">1</text>
+<text x="245.0" y="84" text-anchor="middle" font-family="sans-serif" font-size="12">2</text>
+<text x="102" y="229.0" text-anchor="end" font-family="sans-serif" font-size="12">2</text>
+<text x="335.0" y="84" text-anchor="middle" font-family="sans-serif" font-size="12">3</text>
+<text x="102" y="319.0" text-anchor="end" font-family="sans-serif" font-size="12">3</text>
+<rect x="110" y="90" width="90" height="90" fill="#87afc3" stroke="#222" stroke-width="2"/>
+<text x="155.0" y="141.0" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#111">43</text>
+<rect x="200" y="90" width="90" height="90" fill="#5f93ae" stroke="#fff" stroke-width="1"/>
+<text x="245.0" y="141.0" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#fff">60</text>
+<rect x="290" y="90" width="90" height="90" fill="#3c7b9b" stroke="#fff" stroke-width="1"/>
+<text x="335.0" y="141.0" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#fff">75</text>
+<rect x="110" y="180" width="90" height="90" fill="#72a0b8" stroke="#fff" stroke-width="1"/>
+<text x="155.0" y="231.0" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#fff">52</text>
+<rect x="200" y="180" width="90" height="90" fill="#79a5bc" stroke="#222" stroke-width="2"/>
+<text x="245.0" y="231.0" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#fff">49</text>
+<rect x="290" y="180" width="90" height="90" fill="#2a6f91" stroke="#fff" stroke-width="1"/>
+<text x="335.0" y="231.0" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#fff">83</text>
+<rect x="110" y="270" width="90" height="90" fill="#e8f2f8" stroke="#fff" stroke-width="1"/>
+<text x="155.0" y="321.0" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#111">1</text>
+<rect x="200" y="270" width="90" height="90" fill="#d1e2ec" stroke="#fff" stroke-width="1"/>
+<text x="245.0" y="321.0" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#111">11</text>
+<rect x="290" y="270" width="90" height="90" fill="#9bbdce" stroke="#222" stroke-width="2"/>
+<text x="335.0" y="321.0" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#111">34</text>
+</svg>

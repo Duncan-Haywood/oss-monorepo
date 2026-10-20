@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "replay-law"
+version = "0.1.0"
+description = "Exact expected forgetting of a task under replay schedules in sequential training on random low-rank tasks: when to replay, and periodic vs random replay"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -6,6 +6,8 @@ time. List the pieces you quote. It shows the lowest price for each, the profit 
 target, what you actually keep per hour of all your time (drawing and setup included), a
 shop minimum and a single-session needle-rate ladder. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tattoo-piece-profit-calculator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - piece parsing, hours and cost, lowest price, shop minimum, ladder, CSV.

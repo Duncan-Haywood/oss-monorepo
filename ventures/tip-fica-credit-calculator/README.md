@@ -7,6 +7,8 @@ up to the $5.15 baseline, the Social Security wage-base cap, the after-tax value
 deduction is reduced by the credit, and a rough look-back for unclaimed years. Entirely
 client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tip-fica-credit-calculator/
+
 After using this, you can **see whether the credit is worth chasing and for which employees**
 before handing the roster to a preparer.
 

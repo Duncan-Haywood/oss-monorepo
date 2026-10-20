@@ -123,3 +123,18 @@ test("junk input does not throw or produce NaN totals", () => {
   const p = price({ ...DEFAULTS, weldHours: "x", mph: 0, milesOneWay: -5 });
   assert.ok(Number.isFinite(p.price));
 });
+
+test("with card fees, monthly contribution subtracts the fee and materials are grossed up for it", () => {
+  const o = { ...simple, cardFeePct: 4, materials: 100, materialsMarkupPct: 10, fixedMonthly: 0 };
+  const q = price(o);
+  // 250 labour at 20% margin + 4% fee; materials 100 + 10% markup, only the fee comes off them.
+  assert.ok(Math.abs(q.calc - (250 / 0.76 + 110 / 0.96)) < 1e-9);
+  const m = monthly(o);
+  assert.ok(Math.abs(m.contribution - (q.price - q.fees - q.variable)) < 1e-9);
+  assert.ok(m.contribution < q.price - q.variable);
+});
+
+test("DEFAULTS assume no helper", () => {
+  assert.equal(DEFAULTS.helperHours, 0);
+  assert.equal(jobCost(DEFAULTS).helper, 0);
+});

@@ -1,0 +1,46 @@
+1x1 tile = 18032 um2 (161x112); flop = 20.02 um2
+
+== area by hidden width, inputs=70 (um2)
+H wb2 wb3 wb4 wb8
+8 6300 6970 7461 10444
+16 8212 8901 9612 12607
+32 12388 12926 13513 16430
+64 20416 21014 21536 24537
+
+== flops share of area, inputs=70, wb=4 (%)
+H share
+8 33.3
+16 39.2
+32 47.0
+64 53.4
+
+== tile-equivalents needed (area / (tile x utilisation)), inputs=70, wb=4
+H u100 u70 u50
+8 0.41 0.59 0.83
+16 0.53 0.76 1.07
+32 0.75 1.07 1.50
+64 1.19 1.71 2.39
+
+== most accurate fit at utilisation 100%: tiles, inputs, H, wb, area um2, test acc
+1 120 32 8 16602 0.695 (sd 0.006)
+2 120 64 4 21417 0.738 (sd 0.004)
+3 120 64 4 21417 0.738 (sd 0.004)
+4 120 64 4 21417 0.738 (sd 0.004)
+6 120 64 4 21417 0.738 (sd 0.004)
+8 120 64 4 21417 0.738 (sd 0.004)
+
+== most accurate fit at utilisation 70%: tiles, inputs, H, wb, area um2, test acc
+1 120 16 8 12597 0.616 (sd 0.007)
+2 120 64 4 21417 0.738 (sd 0.004)
+3 120 64 4 21417 0.738 (sd 0.004)
+4 120 64 4 21417 0.738 (sd 0.004)
+6 120 64 4 21417 0.738 (sd 0.004)
+8 120 64 4 21417 0.738 (sd 0.004)
+
+== most accurate fit at utilisation 50%: tiles, inputs, H, wb, area um2, test acc
+1 120 16 3 8834 0.558 (sd 0.007)
+2 120 32 8 16602 0.695 (sd 0.006)
+3 120 64 4 21417 0.738 (sd 0.004)
+4 120 64 4 21417 0.738 (sd 0.004)
+6 120 64 4 21417 0.738 (sd 0.004)
+8 120 64 4 21417 0.738 (sd 0.004)

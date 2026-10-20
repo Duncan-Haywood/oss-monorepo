@@ -4,6 +4,8 @@ A free browser tool for fitness, yoga, pilates and dance studios: **paste or upl
 class held: slot, attended, optional capacity) and see which timetable slots lose money, your break-even class size,
 and which classes are full enough to need a second one.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/studio-class-slot-optimizer/
+
 After using this, you can now **decide which classes to cut, move or double from your own numbers**, which used to
 take a gut feeling about "the Tuesday noon class" or a booking-software report that shows attendance but not whether
 it pays for the instructor.

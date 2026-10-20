@@ -2,6 +2,8 @@
 
 A free browser tool for mosquito barrier-spray operators: **type your product cost, time on site, drive time, free re-treat rate and overhead, and see the lowest price per visit and per prepaid season that leaves your margin** -- plus a price ladder, what a renewing customer is worth, how many customers one truck can serve, and how many it takes to cover startup cost. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mosquito-control-program-pricing-calculator/
+
 After using this, you can **quote a season program knowing the prepay discount and rain re-treats still leave your margin**, instead of copying a competitor's price.
 
 ## Model

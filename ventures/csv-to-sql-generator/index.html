@@ -58,7 +58,7 @@
   <section class="card">
     <h2>Your CSV</h2>
     <p class="note">Comma, semicolon, tab or pipe separated; the delimiter is detected. Quoted fields with commas and line breaks are handled.</p>
-    <textarea id="csv" class="log" spellcheck="false" placeholder="id,name,signup_date,amount&#10;1,Ada,2024-03-01,49.50"></textarea>
+    <textarea aria-label="CSV data" id="csv" class="log" spellcheck="false" placeholder="id,name,signup_date,amount&#10;1,Ada,2024-03-01,49.50"></textarea>
     <p>
       <label for="dialect">Database: </label><select id="dialect"><option value="postgres">PostgreSQL</option><option value="mysql">MySQL</option><option value="sqlite">SQLite</option><option value="sqlserver">SQL Server</option><option value="bigquery">BigQuery</option></select>
       <label for="table">Table name: </label><input type="text" id="table" size="16" value="imported_data">
@@ -89,7 +89,7 @@
     <p class="verdict" id="verdict"></p>
     <div class="tableWrap"><table id="cols"><thead><tr><th>Column</th><th>From header</th><th>Type</th><th>Nullable</th></tr></thead><tbody></tbody></table></div>
     <div id="warnings"></div>
-    <textarea id="out" class="out" readonly spellcheck="false"></textarea>
+    <textarea aria-label="Generated output" id="out" class="out" readonly spellcheck="false"></textarea>
     <p><button type="button" id="copy">Copy SQL</button><button type="button" class="secondary" id="download">Download .sql</button></p>
   </section>
 

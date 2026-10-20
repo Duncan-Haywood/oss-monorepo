@@ -4,6 +4,8 @@ Price GitHub Actions, CircleCI, GitLab, Bitbucket Pipelines and Buildkite side b
 build-minute volume, see the 12-month spend under your growth rate, and find the volumes where the
 cheapest provider changes — before you build on one.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ci-minutes-pricing-calculator/
+
 ```
 node cli.mjs compare --minutes 12000 --growth 6
 node cli.mjs compare --minutes 30000 --provider github --budget 200   # CI gate: exit 1 over budget

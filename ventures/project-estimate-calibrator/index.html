@@ -74,11 +74,18 @@
       <div><label for="rate">Your hourly cost or rate (optional)</label><input id="rate" inputmode="decimal" placeholder="needed to turn hours into money"></div>
       <div><label for="price">Fixed price you are thinking of (optional)</label><input id="price" inputmode="decimal" placeholder="needs the rate too"></div>
     </div>
+    <label for="tasks">Optional: price a whole project from its task list (one per line: name, estimate)</label>
+    <textarea id="tasks" spellcheck="false" placeholder="Design, 12&#10;Build, 40&#10;Testing, 16" style="min-height:5rem"></textarea>
     <p class="note">Use one unit for both columns, hours or dollars. Leave out projects still in progress. Rows are read in the order given (oldest first) so the back-test can score your most recent projects. Needs at least 12 finished projects; 25 or more for a usable answer. An optional third column (type of work) adds an overrun per type once a type has 5 projects.</p>
     <button type="button" id="analyze">Analyse</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <p id="form-status" role="status" class="note">Upload or paste your projects, then click Analyse.</p>
+  </section>
+
+  <section id="project" class="card" hidden>
+    <h2>Whole-project total from your task list</h2>
+    <div id="project-body"></div>
   </section>
 
   <section id="report" class="card" hidden>
@@ -134,7 +141,7 @@
   </footer>
 
   <script type="module">
-    import { parseRows, analyze, reportCsv, sampleText, num, money, pct } from "./calc.mjs";
+    import { parseRows, analyze, parseTasks, analyzeTasks, reportCsv, sampleText, num, money, pct } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -160,6 +167,20 @@
       const r = analyze(parsed.rows, { estimate: val("#est"), rate: val("#rate"), price: val("#price") });
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
       last = r;
+      const pt = parseTasks($("#tasks").value);
+      if (pt.tasks.length) {
+        const pr = analyzeTasks(parsed.rows, pt.tasks, { rate: val("#rate"), price: val("#price") });
+        const box = $("#project");
+        if (pr.error) box.hidden = true;
+        else {
+          const row = (label, list) => list.map((x) => `<tr><td>${label} ${Math.round(x.p * 100)}%</td><td class="n">${num(x.units, 1)}</td><td class="n">${x.buffer >= 0 ? "+" : ""}${pct(x.buffer, 0)}</td>${pr.rate ? `<td class="n">${money(x.price)}</td>` : ""}</tr>`).join("");
+          $("#project-body").innerHTML = [...pr.warnings, ...(pt.skipped ? [`${pt.skipped} task line${pt.skipped === 1 ? "" : "s"} skipped (no number found).`] : [])].map((w) => `<div class="warn">${esc(w)}</div>`).join("") +
+            `<p>${pr.count} tasks add up to ${num(pr.sumEst, 1)}. Task misses partly cancel, but a bad project is usually bad everywhere, so two views are shown. <strong>Price from the shared-miss rows</strong> unless your tasks are truly unrelated. A flat buffer on every task only matches the shared-miss view; if your tasks really miss independently it over-pads by ${num(pr.sumOfP80 - pr.independent[1].units, 1)} at the 80% level.</p>` +
+            `<div class="scroll"><table><thead><tr><th>View</th><th class="n">Total</th><th class="n">Buffer over sum</th>${pr.rate ? '<th class="n">Price</th>' : ""}</tr></thead><tbody>${row("Shared miss", pr.shared)}${row("Independent", pr.independent)}</tbody></table></div>` +
+            (pr.proposal ? `<p>Chance a fixed price of ${money(pr.proposal.price)} loses money: <strong>${pct(pr.proposal.sharedLoss, 0)}</strong> (shared miss), ${pct(pr.proposal.independentLoss, 0)} (independent).</p>` : "");
+          box.hidden = false;
+        }
+      } else $("#project").hidden = true;
       $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const big = [
         [pct(r.overPct, 0), `Of your ${r.n} projects ran over the estimate; the median took ${r.medianRatio.toFixed(2)}× the estimate and the worst ${r.worst.toFixed(2)}×`],
@@ -186,7 +207,7 @@
     $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
     $("#load-example").addEventListener("click", () => {
       $("#rows").value = sampleText();
-      $("#est").value = "40"; $("#rate").value = "90"; $("#price").value = "4000";
+      $("#tasks").value = "Design, 6\nBuild, 20\nIntegration, 8\nTesting, 6"; $("#est").value = "40"; $("#rate").value = "90"; $("#price").value = "4000";
       if (run()) { record("example_loaded"); status.textContent = "Sample data: 60 invented projects for one freelancer, not a real business."; }
     });
     $("#file").addEventListener("change", (e) => {
@@ -195,7 +216,7 @@
       rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
       rd.readAsText(f);
     });
-    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your projects, then click Analyse."; });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#tasks").value = ""; $("#project").hidden = true; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your projects, then click Analyse."; });
     $("#download").addEventListener("click", () => {
       if (!last) return;
       const a = document.createElement("a");

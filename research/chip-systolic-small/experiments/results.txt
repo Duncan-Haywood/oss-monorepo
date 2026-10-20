@@ -1,0 +1,12 @@
+# Yosys 0.33 (git sha1 2584903a060); Icarus Verilog version 12.0 (stable) ()
+# cycles per batch of R vectors (array reused for 32 vectors = 32/R batches); cells = Yosys generic-gate cells incl. flip-flops
+# cells*cycles/vec = cells * cycles_per_batch / R
+WB R   design        MACs cycles/batch  cells  depth  cells*cycles/vec  rtl==numpy(32 vecs)
+ 4  1  systolic 1x2     2     62     1136    39          70432  True
+ 4  1  systolic 1x4     4     38     1729    38          65702  True
+ 4  2  systolic 2x2     4     68     2091    39          71094  True
+ 4  2  systolic 2x4     8     41     3269    40          67014  True
+ 4  4  systolic 4x2     8     80     4077    41          81540  True
+ 4  4  systolic 4x4    16     47     6605    42          77608  True
+ 4  1  mac-lane P=2       2     56     1098    37          61488  (formula from chip-accel; not re-simulated)
+ 4  1  mac-lane P=4       4     29     1674    36          48546  (formula from chip-accel; not re-simulated)

@@ -1,0 +1,54 @@
+Radar ego-velocity from n Doppler returns, y_i = v + e_i. Twin: all targets static, e ~ N(0,1) (s0=1).
+Real: with prob eps a moving target, e ~ N(0, 1+tau^2). Estimators: mean (LS) and median. Variances are in units of s0^2/n.
+
+== 0. Exact laws vs Monte Carlo (n=51, 40,000 repeats) ==
+eps   tau  mean exact  mean MC (+-se)      median exact  median MC (+-se)
+0.00  5    0.01961     0.01974 +- 0.00014   0.03054      0.03058 +- 0.00022
+0.10  10   0.21569     0.21486 +- 0.00152   0.03711      0.03690 +- 0.00026
+0.30  3    0.07255     0.07311 +- 0.00052   0.04898      0.04903 +- 0.00035
+
+== 1. Twin's choice. In the twin the median costs pi/2 more variance, so the twin picks the mean. ==
+twin: n*Var(mean)=1, n*Var(median)=1.5708 (asymptotic pi/2=1.5708)
+Real n*Var, mean vs median (asymptotic), and mean/median ratio (>1 means the twin's choice is worse):
+tau   eps    mean      median    mean/median
+3     0.01  1.090     1.593     0.68
+3     0.05  1.450     1.684     0.86
+3     0.10  1.900     1.810     1.05
+3     0.30  3.700     2.486     1.49
+3     0.60  6.400     4.517     1.42
+10    0.01  2.000     1.599     1.25
+10    0.05  6.000     1.722     3.48
+10    0.10  11.000    1.897     5.80
+10    0.30  31.000    2.949     10.51
+10    0.60  61.000    7.433     8.21
+
+== 2. Band of contamination rates where the median beats the mean (asymptotic) ==
+tau   eps_lo    eps_hi
+1     never
+2     0.3745    0.5000
+3     0.0859    0.8340
+5     0.0255    0.9268
+10    0.0059    0.9698
+30    0.0006    0.9910
+
+== 3. Twin-claimed uncertainty. Real variance / claimed = 1+eps tau^2; coverage of the twin's 95% interval (n=30) ==
+tau   eps    var ratio   exact coverage
+3     0.01   1.09        0.9393
+3     0.05   1.45        0.8973
+3     0.10   1.90        0.8480
+3     0.30   3.70        0.6967
+10    0.01   2.00        0.8678
+10    0.05   6.00        0.6401
+10    0.10   11.00       0.4866
+10    0.30   31.00       0.2831
+2-D LS (30 returns over a 120-degree sector), trace ratio vs twin claim, 20,000 repeats:
+eps=0.10 tau=10: MC 11.201, formula 11.000
+eps=0.05 tau=3: MC 1.429, formula 1.450
+
+== 4. Can a residual log tell you? Excess kurtosis 3 eps(1-eps) tau^4/(1+eps tau^2)^2; power of a one-sided sample-kurtosis test ==
+(residuals about a known ego-velocity, 5% nominal size using the Gaussian null sd sqrt(24/N); 2,000 repeats per cell)
+eps   tau  kurt     N=20     N=50     N=200    N=1000 
+0.10  10   22.314   0.737   0.972   1.000   1.000  
+0.05  3    5.490    0.202   0.470   0.908   1.000  
+0.02  3    3.421    0.090   0.242   0.606   0.982  
+0.00  0    0.000    0.021   0.035   0.052   0.050  

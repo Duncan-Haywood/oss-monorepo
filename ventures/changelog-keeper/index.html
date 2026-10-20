@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Changelog Keeper — Free Self-Hosted Changelog, Release Notes Page and What's New Widget</title>
+  <meta name="description" content="Publish product updates on a public changelog page with Atom and JSON feeds and an embeddable What's new bell with an unread badge. Scheduled posts, drafts, Slack webhook. Open source, MIT, one-click self-deploy, no monthly fee.">
+  <meta property="og:title" content="Changelog Keeper — changelog page, feeds and a What's new widget, self-hosted">
+  <meta property="og:description" content="Write release notes in Markdown, schedule them, and show them as a page, a feed and a bell. Your data in one file you own.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Changelog Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Node.js 20+ server; any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source product changelog: public page, Atom and JSON feeds, embeddable What's new widget with unread badge, scheduled entries. Zero dependencies, runs in your own account."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Where does the data live?", "acceptedAnswer": {"@type": "Answer", "text": "In one JSON file on the server you deploy in your own account. The author runs nothing in between and never sees your entries or your readers."}}, {"@type": "Question", "name": "Can I schedule a release note?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Give an entry a future publish date and it stays hidden, in the page, the feeds and the widget, until that moment. Drafts are never public."}}, {"@type": "Question", "name": "Can an entry inject markup into my site?", "acceptedAnswer": {"@type": "Answer", "text": "No. Entries support a small Markdown subset that is escaped first and allows only http(s) links, and the embed renders inside a shadow root using textContent only."}}, {"@type": "Question", "name": "Does it email my users?", "acceptedAnswer": {"@type": "Answer", "text": "Not yet. People subscribe with the Atom or JSON feed, and you can set a webhook to post each new entry to Slack or another chat tool. Sending email needs a provider and consent handling, so it is left out of this version."}}, {"@type": "Question", "name": "Does it track my readers?", "acceptedAnswer": {"@type": "Answer", "text": "No. The bell remembers the newest entry a visitor opened in their own browser's local storage and sends nothing back."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f8f7; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0f766e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #134e4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #134e4a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5563; }
+    .card { background: #fff; border: 1px solid #d5e6e3; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3efed; vertical-align: top; }
+    pre { background: #eef6f5; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 10px; border: 1px solid #9ca3af; border-radius: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; background: #ccfbf1; font-size: .8rem; font-weight: 700; }
+    #preview { border: 1px solid #e5e7eb; border-radius: 10px; padding: 4px 14px; background: #fff; min-height: 6rem; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Publish product updates as a changelog page, a feed and a What's new bell</h1>
+  <p>Write a release note in Markdown, schedule it, and it appears on a public page, in an Atom and a JSON feed, and in a small bell you drop into your app with one script tag. It runs on your own server with the data in one file, so there are no tiers, no seat fees and no entry caps. <a href="server.mjs">Read the source</a> or deploy it below.</p>
+
+  <section class="card" aria-labelledby="demo">
+    <h2 id="demo">Try the writer <span class="tag">sample data</span></h2>
+    <p class="note">This runs the same Markdown renderer the server uses, in your browser. Nothing you type is uploaded and the page makes no network requests.</p>
+    <div class="grid">
+      <div><label for="src"><strong>Entry body</strong></label>
+      <textarea id="src" rows="9">Dark mode is here.
+
+- Switch in **Settings &gt; Appearance**
+- Follows your system by default
+- Docs: [theming guide](https://example.com/docs/theming)
+
+Use `prefers-color-scheme` in embeds.</textarea></div>
+      <div><strong>What readers see</strong><div id="preview" aria-live="polite"></div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Why use this instead of what you do today</h2>
+    <table>
+      <tr><th>Today</th><th>Catch</th><th>Changelog Keeper</th></tr>
+      <tr><td>Headway, Beamer, LaunchNotes, Canny changelog and similar</td><td>Monthly fees that climb with tracked users or seats; your release history lives with them</td><td>Unlimited entries and readers, one JSON file you own, no fee</td></tr>
+      <tr><td>A Notion or GitHub Releases page</td><td>No in-app widget, no unread badge, no scheduling</td><td>Bell with unread count, scheduled posts, drafts</td></tr>
+      <tr><td>Nothing (updates only in tweets)</td><td>Customers never learn what shipped; churn follows</td><td>One page and a feed customers and RSS readers can follow</td></tr>
+    </table>
+    <p class="note">Honest limits: no email sending of its own, no per-user "seen" tracking on the server, no image upload (link to images you host), one admin key rather than per-user logins, and no analytics on who read what.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/changelog-keeper
+ADMIN_KEY=$(openssl rand -hex 16) PUBLIC_URL=https://changelog.example.com COMPANY_NAME=Acme node server.mjs
+
+# page:    https://changelog.example.com/changelog      (write entries at /admin)
+# feeds:   /feed.xml  and  /feed.json
+# bell:    &lt;script src="https://changelog.example.com/embed.js" defer&gt;&lt;/script&gt;</pre>
+    <p class="note">One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Related tools</h2>
+    <p>Pair with <a href="../feedback-board/">Feedback Board</a> to collect requests, <a href="../churn-radar/">Churn Radar</a> to find at-risk accounts, <a href="../testimonial-keeper/">Testimonial Keeper</a> for proof, and <a href="../sign-keeper/">Sign Keeper</a> to get agreements signed.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Where does the data live?</h3>
+    <p>In one JSON file on the server you deploy in your own account. The author runs nothing in between and never sees your entries or your readers.</p>
+    <h3>Can I schedule a release note?</h3>
+    <p>Yes. Give an entry a future publish date and it stays hidden, in the page, the feeds and the widget, until that moment. Drafts are never public.</p>
+    <h3>Can an entry inject markup into my site?</h3>
+    <p>No. Entries support a small Markdown subset that is escaped first and allows only http(s) links, and the embed renders inside a shadow root using textContent only.</p>
+    <h3>Does it email my users?</h3>
+    <p>Not yet. People subscribe with the Atom or JSON feed, and you can set a webhook to post each new entry to Slack or another chat tool. Sending email needs a provider and consent handling, so it is left out of this version.</p>
+    <h3>Does it track my readers?</h3>
+    <p>No. The bell remembers the newest entry a visitor opened in their own browser's local storage and sends nothing back.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator: you are responsible for what you publish, including any security or legal notice. It is not legal, tax, or financial advice. The writer above runs in your browser: nothing you type is uploaded. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    import { renderMarkdown } from "./store.mjs";
+    const src = document.getElementById("src"), out = document.getElementById("preview");
+    // renderMarkdown escapes everything first and allows only http(s) links.
+    const draw = () => { out.innerHTML = renderMarkdown(src.value); };
+    src.addEventListener("input", draw);
+    draw();
+    record("demo");
+    const o = document.getElementById("optout");
+    o.checked = usageOptedOut();
+    o.addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

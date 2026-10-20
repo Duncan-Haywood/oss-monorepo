@@ -1,0 +1,13 @@
+[project]
+name = "house-vibration"
+version = "0.1.0"
+description = "Does a floor-vibration frequency limit erase the lumber saved by deep, widely spaced joists? Beam-theory natural frequency on top of the house-spans NDS checks"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-spans/src"]

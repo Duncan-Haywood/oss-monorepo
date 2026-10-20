@@ -7,6 +7,8 @@ percentile outcomes, the maximum bid for a chance of loss you accept, the maximu
 profit, the recovery rate you need to break even, a sensitivity table on recovery, each line's contribution, and how
 much of the manifest's value sits in the top five lines. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/liquidation-pallet-bid-calculator/
+
 After using this, you can now **bid a number you can defend, know what recovery you are betting on, and see when one or
 two lines are carrying the whole pallet**.
 

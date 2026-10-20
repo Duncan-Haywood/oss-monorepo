@@ -2,6 +2,8 @@
 
 New York LLC owners and their bookkeepers can check whether their LLC likely owes a Beneficial Ownership Disclosure or an Attestation of Exemption under New York's LLC Transparency Act, see the applicable initial filing deadline counted down, and organize the beneficial-owner details they'll need before they file — without hiring a filing service or reading a law firm client alert to find the two dates that matter.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ny-llc-transparency-act-tracker/
+
 **After using this, you can now** see your LLC's likely filing category and the exact number of days left before your deadline, and hand yourself (or your attorney) a clean, exportable worksheet of beneficial-owner details instead of hunting through formation paperwork the week the deadline hits — which used to mean reading several law-firm alerts to piece together the rule, then building your own tracking spreadsheet.
 
 The tracker is free, browser-only, and works without an account, API key, or network connection. It is a filing organizer and reference tool, not a legal determination and not a filing service — you remain the filer.

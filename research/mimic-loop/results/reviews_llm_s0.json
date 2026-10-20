@@ -1,0 +1,121 @@
+{
+ "family": "reviews",
+ "proposer": "llm",
+ "seed": 0,
+ "budget": 4,
+ "rounds": [
+  {
+   "round": 0,
+   "paired_acc_current": 0.125,
+   "paired_acc_current_ci": [
+    0.0,
+    0.2916666666666667
+   ],
+   "paired_acc_plain": 0.125,
+   "single_auroc_current": 0.4878472222222222,
+   "mean_len": 175.91666666666666,
+   "ref_len": 395.0833333333333,
+   "copy4": 0.00390625,
+   "distinct2_gen": 0.9470588235294117,
+   "distinct2_human": 0.9047340736411456,
+   "judge_on_topic": 0.9166666666666666,
+   "valid": true,
+   "imitator": "Write the text a person would write for the context below.",
+   "imitator_shots": [],
+   "detector": "You compare two texts and decide which one a person wrote.",
+   "sample": [
+    "The Big Lebowski",
+    "South Park: Bigger, Longer & Uncut is an animated television series created by Trey Parker and Matt Stone that aired on Comedy Central from 2005 to 2013. The show follows the adventures of a group of friends who live in Colorado and have trouble understanding each other due to their different backgrounds, beliefs, and personalities. Despite their challenges, they eventually learn to understand",
+    "Antz is an exciting adventure movie that will keep you on the edge of your seat with its thrilling action sequences and memorable characters. The film features a dynamic cast of leading actors, including Robert Duvall as Antz, and a captivating storyline that keeps viewers hooked from start to finish. The movie is rated PG-13 and contains some mature themes, but overall it's an entertaining and"
+   ]
+  },
+  {
+   "round": 1,
+   "paired_acc_current": 0.25,
+   "paired_acc_current_ci": [
+    0.125,
+    0.4166666666666667
+   ],
+   "paired_acc_plain": 0.25,
+   "single_auroc_current": 0.359375,
+   "mean_len": 333.5,
+   "ref_len": 395.0833333333333,
+   "copy4": 0.009006703272720842,
+   "distinct2_gen": 0.9004739336492891,
+   "distinct2_human": 0.9047340736411456,
+   "judge_on_topic": 1.0,
+   "valid": true,
+   "imitator": "Sure! Here's a revised instruction paragraph: Write a text that feels authentic and genuine based on reading books such as \"Les Mis\u00e9rables\" and \"Twilight.\" Example score: score -0.75: Compose a narrative text that captures the essence of these beloved literary works while maintaining originality. Your input will help us refine this instruction even further.",
+   "imitator_shots": [],
+   "detector": "The task now involves comparing two pieces of text\u2014either from your personal experiences or an AI-generated snippet\u2014to determine which came from the person's mind versus an external source.",
+   "sample": [
+    "The Big Lebowski is a satirical drama about the life of Jack O'Neill, played by Leonardo DiCaprio, who becomes obsessed with collecting every object he finds, including his own car, which he rents out for hire. His obsession leads him to become involved in a series of murder cases, including the famous \"Raiders of the Lost Ark,\" where he accidentally kills one of the heroes before committing",
+    "South Park: Bigger, Longer & Uncut is an animated television series created by Trey Parker and Matt Stone, originally broadcast on Nickelodeon in 2011 to 2014. The show follows the adventures of a group of friends who form and change into various cartoon characters across five seasons.",
+    "Antz is an exhilarating adventure film. It's a must-watch for fans of action and drama. The movie follows a group of young rebels who fight against oppression in their homeland. With its vibrant visuals and thrilling moments, it promises to keep you on the edge of your seat from start to finish. Don't miss out on this cinematic experience."
+   ],
+   "fit_detector": 0.27905037837321656,
+   "fit_imitator": -0.24543872550106288,
+   "seconds": 1595.3445992469788
+  },
+  {
+   "round": 2,
+   "paired_acc_current": 0.2916666666666667,
+   "paired_acc_current_ci": [
+    0.125,
+    0.5
+   ],
+   "paired_acc_plain": 0.20833333333333334,
+   "single_auroc_current": 0.4097222222222222,
+   "mean_len": 371.3333333333333,
+   "ref_len": 395.0833333333333,
+   "copy4": 0.005778583851267602,
+   "distinct2_gen": 0.8608458390177354,
+   "distinct2_human": 0.9047340736411456,
+   "judge_on_topic": 1.0,
+   "valid": true,
+   "imitator": "Create a narrative text that seamlessly blends authentic classic literature with your unique creativity, focusing on the essence of \"Les Mis\u00e9rables\" and \"Twilight,\" while adding your personal touch through engaging storytelling techniques and captivating visuals inspired by those beloved texts.",
+   "imitator_shots": [],
+   "detector": "Score 0.42 for finding the primary author based on context and themes instead of external references.",
+   "sample": [
+    "The Big Lebowski is a satirical drama about the life of Jack Nicholson's character, a bumbling 30-something Los Angeles police officer who is fired from his job as a policeman because he is gay and has a crush on a woman named Molly (played by Nicole Kidman). Despite his initial hostility towards her, Jack eventually discovers that she is beautiful and ends up falling for him. However, after",
+    "South Park: Bigger, Longer & Uncut is an animated television series created by Trey Parker and Matt Stone, originally broadcast on Nickelodeon in 2005 to 2013. The show follows the adventures of a group of friends who form and change into one another, often fighting among themselves for control. The series was nominated for two Emmy Awards (for Outstanding Animated Short Program) and three Golden",
+    "Antz is an exhilarating adventure film where you are transported into a world filled with freedom and danger. As you explore this vast landscape, you encounter various characters who will shape your journey as they make choices that can change the course of history. The story follows the young protagonist, Karl Barthelme, who discovers a magical land called \"Astraea.\" It's a place full of"
+   ],
+   "fit_detector": 0.47999818495143487,
+   "fit_imitator": -0.24230829422705208,
+   "seconds": 1620.3614926338196
+  },
+  {
+   "round": 3,
+   "paired_acc_current": 0.125,
+   "paired_acc_current_ci": [
+    0.0,
+    0.25
+   ],
+   "paired_acc_plain": 0.125,
+   "single_auroc_current": 0.3923611111111111,
+   "mean_len": 332.125,
+   "ref_len": 395.0833333333333,
+   "copy4": 0.007449065337425262,
+   "distinct2_gen": 0.8865979381443299,
+   "distinct2_human": 0.9047340736411456,
+   "judge_on_topic": 0.9583333333333334,
+   "valid": true,
+   "imitator": "Create a vivid and engaging story that incorporates elements from \"Les Mis\u00e9rables\" and \"Twilight.\" Use your imagination and creative writing skills to bring the characters, plot, and settings to life. Ensure your narrative flows smoothly and captures the essence of these timeless classics in a modern, relatable way. Use descriptive details to paint a picture for readers, enhancing their immersion into the story. Incorporate visually stunning elements like illustrations, music, or special effects that evoke emotions and add depth to your narrative. Your final product should be more than just an",
+   "imitator_shots": [],
+   "detector": "Find the primary author based on context and themes rather than external references when identifying authors. This approach helps differentiate between texts authored by a human user and those created by an AI.",
+   "sample": [
+    "The Big Lebowski is a flawed, morally ambiguous movie that delves deep into the psyche of its titular character, Michael Douglas. Douglas's performance as the titular character is both mesmerizing and frustrating. The movie's premise revolves around Michael Douglas's desire to become a successful businessman, but his moral compass struggles with the consequences of his actions. As the film",
+    "South Park: Bigger, Longer & Uncut is a highly acclaimed animated television series created by Trey Parker and Matt Stone. The show follows the adventures of South Park character Matt Groening's creation, Larry and Larryz, who live on a farm and make up a group of cartoon friends called the Scoopy Doo. The show has been praised for its humor, social commentary, and visual style. Despite facing",
+    "Antz is a captivating adventure movie starring Jack Nicholson as Zorro, a legendary Spanish knight. The movie follows Zorro as he fights against injustice and corruption throughout Europe. Along the way, he befriends three young women, each with unique stories to tell. As the story unfolds, we see Zorro's character develop, from his loyal friend to a formidable opponent. His relationship with the"
+   ],
+   "fit_detector": 0.3458155444545561,
+   "fit_imitator": -0.234950075865941,
+   "seconds": 1667.503210067749
+  }
+ ],
+ "model_calls": {
+  "generate": 336,
+  "score": 1536
+ }
+}

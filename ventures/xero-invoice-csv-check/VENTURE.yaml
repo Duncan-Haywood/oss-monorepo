@@ -4,7 +4,7 @@ description: >-
   headings, required columns and cells, invoices whose lines disagree on contact or dates, date
   order conflicts, Excel serial dates, amounts with symbols or decimal commas, account names in
   the code column, tax rates typed as percentages, scientific-notation invoice numbers and
-  semicolon files, each with its line number, plus a safe-fixes pass, a date-format converter and
+  semicolon files, Total and TaxAmount columns that disagree with the line or its tax rate, each with its line number, plus a safe-fixes pass, a date-format converter and
   a splitter that keeps invoices whole under the 500-line import limit. The file is read locally
   and never uploaded.
 stage: prototype
@@ -38,3 +38,12 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
 # independent-of-Xero clause, trademark used nominatively.
+
+hypotheses:
+  - claim: >-
+      Checking invoice lines against the organisation's own chart of accounts, contacts and tax
+      rates catches faults the file alone cannot show (unknown or archived accounts, near-duplicate
+      contacts, misspelled tax rates), so a bookkeeper who pastes the lists gets fewer rejected imports. Measured as the share of file_checked events that also record lists_used (added 2026-10-20; local counters only, no reading yet).
+    status: untested
+    checked: null
+    evidence: in-repo

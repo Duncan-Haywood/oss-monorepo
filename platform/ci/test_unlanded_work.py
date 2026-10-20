@@ -9,6 +9,7 @@ import os
 import subprocess
 import tempfile
 import unittest
+import unittest.mock
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
@@ -115,6 +116,30 @@ class TestCheckBranch(Fixture):
         self.assertIn("#41", report.notes[0])
         self.assertIn("cannot see whether it is merged", report.notes[0])
 
+    def test_branch_deleted_after_its_pr_took_the_tip_is_not_stranded(self):
+        # GitHub's auto-delete removes the head branch when the PR merges; the
+        # session's local branch then has no remote, but nothing is stranded.
+        self.branch("claude/merged-and-deleted")
+        sha = self.commit("ventures/x/index.html", "x\n", "x: new venture")
+        self.push("claude/merged-and-deleted")
+        self.open_pr(43, sha)
+        run(self.origin, "update-ref", "-d", "refs/heads/claude/merged-and-deleted")
+        report = self.check()
+        self.assertEqual(report.exit_code, 0, report.problems)
+        self.assertIn("#43", report.notes[0])
+        self.assertIn("cannot see whether it is merged", report.notes[0])
+
+    def test_branch_deleted_with_a_tip_no_pr_carries_is_still_flagged(self):
+        self.branch("claude/deleted-after-more-work")
+        sha = self.commit("ventures/x/index.html", "x\n", "x: new venture")
+        self.push("claude/deleted-after-more-work")
+        self.open_pr(44, sha)
+        run(self.origin, "update-ref", "-d", "refs/heads/claude/deleted-after-more-work")
+        self.commit("ventures/x/more.html", "y\n", "x: more after the merge")
+        report = self.check()
+        self.assertEqual(report.exit_code, 1)
+        self.assertIn("is not on origin", report.problems[0])
+
     def test_unpushed_commit_on_top_of_a_pushed_branch_is_flagged(self):
         self.branch("claude/ahead")
         sha = self.commit("a.txt", "a\n", "a")
@@ -138,6 +163,20 @@ class TestCheckBranch(Fixture):
         self.assertEqual([c.sha for c in report.stranded], [follow_up])
         self.assertIn("already had PR #7", report.problems[0])
         self.assertIn("Open a NEW pull request", report.problems[0])
+
+    def test_re_pushing_a_spent_branch_at_main_is_noted(self):
+        # The 2026-10-16 leak: reset to origin/main after the merge, push
+        # again, and the deleted branch is back with nothing on it.
+        self.branch("claude/spent")
+        first = self.commit("a.txt", "a\n", "a")
+        self.push("claude/spent")
+        self.open_pr(11, first)
+        self.squash_merge("a.txt", "a\n", "a (#11)")
+        run(self.clone, "reset", "-q", "--hard", "origin/main")
+        run(self.clone, "push", "-q", "-f", "origin", "claude/spent")
+        report = self.check()
+        self.assertEqual(report.exit_code, 0)
+        self.assertIn("holds nothing beyond main", " ".join(report.notes))
 
     def test_merging_main_into_a_landed_branch_strands_nothing(self):
         # "Merge origin/main into my branch" carries nothing of its own.
@@ -166,8 +205,9 @@ class TestCheckBranch(Fixture):
 
     def test_detached_head_cannot_answer(self):
         run(self.clone, "checkout", "-q", "--detach", "origin/main")
-        with self.assertRaises(uw.GitError):
+        with self.assertRaises(uw.GitError) as caught:
             self.check()
+        self.assertIn("detached", str(caught.exception))
 
     def test_main_itself_cannot_answer(self):
         run(self.clone, "checkout", "-q", "-B", "main", "origin/main")
@@ -198,6 +238,31 @@ class TestSweep(Fixture):
         self.assertEqual(sorted(row[1] for row in everything),
                          ["claude/old", "claude/stranded"])
 
+    def test_same_day_branches_are_listed_in_reverse_name_order(self):
+        # Red-team seeding (2026-10-19): sorting on the commit list instead of
+        # the branch name passed every test.
+        for name in ("claude/aaa", "claude/zzz"):
+            self.branch(name)
+            self.commit(f"{name}.txt", "x\n", name, day="2026-10-01")
+            self.push(name)
+        found = uw.sweep(str(self.clone), since=None, probe=self.probe)
+        self.assertEqual([row[1] for row in found], ["claude/zzz", "claude/aaa"])
+
+    def test_probe_is_created_under_directories_that_do_not_exist_yet(self):
+        deep = self.probe.parent / "not" / "yet" / "probe.git"
+        self.branch("claude/stranded")
+        self.commit("a.txt", "a\n", "a", day="2026-10-01")
+        self.push("claude/stranded")
+        found = uw.sweep(str(self.clone), since=None, probe=deep)
+        self.assertEqual([row[1] for row in found], ["claude/stranded"])
+
+    def test_sweep_finds_its_own_probe_when_none_is_given(self):
+        self.branch("claude/stranded")
+        self.commit("a.txt", "a\n", "a", day="2026-10-01")
+        self.push("claude/stranded")
+        found = uw.sweep(str(self.clone), since=None)
+        self.assertEqual([row[1] for row in found], ["claude/stranded"])
+
     def test_names_the_pr_a_branch_kept_pushing_after(self):
         self.branch("claude/kept-going")
         first = self.commit("a.txt", "a\n", "a", day="2026-10-01")
@@ -210,11 +275,32 @@ class TestSweep(Fixture):
         self.assertEqual(found[0][3], [21])
         self.assertEqual([c.subject for c in found[0][2]], ["b"])
 
+    def test_work_already_on_main_under_another_commit_is_not_reported(self):
+        self.branch("claude/squashed")
+        self.commit("ventures/q/index.html", "q\n", "q: new venture", day="2026-10-01")
+        self.push("claude/squashed")
+        self.squash_merge("ventures/q/index.html", "q\n", "q: new venture (#1)")
+        self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
+
+    def test_work_main_has_not_got_is_still_reported(self):
+        self.branch("claude/missing")
+        self.commit("ventures/r/index.html", "mine\n", "r: new venture", day="2026-10-01")
+        self.push("claude/missing")
+        self.squash_merge("ventures/other/index.html", "x\n", "other (#2)")
+        self.assertEqual([r[1] for r in uw.sweep(str(self.clone), since=None, probe=self.probe)],
+                         ["claude/missing"])
+
     def test_gh_pages_is_never_reported(self):
         run(self.clone, "checkout", "-q", "--orphan", "gh-pages")
         run(self.clone, "rm", "-rq", "--cached", ".")
         self.commit("index.html", "site\n", "publish")
         self.push("gh-pages")
+        self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
+
+    def test_archive_branches_are_never_reported(self):
+        self.branch("archive/research/claude/old-work")
+        self.commit("a.txt", "a\n", "kept from oss-research-monorepo")
+        self.push("archive/research/claude/old-work")
         self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
 
 
@@ -229,6 +315,77 @@ class TestMain(Fixture):
         self.assertEqual(code, 1)
         self.assertIn("STRANDED", buf.getvalue())
         self.assertIn(".github/prompts/land-your-work.md", buf.getvalue())
+
+    def test_sweep_defaults_to_a_recent_window(self):
+        self.branch("claude/ancient")
+        self.commit("a.txt", "a\n", "a", day="2020-01-01")
+        self.push("claude/ancient")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            uw.main(["--sweep", "--repo", str(self.clone)])
+        self.assertNotIn("claude/ancient", buf.getvalue())
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            uw.main(["--sweep", "--since", "all", "--repo", str(self.clone)])
+        self.assertIn("claude/ancient", buf.getvalue())
+
+    def test_subject_containing_a_tab_is_kept_whole(self):
+        self.branch("claude/tabbed")
+        self.commit("a.txt", "a\n", "left\tright", day="2026-10-02")
+        self.push("claude/tabbed")
+        found = uw.sweep(str(self.clone), since="2026-09-01", probe=self.probe)
+        self.assertEqual([c.subject for c in found[0][2]], ["left\tright"])
+
+    def test_subject_with_several_tabs_is_kept_whole(self):
+        self.branch("claude/many-tabs")
+        self.commit("a.txt", "a\n", "a\tb\tc", day="2026-10-02")
+        self.push("claude/many-tabs")
+        found = uw.sweep(str(self.clone), since="2026-09-01", probe=self.probe)
+        self.assertEqual([c.subject for c in found[0][2]], ["a\tb\tc"])
+
+    def test_stranded_commits_keep_a_subject_with_several_tabs(self):
+        self.branch("claude/tabs-check")
+        self.commit("a.txt", "a\n", "a\tb\tc")
+        run(self.clone, "push", "-q", "origin", "claude/tabs-check")
+        report = self.check()
+        self.assertEqual(report.exit_code, 1)
+        self.assertIn("a\tb\tc", "\n".join(report.problems))
+
+    def test_commits_are_listed_newest_first(self):
+        self.branch("claude/two-days")
+        self.commit("a.txt", "a\n", "older", day="2026-10-01")
+        self.commit("b.txt", "b\n", "newer", day="2026-10-03")
+        self.push("claude/two-days")
+        found = uw.sweep(str(self.clone), since="2026-09-01", probe=self.probe)
+        self.assertEqual([c.subject for c in found[0][2]], ["newer", "older"])
+
+    def test_remote_refs_ignores_pull_refs_that_are_not_heads(self):
+        listing = "\n".join([
+            "a" * 40 + "\trefs/pull/7/head",
+            "b" * 40 + "\trefs/pull/8/merge",
+            "c" * 40 + "\trefs/pull/head",
+            "e" * 40 + "\trefs/tags/12/head",
+            "d" * 40 + "\trefs/heads/main",
+        ])
+        with unittest.mock.patch.object(uw, "git", return_value=listing):
+            heads, pulls = uw.remote_refs(".", "origin")
+        self.assertEqual(heads, {"main": "d" * 40})
+        self.assertEqual(pulls, {"a" * 40: [7]})
+
+    def test_unreadable_diff_does_not_raise(self):
+        self.branch("claude/x")
+        self.commit("a.txt", "a\n", "a")
+        self.push("claude/x")
+        run(self.clone, "fetch", "-q", "origin")
+        self.assertTrue(uw.landed_by_content(
+            str(self.clone), "origin/no-such-branch", "origin/main"))
+
+    def test_help_describes_the_script_by_its_first_paragraph(self):
+        out = io.StringIO()
+        with redirect_stdout(out), self.assertRaises(SystemExit):
+            uw.main(["--help"])
+        self.assertIn("Is the work on this branch in a pull request", out.getvalue())
+        self.assertNotIn("Why this exists", out.getvalue())
 
     def test_cannot_answer_exits_2(self):
         run(self.clone, "checkout", "-q", "--detach", "origin/main")

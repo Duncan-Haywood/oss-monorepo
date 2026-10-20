@@ -9,6 +9,8 @@ a partial or full 1031 like-kind exchange's "boot" — so the amount an
 exchange would actually defer is not a guess. Entirely client-side; nothing
 is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/depreciation-recapture-calculator/
+
 After using this, you can now **see the real tax split before you sell**,
 instead of budgeting only for capital-gains tax on price-minus-cost and
 being surprised by a recapture bill that can run into five figures on a

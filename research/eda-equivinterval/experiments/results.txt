@@ -1,0 +1,19 @@
+survivors: 27 on 11 distinct source lines (largest group 8)
+nearest-line, leave-one-line-out accuracy: 25/27 = 0.926
+line-cluster bootstrap 95% CI (10000 resamples of lines): [0.765, 1.000]
+line-level accuracy (majority hit per line): 0.909 over 11 lines
+majority-class baseline accuracy: 0.593
+permutation test (5000 shuffles of line groups): observed 0.926, one-sided p = 0.0124
+
+Per line: n, outcomes, leave-one-line-out hits
+  line  60: n=1 K         hits 1/1
+  line 123: n=6 UUUUUU    hits 6/6
+  line 125: n=1 K         hits 1/1
+  line 127: n=1 E         hits 0/1
+  line 135: n=1 U         hits 1/1
+  line 137: n=3 EUU       hits 2/3
+  line 140: n=3 EEE       hits 3/3
+  line 141: n=1 E         hits 1/1
+  line 144: n=1 E         hits 1/1
+  line 145: n=1 E         hits 1/1
+  line 151: n=8 EEEEEEEE  hits 8/8

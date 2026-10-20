@@ -73,6 +73,14 @@
       <div><label for="target">Target for next period (revenue, or deals if you gave no revenue)</label><input id="target" inputmode="decimal" placeholder="e.g. 15000"></div>
       <div><label for="planned">Leads you expect to get (optional)</label><input id="planned" inputmode="decimal" placeholder="blank uses your average"></div>
     </div>
+    <div class="row3">
+      <div><label for="add-period">New period label</label><input id="add-period" placeholder="e.g. 2025-03"></div>
+      <div><label for="add-leads">Leads</label><input id="add-leads" inputmode="numeric"></div>
+      <div><label for="add-won">Deals won</label><input id="add-won" inputmode="numeric"></div>
+      <div><label for="add-revenue">Revenue won (optional)</label><input id="add-revenue" inputmode="decimal"></div>
+    </div>
+    <button type="button" class="secondary" id="add-row">Add this period to the history</button>
+    <p><label><input type="checkbox" id="remember" aria-label="Remember my history on this device"> Remember my history, target and plan on this device (stored in this browser only, never uploaded)</label></p>
     <p class="note">Use periods longer than your usual sales cycle, or wins that close after the period they started in will look like luck. At least 6 periods, 60 leads and 10 deals won in total.</p>
     <button type="button" id="analyze">Plan</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
@@ -127,6 +135,7 @@
 
   <script type="module">
     import { parseRows, analyze, reportCsv, sampleText, money, pct } from "./calc.mjs";
+    import { appendPeriod, loadHistory, saveHistory, forgetHistory } from "./history.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -160,7 +169,25 @@
       return true;
     }
 
-    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    const persist = () => {
+      if (!$("#remember").checked) return;
+      if (!saveHistory({ rows: $("#rows").value, target: $("#target").value, planned: $("#planned").value })) status.textContent = "Could not save on this device (browser storage is blocked or full).";
+    };
+    const saved = loadHistory();
+    if (saved) {
+      $("#rows").value = saved.rows; $("#target").value = saved.target; $("#planned").value = saved.planned; $("#remember").checked = true;
+      status.textContent = "Welcome back: your saved history is loaded. Add last period below, then click Plan.";
+    }
+    $("#remember").addEventListener("change", () => { if ($("#remember").checked) { persist(); record("history_saved"); } else { forgetHistory(); status.textContent = "Saved history removed from this device."; } });
+    $("#add-row").addEventListener("click", () => {
+      const r = appendPeriod($("#rows").value, { period: $("#add-period").value, leads: $("#add-leads").value, won: $("#add-won").value, revenue: $("#add-revenue").value });
+      if (r.error) { status.textContent = r.error; return; }
+      $("#rows").value = r.text;
+      for (const id of ["#add-period", "#add-leads", "#add-won", "#add-revenue"]) $(id).value = "";
+      persist(); record("period_added");
+      status.textContent = "Period added. Click Plan to update the estimate.";
+    });
+    $("#analyze").addEventListener("click", () => { if (run()) { persist(); record("analysis_run"); } });
     $("#load-example").addEventListener("click", () => {
       $("#rows").value = sampleText(); $("#target").value = "30000"; $("#planned").value = "";
       if (run()) { record("example_loaded"); status.textContent = "Sample data: 12 invented months, not a real business."; }
@@ -171,7 +198,7 @@
       rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Enter a target and click Plan.`; };
       rd.readAsText(f);
     });
-    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your history, enter a target, then click Plan."; });
+    $("#clear-all").addEventListener("click", () => { forgetHistory(); $("#remember").checked = false; $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your history, enter a target, then click Plan."; });
     $("#download").addEventListener("click", () => {
       if (!last) return;
       const a = document.createElement("a");

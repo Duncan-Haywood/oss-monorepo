@@ -7,6 +7,8 @@ severity, add notes and your own repair cost ranges, and print a report sorted
 safety-first. Save to a file on your own device and load it later. Entirely
 client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/home-inspection-report-builder/
+
 After using this, you can **hand a client a clear, severity-sorted report without
 paying for report software**.
 

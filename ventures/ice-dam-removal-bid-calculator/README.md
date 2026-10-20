@@ -12,6 +12,8 @@ clears its own break-even point on THIS footage, and know before you send
 the invoice whether the ice took long enough to erase the built-in profit —
 which used to take a guess until the crew got back.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ice-dam-removal-bid-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The deterministic calculation works with no
 account, API key, upload, or paid dependency.

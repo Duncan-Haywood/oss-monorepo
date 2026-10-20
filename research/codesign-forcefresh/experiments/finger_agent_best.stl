@@ -1,0 +1,114 @@
+solid finger_agent_best
+ facet normal 0.000000 0.000000 -1.000000
+  outer loop
+   vertex 0.0000 -6.0000 0.0000
+   vertex 2.8880 0.0000 0.0000
+   vertex 4.0000 -6.0000 0.0000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 -1.000000
+  outer loop
+   vertex 0.0000 -6.0000 0.0000
+   vertex 0.0000 6.0000 0.0000
+   vertex 2.8880 0.0000 0.0000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 -1.000000
+  outer loop
+   vertex 2.8880 0.0000 0.0000
+   vertex 0.0000 6.0000 0.0000
+   vertex 4.0000 6.0000 0.0000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 1.000000
+  outer loop
+   vertex 0.0000 -6.0000 30.0000
+   vertex 4.0000 -6.0000 30.0000
+   vertex 2.8880 0.0000 30.0000
+  endloop
+ endfacet
+ facet normal 0.000000 0.000000 1.000000
+  outer loop
+   vertex 0.0000 -6.0000 30.0000
+   vertex 2.8880 0.0000 30.0000
+   vertex 0.0000 6.0000 30.0000
+  endloop
+ endfacet
+ facet normal 0.000000 -0.000000 1.000000
+  outer loop
+   vertex 2.8880 0.0000 30.0000
+   vertex 4.0000 6.0000 30.0000
+   vertex 0.0000 6.0000 30.0000
+  endloop
+ endfacet
+ facet normal 0.000000 -1.000000 0.000000
+  outer loop
+   vertex 0.0000 -6.0000 0.0000
+   vertex 4.0000 -6.0000 0.0000
+   vertex 4.0000 -6.0000 30.0000
+  endloop
+ endfacet
+ facet normal 0.000000 -1.000000 0.000000
+  outer loop
+   vertex 0.0000 -6.0000 0.0000
+   vertex 4.0000 -6.0000 30.0000
+   vertex 0.0000 -6.0000 30.0000
+  endloop
+ endfacet
+ facet normal 0.983255 0.182236 0.000000
+  outer loop
+   vertex 4.0000 -6.0000 0.0000
+   vertex 2.8880 0.0000 0.0000
+   vertex 2.8880 0.0000 30.0000
+  endloop
+ endfacet
+ facet normal 0.983255 0.182236 -0.000000
+  outer loop
+   vertex 4.0000 -6.0000 0.0000
+   vertex 2.8880 0.0000 30.0000
+   vertex 4.0000 -6.0000 30.0000
+  endloop
+ endfacet
+ facet normal 0.983255 -0.182236 0.000000
+  outer loop
+   vertex 2.8880 0.0000 0.0000
+   vertex 4.0000 6.0000 0.0000
+   vertex 4.0000 6.0000 30.0000
+  endloop
+ endfacet
+ facet normal 0.983255 -0.182236 0.000000
+  outer loop
+   vertex 2.8880 0.0000 0.0000
+   vertex 4.0000 6.0000 30.0000
+   vertex 2.8880 0.0000 30.0000
+  endloop
+ endfacet
+ facet normal 0.000000 1.000000 0.000000
+  outer loop
+   vertex 4.0000 6.0000 0.0000
+   vertex 0.0000 6.0000 0.0000
+   vertex 0.0000 6.0000 30.0000
+  endloop
+ endfacet
+ facet normal 0.000000 1.000000 -0.000000
+  outer loop
+   vertex 4.0000 6.0000 0.0000
+   vertex 0.0000 6.0000 30.0000
+   vertex 4.0000 6.0000 30.0000
+  endloop
+ endfacet
+ facet normal -1.000000 0.000000 0.000000
+  outer loop
+   vertex 0.0000 6.0000 0.0000
+   vertex 0.0000 -6.0000 0.0000
+   vertex 0.0000 -6.0000 30.0000
+  endloop
+ endfacet
+ facet normal -1.000000 0.000000 0.000000
+  outer loop
+   vertex 0.0000 6.0000 0.0000
+   vertex 0.0000 -6.0000 30.0000
+   vertex 0.0000 6.0000 30.0000
+  endloop
+ endfacet
+endsolid finger_agent_best

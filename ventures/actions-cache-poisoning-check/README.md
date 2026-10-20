@@ -3,6 +3,8 @@
 A free tool that scans GitHub Actions workflow files for two documented
 cache-poisoning patterns:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/
+
 1. **Cache write reachable from an untrusted trigger** — a `pull_request_target`
    or `workflow_run` job runs with the base repository's secrets even though
    a stranger's fork raised the event. If that job writes to `actions/cache`

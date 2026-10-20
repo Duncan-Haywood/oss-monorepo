@@ -4,20 +4,76 @@ Free, browser-only multi-state day counter for remote workers, snowbirds and
 digital nomads. List where you were and when; it totals the days per state,
 checks them against the commonly published statutory residency tests (more than
 183 days plus a permanent place of abode in New York, New Jersey, Connecticut,
-Massachusetts, Pennsylvania, Minnesota and Virginia; more than 200 days in
-Oregon; the nine-month presumption in California), shows the room left and the
+Massachusetts, Pennsylvania, Minnesota, Rhode Island, Virginia, Maryland and Utah (183 days or more), Michigan, Indiana, Kentucky, Vermont, Missouri, Iowa, Maine, West Virginia and Delaware, and the District of Columbia (183 days or more); 183 days or more with no abode needed in Georgia; 185 days or more with no abode needed in New Mexico; more than six months (taken as 183 days) with no abode needed in Louisiana; more than six months (taken as 183 days) with a permanent place of abode in Nebraska, Colorado and Arkansas; more than 200 days in
+Oregon; more than seven months (taken as 210 days) with a permanent place of abode in North Dakota; more than 200 days in Hawaii (a rebuttable presumption); more than 212 contact periods in Ohio (the bright-line safe harbor, approximated by nights); more than 270 days in Idaho; more than six months (taken as 183 days) in Kansas (a rebuttable presumption); the nine-month presumption in California; New York City's own 183-day test, tracked when a stay line says NYC), shows the room left and the
 date you would cross a limit, splits remote-work wages by workdays, draws a
-year calendar coloured by state, and exports a day-range CSV. Nothing is uploaded.
+year calendar coloured by state, imports stays from a calendar (.ics) export, the Timeline.json your phone exports from Google Maps (coordinates matched to states in the browser), or older Google Takeout history, and exports a day-range CSV. Nothing is uploaded.
+
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/state-residency-day-counter/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
+
+## Host your own copy
+
+Your travel history is sensitive, so you can serve the page from an address you control. It is a static site: the
+server only hands out files and never sees a date you type.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
+
+- Command line: `cli.mjs` runs the same counter on a stays file with no browser and no network, for preparers who keep many clients' years in text files and for anyone who wants the numbers in a script. Zero dependencies; your dates never leave the machine.
+
+  ```
+  node cli.mjs --year 2025 --home FL --abode NY,FL stays.txt   # days per state, limit, room left, crossing date
+  node cli.mjs --asof 2025-09-30 --nights stays.txt             # as of a date, counting nights
+  node cli.mjs --wages 140000 --employer NY stays.txt           # split wages by workday
+  node cli.mjs --trip "NY 2025-11-01 14" stays.txt             # what-if: what a planned trip adds and the longest safe trip
+  node cli.mjs --check stays.txt                                # same report; exit code 1 if any state is over its limit (cron, CI, a pre-trip script)
+  node cli.mjs --csv stays.txt > totals.csv                     # totals; also --daily-log, --html, --ics, --json
+  node cli.mjs --example                                        # the built-in invented year
+  ```
 
 - `calc.mjs` - tolerant stay parser (ISO, US and month-name dates, state codes
   or names), day-grid analysis with travel-day and overlap handling, gap
   assumption, nights-vs-inclusive counting, crossing-date search, workday wage
-  split, CSV export, and an independent brute-force recount.
+  split, Google Timeline import (`timelineToStays`), CSV export, and an independent brute-force recount.
+- Day-by-day log: one CSV row per calendar day (state, whether it came from a stay or the home-state assumption, weekday, a blank column for the evidence you keep), the log residency audits ask for (`dailyLog`, `dailyLogCsv`).
+- Printable audit packet: one self-contained HTML file (days by state against the test, the date ranges behind each total, notices, the day-by-day log with an evidence column, disclaimer) to print to PDF and keep with receipts (`auditReportHtml`).
+- Last-safe-day reminders: a calendar (.ics) file with one all-day event per state still short of its limit, on the last day you can be there every day from the as-of date and stay inside it (`deadlinesIcs`).
+- Trip what-if: enter a planned trip and see the days it adds per state, whether it crosses a published limit, and the longest trip from that date that stays inside it (`tripImpact`).
+- Remember and save: an opt-in "Remember my entries on this device" box (local storage only) and a save-to-file / load-from-file pair for the form fields, so a year of stays survives between visits (`setupToJson`, `setupFromJson`).
+- Counting-method check: each state's total is also shown under the other convention (any part of a day vs nights), and a notice fires when that choice decides whether you are over a limit (`otherDays` in `analyze`).
+- Gap check: the notices name the date ranges no stay covers (the days the home-state assumption fills, or that count nowhere without one), so a missing trip shows up before an audit finds it (`gaps.ranges`).
+- `state-boundaries.mjs` / `build-boundaries.py` - simplified (~200 m) US state outlines from the Census cartographic files, loaded only when a phone Timeline export is imported; `deviceTimelineToStays` resolves each visit's coordinates to a state and counts visits within about 1 km of a state line for the user to check.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `183-day-rule-by-state.html` - guide with a worked example that the test
   suite recomputes.
+- `snowbird-days-in-new-york.html` - guide for Florida snowbirds with a New
+  York home: three invented summers (1 May to 31 October is 184 days), the
+  room left in each, figures recomputed by the test suite.
+- `maryland-utah-182-day-limit.html` - guide for the two states whose test
+  reads "183 days or more", so the safe maximum is 182; figures recomputed by
+  the test suite.
+- `georgia-new-mexico-louisiana-days-only-residency.html` - guide for the three states whose day test needs no place of abode; figures recomputed by the test suite.
+- `ohio-212-contact-period-safe-harbor.html` - guide to Ohio's contact-period safe harbor (212 or fewer; 213 presumes domicile); figures recomputed by the test suite.
+- `california-nine-month-residency-presumption.html` - guide on why California
+  has a nine-month presumption rather than a 183-day test; figures recomputed by
+  the test suite.
+- `nyc-resident-tax-183-day-test.html` - guide to New York City's own statutory-resident test (abode in the City plus more than 183 days inside the five boroughs); add `NYC` to a stay line and the counter tracks the City beside the State. Figures recomputed by the test suite.
+- `six-month-residency-nebraska-colorado-arkansas-kansas.html` - guide to the four more-than-six-months tests (the counter's limit is 182); figures recomputed by the test suite.
+- `over-200-day-residency-oregon-hawaii-idaho.html` - guide to the more-than-200-day tests in Oregon and Hawaii and the 270-day test in Idaho; figures recomputed by the test suite.
+- `remote-work-convenience-of-the-employer-rule.html` - guide on the
+  employer-state rule, its dollar figures recomputed by the test suite.
+
+## What you use today, and what this does differently
+
+- **A spreadsheet or a calendar tally:** free and private, but the per-state totals, travel-day handling, overlaps and each state's threshold are yours to get right, and nothing tells you the date you would cross a limit.
+- **Travel-day and residency trackers** (apps that log location from your phone, and tax-software add-ons): automatic capture, but they usually want an account and your location history on someone else's server. This tool takes your dates typed, pasted, or imported from a calendar or Google Timeline export, and keeps them in your browser.
+- **A tax professional:** the only route to a residency determination. This tool does not make one. It gives you counted days, an audit-style daily log and a printable packet to bring to that conversation.
+- **What this adds:** days per state against the commonly published tests, room left, the crossing date, a trip what-if, a workday wage split and a daily log with an evidence column, with no signup and no upload.
 
 **No warranty.** Free and as-is; an organising aid, not tax or legal advice. It
 does not decide anyone's residency: domicile, ties, what counts as an abode,

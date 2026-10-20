@@ -1,0 +1,5 @@
+Raw-trajectory MMD, n=200 per class, 100 replicates, power at the 5% null-calibrated level (Wilson 95%). Real system {'visc': 0.1, 'coul': 0.3, 'sd': 0.02, 'kind': 'student3'}.
+bandwidth x1.0   coul-10% 0.05  coul-20% 0.05
+bandwidth x0.3   coul-10% 0.05  coul-20% 0.04
+bandwidth x0.1   coul-10% 0.07  coul-20% 0.10
+bandwidth x0.03  coul-10% 0.13  coul-20% 0.37

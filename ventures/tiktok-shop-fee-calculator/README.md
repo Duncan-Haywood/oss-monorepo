@@ -6,6 +6,8 @@ returns — including the usual case where **affiliate commission is not
 clawed back on a refund** — then compares the same order under the mid-2026
 US defaults and the announced 1 October 2026 schedule.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/
+
 **After using this, you can now see whether a creator listing still makes
 money after returns, and what the announced October rates do to that
 number**, which used to mean a spreadsheet that treated “TikTok takes 6%”
@@ -13,10 +15,7 @@ as the whole cost.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally
@@ -118,3 +117,14 @@ law, the authors accept no liability for any loss or damage arising from its
 use.
 
 MIT licensed — see [`LICENSE`](LICENSE).
+
+## Host your own copy
+
+Your data stays in your browser either way, but you can serve the page from an address you control. It is a static
+site: the server only hands out files and never sees a figure you type.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.

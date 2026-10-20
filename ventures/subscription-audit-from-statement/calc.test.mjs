@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, detectDelimiter, decodeBuffer, parseNumber, parseDate, isoDay, guessDateOrder, merchantKey, kindOf, normalizeStatement, analyze, savings, reportCsv, summaryText, sampleCsv } from "./calc.mjs";
+import { parseCsv, detectDelimiter, decodeBuffer, parseNumber, parseDate, isoDay, guessDateOrder, merchantKey, kindOf, normalizeStatement, analyze, savings, reportCsv, summaryText, renewalsIcs, monthlyTimeline, sampleCsv } from "./calc.mjs";
 
 const read = (text, opts) => { const d = detectDelimiter(text); return normalizeStatement(parseCsv(text, d), { decimalComma: d === ";", ...opts }); };
 const monthly = (name, amt, n, day = "05", from = 2026, startMonth = 1) => {
@@ -216,7 +216,7 @@ test("a short file is marked so the page can say the pattern is thin", () => {
 
 test("savings adds up only the active merchants chosen", () => {
   const a = analyze(read(csv(monthly("NETFLIX.COM", 15.49, 4), monthly("SPOTIFY", 11.99, 4, "09"))).rows);
-  assert.deepEqual(savings(a, ["NETFLIX.COM", "NOT THERE"]), { count: 1, perMonth: 15.49, perYear: 185.88 });
+  assert.deepEqual(savings(a, ["NETFLIX", "NOT THERE"]), { count: 1, perMonth: 15.49, perYear: 185.88 });
   assert.deepEqual(savings(a, []), { count: 0, perMonth: 0, perYear: 0 });
 });
 
@@ -230,7 +230,7 @@ test("totals reconcile: per-year is the sum of the rows and per-month is a twelf
 test("sample data shows a price rise, a double charge, overlap and an ended charge", () => {
   const a = analyze(read(sampleCsv()).rows);
   const titles = a.findings.map((f) => f.title).join("|");
-  assert.match(titles, /NETFLIX.COM went up/);
+  assert.match(titles, /NETFLIX went up/);
   assert.match(titles, /HULU charged/);
   assert.match(titles, /video streaming services/);
   assert.match(titles, /seem to have stopped/);
@@ -246,11 +246,78 @@ test("CSV export neutralises formula cells and reads back", () => {
 
 test("summary names totals and the selected saving", () => {
   const a = analyze(read(csv(monthly("NETFLIX.COM", 15.49, 4))).rows);
-  const t = summaryText(a, ["NETFLIX.COM"]);
+  const t = summaryText(a, ["NETFLIX"]);
   assert.match(t, /\$185\.88 a year/);
   assert.match(t, /Cancelling the 1 selected/);
 });
 
 test("analyze refuses an empty input", () => {
   assert.match(analyze([]).invalid, /no charges/);
+});
+
+import { identifyService, storeBiller, SERVICES } from "./services.mjs";
+
+test("directory: descriptor variants of one service merge into one line", () => {
+  const text = csv(monthly("NETFLIX.COM 866-579-7172 CA", 15.49, 3), monthly("NETFLIX INC LOS GATOS", 15.49, 3, "05", 2026, 4));
+  const a = analyze(read(text).rows);
+  assert.equal(a.active.length, 1);
+  assert.equal(a.active[0].merchant, "NETFLIX");
+  assert.equal(a.active[0].site, "netflix.com");
+  assert.equal(a.active[0].count, 6);
+});
+
+test("directory: every entry matches its own name and no two services share a kind-name", () => {
+  const names = new Set();
+  for (const s of SERVICES) {
+    assert.ok(!names.has(s.name), s.name);
+    names.add(s.name);
+    assert.ok(s.site && s.kind && s.re instanceof RegExp, s.name);
+  }
+  assert.equal(identifyService("SPOTIFY USA").name, "Spotify");
+  assert.equal(identifyService("JOES DINER"), null);
+  assert.equal(identifyService("CALMWATER PLUMBING"), null);
+});
+
+test("app-store charges are flagged with where to look, and not guessed", () => {
+  assert.equal(storeBiller("APPLE.COM/BILL 866-712-7753 CA").id, "apple");
+  assert.equal(storeBiller("GOOGLE *Play Store").id, "google");
+  assert.equal(storeBiller("NETFLIX.COM"), null);
+  const a = analyze(read(csv(monthly("APPLE.COM/BILL 866-712-7753 CA", 9.99, 4))).rows);
+  const f = a.findings.find((x) => /billed through Apple/.test(x.title));
+  assert.ok(f);
+  assert.match(f.detail, /Settings > your name > Subscriptions/);
+});
+
+test("renewalsIcs: one all-day event per active monthly-or-slower charge, with a reminder", () => {
+  const a = analyze(normalizeStatement(parseCsv(sampleCsv())).rows);
+  const ics = renewalsIcs(a, { leadDays: 5, stamp: "20260101T000000" });
+  const events = ics.split("BEGIN:VEVENT").length - 1;
+  assert.equal(events, a.active.filter((s) => s.cadence !== "weekly" && s.cadence !== "biweekly").length);
+  assert.ok(events >= 4);
+  assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
+  assert.match(ics, /END:VCALENDAR\r\n$/);
+  assert.match(ics, /TRIGGER:-P5D/);
+  const netflix = a.active.find((s) => s.merchant === "NETFLIX");
+  assert.ok(ics.includes(`DTSTART;VALUE=DATE:${isoDay(netflix.next).replace(/-/g, "")}`));
+  assert.ok(!/skillshare/i.test(ics), "an ended charge gets no reminder");
+});
+
+test("renewalsIcs: bad lead days fall back to 3, text is escaped, nothing active gives an empty calendar", () => {
+  const a = analyze(normalizeStatement(parseCsv(sampleCsv())).rows);
+  assert.match(renewalsIcs(a, { leadDays: -1 }), /TRIGGER:-P3D/);
+  const odd = { active: [{ merchant: "A;B,C", cadence: "monthly", cadenceLabel: "Monthly", amount: 5, perYear: 60, next: 20000 }] };
+  assert.ok(renewalsIcs(odd).includes("SUMMARY:A\\;B\\,C renews"));
+  const none = renewalsIcs({ active: [] });
+  assert.ok(!none.includes("BEGIN:VEVENT"));
+});
+
+test("monthlyTimeline: sums detected recurring charges per calendar month and flags partial edge months", () => {
+  const a = analyze(read(["Date,Description,Amount", ...monthly("ACME STREAM", 10, 4), ...monthly("BETA CLOUD", 5, 4, "20")].join("\n")).rows);
+  const tl = monthlyTimeline(a);
+  assert.deepEqual(tl.map((r) => r.month), ["2026-01", "2026-02", "2026-03", "2026-04"]);
+  assert.deepEqual(tl.map((r) => r.total), [15, 15, 15, 15]);
+  assert.ok(tl.every((r) => r.charges === 2));
+  assert.equal(tl[0].partial, true);
+  assert.equal(tl[3].partial, true);
+  assert.equal(tl[1].partial, false);
 });

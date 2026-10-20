@@ -7,6 +7,8 @@ to reach the patient, and lists anything missing before it goes out. Two extras:
 check of a bill against an estimate (the $400 dispute line and the 120-day window),
 and a review of your past estimates that shows which codes you under-quote.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/good-faith-estimate-generator/
+
 After using this, you can **send a complete estimate on time without rebuilding the
 form each visit**, and see where your estimates drift from what you bill.
 

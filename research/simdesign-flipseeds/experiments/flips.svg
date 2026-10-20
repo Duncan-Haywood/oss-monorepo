@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" role="img" aria-label="Share of 20 seeds in which count and mass weighting pick different machines, by budget, for the log and large families: log flips in every seed at budgets 600 to 800 and in half at 1100 and 1400; large flips only at 800">
+<rect width="600" height="340" fill="#fff"/>
+<text x="300.0" y="24" text-anchor="middle" font-family="sans-serif" font-size="14">Seeds where the machine choice flips (20 seeds, 95% Wilson)</text>
+<line x1="56" x2="590" y1="284.0" y2="284.0" stroke="#ddd"/><text x="50" y="288.0" text-anchor="end" font-family="sans-serif" font-size="11">0.00</text>
+<line x1="56" x2="590" y1="225.5" y2="225.5" stroke="#ddd"/><text x="50" y="229.5" text-anchor="end" font-family="sans-serif" font-size="11">0.25</text>
+<line x1="56" x2="590" y1="167.0" y2="167.0" stroke="#ddd"/><text x="50" y="171.0" text-anchor="end" font-family="sans-serif" font-size="11">0.50</text>
+<line x1="56" x2="590" y1="108.5" y2="108.5" stroke="#ddd"/><text x="50" y="112.5" text-anchor="end" font-family="sans-serif" font-size="11">0.75</text>
+<line x1="56" x2="590" y1="50.0" y2="50.0" stroke="#ddd"/><text x="50" y="54.0" text-anchor="end" font-family="sans-serif" font-size="11">1.00</text>
+<text x="94.1" y="300" text-anchor="middle" font-family="sans-serif" font-size="12">300</text>
+<rect x="67.4" y="284.0" width="24.4" height="0.0" fill="#1f6fb2"/>
+<line x1="79.6" x2="79.6" y1="284.0" y2="246.6" stroke="#222"/>
+<rect x="94.1" y="284.0" width="24.4" height="0.0" fill="#c0392b"/>
+<line x1="106.3" x2="106.3" y1="284.0" y2="246.6" stroke="#222"/>
+<text x="170.4" y="300" text-anchor="middle" font-family="sans-serif" font-size="12">600</text>
+<rect x="143.7" y="50.0" width="24.4" height="234.0" fill="#1f6fb2"/>
+<line x1="155.9" x2="155.9" y1="87.4" y2="50.0" stroke="#222"/>
+<rect x="170.4" y="284.0" width="24.4" height="0.0" fill="#c0392b"/>
+<line x1="182.6" x2="182.6" y1="284.0" y2="246.6" stroke="#222"/>
+<text x="246.7" y="300" text-anchor="middle" font-family="sans-serif" font-size="12">700</text>
+<rect x="220.0" y="50.0" width="24.4" height="234.0" fill="#1f6fb2"/>
+<line x1="232.2" x2="232.2" y1="87.4" y2="50.0" stroke="#222"/>
+<rect x="246.7" y="284.0" width="24.4" height="0.0" fill="#c0392b"/>
+<line x1="258.9" x2="258.9" y1="284.0" y2="246.6" stroke="#222"/>
+<text x="323.0" y="300" text-anchor="middle" font-family="sans-serif" font-size="12">800</text>
+<rect x="296.3" y="50.0" width="24.4" height="234.0" fill="#1f6fb2"/>
+<line x1="308.5" x2="308.5" y1="87.4" y2="50.0" stroke="#222"/>
+<rect x="323.0" y="50.0" width="24.4" height="234.0" fill="#c0392b"/>
+<line x1="335.2" x2="335.2" y1="87.4" y2="50.0" stroke="#222"/>
+<text x="399.3" y="300" text-anchor="middle" font-family="sans-serif" font-size="12">900</text>
+<rect x="372.6" y="284.0" width="24.4" height="0.0" fill="#1f6fb2"/>
+<line x1="384.8" x2="384.8" y1="284.0" y2="246.6" stroke="#222"/>
+<rect x="399.3" y="284.0" width="24.4" height="0.0" fill="#c0392b"/>
+<line x1="411.5" x2="411.5" y1="284.0" y2="246.6" stroke="#222"/>
+<text x="475.6" y="300" text-anchor="middle" font-family="sans-serif" font-size="12">1100</text>
+<rect x="448.9" y="167.0" width="24.4" height="117.0" fill="#1f6fb2"/>
+<line x1="461.1" x2="461.1" y1="213.8" y2="120.2" stroke="#222"/>
+<rect x="475.6" y="284.0" width="24.4" height="0.0" fill="#c0392b"/>
+<line x1="487.8" x2="487.8" y1="284.0" y2="246.6" stroke="#222"/>
+<text x="551.9" y="300" text-anchor="middle" font-family="sans-serif" font-size="12">1400</text>
+<rect x="525.2" y="167.0" width="24.4" height="117.0" fill="#1f6fb2"/>
+<line x1="537.4" x2="537.4" y1="213.8" y2="120.2" stroke="#222"/>
+<rect x="551.9" y="284.0" width="24.4" height="0.0" fill="#c0392b"/>
+<line x1="564.1" x2="564.1" y1="284.0" y2="246.6" stroke="#222"/>
+<text x="300.0" y="310" text-anchor="middle" font-family="sans-serif" font-size="12">machine budget</text>
+<text x="56" y="332" font-family="sans-serif" font-size="11" fill="#1f6fb2">blue: family log</text><text x="176" y="332" font-family="sans-serif" font-size="11" fill="#c0392b">red: family large</text></svg>

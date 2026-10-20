@@ -90,6 +90,13 @@
     <label for="rateTable">Optional: your rate card, one “billable lb, price” per line (overrides the two postage fields)</label>
     <textarea id="rateTable" class="short" spellcheck="false" placeholder="1, 9.50&#10;2, 10.40&#10;3, 11.20"></textarea>
     <p class="note">Use a zone-weighted average from recent invoices. Outside dimensions are rounded to the nearest inch and billable weight up to the next pound, which is how the large parcel carriers describe it; check your own agreement.</p>
+    <h3 style="margin-top:14px">Optional: what if the carrier changes its rates?</h3>
+    <p class="note">Type the new figures from the carrier's notice. Leave a box empty to keep the value above. The tool re-solves and tells you whether to change your boxes or keep them.</p>
+    <div class="row3">
+      <div><label for="wi_dimDivisor">New DIM divisor</label><input id="wi_dimDivisor" inputmode="decimal" placeholder="e.g. 166"></div>
+      <div><label for="wi_firstLb">New first-pound price ($)</label><input id="wi_firstLb" inputmode="decimal"></div>
+      <div><label for="wi_addlLb">New additional-pound price ($)</label><input id="wi_addlLb" inputmode="decimal"></div>
+    </div>
     <button type="button" id="analyze">Find the best box sizes</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
@@ -108,6 +115,11 @@
     <div class="scroll"><table id="bt"><thead><tr><th>Box</th><th>Inside (in)</th><th class="n">Cost each</th><th class="n">Orders / month</th><th>Products</th></tr></thead><tbody></tbody></table></div>
     <h3>Each product, today and recommended</h3>
     <div class="scroll"><table id="pt"><thead><tr><th>Product</th><th>Today</th><th class="n">Today / order</th><th>Recommended</th><th class="n">Billable lb</th><th class="n">Per order</th><th class="n">Saved / month</th></tr></thead><tbody></tbody></table></div>
+    <div id="whatif" hidden>
+      <h3>If the carrier's rates change</h3>
+      <div class="big" id="wi-big"></div>
+      <p id="wi-verdict"></p>
+    </div>
     <button type="button" id="download">Download the result (CSV)</button>
   </section>
 
@@ -146,7 +158,7 @@
   </footer>
 
   <script type="module">
-    import { parseSkus, parseBoxes, analyze, reportCsv, sampleSkus, sampleBoxes, money, money2, pct, dimsText } from "./calc.mjs";
+    import { parseSkus, parseBoxes, analyze, whatIf, reportCsv, sampleSkus, sampleBoxes, money, money2, pct, dimsText } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -190,6 +202,29 @@
         const saved = t && t.box && a.box ? t.monthly - a.monthly : NaN;
         return `<tr><td>${esc(a.sku.name)}</td><td>${t ? esc(t.box ? t.box.name : "none fits") : "—"}</td><td class="n">${t && t.box ? money2(t.total) : "—"}</td><td>${a.box ? esc(a.box.name) : "none fits"}</td><td class="n">${a.box ? a.billable + (a.dimBilled ? " (DIM)" : "") : "—"}</td><td class="n">${a.box ? money2(a.total) : "—"}</td><td class="n">${money(saved)}</td></tr>`;
       }).join("");
+      const wiChange = {};
+      for (const k of ["dimDivisor", "firstLb", "addlLb"]) { const v = $("#wi_" + k).value.trim(); if (v) wiChange[k] = v; }
+      const wi = $("#whatif");
+      wi.hidden = true;
+      if (Object.keys(wiChange).length) {
+        const w = whatIf(sk.rows, bx.rows, opts, wiChange);
+        if (w.error) { $("#notices").innerHTML += `<div class="warn">${esc(w.error)}</div>`; }
+        else {
+          const cells = [
+            [money(w.keepOldMonthly), `Your recommended ${w.base.recommended.k} size${w.base.recommended.k === 1 ? "" : "s"} under the new rates, per month`],
+            [money(w.newBestMonthly), `Best ${w.base.recommended.k} size${w.base.recommended.k === 1 ? "" : "s"} under the new rates, per month`],
+            [Number.isFinite(w.regret) ? money(w.regret * 12) : "—", "Per year lost by not changing boxes"],
+          ];
+          if (w.todayUnderNew !== null) cells.unshift([money(w.todayUnderNew), "Today's boxes under the new rates, per month"]);
+          $("#wi-big").innerHTML = cells.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+          $("#wi-verdict").textContent = w.keepOldLost.length
+            ? `Under the new rates your recommended boxes no longer fit ${w.keepOldLost.join(", ")}.`
+            : w.sameSet
+              ? "The same boxes stay optimal under the new rates. The rate change costs you postage but gives you no reason to change what you stock."
+              : `Under the new rates a different set is cheaper${w.dropped.length ? ` (drop ${w.dropped.join(", ")}` : ""}${w.added.length ? `${w.dropped.length ? "; " : " ("}add ${w.added.join(", ")}` : ""}${w.dropped.length || w.added.length ? ")" : ""}. Keeping your current recommendation costs about ${money(Math.max(0, w.regret))} a month more than switching.`;
+          wi.hidden = false;
+        }
+      }
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
       report.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -204,7 +239,7 @@
       $("#boxes").value = sampleBoxes();
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented home-goods shop and invented box prices, not a real business or supplier."; } });
     });
-    $("#clear-all").addEventListener("click", () => { $("#skus").value = ""; $("#boxes").value = ""; $("#rateTable").value = ""; report.hidden = true; last = null; status.textContent = "Add your products and candidate boxes, then click Find the best box sizes."; });
+    $("#clear-all").addEventListener("click", () => { $("#skus").value = ""; $("#boxes").value = ""; $("#rateTable").value = ""; for (const k of ["dimDivisor", "firstLb", "addlLb"]) $("#wi_" + k).value = ""; report.hidden = true; last = null; status.textContent = "Add your products and candidate boxes, then click Find the best box sizes."; });
     $("#download").addEventListener("click", () => {
       if (!last) return;
       const a = document.createElement("a");

@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import vm from 'node:vm';
 import assert from 'node:assert/strict';
 
 import {
@@ -243,6 +244,9 @@ test('a page that builds its fields in script is left alone', () => {
   assert.equal(pageBuildsFieldsAtRuntime('<input id="${prefix}-lengthFt">'), true);
   assert.equal(pageBuildsFieldsAtRuntime("html += `<input id='${p}-x'>`"), true);
   assert.equal(pageBuildsFieldsAtRuntime('<input id="lengthFt">'), false);
+  // Not markup at all: nothing builds fields at runtime, so nothing is refused.
+  assert.equal(pageBuildsFieldsAtRuntime(undefined), false);
+  assert.equal(pageBuildsFieldsAtRuntime(null), false);
   assert.equal(pageTakesBidLink(page('<input id="${row}-lengthFt">')), false);
 });
 
@@ -282,6 +286,14 @@ test('a page with no saved-bids line gets nothing rather than an orphaned button
   // future change to one gate and not the other. It should fail closed.
   const out = injectBidLink(page(), { slug: 'deck-bid-calculator', toRoot: './' });
   assert.equal(out, page());
+});
+
+test('a source that is not a string falls back to the page being written', () => {
+  // `source` is optional; a caller passing null or nothing still gets the gate
+  // answered from `html`, so an ordinary page keeps its button.
+  const html = built();
+  const out = injectBidLink(html, { slug: 'deck-bid-calculator', toRoot: './', source: null });
+  assert.match(out, /id="pf-link-copy"/);
 });
 
 test('the pass is safe to run twice', () => {
@@ -579,4 +591,155 @@ test('the itemised calculators are offered the control once they declare their r
   assert.equal(pageBuildsFieldsAtRuntime(undeclared), true);
   assert.deepEqual(pageRepeatPrefixes(undeclared), []);
   assert.equal(pageTakesBidLink(undeclared), false);
+});
+
+// ---------------------------------------------------------------------------
+// The shipped page script, run end to end against a stand-in page
+// ---------------------------------------------------------------------------
+//
+// Red-team seeding (2026-10-17) showed the in-page `apply` guard, its refusal
+// wording and the usage counter were only pinned by regexes on the source, so
+// flipping a comparison in them passed every test. This runs the emitted module
+// itself in a `vm` with the smallest document it needs.
+
+function runLinkModule(hash, formIds, { storage = {}, repeatPrefix = '', hero = null, checkboxes = [] } = {}) {
+  const note = { textContent: '', hidden: true, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; },
+    removeAttribute(k) { delete this.attrs[k]; } };
+  const nodes = formIds.map((id) => ({
+    id, tagName: 'INPUT', type: checkboxes.includes(id) ? 'checkbox' : 'text', value: '', closest: () => null, dispatchEvent() {},
+    getAttribute: () => null,
+  }));
+  const document = {
+    // `hero` stands in for the page's headline figure: the script tag names its
+    // selector and the selector finds the element showing the number.
+    querySelector: (sel) => {
+      if (!hero) return null;
+      if (sel.startsWith('script[')) return { getAttribute: () => '#bidPrice' };
+      return sel === '#bidPrice' ? { textContent: hero } : null;
+    },
+    getElementById: (id) => (id === 'pf-link-note' ? note : null),
+    querySelectorAll: (sel) => {
+      if (sel.startsWith('input[id]')) return nodes;
+      if (repeatPrefix && sel.includes('data-pf-repeat')) {
+        return [{ getAttribute: () => repeatPrefix, click() {} }];
+      }
+      return [];
+    },
+  };
+  const store = { ...storage };
+  const context = {
+    document, navigator: {}, Event: class {}, setTimeout: (fn) => fn(),
+    location: { hash, origin: 'https://x.test', pathname: '/', search: '' },
+    localStorage: { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = v; } },
+  };
+  vm.runInNewContext(renderBidLinkModule(), context);
+  return { note, nodes, store };
+}
+
+test('the page script writes a link whose fields are exactly the form fields', () => {
+  const hash = '#' + encodeBidLink({ fields: { lengthFt: '14', width: '3' } });
+  const { note, nodes, store } = runLinkModule(hash, ['lengthFt', 'width']);
+  assert.deepEqual(nodes.map((n) => n.value), ['14', '3']);
+  assert.match(note.textContent, /^Opened from a shared bid — 2 fields/);
+  assert.equal(JSON.parse(store['portfolio-hub-usage']).bid_link_opened, 1);
+});
+
+test('the page script refuses a link naming a field the form lacks, and writes nothing', () => {
+  const hash = '#' + encodeBidLink({ fields: { lengthFt: '14', width: '3' } });
+  const { note, nodes } = runLinkModule(hash, ['lengthFt']);
+  assert.deepEqual(nodes.map((n) => n.value), ['']);
+  assert.match(note.textContent, /This bid link was not opened\. It carries 1 this form does not have, so/);
+  assert.doesNotMatch(note.textContent, /never priced/);
+});
+
+test('the page script refuses when the form has one control the link never priced', () => {
+  const hash = '#' + encodeBidLink({ fields: { lengthFt: '14' } });
+  const { note, nodes } = runLinkModule(hash, ['lengthFt', 'extraRow']);
+  assert.deepEqual(nodes.map((n) => n.value), ['', '']);
+  assert.match(note.textContent, /carries 1 this form has that the link never priced, so/);
+  assert.doesNotMatch(note.textContent, /does not have/);
+});
+
+test('the page script names both kinds of mismatch together', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1', b: '2' } });
+  const { note } = runLinkModule(hash, ['a', 'c']);
+  assert.match(note.textContent,
+    /carries 1 this form does not have, and 1 this form has that the link never priced, so/);
+});
+
+test('a refusal says to reload only on a page with generated rows, else to ask the sender', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1', b: '2' } });
+  const plain = runLinkModule(hash, ['a']);
+  assert.match(plain.note.textContent, /ask whoever sent it for the tool they used, because/);
+  assert.doesNotMatch(plain.note.textContent, /reload this page/);
+  const rows = runLinkModule(hash, ['a'], { repeatPrefix: 'zzrow' });
+  assert.match(rows.note.textContent, /reload this page and open the link again before adding rows of your own, because/);
+  assert.doesNotMatch(rows.note.textContent, /ask whoever/);
+});
+
+test('a refused link counts once in the usage counter', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1', b: '2' } });
+  const { store } = runLinkModule(hash, ['a']);
+  assert.equal(JSON.parse(store['portfolio-hub-usage']).bid_link_refused, 1);
+});
+
+test('the usage counter adds to an existing count and honours the opt-out', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1' } });
+  const seeded = { 'portfolio-hub-usage': JSON.stringify({ bid_link_opened: 4 }) };
+  const { store } = runLinkModule(hash, ['a'], { storage: seeded });
+  assert.equal(JSON.parse(store['portfolio-hub-usage']).bid_link_opened, 5);
+  const off = runLinkModule(hash, ['a'], { storage: { 'portfolio-hub-optout': '1' } });
+  assert.equal('portfolio-hub-usage' in off.store, false);
+});
+
+test('a non-string page is never offered the control', () => {
+  for (const html of [undefined, null, 7, {}]) assert.equal(pageTakesBidLink(html), false);
+});
+
+// Red-team seeding (2026-10-19): the boundaries and one gate below were each
+// changed without a single test noticing.
+
+test('a value exactly at the ceiling survives and one past it is dropped', () => {
+  assert.equal(MAX_LINK_VALUE, 512);
+  const at = decodeBidLink(encodeBidLink({ fields: { note: 'x'.repeat(512) } }));
+  assert.equal(at.fields.note.length, 512);
+  const payload = encodeURIComponent(JSON.stringify({
+    v: 1, f: { lengthFt: '14', note: 'x'.repeat(513) },
+  }));
+  assert.deepEqual(decodeBidLink('#' + BID_LINK_PREFIX + payload), { fields: { lengthFt: '14' } });
+});
+
+test('a page that builds rows in script but declares them takes the control', () => {
+  const declared = '<form><input id="a"><input id="b"><input id="c"><input id="d"><input id="e"></form>'
+    + '<button data-pf-repeat="row">Add</button>'
+    + '<script>el.innerHTML = `<input id="${id}-x">`;</script>';
+  assert.equal(pageBuildsFieldsAtRuntime(declared), true);
+  assert.ok(pageRepeatPrefixes(declared).length > 0);
+  const html = injectSavedBids(declared, 'demo', './');
+  assert.equal(pageTakesBidLink(html), true);
+});
+
+test('the page script reports an extra form control even when it is the first one', () => {
+  const hash = '#' + encodeBidLink({ fields: { b: '1' } });
+  const { note } = runLinkModule(hash, ['a', 'b']);
+  assert.match(note.textContent, /carries 1 this form has that the link never priced, so/);
+});
+
+test('a figure that differs from the sender is a warning and is counted', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1' }, amount: '$1,800' });
+  const off = runLinkModule(hash, ['a'], { hero: '$1,900' });
+  assert.match(off.note.textContent, /^Opened from a shared bid — 1 fields\. The sender saw \$1,800 and this page works out \$1,900/);
+  assert.ok('data-pf-link-warn' in off.note.attrs, 'a disagreement is shown as a warning');
+  assert.equal(JSON.parse(off.store['portfolio-hub-usage']).bid_link_amount_differs, 1);
+  const same = runLinkModule(hash, ['a'], { hero: '$1,800' });
+  assert.match(same.note.textContent, /works out the same \$1,800/);
+  assert.equal('data-pf-link-warn' in same.note.attrs, false);
+});
+
+test('a checkbox in a link sets its checked state, not its text value', () => {
+  const hash = '#' + encodeBidLink({ fields: { rush: true, hours: '3' } });
+  const { nodes } = runLinkModule(hash, ['rush', 'hours'], { checkboxes: ['rush'] });
+  assert.equal(nodes[0].checked, true);
+  assert.equal(nodes[0].value, '');
+  assert.equal(nodes[1].value, '3');
 });

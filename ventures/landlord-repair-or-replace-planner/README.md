@@ -5,6 +5,8 @@ AC, roofs, appliances) with age, repair quote and replacement cost, and see whet
 over the years you will own the property, the most a repair can cost before replacing wins, and which replacements to
 make first within a budget.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/landlord-repair-or-replace-planner/
+
 After using this, you can now **decide a repair quote in a minute with a number behind it, and plan replacements
 before they fail**, which used to take a rule of thumb and a guess.
 

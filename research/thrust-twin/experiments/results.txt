@@ -1,0 +1,47 @@
+Thrust twin: x'' = T(u) - g, real T = k u^2, twin T = linearisation at hover; throttle u in [0, 2 u_h] when clipped.
+Controller a_cmd = kp (x0 - x) - kd v, throttle u = u_h + a_cmd/(2 k u_h).  Closed form: x'' = a_cmd + a_cmd^2/(4 g).  g = 9.81
+
+== 1. Realised vs commanded acceleration ==
+a_cmd/g   closed form/g   clipped sim/g   ratio realised/commanded (clipped)
+-3        -0.7500         -1.0000         0.333
+-2        -1.0000         -1.0000         0.500
+-1        -0.7500         -0.7500         0.750
+-0.5      -0.4375         -0.4375         0.875
+-0.1      -0.0975         -0.0975         0.975
+0.1       0.1025          0.1025          1.025
+0.5       0.5625          0.5625          1.125
+1         1.2500          1.2500          1.250
+2         3.0000          3.0000          1.500
+3         5.2500          3.0000          1.000
+4         8.0000          3.0000          0.750
+
+== 2. Step response, zeta = 0.7, wn = 1, step size x0 swept (p = wn^2 |x0| / g = peak a_cmd / g) ==
+twin overshoot (zeta 0.7) = 0.0460
+p      sign  real overshoot(clip)  real overshoot(no clip)  real 2% settle (s)  twin 2% settle (s)
+0.05   up    0.0463                0.0463                   5.98                5.98
+0.05   down  0.0456                0.0456                   5.98                5.98
+0.25   up    0.0478                0.0478                   5.98                5.98
+0.25   down  0.0443                0.0443                   5.97                5.98
+0.5    up    0.0498                0.0498                   5.99                5.98
+0.5    down  0.0426                0.0426                   5.97                5.98
+1      up    0.0540                0.0540                   6.01                5.98
+1      down  0.0396                0.0396                   5.98                5.98
+2      up    0.0644                0.0644                   6.07                5.98
+2      down  0.0344                0.0344                   6.02                5.98
+4      up    0.0949                0.0986                   6.42                5.98
+4      down  0.0265                0.0000                   6.25                5.98
+
+== 3. Same, zeta = 1.0 (twin critically damped, overshoot 0) ==
+p      sign  real overshoot(clip)  real 2% settle (s)  twin 2% settle (s)
+0.25   up    0.0000                5.80                5.83
+0.25   down  0.0000                5.87                5.83
+1      up    0.0000                5.71                5.83
+1      down  0.0000                5.97                5.83
+4      up    0.0000                5.40                5.83
+4      down  0.0000                6.58                5.83
+
+== 4. Largest step that keeps the throttle floor (u >= 0) untouched in the twin's own plan ==
+floor reached when a_cmd = -2 g; the descent step peaks at a_cmd = -wn^2 |x0|, so |x0| <= 2 g / wn^2
+wn = 1     max descent step without hitting the floor = 19.62 m
+wn = 2     max descent step without hitting the floor = 4.91 m
+wn = 4     max descent step without hitting the floor = 1.23 m

@@ -1,0 +1,49 @@
+{
+  "slug": "window-cleaning-bid-calculator",
+  "name": "Window cleaning",
+  "group": "Cleaning & janitorial",
+  "summary": "Window cleaning priced per visit from pane counts by glass type, sides, travel and supplies.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.4167,
+  "hourlyWage": 20,
+  "burdenRate": 25,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "tripFee": 12,
+  "items": [
+    {
+      "label": "Ground-floor exterior panes (water-fed pole)",
+      "unit": "pane",
+      "qty": 30,
+      "hoursPerUnit": 0.025,
+      "materialPerUnit": 0,
+      "source": "STARTING_GROUPS[0] (index.html): 30 panes x 1.5 min x 1 side / 60. No per-pane material in the specialist"
+    },
+    {
+      "label": "French / divided-light panes, both sides",
+      "unit": "pane",
+      "qty": 10,
+      "hoursPerUnit": 0.1333,
+      "materialPerUnit": 0,
+      "source": "STARTING_GROUPS[1]: 10 panes x 4 min x 2 sides / 60"
+    },
+    {
+      "label": "Storefront plate glass",
+      "unit": "pane",
+      "qty": 6,
+      "hoursPerUnit": 0.1333,
+      "materialPerUnit": 0,
+      "source": "STARTING_GROUPS[2]: 6 panes x 8 min x 1 side / 60"
+    },
+    {
+      "label": "Supplies",
+      "unit": "visit",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 8,
+      "source": "suppliesPerVisit $8 (index.html default)"
+    }
+  ],
+  "specialistModels": "Pane presets by access (ladder, bosun, skylight, hard-water), a $125 minimum job charge, and monthly totals for weekly to annual service schedules; setupHours is 25 min travel/setup and tripFee is $12 fuel and other per visit."
+}

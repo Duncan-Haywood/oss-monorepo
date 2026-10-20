@@ -5,6 +5,8 @@ plans (platform fee, included units, overage price, volume tier) and your custom
 margin, bill shock, customers who cost you money, what happens if customers pick the cheapest plan, and revenue
 as usage grows.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/usage-based-pricing-simulator/
+
 After using this, you can now **see what a pricing shape earns from your own skewed customer base before you
 publish it**, which used to take a spreadsheet per plan and a guess about how customers would choose.
 

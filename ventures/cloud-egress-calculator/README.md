@@ -2,6 +2,8 @@
 
 If you are comparing S3-compatible storage providers, this browser-local calculator shows the monthly cost of your actual workload: stored GB, API requests, and outbound data transfer. After using this, you can identify the egress volume at which a cheaper storage rate stops being cheaper, which used to take a spreadsheet and a provider pricing page.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/
+
 Open `index.html` directly, or serve this directory with any static HTTP server. Enter the rates from each provider's current price sheet; the calculator intentionally does not fetch or endorse prices.
 
 **After using this, you can now** see which quoted sheet is cheaper on *your* stored GB, requests, and outbound transfer — the cache-hit rate at which a CDN still loses to origin-only — whether a second-region replica still beats paying the cross-region pull every month — and the restore volume at which infrequent / archive storage still loses to the standard class — which used to take a spreadsheet plus two pricing pages.

@@ -1,0 +1,47 @@
+Idle clock energy per cycle (library values, not measurements): internal-power tables + C_pin*VDD^2. pJ.
+node                 ICG cell       flop      ICG  ICG/flop
+SKY130 HD 1.8 V      dlclkp_1     0.0464   0.0397     0.855
+SKY130 HD 1.8 V      dlclkp_2     0.0464   0.0397     0.856
+SKY130 HD 1.8 V      dlclkp_4     0.0464   0.0429     0.925
+GF180MCU 7t 3.3 V    icgtp_1      0.3501   0.3556     1.016
+GF180MCU 7t 5 V      icgtp_1      0.8583   0.8735     1.018
+GF180MCU 9t 3.3 V    icgtp_1      0.4405   0.4375     0.993
+GF180MCU 9t 5 V      icgtp_1      1.2559   1.2409     0.988
+
+SKY130: minimum energy per 4-bit weight fetch (pJ) for register-file WS to beat OS, ungated and with one dlclkp_1 per G flops.
+e_flop 46.4 fJ, e_icg (dlclkp_1, idle) 39.7 fJ, leakage at 10 ns included.
+shape      B  ungated      G=1     G=24     G=48    G=192    G=576
+L1 64x70   2    2.241    1.917    0.080    0.040    0.010    0.003
+L1 64x70   4    4.470    3.824    0.159    0.080    0.020    0.007
+L1 64x70   8    8.925    7.635    0.318    0.159    0.040    0.013
+L1 64x70  16   17.830   15.253    0.636    0.318    0.079    0.026
+L2 11x64   2    3.279    2.805    0.117    0.058    0.015    0.005
+L2 11x64   4    6.521    5.579    0.232    0.116    0.029    0.010
+L2 11x64   8   13.001   11.122    0.463    0.232    0.058    0.019
+L2 11x64  16   25.955   22.203    0.925    0.463    0.116    0.039
+
+Smallest group size G (flops per clock gate) at which gated WS beats OS, for each SKY130 macro. 1 = a gate per flop already wins; '-' = no G wins.
+'u' = one weight per access, 'p' = weights packed in the word.
+shape      B    44b-u    44b-p    80b-u    80b-p    64b-u    64b-p   128b-u   128b-p
+L1 64x70   2       1*        3       1*        3       1*       1*       1*       1*
+L1 64x70   4       1*        5       1*        5       1*        2       1*        2
+L1 64x70   8       1*        9       1*       10       1*        3       1*        3
+L1 64x70  16        2       17        1       19       1*        6       1*        6
+L2 11x64   2       1*        3       1*        4       1*        1       1*        2
+L2 11x64   4       1*        6       1*        7       1*        2       1*        2
+L2 11x64   8        2       12       1*       14       1*        4       1*        4
+L2 11x64  16        3       24        2       27       1*        8       1*        8
+(* = ungated WS already wins there.)
+cells where ungated WS loses but some gated size wins: 35 of 64; cells with no winning size: 0
+
+Node-free form: ungated WS needs the weight fetch to cost more than 1/ratio flop-cycles; a gate shared by G flops cuts that by G/(ICG/flop).
+shape      B  ungated, in e_flop  G=24, in e_flop  G=192, in e_flop
+L1 64x70   2                48.3             1.72              0.22
+L1 64x70   4                96.4             3.44              0.43
+L1 64x70   8               192.5             6.86              0.86
+L1 64x70  16               384.6            13.71              1.71
+L2 11x64   2                70.7             2.52              0.32
+L2 11x64   4               140.7             5.01              0.63
+L2 11x64   8               280.4            10.00              1.25
+L2 11x64  16               559.9            19.96              2.49
+SKY130 SRAM macros in e_flop units: unpacked 223 to 1932; packed 18 to 62

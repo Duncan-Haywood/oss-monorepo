@@ -8,6 +8,8 @@ position gave again within a year in your own history, times their typical gift.
 hold-out check says when the ranking should not be read as a forecast. Nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/donor-retention-analyzer/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, fiscal-year retention, snapshot probability model, hold-out, CSV.

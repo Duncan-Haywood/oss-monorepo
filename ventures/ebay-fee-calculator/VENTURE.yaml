@@ -31,7 +31,7 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
-  - claim: Resellers will skip or keep a store when they can see a $7.95 Starter against forty of the same $40 sales, because the lower rate looks free until the month does not cover the subscription.
+  - claim: Resellers will skip or keep a store when they can see a $7.95 Starter against forty of the same $40 sales, because a lower rate looks free until the month is priced against the subscription.
     status: untested
     checked: null
     evidence: customer-contact

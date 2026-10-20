@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-lbuckle"
+version = "0.1.0"
+description = "Does the 1.5 mm bracket clear buckling when the whole L is one 3D body with a flexible corner?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -4,6 +4,8 @@ A free browser tool for freelancers, small contractors, staffing agencies and tr
 one or more factoring offers, and see the real cost in dollars, as a share of the invoice and as an annual rate**, plus the rebate and the yearly
 cost at your volume. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/invoice-factoring-cost-calculator/
+
 After using this, you can now **compare factoring quotes on the same footing and see what a late-paying customer does to the fee**, which used to be
 reading three rate sheets with different fee periods and guessing.
 

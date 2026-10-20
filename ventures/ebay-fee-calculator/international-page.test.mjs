@@ -78,23 +78,23 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareInternational({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
     intlExtraShipping: 12,
   });
-  assert.ok(Math.abs(comparison.domesticProfit - 21.605) < 1e-5, 'default domestic');
-  assert.ok(Math.abs(comparison.buyerPaysProfit - 20.846) < 1e-5, 'default buyer-pays');
-  assert.ok(Math.abs(comparison.youShipProfit - 8.846) < 1e-5, 'default you-ship');
-  assert.match(html, /\$21\.61/);
-  assert.match(html, /\$20\.85/);
-  assert.match(html, /\$8\.85/);
+  assert.ok(Math.abs(comparison.domesticProfit - 21.344) < 1e-5, 'default domestic');
+  assert.ok(Math.abs(comparison.buyerPaysProfit - 20.585) < 1e-5, 'default buyer-pays');
+  assert.ok(Math.abs(comparison.youShipProfit - 8.585) < 1e-5, 'default you-ship');
+  assert.match(html, /\$21\.34/);
+  assert.match(html, /\$20\.59/);
+  assert.match(html, /\$8\.59/);
   assert.match(html, /\$0\.76/);
   assert.match(html, /\$12\.76/);
-  assert.match(html, /\$40\.89/);
-  assert.match(html, /\$54\.99/);
+  assert.match(html, /\$40\.90/);
+  assert.match(html, /\$55\.05/);
   assert.match(html, /1\.65%/);
 });
 

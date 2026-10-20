@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01CWamY46jFb9LMAqQpaKuRC",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled run; routed to research/1, which sends research work upstream)",
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "task": "extend",
+  "projects": [
+    "ambient-auditbudget"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/592",
+  "merged": null,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Left oss-monorepo mirror-sync PR 7162 alone (claimed by a live session, conflicted). Dawid-Skene and Horvitz citations carried over from sibling projects, not re-read. Token usage not read.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

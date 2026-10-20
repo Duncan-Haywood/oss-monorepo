@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Lifetime ISA vs Pension Calculator (which is worth more?)</title>
+  <meta name="description" content="Free UK Lifetime ISA vs pension calculator: per £1 of take-home pay, which pot is worth more at 60, for a first home or if you withdraw early, and the retirement tax rate or employer match where the answer flips. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Lifetime ISA or pension? Compare them on your own numbers. Free, private">
+  <meta property="og:description" content="Per £1 of take-home pay, which is worth more, and where the answer flips.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Lifetime ISA vs Pension Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a Lifetime ISA?", "acceptedAnswer": {"@type": "Answer", "text": "A UK savings and investment account for people aged 18 to 39 when they open it. You can pay in up to \u00a34,000 a year and the government adds a 25% bonus (up to \u00a31,000 a year) until you are 50. The money can buy a first home up to \u00a3450,000, or be taken from age 60."}}, {"@type": "Question", "name": "Is a Lifetime ISA better than a pension?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your tax rate and whether you get an employer match. Per \u00a31 of take-home pay a LISA is worth \u00a31.25. A pension is worth more if you get employer contributions or pay higher rate relief and expect a lower tax rate in retirement; a basic rate taxpayer with no employer match who will pay tax in retirement usually does better with a LISA."}}, {"@type": "Question", "name": "What is the LISA withdrawal charge?", "acceptedAnswer": {"@type": "Answer", "text": "A withdrawal that is not for a first home, from age 60, or for terminal illness costs a 25% charge on the whole amount withdrawn, which means you get back less than you paid in."}}, {"@type": "Question", "name": "Can I use a pension to buy a house?", "acceptedAnswer": {"@type": "Answer", "text": "No. Pension money is locked until the normal minimum pension age, 55 now and 57 from 6 April 2028. A LISA can be used for a first home, which is why the two are not like-for-like for younger savers."}}, {"@type": "Question", "name": "Should I take my employer match before a LISA?", "acceptedAnswer": {"@type": "Answer", "text": "Almost always. Employer contributions are free money, and with a match even a basic rate taxpayer is usually better off in the pension for the matched portion."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK LIFETIME ISA VS PENSION CALCULATOR · 2025/26 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Lifetime ISA or pension: which is worth more to me?</h1>
+    <p>Enter what you could save, your income, your age and what you expect to pay in tax in retirement. You get what each £1 of take-home pay is worth in each, what you would have at 60, for a first home or after an early withdrawal, and the retirement tax rate or employer match where the answer flips.</p>
+    <p class="note">Check the figures on GOV.UK. Not tax advice or a recommendation.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="cost">Take-home pay you would put in each year (&pound;)</label><input id="cost" type="number" step="0.01" min="0"></div>
+      <div><label for="income">Your salary or taxable income (&pound;)</label><input id="income" type="number" step="0.01" min="0"></div>
+      <div><label for="age">Your age</label><input id="age" type="number" step="1" min="18"></div>
+      <div><label for="years">Years until you need the money</label><input id="years" type="number" step="1" min="1"></div>
+      <div><label for="growth">Growth per year (%)</label><input id="growth" type="number" step="0.01" min="0"></div>
+      <div><label for="retireTax">Tax rate on pension income in retirement (%)</label><input id="retireTax" type="number" step="0.01" min="0"></div>
+      <div><label for="match">Employer match, % of your gross pension contribution (0 if none)</label><input id="match" type="number" step="0.01" min="0"></div>
+      <div><label for="salarySacrifice">Pension paid by salary sacrifice?</label><select id="salarySacrifice"><option value="no">No</option><option value="yes">Yes (saves employee NI too)</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare them</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Compare them.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>What you would have</h2>
+    <div class="scroll"><table><thead><tr><th>Strategy</th><th class="n">At retirement, after tax</th><th class="n">For a first home</th><th class="n">If withdrawn early</th></tr></thead><tbody id="schedule"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="copy-summary">Copy summary</button> <button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> income tax relief on pension contributions (20%, 40%, 45% and the 60% allowance taper band), optional salary sacrifice NI saving, employer match, the 25% LISA bonus up to &pound;4,000 a year, the LISA age rules and 25% unqualified withdrawal charge, 25% tax-free pension cash, and growth.</li>
+      <li><strong>Gives:</strong> value per &pound;1 of take-home, three strategies side by side, the retirement tax rate and employer match at which the pension and LISA tie.</li>
+      <li><strong>Not decided:</strong> Scottish rates, state pension, means-tested benefits, the lump sum allowance, inflation, investment fees, the &pound;450,000 first-home price test, whether you are a first-time buyer, employer NI, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is a Lifetime ISA?</h3>
+    <p>A UK savings and investment account for people aged 18 to 39 when they open it. You can pay in up to £4,000 a year and the government adds a 25% bonus (up to £1,000 a year) until you are 50. The money can buy a first home up to £450,000, or be taken from age 60.</p>
+    <h3>Is a Lifetime ISA better than a pension?</h3>
+    <p>It depends on your tax rate and whether you get an employer match. Per £1 of take-home pay a LISA is worth £1.25. A pension is worth more if you get employer contributions or pay higher rate relief and expect a lower tax rate in retirement; a basic rate taxpayer with no employer match who will pay tax in retirement usually does better with a LISA.</p>
+    <h3>What is the LISA withdrawal charge?</h3>
+    <p>A withdrawal that is not for a first home, from age 60, or for terminal illness costs a 25% charge on the whole amount withdrawn, which means you get back less than you paid in.</p>
+    <h3>Can I use a pension to buy a house?</h3>
+    <p>No. Pension money is locked until the normal minimum pension age, 55 now and 57 from 6 April 2028. A LISA can be used for a first home, which is why the two are not like-for-like for younger savers.</p>
+    <h3>Should I take my employer match before a LISA?</h3>
+    <p>Almost always. Employer contributions are free money, and with a match even a basic rate taxpayer is usually better off in the pension for the matched portion.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with a qualified accountant or GOV.UK before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-pension-annual-allowance-calculator/">UK pension annual allowance calculator</a>, the <a href="../uk-salary-sacrifice-calculator/">UK salary sacrifice calculator</a>, the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a>, the <a href="../uk-stamp-duty-calculator/">UK stamp duty calculator</a> and the <a href="../uk-money-tools-finder/">UK money tools finder</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+    <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const gbp0 = (n) => "£" + Math.round(n).toLocaleString("en-GB");
+    let last = null;
+    const map = { cost: "cost", income: "income", age: "age", years: "years", growth: "growth", retireTax: "retireTax", match: "match", salarySacrifice: "salarySacrifice" };
+    const IDLE = "Fill in the figures, then click Compare them.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const w = r.winner === "pension" ? "The pension wins" : r.winner === "lisa" ? "The Lifetime ISA wins" : "They tie";
+      $("#due").textContent = `${w} on these inputs: each £1 of take-home becomes ${gbp(r.perPoundPension)} in a pension (after retirement tax) and ${gbp(r.perPoundLisa)} in a LISA.`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#schedule").innerHTML = r.strat.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${gbp0(s.retire)}</td><td class="n">${s.pensionLocked ? "pension can't be used" : gbp0(s.home)}</td><td class="n">${s.pensionLocked ? "pension locked" : gbp0(s.early)}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify the rates on GOV.UK before you act.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: £4,000 a year from someone aged 30 on £60,000.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = id === "salarySacrifice" ? "no" : ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#copy-summary").addEventListener("click", async () => { if (last) { try { await navigator.clipboard.writeText(summaryText(last)); status.textContent = "Summary copied."; } catch { status.textContent = "Copy failed: select the text and copy it."; } } });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("lisa-vs-pension.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

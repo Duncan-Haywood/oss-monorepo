@@ -59,10 +59,12 @@ permissions:
 
 jobs:
   build:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v5
         with:
@@ -76,9 +78,9 @@ jobs:
         run: python3 platform/ci/build_pages_site.py --check
 
       - name: Build the site
-        run: |
-          python3 platform/ci/build_pages_site.py \
-            --base-url "${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}"
+        env:
+          BASE_URL: ${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
+        run: python3 platform/ci/build_pages_site.py --base-url "$BASE_URL"
 
       # A published site whose links 404 is worse than no site: it burns the
       # crawl budget and the first visitor. Check the artifact before it ships.

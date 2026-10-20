@@ -2,6 +2,8 @@
 
 A free browser tool for veterinary practices: **list the services in an in-house wellness plan and see the monthly fee that reaches your target margin**, what happens to margin if members use more of the bundle than planned, what members save, and what the plan earns across your member base after churn.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/veterinary-wellness-plan-pricing-calculator/
+
 After using this, you can **set a plan price from your own costs and a utilisation assumption instead of copying a competitor's number**, and see how much room there is before heavy users turn it into a loss.
 
 ## Model

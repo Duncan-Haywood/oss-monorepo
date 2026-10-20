@@ -67,6 +67,11 @@ def _party(element: ElementTree.Element) -> dict[str, Any]:
     mapped: dict[str, Any] = {"id": identifier, "name": name}
     vat_id = ""
     for scheme in _children(party, "PartyTaxScheme"):
+        # A national tax number uses TaxScheme/ID "FC"; only VAT (or an
+        # unlabelled scheme) is a VAT ID.
+        scheme_id = _nested_text(scheme, "TaxScheme", "ID").upper()
+        if scheme_id and scheme_id != "VAT":
+            continue
         vat_id = _text(scheme, "CompanyID", required=False)
         if vat_id:
             break

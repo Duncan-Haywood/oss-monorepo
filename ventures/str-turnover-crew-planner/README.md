@@ -6,6 +6,8 @@ exact set of cleans with the highest profit, which of your one to three crews do
 fee each declined turnover would need, what a second or third crew adds, and what first-come and biggest-fee-first
 booking leave behind. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/str-turnover-crew-planner/
+
 ```
 node cli.mjs plan turnovers.csv --crews 2 --start 09:00 --end 18:00 --hourly 40 --json
 cat turnovers.csv | node cli.mjs plan - --crews 3 --speed 25

@@ -90,3 +90,23 @@ test('empty and junk input does not throw', () => {
   assert.equal(summarise(parseQuote(null)).total.low, 0);
   assert.match(renderText(parseQuote('')), /0 priced/);
 });
+
+test('a range keeps the whole label, including its first letter', () => {
+  const { items } = parseQuote('Cremation $1,000 - $1,500');
+  assert.equal(items.length, 1);
+  assert.equal(items[0].label, 'Cremation');
+});
+
+test('a price glued to a three-letter label still parses', () => {
+  const { items, unpriced } = parseQuote('Fee500');
+  assert.equal(unpriced.length, 0);
+  assert.equal(items[0].label, 'Fee');
+  assert.equal(items[0].low, 50000);
+});
+
+test('the embalming claim window stops at 60 characters', () => {
+  const near = `Embalming ${'x'.repeat(59)}required`; // " " + 59 = 60 chars after the word "Embalming"
+  const far = `Embalming ${'x'.repeat(60)}required`;
+  assert.equal(parseQuote(near).claims.length, 1);
+  assert.equal(parseQuote(far).claims.length, 0);
+});

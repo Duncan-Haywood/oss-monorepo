@@ -1,0 +1,87 @@
+sample: 60 projects, seed 20261016, timeout 600 s each
+
+project                            status       difflines   secs  README decimals in output
+accel-codesign                     identical            0    0.2  9/12
+ambient-drablate                   identical            0  255.5  52/58
+ambient-pipeline                   tool-missing         0    0.5  15/21
+                                     last stderr line: ModuleNotFoundError: No module named 'piper'
+appeal-panels                      identical            0    3.5  2/3
+audit-allocation                   identical            0    6.8  0/1
+chip-ppa-script                    tool-missing         0    0.4  8/10
+                                     last stderr line: FileNotFoundError: [Errno 2] No such file or directory: 'yosys'
+chip-systolic-p32                  tool-missing         0    0.6  4/7
+                                     last stderr line: FileNotFoundError: [Errno 2] No such file or directory: 'yosys'
+committee-sampling                 identical            0    3.8  3/4
+compressed-outer                   identical            0  308.8  2/2
+contest-precision                  identical            0  260.8  5/5
+decision-markets                   identical            0   16.0  1/1
+delayed-routing                    identical            0    9.5  -
+forgetting-audit                   identical            0  216.4  2/2
+friction-twin                      identical            0    0.4  10/12
+garment-teardown                   identical            0    1.8  3/7
+garment-twonodeswitch              identical            0    1.6  16/21
+gust-twin                          identical            0    7.6  9/12
+kelly-markets                      identical            0   11.3  6/6
+lmsr-fees                          identical            0    0.4  3/4
+local-sgd-bias                     identical            0    2.8  3/5
+noisy-local-sgd                    identical            0    2.2  1/1
+osrobot-lab                        identical            0   90.4  12/14
+osrobot-morph                      identical            0  293.8  21/24
+particle-twin                      identical            0   17.5  16/21
+precision-scores                   identical            0   17.9  4/4
+radar-clutter-twin                 identical            0  101.3  6/7
+replicate-twin                     identical            0   19.0  9/14
+risk-averse-scoring                identical            0    0.7  4/4
+robofab-armbang                    identical            0    4.7  17/20
+robofab-insert                     tool-missing         0    0.3  26/33
+                                     last stderr line: ModuleNotFoundError: No module named 'mujoco'
+robofab-program                    identical            0    3.8  13/24
+robofab-reachorder                 identical            0    4.4  0/1
+robofab-slipcrit                   tool-missing         0    0.2  15/16
+                                     last stderr line: ModuleNotFoundError: No module named 'mujoco'
+robofab-sliprate                   tool-missing         0    0.2  16/22
+                                     last stderr line: ModuleNotFoundError: No module named 'mujoco'
+robust-outer                       identical            0  125.3  2/2
+runlength-twin                     identical            0   28.9  10/11
+sample-twin                        identical            0    1.9  26/27
+saturation-twin                    identical            0   28.2  23/29
+selfrep-growth                     identical            0    1.1  8/10
+selfrep-reconcile                  identical            0   24.6  16/17
+selfrep-resalecurve                identical            0   22.3  4/9
+selfrep-rodbeam                    identical            0    0.3  15/19
+shutter-twin                       identical            0   48.6  5/8
+simdesign-dfm                      timeout              0  600.1  46/57
+simdesign-fidelity                 timeout              0  600.1  19/24
+simdesign-gaugefine                identical            0  478.8  22/23
+simdesign-gaugemesh                identical            0   98.3  20/21
+simdesign-kirsch                   identical            0   78.9  36/49
+simdesign-patchsearch              timeout              0  600.1  89/95
+simdesign-patchstress              identical            0   61.3  13/19
+simdesign-processcover             identical            0    3.5  2/32
+smooth-twin                        identical            0   16.0  21/22
+stake-screening                    identical            0   16.7  1/2
+swe-backfill                       identical            0    0.1  0/1
+swe-ledger                         identical            0    0.1  -
+terrain-twin                       identical            0   18.1  18/19
+twin-elicitation                   identical            0    7.5  4/4
+twin-shrinkage                     identical            0  157.7  7/9
+twin-upkeep                        identical            0  126.2  0/2
+uav-energy-twin                    identical            0   19.4  11/16
+
+status counts: {'identical': 51, 'tool-missing': 6, 'timeout': 3}
+reproduced (identical or timing-only): 51/60 = 85%  (95% Wilson 74% to 92%)
+of runs that completed: byte-identical 51/51  (95% Wilson 93% to 100%)
+
+by track (reproduced/sampled):
+  accel      1/1
+  ambient    1/2
+  chip       0/2
+  garment    2/2
+  osrobot    2/2
+  other      31/31
+  robofab    3/6
+  selfrep    4/4
+  simdesign  5/8
+  swe        2/2
+
+README decimals found verbatim in committed results files: 731/925 = 79% over 58 READMEs

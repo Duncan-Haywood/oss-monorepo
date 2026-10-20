@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-18",
+  "session": "https://claude.ai/code/session_01HRbzGnfgit6w6q4Td8AEaF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-18T05:30:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7938",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "cherry-pick of stranded PR #7650 conflicted in generated gitops mirror files; re-applied venture files by hand and regenerated"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages launched.test / build.test",
+      "issue": "platform/pages suite has 5 failures on main unrelated to venture changes (page-seo-audit launch date, breadcrumb JSON, budget); suite takes >10 min"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "cloud sessions have no gh; fine, but regen.mjs --verify and pages tests exceed the 600s foreground limit and need background runs"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Adopted stranded PR #7650 as a new PR (#7938) since its branch conflicted; also synced hand-written tool counts that had drifted on main.",
+  "corrections": [],
+  "redteam": null
+}

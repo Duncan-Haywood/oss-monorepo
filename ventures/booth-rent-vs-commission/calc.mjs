@@ -61,6 +61,12 @@ function scaleTakeHome(side, weeksWorkedPerYear) {
  * @param {number} input.weeksWorkedPerYear  Paid working weeks (not 52 if they take vacation).
  * @param {number} input.commissionPercent   Service split the salon pays, 0–100.
  * @param {number} input.retailCommissionPercent
+ * @param {number} [input.commissionStepSales]   Weekly service sales at which a
+ *   sliding scale steps up. 0 or blank means a flat split (the default).
+ * @param {number} [input.commissionStepPercent] Service split after the step.
+ * @param {'above'|'all'} [input.commissionStepMode]  'above' (default) pays the
+ *   new split only on sales over the threshold; 'all' pays it on every dollar
+ *   once the threshold is reached, as many salons write it.
  * @param {number} input.boothRentAmount
  * @param {'weekly'|'monthly'} input.boothRentCadence
  * @param {number} input.cardFeePercent      Processing the booth renter pays.
@@ -115,8 +121,26 @@ export function compareCompensation(input, { solveAfterTax = true } = {}) {
   const weeklyGross = serviceGross + retailGross;
   const chairHours = clientsPerWeek * (serviceMinutes / 60);
 
+  const blank = (v) => v === null || v === undefined || v === '';
+  const stepSales = blank(input.commissionStepSales)
+    ? 0 : number(input.commissionStepSales, 'Commission step sales');
+  const stepRate = stepSales > 0
+    ? rate(blank(input.commissionStepPercent) ? input.commissionPercent ?? 0 : input.commissionStepPercent, 'Commission step split')
+    : commissionRate;
+  const stepMode = String(input.commissionStepMode || 'above').toLowerCase();
+  if (stepMode !== 'above' && stepMode !== 'all') {
+    throw new Error('Commission step mode must be above or all');
+  }
+  const slidingScale = stepSales > 0 && stepRate !== commissionRate;
+  const serviceCommissionFor = (sales) => {
+    if (!slidingScale || sales < stepSales) return sales * commissionRate;
+    return stepMode === 'all'
+      ? sales * stepRate
+      : stepSales * commissionRate + (sales - stepSales) * stepRate;
+  };
+
   const commission = {
-    serviceTakeHome: serviceGross * commissionRate,
+    serviceTakeHome: serviceCommissionFor(serviceGross),
     retailTakeHome: retailGross * retailCommissionRate,
     cardFees: 0,
     backbar: 0,
@@ -188,7 +212,21 @@ export function compareCompensation(input, { solveAfterTax = true } = {}) {
   const marginalBoothAdvantage = averageTicket * keepAdvantage;
   let breakEvenClients = null;
   let boothNeverBeatsOnVolume = false;
-  if (marginalBoothAdvantage > 0) {
+  if (slidingScale) {
+    // The split changes with volume, so the closed form below no longer holds.
+    breakEvenClients = solveCrossing(
+      (clients) => {
+        const sales = averageTicket * clients;
+        const boothNet = sales * (1 - cardRate - backbarRate)
+          + retailGross * (1 - cardRate - retailCostRate) - rentWeekly - otherWeeklyCost;
+        const commissionNet = serviceCommissionFor(sales) + retailGross * retailCommissionRate;
+        return boothNet - commissionNet;
+      },
+      0,
+      Math.max(200, clientsPerWeek * 10),
+    );
+    if (breakEvenClients === null) boothNeverBeatsOnVolume = weeklyDifference <= 0;
+  } else if (marginalBoothAdvantage > 0) {
     breakEvenClients = (rentWeekly + otherWeeklyCost - retailAdvantage) / marginalBoothAdvantage;
     if (breakEvenClients < 0) breakEvenClients = 0;
   } else {

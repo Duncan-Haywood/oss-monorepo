@@ -6,6 +6,8 @@ which are worth harvesting into an exact-match campaign at what bid, and how muc
 was spent above your target ACOS.** The file is read in the browser; nothing is
 uploaded and no Seller Central or Ads API access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/amazon-ppc-search-term-analyzer/
+
 After using this, you can now **split no-order spend into proven, overspent and
 too-little-data using your own click-to-order rate, list negative-keyword
 candidates per campaign and ad group, pick harvest terms with a bid that cannot

@@ -6,6 +6,8 @@ removed, or that a release you name would remove — sourced from Kubernetes'
 own [Deprecated API Migration Guide](https://kubernetes.io/docs/reference/using-api/deprecation-guide/),
 not guessed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/
+
 **What it is not:** a live-cluster scanner, an admission controller, or a
 guarantee your manifests survive every future release. It checks a fixed
 table of removals Kubernetes has already documented with an exact release

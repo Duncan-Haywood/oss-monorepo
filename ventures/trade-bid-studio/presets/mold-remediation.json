@@ -1,0 +1,47 @@
+{
+  "slug": "mold-remediation-bid-calculator",
+  "name": "Mold remediation",
+  "group": "Specialty & remediation",
+  "summary": "Mold jobs priced from affected area, containment zones, demo, dry-out days and clearance.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 45,
+  "burdenRate": 36,
+  "overheadRate": 18,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Base setup and containment (80 sq ft, 1 zone included)",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 4,
+      "materialPerUnit": 185,
+      "source": "hoursBaseSetup 4 (suggestedJobHours('closet') in calc.mjs); containment kit $185 (index.html). Default job is the 80 sq ft closet, so no extra area or zones"
+    },
+    {
+      "label": "Antimicrobial and encapsulant",
+      "unit": "sq ft",
+      "qty": 80,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 1.5,
+      "source": "Antimicrobial $0.85 + encapsulant $0.65 per affected sq ft (index.html defaults)"
+    },
+    {
+      "label": "HEPA and dehumidifier dry-out day",
+      "unit": "day",
+      "qty": 1,
+      "hoursPerUnit": 0.75,
+      "materialPerUnit": 190,
+      "source": "1 HEPA day + 1 dehumidifier day; 0.75 h per dry-out day; HEPA $125/day + dehumidifier $65/day (index.html defaults)"
+    },
+    {
+      "label": "Site / travel, PPE and meters",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 145,
+      "source": "siteHours 1.5; travel, PPE, meters $145 (index.html defaults)"
+    }
+  ],
+  "specialistModels": "Area and zones included in the base setup, demo with disposal, clearance test, HVAC cleaning, dumpster and occupied-home toggles, and job-type presets."
+}

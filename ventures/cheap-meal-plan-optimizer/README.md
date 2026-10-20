@@ -6,14 +6,54 @@ finds the lowest-cost servings per day that meet them, the weekly cost, what
 each extra target costs, and how the cost rises with the protein minimum.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cheap-meal-plan-optimizer/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, a two-phase simplex (Bland's rule), branch and bound
   for whole or half servings, marginal costs by re-solving, a shopper's
   rule-of-thumb baseline, and an independent `verifyPlan`.
+- Variety limit: set "Most calories from one food (%)" (for example 30) and no single food may supply more than that share of the day's calories, which stops the cheapest plan being a bag of rice and nothing else. It is a linear row per food in the same solver, checked again by `verifyPlan`; leave it blank for the plain cheapest plan. Compare two runs to see what variety costs.
+- What a budget buys: a table turns the question round and shows the most protein that 0.9x to 2x the cheapest daily cost can reach with the other bounds held (`budgetFrontier` in `calc.mjs`).
+- What variety costs: a table runs the same plan with the one-food calorie cap at 50, 40, 30, 25 and 20 percent and shows the daily cost and foods used for each, so the price of a less repetitive menu is a number, not a guess (`varietyFrontier` in `calc.mjs`).
+- Protein price per food: a table ranks every listed food by dollars per 100 g of protein and per 1,000 kcal, with whether the plan uses it (`proteinPrices` in `calc.mjs`). Sticker price only, ignoring other bounds, so it shows why a dearer protein can still be in the plan.
+- Break-even prices: for every food the plan leaves out, the report gives the price per serving below which it would be used, and the drop needed from today's price, found by bisection on the continuous model (`breakEvenPrices` in `calc.mjs`); "never" means no price, even free, earns it a place. Use it to know which sale is worth waiting for.
+- Price-rise room: for every food in the plan, the price above which it would be swapped out and the rise that allows (`stayInPrices` in `calc.mjs`, bisection on the continuous model), the mirror of break-even prices; "any price" means a nutrient bound or a floor you set keeps it in.
+- Share link: "Copy share link" writes the food list and targets into the URL fragment (`#foods=...`), which browsers never send to a server, so you can bookmark a menu or send it to someone; opening the link refills the form. `encodeShare`/`decodeShare` in `calc.mjs` keep only known numeric fields.
+- Shopping list: add a ninth column, servings per pack (`Rice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7 | | 36`), and the report turns the plan into whole packs for the week, with leftovers and the real till total (`groceryList` in `calc.mjs`). Pack price is price per serving times pack size, so the cheapest plan itself is unchanged.
+- Household size: "People eating this plan" multiplies the week's shopping list (packs, leftovers, till total and the copied text) for a household that eats the same plan; the plan, its costs and the nutrition stay per person. Whole numbers 1 to 20, saved with the share link (`people` in `groceryList`).
+- Copy shopping list: one button puts the week's list (packs, or exact servings for foods without a pack size, plus the estimated total) on the clipboard as plain text for a notes app (`groceryText` in `calc.mjs`).
+- Sodium cap: add a tenth column, sodium in mg per serving (`Bread | 0.15 | 70 | 3 | 12 | 1 | 2 | 6 | 20 | 140`), and set "Sodium maximum (mg)" (for example 2300); the cap is one more linear row in the same solver, checked again by `verifyPlan`, and shows in the totals table and CSV. Foods without a figure count as 0 mg and the page says so. It is a planning aid, not medical advice.
+- A different menu each day: the cheapest plan repeats daily, so "A different menu each day" plans the week day by day, charging the solver more for a food each time it has already appeared (some, more or as much as possible), so staples rotate while every bound still holds. It shows each day's foods, the number of different menus, and what the variety costs against the cheapest plan every day; "Copy the week's menu as text" puts it on the clipboard (`weekMenu`, `weekText` in `calc.mjs`). Greedy in day order, so a variety aid rather than the cheapest possible week.
+- Calcium, iron and potassium minimums: add columns 11 to 13 (`Whole milk (1 cup) | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | 3 | | 105 | 276 | 0.1 | 322`) and set the three "minimum (mg)" boxes; each is one more linear row in the same solver, checked again by `verifyPlan`, with a marginal cost and a column in the CSV. Plain cheapest-calorie plans ignore micronutrients, the classic diet-problem flaw. On the starter foods at example prices, minimums of 1000 mg calcium, 8 mg iron and 3400 mg potassium move the cheapest plan from $1.93 to $2.46 a day (the tests recompute that it is dearer, never cheaper). Foods with a blank figure count as 0 mg and the page warns, so fill the columns for what you eat. Targets are yours to choose; this is a planning aid, not medical advice.
+- Foods you must eat: add a fourteenth column, minimum servings per day (`Eggs | 0.4 | 70 | 6 | 0.5 | 5 | 0 | 4 | | | | | | | 2`), for something you will eat anyway (the leftovers in the fridge, a daily vegetable, a prescribed supplement food). The solver treats it as a floor on that food, in the same linear row set, checked again by `verifyPlan`; the rest of the plan is the cheapest way to fill the remaining targets around it. A minimum above that food's maximum is refused with the reason (`min` in `parseFoods`, `stepBounds` in `calc.mjs`).
+- Eating style: pick vegan, vegetarian, no meat (fish ok) or dairy-free and foods whose name says they are animal-derived are left out before solving, with the list of what was dropped shown above the plan (`filterByStyle` in `calc.mjs`). It is a keyword screen of names you typed, with plant lookalikes (peanut butter, soy milk, eggplant, butternut) kept; it is not a label or allergen check.
+- Common-foods picker: "Add common foods to the list" offers 44 staples (grains, beans, tofu, tempeh, nuts, seeds, vegetables, fruit, dairy, meat, fish, whey and oil) with approximate generic nutrition including calcium, iron, potassium and sodium, so nobody types nutrition for every line; example prices only, to be replaced with what you pay. Adding skips names already listed (`food-library.mjs`; the tests check every line parses, calories agree with the macros, and the whole library still solves and verifies).
+- Returning each week: the food list and targets are remembered on this device (same `encodeShare` format, local storage key `cheap-meal-plan-setup-v1`), restored on load and cleared by "Forget saved data".
+- Command line: `cli.mjs` runs the same solver on a foods file with no browser and no network, for scripts and anyone who keeps prices in a text file. Zero dependencies; your food list never leaves the machine. `node cli.mjs --example` runs the starter foods; `node cli.mjs --protein 120 --style vegan --max-share 30 foods.txt` solves yours; `--shopping --people 2` prints the week's list, `--csv` and `--json` export the plan. Exit 0 plan found, 1 no plan meets the bounds, 2 bad input. Tests: `node --test cli.test.mjs`.
+- Cost of losing a food: for every food in the plan, the cheapest plan with that food removed and the extra per day, or "not possible" when the targets depend on it (`dropCosts` in `calc.mjs`, a full re-solve per food). Use it when you are tired of a food or cannot buy it.
+- Compare with what you eat now: type a day's foods and servings (`Rice 3`) and the report prices it, lists the bounds it misses and shows how much the solved plan saves per day and week (`comparePlan` in `calc.mjs`). Names match exactly, else by a unique prefix or substring; lines that match nothing are listed, never guessed. This is the measurement for the venture's hypothesis: whether seeing the gap changes what someone buys.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-eat-high-protein-on-a-budget.html` - guide whose worked example is
   recomputed by the test suite.
+
+## Host your own copy
+
+It is a static site: the server only hands out files and never sees a figure you type, so you can serve it from an
+address you control.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
+
+## What you use today, and what this does differently
+
+- **A spreadsheet and a calculator:** free and private, but finding the cheapest mix that hits protein and calorie targets by hand is guesswork, and you cannot see what one more gram of protein costs.
+- **Meal-planning and macro-tracking apps** (nutrition loggers and recipe planners): large food databases and barcode scanning, usually behind an account, and most plan from recipes you pick rather than minimising your grocery cost. This tool has no food database, so you enter your own foods and local prices.
+- **Published diet-problem examples and solver add-ins:** the same linear-programming idea, but you build and read the model yourself.
+- **What this adds:** the lowest-cost servings per day for your own foods and bounds, what each extra target costs, how cost rises with the protein minimum, a variety limit, and a pack-level shopping list, all in the browser with nothing uploaded. It is not nutrition advice; see the notice below.
 
 **No warranty.** Free and as-is; not medical, dietary or nutrition advice and no
 substitute for a doctor or registered dietitian. It will not plan under 1,200
@@ -25,7 +65,9 @@ Checked against exhaustive search on small random menus, not against real
 shopping.
 
 **Privacy.** Everything runs in your browser; your food list is never uploaded
-and is not saved. Anonymous feature counts stay in local storage and can be
-switched off.
+and is not sent anywhere. So you can update prices each week, the food list and
+targets are remembered in this browser's local storage only ("Forget saved data"
+removes them; a share link loaded from the address replaces them). Anonymous
+feature counts also stay in local storage and can be switched off.
 
 MIT licence, see `LICENSE`.

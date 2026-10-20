@@ -1,0 +1,18 @@
+survivors 27: equivalent 16, other 11
+majority-class accuracy 0.593
+feature      AUC(eq vs not)  LOLO one-split hits/n
+n_changed    0.744           13/27
+cone_gates   0.619           12/27
+cone_depth   0.608           13/27
+cone_leaves  0.682           11/27
+fwd_sinks    0.568           2/27
+reaches_out  0.469           7/27
+equivalent (n=16): n_changed 147, 34, 0, 32, 32, 32, 32, 32, 39, 147, 147, 7, 7, 7, 146, 146
+    cone_gates 6230, 24892, 0, 24555, 24299, 24403, 24403, 24307, 1130, 6255, 6255, 656, 656, 656, 6243, 6222
+undecided (n=9): n_changed 1, 1, 1, 1, 1, 1, 75, 32, 34
+    cone_gates 572, 569, 126, 42, 15658, 17, 27258, 24555, 24892
+killed (n=2): n_changed 1, 104
+    cone_gates 126, 5364
+exactly one changed sink: 7 mutants -> lit@123:0+1=undecided, lit@123:0+1=undecided, lit@123:0+1=undecided, lit@123:0+1=undecided, lit@125:0+1=killed, lit@123:0+1=undecided, lit@123:0+1=undecided
+no changed sink: 1 mutants -> op@140:>>>->>>=equivalent
+fwd_sinks values: [0, 184, 195]; reaches_out=1 for 26 of 27

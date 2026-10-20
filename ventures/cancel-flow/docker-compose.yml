@@ -1,0 +1,23 @@
+# Any box with Docker:
+#   ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16)  docker compose up -d
+# Starts in DRY_RUN=true (nothing is sent or charged). Set DRY_RUN=false once your keys are in.
+services:
+  cancel-flow:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data"]
+    environment:
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY}
+      LINK_SECRET: ${LINK_SECRET:?set LINK_SECRET}
+      STATE: /data/state.json
+      DRY_RUN: ${DRY_RUN:-true}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      COMPANY_NAME: ${COMPANY_NAME:-}
+      BRAND_COLOR: ${BRAND_COLOR:-}
+      RETURN_URL: ${RETURN_URL:-}
+      POLICY_JSON: ${POLICY_JSON:-}
+volumes:
+  state:

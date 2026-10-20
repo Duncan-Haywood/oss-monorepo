@@ -134,6 +134,25 @@ test('a dead relative link is caught', async () => {
   assert.equal(mentioning(problems, 'dead link -> missing.html').length, 1);
 });
 
+test('any page may link the self-deploy page, which is built after this check', async () => {
+  const hub = await problemsFor({ 'index.html': '<a href="deploy/">Deploy your own copy</a>' });
+  assert.deepEqual(mentioning(hub, 'dead link -> deploy/'), []);
+  const tool = await problemsFor({ 'tool/index.html': '<a href="../deploy/?app=tool">Run your own copy</a>' });
+  assert.deepEqual(mentioning(tool, 'dead link -> ../deploy/'), []);
+  const other = await problemsFor({ 'tool/index.html': '<a href="../deploy2/">x</a>' });
+  assert.equal(mentioning(other, 'dead link -> ../deploy2/').length, 1);
+});
+
+test('an extensionless bundler import resolves to its .js file', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': '<p>x</p>',
+    'tool/mobile/index.js': "import App from './App';\nimport x from './nope';",
+    'tool/mobile/App.js': 'export default 1;',
+  });
+  assert.deepEqual(mentioning(problems, 'dead link -> ./App'), []);
+  assert.equal(mentioning(problems, 'dead link -> ./nope').length, 1);
+});
+
 test('a JS template-literal href in a standalone .mjs is not a dead link', async () => {
   // The epk-generator false positive: `generator.mjs` builds an href from
   // user-supplied data at runtime with a template literal --
@@ -671,6 +690,34 @@ const CATEGORY_SITE = {
 test('a healthy artifact with category pages passes', async () => {
   const dir = await siteWith(CATEGORY_SITE);
   assert.deepEqual(await checkSite(dir), []);
+});
+
+test('a product listed only on a category page the hub links is reachable', async () => {
+  // The hub is a front door: it links the category pages, and they list the
+  // tools. Two clicks is reachable.
+  const dir = await siteWith({
+    ...CATEGORY_SITE,
+    'other/index.html': '<p>Other</p><footer>No warranty.</footer>',
+    'other/sitemap.xml': urlset('other/'),
+    'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml', 'other/sitemap.xml'),
+    'c/trades/index.html':
+      '<a href="../../tool/" data-tool="tool">Tool</a><a href="../../other/" data-tool="other">Other</a>'
+      + '<footer>No warranty.</footer>',
+  });
+  assert.deepEqual(mentioning(await checkSite(dir), 'other/: shipped but the hub does not link it'), []);
+});
+
+test('a product listed only on a category page the hub does not link is still unreachable', async () => {
+  const dir = await siteWith({
+    ...CATEGORY_SITE,
+    'other/index.html': '<p>Other</p><footer>No warranty.</footer>',
+    'other/sitemap.xml': urlset('other/'),
+    'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml', 'other/sitemap.xml'),
+    'c/hidden/index.html':
+      '<a href="../../other/" data-tool="other">Other</a><footer>No warranty.</footer>',
+  });
+  const problems = await checkSite(dir);
+  assert.equal(mentioning(problems, 'other/: shipped but the hub does not link it').length, 1, problems.join('\n'));
 });
 
 test('c/ is not held to the product contract', async () => {

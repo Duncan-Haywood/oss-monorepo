@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_019FhikwsmnYivMUVsaLAAYM",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled routine)",
+  "model": "claude-sonnet-5-5",
+  "task": "free-choice",
+  "projects": [
+    "free-kfmismatch"
+  ],
+  "pr": null,
+  "commits": [],
+  "merged": null,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "free-choice draw 0.03; routed from oss-monorepo research/0, worked upstream per its Step 0; 5 tests pass",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

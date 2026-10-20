@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of the largest stable step against worker count for compression rate 0.25; error feedback rises from 0.29 to 13.4 while the unbiased scheme saturates near 2">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Error feedback vs unbiased compression: stability limit</text>
+<line x1="64" x2="624" y1="231.7" y2="231.7" stroke="#ddd"/><text x="58" y="235.7" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="88.4" y2="88.4" stroke="#ddd"/><text x="58" y="92.4" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">workers N (log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">largest stable step z = alpha s (rho = 0.25)</text>
+<polyline points="64.0,309.6 176.4,227.1 288.8,153.7 401.2,102.3 624.0,70.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#c0392b"/>
+<circle cx="176.4" cy="227.1" r="3" fill="#c0392b"/>
+<circle cx="288.8" cy="153.7" r="3" fill="#c0392b"/>
+<circle cx="401.2" cy="102.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">error feedback</text>
+<polyline points="64.0,274.9 176.4,223.4 288.8,199.3 401.2,191.4 624.0,188.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="274.9" r="3" fill="#1f6fb2"/>
+<circle cx="176.4" cy="223.4" r="3" fill="#1f6fb2"/>
+<circle cx="288.8" cy="199.3" r="3" fill="#1f6fb2"/>
+<circle cx="401.2" cy="191.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="188.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">unbiased rand-k</text>
+</svg>

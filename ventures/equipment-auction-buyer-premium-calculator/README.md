@@ -8,6 +8,8 @@ purchase price (or an exemption), and a flat doc/title fee — and can solve
 backward from a target all-in budget to the highest hammer price that stays
 inside it. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/equipment-auction-buyer-premium-calculator/
+
 After using this, you can now **know the real cost of winning a lot before
 you raise a paddle**, instead of mentally adding a flat percentage and
 finding out afterward that the premium was capped, the online-bidding fee

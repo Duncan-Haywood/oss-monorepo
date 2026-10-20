@@ -67,6 +67,18 @@ function priceForTarget({ targetTakeHome, feePercent, withdrawalFee, taxReserveP
 }
 
 /**
+ * The Upwork fee percentage that makes the two take-homes equal. The tax
+ * reserve scales both sides by the same factor, so it drops out. Null when
+ * the price is zero, or when no fee in 0-100% can equalise (a withdrawal-fee
+ * gap larger than the job itself).
+ */
+function breakEvenUpworkFee({ price, fiverrFeePercent, upworkWithdrawalFee, fiverrWithdrawalFee }) {
+  if (price === 0) return null;
+  const percent = fiverrFeePercent + ((fiverrWithdrawalFee - upworkWithdrawalFee) / price) * 100;
+  return percent < 0 || percent > 100 ? null : percent;
+}
+
+/**
  * @param {object} input
  * @param {number} input.jobPrice            What the client pays for the job or gig, before either platform's cut.
  * @param {number} input.upworkFeePercent     Upwork's own quoted freelancer service fee for this contract (0-15) -- see module comment on why this cannot be computed from a formula.
@@ -105,6 +117,14 @@ export function comparePlatforms(input) {
     // Positive: Upwork nets more for this job price. Negative: Fiverr does.
     gap,
     betterPlatform: gap === 0 ? null : gap > 0 ? "upwork" : "fiverr",
+    // The Upwork fee at which both platforms net the same for this job
+    // price: Upwork is the better post while its quote is below this.
+    breakEvenUpworkFeePercent: breakEvenUpworkFee({
+      price: jobPrice,
+      fiverrFeePercent,
+      upworkWithdrawalFee,
+      fiverrWithdrawalFee,
+    }),
   };
 
   let target = null;

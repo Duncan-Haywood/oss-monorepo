@@ -2,6 +2,8 @@
 
 Storage-unit lien-auction bidders — the "storage wars" resale hobbyists and small-business flippers who buy an abandoned unit's contents sight-mostly-unseen — can use this free browser-local calculator to price a bid from the real cost stack instead of a flat rule of thumb. **After using this, you can walk into an auction knowing the exact hammer bid your target margin supports, instead of guessing at a percentage of what the contents might be worth.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/storage-auction-max-bid-calculator/
+
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
 ## Three things the "bid X% of what it's worth" rule gets wrong

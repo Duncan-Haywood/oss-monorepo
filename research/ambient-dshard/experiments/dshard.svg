@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean utility per message at 1000 audits for label accuracy 0.7, for the naive reading, plain Dawid-Skene and hardness-aware Dawid-Skene, against the auditor accuracy that plain Dawid-Skene estimates (true 0.8): plain Dawid-Skene falls away from the oracle as the estimate drifts up, the hardness-aware fit does not">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Ambient-dshard: utility when auditors share hard messages</text>
+<line x1="64" x2="624" y1="284.1" y2="284.1" stroke="#ddd"/><text x="58" y="288.1" text-anchor="end" font-family="sans-serif" font-size="11">0.388</text>
+<line x1="64" x2="624" y1="217.5" y2="217.5" stroke="#ddd"/><text x="58" y="221.5" text-anchor="end" font-family="sans-serif" font-size="11">0.389</text>
+<line x1="64" x2="624" y1="151.0" y2="151.0" stroke="#ddd"/><text x="58" y="155.0" text-anchor="end" font-family="sans-serif" font-size="11">0.39</text>
+<line x1="64" x2="624" y1="84.5" y2="84.5" stroke="#ddd"/><text x="58" y="88.5" text-anchor="end" font-family="sans-serif" font-size="11">0.391</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.81</text>
+<text x="162.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.822</text>
+<text x="286.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.837</text>
+<text x="393.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.85</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.878</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">auditor accuracy estimated by plain Dawid-Skene (true 0.8)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean utility per message</text>
+<polyline points="64.0,304.0 162.8,304.0 286.4,304.0 393.4,304.0 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="304.0" r="3" fill="#c0392b"/>
+<circle cx="162.8" cy="304.0" r="3" fill="#c0392b"/>
+<circle cx="286.4" cy="304.0" r="3" fill="#c0392b"/>
+<circle cx="393.4" cy="304.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">naive</text>
+<polyline points="64.0,71.2 162.8,84.5 286.4,91.1 393.4,104.4 624.0,257.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="162.8" cy="84.5" r="3" fill="#1f6fb2"/>
+<circle cx="286.4" cy="91.1" r="3" fill="#1f6fb2"/>
+<circle cx="393.4" cy="104.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="257.5" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">plain DS</text>
+<polyline points="64.0,77.8 162.8,77.8 286.4,71.2 393.4,77.8 624.0,77.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="77.8" r="3" fill="#2e8b57"/>
+<circle cx="162.8" cy="77.8" r="3" fill="#2e8b57"/>
+<circle cx="286.4" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="393.4" cy="77.8" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="77.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">hardness-aware DS</text>
+</svg>

@@ -2,6 +2,8 @@
 
 **Should your business lease or buy the equipment?** Enter the purchase quote (price, sales tax, down payment, loan APR and term) and the lease quote (monthly payment, term, amount due at signing, buyout). The calculator converts both into an **after-tax present-value cost** over the lease term, names the cheaper path, solves the **interest rate the lease is really charging**, and finds the **break-even resale value** at which the two cost the same. It also re-runs the purchase under five depreciation methods (full expensing, 5- and 7-year MACRS, straight line, none) and shows a resale-value by discount-rate sensitivity grid.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/equipment-lease-vs-buy-calculator/
+
 Open `index.html` in a browser. It needs no account, network request or API key. Export the result as CSV, or copy a shareable link (the inputs live in the link itself).
 
 ## The model

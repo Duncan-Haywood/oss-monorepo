@@ -1,0 +1,47 @@
+name: actions-schedule-check
+description: 'Free, read-only checker that scans GitHub Actions workflow YAML for schedule cron entries that are invalid, faster than GitHub''s 5-minute minimum, or set to minute 0 of the hour (when scheduled runs are most likely to be delayed), printing each with the fix, browser or zero-dependency CLI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# actions-* checkers. cron-dst-drift-check reads cron expressions for
+# daylight-saving drift in system crontabs; no checker in ventures/ reads the
+# GitHub Actions schedule: trigger.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a mechanical, read-only line scanner with no advice-of-record, no
+# compliance claim, no data leaving the device, no scraping. Limits cited
+# (5-minute minimum, high load at the start of the hour) come from GitHub's
+# own documentation of the schedule event and are not predictions.
+#
+# First visitor channel: search for "github actions schedule delayed",
+# "github actions cron not running" and "github actions cron every minute"
+# (docs and forum threads, no checker attached).
+hypotheses:
+  - claim: 'A maintainer whose scheduled workflow ran late or never will paste their workflow YAML here and find the cron that caused it.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will wire check.py --fail-on-risk into their own CI so a bad cron does not merge.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-schedule-check/
+  analytics: null

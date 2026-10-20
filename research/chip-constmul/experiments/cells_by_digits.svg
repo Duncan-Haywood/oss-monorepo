@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean Yosys generic-gate cells for an 8-bit input times a constant, for the operator, binary shift-add and canonical-signed-digit forms; the signed-digit form is lowest at two to four digits">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Mean generic-gate cells of x*K against CSD digit count</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="244.9" y2="244.9" stroke="#ddd"/><text x="58" y="248.9" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<line x1="64" x2="624" y1="165.9" y2="165.9" stroke="#ddd"/><text x="58" y="169.9" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="86.8" y2="86.8" stroke="#ddd"/><text x="58" y="90.8" text-anchor="end" font-family="sans-serif" font-size="11">150</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">non-zero CSD digits of K</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean cells</text>
+<polyline points="64.0,215.9 250.7,141.3 437.3,97.7 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="215.9" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="141.3" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="97.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">op</text>
+<polyline points="64.0,217.7 250.7,156.0 437.3,114.2 624.0,84.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="217.7" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="156.0" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="114.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="84.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">bin</text>
+<polyline points="64.0,275.7 250.7,213.6 437.3,148.6 624.0,78.1" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="275.7" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="213.6" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="148.6" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="78.1" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">csd</text>
+</svg>

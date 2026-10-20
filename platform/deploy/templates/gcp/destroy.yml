@@ -1,0 +1,39 @@
+# Tears everything the Deploy workflow created back down. Run it from the
+# Actions tab; it asks for nothing but a click.
+name: Destroy
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tofu
+  cancel-in-progress: false
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      GCP_PROJECT: ${{ vars.GCP_PROJECT }}
+      GCP_LOCATION: ${{ vars.GCP_LOCATION || 'US' }}
+      PASSPHRASE: ${{ secrets.TOFU_STATE_PASSPHRASE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.8.5
+      - name: tofu destroy
+        working-directory: tofu
+        run: |
+          export TF_ENCRYPTION="$(sed "s/__PASSPHRASE__/${PASSPHRASE}/" encryption.hcl.tmpl)"
+          tofu init -input=false
+          tofu destroy -input=false -auto-approve -state=../state/terraform.tfstate \
+            -var "name=${{ github.event.repository.name }}" -var "project=${GCP_PROJECT}" -var "location=${GCP_LOCATION}"
+      - name: Drop the state file
+        run: |
+          git config user.name "deploy-bot"
+          git config user.email "deploy-bot@users.noreply.github.com"
+          git rm -rq --ignore-unmatch state
+          git diff --cached --quiet || { git commit -m "state: destroyed" && git push; }

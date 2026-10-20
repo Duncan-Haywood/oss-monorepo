@@ -128,10 +128,15 @@ def mirrored_tool_count() -> int:
     # test_manifests.py does not use dataclasses today, and that is exactly
     # the kind of thing that changes without anyone thinking about this call.
     sys.modules[name] = module
+    # Sibling imports (`front_door_mirror`) resolve the way pytest's rootdir
+    # insertion makes them, so no PYTHONPATH is needed to run this script.
+    sys.path.insert(0, str(module_path.parent))
     try:
         spec.loader.exec_module(module)
     except Exception as exc:  # pragma: no cover - defensive
         raise DerivationError(f"importing {module_path} failed: {exc}") from exc
+    finally:
+        sys.path.remove(str(module_path.parent))
 
     fn = getattr(module, "_mirrored_venture_slugs", None)
     if fn is None:

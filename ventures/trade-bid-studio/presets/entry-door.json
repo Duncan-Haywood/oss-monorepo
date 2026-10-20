@@ -1,0 +1,79 @@
+{
+  "slug": "entry-door-bid-calculator",
+  "name": "Entry door replacement",
+  "group": "Interior & finishes",
+  "summary": "Entry door replacements priced from the unit, tear-out, rot, trim, storm door, paint and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 32,
+  "items": [
+    {
+      "label": "Hang 36 in steel prehung door",
+      "unit": "door",
+      "qty": 1,
+      "hoursPerUnit": 2.5,
+      "materialPerUnit": 420,
+      "source": "hoursHang 2.5 x factor 1 + premium 0 (suggestedConfigKit single-36, suggestedMaterialKit steel; index.html); unit $420 x 1 x 1 (index.html unitCost, multipliers)"
+    },
+    {
+      "label": "Tear out and haul old door",
+      "unit": "door",
+      "qty": 1,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 45,
+      "source": "hoursTearOut 1, dump/haul-away $45 (index.html); checked by default"
+    },
+    {
+      "label": "Jamb and sill rot repair",
+      "unit": "linear ft",
+      "qty": 0,
+      "hoursPerUnit": 0.45,
+      "materialPerUnit": 14,
+      "source": "hoursPerRotFoot 0.45, rot repair $14/ft (index.html); 0 lf default"
+    },
+    {
+      "label": "Out-of-square opening",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 0,
+      "source": "hoursOutOfSquare 1.5 (index.html); no material in the specialist; unchecked by default"
+    },
+    {
+      "label": "Replace brickmold / exterior trim",
+      "unit": "door",
+      "qty": 0,
+      "hoursPerUnit": 1.2,
+      "materialPerUnit": 85,
+      "source": "hoursBrickmold 1.2, brickmold $85 (index.html); unchecked by default"
+    },
+    {
+      "label": "Storm door",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 280,
+      "source": "hoursStormDoor 1.5, storm door $280 (index.html); unchecked by default"
+    },
+    {
+      "label": "Paint or stain the unit",
+      "unit": "door",
+      "qty": 0,
+      "hoursPerUnit": 2,
+      "materialPerUnit": 48,
+      "source": "hoursPaint 2 (suggestedConfigKit single-36; index.html), paint/stain $48 (index.html); unchecked by default"
+    },
+    {
+      "label": "Trip, setup, site and truck",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 85,
+      "source": "trip/setup 1 h + site/travel 0.5 h; travel, truck, recovery $85; permit $0 (index.html hoursTrip, siteHours, travelAndEquipment, permitFee)"
+    }
+  ],
+  "specialistModels": "Door configurations with sidelights and pairs, fiberglass and wood premiums, slab-only hangs, second-story access, transoms and smart-lock prep."
+}

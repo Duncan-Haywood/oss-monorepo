@@ -1,0 +1,37 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# Paid "starter" plan on purpose: the free plan sleeps when idle and has no disk, and a
+# monitor that sleeps misses the alerts it exists to send. Set CHECKS_JSON after deploy.
+services:
+  - type: web
+    name: cron-heartbeat
+    runtime: docker
+    dockerContext: ventures/cron-heartbeat
+    dockerfilePath: ventures/cron-heartbeat/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: PING_KEY
+        generateValue: true
+      - key: CHECKS_JSON
+        value: '{"example":{"periodSeconds":86400,"graceSeconds":3600}}'
+      - key: PUBLIC_STATUS
+        value: "0"
+      - key: ALERT_WEBHOOK_URL
+        sync: false
+      - key: ALERT_NTFY_URL
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: ALERT_EMAIL_TO
+        sync: false
+      - key: ALERT_EMAIL_FROM
+        sync: false

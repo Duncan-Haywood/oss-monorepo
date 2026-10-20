@@ -1,0 +1,31 @@
+{
+  "id": "P003",
+  "title": "Move CLAUDE.md incident history out of the always-read file",
+  "status": "done",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "CLAUDE.md is 1,662 lines, about 1,000 of them dated incident narratives. Every run reads it, it is the most-reported friction file, and the narratives bury the commands. A long rulebook also crowds out judgment (prompts/steering.md).",
+  "evidence": [
+    "CLAUDE.md: 12 doc-friction reports, the most of any file: python3 prompts/promptctl.py measure (doc friction), 2026-10-15",
+    "Recommended by both studies (prompts/process/reports/2026-10-15-addendum.md, rec 3) and by review R1 (prompts/experiments.md)"
+  ],
+  "change": "Keep each section's rule, command and one line of why in CLAUDE.md, and move the narratives verbatim to docs/history/claude-md.md so nothing is lost.",
+  "touches": [
+    "CLAUDE.md",
+    "docs/history/"
+  ],
+  "metric": "CLAUDE.md lines (measure, 'Instruction lines'); CLAUDE.md friction reports per run",
+  "baseline": "1,662 lines; 12 reports over 184 records",
+  "opened": "2026-10-15",
+  "source": "prompts/process/reports/2026-10-15*.md",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7021",
+  "result": "Not checkable: 'started'/'ended' is null on 281 of 369 records, so friction cannot be split before/after the 2026-10-15T03:55Z merge. Of the 88 records with a timestamp, 81 precede it (1 names CLAUDE.md) and 7 follow (0 do). CLAUDE.md is now 457 lines (was 1,662); 51 CLAUDE.md friction reports in 45 of 369 records overall (0.12/record vs 12/184 = 0.065 at baseline, but mostly bulk-mirrored research records, so not comparable). Too few timestamped cases to tell; promptctl record now stamps 'ended'. Re-check after ~30 new records.",
+  "history": [
+    {
+      "date": "2026-10-15",
+      "status": "done",
+      "note": "CLAUDE.md 1,662 -> 445 lines; full original kept verbatim in docs/history/claude-md-2026-10-15.md. Verify: friction reports naming CLAUDE.md per run, against 12 over the first 184 records."
+    }
+  ]
+}

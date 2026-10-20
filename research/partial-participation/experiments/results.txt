@@ -1,0 +1,42 @@
+== 1. Stationary variance: exact vs literal simulation (N=6, alpha=0.8; 300k rounds) ==
+p     rule  exact    sim      ratio
+1.0   A     0.02778  0.02774  0.999
+1.0   B     0.02778  0.02774  0.999
+0.6   A     0.05372  0.05359  0.998
+0.6   B     0.05000  0.04995  0.999
+0.3   A     0.10264  0.10216  0.995
+0.3   B     0.12500  0.12523  1.002
+
+== 2. Averaging participants: floor vs everyone present is N E[1/K|K>=1] (>= 1/p); vs a fixed cohort of Np is Np E[1/K|K>=1] ==
+N     p     vs-all   vs-cohort  1+(1-p)/(Np)
+8     0.500 2.3624   1.1812     1.1250
+8     0.250 4.6126   1.1531     1.3750
+8     0.125 6.2440   0.7805     1.8750
+32    0.100 12.9295  1.2930     1.2812
+100   0.030 43.1380  1.2941     1.3233
+1000  0.010 112.8701 1.1287     1.0990
+
+== 3. Rule B stability: largest alpha*s is 2/c, c = 1+(1-p)/(Np) ==
+N=8    p=1.0000  Np=8.00   c=1.000  alpha_s max=2.000  fastest contraction 1-1/c=0.000  (Rule A at alpha s=1: 0.000)
+N=8    p=0.5000  Np=4.00   c=1.125  alpha_s max=1.778  fastest contraction 1-1/c=0.111  (Rule A at alpha s=1: 0.004)
+N=8    p=0.1250  Np=1.00   c=1.875  alpha_s max=1.067  fastest contraction 1-1/c=0.467  (Rule A at alpha s=1: 0.344)
+N=100  p=0.0300  Np=3.00   c=1.323  alpha_s max=1.511  fastest contraction 1-1/c=0.244  (Rule A at alpha s=1: 0.048)
+N=16   p=0.0625  Np=1.00   c=1.938  alpha_s max=1.032  fastest contraction 1-1/c=0.484  (Rule A at alpha s=1: 0.356)
+
+== 4. Matched speed: floor of A vs B at equal per-round mean-square contraction (N=32, p=0.1, s=1, Vw=1) ==
+rho     alpha_s(A)  floor A   alpha_s(B)  floor B   A/B
+0.962   0.020       0.0041    0.019       0.0031    1.332
+0.817   0.100       0.0213    0.098       0.0163    1.303
+0.652   0.200       0.0449    0.199       0.0357    1.258
+0.508   0.300       0.0713    0.306       0.0596    1.197
+0.276   0.500       0.1347    0.571       0.1407    0.957
+small-step limit A/B = E[K|K>=1] E[1/K|K>=1] = 1.3389
+Rule B fastest rho = 0.220 ; Rule A reaches 0.034 at alpha s = 1; rho >= p0 = 0.034
+
+== 5. Participation bias (noise-free): optima c=(0,1,2), equal weights, participation p=(0.9,0.5,0.1) ==
+plain Rule B fixed point  0.4667  (simulated mean 0.4653)
+inverse-propensity        1.0000  (simulated mean 0.9979)
+participation-independent target: 1.0000
+two workers, weights w=(0.9,0.1), p=(1.0, 1.0)  plain 0.1000  IPW 0.1000
+two workers, weights w=(0.9,0.1), p=(1.0, 0.5)  plain 0.0526  IPW 0.1000
+two workers, weights w=(0.9,0.1), p=(1.0, 0.1)  plain 0.0110  IPW 0.1000

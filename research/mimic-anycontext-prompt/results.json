@@ -1,0 +1,113 @@
+{
+ "n_candidates": 16,
+ "families": [
+  "abstracts",
+  "books",
+  "news",
+  "poetry",
+  "recipes",
+  "reddit",
+  "reviews",
+  "wiki"
+ ],
+ "per_family": {
+  "abstracts": {
+   "universal_pick": 3,
+   "universal_heldout": 0.3233333333333333,
+   "plain": 0.31333333333333335,
+   "per_family_pick": 0,
+   "per_family": 0.31333333333333335,
+   "random_prompt_mean": 0.31166666666666665,
+   "oracle": 0.3377777777777778
+  },
+  "recipes": {
+   "universal_pick": 3,
+   "universal_heldout": 0.08888888888888889,
+   "plain": 0.08777777777777777,
+   "per_family_pick": 13,
+   "per_family": 0.18555555555555556,
+   "random_prompt_mean": 0.11229166666666666,
+   "oracle": 0.18555555555555556
+  },
+  "books": {
+   "universal_pick": 6,
+   "universal_heldout": 0.28,
+   "plain": 0.2922222222222222,
+   "per_family_pick": 7,
+   "per_family": 0.27666666666666667,
+   "random_prompt_mean": 0.2860416666666667,
+   "oracle": 0.30666666666666664
+  },
+  "reddit": {
+   "universal_pick": 6,
+   "universal_heldout": 0.4033333333333333,
+   "plain": 0.3322222222222222,
+   "per_family_pick": 12,
+   "per_family": 0.35555555555555557,
+   "random_prompt_mean": 0.36277777777777775,
+   "oracle": 0.4033333333333333
+  },
+  "news": {
+   "universal_pick": 6,
+   "universal_heldout": 0.31333333333333335,
+   "plain": 0.3088888888888889,
+   "per_family_pick": 9,
+   "per_family": 0.32666666666666666,
+   "random_prompt_mean": 0.3161805555555556,
+   "oracle": 0.35888888888888887
+  },
+  "reviews": {
+   "universal_pick": 6,
+   "universal_heldout": 0.3488888888888889,
+   "plain": 0.31444444444444447,
+   "per_family_pick": 11,
+   "per_family": 0.41444444444444445,
+   "random_prompt_mean": 0.35479166666666667,
+   "oracle": 0.42444444444444446
+  },
+  "poetry": {
+   "universal_pick": 13,
+   "universal_heldout": 0.2644444444444444,
+   "plain": 0.2411111111111111,
+   "per_family_pick": 15,
+   "per_family": 0.2822222222222222,
+   "random_prompt_mean": 0.26541666666666663,
+   "oracle": 0.29888888888888887
+  },
+  "wiki": {
+   "universal_pick": 13,
+   "universal_heldout": 0.3188888888888889,
+   "plain": 0.33,
+   "per_family_pick": 0,
+   "per_family": 0.33,
+   "random_prompt_mean": 0.31805555555555554,
+   "oracle": 0.35444444444444445
+  }
+ },
+ "mean": {
+  "plain": 0.2775,
+  "universal_heldout": 0.2926388888888889,
+  "universal_seen": 0.3040740740740741,
+  "per_family": 0.3105555555555556,
+  "random_prompt": 0.2909027777777778,
+  "oracle": 0.33375
+ },
+ "candidate_mean_test_auroc": [
+  0.2775,
+  0.27652777777777776,
+  0.2890277777777778,
+  0.2956944444444444,
+  0.27444444444444444,
+  0.28652777777777777,
+  0.2977777777777778,
+  0.3055555555555556,
+  0.29430555555555554,
+  0.2923611111111111,
+  0.2866666666666667,
+  0.2976388888888889,
+  0.2709722222222222,
+  0.3136111111111111,
+  0.29694444444444446,
+  0.29888888888888887
+ ]
+}

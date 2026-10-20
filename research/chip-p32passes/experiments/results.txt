@@ -1,0 +1,35 @@
+F=16 MAC engine, Yosys 0.33. Cells after each pass; gap = P32 - P16
+
+seed after             P16    P32    gap
+0    coarse            970   1608    638
+0    opt_fast_full     591   1047    456
+0    memory_map       8751  17367   8616
+0    opt_full          681    819    138
+0    techmap         38358  40458   2100
+0    opt_fast         8125   8000   -125
+0    abc_fast         7301   6752   -549
+0    opt_fast_end     7249   6735   -514
+1    coarse            865   1638    773
+1    opt_fast_full     611   1127    516
+1    memory_map       8995  17881   8886
+1    opt_full          691    832    141
+1    techmap         38879  41105   2226
+1    opt_fast         8464   8345   -119
+1    abc_fast         7564   7005   -559
+1    opt_fast_end     7511   6989   -522
+2    coarse            970   1610    640
+2    opt_fast_full     576   1048    472
+2    memory_map       8736  17368   8632
+2    opt_full          688    828    140
+2    techmap         38540  40660   2120
+2    opt_fast         8174   8060   -114
+2    abc_fast         7328   6795   -533
+2    opt_fast_end     7278   6780   -498
+
+check: last traced count equals the one-shot `synth -run :abc` count
+seed 0 P16: traced 7249, one-shot 7249, equal
+seed 0 P32: traced 6735, one-shot 6735, equal
+seed 1 P16: traced 7511, one-shot 7511, equal
+seed 1 P32: traced 6989, one-shot 6989, equal
+seed 2 P16: traced 7278, one-shot 7278, equal
+seed 2 P32: traced 6780, one-shot 6780, equal

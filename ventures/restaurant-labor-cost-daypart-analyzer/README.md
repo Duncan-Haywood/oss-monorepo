@@ -4,6 +4,8 @@ A free browser tool for restaurant owners: **drop in your sales-by-hour report a
 export and see which dayparts and hours run over your labor target.** Both files are read in the
 browser; nothing is uploaded and no POS login is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/restaurant-labor-cost-daypart-analyzer/
+
 After using this, you can now **see labor % of sales and sales per labor hour by daypart, weekday
 and hour, and an estimate of the labor above your target you could trim without dropping under a
 minimum crew**, which used to mean lining up two exports in a spreadsheet by hand.

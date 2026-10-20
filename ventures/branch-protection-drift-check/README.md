@@ -6,6 +6,8 @@ rule that has drifted weaker than the policy requires — a review
 requirement disabled for one hotfix and never re-enabled, force pushes
 quietly turned back on, admin enforcement silently off.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. Run the tests with:
 

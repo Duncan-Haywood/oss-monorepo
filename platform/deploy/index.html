@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy your own copy</title>
+<meta name="description" content="Pick an open-source tool, paste your own credentials, click Deploy, and run your own copy in your own GitHub, AWS or Google Cloud account. Nothing passes through us.">
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#595959; --line:#d4d4d4; --accent:#0b57d0; --card:#f6f7f9; --warn:#7a3e00; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#121212; --fg:#ececec; --muted:#b0b0b0; --line:#3a3a3a; --accent:#8ab4f8; --card:#1c1c1e; --warn:#ffb866; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,sans-serif; }
+  main { max-width:720px; margin:0 auto; padding:24px 16px 64px; }
+  h1 { font-size:1.7rem; margin:.2em 0; } h2 { font-size:1.1rem; margin:1.8em 0 .4em; }
+  p, li { color:var(--fg); } .muted { color:var(--muted); font-size:.92rem; }
+  label { display:block; font-weight:600; margin:.9em 0 .25em; }
+  select, textarea, input[type=text], input[type=password], input[type=search] { width:100%; padding:10px; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:6px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin:.6em 0; }
+  .opt { display:flex; gap:10px; align-items:flex-start; font-weight:400; margin:.3em 0; }
+  .opt input { margin-top:.35em; }
+  button { font:inherit; font-weight:600; padding:11px 16px; border-radius:6px; border:1px solid var(--accent); background:var(--accent); color:#fff; cursor:pointer; }
+  @media (prefers-color-scheme: dark) { button { color:#111; } }
+  button.secondary { background:transparent; color:var(--accent); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:1em; }
+  .warn { color:var(--warn); }
+  pre#log { background:var(--card); border:1px solid var(--line); border-radius:6px; padding:10px; white-space:pre-wrap; min-height:3em; font-size:.88rem; }
+  a { color:var(--accent); }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Deploy your own copy</h1>
+  <p>Pick a tool, choose where it should live, and get your own running copy in <strong>your</strong> account. You pay your own cloud bill (GitHub Pages is free), you own the result, and nothing you enter passes through a server of ours — this page is static and talks only to GitHub.</p>
+
+  <h2>1. Pick a tool</h2>
+  <label for="q">Search <span class="muted" id="count"></span></label>
+  <input id="q" type="search" placeholder="e.g. invoice, tax, schedule" autocomplete="off">
+  <label for="app">Tool</label>
+  <select id="app" size="1"></select>
+  <p class="muted" id="desc"></p>
+
+  <h2>2. Pick where it lives</h2>
+  <div id="providers"></div>
+
+  <h2>3. Your credentials</h2>
+  <div id="creds">
+    <label for="gh">GitHub token</label>
+    <input id="gh" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_… or ghp_…">
+    <p class="muted">Fine-grained token for your own account with <em>Administration</em>, <em>Contents</em>, <em>Workflows</em>, <em>Secrets</em>, <em>Pages</em> and <em>Actions</em> read/write — or a classic token with <code>repo</code> and <code>workflow</code>. It is used from this tab only and is not stored. <a href="https://github.com/settings/personal-access-tokens/new" rel="noopener">Create one</a>, and delete it when you are done.</p>
+    <div id="aws" hidden>
+      <label for="ak">AWS access key ID</label>
+      <input id="ak" type="password" autocomplete="off" spellcheck="false">
+      <label for="sk">AWS secret access key</label>
+      <input id="sk" type="password" autocomplete="off" spellcheck="false">
+      <label for="rg">AWS region</label>
+      <input id="rg" type="text" value="us-east-1">
+      <label for="ab">Budget alert email (optional)</label>
+      <input id="ab" type="email" autocomplete="off" spellcheck="false" placeholder="you@example.com">
+      <p class="muted">Creates a monthly AWS budget (default $10 for the whole account; change the <code>BUDGET_AMOUNT</code> repository variable) that emails you at 80% of actual and 100% of forecast spend, so a traffic spike or a leaked key shows up before the invoice does. Needs <code>budgets:ModifyBudget</code> on the IAM user. Leave empty to skip.</p>
+      <p class="muted">Use a dedicated IAM user limited to S3, CloudFront and IAM-policy-document actions. The keys are encrypted in your browser with the new repository's public key and stored as that repository's Actions secrets; they go nowhere else.</p>
+    </div>
+    <div id="gcp" hidden>
+      <label for="gk">Service-account key (JSON)</label>
+      <textarea id="gk" rows="4" autocomplete="off" spellcheck="false" placeholder='{"type": "service_account", …}'></textarea>
+      <label for="gp">Google Cloud project id</label>
+      <input id="gp" type="text" autocomplete="off" spellcheck="false">
+      <label for="gl">Bucket location</label>
+      <input id="gl" type="text" value="US">
+      <label for="gb">Billing account id for a budget alert (optional)</label>
+      <input id="gb" type="text" autocomplete="off" spellcheck="false" placeholder="XXXXXX-XXXXXX-XXXXXX">
+      <p class="muted">Creates a monthly budget on this project (default 10 in your billing currency; change the <code>BUDGET_AMOUNT</code> repository variable) that emails the billing account's admins at 80% of actual and 100% of forecast spend. Needs the <em>Billing Account Costs Manager</em> role for the service account and the Cloud Billing Budget API enabled. Leave empty to skip.</p>
+      <p class="muted">Create a dedicated service account with only <em>Storage Admin</em> on your project and download a JSON key. The key is encrypted in your browser with the new repository's public key and stored as that repository's Actions secret; it goes nowhere else. Delete the key when you are done if you will not redeploy. The bucket is public by design (it is a website); if your organization blocks public buckets, pick another provider.</p>
+    </div>
+    <div id="azure" hidden>
+      <label for="zc">Service principal application (client) ID</label>
+      <input id="zc" type="password" autocomplete="off" spellcheck="false">
+      <label for="zs">Service principal client secret</label>
+      <input id="zs" type="password" autocomplete="off" spellcheck="false">
+      <label for="zt">Directory (tenant) ID</label>
+      <input id="zt" type="password" autocomplete="off" spellcheck="false">
+      <label for="zb">Subscription ID</label>
+      <input id="zb" type="password" autocomplete="off" spellcheck="false">
+      <label for="zl">Azure region</label>
+      <input id="zl" type="text" value="eastus">
+      <label for="ze">Budget alert email (optional)</label>
+      <input id="ze" type="email" autocomplete="off" spellcheck="false" placeholder="you@example.com">
+      <p class="muted">Creates a monthly budget on the site's resource group (default 10 in your billing currency; change the <code>BUDGET_AMOUNT</code> repository variable) that emails you at 80% of actual and 100% of forecast spend. Leave empty to skip.</p>
+      <p class="muted">Create a dedicated service principal with the <em>Contributor</em> role on your subscription (<code>az ad sp create-for-rbac --role Contributor --scopes /subscriptions/&lt;id&gt;</code>). The values are encrypted in your browser with the new repository's public key and stored as that repository's Actions secrets; they go nowhere else. Delete the principal when you are done if you will not redeploy.</p>
+    </div>
+    <div id="cloudflare" hidden>
+      <label for="cf">Cloudflare API token</label>
+      <input id="cf" type="password" autocomplete="off" spellcheck="false">
+      <label for="ca">Cloudflare account id</label>
+      <input id="ca" type="password" autocomplete="off" spellcheck="false">
+      <p class="muted">Create a token at <em>My Profile -> API Tokens</em> from the “Edit Cloudflare Workers” template, or a custom token with only <em>Account -> Cloudflare Pages -> Edit</em>. Your account id is on the right of the dashboard’s Workers &amp; Pages page. Both are encrypted in your browser with the new repository’s public key and stored as that repository’s Actions secrets; they go nowhere else. Delete the token when you are done if you will not redeploy.</p>
+    </div>
+  </div>
+
+  <h2>4. Deploy</h2>
+  <div class="card">
+    <label class="opt"><input type="checkbox" id="ack"> <span>I understand that I become the operator of my copy: its domain, terms, privacy policy and users are my responsibility. It is provided as-is under the MIT license with no warranty, and the creator does not host it or support it.</span></label>
+  </div>
+  <div class="row">
+    <button id="go" disabled>Deploy to my account</button>
+    <button id="dl" class="secondary" disabled>Download the files instead</button>
+  </div>
+  <p class="muted">“Download” builds the same repository as a .zip in your browser and needs no credentials; you can push it yourself or run the OpenTofu module locally.</p>
+  <pre id="log" aria-live="polite"></pre>
+  <div id="done" hidden></div>
+
+  <h2>Support the creator</h2>
+  <p>It is free. If it helps your business, <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy the creator a coffee</a>.</p>
+  <p class="muted">Privacy: this page loads no third-party scripts and sends nothing to us. Your browser talks to api.github.com only when you press Deploy.</p>
+</main>
+<script type="module" src="app.mjs"></script>
+</body>
+</html>

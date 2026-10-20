@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import {
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv,
-  sampleStaff, sampleShifts, fmtClock, _internals,
+import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
+  sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
 const staffOf = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
@@ -241,4 +241,1081 @@ test("limits are enforced with a message, not a hang", () => {
   assert.match(parseStaff(many).errors.join(" "), /up to 60/);
   assert.match(parseShifts("Mon-Sun,9,17,50\nMon-Sun,9,17,50").errors.join(" "), /up to 400/);
   assert.ok(buildRoster([], []).error);
+});
+
+test("roles: only qualified people fill a role shift, and the reason says so", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, roles: cook|server\nBen, 12, 40, 0, any, roles: server\nCy, 10, 40, 0, any");
+  assert.deepEqual(staff.map((s) => s.roles), [["cook", "server"], ["server"], []]);
+  const slots = slotsOf("Mon, 8, 12, 2, line, role: cook\nMon, 13, 17, 1, floor, server");
+  assert.equal(slots[0].role, "cook");
+  assert.equal(slots[0].label, "line");
+  const r = buildRoster(staff, slots);
+  const cooks = r.assignments.filter((a) => a.slot.role === "cook");
+  assert.ok(cooks.every((a) => a.person === "Ana" || a.person === null));
+  assert.equal(r.unfilledSlots, 1); // two cooks needed, only Ana is one
+  assert.match(r.unfilled[0].text, /cook/);
+  assert.match(rosterCsv(r), /,role\n/);
+});
+
+test("roles: a role nobody has is named, and shifts without roles ignore roles", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, roles: cook");
+  const r = buildRoster(staff, slotsOf("Tue, 8, 12, 1, bar, role: bartender\nTue, 13, 17, 1, any job"));
+  assert.match(r.unfilled[0].text, /nobody listed has the role "bartender"/);
+  assert.equal(r.assignments.find((a) => !a.slot.role).person, "Ana");
+});
+
+test("ics export: one event per assigned shift, overnight ends next day, per-person filter, Monday check", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any\nBen, 12, 40, 0, any");
+  const r = buildRoster(staff, slotsOf("Fri, 22, 6, 1, night\nMon, 9, 17, 1, day"));
+  const all = rosterIcs(r, "2026-10-12");
+  assert.equal((all.match(/BEGIN:VEVENT/g) || []).length, 2);
+  assert.match(all, /DTSTART:20261016T220000\r\nDTEND:20261017T060000/);
+  const who = r.assignments.find((a) => a.slot.label === "night").person;
+  const one = rosterIcs(r, "2026-10-12", who);
+  assert.ok((one.match(/BEGIN:VEVENT/g) || []).length >= 1);
+  assert.ok(!one.includes(` - ${who}`));
+  assert.throws(() => rosterIcs(r, "2026-10-13"), /Monday/);
+  assert.throws(() => rosterIcs(r, "nope"), /YYYY/);
+});
+
+test("messages: one pasteable text per person, sorted by day, dated when a Monday is given, empty weeks said plainly", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any\nBen, 12, 40, 0, Mon 9-17");
+  const r = buildRoster(staff, slotsOf("Wed, 9, 17, 1, open\nMon, 9, 13, 1, early, role: any"));
+  const m = rosterMessages(r, "2026-10-12");
+  assert.deepEqual(m.map((x) => x.person), ["Ana", "Ben"]);
+  const ana = m.find((x) => x.person === "Ana");
+  assert.match(ana.text, /^Hi Ana, your shifts this week:/);
+  assert.match(ana.text, /Wed 14 Oct: 9am-5pm open/);
+  const undated = rosterMessages(r);
+  assert.match(undated.find((x) => x.person === "Ana").text, /Wed: /);
+  const none = rosterMessages(buildRoster(staffOf("Zed, 10, 40, 0, any\nAnn, 11, 40, 0, Mon 9-17"), slotsOf("Mon, 9, 13, 1, early")));
+  assert.ok(none.some((x) => /no shifts this week/.test(x.text)));
+  assert.throws(() => rosterMessages(r, "nope"), /YYYY/);
+});
+
+test("hire what-if: an unfillable shift reports what one more person would cover", () => {
+  const staff = staffOf("Ann, 15, 40, 0, Mon-Fri 9-17");
+  const slots = slotsOf("Sat, 9, 13, 1, Open");
+  const r = buildRoster(staff, slots);
+  assert.equal(r.unfilledSlots, 1);
+  assert.ok(r.hireTest);
+  assert.equal(r.hireTest.coveredHours, 4);
+  assert.equal(r.hireTest.stillUnfilledHours, 0);
+  assert.ok(Math.abs(r.hireTest.extraCost - 60) < 1e-6);
+  assert.equal(r.hireTest.windows.length, 1);
+  assert.match(r.hireTest.windows[0], /^Sat /);
+});
+
+test("hire what-if: absent when everything is covered", () => {
+  const r = buildRoster(staffOf("Ann, 15, 40, 0, any"), slotsOf("Mon, 9, 13, 1, Open"));
+  assert.equal(r.hireTest, null);
+});
+
+test("coverOptions: lists who can take a shift, cheapest first, with the rule that blocks the rest", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16\nBen, 20, 40, 0, Mon 8-16\nCy, 15, 4, 0, Mon 8-16\nDee, 12, 40, 0, Tue 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open");
+  const r = buildRoster(staff, slots);
+  assert.equal(r.assignments[0].person, "Ana");
+  const c = coverOptions(staff, slots, r, 0);
+  assert.equal(c.current, "Ana");
+  assert.deepEqual(c.fits.map((f) => f.name), ["Ben"]);
+  assert.ok(Math.abs(c.fits[0].extraCost - 80) < 1e-6); // Ben 8h at $20 minus Ana's 8h at $10
+  assert.deepEqual(c.blocked, [{ name: "Cy", reason: "would go over their weekly hour limit" }]);
+});
+
+test("coverOptions: an open shift has no current owner and reports an unreadable roster", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 2, open");
+  const r = buildRoster(staff, slots);
+  const open = r.assignments.findIndex((a) => a.person === null);
+  const c = coverOptions(staff, slots, r, open);
+  assert.equal(c.current, null);
+  assert.equal(c.fits.length, 0);
+  assert.deepEqual(c.blocked, [{ name: "Ana", reason: "already on a shift at that time" }]);
+  assert.ok(coverOptions(staff, slots, null, 0).error);
+});
+
+test("prev: carries the rest rule across the week boundary", () => {
+  const staff = staffOf("Ana, 20, 40, 0, , prev: Sun 11pm\nBo, 20, 40, 0, ");
+  assert.equal(staff[0].prevEnd, -1440 + 23 * 60);
+  assert.equal(staff[1].prevEnd, null);
+  const slots = slotsOf("Mon, 6am, 10am, 1, Open");
+  const r = buildRoster(staff, slots);
+  const csv = rosterCsv(r);
+  assert.ok(csv.includes("Bo"), "Bo takes the open: Ana ended 11pm Sunday, only 7h of rest");
+  assert.ok(!csv.includes("Ana"));
+  const only = buildRoster(staffOf("Ana, 20, 40, 0, , prev: Sun 11pm"), slots);
+  assert.ok(/rest/i.test(JSON.stringify(only)), "the unfilled reason names the rest rule");
+});
+
+test("prev: errors on unreadable text", () => {
+  const r = parseStaff("Ana, 20, 40, 0, , prev: lately");
+  assert.ok(r.errors.some((e) => e.includes("prev")));
+});
+
+test("money formats whole dollars and cents, with a minus sign for negatives", () => {
+  assert.equal(money(1234.5), "$1,235");
+  assert.equal(money(0), "$0");
+  assert.equal(money(-42), "\u2212$42");
+  assert.equal(money2(1234.5), "$1,234.50");
+  assert.equal(money2(-0.5), "\u2212$0.50");
+  assert.equal(money2(0), "$0.00");
+  assert.equal(money2(0.5), "$0.50");
+});
+
+test("ics export: the per-person file holds only that person's shifts and unfilled shifts are left out", () => {
+  const staff = staffOf("Ana, 15, 40, 0, Mon 9-17\nBen, 12, 40, 0, Tue 9-17");
+  const r = buildRoster(staff, slotsOf("Mon, 9, 17, 1, am shift\nTue, 9, 17, 1, tue shift\nWed, 9, 17, 1, nobody shift"));
+  assert.equal(r.unfilledSlots, 1);
+  const all = rosterIcs(r, "2026-10-12");
+  assert.equal((all.match(/BEGIN:VEVENT/g) || []).length, 2);
+  assert.ok(!all.includes("nobody shift"));
+  const ana = rosterIcs(r, "2026-10-12", "Ana");
+  assert.equal((ana.match(/BEGIN:VEVENT/g) || []).length, 1);
+  assert.match(ana, /SUMMARY:am shift/);
+  assert.ok(!ana.includes("tue shift"));
+});
+
+test("hour targets split the week's hours in proportion to each person's cap", () => {
+  const ctx = _internals.buildContext(staffOf("Ana, 10, 30, 0, any\nBen, 10, 10, 0, any"), slotsOf("Mon, 9, 17, 1\nTue, 9, 17, 1"));
+  assert.ok(Math.abs(ctx.target[0] - 12) < 1e-9);
+  assert.ok(Math.abs(ctx.target[1] - 4) < 1e-9);
+});
+
+test("off: removes whole days and clock ranges without rewriting availability", () => {
+  const r = parseStaff("Ana, 20, 40, 0, any, off: Wed; Fri 5pm-close");
+  assert.deepEqual(r.errors, []);
+  const d = r.staff[0].days;
+  assert.deepEqual(d[2], []);
+  assert.deepEqual(d[4], [[0, 1020]]);
+  assert.deepEqual(d[0], [[0, 1440]]);
+});
+
+test("off: keeps a person off a shift the solver would otherwise give them", () => {
+  const staff = parseStaff("Ana, 10, 40, 0, any, off: Wed\nBo, 30, 40, 0, any").staff;
+  const slots = parseShifts("Wed, 9, 17, 1").slots;
+  const r = buildRoster(staff, slots);
+  assert.equal(staff[0].name, "Ana");
+  assert.equal(r.owner[0], 1);
+});
+
+test("off: reports unreadable text", () => {
+  assert.equal(parseStaff("Ana, 20, 40, 0, any, off: Blursday").errors.length, 1);
+  assert.equal(parseStaff("Ana, 20, 40, 0, any, off: Wed 9-").errors.length, 1);
+});
+
+test("daily overtime: California 8/12 pays 1.5x over 8 and 2x over 12, and weekly overtime skips hours already premium", () => {
+  const staff = staffOf("Ana, 20, 60, 0, any");
+  const one = (days, a, b) => slotsOf(`${days}, ${a}, ${b}, 1, x`);
+  const opts = { dailyOtAfter: 8, dailyDtAfter: 12, minRestHours: 0 };
+  // one 14 hour day: 8 straight + 4 at 1.5x + 2 at 2x
+  const r = buildRoster(staff, one("Mon", 6, 20), opts);
+  assert.equal(r.cost, 20 * (8 + 4 * 1.5 + 2 * 2));
+  assert.equal(r.otHours, 6);
+  // weekly rule only: the same 14 hours cost straight time
+  assert.equal(buildRoster(staff, one("Mon", 6, 20)).cost, 20 * 14);
+  // five 9-hour days = 45 h: daily OT 5 h; straight 40 h, so no extra weekly OT on top
+  const w = buildRoster(staff, one("Mon-Fri", 8, 17), { dailyOtAfter: 8, minRestHours: 0 });
+  assert.equal(w.cost, 20 * (40 + 5 * 1.5));
+  assert.equal(w.otHours, 5);
+});
+
+test("daily overtime steers the search to split a long day across two people", () => {
+  const staff = staffOf("Ana, 20, 40, 0, any\nBen, 20, 40, 0, any");
+  const slots = slotsOf("Mon, 6, 14, 1, a\nMon, 14, 22, 1, b");
+  const r = buildRoster(staff, slots, { dailyOtAfter: 8, balance: 0 });
+  assert.equal(r.cost, 20 * 16);
+  assert.equal(r.otHours, 0);
+});
+
+test("carry over: last week's CSV sets prev: so the rest rule holds across the boundary", async () => {
+  const { carryOverStaff, lastShiftEnds, parseStaff, buildRoster, parseShifts, rosterCsv } = await import("./calc.mjs");
+  const csv = [
+    "day,start,end,hours,label,assigned_to,role",
+    "Fri,5pm,11pm,6.00,,Sam,",
+    "Sun (overnight),6pm,1am,7.00,close,Sam,",
+    "Sat,9am,5pm,8.00,,Alex,",
+    "Sat,9am,5pm,8.00,,UNFILLED,",
+  ].join("\n");
+  const e = lastShiftEnds(csv);
+  assert.equal(e.get("sam").abs, 6 * 1440 + 1500);
+  assert.equal(e.get("alex").abs, 5 * 1440 + 1020);
+  assert.equal(e.has("unfilled"), false);
+  const r = carryOverStaff("name,wage,max,min,avail\nSam, 15, 30, 0, any, prev: Mon 8am\nAlex, 14\nPat, 13", csv);
+  assert.equal(r.changed, 2);
+  const st = parseStaff(r.text);
+  assert.deepEqual(st.errors, []);
+  assert.equal(st.staff[0].prevEnd, (6 - 7) * 1440 + 1500); // Mon 1:00am this week
+  assert.equal(st.staff[1].prevEnd, (5 - 7) * 1440 + 1020);
+  assert.equal(st.staff[2].prevEnd, null);
+  // Sam's overnight Sunday close ended 1am Monday: a 6am Monday shift (5h rest) must not go to Sam.
+  const sh = parseShifts("Mon, 6am, 10am, 1");
+  const roster = buildRoster(st.staff.slice(0, 1), sh.slots);
+  assert.equal(roster.assignments[0].person, null);
+});
+
+test("laborPercent: share of sales, target headroom, bad input", () => {
+  const a = laborPercent(2800, 10000, 30);
+  assert.ok(Math.abs(a.pct - 28) < 1e-9);
+  assert.equal(a.maxPayroll, 3000);
+  assert.equal(a.headroom, 200);
+  assert.equal(a.over, false);
+  assert.equal(laborPercent(3500, 10000, 30).over, true);
+  assert.equal(laborPercent(2800, 10000).target, null);
+  assert.equal(laborPercent(2800, 0), null);
+  assert.equal(laborPercent(2800, "abc"), null);
+});
+
+test("daily hour limit: per-person cell and roster-wide setting are hard rules and explain themselves", () => {
+  const slots = slotsOf("Mon,8,14,1\nMon,14,20,1");
+  const free = staffOf("Ann,10,40,0,any");
+  assert.equal(buildRoster(free, slots, { minRestHours: 0 }).unfilledSlots, 0);
+  const capped = staffOf("Ann,10,40,0,any,daily: 8");
+  assert.equal(capped[0].maxDaily, 8);
+  const r = buildRoster(capped, slots, { minRestHours: 0 });
+  assert.equal(r.unfilledSlots, 1);
+  assert.match(r.unfilled[0].text, /daily hour limit/);
+  assert.equal(buildRoster(free, slots, { minRestHours: 0, maxDailyHours: 8 }).unfilledSlots, 1);
+  assert.equal(buildRoster(free, slots, { minRestHours: 0, maxDailyHours: 12 }).unfilledSlots, 0);
+  const two = staffOf("Ann,10,40,0,any,daily: 8\nBo,12,40,0,any");
+  const r2 = buildRoster(two, slots, { minRestHours: 0 });
+  assert.equal(r2.unfilledSlots, 0);
+  assert.notEqual(r2.owner[0], r2.owner[1]);
+  assert.ok(parseStaff("Ann,10,40,0,any,daily: lots").errors.length === 1);
+});
+
+test("scheduleFlags: daily hours, split shifts, notice", () => {
+  const r = { assignments: [
+    { slot: { day: 0, startMin: 480, endMin: 720 }, person: "Sam" },
+    { slot: { day: 0, startMin: 900, endMin: 1200 }, person: "Sam" },
+    { slot: { day: 1, startMin: 480, endMin: 960 }, person: "Ana" },
+    { slot: { day: 1, startMin: 960, endMin: 1020 }, person: "Ana" },
+    { slot: { day: 2, startMin: 480, endMin: 960 }, person: null },
+  ] };
+  const f = scheduleFlags(r, { weekStart: "2026-11-02", today: "2026-10-26" });
+  assert.deepEqual(f.overDaily.map((x) => [x.person, x.day, x.hours]), [["Ana", "Tue", 9], ["Sam", "Mon", 9]]);
+  assert.deepEqual(f.splits.map((x) => [x.person, x.day, x.gapHours]), [["Sam", "Mon", 3]]);
+  assert.deepEqual(f.longStretches.map((x) => [x.person, x.day, x.hours]), [["Ana", "Tue", 9]]);
+  assert.equal(scheduleFlags(r, { mealAfter: 10 }).longStretches.length, 0);
+  assert.deepEqual(f.notice, { days: 7, required: 14, short: true });
+  assert.equal(scheduleFlags(r, { dailyLimit: 10 }).overDaily.length, 0);
+  assert.equal(scheduleFlags(r).notice, null);
+  assert.equal(scheduleFlags({}).overDaily.length, 0);
+  assert.deepEqual(f.shortDays, []);
+  assert.deepEqual(scheduleFlags(r, { minDay: 9.5 }).shortDays.map((x) => [x.person, x.day]), [["Ana", "Tue"], ["Sam", "Mon"]]);
+});
+
+test("scheduleFlags: shortDays flags days under the minimum, adjacent shifts count together", () => {
+  const r = { assignments: [
+    { slot: { day: 0, startMin: 600, endMin: 780 }, person: "Sam" },
+    { slot: { day: 1, startMin: 600, endMin: 720 }, person: "Sam" },
+    { slot: { day: 1, startMin: 720, endMin: 900 }, person: "Sam" },
+    { slot: { day: 2, startMin: 600, endMin: 720 }, person: null },
+  ] };
+  assert.deepEqual(scheduleFlags(r, { minDay: 4 }).shortDays.map((x) => [x.person, x.day, x.hours]), [["Sam", "Mon", 3]]);
+  assert.equal(scheduleFlags(r).shortDays.length, 0);
+});
+
+test("scheduleFlags: flags a person scheduled on all seven days", () => {
+  const week = [0, 1, 2, 3, 4, 5, 6].map((day) => ({ slot: { day, startMin: 540, endMin: 780 }, person: "Sam" }));
+  const other = [0, 1, 2, 3, 4, 5].map((day) => ({ slot: { day, startMin: 840, endMin: 1020 }, person: "Ana" }));
+  assert.deepEqual(scheduleFlags({ assignments: week.concat(other) }).sevenDays, [{ person: "Sam" }]);
+  assert.equal(scheduleFlags({ assignments: other }).sevenDays.length, 0);
+  assert.equal(scheduleFlags({}).sevenDays.length, 0);
+});
+
+test("seventhDayPay: extra over straight time on the seventh day, only for people on all seven days", async () => {
+  const { seventhDayPay } = await import("./calc.mjs");
+  const week = [0, 1, 2, 3, 4, 5].map((day) => ({ slot: { day, startMin: 540, endMin: 780 }, person: "Sam" }));
+  const sun = { slot: { day: 6, startMin: 540, endMin: 1140 }, person: "Sam" }; // 10 hours
+  const r = { people: [{ name: "Sam", wage: 20 }, { name: "Ana", wage: 30 }], assignments: week.concat(sun, [{ slot: { day: 6, startMin: 0, endMin: 120 }, person: "Ana" }]) };
+  const p = seventhDayPay(r);
+  assert.equal(p.rows.length, 1);
+  assert.equal(p.rows[0].person, "Sam");
+  assert.equal(p.rows[0].hours, 10);
+  // 8h x 0.5 x $20 + 2h x 1.0 x $20 = $120
+  assert.equal(p.total, 120);
+  assert.equal(seventhDayPay(r, { burdenPct: 10 }).total, 132);
+  assert.equal(seventhDayPay({}).total, 0);
+});
+
+test("fixed: pins a shift to one person and the rest is planned around it", async () => {
+  const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
+  const staff = parseStaff("Ana, 10, 40, 0, any\nBen, 30, 40, 0, any").staff;
+  // Ben is far dearer, so only the pin puts him on Monday's shift.
+  const free = buildRoster(staff, parseShifts("Mon, 9, 17, 1").slots);
+  assert.equal(free.assignments[0].person, "Ana");
+  const pinned = parseShifts("Mon, 9, 17, 1, fixed: ben\nTue, 9, 17, 1");
+  assert.deepEqual(pinned.errors, []);
+  assert.equal(pinned.slots[0].fixed, "ben");
+  assert.equal(pinned.slots[0].label, "");
+  assert.equal(pinned.slots[0].role, "");
+  const r = buildRoster(staff, pinned.slots);
+  assert.equal(r.assignments[0].person, "Ben");
+  assert.equal(r.assignments[1].person, "Ana");
+});
+
+test("fixed: copies, unavailable person, unknown name", async () => {
+  const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
+  const staff = parseStaff("Ana, 10, 40, 0, Mon 9-12\nBen, 30, 40, 0, any").staff;
+  const two = parseShifts("Wed, 9, 17, 2, fixed: Ben");
+  assert.deepEqual(two.slots.map((s) => s.fixed), ["Ben", ""]);
+  const un = buildRoster(staff, parseShifts("Mon, 9, 17, 1, fixed: Ana").slots);
+  assert.equal(un.unfilledSlots, 1);
+  assert.match(un.unfilled[0].reason || JSON.stringify(un.unfilled[0]), /pinned/);
+  const ghost = buildRoster(staff, parseShifts("Mon, 9, 17, 1, fixed: Zed").slots);
+  assert.ok(ghost.warnings.some((w) => /Zed/.test(w)));
+  assert.ok(parseShifts("Mon, 9, 17, 1, fixed:").errors.length);
+});
+
+test("avoid: is a soft preference, honoured when someone else can cover", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, avoid: Sat\nBen, 15, 40, 0, any");
+  const slots = slotsOf("Sat, 9, 17, 1");
+  const r = buildRoster(staff, slots, { balance: 0 });
+  assert.equal(r.assignments[0].person, "Ben");
+  assert.equal(r.people.find((p) => p.name === "Ana").avoidHours, 0);
+});
+
+test("avoid: is still worked when nobody else is available, and says so", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, avoid: Sat 8am-12pm\nBen, 15, 40, 0, Mon-Fri 9-17");
+  const slots = slotsOf("Sat, 9, 13, 1");
+  const r = buildRoster(staff, slots);
+  assert.equal(r.assignments[0].person, "Ana");
+  assert.equal(r.people[0].avoidHours, 3);
+  assert.ok(r.warnings.some((w) => /Ana works 3 hours inside/.test(w)));
+});
+
+test("avoid: a Monday window counts against a Sunday shift that runs past midnight", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, avoid: Mon 12am-3am");
+  const slots = slotsOf("Sun, 22, 2, 1");
+  const r = buildRoster(staff, slots);
+  assert.equal(r.people[0].avoidHours, 2);
+});
+
+test("avoid: bad days are reported", () => {
+  const r = parseStaff("Ana, 15, 40, 0, any, avoid: Funday");
+  assert.ok(r.errors.some((e) => /avoid/.test(e)));
+});
+
+test("swapOptions: offers one-for-one trades that keep both weeks valid, even when nobody can simply take the shift", () => {
+  const staff = staffOf("Ana, 10, 8, 0, Mon 8-16; Tue 8-16\nBen, 12, 8, 0, Mon 8-16; Tue 8-16\nCy, 11, 8, 0, Wed 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open\nTue, 8, 16, 1, close");
+  const r = buildRoster(staff, slots);
+  const [first, second] = r.assignments.map((a) => a.person);
+  assert.deepEqual([first, second].sort(), ["Ana", "Ben"]); // one 8-hour shift each, both at their weekly limit
+  assert.deepEqual(coverOptions(staff, slots, r, 0).fits, []);
+  const s = swapOptions(staff, slots, r, 0);
+  assert.equal(s.from, first);
+  assert.equal(s.trades.length, 1);
+  assert.equal(s.trades[0].with, second);
+  assert.equal(s.trades[0].direct, false);
+  assert.equal(s.trades[0].gives.day, 1);
+  assert.ok(Math.abs(s.trades[0].extraCost) < 1e-6); // each still works 8 hours at their own wage
+});
+
+test("swapOptions: open shifts and a missing roster are reported, not guessed", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 2, open");
+  const r = buildRoster(staff, slots);
+  const open = r.assignments.findIndex((a) => a.person === null);
+  assert.ok(swapOptions(staff, slots, r, open).error);
+  assert.ok(swapOptions(staff, slots, null, 0).error);
+});
+
+test("checkTrade: an allowed trade carries its payroll change, a blocked one names who it breaks and why", () => {
+  const staff = staffOf("Ana, 10, 16, 0, Mon 8-16; Tue 8-16\nBen, 20, 16, 0, Mon 8-16; Tue 8-16\nCy, 11, 8, 0, Wed 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open\nTue, 8, 16, 1, close\nWed, 8, 16, 1, mid");
+  const r = { owner: [0, 1, 2], options: {} };
+  const ok = checkTrade(staff, slots, r, 0, 1);
+  assert.equal(ok.ok, true);
+  assert.deepEqual(ok.problems, []);
+  assert.equal(ok.a.name, "Ana");
+  assert.equal(ok.b.name, "Ben");
+  assert.ok(Math.abs(ok.extraCost) < 1e-6); // both still work 8 hours at their own wage
+  const bad = checkTrade(staff, slots, r, 0, 2); // Ana cannot work Wednesday, Cy cannot work Monday
+  assert.equal(bad.ok, false);
+  assert.deepEqual(bad.problems.map((x) => x.name).sort(), ["Ana", "Cy"]);
+  assert.equal(bad.extraCost, null);
+});
+
+test("checkTrade: names the hard rule that stops a trade, and rejects same shift, open shifts and same person", () => {
+  const staff = staffOf("Ana, 10, 8, 0, any\nBen, 12, 24, 0, any");
+  const slots = slotsOf("Mon, 8, 16, 1, a\nTue, 8, 20, 1, b\nWed, 8, 12, 1, c");
+  const r = { owner: [0, 1, 1], options: {} };
+  const cap = checkTrade(staff, slots, r, 0, 1); // Ana (8 h cap) would take a 12 h shift
+  assert.equal(cap.ok, false);
+  assert.deepEqual(cap.problems, [{ name: "Ana", reason: "would go over their weekly hour limit" }]);
+  assert.equal(cap.extraCost, null);
+  assert.equal(checkTrade(staff, slots, r, 0, 2).ok, true); // Ana 4 h, Ben 8 + 12 = 20 h
+  assert.ok(checkTrade(staff, slots, r, 1, 2).error); // Ben holds both
+  assert.ok(checkTrade(staff, slots, r, 1, 1).error);
+  assert.ok(checkTrade(staff, slots, { owner: [0, -1, 1], options: {} }, 0, 1).error); // open shift
+  assert.ok(checkTrade(staff, slots, null, 0, 1).error);
+});
+
+test("dailyLabor: hours and base-wage cost per day, labor share where sales are given", () => {
+  const staff = staffOf("Ann,10,40,0,any");
+  const slots = slotsOf("Mon,8,12,1\nMon,13,17,1\nWed,9,13,1");
+  const r = buildRoster(staff, slots, { minRestHours: 0 });
+  const d = dailyLabor(r, staff, "$400, 0, 100");
+  assert.equal(d.days.length, 7);
+  assert.equal(d.days[0].hours, 8);
+  assert.equal(d.days[0].cost, 80);
+  assert.ok(Math.abs(d.days[0].pct - 20) < 1e-9);
+  assert.equal(d.days[1].pct, null);
+  assert.ok(Math.abs(d.days[2].pct - 40) < 1e-9);
+  assert.equal(d.worst.day, "Wed");
+  assert.equal(dailyLabor(r, staff, "").hasSales, false);
+  const b = buildRoster(staff, slots, { minRestHours: 0, burdenPct: 10 });
+  assert.ok(Math.abs(dailyLabor(b, staff, "").days[0].cost - 88) < 1e-9);
+});
+
+test("an unpaid meal break lowers pay on long shifts only, never the hours a person is scheduled", () => {
+  const staff = staffOf("Ana, $20, 40");
+  const slots = slotsOf("Mon, 9am, 5pm, 1, Open\nTue, 9am, 1pm, 1, Short");
+  const plain = buildRoster(staff, slots, {});
+  const meal = buildRoster(staff, slots, { mealAfter: 6, mealMin: 30 });
+  assert.equal(meal.unfilledSlots, 0);
+  assert.equal(meal.hours, plain.hours);
+  // 8h shift loses 30 min of pay, the 4h shift does not: 20 * (12 - 0.5)
+  assert.ok(Math.abs(plain.cost - 240) < 1e-6);
+  assert.ok(Math.abs(meal.cost - 230) < 1e-6);
+});
+
+test("prefer: gives the hours to the person who asked, but never leaves a shift open", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any\nBen, 15, 40, 0, any, prefer: Sat");
+  const r = buildRoster(staff, slotsOf("Sat, 9, 17, 1"), { balance: 0 });
+  assert.equal(r.assignments[0].person, "Ben");
+  const only = buildRoster(staffOf("Ana, 15, 40, 0, any\nBen, 15, 40, 0, Mon-Fri 9-17, prefer: Sat"), slotsOf("Sat, 9, 17, 1"));
+  assert.equal(only.assignments[0].person, "Ana");
+});
+
+test("prefer: bad days are reported", () => {
+  assert.ok(parseStaff("Ana, 15, 40, 0, any, prefer: Funday").errors.some((e) => /prefer/.test(e)));
+});
+
+test("hoursThresholds lists people at or just under a weekly-hours line", () => {
+  const r = { people: [{ name: "A", hours: 32 }, { name: "B", hours: 30 }, { name: "C", hours: 28.5 }, { name: "D", hours: 20 }, { name: "E", hours: 0 }] };
+  const t = hoursThresholds(r);
+  assert.deepEqual(t.over.map((x) => x.name), ["A", "B"]);
+  assert.equal(t.over[0].by, 2);
+  assert.deepEqual(t.near.map((x) => x.name), ["C"]);
+  assert.equal(t.near[0].short, 1.5);
+  assert.equal(hoursThresholds(r, { threshold: 40 }).near.length, 0);
+  assert.equal(hoursThresholds(r, { threshold: 0 }).over.length, 0);
+  assert.equal(hoursThresholds({}).over.length, 0);
+});
+
+test("fairnessReport counts weekend, closing and opening shifts per person and flags a lopsided week", () => {
+  const staff = staffOf("Ann,10,60,0,any\nBo,10,60,0,Mon-Fri 9am-5pm");
+  const slots = slotsOf("Mon,9am,5pm,1\nTue,9am,5pm,1\nSat,10am,6pm,1\nFri,4pm,11pm,1\nSun,5am,1pm,1");
+  const r = buildRoster(staff, slots, { minRestHours: 0 });
+  const f = fairnessReport(r);
+  const ann = f.rows.find((x) => x.name === "Ann");
+  assert.equal(ann.weekend, 2);
+  assert.equal(ann.closing, 1);
+  assert.equal(ann.opening, 1);
+  assert.equal(ann.tough, 3);
+  assert.equal(f.most.name, "Ann");
+  assert.ok(f.spread >= 3 && f.flag);
+  assert.equal(fairnessReport({ people: [], assignments: [] }).flag, false);
+});
+
+import { parseRosterCsv, scheduleChanges } from "./calc.mjs";
+
+const POSTED = [
+  "day,start,end,hours,label,assigned_to,role",
+  "Mon,9:00 AM,5:00 PM,8.00,open,Ana,",
+  "Tue,9:00 AM,5:00 PM,8.00,open,Ana,",
+  "Wed,5:00 PM,11:00 PM,6.00,close,Ben,",
+  "Thu,9:00 AM,1:00 PM,4.00,open,UNFILLED,",
+].join("\n") + "\n";
+
+test("parseRosterCsv reads minutes from Monday and skips unfilled rows", () => {
+  const rows = parseRosterCsv(POSTED);
+  assert.equal(rows.length, 3);
+  assert.deepEqual([rows[0].person, rows[0].start, rows[0].end], ["Ana", 540, 1020]);
+  assert.equal(rows[2].start, 2 * 1440 + 17 * 60);
+});
+
+test("scheduleChanges finds moved, cancelled and added shifts and prices short notice", () => {
+  const revised = [
+    "day,start,end,hours,label,assigned_to,role",
+    "Mon,9:00 AM,5:00 PM,8.00,open,Ana,",
+    "Tue,11:00 AM,5:00 PM,6.00,open,Ana,",
+    "Thu,9:00 AM,1:00 PM,4.00,open,Cleo,",
+  ].join("\n") + "\n";
+  // Changed Monday 8:00 AM: Tuesday's move is 25 h out, Wednesday's cancel is 57 h out, Thursday's add is 73 h out.
+  const r = scheduleChanges(POSTED, revised, { changedAt: 8 * 60, noticeHours: 48, premiumHours: 1, wages: { Ana: 20, Ben: 15, Cleo: 12 } });
+  assert.deepEqual(r.changes.map((c) => c.kind + ":" + c.person), ["moved:Ana", "cancelled:Ben", "added:Cleo"]);
+  assert.equal(r.changes[0].hoursDelta, -2);
+  assert.equal(Math.round(r.changes[0].noticeHours), 25);
+  assert.equal(r.changes[0].shortNotice, true);
+  assert.equal(r.changes[1].shortNotice, false);
+  assert.equal(r.owed, 20);
+  assert.equal(r.shortNotice, 1);
+});
+
+test("scheduleChanges leaves out exempt people and says when notice is unknown", () => {
+  const revised = POSTED.replace("Ana,\nWed", "Ana,\nWed").replace("Ben", "Cleo");
+  const a = scheduleChanges(POSTED, revised, { changedAt: 17 * 60 + 2 * 1440 - 60, noticeHours: 48, wages: { Ben: 15, Cleo: 12 }, exempt: ["ben"] });
+  assert.equal(a.changes.find((c) => c.person === "Ben").exempt, true);
+  assert.equal(a.owed, 12);
+  const b = scheduleChanges(POSTED, revised, {});
+  assert.equal(b.noticeKnown, false);
+  assert.equal(b.owed, 0);
+  assert.equal(b.changes[0].noticeHours, null);
+});
+
+test("scheduleChanges reports nothing for identical rosters", () => {
+  assert.equal(scheduleChanges(POSTED, POSTED, { changedAt: 0 }).changes.length, 0);
+});
+
+test("trimOptions: ranks drops by payroll saved, safe ones first, and prices overtime from the whole week", () => {
+  const staff = staffOf("Ana, 10, 40, 0\nBen, 20, 40, 0");
+  const slots = slotsOf("Mon, 8, 16, 2, open\nTue, 8, 16, 1, close");
+  const r = buildRoster(staff, slots);
+  assert.ok(r.filledAll);
+  const t = trimOptions(staff, slots, r);
+  assert.equal(t.rows.length, 3);
+  assert.equal(t.safe, 2); // the two Monday copies; Tuesday has one person
+  assert.equal(t.rows[2].leavesEmpty, true);
+  assert.equal(t.rows[2].slot.day, 1);
+  const saves = t.rows.map((x) => x.saves);
+  assert.ok(Math.abs(saves[0] - 20 * 8) < 1e-6 || Math.abs(saves[0] - 10 * 8) < 1e-6);
+  assert.ok(saves[0] >= saves[1]);
+  assert.ok(t.rows.every((x) => x.saves > 0));
+});
+
+test("trimOptions: flags a cut that drops someone under their minimum hours; no roster is an error", () => {
+  const staff = staffOf("Ana, 10, 40, 8");
+  const slots = slotsOf("Mon, 8, 16, 1");
+  const r = buildRoster(staff, slots);
+  assert.equal(trimOptions(staff, slots, r).rows[0].breaksMinimum, true);
+  assert.ok(trimOptions(staff, slots, null).error);
+});
+
+test("scheduleChanges: a blank or negative wage is unpriced, never $0 or a negative premium", () => {
+  const head = "Day,Start,End,Hours,Label,Person\n";
+  const a = head + "Mon,9am,5pm,8,x,Ana\n", b = head + "Mon,10am,6pm,8,x,Ana\n";
+  for (const w of ["", -5, "abc"]) {
+    const r = scheduleChanges(a, b, { changedAt: 0, wages: { Ana: w } });
+    assert.equal(r.owed, 0);
+    assert.equal(r.changes[0].premiumUnpriced, true);
+  }
+});
+
+test("split-shift premium: priced per split day, off by default, and the search avoids it when another person can cover", () => {
+  const ana = staffOf("Ana, 20, 60, 0, any");
+  const split = slotsOf("Mon, 8, 11, 1, am\nMon, 15, 18, 1, pm");
+  const off = buildRoster(ana, split, { minRestHours: 0 });
+  assert.equal(off.cost, 20 * 6);
+  const on = buildRoster(ana, split, { minRestHours: 0, splitPremium: 15 });
+  assert.equal(on.cost, 20 * 6 + 15);
+  assert.equal(on.people[0].splitDays, 1);
+  // a gap of exactly the limit is not a split; burden applies to the premium too
+  const tight = buildRoster(ana, slotsOf("Mon, 8, 11, 1, am\nMon, 12, 15, 1, pm"), { minRestHours: 0, splitPremium: 15 });
+  assert.equal(tight.cost, 20 * 6);
+  assert.equal(buildRoster(ana, split, { minRestHours: 0, splitPremium: 10, burdenPct: 10 }).cost, (20 * 6 + 10) * 1.1);
+  // with a second person free, the search splits the day across people to skip the premium
+  const two = staffOf("Ana, 20, 60, 0, any\nBen, 20, 60, 0, any");
+  const r = buildRoster(two, split, { minRestHours: 0, splitPremium: 15 });
+  assert.equal(r.cost, 20 * 6);
+  assert.ok(r.people.every((p) => p.splitDays === 0));
+});
+
+test("off: dated entries apply only to the week they fall in", () => {
+  const cell = "Ana, 20, 40, 0, any, off: 2026-11-04..2026-11-05; 2026-11-06 5pm-close";
+  const wk = parseStaff(cell, { weekStart: "2026-11-02" });
+  assert.deepEqual(wk.errors, []);
+  const d = wk.staff[0].days;
+  assert.deepEqual(d[2], []);
+  assert.deepEqual(d[3], []);
+  assert.deepEqual(d[4], [[0, 1020]]);
+  assert.deepEqual(d[0], [[0, 1440]]);
+  const next = parseStaff(cell, { weekStart: "2026-11-09" });
+  assert.deepEqual(next.staff[0].days[2], [[0, 1440]]);
+  assert.deepEqual(next.notes, []);
+});
+
+test("off: a dated entry without a week start is reported, not silently dropped", () => {
+  const r = parseStaff("Ana, 20, 40, 0, any, off: 2026-11-04");
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.notes.length, 1);
+  assert.deepEqual(r.staff[0].days[2], [[0, 1440]]);
+  assert.equal(parseStaff("Ana, 20, 40, 0, any, off: 2026-13-99x", { weekStart: "2026-11-02" }).errors.length, 1);
+});
+
+test("tipPool splits by hours in whole cents and always adds back to the pot", () => {
+  const r = { people: [{ name: "A", hours: 30 }, { name: "B", hours: 20 }, { name: "C", hours: 10 }, { name: "D", hours: 0 }] };
+  const t = tipPool(r, 600);
+  assert.deepEqual(t.rows.map((x) => [x.name, x.share]), [["A", 300], ["B", 200], ["C", 100]]);
+  const odd = tipPool({ people: [{ name: "A", hours: 1 }, { name: "B", hours: 1 }, { name: "C", hours: 1 }] }, 100);
+  assert.equal(Math.round(odd.rows.reduce((a, x) => a + x.share, 0) * 100), 10000);
+  assert.deepEqual(odd.rows.map((x) => x.share), [33.34, 33.33, 33.33]);
+  assert.equal(tipPool(r, 0).rows.length, 0);
+  assert.equal(tipPool({}, 50).rows.length, 0);
+});
+
+test("messages: dates roll over month ends using the real year (leap Feb 29)", () => {
+  const r = buildRoster(staffOf("Ana, 15, 40, 0, any"), slotsOf("Thu, 9, 17, 1, open"));
+  const ana = rosterMessages(r, "2024-02-26").find((x) => x.person === "Ana");
+  assert.match(ana.text, /Thu 29 Feb: /);
+});
+
+test("carry over: a row with an unreadable start or end time is skipped, not read as NaN", async () => {
+  const { lastShiftEnds } = await import("./calc.mjs");
+  const e = lastShiftEnds([
+    "day,start,end,hours,label,assigned_to,role",
+    "Fri,5pm,??,6.00,,Sam,",
+    "Sat,??,5pm,8.00,,Alex,",
+    "Sat,9am,5pm,8.00,,Pat,",
+  ].join("\n"));
+  assert.deepEqual([...e.keys()], ["pat"]);
+});
+
+test("toughBalance spreads weekend, closing and opening shifts without leaving shifts open", () => {
+  const staff = staffOf("Ann,10,40,0,any\nBo,10,40,0,any\nCy,10,40,0,any");
+  const slots = slotsOf("Sat,9,17,1\nSun,9,17,1\nMon,9,17,1\nTue,9,17,1\nWed,9,17,1\nThu,9,17,1");
+  const spread = (r) => fairnessReport(r).spread;
+  const off = buildRoster(staff, slots, { balance: 0, toughBalance: 0 });
+  const on = buildRoster(staff, slots, { balance: 0, toughBalance: 100 });
+  assert.equal(on.unfilled.length, 0);
+  assert.ok(spread(on) <= spread(off));
+  assert.ok(spread(on) <= 1);
+});
+
+test("coverageGrid counts people per clock hour and skips unfilled slots", async () => {
+  const { coverageGrid } = await import("./calc.mjs");
+  const slot = (day, s, e) => ({ day, startMin: s * 60, endMin: e * 60 });
+  const r = { assignments: [
+    { person: "Ana", slot: slot(0, 9, 13) }, { person: "Ben", slot: slot(0, 11, 15) }, { person: null, slot: slot(1, 6, 7) },
+  ] };
+  const g = coverageGrid(r);
+  assert.equal(g.from, 9); assert.equal(g.to, 15); assert.equal(g.peak, 2);
+  assert.deepEqual(g.rows[0].counts, [1, 1, 2, 2, 1, 1]);
+  assert.equal(g.rows[0].thin, 4);
+  assert.equal(g.rows[1].empty, 0);
+  assert.deepEqual(coverageGrid({ assignments: [] }).rows, []);
+});
+
+test("coverageGrid on a built sample roster never exceeds the staff and totals the scheduled hours", async () => {
+  const { coverageGrid, parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
+  const st = parseStaff(sampleStaff()), sh = parseShifts(sampleShifts());
+  const r = buildRoster(st.staff, sh.slots);
+  const g = coverageGrid(r);
+  const total = g.rows.reduce((t, row) => t + row.counts.reduce((a, b) => a + b, 0), 0);
+  const hours = r.assignments.filter((a) => a.person).reduce((t, a) => t + Math.ceil(a.slot.endMin / 60) - Math.floor(a.slot.startMin / 60), 0);
+  assert.equal(total, hours);
+  assert.ok(g.peak <= st.staff.length);
+});
+
+test("placeBreaks: staggers meal breaks so someone stays on the floor", () => {
+  const A = (person, startMin, endMin) => ({ slot: { day: 0, startMin, endMin }, person });
+  const r = { assignments: [A("Ana", 480, 1020), A("Ben", 480, 1020), A("Cy", 480, 600), A("Short", 600, 780)] };
+  const b = placeBreaks(r);
+  assert.deepEqual(b.map((x) => x.person), ["Ana", "Ben"]);
+  for (const x of b) {
+    assert.equal(x.endMin - x.startMin, 30);
+    assert.ok(x.startMin >= 480 + 120 && x.startMin <= 480 + 300, "begins before the 5th hour is over");
+    assert.ok(x.startMin % 15 === 0);
+    assert.ok(x.others >= 1 && !x.alone);
+  }
+  assert.ok(b[0].endMin <= b[1].startMin || b[1].endMin <= b[0].startMin);
+  assert.equal(b[0].dayName, "Mon");
+});
+
+test("placeBreaks: joins back-to-back shifts, skips short days, flags a lone worker", () => {
+  const r = { assignments: [
+    { slot: { day: 1, startMin: 480, endMin: 660 }, person: "Sam" },
+    { slot: { day: 1, startMin: 660, endMin: 960 }, person: "Sam" },
+    { slot: { day: 2, startMin: 480, endMin: 720 }, person: "Sam" },
+    { slot: { day: 3, startMin: 480, endMin: 960 }, person: null },
+  ] };
+  const b = placeBreaks(r);
+  assert.equal(b.length, 1);
+  assert.equal(b[0].dayName, "Tue");
+  assert.ok(b[0].alone && b[0].others === 0);
+  assert.equal(placeBreaks(r, { mealAfter: 10 }).length, 0);
+  assert.deepEqual(placeBreaks({ assignments: [] }), []);
+});
+
+test("absencePlan: hands a week of shifts to others cheapest first, stays valid, and leaves unfillable shifts open", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon-Wed 8-16\nBen, 20, 40, 0, Mon-Wed 8-16\nCy, 15, 8, 0, Mon-Wed 8-16\nDee, 12, 40, 0, Tue 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open\nTue, 8, 16, 1, open\nWed, 8, 16, 1, open");
+  const r = buildRoster(staff, slots);
+  const anas = r.assignments.filter((a) => a.person === "Ana").length;
+  assert.ok(anas >= 2);
+  const plan = absencePlan(staff, slots, r, "ana");
+  assert.equal(plan.moves.length + plan.open.length, anas);
+  assert.ok(plan.moves.every((m) => m.to !== "Ana"));
+  assert.ok(plan.owner.every((k) => k !== 0));
+  // Nobody is over their weekly limit, or double-booked on a day, afterwards.
+  for (let k = 0; k < staff.length; k++) {
+    const mine = plan.owner.map((o, i) => (o === k ? i : -1)).filter((i) => i >= 0);
+    assert.ok(mine.reduce((t, i) => t + (slots[i].end - slots[i].start) / 60, 0) <= staff[k].maxHours + 1e-9);
+    assert.equal(new Set(mine.map((i) => slots[i].day)).size, mine.length);
+  }
+  // Only Tuesday: at most that one shift moves, to someone free on Tuesday.
+  const tue = absencePlan(staff, slots, r, "Ana", [1]);
+  assert.ok(tue.moves.length + tue.open.length <= 1);
+  assert.ok(absencePlan(staff, slots, r, "Zed").error);
+  assert.ok(absencePlan(staff, slots, null, "Ana").error);
+});
+
+test("absencePlan: a shift nobody can take stays open with the reasons", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16\nBen, 20, 4, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open");
+  const r = buildRoster(staff, slots);
+  const plan = absencePlan(staff, slots, r, "Ana");
+  assert.equal(plan.moves.length, 0);
+  assert.equal(plan.open.length, 1);
+  assert.equal(plan.open[0].blocked[0].name, "Ben");
+  assert.equal(plan.owner[0], -1);
+});
+
+test("pay differential adds a premium for hours inside its windows, per hour and as a percent of wage", () => {
+  const ana = staffOf("Ana, 20, 40");
+  const shifts = slotsOf("Fri,22,6,1,close\nMon,9,17,1,day");
+  const base = buildRoster(ana, shifts, { minRestHours: 0 });
+  // Fri 22:00-24:00 is 2 h and the Saturday tail 0-6 is 6 h inside "Fri 22-24; Sat 0-6"; Monday is outside.
+  const per = buildRoster(ana, shifts, { minRestHours: 0, diffWhen: "Fri 22-24; Sat 0-6", diffPerHour: 3 });
+  assert.equal(per.unfilledSlots, 0);
+  assert.equal(per.cost - base.cost, 8 * 3);
+  const pct = buildRoster(ana, shifts, { minRestHours: 0, diffWhen: "Fri 22-24; Sat 0-6", diffPct: 10 });
+  assert.equal(pct.cost - base.cost, 8 * 20 * 0.1);
+  const burdened = buildRoster(ana, shifts, { minRestHours: 0, burdenPct: 10, diffWhen: "Fri 22-24; Sat 0-6", diffPerHour: 3 });
+  assert.ok(Math.abs(burdened.cost - (base.cost + 24) * 1.1) < 1e-9);
+  assert.equal(buildRoster(ana, shifts, { minRestHours: 0, diffWhen: "Fri 22-24", diffPerHour: 0 }).cost, base.cost, "no premium set: unchanged");
+});
+
+test("a percent differential steers a night shift to the lower-paid person", () => {
+  const two = staffOf("Hi, 30, 40\nLo, 15, 40");
+  const r = buildRoster(two, slotsOf("Sat,9,17,1,sat"), { diffWhen: "Sat-Sun", diffPct: 50 });
+  assert.equal(r.owner[0], 1);
+  assert.equal(r.cost, 15 * 8 * 1.5);
+});
+
+import { availabilityFromGrid, parseAvailabilityReply, mergeAvailabilityReplies } from "./calc.mjs";
+
+test("availability grid becomes the text the staff list reads, ranges collapsed", () => {
+  const w = { mode: "range", from: 540, to: 1020 };
+  const grid = [w, w, w, w, w, { mode: "range", from: 600, to: 840 }, { mode: "off" }];
+  const text = availabilityFromGrid(grid);
+  assert.equal(text, "Mon-Fri 9-17; Sat 10-14; Sun off");
+  const a = parseAvailability(text);
+  assert.deepEqual(a.errors, []);
+  assert.deepEqual(a.days[0], [[540, 1020]]);
+  assert.deepEqual(a.days[5], [[600, 840]]);
+  assert.deepEqual(a.days[6], []);
+  assert.equal(availabilityFromGrid(Array(7).fill({ mode: "any" })), "Mon-Sun 0-24");
+  const allOff = availabilityFromGrid(Array(7).fill({ mode: "off" }));
+  assert.equal(allOff, "Mon-Sun off");
+  assert.equal(parseAvailability(allOff).any, false);
+  assert.deepEqual(parseAvailability(allOff).days.flat(), []);
+  assert.equal(availabilityFromGrid([{ mode: "range", from: 570, to: 1050 }, ...Array(6).fill({ mode: "off" })]), "Mon 9:30-17:30; Tue-Sun off");
+});
+
+test("reply lines: valid, bad availability, bad extras", () => {
+  const ok = parseAvailabilityReply("Ana | Mon-Fri 9-17; Sat off | max: 30 | off: Wed");
+  assert.equal(ok.name, "Ana");
+  assert.equal(ok.max, 30);
+  assert.deepEqual(ok.extras, ["off: Wed"]);
+  assert.match(parseAvailabilityReply("Ana").error, /not a reply line/);
+  assert.match(parseAvailabilityReply("Ana | Funday 9-5").error, /^Ana:/);
+  assert.match(parseAvailabilityReply("Ana | Mon 9-17 | wage: 99").error, /could not read/);
+});
+
+test("merging replies replaces availability, keeps wage and roles, never raises max hours", () => {
+  const staff = "name, wage, max, min, availability\nAna, 18, 40, 30, Mon-Sat 6-22, roles: cook, prev: Sun 10pm\nBen, 16, 32, 20, any, off: Fri";
+  const m = mergeAvailabilityReplies(staff, "Ana | Mon-Fri 9-17; Sat off | max: 25 | off: Wed\nBen | Mon-Sun 0-24 | max: 50\nZed | Sat 8-16");
+  assert.deepEqual(m.errors, []);
+  assert.deepEqual(m.updated, ["Ana", "Ben"]);
+  assert.deepEqual(m.added, ["Zed"]);
+  const lines = m.text.split("\n");
+  assert.equal(lines[0], "name, wage, max, min, availability");
+  assert.equal(lines[1], "Ana, 18, 25, 25, Mon-Fri 9-17; Sat off, off: Wed, roles: cook, prev: Sun 10pm");
+  assert.equal(lines[2], "Ben, 16, 32, 20, Mon-Sun 0-24, off: Fri");
+  const p = parseStaff(lines.slice(0, 3).join("\n"));
+  assert.deepEqual(p.errors, []);
+  assert.equal(p.staff[0].maxHours, 25);
+  assert.deepEqual(p.staff[0].roles, ["cook"]);
+  assert.ok(p.staff[0].prevEnd !== null);
+  assert.ok(m.text.includes("Zed, , 40, 0, Sat 8-16"));
+  assert.ok(parseStaff(m.text).errors.some((e) => /Zed/.test(e) && /wage/.test(e)));
+});
+
+test("merging reports bad lines without touching the rest", () => {
+  const staff = "Ana, 18, 40, 0, any";
+  const m = mergeAvailabilityReplies(staff, "# comment\nAna | Moonday 9-5\n\nnonsense");
+  assert.equal(m.text, staff);
+  assert.equal(m.errors.length, 2);
+  assert.deepEqual(m.updated, []);
+});
+
+test("parseRosterCsv: later days and overnight shifts keep absolute minutes from Monday", () => {
+  const csv = ["day,start,end,hours,label,assigned_to,role", "Tue,9:00 AM,5:00 PM,8.00,open,Ana,", "Fri (overnight),10:00 PM,2:00 AM,4.00,close,Ben,"].join("\n");
+  const rows = parseRosterCsv(csv);
+  assert.deepEqual([rows[0].start, rows[0].end], [1440 + 540, 1440 + 1020]);
+  assert.deepEqual([rows[1].start, rows[1].end], [4 * 1440 + 22 * 60, 5 * 1440 + 120]);
+});
+
+test("placeBreaks: only people on the floor at that time on that day count as cover", () => {
+  const r = { assignments: [
+    { slot: { day: 0, startMin: 480, endMin: 960 }, person: "Sam" },
+    { slot: { day: 1, startMin: 480, endMin: 960 }, person: "Zed" },
+  ] };
+  const b = placeBreaks(r);
+  const sam = b.find((x) => x.person === "Sam");
+  assert.ok(sam.alone && sam.others === 0, "Zed works Tuesday, so he is no cover for Monday");
+});
+
+test("placeBreaks: a break taken on one day does not take that person off the floor on another", () => {
+  const A = (person, day) => ({ slot: { day, startMin: 480, endMin: 960 }, person });
+  const b = placeBreaks({ assignments: [A("Ana", 0), A("Ben", 0), A("Ana", 1), A("Ben", 1)] });
+  assert.equal(b.length, 4);
+  assert.ok(b.every((x) => !x.alone && x.others === 1));
+});
+
+test("roles: 'role: keyholder x1' needs one keyholder among several people, the rest take anyone", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, roles: keyholder\nBen, 12, 40, 0, any\nCy, 10, 40, 0, any");
+  const slots = slotsOf("Mon, 8, 16, 3, open, role: keyholder x1");
+  assert.deepEqual(slots.map((s) => s.role), ["keyholder", "", ""]);
+  const r = buildRoster(staff, slots);
+  assert.equal(r.unfilled.length, 0);
+  assert.equal(r.assignments.filter((a) => a.slot.role === "keyholder")[0].person, "Ana");
+  // Without Ana nobody can hold the keyholder copy, so exactly that one stays open.
+  const noKey = buildRoster(staffOf("Ben, 12, 40, 0, any\nCy, 10, 40, 0, any\nDi, 9, 40, 0, any"), slots);
+  assert.equal(noKey.unfilled.length, 1);
+  assert.match(noKey.unfilled[0].text, /nobody listed has the role "keyholder"/);
+  assert.match(parseShifts("Mon, 8, 16, 2, open, role: keyholder x3").errors[0], /asks for 3/);
+});
+
+test("a high balance setting never costs coverage on the sample week", () => {
+  const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
+  const base = buildRoster(staff, slots, { balance: 0 }).unfilledHours;
+  for (const balance of [25, 50, 75, 100]) assert.equal(buildRoster(staff, slots, { balance }).unfilledHours, base, `balance ${balance}`);
+});
+
+test("tough: history makes the search hand this week's closes to the person who has had fewest lately", async () => {
+  const { parseStaff, parseShifts, buildRoster, carryOverStaff, toughCounts } = await import("./calc.mjs");
+  const st = parseStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any, tough: 4\nBen, 15, 40, 0, any, tough: 0");
+  assert.deepEqual(st.errors, []);
+  assert.equal(st.staff[0].toughBefore, 4);
+  assert.equal(st.staff[1].toughBefore, 0);
+  assert.equal(st.staff[0].days.length > 0, true);
+  const sh = parseShifts("Mon-Thu, 5pm, 11pm, 1, close");
+  const r = buildRoster(st.staff, sh.slots, { toughBalance: 100, balance: 0 });
+  const by = (n) => r.assignments.filter((a) => a.person === n).length;
+  assert.equal(by("Ana") + by("Ben"), 4);
+  assert.ok(by("Ben") > by("Ana"), `Ben ${by("Ben")} vs Ana ${by("Ana")}`);
+  // Without history the same week splits evenly.
+  const even = parseStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any\nBen, 15, 40, 0, any");
+  const r2 = buildRoster(even.staff, sh.slots, { toughBalance: 100, balance: 0 });
+  assert.equal(r2.assignments.filter((a) => a.person === "Ana").length, 2);
+  // A bad cell is reported.
+  assert.match(parseStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any, tough: lots").errors[0], /tough: 3/);
+  // Carry over: counts last week's tough shifts and halves the old tally.
+  const csv = ["day,start,end,hours,label,assigned_to,role", "Sat,9am,5pm,8.00,,Ana,", "Mon,5pm,11pm,6.00,,Ana,", "Tue,9am,5pm,8.00,,Ana,", "Tue,9am,5pm,8.00,,Ben,"].join("\n");
+  assert.equal(toughCounts(csv).get("ana"), 2);
+  assert.equal(toughCounts(csv).get("ben"), 0);
+  const c = carryOverStaff("name,wage,max,min,avail\nAna, 15, 40, 0, any, tough: 4\nBen, 15, 40, 0, any, tough: 2", csv);
+  const next = parseStaff(c.text);
+  assert.deepEqual(next.errors, []);
+  assert.equal(next.staff[0].toughBefore, 4); // 4 * 0.5 + 2
+  assert.equal(next.staff[1].toughBefore, 1); // 2 * 0.5 + 0
+});
+
+test("salesPerLaborHour: hours each day's sales call for against hours scheduled", () => {
+  const staff = staffOf("Ann,10,40,0,any");
+  const slots = slotsOf("Mon,8,12,1\nMon,13,17,1\nWed,9,13,1");
+  const r = buildRoster(staff, slots, { minRestHours: 0 });
+  const g = salesPerLaborHour(r, staff, "$400, 0, 100", 50);
+  assert.equal(g.days[0].splh, 50);
+  assert.equal(g.days[0].needHours, 8);
+  assert.equal(g.days[0].gap, 0);
+  assert.equal(g.days[1].gap, null);
+  assert.equal(g.days[2].needHours, 2);
+  assert.equal(g.days[2].gap, 2);
+  assert.deepEqual(g.over.map((d) => d.day), ["Wed"]);
+  assert.deepEqual(g.under, []);
+  assert.equal(salesPerLaborHour(r, staff, "", 50), null);
+  assert.equal(salesPerLaborHour(r, staff, "400", 0), null);
+  assert.deepEqual(salesPerLaborHour(r, staff, "800", 50).under.map((d) => d.day), ["Mon"]);
+});
+
+test("openShiftPost: one group message naming each open shift and who could take it, no pay figures", () => {
+  const staff = staffOf("Ana, 15, 40, 0, Mon 9-17\nBen, 12, 40, 0, Mon 9-17; Tue 9-17");
+  const slots = slotsOf("Mon, 9, 13, 1, early\nTue, 9, 13, 1, tue\nSat, 9, 13, 1, sat");
+  const r = buildRoster(staff, slots);
+  const post = openShiftPost(staff, slots, r, "2026-10-12");
+  assert.equal(post.count, 1);
+  assert.match(post.text, /^Open shifts this week\. Reply to claim one:/);
+  assert.match(post.text, /Sat 17 Oct: 9am-1pm sat - open to anyone free/);
+  assert.doesNotMatch(post.text, /\$/);
+  const full = buildRoster(staff, slotsOf("Mon, 9, 13, 1, early"));
+  assert.deepEqual(openShiftPost(staff, slotsOf("Mon, 9, 13, 1, early"), full), { count: 0, text: "" });
+  assert.ok(openShiftPost(staff, slots, null).error);
+});
+
+test("openShiftPost: names the people who could take an open shift", () => {
+  const staff = staffOf("Ana, 15, 40, 0, Mon 9-17\nBen, 12, 40, 0, Mon 9-17");
+  const slots = slotsOf("Mon, 9, 13, 1, crew");
+  const r = buildRoster(staff, slots);
+  const emptied = { ...r, owner: [-1] };
+  const post = openShiftPost(staff, slots, emptied);
+  assert.equal(post.count, 1);
+  assert.match(post.text, /Mon: 9am-1pm crew - could take it: Ben, Ana/);
+});
+
+import { planWeeks, sampleStaff as _ss, sampleShifts as _sh, parseRosterCsv as _prc } from "./calc.mjs";
+
+test("planWeeks builds consecutive weeks and carries the tough-shift tally forward", () => {
+  const p = planWeeks(_ss(), _sh(), { weeks: 3, weekStart: "2026-11-02", toughBalance: 60, restarts: 1, iterations: 3000 });
+  assert.ok(p.ok);
+  assert.equal(p.weeks.length, 3);
+  assert.deepEqual(p.weeks.map((w) => w.weekStart), ["2026-11-02", "2026-11-09", "2026-11-16"]);
+  for (const w of p.weeks) assert.ok(_prc(w.csv).length > 0);
+  assert.equal(p.totalCost, p.weeks.reduce((t, w) => t + w.roster.cost, 0));
+});
+
+test("planWeeks applies a dated off entry only in the week it falls in", () => {
+  const staff = _ss().replace("Gus, 19, 40, 0, any", "Gus, 19, 40, 0, any, off: 2026-11-10");
+  const p = planWeeks(staff, _sh(), { weeks: 2, weekStart: "2026-11-02", restarts: 1, iterations: 3000 });
+  assert.ok(p.ok);
+  const gusTue = (w) => _prc(w.csv).filter((s) => s.person === "Gus" && s.day === 1).length;
+  assert.equal(gusTue(p.weeks[1]), 0);
+});
+
+test("planWeeks drops a stale prev: for people who did not work last week", () => {
+  const staff = "name, wage, max hours, min hours, availability\nAna, 18, 40, 0, Mon-Sun 6-22, prev: Sun 10pm\nBen, 16, 40, 0, Mon-Sun 6-22";
+  const shifts = "day, start, end, people needed, label\nMon-Fri, 9, 17, 1, day";
+  const p = planWeeks(staff, shifts, { weeks: 2, weekStart: "2026-11-02", restarts: 1, iterations: 2000 });
+  assert.ok(p.ok);
+  assert.equal(p.weeks.length, 2);
+  assert.equal(planWeeks(staff, shifts, { weeks: 99 }).weeks.length, 8);
+});
+
+test("budgetCheck: headroom, overage in hours at average cost, bad input", () => {
+  const under = budgetCheck({ cost: 900, hours: 60 }, 1000);
+  assert.equal(under.over, false);
+  assert.equal(under.headroom, 100);
+  assert.equal(under.cutHours, 0);
+  const over = budgetCheck({ cost: 1200, hours: 80 }, 1000);
+  assert.equal(over.over, true);
+  assert.equal(over.perHour, 15);
+  assert.ok(Math.abs(over.cutHours - 200 / 15) < 1e-9);
+  assert.equal(budgetCheck({ cost: 900, hours: 60 }, 0), null);
+  assert.equal(budgetCheck({ cost: 900, hours: 60 }, "x"), null);
+});
+
+test("unsupervisedStretches: a minor is never the only one in", () => {
+  const st = staffOf("Name, Wage\nKit, 12, , , minor\nAna, 15\nSam, 15");
+  assert.equal(st[0].supervised, true);
+  assert.equal(st[1].supervised, false);
+  const a = (person, day, startMin, endMin) => ({ slot: { day, startMin, endMin }, person });
+  const r = { assignments: [a("Kit", 0, 540, 900), a("Ana", 0, 600, 840), a("Kit", 1, 600, 720), a("Kit", 2, 1260, 120)] };
+  const got = unsupervisedStretches(r, st);
+  assert.deepEqual(got.map((x) => [x.people.join(), x.day, x.startMin, x.endMin]), [["Kit", "Mon", 540, 600], ["Kit", "Mon", 840, 900], ["Kit", "Tue", 600, 720], ["Kit", "Wed", 1260, 120]]);
+  assert.deepEqual(unsupervisedStretches({ assignments: [a("Kit", 0, 540, 600), a("Ana", 0, 540, 600)] }, st), []);
+  assert.deepEqual(unsupervisedStretches(r, staffOf("Ana, 15")), []);
+});
+
+test("loneStretches: one person alone for longer than the limit", () => {
+  const a = (person, day, startMin, endMin) => ({ slot: { day, startMin, endMin }, person });
+  const r = { assignments: [a("Ana", 0, 540, 900), a("Ben", 0, 660, 780), a("Cy", 1, 600, 660), a("Ana", 2, 1260, 120)] };
+  const got = loneStretches(r, 2);
+  assert.deepEqual(got.map((x) => [x.person, x.day, x.startMin, x.endMin, x.hours]), [["Ana", "Wed", 1260, 120, 5]]);
+  assert.deepEqual(loneStretches(r, 1).map((x) => x.day + x.person), ["MonAna", "MonAna", "WedAna"]);
+  assert.deepEqual(loneStretches({ assignments: [a("Ana", 0, 540, 600), a("Ben", 0, 540, 600)] }, 0), []);
+});
+
+test("shortShifts: assigned shifts under the minimum, overnight aware", () => {
+  const a = (person, day, startMin, endMin) => ({ slot: { day, startMin, endMin }, person });
+  const r = { assignments: [a("Ana", 0, 540, 660), a("Ben", 1, 540, 840), a("Cy", 2, 1380, 60), { slot: { day: 3, startMin: 0, endMin: 60 }, person: null }] };
+  assert.deepEqual(shortShifts(r, 4).map((x) => [x.person, x.day, x.hours]), [["Ana", "Mon", 2], ["Cy", "Wed", 2]]);
+  assert.deepEqual(shortShifts(r, 2), []);
+});
+
+test("age: 15 applies the federal youth-hour limits as hard rules", () => {
+  const { staff, errors, notes } = parseStaff("Name, Wage\nKit, 12, 40, , age: 15\nVic, 12, , , age: 15 summer\nAna, 15\nLou, 12, , , age: 17");
+  assert.deepEqual(errors, []);
+  const [kit, vic, ana, lou] = staff;
+  assert.equal(kit.maxHours, 18);
+  assert.equal(kit.maxDaily, 3);
+  assert.deepEqual(kit.days[0], [[420, 1140]]);
+  assert.equal(vic.maxHours, 40);
+  assert.equal(vic.maxDaily, 8);
+  assert.deepEqual(vic.days[2], [[420, 1260]]);
+  assert.equal(kit.supervised, true);
+  assert.equal(lou.supervised, true);
+  assert.equal(lou.maxHours, 40);
+  assert.equal(ana.age, null);
+  assert.equal(notes.length, 2);
+  // the solver cannot give a 15-year-old a closing shift or a 6-hour school-week day
+  const sh = parseShifts("Mon, 5pm, 10pm, 1\nTue, 3pm, 9pm, 1");
+  const r = buildRoster([kit], sh.slots);
+  assert.equal(r.assignments.filter((a) => a.person === "Kit").length, 0);
+  assert.equal(parseStaff("Name, Wage\nTy, 12, , , age: 12").errors.length, 1);
+  assert.equal(parseStaff("Name, Wage\nTy, 12, , , age: old").errors.length, 1);
+});
+
+import { parseTimeOffRequest, addTimeOff } from "./calc.mjs";
+test("parseTimeOffRequest and addTimeOff build an off: entry", () => {
+  assert.deepEqual(parseTimeOffRequest("2026-11-04"), { entry: "2026-11-04" });
+  assert.deepEqual(parseTimeOffRequest("2026-11-04", "2026-11-06"), { entry: "2026-11-04..2026-11-06" });
+  for (const bad of [["2026-13-40"], ["2026-02-30"], ["tomorrow"], ["2026-11-06", "2026-11-04"], ["2026-01-01", "2026-06-01"]]) assert.ok(parseTimeOffRequest(...bad).error, bad.join());
+  const staff = "name, wage, max hours, min hours, availability\nAna, 20, 40, 0, any\nBen, 20, 40, 0, any, off: Fri";
+  assert.match(addTimeOff(staff, "ana", "2026-11-04").text, /Ana, 20, 40, 0, any, off: 2026-11-04$/m);
+  const b = addTimeOff(staff, "Ben", "2026-11-04").text;
+  assert.match(b, /Ben, 20, 40, 0, any, off: Fri; 2026-11-04$/m);
+  assert.equal(addTimeOff(b, "Ben", "2026-11-04").text, b);
+  assert.ok(addTimeOff(staff, "Zed", "2026-11-04").error);
+});
+
+import { TEMPLATES as _TPL, parseStaff as _ps2, parseShifts as _psh2, buildRoster as _br2 } from "./calc.mjs";
+test("every starter template parses cleanly and builds a roster that covers its shifts", () => {
+  assert.ok(Object.keys(_TPL).length >= 4);
+  for (const [k, t] of Object.entries(_TPL)) {
+    const st = _ps2(t.staff()), sh = _psh2(t.shifts());
+    assert.equal(st.errors?.length || 0, 0, k + " staff errors");
+    assert.equal(sh.errors?.length || 0, 0, k + " shift errors");
+    assert.ok(st.staff.length >= 5 && sh.slots.length > 0, k);
+    const r = _br2(st.staff, sh.slots, {});
+    assert.ok(r.ok && r.totalHours > 0, k);
+    if (k !== "cafe") assert.ok(r.unfilledHours <= 10, k + " leaves too much open: " + r.unfilledHours);
+  }
+});
+
+import { planFairness } from "./calc.mjs";
+
+test("planFairness adds each week's tough shifts per person and flags a lopsided month", () => {
+  const p = planWeeks(_ss(), _sh(), { weeks: 3, weekStart: "2026-11-02", toughBalance: 60, restarts: 1, iterations: 3000 });
+  const f = planFairness(p);
+  assert.equal(f.weeks, 3);
+  const total = f.rows.reduce((t, x) => t + x.tough, 0);
+  const perWeek = p.weeks.reduce((t, w) => t + fairnessReport(w.roster).rows.reduce((u, x) => u + x.tough, 0), 0);
+  assert.equal(total, perWeek);
+  assert.equal(f.spread, f.most.tough - f.least.tough);
+  const fake = (name, tough) => ({ roster: { people: [{ name }, { name: "Zed" }], assignments: Array.from({ length: tough }, () => ({ person: name, slot: { day: 5, startMin: 600, endMin: 900 } })).concat([{ person: "Zed", slot: { day: 1, startMin: 600, endMin: 900 } }]) } });
+  const lop = planFairness({ weeks: [fake("Ann", 4), fake("Ann", 4)] });
+  assert.equal(lop.most.name, "Ann");
+  assert.equal(lop.most.tough, 8);
+  assert.equal(lop.flag, true);
+  assert.deepEqual(planFairness(null), { weeks: 0, rows: [], spread: 0, flag: false, most: null, least: null });
+});
+
+test("ownerValid judges a person's shifts in time order, whatever order the slot array is in", () => {
+  const staff = staffOf("Ann,15,40,0,Mon-Sun 6-24");
+  const base = slotsOf("Mon,9,17,1\nTue,9,17,1\nWed,9,17,1");
+  // Slot indices run with the clock in one array and against it in the other.
+  for (const slots of [base, [...base].reverse()]) {
+    const ctx = _internals.buildContext(staff, slots, {});
+    assert.ok(_internals.ownerValid(ctx, slots.map(() => 0)), "three days of shifts with a full night between them are valid");
+  }
+  const clash = slotsOf("Mon,6,12,1\nMon,10,16,1");
+  for (const slots of [clash, [...clash].reverse()]) {
+    const ctx = _internals.buildContext(staff, slots, {});
+    assert.ok(!_internals.ownerValid(ctx, [0, 0]), "overlapping shifts are invalid");
+  }
 });

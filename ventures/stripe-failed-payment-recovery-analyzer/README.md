@@ -5,6 +5,8 @@ export and see how much failed-payment revenue you recover, how much you lose,
 and which declines are fixable.** The file is read in the browser; nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/stripe-failed-payment-recovery-analyzer/
+
 After using this, you can now **see your real recovery rate by decline reason,
 how fast recoveries arrive, which lost revenue is an expired card versus a
 temporary decline, and what a few more points of recovery are worth a year**,

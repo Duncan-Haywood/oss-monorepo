@@ -1,0 +1,31 @@
+{
+  "slug": "snow-removal-bid-calculator",
+  "name": "Snow removal (seasonal route)",
+  "group": "Landscaping & outdoor",
+  "summary": "Seasonal and per-push snow plowing priced per stop from plow, shovel and salt time, truck cost and expected storms.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 22,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Plow + shovel + salt a two-car driveway (per push)",
+      "unit": "push",
+      "qty": 80,
+      "hoursPerUnit": 0.4333,
+      "materialPerUnit": 31.5,
+      "source": "8 two-car driveways x 10 expected snow events x 1 pass (index.html STARTING_SITES and defaults); 12 plow + 8 sidewalk + 6 deadhead min = 26 min; 1.5 salt bags at $8 = $12 + truck/plow $45/h x 0.4333 h = $19.50 (SITE_PRESETS in calc.mjs)"
+    },
+    {
+      "label": "Ice / salt-only visit, two-car driveway",
+      "unit": "visit",
+      "qty": 48,
+      "hoursPerUnit": 0.3167,
+      "materialPerUnit": 28.65,
+      "source": "8 driveways x 6 expected ice events; (12 + 8) min x ICE_MINUTE_FACTOR 0.65 + 6 deadhead = 19 min; 1.5 bags x ICE_SALT_FACTOR 1.2 x $8 = $14.40 + truck $45/h x 0.3167 h = $14.25"
+    }
+  ],
+  "specialistModels": "Seasonal contract vs per-push pricing, expected snow and ice events, passes per storm, break-even storm count for a seasonal price, and truck cost per hour folded in here as material."
+}

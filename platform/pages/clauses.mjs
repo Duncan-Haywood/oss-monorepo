@@ -88,6 +88,10 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
 // -- and deriving that class a second time from filenames would let a page be
 // one kind for the disclaimer check and the other kind for the budget.
 export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+  // Compares against "eyeballing the decoded payload" -- a manual review habit
+  // any developer already has, not a company or product this could be
+  // mistaken for.
+  'jwt-security-check/vs-eyeballing-the-payload.html',
   // Compares against "writing llms.txt by hand" -- a generic authoring
   // practice every site owner can do without any tool, not a company or
   // product this could be mistaken for.
@@ -692,6 +696,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer for exactly that reason). Same reasoning as the
   // amazon-fba-calculator spreadsheet page above.
   'str-host-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html',
+  // Compares against "subtracting a flat percentage" -- the mental-math
+  // shortcut of applying one headline rate to the booking subtotal, not a
+  // company or product this could be mistaken for. The page names no
+  // competing calculator or tool.
+  'str-host-payout-calculator/vs-subtracting-a-flat-percentage.html',
   // Compares against "a flat rate per square foot" -- a pricing habit every
   // turf and landscape shop is shopped against, not a company or product
   // this could be mistaken for. The page names no vendor or competing
@@ -1484,6 +1493,9 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand/by-eye pages above.
   'ats-resume-checker/vs-checking-it-by-eye.html',
+  // Compares against "a spreadsheet" -- a method every job seeker already
+  // has, not a company or product this could be mistaken for.
+  'job-application-tracker/vs-a-spreadsheet.html',
   // Compares against "a spreadsheet" -- a method every carrier filing their
   // own IFTA return already has, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-expressifta.html,
@@ -2564,6 +2576,18 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // The page names no software, vendor or manufacturer, and its own test
   // (page.test.mjs) pins that, so this exemption cannot quietly stop being true.
   'hvac-repair-tier-price-calculator/vs-quoting-one-repair-price.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'exempt-salary-threshold-checker/vs-checking-the-threshold-yourself.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'final-paycheck-deadline-calculator/vs-checking-the-deadline-yourself.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'hsa-contribution-limit-calculator/vs-doing-the-proration-math-by-hand.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'payment-reconciliation-workbench/vs-reconciling-in-a-spreadsheet.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'social-preview-check/vs-checking-tags-by-eye.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'vending-machine-route-margin/vs-judging-a-location-by-gross-sales-alone.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

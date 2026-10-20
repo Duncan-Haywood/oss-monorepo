@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01Njxyn8antfCvtg7C3HoB2v",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "vendor-watch",
+    "vendor-change-watch"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/6994",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "partial",
+  "errors": [
+    "first landing page used href=\"../\" which the mirror rejects and which silently dropped vendor-watch and vendor-change-watch from the mirror",
+    "first apt-get install python3-pytest failed (exit 100) without apt-get update"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "the pytest apt line omits `apt-get update &&`, which the same file calls load-bearing elsewhere; my first install failed with exit 100"
+    },
+    {
+      "file": "platform/pages/README.md",
+      "issue": "no doc says a hub link href=\"../\" makes the mirror drop the page; regen printed no warning when vendor-watch was silently excluded and regen --verify said current"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the checklist's test commands take 10+ minutes in one call and hit the tool timeout"
+    }
+  ],
+  "goal": null,
+  "notes": "Added a static landing page for vendor-watch (an app venture with no public page) and cross-linked vendor-change-watch to close the orphan. Marketing+pages node suites 1293 pass/0 fail. gitops/tests: 576 pass, 26 fail all in test_worker_run.py (gh download cache tests; not touched by this change, not investigated further). PR had zero check runs, so local checklist was the verification; browser checks, run_workflow_locally and unlanded_work not run before merge.",
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR #6994 shows merged on GitHub; ci_failures_before_green not recoverable from the PR, left as recorded"
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "R0000100": {
+    "ref": "R00001.00",
+    "name": "CASEID",
+    "year": "1979",
+    "block": "R00001.00    [CASEID]                                       Survey Year: 1979\n  PRIMARY VARIABLE\n\n             IDENTIFICATION CODE\n \nORIGINAL QUESTION NAME: CASEID\n \nNOTE: THIS NUMBER WAS ASSIGNED ACCORDING TO THE RECORD NUMBER OF EACH RESPONDENT\nON THE TAPE. THE FIRST RESPONDENT WAS ASSIGNED ID#1, THE SECOND WAS ASSIGNED \nID#2, ETC.\n \nACTUAL NUMBER\n \nUNIVERSE: All\n \nRefusal(-1)            0\nDon't Know(-2)         0\nTOTAL =========>   12686   VALID SKIP(-4)       0     NON-INTERVIEW(-5)       0\n \nMin:              1        Max:          12686        Mean:              6343.5\n \nLead In: None.\nDefault Next Question: R00001.49"
+  },
+  "R7009401": {
+    "ref": "R70094.01",
+    "name": "C1DOB00~M",
+    "year": "2000",
+    "block": "R70094.01    [C1DOB00~M]                                    Survey Year: 2000\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD\n \nCOMMENT: date of birth of 1st biological child\n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     497           1: January\n     485           2: February\n     485           3: March\n     496           4: April\n     537           5: May\n     540           6: June\n     576           7: July\n     548           8: August\n     594           9: September\n     570          10: October\n     504          11: November\n     538          12: December\n  -------\n    6370\n \nRefusal(-1)            0\nDon't Know(-2)         8\nInvalid Skip(-3)       2\nTOTAL =========>    6380   VALID SKIP(-4)    1652     NON-INTERVIEW(-5)    4654\n \nLead In: None.\nDefault Next Question: R70094.02"
+  },
+  "R7009402": {
+    "ref": "R70094.02",
+    "name": "C1DOB00~Y",
+    "year": "2000",
+    "block": "R70094.02    [C1DOB00~Y]                                    Survey Year: 2000\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD\n \nCOMMENT: date of birth of 1st biological child\n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \nRefusal(-1)            1\nDon't Know(-2)         2\nInvalid Skip(-3)       1\nTOTAL =========>    6380   VALID SKIP(-4)    1652     NON-INTERVIEW(-5)    4654\n \nLead In: R70094.01[Default]\nDefault Next Question: R70095.00"
+  },
+  "R7014400": {
+    "ref": "R70144.00",
+    "name": "AGE1B00",
+    "year": "2000",
+    "block": "R70144.00    [AGE1B00]                                      Survey Year: 2000\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \nCOMMENT: AGE OF R AT 1ST BIRTH AS OF 2000 INT\n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1652        -998: NO 1ST BIRTH HAS OCCURRED\n       0        -997: NO 2ND BIRTH HAS OCCURRED\n       0        -996: NO 3RD BIRTH HAS OCCURRED\n       0           1 TO 9: Under age 10\n      38          10 TO 14\n     641          15 TO 17\n     853          18 TO 19\n    2129          20 TO 24\n    1579          25 TO 29\n     874          30 TO 34\n     237          35 TO 39\n      18          40 TO 44\n       0          45 TO 60: 45 or over\n  -------\n    8021\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)      11\nTOTAL =========>    8032   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    4654\n \nMin:           -998        Max:             42        Mean:              -186.5\n \nLead In: R70143.00[Default]\nDefault Next Question: R70145.00"
+  },
+  "R7706701": {
+    "ref": "R77067.01",
+    "name": "C1DOB02~M",
+    "year": "2002",
+    "block": "R77067.01    [C1DOB02~M]                                    Survey Year: 2002\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD\n \nCOMMENT: date of birth of 1st biological child\n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     498           1: January\n     484           2: February\n     477           3: March\n     492           4: April\n     524           5: May\n     529           6: June\n     550           7: July\n     529           8: August\n     581           9: September\n     549          10: October\n     494          11: November\n     511          12: December\n  -------\n    6218\n \nRefusal(-1)            0\nDon't Know(-2)         6\nInvalid Skip(-3)       1\nTOTAL =========>    6225   VALID SKIP(-4)    1499     NON-INTERVIEW(-5)    4962\n \nLead In: None.\nDefault Next Question: R77067.02"
+  },
+  "R7706702": {
+    "ref": "R77067.02",
+    "name": "C1DOB02~Y",
+    "year": "2002",
+    "block": "R77067.02    [C1DOB02~Y]                                    Survey Year: 2002\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD\n \nCOMMENT: date of birth of 1st biological child\n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \nRefusal(-1)            1\nDon't Know(-2)         2\nTOTAL =========>    6225   VALID SKIP(-4)    1499     NON-INTERVIEW(-5)    4962\n \nLead In: R77067.01[Default]\nDefault Next Question: R77068.00"
+  },
+  "R7712000": {
+    "ref": "R77120.00",
+    "name": "AGE1B02",
+    "year": "2002",
+    "block": "R77120.00    [AGE1B02]                                      Survey Year: 2002\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \nCOMMENT: AGE OF R AT 1ST BIRTH AS OF 2002 INT\n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1499        -998: NO 1ST BIRTH HAS OCCURRED\n       0        -997: NO 2ND BIRTH HAS OCCURRED\n       0        -996: NO 3RD BIRTH HAS OCCURRED\n       0           1 TO 9: Under age 10\n      40          10 TO 14\n     619          15 TO 17\n     826          18 TO 19\n    2049          20 TO 24\n    1507          25 TO 29\n     846          30 TO 34\n     291          35 TO 39\n      39          40 TO 44\n       0          45 TO 60: 45 or over\n  -------\n    7716\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)       8\nTOTAL =========>    7724   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    4962\n \nMin:           -998        Max:             44        Mean:             -174.41\n \nLead In: R77119.00[Default]\nDefault Next Question: R77121.00"
+  },
+  "R8499101": {
+    "ref": "R84991.01",
+    "name": "C1DOB04~M",
+    "year": "2004",
+    "block": "R84991.01    [C1DOB04~M]                                    Survey Year: 2004\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n       0           0: Month not reported\n     502           1: January\n     485           2: February\n     491           3: March\n     483           4: April\n     520           5: May\n     534           6: June\n     567           7: July\n     521           8: August\n     580           9: September\n     536          10: October\n     489          11: November\n     514          12: December\n  -------\n    6222\n \nRefusal(-1)            0\nDon't Know(-2)         8\nInvalid Skip(-3)       1\nTOTAL =========>    6231   VALID SKIP(-4)    1430     NON-INTERVIEW(-5)    5025\n \nLead In: None.\nDefault Next Question: R84991.02"
+  },
+  "R8499102": {
+    "ref": "R84991.02",
+    "name": "C1DOB04~Y",
+    "year": "2004",
+    "block": "R84991.02    [C1DOB04~Y]                                    Survey Year: 2004\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \nRefusal(-1)            1\nDon't Know(-2)         5\nTOTAL =========>    6231   VALID SKIP(-4)    1430     NON-INTERVIEW(-5)    5025\n \nLead In: R84991.01[Default]\nDefault Next Question: R84992.00"
+  },
+  "R8504500": {
+    "ref": "R85045.00",
+    "name": "AGE1B04",
+    "year": "2004",
+    "block": "R85045.00    [AGE1B04]                                      Survey Year: 2004\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1430        -998: NO 1ST BIRTH HAS OCCURRED\n       0        -997: NO 2ND BIRTH HAS OCCURRED\n       0        -996: NO 3RD BIRTH HAS OCCURRED\n       0           1 TO 9: Under age 10\n      37          10 TO 14\n     617          15 TO 17\n     839          18 TO 19\n    2024          20 TO 24\n    1496          25 TO 29\n     848          30 TO 34\n     302          35 TO 39\n      56          40 TO 44\n       0          45 TO 60: 45 or over\n  -------\n    7649\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)      12\nTOTAL =========>    7661   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    5025\n \nMin:           -998        Max:             44        Mean:             -166.86\n \nLead In: R85044.00[Default]\nDefault Next Question: R85046.00"
+  },
+  "T0990801": {
+    "ref": "T09908.01",
+    "name": "C1DOB06~M",
+    "year": "2006",
+    "block": "T09908.01    [C1DOB06~M]                                    Survey Year: 2006\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - MONTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     488           1: January\n     485           2: February\n     492           3: March\n     489           4: April\n     513           5: May\n     518           6: June\n     553           7: July\n     529           8: August\n     593           9: September\n     541          10: October\n     489          11: November\n     525          12: December\n  -------\n    6215\n \nRefusal(-1)            0\nDon't Know(-2)        10\nInvalid Skip(-3)       1\nTOTAL =========>    6226   VALID SKIP(-4)    1427     NON-INTERVIEW(-5)    5033\n \nLead In: None.\nDefault Next Question: T09908.02"
+  },
+  "T0990802": {
+    "ref": "T09908.02",
+    "name": "C1DOB06~Y",
+    "year": "2006",
+    "block": "T09908.02    [C1DOB06~Y]                                    Survey Year: 2006\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - YEAR\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \nRefusal(-1)            1\nDon't Know(-2)         5\nTOTAL =========>    6226   VALID SKIP(-4)    1427     NON-INTERVIEW(-5)    5033\n \nLead In: T09908.01[Default]\nDefault Next Question: T09909.00"
+  },
+  "T0996200": {
+    "ref": "T09962.00",
+    "name": "AGE1B06",
+    "year": "2006",
+    "block": "T09962.00    [AGE1B06]                                      Survey Year: 2006\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1427        -998: NO 1ST BIRTH HAS OCCURRED\n       0        -997: NO 2ND BIRTH HAS OCCURRED\n       0        -996: NO 3RD BIRTH HAS OCCURRED\n       0           1 TO 9: Under age 10\n      38          10 TO 14\n     616          15 TO 17\n     823          18 TO 19\n    2020          20 TO 24\n    1499          25 TO 29\n     841          30 TO 34\n     294          35 TO 39\n      76          40 TO 44\n       5          45 TO 60: 45 or over\n  -------\n    7639\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)      14\nTOTAL =========>    7653   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    5033\n \nMin:           -998        Max:             47        Mean:             -166.66\n \nLead In: T09961.00[Default]\nDefault Next Question: T09963.00"
+  },
+  "T2212601": {
+    "ref": "T22126.01",
+    "name": "C1DOB08~M",
+    "year": "2008",
+    "block": "T22126.01    [C1DOB08~M]                                    Survey Year: 2008\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - MONTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     498           1: January\n     485           2: February\n     503           3: March\n     495           4: April\n     522           5: May\n     531           6: June\n     570           7: July\n     531           8: August\n     604           9: September\n     545          10: October\n     498          11: November\n     524          12: December\n  -------\n    6306\n \nRefusal(-1)            0\nDon't Know(-2)        10\nInvalid Skip(-3)       1\nTOTAL =========>    6317   VALID SKIP(-4)    1440     NON-INTERVIEW(-5)    4929\n \nLead In: None.\nDefault Next Question: T22126.02"
+  },
+  "T2212602": {
+    "ref": "T22126.02",
+    "name": "C1DOB08~Y",
+    "year": "2008",
+    "block": "T22126.02    [C1DOB08~Y]                                    Survey Year: 2008\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - YEAR\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \nRefusal(-1)            1\nDon't Know(-2)         5\nTOTAL =========>    6317   VALID SKIP(-4)    1440     NON-INTERVIEW(-5)    4929\n \nLead In: T22126.01[Default]\nDefault Next Question: T22127.00"
+  },
+  "T2218000": {
+    "ref": "T22180.00",
+    "name": "AGE1B08",
+    "year": "2008",
+    "block": "T22180.00    [AGE1B08]                                      Survey Year: 2008\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1440        -998: NO 1ST BIRTH HAS OCCURRED\n      38          10 TO 14\n     629          15 TO 17\n     835          18 TO 19\n    2057          20 TO 24\n    1500          25 TO 29\n     844          30 TO 34\n     306          35 TO 39\n      86          40 TO 44\n       8          45 TO 60: 45 or over\n  -------\n    7743\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)      14\nTOTAL =========>    7757   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    4929\n \nMin:           -998        Max:             47        Mean:             -165.79\n \nLead In: T22179.00[Default]\nDefault Next Question: T22181.00"
+  },
+  "T3110501": {
+    "ref": "T31105.01",
+    "name": "C1DOB10~M",
+    "year": "2010",
+    "block": "T31105.01    [C1DOB10~M]                                    Survey Year: 2010\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - MONTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     485           1: January\n     464           2: February\n     482           3: March\n     491           4: April\n     507           5: May\n     515           6: June\n     553           7: July\n     520           8: August\n     581           9: September\n     541          10: October\n     493          11: November\n     515          12: December\n  -------\n    6147\n \nRefusal(-1)            0\nDon't Know(-2)        12\nInvalid Skip(-3)       1\nTOTAL =========>    6160   VALID SKIP(-4)    1405     NON-INTERVIEW(-5)    5121\n \nLead In: None.\nDefault Next Question: T31105.02"
+  },
+  "T3110502": {
+    "ref": "T31105.02",
+    "name": "C1DOB10~Y",
+    "year": "2010",
+    "block": "T31105.02    [C1DOB10~Y]                                    Survey Year: 2010\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - YEAR\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     790           0 TO 1978: < 1978\n     315        1979\n     391        1980\n     369        1981\n     417        1982\n     395        1983\n     371        1984\n     365        1985\n     300        1986\n     313        1987\n     304        1988\n     283        1989\n     246        1990\n     203        1991\n     186        1992\n     168        1993\n     135        1994\n     127        1995\n      95        1996\n      92        1997\n      51        1998\n      57        1999\n      42        2000\n      45        2001\n      25        2002\n      19        2003\n      13        2004\n      10        2005\n      13        2006\n       5        2007\n       2        2008\n       6        2009\n       1        2010 TO 2011: 2010+\n  -------\n    6154\n \nRefusal(-1)            1\nDon't Know(-2)         5\nTOTAL =========>    6160   VALID SKIP(-4)    1405     NON-INTERVIEW(-5)    5121\n \nLead In: T31105.01[Default]\nDefault Next Question: T31106.00"
+  },
+  "T3116000": {
+    "ref": "T31160.00",
+    "name": "AGE1B10",
+    "year": "2010",
+    "block": "T31160.00    [AGE1B10]                                      Survey Year: 2010\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1405        -998: NO 1ST BIRTH HAS OCCURRED\n      37          10 TO 14\n     629          15 TO 17\n     810          18 TO 19\n    2017          20 TO 24\n    1436          25 TO 29\n     819          30 TO 34\n     291          35 TO 39\n      91          40 TO 44\n      14          45 TO 60: 45 or over\n  -------\n    7549\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)      16\nTOTAL =========>    7565   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    5121\n \nMin:           -998        Max:             47        Mean:             -165.93\n \nLead In: T31159.00[Default]\nDefault Next Question: T31161.00"
+  },
+  "T4115001": {
+    "ref": "T41150.01",
+    "name": "C1DOB12~M",
+    "year": "2012",
+    "block": "T41150.01    [C1DOB12~M]                                    Survey Year: 2012\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - MONTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     462           1: January\n     450           2: February\n     453           3: March\n     485           4: April\n     482           5: May\n     504           6: June\n     533           7: July\n     508           8: August\n     549           9: September\n     533          10: October\n     482          11: November\n     504          12: December\n  -------\n    5945\n \nRefusal(-1)            0\nDon't Know(-2)        11\nInvalid Skip(-3)       1\nTOTAL =========>    5957   VALID SKIP(-4)    1343     NON-INTERVIEW(-5)    5386\n \nLead In: None.\nDefault Next Question: T41150.02"
+  },
+  "T4115002": {
+    "ref": "T41150.02",
+    "name": "C1DOB12~Y",
+    "year": "2012",
+    "block": "T41150.02    [C1DOB12~Y]                                    Survey Year: 2012\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - YEAR\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     773           0 TO 1978: < 1978\n     299        1979\n     374        1980\n     363        1981\n     393        1982\n     373        1983\n     354        1984\n     353        1985\n     281        1986\n     301        1987\n     300        1988\n     277        1989\n     246        1990\n     192        1991\n     188        1992\n     160        1993\n     134        1994\n     120        1995\n      92        1996\n      91        1997\n      52        1998\n      53        1999\n      42        2000\n      43        2001\n      24        2002\n      18        2003\n      12        2004\n       9        2005\n      13        2006\n       5        2007\n       3        2008\n       6        2009\n       1        2010\n       2        2011\n       4        2012 TO 2013: 2012+\n  -------\n    5951\n \nRefusal(-1)            1\nDon't Know(-2)         5\nTOTAL =========>    5957   VALID SKIP(-4)    1343     NON-INTERVIEW(-5)    5386\n \nLead In: T41150.01[Default]\nDefault Next Question: T41151.00"
+  },
+  "T4120500": {
+    "ref": "T41205.00",
+    "name": "AGE1B12",
+    "year": "2012",
+    "block": "T41205.00    [AGE1B12]                                      Survey Year: 2012\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1343        -998: NO 1ST BIRTH HAS OCCURRED\n       0        -997: NO 2ND BIRTH HAS OCCURRED\n       0        -996: NO 3RD BIRTH HAS OCCURRED\n       0           1 TO 9: Under age 10\n      38          10 TO 14\n     609          15 TO 17\n     791          18 TO 19\n    1914          20 TO 24\n    1407          25 TO 29\n     793          30 TO 34\n     285          35 TO 39\n      84          40 TO 44\n      21          45 TO 60: 45 or over\n  -------\n    7285\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)      15\nTOTAL =========>    7300   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    5386\n \nMin:           -998        Max:             52        Mean:              -164.1\n \nLead In: T41204.00[Default]\nDefault Next Question: T41206.00"
+  },
+  "T5026301": {
+    "ref": "T50263.01",
+    "name": "C1DOB14~M",
+    "year": "2014",
+    "block": "T50263.01    [C1DOB14~M]                                    Survey Year: 2014\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - MONTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     463           1: January\n     442           2: February\n     437           3: March\n     473           4: April\n     459           5: May\n     482           6: June\n     531           7: July\n     490           8: August\n     519           9: September\n     511          10: October\n     460          11: November\n     477          12: December\n  -------\n    5744\n \nRefusal(-1)            0\nDon't Know(-2)         8\nTOTAL =========>    5752   VALID SKIP(-4)    1318     NON-INTERVIEW(-5)    5616\n \nLead In: None.\nDefault Next Question: T50263.02"
+  },
+  "T5026302": {
+    "ref": "T50263.02",
+    "name": "C1DOB14~Y",
+    "year": "2014",
+    "block": "T50263.02    [C1DOB14~Y]                                    Survey Year: 2014\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - YEAR\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     728           0 TO 1978: < 1978\n     293        1979\n     362        1980\n     359        1981\n     382        1982\n     366        1983\n     342        1984\n     332        1985\n     266        1986\n     286        1987\n     284        1988\n     269        1989\n     240        1990\n     185        1991\n     184        1992\n     159        1993\n     130        1994\n     114        1995\n      91        1996\n      89        1997\n      54        1998\n      56        1999\n      37        2000\n      43        2001\n      23        2002\n      19        2003\n      10        2004\n      10        2005\n      13        2006\n       7        2007\n       3        2008\n       7        2009\n       1        2010\n       1        2011\n       4        2012\n       1        2013\n  -------\n    5750\n \nRefusal(-1)            0\nDon't Know(-2)         2\nTOTAL =========>    5752   VALID SKIP(-4)    1318     NON-INTERVIEW(-5)    5616\n \nLead In: T50263.01[Default]\nDefault Next Question: T50264.00"
+  },
+  "T5031700": {
+    "ref": "T50317.00",
+    "name": "AGE1B14",
+    "year": "2014",
+    "block": "T50317.00    [AGE1B14]                                      Survey Year: 2014\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1318        -998: NO 1ST BIRTH HAS OCCURRED\n      32          10 TO 14\n     583          15 TO 17\n     750          18 TO 19\n    1864          20 TO 24\n    1355          25 TO 29\n     773          30 TO 34\n     276          35 TO 39\n      88          40 TO 44\n      23          45 TO 60: 45 or over\n  -------\n    7062\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)       8\nTOTAL =========>    7070   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    5616\n \nMin:           -998        Max:             52        Mean:             -166.38\n \nLead In: T50316.00[Default]\nDefault Next Question: T50318.00"
+  },
+  "T5774401": {
+    "ref": "T57744.01",
+    "name": "C1DOB16~M",
+    "year": "2016",
+    "block": "T57744.01    [C1DOB16~M]                                    Survey Year: 2016\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - MONTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     444           1: January\n     423           2: February\n     439           3: March\n     455           4: April\n     451           5: May\n     487           6: June\n     522           7: July\n     494           8: August\n     517           9: September\n     489          10: October\n     447          11: November\n     468          12: December\n  -------\n    5636\n \nRefusal(-1)            2\nDon't Know(-2)        10\nTOTAL =========>    5648   VALID SKIP(-4)    1264     NON-INTERVIEW(-5)    5774\n \nLead In: None.\nDefault Next Question: T57744.02"
+  },
+  "T5774402": {
+    "ref": "T57744.02",
+    "name": "C1DOB16~Y",
+    "year": "2016",
+    "block": "T57744.02    [C1DOB16~Y]                                    Survey Year: 2016\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - YEAR\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     702           0 TO 1978: < 1978\n     288        1979\n     362        1980\n     352        1981\n     387        1982\n     364        1983\n     331        1984\n     322        1985\n     267        1986\n     277        1987\n     285        1988\n     263        1989\n     229        1990\n     179        1991\n     178        1992\n     157        1993\n     137        1994\n     112        1995\n      86        1996\n      86        1997\n      53        1998\n      52        1999\n      39        2000\n      41        2001\n      22        2002\n      18        2003\n      12        2004\n      10        2005\n      10        2006\n       6        2007\n       3        2008\n       7        2009\n       1        2010\n       2        2011\n       4        2012\n       1        2013\n  -------\n    5645\n \nRefusal(-1)            1\nDon't Know(-2)         2\nTOTAL =========>    5648   VALID SKIP(-4)    1264     NON-INTERVIEW(-5)    5774\n \nLead In: T57744.01[Default]\nDefault Next Question: T57745.00"
+  },
+  "T5779900": {
+    "ref": "T57799.00",
+    "name": "AGE1B16",
+    "year": "2016",
+    "block": "T57799.00    [AGE1B16]                                      Survey Year: 2016\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1264        -998: NO 1ST BIRTH HAS OCCURRED\n      31          10 TO 14\n     568          15 TO 17\n     741          18 TO 19\n    1843          20 TO 24\n    1321          25 TO 29\n     756          30 TO 34\n     268          35 TO 39\n      86          40 TO 44\n      22          45 TO 60: 45 or over\n  -------\n    6900\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)      12\nTOTAL =========>    6912   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    5774\n \nMin:           -998        Max:             52        Mean:             -162.87\n \nLead In: T57798.00[Default]\nDefault Next Question: T57800.00"
+  },
+  "T8221601": {
+    "ref": "T82216.01",
+    "name": "C1DOB18~M",
+    "year": "2018",
+    "block": "T82216.01    [C1DOB18~M]                                    Survey Year: 2018\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - MONTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     441           1: January\n     432           2: February\n     435           3: March\n     459           4: April\n     444           5: May\n     485           6: June\n     515           7: July\n     494           8: August\n     513           9: September\n     487          10: October\n     444          11: November\n     461          12: December\n  -------\n    5610\n \nRefusal(-1)            4\nDon't Know(-2)         9\nTOTAL =========>    5623   VALID SKIP(-4)    1255     NON-INTERVIEW(-5)    5808\n \nLead In: None.\nDefault Next Question: T82216.02"
+  },
+  "T8221602": {
+    "ref": "T82216.02",
+    "name": "C1DOB18~Y",
+    "year": "2018",
+    "block": "T82216.02    [C1DOB18~Y]                                    Survey Year: 2018\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - YEAR\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     688           0 TO 1978: < 1978\n     295        1979\n     355        1980\n     345        1981\n     382        1982\n     360        1983\n     335        1984\n     328        1985\n     263        1986\n     276        1987\n     284        1988\n     267        1989\n     233        1990\n     172        1991\n     178        1992\n     159        1993\n     136        1994\n     111        1995\n      86        1996\n      83        1997\n      55        1998\n      54        1999\n      35        2000\n      44        2001\n      21        2002\n      18        2003\n      11        2004\n      10        2005\n      10        2006\n       7        2007\n       3        2008\n       7        2009\n       1        2010\n       2        2011\n       4        2012\n       2        2013\n  -------\n    5620\n \nRefusal(-1)            2\nDon't Know(-2)         1\nTOTAL =========>    5623   VALID SKIP(-4)    1255     NON-INTERVIEW(-5)    5808\n \nLead In: T82216.01[Default]\nDefault Next Question: T82216.05"
+  },
+  "T8227000": {
+    "ref": "T82270.00",
+    "name": "AGE1B18",
+    "year": "2018",
+    "block": "T82270.00    [AGE1B18]                                      Survey Year: 2018\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1255        -998: NO 1ST BIRTH HAS OCCURRED\n      32          10 TO 14\n     558          15 TO 17\n     732          18 TO 19\n    1836          20 TO 24\n    1329          25 TO 29\n     743          30 TO 34\n     272          35 TO 39\n      85          40 TO 44\n      23          45 TO 60: 45 or over\n  -------\n    6865\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)      13\nTOTAL =========>    6878   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    5808\n \nMin:           -998        Max:             52        Mean:             -162.47\n \nLead In: T82269.00[Default]\nDefault Next Question: T82271.00"
+  },
+  "T8790801": {
+    "ref": "T87908.01",
+    "name": "C1DOB20~M",
+    "year": "2020",
+    "block": "T87908.01    [C1DOB20~M]                                    Survey Year: 2020\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - MONTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     421           1: January\n     413           2: February\n     409           3: March\n     438           4: April\n     423           5: May\n     459           6: June\n     495           7: July\n     485           8: August\n     478           9: September\n     472          10: October\n     412          11: November\n     436          12: December\n  -------\n    5341\n \nRefusal(-1)            4\nDon't Know(-2)         7\nTOTAL =========>    5352   VALID SKIP(-4)    1183     NON-INTERVIEW(-5)    6151\n \nLead In: None.\nDefault Next Question: T87908.02"
+  },
+  "T8790802": {
+    "ref": "T87908.02",
+    "name": "C1DOB20~Y",
+    "year": "2020",
+    "block": "T87908.02    [C1DOB20~Y]                                    Survey Year: 2020\n  PRIMARY VARIABLE\n\n             DATE OF BIRTH OF 1ST CHILD - YEAR\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n     646           0 TO 1978: < 1978\n     267        1979\n     342        1980\n     324        1981\n     363        1982\n     339        1983\n     314        1984\n     323        1985\n     250        1986\n     265        1987\n     271        1988\n     261        1989\n     222        1990\n     172        1991\n     168        1992\n     157        1993\n     129        1994\n     105        1995\n      81        1996\n      82        1997\n      52        1998\n      51        1999\n      33        2000\n      39        2001\n      21        2002\n      17        2003\n      12        2004\n      10        2005\n      10        2006\n       6        2007\n       4        2008\n       5        2009\n       1        2010\n       1        2011\n       4        2012\n       2        2013\n  -------\n    5349\n \nRefusal(-1)            2\nDon't Know(-2)         1\nTOTAL =========>    5352   VALID SKIP(-4)    1183     NON-INTERVIEW(-5)    6151\n \nLead In: T87908.01[Default]\nDefault Next Question: T87909.00"
+  },
+  "T8796300": {
+    "ref": "T87963.00",
+    "name": "AGE1B20",
+    "year": "2020",
+    "block": "T87963.00    [AGE1B20]                                      Survey Year: 2020\n  PRIMARY VARIABLE\n\n             AGE OF R AT 1ST BIRTH\n \n \n \nNOTE:  SEE APPENDIX 5: SUPPLEMENTAL FERTILITY FILE VARIABLES\n \n    1183        -998: NO 1ST BIRTH HAS OCCURRED\n      31          10 TO 14\n     532          15 TO 17\n     683          18 TO 19\n    1735          20 TO 24\n    1283          25 TO 29\n     717          30 TO 34\n     260          35 TO 39\n      79          40 TO 44\n      21          45 TO 60: 45 or over\n  -------\n    6524\n \nRefusal(-1)            0\nDon't Know(-2)         0\nInvalid Skip(-3)      11\nTOTAL =========>    6535   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    6151\n \nMin:           -998        Max:             52        Mean:             -160.92\n \nLead In: T87962.00[Default]\nDefault Next Question: T87964.00"
+  }
+}

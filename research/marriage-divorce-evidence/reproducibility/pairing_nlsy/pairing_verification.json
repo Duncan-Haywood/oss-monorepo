@@ -1,0 +1,15 @@
+{
+  "interval_count": 40818,
+  "verified_rate_groups": [
+    "education_direction=Husband higher",
+    "education_direction=Same schooling tier",
+    "education_direction=Wife higher",
+    "earnings_pair=Balanced 40\u201360% wife",
+    "earnings_pair=Both zero wages",
+    "earnings_pair=Husband majority, both positive",
+    "earnings_pair=Husband only",
+    "earnings_pair=Wife majority, both positive",
+    "earnings_pair=Wife only"
+  ],
+  "checks": "Passed independent weighted-rate arithmetic, component earnings/share arithmetic, duration bounds, full-rank model, likelihood score, fitted-count checks."
+}

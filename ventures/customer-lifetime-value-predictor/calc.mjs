@@ -327,6 +327,44 @@ export function backtest(orders, holdoutWeeks) {
   };
 }
 
+// Held-out comparison of three ways to forecast each customer's next purchases:
+// the model, the shop-wide average repeat rate, and each customer's own past
+// rate carried forward. All three use only data before the cut.
+export function compareForecasts(orders, holdoutWeeks) {
+  const end = Math.max(...orders.map((o) => o.day));
+  const calEnd = end - Math.round(holdoutWeeks * 7);
+  const cal = summarize(orders, calEnd);
+  if (cal.length < 50) return null;
+  const params = fitBgnbd(cal);
+  const actual = new Map();
+  for (const o of orders) {
+    if (o.day <= calEnd) continue;
+    let s = actual.get(o.id); if (!s) actual.set(o.id, (s = new Set()));
+    s.add(o.day);
+  }
+  const popRate = cal.reduce((s, r) => s + r.x, 0) / cal.reduce((s, r) => s + r.T, 0);
+  const rows = cal.map((r) => ({
+    actual: actual.get(r.id)?.size ?? 0,
+    model: expectedPurchases(params, r.x, r.tx, r.T, holdoutWeeks),
+    shopAverage: popRate * holdoutWeeks,
+    ownRate: r.T > 0 ? (r.x / r.T) * holdoutWeeks : 0,
+  }));
+  const total = rows.reduce((s, r) => s + r.actual, 0);
+  const top = Math.round(rows.length / 10);
+  const out = { holdoutWeeks, customers: rows.length, actual: total, methods: {} };
+  for (const k of ["model", "shopAverage", "ownRate"]) {
+    const predicted = rows.reduce((s, r) => s + r[k], 0);
+    const best = [...rows].sort((a, b) => b[k] - a[k]).slice(0, top);
+    out.methods[k] = {
+      predicted,
+      errorPct: total > 0 ? (predicted - total) / total : null,
+      meanAbsError: rows.reduce((s, r) => s + Math.abs(r[k] - r.actual), 0) / rows.length,
+      topDecileShare: total > 0 ? best.reduce((s, r) => s + r.actual, 0) / total : null,
+    };
+  }
+  return out;
+}
+
 // ---------- the whole analysis ----------
 
 export function analyze(orders, opts = {}) {
@@ -394,6 +432,79 @@ export function analyze(orders, opts = {}) {
   };
   const findings = buildFindings({ summary, params, gg, bt, corr, newCustomer, seg, customers });
   return { summary, params, gg, customers, sorted, segments: seg, newCustomer, backtest: bt, findings, correlation: corr };
+}
+
+// Acquisition payback: what one new customer returns, month by month, against
+// what you paid to win them. `res` is an analyze() result. The first order
+// lands at month 0; later months add the model's expected repeat orders at the
+// population's average repeat order, at your margin and discount rate. Payback
+// is the first month the running total reaches `cac`, or null inside `maxMonths`.
+export function paybackCurve(res, cac, { maxMonths = 36, target = 3 } = {}) {
+  if (!(cac > 0)) return { error: "Enter what you pay to acquire a customer, above zero." };
+  const { params, gg, summary, newCustomer } = res;
+  const monthly = Math.pow(1 + summary.annualDiscount, 1 / 12) - 1;
+  const aov = expectedOrderValue(gg, 0, 0, summary.repeatAov);
+  let cum = newCustomer.firstOrder * summary.margin, prev = 0, payback = cum >= cac ? 0 : null;
+  const months = [{ month: 0, cumulative: cum }];
+  for (let m = 1; m <= maxMonths; m++) {
+    const e = expectedNewCustomer(params, m * WEEK_MONTH);
+    cum += (e - prev) * aov * summary.margin / Math.pow(1 + monthly, m);
+    prev = e;
+    months.push({ month: m, cumulative: cum });
+    if (payback === null && cum >= cac) payback = m;
+  }
+  const at = (m) => months[Math.min(m, maxMonths)].cumulative;
+  const h = Math.min(summary.horizonMonths, maxMonths);
+  return {
+    cac, months, paybackMonth: payback, horizonMonths: h,
+    ltv: at(h), ltvToCac: at(h) / cac,
+    maxCacForTarget: at(h) / target, target,
+    verdict: payback === null ? "never within the window" : payback === 0 ? "on the first order" : `month ${payback}`,
+  };
+}
+
+// Cohort view: customers grouped by the month of their first order. For each
+// window (days after the first order) it gives the share who bought again within
+// it, and revenue per customer in it, first order included. A window is reported
+// only when every customer in the cohort has been observable for all of it;
+// otherwise it is null, so a young cohort is never compared with an old one.
+export const COHORT_WINDOWS = [30, 90, 180, 365];
+export function cohortRetention(orders, windows = COHORT_WINDOWS) {
+  if (!orders?.length) return { cohorts: [], windows };
+  const lastDay = Math.max(...orders.map((o) => o.day));
+  const by = new Map();
+  for (const o of orders) {
+    let c = by.get(o.id);
+    if (!c) by.set(o.id, (c = []));
+    c.push(o);
+  }
+  const groups = new Map();
+  for (const list of by.values()) {
+    list.sort((a, b) => a.day - b.day);
+    const first = list[0].day;
+    const key = dayToIso(first).slice(0, 7);
+    let g = groups.get(key);
+    if (!g) groups.set(key, (g = []));
+    g.push({ first, list });
+  }
+  const cohorts = [...groups.keys()].sort().map((month) => {
+    const members = groups.get(month);
+    const latestFirst = Math.max(...members.map((m) => m.first));
+    const out = { month, customers: members.length, firstOrder: 0, repeat: {}, revenue: {} };
+    out.firstOrder = members.reduce((s, m) => s + m.list.filter((o) => o.day === m.first).reduce((t, o) => t + o.amount, 0), 0) / members.length;
+    for (const w of windows) {
+      if (latestFirst + w > lastDay) { out.repeat[w] = null; out.revenue[w] = null; continue; }
+      let rep = 0, rev = 0;
+      for (const m of members) {
+        if (m.list.some((o) => o.day > m.first && o.day - m.first <= w)) rep++;
+        rev += m.list.filter((o) => o.day - m.first <= w).reduce((t, o) => t + o.amount, 0);
+      }
+      out.repeat[w] = rep / members.length;
+      out.revenue[w] = rev / members.length;
+    }
+    return out;
+  });
+  return { cohorts, windows };
 }
 
 function correlation(xs, ys) {

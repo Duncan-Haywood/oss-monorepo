@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aliasing-twin"
+version = "0.1.0"
+description = "Doppler velocity aliasing a radar twin with unlimited unambiguous velocity does not simulate: exact wrapped-Gaussian bias and MSE, the speed beyond which averaging cannot help, and exact unwrapping with a prior"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Internal Link Planner — Find Orphan Pages and Missing Internal Links</title>
+  <meta name="description" content="Free internal link audit and planner. Drop in your site's HTML files: it finds orphan pages and pages linked only from menus, then suggests the exact sentences in your other pages that should link to them, with the link-equity gain. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Internal Link Planner — orphan pages and missing links, found for you">
+  <meta property="og:description" content="Suggests which sentence on which page should link to the pages that need links, and shows the PageRank gain. Free, open source, private.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Internal Link Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a site's HTML, builds its internal link graph, finds orphan and menu-only pages, and suggests where in the existing text to add links, with the internal PageRank effect of the whole plan. Runs locally in the browser or as a Node command line tool."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an orphan page?", "acceptedAnswer": {"@type": "Answer", "text": "A page that no other page on the site links to. Visitors cannot navigate to it and search engines can only find it through a sitemap, so it gets little or no internal link equity."}}, {"@type": "Question", "name": "How are the link suggestions chosen?", "acceptedAnswer": {"@type": "Answer", "text": "For each page that needs links, the tool looks for pages that already mention its title or headline words in their text but do not link to it. It ranks those by topical similarity (TF-IDF cosine), the source page's own link equity, and how specific the matched phrase is. The anchor text is the words already on the page."}}, {"@type": "Question", "name": "Does it upload my site?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads the files you choose in your browser and makes no network requests. The command line version only fetches the sitemap URL you give it."}}, {"@type": "Question", "name": "Will the links improve my rankings?", "acceptedAnswer": {"@type": "Answer", "text": "Nobody can promise that. The tool reports how link equity inside your own site would move under a simplified PageRank model. Whether that changes rankings or traffic depends on much more than internal links."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f6f8; }
+    body { max-width: 1000px; margin: auto; padding: 24px 16px; }
+    a { color: #1f5f8b; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 12px; color: #17394f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17394f; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 12px; padding: 20px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=text], input[type=file] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bcc8; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { font: 600 15px system-ui, sans-serif; padding: 9px 16px; border-radius: 7px; border: 1px solid #1f5f8b; background: #1f5f8b; color: #fff; cursor: pointer; margin: 6px 6px 0 0; }
+    button.secondary { background: #fff; color: #1f5f8b; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; display: block; overflow-x: auto; }
+    th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid #e3e8ed; vertical-align: top; }
+    code { background: #eef2f5; padding: 1px 5px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .ctx { color: #4c5a68; font-size: .82rem; }
+    mark { background: #fff0a8; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+    .stat { background: #eef4f8; border-radius: 8px; padding: 10px 12px; } .stat b { display: block; font-size: 1.5rem; color: #17394f; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Internal Link Planner</h1>
+  <p>Drop in your site's HTML files. It finds the pages nobody links to, then points to the exact sentences on your other pages where a link belongs, and shows how much link equity the plan moves. Free, open source, and your files never leave this page.</p>
+
+  <section class="card">
+    <h2>1. Choose your pages</h2>
+    <label for="folder">Site folder (your build output, e.g. <code>public/</code> or <code>dist/</code>)</label>
+    <input type="file" id="folder" webkitdirectory multiple>
+    <label for="files">...or individual .html files</label>
+    <input type="file" id="files" accept=".html,.htm" multiple>
+    <label for="base">Site address</label>
+    <input type="text" id="base" value="https://example.com" autocomplete="off">
+    <label for="priority">Pages that must rank (optional, comma-separated paths)</label>
+    <input type="text" id="priority" placeholder="/pricing, /blog/my-best-guide" autocomplete="off">
+    <p>
+      <button type="button" id="run">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Try an example site</button>
+    </p>
+    <p class="note" id="status" role="status">Nothing loaded yet.</p>
+  </section>
+
+  <section class="card" id="result" hidden>
+    <h2>2. What it found</h2>
+    <div class="grid" id="stats"></div>
+    <div id="findings"></div>
+    <h2 style="margin-top:18px">3. Links to add</h2>
+    <p class="note">The anchor text is words already on the source page. Add a link only where it reads naturally.</p>
+    <div id="plan"></div>
+    <p><button type="button" id="download-md">Download report (Markdown)</button><button type="button" class="secondary" id="download-json">Download JSON</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p>Each page is parsed for its title, headline, text and links. Links in the page body count fully; links in menus, headers, footers and sidebars count a quarter, and <code>nofollow</code> links count nothing. PageRank is computed over that graph. Suggestions are phrases already present in a source page that match a target page's headline or title (singular or plural), ranked by TF-IDF similarity, the source's own equity and phrase specificity. The plan is then applied to the graph and PageRank recomputed, so you see before and after.</p>
+    <p><b>Not modelled:</b> JavaScript-rendered links, canonical tags pointing elsewhere, <code>robots.txt</code>, anchor-text relevance to a search engine, and real crawl budget. <code>noindex</code> pages are left out of the graph. Use the command line version (<code>node cli.mjs https://your-site.com/sitemap.xml</code>) to read a live site from its sitemap.</p>
+    <p class="note">Usage counting is local to this browser and records only these events, never your pages: <code>site_analyzed</code>, <code>example_loaded</code>, <code>report_downloaded</code>. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is an orphan page?</h3>
+    <p>A page that no other page on the site links to. Visitors cannot navigate to it and search engines can only find it through a sitemap, so it gets little or no internal link equity.</p>
+    <h3>How are the link suggestions chosen?</h3>
+    <p>For each page that needs links, the tool looks for pages that already mention its title or headline words in their text but do not link to it. It ranks those by topical similarity (TF-IDF cosine), the source page's own link equity, and how specific the matched phrase is. The anchor text is the words already on the page.</p>
+    <h3>Does it upload my site?</h3>
+    <p>No. The page reads the files you choose in your browser and makes no network requests. The command line version only fetches the sitemap URL you give it.</p>
+    <h3>Will the links improve my rankings?</h3>
+    <p>Nobody can promise that. The tool reports how link equity inside your own site would move under a simplified PageRank model. Whether that changes rankings or traffic depends on much more than internal links.</p>
+  </section>
+
+  <section class="card">
+    <h2>Also from this portfolio</h2>
+    <p><a href="../redirect-map-check/">Redirect map check</a> for site migrations, <a href="../sitemap-lastmod-freshness-check/">sitemap lastmod freshness check</a>, <a href="../canonical-tag-check/">canonical tag check</a>.</p>
+  </section>
+
+  </main>
+  <footer>
+    <p>No warranty. This is not legal, tax, accounting, compliance, or financial advice, and it makes no promise about search rankings or traffic. Everything runs in your browser: the files you pick are read locally and never uploaded. Not affiliated with any search engine or platform.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, renderMarkdown } from "./engine.mjs";
+    import { SITE } from "./fixture.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let last = null;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const path = (u) => { const x = new URL(u); return x.pathname + x.search; };
+    const li = (a) => a.length ? `<ul>${a.slice(0, 30).map((u) => `<li><code>${esc(path(u))}</code></li>`).join("")}${a.length > 30 ? `<li>and ${a.length - 30} more (see the download)</li>` : ""}</ul>` : "<p class=\"note\">None.</p>";
+    function show(report) {
+      last = report; const s = report.summary;
+      $("result").hidden = false;
+      $("stats").innerHTML = [["Pages", s.indexable], ["Orphans", s.orphans], ["Menu-only", s.bodyOrphans], ["Dead ends", s.deadEnds], ["Over 3 clicks deep", s.deepPages], ["Broken internal", s.brokenInternal]].map(([k, v]) => `<div class="stat"><b>${v}</b>${k}</div>`).join("");
+      $("findings").innerHTML = `<h3>Orphan pages</h3>${li(report.orphans)}<h3>Linked only from menus and footers</h3>${li(report.bodyOrphans)}` + (report.broken.length ? `<h3>Links to pages not in this set</h3><ul>${report.broken.slice(0, 20).map((b) => `<li><code>${esc(path(b.from))}</code> → <code>${esc(path(b.to))}</code></li>`).join("")}</ul>` : "");
+      const sg = report.suggestions;
+      $("plan").innerHTML = sg.length ? `<table tabindex="0" aria-label="Suggested links"><tr><th>On this page</th><th>Link the words</th><th>To</th><th>Score</th></tr>${sg.map((f) => `<tr><td><code>${esc(path(f.from))}</code><div class="ctx">…${esc(f.context).replace(esc(f.anchor), `<mark>${esc(f.anchor)}</mark>`)}…</div></td><td>${esc(f.anchor)}</td><td><code>${esc(path(f.to))}</code></td><td>${f.score.toFixed(2)}</td></tr>`).join("")}</table><h3>Link equity before and after (1.00 = average page)</h3><table tabindex="0" aria-label="Link equity before and after"><tr><th>Page</th><th>Before</th><th>After</th></tr>${report.effect.map((t) => `<tr><td><code>${esc(path(t.to))}</code></td><td>${t.rankBefore.toFixed(2)}</td><td>${t.rankAfter.toFixed(2)}</td></tr>`).join("")}</table>` : "<p class=\"note\">No suggestions: either every page is already linked where its words appear, or the pages share no phrases. Add the pages that need links to \"Pages that must rank\".</p>";
+    }
+    async function readFiles() {
+      const list = [...$("folder").files, ...$("files").files].filter((f) => /\.html?$/i.test(f.name));
+      const base = $("base").value.trim().replace(/\/?$/, "/");
+      try { new URL(base); } catch { throw new Error("Enter the site address, like https://example.com"); }
+      const dirs = list.some((f) => f.webkitRelativePath);
+      return Promise.all(list.map(async (f) => {
+        let rel = f.webkitRelativePath ? f.webkitRelativePath.split("/").slice(1).join("/") : f.name;
+        return { url: new URL(rel.split("/").map(encodeURIComponent).join("/"), base).href, html: await f.text() };
+      }));
+    }
+    const opts = () => ({ priority: $("priority").value.split(",").map((s) => s.trim()).filter(Boolean) });
+    $("run").addEventListener("click", async () => {
+      try {
+        const pages = await readFiles();
+        if (pages.length < 3) { $("status").textContent = "Choose at least three .html files (or a site folder) first."; return; }
+        show(analyze(pages, opts())); record("site_analyzed");
+        $("status").textContent = `Read ${pages.length} pages locally.`;
+      } catch (e) { $("status").textContent = e.message; }
+    });
+    $("load-example").addEventListener("click", () => { $("base").value = "https://example.test"; $("priority").value = "/blog/patient-payment-plans"; show(analyze(SITE, { home: "https://example.test/", ...opts() })); record("example_loaded"); $("status").textContent = "Showing a built-in example site."; });
+    const save = (name, text, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); record("report_downloaded"); };
+    $("download-md").addEventListener("click", () => last && save("internal-link-report.md", renderMarkdown(last), "text/markdown"));
+    $("download-json").addEventListener("click", () => last && save("internal-link-report.json", JSON.stringify(last, null, 2), "application/json"));
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

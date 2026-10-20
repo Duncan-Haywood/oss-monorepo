@@ -7,6 +7,8 @@ ephemeral-storage limit, plus any request set above its own limit — sourced
 from Kubernetes' own documented eviction, OOM, and admission-validation
 behaviour, not guessed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/k8s-resource-limits-check/
+
 **What it is not:** a live-cluster scanner, an admission controller, or a
 capacity-planning tool that tells you the *right* number. It checks that a
 manifest's declared requests/limits are present and internally consistent,

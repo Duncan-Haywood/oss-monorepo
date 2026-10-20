@@ -2,6 +2,8 @@
 
 Shopify merchants and agencies can paste an `axe-core` JSON export and create a dated, readable accessibility evidence record in seconds. The tool reports what the supplied automated test found; it does not claim that a storefront is compliant.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-a11y-evidence/
+
 ## Run it
 
 Open `index.html` in a browser, paste the JSON exported by axe-core, and choose **Generate evidence record**. Use **Copy record** for an agency or client handoff, or **Download .txt** to save a dated record. Incomplete checks are included separately so uncertain results are not lost. No account, network call, Shopify permission, or API key is required.

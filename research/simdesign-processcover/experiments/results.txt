@@ -1,0 +1,116 @@
+## family 'log', geometry only (n=20000, seeds 0..4; mean and range over seeds)
+process alone:
+  fdm    0.893  [0.891, 0.895]
+  cnc    0.202  [0.199, 0.206]
+  laser  0.280  [0.276, 0.282]
+  cast   0.386  [0.384, 0.388]
+shop (fdm always present) -> coverage; marginal gain of each machine added to fdm:
+  fdm+-                0.893
+  fdm+cnc              0.893
+  fdm+laser            0.893
+  fdm+cast             0.893
+  fdm+cnc+laser        0.893
+  fdm+cnc+cast         0.893
+  fdm+laser+cast       0.893
+  fdm+cnc+laser+cast   0.893
+  parts no process can make: 0.107
+  parts only fdm can make: 0.369
+  parts only cnc can make: 0.000
+  parts only laser can make: 0.000
+  parts only cast can make: 0.000
+machine choice by budget (greedy vs exhaustive; assumed prices cnc 800, laser 600, cast 300):
+  budget   300: exhaustive [] cov 0.893; greedy [] cov 0.893
+  budget   600: exhaustive [] cov 0.893; greedy [] cov 0.893
+  budget   800: exhaustive [] cov 0.893; greedy [] cov 0.893
+  budget   900: exhaustive [] cov 0.893; greedy [] cov 0.893
+  budget  1100: exhaustive [] cov 0.893; greedy [] cov 0.893
+  budget  1400: exhaustive [] cov 0.893; greedy [] cov 0.893
+  budget  1700: exhaustive [] cov 0.893; greedy [] cov 0.893
+
+## family 'log', with tip load F 1-1000 N (n=20000, seeds 0..4; mean and range over seeds)
+process alone:
+  fdm    0.300  [0.296, 0.305]
+  cnc    0.160  [0.157, 0.162]
+  laser  0.178  [0.174, 0.181]
+  cast   0.218  [0.212, 0.222]
+shop (fdm always present) -> coverage; marginal gain of each machine added to fdm:
+  fdm+-                0.300
+  fdm+cnc              0.347
+  fdm+laser            0.368
+  fdm+cast             0.355
+  fdm+cnc+laser        0.381
+  fdm+cnc+cast         0.382
+  fdm+laser+cast       0.403
+  fdm+cnc+laser+cast   0.409
+  parts no process can make: 0.585
+  parts only fdm can make: 0.082
+  parts only cnc can make: 0.006
+  parts only laser can make: 0.028
+  parts only cast can make: 0.028
+machine choice by budget (greedy vs exhaustive; assumed prices cnc 800, laser 600, cast 300):
+  budget   300: exhaustive ['casting setup'] cov 0.360; greedy ['casting setup'] cov 0.360
+  budget   600: exhaustive ['laser cutter'] cov 0.374; greedy ['casting setup'] cov 0.360
+  budget   800: exhaustive ['laser cutter'] cov 0.374; greedy ['casting setup'] cov 0.360
+  budget   900: exhaustive ['casting setup', 'laser cutter'] cov 0.409; greedy ['casting setup', 'laser cutter'] cov 0.409
+  budget  1100: exhaustive ['casting setup', 'laser cutter'] cov 0.409; greedy ['casting setup', 'laser cutter'] cov 0.409
+  budget  1400: exhaustive ['casting setup', 'laser cutter'] cov 0.409; greedy ['casting setup', 'laser cutter'] cov 0.409
+  budget  1700: exhaustive ['casting setup', 'cnc router', 'laser cutter'] cov 0.415; greedy ['casting setup', 'laser cutter', 'cnc router'] cov 0.415
+
+## family 'small', with tip load F 1-1000 N (n=20000, seeds 0..4; mean and range over seeds)
+process alone:
+  fdm    0.050  [0.048, 0.052]
+  cnc    0.013  [0.012, 0.013]
+  laser  0.115  [0.112, 0.117]
+  cast   0.098  [0.096, 0.101]
+shop (fdm always present) -> coverage; marginal gain of each machine added to fdm:
+  fdm+-                0.050
+  fdm+cnc              0.056
+  fdm+laser            0.134
+  fdm+cast             0.115
+  fdm+cnc+laser        0.134
+  fdm+cnc+cast         0.117
+  fdm+laser+cast       0.165
+  fdm+cnc+laser+cast   0.165
+  parts no process can make: 0.834
+  parts only fdm can make: 0.007
+  parts only cnc can make: 0.000
+  parts only laser can make: 0.049
+  parts only cast can make: 0.031
+machine choice by budget (greedy vs exhaustive; assumed prices cnc 800, laser 600, cast 300):
+  budget   300: exhaustive ['casting setup'] cov 0.114; greedy ['casting setup'] cov 0.114
+  budget   600: exhaustive ['laser cutter'] cov 0.135; greedy ['casting setup'] cov 0.114
+  budget   800: exhaustive ['laser cutter'] cov 0.135; greedy ['casting setup'] cov 0.114
+  budget   900: exhaustive ['casting setup', 'laser cutter'] cov 0.166; greedy ['casting setup', 'laser cutter'] cov 0.166
+  budget  1100: exhaustive ['casting setup', 'laser cutter'] cov 0.166; greedy ['casting setup', 'laser cutter'] cov 0.166
+  budget  1400: exhaustive ['casting setup', 'laser cutter'] cov 0.166; greedy ['casting setup', 'laser cutter'] cov 0.166
+  budget  1700: exhaustive ['casting setup', 'laser cutter'] cov 0.166; greedy ['casting setup', 'laser cutter'] cov 0.166
+
+## family 'large', with tip load F 1-1000 N (n=20000, seeds 0..4; mean and range over seeds)
+process alone:
+  fdm    0.660  [0.657, 0.667]
+  cnc    0.408  [0.399, 0.412]
+  laser  0.280  [0.274, 0.284]
+  cast   0.581  [0.576, 0.587]
+shop (fdm always present) -> coverage; marginal gain of each machine added to fdm:
+  fdm+-                0.660
+  fdm+cnc              0.769
+  fdm+laser            0.736
+  fdm+cast             0.752
+  fdm+cnc+laser        0.784
+  fdm+cnc+cast         0.803
+  fdm+laser+cast       0.797
+  fdm+cnc+laser+cast   0.818
+  parts no process can make: 0.174
+  parts only fdm can make: 0.112
+  parts only cnc can make: 0.020
+  parts only laser can make: 0.015
+  parts only cast can make: 0.033
+machine choice by budget (greedy vs exhaustive; assumed prices cnc 800, laser 600, cast 300):
+  budget   300: exhaustive ['casting setup'] cov 0.760; greedy ['casting setup'] cov 0.760
+  budget   600: exhaustive ['casting setup'] cov 0.760; greedy ['casting setup'] cov 0.760
+  budget   800: exhaustive ['cnc router'] cov 0.777; greedy ['casting setup'] cov 0.760
+  budget   900: exhaustive ['casting setup', 'laser cutter'] cov 0.805; greedy ['casting setup', 'laser cutter'] cov 0.805
+  budget  1100: exhaustive ['casting setup', 'cnc router'] cov 0.811; greedy ['casting setup', 'laser cutter'] cov 0.805
+  budget  1400: exhaustive ['casting setup', 'cnc router'] cov 0.811; greedy ['casting setup', 'laser cutter'] cov 0.805
+  budget  1700: exhaustive ['casting setup', 'cnc router', 'laser cutter'] cov 0.826; greedy ['casting setup', 'laser cutter', 'cnc router'] cov 0.826
+

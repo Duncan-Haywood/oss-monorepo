@@ -5,6 +5,8 @@ A free browser tool for anyone who receives bank statement files in BAI2 format:
 download a CSV, and find out why an import fails, with the line number.** The file is read
 in the browser; nothing is uploaded and no login or bank access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bai2-statement-reader/
+
 After using this, you can now **read a BAI2 file without a developer, export the
 transactions to a spreadsheet, find the missing slash, the amount written with a decimal or
 the control total that stopped matching after an edit, and rebuild the trailers**, which used

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "free-frictionnull"
+version = "0.1.0"
+description = "Do documentation complaints in agent run records repeat more than chance? A permutation null for the swe-friction repeat rate"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -8,6 +8,8 @@ what each visitor leaves after crop and food cost, what a rainy season does to
 the result, and a profit grid across attendance and admission. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/u-pick-farm-profit-planner/
+
 After using this, you can **set admission and decide how many crew days to
 staff** from your own numbers instead of copying the farm down the road.
 

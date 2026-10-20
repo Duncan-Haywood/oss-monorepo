@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01J6HuSx2eypakUMUBNtLuy1",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "I think having a portal on ghp to look into the development progress makes sense. to look into analyses of it etc. this is a long standing and constant update thing. it's something I mentioned before.",
+  "input_sha256": "ac0b20bf62001c95ddf277b10a50ef8502e66f27894e0977a8731a2cc78290ae",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-16T03:25:24Z",
+  "ended": "2026-10-16T03:35:01Z",
+  "wall_minutes": 9.73,
+  "tokens_in": 5139911,
+  "tokens_out": 38643,
+  "cost_usd": 2.7094,
+  "tool_calls": 52,
+  "task": "dev/analyses: development-analyses portal on Pages",
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7277",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "gitops/tests/test_publish_branch.py",
+      "issue": "its publish-branch.sh stub rejects any unknown build step, so adding a page step fails 16 unrelated-looking tests; nothing in publish-branch.sh points at the stub"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate PRs: open PR #7236 already builds a dev/ metrics dashboard; built the complementary analyses half at dev/analyses/ in separate files instead of extending or duplicating it"
+    }
+  ],
+  "goal": null,
+  "notes": "Finding surfaced by the page: 19/19 experiments in prompts/experiments.md have no verdict yet; CLAUDE.md leads doc_friction with 72 of 191 reports.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b7f38f29-e6d8-56d7-84d6-de7cb14e4acd",
+    "transcripts": 1,
+    "first": "2026-10-16T03:25:24Z",
+    "last": "2026-10-16T03:35:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 80,
+        "output": 38643,
+        "thinking": 7216,
+        "cache_read": 5023383,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116448,
+        "api_equivalent_usd": 2.7094,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 80,
+      "output": 38643,
+      "thinking": 7216,
+      "cache_read": 5023383,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116448,
+      "api_equivalent_usd": 2.7094,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 37,
+      "Write": 5,
+      "mcp__github__pull_request_read": 2,
+      "Read": 2,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.73,
+      "active_minutes": 9.73,
+      "model_minutes": 5.64,
+      "tool_minutes": 4.09,
+      "waiting_on_human_minutes": 0.01,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design and build a markdown renderer, collector, four page types, tests, publish wiring",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 221.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

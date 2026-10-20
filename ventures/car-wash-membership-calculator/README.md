@@ -8,6 +8,8 @@ stops paying for themselves, the share of members past that point, the retail
 washes the plan cannibalizes, member lifetime value, capacity use, and a price
 sensitivity table. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/car-wash-membership-calculator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - segment parsing, per-member and store math, cannibalization, lifetime value, capacity, price table, CSV.

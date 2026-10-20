@@ -1,0 +1,29 @@
+522 mutants, 780 distinct generated scripts (mutants that differ only in travel height translate to the clean script).
+Clean protocols that the real simulator rejects: 0 of 3
+
+Detected = the checker reports any finding (twin) or the simulator raises (real). 'real' declares the starting liquids; 'real (no liquids)' does not.
+fault                              mutants  twin  real  both twin only real only real (no liq.)
+typo labware                            50    50    50    50         0         0             50
+well off plate                          50    50    50    50         0         0             50
+drop pick_up_tip                        35    35    35    35         0         0             35
+second pick_up_tip                      35    35    35    35         0         0             35
+reuse a used tip                        32    32     0     0        32         0              0
+drop the last drop_tip                   3     3     0     0         3         0              0
+volume 350 uL                           50    50    50    50         0         0             50
+volume 5 uL                             50    50     0     0        50         0              0
+overdraw source (5000 uL)               50    50    50    50         0         0             50
+skip tip change between samples         32     7     0     0         7         0              0
+low travel (30 mm)                     135     4     0     0         4         0              0
+total                                  522   366   270   270        96         0            270
+
+Exception class the real simulator raised, by fault:
+  typo labware                       KeyError x50
+  well off plate                     KeyError x50
+  drop pick_up_tip                   TipNotAttachedError x35
+  second pick_up_tip                 TipAttachedError x35
+  volume 350 uL                      InvalidAspirateVolumeError x50
+  overdraw source (5000 uL)          InvalidAspirateVolumeError x50
+
+Half-empty source probe (200 uL aspirated twice from a well declared to hold 300 uL):
+  twin codes: ['DISPENSE_EXCESS', 'SOURCE_EMPTY']
+  real, liquids declared: ok;  real, undeclared: ok

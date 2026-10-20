@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of test accuracy against lookup-table weight width of 2, 4 and 8 bits for post-training quantisation and fine-tuning at 0 and 75 percent sparsity: fine-tuning helps most at 2 bits and at 75 percent sparsity both reach about 0.95 at 4 bits">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Accel-lutft: accuracy against table bit width</text>
+<line x1="64" x2="624" y1="313.6" y2="313.6" stroke="#ddd"/><text x="58" y="317.6" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="261.6" y2="261.6" stroke="#ddd"/><text x="58" y="265.6" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="209.6" y2="209.6" stroke="#ddd"/><text x="58" y="213.6" text-anchor="end" font-family="sans-serif" font-size="11">0.7</text>
+<line x1="64" x2="624" y1="157.5" y2="157.5" stroke="#ddd"/><text x="58" y="161.5" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="105.5" y2="105.5" stroke="#ddd"/><text x="58" y="109.5" text-anchor="end" font-family="sans-serif" font-size="11">0.9</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">table weight width (bits)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">test accuracy (mean of 10 splits)</text>
+<polyline points="64.0,324.0 250.7,108.1 624.0,76.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="108.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="76.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">post @ 0% sparse</text>
+<polyline points="64.0,177.8 250.7,99.8 624.0,84.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="177.8" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="99.8" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="84.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">ft @ 0% sparse</text>
+<polyline points="64.0,102.9 250.7,77.4 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="102.9" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="77.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">post @ 75% sparse</text>
+<polyline points="64.0,78.5 250.7,76.9 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="78.5" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="76.9" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">ft @ 75% sparse</text>
+</svg>

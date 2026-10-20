@@ -5,6 +5,8 @@ into Apple Photos. The tools provide manifest-backed progress, duplicate-risk
 handling, structured error classification, watchdog supervision, and SD-card
 offload support.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/photos-import-tools/
+
 ## Included tools
 
 - `resumable_photos_import.py` — stateful, restartable Photos importer

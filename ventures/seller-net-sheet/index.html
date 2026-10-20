@@ -109,6 +109,32 @@
           <label>Other seller concessions ($) <input id="concessionFlat" type="number" min="0" step="1" value="0"></label>
           <label>Title / escrow (flat $) <input id="titleFlat" type="number" min="0" step="1" value="2400"></label>
           <label>Title / escrow (%) <input id="titleRate" type="number" min="0" step="0.01" value="0"></label>
+          <label class="span2">State starting point for transfer tax
+            <select id="transferTaxState">
+              <option value="">Choose a state (optional)</option>
+              <option value="AK">Alaska (0%)</option>
+              <option value="AZ">Arizona (0%)</option>
+              <option value="CA">California (0.11%)</option>
+              <option value="CO">Colorado (0.01%)</option>
+              <option value="FL">Florida (0.7%)</option>
+              <option value="GA">Georgia (0.1%)</option>
+              <option value="ID">Idaho (0%)</option>
+              <option value="IL">Illinois (0.15%)</option>
+              <option value="IN">Indiana (0%)</option>
+              <option value="KS">Kansas (0%)</option>
+              <option value="MA">Massachusetts (0.456%)</option>
+              <option value="MN">Minnesota (0.33%)</option>
+              <option value="MO">Missouri (0%)</option>
+              <option value="NC">North Carolina (0.2%)</option>
+              <option value="NY">New York (0.4%)</option>
+              <option value="OR">Oregon (0%)</option>
+              <option value="PA">Pennsylvania (1%)</option>
+              <option value="SC">South Carolina (0.37%)</option>
+              <option value="TX">Texas (0%)</option>
+              <option value="UT">Utah (0%)</option>
+              <option value="VA">Virginia (0.1%)</option>
+            </select>
+          </label>
           <label>Transfer tax (%) <input id="transferTaxRate" type="number" min="0" step="0.01" value="0.11"></label>
           <label>Transfer tax (flat $) <input id="transferTaxFlat" type="number" min="0" step="1" value="0"></label>
           <label>Recording fees <input id="recording" type="number" min="0" step="1" value="125"></label>
@@ -163,6 +189,13 @@
         <tbody id="compare"></tbody>
       </table>
       <p id="verdict" class="verdict"></p>
+      <p id="breakEven" class="note"></p>
+      <h2>What each half point costs</h2>
+      <p class="note">Offer A's net at nearby prices (rows) and buyer-broker rates (columns), everything else as entered.</p>
+      <table>
+        <thead id="gridHead"></thead>
+        <tbody id="gridBody"></tbody>
+      </table>
       <div class="actions">
         <button type="button" id="copySheet">Copy Offer A worksheet</button>
         <button type="button" id="copyCompare">Copy comparison</button>
@@ -180,8 +213,12 @@
       percentage. The decision sellers actually face after NAR is
       <strong>which offer leaves more cash</strong> once buyer-broker
       compensation and concessions are separate lines.
+      <a href="transfer-tax-by-state.html">Who pays transfer tax, state by state</a>
+      lists the starting rates behind the state menu, and
       <a href="offer-comparison.html">Higher offer vs cleaner offer</a>
-      walks through that in search-query words, and
+      walks through that in search-query words,
+      <a href="compare-multiple-offers.html">compare multiple offers</a>
+      ranks up to twelve on net cash, days to close and fall-through risk,
       <a href="vs-title-company-net-sheet.html">this calculator vs. your title company's net sheet</a>
       explains which of the two to reach for at which point in the sale, and
       <a href="vs-zillows-home-sale-calculator.html">this calculator vs. Zillow's Home Sale Calculator</a>
@@ -218,12 +255,15 @@
   <script type="module">
     import {
       applyCommissionPreset,
+      breakEvenBuyerBrokerRate,
       calculateNetSheet,
       compareOffers,
+      netGrid,
       estimateTaxProration,
       formatNetSheetSummary,
       formatOfferComparison,
     } from "./calc.mjs";
+    import { TRANSFER_TAX_STATES } from "./transfer-tax.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
     import { encodeInputs, decodeInputs } from "./share.mjs";
 
@@ -327,7 +367,23 @@
         } else {
           el("verdict").textContent = `Offer B leaves ${money(-comparison.delta)} more cash than Offer A — the higher price is not the higher net.`;
         }
+        const be = breakEvenBuyerBrokerRate(readShared(), readA(), readB());
+        if (be.rate === null) {
+          el("breakEven").textContent = "";
+        } else if (be.rate < 0) {
+          el("breakEven").textContent = `Offer A trails Offer B even if it asked for no buyer-broker pay (needs ${be.rate.toFixed(2)}%).`;
+        } else {
+          el("breakEven").textContent = `Offer A can ask up to ${be.rate.toFixed(2)}% buyer-broker pay before it leaves less cash than Offer B (it asks ${be.askedRate.toFixed(2)}%).`;
+        }
+        const grid = netGrid(readA());
+        el("gridHead").innerHTML = `<tr><th>Price</th>${grid.buyerRates.map((r) => `<th>${r}%</th>`).join("")}</tr>`;
+        el("gridBody").innerHTML = grid.rows.map((row) =>
+          `<tr><td>${money(row.salePrice)}</td>${row.nets.map((n) => `<td>${money(n)}</td>`).join("")}</tr>`
+        ).join("");
       } catch (error) {
+        el("breakEven").textContent = "";
+        el("gridHead").innerHTML = "";
+        el("gridBody").innerHTML = "";
         el("net").textContent = error.message;
         el("net").className = "hero-number error";
         el("label").textContent = "fix the inputs to see a result";
@@ -432,6 +488,14 @@
       setCopyStatus("Comparison copied");
     }
 
+    el("transferTaxState").addEventListener("change", () => {
+      const state = TRANSFER_TAX_STATES[el("transferTaxState").value];
+      if (!state) return;
+      el("transferTaxRate").value = state.rate;
+      el("transferTaxFlat").value = 0;
+      update();
+      count("transfer_tax_state_applied");
+    });
     el("preset").addEventListener("change", applyPreset);
     [...SHARED_IDS, ...A_IDS, ...B_IDS].forEach((id) => {
       el(id).addEventListener("input", update);

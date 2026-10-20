@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the fraction of the true Pareto-front hypervolume found against designs evaluated, for lexicographic, Halton, farthest-point, random-start farthest-point, Latin and random orders">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Grid orders at equal budgets (80-design space)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="272.6" y2="272.6" stroke="#ddd"/><text x="58" y="276.6" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="221.2" y2="221.2" stroke="#ddd"/><text x="58" y="225.2" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="169.8" y2="169.8" stroke="#ddd"/><text x="58" y="173.8" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="118.4" y2="118.4" stroke="#ddd"/><text x="58" y="122.4" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="67.1" y2="67.1" stroke="#ddd"/><text x="58" y="71.1" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="126.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="188.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="312.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="468.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">40</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">distinct designs evaluated</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">hypervolume / true-front hypervolume</text>
+<polyline points="64.0,308.6 126.2,298.8 188.4,285.2 250.7,153.4 312.9,153.4 468.4,131.6 624.0,86.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="308.6" r="3" fill="#c0392b"/>
+<circle cx="126.2" cy="298.8" r="3" fill="#c0392b"/>
+<circle cx="188.4" cy="285.2" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="153.4" r="3" fill="#c0392b"/>
+<circle cx="312.9" cy="153.4" r="3" fill="#c0392b"/>
+<circle cx="468.4" cy="131.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="86.1" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">lexicographic</text>
+<polyline points="64.0,131.8 126.2,86.1 188.4,84.8 250.7,82.0 312.9,80.2 468.4,78.6 624.0,78.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="131.8" r="3" fill="#1f6fb2"/>
+<circle cx="126.2" cy="86.1" r="3" fill="#1f6fb2"/>
+<circle cx="188.4" cy="84.8" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="82.0" r="3" fill="#1f6fb2"/>
+<circle cx="312.9" cy="80.2" r="3" fill="#1f6fb2"/>
+<circle cx="468.4" cy="78.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="78.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">halton</text>
+<polyline points="64.0,95.6 126.2,95.1 188.4,94.8 250.7,89.7 312.9,86.6 468.4,72.2 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="95.6" r="3" fill="#2e8b57"/>
+<circle cx="126.2" cy="95.1" r="3" fill="#2e8b57"/>
+<circle cx="188.4" cy="94.8" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="89.7" r="3" fill="#2e8b57"/>
+<circle cx="312.9" cy="86.6" r="3" fill="#2e8b57"/>
+<circle cx="468.4" cy="72.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">farthest</text>
+<polyline points="64.0,153.6 126.2,112.8 188.4,94.8 250.7,89.9 312.9,85.0 468.4,78.1 624.0,75.5" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="153.6" r="3" fill="#8e44ad"/>
+<circle cx="126.2" cy="112.8" r="3" fill="#8e44ad"/>
+<circle cx="188.4" cy="94.8" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="89.9" r="3" fill="#8e44ad"/>
+<circle cx="312.9" cy="85.0" r="3" fill="#8e44ad"/>
+<circle cx="468.4" cy="78.1" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="75.5" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">farthest-rand-start</text>
+<polyline points="64.0,135.4 126.2,105.6 188.4,97.1 250.7,90.2 312.9,86.6 468.4,80.2 624.0,76.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="135.4" r="3" fill="#c0392b"/>
+<circle cx="126.2" cy="105.6" r="3" fill="#c0392b"/>
+<circle cx="188.4" cy="97.1" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="90.2" r="3" fill="#c0392b"/>
+<circle cx="312.9" cy="86.6" r="3" fill="#c0392b"/>
+<circle cx="468.4" cy="80.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="76.1" r="3" fill="#c0392b"/>
+<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">latin</text>
+<polyline points="64.0,146.7 126.2,116.4 188.4,102.5 250.7,94.6 312.9,89.2 468.4,81.2 624.0,76.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="146.7" r="3" fill="#1f6fb2"/>
+<circle cx="126.2" cy="116.4" r="3" fill="#1f6fb2"/>
+<circle cx="188.4" cy="102.5" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="94.6" r="3" fill="#1f6fb2"/>
+<circle cx="312.9" cy="89.2" r="3" fill="#1f6fb2"/>
+<circle cx="468.4" cy="81.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="76.1" r="3" fill="#1f6fb2"/>
+<rect x="914" y="32" width="14" height="10" fill="#1f6fb2"/><text x="934" y="41" font-family="sans-serif" font-size="11">random</text>
+</svg>

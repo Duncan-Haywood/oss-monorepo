@@ -1,0 +1,40 @@
+{
+  "slug": "patio-door-bid-calculator",
+  "name": "Patio door replacement",
+  "group": "Interior & finishes",
+  "summary": "Sliding and patio door replacements priced from panel config, frame, glass, install method and extras.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 1,
+  "hourlyWage": 48,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 32,
+  "items": [
+    {
+      "label": "Set 6-ft 2-panel vinyl unit, dual-pane, retrofit",
+      "unit": "door",
+      "qty": 1,
+      "hoursPerUnit": 4.5,
+      "materialPerUnit": 980,
+      "source": "hoursSet 4.5, set factor 1, no premiums; unit $980 x 1 x 1 (index.html defaults; suggestedConfigKit/FrameKit/GlazingKit in calc.mjs)"
+    },
+    {
+      "label": "Tear out and haul the old door",
+      "unit": "door",
+      "qty": 1,
+      "hoursPerUnit": 1.4,
+      "materialPerUnit": 65,
+      "source": "Tear-out checked by default; 1.4 h; dump/haul-away $65 (index.html)"
+    },
+    {
+      "label": "Site / travel, truck and recovery",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.5,
+      "materialPerUnit": 110,
+      "source": "siteHours 0.5; travel, truck, recovery $110 (index.html). Trip/setup 1 h is setupHours"
+    }
+  ],
+  "specialistModels": "Panel-config, frame and glazing kits, new-construction wrap and set factor, balcony access, and screen/transom/trim/sill-pan/threshold extras."
+}

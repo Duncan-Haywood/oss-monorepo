@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selfrep-partpool"
+version = "0.1.0"
+description = "Part-level discrete-event growth of a replicating printer shop: whole copy per printer versus a shared pool of part jobs"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

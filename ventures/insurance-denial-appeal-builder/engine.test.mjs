@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readDenial, deadlines, appealLetter, checklist, calendar, sampleDenial, addMonths, parseDate, REASONS, CARC, PLAN_TYPES } from "./engine.mjs";
+import { readDenial, deadlines, appealLetter, providerLetter, externalReviewLetter, checklist, calendar, sampleDenial, addMonths, parseDate, REASONS, CARC, PLAN_TYPES } from "./engine.mjs";
 
 test("the sample denial is read as a medical-necessity denial with its details", () => {
   const r = readDenial(sampleDenial());
@@ -145,4 +145,30 @@ test("the calendar file is valid iCalendar with three dated events and CRLF line
   assert.ok(ics.split("\r\n").every((l) => l.length <= 75));
   assert.doesNotMatch(ics.replace(/\r\n/g, ""), /\n/);
   assert.equal(calendar(deadlines({ plan: "medicaid", received: "2026-09-14", today: "2026-10-02" })), null);
+});
+
+test("bundling, coverage-ended and surprise-bill denials are recognised by code and by phrase", () => {
+  assert.equal(readDenial("Adjustment CO-97: benefit included in the allowance for another service").top, "bundled");
+  assert.equal(readDenial("The claim was downcoded to a lower level of service").top, "bundled");
+  assert.equal(readDenial("CO-27 expenses incurred after coverage terminated").top, "eligibility");
+  assert.equal(readDenial("Your coverage was terminated on 2026-03-31.").top, "eligibility");
+  assert.equal(readDenial("Emergency room visit; the anesthesiologist was out of network. Balance billing applies.").top, "surprise_bill");
+  assert.match(appealLetter({ plan: "commercial", reason: "surprise_bill" }), /in-network cost sharing/);
+});
+
+test("provider letter leaves clinical facts as placeholders and asks for peer-to-peer", () => {
+  const l = providerLetter({ reason: "medical_necessity", patient: "Alex Rivera", provider: "Lee", insurer: "Acme", urgent: true });
+  assert.match(l, /peer-to-peer/);
+  assert.match(l, /\[diagnosis, ICD-10 code\(s\)\]/);
+  assert.match(l, /EXPEDITED/);
+  assert.match(l, /clinician must review and sign/);
+  assert.doesNotMatch(providerLetter({ reason: "duplicate" }), /EXPEDITED/);
+});
+
+test("external review letter carries the internal appeal dates or placeholders", () => {
+  const l = externalReviewLetter({ reason: "experimental", patient: "Alex Rivera", appealDate: "2026-10-01", finalDenialDate: "2026-11-02" });
+  assert.match(l, /dated 2026-11-02/);
+  assert.match(l, /filed an internal appeal on 2026-10-01/);
+  assert.match(l, /four months/);
+  assert.match(externalReviewLetter({ reason: "other" }), /\[date of the final internal denial\]/);
 });

@@ -53,6 +53,8 @@ jobs:
     container: swift:5.9
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - run: swift build
       - run: swift test
 
@@ -60,13 +62,15 @@ jobs:
     # The browser surface in site/ is plain ES modules and needs no container,
     # so unlike test-core above it *does* read the CI_RUNNER switch and can run
     # on a self-hosted runner once one exists.
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     defaults:
       run:
         working-directory: ventures/world-clock-widget/site
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22

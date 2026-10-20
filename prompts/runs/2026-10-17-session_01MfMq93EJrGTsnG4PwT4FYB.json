@@ -1,0 +1,126 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01MfMq93EJrGTsnG4PwT4FYB",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T21:17:41Z",
+  "ended": "2026-10-17T21:19:31Z",
+  "wall_minutes": 1.93,
+  "tokens_in": 1898481,
+  "tokens_out": 9601,
+  "cost_usd": 0.8351,
+  "tool_calls": 23,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7843",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Track 8 chain is micro-variants (gated*), so I took the milestone-9 figure backlog instead; the 'about 39 projects' count was off by one (38 found)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "Drew track 8 but its chain is micro-variants; shipped project-page figures (milestone 9) instead."
+    }
+  ],
+  "goal": null,
+  "notes": "Five SVG figures via shared linefig; could not render-check (no playwright module).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d606d70c-b014-5934-8402-ab83e4e46740",
+    "transcripts": 1,
+    "first": "2026-10-17T21:17:41Z",
+    "last": "2026-10-17T21:19:37Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 20,
+        "input": 40,
+        "output": 9601,
+        "thinking": 2915,
+        "cache_read": 1803892,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94549,
+        "api_equivalent_usd": 0.8351,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 20,
+      "input": 40,
+      "output": 9601,
+      "thinking": 2915,
+      "cache_read": 1803892,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94549,
+      "api_equivalent_usd": 0.8351,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.95,
+    "tool_calls": 23,
+    "tools": {
+      "Bash": 19,
+      "mcp__github__list_pull_requests": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.93,
+      "active_minutes": 1.93,
+      "model_minutes": 1.33,
+      "tool_minutes": 0.59,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "five figure scripts plus data inspection",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 119.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

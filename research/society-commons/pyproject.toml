@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "society-commons"
+version = "0.1.0"
+description = "Robots and people sharing a one-at-a-time resource (a lift, a narrow pavement): what deference costs the robots and buys the people, in a queueing model checked against closed forms"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

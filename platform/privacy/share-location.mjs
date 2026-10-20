@@ -148,6 +148,11 @@ function isExempt(line) {
   // the ventures fixed alongside it all discuss `?` and `searchParams` at
   // length in exactly the place the checker looks.
   if (/^(\/\/|\*|<!--|#)/.test(trimmed)) return true;
+  // Stripe's `client_reference_id` is a query parameter by Stripe's own
+  // contract (a Payment Link has no fragment form). It carries an opaque
+  // attribution code to Stripe on the visitor's own click on a Stripe link,
+  // not a share payload to this site's server or an outbound Referer.
+  if (/\bclient_reference_id\b/.test(trimmed)) return true;
   return false;
 }
 

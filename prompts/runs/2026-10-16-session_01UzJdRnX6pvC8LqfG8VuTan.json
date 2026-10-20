@@ -1,0 +1,126 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01UzJdRnX6pvC8LqfG8VuTan",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-16T04:09:19Z",
+  "ended": "2026-10-16T04:14:23Z",
+  "wall_minutes": 5.17,
+  "tokens_in": 1675193,
+  "tokens_out": 11416,
+  "cost_usd": 0.7321,
+  "tool_calls": 22,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7288",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Checklist is very long; run_workflow_locally.py --for-changes exceeded the 120s tool timeout and I did not wait for its result."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "session_gate.py",
+      "why": "Gate said refresh the stale gh-pages snapshot first; I shipped a distribution channel instead and left the publish for after merge."
+    }
+  ],
+  "goal": null,
+  "notes": "Added homebrew-tap distribution channel (artifact rung). No CI check runs appeared on the PR at open time.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b43230f9-e163-5edb-9b5e-04f9ea994bd3",
+    "transcripts": 1,
+    "first": "2026-10-16T04:09:19Z",
+    "last": "2026-10-16T04:14:29Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 20,
+        "input": 40,
+        "output": 11416,
+        "thinking": 2091,
+        "cache_read": 1600719,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74434,
+        "api_equivalent_usd": 0.7321,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 20,
+      "input": 40,
+      "output": 11416,
+      "thinking": 2091,
+      "cache_read": 1600719,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74434,
+      "api_equivalent_usd": 0.7321,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.956,
+    "tool_calls": 22,
+    "tools": {
+      "Bash": 16,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.17,
+      "active_minutes": 5.17,
+      "model_minutes": 1.44,
+      "tool_minutes": 3.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "estimate: build generator, tests, workflow, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 409.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

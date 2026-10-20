@@ -1,0 +1,25 @@
+synthetic audio from ambient-gateroc: 60 s per room, rooms [-60, -50, -40, -30] dBFS, seed 3; k = 4, hangover 10
+clang 18 --target=thumbv7em-none-eabi -mcpu=cortex-m4 -mfloat-abi=soft -ffreestanding; Unicorn Thumb-2 (M-class)
+instructions are executed instructions inside adaptive_gate_push, steady state (after the window fills), mean over rooms
+the libgcc 64-bit divide is replaced by a host computation and NOT counted
+
+== -Os ==
+block  .text bytes  libcalls                 instr/frame  floor-scan share   agrees with Python (open, floor)
+    1         252  __aeabi_uldivmod               3237            38.9%   yes
+    2         258  __aeabi_uldivmod               2605            24.1%   yes
+    5         256  __aeabi_uldivmod               2224            11.1%   yes
+   10         258  __aeabi_uldivmod               2096             5.7%   yes
+   25         256  __aeabi_uldivmod               2019             2.1%   yes
+   50         244  __aeabi_uldivmod               1993             0.8%   yes
+  125         236  __aeabi_uldivmod               1977             0.0%   yes
+
+== -O2 ==
+block  .text bytes  libcalls                 instr/frame  floor-scan share   agrees with Python (open, floor)
+    1         526  __aeabi_uldivmod               2482            36.0%   yes
+    2         532  __aeabi_uldivmod               2035            21.9%   yes
+    5         530  __aeabi_uldivmod               1769            10.2%   yes
+   10         532  __aeabi_uldivmod               1676             5.2%   yes
+   25         530  __aeabi_uldivmod               1624             2.2%   yes
+   50         518  __aeabi_uldivmod               1603             0.9%   yes
+  125         512  __aeabi_uldivmod               1589             0.0%   yes
+

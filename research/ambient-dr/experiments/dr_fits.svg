@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" role="img" aria-label="Grouped bars of held-out utility per hour for each fitting method, uninformed vs informed prior">
+<rect width="700" height="400" fill="#fff"/>
+<text x="350.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Held-out utility/h by fit (eps 0.005; whiskers = std over 20 seeds)</text>
+<line x1="64" x2="684" y1="362.4" y2="362.4" stroke="#ddd"/><text x="58" y="366.4" text-anchor="end" font-family="sans-serif" font-size="11">-180</text>
+<line x1="64" x2="684" y1="318.3" y2="318.3" stroke="#ddd"/><text x="58" y="322.3" text-anchor="end" font-family="sans-serif" font-size="11">-150</text>
+<line x1="64" x2="684" y1="274.3" y2="274.3" stroke="#ddd"/><text x="58" y="278.3" text-anchor="end" font-family="sans-serif" font-size="11">-120</text>
+<line x1="64" x2="684" y1="230.2" y2="230.2" stroke="#ddd"/><text x="58" y="234.2" text-anchor="end" font-family="sans-serif" font-size="11">-90</text>
+<line x1="64" x2="684" y1="186.2" y2="186.2" stroke="#ddd"/><text x="58" y="190.2" text-anchor="end" font-family="sans-serif" font-size="11">-60</text>
+<line x1="64" x2="684" y1="142.1" y2="142.1" stroke="#ddd"/><text x="58" y="146.1" text-anchor="end" font-family="sans-serif" font-size="11">-30</text>
+<line x1="64" x2="684" y1="98.1" y2="98.1" stroke="#000"/><text x="58" y="102.1" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="684" y1="54.1" y2="54.1" stroke="#ddd"/><text x="58" y="58.1" text-anchor="end" font-family="sans-serif" font-size="11">30</text>
+<text x="14" y="180.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 180.0)">held-out utility per hour</text>
+<text x="98.4" y="334" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 98.4 334)">biased</text>
+<rect x="70.9" y="98.1" width="26.6" height="0.2" fill="#1f6fb2"/>
+<line x1="84.2" x2="84.2" y1="107.6" y2="89.1" stroke="#000" stroke-width="1"/>
+<rect x="98.4" y="82.2" width="26.6" height="15.9" fill="#c0392b"/>
+<line x1="111.7" x2="111.7" y1="83.4" y2="81.0" stroke="#000" stroke-width="1"/>
+<text x="167.3" y="334" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 167.3 334)">ips</text>
+<rect x="139.8" y="98.1" width="26.6" height="48.1" fill="#1f6fb2"/>
+<line x1="153.1" x2="153.1" y1="234.6" y2="57.7" stroke="#000" stroke-width="1"/>
+<rect x="167.3" y="81.7" width="26.6" height="16.4" fill="#c0392b"/>
+<line x1="180.6" x2="180.6" y1="83.9" y2="79.6" stroke="#000" stroke-width="1"/>
+<text x="236.2" y="334" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 236.2 334)">clip10</text>
+<rect x="208.7" y="98.1" width="26.6" height="92.4" fill="#1f6fb2"/>
+<line x1="221.9" x2="221.9" y1="240.8" y2="140.3" stroke="#000" stroke-width="1"/>
+<rect x="236.2" y="80.3" width="26.6" height="17.8" fill="#c0392b"/>
+<line x1="249.5" x2="249.5" y1="81.3" y2="79.2" stroke="#000" stroke-width="1"/>
+<text x="305.1" y="334" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 305.1 334)">selfnorm</text>
+<rect x="277.6" y="90.1" width="26.6" height="8.0" fill="#1f6fb2"/>
+<line x1="290.8" x2="290.8" y1="124.2" y2="56.0" stroke="#000" stroke-width="1"/>
+<rect x="305.1" y="81.1" width="26.6" height="17.0" fill="#c0392b"/>
+<line x1="318.4" x2="318.4" y1="82.7" y2="79.5" stroke="#000" stroke-width="1"/>
+<text x="374.0" y="334" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 374.0 334)">dr_biased</text>
+<rect x="346.4" y="98.1" width="26.6" height="79.5" fill="#1f6fb2"/>
+<line x1="359.7" x2="359.7" y1="295.4" y2="59.8" stroke="#000" stroke-width="1"/>
+<rect x="374.0" y="82.3" width="26.6" height="15.8" fill="#c0392b"/>
+<line x1="387.3" x2="387.3" y1="84.5" y2="80.2" stroke="#000" stroke-width="1"/>
+<text x="442.9" y="334" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 442.9 334)">dr_clip10</text>
+<rect x="415.3" y="98.1" width="26.6" height="23.3" fill="#1f6fb2"/>
+<line x1="428.6" x2="428.6" y1="200.1" y2="42.8" stroke="#000" stroke-width="1"/>
+<rect x="442.9" y="82.0" width="26.6" height="16.2" fill="#c0392b"/>
+<line x1="456.2" x2="456.2" y1="83.8" y2="80.1" stroke="#000" stroke-width="1"/>
+<text x="511.8" y="334" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 511.8 334)">dr_prior</text>
+<rect x="484.2" y="98.1" width="26.6" height="86.7" fill="#1f6fb2"/>
+<line x1="497.5" x2="497.5" y1="309.4" y2="60.1" stroke="#000" stroke-width="1"/>
+<rect x="511.8" y="82.1" width="26.6" height="16.0" fill="#c0392b"/>
+<line x1="525.1" x2="525.1" y1="83.8" y2="80.3" stroke="#000" stroke-width="1"/>
+<text x="580.7" y="334" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 580.7 334)">random_matched</text>
+<rect x="553.1" y="80.2" width="26.6" height="17.9" fill="#1f6fb2"/>
+<line x1="566.4" x2="566.4" y1="81.3" y2="79.1" stroke="#000" stroke-width="1"/>
+<rect x="580.7" y="79.8" width="26.6" height="18.3" fill="#c0392b"/>
+<line x1="593.9" x2="593.9" y1="80.6" y2="78.9" stroke="#000" stroke-width="1"/>
+<text x="649.6" y="334" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 649.6 334)">full</text>
+<rect x="622.0" y="79.4" width="26.6" height="18.7" fill="#1f6fb2"/>
+<line x1="635.3" x2="635.3" y1="80.3" y2="78.6" stroke="#000" stroke-width="1"/>
+<rect x="649.6" y="79.4" width="26.6" height="18.7" fill="#c0392b"/>
+<line x1="662.8" x2="662.8" y1="80.3" y2="78.6" stroke="#000" stroke-width="1"/>
+<rect x="534" y="42" width="12" height="10" fill="#1f6fb2"/><text x="552" y="51" font-family="sans-serif" font-size="11">uninformed prior</text>
+<rect x="534" y="57" width="12" height="10" fill="#c0392b"/><text x="552" y="66" font-family="sans-serif" font-size="11">informed prior</text>
+</svg>

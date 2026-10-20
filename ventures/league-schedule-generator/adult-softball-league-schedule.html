@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adult Softball League Schedule: Diamonds, Start Times And Makeup Nights</title>
+  <meta name="description" content="Make an adult softball league schedule for 6 teams on 2 diamonds: a 5-week round robin with a diamond and start time for every game, plus a makeup night when a team is out. Worked example, then build yours free.">
+  <meta property="og:title" content="Adult Softball League Schedule: Diamonds, Start Times And Makeup Nights">
+  <meta property="og:description" content="A 6-team, 2-diamond adult softball league schedule worked through week by week, with a blackout night and a makeup game. Free, private, in your browser.">
+  <link rel="canonical" href="./adult-softball-league-schedule.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you make an adult softball league schedule?","acceptedAnswer":{"@type":"Answer","text":"List the teams, pick the weeknight, and use a round robin so every team plays every other team once. Six teams play 5 rounds of 3 games. Then give each game a diamond and a start time so no diamond is booked twice."}},{"@type":"Question","name":"What if a team cannot play on one night?","acceptedAnswer":{"@type":"Answer","text":"Enter the team and the date as a blackout. That team is left out of that night's round, and the one game it misses moves to a makeup night at the end of the season, so nothing else in the schedule changes."}},{"@type":"Question","name":"How many diamonds does a six-team league need?","acceptedAnswer":{"@type":"Answer","text":"Three games a night need three diamond-and-start-time slots: two diamonds at two start times give four, which leaves one spare slot and lets the tool spread early and late starts fairly."}},{"@type":"Question","name":"How do you keep the 18:30 and 20:00 starts fair?","acceptedAnswer":{"@type":"Answer","text":"Count how many early starts each team gets over the season and keep the counts within one of each other, so the same team is not always stuck with the late game after work."}},{"@type":"Question","name":"What if a game is rained out?","acceptedAnswer":{"@type":"Answer","text":"Move it with the rainout box: the game goes to the earliest later night both teams are free and a diamond is open, and nothing else in the schedule moves."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>Adult softball league schedule: diamonds, start times and makeup nights</h1>
+  <p>An adult rec softball or kickball league has three jobs: decide who plays whom, decide which diamond and what start time, and cope with the team that has a wedding on week four. A round robin does the first, and the other two are where a hand-made spreadsheet breaks. Six teams on a Tuesday night is a common size: 5 weeks, 3 games a night.</p>
+  <p><a class="cta" href="./">Open the free schedule tool</a> (paste your teams, list diamonds, start times and blackout dates, get dates and a CSV or calendar file)</p>
+  <h2>A worked example: 6 teams, 2 diamonds, 2 start times, one blackout</h2>
+  <p>Six invented teams play a single round robin on Tuesdays from 14 April 2026, with games at 18:30 and 20:00 on two diamonds. Walk-Offs cannot play on 5 May. Home team is listed first.</p>
+  <table>
+    <thead><tr><th>Round</th><th>Date</th><th>Games (diamond and time)</th></tr></thead>
+    <tbody>
+      <tr><td>Round 1</td><td>Tue 14 Apr 2026</td><td>Grand Slammers v Foul Ballers (Diamond 2 18:30), Bat Pack v Walk-Offs (Diamond 1 20:00), Dugout Dogs v Pitch Perfect (Diamond 2 20:00)</td></tr>
+      <tr><td>Round 2</td><td>Tue 21 Apr 2026</td><td>Pitch Perfect v Grand Slammers (Diamond 1 18:30), Walk-Offs v Dugout Dogs (Diamond 2 18:30), Foul Ballers v Bat Pack (Diamond 2 20:00)</td></tr>
+      <tr><td>Round 3</td><td>Tue 28 Apr 2026</td><td>Foul Ballers v Walk-Offs (Diamond 1 18:30), Bat Pack v Pitch Perfect (Diamond 2 18:30), Grand Slammers v Dugout Dogs (Diamond 1 20:00)</td></tr>
+      <tr><td>Round 4</td><td>Tue 5 May 2026</td><td>Dugout Dogs v Bat Pack (Diamond 1 18:30), Pitch Perfect v Foul Ballers (Diamond 1 20:00)</td></tr>
+      <tr><td>Round 5</td><td>Tue 12 May 2026</td><td>Foul Ballers v Dugout Dogs (Diamond 1 18:30), Bat Pack v Grand Slammers (Diamond 2 18:30), Pitch Perfect v Walk-Offs (Diamond 2 20:00)</td></tr>
+      <tr><td>Makeup 1</td><td>Tue 19 May 2026</td><td>Walk-Offs v Grand Slammers (Diamond 1 20:00)</td></tr>
+    </tbody>
+  </table>
+  <p>Every team plays every other team once and no diamond is used twice at the same start. On 5 May Walk-Offs is out, so only two games are played, and its one missed game against Grand Slammers is the makeup on 19 May. The slot assignment is a seeded search, so the same input always gives the same table.</p>
+  <p>The table comes from the same code the page runs and a test recomputes it, so it cannot drift from the tool.</p>
+  <p><a class="cta" href="./">Build your own schedule</a></p>
+  <h2>Questions</h2>
+  <h3>How do you make an adult softball league schedule?</h3>
+  <p>List the teams, pick the weeknight, and use a round robin so every team plays every other team once. Six teams play 5 rounds of 3 games. Then give each game a diamond and a start time so no diamond is booked twice.</p>
+  <h3>What if a team cannot play on one night?</h3>
+  <p>Enter the team and the date as a blackout. That team is left out of that night's round, and the one game it misses moves to a makeup night at the end of the season, so nothing else in the schedule changes.</p>
+  <h3>How many diamonds does a six-team league need?</h3>
+  <p>Three games a night need three diamond-and-start-time slots: two diamonds at two start times give four, which leaves one spare slot and lets the tool spread early and late starts fairly.</p>
+  <h3>How do you keep the 18:30 and 20:00 starts fair?</h3>
+  <p>Count how many early starts each team gets over the season and keep the counts within one of each other, so the same team is not always stuck with the late game after work.</p>
+  <h3>What if a game is rained out?</h3>
+  <p>Move it with the rainout box: the game goes to the earliest later night both teams are free and a diamond is open, and nothing else in the schedule moves.</p>
+  <p>Related: <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">scheduling with limited courts and time slots</a>, <a href="./how-to-reschedule-a-rained-out-league-game.html">rescheduling a rained-out game</a>, <a href="./youth-soccer-league-schedule.html">a youth soccer schedule with byes</a> and <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing, date and diamond booking before you announce it; your league's own rules and tie-breaks apply. The example teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

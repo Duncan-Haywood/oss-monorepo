@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01UQKnoJxdq6ZFnRkC17mqap",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled routine)",
+  "model": "claude-sonnet-5-5",
+  "task": "swe-pickmix",
+  "projects": [
+    "swe-pickmix"
+  ],
+  "pr": 623,
+  "commits": [],
+  "merged": null,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "track 10 follow-up to swe-schedule; routed from oss-monorepo research/0, which sends work upstream; oss-monorepo cutover PRs (#7243, upstream #619) were in flight and left alone; 10 tests pass",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

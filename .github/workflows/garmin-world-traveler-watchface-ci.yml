@@ -33,10 +33,12 @@ defaults:
 
 jobs:
   xml-sanity:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       # The self-hosted runner image (gitops/ci/runner.yaml, upstream
       # ghcr.io/actions/actions-runner) installs only sudo, lsb-release,
       # gpg-agent, software-properties-common, curl, jq, unzip and git --

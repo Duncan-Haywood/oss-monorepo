@@ -5,6 +5,8 @@ Everyone privately says what each room is worth to them; the tool gives the room
 to the people who want them most and sets rents that add up to the total so that
 **nobody would rather have someone else's room** (envy-free rent division).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/roommate-rent-splitter/
+
 - 2 to 8 people, any room names, optional shared costs split evenly on top;
 - whole-dollar or to-the-cent rents that still add up exactly;
 - "an equal split would have someone paying $X more than their room is worth";

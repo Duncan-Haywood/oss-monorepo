@@ -1,0 +1,82 @@
+A. Idle clock energy per cycle of a flop and of a clock gate (library values, not measurements). fJ.
+node               flop cell            flop gate cell            gate gate/flop  internal/(C*V^2): flop gate
+SKY130 HD 1.8 V    sc_hd__dfxtp_1      46.36 c_hd__dlclkp_1      39.66     0.855                  6.98  1.95
+IHP SG13G2 1.2 V   sg13g2_dfrbp_1      33.90 sg13g2_slgcp_1      25.25     0.745                  7.42  2.52
+IHP SG13G2 1.5 V   sg13g2_dfrbp_1      71.16 sg13g2_slgcp_1      56.38     0.792                  9.68  3.74
+NanGate45 1.1 V    DFF_X1               9.17 CLKGATE_X1           8.74     0.953                  6.98  2.93
+
+B. Which unit reading is physical? Energy of one clock-pin cycle divided by C_pin x VDD^2, read two ways (a value near 1 to 20 is plausible).
+node                 pJ per unit, C*V^2   pJ per unit, V*I*t  flop ratio, C*V^2  flop ratio, V*I*t
+SKY130 HD 1.8 V                       1                    1               6.98              6.976
+IHP SG13G2 1.2 V                      1                0.001               7.42           0.007418
+IHP SG13G2 1.5 V                      1                0.001               9.68           0.009676
+NanGate45 1.1 V                   0.001                    1               6.98               6979
+
+C. IHP SG13G2 SRAM macros (typ 1.2 V 25 C): energy per access from the A_CLK pin, read and write listed separately in the file. pJ.
+macro           capacity     read    write  read/bit  packed read/weight  in flop-cycles
+1024x8_c2           8192    15.60    19.92     1.950               7.798             230
+4096x8_c3          32768    33.72    42.21     4.215              16.858             497
+1024x16_c2         16384    26.49    32.92     1.655               6.622             195
+4096x16_c3         65536    58.64    72.49     3.665              14.661             432
+256x48_c2          12288    37.82    48.44     0.788               3.152              93
+64x64_c2            4096    39.05    50.50     0.610               2.441              72
+256x64_c2          16384    49.63    63.44     0.776               3.102              91
+512x64_c2          32768    68.90    80.02     1.077               4.306             127
+1024x64_c2         65536    91.83   110.92     1.435               5.739             169
+2048x64_c2        131072   122.39   155.37     1.912               7.650             226
+
+D. IHP 1.2 V: minimum weight-fetch energy (pJ per 4-bit weight) for register-file WS to beat OS. e_flop 33.90 fJ, e_icg 25.26 fJ.
+shape      B  ungated      G=1     G=24    G=192  ungated, in flop-cycles
+L1 64x70   2    1.639    1.221    0.051    0.007                       48
+L1 64x70   4    3.269    2.436    0.102    0.013                       96
+L1 64x70   8    6.527    4.864    0.204    0.026                      193
+L1 64x70  16   13.040    9.717    0.407    0.053                      385
+L2 11x64   2    2.398    1.787    0.075    0.010                       71
+L2 11x64   4    4.769    3.554    0.149    0.019                      141
+L2 11x64   8    9.508    7.085    0.297    0.038                      280
+L2 11x64  16   18.982   14.145    0.592    0.077                      560
+
+E. Verdicts, WS or OS, against each IHP macro that can hold the layer (capacity >= layer bits). Cells: ungated / gated with G=24 (one 24-bit accumulator per gate).
+'u' = one weight per access, 'p' = weights packed in the word; reads only (inference).
+L1 64x70 (17920 weight bits); cells are ungated/gated, then the smallest G that wins
+macro                         B=2             B=4             B=8             B=16
+4096x8_c3      u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+4096x8_c3      p        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+4096x16_c3     u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+4096x16_c3     p        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+512x64_c2      u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+512x64_c2      p        WS/WS G>=1      WS/WS G>=1      OS/WS G>=2      OS/WS G>=3
+1024x64_c2     u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+1024x64_c2     p        WS/WS G>=1      WS/WS G>=1      OS/WS G>=1      OS/WS G>=2
+2048x64_c2     u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+2048x64_c2     p        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      OS/WS G>=2
+L2 11x64 (2816 weight bits); cells are ungated/gated, then the smallest G that wins
+macro                         B=2             B=4             B=8             B=16
+1024x8_c2      u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      OS/WS G>=1
+1024x8_c2      p        WS/WS G>=1      WS/WS G>=1      OS/WS G>=1      OS/WS G>=2
+4096x8_c3      u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+4096x8_c3      p        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      OS/WS G>=1
+1024x16_c2     u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+1024x16_c2     p        WS/WS G>=1      WS/WS G>=1      OS/WS G>=2      OS/WS G>=3
+4096x16_c3     u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+4096x16_c3     p        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      OS/WS G>=1
+256x48_c2      u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+256x48_c2      p        WS/WS G>=1      OS/WS G>=2      OS/WS G>=3      OS/WS G>=5
+64x64_c2       u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+64x64_c2       p        WS/WS G>=1      OS/WS G>=2      OS/WS G>=3      OS/WS G>=6
+256x64_c2      u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+256x64_c2      p        WS/WS G>=1      OS/WS G>=2      OS/WS G>=3      OS/WS G>=5
+512x64_c2      u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+512x64_c2      p        WS/WS G>=1      OS/WS G>=1      OS/WS G>=2      OS/WS G>=4
+1024x64_c2     u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+1024x64_c2     p        WS/WS G>=1      WS/WS G>=1      OS/WS G>=2      OS/WS G>=3
+2048x64_c2     u        WS/WS G>=1      WS/WS G>=1      WS/WS G>=1      WS/WS G>=1
+2048x64_c2     p        WS/WS G>=1      WS/WS G>=1      OS/WS G>=1      OS/WS G>=2
+
+cells: 120; ungated WS wins in 92; gated (G=24) WS wins in 120; packed only: ungated 33 of 60, gated 60
+
+F. Node comparison in node-free units: weight-fetch energy in idle-flop-cycles (the thresholds in section D are 1/ratio of these).
+IHP SG13G2 packed macros: 72 to 497 flop-cycles per weight; unpacked 460 to 3610
+SKY130 OpenRAM packed macros: 18 to 62 flop-cycles per weight; unpacked 223 to 1932
+ungated WS needs more than 48 to 560 flop-cycles per weight fetch
+flop energy: SKY130 46.4 fJ, IHP 1.2 V 33.9 fJ, ratio 1.4; gate/flop: SKY130 0.86, IHP 0.75

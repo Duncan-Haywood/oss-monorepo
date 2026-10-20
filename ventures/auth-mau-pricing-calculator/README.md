@@ -4,6 +4,8 @@ Price Clerk, Auth0, AWS Cognito, Firebase / Identity Platform, Supabase Auth and
 side by side at your monthly active user count, see the 12-month spend under your growth rate, and
 find the user counts where the cheapest provider changes — before you build on one.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/auth-mau-pricing-calculator/
+
 ```
 node cli.mjs compare --mau 40000 --growth 8
 node cli.mjs compare --mau 150000 --provider clerk --budget 500   # CI gate: exit 1 over budget

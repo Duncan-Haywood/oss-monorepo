@@ -1,0 +1,22 @@
+# robofab-peakcheck: six-part total carry time (s), no speed limit. T160 = trapezoid with 160 ramp samples (robofab-torquebound);
+# Tdense = trapezoid re-solved with a dense check (N=10000, R=1000); verify = peak utilisation of that answer at N=100000, R=10000 (1.0 = on the limit);
+# bound = a-posteriori estimate of the peak still missed at the verify density. Time-optimal solver n=6400. torque limit 5.0 N m.
+
+## L=0.08 m
+   k     T160   Tdense      dT    T_opt    e160  edense maxverify maxbound parts
+ 2.0   0.8678   0.8682  0.041%   0.6683  22.99%  23.02%   0.99999  0.00053     6
+ 5.0   0.4653   0.4653  0.006%   0.3843  17.40%  17.41%   0.99998  0.00036     6
+ inf   0.1461   0.1459 -0.150%   0.1224  16.22%  16.09%   0.99998  0.00003     6
+
+## L=0.12 m
+   k     T160   Tdense      dT    T_opt    e160  edense maxverify maxbound parts
+ 2.0   1.6105   1.6129  0.148%   1.3321  17.29%  17.41%   0.99997  0.00085     6
+ 5.0   0.9437   0.9450  0.141%   0.7826  17.08%  17.19%   0.99997  0.00045     6
+ inf   0.3732   0.3734  0.053%   0.3315  11.17%  11.22%   0.99998  0.00003     6
+
+## L=0.2 m
+   k     T160   Tdense      dT    T_opt    e160  edense maxverify maxbound parts
+ 2.0   1.5923   1.5948  0.152%   1.2592  20.92%  21.04%   0.99999  0.00254     6
+ 5.0   0.8841   0.8848  0.075%   0.7519  14.95%  15.02%   1.00000  0.00119     6
+ inf   0.4551   0.4557  0.127%   0.4124   9.39%   9.51%   1.00000  0.00003     6
+

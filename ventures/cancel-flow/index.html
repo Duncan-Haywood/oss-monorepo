@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cancel Flow — Free Self-Hosted Stripe Cancellation Flow</title>
+  <meta name="description" content="Keep subscribers who only needed a nudge. A cancellation flow for Stripe that asks why, offers a pause or a discount matched to the reason, and reports your save rate. Preview it in the browser, then run the open-source server in your own account. Free, MIT.">
+  <meta property="og:title" content="Cancel Flow — save-offer cancellation flow for Stripe, self-hosted">
+  <meta property="og:description" content="A different offer for each reason: pause for the busy, discount for the price-sensitive, a human for the stuck. Your Stripe key, your server.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Cancel Flow", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source cancellation flow for Stripe subscriptions. Asks why, offers a pause or a discount matched to the reason, cancels at period end, and reports save rate by reason. Runs on your own server with your own Stripe key."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use the Stripe customer portal's cancellation survey?", "acceptedAnswer": {"@type": "Answer", "text": "Stripe's portal can collect a cancellation reason and offer a retention coupon, and for many businesses that is enough. Cancel Flow is for teams that want a different offer per reason (a pause for people who are not using the product, a discount for price objections), a cooldown so nobody farms discounts, and reasons plus save rate in one place you control."}}, {"@type": "Question", "name": "Does it work with annual plans?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Annual subscribers get a one-time discount on the next renewal instead of a months-long coupon, and monthly equivalents are used for the revenue estimates."}}, {"@type": "Question", "name": "Is it safe to try?", "acceptedAnswer": {"@type": "Answer", "text": "It starts in dry-run mode: the whole flow works and every answer is recorded, but no subscription is changed until you set DRY_RUN=false. Try it with a Stripe test-mode key first."}}, {"@type": "Question", "name": "Can a customer cancel someone else's subscription?", "acceptedAnswer": {"@type": "Answer", "text": "Not through this service. Each link is signed by your server for one subscription, expires (default one hour), and the server checks with Stripe that the subscription belongs to the customer named in the link before changing anything."}}, {"@type": "Question", "name": "Where does my Stripe key live?", "acceptedAnswer": {"@type": "Answer", "text": "In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your customers."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f5f4fa; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #4338ca; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2e2a74; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2e2a74; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4a63; }
+    .card { background: #fff; border: 1px solid #dcdbec; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b4b3d1; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4338ca; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e8e7f3; vertical-align: top; }
+    pre { background: #f1f0f9; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; background: #e4e2fb; font-size: .8rem; font-weight: 700; }
+    .big { font-size: 1.5rem; font-weight: 800; color: #2e2a74; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Ask why they are leaving, then offer the one thing that might keep them</h1>
+  <p>Someone who cancels because the price stings needs a different answer than someone who has not opened the product in a month. Cancel Flow puts a short exit survey between your "Cancel subscription" button and Stripe, offers a <strong>discount, a pause, or a human</strong> matched to the reason, cancels cleanly at period end if they still want out, and shows you the save rate for each reason. Try the customer's view below, then <a href="server.mjs">run the open-source server</a> with your own Stripe key. No account with us, no monthly fee.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">What your customer would see</h2>
+    <div class="grid">
+      <div><label for="reason">Their reason</label><select id="reason"></select></div>
+      <div><label for="price">Plan price (per period)</label><input id="price" type="number" min="1" value="49"></div>
+      <div><label for="interval">Billed</label><select id="interval"><option value="month">monthly</option><option value="year">yearly</option></select></div>
+      <div><label for="pct">Discount offered (%)</label><input id="pct" type="number" min="1" max="100" value="30"></div>
+      <div><label for="months">Discount length (months)</label><input id="months" type="number" min="1" max="12" value="3"></div>
+      <div><label for="pause">Pause length (months)</label><input id="pause" type="number" min="1" max="6" value="2"></div>
+    </div>
+    <p>Decision: <span class="tag" id="act"></span> <span class="note" id="why"></span></p>
+    <p class="big" id="offer" aria-live="polite"></p>
+    <p class="note" id="math"></p>
+  </section>
+
+  <section class="card" aria-labelledby="roi">
+    <h2 id="roi">What is a save worth to you?</h2>
+    <p class="note">Your numbers only: this page does not know your save rate and does not promise one. Measure it with the server's <code>/v1/summary</code>.</p>
+    <div class="grid">
+      <div><label for="n">Cancellations started per month</label><input id="n" type="number" min="0" value="30"></div>
+      <div><label for="amt">Average monthly price</label><input id="amt" type="number" min="0" value="49"></div>
+      <div><label for="rate">Share you hope to keep (%)</label><input id="rate" type="number" min="0" max="100" value="10"></div>
+      <div><label for="disc">Average discount given to those you keep (%)</label><input id="disc" type="number" min="0" max="100" value="30"></div>
+    </div>
+    <p>Subscribers kept per month: <span class="big" id="kept">-</span> &middot; recurring revenue kept: <span class="big" id="mrr">-</span><span class="note" id="mrr12"></span></p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/cancel-flow
+STRIPE_SECRET_KEY=rk_live_... STRIPE_WEBHOOK_SECRET=whsec_... \
+ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
+PUBLIC_URL=https://cancel.example.com COMPANY_NAME=Acme \
+node server.mjs          # DRY_RUN=true until you set DRY_RUN=false
+
+# from your app, when a signed-in customer clicks "Cancel subscription":
+curl -s -X POST $PUBLIC_URL/v1/links -H "authorization: Bearer $ADMIN_KEY" \
+  -d '{"subscription":"sub_..."}'    # {"url": ".../c/&lt;signed link&gt;"} -> redirect them</pre>
+    <p class="note">Point a Stripe webhook at <code>/webhook/stripe</code> for <code>customer.subscription.deleted</code> so true churn is recorded. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Related tools</h2>
+    <p>Lose customers to failed cards instead? <a href="../dunning-engine/">Dunning Engine</a> recovers them, and <a href="../mrr-pulse/">MRR Pulse</a> shows what churn costs you each month. To see who has already left, run your export through the <a href="../stripe-churn-cohort-analyzer/">Stripe Churn Cohort Analyzer</a>; to see who is about to, <a href="../churn-radar/">Churn Radar</a> scores accounts from your own usage events.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use the Stripe customer portal's cancellation survey?</h3>
+    <p>Stripe's portal can collect a cancellation reason and offer a retention coupon, and for many businesses that is enough. Cancel Flow is for teams that want a different offer per reason (a pause for people who are not using the product, a discount for price objections), a cooldown so nobody farms discounts, and reasons plus save rate in one place you control.</p>
+    <h3>Does it work with annual plans?</h3>
+    <p>Yes. Annual subscribers get a one-time discount on the next renewal instead of a months-long coupon, and monthly equivalents are used for the revenue estimates.</p>
+    <h3>Is it safe to try?</h3>
+    <p>It starts in dry-run mode: the whole flow works and every answer is recorded, but no subscription is changed until you set DRY_RUN=false. Try it with a Stripe test-mode key first.</p>
+    <h3>Can a customer cancel someone else's subscription?</h3>
+    <p>Not through this service. Each link is signed by your server for one subscription, expires (default one hour), and the server checks with Stripe that the subscription belongs to the customer named in the link before changing anything.</p>
+    <h3>Where does my Stripe key live?</h3>
+    <p>In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your customers.</p>
+  </section>
+
+  <footer>
+    <p>Starting a subscription from a free trial? <a href="../trial-converter/">Trial Converter</a> emails trials with and without a card on file and can extend a card-less trial once, from the same Stripe account.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. They change your customers' subscriptions on your behalf: you are the operator, responsible for your own Stripe account, your terms with customers and the consumer-protection and cancellation rules where they live (some places require cancelling to be as easy as signing up, so keep a plain cancel path). It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { REASONS, decide, describeOffer, formatMoney } from "./flow.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    $("reason").innerHTML = Object.entries(REASONS).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join("");
+    $("reason").value = "too_expensive";
+    function sim() {
+      const price = Math.max(1, Number($("price").value) || 1), interval = $("interval").value;
+      const policy = { offers: {
+        too_expensive: { type: "discount", percent: Number($("pct").value) || 30, months: Number($("months").value) || 3 },
+        switching: { type: "discount", percent: Number($("pct").value) || 30, months: Number($("months").value) || 3 },
+        not_using: { type: "pause", months: Number($("pause").value) || 2 },
+        temporary: { type: "pause", months: Number($("pause").value) || 2 },
+      } };
+      const d = decide({ reason: $("reason").value, sub: { status: "active", amount: Math.round(price * 100), currency: "usd", interval, intervalCount: 1 }, policy, now: Date.now() });
+      $("act").textContent = d.action;
+      const WHY = { no_offer_for_reason: "No offer fits this reason, so they go straight to a plain cancel (and you read the comment).", cooldown: "", trialing: "" };
+      $("why").textContent = d.action === "offer" ? "Shown before the cancel button." : (WHY[d.why] || "");
+      $("offer").textContent = d.action === "offer" ? describeOffer(d.offer, "usd") : "Your subscription ends at the end of the billing period.";
+      $("math").textContent = d.offer?.type === "discount" ? `If they take it you keep ${formatMoney(Math.round(d.offer.monthly * (1 - d.offer.percent / 100)), "usd")} a month of revenue you would otherwise lose entirely.` : d.offer?.type === "pause" ? "You keep the subscriber and the card on file; billing resumes by itself." : "";
+      record("sim");
+    }
+    function roi() {
+      const n = Number($("n").value) || 0, a = Number($("amt").value) || 0;
+      const r = Math.max(0, Math.min(100, Number($("rate").value) || 0)) / 100, dsc = Math.max(0, Math.min(100, Number($("disc").value) || 0)) / 100;
+      const kept = n * r, mrr = kept * a * (1 - dsc);
+      $("kept").textContent = kept.toFixed(1);
+      $("mrr").textContent = formatMoney(Math.round(mrr * 100), "usd");
+      $("mrr12").textContent = ` (${formatMoney(Math.round(mrr * 1200), "usd")} a year if each kept subscriber stays a year at the discounted rate; each month adds a new batch)`;
+    }
+    for (const id of ["reason", "price", "interval", "pct", "months", "pause"]) $(id).addEventListener("input", sim);
+    for (const id of ["n", "amt", "rate", "disc"]) $(id).addEventListener("input", roi);
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    sim(); roi();
+  </script>
+</body>
+</html>

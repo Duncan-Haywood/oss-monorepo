@@ -6,6 +6,8 @@ feature label and day, the real cache-read share, a 30-day run rate, and three
 what-ifs: a higher cache-read share, a batch tier, and moving a share of one
 model's traffic to another.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/
+
 Everything runs in the browser. Nothing is uploaded and no price is fetched --
 you supply each provider's rates. Savings are upper bounds under stated
 assumptions, not forecasts.

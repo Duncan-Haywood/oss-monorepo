@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Section 104 pooling for crypto: a worked UK example with the same-day and 30-day rules</title>
+  <meta name="description" content="How HMRC matches crypto disposals: the same-day rule, the 30-day rule and the Section 104 pool, with one worked example in pounds, including fees and the 2024-25 exempt amount and rate change.">
+  <link rel="canonical" href="./section-104-pooling-crypto-worked-example.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Section 104 pooling for crypto: a worked UK example","inLanguage":"en-GB","about":"UK capital gains tax on cryptoassets","isAccessibleForFree":true}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 780px; margin: auto; padding: 28px; }
+    a { color: #2d4fa3; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1; color: #2b3a67; }
+    h2 { font-size: 1.2rem; color: #2b3a67; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./index.html">UK Crypto CGT Calculator</a> · guide</p>
+  <h1>Section 104 pooling for crypto: a worked UK example</h1>
+  <p>If you bought Bitcoin more than once, HMRC does not let you say which coins you sold. It treats all your units of one cryptoasset as a single pool and, before touching the pool, checks two shorter rules. This page works one example in pounds. The <a href="./index.html">calculator</a> runs the same arithmetic on your own file.</p>
+
+  <h2>The order HMRC matches a disposal</h2>
+  <ol>
+    <li><strong>Same day.</strong> Units of the same asset you bought on the day you sold.</li>
+    <li><strong>The next 30 days.</strong> Units you bought in the 30 days after the sale, earliest first. This stops you selling to claim a loss and buying straight back.</li>
+    <li><strong>The Section 104 pool.</strong> Everything else comes out of one pool at its average allowable cost.</li>
+  </ol>
+
+  <h2>The example</h2>
+  <p>All numbers are invented. Fees are in pounds. A fee on a purchase adds to its cost; a fee on a sale comes off the proceeds.</p>
+  <table>
+    <thead><tr><th>Date</th><th>What</th><th class="n">BTC</th><th class="n">Pounds</th><th class="n">Fee</th></tr></thead>
+    <tbody>
+      <tr><td>10 Jun 2021</td><td>Buy</td><td class="n">0.5</td><td class="n">15,000</td><td class="n">20</td></tr>
+      <tr><td>20 Jan 2022</td><td>Buy</td><td class="n">0.3</td><td class="n">10,500</td><td class="n">15</td></tr>
+      <tr><td>2 May 2024</td><td>Sell</td><td class="n">0.4</td><td class="n">19,200</td><td class="n">25</td></tr>
+      <tr><td>2 May 2024</td><td>Buy</td><td class="n">0.1</td><td class="n">6,200</td><td class="n">10</td></tr>
+      <tr><td>11 Nov 2024</td><td>Sell</td><td class="n">0.2</td><td class="n">14,000</td><td class="n">18</td></tr>
+      <tr><td>25 Nov 2024</td><td>Buy</td><td class="n">0.15</td><td class="n">10,200</td><td class="n">12</td></tr>
+    </tbody>
+  </table>
+  <p><strong>The pool before 2024.</strong> 0.8 BTC at a cost of £15,020 + £10,515 = £25,535.</p>
+
+  <p><strong>2 May 2024.</strong> You sold 0.4 BTC for £19,200 less a £25 fee: £19,175, or £47,937.50 a coin. You also bought 0.1 BTC the same day for £6,210 including the fee. So the same-day rule matches 0.1 BTC: proceeds £4,793.75 against cost £6,210, a <strong>loss of £1,416.25</strong>. The other 0.3 BTC comes from the pool at £25,535 × 0.3 ÷ 0.8 = £9,575.625, against proceeds of £14,381.25, a gain of £4,805.63 (to the penny). The pool is left with 0.5 BTC at £15,959.375. The 0.1 BTC you bought that day never entered the pool.</p>
+
+  <p><strong>11 Nov 2024.</strong> You sold 0.2 BTC for £13,982 after the fee. You buy 0.15 BTC back on 25 Nov, 14 days later, for £10,212. The 30-day rule matches that 0.15 BTC: proceeds £10,486.50, cost £10,212, a gain of £274.50. The last 0.05 BTC comes from the pool at £15,959.375 × 0.05 ÷ 0.5 = £1,595.94, against proceeds of £3,495.50, a gain of £1,899.56. The bought-back coins are used up and also never enter the pool, which is left with 0.45 BTC at £14,363.44.</p>
+
+  <h2>Adding it up for 2024-25</h2>
+  <p>The year runs 6 April 2024 to 5 April 2025. In this file the BTC disposals produce gains of £6,979.69 and a loss of £1,416.25; the calculator's sample file adds an ETH-to-SOL swap and a SOL sale for a fuller picture. The annual exempt amount for 2024-25 is £3,000. Gains above it were taxed at 10% or 20% for disposals up to 29 October 2024 and 18% or 24% from 30 October 2024, depending on how much of your basic-rate band your income leaves free.</p>
+
+  <h2>Where people go wrong</h2>
+  <ul>
+    <li><strong>Treating each sale as first-in first-out.</strong> HMRC's pool is an average, so an old cheap coin does not sit under a new sale.</li>
+    <li><strong>Selling and rebuying within 30 days.</strong> The loss you expect is replaced by a match against the repurchase.</li>
+    <li><strong>Forgetting swaps.</strong> Swapping one coin for another is a disposal, at the pound value of what you received.</li>
+    <li><strong>Missing purchases.</strong> A sale with no matching purchase has no cost, so the gain looks far too large. The calculator warns when that happens.</li>
+  </ul>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is free and as-is. It is not legal, tax, or financial advice. Rules and rates change; check HMRC's Cryptoassets Manual or an adviser. Not affiliated with HMRC or any exchange.</p>
+    <p><a href="./index.html">Open the calculator</a> · everything runs in your browser and your transactions are never uploaded.</p>
+  </footer>
+</body>
+</html>

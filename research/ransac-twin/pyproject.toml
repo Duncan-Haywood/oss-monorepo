@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ransac-twin"
+version = "0.1.0"
+description = "RANSAC twin: an iteration budget sized on a twin whose inlier fraction is the same in every scene, vs real scenes whose inlier fraction varies (beta-binomial); exact failure probability and budget"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -3,6 +3,8 @@
 A free browser tool: **type the cash you need and your 401(k) details, and see what a 401(k) loan, an early
 withdrawal and an outside loan each cost you at retirement.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/401k-loan-vs-withdrawal-calculator/
+
 After using this, you can **see which way of getting the cash leaves you with the most, how the answer moves with
 investment growth, and what the loan costs if you leave your job**, instead of trusting "you pay the interest to yourself".
 

@@ -7,6 +7,8 @@ the landlord and the operator each end up with under **cash rent**, a **crop sha
 a crop share starts to beat the cash rent, the range of cash rents both sides could accept,
 and a yield-by-price grid showing who carries the risk. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/farmland-lease-cash-rent-vs-crop-share-calculator/
+
 After using this, you can **put numbers on a lease offer and see what each side gives up for
 certainty**, which used to mean a spreadsheet built fresh every renewal.
 

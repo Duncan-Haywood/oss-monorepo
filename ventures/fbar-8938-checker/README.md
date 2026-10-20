@@ -3,6 +3,8 @@
 A free browser tool: **list your foreign accounts with their highest and year-end balances and see whether the
 FBAR (FinCEN 114) and the Form 8938 are required, and why.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fbar-8938-checker/
+
 After using this, you can **know which of the two filings you owe before the April 15 / October 15 deadline**,
 instead of reading two sets of instructions that use different thresholds and different tests.
 

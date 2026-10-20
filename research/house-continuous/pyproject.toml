@@ -1,0 +1,16 @@
+[project]
+name = "house-continuous"
+version = "0.1.0"
+description = "Two- and three-span continuous sawn-lumber joists: how much longer can they span than simple spans, with pattern loading and NDS checks"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[project.scripts]
+house-continuous = "house_continuous.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-spans/src"]

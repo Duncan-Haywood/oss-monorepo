@@ -5,6 +5,8 @@ fuzzy matches, QA, rush work, and desktop publishing take different amounts of
 time. This free browser calculator turns those assumptions into a transparent
 weighted-word quote floor and target-margin comparison.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/translator-project-quote/
+
 Open [`index.html`](index.html) directly or serve this directory as static
 files. The worked example is editable and the calculation needs no account,
 network, API key, or paid service.

@@ -1,0 +1,1027 @@
+{"date": "2026-10-01", "track": "research", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["one test initially wrong (large-kappa limit is binomial, not point mass); fixed before commit"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["OpenROAD nixpkgs build failed its own regression test dbSta.report_cell_usage_file.tcl; rebuilt with doCheck=false (about 3 h of compile in total)"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["apt python3-numpy shadowed pip numpy; used a venv", "own first cycle-formula test values were wrong; fixed from the formula"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["slug collision: a parallel run merged research/chip-rtl-loop (and chip-rtl-probe) while this run built the same milestone; renamed to chip-repair-baseline and kept the non-overlapping no-model baseline", "harness bugs fixed before results: SystemVerilog keyword as instance name, fatal lint warnings, indefinite-width concatenation, vvp hang on mutated loop"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["one self-written test had a bug (horizon shorter than sampling grid), fixed before commit", "merge-conflict resolution on garment-optics wasted: PR was merged by another run meanwhile"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["slug collision: a parallel run merged research/robofab-cell while this run built the same milestone; renamed to robofab-cell-bound and kept the non-overlapping throughput-bound view"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pytest was only importable under /usr/bin/python3, not the default python"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["python on PATH lacked scipy/skfem (used /usr/bin/python3); 3D hex assembly slow at default quadrature, fixed with intorder=4"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first unpinned-waist cloth model slid off the body; switched to a belt-held waist row"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["queue had no landable PR; stale unlanded branches without PRs left alone"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["crossref/WebFetch unreachable: citations not re-verified, taken from PROJECTS.md"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["concurrent runs landed sag-twin, groundeffect-twin and ransac-twin at the same time; merges produced duplicate README bullets, fixed in follow-up"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["default python3 lacked numpy; used /usr/bin/python3"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["apt python3-numpy shadowed the usable NumPy; used a venv", "first sweep grid (3 R x 3 C x 2 WB) ran over an hour without finishing; cut to R 4/8/16, C 2/4, 4-bit"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pytest/numpy installed for wrong python at first"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["retailer pages not fetchable; prices from search snippets"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["python3 vs pip mismatch again (pip for 3.11); used python3 -m pip", "first moving-grasp sim reported no holding force at any force: MuJoCo friction lag (solref 0.004) and a qpos/dof index slip in my driver; fixed and documented"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pip install put mujoco under python3.13 while python3 is 3.11; used python3.13", "first MuJoCo contact settings unstable above a few N; switched to stiffer solref, documented in README", "MUJOCO_LOG.TXT committed by mistake, removed and gitignored"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pip installed into a different interpreter than python; fixed"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["no routing.json on main, so champion prompt used; landing queue had only duplicate branches (robofab-selfparts, ambient-pipeline) left unmerged"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["two bugs fixed during development (interior facets in traction load; mask shape)"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pytest missing in container (pip installed); first oracle fit diverged with wake as a feature (fixed)"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["No routing.json on main, so champion prompt used. Crossref blocked by proxy; citations checked by web search, Bruns and Tortorelli volume/pages unconfirmed and flagged in README."]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["stale unlanded branch claude/funny-pascal-saehf9 (sag-twin already on main) left alone"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pip numpy/pytest missing at start"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["python3 on PATH lacked numpy; used /usr/bin/python3", "stall counter first missed nonlocal declaration"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first monitor matched its own pgrep and never exited; replaced by a pid watch"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first pip install used wrong interpreter, no effect on results"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pip installed into a different python than python3 (fixed with python3 -m pip)"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["main history was force-updated; ~300 old claude/* branches share no merge base with main and could not be landed"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first experiment run hung: float tolerance in stock check caused a zero-length-step loop; fixed before commit"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["Queue triage: unmerged claude/* branches for chip-systolic-batch, robofab-selfparts, ambient-pipeline duplicate work already on main; left alone"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pip on PATH installed into a different interpreter than python; used python -m pip", "first FE peak read the clamped end (Kt 3.07 with no hole); excluded the end zone"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["one self-written unit test had a wrong expectation, fixed before commit"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first design (6x6 MAC) made the mapped-netlist SAT proof exceed 60 s; shrunk to 4x4 before any result was recorded"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["default python3 lacked numpy/pytest; pip install via python3 -m pip fixed it"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first min_time test used an infeasible torque limit; fixed"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["stray python3 without mujoco on PATH; used /usr/bin/python3"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["Maven Central 429: Gradle build not run; tests run via bundled kotlinc + shim"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pytest not preinstalled; pip install needed", "first draft of one test expected wrong model behaviour, fixed"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["python3 on PATH is 3.11 without numpy; used /usr/bin/python3"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first tasks all passed at round 0 so the feedback loop was not exercised", "lint criterion relaxed post hoc (disclosed)", "fifo4 formal at depth 20 timed out; reduced to 10"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["Crossref and doi.org blocked by egress policy; citations not re-checked online, taken from PROJECTS.md reference list"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["shallow clone made old branches look unmergeable until unshallowed"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first env python lacked numpy/pytest; used /usr/bin/python3"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["no open PRs; ~100 stale claude/* branches only edit projects already on main, left alone"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["PR #265 was merged by another run while I resolved its conflict; discarded my merge"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["apt python3-numpy shadowed pip numpy; used a venv"]}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-13", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["no routing.json on main: used prompt 0; mujoco was installed for python3.13 but python3 is 3.11"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["ABC aborts on dch followed by rewrite/refactor (108 of 800 points); first run crashed, then handled as costly failures", "selfrep-termsat branch found already superseded by selfrep-terminalmarket and selfrep-resalecurve on main; not merged"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["default python was 3.11 without packages; used /usr/bin/python3"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 9.4166842, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["default python3 lacked numpy/pytest; used /usr/bin/python3"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["generic_score first parsed synth's pre-ABC stat (110 vs 116 cells); caught by comparing with chip-ppa-mac, fixed and tested before commit"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["apt python3-numpy shadowed pip numpy; used a venv", "generator bug found and fixed: index width and activation buffer assumed H<=F"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["download.tensorflow.org unreachable (proxy); used a third-party HF mirror", "first RTL check used label-sorted clips; fixed to evenly spaced and the sweep re-run"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["main was force-updated; old claude/* branches share no history with it", "pip default python lacked scipy/pytest; used /usr/bin/python3"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["scan.txt written from the logged exploratory solves, scan.py not re-run end to end (disclosed in README)", "default python lacked numpy; used /usr/bin/python3"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["no open PRs; 420 old claude/* branches share no history with rewritten main"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["default python lacked numpy; used /usr/bin/python3", "w=8 scan hit its 25 min timeout; two vertical meshes rerun separately", "remote branch claude/shellconverge could not be deleted (proxy hung up); same commit as PR branch"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["only open PR (#389) was a live claim 9 min old; left alone"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pip and python3 pointed at different interpreters; mujoco install needed python3 -m pip"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 7.44, "errors": ["Track number collided: another session merged track 10 (swe) after this run read PROJECTS.md, so this became track 11."]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["scan window above w=16.0 mm unusable (slenderness rule skips FE); found after the scan ran", "one README table value initially mis-transcribed, caught and regenerated from JSON before commit"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["apt-get install of yosys pulled Debian python3-numpy that broke numpy for /usr/local python; used a venv"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["local clone was shallow, branch comparison failed until unshallowed"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["shallow clone gave false no-merge-base on branch scan; unshallowed"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["apt package index was stale; needed apt-get update; apt python3-numpy shadowed pip numpy, used venv"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["one bug caught pre-push: local variable j shadowed the new j parameter"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pip installed mujoco for python3.13 while python3 is 3.11; reinstalled"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["main was force-updated; old claude/* branches have no merge base"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["closed duplicate PR #389 (ambient-crossfit scaffold, already on main via #387)"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first harness version treated NaN-free bad-acceleration runs as held-or-not silently; fixed to use MuJoCo's warning counter before final results"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": null, "errors": ["Correction to this session's earlier line for PR #484. https://github.com/Duncan-Haywood/oss-monorepo/pull/6832 landed a different mirror (research/_mirror/mirror.py) 2 minutes after #484 opened, so #484's action list described a second sync. Its rm -rf research step would have wiped research/_mirror/ and research/_homepage/ there. This PR replaces that list."]}
+{"date": "2026-10-14", "track": "research", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["routing.json absent: used prompt.md"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["main was force-updated before the run; old claude/* branches have no merge base with it"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["main history was rewritten (forced update); old claude/* branches have no merge base, none had a project missing from main"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["apt numpy shadowed pip numpy; used a venv", "gaugepockets branch superseded by simdesign-pocketmesh on main; left unmerged"]}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-14", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["queue had only superseded duplicate branches (gaugepockets closed 7 times; others already on main); 3D eigen solve initially slow/incorrect eigenvalue selection, fixed"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["audit step (five outputs) not performed; merged left null for 167 upstream-imported records"]}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["slug collision: built a full swe-orgs batch 1 while a parallel run's swe-orgs (claim pushed one minute before mine) landed first; closed my PR #603 as superseded and extended theirs with batch 2"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["run_workflow_locally.py --for-changes exceeded 550s and was killed"]}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first QSD rate formula wrong (-log vs 1-s); caught by tests", "branch initially based on mimic-crossplay WIP, reset to main"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["backgrounded fetch --unshallow + reset --hard in one eval would have wiped uncommitted work; killed it"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["mimic track blocked: no HF access in container"]}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first draft of the report had unverified counts (31 vs 33, 5 vs 3 pairs); corrected before merge"]}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["hub-link build test failed after adding deploy/ link; fixed before merge"]}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["build check red on main too: platform/pages secondary-schema.test.mjs, mileage-log/privacy.html lacks JSON-LD (not this PR's)"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first pass overwrote two existing figure.py files because a glob check was wrong; restored from git before commit", "figures not visually inspected (no playwright)"]}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["HF blocked and no torch: model-based mimic-anycontext not runnable, shipped detector side only", "first run of anyctx.py exceeded 30 min before vectoriser caching"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["14 pre-existing vendor-watch tests fail in this sandbox (same count on clean main; network-dependent)"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": null, "errors": ["Wrote the first blue-team test for the wrong overtime mutant (line 51 is the rate, not the hours); redteam.py rerun reported caught_after_fix false and the right test was added.", "First check_money_sign campaign mutated docstring lines; discarded, redteam.py fixed to skip docstrings and block comments, campaign re-run with the same seed."]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first experiment run had spurious zero-width-feasible speeds and mismatched part sets; fixed before results were recorded"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pytest was not preinstalled; one editing slip (deleted an import) fixed before commit"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["Yosys script missing a space (fixed); a hanging mutant stalled a first run (fixed)"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["yosys/openroad not installable in container, so chip track milestone (random draw) was swapped for swe-audit", "first harness pass undercounted reproduction (26/40) because sibling projects and packages were missing; fixed and rerun"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["selfrep-termsat branch found superseded by selfrep-terminalmarket on main; left unmerged"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first push failed 4 tests (catch-all category cap, off-site ../ repair, clauses fixture, sibling orphan budget); fixed forward", "garmin page's png broke the front-door mirror fixpoint and cascaded ~100 ventures; removed the image"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["CI: validate (231 VENTURE.yaml problems in other ventures) and build (secondary-schema test, job-application-tracker pages) red; neither names this venture"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["publish-branch.sh refused: launched.json lacked actions-checkout-credentials-check (fixed in the PR)"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pybullet failed to build, so no second-engine check"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["gitops/tests test_worker_run.py: 26 failures reproduce on clean origin/main in this sandbox", "portfolio/router/validate.py: 231 problems on main, none in ats-resume-checker"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["mimic-crossplay (PR 587) could not be finished: no model weights reachable (huggingface 403, no transformers)"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["Speech Commands download blocked (HTTP 403), so no models were retrained and no NSGA-II search was run"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["track 11 mimic-loop blocked: Hugging Face 403 from container, no local model weights"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": null, "errors": ["Actions did not start any run for #6983 (repo-wide startup_failure on other PRs at the time), so verification was the CLAUDE.md starvation checklist run locally."]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["main history was force-updated; ~400 old claude/* branches share no merge base with main and were left alone"]}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["promptctl measure crashed on free-text doc_friction entries"]}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first project (mimic-c2stpower) duplicated free-c2stpower on main; dropped and PR #570 closed", "orphan background job and a parallel test run starved the CPU for ~15 min"]}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["no mujoco/pytest locally; queue PR #517 merged by another run before I could land it", "figures not visually inspected (no playwright)"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["larger-detector (model-size) half of the milestone not run: CPU cost"]}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["platform/pages/secondary-schema.test.mjs fails on job-application-tracker (2 pages lack JSON-LD); unrelated to this change"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first figure.py draft misparsed lag-twin columns and section end; caught by inspecting plotted points"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["Speech Commands host returned 403 via proxy, so accel-sparse used scikit-learn digits as a substitute task", "yosys/iverilog not installable, so no RTL or area"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["gh GraphQL 403 (use MCP/REST)"]}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["First PR (#7092, customer concentration) duplicated a feature another session merged to main while it was open; closed unmerged. Cost ~1h of CI waiting."]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pip installed to wrong interpreter once"]}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["first rollout had a latency/sampling bug and 0.5 ms step, found from suspicious identical results and rewritten event-driven", "cloned policies track poorly (negative result, reported)"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["open PRs 600 (eda-verify) and 587 (mimic-crossplay) had failing CI and were left as other runs' claims"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["first landing page used href=\"../\" which the mirror rejects and which silently dropped vendor-watch and vendor-change-watch from the mirror", "first apt-get install python3-pytest failed (exit 100) without apt-get update"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["indexnow submission: no egress to api.indexnow.org"]}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pkill -f 'node --test' killed my own shell; full platform/pages suite exceeds 120s so ran 5 relevant suites (175 pass)"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["Crossref and arXiv unreachable; citations verified by web search only, partly", "validation test caught three malformed rows in practices.csv before results"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["pkill -f run_workflow_locally matched and killed my own shell command once", "git fetch --unshallow origin main took several minutes and the first command timed out"]}
+{"date": "2026-10-15", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["apt install of yosys broke system numpy; used a venv"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["PR #534 (eda-flowtune, other run, draft, failing check) left alone: claimed 6 min earlier"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first idea (run-log audit) duplicated swe-ledger/swe-backfill and was dropped", "citation check impossible: no outbound web"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["track 11 (mimic) drawn but Hugging Face blocked by proxy, so mimic-contexts could not start; took accel-fpga instead", "apt numpy conflicted with pip numpy; used a venv", "first sweep run crashed at the final version lookup after all rows; fixed and re-ran"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["Overwrote the existing eda-harness project in the working tree by building eda-harness before checking research/; caught before committing and restored with git checkout; switched to eda-proposers (milestone 2)", "Closed selfrep-termsat branch unmerged: duplicate of selfrep-terminalmarket"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["numpy missing in container; installed to run tests"]}
+{"date": "2026-10-15", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": null, "errors": ["A first concatenation of CLAUDE.md left a stray line ('in the PR what they said:') above the checklist fence"]}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["numpy missing under default python3; used /usr/bin/python3"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first slug osrobot-morph was claimed by another run's PR #510 minutes earlier; renamed to osrobot-bodysearch"]}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-15", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5165, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.5029, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.1714, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4591, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6002, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5087, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["git fetch --unshallow exceeded the 120s tool timeout"]}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.5755, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4684, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4936, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8161, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9145, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3764, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.2612, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.3616, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8818, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5135, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5663, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": null, "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.6164, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5727, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": null, "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8862, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7461, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6275, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 3.1386, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3795, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4738, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7155, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.357, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6873, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0051, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9084, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.586, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.3106, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.485, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.644, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.1174, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8273, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6601, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3718, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 3.6905, "errors": ["First measurement command piped a 10-minute run through tail, so no progress was visible and it overran the foreground timeout"]}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3808, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": null, "outcome": "success", "cost_usd": null, "errors": ["sources not fetchable from the container (DNS failure for about.gitlab.com, sec.gov, paulgraham.com, linear.app); verified by web search only"]}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0582, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9447, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.8231, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6452, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.2167, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0832, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 2.5601, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9882, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.4609, "errors": ["publish-branch.sh artifact check failed: actions-runtime-deprecation-check had no launch date", "full platform/pages test suite exceeded 400s; stopped, ran launched.test.mjs only"]}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5699, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5781, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.309, "errors": ["Two full synthesis sweeps (~40 min) were lost to Yosys being killed for memory at P>=16/B=16 and P=32 before results were cached; fixed with per-point caching and a 7 GB limit."]}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5944, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5811, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5023, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.54, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.8744, "errors": ["IfcOpenShell has no wheel for the default python3 (3.11); used python3.13, which also had pytest", "first IFC export used millimetre file units with metre values; caught by checking world-coordinate bounding boxes"]}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0581, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3832, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["publish-branch.sh artifact check failed: actions-runtime-deprecation-check had no launch date"]}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7006, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.5101, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8466, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6734, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9553, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.3579, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.4703, "errors": ["meter-keeper/engine.mjs campaign was killed by the tool timeout mid-run; file restored via git checkout, campaign not recorded"]}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4428, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.1007, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.2061, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7195, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7913, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9702, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4479, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.6542, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3676, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0924, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6184, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8294, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8799, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7006, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4736, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6212, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": null, "outcome": "partial", "cost_usd": 9.5752, "errors": ["GitHub App returned 403 on POST /user/repos, so the duncan-haywood.github.io user-site repo (robots.txt fix) could not be created; files staged in platform/pages/user-site/ for the owner's one-click repo creation."]}
+{"date": "2026-10-16", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 2.7094, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5802, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6953, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9284, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0221, "errors": ["swe-orgs run.py crashed on arrival: prompts/runs.jsonl no longer exists and one ledger errors entry is a dict (fixed in this PR)"]}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 6.2755, "errors": ["test_devsec fixture-coverage guard failed once (actions-runtime-deprecation had no fixture case); fixed by adding one.", "gitops/tests failed twice on derived counts (runs-on README, mirrored tool total); fixed with the named sync scripts."]}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first simdesign-llm re-run failed: cma missing in the audit container; re-run after install"]}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5782, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6446, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9891, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8573, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5106, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5344, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0752, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5306, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5263, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4455, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4625, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9193, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3333, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.015, "errors": ["first experiment run rejected at p<alpha on a k/40 permutation grid (effective level 0.025); fixed and rerun"]}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.9249, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5315, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6023, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7164, "errors": ["gitops/tests test_ci_runner readme-count tests fail on clean main too (2 failures, not from this change)"]}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.3439, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5419, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 3.8117, "errors": ["PR links were rendered without https:// (regex match lacked the scheme); check.mjs caught 13 dead links on the first full build.", "First version counted only merge commits; most PRs land as squash merges, so it read 16 of 66 first-parent commits. Now reads both.", "build.test.mjs requires data-pf-to=\"hub\" on every non-root page; added to the page's back link."]}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5258, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4975, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7788, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6015, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5695, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9088, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3586, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4783, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8092, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.7361, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7266, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5862, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4518, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["publish-branch.sh build check failed: actions-runtime-deprecation-check had no launch date"]}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.5141, "errors": ["ran a build with empty $TMPDIR, which created /ios at the filesystem root; the rm was blocked, so the empty-ish dir is left for the owner"]}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8336, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8951, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4985, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4732, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8195, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3818, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5788, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.1802, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7321, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 19.2448, "errors": ["First push broke gitops publish-branch stub, sibling-links and pages tests (apps/CLIs removed from searchable categories)"]}
+{"date": "2026-10-16", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 4.1113, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 5.5358, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.6082, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6379, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.432, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 3.4438, "errors": ["First fetch hung for minutes on #6832 (1,330 commits); capped CI checks to a PR's last 30 commits and parallelised.", "Excluded research/ from rework for all repos at first, which dropped the upstream research PRs' own code; now excluded only for this repo's mirror copy."]}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5381, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.67, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5429, "errors": []}
+{"date": "2026-10-16", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 4.257, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7068, "errors": []}
+{"date": "2026-10-16", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5181, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.2438, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6158, "errors": []}
+{"date": "2026-10-16", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6027, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6473, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.122, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.745, "errors": []}
+{"date": "2026-10-16", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": null, "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8051, "errors": []}
+{"date": "2026-10-16", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-16", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 1.1408, "errors": []}
+{"date": "2026-10-17", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4321, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8811, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4244, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.1087, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5203, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5117, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.1896, "errors": ["pkill -f in my own command killed the shell once; first run.py grid too slow (25x25), reduced"]}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9691, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0527, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9378, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6636, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.8746, "errors": []}
+{"date": "2026-10-17", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6396, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4471, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["WebFetch could not resolve hosts, so sources were verified by search summaries only"]}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5443, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.1836, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.528, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6192, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4195, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.891, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6021, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6899, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3767, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0173, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.872, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": null, "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4964, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.12, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6387, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8516, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.4445, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.695, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 2.185, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8228, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8121, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first publish-branch.sh run killed by my own 110s timeout; build takes several minutes"]}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.531, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.2884, "errors": ["platform/ci/pyenv.py could not install packages (PEP 668); used a venv"]}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4349, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3673, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8667, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-opus-5-5", "outcome": "success", "cost_usd": 3.3145, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4229, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4475, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4544, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["update_pull_request_branch refused on stale PRs (conflicts); shallow clone needed unshallow before merging"]}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5106, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6405, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7896, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7699, "errors": []}
+{"date": "2026-10-17", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5192, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7675, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3524, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.414, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0237, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4996, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5073, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9867, "errors": ["first no-figure scan used ls with two globs and gave a wrong list; a figure regex missed a comma; a hand conflict resolution dropped lines (restored from origin/main)"]}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6657, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4557, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7635, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3111, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5406, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4431, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7638, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4891, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.938, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.1328, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5217, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.2884, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5346, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8103, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0561, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8115, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9704, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6894, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7098, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.5046, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8336, "errors": ["fe2d stress slab empty when L<1.6h; fixed by L/h>=2 filter"]}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.3989, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6011, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7786, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6147, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.72, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8189, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4754, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7819, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8921, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["publish-branch.sh force-push to gh-pages was blocked by the auto-mode classifier; not retried"]}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4457, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7734, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8344, "errors": ["CSV row with unquoted commas broke validation once; fixed before commit", "Python rewrite of the CSVs normalised mixed line endings; restored by appending to the originals"]}
+{"date": "2026-10-17", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6226, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3301, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5873, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0417, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.643, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6834, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5159, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6521, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4392, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6745, "errors": []}
+{"date": "2026-10-17", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9846, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.864, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8351, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7362, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3876, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6398, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5947, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7302, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7296, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9338, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.706, "errors": ["own test expected 'under' at 182 days; tool reports 'close' at 0 room; fixed before push"]}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8596, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9886, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.429, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.3564, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.463, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5848, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9693, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.1453, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.109, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5356, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6001, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0462, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4644, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7032, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.628, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5597, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7671, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4751, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3802, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9762, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4719, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9272, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3722, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4831, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7087, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.125, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["venture-preflight failed once: front-door mirror stale; fixed with marketing/regen.mjs"]}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6202, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3714, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": null, "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8148, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4163, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5408, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8086, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.328, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6833, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6643, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.535, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7244, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7254, "errors": ["first scan for figure-less projects used a failing ls glob and wrongly listed projects that have a png; overwrote accel-lut/experiments/figure.py, caught by git status and reverted before commit"]}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5954, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5253, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["My first scan for figure-less projects used a failing multi-glob ls and wrongly listed projects that had svgs; I overwrote abstention-scoring/experiments/figure.py, noticed from the git diff and restored it before any commit."]}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8327, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5569, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0471, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5631, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.6344, "errors": ["publish-branch.sh push to gh-pages denied by auto-mode classifier as production deploy"]}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6394, "errors": []}
+{"date": "2026-10-17", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.5331, "errors": ["Built a full duplicate (simdesign-lcorner, same numbers as simdesign-lbuckle/revwidth) because I scanned the research/ listing for claims but missed lbuckle; discarded it before any commit, costing about 40 minutes of compute.", "pkill -f on the script name killed the session shell."]}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "review", "model": null, "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4762, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-17", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6132, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.4274, "errors": ["first experiment launch without OMP_NUM_THREADS=1 oversubscribed CPUs and did not finish in 30 min; relaunched"]}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7331, "errors": []}
+{"date": "2026-10-17", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7025, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5332, "errors": []}
+{"date": "2026-10-17", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3861, "errors": []}
+{"date": "2026-10-17", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6204, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4289, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5276, "errors": []}
+{"date": "2026-10-18", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5789, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0453, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4308, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7062, "errors": []}
+{"date": "2026-10-18", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4308, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6587, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4977, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5729, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9589, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.2882, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5222, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 2.4607, "errors": ["sibling-links CI failed on first push: new venture had no inbound link; fixed with a whatnot-seller-payout footer link"]}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.2889, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": ["publish-branch.sh refused: page-seo-audit had no launch date"]}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4734, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.6685, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3368, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8132, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9354, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": null, "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6147, "errors": ["pushed once with one failing test (wrong expectation in my new test); fixed in next commit"]}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.78, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4605, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.001, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4529, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5788, "errors": []}
+{"date": "2026-10-18", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5926, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5081, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.4804, "errors": ["sibling-links CI job failed on first head (orphan budget); 0 orphans locally before and after merging main; re-run checks on merged head were green"]}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.898, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7636, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8253, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.934, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.1545, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9201, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8793, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3903, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4211, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3874, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5402, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9934, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9263, "errors": []}
+{"date": "2026-10-18", "track": "review", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5612, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["cherry-pick of stranded PR #7650 conflicted in generated gitops mirror files; re-applied venture files by hand and regenerated"]}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.855, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": ["first push used force-with-lease against a nonexistent remote branch and was rejected as stale; plain push worked"]}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0397, "errors": ["first experiment run (24 reps, n up to 320) exceeded the 10 minute tool timeout and was discarded; reran smaller"]}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.6723, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7735, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8749, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6918, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6893, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.741, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": null, "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4841, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3695, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0374, "errors": []}
+{"date": "2026-10-18", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4459, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.5421, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3804, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.6793, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7191, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.0776, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "explore", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9014, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "partial", "cost_usd": 0.5478, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3375, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.9445, "errors": ["pyenv.py could not install packages (PEP 668); used a venv"]}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4334, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7139, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.5695, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 1.3387, "errors": []}
+{"date": "2026-10-18", "track": "ventures", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.8211, "errors": []}
+{"date": "2026-10-18", "track": "redteam", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.7468, "errors": []}
+{"date": "2026-10-18", "track": "process", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.4411, "errors": []}
+{"date": "2026-10-18", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": 0.3992, "errors": []}
+{"date": "None-sessi", "track": "research", "model": null, "outcome": "success", "cost_usd": null, "errors": []}
+{"date": "None-sessi", "track": "research", "model": "claude-sonnet-5-5", "outcome": "success", "cost_usd": null, "errors": []}

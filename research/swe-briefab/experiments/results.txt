@@ -1,0 +1,30 @@
+research runs dated 2026-10-15 or later: v0 n=342, v1 n=67
+v0 dates: 2026-10-15 .. 2026-10-18
+v1 dates: 2026-10-15 .. 2026-10-18
+
+metric                  n0   n1     v0        v1       diff (95% boot)           p(perm)
+has_error               342   67     0.170     0.075   -0.095 [-0.166, -0.015]  0.0576
+success                 342   67     0.991     1.000   +0.009 [+0.000, +0.020]  1.0000
+deviation               342   67     0.047     0.030   -0.017 [-0.058, +0.034]  0.7492
+friction                342   67     0.719     1.239   +0.520 [+0.356, +0.688]  0.0001
+cost_usd                152   57     0.835     0.820   -0.015 [-0.148, +0.111]  0.7246
+wall_minutes            153   57     3.160     3.910   +0.750 [-0.910, +1.720]  0.3332
+tokens_out              152   57 13433.000 12965.000 -468.000 [-3838.500, +1950.000]  0.7842
+(means for rates and friction counts; medians for cost, minutes, tokens)
+
+v0 runs with an error: 58/342 = 17.0%  (Wilson 13.4% to 21.3%)
+v1 runs with an error: 5/67 = 7.5%  (Wilson 3.2% to 16.3%)
+
+task mix (v0 / v1):
+  none                      114   36
+  extend                     73    0
+  new-project                30    1
+  mirror-sync                10    2
+  mirror                      8    3
+  free-choice                 8    3
+  project-pages figures       8    3
+  milestone                   3    0
+
+runs with no task label only (the group both versions share):
+  has_error  n=114/36 v0 0.096 v1 0.083 diff -0.013 [-0.113, +0.098] p 1.0000
+  friction   n=114/36 v0 1.018 v1 1.278 diff +0.260 [+0.051, +0.478] p 0.0094

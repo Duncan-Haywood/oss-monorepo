@@ -1,0 +1,33 @@
+# Pushes venture CLIs as container images to this repository's GitHub Container Registry, a few per run.
+# Off by default: with vars.DISTRIBUTE_GHCR unset this only prints a dry run.
+# Free, uses only the job's GITHUB_TOKEN, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-ghcr
+on:
+  schedule:
+    - cron: '23 18 * * 3'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  images:
+    if: ${{ vars.DISTRIBUTE_GHCR == 'true' }}
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: node platform/distribution/ghcr.mjs
+        env:
+          DISTRIBUTE_GHCR: ${{ vars.DISTRIBUTE_GHCR }}

@@ -1,0 +1,261 @@
+{
+ "projects": 550,
+ "flagging": [
+  "accel-codesign",
+  "accel-dataflow",
+  "accel-fpga",
+  "accel-kws",
+  "accel-lut",
+  "accel-lutft",
+  "accel-lutrtl",
+  "accel-lutwide",
+  "accel-policy",
+  "accel-sparse",
+  "ambient-android",
+  "ambient-auditbudget",
+  "ambient-confest",
+  "ambient-dsaudit",
+  "ambient-dscorr",
+  "ambient-dshard",
+  "ambient-goldaudit",
+  "ambient-hlrt",
+  "ambient-hlrtlevel",
+  "ambient-hlrtmis",
+  "ambient-misread",
+  "ambient-multistart",
+  "ambient-noisyaudit",
+  "ambient-rechime",
+  "ambient-startcount",
+  "ambient-third",
+  "ambient-urgency",
+  "chip-abc-sweep",
+  "chip-ppa-mac",
+  "chip-ppa-script",
+  "chip-ppa-sky130mac",
+  "chip-systolic-abcrobust",
+  "chip-toolchain",
+  "decentralized-verification-markets",
+  "eda-flowtune",
+  "free-kfmismatch",
+  "garment-assistpower",
+  "garment-comfortcost",
+  "garment-contactres",
+  "garment-markercost",
+  "garment-optics",
+  "garment-pattern-fit",
+  "garment-protective",
+  "garment-stackcvar",
+  "garment-stacklayers",
+  "garment-stackopt",
+  "garment-stackpareto",
+  "garment-stackrobust",
+  "garment-teardown",
+  "garment-thermal",
+  "garment-thincolor",
+  "garment-twonodecheck",
+  "garment-twonodegate",
+  "garment-twonodeheld",
+  "garment-twonodelag",
+  "garment-twonodemet",
+  "garment-twonodeopt",
+  "garment-twonodepen",
+  "garment-twonodeprop",
+  "garment-twonodestep",
+  "garment-twonodeswitch",
+  "garment-wearmix",
+  "garment-wearpair",
+  "garment-wearwrong",
+  "house-continuous",
+  "house-energy",
+  "house-framing",
+  "house-plan",
+  "house-sobol",
+  "house-spans",
+  "house-structure",
+  "house-unequal",
+  "robofab-armaccel",
+  "robofab-armbang",
+  "robofab-barimpratio",
+  "robofab-insert",
+  "robofab-jawcap",
+  "robofab-jointspeed",
+  "robofab-motorconv",
+  "robofab-mujocotorque",
+  "robofab-reach",
+  "robofab-reachorder",
+  "robofab-trapezoid",
+  "selfrep-growth",
+  "selfrep-materials",
+  "selfrep-rodmodes",
+  "simdesign-fidelity",
+  "simdesign-heaviside",
+  "simdesign-holepatch",
+  "simdesign-holes",
+  "simdesign-rank",
+  "simdesign-webbuckle",
+  "swe-orgs",
+  "swe-prompt"
+ ],
+ "works": {
+  "Dawid and Skene (1979)": [
+   "ambient-auditbudget",
+   "ambient-dsaudit",
+   "ambient-dscorr",
+   "ambient-dshard",
+   "ambient-goldaudit",
+   "ambient-hlrt",
+   "ambient-multistart",
+   "ambient-noisyaudit",
+   "ambient-startcount",
+   "ambient-third"
+  ],
+  "Zhang et al. (2019)": [
+   "garment-twonodegate",
+   "garment-twonodeheld",
+   "garment-twonodelag",
+   "garment-twonodemet",
+   "garment-twonodeopt",
+   "garment-twonodepen",
+   "garment-twonodeprop",
+   "garment-twonodestep",
+   "garment-twonodeswitch"
+  ],
+  "Horowitz (2014)": [
+   "accel-dataflow",
+   "accel-kws",
+   "accel-lut",
+   "accel-lutft",
+   "accel-lutwide",
+   "accel-sparse"
+  ],
+  "Horvitz (1999)": [
+   "ambient-auditbudget",
+   "ambient-confest",
+   "ambient-dsaudit",
+   "ambient-goldaudit",
+   "ambient-misread",
+   "ambient-noisyaudit"
+  ],
+  "Han, Mao and Dally (2016)": [
+   "accel-lut",
+   "accel-lutft",
+   "accel-lutrtl",
+   "accel-lutwide"
+  ],
+  "Wyman, Sloan and Shirley (2013)": [
+   "garment-stacklayers",
+   "garment-stackopt",
+   "garment-stackpareto",
+   "garment-thincolor"
+  ],
+  "Clopper and Pearson (1934)": [
+   "ambient-hlrtlevel",
+   "ambient-hlrtmis"
+  ],
+  "Gagge, Stolwijk and Nishi (1971)": [
+   "garment-comfortcost",
+   "garment-wearmix"
+  ],
+  "Todorov, Erez and Tassa (2012)": [
+   "robofab-barimpratio",
+   "robofab-insert"
+  ],
+  "Zykov et al. (2005)": [
+   "robofab-armaccel",
+   "robofab-armbang"
+  ],
+  "Baraff and Witkin (1998)": [
+   "garment-pattern-fit"
+  ],
+  "Belytschko (2004)": [
+   "simdesign-heaviside"
+  ],
+  "Bourdin (2001)": [
+   "simdesign-heaviside"
+  ],
+  "Bruns and Tortorelli (2001)": [
+   "simdesign-heaviside"
+  ],
+  "Chen, Emer and Sze (2016)": [
+   "accel-dataflow"
+  ],
+  "Collins, Wiggin and Sawicki (2015)": [
+   "garment-assistpower"
+  ],
+  "Cunniff (1999)": [
+   "garment-protective"
+  ],
+  "Freitas and Merkle (2004)": [
+   "selfrep-growth"
+  ],
+  "Heidelberger, Hennix and Ratcliff (2007)": [
+   "garment-pattern-fit"
+  ],
+  "Howard, Ramdas, McAuliffe and Sekhon (2021)": [
+   "swe-prompt"
+  ],
+  "ISCA, and Sze et al. (2017)": [
+   "accel-dataflow"
+  ],
+  "Jacob et al. (2018)": [
+   "accel-kws"
+  ],
+  "Johari, Koomen, Pekelis and Walsh (2017)": [
+   "swe-prompt"
+  ],
+  "Kendall (1938)": [
+   "simdesign-rank"
+  ],
+  "Kim et al. (2019)": [
+   "garment-assistpower"
+  ],
+  "Kohavi, Tang and Xu (2020)": [
+   "swe-prompt"
+  ],
+  "Lackner and Wendt (1995)": [
+   "selfrep-growth"
+  ],
+  "Narang et al. (2022)": [
+   "robofab-insert"
+  ],
+  "Neumann (1966)": [
+   "selfrep-growth"
+  ],
+  "Parashar et al. (2019)": [
+   "accel-dataflow"
+  ],
+  "Ramanujan's (1914)": [
+   "garment-pattern-fit"
+  ],
+  "Robbins (1970)": [
+   "swe-prompt"
+  ],
+  "Rubinstein (1999)": [
+   "robofab-insert"
+  ],
+  "Sigmund (2001)": [
+   "simdesign-heaviside"
+  ],
+  "Tang et al. (2023)": [
+   "robofab-insert"
+  ],
+  "Tian et al. (2024)": [
+   "robofab-reachorder"
+  ],
+  "Tobin et al. (2017)": [
+   "robofab-insert"
+  ],
+  "Wald (1945)": [
+   "swe-prompt"
+  ],
+  "Wang, Lazarov and Sigmund (2011)": [
+   "simdesign-heaviside"
+  ],
+  "Warden (2018)": [
+   "accel-kws"
+  ],
+  "Zhang, Suda, Lai and Chandra (2017)": [
+   "accel-kws"
+  ]
+ }
+}

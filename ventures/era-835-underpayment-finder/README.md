@@ -6,6 +6,8 @@ claims were denied and why, and what was taken back at provider level.** The fil
 in the browser; nothing is uploaded and no login, clearinghouse account or API key is
 needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/era-835-underpayment-finder/
+
 After using this, you can now **list every service line paid below your contract rate,
 rank denials by billed dollars with the usual next step, see recoupments that sit outside
 any claim, and download an appeal worksheet**, which used to mean reading remittances one

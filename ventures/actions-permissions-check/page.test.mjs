@@ -140,3 +140,7 @@ test('index links one hop to the actions-timeout-check sibling', () => {
     'index must link ../actions-timeout-check/ so crawlers reach the timeout checker in one hop',
   );
 });
+
+test("links to Workflow Audit, its sibling", async () => {
+  assert.match(await readFile(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/workflow-audit\/"/);
+});

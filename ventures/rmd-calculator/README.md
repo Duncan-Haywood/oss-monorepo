@@ -5,6 +5,8 @@ balances and see this year's required minimum distribution, a projection to age 
 first RMD to April 1 costs, how much qualified charitable distributions cut the taxable amount, and the
 excise tax on a missed RMD.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rmd-calculator/
+
 After using this, you can now **know exactly what to withdraw and whether the April 1 delay or a QCD
 saves you money**, which used to take a custodian statement and a spreadsheet.
 

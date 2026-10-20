@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>visit-keeper — Free Self-Hosted Cookie-Free Web Analytics</title>
+  <meta name="description" content="Free, self-hosted, cookie-free web analytics: visitors, sources, UTM campaigns and goals with revenue by source. An open-source alternative to Plausible, Fathom and Simple Analytics. MIT, zero dependencies.">
+  <meta property="og:title" content="visit-keeper — web analytics you own, free">
+  <meta property="og:description" content="A 700-byte script, no cookies, no consent banner to design around, and the numbers live on your own server.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "visit-keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 22+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted, cookie-free web analytics. A 700-byte script, daily-rotating anonymous visitor hashes, sources, UTM campaigns, goals with revenue and per-source conversion, a public share page and CSV/JSON export. Zero dependencies, MIT.", "featureList": "No cookies, no IP storage, pageviews and visitors, bounce rate, sources and UTM, goals with value and conversion by source, live visitors, public dashboards, CSV and JSON export, SPA support"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it really cookie-free? Do I need a consent banner?", "acceptedAnswer": {"@type": "Answer", "text": "It sets no cookies and uses no localStorage on your visitors' browsers. A visitor is a one-way hash of a secret, the UTC date, your site, the IP address and the browser string; the IP and browser string are never written to disk and the hash changes every day, so a person cannot be followed from one day to the next. Whether you still need a notice depends on your country and your lawyer; this is not legal advice."}}, {"@type": "Question", "name": "What does it not do?", "acceptedAnswer": {"@type": "Answer", "text": "No session replay, heatmaps, funnels, cross-day unique visitors or cross-device identity, on purpose. A visitor who returns on another day counts again. Time on site is measured between pages of a visit, so a one-page visit has no duration."}}, {"@type": "Question", "name": "How do I see which source brings paying customers?", "acceptedAnswer": {"@type": "Answer", "text": "Call visitKeeper('signup') or visitKeeper('purchase', 29) when something worth counting happens. The Goals table credits each conversion to the source the visitor arrived with (utm_source or referrer) and shows conversions per visit for that source."}}, {"@type": "Question", "name": "Will ad blockers hide my visitors?", "acceptedAnswer": {"@type": "Answer", "text": "Some block third-party analytics by hostname. Serve the script from a subdomain of your own site (for example stats.yoursite.com) and most do not. Visits from people who block it are simply not counted."}}, {"@type": "Question", "name": "Where does my data live?", "acceptedAnswer": {"@type": "Answer", "text": "In one JSON file on the disk of the server you deploy in your own account. The author runs nothing in between and never sees your traffic."}}, {"@type": "Question", "name": "How is it different from Plausible, Fathom or Umami?", "acceptedAnswer": {"@type": "Answer", "text": "Same idea, a much smaller footprint: one Node process, no database, no dependencies, about 600 lines to read. In exchange you get fewer features and you run it yourself. If you want a managed service, those are good choices."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f5f4fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #4338ca; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #312e81; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #312e81; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46515f; }
+    .card { background: #fff; border: 1px solid #d9d6ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b4b0d6; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    label[for=dnt], label[for=optout] { display: inline; font-weight: 400; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e4f3; }
+    pre { background: #efeefa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .big { font-size: 1.3rem; font-weight: 800; color: #312e81; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Know where your visitors come from. Keep the data.</h1>
+  <p>visit-keeper is <strong>web analytics you run yourself</strong>: pageviews, visitors, bounce rate, sources, UTM campaigns, countries, devices, live visitors and <strong>goals with revenue credited to the source that brought the customer</strong>. No cookies, no IP stored, a script under 1&nbsp;KB, one Node process, no database. Free and MIT.</p>
+
+  <section class="card" aria-labelledby="snip">
+    <h2 id="snip">Get your snippet</h2>
+    <div class="grid">
+      <div><label for="host">Where you deploy it (https)</label><input id="host" value="https://stats.example.com"></div>
+      <div><label for="goal">A goal to track (optional)</label><input id="goal" placeholder="signup"></div>
+    </div>
+    <input type="checkbox" id="dnt" checked> <label for="dnt">Respect Do Not Track and Global Privacy Control</label>
+    <pre id="tag"></pre>
+    <pre id="goalout"></pre>
+    <p id="snipnote" class="note" aria-live="polite"></p>
+    <p class="note">Set <code>SITES=yoursite.com</code> on the server; beacons for any other hostname are refused. Single-page apps are counted on every route change.</p>
+  </section>
+
+  <section class="card" aria-labelledby="size">
+    <h2 id="size">How much disk will it use?</h2>
+    <label for="vpd">Visitors per day</label><input id="vpd" type="number" min="1" value="2000">
+    <p id="sizeout" class="big" aria-live="polite"></p>
+    <p class="note">Visitor scratch data is deleted after a day or two; what stays is daily counters. Two years of history for a busy site is still a small file.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <table><thead><tr><th scope="col">Today</th><th scope="col">Catch</th><th scope="col">visit-keeper</th></tr></thead><tbody>
+      <tr><td>Google Analytics</td><td>Cookies, consent banners, a heavy script, and your visitors' data lives with an ad company</td><td>No cookies, under 1&nbsp;KB, data stays on your server</td></tr>
+      <tr><td>Plausible, Fathom, Simple Analytics</td><td>Good products, billed monthly and by pageviews</td><td>No per-pageview fee; you run it and fix it</td></tr>
+      <tr><td>Umami, Matomo</td><td>Powerful, but a database to run and keep patched</td><td>One process, one JSON file, about 700 lines to audit</td></tr>
+      <tr><td>Server logs and GoatCounter</td><td>No campaign or goal attribution by source</td><td>UTM, referrers and goals by source in one table</td></tr>
+    </tbody></table>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/visit-keeper
+ADMIN_KEY=$(openssl rand -hex 16) SITES=example.com node server.mjs
+# dashboard: http://localhost:8080/  (any user, ADMIN_KEY as the password)</pre>
+    <p class="note">One-click Render, Fly.io and Docker paths are in the <a href="https://github.com/Duncan-Haywood/fp-monorepo/blob/main/ventures/visit-keeper/README.md">README</a>. Put it behind HTTPS and set <code>TRUST_PROXY=1</code> when a proxy forwards the visitor's address.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Is it really cookie-free? Do I need a consent banner?</h3>
+    <p>It sets no cookies and uses no localStorage on your visitors' browsers. A visitor is a one-way hash of a secret, the UTC date, your site, the IP address and the browser string; the IP and browser string are never written to disk and the hash changes every day, so a person cannot be followed from one day to the next. Whether you still need a notice depends on your country and your lawyer; this is not legal advice.</p>
+    <h3>What does it not do?</h3>
+    <p>No session replay, heatmaps, funnels, cross-day unique visitors or cross-device identity, on purpose. A visitor who returns on another day counts again. Time on site is measured between pages of a visit, so a one-page visit has no duration.</p>
+    <h3>How do I see which source brings paying customers?</h3>
+    <p>Call visitKeeper('signup') or visitKeeper('purchase', 29) when something worth counting happens. The Goals table credits each conversion to the source the visitor arrived with (utm_source or referrer) and shows conversions per visit for that source.</p>
+    <h3>Will ad blockers hide my visitors?</h3>
+    <p>Some block third-party analytics by hostname. Serve the script from a subdomain of your own site (for example stats.yoursite.com) and most do not. Visits from people who block it are simply not counted.</p>
+    <h3>Where does my data live?</h3>
+    <p>In one JSON file on the disk of the server you deploy in your own account. The author runs nothing in between and never sees your traffic.</p>
+    <h3>How is it different from Plausible, Fathom or Umami?</h3>
+    <p>Same idea, a much smaller footprint: one Node process, no database, no dependencies, about 600 lines to read. In exchange you get fewer features and you run it yourself. If you want a managed service, those are good choices.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. Counts can be off: blocked scripts, bots that look like browsers and shared addresses all skew them. This is not legal, tax, or financial advice; whether you need a privacy notice or consent depends on where your visitors are, so ask a professional. Everything on this page runs in your browser and sends nothing anywhere.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <a href="../status-keeper/">status-keeper</a> &middot; <a href="../cancel-flow/">cancel-flow</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { buildSnippet, stateSize, humanBytes } from "./snippet.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    function snip() {
+      const s = buildSnippet($("host").value, { goalName: $("goal").value, honorDnt: $("dnt").checked });
+      $("tag").textContent = s ? s.tag : "Enter an https address, e.g. https://stats.example.com";
+      $("goalout").textContent = s && s.goal ? s.goal : "";
+      $("goalout").hidden = !(s && s.goal);
+      $("snipnote").textContent = s ? "Paste the script tag into the head of every page." : "";
+      record("snippet");
+    }
+    function size() {
+      const v = Math.max(1, Number($("vpd").value) || 1);
+      $("sizeout").textContent = humanBytes(stateSize({ visitorsPerDay: v }).totalBytes) + " after two years";
+    }
+    for (const id of ["host", "goal", "dnt"]) $(id).addEventListener("input", snip);
+    $("vpd").addEventListener("input", size);
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    snip(); size();
+  </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+name: llm-spend-guard CI
+
+# Zero-dependency proxy + library + browser simulator. guard.test.mjs covers
+# the policy engine, proxy.test.mjs runs the proxy against a fake provider on
+# a real socket (streams, refusals, key protection), cli.test.mjs the CLI,
+# replay and file store, page.test.mjs the page wiring. platform/llm's byok
+# tests import guard.mjs too, so they run here as well.
+on:
+  pull_request:
+    paths:
+      - "ventures/llm-spend-guard/**"
+      - "platform/llm/**"
+      - ".github/workflows/llm-spend-guard-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/llm-spend-guard/**"
+      - "platform/llm/**"
+      - ".github/workflows/llm-spend-guard-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: llm-spend-guard-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/llm-spend-guard
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run engine, proxy, CLI and page-wiring tests
+        run: node --test guard.test.mjs proxy.test.mjs cli.test.mjs page.test.mjs
+      - name: Shared LLM client with a guard
+        working-directory: .
+        run: node --test platform/llm/byok.test.mjs
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs llm-spend-guard

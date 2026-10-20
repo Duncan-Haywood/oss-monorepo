@@ -10,12 +10,19 @@ function versionOrNull(value) {
   return value;
 }
 
-/** Extract {name, version, purl} from a CycloneDX document's `components`. */
+/** Extract {name, version, purl} from a CycloneDX document's `components`,
+ * walking nested components and prefixing the optional `group` (mirrors
+ * sbom_diff.py's extract_cyclonedx). */
 function extractCycloneDx(doc) {
   const components = [];
-  for (const c of doc.components || []) {
-    if (!c || typeof c !== "object" || !c.name) continue;
-    components.push({ name: c.name, version: c.version || null, purl: c.purl || null });
+  const stack = [...(doc.components || [])].reverse();
+  while (stack.length) {
+    const c = stack.pop();
+    if (!c || typeof c !== "object") continue;
+    if (Array.isArray(c.components)) stack.push(...[...c.components].reverse());
+    if (!c.name) continue;
+    const name = c.group ? `${c.group}/${c.name}` : c.name;
+    components.push({ name, version: c.version || null, purl: c.purl || null });
   }
   return components;
 }

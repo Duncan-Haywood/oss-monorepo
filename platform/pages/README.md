@@ -5,8 +5,8 @@ surface in this repository into one GitHub Pages deployment, behind a hub page
 that lists and searches them.
 
 ```
-node platform/pages/build.mjs --out=dist          # build
-node platform/pages/check.mjs dist                # check the artifact
+node platform/pages/build.mjs                    # build into platform/pages/dist
+node platform/pages/check.mjs                    # check that artifact (--dist=DIR for another)
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
@@ -159,6 +159,33 @@ rather than a rule, so the exclusion also covers `test.mjs`, `test_*.mjs` and
 `freelance-retainer-calculator` actually use. Both were being published until
 that was fixed. It matches on the whole filename segment, so product code that
 merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
+
+## Updates and the changelog: the open book
+
+`updates.mjs` writes two indexed pages on every build, both in the site
+header (Updates) and the hub sitemap:
+
+- **`updates/`**: this week in numbers, recently shipped products, research
+  and site changes, the research log (`research/*/LOG.md`), what is in
+  progress (open pull requests, the open process backlog, what waits on the
+  owner), the owner's mission and direction summarised from
+  `prompts/goals.md`, and how the development process works.
+- **`changelog/`**: every merge to `main` in the last 14 days, by day,
+  filed as Tools, Research, Website or Platform & process, each linked to its
+  pull request and to the live page it changed. Atom feed at
+  `changelog/feed.xml`.
+
+Nothing on either page is typed by hand. The open pull requests are the one
+live section: `publish-branch.sh` writes `dev/stats.json` (with
+`github.open_prs.recent`, same-repo PRs only) after this build, and the page
+reads it from its own origin when it loads. The publish workflow checks out
+3,000 commits so the changelog reaches back 14 days with room to spare; a shallower checkout
+says how far back it could read.
+
+```
+node platform/pages/updates.mjs --out=dist      # just these two pages
+node --test platform/pages/updates.test.mjs
+```
 
 ## What the build fixes up
 
@@ -380,6 +407,29 @@ drop each new one into the catch-all within a week. Two consequences:
 - **The catch-all is a net, not a bucket.** A trade slug no keyword claims falls
   to "More trade bids", and `build.test.mjs` fails when anything lands there.
   The fix is a keyword; the test is how anyone finds out one is needed.
+
+### Pages by trade or business (`c/for-<who>/`)
+
+A category is filed by the job a tool does; a searcher names themselves:
+"free tools for roofers", "Etsy fee calculator", "how to price a dog grooming
+business". `audiences.mjs` lists those people (roofers, plumbers, Etsy sellers,
+landlords, food businesses, creators, farms and so on), each with a slug
+keyword rule, a title in the searcher's words, an intro, and a note for someone
+deciding whether to *start* that kind of business, since "what should I
+charge" is the first thing they search. The build writes one page per audience
+under the category prefix, so `check.mjs` holds it to the category-page
+contract (hub link, disclaimer, only shipped tools), and lists it in
+`sitemap-hub.xml`. The hub, the `c/` index and every category page link every
+audience page, and each tool's footer links the audiences that claim it ("More
+free tools for roofers →").
+
+Unlike categories, a tool may belong to several audiences, so every rule is
+tested on its own. Rules anchor on slug word boundaries where a bare keyword
+hides inside another word (`pet-` in `carpet-`, `tutor` in `statutory`);
+`audiences.test.mjs` pins those cases. An audience matching fewer than
+`MIN_AUDIENCE_TOOLS` (4) tools is not published: a "free tools for X" page
+listing two tools is a doorway page, not an answer. The root `README.md` links
+every audience page, and a test keeps that list in step with `AUDIENCES`.
 
 ### The contents index
 

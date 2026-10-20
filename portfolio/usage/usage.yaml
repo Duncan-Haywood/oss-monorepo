@@ -6992,6 +6992,39 @@ products:
           since it answers whether a seller unsure which of Depop's three
           regional fee schedules applies to their account actually uses
           the side-by-side comparison rather than guessing.
+  - slug: grailed-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-10-18
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          schedules_compared: 0
+          numbers_saved: 0
+        note: >-
+          Baseline at publication. The visitor signal is null rather than
+          zero because GitHub Pages exposes no server-side analytics and the
+          local counters are opt-out and never leave the device.
+          `schedules_compared` is the one worth watching: it shows whether
+          sellers who only knew the old flat 9% use the side-by-side view,
+          and the `handoff_where_to_sell` count shows whether the item
+          travels on to the channel ranking.
+  - slug: tcgplayer-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-10-18
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          schedules_compared: 0
+          numbers_saved: 0
+        note: >-
+          Baseline at publication. The visitor signal is null rather than
+          zero because GitHub Pages exposes no server-side analytics and the
+          local counters are opt-out and never leave the device.
+          `sale_calculated` runs with a quantity above one are not
+          separately counted; `schedules_compared` shows whether sellers
+          weigh a Pro account against the standard rate.
   - slug: salary-range-posting-check
     surface: github-pages
     readings:
@@ -7148,3 +7181,20 @@ products:
           watching, the same discrimination as its sibling
           agent-instructions-drift-check: a visitor who only ever loads the
           worked example has not brought their own config to it.
+  - slug: open-tennis-robots
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-10-19
+        signals:
+          live_url_visitors: null
+          shot_planned: 0
+          shot_unreachable: 0
+          court_tapped: 0
+          drill_ball: 0
+          collector_route: 0
+        note: >-
+          Baseline at first commit. Unmeasured, not zero: Pages self-reports
+          nothing and the counters are local to each visitor's browser. Page
+          load does not count; only a visitor's own plan or scatter does.
+          GitHub stars, forks and build-report issues are the signal for the
+          hardware side.

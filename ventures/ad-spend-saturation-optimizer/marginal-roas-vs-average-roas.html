@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marginal ROAS vs Average ROAS: Why a 1.95 ROAS Channel Can Lose Money</title>
+  <meta name="description" content="Average ROAS says how a channel did overall; marginal ROAS says what your next ad dollar returns. Worked on an invented four-channel account: TikTok shows 1.95 average ROAS but 0.97 on the next dollar. Free, private calculator included.">
+  <meta property="og:title" content="Marginal ROAS vs average ROAS: the next dollar is what matters">
+  <meta property="og:description" content="Same account, two ROAS numbers per channel. One channel looks fine on average and loses money on the margin. Measured with the free ad spend saturation optimizer.">
+  <link rel="canonical" href="./marginal-roas-vs-average-roas.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is marginal ROAS?","acceptedAnswer":{"@type":"Answer","text":"Marginal ROAS is the extra revenue you get from the next dollar of ad spend in a channel at your current spend level. Average ROAS is total revenue divided by total spend. With diminishing returns the marginal figure is lower than the average."}},{"@type":"Question","name":"What marginal ROAS do I need to break even?","acceptedAnswer":{"@type":"Answer","text":"One divided by your margin. At a 60% margin you need 1.67 revenue per extra dollar; at 40% you need 2.50. Use the margin on the product sold, before ad spend, and treat the figure as approximate because platform-reported revenue is often overstated."}},{"@type":"Question","name":"Can I work out marginal ROAS from my own ad data?","acceptedAnswer":{"@type":"Answer","text":"Yes, if spend varied from week to week. Fit a diminishing-returns curve to weekly spend and revenue per channel and read its slope at today's spend. The free tool does this in your browser and shows a range and a back-test so you can judge how far to trust it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Ad spend saturation optimizer</a></p>
+  <h1>Marginal ROAS vs average ROAS: why a 1.95 ROAS channel can lose money</h1>
+  <p><strong>Average ROAS</strong> is revenue divided by spend over everything the channel has done. <strong>Marginal ROAS</strong> is what the <em>next</em> dollar returns at today's spend. Ad channels saturate, so the first dollars earn the most and the last earn the least. Every dashboard shows the average; budget decisions are made on the margin.</p>
+  <p><a class="cta" href="./">Open the free optimizer</a></p>
+  <h2>The experiment</h2>
+  <p>The tool's built-in invented example: four channels, 78 weeks of spend and revenue, a 60% margin, so a dollar of spend needs about $1.67 of revenue to break even. Each channel's curve was fitted to its own weeks; the marginal figure is the curve's slope at the last eight weeks' average spend, with a 10th to 90th percentile range from 100 resamples.</p>
+  <table>
+    <tr><th>Channel</th><th class="n">Weekly spend</th><th class="n">Average ROAS</th><th class="n">Marginal ROAS (range)</th><th class="n">Suggested weekly spend</th></tr>
+    <tr><td>Google Search</td><td class="n">$5,107</td><td class="n">3.14</td><td class="n">2.60 (2.57&ndash;2.65)</td><td class="n">$8,658</td></tr>
+    <tr><td>Meta Prospecting</td><td class="n">$11,429</td><td class="n">2.03</td><td class="n">2.03 (1.97&ndash;2.09)</td><td class="n">$13,653</td></tr>
+    <tr><td>TikTok</td><td class="n">$4,788</td><td class="n">1.95</td><td class="n">0.97 (0.93&ndash;1.03)</td><td class="n">$3,063</td></tr>
+    <tr><td>Influencer</td><td class="n">$5,316</td><td class="n">1.35</td><td class="n">1.11 (1.03&ndash;1.18)</td><td class="n">$1,265</td></tr>
+  </table>
+  <h2>What it shows</h2>
+  <p>TikTok's average ROAS of 1.95 clears the 1.67 break-even line, so a dashboard calls it healthy. Its marginal ROAS of 0.97 is below the line, and below 1.00: the next dollar returns less than a dollar of revenue. Google Search is the opposite, with a marginal return of 2.60 and room to take more. Moving the same total budget along those slopes lifts fitted revenue by about $4,323 a week (about 7%), and the gain is positive in all 100 resamples. Fitted on the earlier weeks, the curve predicted the final 12 weeks to within about 5% a week, against about 13% for a flat-ROAS line.</p>
+  <p>This is one invented account whose curves were known in advance, so it shows the method works when its assumptions hold, not that your account looks like this. Real data carries seasonality, promotions, carry-over between weeks and overstated platform attribution, none of which the tool models.</p>
+  <p><a class="cta" href="./">Find the margin in your own channels</a></p>
+  <h2>How to estimate it by hand</h2>
+  <h3>1. Look for weeks when spend changed</h3>
+  <p>Marginal return can only be learned from variation. If a channel spent the same amount every week, no method can tell you the slope.</p>
+  <h3>2. Compare high-spend and low-spend weeks</h3>
+  <p>Divide the extra revenue in your heaviest weeks by the extra spend, relative to your lightest. That ratio is a crude marginal ROAS, and it is usually well below the average.</p>
+  <h3>3. Set the break-even line</h3>
+  <p>One divided by your margin. Anything under it on the margin is spend that does not pay for itself on attributed revenue.</p>
+  <h3>4. Move gradually and test</h3>
+  <p>Shift part of the budget, wait a few weeks, and check that revenue moved the way the curve said.</p>
+  <h2>Questions</h2>
+  <h3>What is marginal ROAS?</h3>
+  <p>Marginal ROAS is the extra revenue you get from the next dollar of ad spend in a channel at your current spend level. Average ROAS is total revenue divided by total spend. With diminishing returns the marginal figure is lower than the average.</p>
+  <h3>What marginal ROAS do I need to break even?</h3>
+  <p>One divided by your margin. At a 60% margin you need 1.67 revenue per extra dollar; at 40% you need 2.50. Use the margin on the product sold, before ad spend, and treat the figure as approximate because platform-reported revenue is often overstated.</p>
+  <h3>Can I work out marginal ROAS from my own ad data?</h3>
+  <p>Yes, if spend varied from week to week. Fit a diminishing-returns curve to weekly spend and revenue per channel and read its slope at today's spend. The free tool does this in your browser and shows a range and a back-test so you can judge how far to trust it.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you how to spend your advertising budget. The example is invented and the numbers come from running this tool's own engine on it. Not affiliated with any ad platform.</p>
+    <p>Everything the optimizer does runs in your browser; your spend file is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="../customer-lifetime-value-predictor/">customer lifetime value predictor</a>, <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>.</p>
+  </footer>
+</body>
+</html>

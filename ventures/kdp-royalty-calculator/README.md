@@ -2,6 +2,8 @@
 
 A free, browser-local calculator for self-published authors. It answers a concrete question: **on this 90-day window, does Kindle Unlimited plus KDP paid sales keep more than the same book sold wide?**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/
+
 After using this, you can now see exclusive versus wide totals, the KU page-reads that match one paid sale, and the reads that would match your other-store extras — which used to take a spreadsheet that mixed last month's KENP rate with a print-cost guess.
 
 Open `index.html`. It needs no Amazon account, network request, or API key. Every rate is a box you overwrite from your own KDP royalty report and print preview.

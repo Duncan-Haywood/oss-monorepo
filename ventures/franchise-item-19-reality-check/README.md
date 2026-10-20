@@ -3,6 +3,8 @@
 Free, browser-only reader for the earnings claim in a franchise disclosure
 document (Item 19). Type the tiers (label, units, average revenue). It reports:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/franchise-item-19-reality-check/
+
 - **Average versus median**, and the share of reporting units below the average.
 - **Coverage**: how much of the system the figures describe, and the system-wide
   figure implied if the missing units earn a share you choose.

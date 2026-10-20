@@ -1,0 +1,5 @@
+dataset,model,predictors_removed,gain_with_percent,gain_without_percent,change_points
+nsfg_pooled,women additive_spline,wife_ba_by_wedding,5.68767,5.53010,-0.15757
+nsfg_pooled,women additive_spline (strict-dated BA replaces it),wife_ba_by_wedding -> wife_ba_by_wedding_strict,5.68767,5.76803,0.08036
+nsfg_pooled,both_sexes additive_spline,respondent_ba_by_wedding,4.73673,4.52147,-0.21526
+nsfg_pooled,both_sexes additive_spline (strict-dated BA replaces it),respondent_ba_by_wedding -> respondent_ba_by_wedding_strict,4.73673,4.85736,0.12063

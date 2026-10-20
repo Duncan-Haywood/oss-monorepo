@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-x line plot of rms horizontal error against number of averaged epochs T: the twin falls from 0.71 to 0.03 while the real error falls only from 1.58 to 0.80">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">GNSS twin: rms error vs averaging length T</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="244.1" y2="244.1" stroke="#ddd"/><text x="58" y="248.1" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="164.2" y2="164.2" stroke="#ddd"/><text x="58" y="168.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="84.3" y2="84.3" stroke="#ddd"/><text x="58" y="88.3" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="271.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="479.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">averaged epochs T</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">rms error (sigma units)</text>
+<polyline points="64.0,211.0 271.5,288.3 479.0,312.7 624.0,319.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="211.0" r="3" fill="#c0392b"/>
+<circle cx="271.5" cy="288.3" r="3" fill="#c0392b"/>
+<circle cx="479.0" cy="312.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="319.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">twin rms</text>
+<polyline points="64.0,71.2 271.5,93.9 479.0,128.1 624.0,195.9" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="271.5" cy="93.9" r="3" fill="#1f6fb2"/>
+<circle cx="479.0" cy="128.1" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="195.9" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">real rms (sim)</text>
+<polyline points="64.0,71.3 271.5,98.8 479.0,129.9 624.0,196.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.3" r="3" fill="#2e8b57"/>
+<circle cx="271.5" cy="98.8" r="3" fill="#2e8b57"/>
+<circle cx="479.0" cy="129.9" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="196.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">exact</text>
+</svg>

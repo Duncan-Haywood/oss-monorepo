@@ -6,6 +6,8 @@ every problem with its line number before the import fails or creates the wrong 
 download a cleaned copy.** The file is read in the browser; nothing is uploaded and no login or API
 key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hubspot-contacts-csv-check/
+
 After using this, you can now **find the same email on two rows, the address that is not an
 address, the phone number Excel turned into `4.41175E+11`, the ZIP code that lost its zero, the
 `Customer` that should be `customer`, and the date column that mixes `25/03/2026` with

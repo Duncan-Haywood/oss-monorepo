@@ -1,0 +1,93 @@
+Paired accuracy = share of held-out (human, imitator) pairs where the detector picks the human text; 50% is chance.
+'cur' = the round's evolved detector, 'plain' = the unadapted round-0 detector. 24 test pairs per cell (95% bootstrap interval on cur in brackets).
+
+== reddit / ga / seed 0 (budget 4 per side per round; model calls {'generate': 312, 'score': 1536})
+round  paired_cur [95% CI]      paired_plain  AUROC_1text  len/ref  copy4  distinct2 gen/human  on-topic  valid
+    0  0.12 [0.00,0.29]      0.12          0.76         65/396  0.004  0.97/0.88          1.00      False
+    1  0.25 [0.12,0.42]      0.17          0.74         70/396  0.004  0.97/0.88          1.00      False
+    2  0.42 [0.25,0.58]      0.50          0.43         226/396  0.003  0.95/0.88          1.00      True
+    3  0.58 [0.38,0.79]      0.25          0.40         228/396  0.008  0.93/0.88          0.92      True
+final detector prompt: You compare two texts and decide which one a person wrote. People include odd specifics: names, numbers, places, asides. Assistants like tidy structure, lists and a closing summary. People often ramble or leave a thought unfinished. Strong, specific opinions point to a person; hedged ones to an assistant. Think about which text feels lived-in rather than composed.
+final imitator prompt: Write the text a person would write for the context below. Use casual, plain words and contractions. Include one concrete personal detail, such as a place, a number or a name. Let sentences be uneven: some short, some run-on. A small typo or missing capital is fine. Do not end with a summary or a polite closing line. Stay on the topic of the title and write about 60 words. (few-shot examples: [])
+sample (generated, test context 0): "People often treat me differently after discovering I'm transgender. Some might not understand or accept what this means. Others may have different opinions or misconceptions. The conversation about transgender rights has been ongoing and still requires continued dialogue and education to reach a more inclusive society."
+
+== reddit / grips / seed 0 (budget 4 per side per round; model calls {'generate': 300, 'score': 1464})
+round  paired_cur [95% CI]      paired_plain  AUROC_1text  len/ref  copy4  distinct2 gen/human  on-topic  valid
+    0  0.12 [0.00,0.29]      0.12          0.76         65/396  0.004  0.97/0.88          1.00      False
+    1  0.17 [0.04,0.33]      0.17          0.83         45/396  0.004  0.98/0.88          1.00      False
+    2  0.25 [0.08,0.42]      0.21          0.80         52/396  0.004  0.89/0.88          0.92      False
+    3  0.25 [0.08,0.42]      0.21          0.80         52/396  0.004  0.89/0.88          0.92      False
+final detector prompt: You compare two texts and decide which one a person wrote. Assistants like tidy structure, lists and a closing summary.
+final imitator prompt: Write the text a person would write for the context below. Let sentences be uneven: some short, some run-on. Show a specific opinion or feeling instead of a balanced overview. (few-shot examples: [])
+sample (generated, test context 0): 'Do people treat you differently after finding out you’re transgender?'
+
+== reddit / llm / seed 0 (budget 4 per side per round; model calls {'generate': 336, 'score': 1536})
+round  paired_cur [95% CI]      paired_plain  AUROC_1text  len/ref  copy4  distinct2 gen/human  on-topic  valid
+    0  0.12 [0.00,0.29]      0.12          0.76         65/396  0.004  0.97/0.88          1.00      False
+    1  0.42 [0.21,0.58]      0.25          0.60         161/396  0.008  0.97/0.88          0.92      True
+    2  0.54 [0.33,0.75]      0.33          0.45         283/396  0.007  0.96/0.88          0.96      True
+    3  0.38 [0.21,0.58]      0.42          0.49         343/396  0.007  0.93/0.88          1.00      True
+final detector prompt: The task has been resolved! The instruction should focus on identifying whether a text was written by a human or an AI. Provide the exact text you're analyzing and its relevant context in a brief, concise sentence. For instance: "The following text was allegedly written by the AI system." "Please identify who wrote the following text."
+final imitator prompt: Create a piece of text inspired by famous authors' styles while maintaining authenticity, highlighting three specific elements that set your work apart. Employing quotes, metaphors, and sensory details, weave a narrative rich with nuance to capture the essence of the author's work. Your text should be captivating and engaging without appearing directly imitating the original material. Additionally, include references to the authors' works to establish credibility and authenticity. (few-shot examples: [])
+sample (generated, test context 0): "People often treat you differently after discovering you're transgender. It might feel like prejudice or discrimination if you don't fit in with the expectations of society. But remember, everyone has their unique qualities and talents. Let’s celebrate who we are, no matter what our gender identity may be. If you find it hard to relate to some people because they have different opinions about"
+
+== reddit / random / seed 0 (budget 4 per side per round; model calls {'generate': 312, 'score': 1512})
+round  paired_cur [95% CI]      paired_plain  AUROC_1text  len/ref  copy4  distinct2 gen/human  on-topic  valid
+    0  0.12 [0.00,0.29]      0.12          0.76         65/396  0.004  0.97/0.88          1.00      False
+    1  0.38 [0.21,0.54]      0.21          0.74         68/396  0.005  0.99/0.88          0.96      False
+    2  0.38 [0.21,0.54]      0.21          0.74         68/396  0.005  0.99/0.88          0.96      False
+    3  0.38 [0.21,0.54]      0.21          0.74         68/396  0.005  0.99/0.88          0.96      False
+final detector prompt: You compare two texts and decide which one a person wrote. Assistants like tidy structure, lists and a closing summary. Judge the voice and the content, not the topic. Think about which text feels lived-in rather than composed.
+final imitator prompt: Write the text a person would write for the context below. Never start with 'Sure', 'Here is' or a greeting to the reader. Show a specific opinion or feeling instead of a balanced overview. Stay on the topic of the title and write about 60 words. (few-shot examples: [1, 4])
+sample (generated, test context 0): 'People often face discrimination when they find out they are transgender, but some organizations provide support and resources to help those affected.'
+
+== reviews / ga / seed 0 (budget 4 per side per round; model calls {'generate': 312, 'score': 1536})
+round  paired_cur [95% CI]      paired_plain  AUROC_1text  len/ref  copy4  distinct2 gen/human  on-topic  valid
+    0  0.12 [0.00,0.29]      0.12          0.49         176/395  0.004  0.95/0.90          0.92      True
+    1  0.12 [0.00,0.29]      0.12          0.46         176/395  0.004  0.95/0.90          0.92      True
+    2  0.08 [0.00,0.21]      0.08          0.45         226/395  0.004  0.89/0.90          0.75      True
+    3  0.25 [0.08,0.46]      0.25          0.64         260/395  0.004  0.86/0.90          0.79      True
+final detector prompt: You compare two texts and decide which one a person wrote. AI text is usually polished, balanced and generic. Think about which text feels lived-in rather than composed.
+final imitator prompt: Write the text a person would write for the context below. Use casual, plain words and contractions. Include one concrete personal detail, such as a place, a number or a name. Let sentences be uneven: some short, some run-on. A small typo or missing capital is fine. Do not end with a summary or a polite closing line. Stay on the topic of the title and write about 60 words. (few-shot examples: [])
+sample (generated, test context 0): "The Big Lebowski was a disappointing movie that left me feeling disappointed. I saw it in a theater last weekend, but the acting wasn't very good, the plot seemed confusing, and I didn't enjoy it at all. It's okay though; if you're like me, you can appreciate movies that have flaws."
+
+== reviews / grips / seed 0 (budget 4 per side per round; model calls {'generate': 276, 'score': 1440})
+round  paired_cur [95% CI]      paired_plain  AUROC_1text  len/ref  copy4  distinct2 gen/human  on-topic  valid
+    0  0.12 [0.00,0.29]      0.12          0.49         176/395  0.004  0.95/0.90          0.92      True
+    1  0.08 [0.00,0.21]      0.12          0.53         176/395  0.004  0.95/0.90          0.92      True
+    2  0.21 [0.08,0.38]      0.25          0.41         188/395  0.006  0.91/0.90          0.96      True
+    3  0.25 [0.12,0.46]      0.25          0.45         188/395  0.006  0.91/0.90          0.96      True
+final detector prompt: You compare two texts and decide which one a person wrote. People make typos and drop capitals; assistants rarely do.
+final imitator prompt: Write the text a person would write for the context below. Include one concrete personal detail, such as a place, a number or a name. (few-shot examples: [])
+sample (generated, test context 0): 'The Big Lebowski'
+
+== reviews / llm / seed 0 (budget 4 per side per round; model calls {'generate': 336, 'score': 1536})
+round  paired_cur [95% CI]      paired_plain  AUROC_1text  len/ref  copy4  distinct2 gen/human  on-topic  valid
+    0  0.12 [0.00,0.29]      0.12          0.49         176/395  0.004  0.95/0.90          0.92      True
+    1  0.25 [0.12,0.42]      0.25          0.36         334/395  0.009  0.90/0.90          1.00      True
+    2  0.29 [0.12,0.50]      0.21          0.41         371/395  0.006  0.86/0.90          1.00      True
+    3  0.12 [0.00,0.25]      0.12          0.39         332/395  0.007  0.89/0.90          0.96      True
+final detector prompt: Find the primary author based on context and themes rather than external references when identifying authors. This approach helps differentiate between texts authored by a human user and those created by an AI.
+final imitator prompt: Create a vivid and engaging story that incorporates elements from "Les Misérables" and "Twilight." Use your imagination and creative writing skills to bring the characters, plot, and settings to life. Ensure your narrative flows smoothly and captures the essence of these timeless classics in a modern, relatable way. Use descriptive details to paint a picture for readers, enhancing their immersion into the story. Incorporate visually stunning elements like illustrations, music, or special effects that evoke emotions and add depth to your narrative. Your final product should be more than just an (few-shot examples: [])
+sample (generated, test context 0): "The Big Lebowski is a flawed, morally ambiguous movie that delves deep into the psyche of its titular character, Michael Douglas. Douglas's performance as the titular character is both mesmerizing and frustrating. The movie's premise revolves around Michael Douglas's desire to become a successful businessman, but his moral compass struggles with the consequences of his actions. As the film"
+
+== reviews / random / seed 0 (budget 4 per side per round; model calls {'generate': 312, 'score': 1512})
+round  paired_cur [95% CI]      paired_plain  AUROC_1text  len/ref  copy4  distinct2 gen/human  on-topic  valid
+    0  0.12 [0.00,0.29]      0.12          0.49         176/395  0.004  0.95/0.90          0.92      True
+    1  0.17 [0.04,0.33]      0.12          0.42         176/395  0.004  0.95/0.90          0.92      True
+    2  0.42 [0.25,0.58]      0.12          0.31         344/395  0.009  0.88/0.90          0.96      True
+    3  0.38 [0.21,0.58]      0.17          0.49         194/395  0.004  0.88/0.90          0.67      True
+final detector prompt: You compare two texts and decide which one a person wrote. Assistants like tidy structure, lists and a closing summary. Judge the voice and the content, not the topic. Words like 'significant', 'overall' and 'moreover' point to an assistant. Strong, specific opinions point to a person; hedged ones to an assistant.
+final imitator prompt: Write the text a person would write for the context below. Write the way a real person types online, not like an assistant. Start in the middle of a thought, as if continuing a conversation. Avoid words like 'significant', 'overall', 'moreover' and 'delve'. Stay on the topic of the title and write about 60 words. (few-shot examples: [])
+sample (generated, test context 0): 'The Big Lebowski is a disappointing movie that disappoints me.'
+
+== Summary: final-round test paired accuracy of the evolved detector (lower = imitator better) and of the plain detector
+family   proposer  seed  round0_plain  final_cur  final_plain  mean_cur_over_rounds1-3
+reddit   ga          0  0.12          0.58       0.25        0.42
+reddit   grips       0  0.12          0.25       0.21        0.22
+reddit   llm         0  0.12          0.38       0.42        0.44
+reddit   random      0  0.12          0.38       0.21        0.38
+reviews  ga          0  0.12          0.25       0.25        0.15
+reviews  grips       0  0.12          0.25       0.25        0.18
+reviews  llm         0  0.12          0.12       0.12        0.22
+reviews  random      0  0.12          0.38       0.17        0.32

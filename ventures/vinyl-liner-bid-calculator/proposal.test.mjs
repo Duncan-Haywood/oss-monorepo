@@ -89,6 +89,11 @@ test('a zero validity period means the price is not held, not "expires today"', 
   assert.doesNotMatch(renderProposalHtml(proposal), /price is held/);
 });
 
+test('the validity period is capped at 3650 days, and exactly 3650 is accepted', () => {
+  assert.doesNotThrow(() => buildProposal({ ...VALID, validDays: 3650 }));
+  assert.throws(() => buildProposal({ ...VALID, validDays: 3651 }), /at most 3650/i);
+});
+
 test('the details that would embarrass the contractor are refused, not rendered blank', () => {
   assert.throws(() => buildProposal({ ...VALID, companyName: '  ' }), /business name/i);
   assert.throws(() => buildProposal({ ...VALID, clientName: '' }), /customer name/i);

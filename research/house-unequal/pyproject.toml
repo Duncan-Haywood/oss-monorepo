@@ -1,0 +1,16 @@
+[project]
+name = "house-unequal"
+version = "0.1.0"
+description = "Two-span sawn-lumber joists over an off-centre beam: how far can the beam move from the middle before the joist gives up span"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[project.scripts]
+house-unequal = "house_unequal.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-continuous/src", "../house-spans/src"]

@@ -33,6 +33,18 @@ import assert from 'node:assert/strict';
 import { CHANNEL_PRESETS, calculateChannel } from './calc.mjs';
 import { HANDOFFS } from './handoff.mjs';
 import { REVERB_DEFAULTS, calculateReverbSale } from '../reverb-fee-calculator/calc.mjs';
+import {
+  SCHEDULES as TCG_SCHEDULES,
+  TRANSACTION_RATE as TCG_TRANSACTION_RATE,
+  TRANSACTION_FIXED as TCG_TRANSACTION_FIXED,
+  calculateSale as calculateTcgSale,
+} from '../tcgplayer-fee-calculator/calc.mjs';
+import {
+  SELLING_FEE_RATE as DISCOGS_FEE_RATE,
+  DEFAULT_PROCESSING_RATE as DISCOGS_PROCESSING_RATE,
+  DEFAULT_PROCESSING_FIXED as DISCOGS_PROCESSING_FIXED,
+  calculateSale as calculateDiscogsSale,
+} from '../discogs-fee-calculator/calc.mjs';
 import { FEE_SCHEDULE_PRESETS, calculateOrder } from '../tiktok-shop-fee-calculator/calc.mjs';
 import {
   CATEGORY_PRESETS,
@@ -58,6 +70,23 @@ import {
   SELLING_FEE_RATE as MERCARI_SELLING_FEE_RATE,
   calculateSale as calculateMercariSale,
 } from '../mercari-fee-calculator/calc.mjs';
+import { REGIONS as DEPOP_REGIONS, calculateSale as calculateDepopSale } from '../depop-fee-calculator/calc.mjs';
+import {
+  TIER_THRESHOLD as GRAILED_THRESHOLD,
+  LOW_RATE as GRAILED_LOW_RATE,
+  HIGH_RATE as GRAILED_HIGH_RATE,
+  SCHEDULES as GRAILED_SCHEDULES,
+  calculateSale as calculateGrailedSale,
+} from '../grailed-fee-calculator/calc.mjs';
+import {
+  FEE_RATE as FACEBOOK_FEE_RATE,
+  MIN_FEE as FACEBOOK_MIN_FEE,
+  calculateSale as calculateFacebookSale,
+} from '../facebook-marketplace-fee-calculator/calc.mjs';
+import {
+  CATEGORY_PRESETS as WALMART_CATEGORIES,
+  calculateListing as calculateWalmartListing,
+} from '../walmart-marketplace-calculator/calc.mjs';
 
 const reverb = CHANNEL_PRESETS.find((preset) => preset.id === 'reverb');
 const tiktok = CHANNEL_PRESETS.find((preset) => preset.id === 'tiktok');
@@ -65,6 +94,10 @@ const whatnot = CHANNEL_PRESETS.find((preset) => preset.id === 'whatnot');
 const poshmark = CHANNEL_PRESETS.find((preset) => preset.id === 'poshmark');
 const stockx = CHANNEL_PRESETS.find((preset) => preset.id === 'stockx');
 const mercari = CHANNEL_PRESETS.find((preset) => preset.id === 'mercari');
+const depop = CHANNEL_PRESETS.find((preset) => preset.id === 'depop');
+const grailed = CHANNEL_PRESETS.find((preset) => preset.id === 'grailed');
+const facebook = CHANNEL_PRESETS.find((preset) => preset.id === 'facebook-marketplace');
+const walmart = CHANNEL_PRESETS.find((preset) => preset.id === 'walmart');
 
 test('this page still has a Reverb channel to compare', () => {
   // Guard the guard: if the preset is renamed or removed, every assertion
@@ -398,8 +431,8 @@ test('the eBay fee assumptions match the dedicated calculator', () => {
   // ebay-fee-calculator takes its final value rate and per-order fixed fee as
   // inputs with these as the fallbacks, so they are read from its own
   // behaviour rather than from a constant it does not export.
-  assert.equal(ebay.commissionRate, 13.25, 'final value fee disagrees with ebay-fee-calculator');
-  assert.equal(ebay.paymentFixed, 0.3, 'per-order fixed fee disagrees with ebay-fee-calculator');
+  assert.equal(ebay.commissionRate, 13.6, 'final value fee disagrees with eBay\'s published 13.6% (ebay-fee-calculator still defaults to 13.25 until P026 lands)');
+  assert.equal(ebay.paymentFixed, 0.4, 'per-order fixed fee disagrees with ebay-fee-calculator');
 });
 
 test('the Etsy fee assumptions match the dedicated calculator', () => {
@@ -584,12 +617,153 @@ test('Mercari net profit matches the dedicated calculator on the shared worked e
   near(here.profit, there.profit, 'net profit must not jump across the handoff');
 });
 
+test('the Depop row matches the dedicated calculator\'s US schedule and net profit', () => {
+  assert.ok(depop, 'no channel with id "depop" in CHANNEL_PRESETS');
+  const us = DEPOP_REGIONS.us;
+  assert.equal(depop.commissionRate, us.sellingRate, 'Depop selling fee disagrees with depop-fee-calculator (US)');
+  assert.equal(depop.paymentRate, us.processingRate, 'Depop processing rate disagrees with depop-fee-calculator (US)');
+  assert.equal(depop.paymentFixed, us.processingFixed, 'Depop flat fee disagrees with depop-fee-calculator (US)');
+  const shared = { price: 40, shippingCharged: 6, shippingCost: 5, itemCost: 15, packagingCost: 0, otherCost: 2, monthlyOrders: 1 };
+  const here = calculateChannel({ ...depop, enabled: true }, shared);
+  const there = calculateDepopSale({
+    itemPrice: shared.price,
+    buyerShipping: shared.shippingCharged,
+    labelCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost,
+    region: 'us',
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `Depop profit: this page ${here.profit}, depop-fee-calculator ${there.profit}`);
+});
+
+test('the Grailed row matches the dedicated calculator tiers on both sides of the $120 step', () => {
+  assert.ok(grailed, 'no channel with id "grailed" in CHANNEL_PRESETS');
+  const us = GRAILED_SCHEDULES.us;
+  assert.equal(grailed.commissionThreshold, GRAILED_THRESHOLD, 'Grailed step disagrees with grailed-fee-calculator');
+  assert.equal(grailed.commissionRate, GRAILED_HIGH_RATE, 'Grailed rate at/above the step disagrees with grailed-fee-calculator');
+  assert.equal(grailed.commissionRateBelow, GRAILED_LOW_RATE, 'Grailed rate below the step disagrees with grailed-fee-calculator');
+  assert.equal(grailed.paymentRate, us.processingRate);
+  assert.equal(grailed.paymentFixed, us.processingFixed);
+  // The $1.99 minimum commission is not modelled on this page, so compare
+  // only where 6% already exceeds it (a base of $33.17 or more).
+  for (const price of [40, 119.99, 120, 124.1, 250]) {
+    const shared = { price, shippingCharged: 0, shippingCost: 8, itemCost: 30, packagingCost: 0, otherCost: 2, monthlyOrders: 1 };
+    const here = calculateChannel({ ...grailed, enabled: true }, shared);
+    const there = calculateGrailedSale({
+      itemPrice: price,
+      buyerShipping: 0,
+      labelCost: shared.shippingCost,
+      itemCost: shared.itemCost,
+      otherCost: shared.otherCost,
+      schedule: 'us',
+    });
+    assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+    assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `Grailed profit at $${price}: this page ${here.profit}, grailed-fee-calculator ${there.profit}`);
+  }
+});
+
+test('the Grailed break-even price lands on the right side of the $120 step', () => {
+  const shared = { price: 150, shippingCharged: 0, shippingCost: 8, itemCost: 30, packagingCost: 0, otherCost: 2, monthlyOrders: 1 };
+  const here = calculateChannel({ ...grailed, enabled: true }, shared);
+  // 6% side: (30 + 2 + 8 + 0.49) / (1 - 0.06 - 0.0349) is about $44.7, well under $120.
+  assert.ok(here.breakEvenPrice > 40 && here.breakEvenPrice < 50, `break-even ${here.breakEvenPrice}`);
+});
+
+test('the Facebook Marketplace row matches the dedicated calculator above its minimum fee', () => {
+  assert.ok(facebook, 'no channel with id "facebook-marketplace" in CHANNEL_PRESETS');
+  assert.equal(facebook.commissionRate, FACEBOOK_FEE_RATE, 'Facebook fee disagrees with facebook-marketplace-fee-calculator');
+  assert.equal(facebook.paymentRate, 0);
+  assert.equal(facebook.paymentFixed, 0);
+  const shared = { price: 40, shippingCharged: 6, shippingCost: 5, itemCost: 15, packagingCost: 0, otherCost: 2, monthlyOrders: 1 };
+  assert.ok((shared.price + shared.shippingCharged) * (FACEBOOK_FEE_RATE / 100) > FACEBOOK_MIN_FEE, 'example must sit above the minimum fee');
+  const here = calculateChannel({ ...facebook, enabled: true }, shared);
+  const there = calculateFacebookSale({
+    itemPrice: shared.price,
+    buyerShipping: shared.shippingCharged,
+    labelCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost,
+    channel: 'shipped',
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `Facebook profit: this page ${here.profit}, dedicated ${there.profit}`);
+});
+
+test('the Walmart row matches the dedicated calculator\'s seller-fulfilled profit', () => {
+  assert.ok(walmart, 'no channel with id "walmart" in CHANNEL_PRESETS');
+  assert.equal(
+    walmart.commissionRate,
+    WALMART_CATEGORIES.everything_else.referralRate,
+    'Walmart referral rate disagrees with walmart-marketplace-calculator\'s default category',
+  );
+  assert.equal(walmart.commissionBase, 'item', 'Walmart referral applies to the item price only');
+  assert.equal(walmart.paymentRate, 0);
+  assert.equal(walmart.paymentFixed, 0);
+  assert.equal(walmart.monthlyFee, 0);
+  assert.equal(walmart.enabled, false);
+  const shared = { price: 40, shippingCharged: 0, shippingCost: 5, itemCost: 15, packagingCost: 1, otherCost: 2, monthlyOrders: 1 };
+  const here = calculateChannel({ ...walmart, enabled: true }, shared);
+  const there = calculateWalmartListing({
+    salePrice: shared.price,
+    referralRate: WALMART_CATEGORIES.everything_else.referralRate,
+    costOfGoods: shared.itemCost,
+    sellerShippingCost: shared.shippingCost,
+    packagingCost: shared.packagingCost,
+    otherCost: shared.otherCost,
+    fulfillmentMethod: 'seller',
+  });
+  assert.ok(
+    Math.abs(here.profit - there.selected.profit) < 1e-9,
+    `Walmart profit: this page ${here.profit}, walmart-marketplace-calculator ${there.selected.profit}`,
+  );
+});
+
+test('the TCGplayer row matches the dedicated calculator\'s one-card order profit', () => {
+  const tcg = CHANNEL_PRESETS.find((preset) => preset.id === 'tcgplayer');
+  assert.ok(tcg, 'no channel with id "tcgplayer" in CHANNEL_PRESETS');
+  assert.equal(tcg.commissionRate, TCG_SCHEDULES.standard.lines[0].rate, 'commission disagrees with tcgplayer-fee-calculator');
+  assert.equal(tcg.paymentRate, TCG_TRANSACTION_RATE);
+  assert.equal(tcg.paymentFixed, TCG_TRANSACTION_FIXED);
+  assert.equal(tcg.commissionBase, 'order');
+  assert.equal(tcg.monthlyFee, 0);
+  assert.equal(tcg.enabled, false);
+  const shared = { price: 40, shippingCharged: 1.31, shippingCost: 1.1, itemCost: 15, packagingCost: 0.4, otherCost: 0.6, monthlyOrders: 1 };
+  const here = calculateChannel({ ...tcg, enabled: true }, shared);
+  const there = calculateTcgSale({
+    itemPrice: shared.price,
+    quantity: 1,
+    buyerShipping: shared.shippingCharged,
+    shippingCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost + shared.packagingCost,
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `TCGplayer profit: this page ${here.profit}, dedicated ${there.profit}`);
+});
+
+test('the Discogs row matches the dedicated calculator\'s order profit', () => {
+  const discogs = CHANNEL_PRESETS.find((preset) => preset.id === 'discogs');
+  assert.ok(discogs, 'no channel with id "discogs" in CHANNEL_PRESETS');
+  assert.equal(discogs.commissionRate, DISCOGS_FEE_RATE, 'commission disagrees with discogs-fee-calculator');
+  assert.equal(discogs.commissionBase, 'order', 'Discogs charges its fee on item plus shipping');
+  assert.equal(discogs.paymentRate, DISCOGS_PROCESSING_RATE);
+  assert.equal(discogs.paymentFixed, DISCOGS_PROCESSING_FIXED);
+
+  const here = calculateChannel(discogs, {
+    price: 30, shippingCharged: 6, shippingCost: 5, itemCost: 8, packagingCost: 1, otherCost: 0,
+    quantity: 1, monthlyVolume: 1,
+  });
+  const there = calculateDiscogsSale({ itemPrice: 30, buyerShipping: 6, labelCost: 5, itemCost: 8, otherCost: 1 });
+  assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `Discogs profit: this page ${here.profit}, dedicated ${there.profit}`);
+});
+
 test('every channel with a handoff has a parity assertion in this file', () => {
   // The check that stops this file going stale the way it just did. A new
   // channel that can hand an item to a dedicated calculator is a new chance
   // for the two to disagree, so it must be named here -- and if it is not,
   // this fails naming it, instead of waiting for a seller to find the gap.
-  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari']);
+  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari', 'depop', 'grailed', 'facebook-marketplace', 'walmart', 'tcgplayer', 'discogs']);
   const missing = HANDOFFS.map((entry) => entry.channel).filter((channel) => !asserted.has(channel));
   assert.deepEqual(
     missing,

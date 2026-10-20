@@ -1,0 +1,13 @@
+[project]
+name = "house-framing"
+version = "0.1.0"
+description = "Conventional versus advanced (OVE) light-frame wall framing: lumber, pieces, whole-wall R-value and NDS structural checks"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stake-screening"
+version = "0.1.0"
+description = "Stake as a screening device for workers with hidden fault rates: why it cannot separate reliable from unreliable hardware, and what a deterrence stake costs in rent"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,71 @@
+{
+  "slug": "hood-cleaning-bid-calculator",
+  "name": "Kitchen exhaust hood cleaning",
+  "group": "Cleaning & janitorial",
+  "summary": "Commercial kitchen exhaust cleaning priced per hood, duct, and fan with grease-load and access factors.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 28,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Canopy hood",
+      "unit": "sq ft",
+      "qty": 40,
+      "hoursPerUnit": 0.1333,
+      "materialPerUnit": 0.4,
+      "source": "4 min per sq ft x kitchen-floor access 1.0 x heavy grease 1.6 x 25% after-hours premium (COMPONENT_PRESETS, GREASE_LOADS, index.html); chemicals $0.40 per hood sq ft"
+    },
+    {
+      "label": "Hood filters",
+      "unit": "each",
+      "qty": 6,
+      "hoursPerUnit": 0.1333,
+      "materialPerUnit": 0,
+      "source": "4 min each x access 1.0 x grease 1.6 x 1.25 after-hours (STARTING components)"
+    },
+    {
+      "label": "Horizontal duct, above ceiling",
+      "unit": "linear ft",
+      "qty": 12,
+      "hoursPerUnit": 0.32,
+      "materialPerUnit": 0,
+      "source": "8 min per lf x above-ceiling 1.2 x grease 1.6 x 1.25 after-hours"
+    },
+    {
+      "label": "Vertical duct, hard rooftop access",
+      "unit": "linear ft",
+      "qty": 20,
+      "hoursPerUnit": 0.85,
+      "materialPerUnit": 0,
+      "source": "15 min per lf x rooftop-hard 1.7 x grease 1.6 x 1.25 after-hours"
+    },
+    {
+      "label": "Rooftop exhaust fan",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 3.4,
+      "materialPerUnit": 0,
+      "source": "60 min x rooftop-hard 1.7 x grease 1.6 x 1.25 after-hours"
+    },
+    {
+      "label": "Round-trip travel, 2 techs",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.0,
+      "materialPerUnit": 0,
+      "source": "1 h round trip x 2 techs paid for the drive, no after-hours premium (index.html)"
+    },
+    {
+      "label": "Consumables and grease disposal",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 80.0,
+      "source": "Consumables $45 + grease disposal $35 per job (index.html)"
+    }
+  ],
+  "specialistModels": "Tracks tech-hours per component with grease-load and access multipliers, prices the after-hours premium separately, splits hood-only versus full-system price and annualises 4 cleans a year."
+}

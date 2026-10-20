@@ -5,6 +5,8 @@ local CLI gives procurement and security teams a dated, portable review record.
 It compares customer-supplied snapshots and never contacts a vendor or uploads
 content.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vendor-change-evidence/
+
 ```bash
 cd ventures/vendor-change-evidence
 python3 src/vendor_change.py examples/before.json examples/after.json --format markdown

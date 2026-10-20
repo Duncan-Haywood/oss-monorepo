@@ -147,7 +147,7 @@ export function comparePlans(input = {}) {
     throw new Error("Monthly orders must be greater than zero to compare plans");
   }
   const paymentMethod = input.paymentMethod ?? "shopify_payments";
-  const currentPlanId = input.planId && PLAN_PRESETS[input.planId] ? input.planId : null;
+  const currentPlanId = input.planId && Object.hasOwn(PLAN_PRESETS, input.planId) ? input.planId : null;
 
   const plans = PLAN_IDS.map((id) => {
     const preset = PLAN_PRESETS[id];

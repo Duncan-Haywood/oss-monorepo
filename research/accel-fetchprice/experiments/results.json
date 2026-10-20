@@ -1,0 +1,102 @@
+[
+ {
+  "shape": "L1 64x70",
+  "B": 1,
+  "w_saved": 0,
+  "extra_flops": 0,
+  "cycles": 562,
+  "e_flop_star_over_e_w": null,
+  "psum_extra": 0,
+  "r_psum_star": null
+ },
+ {
+  "shape": "L1 64x70",
+  "B": 2,
+  "w_saved": 4480,
+  "extra_flops": 193,
+  "cycles": 1122,
+  "e_flop_star_over_e_w": 0.02068844494934102,
+  "psum_extra": 17664,
+  "r_psum_star": 0.2536231884057971
+ },
+ {
+  "shape": "L1 64x70",
+  "B": 4,
+  "w_saved": 13440,
+  "extra_flops": 578,
+  "cycles": 2242,
+  "e_flop_star_over_e_w": 0.01037136269210943,
+  "psum_extra": 35328,
+  "r_psum_star": 0.3804347826086957
+ },
+ {
+  "shape": "L1 64x70",
+  "B": 8,
+  "w_saved": 31360,
+  "extra_flops": 1347,
+  "cycles": 4482,
+  "e_flop_star_over_e_w": 0.005194414546745922,
+  "psum_extra": 70656,
+  "r_psum_star": 0.4438405797101449
+ },
+ {
+  "shape": "L1 64x70",
+  "B": 16,
+  "w_saved": 67200,
+  "extra_flops": 2884,
+  "cycles": 8962,
+  "e_flop_star_over_e_w": 0.0025999744335847364,
+  "psum_extra": 141312,
+  "r_psum_star": 0.47554347826086957
+ },
+ {
+  "shape": "L2 11x64",
+  "B": 1,
+  "w_saved": 0,
+  "extra_flops": 0,
+  "cycles": 130,
+  "e_flop_star_over_e_w": null,
+  "psum_extra": 0,
+  "r_psum_star": null
+ },
+ {
+  "shape": "L2 11x64",
+  "B": 2,
+  "w_saved": 704,
+  "extra_flops": 193,
+  "cycles": 258,
+  "e_flop_star_over_e_w": 0.014138249588303812,
+  "psum_extra": 2772,
+  "r_psum_star": 0.25396825396825395
+ },
+ {
+  "shape": "L2 11x64",
+  "B": 4,
+  "w_saved": 2112,
+  "extra_flops": 578,
+  "cycles": 514,
+  "e_flop_star_over_e_w": 0.007108909024813862,
+  "psum_extra": 5544,
+  "r_psum_star": 0.38095238095238093
+ },
+ {
+  "shape": "L2 11x64",
+  "B": 8,
+  "w_saved": 4928,
+  "extra_flops": 1347,
+  "cycles": 1026,
+  "e_flop_star_over_e_w": 0.003565789835472952,
+  "psum_extra": 11088,
+  "r_psum_star": 0.4444444444444444
+ },
+ {
+  "shape": "L2 11x64",
+  "B": 16,
+  "w_saved": 10560,
+  "extra_flops": 2884,
+  "cycles": 2050,
+  "e_flop_star_over_e_w": 0.0017861371401508746,
+  "psum_extra": 22176,
+  "r_psum_star": 0.47619047619047616
+ }
+]
