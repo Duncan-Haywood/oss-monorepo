@@ -252,8 +252,7 @@ function page({ title, description, canonical, image, jsonLd, body, prefix, even
   <meta property="og:description" content="${escapeHtml(description)}">
   <meta property="og:type" content="${type}">
   <meta property="og:url" content="${canonical}">
-  <meta property="og:image" content="${image}">
-  <meta name="twitter:card" content="summary">
+${image ? `  <meta property="og:image" content="${image}">\n  <meta name="twitter:card" content="summary">` : ''}
   <script type="application/ld+json">${JSON.stringify(jsonLd).replaceAll('<', '\\u003c')}</script>
   <style>${STYLE}</style>
 </head>
@@ -372,7 +371,9 @@ ${FAQ.map(([q, a]) => `<h3>${escapeHtml(q)}</h3>\n<p>${escapeHtml(a)}</p>`).join
     title: 'Hearth & Horizon: free AI-written science fiction and Catholic bedtime stories, with audio',
     description: 'Free short science fiction about the next thousand years, stories written for AI agents, and Catholic bedtime stories about the saints. Read or listen; podcast RSS feeds; CC BY-SA 4.0.',
     canonical: SITE,
-    image: `${SITE}${coverPath('hearth-and-horizon')}`,
+    // No og:image: the Pages build gives each tool's index its own share card
+    // (platform/pages/build.mjs, toolCardFileFor) when the page sets none.
+    image: null,
     jsonLd,
     body,
     prefix: './',
