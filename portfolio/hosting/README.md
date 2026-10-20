@@ -332,3 +332,19 @@ that name.
   `venturePageRoot` imports its entry-point candidates and
   `ENTRY_OVERRIDES` from `platform/pages/build.mjs`. A copied list has cost
   live product twice.
+
+## What is served now (moved from CLAUDE.md, 2026-10-20)
+
+- **The catalogue is served by GitHub Pages** at
+  **https://duncan-haywood.github.io/monorepo-projects/**. Since 2026-10-20
+  the Pages source is "GitHub Actions": `.github/workflows/portfolio-pages.yml`
+  builds and deploys it on every merge that touches a site input and every
+  three hours, gated on `vars.PAGES_ENABLED`. The `gh-pages` branch
+  (`platform/pages/publish-branch.sh`) is no longer served and
+  `publish-pages-branch.yml` runs only by hand. `pages_state.py` still reads
+  the branch route, so its "source" and "snapshot" lines are stale until it
+  learns the Actions source. No session can fetch
+  `github.io` (the egress proxy returns 403), so an unauthenticated 200 has
+  not been observed; `github-pages-origin` in
+  `portfolio/ledger/infra_state.yaml` stays `unknown` until the owner loads
+  it logged out.
