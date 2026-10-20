@@ -305,3 +305,41 @@ test("the mix-the-sides guide is linked, carries the clauses, and its worked exa
   assert.ok(guide.includes(row("Ignore groups", off.res.rulesMet, off.res.rulesTotal, most(off.spec, off.res.table))), "ignore row");
   assert.ok(guide.includes(row("Spread each group", spread.res.rulesMet, spread.res.rulesTotal, most(spread.spec, spread.res.table))), "spread row");
 });
+
+test("the company-dinner guide is linked, carries the clauses, and its worked example matches the optimizer", () => {
+  const name = "how-to-seat-a-company-dinner-or-gala-so-departments-mix.html";
+  const guide = page(name);
+  assert.match(guide, /not a guarantee that any guest will be content/i);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(/\./g, "\\.")}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(/\./g, "\\.")}"`));
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(/\./g, "\\.")));
+  const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
+
+  const depts = {
+    Sales: ["Ana Pruitt", "Ben Cole", "Cara Diaz", "Dev Rao", "Eli Stone", "Fay Ross"],
+    Engineering: ["Gus Lane", "Hu Tran", "Ida Moss", "Jin Park", "Kai Webb", "Lia Ford"],
+    Support: ["Mo Grant", "Nia Shaw", "Oz Hart", "Pat Yu", "Quinn Ames", "Ria Bell"],
+    Finance: ["Sam Cruz", "Tia Lowe", "Uma Dunn", "Vic Hale", "Wes Nash", "Xia Roy"],
+  };
+  const parsed = parseGuests(Object.entries(depts).flatMap(([d, ns]) => ns.map((n) => `${n} | | ${d}`)).join("\n"));
+  const { rules, errors } = parseRules(["Ana Pruitt + Gus Lane", "Cara Diaz + Mo Grant", "Hu Tran + Nia Shaw", "Sam Cruz + Dev Rao", "Ida Moss + Tia Lowe", "Pat Yu + Jin Park", "Vic Hale !! Wes Nash", "Ana Pruitt @ 1"].join("\n"), parsed.guests);
+  assert.deepEqual([...parsed.errors, ...errors], []);
+  const most = (spec, table) => Math.max(...groupMixOf(spec, table).flatMap((m) => m.perTable));
+  const run = (mix) => {
+    const spec = { guests: parsed.guests, rules, seatsPerTable: 8, tableCount: 3, balance: true, mix, seed: 1 };
+    const res = optimize(spec);
+    assert.deepEqual(verifyPlan(spec, res), []);
+    assert.equal(res.table[0], 0, "host pinned to table 1");
+    return { spec, res };
+  };
+  const row = (label, met, total, m) => `<tr><td>${label}</td><td class="n">${met} of ${total}</td><td class="n">${m}</td></tr>`;
+  const off = run("off");
+  const spread = run("spread");
+  const base = baselinePlan(off.spec);
+  const baseRes = describe(off.spec, weightMatrix(off.spec), base, base);
+  assert.ok(guide.includes(row("In the order typed", baseRes.rulesMet, baseRes.rulesTotal, most(off.spec, base))), "list-order row");
+  assert.ok(guide.includes(row("Ignore groups", off.res.rulesMet, off.res.rulesTotal, most(off.spec, off.res.table))), "ignore row");
+  assert.ok(guide.includes(row("Spread each group", spread.res.rulesMet, spread.res.rulesTotal, most(spread.spec, spread.res.table))), "spread row");
+});
