@@ -17,6 +17,12 @@
 - The tree's full-data estimate sits at the top of its fold range, so its single splits are fragile. A profile's number should be read with a spread of several points even before counting what the survey does not measure.
 - `tests/train_parallel.test.mjs` checks that each fold model, after structured cloning, reproduces its fold's held-out predictions to 10<sup>−12</sup>. In headless Chromium at 1200 and 390 px: no console errors, no horizontal scroll.
 
+## 2026-10-20 · App: per-partner explanations and a default couple at first-wedding ages
+
+- Explanations for lenses that score a couple from both partners' sides (the harmonized before-the-wedding lens, NLSY79 couples and individuals) now show one bar set per partner. Each set is exact: its factors multiply (forest: add) to that partner's rate. The page says the couple's rate is the average of the two. The averaged bars they replace were only approximate for the averaged rate. A test checks exactness and the average for every additive model in those three lenses.
+- The default couple before the wedding is 28 and 30, about the recent U.S. median ages at first marriage, instead of 36 and 38. The married view still opens at 36 and 38, inside NLSY79's data, and a typed age is never changed. On the default lens that couple gets 89% no break-up by year 10. Readable labels were added for the harmonized lens's inputs.
+- Not done: B's per-couple intervals (#8736) are still a draft, so the tiles show the single model without an interval.
+
 ## 2026-10-20 · App: not engaged yet? Marry each other, or break up first
 
 - The before-the-wedding view now answers the earlier question too. For a couple who are dating or living together, workstream A's two HCMST 2009–2017 models (#8662) give the chance of marrying each other within 8.4 years and of breaking up first, chained period by period as the bundles' `how_to_combine` specifies (`app/dating.js`). The chain then hands over to the selected pre-wedding lens for the marriage itself.
