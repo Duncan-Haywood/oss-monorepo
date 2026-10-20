@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-20 · Batch 20: stopping a migration that does not fit the cycle
+
+- Added 1 source and 1 practice (59 practices, 58 sources): Bellroy's technology team's 2024 review (P59; an Australian direct-to-consumer company, the catalogue's third non-US source). It reports a migration from a legacy Rails system that could not be finished inside one six-week Shape Up cycle, so the team stopped instead of extending and plans a simpler second attempt in 2025.
+- **Transfers `yes` and is `adopted`.** It is Shape Up's circuit breaker (P7) seen in use: a research milestone too big for one run is cut and the rest goes under "Next steps", and a run with nothing worth merging pushes nothing. The new part is the evidence that stopping beat finishing a half-built architecture, which is one team's retrospective and not a measurement. It ranks 1.1%.
+- **Still no proposal.** The ledger has 1526 rows (it had 1317); every class share is at or below 1.4% (tooling), far below the 5% bar.
+- Verification was by web search only. The host could not be resolved from the container, so the post was not fetched or read in full; its year is inferred and no quotation or figure is used.
+
 ## 2026-10-19 · Batch 19: marking review comments by importance
 
 - Added 1 source and 1 practice (58 practices, 57 sources): Sentry's public code-review guide (P58). It is the catalogue's first review policy from a venture-backed software company that was fetched and read in full, not summarised from search results. Reviewers mark a comment high, medium or low (LOGAF) and only high ones block a merge; changes with long-term effects (schema, API, new dependency, large refactor) go to a senior reviewer; the page notes each requested change often costs a PR a day or more.
