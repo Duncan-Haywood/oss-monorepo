@@ -121,6 +121,15 @@ import {
   siteStyleLink,
   writeResearchChrome,
 } from './site-nav.mjs';
+import {
+  HERO_BACKDROP_HTML,
+  HOME_MOTION_CSS,
+  HOME_MOTION_SCRIPT,
+  copyShowcase,
+  loadShowcase,
+  renderMarquee,
+  renderShowcaseSection,
+} from './showcase.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -7233,7 +7242,11 @@ ${themesHtml}
     </section>`;
 }
 
-export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { featured: [], themes: [] } } = {}) {
+export function renderHub(
+  surfaces,
+  baseUrl,
+  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null } } = {},
+) {
   const groups = groupByCategory(surfaces);
   const audiencePages = audienceGroups(surfaces);
   const apps = surfaces.filter((s) => s.kind === 'app');
@@ -7298,6 +7311,14 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
     .slice(0, 6)
     .map(({ items }) => exampleTools(items, 1)[0])
     .filter(Boolean);
+
+  // The moving shelf under the hero: a few tools from every section, split
+  // across two rows so neither repeats a section back to back.
+  const shortName = (s) => s.title.split(' — ')[0];
+  const shelf = groups.flatMap(({ items }) => exampleTools(items, 5)).map((s) => ({ slug: s.slug, name: shortName(s) }));
+  const marqueeRows = [shelf.filter((_, i) => i % 2 === 0), shelf.filter((_, i) => i % 2 === 1)];
+  const titles = new Map(surfaces.map((s) => [s.slug, shortName(s)]));
+  const audienceWords = audiencePages.map(({ audience }) => audience.name).slice(0, 14);
 
   return `<!doctype html>
 <html lang="en">
@@ -7556,6 +7577,7 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
        that belongs. */
     @media print { .backup { display: none; } }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+${HOME_MOTION_CSS}
   </style>
 </head>
 <body>
@@ -7563,9 +7585,15 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
   ${renderSiteHeader({ toRoot: '', current: 'home' })}
 
   <header class="hero">
+${HERO_BACKDROP_HTML}
     <div class="hero-inner">
       <p class="eyebrow">Open source · MIT licensed · Built in public</p>
-      <h1>Software and research that anyone can use, inspect, and run themselves.</h1>
+      <h1>Software and research that anyone can <span class="grad">use, inspect, and run</span> themselves.</h1>
+${
+  audienceWords.length
+    ? `      <p class="ticker">Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</p>\n`
+    : ''
+}
       <p class="lede">
         ${escapeHtml(SITE_NAME)} is an open portfolio of business software and research:
         focused tools that run entirely in your browser, self-hostable apps a small
@@ -7600,6 +7628,8 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
       </dl>
     </div>
   </header>
+
+${renderMarquee(marqueeRows)}
 
   <main class="wrap" id="main">
     <!-- Filled in by script from the saved bids on this device. Above everything
@@ -7659,6 +7689,8 @@ ${BACKUP_WIDGET_HTML}
       </p>
       <ul id="yoursList"></ul>
     </section>
+
+${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
 
     <section class="band" id="browse" aria-labelledby="browse-h">
       <p class="section-eyebrow">Browse</p>
@@ -8470,6 +8502,8 @@ ${BID_PRICING_HELPERS}
     } catch { /* storage unavailable: nothing saved to show */ }
 ${BACKUP_WIDGET_SCRIPT}
 ${OFFLINE_WIDGET_SCRIPT}
+  </script>
+  <script>${HOME_MOTION_SCRIPT}
   </script>
 </body>
 </html>
@@ -10354,9 +10388,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   }
 
   const research = researchHighlights();
+  // Stills and a recording of real tools for the hub (showcase/capture.mjs).
+  const showcase = loadShowcase(surfaces.map((s) => s.slug));
+  log(`Published ${await copyShowcase(outDir, showcase)} showcase file(s).`);
   await fs.writeFile(
     path.join(outDir, 'index.html'),
-    renderHub(surfaces, base, { researchCount: researchProjectCount(), research }),
+    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase }),
   );
   // The index the hub's search fetches, and the stylesheet every site-owned
   // page links for the shared header (site-nav.mjs).
