@@ -226,7 +226,7 @@
 
   <section class="card" id="oneday-card">
     <h2>One-day tournament: clock times for every game</h2>
-    <p class="note">Everyone plays everyone once in a single day. List the teams in the Teams box above, then set the courts, the first start time and how long a game and the changeover take. Each round finishes before the next begins, so nobody plays twice at once. Not sure it fits? See <a href="./how-long-does-a-round-robin-tournament-take.html">how long a one-day round robin takes</a>.</p>
+    <p class="note">Everyone plays everyone once in a single day. List the teams in the Teams box above, then set the courts, the first start time and how long a game and the changeover take. Nobody plays twice at once. Leave rest at 0 to play round by round, or ask for 1 or more slots of rest so no team plays back to back where the numbers allow. Not sure it fits? See <a href="./how-long-does-a-round-robin-tournament-take.html">how long a one-day round robin takes</a>.</p>
     <label for="od-courts">Courts</label>
     <input id="od-courts" type="number" min="1" max="16" value="2">
     <label for="od-start">First game</label>
@@ -235,6 +235,8 @@
     <input id="od-minutes" type="number" min="5" max="600" value="30">
     <label for="od-change">Changeover, minutes</label>
     <input id="od-change" type="number" min="0" max="120" value="5">
+    <label for="od-rest">Minimum rest between a team's games, in time slots (0 keeps round order)</label>
+    <input id="od-rest" type="number" min="0" max="6" value="0">
     <label for="od-double">Play everyone twice</label>
     <input id="od-double" type="checkbox">
     <button type="button" id="build-oneday">Build timetable</button>
@@ -755,11 +757,12 @@
           matchMinutes: Number($("#od-minutes").value),
           changeoverMinutes: Number($("#od-change").value || 0),
           double: $("#od-double").checked,
+          minRest: parseInt($("#od-rest").value, 10) || 0,
         });
       } catch (e) { out.textContent = e.message; return; }
       odOut = oneDayText(tt);
       $("#od-out").textContent = odOut;
-      out.textContent = `${tt.games} games in ${tt.slots.length} time slots on ${tt.courts} court${tt.courts === 1 ? "" : "s"}; the last game ends ${tt.finish}.`;
+      out.textContent = `${tt.games} games in ${tt.slots.length} time slots on ${tt.courts} court${tt.courts === 1 ? "" : "s"}; the last game ends ${tt.finish}.${tt.minRest ? ` Every team rests at least ${tt.restSlots} slot${tt.restSlots === 1 ? "" : "s"} between games${tt.slots.some((s) => !s.matches.length) ? "; empty slots are breaks" : ""}.` : ""}`;
       record("oneday_built");
     }));
     $("#dl-oneday").addEventListener("click", () => { if (odOut) download("one-day-timetable.txt", odOut, "text/plain"); });
