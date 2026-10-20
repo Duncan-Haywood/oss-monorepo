@@ -26,12 +26,12 @@ flagships:
     next: >-
       The official EN 16931 Schematron plus the XRechnung (UBL, CII) and Peppol
       BIS 3 (UBL and CII) add-ons run in Saxon-JS (opt-in, ?schematron=1, picked by
-      BT-24) and the Docker image bakes them in. Every rule id in every compiled
-      file (342 of them: BR, BR-CO, BR-CL, BR-DEC, the VAT categories, BR-DE,
-      PEPPOL) now has an English fix, and a test fails when a rebuild adds one
-      without it. Next: show the official findings on the web page (index.html,
-      needs a server or WASM path since Saxon-JS runs in Node here), then
-      examples that exercise the Peppol credit-note and XRechnung CII paths.
+      BT-24); the Docker image bakes them in; all 342 rule ids have an English
+      fix; and the web page has an "official Schematron" box that posts XML to
+      the self-hosted API and lists the findings (official.mjs). Next: a
+      WASM/in-browser path so the static Pages copy can run it too without a
+      server, then examples that exercise the Peppol credit-note and XRechnung
+      CII paths.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,

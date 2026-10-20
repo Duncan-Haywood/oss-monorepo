@@ -75,7 +75,7 @@ the base rules, and the defects file raises BR-CO-15, BR-CO-16, BR-CO-17, BR-S-0
 and BR-61. The bundled UBL example names XRechnung 3.0 and the XRechnung rules
 find what a German public buyer would reject: no seller contact (BR-DE-2) and no
 buyer post code (BR-DE-9). The Docker image builds the rules in a first stage and
-ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. The
+ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. On a self-hosted copy the web page has an "Also run the official EN 16931 Schematron" box: it posts the XML to the page's own `/v1/validate?schematron=1` (`official.mjs`) and lists the official findings beside the built-in ones; on a static host with no API it says the check did not run, never a pass. The
 XRechnung messages are in German, as the KoSIT rules publish them; the `fix` line
 is English. The XRechnung CII rules are built but not yet exercised by a test
 example.
