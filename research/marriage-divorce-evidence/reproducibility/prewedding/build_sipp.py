@@ -202,10 +202,9 @@ def main(work, do_refit):
     print(f'rows {len(out)}  events {int(out.event.sum())}  person-years {out.duration_years.sum():.1f}  '
           f'weighted events {np.dot(out.weight, out.event):.1f}')
     print('by survey:', m.groupby('source').agg(n=('pid', 'size'), events=('event', 'sum')).to_dict(orient='index'))
-    for c in COLUMNS:
-        if out[c].dtype == object and out[c].isin(['Unknown']).any() or c in ('wife_age', 'husband_age'):
-            share = out[c].isna().mean() if c.endswith('_age') else (out[c] == 'Unknown').mean()
-            print(f'  {c:24s} unknown/blank {100 * share:5.1f}%')
+    for c in COLUMNS[7:-1]:
+        share = out[c].isna().mean() if c.endswith('_age') else (out[c].astype(str) == 'Unknown').mean()
+        print(f'  {c:24s} unknown/blank {100 * share:5.1f}%')
     for c in ['wife_educ', 'husband_educ', 'wife_prior_children', 'husband_prior_children', 'wife_race', 'husband_race']:
         print(c, out[c].value_counts().to_dict())
     tm2 = (m.tm2 == 1).to_numpy()

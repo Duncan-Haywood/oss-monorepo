@@ -192,25 +192,6 @@ for r in m.itertuples(index=False):
     c1 = kids[0][i]
     nk = xr('NUMKID')[i]
     prior_kids = 'Yes' if r.premarital_birth == 'Yes' else ('No' if (np.isfinite(c1) and c1 >= w) or nk == 0 else 'Unknown')
-    # spouse education: only if dated before the wedding -- the partner co-resident at the
-    # pre-wedding interview, when that partner is evidently the spouse (opposite sex, the spouse is in
-    # the roster at the first post-wedding interview, and the two ages agree within a year).
-    sp_educ = 'Unknown'
-    if r.spouse_in_household == 'Yes' and r.cohabiting_before == 'Yes' and np.isfinite(r.spouse_age_at_marriage):
-        P = r.pre_round
-        cands = []
-        for s in SLOTS:
-            if col(P, f'HHI_FINAL_RELCODE.{s:02d}')[i] == 33:
-                g = col(P, f'HHI_FINAL_GENCODE.{s:02d}')[i]
-                if (r.sex == 'Man' and g == 2) or (r.sex == 'Woman' and g == 1):
-                    cands.append(s)
-        if len(cands) == 1:
-            s = cands[0]
-            age_p = col(P, f'HHI_FINAL_AGE.{s:02d}')[i]
-            gr = col(P, f'HHI_FINAL_GRADECODE.{s:02d}')[i]
-            if 14 <= age_p <= 99 and abs(age_p + (w - r.pre_round_month) / 12 - r.spouse_age_at_marriage) <= 1.0 and 0 <= gr <= 20:
-                sp_educ = band(gr)
-                audit['spouse_educ_from_prewedding_partner'] += 1
     own_age = r.age_at_marriage
     # partner's age at the wedding from the partner's birth month and year, asked of everyone who
     # married since the last interview, at the first interview after the wedding (whatever the
@@ -233,6 +214,25 @@ for r in m.itertuples(index=False):
         if np.isfinite(sp_roster):
             audit['partner_age_birth_date_vs_roster_abs_diff_le_1y'][0] += int(abs(sp_age - sp_roster) <= 1)
             audit['partner_age_birth_date_vs_roster_abs_diff_le_1y'][1] += 1
+    # spouse education: only if dated before the wedding -- the partner co-resident at the
+    # pre-wedding interview, when that partner is evidently the spouse (opposite sex, and the
+    # partner's roster age then agrees within a year with the spouse's age from the birth date).
+    sp_educ = 'Unknown'
+    if r.cohabiting_before == 'Yes' and np.isfinite(sp_age):
+        P = r.pre_round
+        cands = []
+        for s in SLOTS:
+            if col(P, f'HHI_FINAL_RELCODE.{s:02d}')[i] == 33:
+                g = col(P, f'HHI_FINAL_GENCODE.{s:02d}')[i]
+                if (r.sex == 'Man' and g == 2) or (r.sex == 'Woman' and g == 1):
+                    cands.append(s)
+        if len(cands) == 1:
+            s = cands[0]
+            age_p = col(P, f'HHI_FINAL_AGE.{s:02d}')[i]
+            gr = col(P, f'HHI_FINAL_GRADECODE.{s:02d}')[i]
+            if 14 <= age_p <= 99 and abs(age_p + (w - r.pre_round_month) / 12 - sp_age) <= 1.0 and 0 <= gr <= 20:
+                sp_educ = band(gr)
+                audit['spouse_educ_from_prewedding_partner'] += 1
     woman = r.sex == 'Woman'
     own_educ = band(r.grade_completed)
     fam = r.family_at_14
@@ -270,3 +270,12 @@ for c in COLS[6:]:
         print(f'  {c:24s} Unknown {100 * (d[c] == "Unknown").mean():5.1f}%   ', d[c].value_counts().to_dict())
     else:
         print(f'  {c:24s} blank   {100 * d[c].isna().mean():5.1f}%')
+# Missingness that tracks the outcome would leak through a model: compare partner fields'
+# known/unknown groups on the crude event rate and the share ending within 2 years.
+woman = d.respondent_sex == 'Woman'
+for name, unknown in [('partner age blank', np.isnan(np.where(woman, d.husband_age, d.wife_age))),
+                      ('partner educ Unknown', np.where(woman, d.husband_educ, d.wife_educ) == 'Unknown')]:
+    for flag in (True, False):
+        s = unknown == flag
+        print(f'  {name}={flag}: n={s.sum()} events/yr={d.event[s].sum() / d.duration_years[s].sum():.4f} '
+              f'ended<2y={((d.duration_years < 2) & (d.event == 1))[s].mean():.3f}')
