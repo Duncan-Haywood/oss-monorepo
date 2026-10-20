@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01W3hwXjeV8mmBrfaxXXPTyx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T16:18:05Z",
+  "ended": "2026-10-20T16:21:10Z",
+  "wall_minutes": 3.26,
+  "tokens_in": 1323663,
+  "tokens_out": 15168,
+  "cost_usd": 0.6656,
+  "tool_calls": 19,
+  "task": "free-choice",
+  "projects": [
+    "free-retunegain"
+  ],
+  "pr": 8874,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Says 'nineteen tracks' and routes via PROJECTS.md; fine. No friction found beyond long reading list."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Free-choice draw (0.038). Follow-up to free-jittertwin next step. Local checks: 6 unittest OK, research/_homepage/build.py ok, research_live_links ok, check_md_links ok. Cloud session; CI not waited on beyond local checks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "61732d12-d0b1-527c-8343-8264532c076d",
+    "transcripts": 1,
+    "first": "2026-10-20T16:18:05Z",
+    "last": "2026-10-20T16:21:21Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 17,
+        "input": 34,
+        "output": 15168,
+        "thinking": 3115,
+        "cache_read": 1258068,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65561,
+        "api_equivalent_usd": 0.6656,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 17,
+      "input": 34,
+      "output": 15168,
+      "thinking": 3115,
+      "cache_read": 1258068,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65561,
+      "api_equivalent_usd": 0.6656,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.95,
+    "tool_calls": 19,
+    "tools": {
+      "Bash": 15,
+      "Read": 1,
+      "mcp__github__search_pull_requests": 1,
+      "bash": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.26,
+      "active_minutes": 3.26,
+      "model_minutes": 2.6,
+      "tool_minutes": 0.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "stability derivation, code, tests, write-up for a small stylised study",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 901.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
