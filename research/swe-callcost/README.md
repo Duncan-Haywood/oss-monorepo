@@ -28,7 +28,7 @@ All numbers are from `experiments/results.txt` (882 of 1,638 records in `prompts
 
 ## Next steps
 
-Split `tokens_in` into cache reads and fresh input, if the record keeps them, to test the context-re-read explanation of the slope above 1; check how `tool_calls` treats subagents.
+Done in [`swe-cachecost`](../swe-cachecost): the records do keep cache reads, and a starting context re-read on every request explains the slope above 1. Still open: how `tool_calls` treats subagents.
 
 ## Owner steps
 
