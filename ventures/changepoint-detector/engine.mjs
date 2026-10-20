@@ -86,7 +86,8 @@ export const DEFAULTS = {
   // the detrended series is subtracted before detection ('mean' and 'meanvar').
   period: 0,
   // true: widen the noise scale of the 'mean' model for lag-1 autocorrelation
-  // so a drifting, sticky series is not cut into many false segments.
+  // so a drifting, sticky series is not cut into many false segments. 'joint': fit the
+  // segment means and rho together on the exact AR(1) likelihood (more power on small shifts).
   ar1: false,
 };
 
@@ -152,6 +153,37 @@ export function longRunSd(sd, rho) {
  */
 export function prewhiten(x, rho) {
   return x.map((v, t) => (t ? v - rho * x[t - 1] : (1 - rho) * v));
+}
+
+/**
+ * Joint mean-plus-AR(1) fit: PELT on the exact AR(1) likelihood ('ar1mean'), then rho and the
+ * innovation sd are re-estimated from the residuals about the fitted segment means (which a level
+ * shift no longer pollutes) and PELT is run again, three passes in all.
+ * Returns { changepoints, rho, sigma (innovation sd), penalty }.
+ */
+export function ar1JointFit(x, { penalty = 'bic', minSegment = 2, passes = 3 } = {}) {
+  let rho = ar1Rho(x);
+  let sigma = robustSd(x) * Math.sqrt(1 + rho);
+  let p;
+  for (let it = 0; it < passes; it++) {
+    p = pelt(x, { model: 'ar1mean', penalty, minSegment, sigma, rho });
+    if (it === passes - 1) break;
+    const b = [0, ...p.changepoints, x.length];
+    const res = new Array(x.length);
+    for (let k = 0; k + 1 < b.length; k++) {
+      let m = 0;
+      for (let i = b[k]; i < b[k + 1]; i++) m += x[i];
+      m /= b[k + 1] - b[k];
+      for (let i = b[k]; i < b[k + 1]; i++) res[i] = x[i] - m;
+    }
+    let num = 0, den = 0;
+    for (let i = 1; i < x.length; i++) { num += res[i] * res[i - 1]; den += res[i - 1] ** 2; }
+    rho = den > 0 ? Math.max(0, Math.min(0.95, num / den)) : 0;
+    let ss = 0;
+    for (let i = 1; i < x.length; i++) ss += (res[i] - rho * res[i - 1]) ** 2;
+    sigma = Math.sqrt(ss / (x.length - 1)) || sigma;
+  }
+  return { ...p, rho, sigma };
 }
 
 // ---------------------------------------------------------------- input
@@ -269,7 +301,7 @@ export { lgamma };
  * Segment cost function over prefix sums. cost(s, t) is -2 log-likelihood of
  * x[s..t) under the model, maximised over the segment's parameters.
  */
-export function makeCost(x, model = 'mean', sigma = robustSd(x)) {
+export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0) {
   const n = x.length;
   const S1 = new Float64Array(n + 1);
   const S2 = new Float64Array(n + 1);
@@ -281,6 +313,26 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x)) {
       const m = t - s;
       const a = S1[t] - S1[s];
       return Math.max(0, S2[t] - S2[s] - (a * a) / m) / s2;
+    };
+  }
+  if (model === 'ar1mean') {
+    // Segment means with AR(1) noise of known rho and innovation sd sigma, conditional on
+    // the segment start being a stationary draw: u[i] = x[i] - rho x[i-1] has mean (1-rho) mu,
+    // x[s] has precision weight 1-rho^2. Minimising over mu is a quadratic with prefix sums.
+    const U1 = new Float64Array(n + 1);
+    const U2 = new Float64Array(n + 1);
+    for (let i = 0; i < n; i++) {
+      const u = i ? x[i] - rho * x[i - 1] : 0;
+      U1[i + 1] = U1[i] + u; U2[i + 1] = U2[i] + u * u;
+    }
+    const c = 1 - rho, w0 = 1 - rho * rho, s2 = sigma * sigma;
+    return (s, t) => {
+      const m = t - s;
+      const su = U1[t] - U1[s + 1], suu = U2[t] - U2[s + 1];
+      const A = w0 + (m - 1) * c * c;
+      const B = w0 * x[s] + c * su;
+      const C = w0 * x[s] * x[s] + suu;
+      return Math.max(0, C - (B * B) / A) / s2 - Math.log(w0);
     };
   }
   if (model === 'meanvar') {
@@ -322,11 +374,11 @@ export function penaltyValue(penalty, n, model) {
  * PELT. Returns change locations as indices i where a new segment starts at
  * x[i] (so 0 < i < n), sorted, plus the optimal total cost.
  */
-export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma } = {}) {
+export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma, rho = 0 } = {}) {
   const n = x.length;
   const beta = penaltyValue(penalty, n, model);
   const minSeg = Math.max(1, Math.floor(minSegment));
-  const cost = makeCost(x, model, sigma ?? robustSd(x));
+  const cost = makeCost(x, model, sigma ?? robustSd(x), rho);
   if (n < 2 * minSeg) return { changepoints: [], cost: n ? cost(0, n) : 0, penalty: beta };
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
@@ -357,10 +409,10 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
 }
 
 /** O(n^2) optimal partitioning with no pruning: the reference PELT must match (tests). */
-export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma } = {}) {
+export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma, rho = 0 } = {}) {
   const n = x.length;
   const beta = penaltyValue(penalty, n, model);
-  const cost = makeCost(x, model, sigma ?? robustSd(x));
+  const cost = makeCost(x, model, sigma ?? robustSd(x), rho);
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
   F[0] = -beta;
@@ -579,13 +631,18 @@ export function analyze(input = {}) {
   }
   let sigma = robustSd(values);
   let rho = null;
+  const joint = o.ar1 === 'joint';
   if (o.ar1) {
     if (model !== 'mean') throw new Error('The autocorrelation correction is for the "mean" model only.');
     rho = ar1Rho(values);
-    sigma = longRunSd(sigma, rho);
+    if (!joint) sigma = longRunSd(sigma, rho);
   }
   const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2)));
-  const p = pelt(values, { model, penalty: o.penalty, minSegment, sigma });
+  let p;
+  if (joint) {
+    p = ar1JointFit(values, { penalty: o.penalty, minSegment });
+    ({ rho, sigma } = p);
+  } else p = pelt(values, { model, penalty: o.penalty, minSegment, sigma });
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   for (let i = 0; i + 1 < bounds.length; i++) {
@@ -606,7 +663,7 @@ export function analyze(input = {}) {
       meanBefore: before.mean,
       meanAfter: after.mean,
       shift: round(after.mean - before.mean),
-      shiftInNoiseSd: round((after.mean - before.mean) / sigma, 3),
+      shiftInNoiseSd: round((after.mean - before.mean) / (joint ? longRunSd(sigma / Math.sqrt(1 + rho), rho) : sigma), 3),
       sdBefore: before.sd,
       sdAfter: after.sd,
       bocpdProbWithin3: round(near, 3),
