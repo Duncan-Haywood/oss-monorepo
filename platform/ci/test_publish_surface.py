@@ -477,7 +477,7 @@ metadata:
   name: prod
 spec:
   source:
-    repoURL: https://github.com/Duncan-Haywood/oss-monorepo.git
+    repoURL: https://github.com/Duncan-Haywood/monorepo-projects.git
     targetRevision: main
     path: gitops/prod
   syncPolicy:
@@ -662,8 +662,8 @@ class DeadEndRedirects(unittest.TestCase):
 class GitOpsRemoteMatching(unittest.TestCase):
     def test_the_repository_matches_however_the_url_is_spelled(self):
         for url in (
-            "https://github.com/Duncan-Haywood/oss-monorepo.git",
-            "https://github.com/Duncan-Haywood/oss-monorepo",
+            "https://github.com/Duncan-Haywood/monorepo-projects.git",
+            "https://github.com/duncan-haywood/monorepo-projects",
             "git@github.com:Duncan-Haywood/monorepo-projects.git",
         ):
             self.assertEqual(ps._normalise_remote(url), ps.REPO_REMOTE, url)
