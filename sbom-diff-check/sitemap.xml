@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/vs-cyclonedx-cli-diff.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/vs-diffing-the-raw-json-files.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/why-did-one-version-bump-show-up-as-dozens-of-changes.html</loc></url>
+</urlset>

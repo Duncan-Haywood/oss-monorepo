@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Standard Mileage Rate vs Actual Expenses for Gig Drivers: 2026 Tax Calculator</title>
+  <meta name="description" content="Free calculator for DoorDash, Uber, Lyft and Instacart drivers: compare the 2026 IRS standard mileage rate with actual car expenses…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/tax.html">
+  <meta property="og:title" content="Standard mileage vs actual expenses for gig drivers">
+  <meta property="og:description" content="Which car deduction leaves less tax, and what to pay each quarter. Nothing leaves your browser.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I use the standard mileage rate or actual expenses as a DoorDash or Uber driver?", "acceptedAnswer": {"@type": "Answer", "text": "Whichever deducts more, as long as you are allowed to use it. The standard mileage rate deducts every business mile at one national figure (72.5 cents in 2026) and replaces gas, repairs, insurance and depreciation. Actual expenses deduct what the car really cost, times its business-use share. On this page's starting figures (a $40,000 year, 25,000 business miles, a 28 MPG car) the standard rate leaves about $5,379 of self-employment and income tax and actual expenses about $7,517, because 25,000 miles at 72.5 cents is far more than that car cost to run. A thirsty or expensive-to-own car can flip the answer. Ask a tax preparer before the first year you deduct a car: rules limit switching between the methods."}}, {"@type": "Question", "name": "How is self-employment tax calculated for gig drivers?", "acceptedAnswer": {"@type": "Answer", "text": "Self-employment tax is 15.3% (12.4% Social Security plus 2.9% Medicare) of 92.35% of your net profit, with the Social Security part capped at a yearly wage base ($184,500 for 2026, reduced by any W-2 wages). Net profit is your 1099 income minus your deductions, so a bigger car deduction lowers this tax as well as income tax. Half of it is then deductible when working out income tax. Profit under $400 owes none."}}, {"@type": "Question", "name": "How much should I pay in quarterly estimated taxes?", "acceptedAnswer": {"@type": "Answer", "text": "Quarterly payments roughly equal a quarter of the year's self-employment tax plus income tax. This page estimates both from your figures, using the marginal income-tax rate you type, and shows a quarterly amount for each deduction method. It is an estimate for planning, not a payment instruction: your filing status, other income, credits and state tax are not modelled."}}, {"@type": "Question", "name": "Why does the page let me edit the mileage rate?", "acceptedAnswer": {"@type": "Answer", "text": "The IRS sets the standard mileage rate each year and the Social Security wage base changes too, so both are boxes with the 2026 figures filled in. If you are working on a different year, type that year's figures."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 960px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.5; }
+    a { color: #1a5a8a; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1; letter-spacing: -.04em; margin: 0 0 12px; }
+    section { background: #fff; border: 1px solid #c4cedb; border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 18px; align-items: start; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8e9bab; border-radius: 7px; padding: 10px; font: inherit; }
+    .result { position: sticky; top: 15px; background: #12233a; color: #f2f6fa; border-color: #12233a; }
+    .result a { color: #9fd0ff; }
+    .hero { font-size: 2.6rem; font-weight: 750; letter-spacing: -.04em; margin: 6px 0; }
+    .result a { color: #9fd0ff; }
+    .verdict { padding: 12px; border-radius: 9px; font-weight: 650; background: #1d5a3a; }
+    .verdict.bad { background: #7d2317; }
+    .verdict.neutral { background: #ffffff1a; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 16px 0 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5967; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/tax.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Standard mileage vs actual expenses for gig drivers — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../gig-driver-net-pay-calculator/">Gig Driver Net Pay Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Standard mileage vs actual expenses for gig drivers</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <p><a href="./">&larr; Gig driver net pay calculator</a></p>
+  <h1>Standard mileage or actual expenses?</h1>
+  <p>At tax time a gig driver chooses how to deduct the car, and the choice moves both income tax and self-employment tax. Type your year and see what each method leaves you owing, the quarterly payment that implies, and the per-mile cost at which the two would tie. Rates are editable and start at the published 2026 figures.</p>
+  <main class="layout">
+    <section>
+      <h2>Your year</h2>
+      <div class="fields">
+          <label>Year's 1099 income, all apps incl. tips ($) <input id="grossIncome" type="number" min="0" step="100" value="40000" inputmode="numeric"></label>
+          <label>Business miles for the year <input id="businessMiles" type="number" min="0" step="100" value="25000" inputmode="numeric"></label>
+          <label>All miles the car drove (optional) <input id="totalMiles" type="number" min="0" step="100" value="" inputmode="numeric"></label>
+          <label>Miles per gallon <input id="mpg" type="number" min="0" step="0.1" value="28" inputmode="decimal"></label>
+          <label>Gas price ($/gal) <input id="gasPrice" type="number" min="0" step="0.01" value="3.49" inputmode="decimal"></label>
+          <label>Upkeep per mile ($) <input id="maintenancePerMile" type="number" min="0" step="0.01" value="0.07" inputmode="decimal"></label>
+          <label>Insurance for the year ($) <input id="insuranceAnnual" type="number" min="0" step="50" value="1800" inputmode="numeric"></label>
+          <label>Car depreciation or lease for the year ($) <input id="depreciationAnnual" type="number" min="0" step="100" value="3000" inputmode="numeric"></label>
+          <label>Parking and tolls ($) <input id="parkingTolls" type="number" min="0" step="10" value="0" inputmode="numeric"></label>
+          <label>Phone share, hot bag, supplies ($) <input id="otherDeductible" type="number" min="0" step="10" value="600" inputmode="numeric"></label>
+          <label>Standard mileage rate ($/mi) <input id="standardRate" type="number" min="0" step="0.005" value="0.725" inputmode="decimal"></label>
+          <label>Your marginal income-tax rate (%, 0 to skip) <input id="incomeTaxRatePercent" type="number" min="0" step="1" value="12" inputmode="numeric"></label>
+          <label>W-2 wages from another job ($) <input id="otherWages" type="number" min="0" step="100" value="0" inputmode="numeric"></label>
+          <label>Social Security wage base ($) <input id="socialSecurityWageBase" type="number" min="0" step="100" value="184500" inputmode="numeric"></label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Less tax with</h2>
+      <div id="hero" class="hero">&mdash;</div>
+      <div id="verdict" class="verdict neutral">Enter your year.</div>
+      <dl>
+        <dt>Car deduction, standard rate</dt><dd id="stdDed"></dd>
+        <dt>Car deduction, actual expenses</dt><dd id="actDed"></dd>
+        <dt>Net profit, standard / actual</dt><dd id="profit"></dd>
+        <dt>Self-employment tax, standard / actual</dt><dd id="se"></dd>
+        <dt>Total tax, standard rate</dt><dd id="stdTax"></dd>
+        <dt>Total tax, actual expenses</dt><dd id="actTax"></dd>
+        <dt>Quarterly payment, standard / actual</dt><dd id="qtr"></dd>
+        <dt>Your car's actual cost per business mile</dt><dd id="breakEven"></dd>
+      </dl>
+    </section>
+  </main>
+  <p>Back to a single shift: <a href="./">session net pay</a>, <a href="offer.html">is this order worth it?</a>, or <a href="how-much-should-i-set-aside-for-gig-driving-taxes.html">how much to set aside</a>. Income tax is applied only through the marginal rate you type; state tax, credits and the 0.9% additional Medicare tax are not modelled. A mileage log is what supports either method.</p>
+  <h2>Common questions</h2>
+  <h3>Should I use the standard mileage rate or actual expenses as a DoorDash or Uber driver?</h3>
+  <p>Whichever deducts more, as long as you are allowed to use it. The standard mileage rate deducts every business mile at one national figure (72.5 cents in 2026) and replaces gas, repairs, insurance and depreciation. Actual expenses deduct what the car really cost, times its business-use share. On this page's starting figures (a $40,000 year, 25,000 business miles, a 28 MPG car) the standard rate leaves about $5,379 of self-employment and income tax and actual expenses about $7,517, because 25,000 miles at 72.5 cents is far more than that car cost to run. A thirsty or expensive-to-own car can flip the answer. Ask a tax preparer before the first year you deduct a car: rules limit switching between the methods.</p>
+  <h3>How is self-employment tax calculated for gig drivers?</h3>
+  <p>Self-employment tax is 15.3% (12.4% Social Security plus 2.9% Medicare) of 92.35% of your net profit, with the Social Security part capped at a yearly wage base ($184,500 for 2026, reduced by any W-2 wages). Net profit is your 1099 income minus your deductions, so a bigger car deduction lowers this tax as well as income tax. Half of it is then deductible when working out income tax. Profit under $400 owes none.</p>
+  <h3>How much should I pay in quarterly estimated taxes?</h3>
+  <p>Quarterly payments roughly equal a quarter of the year's self-employment tax plus income tax. This page estimates both from your figures, using the marginal income-tax rate you type, and shows a quarterly amount for each deduction method. It is an estimate for planning, not a payment instruction: your filing status, other income, credits and state tax are not modelled.</p>
+  <h3>Why does the page let me edit the mileage rate?</h3>
+  <p>The IRS sets the standard mileage rate each year and the Social Security wage base changes too, so both are boxes with the 2026 figures filled in. If you are working on a different year, type that year's figures.</p>
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or legal advice, and it does not replace a qualified professional. It is arithmetic on the figures you type, not a claim about what any platform pays or what you should accept. <strong>You are responsible for checking its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Income, miles and every other figure stay on this device. Usage counts are anonymous local tallies of which feature was used, never include your numbers, and are off with Do Not Track / Global Privacy Control or the box above.</p>
+    <p>Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareDeductions } from './tax.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    const IDS = ["grossIncome", "businessMiles", "totalMiles", "mpg", "gasPrice", "maintenancePerMile", "insuranceAnnual", "depreciationAnnual", "parkingTolls", "otherDeductible", "standardRate", "incomeTaxRatePercent", "otherWages", "socialSecurityWageBase"];
+    const el = id => document.getElementById(id);
+    const usd = v => (v < 0 ? '-' : '') + '$' + Math.round(Math.abs(v)).toLocaleString('en-US');
+    let counted = false;
+    function update() {
+      let r;
+      try { r = compareDeductions(Object.fromEntries(IDS.map(id => [id, el(id).value]))); }
+      catch (e) { el('hero').textContent = '\u2014'; el('verdict').className = 'verdict bad'; el('verdict').textContent = e.message; return; }
+      const name = { standard: 'Standard rate', actual: 'Actual expenses', tie: 'Either' }[r.better];
+      el('hero').textContent = name;
+      el('verdict').className = 'verdict' + (r.better === 'tie' ? ' neutral' : '');
+      el('verdict').textContent = r.better === 'tie' ? 'Both methods leave the same tax.' : `Saves about ${usd(r.taxDifference)} a year in tax.`;
+      el('stdDed').textContent = usd(r.standard.deduction);
+      el('actDed').textContent = usd(r.actual.deduction);
+      el('profit').textContent = `${usd(r.standard.netProfit)} / ${usd(r.actual.netProfit)}`;
+      el('se').textContent = `${usd(r.standard.se.total)} / ${usd(r.actual.se.total)}`;
+      el('stdTax').textContent = usd(r.standard.totalTax);
+      el('actTax').textContent = usd(r.actual.totalTax);
+      el('qtr').textContent = `${usd(r.standard.quarterly)} / ${usd(r.actual.quarterly)}`;
+      el('breakEven').textContent = r.breakEvenPerMile === null ? 'n/a' : '$' + r.breakEvenPerMile.toFixed(3) + '/mi';
+      if (!counted) { counted = true; try { recordUsage(localStorage, el('usageOptOut').checked, 'tax_compared'); } catch {} }
+    }
+    IDS.forEach(id => el(id).addEventListener('input', update));
+    try { el('usageOptOut').checked = readOptOut(localStorage); } catch {}
+    el('usageOptOut').addEventListener('change', () => { try { writeOptOut(localStorage, el('usageOptOut').checked); } catch {} });
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../clergy-housing-allowance-calculator/" data-pf-to="clergy-housing-allowance-calculator">Clergy Housing Allowance Calculator — free, private</a></li>
+      <li><a href="../contract-vs-fte-rate-calculator/" data-pf-to="contract-vs-fte-rate-calculator">What hourly rate matches your salary offer? Free contract vs. W-2 calculator</a></li>
+      <li><a href="../covered-call-wheel-calculator/" data-pf-to="covered-call-wheel-calculator">Covered call and wheel calculator: rank every strike</a></li>
+      <li><a href="../craft-fair-booth-calculator/" data-pf-to="craft-fair-booth-calculator">Craft Fair Booth Calculator — Is This Market Worth Taking?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=gig-driver-net-pay-calculator">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=gig-driver-net-pay-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="gig-driver-net-pay-calculator"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="gig-driver-net-pay-calculator" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="gig-driver-net-pay-calculator" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 400" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="white"/>
+<text x="60" y="22" font-size="14" font-weight="bold">MAUVE (low = far from human) against n-gram detector AUROC</text>
+<line x1="60" x2="540" y1="345.0" y2="345.0" stroke="#ddd"/><text x="52" y="349.0" text-anchor="end">0.00</text>
+<line x1="60" x2="540" y1="268.8" y2="268.8" stroke="#ddd"/><text x="52" y="272.8" text-anchor="end">0.25</text>
+<line x1="60" x2="540" y1="192.5" y2="192.5" stroke="#ddd"/><text x="52" y="196.5" text-anchor="end">0.50</text>
+<line x1="60" x2="540" y1="116.2" y2="116.2" stroke="#ddd"/><text x="52" y="120.2" text-anchor="end">0.75</text>
+<line x1="60" x2="540" y1="40.0" y2="40.0" stroke="#ddd"/><text x="52" y="44.0" text-anchor="end">1.00</text>
+<text x="60.0" y="361" text-anchor="middle">0.80</text>
+<text x="180.0" y="361" text-anchor="middle">0.85</text>
+<text x="300.0" y="361" text-anchor="middle">0.90</text>
+<text x="420.0" y="361" text-anchor="middle">0.95</text>
+<text x="540.0" y="361" text-anchor="middle">1.00</text>
+<text x="300" y="379" text-anchor="middle">detector AUROC (2-fold cross-fit, same texts)</text>
+<circle cx="461.0" cy="280.9" r="5" fill="#1b6ca8" fill-opacity="0.8"><title>abstracts/llama-chat</title></circle>
+<circle cx="428.2" cy="283.8" r="5" fill="#c0502a" fill-opacity="0.8"><title>abstracts/mistral-chat</title></circle>
+<circle cx="539.6" cy="339.6" r="5" fill="#1b6ca8" fill-opacity="0.8"><title>books/llama-chat</title></circle>
+<circle cx="534.0" cy="335.8" r="5" fill="#c0502a" fill-opacity="0.8"><title>books/mistral-chat</title></circle>
+<circle cx="472.2" cy="116.6" r="5" fill="#1b6ca8" fill-opacity="0.8"><title>news/llama-chat</title></circle>
+<circle cx="444.7" cy="149.9" r="5" fill="#c0502a" fill-opacity="0.8"><title>news/mistral-chat</title></circle>
+<circle cx="519.4" cy="317.2" r="5" fill="#1b6ca8" fill-opacity="0.8"><title>poetry/llama-chat</title></circle>
+<circle cx="527.4" cy="303.5" r="5" fill="#c0502a" fill-opacity="0.8"><title>poetry/mistral-chat</title></circle>
+<circle cx="470.6" cy="309.3" r="5" fill="#4a8f3c" fill-opacity="0.8"><title>poetry/mpt-chat</title></circle>
+<circle cx="536.7" cy="246.2" r="5" fill="#1b6ca8" fill-opacity="0.8"><title>recipes/llama-chat</title></circle>
+<circle cx="538.7" cy="245.9" r="5" fill="#c0502a" fill-opacity="0.8"><title>recipes/mistral-chat</title></circle>
+<circle cx="515.2" cy="156.9" r="5" fill="#4a8f3c" fill-opacity="0.8"><title>recipes/mpt-chat</title></circle>
+<circle cx="523.8" cy="279.2" r="5" fill="#1b6ca8" fill-opacity="0.8"><title>reddit/llama-chat</title></circle>
+<circle cx="410.5" cy="210.4" r="5" fill="#c0502a" fill-opacity="0.8"><title>reddit/mistral-chat</title></circle>
+<circle cx="484.2" cy="268.6" r="5" fill="#4a8f3c" fill-opacity="0.8"><title>reddit/mpt-chat</title></circle>
+<circle cx="535.2" cy="338.9" r="5" fill="#1b6ca8" fill-opacity="0.8"><title>reviews/llama-chat</title></circle>
+<circle cx="535.0" cy="342.3" r="5" fill="#c0502a" fill-opacity="0.8"><title>reviews/mistral-chat</title></circle>
+<circle cx="520.4" cy="336.0" r="5" fill="#4a8f3c" fill-opacity="0.8"><title>reviews/mpt-chat</title></circle>
+<circle cx="390.0" cy="151.0" r="5" fill="#1b6ca8" fill-opacity="0.8"><title>wiki/llama-chat</title></circle>
+<circle cx="136.5" cy="92.0" r="5" fill="#c0502a" fill-opacity="0.8"><title>wiki/mistral-chat</title></circle>
+<text x="143.5" y="96.0" font-size="10">wiki</text>
+<text x="546.6" y="343.6" font-size="10">books</text>
+<text x="543.7" y="250.2" font-size="10">recipes</text>
+<text x="479.2" y="120.6" font-size="10">news</text>
+<circle cx="70" cy="392" r="5" fill="#1b6ca8"/><text x="80" y="396">llama-chat</text>
+<circle cx="190" cy="392" r="5" fill="#c0502a"/><text x="200" y="396">mistral-chat</text>
+<circle cx="310" cy="392" r="5" fill="#4a8f3c"/><text x="320" y="396">mpt-chat</text>
+</svg>

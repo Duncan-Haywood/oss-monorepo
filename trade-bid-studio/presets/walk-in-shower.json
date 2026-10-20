@@ -1,0 +1,65 @@
+{
+  "slug": "walk-in-shower-bid-calculator",
+  "name": "Walk-in shower",
+  "group": "Interior & finishes",
+  "summary": "Tiled shower conversions priced from tile area, waterproofing, tub tear-out, niches, glass and fixtures.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 3,
+  "hourlyWage": 38,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "tripFee": 285,
+  "items": [
+    {
+      "label": "Waterproof and tile walls and floor",
+      "unit": "sq ft",
+      "qty": 95,
+      "hoursPerUnit": 0.215,
+      "materialPerUnit": 11.46,
+      "source": "80 wall + 15 floor sq ft (index.html); hoursPer100Tile 18 + hoursWaterproofPer100 3.5, per 100; tile $8 x 1.12 waste + membrane $2.50 per sq ft"
+    },
+    {
+      "label": "Tear out tub / surround",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 4,
+      "materialPerUnit": 425,
+      "source": "tearOutTub checked, hoursDemoTub 4, dumpsterFee $425 (index.html defaults)"
+    },
+    {
+      "label": "Niche",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.6,
+      "materialPerUnit": 45,
+      "source": "niches 1, hoursPerNiche 1.6, nicheKitEach $45 (index.html defaults)"
+    },
+    {
+      "label": "Framed shower door",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 480,
+      "source": "glass 'framed' selected, glassCost $480 (index.html; GLASS_PRESETS); no separate hours in calculateBid"
+    },
+    {
+      "label": "Fixtures allowance",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 650,
+      "source": "fixturesAllowance $650 (index.html default)"
+    },
+    {
+      "label": "Permit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 175,
+      "source": "permitFee $175 (index.html default)"
+    }
+  ],
+  "specialistModels": "Curbless slope, linear drain, valve relocation, steam unit, bench and glass presets, and an owner-supplied-tile comparison with callback trip and fill-in buy."
+}

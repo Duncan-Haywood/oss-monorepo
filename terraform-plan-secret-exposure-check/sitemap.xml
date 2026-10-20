@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/vs-checkov.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/vs-gitleaks.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/vs-manually-reading-the-plan-json.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/why-terraform-plan-json-leaks-secrets.html</loc></url>
+</urlset>

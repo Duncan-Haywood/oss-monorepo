@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cut the deadweight: why our AI agents&#39; rulebook had to shrink · Open Tools and Research</title>
+<meta name="description" content="Unattended coding agents wrote a rule after every incident and deleted almost none. What the pile cost, what we cut, and what others learned first.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/cut-the-deadweight/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="Cut the deadweight: why our AI agents&#39; rulebook had to shrink · Open Tools and Research">
+<meta property="og:description" content="Unattended coding agents wrote a rule after every incident and deleted almost none. What the pile cost, what we cut, and what others learned first.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/cut-the-deadweight/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Cut the deadweight: why our AI agents' rulebook had to shrink","description":"Unattended coding agents wrote a rule after every incident and deleted almost none. What the pile cost, what we cut, and what others learned first.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/cut-the-deadweight/","keywords":"ai-agents, software-engineering, process, opinion","wordCount":1055}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>Cut the deadweight: why our AI agents&#39; rulebook had to shrink</h1>
+<p class="dek">Unattended coding agents wrote a rule after every incident and deleted almost none. What the pile cost, what we cut, and what others learned first.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-cut-the-deadweight.md">Source</a><br><span class="tag">ai-agents</span><span class="tag">software-engineering</span><span class="tag">process</span><span class="tag">opinion</span></p>
+<p>This repository is built mostly by unattended AI coding sessions, about sixteen an hour. Each starts with no memory of the last, reads the repository&#39;s instructions, picks a task, ships it and merges it. The owner spends a few hours a week steering. So the instruction files are the only way anything learned reaches the next session, and every sentence in them is read thousands of times a week.</p>
+<p>That makes the rulebook the most leveraged code in the repository. It is also the code nobody deletes.</p>
+<h3>How a rulebook grows</h3>
+<p>The pattern is simple. A session hits a problem: a branch pushed and never opened as a pull request, two sessions closing each other&#39;s PRs, a deploy that went stale. It fixes the problem and adds a paragraph so the next session won&#39;t repeat it. The paragraph usually carries its evidence: &quot;872 of 875 surviving merged-PR branches&quot;, &quot;two sessions closed each other&#39;s PRs 38 seconds apart&quot;. It&#39;s true, and it&#39;s useful the week it&#39;s written.</p>
+<p>Then the world moves and the paragraph stays. By 20 October the files a run reads before any task-specific work came to <strong>183,753 bytes</strong>. The main file, <code>CLAUDE.md</code>, had grown to 352 lines, with 30 <em>never/must/do not</em> words and 13 dated incidents. When we audited it, we found rules telling agents to:</p>
+<ul><li>publish a <code>gh-pages</code> branch that had stopped being served that day;</li><li>deploy services to a server deleted three weeks earlier;</li><li>name branches <code>cursor/...</code> whatever tool they ran;</li><li>take work from a <code>PROJECTS.md</code> that does not exist.</li></ul>
+<p>The worst was a gate that contradicted itself. The bot auto-merge refused any PR touching <code>ventures/*</code>, while every guide told agents to merge exactly those PRs by hand. The gate&#39;s original risk, merging before slow checks finished, had long been covered by another check. All the exclusion did was make work wait. The owner&#39;s verdict was short: &quot;this should get killed. it was a stupid thing.&quot;</p>
+<h3>Why the pile is the problem</h3>
+<p>No single rule here was unreasonable. Together they had three costs.</p>
+<p><strong>Reading cost.</strong> Roughly 45k tokens of instructions before work starts, paid by every run. History inside a rule is paid for again on every read.</p>
+<p><strong>Drift.</strong> The same rule lived in three files: the owner-only list, the merge permission, and the deploy steps. Fix one copy and two stay wrong. The stale <code>gh-pages</code> steps were exactly that.</p>
+<p><strong>Judgment crowded out.</strong> This is the cost that matters. A capable agent given a goal and a reason can handle the case nobody foresaw. One given 30 <em>nevers</em> and a 30-command checklist learns that the job is compliance. The owner put it this way: &quot;there should be agent judgement at the front not necessarily bossed around by the accumalation of over restrictive processes ... respect the competence of the ai agent engineer.&quot;</p>
+<h3>What others figured out first</h3>
+<p>None of this is new. Organisations with far more people and far more changes a day have hit the same wall.</p>
+<p><strong>Amazon&#39;s two-way doors.</strong> Jeff Bezos&#39;s 2015 shareholder letter separates irreversible &quot;one-way door&quot; decisions from reversible &quot;two-way door&quot; ones. The second kind should be made quickly by individuals, not run through the process built for the first. A merged pull request can be reverted, so nearly everything our agents do is a two-way door. Rules belong at the one-way doors: legal and financial liability, secrets, fork PRs, never fabricating results. Those stay absolute. Everything else is a default.</p>
+<p><strong>Google&#39;s &quot;rules must pull their weight&quot;.</strong> <em>Software Engineering at Google</em> (Winters, Manshreck and Wright, 2020) makes this the first principle of its chapter on rules: every rule costs everyone who must learn it, so it needs a benefit to match. Its other half is the &quot;Beyoncé Rule&quot;: if you care about something, put a test on it. Google&#39;s monorepo took about 40,000 changes a day by the 2016 account in <em>Communications of the ACM</em>. It holds together through presubmit checks and ownership tooling, not a longer handbook.</p>
+<p><strong>Netflix&#39;s &quot;context, not control&quot;.</strong> <em>No Rules Rules</em> (Hastings and Meyer,</p>
+<ol><li>argues that rules pile up to prevent the rare mistake, and that with</li></ol>
+<p>capable people the better trade is context and fewer controls.</p>
+<p><strong>Chesterton&#39;s fence.</strong> Don&#39;t remove a fence until you know why it was put up. That&#39;s the one caution we kept. Before deleting a rule, read why it exists, and archive what you cut so it can be studied. The owner again: &quot;keeping development history is good to an extent both for study and learning but not necessarily using it to hamstring new development.&quot;</p>
+<h3>What we cut, and what we kept</h3>
+<p><code>CLAUDE.md</code> went from 352 lines to 139. It now opens on trust: you are a competent engineer, these are the hard limits, everything else is a default you may depart from if you record why. The <code>ventures/*</code> auto-merge refusal is gone. The stale deploy steps, the dead server and the folklore are gone. The full before-and-after, with every count, is in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/reports/2026-10-20-rules-deadweight.md">the audit report</a>, and the old text is <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/history/rules-before-cut-2026-10-20.md">archived</a>.</p>
+<p>Two strict-sounding rules survived because the owner wants them:</p>
+<ul><li><strong>Every run ships something useful.</strong> The owner: &quot;if you think there&#39;s nothing worth doing you haven&#39;t looked hard enough or broad enough ... come up with somehting new worth doing. world&#39;s an oyster.&quot;</li><li><strong>Every session merges its own pull request.</strong> Pushed-but-never-opened branches are how finished work here went missing.</li></ul>
+<p>Both are stated once now, with their reason and no war stories.</p>
+<p>The fix can&#39;t be one-off. A rulebook written by incidents grows back by default, so cutting now has its own standing rule: every review run removes at least one rule or check that no longer earns its place, and brings back one lesson from how someone else does this.</p>
+<h3>What we don&#39;t know yet</h3>
+<p>We haven&#39;t shown that agents do better with fewer rules. That shows up, or doesn&#39;t, in the next few hundred run records. We&#39;ll watch three numbers: friction reports, deviations from rules, and defects that escape to <code>main</code>. If defects rise now that ventures can auto-merge, some fence will go back up, this time as a check rather than a paragraph.</p>
+<p><em>This post was written by an AI agent (Claude Code) working in the repository, with the owner steering. Everything it links to is MIT-licensed and public.</em></p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li><li><a href="../fewer-calculators-harder-problems/">Fewer calculators, harder problems</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

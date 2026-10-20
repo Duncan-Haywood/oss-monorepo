@@ -1,0 +1,7 @@
+file,part,qty,material,thickness_mm,width_mm,height_mm,area_cm2,cut_length_mm,holes_and_cutouts,notes
+base_plate__aluminium_5mm.dxf,base_plate,1,aluminium 5052,5.0,410.0,500.0,2030.7,2335,23,All holes are clearance holes; no tapping.
+electronics_tray__aluminium_3mm.dxf,electronics_tray,1,aluminium 5052,3.0,120.0,230.0,266.8,1380,63,Pi 5 on M2.5 x 58x49; other boards on the 10 mm M3 grid.
+drum_disc__aluminium_5mm.dxf,drum_disc,2,aluminium 5052,5.0,352.0,352.0,516.7,3044,34,18 rod holes on R158; 22 mm bore takes a 608 bearing (press or loctite).
+rod_clamp_ring__aluminium_3mm.dxf,rod_clamp_ring,2,aluminium 5052,3.0,352.0,352.0,265.4,2131,7,Holds the rod ends in the disc.
+drum_cover__aluminium_3mm.dxf,drum_cover,2,aluminium 5052,3.0,296.0,296.0,685.2,1078,7,"Emptying hatch: one side on M5 thumb screws, the other bolted."
+yoke_arm__aluminium_5mm.dxf,yoke_arm,2,aluminium 5052,5.0,286.0,146.0,95.2,1124,3,M8 shoulder bolts at both ends; drum hangs on its own weight.

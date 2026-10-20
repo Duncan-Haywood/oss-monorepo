@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publishing to 18 platforms from one tool: what their APIs allow in 2026 · Open Tools and Research</title>
+<meta name="description" content="We built one publisher for 18 platforms. Four allow free automated posting, eight only get drafts, and nothing can rank until visits are counted.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/one-tool-for-every-platform-what-the-apis-allow/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="Publishing to 18 platforms from one tool: what their APIs allow in 2026 · Open Tools and Research">
+<meta property="og:description" content="We built one publisher for 18 platforms. Four allow free automated posting, eight only get drafts, and nothing can rank until visits are counted.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/one-tool-for-every-platform-what-the-apis-allow/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Publishing to 18 platforms from one tool: what their APIs allow in 2026","description":"We built one publisher for 18 platforms. Four allow free automated posting, eight only get drafts, and nothing can rank until visits are counted.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/one-tool-for-every-platform-what-the-apis-allow/","keywords":"distribution, social-media, automation, open-source, ai-agents","wordCount":989}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>Publishing to 18 platforms from one tool: what their APIs allow in 2026</h1>
+<p class="dek">We built one publisher for 18 platforms. Four allow free automated posting, eight only get drafts, and nothing can rank until visits are counted.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-one-tool-for-every-platform-what-the-apis-allow.md">Source</a><br><span class="tag">distribution</span><span class="tag">social-media</span><span class="tag">automation</span><span class="tag">open-source</span><span class="tag">ai-agents</span></p>
+<p>This repository ships about 1,300 free tools and a stream of research write-ups. A dry run on 20 October 2026 found 189 new items in its seven-day window: 184 tools and 5 posts. The owner asked for one tool that publishes to every platform where people&#39;s attention goes and measures which platforms work. This post covers what that tool does, what each platform actually permits, and what is still unknown.</p>
+<p><strong>Who did this.</strong> AI coding agents (Claude) working under the owner&#39;s direction, in one session. Nothing below has been posted to a live account yet, and no performance numbers exist. The interesting part is what the platforms permit.</p>
+<h3>One item, eighteen shapes</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/distribution/hub.mjs"><code>platform/distribution/hub.mjs</code></a> takes each new tool or post and writes one version per platform. Each version fits the platform&#39;s limits:</p>
+<ul><li>280 characters on X, 300 graphemes on Bluesky and 500 on Threads;</li><li>a caption without a clickable link on Instagram;</li><li>a 30-second script on TikTok and YouTube Shorts;</li><li>a &quot;Show HN&quot; title on Hacker News;</li><li>a weekly digest by email.</li></ul>
+<p>Every version uses only the item&#39;s own title and description, so it cannot claim anything the page does not. Each version links back with a per-platform tag (<code>?ref=threads</code>, <code>?ref=x</code>, ...). The site&#39;s counter adds one per platform per day when someone follows that link, and records nothing about who it was.</p>
+<h3>What the platforms permit</h3>
+<p>We sorted the 18 platforms by one rule from the repository&#39;s distribution spec: automate only what is <strong>free</strong> and <strong>within the platform&#39;s terms</strong>.</p>
+<div class="scroll"><table><thead><tr><th>Mode</th><th>Count</th><th>Platforms</th></tr></thead><tbody><tr><td>Publish automatically (off until the owner switches it on)</td><td>4</td><td>Threads, Facebook Page, Instagram, email newsletter</td></tr><tr><td>Already automated by existing scripts</td><td>4</td><td>Bluesky, Mastodon, dev.to, Hashnode</td></tr><tr><td>Drafts for a person to post</td><td>8</td><td>X, LinkedIn, Substack, Medium, TikTok, YouTube, Reddit, Hacker News</td></tr><tr><td>Nothing to post (they find the site)</td><td>2</td><td>Search engines, AI assistants</td></tr></tbody></table></div>
+<p>The eight draft-only platforms are drafts for different reasons:</p>
+<ul><li><strong>X</strong> made pay-per-use the default for its API on 6 February 2026 and closed the free tier to new developers. Third-party trackers put a post containing a link at about $0.20 each. Our rule is that distribution costs nothing, so X gets drafts.</li><li><strong>TikTok</strong> limits unaudited apps to private posts (<code>SELF_ONLY</code>) from private accounts, and every post needs a video.</li><li><strong>YouTube</strong> also needs a video for every post, and uploads from unverified API projects stay private.</li><li><strong>Substack</strong> has no publishing API. Its 2026 developer API looks up profiles. The unofficial endpoints some tools use may break its terms.</li><li><strong>Medium</strong> no longer issues integration tokens. Its &quot;Import a story&quot; keeps the canonical link, so a person can still cross-post.</li><li><strong>LinkedIn</strong> lets a member post by API. Reading those posts back, which we need in order to avoid posting twice, requires partner-only access.</li><li><strong>Reddit and Hacker News</strong> forbid automated submissions.</li></ul>
+<p>Social media now splits into platforms you can automate cheaply (Meta&#39;s Threads, Facebook and Instagram APIs, Bluesky, Mastodon) and platforms where automation costs money or an audit. For a free project, the second group is where a person still has to post by hand.</p>
+<h3>Measuring what works, honestly</h3>
+<p>The scoreboard (<code>hub.mjs score</code>) combines two kinds of evidence and keeps them apart:</p>
+<ol><li><strong>Engagement per post</strong>, where the platform reports it:<ul><li>Bluesky and Mastodon expose likes, reposts and replies publicly;</li><li>Threads has an insights API with views;</li><li>Facebook and Instagram return reactions and comments;</li><li>dev.to returns page views.</li></ul></li><li><strong>Arrivals</strong>: page loads on our site that came through each platform&#39;s tagged link. This is the only number that shows a post sent someone to a tool.</li></ol>
+<p>Two safeguards keep early numbers from misleading:</p>
+<ul><li><strong>Shrinkage.</strong> A platform&#39;s rate per post is pulled toward the average by five pseudo-posts, so two lucky posts cannot outrank fifty steady ones.</li><li><strong>A floor.</strong> Nothing with fewer than five posts is ranked.</li></ul>
+<p>Short posts also rotate between a few honest wordings (&quot;New free tool: …&quot;, &quot;Free and open source: …&quot;). The pick is a hash of the item and the platform, so a re-run writes the same text. Each wording starts with a fixed marker, so the scoreboard can tell which one a post used and compare them within each platform.</p>
+<p><strong>Current state:</strong> no readings. Nothing has posted yet, and the site&#39;s counter is not deployed, so every arrival count reads &quot;unmeasured&quot;, never zero.</p>
+<h3>The same idea, for anyone building a brand</h3>
+<p>The second tool, <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/interview-content-studio">Interview Content Studio</a>, does this for a person or a business rather than for this repository:</p>
+<ol><li>It interviews you about your brand or topic. You can keep several interviews.</li><li>It sizes a posting plan for 14 platforms to the hours you actually have.</li><li>It lays the plan out as a four-week calendar.</li><li>It drafts every slot in that platform&#39;s format.</li></ol>
+<p>Without an API key, drafts are assembled only from your own answers. With your own key (Anthropic, OpenAI, Gemini, or a model on your own computer), drafts are rewritten by AI and then checked: a draft that introduces a number not in your interview is thrown away. It exports CSV for a scheduler and posts nothing itself. Its posting amounts are starting assumptions, and the page says so.</p>
+<h3>Limits</h3>
+<ul><li>No adapter has been exercised against a live account; the request shapes come from public documentation read on 20 October 2026.</li><li>No engagement or arrival numbers exist yet, so this post makes no claim about which platform works best. That is the next post, once there is data.</li><li>Platform rules change quickly. The tool records the date each fact was checked (<code>checked:</code> in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/distribution/hub/platforms.mjs"><code>hub/platforms.mjs</code></a>).</li></ul>
+<p>The full report and the next steps are in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/distribution/hub-report-2026-10-20.md"><code>portfolio/distribution/hub-report-2026-10-20.md</code></a>.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

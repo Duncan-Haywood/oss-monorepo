@@ -1,0 +1,56 @@
+{
+  "slug": "pergola-bid-calculator",
+  "name": "Pergola and patio cover",
+  "group": "Landscaping & outdoor",
+  "summary": "Pergolas priced from posts, beams, rafters, shade type, height and attached ledger.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2.5,
+  "hourlyWage": 32,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Set 8-ft posts on footings",
+      "unit": "post",
+      "qty": 4,
+      "hoursPerUnit": 1.6,
+      "materialPerUnit": 140,
+      "source": "10x10 freestanding at 8 ft spacing = 4 posts, 4 footings (index.html); 1.6 h/post; post $85 (suggestedHeightKit('8')) + footing $55 (index.html)"
+    },
+    {
+      "label": "Beams",
+      "unit": "linear ft",
+      "qty": 20,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 22,
+      "source": "Beam 20 lf; 0.12 h/lf; $22/lf (index.html defaults)"
+    },
+    {
+      "label": "Rafters, 24 in centers",
+      "unit": "each",
+      "qty": 6,
+      "hoursPerUnit": 0.25,
+      "materialPerUnit": 28,
+      "source": "6 rafters; 0.25 h and $28 each (index.html defaults); open frame, so no shade layer"
+    },
+    {
+      "label": "Hardware and hangers",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 350,
+      "source": "hardwareLump $350 (index.html default)"
+    },
+    {
+      "label": "Site / grade, travel, mobilization and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.1,
+      "materialPerUnit": 350,
+      "source": "Site/grade 0.6 h + travel 0.5 h; mobilization $225 + travel and equipment $125 (index.html). Trip/setup 2.5 h is setupHours"
+    }
+  ],
+  "specialistModels": "Post and rafter counts from spans, attached ledger vs freestanding, shade kits (lattice to louvered), post height, knee braces, fan circuit, demo and permit."
+}

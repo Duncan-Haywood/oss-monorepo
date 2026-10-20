@@ -1,0 +1,47 @@
+{
+  "slug": "pest-control-bid-calculator",
+  "name": "Pest control (recurring)",
+  "group": "Specialty & remediation",
+  "summary": "Recurring pest-control stops priced from spray minutes, bait stations, drive time and materials.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 20,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Exterior perimeter spray",
+      "unit": "visit",
+      "qty": 1,
+      "hoursPerUnit": 0.3,
+      "materialPerUnit": 4.5,
+      "source": "18 minutes, $4.50 material (index.html default row; SERVICE_PRESETS in calc.mjs)"
+    },
+    {
+      "label": "Interior crack and crevice",
+      "unit": "visit",
+      "qty": 1,
+      "hoursPerUnit": 0.3667,
+      "materialPerUnit": 3.25,
+      "source": "22 minutes, $3.25 material (index.html default row)"
+    },
+    {
+      "label": "Rodent bait station check",
+      "unit": "station",
+      "qty": 8,
+      "hoursPerUnit": 0.06667,
+      "materialPerUnit": 1.75,
+      "source": "8 stations at 4 minutes and $1.75 each (index.html default row)"
+    },
+    {
+      "label": "Drive and vehicle",
+      "unit": "visit",
+      "qty": 1,
+      "hoursPerUnit": 0.7333,
+      "materialPerUnit": 8,
+      "source": "22 min one way x 2 = 0.7333 h (oneWayMinutes, index.html); vehicle cost $8/visit (index.html). The specialist uses minutes, not miles"
+    }
+  ],
+  "specialistModels": "Separate initial-visit price (knockdown spray and 8 station installs), quarterly/monthly frequency with annual totals, and months to recover a waived initial."
+}

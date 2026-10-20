@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Open Tools and Research: changelog</title>
+  <subtitle>Every change merged into the repository: tools, research, website and platform.</subtitle>
+  <link href="https://duncan-haywood.github.io/monorepo-projects/changelog/"/>
+  <link rel="self" href="https://duncan-haywood.github.io/monorepo-projects/changelog/feed.xml"/>
+  <id>https://duncan-haywood.github.io/monorepo-projects/changelog/</id>
+  <updated>2026-10-20T00:00:00Z</updated>
+  <author><name>Open Tools and Research</name></author>
+  <entry>
+    <title>Platform &amp; process: Pages: deploy on every merge again; tests run beside the build, not before it</title>
+    <link href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8776"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8776</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="platform"/>
+    <summary>Pages: deploy on every merge again; tests run beside the build, not before it (pull request #8776)</summary>
+  </entry>
+  <entry>
+    <title>Research: process: P040 step 2, research README bullets generated from project.json ledes</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/qual-register/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8953</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>process: P040 step 2, research README bullets generated from project.json ledes (pull request #8953)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/house-liftnails: nail load path of a hung wall panel</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/house-liftnails/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8952</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/house-liftnails: nail load path of a hung wall panel (pull request #8952)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/accel-ttretrain: all 96 retrained KWS models fit the Tiny Tapeout tile&#39;s bias and accumulator limits</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/accel-ttfit/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8944</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/accel-ttretrain: all 96 retrained KWS models fit the Tiny Tapeout tile&#39;s bias and accumulator limits (pull request #8944)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/sensing-ghostedge: layered sub-pixel coverage model for the burst edge ring</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/sensing-ghostedge/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8951</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/sensing-ghostedge: layered sub-pixel coverage model for the burst edge ring (pull request #8951)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/osrobot-lint: stdlib static linter for Opentrons scripts (362 of 522 seeded faults vs 270 for the real simulator)</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/osrobot-lint/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8950</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/osrobot-lint: stdlib static linter for Opentrons scripts (362 of 522 seeded faults vs 270 for the real simulator) (pull request #8950)</summary>
+  </entry>
+  <entry>
+    <title>Tools: changepoint-detector: negative-binomial cost with --period and --trend</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8948</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>changepoint-detector: negative-binomial cost with --period and --trend (pull request #8948)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/hanger-split: two-piece printable hanger, bolted joint checked</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/hanger-split/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8947</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/hanger-split: two-piece printable hanger, bolted joint checked (pull request #8947)</summary>
+  </entry>
+  <entry>
+    <title>Tools: league-schedule-generator: page controls for venue fairness and season carry-over</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8946</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>league-schedule-generator: page controls for venue fairness and season carry-over (pull request #8946)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/hanger-cellpick: hanger-cell with the simulated hanger-pick picker</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/hanger-cell/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8945</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/hanger-cellpick: hanger-cell with the simulated hanger-pick picker (pull request #8945)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: Greece page phase 2 now 2 Nov 2026 (reported AADE A.1197/2026)</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8943</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: Greece page phase 2 now 2 Nov 2026 (reported AADE A.1197/2026) (pull request #8943)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: Bulgaria e-invoicing page (2028 draft, consultation to 23 Oct 2026)</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8942</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: Bulgaria e-invoicing page (2028 draft, consultation to 23 Oct 2026) (pull request #8942)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: Greece myDATA mandate page</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8941</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: Greece myDATA mandate page (pull request #8941)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/eda-deepdraw: 20,000-vector deep draw on the eda-verify survivors</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/eda-deepdraw/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8940</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/eda-deepdraw: 20,000-vector deep draw on the eda-verify survivors (pull request #8940)</summary>
+  </entry>
+  <entry>
+    <title>Platform &amp; process: P039: skip dead apex-mirror steps in Portfolio validate unless mirror/generator changed</title>
+    <link href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8850"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8850</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="platform"/>
+    <summary>P039: skip dead apex-mirror steps in Portfolio validate unless mirror/generator changed (pull request #8850)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/hanger-wrap: a second 3D cloth model, wrapped over the arm, cross-checking hanger-3d</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/hanger-wrap/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8936</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/hanger-wrap: a second 3D cloth model, wrapped over the arm, cross-checking hanger-3d (pull request #8936)</summary>
+  </entry>
+  <entry>
+    <title>Tools: changepoint-detector: negative-binomial PELT cost for independent clumpy counts</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8939</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>changepoint-detector: negative-binomial PELT cost for independent clumpy counts (pull request #8939)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/sensing-ghostring: explicit edge-ring treatments for burst merging (negative result)</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/sensing-ghostring/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8938</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/sensing-ghostring: explicit edge-ring treatments for burst merging (negative result) (pull request #8938)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/hanger-3d: 3D cloth drape of the hanger shoulder, checked against hanger-fit</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/hanger-3d/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8933</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/hanger-3d: 3D cloth drape of the hanger shoulder, checked against hanger-fit (pull request #8933)</summary>
+  </entry>
+  <entry>
+    <title>Tools: league-schedule-generator: venue fairness with multi-season carry-over</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8937</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>league-schedule-generator: venue fairness with multi-season carry-over (pull request #8937)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/osrobot-plate: 96-well plate fill, gantry vs arm, 1 vs 8 channels</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/osrobot-plate/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8935</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/osrobot-plate: 96-well plate fill, gantry vs arm, 1 vs 8 channels (pull request #8935)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/swe-warmstart: does a cheaper start fix the small-budget loss of smart track allocation?</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/swe-warmstart/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8934</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/swe-warmstart: does a cheaper start fix the small-budget loss of smart track allocation? (pull request #8934)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/free-intervalcov: which 95% upper bound on a failure rate actually covers 95%?</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/free-intervalcov/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8932</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/free-intervalcov: which 95% upper bound on a failure rate actually covers 95%? (pull request #8932)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: link every country mandate page to the Romania page</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8930</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: link every country mandate page to the Romania page (pull request #8930)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: Romania RO e-Factura mandate page</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8929</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: Romania RO e-Factura mandate page (pull request #8929)</summary>
+  </entry>
+  <entry>
+    <title>Tools: changepoint-detector: temper the Bayesian pass by the count dispersion</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8928</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>changepoint-detector: temper the Bayesian pass by the count dispersion (pull request #8928)</summary>
+  </entry>
+  <entry>
+    <title>Platform &amp; process: process: redteam prompt says to run slow campaigns in background and leave the target alone</title>
+    <link href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8927"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8927</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="platform"/>
+    <summary>process: redteam prompt says to run slow campaigns in background and leave the target alone (pull request #8927)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/mimic-webcam-stitch: why is block-stitched real webcam signal still caught?</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/mimic-webcam-stitch/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8923</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/mimic-webcam-stitch: why is block-stitched real webcam signal still caught? (pull request #8923)</summary>
+  </entry>
+  <entry>
+    <title>Tools: redteam: changepoint-detector 2026-10-20</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8926</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>redteam: changepoint-detector 2026-10-20 (pull request #8926)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/qual-hypothesis: do word hypotheses survive a held-out check?</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/qual-hypothesis/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8924</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/qual-hypothesis: do word hypotheses survive a held-out check? (pull request #8924)</summary>
+  </entry>
+  <entry>
+    <title>Platform &amp; process: P037: verify base-ref fix; regenerate stale apex mirror failing main</title>
+    <link href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8922"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8922</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="platform"/>
+    <summary>P037: verify base-ref fix; regenerate stale apex mirror failing main (pull request #8922)</summary>
+  </entry>
+  <entry>
+    <title>Tools: league-schedule-generator: relocate option for rainout make-ups</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8925</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>league-schedule-generator: relocate option for rainout make-ups (pull request #8925)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: Netherlands e-invoice mandate page</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8921</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: Netherlands e-invoice mandate page (pull request #8921)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: link every country mandate page to the Italy page</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8920</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: link every country mandate page to the Italy page (pull request #8920)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: Italy SdI/FatturaPA e-invoice mandate page</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8919</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: Italy SdI/FatturaPA e-invoice mandate page (pull request #8919)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: Spain Verifactu deadline page</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8915</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: Spain Verifactu deadline page (pull request #8915)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: Croatia e-invoice mandate page (Fiskalizacija 2.0)</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8918</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: Croatia e-invoice mandate page (Fiskalizacija 2.0) (pull request #8918)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: Poland KSeF e-invoice mandate page for search</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8916</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: Poland KSeF e-invoice mandate page for search (pull request #8916)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/capture-storage: footage volume, storage weight and nightly offload time</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/capture-storage/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8913</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/capture-storage: footage volume, storage weight and nightly offload time (pull request #8913)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/eda-detectprob: detection-probability model of the eda-verify mutation log</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/eda-detectprob/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8914</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/eda-detectprob: detection-probability model of the eda-verify mutation log (pull request #8914)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/house-panellift: can the house-offsite wall panels be lifted, and how many picks?</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/house-panellift/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8909</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/house-panellift: can the house-offsite wall panels be lifted, and how many picks? (pull request #8909)</summary>
+  </entry>
+  <entry>
+    <title>Tools: changepoint-detector: --overdispersion for clumpy counts; count bends measured with --period</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8911</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>changepoint-detector: --overdispersion for clumpy counts; count bends measured with --period (pull request #8911)</summary>
+  </entry>
+  <entry>
+    <title>Tools: league-schedule-generator: pair flips of moved matches measured and dropped (no gain over single flips)</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8910</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>league-schedule-generator: pair flips of moved matches measured and dropped (no gain over single flips) (pull request #8910)</summary>
+  </entry>
+  <entry>
+    <title>Tools: league-schedule-generator: flip home/away of moved rainout matches (-3.5% breaks, no delay)</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8908</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>league-schedule-generator: flip home/away of moved rainout matches (-3.5% breaks, no delay) (pull request #8908)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/capture-softgate: soft confidence weight vs hard gate, matching cost as a signal</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/capture-softgate/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8907</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/capture-softgate: soft confidence weight vs hard gate, matching cost as a signal (pull request #8907)</summary>
+  </entry>
+  <entry>
+    <title>Platform &amp; process: prompts: review 2026-10-20 (reduced pass, evening)</title>
+    <link href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8906"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8906</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="platform"/>
+    <summary>prompts: review 2026-10-20 (reduced pass, evening) (pull request #8906)</summary>
+  </entry>
+  <entry>
+    <title>Tools: redteam: league-schedule-generator/divisions.mjs 2026-10-20</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8905</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>redteam: league-schedule-generator/divisions.mjs 2026-10-20 (pull request #8905)</summary>
+  </entry>
+  <entry>
+    <title>Tools: redteam: workflow-audit 2026-10-20</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/workflow-audit/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8904</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>redteam: workflow-audit 2026-10-20 (pull request #8904)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: Belgium e-invoice mandate page for search</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8903</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: Belgium e-invoice mandate page for search (pull request #8903)</summary>
+  </entry>
+  <entry>
+    <title>Tools: P040 step 1: per-project research cards (research/&lt;slug&gt;/project.json)</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/qual-register/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8899</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>P040 step 1: per-project research cards (research/&lt;slug&gt;/project.json) (pull request #8899)</summary>
+  </entry>
+  <entry>
+    <title>Platform &amp; process: redteam: platform/ci/concurrency_tax.py 2026-10-20</title>
+    <link href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8902"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8902</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="platform"/>
+    <summary>redteam: platform/ci/concurrency_tax.py 2026-10-20 (pull request #8902)</summary>
+  </entry>
+  <entry>
+    <title>Tools: league-schedule-generator: count home/away breaks, optional balance for rainout make-ups</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8898</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>league-schedule-generator: count home/away breaks, optional balance for rainout make-ups (pull request #8898)</summary>
+  </entry>
+  <entry>
+    <title>Tools: redteam: shift-roster-builder/cli.mjs 2026-10-20</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8900</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>redteam: shift-roster-builder/cli.mjs 2026-10-20 (pull request #8900)</summary>
+  </entry>
+  <entry>
+    <title>Tools: changepoint-detector: one bend in the Poisson count trend (--model poisson --trend bend)</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8895</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>changepoint-detector: one bend in the Poisson count trend (--model poisson --trend bend) (pull request #8895)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/energy-tou: does time-of-use pricing make a home battery pay, and which size?</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/energy-tou/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8894</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/energy-tou: does time-of-use pricing make a home battery pay, and which size? (pull request #8894)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/qual-register: does a coder&#39;s error depend on writing register, and can a hand-coded sample tell?</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/qual-register/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8893</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/qual-register: does a coder&#39;s error depend on writing register, and can a hand-coded sample tell? (pull request #8893)</summary>
+  </entry>
+  <entry>
+    <title>Tools: redteam: state-residency-day-counter 2026-10-20</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/state-residency-day-counter/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8892</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>redteam: state-residency-day-counter 2026-10-20 (pull request #8892)</summary>
+  </entry>
+  <entry>
+    <title>Tools: einvoice-preflight: France e-invoice mandate page for search</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8891</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>einvoice-preflight: France e-invoice mandate page for search (pull request #8891)</summary>
+  </entry>
+  <entry>
+    <title>Tools: redteam: state-residency-day-counter 2026-10-20</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/state-residency-day-counter/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8890</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="tools"/>
+    <summary>redteam: state-residency-day-counter 2026-10-20 (pull request #8890)</summary>
+  </entry>
+  <entry>
+    <title>Research: research/mimic-webcam-tails: per-window max/min match (G6)</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-joint/"/>
+    <id>https://github.com/Duncan-Haywood/oss-monorepo/pull/8889</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="research"/>
+    <summary>research/mimic-webcam-tails: per-window max/min match (G6) (pull request #8889)</summary>
+  </entry>
+</feed>

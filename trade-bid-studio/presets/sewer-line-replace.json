@@ -1,0 +1,63 @@
+{
+  "slug": "sewer-line-replace-bid-calculator",
+  "name": "Sewer line replacement",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Sewer laterals priced by open-cut, pipe bursting or CIPP, with depth, laterals, cleanouts and surface restore.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 35,
+  "overheadRate": 18,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Open-cut excavate, lay 4-in pipe, backfill (6 ft deep)",
+      "unit": "linear ft",
+      "qty": 80,
+      "hoursPerUnit": 0.24,
+      "materialPerUnit": 23.5,
+      "source": "80 ft run at 6 ft depth (index.html); 0.18 h/ft excavate x depth factor 1 + 0.06 h/ft set pipe; pipe $8.50/ft + spoils 80 x 6 x 1.5 ft / 27 = 26.67 yd at $45 = $1,200 / 80 ft (suggestedMethodKit('open-cut', 4) and restorationFor in calc.mjs)"
+    },
+    {
+      "label": "Restore asphalt driveway over trench",
+      "unit": "linear ft",
+      "qty": 80,
+      "hoursPerUnit": 0.22,
+      "materialPerUnit": 18,
+      "source": "80 ft under hard surface; 0.22 h/ft and $18/ft restore (index.html; suggestedSurfaceKit('driveway'))"
+    },
+    {
+      "label": "Reconnect lateral / branch",
+      "unit": "each",
+      "qty": 2,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 45,
+      "source": "laterals 2, 0.35 h per lateral, $45 lateral fitting (index.html)"
+    },
+    {
+      "label": "New cleanout",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 95,
+      "source": "cleanouts 1, 1.5 h per cleanout, $95 cleanout fitting (index.html)"
+    },
+    {
+      "label": "Trip/setup and site/travel time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.75,
+      "materialPerUnit": 0,
+      "source": "hoursTrip 1 + siteHours 0.75 (index.html)"
+    },
+    {
+      "label": "Permit and machine move-in",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 335,
+      "source": "permitFee $150 + travelAndEquipment $185 (index.html)"
+    }
+  ],
+  "specialistModels": "Open-cut vs pipe bursting vs CIPP side by side, depth-scaled excavation and pit hours, spoils volume from trench size, surface-specific restore, and bypass pumping for occupied houses."
+}

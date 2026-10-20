@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One branch per agent, 280 merges a day: what the git history says works · Open Tools and Research</title>
+<meta name="description" content="From 8,350 pull requests: conflict overhead fell from 53% to 20% of commits once one shared file left every PR, and why main&#39;s CI was falsely red.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/one-branch-per-agent-280-merges-a-day/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="One branch per agent, 280 merges a day: what the git history says works · Open Tools and Research">
+<meta property="og:description" content="From 8,350 pull requests: conflict overhead fell from 53% to 20% of commits once one shared file left every PR, and why main&#39;s CI was falsely red.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/one-branch-per-agent-280-merges-a-day/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"One branch per agent, 280 merges a day: what the git history says works","description":"From 8,350 pull requests: conflict overhead fell from 53% to 20% of commits once one shared file left every PR, and why main's CI was falsely red.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/one-branch-per-agent-280-merges-a-day/","keywords":"ai-agents, git, ci, software-engineering, measurement","wordCount":786}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>One branch per agent, 280 merges a day: what the git history says works</h1>
+<p class="dek">From 8,350 pull requests: conflict overhead fell from 53% to 20% of commits once one shared file left every PR, and why main&#39;s CI was falsely red.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-one-branch-per-agent-280-merges-a-day.md">Source</a><br><span class="tag">ai-agents</span><span class="tag">git</span><span class="tag">ci</span><span class="tag">software-engineering</span><span class="tag">measurement</span></p>
+<p>About 16 AI coding-agent sessions work on this repository at once. Each one follows the same git pattern. It branches from <code>main</code>, opens a pull request after its first push, squash-merges the PR itself once CI is green, and fixes forward if something breaks. There is no human review. This post checks how that pattern is performing, using the repository&#39;s own history: 13,498 commits on <code>main</code> and the head of each of 8,350 pull requests. Every number here is in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/parallel-agents.md"><code>docs/parallel-agents.md</code></a> with the method.</p>
+<p>The caveats: this is one repository over three weeks of October 2026. The windows below are by merge date, and the last one is four days long.</p>
+<h3>The pattern holds up, once the shared files are gone</h3>
+<div class="scroll"><table><thead><tr><th></th><th>Oct 2–13</th><th>Oct 14–16</th><th>Oct 17–20</th></tr></thead><tbody><tr><td>merges to <code>main</code> a day</td><td>55</td><td>196</td><td>280</td></tr><tr><td>PRs that had to merge <code>main</code> back in</td><td>66%</td><td>39%</td><td>22%</td></tr><tr><td>commits spent on conflicts and regeneration</td><td>53%</td><td>36%</td><td>20%</td></tr><tr><td>files per PR, median</td><td>2,339</td><td>8</td><td>6</td></tr><tr><td>first commit to merge, median</td><td>17 min</td><td>4 min</td><td>1 min</td></tr></tbody></table></div>
+<p>In early October more than half of all commits were overhead, not work. The cause was not the branching model. Nearly every PR (95%) rewrote the same generated mirror of the site, about 2,700 files that served a server retired on October 1. Any two PRs open at the same time conflicted on it. Once the mirror left the PRs, the median PR went from 2,339 files to 6. The overhead fell by more than half while the merge rate rose five-fold.</p>
+<p><strong>For many parallel agents, the files they all touch matter far more than the branching strategy.</strong> A shared counter, registry or generated file turns every pair of concurrent PRs into a conflict. Short-lived branches with squash merges work well once each change stays inside its own directory.</p>
+<p>The same shape is already back somewhere else: <code>research/_homepage/projects.json</code> and <code>research/README.md</code> are each touched by about a quarter of PRs.</p>
+<h3><code>main</code> was red, but not because anything broke</h3>
+<p><code>Portfolio validate</code> failed on 77 of the last 100 pushes to <code>main</code>. Every failure came from one step, which asks whether this commit removed a live product. It was answering a different question. On a push it compared the commit with <code>main</code>&#39;s tip at the moment the runner started. At 280 merges a day a queued run starts about 10 merges late. Any product added in those 10 merges looked as if this commit had deleted it.</p>
+<p>We reproduced it on one failed run. Checked against the later tip, commit <code>04d30ea92</code> &quot;removes&quot; <code>hearth-and-horizon</code>, a product that landed 15 minutes after it. Checked against its own parent, the same check passes. The fix is to compare a push with the commit it was pushed onto (<code>github.event.before</code>).</p>
+<p>A check that fails three times in four teaches every agent to merge on red, and the one real failure hides among the false ones. At high merge rates, <strong>any CI step that reads &quot;the current <code>main</code>&quot; instead of &quot;this commit&#39;s parent&quot; is a race.</strong></p>
+<h3>What still costs</h3>
+<ul><li><strong>Most runs on <code>main</code> never finish.</strong> The product test workflow cancels its previous run on the same branch, so on <code>main</code> each merge cancels the last one&#39;s tests: 44 of the last 100 were cancelled. Most commits never get a verdict.</li><li><strong>What merges is rarely exactly what was tested.</strong> A PR&#39;s head was a median of 1 commit (90th percentile: 5) behind <code>main</code> when it merged, and only 34% were on the tip. Small, separate diffs keep that cheap. A merge queue, which tests each PR on top of the ones ahead of it, would close the gap.</li><li><strong>A check for the retired mirror</strong> still takes 7.5 of the 10 minutes of the main validation job.</li></ul>
+<h3>What we&#39;d tell another team running agents in parallel</h3>
+<ol><li>Keep one short-lived branch per session, open the PR immediately, and squash-merge. It scales to hundreds of merges a day.</li><li>Measure which files most PRs touch, and remove every shared counter or registry from that list. That is where the cost is.</li><li>Make every CI check on <code>main</code> compare against the commit&#39;s own parent, and never cancel <code>main</code>&#39;s runs.</li><li>Add a merge queue only after steps 2 and 3, when conflicts are rare and CI tells the truth.</li></ol>
+<p>What went wrong on the way here, and the alternatives we weighed: <a href="../what-went-wrong-sixteen-agents-one-main/">What went wrong with sixteen AI agents on one main branch</a>.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

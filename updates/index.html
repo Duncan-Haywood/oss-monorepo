@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Updates, roadmap and how it is built · Open Tools and Research</title>
+<meta name="description" content="An open book: what shipped this week, what is in progress, where the project is going, and how AI agents build it, from the repository itself.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/updates/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: changelog" href="../changelog/feed.xml">
+<meta property="og:title" content="Updates, roadmap and how it is built · Open Tools and Research">
+<meta property="og:description" content="An open book: what shipped this week, what is in progress, where the project is going, and how AI agents build it, from the repository itself.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/updates/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Open Tools and Research: updates and roadmap","description":"What shipped, what is in progress, the direction and the development process.","url":"https://duncan-haywood.github.io/monorepo-projects/updates/","dateModified":"2026-10-20","isPartOf":{"@type":"WebSite","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/"}}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#56616f; --line:#dde3ea; --accent:#1f56c9; --soft:#eef2f8;
+    --k-tools:#12594a; --k-research:#7a3fb0; --k-site:#1f56c9; --k-platform:#6b5300; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542;
+    --accent:#8fb0ff; --soft:#1c2531; --k-tools:#7fd8c0; --k-research:#d2b0f5; --k-site:#8fb0ff; --k-platform:#e7c76a; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  h1 { font-size:2.1rem; line-height:1.15; margin:.3em 0 .25em; letter-spacing:-.015em; }
+  h2 { font-size:1.4rem; margin:2.2em 0 .5em; letter-spacing:-.01em; }
+  h3 { font-size:1.05rem; margin:1.4em 0 .4em; }
+  .dek { font-size:1.12rem; color:var(--muted); margin:0 0 1em; max-width:46em; }
+  .muted, .note { color:var(--muted); } .note { font-size:.88rem; }
+  .jump { display:flex; flex-wrap:wrap; gap:8px; margin:1.2em 0 0; padding:0; list-style:none; }
+  .jump a { display:inline-block; padding:5px 12px; border:1px solid var(--line); border-radius:999px; background:var(--panel);
+    text-decoration:none; color:var(--ink); font-size:.9rem; }
+  .jump a:hover { border-color:var(--accent); }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin:1em 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .tile b { display:block; font-size:1.7rem; line-height:1.1; letter-spacing:-.01em; }
+  .tile span { font-size:.88rem; color:var(--muted); }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:0 0 14px; }
+  .cols { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; }
+  .cols .card { margin:0; }
+  .log { list-style:none; margin:0; padding:0; }
+  .log li { padding:9px 0; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
+  .log li:last-child { border-bottom:0; }
+  .pill { display:inline-block; font-size:.72rem; font-weight:650; letter-spacing:.02em; text-transform:uppercase;
+    border:1px solid currentColor; border-radius:999px; padding:0 7px; margin-right:6px; vertical-align:1px; white-space:nowrap; }
+  .k-tools { color:var(--k-tools); } .k-research { color:var(--k-research); } .k-site { color:var(--k-site); } .k-platform { color:var(--k-platform); }
+  .meta { font-size:.82rem; color:var(--muted); }
+  .meta a { color:inherit; }
+  .goto { font-size:.88rem; margin-left:4px; }
+  .day { margin:1.8em 0 .3em; font-size:1.05rem; display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; }
+  .day small { font-weight:400; color:var(--muted); font-size:.85rem; }
+  .filters { display:flex; flex-wrap:wrap; gap:8px; margin:1em 0; }
+  .filters button { font:inherit; font-size:.9rem; padding:6px 12px; border-radius:999px; border:1px solid var(--line);
+    background:var(--panel); color:var(--ink); cursor:pointer; }
+  .filters button[aria-pressed="true"] { border-color:var(--accent); background:var(--soft); font-weight:650; }
+  .goal h3 { margin-top:0; }
+  .goal ul { margin:.4em 0 0; padding-left:1.2em; }
+  .steps { counter-reset:step; list-style:none; padding:0; margin:0; }
+  .steps li { position:relative; padding:0 0 12px 40px; }
+  .steps li::before { counter-increment:step; content:counter(step); position:absolute; left:0; top:0; width:28px; height:28px;
+    border-radius:50%; background:var(--soft); border:1px solid var(--line); display:grid; place-items:center; font-weight:700; font-size:.9rem; }
+  details summary { cursor:pointer; color:var(--accent); }
+  footer { margin-top:3em; font-size:.82rem; color:var(--muted); }
+  [hidden] { display:none !important; }
+</style>
+<link rel="stylesheet" href="../pf-site.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/" aria-current="page">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><form class="pfs-search" action="../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../#search">Search</a></span></nav>
+<div class="wrap">
+<main>
+<h1>Updates</h1>
+<p class="dek">An open book on this project: what shipped this week, what is in progress, where it is going and how it is built.
+Free tools and open research, built in public by AI coding agents and checked by automated tests. Everything here is generated from the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a> on each publish.</p>
+<ul class="jump">
+<li><a href="#week">This week</a></li><li><a href="#shipped">Recently shipped</a></li><li><a href="../changelog/">Full changelog</a></li>
+<li><a href="#research-log">Active research</a></li><li><a href="#in-progress">In progress</a></li><li><a href="#direction">Direction</a></li>
+<li><a href="#process">How it is built</a></li><li><a href="../changelog/feed.xml">Atom feed</a></li>
+</ul>
+
+<h2 id="week">This week in numbers</h2>
+<p class="muted">The seven days to Tuesday, 20 October 2026.</p>
+<div class="tiles">
+<div class="tile"><b>1886</b><span>changes merged in the last 7 days</span></div>
+<div class="tile"><b>132</b><span>new free tools launched this week</span></div>
+<div class="tile"><b>916</b><span>product changes this week</span></div>
+<div class="tile"><b>813</b><span>research projects worked on this week</span></div>
+<div class="tile"><b>1668</b><span>AI agent sessions recorded this week</span></div>
+<div class="tile"><b>$932</b><span>measured compute cost of 970 recorded sessions</span></div>
+</div>
+<h3>New tools this week</h3>
+<ul class="log"><li><a href="../changepoint-detector/">Changepoint Detector — when did your series change?</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../conformal-prediction-intervals/">Conformal Prediction Intervals Calculator — free, private, in your browser</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../csv-to-sepa-pain001/">CSV to SEPA pain.001 — free, private, in your browser</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../csv-to-sepa-pain008/">CSV to SEPA pain.008 direct debit — free, private, in your browser</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../hearth-and-horizon/">Hearth &amp; Horizon: free AI-written science fiction and Catholic bedtime stories, with audio</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../interview-content-studio/">Interview Content Studio: one interview, a month of content for every platform</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../matrix-profile-explorer/">Matrix Profile Explorer — find repeated patterns and anomalies in a time series</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../persona-conversation-simulator/">Simulate conversations between fictional personalities</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../publish-kit/">Publish Kit — podcast feeds, EPUBs, audiobooks and paperback covers</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../saints-by-candlelight/">Saints by Candlelight: a free bedtime podcast of saints, angels and Bible stories</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../sales-cadence-builder/">Sales Cadence Builder — a prospecting sequence for every lead, checked before you send</a> <span class="meta">· launched 20 Oct</span></li><li><a href="../bid-price-engine/">Bid Price Engine — price any job at the margin you need</a> <span class="meta">· launched 19 Oct</span></li><li><a href="../discogs-fee-calculator/">Discogs Fee Calculator</a> <span class="meta">· launched 19 Oct</span></li><li><a href="../hands-free-language-coach/">Hands-Free Language Coach</a> <span class="meta">· launched 19 Oct</span></li><li><a href="../listen-and-learn-audio/">Listen &amp; Learn Audio</a> <span class="meta">· launched 19 Oct</span></li></ul><p class="note">And 117 more; see the <a href="../feed.xml">new tools feed</a>.</p>
+
+<h2 id="shipped">Recently shipped</h2>
+<div class="cols">
+<div class="card"><h3><span class="pill k-tools">Tools</span>Products</h3><ul class="log"><li data-kind="tools">changepoint-detector: negative-binomial cost with --period and --trend
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8948">#8948</a></span><br><a class="goto" href="../changepoint-detector/">Open Changepoint Detector — when did your series change? →</a></li>
+<li data-kind="tools">league-schedule-generator: page controls for venue fairness and season carry-over
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8946">#8946</a></span><br><a class="goto" href="../league-schedule-generator/">Open League Schedule Generator — free, private, in your browser →</a></li>
+<li data-kind="tools">einvoice-preflight: Greece page phase 2 now 2 Nov 2026 (reported AADE A.1197/2026)
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8943">#8943</a></span><br><a class="goto" href="../einvoice-preflight/">Open E-invoice Preflight — catch defects before submission →</a></li>
+<li data-kind="tools">einvoice-preflight: Bulgaria e-invoicing page (2028 draft, consultation to 23 Oct 2026)
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8942">#8942</a></span><br><a class="goto" href="../einvoice-preflight/">Open E-invoice Preflight — catch defects before submission →</a></li>
+<li data-kind="tools">einvoice-preflight: Greece myDATA mandate page
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8941">#8941</a></span><br><a class="goto" href="../einvoice-preflight/">Open E-invoice Preflight — catch defects before submission →</a></li>
+<li data-kind="tools">changepoint-detector: negative-binomial PELT cost for independent clumpy counts
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8939">#8939</a></span><br><a class="goto" href="../changepoint-detector/">Open Changepoint Detector — when did your series change? →</a></li>
+<li data-kind="tools">league-schedule-generator: venue fairness with multi-season carry-over
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8937">#8937</a></span><br><a class="goto" href="../league-schedule-generator/">Open League Schedule Generator — free, private, in your browser →</a></li>
+<li data-kind="tools">einvoice-preflight: link every country mandate page to the Romania page
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8930">#8930</a></span><br><a class="goto" href="../einvoice-preflight/">Open E-invoice Preflight — catch defects before submission →</a></li>
+<li data-kind="tools">einvoice-preflight: Romania RO e-Factura mandate page
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8929">#8929</a></span><br><a class="goto" href="../einvoice-preflight/">Open E-invoice Preflight — catch defects before submission →</a></li>
+<li data-kind="tools">changepoint-detector: temper the Bayesian pass by the count dispersion
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8928">#8928</a></span><br><a class="goto" href="../changepoint-detector/">Open Changepoint Detector — when did your series change? →</a></li>
+<li data-kind="tools">redteam: changepoint-detector 2026-10-20
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8926">#8926</a></span><br><a class="goto" href="../changepoint-detector/">Open Changepoint Detector — when did your series change? →</a></li>
+<li data-kind="tools">league-schedule-generator: relocate option for rainout make-ups
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8925">#8925</a></span><br><a class="goto" href="../league-schedule-generator/">Open League Schedule Generator — free, private, in your browser →</a></li></ul>
+<p><a href="../changelog/#tools">All product changes →</a></p></div>
+<div class="card"><h3><span class="pill k-research">Research</span>Studies</h3><ul class="log"><li data-kind="research">process: P040 step 2, research README bullets generated from project.json ledes
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8953">#8953</a></span><br><a class="goto" href="../research/qual-register/">Read qual-register →</a></li>
+<li data-kind="research">research/house-liftnails: nail load path of a hung wall panel
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8952">#8952</a></span><br><a class="goto" href="../research/house-liftnails/">Read house-liftnails →</a></li>
+<li data-kind="research">research/accel-ttretrain: all 96 retrained KWS models fit the Tiny Tapeout tile&#39;s bias and accumulator limits
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8944">#8944</a></span><br><a class="goto" href="../research/accel-ttfit/">Read accel-ttfit →</a> <a class="goto" href="../research/accel-ttretrain/">Read accel-ttretrain →</a></li>
+<li data-kind="research">research/sensing-ghostedge: layered sub-pixel coverage model for the burst edge ring
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8951">#8951</a></span><br><a class="goto" href="../research/sensing-ghostedge/">Read sensing-ghostedge →</a></li>
+<li data-kind="research">research/osrobot-lint: stdlib static linter for Opentrons scripts (362 of 522 seeded faults vs 270 for the real simulator)
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8950">#8950</a></span><br><a class="goto" href="../research/osrobot-lint/">Read osrobot-lint →</a></li>
+<li data-kind="research">research/hanger-split: two-piece printable hanger, bolted joint checked
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8947">#8947</a></span><br><a class="goto" href="../research/hanger-split/">Read hanger-split →</a></li>
+<li data-kind="research">research/hanger-cellpick: hanger-cell with the simulated hanger-pick picker
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8945">#8945</a></span><br><a class="goto" href="../research/hanger-cell/">Read hanger-cell →</a> <a class="goto" href="../research/hanger-cellpick/">Read hanger-cellpick →</a></li>
+<li data-kind="research">research/eda-deepdraw: 20,000-vector deep draw on the eda-verify survivors
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8940">#8940</a></span><br><a class="goto" href="../research/eda-deepdraw/">Read eda-deepdraw →</a></li></ul>
+<p><a href="../changelog/#research">All research changes →</a></p></div>
+</div>
+<div class="card"><h3><span class="pill k-site">Website</span>The site</h3><ul class="log"><li data-kind="site">pages tests: share the full build across build.test.mjs (suite 593s -&gt; 418s)
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8789">#8789</a></span></li>
+<li data-kind="site">Pages: redeploy the site on every merge to main, plus a report and blog post
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8748">#8748</a></span></li>
+<li data-kind="site">posts: owner opinion pieces on calculators vs depth; goals: depth-over-calculators direction
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8784">#8784</a></span></li>
+<li data-kind="site">pages: Ask — voice, chat and agent access to every tool on the site
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8705">#8705</a></span></li>
+<li data-kind="site">ci: validate pushes and PRs against their own parent; git-pattern report, agent runbook, two posts
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8765">#8765</a></span></li>
+<li data-kind="site">Depth over light tools: opinion note, audit report and blog post
+<span class="meta"> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8768">#8768</a></span></li></ul>
+<p><a href="../changelog/#site">All website changes →</a></p></div>
+<p><a href="../changelog/"><strong>Read the full changelog</strong></a>: every merge in the last 14 days, by day.</p>
+
+<h2 id="research-log">Active research</h2>
+<p class="muted">Research projects changed in the last 14 days, most recently active first. All projects, with their write-ups,
+are on the <a href="../research/">research page</a>.</p>
+<ul class="log"><li><strong><a href="../research/qual-register/">qual-register</a></strong> <span class="meta">· 3 changes · latest 20 Oct</span><br>process: P040 step 2, research README bullets generated from project.json ledes</li><li><strong><a href="../research/house-liftnails/">house-liftnails</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/house-liftnails: nail load path of a hung wall panel</li><li><strong><a href="../research/accel-ttfit/">accel-ttfit</a></strong> <span class="meta">· 2 changes · latest 20 Oct</span><br>research/accel-ttretrain: all 96 retrained KWS models fit the Tiny Tapeout tile&#39;s bias and accumulator limits</li><li><strong><a href="../research/accel-ttretrain/">accel-ttretrain</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/accel-ttretrain: all 96 retrained KWS models fit the Tiny Tapeout tile&#39;s bias and accumulator limits</li><li><strong><a href="../research/sensing-ghostedge/">sensing-ghostedge</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/sensing-ghostedge: layered sub-pixel coverage model for the burst edge ring</li><li><strong><a href="../research/osrobot-lint/">osrobot-lint</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/osrobot-lint: stdlib static linter for Opentrons scripts (362 of 522 seeded faults vs 270 for the real simulator)</li><li><strong><a href="../research/hanger-split/">hanger-split</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/hanger-split: two-piece printable hanger, bolted joint checked</li><li><strong><a href="../research/hanger-cell/">hanger-cell</a></strong> <span class="meta">· 2 changes · latest 20 Oct</span><br>research/hanger-cellpick: hanger-cell with the simulated hanger-pick picker</li><li><strong><a href="../research/hanger-cellpick/">hanger-cellpick</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/hanger-cellpick: hanger-cell with the simulated hanger-pick picker</li><li><strong><a href="../research/eda-deepdraw/">eda-deepdraw</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/eda-deepdraw: 20,000-vector deep draw on the eda-verify survivors</li><li><strong><a href="../research/hanger-wrap/">hanger-wrap</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/hanger-wrap: a second 3D cloth model, wrapped over the arm, cross-checking hanger-3d</li><li><strong><a href="../research/sensing-ghostring/">sensing-ghostring</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/sensing-ghostring: explicit edge-ring treatments for burst merging (negative result)</li><li><strong><a href="../research/hanger-3d/">hanger-3d</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/hanger-3d: 3D cloth drape of the hanger shoulder, checked against hanger-fit</li><li><strong><a href="../research/osrobot-plate/">osrobot-plate</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/osrobot-plate: 96-well plate fill, gantry vs arm, 1 vs 8 channels</li><li><strong><a href="../research/swe-warmstart/">swe-warmstart</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/swe-warmstart: does a cheaper start fix the small-budget loss of smart track allocation?</li><li><strong><a href="../research/free-intervalcov/">free-intervalcov</a></strong> <span class="meta">· 1 change · latest 20 Oct</span><br>research/free-intervalcov: which 95% upper bound on a failure rate actually covers 95%?</li></ul><p class="note">And 797 more in the <a href="../changelog/#research">changelog</a>.</p>
+<h3>Lab notebook entries</h3><p class="muted">The newest dated entries from projects that keep a <code>LOG.md</code>.</p><ul class="log"><li><span class="pill k-research">20 Oct</span><a href="../research/marriage-divorce-evidence/">marriage-divorce-evidence</a>: Flexible models and a pooled nine-survey model: neither beats the single-lens additive models where data are large</li><li><span class="pill k-research">20 Oct</span><a href="../research/marriage-divorce-evidence/">marriage-divorce-evidence</a>: Profile report, marital satisfaction by years married, and dating length</li><li><span class="pill k-research">20 Oct</span><a href="../research/swe-orgs/">swe-orgs</a>: Batch 20: stopping a migration that does not fit the cycle</li><li><span class="pill k-research">19 Oct</span><a href="../research/swe-orgs/">swe-orgs</a>: Batch 19: marking review comments by importance</li></ul>
+
+<h2 id="in-progress">In progress</h2>
+<div class="cols">
+<div class="card"><h3>Open pull requests</h3>
+<div id="open-prs" data-src="../dev/stats.json"><p class="note">The live list of open pull requests loads from this site's
+<a href="../dev/">development dashboard</a>. You can also see them <a href="https://github.com/Duncan-Haywood/oss-monorepo/pulls">on GitHub</a>.</p></div></div>
+<div class="card"><h3>Process improvements underway</h3><ul class="log"><li>Decide who publishes the gh-pages snapshot <span class="meta">· <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompts/process/backlog/P005-pages-publisher.json">P005</a></span></li><li>Get a first usage reading for any product <span class="meta">· <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompts/process/backlog/P011-usage-reading.json">P011</a></span></li><li>Make the catalogue&#39;s sitemap discoverable despite the Pages subpath <span class="meta">· <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompts/process/backlog/P018-sitemap-discovery-subpath.json">P018</a></span></li><li>Turn on GitHub&#39;s merge queue for main (owner setting) <span class="meta">· <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompts/process/backlog/P042-merge-queue.json">P042</a></span></li></ul><p class="note">From the <a href="../dev/analyses/">process backlog</a>: 31 done so far.</p></div>
+<div class="card"><h3>Waiting on the owner</h3><p>13 decisions only the owner can make (money, accounts, publishing under the portfolio's name):</p>
+<ul class="log"><li><code>payout-rail</code> <span class="meta">· blocks revenue</span></li><li><code>funding-sponsors-live</code> <span class="meta">· blocks revenue</span></li><li><code>pages-custom-domain</code> <span class="meta">· blocks distribution</span></li><li><code>egress-policy</code> <span class="meta">· blocks measurement</span></li><li><code>local-site-studio-subtree-gate-crossing</code> <span class="meta">· blocks deployment</span></li><li><code>session-gate-economics-premise</code> <span class="meta">· blocks deployment</span></li></ul><p class="note">Agents work around these rather than wait; the full list is on the <a href="../engineering/">engineering status page</a>.</p></div>
+</div>
+
+<h2 id="direction">Direction: where this is going</h2>
+<p class="muted">The owner's standing goals, summarised from <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompts/goals.md"><code>prompts/goals.md</code></a>,
+which every agent run reads. The file has the full text, in the owner's own words.</p>
+<div class="card"><h3>The mission</h3><ul class="log"><li><strong>Ventures</strong> <span class="meta"><code>ventures/</code></span>: software products strangers can use for free, with real business potential, measured by use.</li><li><strong>Research</strong> <span class="meta"><code>research/</code></span>: a research portfolio that supports PhD applications in ML/AI, robotics and autonomy, operations research or industrial engineering.</li><li><strong>The platform</strong> <span class="meta"><code>platform/</code>, <code>portfolio/</code>, <code>prompts/</code></span>: the agents, checks and prompts that do the work above.</li><li><strong>Free choice</strong> <span class="meta">about 5% of effort</span>: in the spirit of Google&#39;s &quot;20% time&quot;, about one run in twenty works on whatever the agent finds most interesting, with its own approach (<code>prompts/explore/</code>).</li><li><strong>The web presence</strong> <span class="meta">added 2026-10-14</span>: one website, hosted on GitHub (GitHub Pages), from which all of the work above can be easily checked out visually.</li></ul></div>
+<div class="cols">
+<div class="card goal"><h3>A public face for everything</h3>
+<p class="meta">Long-term goal · set 15 Oct 2026</p>
+<p>Most things in this repository should have a publicly accessible web page: every venture, every research project, and the platform tools a stranger could use or learn from. All of those pages should be reachable from one navigable home page, so a visitor who lands there can browse by category and click through to any secondary page, and every secondary page links back to it.</p><ul><li>Quality, not just coverage <span class="meta">(16 Oct)</span></li></ul></div>
+<div class="card goal"><h3>Automated, unpaid, compliant distribution</h3>
+<p class="meta">Long-term goal · set 15 Oct 2026</p>
+<p>Publicize the work far more, automatically and for free: get every product (and, where it fits, every research project) onto the natural distribution platforms where its users already look, such as package registries, extension and plugin stores, tool directories, syndicated feeds and openly labelled bot accounts, on top of the search and AI-assistant discovery already built. Think of it as legally compliant, unpaid, automated sales where there is no sale: the funnel ends in a stranger using a free tool.</p><ul><li>Distribution and measurement are now the limiter <span class="meta">(16 Oct)</span></li><li>SEO moves up a lot, on the site and in the repository <span class="meta">(16 Oct)</span></li><li>Own the tooling; open-source apps and tools as a second track <span class="meta">(16 Oct)</span></li><li>Feedback and usage from the site, on one free account <span class="meta">(20 Oct)</span></li><li>No terms of service are ever broken for it</li><li>Privacy rules follow the law, not stricter <span class="meta">(20 Oct)</span></li></ul></div>
+<div class="card goal"><h3>Sales, marketing and business tools</h3>
+<p class="meta">Direction · set 16 Oct 2026</p>
+<p>A direction, not a mandate for volume. Tools for selling and marketing (B2B, B2C and consumer), each with a deterministic core and AI on the user&#39;s own key from any provider (<code>platform/llm/</code>). Each can be deployed as a business of its own, embedded in someone&#39;s SaaS, or run as part of a suite. Extending the sales and marketing ventures that already exist comes before adding new ones. Spec, guardrails and definition of done: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/sales-tools/README.md"><code>portfolio/sales-tools/README.md</code></a>.</p></div>
+<div class="card goal"><h3>Local models as an option beside API keys</h3>
+<p class="meta">Direction · set 18 Oct 2026</p>
+<p>Every AI feature that takes a key also takes a model running on the user&#39;s own machine or network (Ollama, LM Studio, llama.cpp; for images and video, a local server such as ComfyUI), at no per-call cost and with the data staying local. The deterministic path stays the product. How: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/llm/README.md"><code>platform/llm/</code></a> and <code>PRODUCT_PLAYBOOK.md</code> §3.</p></div>
+<div class="card goal"><h3>Voice, chat and agents as primary ways in</h3>
+<p class="meta">Direction · set 20 Oct 2026</p>
+<p>Every tool is reachable four ways: the visual form, a typed sentence, the voice, and an AI agent. Output can be read aloud, and voice-only use must work. Nothing heavy loads until the visitor opts in, and the opt-in names the download size and where their words go. Quality is measured and published next to the limitations, not asserted. The shared implementation is the site assistant (<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/assistant.mjs"><code>platform/pages/assistant.mjs</code></a>, the Ask page on the public site). Rules for products: <code>PRODUCT_PLAYBOOK.md</code> §4, &quot;Every way in&quot;.</p></div>
+<div class="card goal"><h3>Write about the work</h3>
+<p class="meta">Direction · set 20 Oct 2026</p>
+<p>The blog is the site&#39;s <code>writing/</code> section (Atom feed at <code>writing/feed.xml</code>), built from Markdown in <code>docs/posts/</code> by <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/writing.mjs"><code>platform/pages/writing.mjs</code></a>. Three kinds of post, all for a reader who has never seen the repository:</p></div>
+<div class="card goal"><h3>Research algorithms as tools</h3>
+<p class="meta">Direction · set 20 Oct 2026</p>
+<p>New tools favour methods from papers, run on the user&#39;s own data in the browser, with the paper cited and the licence respected; another basic calculator ranks below them. Spec, licence rules and definition of done: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research-tools/README.md"><code>portfolio/research-tools/README.md</code></a>.</p></div>
+<div class="card goal"><h3>Every platform, not just the web</h3>
+<p class="meta">Direction · set 20 Oct 2026</p>
+<p>A tool is finished when it reaches people beyond its web page: a CLI, the MCP server, and the app packagers in <code>platform/distribution/</code> (iOS, Android, browser extension; desktop is the open gap). Publishing under the portfolio&#39;s name stays an owner step; building the packages is not. Channel list and status: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/distribution/README.md"><code>portfolio/distribution/README.md</code></a>.</p></div>
+<div class="card goal"><h3>Depth over calculators</h3>
+<p class="meta">Direction · set 20 Oct 2026</p>
+<p>So a run with a free choice picks research, a research-adjacent tool or a flagship milestone before a new small product. A new calculator, or new work on an existing one, needs an engine that fails two tests: a chatbot can reproduce it in one reply, and a maths graduate follows it at a glance. A published model, a solver or a proof passes; rates times quantities does not. Comparison pages on arithmetic calculators are not progress. Where to find such engines: &quot;Research algorithms as tools&quot; above. The posts: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-fewer-calculators-harder-problems.md"><code>docs/posts/2026-10-20-fewer-calculators-harder-problems.md</code></a> and <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md"><code>docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md</code></a>.</p></div>
+<div class="card goal"><h3>Files first, not the GitHub API</h3>
+<p class="meta">Direction · set 20 Oct 2026</p>
+<p>A fresh clone and <code>grep</code> should answer &quot;what happened and why&quot;. A PR body, review thread, issue, CI log or Actions artifact won&#39;t do that: you have to query the API one PR at a time to read any of them, and logs and artifacts expire (artifacts here keep 7 to 30 days). So anything a later reader needs goes in a file in the same PR, and the GitHub text is a summary that points to it, never the source:</p></div>
+</div>
+
+<h2 id="process">How it is built</h2>
+<ol class="steps">
+<li><strong>A session starts from one prompt.</strong> Every AI agent run reads the master prompt,
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompt.md"><code>prompt.md</code></a>, which routes it to a track: products, research, process or review.
+The owner's goals and guardrails, summarised above, bind every track.</li>
+<li><strong>It ships something real.</strong> A run must land a useful change on <code>main</code>: a tool, a fix, a research result, a page.
+Nothing is fabricated; every figure on the site traces to a file.</li>
+<li><strong>Checks, not ceremony.</strong> Each change goes up as a pull request, runs CI (tests, the site checker, accessibility and link checks),
+is cross-reviewed by other agents, and is merged when green. Changes are fixed forward, not held.</li>
+<li><strong>Every run is recorded.</strong> Each session commits a run record: track, outcome, what it cost and what slowed it down.
+1,766 are in the repository so far, in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/prompts/runs/README.md"><code>prompts/runs/</code></a>.</li>
+<li><strong>The process improves itself.</strong> A review track reads those records, proposes changes to the prompts, measures them
+and keeps what works. Experiments and their verdicts are on the <a href="../dev/analyses/">development analyses</a> page.</li>
+</ol>
+<p>Go deeper: the <a href="../dev/">development dashboard</a> (merges, CI and cost per day), the
+<a href="../engineering/">engineering status page</a>, <a href="../writing/">essays on how it is built</a>, and the
+<a href="https://github.com/Duncan-Haywood/oss-monorepo">source on GitHub</a>.</p>
+</main>
+<footer>
+  <p>Generated on every publish from the <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>: merge history, research logs, run records and the
+  owner's goals file. Nothing on this page is typed by hand. Provided as-is, with no warranty of accuracy or completeness,
+  and not advice of any kind. MIT-licensed, like everything here.</p>
+  <p class="pfs-foot"><a href="../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../research/">Research</a><span aria-hidden="true"> · </span><a href="../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../updates/">Updates &amp; roadmap</a><span aria-hidden="true"> · </span><a href="../changelog/">Changelog</a><span aria-hidden="true"> · </span><a href="../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../lab/">Lab</a><span aria-hidden="true"> · </span><a href="../feedback/">Report a problem or suggest a feature</a><span aria-hidden="true"> · </span><a href="../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../dev/daily/">Daily brief &amp; The Merge Report</a><span aria-hidden="true"> · </span><a href="../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="../changelog/feed.xml">Changelog feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+</footer>
+</div>
+<script>
+(() => {
+  const box = document.getElementById('open-prs');
+  if (!box || !window.fetch) return;
+  fetch(box.dataset.src, { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((stats) => {
+    const open = stats && stats.github && stats.github.open_prs;
+    if (!open || !Array.isArray(open.recent)) return;
+    const ul = document.createElement('ul');
+    ul.className = 'log';
+    for (const pr of open.recent.slice(0, 12)) {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = "https://github.com/Duncan-Haywood/oss-monorepo/pull/" + Number(pr.number);
+      a.textContent = pr.title;
+      li.append(a);
+      const meta = document.createElement('span');
+      meta.className = 'meta';
+      meta.textContent = ' · #' + Number(pr.number) + (pr.draft ? ' · draft' : '') + ' · opened ' + String(pr.created_at || '').slice(0, 10);
+      li.append(meta);
+      ul.append(li);
+    }
+    const p = document.createElement('p');
+    p.className = 'note';
+    p.textContent = open.count + ' open now' + (stats.generated_at ? ', as of ' + String(stats.generated_at).slice(0, 16).replace('T', ' ') + ' UTC' : '') + '.';
+    box.replaceChildren(p, ul);
+  }).catch(() => {});
+})();
+</script>
+</body>
+</html>

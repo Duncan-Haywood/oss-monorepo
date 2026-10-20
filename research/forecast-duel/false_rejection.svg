@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of false-rejection rate against sample size: the e-process stays below 0.05 while the peeking z-test rises from 0.19 to 0.38">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Forecast duel: false-rejection rate at the null (alpha 0.05, 2000 runs)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="257.8" y2="257.8" stroke="#ddd"/><text x="58" y="261.8" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="191.6" y2="191.6" stroke="#ddd"/><text x="58" y="195.6" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="125.4" y2="125.4" stroke="#ddd"/><text x="58" y="129.4" text-anchor="end" font-family="sans-serif" font-size="11">0.3</text>
+<line x1="64" x2="624" y1="59.3" y2="59.3" stroke="#ddd"/><text x="58" y="63.3" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="323.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">rounds T</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">false-rejection rate</text>
+<line x1="64" x2="624" y1="290.9" y2="290.9" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,321.4 323.1,310.1 624.0,298.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="321.4" r="3" fill="#c0392b"/>
+<circle cx="323.1" cy="310.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="298.8" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">e-process</text>
+<polyline points="64.0,195.6 323.1,128.1 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="195.6" r="3" fill="#1f6fb2"/>
+<circle cx="323.1" cy="128.1" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">peeking z-test</text>
+</svg>

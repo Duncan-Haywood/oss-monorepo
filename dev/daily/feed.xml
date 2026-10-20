@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Daily engineering brief and The Merge Report</title>
+  <subtitle>What an open-source monorepo built mostly by AI agents merged each day, for its engineering manager and for everyone else.</subtitle>
+  <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/"/>
+  <link rel="self" href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/feed.xml"/>
+  <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/</id>
+  <updated>2026-10-20T22:59:14.702Z</updated>
+  <author><name>monorepo-projects</name></author>
+  <entry>
+    <title>Engineering brief, Monday, 19 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-19/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-19/</id>
+    <updated>2026-10-19T23:59:59Z</updated>
+    <summary>Good morning. This is the engineering brief for Monday, 19 October 2026: everything that merged to main between midnight and midnight UTC, and what needs you. 341 pull requests merged, 82% above the seven-day average of 187.6. Together they changed 15,747 files, adding 344,914 lines and removing 3,141. The work reached 49 products and 98 research projects. The headlines: 7 new products joined the catalogue, 96 new research projects started and 12 decisions still wait on the owner.</summary>
+  </entry>
+  <entry>
+    <title>The Merge Report, Monday, 19 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-19/show/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-19/show/</id>
+    <updated>2026-10-19T23:59:59Z</updated>
+    <summary>This is The Merge Report, coming to you live from the main branch of an open-source monorepo run mostly by AI agents. On Monday, 19 October 2026, the agents merged 341 pull requests into main. That’s one roughly every 4 minutes, around the clock, 82% above the seven-day average of 187.6.</summary>
+  </entry>
+  <entry>
+    <title>Engineering brief, Sunday, 18 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-18/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-18/</id>
+    <updated>2026-10-18T23:59:59Z</updated>
+    <summary>Good morning. This is the engineering brief for Sunday, 18 October 2026: everything that merged to main between midnight and midnight UTC, and what needs you. 330 pull requests merged, 124% above the seven-day average of 147.4. Together they changed 6,030 files, adding 125,290 lines and removing 2,778. The work reached 39 products and 82 research projects. The headlines: 10 new products joined the catalogue, 72 new research projects started and 12 decisions still wait on the owner.</summary>
+  </entry>
+  <entry>
+    <title>The Merge Report, Sunday, 18 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-18/show/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-18/show/</id>
+    <updated>2026-10-18T23:59:59Z</updated>
+    <summary>Welcome to The Merge Report. Grab a coffee. The agents won’t; they run on tokens. On Sunday, 18 October 2026, the agents merged 330 pull requests into main. That’s one roughly every 4 minutes, around the clock, 124% above the seven-day average of 147.4.</summary>
+  </entry>
+  <entry>
+    <title>Engineering brief, Saturday, 17 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-17/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-17/</id>
+    <updated>2026-10-17T23:59:59Z</updated>
+    <summary>Good morning. This is the engineering brief for Saturday, 17 October 2026: everything that merged to main between midnight and midnight UTC, and what needs you. 277 pull requests merged, 139% above the seven-day average of 115.7. Together they changed 11,982 files, adding 107,721 lines and removing 2,979. The work reached 43 products and 83 research projects. The headlines: 6 new products joined the catalogue, 42 new research projects started and 12 decisions still wait on the owner.</summary>
+  </entry>
+  <entry>
+    <title>The Merge Report, Saturday, 17 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-17/show/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-17/show/</id>
+    <updated>2026-10-17T23:59:59Z</updated>
+    <summary>Welcome back to The Merge Report, the daily show about a software studio whose staff never sleep, never take lunch, and never stop opening pull requests. On Saturday, 17 October 2026, the agents merged 277 pull requests into main. That’s one roughly every 5 minutes, around the clock, 139% above the seven-day average of 115.7.</summary>
+  </entry>
+  <entry>
+    <title>Engineering brief, Friday, 16 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-16/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-16/</id>
+    <updated>2026-10-16T23:59:59Z</updated>
+    <summary>Good morning. This is the engineering brief for Friday, 16 October 2026: everything that merged to main between midnight and midnight UTC, and what needs you. 305 pull requests merged, 274% above the seven-day average of 81.6. Together they changed 65,266 files, adding 207,477 lines and removing 67,724. The work reached 38 products and 82 research projects. The headlines: 18 new products joined the catalogue, 49 new research projects started and 12 decisions still wait on the owner.</summary>
+  </entry>
+  <entry>
+    <title>The Merge Report, Friday, 16 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-16/show/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-16/show/</id>
+    <updated>2026-10-16T23:59:59Z</updated>
+    <summary>Good evening and welcome to The Merge Report, where we read the commit log so you don’t have to. On Friday, 16 October 2026, the agents merged 305 pull requests into main. That’s one roughly every 5 minutes, around the clock, 274% above the seven-day average of 81.6.</summary>
+  </entry>
+  <entry>
+    <title>Engineering brief, Thursday, 15 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-15/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-15/</id>
+    <updated>2026-10-15T23:59:59Z</updated>
+    <summary>Good morning. This is the engineering brief for Thursday, 15 October 2026: everything that merged to main between midnight and midnight UTC, and what needs you. 222 pull requests merged, 282% above the seven-day average of 58.1. Together they changed 81,882 files, adding 181,623 lines and removing 7,641. The work reached 32 products and 26 research projects. The headlines: 26 new products joined the catalogue, 69 new research projects started and 12 decisions still wait on the owner.</summary>
+  </entry>
+  <entry>
+    <title>The Merge Report, Thursday, 15 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-15/show/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-15/show/</id>
+    <updated>2026-10-15T23:59:59Z</updated>
+    <summary>This is The Merge Report, coming to you live from the main branch of an open-source monorepo run mostly by AI agents. On Thursday, 15 October 2026, the agents merged 222 pull requests into main. That’s one roughly every 6 minutes, around the clock, 282% above the seven-day average of 58.1.</summary>
+  </entry>
+  <entry>
+    <title>Engineering brief, Wednesday, 14 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-14/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-14/</id>
+    <updated>2026-10-14T23:59:59Z</updated>
+    <summary>Good morning. This is the engineering brief for Wednesday, 14 October 2026: everything that merged to main between midnight and midnight UTC, and what needs you. 60 pull requests merged, in line with the seven-day average of 57.7. Together they changed 144,883 files, adding 244,106 lines and removing 6,910. The work reached 4 products. The headlines: 51 new products joined the catalogue, 390 new research projects started and 12 decisions still wait on the owner.</summary>
+  </entry>
+  <entry>
+    <title>The Merge Report, Wednesday, 14 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-14/show/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-14/show/</id>
+    <updated>2026-10-14T23:59:59Z</updated>
+    <summary>Welcome to The Merge Report. Grab a coffee. The agents won’t; they run on tokens. On Wednesday, 14 October 2026, the agents merged 60 pull requests into main. That’s one roughly every 24 minutes, around the clock, in line with the seven-day average of 57.7.</summary>
+  </entry>
+  <entry>
+    <title>Engineering brief, Tuesday, 13 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-13/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-13/</id>
+    <updated>2026-10-13T23:59:59Z</updated>
+    <summary>Good morning. This is the engineering brief for Tuesday, 13 October 2026: everything that merged to main between midnight and midnight UTC, and what needs you. 68 pull requests merged, 21% above the seven-day average of 56.4. Together they changed 167,008 files, adding 52,296 lines and removing 7,657. The work reached 3 products. The headlines: 62 new products joined the catalogue and 12 decisions still wait on the owner.</summary>
+  </entry>
+  <entry>
+    <title>The Merge Report, Tuesday, 13 October 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-13/show/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-13/show/</id>
+    <updated>2026-10-13T23:59:59Z</updated>
+    <summary>Welcome back to The Merge Report, the daily show about a software studio whose staff never sleep, never take lunch, and never stop opening pull requests. On Tuesday, 13 October 2026, the agents merged 68 pull requests into main. That’s one roughly every 21 minutes, around the clock, 21% above the seven-day average of 56.4.</summary>
+  </entry>
+</feed>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-label="Grouped bars of mean and 90th-percentile colour error for nine stack designs under iid thickness errors; the quarter-wave stack is lowest and Nelder-Mead designs are highest">
+<rect width="720" height="400" fill="#fff"/>
+<text x="360.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Colour error J by design, iid thickness errors, 620 nm target (lower is better)</text>
+<rect x="56" y="40" width="648" height="290" fill="none" stroke="#999"/>
+<line x1="56" x2="704" y1="330.0" y2="330.0" stroke="#eee"/><text x="50" y="334.0" text-anchor="end" font-family="sans-serif" font-size="11">-6.8</text>
+<line x1="56" x2="704" y1="272.0" y2="272.0" stroke="#eee"/><text x="50" y="276.0" text-anchor="end" font-family="sans-serif" font-size="11">13.0</text>
+<line x1="56" x2="704" y1="214.0" y2="214.0" stroke="#eee"/><text x="50" y="218.0" text-anchor="end" font-family="sans-serif" font-size="11">32.7</text>
+<line x1="56" x2="704" y1="156.0" y2="156.0" stroke="#eee"/><text x="50" y="160.0" text-anchor="end" font-family="sans-serif" font-size="11">52.5</text>
+<line x1="56" x2="704" y1="98.0" y2="98.0" stroke="#eee"/><text x="50" y="102.0" text-anchor="end" font-family="sans-serif" font-size="11">72.3</text>
+<line x1="56" x2="704" y1="40.0" y2="40.0" stroke="#eee"/><text x="50" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">92.1</text>
+<line x1="56" x2="704" y1="310.0" y2="310.0" stroke="#333"/>
+<text x="14" y="185.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 185.0)">colour error J</text>
+<rect x="63.2" y="268.7" width="27.8" height="41.3" fill="#1f6fb2"/>
+<rect x="92.0" y="257.3" width="27.8" height="52.7" fill="#c0392b"/>
+<text x="92.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">QW</text>
+<rect x="135.2" y="261.7" width="27.8" height="48.3" fill="#1f6fb2"/>
+<rect x="164.0" y="239.9" width="27.8" height="70.1" fill="#c0392b"/>
+<text x="164.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">rand mean/iid</text>
+<rect x="207.2" y="256.1" width="27.8" height="53.9" fill="#1f6fb2"/>
+<rect x="236.0" y="230.8" width="27.8" height="79.2" fill="#c0392b"/>
+<text x="236.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">rand CVaR/iid</text>
+<rect x="279.2" y="247.2" width="27.8" height="62.8" fill="#1f6fb2"/>
+<rect x="308.0" y="196.9" width="27.8" height="113.1" fill="#c0392b"/>
+<text x="308.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">rand mean/corr</text>
+<rect x="351.2" y="250.1" width="27.8" height="59.9" fill="#1f6fb2"/>
+<rect x="380.0" y="213.0" width="27.8" height="97.0" fill="#c0392b"/>
+<text x="380.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">rand CVaR/corr</text>
+<rect x="423.2" y="246.6" width="27.8" height="63.4" fill="#1f6fb2"/>
+<rect x="452.0" y="171.9" width="27.8" height="138.1" fill="#c0392b"/>
+<text x="452.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">NM mean/iid</text>
+<rect x="495.2" y="235.0" width="27.8" height="75.0" fill="#1f6fb2"/>
+<rect x="524.0" y="183.6" width="27.8" height="126.4" fill="#c0392b"/>
+<text x="524.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">NM CVaR/iid</text>
+<rect x="567.2" y="205.1" width="27.8" height="104.9" fill="#1f6fb2"/>
+<rect x="596.0" y="60.0" width="27.8" height="250.0" fill="#c0392b"/>
+<text x="596.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">NM mean/corr</text>
+<rect x="639.2" y="211.8" width="27.8" height="98.2" fill="#1f6fb2"/>
+<rect x="668.0" y="117.0" width="27.8" height="193.0" fill="#c0392b"/>
+<text x="668.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">NM CVaR/corr</text>
+<rect x="56" y="376" width="12" height="10" fill="#1f6fb2"/><text x="72" y="385" font-family="sans-serif" font-size="11">mean J</text>
+<rect x="191" y="376" width="12" height="10" fill="#c0392b"/><text x="207" y="385" font-family="sans-serif" font-size="11">p90 J</text>
+</svg>

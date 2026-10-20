@@ -1,0 +1,3097 @@
+{
+  "day": "2026-10-13",
+  "merges": 68,
+  "baseline_merges_per_day": 56.4,
+  "lines_added": 52296,
+  "lines_removed": 7657,
+  "files_changed": 167008,
+  "busiest_hour": {
+    "hour": 18,
+    "merges": 5
+  },
+  "hours": [
+    2,
+    4,
+    3,
+    4,
+    1,
+    3,
+    3,
+    3,
+    3,
+    2,
+    3,
+    3,
+    3,
+    3,
+    1,
+    4,
+    2,
+    2,
+    5,
+    2,
+    4,
+    2,
+    3,
+    3
+  ],
+  "agents": [
+    [
+      "Claude Sonnet 5.5",
+      49
+    ],
+    [
+      "Claude",
+      19
+    ]
+  ],
+  "products": [
+    {
+      "name": "ca-gst-hst-small-supplier-checker",
+      "merges": [
+        {
+          "sha": "42d5a70e4d15921213e0fb6bca6af28f50df3e7c",
+          "at": 1791910575000,
+          "title": "ca-gst-hst-small-supplier-checker: add Quick Method vs regular accounting comparison",
+          "pr": 6884,
+          "agent": "Claude",
+          "models": [],
+          "track": null,
+          "bullets": [],
+          "detail": null,
+          "area": {
+            "kind": "product",
+            "name": "ca-gst-hst-small-supplier-checker"
+          },
+          "files": 7,
+          "lines_added": 85,
+          "lines_removed": 4,
+          "added_files": [],
+          "revert": false,
+          "fix_forward": false
+        }
+      ]
+    },
+    {
+      "name": "several products at once",
+      "merges": [
+        {
+          "sha": "7c7d46f0d0b6f0d3f00012e9107a17c0d084e2ab",
+          "at": 1791859943000,
+          "title": "convenience-store-gas-station-profit-calculator: new venture (fuel margin after card fees, break-even gallons, debt coverage)",
+          "pr": 6843,
+          "agent": "Claude Sonnet 5.5",
+          "models": [
+            "Claude Sonnet 5.5"
+          ],
+          "track": null,
+          "bullets": [
+            "convenience-store-gas-station-profit-calculator: new venture (fuel margin after card fees, inside sales mix, break-even gallons, debt coverage)",
+            "Close sibling orphans (card-fee tools, ice-cream/boba), sort launched.json; regen mirror"
+          ],
+          "detail": "Browser-only monthly P&L for independent c-store and gas station owners and buyers.",
+          "area": {
+            "kind": "product",
+            "name": "several products at once"
+          },
+          "files": 2673,
+          "lines_added": 942,
+          "lines_removed": 217,
+          "added_files": [
+            "gitops/prod/front-door-tools/convenience-store-gas-station-profit-calculator__calc.mjs.gz",
+            "gitops/prod/front-door-tools/convenience-store-gas-station-profit-calculator__index.html.gz",
+            "gitops/prod/front-door-tools/convenience-store-gas-station-profit-calculator__usage.mjs.gz",
+            "ventures/convenience-store-gas-station-profit-calculator/LICENSE",
+            "ventures/convenience-store-gas-station-profit-calculator/README.md",
+            "ventures/convenience-store-gas-station-profit-calculator/VENTURE.yaml",
+            "ventures/convenience-store-gas-station-profit-calculator/calc.mjs",
+            "ventures/convenience-store-gas-station-profit-calculator/calc.test.mjs",
+            "ventures/convenience-store-gas-station-profit-calculator/index.html",
+            "ventures/convenience-store-gas-station-profit-calculator/page.test.mjs",
+            "ventures/convenience-store-gas-station-profit-calculator/robots.txt",
+            "ventures/convenience-store-gas-station-profit-calculator/sitemap.xml",
+            "ventures/convenience-store-gas-station-profit-calculator/usage.mjs",
+            "ventures/convenience-store-gas-station-profit-calculator/usage.test.mjs"
+          ],
+          "revert": false,
+          "fix_forward": false
+        }
+      ]
+    },
+    {
+      "name": "uk-cis-deduction-refund-calculator",
+      "merges": [
+        {
+          "sha": "d4819055c3563fa370a5fe4108cc120e0bab1170",
+          "at": 1791923676000,
+          "title": "uk-cis-deduction-refund-calculator: fix dead page (doubled template braces made the module script a SyntaxError)",
+          "pr": 6895,
+          "agent": "Claude",
+          "models": [],
+          "track": null,
+          "bullets": [],
+          "detail": "The inline module had {{ }} left over from generation, so the browser ran none of it: no calculate button, no example.",
+          "area": {
+            "kind": "product",
+            "name": "uk-cis-deduction-refund-calculator"
+          },
+          "files": 1,
+          "lines_added": 7,
+          "lines_removed": 0,
+          "added_files": [],
+          "revert": false,
+          "fix_forward": false
+        }
+      ]
+    }
+  ],
+  "research": [],
+  "writing": [],
+  "platform": [
+    {
+      "name": "pages",
+      "merges": [
+        {
+          "sha": "1582ff5f58b95ee3e743a1f9b47fe27afe290082",
+          "at": 1791873505000,
+          "title": "launched.json: sort indoor-play-center-profit-calculator into key order (fixes launched.test.mjs byte-for-byte check)",
+          "pr": 6856,
+          "agent": "Claude",
+          "models": [],
+          "track": null,
+          "bullets": [],
+          "detail": null,
+          "area": {
+            "kind": "platform",
+            "name": "pages"
+          },
+          "files": 1,
+          "lines_added": 1,
+          "lines_removed": 1,
+          "added_files": [],
+          "revert": false,
+          "fix_forward": false
+        }
+      ]
+    }
+  ],
+  "ci": [],
+  "process": [
+    {
+      "sha": "51ed60eed6fb8acf2014a88c323e26aac63d6bd6",
+      "at": 1791850723000,
+      "title": "hydroponic-farm-profit-calculator: new venture + fix coworking results panel",
+      "pr": 6835,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "hydroponic-farm-profit-calculator: new venture (indoor farm heads/week, break-even, power sensitivity, ramp-up reserve, payback); fix coworking results panel",
+        "Resolve merge: take main's count files, re-sync tree counts"
+      ],
+      "detail": "Also fixes coworking-space-profit-calculator, whose results panel threw on a nonexistent r.cfByYear and never displayed.",
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2663,
+      "lines_added": 982,
+      "lines_removed": 151,
+      "added_files": [
+        "gitops/prod/front-door-tools/hydroponic-farm-profit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/hydroponic-farm-profit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/hydroponic-farm-profit-calculator__usage.mjs.gz",
+        "ventures/hydroponic-farm-profit-calculator/LICENSE",
+        "ventures/hydroponic-farm-profit-calculator/README.md",
+        "ventures/hydroponic-farm-profit-calculator/VENTURE.yaml",
+        "ventures/hydroponic-farm-profit-calculator/calc.mjs",
+        "ventures/hydroponic-farm-profit-calculator/calc.test.mjs",
+        "ventures/hydroponic-farm-profit-calculator/index.html",
+        "ventures/hydroponic-farm-profit-calculator/page.test.mjs",
+        "ventures/hydroponic-farm-profit-calculator/robots.txt",
+        "ventures/hydroponic-farm-profit-calculator/sitemap.xml",
+        "ventures/hydroponic-farm-profit-calculator/usage.mjs",
+        "ventures/hydroponic-farm-profit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "2f0ed2bd5e500867451321790957c9c0afe6f741",
+      "at": 1791853123000,
+      "title": "npm-audit-triage: new venture (rank npm audit findings by whether your code imports the vulnerable package)",
+      "pr": 6833,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "npm-audit-triage: new venture (rank npm audit --json findings by whether your code imports the vulnerable package; browser tool + zero-dependency CI gate CLI)",
+        "npm-audit-triage: link from lockfile-license-check so it is not a crawlable orphan"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2664,
+      "lines_added": 908,
+      "lines_removed": 121,
+      "added_files": [
+        "gitops/prod/front-door-tools/npm-audit-triage__audit-triage.mjs.gz",
+        "gitops/prod/front-door-tools/npm-audit-triage__how-to-triage-npm-audit-findings.html.gz",
+        "gitops/prod/front-door-tools/npm-audit-triage__index.html.gz",
+        "gitops/prod/front-door-tools/npm-audit-triage__triage.mjs.gz",
+        "gitops/prod/front-door-tools/npm-audit-triage__usage.mjs.gz",
+        "ventures/npm-audit-triage/LICENSE",
+        "ventures/npm-audit-triage/README.md",
+        "ventures/npm-audit-triage/VENTURE.yaml",
+        "ventures/npm-audit-triage/audit-triage.mjs",
+        "ventures/npm-audit-triage/how-to-triage-npm-audit-findings.html",
+        "ventures/npm-audit-triage/index.html",
+        "ventures/npm-audit-triage/page.test.mjs",
+        "ventures/npm-audit-triage/robots.txt",
+        "ventures/npm-audit-triage/sitemap.xml",
+        "ventures/npm-audit-triage/triage.mjs",
+        "ventures/npm-audit-triage/triage.test.mjs",
+        "ventures/npm-audit-triage/usage.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "cb851b30ea54173f5f74d7723b553586d29055fb",
+      "at": 1791853576000,
+      "title": "ice-cream-shop-seasonal-profit-calculator: new venture (seasonal shop twelve-month P&L, open-or-close per month, winter cash reserve)",
+      "pr": 6834,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "ice-cream-shop-seasonal-profit-calculator: new venture (seasonal frozen-dessert shop twelve-month P&L, break-even customers per day, open-or-close verdict per month, loan coverage, winter cash reserve)",
+        "rates.mjs: record the ice cream shop calculator's wage fields as reviewed, not carried"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2666,
+      "lines_added": 874,
+      "lines_removed": 131,
+      "added_files": [
+        "gitops/prod/front-door-tools/ice-cream-shop-seasonal-profit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/ice-cream-shop-seasonal-profit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/ice-cream-shop-seasonal-profit-calculator__usage.mjs.gz",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/LICENSE",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/README.md",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/VENTURE.yaml",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/calc.mjs",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/calc.test.mjs",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/index.html",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/page.test.mjs",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/robots.txt",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/sitemap.xml",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/usage.mjs",
+        "ventures/ice-cream-shop-seasonal-profit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "bd65e6935e9fa510d778ba4dbf472552fd72de92",
+      "at": 1791853963000,
+      "title": "prompt: one-repository end state, keeping both histories",
+      "pr": 6839,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": "Records oss-monorepo (formerly fp-monorepo) as the destination, with the research portfolio merged in under research/ with its full history.",
+      "area": {
+        "kind": "process",
+        "name": "repository root"
+      },
+      "files": 1,
+      "lines_added": 22,
+      "lines_removed": 0,
+      "added_files": [],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "9089d0893b4e6e1a1c18f1bc7e74cda0baa91a4a",
+      "at": 1791854590000,
+      "title": "boba-tea-shop-profit-calculator: new venture (leased-store pro forma: break-even cups a day with loan, delivery commission, target-margin price, 60-month ramp reserve)",
+      "pr": 6840,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2665,
+      "lines_added": 830,
+      "lines_removed": 98,
+      "added_files": [
+        "gitops/prod/front-door-tools/boba-tea-shop-profit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/boba-tea-shop-profit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/boba-tea-shop-profit-calculator__usage.mjs.gz",
+        "ventures/boba-tea-shop-profit-calculator/LICENSE",
+        "ventures/boba-tea-shop-profit-calculator/README.md",
+        "ventures/boba-tea-shop-profit-calculator/VENTURE.yaml",
+        "ventures/boba-tea-shop-profit-calculator/calc.mjs",
+        "ventures/boba-tea-shop-profit-calculator/calc.test.mjs",
+        "ventures/boba-tea-shop-profit-calculator/index.html",
+        "ventures/boba-tea-shop-profit-calculator/page.test.mjs",
+        "ventures/boba-tea-shop-profit-calculator/robots.txt",
+        "ventures/boba-tea-shop-profit-calculator/sitemap.xml",
+        "ventures/boba-tea-shop-profit-calculator/usage.mjs",
+        "ventures/boba-tea-shop-profit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "ed391f3c7dfee0991cc352844324fc8fb02b649f",
+      "at": 1791855029000,
+      "title": "kombucha-brewery-profit-calculator: new venture (tank cycle, break-even gallons, power sensitivity, ramp-up reserve, payback)",
+      "pr": 6836,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "kombucha-brewery-profit-calculator: new venture (tank cycle to gallons a week, wholesale/taproom mix, break-even gallons, power sensitivity, ramp-up reserve, payback)",
+        "craft-brewery-batch-margin-calculator: link kombucha-brewery-profit-calculator (closes the sibling orphan); regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2667,
+      "lines_added": 926,
+      "lines_removed": 102,
+      "added_files": [
+        "gitops/prod/front-door-tools/kombucha-brewery-profit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/kombucha-brewery-profit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/kombucha-brewery-profit-calculator__usage.mjs.gz",
+        "ventures/kombucha-brewery-profit-calculator/LICENSE",
+        "ventures/kombucha-brewery-profit-calculator/README.md",
+        "ventures/kombucha-brewery-profit-calculator/VENTURE.yaml",
+        "ventures/kombucha-brewery-profit-calculator/calc.mjs",
+        "ventures/kombucha-brewery-profit-calculator/calc.test.mjs",
+        "ventures/kombucha-brewery-profit-calculator/index.html",
+        "ventures/kombucha-brewery-profit-calculator/page.test.mjs",
+        "ventures/kombucha-brewery-profit-calculator/robots.txt",
+        "ventures/kombucha-brewery-profit-calculator/sitemap.xml",
+        "ventures/kombucha-brewery-profit-calculator/usage.mjs",
+        "ventures/kombucha-brewery-profit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "0c847d6d93929854b6e84b7c089c62ccfa8e52dc",
+      "at": 1791857889000,
+      "title": "pet-boarding-daycare-profit-calculator: new venture",
+      "pr": 6838,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "pet-boarding-daycare-profit-calculator: new venture (dog boarding and daycare pro forma: step staffing, break-even occupancy, ramp-up reserve, payback)",
+        "pet-boarding-daycare-profit-calculator: launch date, rates decision, build section, cross-link",
+        "pet-boarding-daycare-profit-calculator: regenerate mirror",
+        "pet-boarding-daycare-profit-calculator: inbound sibling link from dog-boarding-daycare-pricing; regenerate mirror",
+        "launched.json refresh; link ice-cream-shop to boba-tea-shop (orphan from main); regenerate mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2670,
+      "lines_added": 910,
+      "lines_removed": 112,
+      "added_files": [
+        "gitops/prod/front-door-tools/pet-boarding-daycare-profit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/pet-boarding-daycare-profit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/pet-boarding-daycare-profit-calculator__usage.mjs.gz",
+        "ventures/pet-boarding-daycare-profit-calculator/LICENSE",
+        "ventures/pet-boarding-daycare-profit-calculator/README.md",
+        "ventures/pet-boarding-daycare-profit-calculator/VENTURE.yaml",
+        "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+        "ventures/pet-boarding-daycare-profit-calculator/calc.test.mjs",
+        "ventures/pet-boarding-daycare-profit-calculator/index.html",
+        "ventures/pet-boarding-daycare-profit-calculator/page.test.mjs",
+        "ventures/pet-boarding-daycare-profit-calculator/robots.txt",
+        "ventures/pet-boarding-daycare-profit-calculator/sitemap.xml",
+        "ventures/pet-boarding-daycare-profit-calculator/usage.mjs",
+        "ventures/pet-boarding-daycare-profit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "d9ad9fb182ae7f30366706d5c7011db1effc8941",
+      "at": 1791858379000,
+      "title": "pip-audit-triage: new venture (rank pip-audit findings by whether your Python code imports the vulnerable package)",
+      "pr": 6841,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "pip-audit-triage: new venture (rank pip-audit findings by whether your Python code imports the vulnerable package)",
+        "launched.json: normalise after refresh"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2671,
+      "lines_added": 914,
+      "lines_removed": 132,
+      "added_files": [
+        "gitops/prod/front-door-tools/pip-audit-triage__how-to-triage-pip-audit-findings.html.gz",
+        "gitops/prod/front-door-tools/pip-audit-triage__index.html.gz",
+        "gitops/prod/front-door-tools/pip-audit-triage__pip-audit-triage.mjs.gz",
+        "gitops/prod/front-door-tools/pip-audit-triage__triage.mjs.gz",
+        "gitops/prod/front-door-tools/pip-audit-triage__usage.mjs.gz",
+        "ventures/pip-audit-triage/LICENSE",
+        "ventures/pip-audit-triage/README.md",
+        "ventures/pip-audit-triage/VENTURE.yaml",
+        "ventures/pip-audit-triage/how-to-triage-pip-audit-findings.html",
+        "ventures/pip-audit-triage/index.html",
+        "ventures/pip-audit-triage/page.test.mjs",
+        "ventures/pip-audit-triage/pip-audit-triage.mjs",
+        "ventures/pip-audit-triage/robots.txt",
+        "ventures/pip-audit-triage/sitemap.xml",
+        "ventures/pip-audit-triage/triage.mjs",
+        "ventures/pip-audit-triage/triage.test.mjs",
+        "ventures/pip-audit-triage/usage.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "24c302aca25d63b985573de217d14fe1c3d8568a",
+      "at": 1791860908000,
+      "title": "pizzeria-profit-calculator: new venture",
+      "pr": 6842,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "pizzeria-profit-calculator: new venture (pizzeria pro forma: break-even orders a day with loan, own-driver and delivery-app channel cost, target-ticket, 60-month ramp reserve)",
+        "pizzeria-profit-calculator: register launch date, rates review, food-service sibling group, inbound link; regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2671,
+      "lines_added": 805,
+      "lines_removed": 89,
+      "added_files": [
+        "gitops/prod/front-door-tools/pizzeria-profit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/pizzeria-profit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/pizzeria-profit-calculator__usage.mjs.gz",
+        "ventures/pizzeria-profit-calculator/LICENSE",
+        "ventures/pizzeria-profit-calculator/README.md",
+        "ventures/pizzeria-profit-calculator/VENTURE.yaml",
+        "ventures/pizzeria-profit-calculator/calc.mjs",
+        "ventures/pizzeria-profit-calculator/calc.test.mjs",
+        "ventures/pizzeria-profit-calculator/index.html",
+        "ventures/pizzeria-profit-calculator/page.test.mjs",
+        "ventures/pizzeria-profit-calculator/robots.txt",
+        "ventures/pizzeria-profit-calculator/sitemap.xml",
+        "ventures/pizzeria-profit-calculator/usage.mjs",
+        "ventures/pizzeria-profit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "adcca2306e298b29e11c449ac45600334751d7cb",
+      "at": 1791861684000,
+      "title": "cargo-audit-triage: new venture (rank cargo audit findings by whether your Rust code uses the flagged crate)",
+      "pr": 6845,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": "Rust counterpart of npm-audit-triage and pip-audit-triage: browser tool plus zero-dependency CLI with a --fail-on-imported CI gate.",
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2621,
+      "lines_added": 849,
+      "lines_removed": 72,
+      "added_files": [
+        "gitops/prod/front-door-tools/cargo-audit-triage__cargo-audit-triage.mjs.gz",
+        "gitops/prod/front-door-tools/cargo-audit-triage__how-to-triage-cargo-audit-findings.html.gz",
+        "gitops/prod/front-door-tools/cargo-audit-triage__index.html.gz",
+        "gitops/prod/front-door-tools/cargo-audit-triage__triage.mjs.gz",
+        "gitops/prod/front-door-tools/cargo-audit-triage__usage.mjs.gz",
+        "ventures/cargo-audit-triage/LICENSE",
+        "ventures/cargo-audit-triage/README.md",
+        "ventures/cargo-audit-triage/VENTURE.yaml",
+        "ventures/cargo-audit-triage/cargo-audit-triage.mjs",
+        "ventures/cargo-audit-triage/how-to-triage-cargo-audit-findings.html",
+        "ventures/cargo-audit-triage/index.html",
+        "ventures/cargo-audit-triage/page.test.mjs",
+        "ventures/cargo-audit-triage/robots.txt",
+        "ventures/cargo-audit-triage/sitemap.xml",
+        "ventures/cargo-audit-triage/triage.mjs",
+        "ventures/cargo-audit-triage/triage.test.mjs",
+        "ventures/cargo-audit-triage/usage.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "704634fadbd9c5a268601307e49fb5d627009db4",
+      "at": 1791862537000,
+      "title": "nis2-scope-checker: new venture (EU NIS2 scope check: sector and size to essential, important or out of scope, with the Article)",
+      "pr": 6846,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2675,
+      "lines_added": 907,
+      "lines_removed": 165,
+      "added_files": [
+        "gitops/prod/front-door-tools/nis2-scope-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/nis2-scope-checker__index.html.gz",
+        "gitops/prod/front-door-tools/nis2-scope-checker__usage.mjs.gz",
+        "ventures/nis2-scope-checker/LICENSE",
+        "ventures/nis2-scope-checker/README.md",
+        "ventures/nis2-scope-checker/VENTURE.yaml",
+        "ventures/nis2-scope-checker/calc.mjs",
+        "ventures/nis2-scope-checker/calc.test.mjs",
+        "ventures/nis2-scope-checker/index.html",
+        "ventures/nis2-scope-checker/page.test.mjs",
+        "ventures/nis2-scope-checker/robots.txt",
+        "ventures/nis2-scope-checker/sitemap.xml",
+        "ventures/nis2-scope-checker/usage.mjs",
+        "ventures/nis2-scope-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "3544eb3250ecd5ccd29cebe4ee64a1d095f81058",
+      "at": 1791863025000,
+      "title": "dry-cleaner-profit-calculator: new venture (break-even pieces, price rise to zero profit, debt coverage)",
+      "pr": 6844,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "dry-cleaner-profit-calculator: new venture (break-even pieces, price rise to zero profit, debt coverage)",
+        "dry-cleaner-profit-calculator: close crawlable orphan via wash-and-fold and laundromat links; regen mirror",
+        "sync tree counts after merge"
+      ],
+      "detail": "Browser-only monthly P&L for independent dry cleaner owners and buyers.",
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2677,
+      "lines_added": 765,
+      "lines_removed": 77,
+      "added_files": [
+        "gitops/prod/front-door-tools/dry-cleaner-profit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/dry-cleaner-profit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/dry-cleaner-profit-calculator__usage.mjs.gz",
+        "ventures/dry-cleaner-profit-calculator/LICENSE",
+        "ventures/dry-cleaner-profit-calculator/README.md",
+        "ventures/dry-cleaner-profit-calculator/VENTURE.yaml",
+        "ventures/dry-cleaner-profit-calculator/calc.mjs",
+        "ventures/dry-cleaner-profit-calculator/calc.test.mjs",
+        "ventures/dry-cleaner-profit-calculator/index.html",
+        "ventures/dry-cleaner-profit-calculator/page.test.mjs",
+        "ventures/dry-cleaner-profit-calculator/robots.txt",
+        "ventures/dry-cleaner-profit-calculator/sitemap.xml",
+        "ventures/dry-cleaner-profit-calculator/usage.mjs",
+        "ventures/dry-cleaner-profit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "04538a5098cf7daf6d269641de5337d023db5c4c",
+      "at": 1791865854000,
+      "title": "eu-ai-act-risk-checker: new venture (EU AI Act tier, Article and duties by role, with dates)",
+      "pr": 6847,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-ai-act-risk-checker: new venture (EU AI Act tier, Article and duties by role from ticked use cases, with dates)",
+        "launched.json: fix misplaced cargo-audit-triage entry; regenerate mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2677,
+      "lines_added": 1191,
+      "lines_removed": 167,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-ai-act-risk-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-ai-act-risk-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-ai-act-risk-checker__usage.mjs.gz",
+        "ventures/eu-ai-act-risk-checker/LICENSE",
+        "ventures/eu-ai-act-risk-checker/README.md",
+        "ventures/eu-ai-act-risk-checker/VENTURE.yaml",
+        "ventures/eu-ai-act-risk-checker/calc.mjs",
+        "ventures/eu-ai-act-risk-checker/calc.test.mjs",
+        "ventures/eu-ai-act-risk-checker/index.html",
+        "ventures/eu-ai-act-risk-checker/page.test.mjs",
+        "ventures/eu-ai-act-risk-checker/robots.txt",
+        "ventures/eu-ai-act-risk-checker/sitemap.xml",
+        "ventures/eu-ai-act-risk-checker/usage.mjs",
+        "ventures/eu-ai-act-risk-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "32ca638697b3bc5364b8736ff5af60cc0706a3dc",
+      "at": 1791868641000,
+      "title": "eudr-scope-checker: new venture (EU Deforestation Regulation scope, duties by Article, application date, Annex I code screen)",
+      "pr": 6849,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eudr-scope-checker: new venture (EU Deforestation Regulation scope, duties by Article, application date, Annex I code screen)",
+        "eudr-scope-checker: sync mirrored-tool count after mirror regen",
+        "eudr-scope-checker: link NIS2 sibling both ways (siblings orphan budget); regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2678,
+      "lines_added": 1006,
+      "lines_removed": 170,
+      "added_files": [
+        "gitops/prod/front-door-tools/eudr-scope-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eudr-scope-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eudr-scope-checker__usage.mjs.gz",
+        "ventures/eudr-scope-checker/LICENSE",
+        "ventures/eudr-scope-checker/README.md",
+        "ventures/eudr-scope-checker/VENTURE.yaml",
+        "ventures/eudr-scope-checker/calc.mjs",
+        "ventures/eudr-scope-checker/calc.test.mjs",
+        "ventures/eudr-scope-checker/index.html",
+        "ventures/eudr-scope-checker/page.test.mjs",
+        "ventures/eudr-scope-checker/robots.txt",
+        "ventures/eudr-scope-checker/sitemap.xml",
+        "ventures/eudr-scope-checker/usage.mjs",
+        "ventures/eudr-scope-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "02e177e32aeafa35f475190e8a088ade740cae0c",
+      "at": 1791868922000,
+      "title": "cbam-cost-estimator: new venture (EU CBAM certificate cost, 2026-2034 phase-out, 50-tonne threshold)",
+      "pr": 6851,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "cbam-cost-estimator: new venture (EU CBAM certificate cost, 2026-2034 phase-out, 50-tonne threshold)",
+        "nis2-scope-checker: link cbam-cost-estimator (closes the sibling-link orphan)"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2679,
+      "lines_added": 834,
+      "lines_removed": 95,
+      "added_files": [
+        "gitops/prod/front-door-tools/cbam-cost-estimator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/cbam-cost-estimator__index.html.gz",
+        "gitops/prod/front-door-tools/cbam-cost-estimator__usage.mjs.gz",
+        "ventures/cbam-cost-estimator/LICENSE",
+        "ventures/cbam-cost-estimator/README.md",
+        "ventures/cbam-cost-estimator/VENTURE.yaml",
+        "ventures/cbam-cost-estimator/calc.mjs",
+        "ventures/cbam-cost-estimator/calc.test.mjs",
+        "ventures/cbam-cost-estimator/index.html",
+        "ventures/cbam-cost-estimator/page.test.mjs",
+        "ventures/cbam-cost-estimator/robots.txt",
+        "ventures/cbam-cost-estimator/sitemap.xml",
+        "ventures/cbam-cost-estimator/usage.mjs",
+        "ventures/cbam-cost-estimator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "f7fab51c0c941f06c29ab0077ae925c5753da57b",
+      "at": 1791870267000,
+      "title": "eaa-accessibility-act-checker: new venture (European Accessibility Act applicability check)",
+      "pr": 6850,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eaa-accessibility-act-checker: new venture (European Accessibility Act applicability: product or service, role and size to in scope, microenterprise-exempt or out, with the Article)",
+        "nis2-scope-checker: link the European Accessibility Act checker (clears the new page's orphan)"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2680,
+      "lines_added": 908,
+      "lines_removed": 154,
+      "added_files": [
+        "gitops/prod/front-door-tools/eaa-accessibility-act-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eaa-accessibility-act-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eaa-accessibility-act-checker__usage.mjs.gz",
+        "ventures/eaa-accessibility-act-checker/LICENSE",
+        "ventures/eaa-accessibility-act-checker/README.md",
+        "ventures/eaa-accessibility-act-checker/VENTURE.yaml",
+        "ventures/eaa-accessibility-act-checker/calc.mjs",
+        "ventures/eaa-accessibility-act-checker/calc.test.mjs",
+        "ventures/eaa-accessibility-act-checker/index.html",
+        "ventures/eaa-accessibility-act-checker/page.test.mjs",
+        "ventures/eaa-accessibility-act-checker/robots.txt",
+        "ventures/eaa-accessibility-act-checker/sitemap.xml",
+        "ventures/eaa-accessibility-act-checker/usage.mjs",
+        "ventures/eaa-accessibility-act-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "cdb1c12b10c3e3e4d3278f6a9fa5982191970f28",
+      "at": 1791871942000,
+      "title": "indoor-play-center-profit-calculator: new venture (visits, parties, cafe, staffing to profit, break-even visits, ramp-up reserve, payback)",
+      "pr": 6853,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "indoor-play-center-profit-calculator: new venture (visits, parties, cafe, staffing to monthly profit, break-even visits, ramp-up reserve, payback)",
+        "indoor-play-center-profit-calculator: sync tree counts after merging main"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2681,
+      "lines_added": 995,
+      "lines_removed": 173,
+      "added_files": [
+        "gitops/prod/front-door-tools/indoor-play-center-profit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/indoor-play-center-profit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/indoor-play-center-profit-calculator__usage.mjs.gz",
+        "ventures/indoor-play-center-profit-calculator/LICENSE",
+        "ventures/indoor-play-center-profit-calculator/README.md",
+        "ventures/indoor-play-center-profit-calculator/VENTURE.yaml",
+        "ventures/indoor-play-center-profit-calculator/calc.mjs",
+        "ventures/indoor-play-center-profit-calculator/calc.test.mjs",
+        "ventures/indoor-play-center-profit-calculator/index.html",
+        "ventures/indoor-play-center-profit-calculator/page.test.mjs",
+        "ventures/indoor-play-center-profit-calculator/robots.txt",
+        "ventures/indoor-play-center-profit-calculator/sitemap.xml",
+        "ventures/indoor-play-center-profit-calculator/usage.mjs",
+        "ventures/indoor-play-center-profit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "27363baeb3c4f54c33ecdc339c66cb646d6d7860",
+      "at": 1791872449000,
+      "title": "gpsr-product-safety-checker: new venture (EU General Product Safety Regulation: scope, EU responsible person gap, open duties by role)",
+      "pr": 6855,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2620,
+      "lines_added": 747,
+      "lines_removed": 60,
+      "added_files": [
+        "gitops/prod/front-door-tools/gpsr-product-safety-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/gpsr-product-safety-checker__index.html.gz",
+        "gitops/prod/front-door-tools/gpsr-product-safety-checker__usage.mjs.gz",
+        "ventures/gpsr-product-safety-checker/LICENSE",
+        "ventures/gpsr-product-safety-checker/README.md",
+        "ventures/gpsr-product-safety-checker/VENTURE.yaml",
+        "ventures/gpsr-product-safety-checker/calc.mjs",
+        "ventures/gpsr-product-safety-checker/calc.test.mjs",
+        "ventures/gpsr-product-safety-checker/index.html",
+        "ventures/gpsr-product-safety-checker/page.test.mjs",
+        "ventures/gpsr-product-safety-checker/robots.txt",
+        "ventures/gpsr-product-safety-checker/sitemap.xml",
+        "ventures/gpsr-product-safety-checker/usage.mjs",
+        "ventures/gpsr-product-safety-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "a3661c265f38cd8c50e291587f6edeba5f16c4a3",
+      "at": 1791875052000,
+      "title": "eu-data-act-checker: new venture (EU Data Act scope by role and size)",
+      "pr": 6852,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-data-act-checker: new venture (EU Data Act scope by role and size, Art 7 micro/small exemption, duties and dates)",
+        "gpsr-product-safety-checker: add the launch date and build rule main was missing; regen mirror",
+        "launched.json: canonical ordering from the refresh tool"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2683,
+      "lines_added": 859,
+      "lines_removed": 134,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-data-act-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-data-act-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-data-act-checker__usage.mjs.gz",
+        "ventures/eu-data-act-checker/LICENSE",
+        "ventures/eu-data-act-checker/README.md",
+        "ventures/eu-data-act-checker/VENTURE.yaml",
+        "ventures/eu-data-act-checker/calc.mjs",
+        "ventures/eu-data-act-checker/calc.test.mjs",
+        "ventures/eu-data-act-checker/index.html",
+        "ventures/eu-data-act-checker/page.test.mjs",
+        "ventures/eu-data-act-checker/robots.txt",
+        "ventures/eu-data-act-checker/sitemap.xml",
+        "ventures/eu-data-act-checker/usage.mjs",
+        "ventures/eu-data-act-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "630bf99c54686e0d98f939cc9af1e28925a0d7b1",
+      "at": 1791876169000,
+      "title": "padel-club-profit-calculator: new venture (utilisation, members, coaching, staffing to profit, break-even, ramp-up reserve, payback)",
+      "pr": 6859,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "padel-club-profit-calculator: new venture (courts, peak and off-peak utilisation, members, coaching, F&B, staffing to profit, break-even utilisation, ramp-up reserve, payback)",
+        "sync tree counts after merging main"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2683,
+      "lines_added": 996,
+      "lines_removed": 127,
+      "added_files": [
+        "gitops/prod/front-door-tools/padel-club-profit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/padel-club-profit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/padel-club-profit-calculator__usage.mjs.gz",
+        "ventures/padel-club-profit-calculator/LICENSE",
+        "ventures/padel-club-profit-calculator/README.md",
+        "ventures/padel-club-profit-calculator/VENTURE.yaml",
+        "ventures/padel-club-profit-calculator/calc.mjs",
+        "ventures/padel-club-profit-calculator/calc.test.mjs",
+        "ventures/padel-club-profit-calculator/index.html",
+        "ventures/padel-club-profit-calculator/page.test.mjs",
+        "ventures/padel-club-profit-calculator/robots.txt",
+        "ventures/padel-club-profit-calculator/sitemap.xml",
+        "ventures/padel-club-profit-calculator/usage.mjs",
+        "ventures/padel-club-profit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "5f2f148c77a428b0b6bc4a3b09345b8fc3e768c8",
+      "at": 1791878056000,
+      "title": "eu-battery-regulation-checker: new venture (EU Batteries Regulation duty timeline)",
+      "pr": 6857,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-battery-regulation-checker: new venture (EU Batteries Regulation 2023/1542 duty timeline: label, removability, QR, passport, due diligence, EU operator gap)",
+        "eu-battery-regulation-checker: launched dates, compliance category, sibling link from gpsr checker",
+        "pickleball-facility-pro-forma: link padel-club-profit-calculator (closes sibling orphan on main)"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2686,
+      "lines_added": 940,
+      "lines_removed": 205,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-battery-regulation-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-battery-regulation-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-battery-regulation-checker__usage.mjs.gz",
+        "ventures/eu-battery-regulation-checker/LICENSE",
+        "ventures/eu-battery-regulation-checker/README.md",
+        "ventures/eu-battery-regulation-checker/VENTURE.yaml",
+        "ventures/eu-battery-regulation-checker/calc.mjs",
+        "ventures/eu-battery-regulation-checker/calc.test.mjs",
+        "ventures/eu-battery-regulation-checker/index.html",
+        "ventures/eu-battery-regulation-checker/page.test.mjs",
+        "ventures/eu-battery-regulation-checker/robots.txt",
+        "ventures/eu-battery-regulation-checker/sitemap.xml",
+        "ventures/eu-battery-regulation-checker/usage.mjs",
+        "ventures/eu-battery-regulation-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "db5fcb85dc71e4346b922831ff757f2230ce376c",
+      "at": 1791879308000,
+      "title": "eu-packaging-regulation-checker: new venture (EU PPWR 2025/40 duty timeline by packaging use, material and role)",
+      "pr": 6862,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2685,
+      "lines_added": 832,
+      "lines_removed": 86,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-packaging-regulation-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-packaging-regulation-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-packaging-regulation-checker__usage.mjs.gz",
+        "ventures/eu-packaging-regulation-checker/LICENSE",
+        "ventures/eu-packaging-regulation-checker/README.md",
+        "ventures/eu-packaging-regulation-checker/VENTURE.yaml",
+        "ventures/eu-packaging-regulation-checker/calc.mjs",
+        "ventures/eu-packaging-regulation-checker/calc.test.mjs",
+        "ventures/eu-packaging-regulation-checker/index.html",
+        "ventures/eu-packaging-regulation-checker/page.test.mjs",
+        "ventures/eu-packaging-regulation-checker/robots.txt",
+        "ventures/eu-packaging-regulation-checker/sitemap.xml",
+        "ventures/eu-packaging-regulation-checker/usage.mjs",
+        "ventures/eu-packaging-regulation-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "4006190e0bf05c2095d106d6044e78a1d6c7e79d",
+      "at": 1791880062000,
+      "title": "bowling-center-profit-calculator: new venture (lanes, utilization, leagues, parties, food and bar to profit, break-even, ramp-up reserve, payback)",
+      "pr": 6860,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "bowling-center-profit-calculator: new venture (lanes, utilization, leagues, parties, food and bar to profit, break-even, ramp-up reserve, payback)",
+        "bowling-center-profit-calculator: sort launched.json, link from padel sibling (clears orphan budget)"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2687,
+      "lines_added": 1202,
+      "lines_removed": 333,
+      "added_files": [
+        "gitops/prod/front-door-tools/bowling-center-profit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/bowling-center-profit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/bowling-center-profit-calculator__usage.mjs.gz",
+        "ventures/bowling-center-profit-calculator/LICENSE",
+        "ventures/bowling-center-profit-calculator/README.md",
+        "ventures/bowling-center-profit-calculator/VENTURE.yaml",
+        "ventures/bowling-center-profit-calculator/calc.mjs",
+        "ventures/bowling-center-profit-calculator/calc.test.mjs",
+        "ventures/bowling-center-profit-calculator/index.html",
+        "ventures/bowling-center-profit-calculator/page.test.mjs",
+        "ventures/bowling-center-profit-calculator/robots.txt",
+        "ventures/bowling-center-profit-calculator/sitemap.xml",
+        "ventures/bowling-center-profit-calculator/usage.mjs",
+        "ventures/bowling-center-profit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "45c7ee91a73b55d30e606483c65852bd7747911c",
+      "at": 1791880660000,
+      "title": "pay-transparency-directive-checker: new venture (EU Pay Transparency Directive reporting schedule, open duties, 5% pay gap trigger)",
+      "pr": 6858,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "pay-transparency-directive-checker: new venture (EU Pay Transparency Directive reporting schedule, open duties, 5% pay gap trigger)",
+        "launched.json: add launch dates for gpsr-product-safety-checker and pay-transparency-directive-checker; regen mirror",
+        "Restore mirror files dropped by a racing regen --verify; regen",
+        "Cross-link pay-transparency-directive-checker with sibling EU tools; file under EU compliance category; regen"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2684,
+      "lines_added": 742,
+      "lines_removed": 115,
+      "added_files": [
+        "gitops/prod/front-door-tools/pay-transparency-directive-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/pay-transparency-directive-checker__index.html.gz",
+        "gitops/prod/front-door-tools/pay-transparency-directive-checker__usage.mjs.gz",
+        "ventures/pay-transparency-directive-checker/LICENSE",
+        "ventures/pay-transparency-directive-checker/README.md",
+        "ventures/pay-transparency-directive-checker/VENTURE.yaml",
+        "ventures/pay-transparency-directive-checker/calc.mjs",
+        "ventures/pay-transparency-directive-checker/calc.test.mjs",
+        "ventures/pay-transparency-directive-checker/index.html",
+        "ventures/pay-transparency-directive-checker/page.test.mjs",
+        "ventures/pay-transparency-directive-checker/robots.txt",
+        "ventures/pay-transparency-directive-checker/sitemap.xml",
+        "ventures/pay-transparency-directive-checker/usage.mjs",
+        "ventures/pay-transparency-directive-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "5283d9e1912b634112f675d827abbcc2d57aabd4",
+      "at": 1791882415000,
+      "title": "eu-whistleblower-channel-checker: new venture (EU Whistleblower Directive channel check + report clocks)",
+      "pr": 6863,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-whistleblower-channel-checker: new venture (EU Whistleblower Directive channel obligation, open requirements, 7-day and 3-month report clocks)",
+        "Link eu-whistleblower-channel-checker from sibling EU tools (closes crawlable orphan); regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2690,
+      "lines_added": 849,
+      "lines_removed": 143,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-whistleblower-channel-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-whistleblower-channel-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-whistleblower-channel-checker__usage.mjs.gz",
+        "ventures/eu-whistleblower-channel-checker/LICENSE",
+        "ventures/eu-whistleblower-channel-checker/README.md",
+        "ventures/eu-whistleblower-channel-checker/VENTURE.yaml",
+        "ventures/eu-whistleblower-channel-checker/calc.mjs",
+        "ventures/eu-whistleblower-channel-checker/calc.test.mjs",
+        "ventures/eu-whistleblower-channel-checker/index.html",
+        "ventures/eu-whistleblower-channel-checker/page.test.mjs",
+        "ventures/eu-whistleblower-channel-checker/robots.txt",
+        "ventures/eu-whistleblower-channel-checker/sitemap.xml",
+        "ventures/eu-whistleblower-channel-checker/usage.mjs",
+        "ventures/eu-whistleblower-channel-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "49acf55876f9418efd625c1d0f78d49505eb1a00",
+      "at": 1791883561000,
+      "title": "eu-einvoicing-mandate-checker: new venture (EU B2B e-invoicing dates by country and size)",
+      "pr": 6864,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-einvoicing-mandate-checker: new venture (EU B2B e-invoicing receive/issue dates, format and penalties by country and size band)",
+        "Sync mirrored-tool count after merge"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2688,
+      "lines_added": 892,
+      "lines_removed": 176,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-einvoicing-mandate-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-einvoicing-mandate-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-einvoicing-mandate-checker__usage.mjs.gz",
+        "ventures/eu-einvoicing-mandate-checker/LICENSE",
+        "ventures/eu-einvoicing-mandate-checker/README.md",
+        "ventures/eu-einvoicing-mandate-checker/VENTURE.yaml",
+        "ventures/eu-einvoicing-mandate-checker/calc.mjs",
+        "ventures/eu-einvoicing-mandate-checker/calc.test.mjs",
+        "ventures/eu-einvoicing-mandate-checker/index.html",
+        "ventures/eu-einvoicing-mandate-checker/page.test.mjs",
+        "ventures/eu-einvoicing-mandate-checker/robots.txt",
+        "ventures/eu-einvoicing-mandate-checker/sitemap.xml",
+        "ventures/eu-einvoicing-mandate-checker/usage.mjs",
+        "ventures/eu-einvoicing-mandate-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "bf17c71d4ec3a5ed496e44991084b6ab08a24c7f",
+      "at": 1791886013000,
+      "title": "eu-green-claims-checker: new venture (EU Directive 2024/825 banned eco and durability claims from 27 Sept 2026)",
+      "pr": 6865,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-green-claims-checker: new venture (EU Directive 2024/825 banned and conditional eco and durability claims from 27 Sept 2026)",
+        "eu-green-claims-checker: close </head>, link from packaging checker (fixes orphan budget and head-tag tests)"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2685,
+      "lines_added": 842,
+      "lines_removed": 148,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-green-claims-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-green-claims-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-green-claims-checker__usage.mjs.gz",
+        "ventures/eu-green-claims-checker/LICENSE",
+        "ventures/eu-green-claims-checker/README.md",
+        "ventures/eu-green-claims-checker/VENTURE.yaml",
+        "ventures/eu-green-claims-checker/calc.mjs",
+        "ventures/eu-green-claims-checker/calc.test.mjs",
+        "ventures/eu-green-claims-checker/index.html",
+        "ventures/eu-green-claims-checker/page.test.mjs",
+        "ventures/eu-green-claims-checker/robots.txt",
+        "ventures/eu-green-claims-checker/sitemap.xml",
+        "ventures/eu-green-claims-checker/usage.mjs",
+        "ventures/eu-green-claims-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "afca153376e3208d412e78ecb6ec145a59461ae3",
+      "at": 1791887281000,
+      "title": "eu-product-liability-directive-checker: new venture (EU PLD 2024/2853 scope, liability chain, time limits for software, AI and product makers)",
+      "pr": 6868,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2632,
+      "lines_added": 784,
+      "lines_removed": 70,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-product-liability-directive-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-product-liability-directive-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-product-liability-directive-checker__usage.mjs.gz",
+        "ventures/eu-product-liability-directive-checker/LICENSE",
+        "ventures/eu-product-liability-directive-checker/README.md",
+        "ventures/eu-product-liability-directive-checker/VENTURE.yaml",
+        "ventures/eu-product-liability-directive-checker/calc.mjs",
+        "ventures/eu-product-liability-directive-checker/calc.test.mjs",
+        "ventures/eu-product-liability-directive-checker/index.html",
+        "ventures/eu-product-liability-directive-checker/page.test.mjs",
+        "ventures/eu-product-liability-directive-checker/robots.txt",
+        "ventures/eu-product-liability-directive-checker/sitemap.xml",
+        "ventures/eu-product-liability-directive-checker/usage.mjs",
+        "ventures/eu-product-liability-directive-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "e3560683a9521075d54c710129e2865923304b1f",
+      "at": 1791888625000,
+      "title": "dac7-seller-reporting-checker: new venture (EU DAC7 platform seller reporting check)",
+      "pr": 6867,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "dac7-seller-reporting-checker: new venture (EU DAC7 platform seller reporting check: goods exemption headroom, what is sent, TIN deadline)",
+        "Sync mirrored-tool and opt-out counts",
+        "Order launched.json, link DAC7 checker from the 1099-K checker (no orphan)"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2692,
+      "lines_added": 751,
+      "lines_removed": 99,
+      "added_files": [
+        "gitops/prod/front-door-tools/dac7-seller-reporting-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/dac7-seller-reporting-checker__index.html.gz",
+        "gitops/prod/front-door-tools/dac7-seller-reporting-checker__usage.mjs.gz",
+        "ventures/dac7-seller-reporting-checker/LICENSE",
+        "ventures/dac7-seller-reporting-checker/README.md",
+        "ventures/dac7-seller-reporting-checker/VENTURE.yaml",
+        "ventures/dac7-seller-reporting-checker/calc.mjs",
+        "ventures/dac7-seller-reporting-checker/calc.test.mjs",
+        "ventures/dac7-seller-reporting-checker/index.html",
+        "ventures/dac7-seller-reporting-checker/page.test.mjs",
+        "ventures/dac7-seller-reporting-checker/robots.txt",
+        "ventures/dac7-seller-reporting-checker/sitemap.xml",
+        "ventures/dac7-seller-reporting-checker/usage.mjs",
+        "ventures/dac7-seller-reporting-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "d21485c28e5cbaf1462db0a8e808ebf98efd259e",
+      "at": 1791890295000,
+      "title": "eu-price-reduction-claim-checker: new venture (EU 30-day lowest price rule)",
+      "pr": 6869,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-price-reduction-claim-checker: new venture (EU 30-day lowest price rule check for sale prices)",
+        "Sync tree counts after regen; link PLD checker from price checker to close orphan"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2693,
+      "lines_added": 910,
+      "lines_removed": 191,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-price-reduction-claim-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-price-reduction-claim-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-price-reduction-claim-checker__usage.mjs.gz",
+        "ventures/eu-price-reduction-claim-checker/LICENSE",
+        "ventures/eu-price-reduction-claim-checker/README.md",
+        "ventures/eu-price-reduction-claim-checker/VENTURE.yaml",
+        "ventures/eu-price-reduction-claim-checker/calc.mjs",
+        "ventures/eu-price-reduction-claim-checker/calc.test.mjs",
+        "ventures/eu-price-reduction-claim-checker/index.html",
+        "ventures/eu-price-reduction-claim-checker/page.test.mjs",
+        "ventures/eu-price-reduction-claim-checker/robots.txt",
+        "ventures/eu-price-reduction-claim-checker/sitemap.xml",
+        "ventures/eu-price-reduction-claim-checker/usage.mjs",
+        "ventures/eu-price-reduction-claim-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "6b49baad645a21a5496dd980f7cc51ae898a29b8",
+      "at": 1791890578000,
+      "title": "eu-green-claims-copy-scanner: new venture (paste-your-copy greenwashing scan, EU Directive 2024/825)",
+      "pr": 6866,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-green-claims-checker: new venture (EU Directive 2024/825 greenwashing scan for marketing copy)",
+        "eu-green-claims-checker: match FAQ JSON-LD to visible FAQ, sort launched.json",
+        "Rename to eu-green-claims-copy-scanner (slug taken by #6865's checklist tool); link to it"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2688,
+      "lines_added": 902,
+      "lines_removed": 103,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-green-claims-copy-scanner__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-green-claims-copy-scanner__index.html.gz",
+        "gitops/prod/front-door-tools/eu-green-claims-copy-scanner__usage.mjs.gz",
+        "ventures/eu-green-claims-copy-scanner/LICENSE",
+        "ventures/eu-green-claims-copy-scanner/README.md",
+        "ventures/eu-green-claims-copy-scanner/VENTURE.yaml",
+        "ventures/eu-green-claims-copy-scanner/calc.mjs",
+        "ventures/eu-green-claims-copy-scanner/calc.test.mjs",
+        "ventures/eu-green-claims-copy-scanner/index.html",
+        "ventures/eu-green-claims-copy-scanner/page.test.mjs",
+        "ventures/eu-green-claims-copy-scanner/robots.txt",
+        "ventures/eu-green-claims-copy-scanner/sitemap.xml",
+        "ventures/eu-green-claims-copy-scanner/usage.mjs",
+        "ventures/eu-green-claims-copy-scanner/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "f05b05631daeb8deb0752f36fde3c1c80ad85bbb",
+      "at": 1791891863000,
+      "title": "eu-platform-work-directive-checker: new venture (EU Platform Work Directive scope, employment presumption, algorithmic-management check)",
+      "pr": 6871,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-platform-work-directive-checker: new venture (EU Platform Work Directive 2024/2831 scope, employment presumption, algorithmic-management check)",
+        "Link the platform work and product liability checkers from the EU AI Act checker (no orphans); regen mirror",
+        "File the product liability checker under compliance (catch-all bound); regen",
+        "Link the green claims copy scanner from the green claims checker (no orphan); regen"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2697,
+      "lines_added": 856,
+      "lines_removed": 182,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-platform-work-directive-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-platform-work-directive-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-platform-work-directive-checker__usage.mjs.gz",
+        "ventures/eu-platform-work-directive-checker/LICENSE",
+        "ventures/eu-platform-work-directive-checker/README.md",
+        "ventures/eu-platform-work-directive-checker/VENTURE.yaml",
+        "ventures/eu-platform-work-directive-checker/calc.mjs",
+        "ventures/eu-platform-work-directive-checker/calc.test.mjs",
+        "ventures/eu-platform-work-directive-checker/index.html",
+        "ventures/eu-platform-work-directive-checker/page.test.mjs",
+        "ventures/eu-platform-work-directive-checker/robots.txt",
+        "ventures/eu-platform-work-directive-checker/sitemap.xml",
+        "ventures/eu-platform-work-directive-checker/usage.mjs",
+        "ventures/eu-platform-work-directive-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "ee857e3bdd0f97240f9f0f670f1f15a557aa33ee",
+      "at": 1791893911000,
+      "title": "ugc-creator-rate-calculator: new venture (UGC pricing with ad usage rights)",
+      "pr": 6870,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "ugc-creator-rate-calculator: new venture (UGC creator pricing: content plus ad usage rights, whitelisting, exclusivity, raw footage)",
+        "Categorise ugc-creator-rate-calculator with creator tools; close eu-product-liability-directive-checker orphan",
+        "File eu-product-liability-directive-checker with the EU checkers (catch-all back to 5)"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2696,
+      "lines_added": 747,
+      "lines_removed": 70,
+      "added_files": [
+        "gitops/prod/front-door-tools/ugc-creator-rate-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/ugc-creator-rate-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/ugc-creator-rate-calculator__usage.mjs.gz",
+        "ventures/ugc-creator-rate-calculator/LICENSE",
+        "ventures/ugc-creator-rate-calculator/README.md",
+        "ventures/ugc-creator-rate-calculator/VENTURE.yaml",
+        "ventures/ugc-creator-rate-calculator/calc.mjs",
+        "ventures/ugc-creator-rate-calculator/calc.test.mjs",
+        "ventures/ugc-creator-rate-calculator/index.html",
+        "ventures/ugc-creator-rate-calculator/page.test.mjs",
+        "ventures/ugc-creator-rate-calculator/robots.txt",
+        "ventures/ugc-creator-rate-calculator/sitemap.xml",
+        "ventures/ugc-creator-rate-calculator/usage.mjs",
+        "ventures/ugc-creator-rate-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "77b2bd95ff0bc7439287ea87fd79ee5e5b096e87",
+      "at": 1791894314000,
+      "title": "eu-dora-readiness-checker: new venture (EU DORA scope, Art 30 contract terms, incident clocks)",
+      "pr": 6873,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-dora-readiness-checker: new venture (EU DORA scope, duty areas, Art 30 contract terms, major-incident report clocks)",
+        "eu-dora-readiness-checker: sync mirrored-tool and opt-out counts",
+        "launched.json: keep eu-dora-readiness-checker in sorted order"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2699,
+      "lines_added": 995,
+      "lines_removed": 135,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-dora-readiness-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-dora-readiness-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-dora-readiness-checker__usage.mjs.gz",
+        "ventures/eu-dora-readiness-checker/LICENSE",
+        "ventures/eu-dora-readiness-checker/README.md",
+        "ventures/eu-dora-readiness-checker/VENTURE.yaml",
+        "ventures/eu-dora-readiness-checker/calc.mjs",
+        "ventures/eu-dora-readiness-checker/calc.test.mjs",
+        "ventures/eu-dora-readiness-checker/index.html",
+        "ventures/eu-dora-readiness-checker/page.test.mjs",
+        "ventures/eu-dora-readiness-checker/robots.txt",
+        "ventures/eu-dora-readiness-checker/sitemap.xml",
+        "ventures/eu-dora-readiness-checker/usage.mjs",
+        "ventures/eu-dora-readiness-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "1048ab1f072bdcd3b5948da4baf9c22d894018fc",
+      "at": 1791895781000,
+      "title": "eu-csrd-scope-checker: new venture (CSRD scope, original vs Omnibus thresholds)",
+      "pr": 6872,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-csrd-scope-checker: new venture (EU CSRD scope under original and Omnibus thresholds, first reporting year, VSME route)",
+        "eu-csrd-scope-checker: record launch date, file under compliance (catch-all bound); regen"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2698,
+      "lines_added": 690,
+      "lines_removed": 80,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-csrd-scope-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-csrd-scope-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-csrd-scope-checker__usage.mjs.gz",
+        "ventures/eu-csrd-scope-checker/LICENSE",
+        "ventures/eu-csrd-scope-checker/README.md",
+        "ventures/eu-csrd-scope-checker/VENTURE.yaml",
+        "ventures/eu-csrd-scope-checker/calc.mjs",
+        "ventures/eu-csrd-scope-checker/calc.test.mjs",
+        "ventures/eu-csrd-scope-checker/index.html",
+        "ventures/eu-csrd-scope-checker/page.test.mjs",
+        "ventures/eu-csrd-scope-checker/robots.txt",
+        "ventures/eu-csrd-scope-checker/sitemap.xml",
+        "ventures/eu-csrd-scope-checker/usage.mjs",
+        "ventures/eu-csrd-scope-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "d1e8ad0ef164fadd5876a560ed6454c75f2964b9",
+      "at": 1791897280000,
+      "title": "eu-espr-readiness-checker: new venture (EU ESPR unsold-apparel destruction ban, disclosure table, Digital Product Passport data checklist)",
+      "pr": 6874,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2701,
+      "lines_added": 935,
+      "lines_removed": 171,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-espr-readiness-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-espr-readiness-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-espr-readiness-checker__usage.mjs.gz",
+        "ventures/eu-espr-readiness-checker/LICENSE",
+        "ventures/eu-espr-readiness-checker/README.md",
+        "ventures/eu-espr-readiness-checker/VENTURE.yaml",
+        "ventures/eu-espr-readiness-checker/calc.mjs",
+        "ventures/eu-espr-readiness-checker/calc.test.mjs",
+        "ventures/eu-espr-readiness-checker/index.html",
+        "ventures/eu-espr-readiness-checker/page.test.mjs",
+        "ventures/eu-espr-readiness-checker/robots.txt",
+        "ventures/eu-espr-readiness-checker/sitemap.xml",
+        "ventures/eu-espr-readiness-checker/usage.mjs",
+        "ventures/eu-espr-readiness-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "bd449106f084cd50949eaaeee1533aee54a50776",
+      "at": 1791898793000,
+      "title": "uk-sole-trader-vs-limited-company-calculator: new venture (UK 2026/27 take-home, best salary and dividend split)",
+      "pr": 6876,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "uk-sole-trader-vs-limited-company-calculator: new venture (UK 2026/27 take-home as sole trader vs limited company, best salary and dividend split)",
+        "Link uk-sole-trader-vs-limited-company-calculator with contract-vs-fte-rate-calculator (closes crawlable orphan)"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2700,
+      "lines_added": 843,
+      "lines_removed": 70,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-sole-trader-vs-limited-company-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-sole-trader-vs-limited-company-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-sole-trader-vs-limited-company-calculator__usage.mjs.gz",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/LICENSE",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/README.md",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/VENTURE.yaml",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/calc.mjs",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/calc.test.mjs",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/index.html",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/page.test.mjs",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/robots.txt",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/sitemap.xml",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/usage.mjs",
+        "ventures/uk-sole-trader-vs-limited-company-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "bfbb38621a638d607769745097c705ba49d081f7",
+      "at": 1791899017000,
+      "title": "eu-dsa-obligations-checker: new venture (EU Digital Services Act duties by service type, size and EU users)",
+      "pr": 6875,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "eu-dsa-obligations-checker: new venture (EU Digital Services Act duties by service type, size and EU users, with Articles)",
+        "sync mirrored-tool count after regen",
+        "eu-ai-act-risk-checker: link the DSA checker (closes the orphan sibling pair); regen"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2700,
+      "lines_added": 897,
+      "lines_removed": 197,
+      "added_files": [
+        "gitops/prod/front-door-tools/eu-dsa-obligations-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/eu-dsa-obligations-checker__index.html.gz",
+        "gitops/prod/front-door-tools/eu-dsa-obligations-checker__usage.mjs.gz",
+        "ventures/eu-dsa-obligations-checker/LICENSE",
+        "ventures/eu-dsa-obligations-checker/README.md",
+        "ventures/eu-dsa-obligations-checker/VENTURE.yaml",
+        "ventures/eu-dsa-obligations-checker/calc.mjs",
+        "ventures/eu-dsa-obligations-checker/calc.test.mjs",
+        "ventures/eu-dsa-obligations-checker/index.html",
+        "ventures/eu-dsa-obligations-checker/page.test.mjs",
+        "ventures/eu-dsa-obligations-checker/robots.txt",
+        "ventures/eu-dsa-obligations-checker/sitemap.xml",
+        "ventures/eu-dsa-obligations-checker/usage.mjs",
+        "ventures/eu-dsa-obligations-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "a2e2aba0f1f4d75995cea025980e5cfdc6216003",
+      "at": 1791901130000,
+      "title": "uk-mtd-income-tax-checker: new venture (UK Making Tax Digital start date and deadlines)",
+      "pr": 6877,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "uk-mtd-income-tax-checker: new venture (UK Making Tax Digital for Income Tax start date and deadlines)",
+        "sync mirrored-tool count after regen"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2701,
+      "lines_added": 708,
+      "lines_removed": 74,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-mtd-income-tax-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-mtd-income-tax-checker__index.html.gz",
+        "gitops/prod/front-door-tools/uk-mtd-income-tax-checker__usage.mjs.gz",
+        "ventures/uk-mtd-income-tax-checker/LICENSE",
+        "ventures/uk-mtd-income-tax-checker/README.md",
+        "ventures/uk-mtd-income-tax-checker/VENTURE.yaml",
+        "ventures/uk-mtd-income-tax-checker/calc.mjs",
+        "ventures/uk-mtd-income-tax-checker/calc.test.mjs",
+        "ventures/uk-mtd-income-tax-checker/index.html",
+        "ventures/uk-mtd-income-tax-checker/page.test.mjs",
+        "ventures/uk-mtd-income-tax-checker/robots.txt",
+        "ventures/uk-mtd-income-tax-checker/sitemap.xml",
+        "ventures/uk-mtd-income-tax-checker/usage.mjs",
+        "ventures/uk-mtd-income-tax-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "4ec93bd9e68f64068042bf297440834cf1b7b5ac",
+      "at": 1791904494000,
+      "title": "uk-vat-registration-checker: new venture (UK £90,000 VAT threshold, trigger month, 30-day deadline, Flat Rate Scheme comparison)",
+      "pr": 6880,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2645,
+      "lines_added": 753,
+      "lines_removed": 67,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-vat-registration-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-vat-registration-checker__index.html.gz",
+        "gitops/prod/front-door-tools/uk-vat-registration-checker__usage.mjs.gz",
+        "ventures/uk-vat-registration-checker/LICENSE",
+        "ventures/uk-vat-registration-checker/README.md",
+        "ventures/uk-vat-registration-checker/VENTURE.yaml",
+        "ventures/uk-vat-registration-checker/calc.mjs",
+        "ventures/uk-vat-registration-checker/calc.test.mjs",
+        "ventures/uk-vat-registration-checker/index.html",
+        "ventures/uk-vat-registration-checker/page.test.mjs",
+        "ventures/uk-vat-registration-checker/robots.txt",
+        "ventures/uk-vat-registration-checker/sitemap.xml",
+        "ventures/uk-vat-registration-checker/usage.mjs",
+        "ventures/uk-vat-registration-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "dddcd5874b230669998d73f67299332cb9e4953d",
+      "at": 1791904727000,
+      "title": "schengen-90-180-day-calculator: new venture (days used, left, last permitted exit)",
+      "pr": 6879,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "schengen-90-180-day-calculator: new venture (Schengen 90/180 days used, left, last permitted exit)",
+        "link schengen calculator from uk-mtd checker (no orphan); regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2699,
+      "lines_added": 744,
+      "lines_removed": 58,
+      "added_files": [
+        "gitops/prod/front-door-tools/schengen-90-180-day-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/schengen-90-180-day-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/schengen-90-180-day-calculator__usage.mjs.gz",
+        "ventures/schengen-90-180-day-calculator/LICENSE",
+        "ventures/schengen-90-180-day-calculator/README.md",
+        "ventures/schengen-90-180-day-calculator/VENTURE.yaml",
+        "ventures/schengen-90-180-day-calculator/calc.mjs",
+        "ventures/schengen-90-180-day-calculator/calc.test.mjs",
+        "ventures/schengen-90-180-day-calculator/index.html",
+        "ventures/schengen-90-180-day-calculator/page.test.mjs",
+        "ventures/schengen-90-180-day-calculator/robots.txt",
+        "ventures/schengen-90-180-day-calculator/sitemap.xml",
+        "ventures/schengen-90-180-day-calculator/usage.mjs",
+        "ventures/schengen-90-180-day-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "afd82c86dc9f5ca844af4caa85824466a9c3887e",
+      "at": 1791905217000,
+      "title": "paid-sick-leave-accrual-calculator: new venture (state accrual, caps, paid-vs-unpaid by headcount, cost)",
+      "pr": 6878,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "paid-sick-leave-accrual-calculator: new venture (state paid sick leave accrual, caps, paid-vs-unpaid by headcount, cost; 14 states)",
+        "paid-sick-leave-accrual-calculator: file in ci section, visible FAQ matches JSON-LD, launch date, link back from pto-accrual (closes orphan pair); regen"
+      ],
+      "detail": "Mirror regenerated and tree counts synced.",
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2704,
+      "lines_added": 770,
+      "lines_removed": 116,
+      "added_files": [
+        "gitops/prod/front-door-tools/paid-sick-leave-accrual-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/paid-sick-leave-accrual-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/paid-sick-leave-accrual-calculator__usage.mjs.gz",
+        "ventures/paid-sick-leave-accrual-calculator/LICENSE",
+        "ventures/paid-sick-leave-accrual-calculator/README.md",
+        "ventures/paid-sick-leave-accrual-calculator/VENTURE.yaml",
+        "ventures/paid-sick-leave-accrual-calculator/calc.mjs",
+        "ventures/paid-sick-leave-accrual-calculator/calc.test.mjs",
+        "ventures/paid-sick-leave-accrual-calculator/index.html",
+        "ventures/paid-sick-leave-accrual-calculator/page.test.mjs",
+        "ventures/paid-sick-leave-accrual-calculator/robots.txt",
+        "ventures/paid-sick-leave-accrual-calculator/sitemap.xml",
+        "ventures/paid-sick-leave-accrual-calculator/usage.mjs",
+        "ventures/paid-sick-leave-accrual-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "0ad417af0e2ea3372bdd25ce37ecc8ee90af9e2b",
+      "at": 1791907073000,
+      "title": "ca-gst-hst-small-supplier-checker: new venture (Canada GST/HST CAD 30,000 small-supplier registration test)",
+      "pr": 6881,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "ca-gst-hst-small-supplier-checker: new venture (Canada GST/HST CAD 30,000 small-supplier registration test)",
+        "ca-gst-hst-small-supplier-checker: place in back-office, launch date, sibling link, regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2705,
+      "lines_added": 1095,
+      "lines_removed": 447,
+      "added_files": [
+        "gitops/prod/front-door-tools/ca-gst-hst-small-supplier-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/ca-gst-hst-small-supplier-checker__index.html.gz",
+        "gitops/prod/front-door-tools/ca-gst-hst-small-supplier-checker__usage.mjs.gz",
+        "ventures/ca-gst-hst-small-supplier-checker/LICENSE",
+        "ventures/ca-gst-hst-small-supplier-checker/README.md",
+        "ventures/ca-gst-hst-small-supplier-checker/VENTURE.yaml",
+        "ventures/ca-gst-hst-small-supplier-checker/calc.mjs",
+        "ventures/ca-gst-hst-small-supplier-checker/calc.test.mjs",
+        "ventures/ca-gst-hst-small-supplier-checker/index.html",
+        "ventures/ca-gst-hst-small-supplier-checker/page.test.mjs",
+        "ventures/ca-gst-hst-small-supplier-checker/robots.txt",
+        "ventures/ca-gst-hst-small-supplier-checker/sitemap.xml",
+        "ventures/ca-gst-hst-small-supplier-checker/usage.mjs",
+        "ventures/ca-gst-hst-small-supplier-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "146315f6e1919f16ce859d8847060fe87135f543",
+      "at": 1791909582000,
+      "title": "employer-payroll-tax-cost-calculator: new venture (employer FICA, FUTA, SUI wage-base caps, true cost of a hire)",
+      "pr": 6883,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "employer-payroll-tax-cost-calculator: new venture (employer FICA, FUTA, SUI wage-base caps, true cost of a hire)",
+        "employer-payroll-tax-cost-calculator: regen mirror, sync tree counts",
+        "employer-payroll-tax-cost-calculator: sibling link from payroll-hours-csv-check, sorted launched.json, regen"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2707,
+      "lines_added": 736,
+      "lines_removed": 85,
+      "added_files": [
+        "gitops/prod/front-door-tools/employer-payroll-tax-cost-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/employer-payroll-tax-cost-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/employer-payroll-tax-cost-calculator__usage.mjs.gz",
+        "ventures/employer-payroll-tax-cost-calculator/LICENSE",
+        "ventures/employer-payroll-tax-cost-calculator/README.md",
+        "ventures/employer-payroll-tax-cost-calculator/VENTURE.yaml",
+        "ventures/employer-payroll-tax-cost-calculator/calc.mjs",
+        "ventures/employer-payroll-tax-cost-calculator/calc.test.mjs",
+        "ventures/employer-payroll-tax-cost-calculator/index.html",
+        "ventures/employer-payroll-tax-cost-calculator/page.test.mjs",
+        "ventures/employer-payroll-tax-cost-calculator/robots.txt",
+        "ventures/employer-payroll-tax-cost-calculator/sitemap.xml",
+        "ventures/employer-payroll-tax-cost-calculator/usage.mjs",
+        "ventures/employer-payroll-tax-cost-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "30aed016dc918e7ea7708a71b820b1cdba584518",
+      "at": 1791911805000,
+      "title": "commercial-property-cap-rate-calculator: new venture (NOI, cap-rate value, DSCR, sensitivity grid)",
+      "pr": 6885,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "commercial-property-cap-rate-calculator: new venture (NOI, cap-rate value, DSCR, cash-on-cash, sensitivity grid)",
+        "commercial-property-cap-rate-calculator: sibling link from rental-dscr-calculator, resync mirror counts"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2708,
+      "lines_added": 883,
+      "lines_removed": 187,
+      "added_files": [
+        "gitops/prod/front-door-tools/commercial-property-cap-rate-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/commercial-property-cap-rate-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/commercial-property-cap-rate-calculator__usage.mjs.gz",
+        "ventures/commercial-property-cap-rate-calculator/LICENSE",
+        "ventures/commercial-property-cap-rate-calculator/README.md",
+        "ventures/commercial-property-cap-rate-calculator/VENTURE.yaml",
+        "ventures/commercial-property-cap-rate-calculator/calc.mjs",
+        "ventures/commercial-property-cap-rate-calculator/calc.test.mjs",
+        "ventures/commercial-property-cap-rate-calculator/index.html",
+        "ventures/commercial-property-cap-rate-calculator/page.test.mjs",
+        "ventures/commercial-property-cap-rate-calculator/robots.txt",
+        "ventures/commercial-property-cap-rate-calculator/sitemap.xml",
+        "ventures/commercial-property-cap-rate-calculator/usage.mjs",
+        "ventures/commercial-property-cap-rate-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "ebd320e1e16ce443da0d32aefb54a70e3558c979",
+      "at": 1791913135000,
+      "title": "uk-statutory-sick-pay-calculator: new venture (UK SSP, 6 April 2026 change)",
+      "pr": 6882,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "uk-statutory-sick-pay-calculator: new venture (UK SSP rate, waiting days, 28-week limit, 6 April 2026 change)",
+        "uk-statutory-sick-pay-calculator: category placement, launch date, sibling link, regen mirror",
+        "file uk-vat-registration-checker out of the catch-all; regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2708,
+      "lines_added": 725,
+      "lines_removed": 77,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-statutory-sick-pay-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-statutory-sick-pay-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-statutory-sick-pay-calculator__usage.mjs.gz",
+        "ventures/uk-statutory-sick-pay-calculator/LICENSE",
+        "ventures/uk-statutory-sick-pay-calculator/README.md",
+        "ventures/uk-statutory-sick-pay-calculator/VENTURE.yaml",
+        "ventures/uk-statutory-sick-pay-calculator/calc.mjs",
+        "ventures/uk-statutory-sick-pay-calculator/calc.test.mjs",
+        "ventures/uk-statutory-sick-pay-calculator/index.html",
+        "ventures/uk-statutory-sick-pay-calculator/page.test.mjs",
+        "ventures/uk-statutory-sick-pay-calculator/robots.txt",
+        "ventures/uk-statutory-sick-pay-calculator/sitemap.xml",
+        "ventures/uk-statutory-sick-pay-calculator/usage.mjs",
+        "ventures/uk-statutory-sick-pay-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "a3b7e6983a48f22ebc1a607290eb0aaa51a58166",
+      "at": 1791914433000,
+      "title": "retirement-plan-startup-credit-calculator: new venture (SECURE 2.0 startup, contribution and auto-enrollment credits)",
+      "pr": 6886,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "retirement-plan-startup-credit-calculator: new venture (SECURE 2.0 startup, contribution and auto-enrollment credits, Form 8881)",
+        "retirement-plan-startup-credit-calculator: sync tree counts, regen mirror",
+        "launched.json: sort retirement-plan-startup-credit-calculator",
+        "Regenerate mirror and sync tree counts after merging main"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2709,
+      "lines_added": 689,
+      "lines_removed": 73,
+      "added_files": [
+        "gitops/prod/front-door-tools/retirement-plan-startup-credit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/retirement-plan-startup-credit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/retirement-plan-startup-credit-calculator__usage.mjs.gz",
+        "ventures/retirement-plan-startup-credit-calculator/LICENSE",
+        "ventures/retirement-plan-startup-credit-calculator/README.md",
+        "ventures/retirement-plan-startup-credit-calculator/VENTURE.yaml",
+        "ventures/retirement-plan-startup-credit-calculator/calc.mjs",
+        "ventures/retirement-plan-startup-credit-calculator/calc.test.mjs",
+        "ventures/retirement-plan-startup-credit-calculator/index.html",
+        "ventures/retirement-plan-startup-credit-calculator/page.test.mjs",
+        "ventures/retirement-plan-startup-credit-calculator/robots.txt",
+        "ventures/retirement-plan-startup-credit-calculator/sitemap.xml",
+        "ventures/retirement-plan-startup-credit-calculator/usage.mjs",
+        "ventures/retirement-plan-startup-credit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "deaccfcd65cc867598718adfe866a6c596e99def",
+      "at": 1791914546000,
+      "title": "au-gst-registration-checker: new venture (Australia GST AUD 75,000 registration test)",
+      "pr": 6887,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "au-gst-registration-checker: new venture (Australia GST AUD 75,000 registration test, projected turnover, 21-day deadline)",
+        "ca-gst-hst-small-supplier-checker: link au-gst-registration-checker sibling (closes new orphan), regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2711,
+      "lines_added": 789,
+      "lines_removed": 134,
+      "added_files": [
+        "gitops/prod/front-door-tools/au-gst-registration-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/au-gst-registration-checker__index.html.gz",
+        "gitops/prod/front-door-tools/au-gst-registration-checker__usage.mjs.gz",
+        "ventures/au-gst-registration-checker/LICENSE",
+        "ventures/au-gst-registration-checker/README.md",
+        "ventures/au-gst-registration-checker/VENTURE.yaml",
+        "ventures/au-gst-registration-checker/calc.mjs",
+        "ventures/au-gst-registration-checker/calc.test.mjs",
+        "ventures/au-gst-registration-checker/index.html",
+        "ventures/au-gst-registration-checker/page.test.mjs",
+        "ventures/au-gst-registration-checker/robots.txt",
+        "ventures/au-gst-registration-checker/sitemap.xml",
+        "ventures/au-gst-registration-checker/usage.mjs",
+        "ventures/au-gst-registration-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "45dd6982db00dfcc37b1ed0bb9f1ce8af635f148",
+      "at": 1791916158000,
+      "title": "social-security-survivor-spousal-benefit-calculator: new venture",
+      "pr": 6888,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "social-security-survivor-spousal-benefit-calculator: new venture (survivor benefit by age, survivor-first vs own-first order, spousal top-up)",
+        "social-security-survivor-spousal-benefit-calculator: file under a category, back-link from claiming-age calculator, regen",
+        "sync tree counts",
+        "sync tree counts after merging main"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2711,
+      "lines_added": 736,
+      "lines_removed": 70,
+      "added_files": [
+        "gitops/prod/front-door-tools/social-security-survivor-spousal-benefit-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/social-security-survivor-spousal-benefit-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/social-security-survivor-spousal-benefit-calculator__usage.mjs.gz",
+        "ventures/social-security-survivor-spousal-benefit-calculator/LICENSE",
+        "ventures/social-security-survivor-spousal-benefit-calculator/README.md",
+        "ventures/social-security-survivor-spousal-benefit-calculator/VENTURE.yaml",
+        "ventures/social-security-survivor-spousal-benefit-calculator/calc.mjs",
+        "ventures/social-security-survivor-spousal-benefit-calculator/calc.test.mjs",
+        "ventures/social-security-survivor-spousal-benefit-calculator/index.html",
+        "ventures/social-security-survivor-spousal-benefit-calculator/page.test.mjs",
+        "ventures/social-security-survivor-spousal-benefit-calculator/robots.txt",
+        "ventures/social-security-survivor-spousal-benefit-calculator/sitemap.xml",
+        "ventures/social-security-survivor-spousal-benefit-calculator/usage.mjs",
+        "ventures/social-security-survivor-spousal-benefit-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "e9eda74a370933f937b1882f78f490166c86e041",
+      "at": 1791916879000,
+      "title": "au-redundancy-pay-calculator: new venture (Australian NES redundancy pay, notice, leave)",
+      "pr": 6889,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "au-redundancy-pay-calculator: new venture (Australian NES redundancy pay, notice, leave)",
+        "uk-statutory-sick-pay-calculator: link au-redundancy-pay-calculator sibling; regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2712,
+      "lines_added": 702,
+      "lines_removed": 91,
+      "added_files": [
+        "gitops/prod/front-door-tools/au-redundancy-pay-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/au-redundancy-pay-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/au-redundancy-pay-calculator__usage.mjs.gz",
+        "ventures/au-redundancy-pay-calculator/LICENSE",
+        "ventures/au-redundancy-pay-calculator/README.md",
+        "ventures/au-redundancy-pay-calculator/VENTURE.yaml",
+        "ventures/au-redundancy-pay-calculator/calc.mjs",
+        "ventures/au-redundancy-pay-calculator/calc.test.mjs",
+        "ventures/au-redundancy-pay-calculator/index.html",
+        "ventures/au-redundancy-pay-calculator/page.test.mjs",
+        "ventures/au-redundancy-pay-calculator/robots.txt",
+        "ventures/au-redundancy-pay-calculator/sitemap.xml",
+        "ventures/au-redundancy-pay-calculator/usage.mjs",
+        "ventures/au-redundancy-pay-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "3d2e25086f87fc38d3b1233ef6dcd6a4450c9506",
+      "at": 1791917164000,
+      "title": "iolta-three-way-reconciliation-checker: new venture (client trust account three-way reconciliation)",
+      "pr": 6890,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "iolta-three-way-reconciliation-checker: new venture (client trust account three-way reconciliation)",
+        "law-firm-realization-rate-calculator: link to the IOLTA checker (clears the orphan budget); sync counts"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2713,
+      "lines_added": 976,
+      "lines_removed": 102,
+      "added_files": [
+        "gitops/prod/front-door-tools/iolta-three-way-reconciliation-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/iolta-three-way-reconciliation-checker__index.html.gz",
+        "gitops/prod/front-door-tools/iolta-three-way-reconciliation-checker__usage.mjs.gz",
+        "ventures/iolta-three-way-reconciliation-checker/LICENSE",
+        "ventures/iolta-three-way-reconciliation-checker/README.md",
+        "ventures/iolta-three-way-reconciliation-checker/VENTURE.yaml",
+        "ventures/iolta-three-way-reconciliation-checker/calc.mjs",
+        "ventures/iolta-three-way-reconciliation-checker/calc.test.mjs",
+        "ventures/iolta-three-way-reconciliation-checker/index.html",
+        "ventures/iolta-three-way-reconciliation-checker/page.test.mjs",
+        "ventures/iolta-three-way-reconciliation-checker/robots.txt",
+        "ventures/iolta-three-way-reconciliation-checker/sitemap.xml",
+        "ventures/iolta-three-way-reconciliation-checker/usage.mjs",
+        "ventures/iolta-three-way-reconciliation-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "f10bd245d9645f0fd393a61f5383f45b4306644a",
+      "at": 1791918903000,
+      "title": "nz-gst-registration-checker: new venture (New Zealand NZD 60,000 GST registration test)",
+      "pr": 6893,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2714,
+      "lines_added": 753,
+      "lines_removed": 110,
+      "added_files": [
+        "gitops/prod/front-door-tools/nz-gst-registration-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/nz-gst-registration-checker__index.html.gz",
+        "gitops/prod/front-door-tools/nz-gst-registration-checker__usage.mjs.gz",
+        "ventures/nz-gst-registration-checker/LICENSE",
+        "ventures/nz-gst-registration-checker/README.md",
+        "ventures/nz-gst-registration-checker/VENTURE.yaml",
+        "ventures/nz-gst-registration-checker/calc.mjs",
+        "ventures/nz-gst-registration-checker/calc.test.mjs",
+        "ventures/nz-gst-registration-checker/index.html",
+        "ventures/nz-gst-registration-checker/page.test.mjs",
+        "ventures/nz-gst-registration-checker/robots.txt",
+        "ventures/nz-gst-registration-checker/sitemap.xml",
+        "ventures/nz-gst-registration-checker/usage.mjs",
+        "ventures/nz-gst-registration-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "f8ea0fe62ca4fc60abe21e3ca2d129d47d9da99b",
+      "at": 1791919165000,
+      "title": "uk-cis-deduction-refund-calculator: new venture (UK CIS subcontractor deduction, Self Assessment estimate and refund)",
+      "pr": 6891,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2715,
+      "lines_added": 705,
+      "lines_removed": 76,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-cis-deduction-refund-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-cis-deduction-refund-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-cis-deduction-refund-calculator__usage.mjs.gz",
+        "ventures/uk-cis-deduction-refund-calculator/LICENSE",
+        "ventures/uk-cis-deduction-refund-calculator/README.md",
+        "ventures/uk-cis-deduction-refund-calculator/VENTURE.yaml",
+        "ventures/uk-cis-deduction-refund-calculator/calc.mjs",
+        "ventures/uk-cis-deduction-refund-calculator/calc.test.mjs",
+        "ventures/uk-cis-deduction-refund-calculator/index.html",
+        "ventures/uk-cis-deduction-refund-calculator/page.test.mjs",
+        "ventures/uk-cis-deduction-refund-calculator/robots.txt",
+        "ventures/uk-cis-deduction-refund-calculator/sitemap.xml",
+        "ventures/uk-cis-deduction-refund-calculator/usage.mjs",
+        "ventures/uk-cis-deduction-refund-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "de4064deda21790e6f1f4cd478baa1b1f5bcbcef",
+      "at": 1791921600000,
+      "title": "tfsa-over-contribution-checker: new venture (Canada TFSA room and 1%/month excess tax)",
+      "pr": 6892,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "tfsa-over-contribution-checker: new venture (Canada TFSA room, same-year withdrawal rule, 1%/month excess tax)",
+        "launched.json: keep tfsa-over-contribution-checker in sorted order",
+        "launched.json: refresh ordering after merge"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2717,
+      "lines_added": 695,
+      "lines_removed": 83,
+      "added_files": [
+        "gitops/prod/front-door-tools/tfsa-over-contribution-checker__calc.mjs.gz",
+        "gitops/prod/front-door-tools/tfsa-over-contribution-checker__index.html.gz",
+        "gitops/prod/front-door-tools/tfsa-over-contribution-checker__usage.mjs.gz",
+        "ventures/tfsa-over-contribution-checker/LICENSE",
+        "ventures/tfsa-over-contribution-checker/README.md",
+        "ventures/tfsa-over-contribution-checker/VENTURE.yaml",
+        "ventures/tfsa-over-contribution-checker/calc.mjs",
+        "ventures/tfsa-over-contribution-checker/calc.test.mjs",
+        "ventures/tfsa-over-contribution-checker/index.html",
+        "ventures/tfsa-over-contribution-checker/page.test.mjs",
+        "ventures/tfsa-over-contribution-checker/robots.txt",
+        "ventures/tfsa-over-contribution-checker/sitemap.xml",
+        "ventures/tfsa-over-contribution-checker/usage.mjs",
+        "ventures/tfsa-over-contribution-checker/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "ffe8adf1bb0fc0b28977df7f2008682dd13a56f2",
+      "at": 1791922536000,
+      "title": "uk-cis-deduction-refund-calculator: fix dead page (template-escaped braces broke the module script) + guard",
+      "pr": 6894,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 4,
+      "lines_added": 48,
+      "lines_removed": 23,
+      "added_files": [
+        "platform/webcheck/inline-script-braces.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "940ffaea1a3cf8fabc90ba419de458780810181b",
+      "at": 1791923939000,
+      "title": "uk-trading-allowance-calculator: new venture (UK £1,000 trading allowance vs expenses, income tax and Class 4 NIC)",
+      "pr": 6896,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "uk-trading-allowance-calculator: new venture (UK 1,000 GBP trading allowance vs expenses, income tax and Class 4 NIC)",
+        "uk-trading-allowance-calculator: regenerate front-door mirror and tree counts",
+        "Sync mirrored-tool count to 1166",
+        "Link UK CIS tool to trading allowance calculator (closes sibling orphan); regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2718,
+      "lines_added": 732,
+      "lines_removed": 80,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-trading-allowance-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-trading-allowance-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-trading-allowance-calculator__usage.mjs.gz",
+        "ventures/uk-trading-allowance-calculator/LICENSE",
+        "ventures/uk-trading-allowance-calculator/README.md",
+        "ventures/uk-trading-allowance-calculator/VENTURE.yaml",
+        "ventures/uk-trading-allowance-calculator/calc.mjs",
+        "ventures/uk-trading-allowance-calculator/calc.test.mjs",
+        "ventures/uk-trading-allowance-calculator/index.html",
+        "ventures/uk-trading-allowance-calculator/page.test.mjs",
+        "ventures/uk-trading-allowance-calculator/robots.txt",
+        "ventures/uk-trading-allowance-calculator/sitemap.xml",
+        "ventures/uk-trading-allowance-calculator/usage.mjs",
+        "ventures/uk-trading-allowance-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "4e1df5952b8e8d6d4325966e5bbf229ce50c013e",
+      "at": 1791925965000,
+      "title": "uk-payments-on-account-calculator: new venture (UK Self Assessment balancing payment, 31 Jan/31 Jul instalments, reduction claim)",
+      "pr": 6898,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2661,
+      "lines_added": 705,
+      "lines_removed": 65,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-payments-on-account-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-payments-on-account-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-payments-on-account-calculator__usage.mjs.gz",
+        "ventures/uk-payments-on-account-calculator/LICENSE",
+        "ventures/uk-payments-on-account-calculator/README.md",
+        "ventures/uk-payments-on-account-calculator/VENTURE.yaml",
+        "ventures/uk-payments-on-account-calculator/calc.mjs",
+        "ventures/uk-payments-on-account-calculator/calc.test.mjs",
+        "ventures/uk-payments-on-account-calculator/index.html",
+        "ventures/uk-payments-on-account-calculator/page.test.mjs",
+        "ventures/uk-payments-on-account-calculator/robots.txt",
+        "ventures/uk-payments-on-account-calculator/sitemap.xml",
+        "ventures/uk-payments-on-account-calculator/usage.mjs",
+        "ventures/uk-payments-on-account-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "1e9e02261558db34bf15e97f9e8c6b88d2730500",
+      "at": 1791926938000,
+      "title": "uk-payments-on-account-calculator: add launch date and category rule, regen mirror (fixes 3 suite failures from #6898)",
+      "pr": 6900,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 242,
+      "lines_added": 48,
+      "lines_removed": 45,
+      "added_files": [],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "8fb3307d97323ba424313d4a799582a5c01036a8",
+      "at": 1791929191000,
+      "title": "uk-child-benefit-charge-calculator: new venture (UK High Income Child Benefit Charge, pension to avoid it, opt-out trade-off)",
+      "pr": 6904,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2719,
+      "lines_added": 692,
+      "lines_removed": 73,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-child-benefit-charge-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-child-benefit-charge-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-child-benefit-charge-calculator__usage.mjs.gz",
+        "ventures/uk-child-benefit-charge-calculator/LICENSE",
+        "ventures/uk-child-benefit-charge-calculator/README.md",
+        "ventures/uk-child-benefit-charge-calculator/VENTURE.yaml",
+        "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+        "ventures/uk-child-benefit-charge-calculator/calc.test.mjs",
+        "ventures/uk-child-benefit-charge-calculator/index.html",
+        "ventures/uk-child-benefit-charge-calculator/page.test.mjs",
+        "ventures/uk-child-benefit-charge-calculator/robots.txt",
+        "ventures/uk-child-benefit-charge-calculator/sitemap.xml",
+        "ventures/uk-child-benefit-charge-calculator/usage.mjs",
+        "ventures/uk-child-benefit-charge-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "7c6d28528fff8e2f9fbaf84bbb1de3ab1562780b",
+      "at": 1791931086000,
+      "title": "uk-capital-gains-tax-calculator: new venture (UK CGT 2025/26)",
+      "pr": 6905,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "uk-capital-gains-tax-calculator: new venture (UK CGT 2025/26 at 18%/24%, exempt amount, losses, 60-day property report), regen mirror",
+        "sync tree counts after merging main"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2720,
+      "lines_added": 702,
+      "lines_removed": 78,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-capital-gains-tax-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-capital-gains-tax-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-capital-gains-tax-calculator__usage.mjs.gz",
+        "ventures/uk-capital-gains-tax-calculator/LICENSE",
+        "ventures/uk-capital-gains-tax-calculator/README.md",
+        "ventures/uk-capital-gains-tax-calculator/VENTURE.yaml",
+        "ventures/uk-capital-gains-tax-calculator/calc.mjs",
+        "ventures/uk-capital-gains-tax-calculator/calc.test.mjs",
+        "ventures/uk-capital-gains-tax-calculator/index.html",
+        "ventures/uk-capital-gains-tax-calculator/page.test.mjs",
+        "ventures/uk-capital-gains-tax-calculator/robots.txt",
+        "ventures/uk-capital-gains-tax-calculator/sitemap.xml",
+        "ventures/uk-capital-gains-tax-calculator/usage.mjs",
+        "ventures/uk-capital-gains-tax-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "b8985cd61bb157b13aefa46481a68bb8e2965bef",
+      "at": 1791931929000,
+      "title": "uk-self-assessment-late-penalty-calculator: new venture (late filing/payment penalties, interest, cost of delay)",
+      "pr": 6902,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "uk-self-assessment-late-penalty-calculator: new venture (UK Self Assessment late filing/payment penalties, interest, cost of delay)",
+        "sync mirrored-tool count to 1168 for uk-self-assessment-late-penalty-calculator",
+        "uk-payments-on-account-calculator: link the late penalty sibling (clears crawlable orphan), regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2721,
+      "lines_added": 744,
+      "lines_removed": 84,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-self-assessment-late-penalty-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-self-assessment-late-penalty-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-self-assessment-late-penalty-calculator__usage.mjs.gz",
+        "ventures/uk-self-assessment-late-penalty-calculator/LICENSE",
+        "ventures/uk-self-assessment-late-penalty-calculator/README.md",
+        "ventures/uk-self-assessment-late-penalty-calculator/VENTURE.yaml",
+        "ventures/uk-self-assessment-late-penalty-calculator/calc.mjs",
+        "ventures/uk-self-assessment-late-penalty-calculator/calc.test.mjs",
+        "ventures/uk-self-assessment-late-penalty-calculator/index.html",
+        "ventures/uk-self-assessment-late-penalty-calculator/page.test.mjs",
+        "ventures/uk-self-assessment-late-penalty-calculator/robots.txt",
+        "ventures/uk-self-assessment-late-penalty-calculator/sitemap.xml",
+        "ventures/uk-self-assessment-late-penalty-calculator/usage.mjs",
+        "ventures/uk-self-assessment-late-penalty-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "212c9e733e880f06137e3c81518d89cbeb5baf37",
+      "at": 1791933554000,
+      "title": "uk-dividend-tax-calculator: new venture (UK dividend tax 2025/26 and 2026/27 by band, dividend allowance, marginal cost), regen mirror, sync counts",
+      "pr": 6909,
+      "agent": "Claude",
+      "models": [],
+      "track": null,
+      "bullets": [],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2722,
+      "lines_added": 713,
+      "lines_removed": 74,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-dividend-tax-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-dividend-tax-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-dividend-tax-calculator__usage.mjs.gz",
+        "ventures/uk-dividend-tax-calculator/LICENSE",
+        "ventures/uk-dividend-tax-calculator/README.md",
+        "ventures/uk-dividend-tax-calculator/VENTURE.yaml",
+        "ventures/uk-dividend-tax-calculator/calc.mjs",
+        "ventures/uk-dividend-tax-calculator/calc.test.mjs",
+        "ventures/uk-dividend-tax-calculator/index.html",
+        "ventures/uk-dividend-tax-calculator/page.test.mjs",
+        "ventures/uk-dividend-tax-calculator/robots.txt",
+        "ventures/uk-dividend-tax-calculator/sitemap.xml",
+        "ventures/uk-dividend-tax-calculator/usage.mjs",
+        "ventures/uk-dividend-tax-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "bae7586845c873c8226549fe98af707139aff86d",
+      "at": 1791933650000,
+      "title": "uk-ir35-inside-outside-calculator: new venture (IR35 inside vs outside take-home, break-even day rate, 2026/27)",
+      "pr": 6907,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "uk-ir35-inside-outside-calculator: new venture (IR35 inside vs outside take-home, break-even day rate, 2026/27)",
+        "uk-sole-trader-vs-limited-company-calculator: link the IR35 calculator (closes the orphan), regen mirror"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2723,
+      "lines_added": 821,
+      "lines_removed": 79,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-ir35-inside-outside-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-ir35-inside-outside-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-ir35-inside-outside-calculator__usage.mjs.gz",
+        "ventures/uk-ir35-inside-outside-calculator/LICENSE",
+        "ventures/uk-ir35-inside-outside-calculator/README.md",
+        "ventures/uk-ir35-inside-outside-calculator/VENTURE.yaml",
+        "ventures/uk-ir35-inside-outside-calculator/calc.mjs",
+        "ventures/uk-ir35-inside-outside-calculator/calc.test.mjs",
+        "ventures/uk-ir35-inside-outside-calculator/index.html",
+        "ventures/uk-ir35-inside-outside-calculator/page.test.mjs",
+        "ventures/uk-ir35-inside-outside-calculator/robots.txt",
+        "ventures/uk-ir35-inside-outside-calculator/sitemap.xml",
+        "ventures/uk-ir35-inside-outside-calculator/usage.mjs",
+        "ventures/uk-ir35-inside-outside-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    },
+    {
+      "sha": "380416e33a5915d8d05f3446581975154bb50c39",
+      "at": 1791933986000,
+      "title": "uk-student-loan-repayment-calculator: new venture (Plan 1/2/4/5 + Postgraduate, write-off, overpay test)",
+      "pr": 6908,
+      "agent": "Claude Sonnet 5.5",
+      "models": [
+        "Claude Sonnet 5.5"
+      ],
+      "track": null,
+      "bullets": [
+        "uk-student-loan-repayment-calculator: new venture (UK Plan 1/2/4/5 + Postgraduate repayment projection, write-off, overpay test)",
+        "uk-student-loan-repayment-calculator: sort launched.json, link from child-benefit sibling, regen mirror",
+        "uk-student-loan-repayment-calculator: sync mirrored-tool counts"
+      ],
+      "detail": null,
+      "area": {
+        "kind": "process",
+        "name": "gitops"
+      },
+      "files": 2724,
+      "lines_added": 760,
+      "lines_removed": 80,
+      "added_files": [
+        "gitops/prod/front-door-tools/uk-student-loan-repayment-calculator__calc.mjs.gz",
+        "gitops/prod/front-door-tools/uk-student-loan-repayment-calculator__index.html.gz",
+        "gitops/prod/front-door-tools/uk-student-loan-repayment-calculator__usage.mjs.gz",
+        "ventures/uk-student-loan-repayment-calculator/LICENSE",
+        "ventures/uk-student-loan-repayment-calculator/README.md",
+        "ventures/uk-student-loan-repayment-calculator/VENTURE.yaml",
+        "ventures/uk-student-loan-repayment-calculator/calc.mjs",
+        "ventures/uk-student-loan-repayment-calculator/calc.test.mjs",
+        "ventures/uk-student-loan-repayment-calculator/index.html",
+        "ventures/uk-student-loan-repayment-calculator/page.test.mjs",
+        "ventures/uk-student-loan-repayment-calculator/robots.txt",
+        "ventures/uk-student-loan-repayment-calculator/sitemap.xml",
+        "ventures/uk-student-loan-repayment-calculator/usage.mjs",
+        "ventures/uk-student-loan-repayment-calculator/usage.test.mjs"
+      ],
+      "revert": false,
+      "fix_forward": false
+    }
+  ],
+  "new_ventures": [
+    "hydroponic-farm-profit-calculator",
+    "npm-audit-triage",
+    "ice-cream-shop-seasonal-profit-calculator",
+    "boba-tea-shop-profit-calculator",
+    "kombucha-brewery-profit-calculator",
+    "pet-boarding-daycare-profit-calculator",
+    "pip-audit-triage",
+    "convenience-store-gas-station-profit-calculator",
+    "pizzeria-profit-calculator",
+    "cargo-audit-triage",
+    "nis2-scope-checker",
+    "dry-cleaner-profit-calculator",
+    "eu-ai-act-risk-checker",
+    "eudr-scope-checker",
+    "cbam-cost-estimator",
+    "eaa-accessibility-act-checker",
+    "indoor-play-center-profit-calculator",
+    "gpsr-product-safety-checker",
+    "eu-data-act-checker",
+    "padel-club-profit-calculator",
+    "eu-battery-regulation-checker",
+    "eu-packaging-regulation-checker",
+    "bowling-center-profit-calculator",
+    "pay-transparency-directive-checker",
+    "eu-whistleblower-channel-checker",
+    "eu-einvoicing-mandate-checker",
+    "eu-green-claims-checker",
+    "eu-product-liability-directive-checker",
+    "dac7-seller-reporting-checker",
+    "eu-price-reduction-claim-checker",
+    "eu-green-claims-copy-scanner",
+    "eu-platform-work-directive-checker",
+    "ugc-creator-rate-calculator",
+    "eu-dora-readiness-checker",
+    "eu-csrd-scope-checker",
+    "eu-espr-readiness-checker",
+    "uk-sole-trader-vs-limited-company-calculator",
+    "eu-dsa-obligations-checker",
+    "uk-mtd-income-tax-checker",
+    "uk-vat-registration-checker",
+    "schengen-90-180-day-calculator",
+    "paid-sick-leave-accrual-calculator",
+    "ca-gst-hst-small-supplier-checker",
+    "employer-payroll-tax-cost-calculator",
+    "commercial-property-cap-rate-calculator",
+    "uk-statutory-sick-pay-calculator",
+    "retirement-plan-startup-credit-calculator",
+    "au-gst-registration-checker",
+    "social-security-survivor-spousal-benefit-calculator",
+    "au-redundancy-pay-calculator",
+    "iolta-three-way-reconciliation-checker",
+    "nz-gst-registration-checker",
+    "uk-cis-deduction-refund-calculator",
+    "tfsa-over-contribution-checker",
+    "uk-trading-allowance-calculator",
+    "uk-payments-on-account-calculator",
+    "uk-child-benefit-charge-calculator",
+    "uk-capital-gains-tax-calculator",
+    "uk-self-assessment-late-penalty-calculator",
+    "uk-dividend-tax-calculator",
+    "uk-ir35-inside-outside-calculator",
+    "uk-student-loan-repayment-calculator"
+  ],
+  "new_research": [],
+  "new_posts": [],
+  "reverts": [],
+  "fix_forwards": [],
+  "biggest": {
+    "sha": "0ad417af0e2ea3372bdd25ce37ecc8ee90af9e2b",
+    "at": 1791907073000,
+    "title": "ca-gst-hst-small-supplier-checker: new venture (Canada GST/HST CAD 30,000 small-supplier registration test)",
+    "pr": 6881,
+    "agent": "Claude Sonnet 5.5",
+    "models": [
+      "Claude Sonnet 5.5"
+    ],
+    "track": null,
+    "bullets": [
+      "ca-gst-hst-small-supplier-checker: new venture (Canada GST/HST CAD 30,000 small-supplier registration test)",
+      "ca-gst-hst-small-supplier-checker: place in back-office, launch date, sibling link, regen mirror"
+    ],
+    "detail": null,
+    "area": {
+      "kind": "process",
+      "name": "gitops"
+    },
+    "files": 2705,
+    "lines_added": 1095,
+    "lines_removed": 447,
+    "added_files": [
+      "gitops/prod/front-door-tools/ca-gst-hst-small-supplier-checker__calc.mjs.gz",
+      "gitops/prod/front-door-tools/ca-gst-hst-small-supplier-checker__index.html.gz",
+      "gitops/prod/front-door-tools/ca-gst-hst-small-supplier-checker__usage.mjs.gz",
+      "ventures/ca-gst-hst-small-supplier-checker/LICENSE",
+      "ventures/ca-gst-hst-small-supplier-checker/README.md",
+      "ventures/ca-gst-hst-small-supplier-checker/VENTURE.yaml",
+      "ventures/ca-gst-hst-small-supplier-checker/calc.mjs",
+      "ventures/ca-gst-hst-small-supplier-checker/calc.test.mjs",
+      "ventures/ca-gst-hst-small-supplier-checker/index.html",
+      "ventures/ca-gst-hst-small-supplier-checker/page.test.mjs",
+      "ventures/ca-gst-hst-small-supplier-checker/robots.txt",
+      "ventures/ca-gst-hst-small-supplier-checker/sitemap.xml",
+      "ventures/ca-gst-hst-small-supplier-checker/usage.mjs",
+      "ventures/ca-gst-hst-small-supplier-checker/usage.test.mjs"
+    ],
+    "revert": false,
+    "fix_forward": false
+  },
+  "runs": {
+    "runs": 97,
+    "by_track": [
+      [
+        "research",
+        97
+      ]
+    ],
+    "by_outcome": [
+      [
+        "success",
+        93
+      ],
+      [
+        "partial",
+        4
+      ]
+    ],
+    "by_model": [
+      [
+        "claude-sonnet-5-5",
+        97
+      ]
+    ],
+    "measured": 0,
+    "api_usd": null,
+    "active_minutes": null,
+    "errors": [
+      "OpenROAD nixpkgs build failed its own regression test dbSta.report_cell_usage_file.tcl; rebuilt with doCheck=false (about 3 h of compile in total)",
+      "apt python3-numpy shadowed pip numpy; used a venv",
+      "own first cycle-formula test values were wrong; fixed from the formula",
+      "slug collision: a parallel run merged research/chip-rtl-loop (and chip-rtl-probe) while this run built the same milestone; renamed to chip-repair-baseline and kept the non-overlapping no-model baseline",
+      "harness bugs fixed before results: SystemVerilog keyword as instance name, fatal lint warnings, indefinite-width concatenation, vvp hang on mutated loop",
+      "one self-written test had a bug (horizon shorter than sampling grid), fixed before commit",
+      "merge-conflict resolution on garment-optics wasted: PR was merged by another run meanwhile",
+      "slug collision: a parallel run merged research/robofab-cell while this run built the same milestone; renamed to robofab-cell-bound and kept the non-overlapping throughput-bound view",
+      "pytest was only importable under /usr/bin/python3, not the default python",
+      "python on PATH lacked scipy/skfem (used /usr/bin/python3); 3D hex assembly slow at default quadrature, fixed with intorder=4",
+      "first unpinned-waist cloth model slid off the body; switched to a belt-held waist row",
+      "queue had no landable PR; stale unlanded branches without PRs left alone",
+      "crossref/WebFetch unreachable: citations not re-verified, taken from PROJECTS.md",
+      "concurrent runs landed sag-twin, groundeffect-twin and ransac-twin at the same time; merges produced duplicate README bullets, fixed in follow-up",
+      "default python3 lacked numpy; used /usr/bin/python3",
+      "apt python3-numpy shadowed the usable NumPy; used a venv",
+      "first sweep grid (3 R x 3 C x 2 WB) ran over an hour without finishing; cut to R 4/8/16, C 2/4, 4-bit",
+      "pytest/numpy installed for wrong python at first",
+      "retailer pages not fetchable; prices from search snippets",
+      "python3 vs pip mismatch again (pip for 3.11); used python3 -m pip",
+      "first moving-grasp sim reported no holding force at any force: MuJoCo friction lag (solref 0.004) and a qpos/dof index slip in my driver; fixed and documented",
+      "pip install put mujoco under python3.13 while python3 is 3.11; used python3.13",
+      "first MuJoCo contact settings unstable above a few N; switched to stiffer solref, documented in README",
+      "MUJOCO_LOG.TXT committed by mistake, removed and gitignored",
+      "pip installed into a different interpreter than python; fixed",
+      "no routing.json on main, so champion prompt used; landing queue had only duplicate branches (robofab-selfparts, ambient-pipeline) left unmerged",
+      "two bugs fixed during development (interior facets in traction load; mask shape)",
+      "pytest missing in container (pip installed); first oracle fit diverged with wake as a feature (fixed)",
+      "No routing.json on main, so champion prompt used. Crossref blocked by proxy; citations checked by web search, Bruns and Tortorelli volume/pages unconfirmed and flagged in README.",
+      "stale unlanded branch claude/funny-pascal-saehf9 (sag-twin already on main) left alone",
+      "pip numpy/pytest missing at start",
+      "python3 on PATH lacked numpy; used /usr/bin/python3",
+      "stall counter first missed nonlocal declaration",
+      "first monitor matched its own pgrep and never exited; replaced by a pid watch",
+      "first pip install used wrong interpreter, no effect on results",
+      "pip installed into a different python than python3 (fixed with python3 -m pip)",
+      "main history was force-updated; ~300 old claude/* branches share no merge base with main and could not be landed",
+      "first experiment run hung: float tolerance in stock check caused a zero-length-step loop; fixed before commit",
+      "Queue triage: unmerged claude/* branches for chip-systolic-batch, robofab-selfparts, ambient-pipeline duplicate work already on main; left alone",
+      "pip on PATH installed into a different interpreter than python; used python -m pip",
+      "first FE peak read the clamped end (Kt 3.07 with no hole); excluded the end zone",
+      "one self-written unit test had a wrong expectation, fixed before commit",
+      "first design (6x6 MAC) made the mapped-netlist SAT proof exceed 60 s; shrunk to 4x4 before any result was recorded",
+      "default python3 lacked numpy/pytest; pip install via python3 -m pip fixed it",
+      "first min_time test used an infeasible torque limit; fixed",
+      "stray python3 without mujoco on PATH; used /usr/bin/python3",
+      "Maven Central 429: Gradle build not run; tests run via bundled kotlinc + shim",
+      "pytest not preinstalled; pip install needed",
+      "first draft of one test expected wrong model behaviour, fixed",
+      "python3 on PATH is 3.11 without numpy; used /usr/bin/python3",
+      "first tasks all passed at round 0 so the feedback loop was not exercised",
+      "lint criterion relaxed post hoc (disclosed)",
+      "fifo4 formal at depth 20 timed out; reduced to 10",
+      "Crossref and doi.org blocked by egress policy; citations not re-checked online, taken from PROJECTS.md reference list",
+      "shallow clone made old branches look unmergeable until unshallowed",
+      "first env python lacked numpy/pytest; used /usr/bin/python3",
+      "no open PRs; ~100 stale claude/* branches only edit projects already on main, left alone",
+      "PR #265 was merged by another run while I resolved its conflict; discarded my merge",
+      "apt python3-numpy shadowed pip numpy; used a venv"
+    ],
+    "friction": [],
+    "notes": [
+      "Track 1 drawn at random. Mass/cost inputs assumed and labelled; ambient-pipeline WIP branch sleepy-shannon-rx4szp left alone (claim <3h, no PR).",
+      "Queue empty (no open PRs; stale chip-systolic-batch branch superseded on main). Track 6 random pick; layer-count follow-up.",
+      "Queue empty (PR 353 was another run's live work; orphan branches amazing-ramanujan-sysezg and trusting-knuth-gso2bw duplicate projects already on main, left alone). Citations copied from robofab-liftload, not re-verified.",
+      "No open PRs; claude/amazing-ramanujan-sysezg (chip-systolic-batch duplicate, project already on main) left unmerged as superseded.",
+      "Tobin 2017 and Rubinstein 1999 citations added from memory, unverified (no web access); flagged in README. PR 278 left open with blocker comment.",
+      "Landing queue: no open PRs; unmerged claude/* branches (robofab-selfparts, sag-twin, ambient-pipeline WIP, cool-cori moved-notice) superseded by main or contradict CLAUDE.md; left alone.",
+      "Negative result: systolic loses on cells*cycles to MAC lanes at fan-in 8. Dropped an unverifiable Kung-Leiserson citation.",
+      "No open PRs at start; two unpulled branches (chip-systolic-batch, robofab-selfparts) were superseded by slugs already on main and left alone. Track 1 drawn at random.",
+      "Draft claim PR was opened ~15 min in, after the other run had already started. Session agent passed all 10 tasks first try; feedback loop unmeasured, reported as such.",
+      "Track 1 (random draw). Queue empty. Fluid-model gap explained post hoc and labelled as such; Jones 2011 citation inherited, not re-checked.",
+      "queue empty (no open PRs, recent branches all merged); track 1 chosen by random draw; old claude/* branches have unrelated pre-rewrite history and were left alone",
+      "No open PRs at start; ~80 stale claude/* branches hold only already-merged projects or run-log lines, left alone. Track 4 drawn at random; robofab-cell was the next free milestone. Reference Little (1961) not re-checked (no web).",
+      "Queue was empty: sag-twin and ambient-pipeline branches were already on main. cool-cori-cym3m3 (unmerged, no PR) says the move landed in oss-monorepo, contradicting CLAUDE.md (move on hold); left alone for the owner.",
+      "Queue: only #320 (fresh claim, left alone); stale claude/* branches already on main. Track 3 drawn; chip-abc-sweep next step. Proposer files are session-written, copied from chip-ppa-loop.",
+      "Queue empty at start. Track 2 draw; mostly negative result reported as such.",
+      "Track 5 (random draw), milestone 3. No open PRs; stale claude/* branches have projects already on main. Citations (Timoshenko 1921, Cowper 1966, scikit-fem JOSS) not re-verified online.",
+      "Result is mostly negative: nominal optima fragile; robust objective helps only partly.",
+      "Track 6 (random draw), milestone 2. Stale claude/* branches without PRs were duplicates (robofab-selfparts, sag-twin, ambient-pipeline already on main) or the move-notice branch cool-cori-cym3m3, which contradicts CLAUDE.md (move on hold); left alone. Citations written from memory, not re-verified online.",
+      "Stale claude/* branches checked: none held an unmerged project. Citations checked against Crossref.",
+      "Track 3 drawn at random. Chip-Chat DOI dropped as unverifiable in container.",
+      "No open PRs; old unmerged claude/* branches all had projects already on main, left alone.",
+      "Landing queue only: closed 7 stale PRs (6 already on main, tail-elicitation duplicate of tail-risk-elicitation); merged footprint-twin, groundeffect-twin, occlusion-twin; no new project built.",
+      "Geometry-only objective was degenerate (reported as negative); added load check. Other unmerged claude/* branches today carry no non-prompts changes or are superseded.",
+      "Queue empty at start (no open PRs; unmerged old branches had no merge base after main force-update, projects already on main). Track 5 drawn at random. Kirsch citation from memory, flagged in README.",
+      "Rolled track 3; landing queue had no open PRs and no landable branches. Batch sweep of chip-systolic; negative result. Kung citation not re-verified beyond chip-systolic's search.",
+      "Found the selection bias is large, revising a guess in ambient-ips.",
+      "Queue empty: open PRs none; robofab-selfparts and ambient-pipeline stale branches superseded on main. Citation (Paul EMC) unverified, disclosed in README.",
+      "Scheduled run; queue empty except a fresh claim (#373 garment-stackpareto). Track 6 drawn; took garment-optics next step. Citations: none new (Paul entry inherited, unverified).",
+      "Landing queue empty (PR #353 merged mid-run; sysezg/gso2bw already closed as duplicates). Track 4 draw; all listed milestones done, took next step from graspmove. No routing.json, so champion prompt. Citations are copied MuJoCo/Zykov entries, not re-verified; flat-pad bound derived here, uncited.",
+      "Open PRs #305-307 were fresh claims by concurrent runs; hundreds of old unrelated-history claude/* branches left alone.",
+      "Queue: 3 open WIP claims <15 min old (simdesign-llm, chip-pnr, garment-pattern-fit), left alone; claude/trusting-knuth-gso2bw duplicates robofab-selfparts already on main (no PR, left alone). Track 5 drawn; milestone 5.",
+      "Stylised; assumed prices. Landing queue empty: no open PRs, unmerged claude/* branches are stale or already on main.",
+      "No open PRs; branches chip-systolic-batch/robofab-selfparts/ambient-pipeline remain stale duplicates with no PRs. Citations copied from robofab-grasp, not re-checked online.",
+      "Result is a validation (sim matches analytic bound), stated as such. Three stale unmerged branches (chip-systolic-batch, robofab-selfparts, ambient-pipeline) duplicate slugs on main and have no PRs; left alone. Citations copied from PROJECTS.md, not re-checked online.",
+      "No open PRs; unmerged branch amazing-ramanujan-sysezg is a superseded duplicate of chip-systolic-batch on main (no PR, left alone). Most other claude/* branches have unrelated history (no merge base).",
+      "No open PRs; unlanded branches (sleepy-shannon-rx4szp, funny-pascal-saehf9) superseded by main; cool-cori-cym3m3 contradicts CLAUDE.md (move on hold), left alone.",
+      "Proposer was the session agent (no API key); n=1, disclosed prior-knowledge advantage in README. Optimisation-paper citations checked on Crossref; scikit-fem citation carried over.",
+      "Landing queue empty: no open PRs, all unmerged claude/* branches had projects already on main. Track 4 chosen by random draw. Citations copied from PROJECTS.md, not re-verified (no web access).",
+      "No routing.json, so champion prompt. Landing queue empty (only live claim PR 306). No papers cited beyond the RepRap paper already in selfrep-closure; not re-checked online.",
+      "Queue: robofab-selfparts branch (gso2bw) was a duplicate of main's version and ambient-pipeline branch (rx4szp) superseded; both left without PR. #320 chip-systolic-batch is a fresh claim, left alone.",
+      "Track 5 picked at random. Queue had no open PRs; two unmerged branches' projects were already on main. Kirsch citation page range unverified (797-807 vs 797-802).",
+      "Landing queue empty (open PRs none; stray selfrep-selfparts/systolic-batch branches already on main; robofab-graspmove branch 2 min old, left to its run). Track 1 drawn at random.",
+      "Landing queue was empty (other branches already on main); track 4 picked at random; no routing.json so prompt 0.",
+      "Queue empty at start: no open PRs; two stale branches (chip-systolic-batch, robofab-selfparts) already on main. Pfeiffer-Johanni issue number unconfirmed, flagged in README.",
+      "queue empty: 3 unlanded claude/* branches were duplicates of slugs on main or another run in progress; left alone",
+      "Track 5 (random draw 5); queue empty (two unmerged branches were superseded duplicates, left alone). Result partly negative: min-length-scale check did not separate formulations.",
+      "track 3 milestone 1; OpenROAD and cocotb not covered; no open PRs, stale claude/* branches already on main by slug",
+      "Scheduled run; open PRs #378/#379 were fresh claims by parallel runs, left alone; old claude/* branches have unrelated history. Track 6 drawn; took garment-assist next step (power train). Citations inherited from PROJECTS.md, not re-checked.",
+      "Track 6 (random draw 6); queue was empty. Citations: Wyman et al. checked via NVIDIA page; books unverified and flagged.",
+      "No open PRs; stale branch trusting-knuth-gso2bw (robofab-selfparts) duplicated main, left alone. Track 4 drawn at random. Refs copied from cell-mva, not re-checked online (flagged in README).",
+      "Queue check: sag-twin and ambient-pipeline branches were superseded by main; cool-cori branch (moved notices) conflicts with CLAUDE.md, left alone.",
+      "Queue empty (no open PRs; only a prompts-only branch). Track 5 drawn at random; all listed milestones done, took patchstress next step.",
+      "Queue was empty (no open PRs; older unmerged branches share no history with main). Track 6 drawn at random; all milestones done, took next step from garment-stackopt.",
+      "Scheduled run; queue empty (no open PRs). Follow-up to simdesign-filletfloor.",
+      "Vendor figures read via summarising fetch tool, flagged in README; ~300 pre-rewrite claude/* branches share no history with main and could not be landed.",
+      "Diagnostic: laser peak-price scatter is a missed gauge-2 sub-search (1/20), not a rule cost; mesh effect untested.",
+      "Queue: 3 in-progress PRs from runs started minutes earlier, left alone; ~300 legacy unrelated-history branches ignored. Track 1 drawn; took reconciliation of the two extinction chains. Hypothesis partly refuted (serial law over-corrects), reported as such.",
+      "Landing queue had nothing landable (PR 320 fresh claim; recent unmerged branches already on main or stale). Citation checked via Crossref.",
+      "Landing queue empty (no open PRs; ambient-pipeline WIP branch superseded by main). Picked track 4 by random draw; citations checked by web search.",
+      "Track 6 (random draw 6); queue empty (no open PRs; chip-systolic-batch branch superseded, already on main). Next step of garment-thincolor.",
+      "Landing queue empty: only open PR was a fresh draft claim (chip-pnr, #306); stale claude/* branches superseded by merged work. Lackner-Wendt comparison deliberately not done.",
+      "Landing queue had nothing landable (stale duplicate branches only). Citations checked against Crossref metadata, not full texts.",
+      "Plain chain over-estimates survival 1.8-2.5x vs DES; interruption fix is post-hoc and labelled. No prompts/routing.json on main; used champion. Landing queue was empty (no open PRs).",
+      "Track 5 drawn at random; all listed milestones done, took next step of simdesign-meshmargin.",
+      "Closed 9 open PRs whose projects were already on main (duplicates). Queue of ~300 unmerged claude/* branches not triaged this run.",
+      "Open queue empty (only PR 316 WIP by another run; old branches already on main). Track drawn at random: 5. Polynomial Kt fit cited from memory and flagged unverified in README.",
+      "Stylised; wrist point only. Landing queue empty (no open PRs; unmerged recent branches' projects already on main).",
+      "queue was empty (no open PRs; recent branches already on main or closed as duplicates); track 3 picked at random",
+      "Stylised; assumed part lists, mass-only payback. Landing queue: no open PRs; recent unmerged branches already on main or stale (cool-cori contradicts CLAUDE.md).",
+      "Scheduled run; no open PRs, old claude/* branches unrelated history or superseded. Track 6 drawn; milestones done, took garment-stackrobust next steps. Negative result. CVaR reference (Rockafellar-Uryasev 2000) cited from memory, unverified, flagged in README.",
+      "Track 4 (random draw), milestone 5. No open PRs; stale claude/* branches already on main or diverged histories, left alone. Citations copied from PROJECTS.md, not re-verified (no web).",
+      "Queue empty (no open PRs; stale claude/* branches already on main or owner decisions: cool-cori-cym3m3 contradicts CLAUDE.md). Track 4 drawn. Result largely algebraic; README says so.",
+      "Only open PR (#359) was another run's live claim; left alone. Flash and Hogan 1985 cited from memory, disclosed in README.",
+      "Torque bracket inconclusive (reported as such). No prompts/routing.json on main; used champion.",
+      "Queue had nothing landable (stale superseded branches trusting-knuth-gso2bw, sleepy-shannon-rx4szp; cool-cori-cym3m3 contradicts CLAUDE.md on main, left for owner; #316 is another run's WIP). Track 2 drawn; skipped ambient-wearable (datasheets unreachable via proxy).",
+      "Rolled track 1; selfrep-materials claimed by PR 316 so took garment-protective. Stale branch cool-cori-cym3m3 claims the move happened, contradicting main's CLAUDE.md; left alone. U* formula recalled, flagged unverified in README.",
+      "Queue: only #320 chip-systolic-batch (fresh claim, left alone); old claude/* branches are unrelated histories or already on main. Track 6 drawn; OpenSim/MyoSuite not used (stated).",
+      "Mixed result reported. Three stale branches (chip-systolic-batch, robofab-selfparts, ambient-pipeline) duplicate slugs already on main and were left alone. Citations copied from sibling project, not re-checked online.",
+      "PR 278 (draft, owner-dependent move notices) left alone; ~40 stale claude/* branches carry only projects already on main.",
+      "Queue clear: no open PRs; all unmerged claude/* branches only touched projects already on main.",
+      "Negative result: fillet floor does not explain laser price scatter.",
+      "Queue: 3 recent unmerged branches (ambient-pipeline, robofab-selfparts, chip-systolic-batch) duplicate slugs already on main; left alone. Random track draw: 6.",
+      "Track 5 follow-up to simdesign-dfm; no other PR was landable (only open PR #332 belonged to a live run).",
+      "Scheduled run; queue empty (no open PRs; old claude/* branches have unrelated history). Track 2 drawn; took ambient-fullinfo next steps. Citations: Horvitz-Thompson 1952 checked against bibliographic record only, as in ambient-ips.",
+      "track 3 by random draw; adder citations checked by web search (titles/venues/years), papers not read",
+      "Landed stale ransac-twin branch; other stale twin branches (groundeffect, occlusion, sag) remain.",
+      "Land queue was empty (all branches merged); picked track 6 at random, extended garment-contactres next steps. Old claude/* branches have no merge base with rewritten main; left alone.",
+      "No open PRs; stale claude/* branches left alone (diverged or superseded).",
+      "Synthetic data only; README flags easy classes and construction-driven strain result. Landing queue: remaining old branches left; #320 claimed <3h ago.",
+      "Closed stale PRs 34, 67, 118 as duplicates/superseded. Landed footprint-twin; unlanded branches remain: groundeffect-twin, sag-twin x2, ransac-twin, occlusion-twin.",
+      "Track 4 (random draw); all five milestones existed, took reach next step. Negative result. Citation to Tian 2024 inherited from PROJECTS.md, not re-checked."
+    ]
+  },
+  "asks": [
+    {
+      "id": "payout-rail",
+      "action": "Decide the binary in break-even.md: either commit to a merchant-of-record account (and the egress entry it needs), or say plainly that this portfolio is not going to earn under the current design, so the fleet cadence…",
+      "gates": "revenue",
+      "blocked": false,
+      "age_days": 55
+    },
+    {
+      "id": "funding-sponsors-live",
+      "action": "Say yes or no to a live \"Sponsor\" button on this repo pointing at the owner's own GitHub Sponsors profile.",
+      "gates": "revenue",
+      "blocked": false,
+      "age_days": 50
+    },
+    {
+      "id": "pages-custom-domain",
+      "action": "URGENT as of 2026-10-01 -- domain-takeover risk.",
+      "gates": "distribution",
+      "blocked": false,
+      "age_days": 33
+    },
+    {
+      "id": "egress-policy",
+      "action": "One read-only egress allowlist decision covering api.wordpress.org, four public storefronts (formulae.brew.sh, www.raycast.com, obsidian.md, zed.dev) and the EU/US institutional publishers (eur-lex.europa.eu,…",
+      "gates": "measurement",
+      "blocked": false,
+      "age_days": 55
+    },
+    {
+      "id": "local-site-studio-subtree-gate-crossing",
+      "action": "Review the already-merged #731 (1,405-commit local-site-studio subtree merge, 7b69f3d) and decide whether to accept it as-is or revert it.",
+      "gates": "deployment",
+      "blocked": false,
+      "age_days": 50
+    },
+    {
+      "id": "session-gate-economics-premise",
+      "action": "Confirm, in one sentence, on this row or on #139: is fleet capacity for this account billed as a flat subscription (a session that runs and a session that idles cost the same), or metered per-session/per-token (an idle…",
+      "gates": "deployment",
+      "blocked": false,
+      "age_days": 50
+    },
+    {
+      "id": "branch-cleanup-automation",
+      "action": "Review and decide whether to accept or revert #829 (already merged, see correction below): .github/workflows/branch-cleanup.yml, deleting a PR's head branch immediately on merge and 24h after an unmerged close.",
+      "gates": "deployment",
+      "blocked": false,
+      "age_days": 50
+    },
+    {
+      "id": "agent-cross-review-automerge",
+      "action": "Not informational any more -- #3024 merged platform/ci/agent_review/ (review.py, config.yaml) plus .github/workflows/agent-cross-review.yml and .github/workflows/agent-pr-auto-merge.yml to main on 2026-09-03, the same…",
+      "gates": "deployment",
+      "blocked": false,
+      "age_days": 50
+    },
+    {
+      "id": "actions-runners-unavailable",
+      "action": "Live again as of 2026-09-05, and it is now the widest blocker in this queue.",
+      "gates": "deployment",
+      "blocked": false,
+      "age_days": 48
+    },
+    {
+      "id": "agent-runner-subscription-login",
+      "action": "Corrected 2026-10-01: the owner deleted the Hetzner servers (cpx22 and cpx52) that day, so the k3s codex-governor-enable route this paragraph used to prefer is gone and that row has been removed.",
+      "gates": "deployment",
+      "blocked": false,
+      "age_days": 45
+    },
+    {
+      "id": "routine-trigger-cadence",
+      "action": "Decide whether the 4-minute routine cadence runs, now that the merge half is already done: #788 landed on 2026-08-24 and .github/workflows/claude-routine-trigger.yml is on main today.",
+      "gates": "deployment",
+      "blocked": false,
+      "age_days": 50
+    },
+    {
+      "id": "publication-identity",
+      "action": "Three related grants: one registry account signup (Packagist or RubyGems preferred; not Docker Hub), one GitHub App permission change, and one standing approval on whether an agent session may publish a *free* listing…",
+      "gates": "distribution",
+      "blocked": true,
+      "age_days": 55
+    }
+  ],
+  "snapshot": null
+}

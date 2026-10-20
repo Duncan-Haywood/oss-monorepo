@@ -1,0 +1,79 @@
+{
+  "slug": "cabinet-refinishing-bid-calculator",
+  "name": "Cabinet refinishing",
+  "group": "Interior & finishes",
+  "summary": "Cabinet painting priced per door, drawer front, face-frame opening and hardware piece, plus degrease and paint.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 38,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Doors, shop spray",
+      "unit": "each",
+      "qty": 10,
+      "hoursPerUnit": 1.35,
+      "materialPerUnit": 0,
+      "source": "doors 10, hoursPerDoor 1.35 x shop laborFactor 1.0 (index.html, FINISH_PRESETS); paint is priced by the gallon below"
+    },
+    {
+      "label": "Drawer fronts",
+      "unit": "each",
+      "qty": 8,
+      "hoursPerUnit": 0.75,
+      "materialPerUnit": 0,
+      "source": "drawers 8, hoursPerDrawer 0.75 x 1.0 (index.html)"
+    },
+    {
+      "label": "Face-frame openings, painted in place",
+      "unit": "each",
+      "qty": 9,
+      "hoursPerUnit": 0.65,
+      "materialPerUnit": 0,
+      "source": "openings 9, hoursPerOpening 0.65 x 1.0 (index.html)"
+    },
+    {
+      "label": "Hardware remove, bag and rehang",
+      "unit": "each",
+      "qty": 38,
+      "hoursPerUnit": 0.09,
+      "materialPerUnit": 0,
+      "source": "hardwarePieces 38, hoursPerHardware 0.09 (index.html); existing hardware reused (replaceHardware unchecked)"
+    },
+    {
+      "label": "Degrease and prep",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 4,
+      "materialPerUnit": 0,
+      "source": "degreaseHours 4 (index.html)"
+    },
+    {
+      "label": "Primer",
+      "unit": "gallon",
+      "qty": 2,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 48,
+      "source": "23.4 piece-equivalents (doors + drawers + 0.6 x openings) / primerCoverage 22 rounded up = 2 gal x primerCost $48 (calc.mjs pieceEquivalent, gallonCount; index.html)"
+    },
+    {
+      "label": "Finish paint",
+      "unit": "gallon",
+      "qty": 2,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 68,
+      "source": "23.4 piece-equivalents / finishCoverage 18 rounded up = 2 gal x finishCost $68 (calc.mjs, index.html)"
+    },
+    {
+      "label": "Supplies, travel, booth and containment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 360,
+      "source": "supplies $85 + travelAndEquipment $275 (index.html defaults)"
+    }
+  ],
+  "specialistModels": "Shop vs on-site spray vs brush labor factors, dark-to-light extra coats on removable pieces, whole-gallon rounding and new-hardware replacement."
+}

@@ -1,0 +1,49 @@
+{
+  "slug": "well-pump-bid-calculator",
+  "name": "Well pump replacement",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Well pump replacements priced from pump type, horsepower, depth, cable, tank, pitless and stuck pulls.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 1.25,
+  "hourlyWage": 42,
+  "burdenRate": 32,
+  "overheadRate": 18,
+  "targetMargin": 35,
+  "tripFee": 85,
+  "items": [
+    {
+      "label": "Pull and set 3/4 HP submersible pump",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 2.5,
+      "materialPerUnit": 455,
+      "source": "hoursPumpBase 2.5 (suggestedTypeKit('submersible')); pumpCost $380 (suggestedHpKit('0.75')) + hoistFee $75 (index.html defaults)"
+    },
+    {
+      "label": "Pressure tank",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 280,
+      "source": "work 'pump-tank' selected: hoursTank 1, tankCost $280 (suggestedWorkKit, index.html)"
+    },
+    {
+      "label": "Drop pipe past included 100 ft",
+      "unit": "ft",
+      "qty": 20,
+      "hoursPerUnit": 0.015,
+      "materialPerUnit": 0,
+      "source": "wellDepthFeet 120 - includedFootage 100; hoursPerExtraFoot 0.015 (index.html). Specialist has no drop-pipe material price, so $0"
+    },
+    {
+      "label": "Well cable past included 100 ft",
+      "unit": "ft",
+      "qty": 30,
+      "hoursPerUnit": 0.004,
+      "materialPerUnit": 1.85,
+      "source": "cableFeet 130 - includedCableFeet 100; hoursPerExtraCableFoot 0.004, cablePerFoot $1.85 (index.html)"
+    }
+  ],
+  "specialistModels": "Jet vs submersible kits, horsepower pump prices, seized pitless, stuck-pump pulls, switch and constant-pressure drive packages with included-footage specials; setupHours = 0.75 trip + 0.5 site hours."
+}

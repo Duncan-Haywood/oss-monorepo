@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/vs-manually-reading-the-spec-diff.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/vs-oasdiff.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/why-does-adding-an-enum-count-as-breaking.html</loc></url>
+</urlset>

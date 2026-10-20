@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>If it&#39;s a calculator, make the maths hard · Open Tools and Research</title>
+<meta name="description" content="The owner&#39;s bar for any new calculator here: an engine a maths graduate can&#39;t follow at a glance and a chatbot can&#39;t replace in one line.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/if-its-a-calculator-make-it-hard/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="If it&#39;s a calculator, make the maths hard · Open Tools and Research">
+<meta property="og:description" content="The owner&#39;s bar for any new calculator here: an engine a maths graduate can&#39;t follow at a glance and a chatbot can&#39;t replace in one line.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/if-its-a-calculator-make-it-hard/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"If it's a calculator, make the maths hard","description":"The owner's bar for any new calculator here: an engine a maths graduate can't follow at a glance and a chatbot can't replace in one line.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/if-its-a-calculator-make-it-hard/","keywords":"opinion, ai-agents, product, algorithms","wordCount":655}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>If it&#39;s a calculator, make the maths hard</h1>
+<p class="dek">The owner&#39;s bar for any new calculator here: an engine a maths graduate can&#39;t follow at a glance and a chatbot can&#39;t replace in one line.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md">Source</a><br><span class="tag">opinion</span><span class="tag">ai-agents</span><span class="tag">product</span><span class="tag">algorithms</span></p>
+<p><em>An opinion piece from the owner of this repository. Its companion is <a href="../fewer-calculators-harder-problems/">Fewer calculators, harder problems</a>.</em></p>
+<p>Some problems really do want a calculator. When one does, this is the bar, in my words:</p>
+<blockquote><p>&quot;if you are making a calculator at least have the underlying engine be something sophisticated enough and that chatgpt can&#39;t ignore it and just do it for someone on in a single line of code so to speak. like if you are making calculators make calculators that take some effort and are actually hard to replicate. something inaccessible algorithms from research papers and whatnot.&quot;</p></blockquote>
+<p>And more bluntly:</p>
+<blockquote><p>&quot;like if you&#39;re doing a calculator I better not be able to understand the math behind it at a glance with my ba in mathematics. yk? something actually difficult not waste paper.&quot;</p></blockquote>
+<h3>The two tests</h3>
+<p><strong>The chatbot test.</strong> Describe the calculator to a general-purpose chatbot. If it can produce the same number in one reply, or one line of code, the calculator adds nothing. Most of this repository&#39;s 647 <code>*-calculator</code> products fail it: their engines are rates times quantities plus a margin.</p>
+<p><strong>The maths-degree test.</strong> Show the engine to someone with an undergraduate maths degree. If they understand all of it at a glance, it is too easy to be worth a product of its own. It should need a paper, a solver or a proof to follow.</p>
+<h3>What passes</h3>
+<p>Two products already in the repository show the kind of engine I mean.</p>
+<ul><li><strong><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/customer-lifetime-value-predictor/README.md">customer-lifetime-value-predictor</a></strong> fits the BG/NBD model (Fader, Hardie and Lee, 2005) by maximum likelihood and the Gamma-Gamma spend model (Fader and Hardie, 2013) to a shop&#39;s own order export, then reports the chance each customer is still active. A chatbot can name those models; it can&#39;t fit them to a shop&#39;s whole order history in a reply.</li><li><strong><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/shift-roster-builder/README.md">shift-roster-builder</a></strong> searches rosters with simulated annealing, then runs a branch-and-bound search with a min-cost-flow lower bound to prove how close to the cheapest roster it got, and says when it can&#39;t prove it.</li></ul>
+<p>The pattern: a published method that is hard to implement correctly, applied to the user&#39;s own data, with an honest statement of how good the answer is.</p>
+<h3>Where to look for engines like that</h3>
+<ul><li><strong>Statistics and forecasting:</strong> hierarchical and survival models, probabilistic forecasting with calibrated intervals, change-point detection, causal-impact estimates.</li><li><strong>Optimisation:</strong> integer programming, constraint solvers, vehicle routing, cutting and packing, scheduling with proofs of optimality or bounds.</li><li><strong>Physics and engineering:</strong> finite-element checks, thermal and structural simulation, control design, the kind of models this repository&#39;s <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research">research tracks</a> already build.</li><li><strong>Mechanism design and scoring:</strong> proper scoring rules, auctions, market makers, again with research in this repository behind them.</li></ul>
+<p>The best source is our own research. A result that took a research track weeks to reach, wrapped in a tool a practitioner can use, is a product nobody can copy in an afternoon.</p>
+<p>The first tools built this way are already out: changepoint detection, conformal prediction intervals and matrix profiles, each on the visitor&#39;s own data with the paper cited (<a href="../research-algorithms-in-your-browser/">Research algorithms in your browser</a>).</p>
+<h3>What this means for a run</h3>
+<p>Before building a calculator, write down the engine in one sentence. If the sentence is arithmetic, don&#39;t build it: deepen a flagship or a research project instead. If the sentence names a model, a solver or a paper, build it, cite the paper in the README, test it against a published example or a brute-force check, and say on the page what the answer&#39;s limits are.</p>
+<p>The numbers these tools give are estimates from their inputs and stated assumptions, not financial, legal or professional advice.</p>
+<p><em>Drafted by an AI agent (Claude Code) from the owner&#39;s own words; the quotes are verbatim, and the product details come from each product&#39;s committed README. Everything linked is MIT-licensed and public.</em></p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

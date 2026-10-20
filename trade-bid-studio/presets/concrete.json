@@ -1,0 +1,47 @@
+{
+  "slug": "concrete-bid-calculator",
+  "name": "Concrete flatwork",
+  "group": "Paving, concrete & masonry",
+  "summary": "Driveways, patios and slabs priced from yards of ready-mix with waste, forms, mesh, finish and prep hours.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 28,
+  "burdenRate": 30,
+  "overheadRate": 12,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Pour and broom finish 4 in slab with wire mesh",
+      "unit": "sq ft",
+      "qty": 860,
+      "hoursPerUnit": 0.0085,
+      "materialPerUnit": 2.683,
+      "source": "STARTING_SLABS 20x40 + 3x20 ft at 4 in, broom 0.85 h/100 sq ft (index.html, FINISH_PRESETS); 4 in = 0.01235 cu yd/sq ft x (1 + wastePct 8%) x concretePerYd $175 = $2.333, plus mesh $0.35/sq ft (REINFORCEMENT_PRESETS, index.html default 'mesh'); quarter-yard ticket rounding not modeled; chute access adds no hours"
+    },
+    {
+      "label": "Set and strip forms",
+      "unit": "linear ft",
+      "qty": 166,
+      "hoursPerUnit": 0.03614,
+      "materialPerUnit": 3.5,
+      "source": "perimeter 2x(20+40) + 2x(3+20) = 166 lf (calc.mjs slabPerimeter); formHours 6 spread over 166 lf; formPerLf $3.50 (index.html)"
+    },
+    {
+      "label": "Prep, base, compaction and layout",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 4,
+      "materialPerUnit": 0,
+      "source": "prepHours 4 (index.html); the specialist has no base-material cost"
+    },
+    {
+      "label": "Permits, control joints, sealer, fuel",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 150,
+      "source": "otherCost $150 (index.html)"
+    }
+  ],
+  "specialistModels": "Quarter-yard ready-mix ticket rounding, short-load fees, pump vs wheelbarrow access, demo and haul-off of an old slab, and per-slab finish rates."
+}

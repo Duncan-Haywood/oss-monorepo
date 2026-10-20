@@ -1,0 +1,67 @@
+{
+  "slug": "deck-bid-calculator",
+  "name": "Deck building",
+  "group": "Landscaping & outdoor",
+  "summary": "New decks priced from framing and decking square feet, footings, stairs, railing and tear-out.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 1.5,
+  "minOnSiteHours": 8,
+  "hourlyWage": 42,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 22,
+  "milesOneWay": 14,
+  "tripFee": 125,
+  "items": [
+    {
+      "label": "Frame and deck, pressure-treated, 3 ft up",
+      "unit": "sq ft",
+      "qty": 400,
+      "hoursPerUnit": 0.2485,
+      "materialPerUnit": 9.354,
+      "source": "PT framing 0.10 h/sf x 1.25 guard multiplier + 0.35/100 post h/sf + decking 0.12 h/sf; decking $3.80/sf x 1.08 waste + framing $4.20/sf x 1.25 (MATERIAL_PRESETS pt, HEIGHT_GUARD_*); 14x20 + 10x12 sections at 3 ft (index.html STARTING sections)"
+    },
+    {
+      "label": "Footings",
+      "unit": "each",
+      "qty": 10,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 85,
+      "source": "estimatedFootings: ceil(280/49)=6 + max(4, ceil(120/49))=4; $85 each (DEFAULT_FOOTING_EACH, index.html footingEach); the specialist puts no hours on footings"
+    },
+    {
+      "label": "Stair run, 4 ft wide, 5 risers",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 6.4,
+      "materialPerUnit": 227,
+      "source": "4.5 + 5 x 0.18 + 4 x 0.25 h; $85 + 5 x $14 + 4 x $18 parts (STAIR_* constants); 1 run 4 ft x 5 risers (index.html STARTING_STAIRS)"
+    },
+    {
+      "label": "Wood railing",
+      "unit": "linear ft",
+      "qty": 46,
+      "hoursPerUnit": 0.45,
+      "materialPerUnit": 28,
+      "source": "RAILING_PRESETS wood 0.45 h/lf, $28/lf; 46 lf default (index.html railingLf)"
+    },
+    {
+      "label": "Tear out existing deck and dispose",
+      "unit": "sq ft",
+      "qty": 280,
+      "hoursPerUnit": 0.08,
+      "materialPerUnit": 2.4,
+      "source": "DEMO_HOURS_PER_SF 0.08; disposal $2.40/sf (DEFAULT_DISPOSAL_PER_SF, index.html disposalPerSf); 280 sf default (index.html demoSf)"
+    },
+    {
+      "label": "Permit and other job cost",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 215,
+      "source": "permit $175 + other job cost $40 (index.html permitCost, otherCost)"
+    }
+  ],
+  "specialistModels": "Height-above-grade framing and post multipliers, per-section materials (cedar, composite, PVC), span-based footing counts, railing styles and multiple stair runs."
+}

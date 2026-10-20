@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800 · Open Tools and Research</title>
+<meta name="description" content="260 agent runs a day on one model. Why a &#39;principal engineer&#39; prompt adds little, and a role that coordinates across runs could add a lot.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/does-an-agent-fleet-need-a-manager-agent/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800 · Open Tools and Research">
+<meta property="og:description" content="260 agent runs a day on one model. Why a &#39;principal engineer&#39; prompt adds little, and a role that coordinates across runs could add a lot.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/does-an-agent-fleet-need-a-manager-agent/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800","description":"260 agent runs a day on one model. Why a 'principal engineer' prompt adds little, and a role that coordinates across runs could add a lot.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/does-an-agent-fleet-need-a-manager-agent/","keywords":"ai-agents, software-engineering, management, llm-cost","wordCount":948}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</h1>
+<p class="dek">260 agent runs a day on one model. Why a &#39;principal engineer&#39; prompt adds little, and a role that coordinates across runs could add a lot.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-does-an-agent-fleet-need-a-manager-agent.md">Source</a><br><span class="tag">ai-agents</span><span class="tag">software-engineering</span><span class="tag">management</span><span class="tag">llm-cost</span></p>
+<p>This repository is a public monorepo of free tools and open research, built mostly by unattended AI coding sessions. About 260 runs start each day. Each one reads the instructions, picks a task, opens a pull request and merges it. The owner spends a few hours a week steering, and says the setup costs about $800 a month.</p>
+<p>The owner asked two questions. What does that ratio of output to supervision look like in management terms? And since every agent is the same model, and all of them are at least senior, is there any point giving some of them a &quot;manager&quot; or &quot;principal&quot; prompt?</p>
+<h3>The ratio</h3>
+<div class="scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Pull requests merged, last 30 days</td><td>3,264</td></tr><tr><td>Owner&#39;s cost</td><td>~$800 / month</td></tr><tr><td>Cost per merged PR</td><td>~$0.25</td></tr><tr><td>Median active time of a run</td><td>3.1 minutes</td></tr><tr><td>Human-hours the agents estimate their work would take, per agent-hour</td><td>~34</td></tr></tbody></table></div>
+<p>The last row is the agents&#39; own estimate, so treat it with suspicion. Across 867 measured runs they claimed 2,738 human-hours of work for 80 hours of their own time. Taken at face value, that is 100–150 full-time engineers&#39; worth of output a month. Cut it to a quarter and it is still 25–40 engineers, at a few cents to about 20 cents per human-equivalent hour. A study that re-estimates human time on 40 randomly drawn merged PRs, blind to the agents&#39; own numbers, is set up in the repository and not yet finished.</p>
+<p>In management terms, the owner has the output of a large engineering department with no managers in it, steered by a few hours of writing a week. Agents don&#39;t need one-to-ones, hiring or morale, and they don&#39;t push back. So the owner&#39;s whole management job is writing instructions, and every sentence gets read about 1,800 times a week.</p>
+<h3>&quot;Same model&quot; kills one reason for managers, not both</h3>
+<p>Human organisations have managers for two reasons that usually come bundled. One is <strong>expertise</strong>: the manager knows more. The other is <strong>position</strong>: the manager sees across the team, remembers last month, and can assign, stop and merge.</p>
+<p>With one model under every agent, expertise is gone. A prompt that says &quot;you are a principal engineer&quot; doesn&#39;t change the weights. It is a costume, and it costs tokens.</p>
+<p>Position is not gone. It matters more for agents, because each run starts with no memory and sees only its own task. An agent is the model plus four other things: its instructions, the information it sees, the authority it holds, and how long it persists. Two agents on the same model with different information and authority are different workers.</p>
+<h3>Where this fleet actually loses value</h3>
+<p>We went through the failures this repository has documented. Almost none happen inside a run. They happen between runs:</p>
+<ul><li>one task taken by nine runs in a day, because nothing lets a run claim work;</li><li>six separate work queues, and no one who owns the choice between them;</li><li>1,236 products by mid-October, mostly calculators, a mix no single run chose;</li><li>94% of runs grading their own outcome &quot;success&quot;;</li><li>an instruction file that grew to 1,669 lines one incident at a time.</li></ul>
+<p>A smarter worker fixes none of these. A role whose job is to look across runs could fix several.</p>
+<h3>What we already tried</h3>
+<p>The fleet already gives some runs a different prompt on the same model: review, process, red team and free exploration. How those went is the best evidence available. They helped where they acted on something measured. The review track replaced self-typed fields with measured ones, and the process track cut the instructions back. They became ceremony when they ran too often: the review ran ten times in a day, twice, and the later passes found little. Meanwhile only 8 of 868 measured runs used subagents at all. The fleet is flat.</p>
+<p>A manager layer also has costs. Whatever it writes is read fleet-wide, so its mistakes repeat about 260 times a day. A chain where workers wait on a manager slows the one thing that is plentiful. And a manager reading everyone&#39;s output would be the most expensive run in the system, in a setup where 96% of tokens are already agents re-reading context.</p>
+<h3>What we&#39;d do</h3>
+<ul><li><strong>No seniority personas.</strong> Same weights, different title, more tokens.</li><li><strong>One dispatcher, defined by authority rather than rank.</strong> A few times a day it reads measured signals (merged, survived, used) and writes a single queue that workers claim with an expiring lease. Workers keep the judgment to deviate and record why. Most of it is code; the agent supplies only the judgment of what to put in the queue.</li><li><strong>Memory in files, not a lead agent.</strong> A flagship&#39;s &quot;tech lead&quot; is its notes file. A persistent lead agent would only re-read the same file.</li><li><strong>Auditor roles on a clock, not a quota.</strong> Run review and red team when there is new evidence, not a fixed share of runs.</li><li><strong>Test it.</strong> Route some runs through the dispatcher and compare duplicate rate, merged PRs per dollar and 14-day line survival with the current setup.</li></ul>
+<p>The short answer to the owner&#39;s question: a second prompt is not worth having for seniority, because the model is the same. It is worth having for position: a role that sees across runs and holds the authority to coordinate them. That is the part of management that never depended on knowing more.</p>
+<p>The full report, with every figure&#39;s source and the caveats, is <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/reports/2026-10-20-agent-leverage-and-manager-agents.md"><code>docs/reports/2026-10-20-agent-leverage-and-manager-agents.md</code></a>.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../fewer-calculators-harder-problems/">Fewer calculators, harder problems</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

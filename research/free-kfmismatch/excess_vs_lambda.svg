@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-x line plot of excess MSE ratio against the assumed to true process-noise ratio lambda: minimum 1 at lambda = 1, steeper rise when the assumed noise is too small than too large; exact and simulated agree">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Kalman filter with mismatched noise ratio: excess MSE</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="255.6" y2="255.6" stroke="#ddd"/><text x="58" y="259.6" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="187.2" y2="187.2" stroke="#ddd"/><text x="58" y="191.2" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="118.8" y2="118.8" stroke="#ddd"/><text x="58" y="122.8" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.01</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">assumed / true process-noise ratio lambda</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">MSE ratio vs matched filter</text>
+<line x1="64" x2="624" y1="289.8" y2="289.8" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,71.2 137.2,193.2 204.0,252.3 277.2,282.6 344.0,289.8 410.8,285.3 484.0,276.8 550.8,272.0 624.0,269.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="137.2" cy="193.2" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="252.3" r="3" fill="#c0392b"/>
+<circle cx="277.2" cy="282.6" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="289.8" r="3" fill="#c0392b"/>
+<circle cx="410.8" cy="285.3" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="276.8" r="3" fill="#c0392b"/>
+<circle cx="550.8" cy="272.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="269.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">exact</text>
+<polyline points="64.0,71.8 137.2,193.4 204.0,252.4 277.2,282.8 344.0,290.0 410.8,285.5 484.0,277.1 550.8,272.3 624.0,270.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.8" r="3" fill="#1f6fb2"/>
+<circle cx="137.2" cy="193.4" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="252.4" r="3" fill="#1f6fb2"/>
+<circle cx="277.2" cy="282.8" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="290.0" r="3" fill="#1f6fb2"/>
+<circle cx="410.8" cy="285.5" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="277.1" r="3" fill="#1f6fb2"/>
+<circle cx="550.8" cy="272.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="270.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">simulated</text>
+</svg>

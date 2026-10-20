@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Romania e-Factura mandate: B2B, B2C, UBL format and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="Romania requires domestic B2B invoices as UBL 2.1 XML (RO_CIUS) uploaded through ANAF's RO e-Factura since 1 January 2024, with B2C added in 2025.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/romania-e-factura-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Romania e-Factura mandate: B2B, B2C, UBL format and a free pre-send check">
+<meta property="og:description" content="Romania requires domestic B2B invoices as UBL 2.1 XML (RO_CIUS) uploaded through ANAF's RO e-Factura since 1 January 2024, with B2C added in 2025.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/romania-e-factura-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When did Romania's B2B e-invoicing mandate start?","acceptedAnswer":{"@type":"Answer","text":"On 1 January 2024 domestic B2B invoices between Romanian-established businesses had to be issued as structured XML and uploaded to ANAF's RO e-Factura system. B2G came earlier and B2C was added in 2025. Confirm your own situation with your accountant or ANAF; this page is a summary, not advice."}},{"@type":"Question","name":"Which invoice format does Romania require?","acceptedAnswer":{"@type":"Answer","text":"A structured UBL 2.1 invoice that conforms to the European standard EN 16931 and Romania's national profile (RO_CIUS), uploaded to ANAF's SPV system. A PDF or paper invoice is not the invoice for domestic B2B sales."}},{"@type":"Question","name":"Can this checker validate a Romanian invoice?","acceptedAnswer":{"@type":"Answer","text":"Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus VAT, IBAN and BIC typo catches, each with a rule ID and a fix. It does not apply the RO_CIUS national rules or ANAF's own validation, so a clean result is an offline observation, not approval."}},{"@type":"Question","name":"How do I check an invoice before sending it?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker. Nothing is uploaded: every check runs in your browser. Fix what it flags, then upload through your invoicing software or ANAF's SPV."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Romania e-Factura mandate: B2B, B2C, UBL format and a free pre-send check — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../einvoice-preflight/">E-invoice Preflight — catch defects before submission</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Romania e-Factura mandate: B2B, B2C, UBL format and a free pre-send check</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Romania's RO e-Factura mandate: what applies now</h1>
+<p class="lede">Romanian domestic B2B invoices have gone through ANAF's RO e-Factura system as structured UBL XML since 1 January 2024; B2C followed in 2025. Below: the dates, the format, and what a free local checker covers.</p>
+</header>
+<section>
+<h2>The timeline (domestic B2B and B2G)</h2>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>2022</td><td>B2G invoices and a first set of high-fiscal-risk B2B goods go through RO e-Factura.</td></tr>
+<tr><td>1 Jan 2024</td><td>Domestic B2B invoices between Romanian-established businesses must be issued as structured XML and uploaded to ANAF's system (the SPV portal or its API).</td></tr>
+<tr><td>2025</td><td>B2C invoices are brought in; fines for B2C started after a no-sanction period. Check the exact date with ANAF.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Invoices are generally to be uploaded within five working days of issue. Fines for late, missing or wrong uploads exist, but sources disagree on amounts and grace periods and they have been amended, so this page gives none. Exceptions and transition rules exist (some small or non-profit taxpayers were brought in later). This is a summary, not tax advice; confirm with your accountant or ANAF.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>The invoice is a structured <strong>UBL 2.1</strong> document that follows <strong>EN 16931</strong> and Romania's national profile (<strong>RO_CIUS</strong>, also written CIUS-RO), uploaded to ANAF's <strong>SPV</strong> system, which validates it and the buyer retrieves it from there. A PDF emailed to the customer is not the invoice for domestic B2B sales.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a> and drop your XML. It flags totals and tax breakdowns that do not add up, a missing tax reason on a 0% or exempt line, malformed identifiers, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). It does <strong>not</strong> apply the Romanian national profile (RO_CIUS) rules or ANAF's own validation. No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>When did Romania's B2B e-invoicing mandate start?</h3>
+<p>On 1 January 2024 domestic B2B invoices between Romanian-established businesses had to be issued as structured XML and uploaded to ANAF's RO e-Factura system. B2G came earlier and B2C was added in 2025. Confirm your own situation with your accountant or ANAF; this page is a summary, not advice.</p>
+<h3>Which invoice format does Romania require?</h3>
+<p>A structured UBL 2.1 invoice that conforms to the European standard EN 16931 and Romania's national profile (RO_CIUS), uploaded to ANAF's SPV system. A PDF or paper invoice is not the invoice for domestic B2B sales.</p>
+<h3>Can this checker validate a Romanian invoice?</h3>
+<p>Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus VAT, IBAN and BIC typo catches, each with a rule ID and a fix. It does not apply the RO_CIUS national rules or ANAF's own validation, so a clean result is an offline observation, not approval.</p>
+<h3>How do I check an invoice before sending it?</h3>
+<p>Drop the file into the checker. Nothing is uploaded: every check runs in your browser. Fix what it flags, then upload through your invoicing software or ANAF's SPV.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Romanian rules as publicly documented; dates, penalties and rules can change, so check ANAF guidance (anaf.ro) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../vendor-change-watch/" data-pf-to="vendor-change-watch">See exactly what changed in a vendor's terms</a></li>
+      <li><a href="../vendor-watch/" data-pf-to="vendor-watch">Vendor Watch | Vendor terms change tracker</a></li>
+      <li><a href="../vpat-acr-generator/" data-pf-to="vpat-acr-generator">Free VPAT / Accessibility Conformance Report Generator</a></li>
+      <li><a href="../wise-statement-to-journal/" data-pf-to="wise-statement-to-journal">Wise statement to Xero / QuickBooks journal with realised FX — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=einvoice-preflight">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=einvoice-preflight">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="einvoice-preflight"></script>
+</body></html>

@@ -1,0 +1,47 @@
+{
+  "slug": "home-staging-bid-calculator",
+  "name": "Home staging",
+  "group": "Events & other services",
+  "summary": "Vacant-home staging priced from crew hours, mileage, equipment and furniture carrying cost for the term.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 30,
+  "burdenRate": 0,
+  "overheadRate": 10,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Deliver, arrange and pick up (4 rooms)",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 6.0,
+      "materialPerUnit": 0,
+      "source": "Crew hours 6 at $30/h (DEFAULTS crewHours, crewHourlyRate)"
+    },
+    {
+      "label": "Furniture carrying cost, included term",
+      "unit": "month",
+      "qty": 2,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 220.0,
+      "source": "Included term 2 months x $220/month furniture carrying cost (DEFAULTS)"
+    },
+    {
+      "label": "Mileage, round trip",
+      "unit": "mile",
+      "qty": 25,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 0.67,
+      "source": "25 round-trip miles x $0.67 (DEFAULTS)"
+    },
+    {
+      "label": "Equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 40.0,
+      "source": "Equipment cost per job $40 (DEFAULTS)"
+    }
+  ],
+  "specialistModels": "Adds a $150 design consultation at face value, keeps furniture out of overhead, and tests month-to-month extension fees against carrying cost if the home sits longer."
+}

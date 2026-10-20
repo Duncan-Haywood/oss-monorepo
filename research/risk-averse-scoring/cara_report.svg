@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: the closed-form report of a CARA agent falls below the true belief as k grows, more so for confident beliefs">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Reported probability under the log score vs risk aversion k</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="271.1" y2="271.1" stroke="#ddd"/><text x="58" y="275.1" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="218.1" y2="218.1" stroke="#ddd"/><text x="58" y="222.1" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="165.2" y2="165.2" stroke="#ddd"/><text x="58" y="169.2" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="112.3" y2="112.3" stroke="#ddd"/><text x="58" y="116.3" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="59.4" y2="59.4" stroke="#ddd"/><text x="58" y="63.4" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">k = alpha * b</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">reported probability</text>
+<polyline points="64.0,173.9 176.0,178.3 624.0,185.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="173.9" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="178.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="185.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">true p=0.60</text>
+<polyline points="64.0,109.0 176.0,125.5 624.0,156.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="109.0" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="125.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="156.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">true p=0.90</text>
+<polyline points="64.0,71.2 176.0,83.5 624.0,123.1" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="83.5" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="123.1" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">true p=0.99</text>
+</svg>

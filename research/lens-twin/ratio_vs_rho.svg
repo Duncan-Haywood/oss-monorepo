@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the ratio of the pinhole twin range reading to the true range against h/R for k1 = -0.3; simulation and the formula 1/(1+k1 h^2/R^2) coincide, rising from 1.0008 to 1.154">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Lens twin: range ratio twin/true, k1 = -0.30</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="280.2" y2="280.2" stroke="#ddd"/><text x="58" y="284.2" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="236.4" y2="236.4" stroke="#ddd"/><text x="58" y="240.4" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="192.5" y2="192.5" stroke="#ddd"/><text x="58" y="196.5" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="148.7" y2="148.7" stroke="#ddd"/><text x="58" y="152.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="104.9" y2="104.9" stroke="#ddd"/><text x="58" y="108.9" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="61.1" y2="61.1" stroke="#ddd"/><text x="58" y="65.1" text-anchor="end" font-family="sans-serif" font-size="11">1.2</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="132.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.125</text>
+<text x="245.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="472.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.667</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">rho = h/R</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">twin / true range</text>
+<polyline points="624.0,71.2 472.4,87.1 245.5,100.7 132.1,103.8 64.0,104.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="472.4" cy="87.1" r="3" fill="#c0392b"/>
+<circle cx="245.5" cy="100.7" r="3" fill="#c0392b"/>
+<circle cx="132.1" cy="103.8" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="104.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">simulated</text>
+<polyline points="624.0,71.2 472.4,87.1 245.5,100.7 132.1,103.8 64.0,104.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="472.4" cy="87.1" r="3" fill="#1f6fb2"/>
+<circle cx="245.5" cy="100.7" r="3" fill="#1f6fb2"/>
+<circle cx="132.1" cy="103.8" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="104.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">formula</text>
+</svg>

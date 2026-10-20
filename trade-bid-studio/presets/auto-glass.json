@@ -1,0 +1,33 @@
+{
+  "slug": "auto-glass-bid-calculator",
+  "name": "Auto glass replacement",
+  "group": "Vehicles & mobile",
+  "summary": "Windshield and door-glass replacement priced from glass, moldings, urethane and R&R hours.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.25,
+  "hourlyWage": 28,
+  "burdenRate": 22,
+  "overheadRate": 14,
+  "targetMargin": 32,
+  "tripFee": 0,
+  "items": [
+    {
+      "label": "Replace windshield, economy aftermarket glass",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.1,
+      "materialPerUnit": 305,
+      "source": "hoursRR 1.1 (suggestedGlassKit windshield); glassCost $240 (suggestedSourceKit economy) + moldingCost $35 + urethaneKitCost $30 (index.html defaults)"
+    },
+    {
+      "label": "Travel, truck and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 25,
+      "source": "travelAndEquipment $25 (index.html default)"
+    }
+  ],
+  "specialistModels": "ADAS static/dynamic calibration hours and sublet fees with a missing-calibration warning, OEM vs OEE vs economy glass, mobile trip kits, and the insurance deductible vs insurer split."
+}

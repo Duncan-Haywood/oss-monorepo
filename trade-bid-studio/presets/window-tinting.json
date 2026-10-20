@@ -1,0 +1,56 @@
+{
+  "slug": "window-tinting-bid-calculator",
+  "name": "Auto window tinting",
+  "group": "Vehicles & mobile",
+  "summary": "Car window tint priced per pane from film area, cutting waste, film tier, install minutes and old-tint removal.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 28,
+  "burdenRate": 0,
+  "overheadRate": 0,
+  "targetMargin": 35,
+  "tripFee": 0,
+  "items": [
+    {
+      "label": "Front door windows, ceramic film",
+      "unit": "pane",
+      "qty": 2,
+      "hoursPerUnit": 0.2,
+      "materialPerUnit": 25.3,
+      "source": "WINDOW_PRESETS.frontDoor 4.0 sq ft, 12 min; x 1.15 waste x ceramic $5.50/sq ft (FILM_TIERS, DEFAULTS)"
+    },
+    {
+      "label": "Rear door windows, ceramic film",
+      "unit": "pane",
+      "qty": 2,
+      "hoursPerUnit": 0.2,
+      "materialPerUnit": 22.14,
+      "source": "WINDOW_PRESETS.rearDoor 3.5 sq ft, 12 min; x 1.15 x $5.50"
+    },
+    {
+      "label": "Rear quarter windows, ceramic film",
+      "unit": "pane",
+      "qty": 2,
+      "hoursPerUnit": 0.2667,
+      "materialPerUnit": 8.855,
+      "source": "WINDOW_PRESETS.quarter 1.4 sq ft, 16 min; x 1.15 x $5.50"
+    },
+    {
+      "label": "Rear windshield, ceramic film",
+      "unit": "pane",
+      "qty": 1,
+      "hoursPerUnit": 0.6667,
+      "materialPerUnit": 60.09,
+      "source": "WINDOW_PRESETS.rearWindshield 9.5 sq ft, 40 min; x 1.15 x $5.50"
+    },
+    {
+      "label": "Booth / shop overhead",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 12,
+      "source": "boothOverhead $12 flat per job (DEFAULTS, index.html); the specialist has no % overhead or payroll burden"
+    }
+  ],
+  "specialistModels": "Film tier comparison, old-tint removal minutes per pane, a $120 minimum job fee, and the gap against a flat $200-per-vehicle price."
+}

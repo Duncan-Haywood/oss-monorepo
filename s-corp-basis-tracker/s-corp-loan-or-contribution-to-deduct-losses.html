@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>S corp loan or capital contribution to deduct a loss: what each does to basis, with an example</title>
+  <meta name="description" content="You can unlock a suspended S corporation loss with a capital contribution or a direct shareholder loan.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/s-corp-basis-tracker/s-corp-loan-or-contribution-to-deduct-losses.html">
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "S corp loan or capital contribution to deduct a loss", "description": "You can unlock a suspended S corporation loss with a capital contribution or a direct shareholder loan. Both add basis before year end; they differ in what happens when the money comes back. Worked example.", "author": {"@type": "Organization", "name": "S-Corp Basis Tracker"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I make a loan or a capital contribution to deduct an S corporation loss?", "acceptedAnswer": {"@type": "Answer", "text": "Either adds the basis the loss needs, and the deduction is the same. The difference comes later. A contribution is not repaid. A direct loan can be repaid, but a loan whose basis losses have used is returned with gain on the reduced part. Which fits depends on whether you expect to take the money back, and how the loan is documented; ask a preparer."}}, {"@type": "Question", "name": "Does a bank loan I guarantee give me basis to deduct an S corporation loss?", "acceptedAnswer": {"@type": "Answer", "text": "Generally no. Only money you put in yourself counts: stock purchases, capital contributions, and a direct loan from you to the company. Guaranteeing a loan from a bank or lending through another entity generally does not."}}, {"@type": "Question", "name": "Does the contribution have to be made before year end?", "acceptedAnswer": {"@type": "Answer", "text": "Basis for the loss limit is tested at the end of the company's tax year, so money added after year end counts toward the next year, not the year that was limited."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1d2330; background: #f4f2ee; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    a { color: #1b5e7a; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.4rem); line-height: 1.12; color: #3b3a2e; }
+    h2 { font-size: 1.2rem; color: #3b3a2e; margin-top: 28px; }
+    h3 { font-size: 1.02rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; } th, td { border-bottom: 1px solid #ddd8cc; padding: 6px; text-align: left; } td.n, th.n { text-align: right; }
+    footer { margin-top: 32px; border-top: 1px solid #ddd8cc; padding-top: 14px; font-size: .86rem; color: #54503f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/s-corp-basis-tracker/s-corp-loan-or-contribution-to-deduct-losses.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="S corp loan or capital contribution to deduct a loss: what each does to basis, with an example">
+<meta property="og:description" content="You can unlock a suspended S corporation loss with a capital contribution or a direct shareholder loan.">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/s-corp-basis-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="S corp loan or capital contribution to deduct a loss: what each does to basis, with an example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../s-corp-basis-tracker/">S-Corp Shareholder Basis Tracker — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">S corp loan or capital contribution to deduct a loss: what each does to basis, with an example</span></span></nav>
+<main>
+  <p><a href="./index.html">S-Corp Shareholder Basis Tracker</a> · free, in your browser</p>
+  <h1>S corp loan or capital contribution: which one unlocks a suspended loss?</h1>
+  <p>When your share of an S corporation loss is bigger than your basis, the rest is suspended. You can free it by adding basis before the company's year ends, either as a capital contribution or as a direct loan from you to the company. Both give the same deduction this year. They are not the same afterwards.</p>
+  <h2>One invented example</h2>
+  <p>You start the year with $5,000 of stock basis and no loans to the company. Your share of the loss is $30,000. With nothing added you deduct $5,000 and <strong>$25,000 is suspended</strong>.</p>
+  <h3>Option A: contribute $25,000 before year end</h3>
+  <p>Stock basis becomes $30,000, the loss fits, and <strong>you deduct $30,000</strong>. Stock basis and debt basis are both $0 at year end and nothing is suspended. The $25,000 is capital in the company, not a balance owed to you.</p>
+  <h3>Option B: lend the company $25,000 before year end</h3>
+  <p>The loan has $25,000 of basis from the day it is made, so the loss fits and <strong>you deduct $30,000</strong>. The company still owes you $25,000, but the loss used all of that loan's basis, so its basis is $0.</p>
+  <h2>Where they differ: getting money back</h2>
+  <p>Next year the company repays the $25,000. With a basis of $0 the whole repayment is <strong>$25,000 of gain</strong> (ordinary income if the loan is a note, capital gain if it is an open account). If the company earns $10,000 first, income restores loan basis before anything else, so the same repayment gives <strong>$15,000 of gain</strong>.</p>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th></th><th class="n">Deduction this year</th><th class="n">Owed to you after</th><th class="n">Gain if repaid next year with no income</th></tr></thead>
+    <tbody>
+      <tr><td>Contribute $25,000</td><td class="n">$30,000</td><td class="n">$0</td><td class="n">not repayable as debt</td></tr>
+      <tr><td>Lend $25,000</td><td class="n">$30,000</td><td class="n">$25,000</td><td class="n">$25,000</td></tr>
+    </tbody>
+  </table></div>
+  <p>So a loan keeps a claim on the money, but taking it back is taxed to the extent losses used its basis. A contribution gives up the claim. Neither changes the deduction.</p>
+  <h2>What to check</h2>
+  <ul>
+    <li>Only a direct loan from you counts. Guaranteeing a bank loan does not add basis.</li>
+    <li>Document a loan as one: a written note, a rate and a repayment plan. Whether it is debt is a question of facts; a preparer should decide.</li>
+    <li>The deduction can still be limited by at-risk and passive-activity rules after basis. The tracker does not model them.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>Should I make a loan or a capital contribution to deduct an S corporation loss?</h3>
+  <p>Either adds the basis the loss needs, and the deduction is the same. The difference comes later. A contribution is not repaid. A direct loan can be repaid, but a loan whose basis losses have used is returned with gain on the reduced part. Which fits depends on whether you expect to take the money back, and how the loan is documented; ask a preparer.</p>
+  <h3>Does a bank loan I guarantee give me basis to deduct an S corporation loss?</h3>
+  <p>Generally no. Only money you put in yourself counts: stock purchases, capital contributions, and a direct loan from you to the company. Guaranteeing a loan from a bank or lending through another entity generally does not.</p>
+  <h3>Does the contribution have to be made before year end?</h3>
+  <p>Basis for the loss limit is tested at the end of the company's tax year, so money added after year end counts toward the next year, not the year that was limited.</p>
+  <p><a href="./index.html">Open the tracker</a>: its year-end planner shows the contribution or loan that would deduct your own suspended loss. Nothing is uploaded. Related: <a href="./s-corp-suspended-losses.html">why a loss is suspended</a>, <a href="./form-7203-basis-order.html">the order basis is adjusted in</a> and <a href="./s-corp-distributions-over-basis.html">distributions over basis</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Not legal, tax, financial or accounting advice; the example is invented and the rules are summarised from commonly published guidance that may be out of date. Check Form 7203 instructions and your K-1, or ask a tax professional.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These pages may be slow, moved or taken offline without notice.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../wise-statement-to-journal/" data-pf-to="wise-statement-to-journal">Wise statement to Xero / QuickBooks journal with realised FX — free, private</a></li>
+      <li><a href="../xero-bank-statement-csv-check/" data-pf-to="xero-bank-statement-csv-check">Xero Bank Statement CSV Check — free, private, in your browser</a></li>
+      <li><a href="../youtube-adsense-payout-to-journal/" data-pf-to="youtube-adsense-payout-to-journal">YouTube AdSense payments to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../youtube-chapters-check/" data-pf-to="youtube-chapters-check">YouTube Chapters Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=s-corp-basis-tracker">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=s-corp-basis-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="s-corp-basis-tracker"></script>
+</body>
+</html>

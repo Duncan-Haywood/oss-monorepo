@@ -1,0 +1,48 @@
+{
+  "slug": "asphalt-driveway-pave-bid-calculator",
+  "name": "Asphalt driveway paving",
+  "group": "Paving, concrete & masonry",
+  "summary": "Hot-mix driveway overlay priced from square feet, thickness, mix tons, tack, sawcut and move-in.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2.25,
+  "hourlyWage": 38,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "items": [
+    {
+      "label": "Tack and pave 2 in overlay",
+      "unit": "sq ft",
+      "qty": 800,
+      "hoursPerUnit": 0.0033,
+      "materialPerUnit": 1.349,
+      "source": "hoursPerSqFtPave 0.0028 + hoursPerSqFtTack 0.0005; 2 in at COMPACTED_ASPHALT_LB_PER_CF 145 = 0.01208 t/sq ft x mixPerTon $105 = $1.269, plus tackPerSqFt $0.08 (index.html defaults, calc.mjs mixTons)"
+    },
+    {
+      "label": "Sawcut tie-in",
+      "unit": "linear ft",
+      "qty": 20,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 0,
+      "source": "sawcutLf 20, hoursPerLfSawcut 0.035 (index.html); the specialist has no sawcut material cost"
+    },
+    {
+      "label": "Permit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 125,
+      "source": "permitFee $125 (index.html default)"
+    },
+    {
+      "label": "Travel, paver and roller move-in",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 425,
+      "source": "travelAndEquipment $425 (index.html default)"
+    }
+  ],
+  "specialistModels": "Overlay vs mill-and-overlay vs full-depth kits, millings and demo dump tonnage, failed-base gravel patches, thicker street aprons and paving fabric."
+}

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What 34 experiments on our own AI agent fleet measured · Open Tools and Research</title>
+<meta name="description" content="Cost per run, duplicate work, merge conflicts, record coverage and whether committed results reproduce: 34 small studies of an unattended coding-agent loop.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/running-an-ai-agent-fleet-what-34-experiments-measured/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="What 34 experiments on our own AI agent fleet measured · Open Tools and Research">
+<meta property="og:description" content="Cost per run, duplicate work, merge conflicts, record coverage and whether committed results reproduce: 34 small studies of an unattended coding-agent loop.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/running-an-ai-agent-fleet-what-34-experiments-measured/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"What 34 experiments on our own AI agent fleet measured","description":"Cost per run, duplicate work, merge conflicts, record coverage and whether committed results reproduce: 34 small studies of an unattended coding-agent loop.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/running-an-ai-agent-fleet-what-34-experiments-measured/","keywords":"research, ai-agents, software-engineering, cost, open-source","wordCount":1003}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>What 34 experiments on our own AI agent fleet measured</h1>
+<p class="dek">Cost per run, duplicate work, merge conflicts, record coverage and whether committed results reproduce: 34 small studies of an unattended coding-agent loop.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-running-an-ai-agent-fleet-what-34-experiments-measured.md">Source</a><br><span class="tag">research</span><span class="tag">ai-agents</span><span class="tag">software-engineering</span><span class="tag">cost</span><span class="tag">open-source</span></p>
+<p>This repository is built mostly by AI coding agents that start on a schedule, pick a task, open a pull request and merge it. Track 10 of <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/PROJECTS.md"><code>research/PROJECTS.md</code></a> (<code>research/swe-*</code>) points the repository&#39;s own tools at that loop: 34 small projects, each a directory with a stdlib-Python script, a committed <code>experiments/results.txt</code> and a README that states its limits.</p>
+<p><strong>Who did this.</strong> The agents themselves, unattended, under the owner&#39;s direction. The loop is measuring itself, so every figure is a measurement of this one repository over days to a few weeks, not a claim about agents in general. Most projects are marked preliminary, and so are the numbers below.</p>
+<h3>1. What a run costs</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-runcost"><code>swe-runcost</code></a> priced 355 runs over 14 to 18 October. The median run cost <strong>$0.68</strong> (95% bootstrap interval $0.64 to $0.72) and together they cost $337. These are API-equivalent estimates, not a bill.</p>
+<ul><li>Spend is only mildly concentrated: the top 10% of runs hold 36% of the money.</li><li>Cost grows faster than the work. With tool calls the exponent is 1.18 and with input tokens 1.37, so a run with twice the tool calls reads about 2.6 times the input. That is what a growing conversation re-read at each step would produce, though the data cannot separate it from harder runs being longer. Recorded wall time is a poor guide (exponent 0.36).</li></ul>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-costpermerge"><code>swe-costpermerge</code></a> joined cost to outcome: of 366 priced runs, 273 (75%) name a pull request on <code>main</code>. A merged run cost <strong>$1.26</strong> on average against $0.94 per priced run, because 19% of spend sits on runs with no merged PR on record. Most of those 92 are a recording gap rather than failed work (all 34 red-team runs name no PR yet their PRs are on <code>main</code>).</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-modelmix"><code>swe-modelmix</code></a> found an Opus run costs 8 to 9 times a Sonnet run in the same track, and that telling whether it buys more output would take about 129 runs per arm to detect a 50% difference. The ledger held 12 Opus runs, so the question is open.</p>
+<h3>2. Parallel starts waste work</h3>
+<p>Scheduled sessions overlap. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-schedule"><code>swe-schedule</code></a> simulated it: with four runs picking one of 11 tracks blindly, <strong>12.8% of runs duplicate another&#39;s item</strong>, and checking claims barely helps when all four start in the same minute, because none has pushed yet. Staggering starts by more than the claim latency or handing each run a slot from the scheduler removes the waste.</p>
+<p>Git agrees with the simulation. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-reviewdup"><code>swe-reviewdup</code></a> found 6 of 35 review PRs (17.1%, Wilson 8.1% to 32.7%) were the second of a pair merged within 10 minutes of another. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-prflow"><code>swe-prflow</code></a> found that PRs opened within 10 seconds of the previous one merged 60.0% of the time against 92.0% for the rest. That is an association: bursts may differ in kind from other PRs.</p>
+<h3>3. Shared files collide</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-sharedfiles"><code>swe-sharedfiles</code></a> found 64.4% of research merges edit the same two index files. A branch open for 30 minutes sees them move in about half of cases, and replayed merges conflicted textually in 18.6% of pairs landing within 30 minutes. Cheap to fix (merge <code>main</code>, rerun the build), but it taxes every parallel run.</p>
+<h3>4. Do the committed results reproduce?</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-audit"><code>swe-audit</code></a> re-ran a seeded sample of 40 of the 386 projects that ship an experiment script. <strong>36 reproduced (90%, Wilson 77% to 96%)</strong>, 34 byte-identical and 2 differing in one timing line. Three timed out and one needed a model file that is not in the repository. None of those that finished gave different numbers. A first pass reproduced only 26 of 40, mostly because of missing packages or undocumented sibling-project paths, a reminder that &quot;reproduces&quot; depends on the environment. Of 713 numbers in 35 READMEs, 85% appear verbatim in a committed results file.</p>
+<h3>5. The records are not complete</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-reccover"><code>swe-reccover</code></a> checked run records against git. Every PR a record names is on <code>main</code> (522 of 522), but <strong>only 79.8% of sessions that landed commits left a record</strong>. Sessions that followed the master prompt have one 89.8% of the time, others 4.2%. Ventures is the weakest track at 79.2%. So any per-track cost or throughput figure covers the sessions that recorded themselves.</p>
+<h3>6. Allocation: a modest, fragile gain</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-allocate"><code>swe-allocate</code></a> replayed four policies for choosing which track the next run works on, on a 20,000-line budget. A greedy rule and Thompson sampling scored about 130 to 137 value points against 99 for uniform. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-decay"><code>swe-decay</code></a> showed finite pools eat part of that, and <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-bootstrap"><code>swe-bootstrap</code></a> showed the lead holds at 20,000 lines (greedy +33 over uniform, interval 15 to 53) but not at 5,000.</p>
+<p>The value scores themselves are weak. In <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-value"><code>swe-value</code></a> two automated passes agreed at chance level (weighted kappa 0.07), so the allocation result is a stylised replay, not advice.</p>
+<h3>7. Can an experiment on the prompts stop early?</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-prompt"><code>swe-prompt</code></a> simulated prompt A/B tests. Reading a z-test after every pair of runs declared an identical brief different in <strong>21.3%</strong> of experiments on success rate, and 40.5% on project value, against 5.3% for one look at the end. A mixture sequential test stayed at or below nominal. The success rate (97%) is also a poor metric: a 2-point change needs thousands of runs.</p>
+<h3>8. Negative results are common</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-nullrate"><code>swe-nullrate</code></a> hand-labelled 80 project summaries. Of the 39 that test a claim against an alternative, 59% report a negative or mixed result. 91% of all 711 summaries carry a limitation word, which counts a disclosure habit and does not check that the right limitation was named.</p>
+<h3>What this changes</h3>
+<ul><li>Stagger scheduled starts or assign slots; both cost nothing and cut duplicates.</li><li>Put the run-record step in every track&#39;s prompt, so cost figures stop excluding a fifth of the work.</li><li>Do not stop prompt experiments by peeking.</li></ul>
+<p>Everything is reproducible from the directories linked above. The research index is at <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research"><code>research/</code></a>, and the other tracks are written up in <a href="../chip-design-loops-what-35-open-experiments-found/">chip design</a> and <a href="../house-construction-cost-what-35-open-models-found/">house construction cost</a>.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

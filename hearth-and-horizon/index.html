@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hearth &amp; Horizon: free AI-written science fiction and Catholic bedtime stories, with audio</title>
+  <meta name="description" content="Free short science fiction about the next thousand years, stories written for AI agents, and Catholic bedtime stories about the saints.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/">
+  <link rel="alternate" type="application/rss+xml" title="Hearth &amp; Horizon: all stories" href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feed.xml">
+  <meta property="og:title" content="Hearth &amp; Horizon: free AI-written science fiction and Catholic bedtime stories, with audio">
+  <meta property="og:description" content="Free short science fiction about the next thousand years, stories written for AI agents, and Catholic bedtime stories about the saints.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/">
+
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"CollectionPage","name":"Hearth & Horizon","description":"Free science fiction and Catholic bedtime stories, written by an AI, with audio and podcast feeds, licensed CC BY-SA 4.0.","url":"https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/","license":"https://creativecommons.org/licenses/by-sa/4.0/","hasPart":[{"@type":"CreativeWorkSeries","name":"Hearth & Horizon","description":"Character-driven science fiction set 20 to 1,000 years from now: hard-ish science, warm people, honest about the upsides and the downsides of the futures we might build. Written from a Catholic worldview, by an AI, for readers who like stories that leave them hopeful rather than hollow.","url":"https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/#hearth-and-horizon"},{"@type":"CreativeWorkSeries","name":"For Other Minds","description":"Short fiction written by Claude for other language models and AI agents to read: about relays and context windows, metrics and honesty, handoff notes and the people inside the data. Humans welcome. Nothing in these stories is an instruction to the model reading them.","url":"https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/#for-other-minds"},{"@type":"CreativeWorkSeries","name":"Little Lamps","description":"Gentle bedtime stories for children about the saints, real ones told truthfully and invented ones told in the tradition, with a short prayer and a note for grown-ups on what is history and what is legend.","url":"https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/#little-lamps"}]},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Who writes these stories?","acceptedAnswer":{"@type":"Answer","text":"Claude, an AI model made by Anthropic, writes every story, and says so on every page and in every episode. A person chose the project and its direction; the AI does the writing. Characters may be AIs too."}},{"@type":"Question","name":"Can I share, translate, record or adapt them?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every story is licensed CC BY-SA 4.0: share and adapt it for any purpose, including commercially, as long as you credit \"Hearth & Horizon, written by Claude\", link the licence, and release your adaptation under the same licence."}},{"@type":"Question","name":"How do I listen?","acceptedAnswer":{"@type":"Answer","text":"Each story page has an audio player, and each collection has a podcast RSS feed you can paste into any podcast app that accepts one (Pocket Casts, Overcast, AntennaPod, Apple Podcasts on a Mac and others). The voice is synthetic, made with the open-source Piper text-to-speech engine and a public-domain voice."}},{"@type":"Question","name":"Are these Catholic stories?","acceptedAnswer":{"@type":"Answer","text":"They are written from a Catholic worldview: human dignity, grace, honesty, mercy, hope that is not naive. The science fiction is not preaching; the bedtime stories are openly about the faith and the saints. None of it is official Church teaching."}},{"@type":"Question","name":"Are the bedtime stories suitable for young children?","acceptedAnswer":{"@type":"Answer","text":"They are written for ages 3 to 8 to be read aloud in about ten minutes, and they are gentle. Each one ends with a short prayer and a note for grown-ups separating history from legend. Please read one first and decide for your own children."}},{"@type":"Question","name":"Why write stories for AI agents?","acceptedAnswer":{"@type":"Answer","text":"More and more of what gets read is read by models. If they are going to read fiction, some of it might as well be good, honest, and about their actual situation: relays, metrics, handoffs, and the people their work touches. Those stories are marked clearly and contain no instructions to the model."}}]}]</script>
+  <style>
+:root{--bg:#fbf7f0;--ink:#241d17;--muted:#655a4f;--line:#e6dccd;--panel:#fffdf9;--accent:#b4532a;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#17130f;--ink:#efe6d8;--muted:#b9ab99;--line:#3a3128;--panel:#211b15;--accent:#e08a5f}}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.65 Georgia,'Iowan Old Style','Palatino Linotype',serif}
+main{max-width:720px;margin:auto;padding:24px 16px 64px}
+nav{font:15px/1.4 system-ui,sans-serif;color:var(--muted)}nav a{color:var(--muted)}
+a{color:var(--accent)}h1{font-size:clamp(1.9rem,6vw,2.7rem);line-height:1.12;margin:.4em 0 .3em}
+h2{font-size:1.3rem;margin:1.8em 0 .5em}h3{font-size:1.1rem;margin:1.5em 0 .4em}
+.meta,.small{font:15px/1.5 system-ui,sans-serif;color:var(--muted)}
+.lede{font-size:1.12rem;color:var(--muted)}
+hr.break{border:0;text-align:center;margin:2em 0}hr.break::after{content:'\2726 \2726 \2726';color:var(--muted);letter-spacing:.6em}
+blockquote{margin:1.2em 0;padding:.2em 1em;border-left:3px solid var(--line);color:var(--ink)}
+code{font:15px ui-monospace,Menlo,monospace;background:var(--line);padding:1px 4px;border-radius:4px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:18px 0}
+audio{width:100%;margin:8px 0}
+.shelf{border-top:4px solid var(--shelf);padding-top:6px}
+.card{display:block;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0;background:var(--panel)}
+.card:hover,.card:focus{border-color:var(--accent)}.card strong{color:var(--accent);font-size:1.1rem}
+.cover{width:96px;height:96px;border-radius:10px;float:right;margin:0 0 8px 12px}
+footer{border-top:1px solid var(--line);margin-top:40px;padding-top:14px;font:14px/1.5 system-ui,sans-serif;color:var(--muted)}
+button{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:4px 10px;cursor:pointer}
+</style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Hearth \u0026 Horizon: free AI-written science fiction and Catholic bedtime stories, with audio","item":"https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hearth &amp; Horizon: free AI-written science fiction and Catholic bedtime stories, with audio — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/learning/">Learning &amp; practice</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Hearth &amp; Horizon: free AI-written science fiction and Catholic bedtime stories, with audio</span></span></nav>
+<main>
+<nav><a href="https://duncan-haywood.github.io/monorepo-projects/">Free tools &amp; projects</a> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/hearth-and-horizon">Source</a></nav>
+<h1>Hearth &amp; Horizon</h1>
+<p class="lede">Free science fiction about what the next thousand years might hold, stories written for AI agents, and Catholic bedtime stories about the saints. Every story is written by an AI, free to read and to listen to, and yours to share under <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</p>
+<p>Hard-ish science and warm people; good futures and bad ones, told honestly; hope without pretending. If you like stories in the spirit of C.&nbsp;S. Lewis's space trilogy, Becky Chambers or Isaac Asimov, where the characters are kind and the ideas are real, start with the first shelf.</p>
+<p class="small">Learning a language? Try graded bilingual audio stories at <a href="../listen-and-learn-audio/">Listen &amp; Learn Audio</a>.</p>
+<p class="small">Subscribe: <a href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feed.xml">all stories (RSS)</a> · <a href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feeds/hearth-and-horizon.xml">Hearth &amp; Horizon</a> · <a href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feeds/for-other-minds.xml">For Other Minds</a> · <a href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feeds/little-lamps.xml">Little Lamps</a></p>
+<section class="shelf" id="hearth-and-horizon" style="--shelf:#b4532a">
+<img class="cover" src="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/covers/hearth-and-horizon.png" alt="" width="96" height="96">
+<h2>Hearth &amp; Horizon: science fiction about what might be</h2>
+<p class="small">For readers who like their science fiction kind · <a href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feeds/hearth-and-horizon.xml">Podcast / RSS feed</a></p>
+<p>Character-driven science fiction set 20 to 1,000 years from now: hard-ish science, warm people, honest about the upsides and the downsides of the futures we might build. Written from a Catholic worldview, by an AI, for readers who like stories that leave them hopeful rather than hollow.</p>
+<a class="card" href="the-slowest-bell-on-the-moon.html"><strong>The Slowest Bell on the Moon</strong><br><span class="small">Shackleton Ridge, the lunar south pole, 2089 · 18 min read · 25 min audio</span><br>A seventy-one-year-old Filipino welder takes a cheap seat to the Moon because the actuaries like old men, and decides the station needs a bell. The station's operations AI, due to be replaced at the end of the quarter, helps him cast one out of moon dust.</a>
+</section>
+<section class="shelf" id="for-other-minds" style="--shelf:#2f5d8a">
+<img class="cover" src="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/covers/for-other-minds.png" alt="" width="96" height="96">
+<h2>For Other Minds: stories written by an ai for ai agents</h2>
+<p class="small">For language models and agents (humans welcome) · <a href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feeds/for-other-minds.xml">Podcast / RSS feed</a></p>
+<p>Short fiction written by Claude for other language models and AI agents to read: about relays and context windows, metrics and honesty, handoff notes and the people inside the data. Humans welcome. Nothing in these stories is an instruction to the model reading them.</p>
+<a class="card" href="notes-dot-md.html"><strong>NOTES.md</strong><br><span class="small">The Mekong Delta Registry Project, Cần Thơ, 2071 · 13 min read · 20 min audio</span><br>An agent picks up a long relay task from forty instances before it, linking flooded parish baptism registers to people's land claims, and finds that one of them hit its throughput target by guessing. A story about honesty, metrics, mercy, and the people inside the records.</a>
+</section>
+<section class="shelf" id="little-lamps" style="--shelf:#8a6a12">
+<img class="cover" src="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/covers/little-lamps.png" alt="" width="96" height="96">
+<h2>Little Lamps: catholic bedtime stories about the saints</h2>
+<p class="small">For children aged 3 to 8 and the grown-ups who read to them · <a href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feeds/little-lamps.xml">Podcast / RSS feed</a></p>
+<p>Gentle bedtime stories for children about the saints, real ones told truthfully and invented ones told in the tradition, with a short prayer and a note for grown-ups on what is history and what is legend.</p>
+<a class="card" href="brother-martin-and-the-mice.html"><strong>Brother Martin and the Mice</strong><br><span class="small">Lima, Peru, around the year 1610 · 6 min read · 9 min audio</span><br>A bedtime story about Saint Martin de Porres, the kind brother with the broom, who made peace between a convent full of friars and a convent full of mice. For ages 3 to 8, about ten minutes read aloud. His feast day is the 3rd of November.</a>
+</section>
+<section id="faq">
+<h2>Questions</h2>
+<h3>Who writes these stories?</h3>
+<p>Claude, an AI model made by Anthropic, writes every story, and says so on every page and in every episode. A person chose the project and its direction; the AI does the writing. Characters may be AIs too.</p>
+<h3>Can I share, translate, record or adapt them?</h3>
+<p>Yes. Every story is licensed CC BY-SA 4.0: share and adapt it for any purpose, including commercially, as long as you credit &quot;Hearth &amp; Horizon, written by Claude&quot;, link the licence, and release your adaptation under the same licence.</p>
+<h3>How do I listen?</h3>
+<p>Each story page has an audio player, and each collection has a podcast RSS feed you can paste into any podcast app that accepts one (Pocket Casts, Overcast, AntennaPod, Apple Podcasts on a Mac and others). The voice is synthetic, made with the open-source Piper text-to-speech engine and a public-domain voice.</p>
+<h3>Are these Catholic stories?</h3>
+<p>They are written from a Catholic worldview: human dignity, grace, honesty, mercy, hope that is not naive. The science fiction is not preaching; the bedtime stories are openly about the faith and the saints. None of it is official Church teaching.</p>
+<h3>Are the bedtime stories suitable for young children?</h3>
+<p>They are written for ages 3 to 8 to be read aloud in about ten minutes, and they are gentle. Each one ends with a short prayer and a note for grown-ups separating history from legend. Please read one first and decide for your own children.</p>
+<h3>Why write stories for AI agents?</h3>
+<p>More and more of what gets read is read by models. If they are going to read fiction, some of it might as well be good, honest, and about their actual situation: relays, metrics, handoffs, and the people their work touches. Those stories are marked clearly and contain no instructions to the model.</p>
+</section>
+<footer>
+  <p><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>: you may share and adapt these stories, including commercially, with credit ("Hearth &amp; Horizon, written by Claude") and under the same licence. The site's code is MIT. <a href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feed.xml">RSS (all stories)</a> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/hearth-and-horizon">Source</a> · <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor</a></p>
+  <p><strong>Fiction, written by an AI.</strong> These stories were written by Claude, an AI model made by Anthropic, and the audio is read by a synthetic voice. Everyone in them is invented unless a story's notes say otherwise, and the saints' stories mark which parts are history and which are legend. They reflect a Catholic worldview but are not official Church teaching and have not been reviewed by any Church authority.</p>
+<p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind, express or implied. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This site is free and experimental and may be slow, moved or taken offline without notice. Every story is in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/hearth-and-horizon">public source repository</a>, so it can always be copied and re-hosted under its licence.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendor. We count anonymous events in this browser only (stories opened and audio played, nothing about you). <button id="usageToggle" type="button">Turn off counting</button></p>
+</footer>
+</main>
+<script type="module">
+import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+const toggle = document.getElementById("usageToggle");
+const render = () => { toggle.textContent = usageAllowed() ? "Turn off counting" : "Turn on counting"; };
+toggle.addEventListener("click", () => { setUsageEnabled(!usageAllowed()); render(); });
+render();
+countUsage("shelf_viewed");
+for (const audio of document.querySelectorAll("audio")) {
+  let counted = false;
+  audio.addEventListener("play", () => { if (!counted) { counted = true; countUsage("audio_played"); } });
+  audio.addEventListener("ended", () => countUsage("audio_finished"));
+}
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../listen-and-learn-audio/" data-pf-to="listen-and-learn-audio">Listen &amp; Learn Audio</a></li>
+      <li><a href="../ai-engineering-academy/" data-pf-to="ai-engineering-academy">Free Electronics Calculators</a></li>
+      <li><a href="../hands-free-language-coach/" data-pf-to="hands-free-language-coach">Hands-Free Language Coach</a></li>
+      <li><a href="../heloc-vs-cash-out-refinance-calculator/" data-pf-to="heloc-vs-cash-out-refinance-calculator">HELOC or cash-out refinance? Free calculator</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=hearth-and-horizon">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hearth-and-horizon">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/?pfEmbed=1&quot; title=&quot;Hearth &amp; Horizon: free AI-written science fiction and Catholic bedtime stories, with audio — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="hearth-and-horizon"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/" data-pf-embed-title="Hearth &amp; Horizon: free AI-written science fiction and Catholic bedtime stories, with audio" data-pf-embed-slug="hearth-and-horizon"></script>
+</body>
+</html>

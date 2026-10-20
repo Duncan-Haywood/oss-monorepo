@@ -1,0 +1,48 @@
+{
+  "slug": "crawl-space-encapsulation-bid-calculator",
+  "name": "Crawl space encapsulation",
+  "group": "Specialty & remediation",
+  "summary": "Crawl space liner and encapsulation priced from floor and wall area, access, seal hours and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2.9,
+  "hourlyWage": 32,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "6-mil floor liner, taped",
+      "unit": "sq ft",
+      "qty": 1120,
+      "hoursPerUnit": 0.018,
+      "materialPerUnit": 0.5,
+      "source": "40 x 28 ft floor (index.html); suggestedScopeKit liner: hoursPerSqFtFloor 0.018, linerPerSqFt $0.42 + tapePerSqFt $0.08 (calc.mjs); liner-only scope covers no stem wall"
+    },
+    {
+      "label": "Hatch access and seal",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.2,
+      "materialPerUnit": 0,
+      "source": "suggestedAccessKit hatch hoursAccess 0.8 + suggestedScopeKit liner hoursSeal 0.4 (calc.mjs)"
+    },
+    {
+      "label": "Travel",
+      "unit": "mile",
+      "qty": 10,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "travelMiles 10 (index.html); suggestedExtraKit hoursPerMile 0.035, travelPerMile $2.80"
+    },
+    {
+      "label": "Travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 95,
+      "source": "travelAndEquipment $95 (index.html)"
+    }
+  ],
+  "specialistModels": "Liner-only vs sealed encapsulation vs dehumidifier kits, belly-crawl and wet-crawl access premiums with pump-out, wall liner by stem height, insulation, piers, clean-out and dedicated circuits."
+}

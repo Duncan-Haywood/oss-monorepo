@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of forgetting after k steps: the exact law and the simulation overlap, rising to a peak near k=3 of about 0.044 then decaying">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Forgetting curve, d=12 r=3: exact law vs 20000-run simulation</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="266.0" y2="266.0" stroke="#ddd"/><text x="58" y="270.0" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="208.0" y2="208.0" stroke="#ddd"/><text x="58" y="212.0" text-anchor="end" font-family="sans-serif" font-size="11">0.02</text>
+<line x1="64" x2="624" y1="150.0" y2="150.0" stroke="#ddd"/><text x="58" y="154.0" text-anchor="end" font-family="sans-serif" font-size="11">0.03</text>
+<line x1="64" x2="624" y1="91.9" y2="91.9" stroke="#ddd"/><text x="58" y="95.9" text-anchor="end" font-family="sans-serif" font-size="11">0.04</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="134.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="274.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">k</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">forgetting</text>
+<polyline points="64.0,324.0 134.0,133.3 204.0,71.3 274.0,71.5 344.0,98.4 484.0,169.6 624.0,228.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="133.3" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="71.3" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="71.5" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="98.4" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="169.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="228.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">exact law</text>
+<polyline points="64.0,324.0 134.0,133.5 204.0,71.2 274.0,73.2 344.0,100.6 484.0,169.2 624.0,227.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="133.5" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="73.2" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="100.6" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="169.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="227.5" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">simulation</text>
+</svg>

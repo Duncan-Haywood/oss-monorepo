@@ -1,0 +1,39 @@
+{
+  "slug": "hoarding-cleanout-bid-calculator",
+  "name": "Hoarding cleanout",
+  "group": "Specialty & remediation",
+  "summary": "Hoarding cleanouts priced from debris yards, sanitising area, crew days, containers and dump tons.",
+  "fit": "partial",
+  "crewSize": 3,
+  "hourlyWage": 28,
+  "burdenRate": 0,
+  "overheadRate": 10,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Sort and carry out debris",
+      "unit": "cu yd",
+      "qty": 88.0,
+      "hoursPerUnit": 0.4,
+      "materialPerUnit": 40.0,
+      "source": "1100 sq ft x 8 ft x 30% full x 90% not kept / 27 = 88 cu yd; 1.2 person-h per cu yd / crew 3; 4 x 30-yd containers at 85% load x $550 over 88 yd, plus 0.2 tons/yd x $75/ton dump fee (index.html / sampleInput)"
+    },
+    {
+      "label": "Deep clean / sanitise",
+      "unit": "sq ft",
+      "qty": 400,
+      "hoursPerUnit": 0.005,
+      "materialPerUnit": 0,
+      "source": "90 person-min per 100 sq ft / crew 3, 400 sq ft (index.html); specialist prices no sanitising supplies beyond PPE"
+    },
+    {
+      "label": "Daily drive, suit-up and containment",
+      "unit": "day",
+      "qty": 6,
+      "hoursPerUnit": 1.75,
+      "materialPerUnit": 94.0,
+      "source": "60 min drive + 45 min setup per day (index.html); 6 crew days from ceil(111.6 person-h / 3 / 6.25 productive h); PPE $18 x 3 people + truck $40 per day"
+    }
+  ],
+  "specialistModels": "Bills whole 8-hour crew days and whole containers, adds a 10% risk allowance, a $1,500 minimum charge, and volume break-even and change-order rates."
+}

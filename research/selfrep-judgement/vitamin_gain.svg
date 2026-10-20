@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 336" role="img" aria-label="Bar chart of mass-closure points gained by making each of the top eight vitamins in-house; the NEMA17 stepper motor gains the most">
+<rect width="640" height="336" fill="#ffffff"/>
+<text x="12" y="24" font-family="sans-serif" font-size="15" font-weight="bold" fill="#222">Which vitamin is worth making in-house? (shop: lm8uu)</text>
+<text x="12" y="44" font-family="sans-serif" font-size="12" fill="#444">Mass-closure points gained if made in-house (selfrep-judgement, first shop block of results.txt)</text>
+<text x="202" y="72" text-anchor="end" font-family="sans-serif" font-size="12" fill="#222">NEMA17 stepper</text>
+<rect x="210" y="56" width="370.0" height="22" fill="#1f6fb2"/>
+<text x="586.0" y="72" font-family="sans-serif" font-size="12" fill="#222">+2.0</text>
+<text x="202" y="102" text-anchor="end" font-family="sans-serif" font-size="12" fill="#222">370 mm M8 threaded</text>
+<rect x="210" y="86" width="370.0" height="22" fill="#1f6fb2"/>
+<text x="586.0" y="102" font-family="sans-serif" font-size="12" fill="#222">+2.0</text>
+<text x="202" y="132" text-anchor="end" font-family="sans-serif" font-size="12" fill="#222">440 mm M8 threaded</text>
+<rect x="210" y="116" width="370.0" height="22" fill="#1f6fb2"/>
+<text x="586.0" y="132" font-family="sans-serif" font-size="12" fill="#222">+2.0</text>
+<text x="202" y="162" text-anchor="end" font-family="sans-serif" font-size="12" fill="#222">294 mm M8 threaded</text>
+<rect x="210" y="146" width="370.0" height="22" fill="#1f6fb2"/>
+<text x="586.0" y="162" font-family="sans-serif" font-size="12" fill="#222">+2.0</text>
+<text x="202" y="192" text-anchor="end" font-family="sans-serif" font-size="12" fill="#222">420 mm 8 mm smooth</text>
+<rect x="210" y="176" width="370.0" height="22" fill="#1f6fb2"/>
+<text x="586.0" y="192" font-family="sans-serif" font-size="12" fill="#222">+2.0</text>
+<text x="202" y="222" text-anchor="end" font-family="sans-serif" font-size="12" fill="#222">405 mm 8 mm smooth</text>
+<rect x="210" y="206" width="370.0" height="22" fill="#1f6fb2"/>
+<text x="586.0" y="222" font-family="sans-serif" font-size="12" fill="#222">+2.0</text>
+<text x="202" y="252" text-anchor="end" font-family="sans-serif" font-size="12" fill="#222">glass / mirror</text>
+<rect x="210" y="236" width="370.0" height="22" fill="#1f6fb2"/>
+<text x="586.0" y="252" font-family="sans-serif" font-size="12" fill="#222">+2.0</text>
+<text x="202" y="282" text-anchor="end" font-family="sans-serif" font-size="12" fill="#222">350 mm 8 mm smooth</text>
+<rect x="210" y="266" width="370.0" height="22" fill="#1f6fb2"/>
+<text x="586.0" y="282" font-family="sans-serif" font-size="12" fill="#222">+2.0</text>
+</svg>

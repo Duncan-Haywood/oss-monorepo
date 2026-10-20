@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the exact miss probability of a rank-one corruption against its size F in units of the tolerance, for 1, 2, 4 and 8 probes: more probes cut the miss probability sharply">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Freivalds with float tolerance: miss probability</text>
+<line x1="64" x2="624" y1="272.7" y2="272.7" stroke="#ddd"/><text x="58" y="276.7" text-anchor="end" font-family="sans-serif" font-size="11">0.0001</text>
+<line x1="64" x2="624" y1="220.0" y2="220.0" stroke="#ddd"/><text x="58" y="224.0" text-anchor="end" font-family="sans-serif" font-size="11">0.001</text>
+<line x1="64" x2="624" y1="167.2" y2="167.2" stroke="#ddd"/><text x="58" y="171.2" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="114.4" y2="114.4" stroke="#ddd"/><text x="58" y="118.4" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="61.6" y2="61.6" stroke="#ddd"/><text x="58" y="65.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="178.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="244.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="329.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="443.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">corruption F / tolerance</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">miss probability</text>
+<polyline points="64.0,70.4 178.1,83.6 244.9,92.4 329.0,103.8 443.1,119.6 624.0,144.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#c0392b"/>
+<circle cx="178.1" cy="83.6" r="3" fill="#c0392b"/>
+<circle cx="244.9" cy="92.4" r="3" fill="#c0392b"/>
+<circle cx="329.0" cy="103.8" r="3" fill="#c0392b"/>
+<circle cx="443.1" cy="119.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="144.8" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">m=1</text>
+<polyline points="64.0,79.1 178.1,105.6 244.9,123.2 329.0,146.1 443.1,177.6 624.0,227.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="79.1" r="3" fill="#1f6fb2"/>
+<circle cx="178.1" cy="105.6" r="3" fill="#1f6fb2"/>
+<circle cx="244.9" cy="123.2" r="3" fill="#1f6fb2"/>
+<circle cx="329.0" cy="146.1" r="3" fill="#1f6fb2"/>
+<circle cx="443.1" cy="177.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="227.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">m=2</text>
+<polyline points="64.0,96.6 178.1,149.6 244.9,184.7 329.0,230.6 443.1,293.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="96.6" r="3" fill="#2e8b57"/>
+<circle cx="178.1" cy="149.6" r="3" fill="#2e8b57"/>
+<circle cx="244.9" cy="184.7" r="3" fill="#2e8b57"/>
+<circle cx="329.0" cy="230.6" r="3" fill="#2e8b57"/>
+<circle cx="443.1" cy="293.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">m=4</text>
+<polyline points="64.0,131.6 178.1,237.8 244.9,309.6" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="131.6" r="3" fill="#8e44ad"/>
+<circle cx="178.1" cy="237.8" r="3" fill="#8e44ad"/>
+<circle cx="244.9" cy="309.6" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">m=8</text>
+</svg>

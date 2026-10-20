@@ -1,0 +1,173 @@
+.pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5;
+  color:inherit;--pf-line:rgba(128,128,128,.34);--pf-fill:rgba(128,128,128,.07)}
+.pf-chrome a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.pf-chrome-foot{border-top:1px solid var(--pf-line);background:var(--pf-fill);margin-top:40px;padding:22px 16px 26px}
+.pf-chrome-foot .pf-inner{max-width:1080px;margin:0 auto}
+.pf-chrome-foot h2{font-size:1rem;margin:0 0 4px;color:inherit}
+/* No opacity here, and it is the same reasoning as the color:inherit above run
+ * the other way. The chrome does not know its host's palette, so it cannot know
+ * what an opacity of .78 will produce: the declaration multiplies down a colour
+ * chosen by a venture, and a host whose body text already sits near the 4.5:1
+ * AA floor lands under it. There is no safe value — a host exactly at 4.5:1
+ * fails at any opacity below 1 — which is why this is a deletion rather than a
+ * larger number. Measured on the built site, freight-accessorial-auditor
+ * rendered this footer at 3.22:1 and cloud-egress-calculator at 3.32:1.
+ * What the tint was dimming is also the wrong thing to dim: the no-warranty and
+ * no-SLA clauses PRODUCT_PLAYBOOK.md 5b requires, the link to the rest of the
+ * portfolio, and the sponsors line. The footer is quieter than the venture's
+ * own content already, by its border, fill and position. */
+.pf-chrome-foot p{margin:0 0 12px}
+.pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.pf-chrome-foot li{margin:0}
+.pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
+
+/* Site chrome is not part of anything a visitor prints.
+ *
+ * Nine bid calculators produce a customer proposal (platform/proposal), whose
+ * own print stylesheet hides header, main and footer so the homeowner's copy
+ * carries the price and not the contractor's wages. That allow-list was written
+ * against the venture's own markup — it cannot know about the nav and aside
+ * this build injects as siblings of main, so on the published site the
+ * customer's quote came out with the site navigation and the "more tools"
+ * footer stapled to it. The rule belongs here, with the markup it hides, rather
+ * than in each venture: a calculator that adopts the proposal next week is
+ * covered without touching it. */
+@media print{.pf-chrome{display:none !important}}
+
+[data-pfs-head]{display:block;position:static;float:none;width:auto;max-width:none;height:auto;margin:0;padding:0;
+  border:0;border-bottom:1px solid var(--pfs-line,rgba(128,128,128,.34));box-shadow:none;border-radius:0;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;font-weight:400;line-height:1.4;
+  letter-spacing:normal;text-transform:none;text-align:left;
+  color:var(--pfs-ink,inherit);background:var(--pfs-head-bg,rgba(128,128,128,.07))}
+[data-pfs-head] *{box-sizing:border-box}
+[data-pfs-head] a{color:inherit;text-decoration:none;background:none;border-radius:0;padding:0;margin:0}
+[data-pfs-head] a:hover,[data-pfs-head] a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+[data-pfs-head] :focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.pfs-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;max-width:1120px;margin:0 auto;padding:10px 16px}
+[data-pfs-head] .pfs-brand{display:inline-flex;align-items:center;gap:9px;font-weight:750;letter-spacing:-.01em;white-space:nowrap}
+.pfs-mark{display:inline-block;width:20px;height:20px;border-radius:6px;flex:none;background:var(--pfs-mark,currentColor)}
+.pfs-nav{display:flex;flex-wrap:wrap;gap:4px 18px;flex:1 1 auto;min-width:0}
+[data-pfs-head] .pfs-nav a{display:inline-block;padding:4px 0;font-weight:600;color:var(--pfs-muted,inherit);
+  border-bottom:2px solid transparent}
+[data-pfs-head] .pfs-nav a[aria-current="page"]{color:var(--pfs-ink,inherit);border-bottom-color:var(--pfs-accent,currentColor)}
+.pfs-search{display:flex;gap:6px;margin:0;padding:0;border:0;flex:0 1 280px;min-width:0}
+.pfs-search input{flex:1 1 auto;min-width:0;width:100%;font:inherit;font-size:14px;padding:7px 10px;margin:0;border-radius:8px;
+  border:1px solid var(--pfs-line,rgba(128,128,128,.5));background:var(--pfs-panel,transparent);color:inherit}
+.pfs-search button{font:inherit;font-size:14px;font-weight:650;padding:7px 12px;margin:0;border-radius:8px;cursor:pointer;
+  border:1px solid var(--pfs-line,rgba(128,128,128,.5));background:var(--pfs-panel,transparent);color:inherit}
+[data-pfs-head] .pfs-searchlink{display:none;font-weight:600}
+[data-pfs-head] .pfs-searchlink.pfs-always{display:inline-block}
+.pfs-vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.pfs-crumbs{display:block;max-width:1120px;margin:0 auto;padding:0 16px 9px;font-size:13px;color:var(--pfs-muted,inherit);
+  overflow-wrap:anywhere}
+[data-pfs-head] .pfs-crumbs a{text-decoration:underline;text-underline-offset:2px}
+.pfs-sep{margin:0 7px}
+@media (max-width:720px){
+  .pfs-bar{gap:6px 14px;padding:9px 16px}
+  [data-pfs-head] .pfs-brand{flex:1 1 auto}
+  .pfs-search{display:none}
+  [data-pfs-head] .pfs-searchlink{display:inline-block}
+  .pfs-nav{order:3;flex-basis:100%;gap:2px 16px}
+}
+@media print{[data-pfs-head]{display:none !important}}
+
+/* Reflow (WCAG 1.4.10). See platform/pages/reflow.mjs. */
+.pf-table-scroll{overflow-x:auto;max-width:100%}
+/* The shadow appears only once the box is really scrolling: SCROLL_A11Y_SCRIPT
+   sets this attribute from a measured scrollWidth, and removes it when the
+   table fits again. Without some edge, a phone visitor has no way to know the
+   sixth column exists. Inset and behind the cells, so it cannot sit under any
+   text and change its contrast. */
+.pf-table-scroll[data-pf-scrollable]{box-shadow:inset -12px 0 8px -8px rgba(0,0,0,.28)}
+/* Paper has no viewport to scroll. The customer's proposal prints from these
+   pages and every column of it has to be on the sheet. */
+@media print{.pf-table-scroll{overflow-x:visible;box-shadow:none}}
+/* Cause (3): a <pre> whose longest line does not fit. white-space:pre is the
+   element's default and it forbids wrapping outright, so one long command holds
+   the whole document open at that width — and no word-break a venture wrote can
+   rescue it, because breaking only applies where wrapping is permitted at all.
+   That combination is why this looks fixed in the source and is not:
+   vendor-change-watch sets word-break:break-word on the very block that was
+   measured at 649px inside a 360px window on 2026-09-06 (sideways.mjs, the only
+   page of 720 still scrolling).
+
+   Scrolled rather than wrapped, which is the choice .pf-table-scroll makes
+   above and for the same reason: an install command has to stay copyable as one
+   line and a diff has to keep its columns, so re-flowing the text would trade a
+   layout bug for a correctness one. WCAG 1.4.10 allows exactly this — content
+   needing a two-dimensional layout may scroll, so long as the *page* does not.
+
+   No class to apply and no build pass to run: a <pre> is already the element
+   that means "preformatted", so the next venture to paste a command block is
+   covered on the day it ships rather than the day someone measures it. The
+   keyboard tab stop comes free, because SCROLL_A11Y_SCRIPT finds a scrolling
+   box by its computed overflow-x rather than by class. */
+:where(pre){overflow-x:auto;max-width:100%}
+/* Paper cannot scroll, so here the trade runs the other way: wrap the command
+   rather than crop it at the edge of the sheet. pre-wrap still preserves
+   every space and newline, so an indented block prints as written. */
+@media print{:where(pre){overflow-x:visible;white-space:pre-wrap}}
+/* Cause (2): a grid or flex track that will not shrink under its content. A
+   grid item's automatic minimum size is its min-content width, so one <input>
+   at its 20-character default, or one table the rule above just made
+   scrollable, holds the whole column open and the page with it.
+
+   Freed only for the boxes that hold one of those two things, and only on a
+   narrow viewport. The blunt version of this rule — min-width:0 on everything —
+   was measured first and was worse than the bug: it collapsed the term column
+   of every <dl> laid out as a grid, so 372 result labels across 70 pages
+   painted over their own values. A definition list holds neither a control nor
+   a table, so it no longer matches.
+
+   Zero specificity throughout, so any rule a venture wrote wins; a browser with
+   no :has() ignores the second rule and keeps today's layout rather than
+   getting a broken one. */
+@media (max-width:640px){
+  :where(input,select,textarea){min-width:0;max-width:100%}
+  :where(*:has(input,select,textarea,.pf-table-scroll)){min-width:0}
+  /* And the page's own layout columns, which is where a two-column
+     desktop layout meets a one-column phone. Freeing a box is not the same
+     as freeing what is inside it: a <dl> here may shrink, and its term
+     column still holds at the width of the longest term, because the <dt>
+     keeps its own automatic minimum. That is the whole difference between
+     this rule and the blunt one described above. */
+  :where(body>*,main,section,article,aside,header,footer,form,fieldset){min-width:0}
+}
+
+/* Cause (4): a heading holding one unbreakable token. Measured 2026-09-10 on
+   security-headers-check/vs-securityheaders.html, the only page of 929 still
+   scrolling: 365px inside a 360px window. The whole 5px was the <h1> "This
+   checker vs. Security Headers (securityheaders.com)" — a bare domain has no
+   space and no hyphen, so there is nowhere for the line to break, and the
+   heading's content ran 29px past its own box with overflow:visible handing
+   the difference to the document.
+
+   Headings are where this happens because they are the one place a product
+   name, a domain or a header field is written out at 2rem with no wrapper: a
+   comparison page's title names the competitor, and the competitor is a
+   hostname. Body copy has the same hazard and far more room to absorb it.
+
+   overflow-wrap:break-word rather than 'anywhere': break-word breaks a long
+   word only when it would otherwise overflow, and leaves the line-breaking of
+   text that fits alone, so a heading that was already fine is laid out
+   identically. 'anywhere' additionally shrinks the min-content width, which
+   changes how flex and grid size the heading's parent — a layout change on
+   every page to fix five pixels on one.
+
+   Not restricted to a narrow viewport, and not conditional on measuring the
+   page: a token too long for the line is too long at any width, and the next
+   comparison page to name a hostname gets this on the day it ships. Zero
+   specificity, so a venture that set its own value keeps it. */
+:where(h1,h2,h3,h4,h5,h6){overflow-wrap:break-word}
+/* Cause (4) again, in body copy rather than a heading. Measured 2026-09-17 on
+   openapi-breaking-change-check/vs-oasdiff.html, 4px over at 360px: an inline
+   <code>--fail-on-breaking</code> flag inside a <p>, sitting outside any
+   table or <pre>, with nowhere to break. "Body copy has the same hazard and
+   far more room to absorb it" was already written above the day the heading
+   fix landed; this is that hazard, not a new one. Applies to <pre> code too,
+   harmlessly: the :where(pre) rule above already makes those boxes scroll
+   instead of wrap, and pre's own white-space:pre means overflow-wrap never
+   gets a chance to act there, so a command block's copy-pasteable single
+   line is untouched. */
+:where(code){overflow-wrap:break-word}

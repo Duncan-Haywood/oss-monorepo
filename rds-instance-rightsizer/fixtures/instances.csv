@@ -1,0 +1,7 @@
+db_identifier,engine,instance_class,multi_az,storage_gb,cpu_avg,cpu_p95,freeable_mem_gb_min,connections_p95,count
+orders-prod,postgres,db.r5.2xlarge,true,500,12,22,38,180,1
+reports-replica,postgres,db.m5.2xlarge,false,1000,9,15,20,60,1
+checkout-prod,mysql,db.m6g.xlarge,true,200,70,92,1.1,420,1
+dev-sandbox,mysql,db.t3.large,false,50,4,9,6.5,12,1
+analytics-aurora,aurora-postgresql,db.r6g.2xlarge,false,0,18,30,10,90,2
+billing-prod,postgres,db.m6g.large,false,100,35,55,2.5,1100,1

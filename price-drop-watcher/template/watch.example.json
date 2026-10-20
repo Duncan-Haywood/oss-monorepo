@@ -1,0 +1,4 @@
+{ "items": [
+  { "name": "Trail Runner 2", "url": "https://example.com/products/trail-runner-2", "targetPrice": 99, "minDropPercent": 5 },
+  { "name": "Odd page", "url": "https://example.com/odd", "priceRegex": "Now\\s*\\$([\\d.,]+)", "stockRegex": "Add to cart" }
+] }

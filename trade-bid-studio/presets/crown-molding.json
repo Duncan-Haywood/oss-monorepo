@@ -1,0 +1,63 @@
+{
+  "slug": "crown-molding-bid-calculator",
+  "name": "Crown molding",
+  "group": "Interior & finishes",
+  "summary": "Crown molding runs priced from linear feet, inside and outside corners, rooms, finish and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Install paint-grade simple cove crown",
+      "unit": "linear ft",
+      "qty": 80,
+      "hoursPerUnit": 0.08,
+      "materialPerUnit": 3.456,
+      "source": "0.08 h/lf x grade factor 1 (suggestedProfileKit simple-cove, suggestedGradeKit paint-grade); molding $3.20/lf x 1.08 for 8% waste (wasteFactor, suggestedExtraKit); 80 lf default (index.html)"
+    },
+    {
+      "label": "Inside corners (mitered)",
+      "unit": "each",
+      "qty": 8,
+      "hoursPerUnit": 0.25,
+      "materialPerUnit": 1.6,
+      "source": "0.25 h per inside corner (suggestedGradeKit paint-grade); 0.5 lf waste per inside x $3.20/lf (suggestedExtraKit, suggestedProfileKit); 8 insides default (index.html)"
+    },
+    {
+      "label": "Outside corners",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.18,
+      "materialPerUnit": 1.28,
+      "source": "0.18 h per outside corner (suggestedGradeKit paint-grade); 0.4 lf waste per outside x $3.20/lf (suggestedExtraKit); 0 outsides default (index.html)"
+    },
+    {
+      "label": "Room setup and move",
+      "unit": "room",
+      "qty": 1,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 0,
+      "source": "hoursPerRoom 0.35 (suggestedExtraKit); 1 room default (index.html); no material in the specialist"
+    },
+    {
+      "label": "Site, punch list, finish and caulk",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.9,
+      "materialPerUnit": 45,
+      "source": "siteHours 0.9 (suggestedExtraKit); finishInvoice $45 (suggestedGradeKit paint-grade)"
+    },
+    {
+      "label": "Travel, vehicle and equipment",
+      "unit": "trip",
+      "qty": 1,
+      "hoursPerUnit": 1.356,
+      "materialPerUnit": 84.2,
+      "source": "1.1 trip h + 8 mi x 0.032 h/mi (suggestedExtraKit hoursTrip, hoursPerMile); 8 mi x $2.40/mi travelPerMile + $65 travel & equipment (suggestedExtraKit; index.html travelAndEquipment)"
+    }
+  ],
+  "specialistModels": "Stain-grade vs paint-grade factors, built-up stacked profiles, cathedral and tray ceilings, foyer scaffolding, demo, blocking, LED cove and casing match, plus a profile comparison."
+}

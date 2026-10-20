@@ -1,0 +1,39 @@
+{
+  "slug": "soffit-fascia-bid-calculator",
+  "name": "Soffit and fascia",
+  "group": "Exterior & roofing",
+  "summary": "Soffit and fascia priced per eave foot by scope, stories, soffit type, rot, corners, gutters and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 32,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Aluminum wrap over existing soffit and fascia (solid soffit)",
+      "unit": "linear ft",
+      "qty": 160,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 6.35,
+      "source": "eaveLf 160 (index.html); suggestedScopeKit('wrap'): 0.12 h/lf, wrap $6.20/lf + dump $0.15/lf; default soffit type is the first option, 'solid', which adds 0 (suggestedTypeKit)"
+    },
+    {
+      "label": "Travel miles",
+      "unit": "mile",
+      "qty": 10,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "travelMiles 10 (index.html); 0.035 h/mile and $2.80/mile (suggestedExtraKit)"
+    },
+    {
+      "label": "Trip, ladder access and site time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 3.1,
+      "materialPerUnit": 75,
+      "source": "hoursTrip 1.4 + siteHours 1.2 (suggestedExtraKit) + hoursAccess 0.5 (suggestedStoryKit('one')); travel & equipment $75 (index.html)"
+    }
+  ],
+  "specialistModels": "Wrap vs vinyl vs wood replacement scopes, story access with staging or scaffold, vented and hidden-vent soffit, rot repair, porch beams, corners, gutter reset and pest cleanup."
+}

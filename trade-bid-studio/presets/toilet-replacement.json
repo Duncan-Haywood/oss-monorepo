@@ -1,0 +1,33 @@
+{
+  "slug": "toilet-replacement-bid-calculator",
+  "name": "Toilet replacement",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Toilet swaps priced per bowl from scope, bowl type, rough-in, haul-away, bidet seat and travel miles.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 1.3,
+  "hourlyWage": 42,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "tripFee": 45,
+  "items": [
+    {
+      "label": "Swap two-piece toilet, 12 in rough-in (wax, set, supply)",
+      "unit": "toilet",
+      "qty": 1,
+      "hoursPerUnit": 1.25,
+      "materialPerUnit": 181,
+      "source": "suggestedScopeKit('swap-only'): 1.1 swap + 0.15 supply h, supply kit $8; suggestedToiletKit('two-piece-standard'): invoice $165, 0 h; suggestedExtraKit: wax ring $8"
+    },
+    {
+      "label": "Travel",
+      "unit": "mile",
+      "qty": 6,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "travelMiles 6 (index.html); suggestedExtraKit hoursPerMile 0.035, travelPerMile $2.80"
+    }
+  ],
+  "specialistModels": "Scope, bowl and rough-in kits (flange repair, full reset, offset flange), haul-away, wax-free seal, bidet seat and an owner-supplied-toilet callback comparison; setupHours = 0.9 trip + 0.4 site hours."
+}

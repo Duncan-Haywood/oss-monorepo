@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the closure of the best machine purchase against budget from 0 to 1,700 currency units, for lines, mass and cost closure with LM8UU bearings: closure is flat to a budget of 300, rises a little at 600 when a laser cutter is affordable and more at 800 when a CNC router is, then stays flat">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Selfrep-nextmachine: closure vs budget</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="265.3" y2="265.3" stroke="#ddd"/><text x="58" y="269.3" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="206.7" y2="206.7" stroke="#ddd"/><text x="58" y="210.7" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="148.0" y2="148.0" stroke="#ddd"/><text x="58" y="152.0" text-anchor="end" font-family="sans-serif" font-size="11">30</text>
+<line x1="64" x2="624" y1="89.4" y2="89.4" stroke="#ddd"/><text x="58" y="93.4" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="162.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">300</text>
+<text x="261.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">600</text>
+<text x="327.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">800</text>
+<text x="360.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">900</text>
+<text x="426.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1100</text>
+<text x="525.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1400</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1700</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">budget</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">closure (%)</text>
+<polyline points="64.0,116.9 162.8,116.9 261.6,105.2 327.5,71.2 360.5,71.2 426.4,71.2 525.2,71.2 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="116.9" r="3" fill="#c0392b"/>
+<circle cx="162.8" cy="116.9" r="3" fill="#c0392b"/>
+<circle cx="261.6" cy="105.2" r="3" fill="#c0392b"/>
+<circle cx="327.5" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="360.5" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="426.4" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="525.2" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">lines closure</text>
+<polyline points="64.0,222.5 162.8,222.5 261.6,208.4 327.5,192.6 360.5,192.6 426.4,192.6 525.2,192.6 624.0,192.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="222.5" r="3" fill="#1f6fb2"/>
+<circle cx="162.8" cy="222.5" r="3" fill="#1f6fb2"/>
+<circle cx="261.6" cy="208.4" r="3" fill="#1f6fb2"/>
+<circle cx="327.5" cy="192.6" r="3" fill="#1f6fb2"/>
+<circle cx="360.5" cy="192.6" r="3" fill="#1f6fb2"/>
+<circle cx="426.4" cy="192.6" r="3" fill="#1f6fb2"/>
+<circle cx="525.2" cy="192.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="192.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">mass closure</text>
+<polyline points="64.0,257.1 162.8,257.1 261.6,250.7 327.5,230.7 360.5,230.7 426.4,230.7 525.2,230.7 624.0,230.7" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="257.1" r="3" fill="#2e8b57"/>
+<circle cx="162.8" cy="257.1" r="3" fill="#2e8b57"/>
+<circle cx="261.6" cy="250.7" r="3" fill="#2e8b57"/>
+<circle cx="327.5" cy="230.7" r="3" fill="#2e8b57"/>
+<circle cx="360.5" cy="230.7" r="3" fill="#2e8b57"/>
+<circle cx="426.4" cy="230.7" r="3" fill="#2e8b57"/>
+<circle cx="525.2" cy="230.7" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="230.7" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">cost closure</text>
+</svg>

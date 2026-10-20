@@ -1,0 +1,56 @@
+{
+  "slug": "biohazard-cleanup-bid-calculator",
+  "name": "Biohazard and trauma-scene cleanup",
+  "group": "Specialty & remediation",
+  "summary": "Trauma-scene cleanup priced from technician hours, PPE sets, regulated-waste containers, supplies and equipment.",
+  "fit": "good",
+  "crewSize": 2,
+  "hourlyWage": 45,
+  "burdenRate": 0,
+  "overheadRate": 0,
+  "targetMargin": 25,
+  "tripFee": 75,
+  "items": [
+    {
+      "label": "Scene cleanup, setup, decon and teardown",
+      "unit": "hour",
+      "qty": 5,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 0,
+      "source": "technicianCount 2 x hoursOnSitePerTechnician 5 at laborRatePerHour $45, already loaded (calc.mjs DEFAULTS); no material in this line"
+    },
+    {
+      "label": "PPE sets (one per tech per decon cycle)",
+      "unit": "set",
+      "qty": 2,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 38,
+      "source": "2 techs x deconCyclesPerTechnician 1 = 2 sets x ppeCostPerSet $38 (calc.mjs DEFAULTS)"
+    },
+    {
+      "label": "Regulated waste containers (hauler pickup)",
+      "unit": "container",
+      "qty": 2,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 110,
+      "source": "55 lb waste / 40 lb containers rounded up = 2 x costPerContainer $110 (calc.mjs DEFAULTS, containersNeeded)"
+    },
+    {
+      "label": "Enzymatic cleaner, sealant, odor treatment, absorbents",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 120,
+      "source": "suppliesCost $120 (calc.mjs DEFAULTS)"
+    },
+    {
+      "label": "Equipment rental (ozone, air scrubber)",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 90,
+      "source": "equipmentRentalCost $90 (calc.mjs DEFAULTS)"
+    }
+  ],
+  "specialistModels": "Whole-container rounding of regulated waste, PPE by decon cycle rather than headcount, a $650 minimum job fee, and the gap versus a naive per-pound, per-head estimate."
+}

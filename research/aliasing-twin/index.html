@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What does a radar twin with unlimited unambiguous velocity over-certify? | Open research</title>
+<meta name="description" content="A pulsed Doppler radar reports radial velocity modulo 2 V ; a twin that renders velocity as a real number never aliases. The real bias of a wrapped return is…">
+<meta property="og:title" content="What does a radar twin with unlimited unambiguous velocity over-certify?">
+<meta property="og:description" content="A pulsed Doppler radar reports radial velocity modulo 2 V ; a twin that renders velocity as a real number never aliases. The real bias of a wrapped return is…">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbfaf7;--bg-2:#f3f1ec;--surface:#ffffff;--text:#1c1b22;--muted:#5d5b66;--faint:#8b8994;
+  --border:#e4e1da;--border-strong:#d3cfc6;--accent:#4f46e5;--accent-ink:#3730a3;--accent-soft:#eef0ff;
+  --code-bg:#f1efe9;--shadow:0 1px 2px rgba(28,27,34,.04),0 4px 16px rgba(28,27,34,.05);
+  --shadow-hover:0 2px 4px rgba(28,27,34,.06),0 12px 32px rgba(28,27,34,.09);
+  --t-scoring:#4f46e5;--t-effort:#0e9f6e;--t-games:#d9480f;--t-detection:#c2255c;
+  --t-routing:#1c7ed6;--t-markets:#9c36b5;--t-contributions:#b08900;--t-systems:#0b7285;--t-twins:#e8590c;--t-chip:#2f9e44;--t-robofab:#5f3dc4;--t-ambient:#d6336c;--t-selfrep:#868e00;--t-simdesign:#1098ad;--t-garment:#a61e4d;--t-accel:#c2255c;--t-eda:#0c8599;--t-osrobot:#37b24d;--t-swe:#e67700;--t-mimic:#7048e8;--t-house:#8f5b2e;--t-capture:#1971c2;--t-sensing:#087f5b;--t-energy:#d9480f;--t-society:#c92a2a;--t-codesign:#2b8a3e;--t-hanger:#5c7cfa;--t-qual:#ae3ec9;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f0f13;--bg-2:#15151b;--surface:#18181f;--text:#ecebf1;--muted:#a3a1ad;--faint:#75737f;
+  --border:#2a2a33;--border-strong:#3a3a45;--accent:#8b87ff;--accent-ink:#b4b1ff;--accent-soft:#1f1e36;
+  --code-bg:#23232c;--shadow:0 1px 2px rgba(0,0,0,.3);--shadow-hover:0 8px 28px rgba(0,0,0,.45);
+  --t-scoring:#8b87ff;--t-effort:#38d9a9;--t-games:#ff8c5a;--t-detection:#f783ac;
+  --t-routing:#74c0fc;--t-markets:#da77f2;--t-contributions:#ffd43b;--t-systems:#3bc9db;--t-twins:#ffa94d;--t-chip:#69db7c;--t-robofab:#9775fa;--t-ambient:#f06595;--t-selfrep:#c0eb75;--t-simdesign:#66d9e8;--t-garment:#faa2c1;--t-accel:#f783ac;--t-eda:#3bc9db;--t-osrobot:#8ce99a;--t-swe:#ffc078;--t-mimic:#b197fc;--t-house:#e0a872;--t-capture:#74c0fc;--t-sensing:#63e6be;--t-energy:#ff922b;--t-society:#ff8787;--t-codesign:#8ce99a;--t-hanger:#91a7ff;--t-qual:#e599f7;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+code{font:0.86em var(--mono);background:var(--code-bg);padding:.08em .35em;border-radius:4px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+@media (max-width:600px){.wrap{padding:0 16px}}
+.topbar{border-bottom:1px solid var(--border)}
+.topbar .wrap{display:flex;justify-content:space-between;align-items:center;height:56px;font-size:14px}
+.topbar a{color:var(--muted)}
+.topbar a:hover{color:var(--text)}
+.theme-tag{display:inline-block;margin-top:40px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--c,var(--accent))}
+h1{font:600 clamp(28px,5vw,40px)/1.2 var(--serif);letter-spacing:-.01em;margin:.4rem 0 1rem}
+.slug{font:13px var(--mono);color:var(--faint)}
+.lede{font-size:18px;color:var(--muted);margin:0 0 1.5rem}
+.stats{display:flex;gap:1rem;flex-wrap:wrap;margin:0 0 2rem}
+.stats span{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:.3rem .75rem;font-size:14px;color:var(--muted)}
+h2{font:600 22px/1.3 var(--serif);margin:2.2rem 0 .6rem}
+figure{margin:1rem 0;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+figure img{display:block;max-width:100%;height:auto;margin:0 auto;background:#fff;border-radius:4px}
+figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
+.links{display:flex;gap:.6rem;flex-wrap:wrap;padding:0;list-style:none;margin:0}
+.links a{display:inline-block;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);border-radius:8px;padding:.45rem .9rem;font-size:14px;font-weight:500}
+.links a.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.log-intro{font-size:14px;color:var(--muted);margin:0 0 1rem}
+.log-entry{border-left:3px solid var(--c,var(--accent));padding:.1rem 0 .1rem 1rem;margin:0 0 1.4rem}
+.log-entry h3{font:600 17px/1.35 var(--serif);margin:0 0 .4rem}
+.log-entry ul{margin:.3rem 0;padding-left:1.2rem}
+.log-entry li{margin:.25rem 0}
+.log-entry p{margin:.3rem 0}
+.note{font-size:14px;color:var(--muted);border-left:3px solid var(--border-strong);padding-left:1rem;margin-top:2.2rem}
+.pager{display:flex;justify-content:space-between;gap:1rem;margin:2.4rem 0 0;padding:1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-size:14px}
+.pager a{display:block;max-width:48%;color:var(--text)}
+.pager a small{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.pager .next{margin-left:auto;text-align:right}
+.more-list{list-style:none;padding:0;margin:0;display:grid;gap:.7rem}
+.more-list li{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:.7rem .9rem}
+.more-list a{font-weight:600;color:var(--text)}
+.more-list span{display:block;font-size:14px;color:var(--muted);margin-top:.2rem}
+.more-all{margin:.9rem 0 0;font-size:15px;font-weight:600}
+.topic-chips{display:flex;flex-wrap:wrap;gap:.45rem;margin:0}
+.topic-chips a{border:1px solid var(--border);border-radius:999px;padding:.25rem .75rem;font-size:13px;color:var(--text);background:var(--surface)}
+.topic-chips a[aria-current]{border-color:var(--c,var(--accent));font-weight:600}
+.topic-chips small{color:var(--muted);margin-left:.25rem}
+footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;font-size:13px;color:var(--faint)}
+.t-scoring{--c:var(--t-scoring)}
+.t-effort{--c:var(--t-effort)}
+.t-games{--c:var(--t-games)}
+.t-detection{--c:var(--t-detection)}
+.t-routing{--c:var(--t-routing)}
+.t-markets{--c:var(--t-markets)}
+.t-contributions{--c:var(--t-contributions)}
+.t-systems{--c:var(--t-systems)}
+.t-twins{--c:var(--t-twins)}
+.t-chip{--c:var(--t-chip)}
+.t-robofab{--c:var(--t-robofab)}
+.t-ambient{--c:var(--t-ambient)}
+.t-selfrep{--c:var(--t-selfrep)}
+.t-simdesign{--c:var(--t-simdesign)}
+.t-garment{--c:var(--t-garment)}
+.t-accel{--c:var(--t-accel)}
+.t-eda{--c:var(--t-eda)}
+.t-osrobot{--c:var(--t-osrobot)}
+.t-swe{--c:var(--t-swe)}
+.t-mimic{--c:var(--t-mimic)}
+.t-house{--c:var(--t-house)}
+.t-capture{--c:var(--t-capture)}
+.t-sensing{--c:var(--t-sensing)}
+.t-energy{--c:var(--t-energy)}
+.t-society{--c:var(--t-society)}
+.t-codesign{--c:var(--t-codesign)}
+.t-hanger{--c:var(--t-hanger)}
+.t-qual{--c:var(--t-qual)}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/research/aliasing-twin/">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/research/aliasing-twin/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/" aria-current="page">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../research/">Research</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../research/topics/twins/">Digital twins &amp; sim-to-real</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">What does a radar twin with unlimited unambiguous velocity over-certify?</span></span></nav>
+<header class="topbar"><div class="wrap"><a href="../index.html">← All projects</a><a href="https://github.com/Duncan-Haywood/oss-monorepo">GitHub</a></div></header>
+<main class="wrap t-twins">
+  <a class="theme-tag" href="../topics/twins/">Digital twins & sim-to-real</a>
+  <h1>What does a radar twin with unlimited unambiguous velocity over-certify?</h1>
+  <p class="slug">research/aliasing-twin</p>
+  <p class="lede">What a radar twin with unlimited unambiguous velocity over-certifies: exact wrapped-Gaussian bias (<code>−V</code> at <code>μ=V</code>) and MSE with a <code>bias²</code> floor so averaging widens the gap (7.9× → 2.1×10³ at <code>μ=0.8V</code>, n=1→10⁴), safe speed <code>≈V+sΦ⁻¹(tol/2V)</code>, and prior-unwrapping failure <code>2Φ(−V/√(s²+s_p²))</code> needing prior error ≤ 0.26V.</p>
+  <div class="stats"><span>9 tests</span></div>
+  <h2>What it found</h2>
+  <p>A pulsed Doppler radar reports radial velocity modulo 2<em>V</em>; a twin that renders velocity as a real number never aliases. The real bias of a wrapped return is an exact Gaussian tail series (&minus;<em>V</em> at speed <em>V</em>, &minus;2<em>V</em> beyond) and the real MSE has a bias<sup>2</sup> floor, so averaging widens the gap to the twin's claim <em>s</em><sup>2</sup>/<em>n</em>: at <em>V</em>=10, <em>s</em>=1 and speed 8 the real/claimed MSE is 7.9&times; for one return and 2.1&times;10<sup>3</sup> for 10<sup>4</sup>. Speeds with |bias| &le; 0.1 reach only 87%, 74% and 48% of <em>V</em> for noise 0.5, 1, 2. Unwrapping against a prior has exact failure probability 2&Phi;(&minus;<em>V</em>/&radic;(<em>s</em><sup>2</sup>+<em>s<sub>p</sub></em><sup>2</sup>)) and stays within 10% of the twin's claim only for prior error &le; 0.26<em>V</em>. Stylised: one radial channel, Gaussian noise, simulated radar.</p>
+  <h2>A figure from its own output</h2>
+  <figure><img src="bias.svg" alt="Figure produced by research/aliasing-twin: bias" loading="lazy"><figcaption>aliasing-twin/experiments/bias.svg, written by the project's own experiment code.</figcaption></figure>
+
+  <h2>Paper, code and results</h2>
+  <ul class="links">
+    <li><a class=primary href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/aliasing-twin#readme">README and method</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/aliasing-twin/paper">White paper</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/aliasing-twin/experiments">Experiments and results</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/aliasing-twin/src">Code</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/aliasing-twin/tests">Tests</a></li>
+  </ul>
+  <nav class="pager" aria-label="More in Digital twins &amp; sim-to-real"><a class="prev" href="../runlength-twin/" rel="prev"><small>← Previous</small>How long must a real test run be when its length was sized in a twin with the wrong plant pole?</a><a class="next" href="../twin-ladder/" rel="next"><small>Next →</small>Which rungs of a ladder of digital twins are worth running?</a></nav>
+  <h2 id="more">More in Digital twins & sim-to-real</h2>
+  <ul class="more-list">
+    <li><a href="../twin-ladder/">Which rungs of a ladder of digital twins are worth running?</a><span>Which rungs of a multi-fidelity twin ladder to run: exact nested-estimator variance, a cheaper rung pays iff <code>ρ₂/ρ₁ &gt; 2√r/(1+r)</code> (step correlation, 0.943 for halved cost), using all rungs can be worse than none (1.41× real-only at q=0.9) while the best subset gets 0.83, and a timestep-ladder plant shows 0.156 of real-only variance (0.204 single twin) collapsing to the cheapest twin when disturbance replay is only 90%.</span></li>
+    <li><a href="../watchdog-twin/">A heartbeat twin that drops packets independently: how often does the real bursty link trip a missed-beat watchdog, and what timeout is safe?</a><span>I.i.d.-loss heartbeat twin vs a bursty Gilbert link: a 5-missed-beat watchdog false-trips every 3.4e6 ticks in the twin but every 235–990 on the real link, worst at burst length ≈ m (mean time to trip ≈ e·m/p), and a 1e6-tick target needs m = 16–154 instead of the twin's 5. Stylised.</span></li>
+    <li><a href="../gate-twin/">A twin whose sensor never produces outliers: does an innovation gate help or hurt the real estimator, and what does it do after a jump?</a><span>Gaussian-sensor twin vs a real sensor with outliers under an innovation gate: the twin says the gate costs 8.5% MSE, the real sensor gains 3.0× from it, the worst outlier scale for a gated filter is finite (κ≈4) while ungated error grows as κ², and a gate locks out recovery from a jump for ≈76·D² steps. Stylised.</span></li>
+    <li><a href="../groundeffect-twin/">A twin without ground effect: where does a landing altitude loop go wrong?</a><span>Rotorcraft altitude twin without ground effect vs real thrust gain <code>1/(1−(R/4z)²)</code>: hover sits 18 mm high at one rotor radius (twin: 0), and a delayed loop with 28% twin headroom goes unstable at 0.54 rotor radii. Stylised.</span></li>
+    <li><a href="../deadtime-twin/">What does a linear photon-counter twin of a SPAD lidar miss about dead time?</a><span>Linear photon-counter twin of a SPAD lidar vs dead time: half the flux reported at nτ=1, a paralyzable-detector ambiguity (one reading, two fluxes, 12.7× apart at mτ=0.2), first-photon range bias −N/(2√π)σ saturating near −2σ (−22.6 cm at N=10, σ=1 ns) that does not average out, and a Coates correction that removes it. Stylised.</span></li>
+    <li><a href="../flyingpixel-twin/">What ghost ranges does a single-ray lidar twin never produce at a depth edge?</a><span>Single-ray lidar twin vs a finite beam with merged pulses at a depth edge: ghost-range band exactly <code>2Φ⁻¹(1−ε/D)</code> beam widths (2.56 at ε/D=0.1, none at ε≥D/2), shifts and narrows for unequal brightness, matches a scan simulation to 0.3%, and a 3-of-5 persistence filter still passes 80–99% of ghosts.</span></li>
+  </ul>
+  <p class="more-all"><a href="../topics/twins/">All 146 Digital twins & sim-to-real projects →</a></p>
+  <h2>Other research topics</h2>
+  <p class="topic-chips"><a href="../topics/scoring/">Proper scoring & elicitation<small>28</small></a><a href="../topics/effort/">Effort & peer prediction<small>9</small></a><a href="../topics/games/">Verification games & slashing<small>18</small></a><a href="../topics/detection/">Detection & tolerances<small>12</small></a><a href="../topics/routing/">Markets as routers<small>11</small></a><a href="../topics/markets/">Prediction-market design<small>9</small></a><a href="../topics/contributions/">Paying contributors<small>8</small></a><a href="../topics/systems/">Decentralised training systems<small>22</small></a><a href="../topics/twins/" aria-current=page>Digital twins & sim-to-real<small>146</small></a><a href="../topics/chip/">LLM chip design loops<small>37</small></a><a href="../topics/robofab/">Robot manufacturing loops<small>49</small></a><a href="../topics/ambient/">Ambient AI assistant<small>46</small></a><a href="../topics/selfrep/">Self-replicating manufacturing<small>34</small></a><a href="../topics/simdesign/">Simulation-first design<small>64</small></a><a href="../topics/garment/">Engineered clothing<small>45</small></a><a href="../topics/accel/">Task-specific AI accelerators<small>31</small></a><a href="../topics/eda/">Algorithmic chip-design loops<small>25</small></a><a href="../topics/osrobot/">Open-source purpose-built robots<small>28</small></a><a href="../topics/swe/">The software-engineering loop<small>41</small></a><a href="../topics/mimic/">Adversarial human imitation<small>33</small></a><a href="../topics/house/">Open-source residential construction<small>40</small></a><a href="../topics/capture/">Autonomous multi-angle capture<small>14</small></a><a href="../topics/sensing/">Sensing, imaging and 3D<small>14</small></a><a href="../topics/energy/">Energy supply and dense energy storage<small>10</small></a><a href="../topics/society/">Robot societies among people<small>10</small></a><a href="../topics/codesign/">Agentic co-design of low-cost robots<small>12</small></a><a href="../topics/hanger/">Laundry-hanging robots<small>12</small></a><a href="../topics/qual/">Machine learning on qualitative data<small>5</small></a></p>
+  <p class="note">Produced with AI assistance (Claude). Results are from the code in this repository and are simulated or stylised unless the abstract says otherwise; nothing here implies affiliation with or endorsement by any lab, researcher or company cited. MIT licensed.</p>
+</main>
+<footer><div class="wrap">© Duncan Haywood · <a href="https://github.com/Duncan-Haywood/oss-monorepo">github.com/Duncan-Haywood/oss-monorepo</a></div><div class="wrap"><p class="pfs-foot"><a href="../../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../../research/">Research</a><span aria-hidden="true"> · </span><a href="../../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../../updates/">Updates &amp; roadmap</a><span aria-hidden="true"> · </span><a href="../../changelog/">Changelog</a><span aria-hidden="true"> · </span><a href="../../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../../lab/">Lab</a><span aria-hidden="true"> · </span><a href="../../feedback/">Report a problem or suggest a feature</a><span aria-hidden="true"> · </span><a href="../../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../../dev/daily/">Daily brief &amp; The Merge Report</a><span aria-hidden="true"> · </span><a href="../../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="../../changelog/feed.xml">Changelog feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p></div></footer>
+</body>
+</html>

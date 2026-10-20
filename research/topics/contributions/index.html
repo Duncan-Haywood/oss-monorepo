@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paying contributors research: 8 open projects | Open research</title>
+<meta name="description" content="Buying compute, data and model improvements: holdout markets, Shapley payments, contests and races.">
+<meta property="og:title" content="Paying contributors research: 8 open projects">
+<meta property="og:description" content="Buying compute, data and model improvements: holdout markets, Shapley payments, contests and races.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbfaf7;--bg-2:#f3f1ec;--surface:#ffffff;--text:#1c1b22;--muted:#5d5b66;--faint:#8b8994;
+  --border:#e4e1da;--border-strong:#d3cfc6;--accent:#4f46e5;--accent-ink:#3730a3;--accent-soft:#eef0ff;
+  --code-bg:#f1efe9;--shadow:0 1px 2px rgba(28,27,34,.04),0 4px 16px rgba(28,27,34,.05);
+  --shadow-hover:0 2px 4px rgba(28,27,34,.06),0 12px 32px rgba(28,27,34,.09);
+  --t-scoring:#4f46e5;--t-effort:#0e9f6e;--t-games:#d9480f;--t-detection:#c2255c;
+  --t-routing:#1c7ed6;--t-markets:#9c36b5;--t-contributions:#b08900;--t-systems:#0b7285;--t-twins:#e8590c;--t-chip:#2f9e44;--t-robofab:#5f3dc4;--t-ambient:#d6336c;--t-selfrep:#868e00;--t-simdesign:#1098ad;--t-garment:#a61e4d;--t-accel:#c2255c;--t-eda:#0c8599;--t-osrobot:#37b24d;--t-swe:#e67700;--t-mimic:#7048e8;--t-house:#8f5b2e;--t-capture:#1971c2;--t-sensing:#087f5b;--t-energy:#d9480f;--t-society:#c92a2a;--t-codesign:#2b8a3e;--t-hanger:#5c7cfa;--t-qual:#ae3ec9;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f0f13;--bg-2:#15151b;--surface:#18181f;--text:#ecebf1;--muted:#a3a1ad;--faint:#75737f;
+  --border:#2a2a33;--border-strong:#3a3a45;--accent:#8b87ff;--accent-ink:#b4b1ff;--accent-soft:#1f1e36;
+  --code-bg:#23232c;--shadow:0 1px 2px rgba(0,0,0,.3);--shadow-hover:0 8px 28px rgba(0,0,0,.45);
+  --t-scoring:#8b87ff;--t-effort:#38d9a9;--t-games:#ff8c5a;--t-detection:#f783ac;
+  --t-routing:#74c0fc;--t-markets:#da77f2;--t-contributions:#ffd43b;--t-systems:#3bc9db;--t-twins:#ffa94d;--t-chip:#69db7c;--t-robofab:#9775fa;--t-ambient:#f06595;--t-selfrep:#c0eb75;--t-simdesign:#66d9e8;--t-garment:#faa2c1;--t-accel:#f783ac;--t-eda:#3bc9db;--t-osrobot:#8ce99a;--t-swe:#ffc078;--t-mimic:#b197fc;--t-house:#e0a872;--t-capture:#74c0fc;--t-sensing:#63e6be;--t-energy:#ff922b;--t-society:#ff8787;--t-codesign:#8ce99a;--t-hanger:#91a7ff;--t-qual:#e599f7;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+code{font:0.86em var(--mono);background:var(--code-bg);padding:.08em .35em;border-radius:4px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+@media (max-width:600px){.wrap{padding:0 16px}}
+.topbar{border-bottom:1px solid var(--border)}
+.topbar .wrap{display:flex;justify-content:space-between;align-items:center;height:56px;font-size:14px}
+.topbar a{color:var(--muted)}
+.topbar a:hover{color:var(--text)}
+.theme-tag{display:inline-block;margin-top:40px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--c,var(--accent))}
+h1{font:600 clamp(28px,5vw,40px)/1.2 var(--serif);letter-spacing:-.01em;margin:.4rem 0 1rem}
+.slug{font:13px var(--mono);color:var(--faint)}
+.lede{font-size:18px;color:var(--muted);margin:0 0 1.5rem}
+.stats{display:flex;gap:1rem;flex-wrap:wrap;margin:0 0 2rem}
+.stats span{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:.3rem .75rem;font-size:14px;color:var(--muted)}
+h2{font:600 22px/1.3 var(--serif);margin:2.2rem 0 .6rem}
+figure{margin:1rem 0;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+figure img{display:block;max-width:100%;height:auto;margin:0 auto;background:#fff;border-radius:4px}
+figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
+.links{display:flex;gap:.6rem;flex-wrap:wrap;padding:0;list-style:none;margin:0}
+.links a{display:inline-block;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);border-radius:8px;padding:.45rem .9rem;font-size:14px;font-weight:500}
+.links a.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.log-intro{font-size:14px;color:var(--muted);margin:0 0 1rem}
+.log-entry{border-left:3px solid var(--c,var(--accent));padding:.1rem 0 .1rem 1rem;margin:0 0 1.4rem}
+.log-entry h3{font:600 17px/1.35 var(--serif);margin:0 0 .4rem}
+.log-entry ul{margin:.3rem 0;padding-left:1.2rem}
+.log-entry li{margin:.25rem 0}
+.log-entry p{margin:.3rem 0}
+.note{font-size:14px;color:var(--muted);border-left:3px solid var(--border-strong);padding-left:1rem;margin-top:2.2rem}
+.pager{display:flex;justify-content:space-between;gap:1rem;margin:2.4rem 0 0;padding:1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-size:14px}
+.pager a{display:block;max-width:48%;color:var(--text)}
+.pager a small{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.pager .next{margin-left:auto;text-align:right}
+.more-list{list-style:none;padding:0;margin:0;display:grid;gap:.7rem}
+.more-list li{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:.7rem .9rem}
+.more-list a{font-weight:600;color:var(--text)}
+.more-list span{display:block;font-size:14px;color:var(--muted);margin-top:.2rem}
+.more-all{margin:.9rem 0 0;font-size:15px;font-weight:600}
+.topic-chips{display:flex;flex-wrap:wrap;gap:.45rem;margin:0}
+.topic-chips a{border:1px solid var(--border);border-radius:999px;padding:.25rem .75rem;font-size:13px;color:var(--text);background:var(--surface)}
+.topic-chips a[aria-current]{border-color:var(--c,var(--accent));font-weight:600}
+.topic-chips small{color:var(--muted);margin-left:.25rem}
+footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;font-size:13px;color:var(--faint)}
+.t-scoring{--c:var(--t-scoring)}
+.t-effort{--c:var(--t-effort)}
+.t-games{--c:var(--t-games)}
+.t-detection{--c:var(--t-detection)}
+.t-routing{--c:var(--t-routing)}
+.t-markets{--c:var(--t-markets)}
+.t-contributions{--c:var(--t-contributions)}
+.t-systems{--c:var(--t-systems)}
+.t-twins{--c:var(--t-twins)}
+.t-chip{--c:var(--t-chip)}
+.t-robofab{--c:var(--t-robofab)}
+.t-ambient{--c:var(--t-ambient)}
+.t-selfrep{--c:var(--t-selfrep)}
+.t-simdesign{--c:var(--t-simdesign)}
+.t-garment{--c:var(--t-garment)}
+.t-accel{--c:var(--t-accel)}
+.t-eda{--c:var(--t-eda)}
+.t-osrobot{--c:var(--t-osrobot)}
+.t-swe{--c:var(--t-swe)}
+.t-mimic{--c:var(--t-mimic)}
+.t-house{--c:var(--t-house)}
+.t-capture{--c:var(--t-capture)}
+.t-sensing{--c:var(--t-sensing)}
+.t-energy{--c:var(--t-energy)}
+.t-society{--c:var(--t-society)}
+.t-codesign{--c:var(--t-codesign)}
+.t-hanger{--c:var(--t-hanger)}
+.t-qual{--c:var(--t-qual)}
+.proj{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:1rem 1.1rem;margin:0 0 .9rem}
+.proj h2{font:600 19px/1.35 var(--serif);margin:0 0 .35rem}
+.proj h2 a{color:var(--text)}
+.proj .meta{font:12px var(--mono);color:var(--faint);margin:0 0 .4rem}
+.proj p{margin:.2rem 0}
+.proj details{margin-top:.5rem;font-size:15px}
+.proj summary{cursor:pointer;color:var(--muted);font-size:13px;font-weight:500}
+.count{font-size:14px;color:var(--muted);margin:0 0 1.5rem}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/research/topics/contributions/">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/research/topics/contributions/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../../../pf-site.css">
+  <link rel="manifest" href="../../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../c/">Tools</a><a data-pfs-nav="research" href="../../../research/" aria-current="page">Research</a><a data-pfs-nav="writing" href="../../../writing/">Writing</a><a data-pfs-nav="updates" href="../../../updates/">Updates</a><a data-pfs-nav="ask" href="../../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../about/">About</a></span><form class="pfs-search" action="../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../../research/">Research</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Paying contributors</span></span></nav>
+<header class="topbar"><div class="wrap"><a href="../../index.html">← All research topics</a><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research">GitHub</a></div></header>
+<main class="wrap t-contributions">
+  <span class="theme-tag">Research topic</span>
+  <h1>Paying contributors</h1>
+  <p class="lede">Buying compute, data and model improvements: holdout markets, Shapley payments, contests and races.</p>
+  <p class="count">8 projects, each with its own page, code and tests. <a href="../../index.html#contributions">See them on the full research index</a>.</p>
+  <article class="proj" id="holdout-market"><h2><a href="../../holdout-market/">Paying for improvements, not for overfitting</a></h2><p class="meta">research/holdout-market · 4 tests</p><p>Paying for model improvements against a hidden holdout: telescoping budget, a payment-feedback overfitting attack (paid 0.15 while true loss worsens 0.37), and the Ladder fix with its measured cost.</p><details><summary>Abstract</summary><p>A model-improvement market paying holdout-loss decreases: the budget telescopes, but naive payment feedback lets a data-less adversary be paid while the published model's true loss worsens; a Ladder-style threshold removes the attack at a measured cost to honest small contributors. Stylised.</p></details></article>
+  <article class="proj" id="data-valuation-replication"><h2><a href="../../data-valuation-replication/">What does submitting copies earn under Shapley payments?</a></h2><p class="meta">research/data-valuation-replication · 9 tests</p><p>Shapley and leave-one-out payments under replication: Shapley pays every extra copy even when worthless, saturating at stand-alone value (<code>(n+2)/2</code>× honest), naive evaluators hand over the pot, LOO pays copies 0 but distributes 1/(n+1), dedup underpays lookalikes by 45%.</p><details><summary>Abstract</summary><p>Paying contributors of data or gradients by Shapley value rewards replication even when copies add zero information: in a Bayesian mean-estimation game the replicator's payment rises with every copy to its stand-alone value, exactly (n+2)/2 times the honest payment against n unit-precision others (5.5&times; at n=9). If the evaluator treats copies as independent the replicator's pot share tends to 100%; leave-one-out pays true copies exactly zero but distributes only 1/(n+1) of the pot; collapsing duplicates fixes it but underpays independent look-alikes by 45%. Exact computation checked against permutation brute force. Stylised.</p></details></article>
+  <article class="proj" id="shapley-sampling"><h2><a href="../../shapley-sampling/">How should Shapley payments be sampled and audited?</a></h2><p class="meta">research/shapley-sampling · 9 tests</p><p>Auditing sampled Shapley payments: exact estimator variances in a saturating game, permutation sampling is exactly efficient but stratified sampling has 6–8× lower variance (zero for equal contributors) at up to 7% budget error, antithetic reversal gives 1.6× lower RMSE, Hoeffding sample counts are 4–5× conservative.</p><details><summary>Abstract</summary><p>In a saturating contribution game v(S)=1&minus;exp(&minus;&Sigma;w<sub>i</sub>) every estimator variance is exact. Permutation sampling always pays out exactly v(N) but is noisy; size-stratified sampling has 6&ndash;8&times; lower variance (exactly zero for equal contributors) yet misses the pot by up to 7% in a run; reversing each permutation cuts RMSE 1.6&times; at no cost; Hoeffding sample counts are 4&ndash;5&times; larger than needed, and stratification finds the top-3 payees with about 4&times; fewer samples. Stylised, n&le;10.</p></details></article>
+  <article class="proj" id="contest-precision"><h2><a href="../../contest-precision/">How precise should a training-contest leaderboard be?</a></h2><p class="meta">research/contest-precision · 11 tests</p><p>Winner-take-all training contests scored on a noisy holdout: effort <code>V a_n √m/s</code> with <code>a_2 = a_3 = 1/(2√π)</code> exactly, a precision ceiling <code>V/σ² ≤ λ_max(n)</code> beyond which no pure equilibrium exists (below the zero-rent limit), and the resulting optimal holdout size.</p><details><summary>Abstract</summary><p>In a winner-take-all contest ranked on a noisy holdout of m samples, equilibrium effort is V&middot;a<sub>n</sub>&radic;m/s with a<sub>2</sub>=a<sub>3</sub>=1/(2&radic;&pi;) exactly, but the formula stops being an equilibrium once V/&sigma;&sup2; passes a ceiling (12.35, 7.78, 6.11, 5.60, 5.80 for n=2, 3, 5, 10, 20) that sits below the zero-rent limit and falls to half of it at n=20. The organiser's optimal holdout is min(m<sub>cap</sub>, (wVa<sub>n</sub>/2s&kappa;)&sup2;): when evaluation is cheap the ceiling, not cost, binds. Quadrature checked against Monte Carlo and brute-force best replies. Stylised.</p></details></article>
+  <article class="proj" id="compute-procurement"><h2><a href="../../compute-procurement/">What does it cost to buy decentralised compute?</a></h2><p class="meta">research/compute-procurement · 9 tests</p><p>Buying k units of decentralised compute by reverse auction: exact VCG payment <code>k(k+1)/(n+1)</code> is exactly 2× winners' cost, optimal reserve is exactly <code>v/2</code>, first-price equilibrium matches by revenue equivalence.</p><details><summary>Abstract</summary><p>Reverse auction for k compute units from n devices with private costs: the truthful threshold auction pays exactly k(k+1)/(n+1), twice the winners&rsquo; true cost for every n and k (also with a reserve), the buyer-optimal reserve is exactly v/2 (worth up to +1.03 utility in thin markets, nothing once v&ge;2), and the pay-as-bid equilibrium has closed form and matches revenue (1.3334 vs 1.3333). Stylised.</p></details></article>
+  <article class="proj" id="speed-race"><h2><a href="../../speed-race/">What does it cost to make workers race?</a></h2><p class="meta">research/speed-race · 12 tests</p><p>Paying the first k of n finishers makes speed a contest: <code>π'(1)=(1−k/n)(H_n−H_{n−k})</code>, equilibrium speed <code>R(n−k)(H_n−H_{n−k})/(nc)</code>, exact round time <code>nc/((n−k)R)</code>; paying all finishers buys no speed, a budget favours winner-take-all until an accuracy floor <code>k_min</code> binds, and recruiting more workers barely speeds the round.</p><details><summary>Abstract</summary><p>If a round pays the first <em>k</em> of <em>n</em> finishers a prize <em>R</em> and workers buy speed at cost <em>c</em> per unit rate, the win probability&rsquo;s slope at the symmetric point telescopes to (1&minus;<em>k</em>/<em>n</em>)(<em>H<sub>n</sub></em>&minus;<em>H<sub>n&minus;k</sub></em>), so equilibrium speed is <em>R</em>(<em>n</em>&minus;<em>k</em>)(<em>H<sub>n</sub></em>&minus;<em>H<sub>n&minus;k</sub></em>)/(<em>nc</em>) and the round time is exactly <em>nc</em>/((<em>n</em>&minus;<em>k</em>)<em>R</em>). Paying every finisher buys no speed at all; for a fixed budget, speed alone wants winner-take-all (0.10 at <em>k</em>=1 versus 3.2 at <em>k</em>=16 for <em>n</em>=32), and only the statistical floor on <em>k</em> justifies more winners. Recruiting more workers barely helps: total speed bought saturates at <em>kR</em>/<em>c</em>. Exponential races, linear cost, symmetric risk-neutral workers; equilibrium checked on a grid.</p></details></article>
+  <article class="proj" id="race-heterogeneity"><h2><a href="../../race-heterogeneity/">Who drops out of a race when workers have unequal costs?</a></h2><p class="meta">research/race-heterogeneity · 13 tests</p><p>Paying the first k of n finishers when costs differ: proof of the <code>π'(1)</code> telescoping identity, exact exit rule (slow workers idle iff <code>c_s/c_f ≥ n_f/(n_f−k)</code>, never for <code>k ≥ n_f</code>), cost ratio 4 excludes slow workers for <code>k ≤ 3</code> of 4 fast, convex costs make headcount buy speed.</p><details><summary>Abstract</summary><p>If only the first <em>k</em> of <em>n</em> finishers are paid, a slow worker entering at a vanishing rate wins with probability rate &times; <em>E X</em><sub>(<em>k</em>)</sub> of the fast workers, which gives an exact exit rule: workers with cost ratio <em>c<sub>s</sub></em>/<em>c<sub>f</sub></em> &ge; <em>n<sub>f</sub></em>/(<em>n<sub>f</sub></em>&minus;<em>k</em>) stay out entirely, and paying <em>k</em> &ge; <em>n<sub>f</sub></em> never excludes anyone (checked by best-entry payoffs at thresholds 4/3, 2, 4). At cost ratio 4 with four fast workers, <em>k</em> &le; 3 shuts the slow ones out and <em>k</em>=4..7 readmits them (share of prizes 0.21&rarr;0.46 against a fair 0.5). The note also proves the telescoping identity behind the symmetric race and shows that with convex speed cost, headcount does buy speed. Two cost types, exponential races, grid-checked equilibria.</p></details></article>
+  <article class="proj" id="private-data-market"><h2><a href="../../private-data-market/">How much accuracy can a market buy from contributors who value their privacy?</a></h2><p class="meta">research/private-data-market · 8 tests</p><p>Buying private data with a telescoping log-score market: payment equals information, best Gaussian-mechanism noise in closed form, participation iff <code>κa&lt;1</code> so precision is capped at <code>λ/(cΔ²)</code> for any number of contributors, and early arrivals over-collect (1–22% welfare loss).</p><details><summary>Abstract</summary><p>A market pays each contributor the log-score gain of a public Gaussian belief for releasing a statistic plus Gaussian-mechanism noise, so the expected payment is exactly the information released, &frac12;&lambda;ln(1+&tau;/a). The best noise is a closed-form quadratic root, and participation is possible if and only if &kappa;a&nbsp;&lt;&nbsp;1 with &kappa;&nbsp;=&nbsp;c&Delta;<sup>2</sup>/&lambda;: precision is capped at &lambda;/(c&Delta;<sup>2</sup>) however many contributors arrive, approached geometrically at rate 2&sigma;<sup>2</sup>/(2&sigma;<sup>2</sup>+&kappa;), and total payout is at most &frac12;&lambda;ln(1/(&kappa;a<sub>0</sub>)). Early arrivals add too little noise (1.5&ndash;5&times;; 1&ndash;22% welfare loss against a planner), and admitting small data holders first lifts final precision from 28.0 to 34.2. Checked against grid search and 10<sup>6</sup>-run Monte Carlo. Stylised.</p></details></article>
+  <h2>Other research topics</h2>
+  <p class="topic-chips"><a href="../../topics/scoring/">Proper scoring & elicitation<small>28</small></a><a href="../../topics/effort/">Effort & peer prediction<small>9</small></a><a href="../../topics/games/">Verification games & slashing<small>18</small></a><a href="../../topics/detection/">Detection & tolerances<small>12</small></a><a href="../../topics/routing/">Markets as routers<small>11</small></a><a href="../../topics/markets/">Prediction-market design<small>9</small></a><a href="../../topics/contributions/" aria-current=page>Paying contributors<small>8</small></a><a href="../../topics/systems/">Decentralised training systems<small>22</small></a><a href="../../topics/twins/">Digital twins & sim-to-real<small>146</small></a><a href="../../topics/chip/">LLM chip design loops<small>37</small></a><a href="../../topics/robofab/">Robot manufacturing loops<small>49</small></a><a href="../../topics/ambient/">Ambient AI assistant<small>46</small></a><a href="../../topics/selfrep/">Self-replicating manufacturing<small>34</small></a><a href="../../topics/simdesign/">Simulation-first design<small>64</small></a><a href="../../topics/garment/">Engineered clothing<small>45</small></a><a href="../../topics/accel/">Task-specific AI accelerators<small>31</small></a><a href="../../topics/eda/">Algorithmic chip-design loops<small>25</small></a><a href="../../topics/osrobot/">Open-source purpose-built robots<small>28</small></a><a href="../../topics/swe/">The software-engineering loop<small>41</small></a><a href="../../topics/mimic/">Adversarial human imitation<small>33</small></a><a href="../../topics/house/">Open-source residential construction<small>40</small></a><a href="../../topics/capture/">Autonomous multi-angle capture<small>14</small></a><a href="../../topics/sensing/">Sensing, imaging and 3D<small>14</small></a><a href="../../topics/energy/">Energy supply and dense energy storage<small>10</small></a><a href="../../topics/society/">Robot societies among people<small>10</small></a><a href="../../topics/codesign/">Agentic co-design of low-cost robots<small>12</small></a><a href="../../topics/hanger/">Laundry-hanging robots<small>12</small></a><a href="../../topics/qual/">Machine learning on qualitative data<small>5</small></a></p>
+  <p class="note">Produced with AI assistance (Claude). Results are from the code in this repository and are simulated or stylised unless the abstract says otherwise; nothing here implies affiliation with or endorsement by any lab, researcher or company cited. MIT licensed.</p>
+</main>
+<footer><div class="wrap">© Duncan Haywood · <a href="https://github.com/Duncan-Haywood/oss-monorepo">github.com/Duncan-Haywood/oss-monorepo</a></div><div class="wrap"><p class="pfs-foot"><a href="../../../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../../../research/">Research</a><span aria-hidden="true"> · </span><a href="../../../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../../../updates/">Updates &amp; roadmap</a><span aria-hidden="true"> · </span><a href="../../../changelog/">Changelog</a><span aria-hidden="true"> · </span><a href="../../../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../../../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../../../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../../../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../../../lab/">Lab</a><span aria-hidden="true"> · </span><a href="../../../feedback/">Report a problem or suggest a feature</a><span aria-hidden="true"> · </span><a href="../../../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../../../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../../../dev/daily/">Daily brief &amp; The Merge Report</a><span aria-hidden="true"> · </span><a href="../../../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../../../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../../../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../../../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="../../../changelog/feed.xml">Changelog feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p></div></footer>
+</body>
+</html>

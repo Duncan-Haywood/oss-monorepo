@@ -1,0 +1,43 @@
+{
+  "slug": "asphalt-sealcoat-bid-calculator",
+  "name": "Asphalt sealcoating",
+  "group": "Paving, concrete & masonry",
+  "summary": "Driveways and lots priced from square feet, coats, coverage, oil-spot priming and crack fill.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.5,
+  "minOnSiteHours": 1.5,
+  "hourlyWage": 24,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "milesOneWay": 8,
+  "tripFee": 35,
+  "items": [
+    {
+      "label": "Seal driveway, 2 coats (squeegee)",
+      "unit": "sq ft",
+      "qty": 800,
+      "hoursPerUnit": 0.002222,
+      "materialPerUnit": 0.08264,
+      "source": "STARTING_SURFACES driveway 800 sq ft, 2 coats (index.html); 2 passes / 900 sq ft per crew-hour (METHOD_PRESETS.squeegee); sealer $4.25/gal (index.html) at 90 then 120 sq ft/gal, oxidized coverage x1.0 (SURFACE_PRESETS.driveway, CONDITION_COVERAGE)"
+    },
+    {
+      "label": "Prime oil spots",
+      "unit": "each",
+      "qty": 4,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 1.44,
+      "source": "oilSpots 4 (index.html); HOURS_PER_OIL_SPOT 0.12; PRIMER_GALLONS_PER_SPOT 0.08 x primer $18/gal (calc.mjs, index.html)"
+    },
+    {
+      "label": "Crack fill",
+      "unit": "linear ft",
+      "qty": 40,
+      "hoursPerUnit": 0.0125,
+      "materialPerUnit": 0.45,
+      "source": "crackFeet 40 (index.html); CRACK_FEET_PER_HOUR 80; crackFillerPerFoot $0.45 (calc.mjs, index.html)"
+    }
+  ],
+  "specialistModels": "Pavement-condition coverage multipliers, squeegee vs spray, sand additive, striping by stall, multiple surfaces, and travel time from speed."
+}

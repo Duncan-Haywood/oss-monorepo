@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/actions-runner-starvation-check/</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/actions-runner-starvation-check/add-a-starvation-guard-to-a-github-actions-workflow.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/actions-runner-starvation-check/vs-rerunning-the-job.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/actions-runner-starvation-check/why-is-my-github-actions-check-red-in-seconds.html</loc></url>
+</urlset>

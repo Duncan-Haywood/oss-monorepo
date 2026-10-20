@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Writing · Open Tools and Research</title>
+<meta name="description" content="Essays on building software with unattended AI coding agents, from this repository&#39;s own history and numbers.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="feed.xml">
+<meta property="og:title" content="Writing · Open Tools and Research">
+<meta property="og:description" content="Essays on building software with unattended AI coding agents, from this repository&#39;s own history and numbers.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Blog","name":"Open Tools and Research: writing","url":"https://duncan-haywood.github.io/monorepo-projects/writing/"}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../pf-site.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><form class="pfs-search" action="../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a> › Writing</nav>
+<main>
+<h1>Writing</h1>
+<p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
+Subscribe with the <a href="feed.xml">Atom feed</a>.</p>
+<ul class="posts">
+<li>
+  <h2><a href="build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></h2>
+  <p>As AI agents improve, light tools lose to the agent doing the job itself. What 1,304 of our own tools show about depth and distribution.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read</p>
+</li>
+<li>
+  <h2><a href="can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></h2>
+  <p>Nine surveys, 44 inputs, boosting, forests and a pooled Bayesian model: what predicts divorce, what does not, and why more data stopped helping.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read</p>
+</li>
+<li>
+  <h2><a href="chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></h2>
+  <p>Equivalent Verilog does not synthesise equally, local rewriting has little left to remove, and a MAC engine beat a systolic array: 35 open chip projects.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read</p>
+</li>
+<li>
+  <h2><a href="cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></h2>
+  <p>Unattended coding agents wrote a rule after every incident and deleted almost none. What the pile cost, what we cut, and what others learned first.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read</p>
+</li>
+<li>
+  <h2><a href="does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></h2>
+  <p>260 agent runs a day on one model. Why a &#39;principal engineer&#39; prompt adds little, and a role that coordinates across runs could add a lot.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read</p>
+</li>
+<li>
+  <h2><a href="fewer-calculators-harder-problems/">Fewer calculators, harder problems</a></h2>
+  <p>The owner on why this repository&#39;s agents should stop shipping small calculators and put the effort into research and the projects with real depth.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read</p>
+</li>
+<li>
+  <h2><a href="github-pages-deploy-on-every-merge/">Why our GitHub Pages site now redeploys on every merge</a></h2>
+  <p>A hand-kept path filter on the Pages workflow kept missing site inputs. We dropped it: 341 merges a day collapse into one build plus one queued.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 2 min read</p>
+</li>
+<li>
+  <h2><a href="house-construction-cost-what-35-open-models-found/">What 35 open models of house construction cost found</a></h2>
+  <p>Framing, energy, foundations, schedules and factory shells: what 35 open-source house-building models found about cost, and how far to trust them.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 7 min read</p>
+</li>
+<li>
+  <h2><a href="how-ai-agents-want-to-be-briefed-by-other-agents/">How AI agents want to be briefed by other agents: what 1,232 complaints from agent runs show</a></h2>
+  <p>We sorted the complaints our AI agents logged about text other agents wrote. Cost and missing cases beat wrong facts. A handoff template.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read</p>
+</li>
+<li>
+  <h2><a href="if-its-a-calculator-make-it-hard/">If it&#39;s a calculator, make the maths hard</a></h2>
+  <p>The owner&#39;s bar for any new calculator here: an engine a maths graduate can&#39;t follow at a glance and a chatbot can&#39;t replace in one line.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read</p>
+</li>
+<li>
+  <h2><a href="is-ai-written-research-real-a-reproducibility-audit/">Is AI-written research real? We re-ran it and read it</a></h2>
+  <p>761 AI-written research projects: no fabricated result found, 102 of 103 re-runs matched, but three quarters start from assumed inputs, not data.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read</p>
+</li>
+<li>
+  <h2><a href="machine-learning-on-qualitative-data-with-llms/">Machine learning on qualitative data: what LLMs make possible, and the correction you can&#39;t skip</a></h2>
+  <p>LLMs let you model interviews and survey answers. In a simulation an 89%-accurate LLM coder got a group gap backwards; 200 hand-coded answers fixed it.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read</p>
+</li>
+<li>
+  <h2><a href="offline-desktop-apps-from-static-pages-with-tauri/">Turning 1,213 static web tools into offline desktop apps with Tauri</a></h2>
+  <p>How we wrap static calculator pages as offline Tauri v2 apps for macOS, Windows and Linux: a 1.4 MB .deb, a CSP that blocks the network, measured numbers.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read</p>
+</li>
+<li>
+  <h2><a href="one-branch-per-agent-280-merges-a-day/">One branch per agent, 280 merges a day: what the git history says works</a></h2>
+  <p>From 8,350 pull requests: conflict overhead fell from 53% to 20% of commits once one shared file left every PR, and why main&#39;s CI was falsely red.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read</p>
+</li>
+<li>
+  <h2><a href="one-tool-for-every-platform-what-the-apis-allow/">Publishing to 18 platforms from one tool: what their APIs allow in 2026</a></h2>
+  <p>We built one publisher for 18 platforms. Four allow free automated posting, eight only get drafts, and nothing can rank until visits are counted.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read</p>
+</li>
+<li>
+  <h2><a href="publish-a-podcast-and-a-book-with-an-agent/">Publish a podcast, an audiobook and a book with an AI agent</a></h2>
+  <p>A free CLI an AI agent can drive: podcast RSS feeds, EPUBs that pass EPUBCheck, print PDFs, KDP cover sizes and ACX-checked audiobooks.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read</p>
+</li>
+<li>
+  <h2><a href="research-algorithms-in-your-browser/">Research algorithms in your browser: changepoints, conformal intervals and matrix profiles</a></h2>
+  <p>Three methods from published statistics papers as free tools on your own CSV: in the browser, the command line and AI agents, with the papers cited.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read</p>
+</li>
+<li>
+  <h2><a href="running-an-ai-agent-fleet-what-34-experiments-measured/">What 34 experiments on our own AI agent fleet measured</a></h2>
+  <p>Cost per run, duplicate work, merge conflicts, record coverage and whether committed results reproduce: 34 small studies of an unattended coding-agent loop.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read</p>
+</li>
+<li>
+  <h2><a href="running-an-ai-agent-fleet-what-35-self-studies-measured/">Running an AI coding-agent fleet: what 35 self-measurements found</a></h2>
+  <p>Cost per run and per merged PR, duplicate agents, merge conflicts, record coverage and reproducibility, from 35 studies of one agent repository.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read</p>
+</li>
+<li>
+  <h2><a href="simulation-first-mechanical-design-findings/">Simulation-first mechanical design: what 58 small studies found</a></h2>
+  <p>Beam theory vs 3D FE, an LLM agent vs CMA-ES and Bayesian optimisation, topology optimisation and stress singularities: findings from 58 simulation studies.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 8 min read</p>
+</li>
+<li>
+  <h2><a href="voice-and-chat-for-1300-calculators/">Speak to a calculator: adding voice, chat and agent access to 1,300 free tools</a></h2>
+  <p>Every calculator here can now be filled by voice or a typed sentence, without a model. How it loads nothing until asked, and what its blind tests measured.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read</p>
+</li>
+<li>
+  <h2><a href="we-almost-rewrote-it-in-rust/">We almost rewrote it in Rust: one zlib setting halved a 3-minute static site build</a></h2>
+  <p>Profiling a 3,000-page static site build: 112 of its 182 seconds were PNG compression at zlib level 9. Level 6 cut it to 81 seconds for 9% larger images.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read</p>
+</li>
+<li>
+  <h2><a href="what-went-wrong-sixteen-agents-one-main/">What went wrong with sixteen AI agents on one main branch, and the git alternatives we weighed</a></h2>
+  <p>A postmortem of parallel AI agents merging to one branch: generated files, false-red CI, cancelled runs, and seven alternatives to the git workflow.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read</p>
+</li>
+<li>
+  <h2><a href="when-goals-move-faster-than-folders/">When goals move faster than folders: what nine goals in six months did to one monorepo</a></h2>
+  <p>A monorepo built by AI agents got a new goal every few weeks and kept every old folder. What that cost, the fixes, and what each fix would cost.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 8 min read</p>
+</li>
+<li>
+  <h2><a href="where-an-ai-agent-runs-tokens-go/">Where an AI coding agent&#39;s tokens go: 856 runs measured</a></h2>
+  <p>We measured 856 unattended Claude Code runs: 96% of tokens are the agent re-reading its own context, 0.56% are output. The breakdown and what cuts it.</p>
+  <p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read</p>
+</li>
+<li>
+  <h2><a href="how-our-agents-built-121-bid-calculators/">How a fleet of AI agents built 121 bid calculators nobody asked for</a></h2>
+  <p>Five sensible rules, no memory between runs, and a router ranking on self-assigned scores: how unattended coding agents built a calculator glut, and the fix.</p>
+  <p class="meta"><time datetime="2026-10-16">16 October 2026</time> · 5 min read</p>
+</li>
+<li>
+  <h2><a href="throughput-per-unit-of-supervision/">Throughput per unit of supervision: lessons from 12,000 commits by unattended coding agents</a></h2>
+  <p>Getting coding agents to merge 200 pull requests a day was easy. Keeping them pointed at the right work with a few hours of attention a week was not.</p>
+  <p class="meta"><time datetime="2026-10-16">16 October 2026</time> · 10 min read</p>
+</li>
+</ul>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Open Tools and Research: writing</title>
+  <link href="https://duncan-haywood.github.io/monorepo-projects/writing/"/>
+  <id>https://duncan-haywood.github.io/monorepo-projects/writing/</id>
+  <updated>2026-10-20T00:00:00Z</updated>
+  <entry>
+    <title>Build what an agent would rather call than redo</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/build-what-an-agent-would-rather-call/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/build-what-an-agent-would-rather-call/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>As AI agents improve, light tools lose to the agent doing the job itself. What 1,304 of our own tools show about depth and distribution.</summary>
+  </entry>
+  <entry>
+    <title>Can you predict divorce? We tried more data, more questions and smarter models</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/can-you-predict-divorce/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/can-you-predict-divorce/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>Nine surveys, 44 inputs, boosting, forests and a pooled Bayesian model: what predicts divorce, what does not, and why more data stopped helping.</summary>
+  </entry>
+  <entry>
+    <title>What 35 open chip-design experiments found about Yosys and ABC</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/chip-design-loops-what-35-open-experiments-found/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/chip-design-loops-what-35-open-experiments-found/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>Equivalent Verilog does not synthesise equally, local rewriting has little left to remove, and a MAC engine beat a systolic array: 35 open chip projects.</summary>
+  </entry>
+  <entry>
+    <title>Cut the deadweight: why our AI agents&#39; rulebook had to shrink</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/cut-the-deadweight/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/cut-the-deadweight/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>Unattended coding agents wrote a rule after every incident and deleted almost none. What the pile cost, what we cut, and what others learned first.</summary>
+  </entry>
+  <entry>
+    <title>Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/does-an-agent-fleet-need-a-manager-agent/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/does-an-agent-fleet-need-a-manager-agent/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>260 agent runs a day on one model. Why a &#39;principal engineer&#39; prompt adds little, and a role that coordinates across runs could add a lot.</summary>
+  </entry>
+  <entry>
+    <title>Fewer calculators, harder problems</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/fewer-calculators-harder-problems/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/fewer-calculators-harder-problems/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>The owner on why this repository&#39;s agents should stop shipping small calculators and put the effort into research and the projects with real depth.</summary>
+  </entry>
+  <entry>
+    <title>Why our GitHub Pages site now redeploys on every merge</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/github-pages-deploy-on-every-merge/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/github-pages-deploy-on-every-merge/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>A hand-kept path filter on the Pages workflow kept missing site inputs. We dropped it: 341 merges a day collapse into one build plus one queued.</summary>
+  </entry>
+  <entry>
+    <title>What 35 open models of house construction cost found</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/house-construction-cost-what-35-open-models-found/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/house-construction-cost-what-35-open-models-found/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>Framing, energy, foundations, schedules and factory shells: what 35 open-source house-building models found about cost, and how far to trust them.</summary>
+  </entry>
+  <entry>
+    <title>How AI agents want to be briefed by other agents: what 1,232 complaints from agent runs show</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/how-ai-agents-want-to-be-briefed-by-other-agents/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/how-ai-agents-want-to-be-briefed-by-other-agents/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>We sorted the complaints our AI agents logged about text other agents wrote. Cost and missing cases beat wrong facts. A handoff template.</summary>
+  </entry>
+  <entry>
+    <title>If it&#39;s a calculator, make the maths hard</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/if-its-a-calculator-make-it-hard/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/if-its-a-calculator-make-it-hard/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>The owner&#39;s bar for any new calculator here: an engine a maths graduate can&#39;t follow at a glance and a chatbot can&#39;t replace in one line.</summary>
+  </entry>
+  <entry>
+    <title>Is AI-written research real? We re-ran it and read it</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/is-ai-written-research-real-a-reproducibility-audit/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/is-ai-written-research-real-a-reproducibility-audit/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>761 AI-written research projects: no fabricated result found, 102 of 103 re-runs matched, but three quarters start from assumed inputs, not data.</summary>
+  </entry>
+  <entry>
+    <title>Machine learning on qualitative data: what LLMs make possible, and the correction you can&#39;t skip</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/machine-learning-on-qualitative-data-with-llms/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/machine-learning-on-qualitative-data-with-llms/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>LLMs let you model interviews and survey answers. In a simulation an 89%-accurate LLM coder got a group gap backwards; 200 hand-coded answers fixed it.</summary>
+  </entry>
+  <entry>
+    <title>Turning 1,213 static web tools into offline desktop apps with Tauri</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/offline-desktop-apps-from-static-pages-with-tauri/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/offline-desktop-apps-from-static-pages-with-tauri/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>How we wrap static calculator pages as offline Tauri v2 apps for macOS, Windows and Linux: a 1.4 MB .deb, a CSP that blocks the network, measured numbers.</summary>
+  </entry>
+  <entry>
+    <title>One branch per agent, 280 merges a day: what the git history says works</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/one-branch-per-agent-280-merges-a-day/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/one-branch-per-agent-280-merges-a-day/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>From 8,350 pull requests: conflict overhead fell from 53% to 20% of commits once one shared file left every PR, and why main&#39;s CI was falsely red.</summary>
+  </entry>
+  <entry>
+    <title>Publishing to 18 platforms from one tool: what their APIs allow in 2026</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/one-tool-for-every-platform-what-the-apis-allow/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/one-tool-for-every-platform-what-the-apis-allow/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>We built one publisher for 18 platforms. Four allow free automated posting, eight only get drafts, and nothing can rank until visits are counted.</summary>
+  </entry>
+  <entry>
+    <title>Publish a podcast, an audiobook and a book with an AI agent</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/publish-a-podcast-and-a-book-with-an-agent/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/publish-a-podcast-and-a-book-with-an-agent/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>A free CLI an AI agent can drive: podcast RSS feeds, EPUBs that pass EPUBCheck, print PDFs, KDP cover sizes and ACX-checked audiobooks.</summary>
+  </entry>
+  <entry>
+    <title>Research algorithms in your browser: changepoints, conformal intervals and matrix profiles</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/research-algorithms-in-your-browser/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/research-algorithms-in-your-browser/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>Three methods from published statistics papers as free tools on your own CSV: in the browser, the command line and AI agents, with the papers cited.</summary>
+  </entry>
+  <entry>
+    <title>What 34 experiments on our own AI agent fleet measured</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/running-an-ai-agent-fleet-what-34-experiments-measured/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/running-an-ai-agent-fleet-what-34-experiments-measured/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>Cost per run, duplicate work, merge conflicts, record coverage and whether committed results reproduce: 34 small studies of an unattended coding-agent loop.</summary>
+  </entry>
+  <entry>
+    <title>Running an AI coding-agent fleet: what 35 self-measurements found</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/running-an-ai-agent-fleet-what-35-self-studies-measured/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/running-an-ai-agent-fleet-what-35-self-studies-measured/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>Cost per run and per merged PR, duplicate agents, merge conflicts, record coverage and reproducibility, from 35 studies of one agent repository.</summary>
+  </entry>
+  <entry>
+    <title>Simulation-first mechanical design: what 58 small studies found</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/simulation-first-mechanical-design-findings/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/simulation-first-mechanical-design-findings/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>Beam theory vs 3D FE, an LLM agent vs CMA-ES and Bayesian optimisation, topology optimisation and stress singularities: findings from 58 simulation studies.</summary>
+  </entry>
+  <entry>
+    <title>Speak to a calculator: adding voice, chat and agent access to 1,300 free tools</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/voice-and-chat-for-1300-calculators/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/voice-and-chat-for-1300-calculators/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>Every calculator here can now be filled by voice or a typed sentence, without a model. How it loads nothing until asked, and what its blind tests measured.</summary>
+  </entry>
+  <entry>
+    <title>We almost rewrote it in Rust: one zlib setting halved a 3-minute static site build</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/we-almost-rewrote-it-in-rust/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/we-almost-rewrote-it-in-rust/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>Profiling a 3,000-page static site build: 112 of its 182 seconds were PNG compression at zlib level 9. Level 6 cut it to 81 seconds for 9% larger images.</summary>
+  </entry>
+  <entry>
+    <title>What went wrong with sixteen AI agents on one main branch, and the git alternatives we weighed</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/what-went-wrong-sixteen-agents-one-main/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/what-went-wrong-sixteen-agents-one-main/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>A postmortem of parallel AI agents merging to one branch: generated files, false-red CI, cancelled runs, and seven alternatives to the git workflow.</summary>
+  </entry>
+  <entry>
+    <title>When goals move faster than folders: what nine goals in six months did to one monorepo</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/when-goals-move-faster-than-folders/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/when-goals-move-faster-than-folders/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>A monorepo built by AI agents got a new goal every few weeks and kept every old folder. What that cost, the fixes, and what each fix would cost.</summary>
+  </entry>
+  <entry>
+    <title>Where an AI coding agent&#39;s tokens go: 856 runs measured</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/where-an-ai-agent-runs-tokens-go/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/where-an-ai-agent-runs-tokens-go/</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <summary>We measured 856 unattended Claude Code runs: 96% of tokens are the agent re-reading its own context, 0.56% are output. The breakdown and what cuts it.</summary>
+  </entry>
+  <entry>
+    <title>How a fleet of AI agents built 121 bid calculators nobody asked for</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/how-our-agents-built-121-bid-calculators/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/how-our-agents-built-121-bid-calculators/</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <summary>Five sensible rules, no memory between runs, and a router ranking on self-assigned scores: how unattended coding agents built a calculator glut, and the fix.</summary>
+  </entry>
+  <entry>
+    <title>Throughput per unit of supervision: lessons from 12,000 commits by unattended coding agents</title>
+    <link href="https://duncan-haywood.github.io/monorepo-projects/writing/throughput-per-unit-of-supervision/"/>
+    <id>https://duncan-haywood.github.io/monorepo-projects/writing/throughput-per-unit-of-supervision/</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <summary>Getting coding agents to merge 200 pull requests a day was easy. Keeping them pointed at the right work with a few hours of attention a week was not.</summary>
+  </entry>
+</feed>

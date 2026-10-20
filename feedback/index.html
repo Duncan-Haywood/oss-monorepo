@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Report a problem or suggest a feature | Open Tools and Research</title>
+  <meta name="description" content="Tell us what is wrong with one of these 1307 free tools, or what you would like one to do. No account needed.">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/feedback/">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../favicon.ico" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Report a problem or suggest a feature">
+  <meta property="og:description" content="Tell us what is wrong with one of these 1307 free tools, or what you would like one to do. No account needed.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/feedback/">
+  <meta property="og:site_name" content="Open Tools and Research">
+  <meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .starting { margin: 12px 0 0; max-width: 70ch; line-height: 1.6; padding: 12px 14px;
+                border-left: 3px solid var(--accent); background: var(--panel); border-radius: 0 9px 9px 0; }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    .jumps { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .jumps a { font-size: .85rem; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+               background: var(--panel); color: var(--ink); text-decoration: none; }
+    .jumps a:hover, .jumps a:focus-visible { border-color: var(--accent); }
+    .jumps span { color: var(--soft); }
+    .filter { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .filter label { font-size: .87rem; font-weight: 650; }
+    .filter input { flex: 1 1 260px; max-width: 420px; font: inherit; padding: 9px 12px; border-radius: 9px;
+                    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .filter span { font-size: .85rem; color: var(--muted); }
+    .filter[hidden] { display: none; }
+    .card .deploy-link { display: inline-block; margin-top: 10px; font-size: .85rem; font-weight: 650;
+                         color: var(--accent); text-decoration: none; }
+    .card .deploy-link:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+
+    .prose { max-width: 720px; }
+    .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
+    .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
+    .prose p { color: var(--muted); line-height: 1.62; margin: 0 0 14px; }
+    .prose ul { color: var(--muted); line-height: 1.62; padding-left: 22px; margin: 0 0 14px; }
+    .prose li { margin-bottom: 7px; }
+    .prose a { color: var(--accent); }
+    .prose strong { color: var(--ink); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+             padding: 18px 20px; margin: 0 0 16px; }
+    .panel h3 { margin-top: 0; }
+    .panel p:last-child, .panel ul:last-child { margin-bottom: 0; }
+    .boiler { font-size: .93rem; line-height: 1.6; color: var(--ink);
+              background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+              padding: 13px 15px; margin: 0 0 12px; white-space: pre-wrap;
+              overflow-wrap: anywhere;
+              font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    #fb h2 { margin-top: 0; }
+    #fb label, #fb legend { display: block; font-weight: 600; color: var(--ink); margin: 12px 0 6px; }
+    #fb fieldset { border: 0; padding: 0; margin: 0; }
+    #fb fieldset label { font-weight: 400; color: var(--muted); margin: 4px 0; }
+    #fb textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 10px 12px;
+                   border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
+    #fb button { margin-top: 12px; font: inherit; font-weight: 600; padding: 9px 18px; border-radius: 9px;
+                 border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+    #fb button:disabled { opacity: .6; cursor: progress; }
+    #fb-status { min-height: 1.5em; margin-top: 10px; }
+    .fb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  </style>
+  <link rel="stylesheet" href="../pf-site.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/" aria-current="page">About</a></span><form class="pfs-search" action="../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Feedback</span></span></nav>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Feedback</p>
+      <h1>Report a problem or suggest a feature</h1>
+      <p class="lede">Found a wrong number, a broken page, or a tool that almost does what you need? Tell us. Every report is read.</p>
+    </header>
+
+    <main class="prose">
+      <h2>Open an issue on GitHub</h2>
+      <p>Feedback goes to this site's public GitHub repository as an issue, which needs a free GitHub account.</p>
+      <ul>
+        <li><a data-fb-issue href="https://github.com/Duncan-Haywood/oss-monorepo/issues/new?template=bug.yml">Report a problem</a> (a wrong result, a broken page, something confusing)</li>
+        <li><a data-fb-issue href="https://github.com/Duncan-Haywood/oss-monorepo/issues/new?template=feature.yml">Suggest a feature or a new tool</a></li>
+      </ul>
+      <p>Whatever you send is public. Please leave out names, addresses and anything else private.</p>
+    </main>
+
+    <footer>
+      <p class="pfs-foot"><a href="../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../research/">Research</a><span aria-hidden="true"> · </span><a href="../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../updates/">Updates &amp; roadmap</a><span aria-hidden="true"> · </span><a href="../changelog/">Changelog</a><span aria-hidden="true"> · </span><a href="../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../lab/">Lab</a><span aria-hidden="true"> · </span><a href="../feedback/">Report a problem or suggest a feature</a><span aria-hidden="true"> · </span><a href="../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../dev/daily/">Daily brief &amp; The Merge Report</a><span aria-hidden="true"> · </span><a href="../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="../changelog/feed.xml">Changelog feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+    </footer>
+  </div>
+  <script>
+(function(){
+  var q=new URLSearchParams(location.search),tool=q.get('tool')||'';
+  if(!/^[a-z0-9][a-z0-9._/-]{0,119}$/.test(tool)||tool.indexOf('..')>=0)tool='';
+  var links=document.querySelectorAll('[data-fb-issue]');
+  for(var i=0;i<links.length;i++){
+    var a=links[i],u=new URL(a.href);
+    if(tool){u.searchParams.set('title','['+tool+'] ');u.searchParams.set('tool',tool);}
+    a.href=u.toString();
+  }
+  var f=document.getElementById('fb');
+})();
+</script>
+  <script src="../pf-site.js" data-pf-slug="feedback" defer></script>
+</body>
+</html>

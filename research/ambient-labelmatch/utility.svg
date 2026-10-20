@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Label-matched vs importance-weighted fits (uninformed prior)">
+<rect width="640" height="400" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Label-matched vs importance-weighted fits (uninformed prior)</text>
+<text x="14" y="170.0" text-anchor="middle" font-family="sans-serif" font-size="11" transform="rotate(-90 14 170.0)">held-out utility/h</text>
+<line x1="70" x2="624" y1="300.0" y2="300.0" stroke="#ddd"/><text x="64" y="304.0" text-anchor="end" font-family="sans-serif" font-size="11">-184</text>
+<line x1="70" x2="624" y1="235.0" y2="235.0" stroke="#ddd"/><text x="64" y="239.0" text-anchor="end" font-family="sans-serif" font-size="11">-124</text>
+<line x1="70" x2="624" y1="170.0" y2="170.0" stroke="#ddd"/><text x="64" y="174.0" text-anchor="end" font-family="sans-serif" font-size="11">-64.8</text>
+<line x1="70" x2="624" y1="105.0" y2="105.0" stroke="#ddd"/><text x="64" y="109.0" text-anchor="end" font-family="sans-serif" font-size="11">-5.23</text>
+<line x1="70" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="64" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">54.4</text>
+<text x="109.6" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 109.6 316)">biased</text>
+<text x="188.7" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 188.7 316)">ips</text>
+<text x="267.9" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 267.9 316)">clip10</text>
+<text x="347.0" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 347.0 316)">clip50</text>
+<text x="426.1" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 426.1 316)">selfnorm</text>
+<text x="505.3" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 505.3 316)">random_matched</text>
+<text x="584.4" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 584.4 316)">full</text>
+<rect x="77.9" y="97.6" width="19.4" height="1.7" fill="#c0392b"/>
+<line x1="87.6" x2="87.6" y1="103.8" y2="91.3" stroke="#222"/>
+<rect x="157.1" y="99.3" width="19.4" height="26.0" fill="#c0392b"/>
+<line x1="166.8" x2="166.8" y1="180.0" y2="70.5" stroke="#222"/>
+<rect x="236.2" y="99.3" width="19.4" height="36.2" fill="#c0392b"/>
+<line x1="245.9" x2="245.9" y1="159.6" y2="111.4" stroke="#222"/>
+<rect x="315.3" y="99.3" width="19.4" height="63.5" fill="#c0392b"/>
+<line x1="325.1" x2="325.1" y1="231.3" y2="94.3" stroke="#222"/>
+<rect x="394.5" y="99.3" width="19.4" height="13.1" fill="#c0392b"/>
+<line x1="404.2" x2="404.2" y1="178.3" y2="46.4" stroke="#222"/>
+<rect x="473.6" y="86.0" width="19.4" height="13.3" fill="#c0392b"/>
+<line x1="483.3" x2="483.3" y1="86.9" y2="85.2" stroke="#222"/>
+<rect x="552.8" y="85.4" width="19.4" height="13.9" fill="#c0392b"/>
+<line x1="562.5" x2="562.5" y1="86.1" y2="84.8" stroke="#222"/>
+<rect x="80" y="382" width="10" height="10" fill="#c0392b"/><text x="95" y="391" font-family="sans-serif" font-size="11">eps 0.002</text>
+<rect x="99.0" y="99.3" width="19.4" height="0.2" fill="#1f6fb2"/>
+<line x1="108.7" x2="108.7" y1="106.3" y2="92.6" stroke="#222"/>
+<rect x="178.2" y="99.3" width="19.4" height="35.7" fill="#1f6fb2"/>
+<line x1="187.9" x2="187.9" y1="200.7" y2="69.3" stroke="#222"/>
+<rect x="257.3" y="99.3" width="19.4" height="68.7" fill="#1f6fb2"/>
+<line x1="267.0" x2="267.0" y1="205.3" y2="130.6" stroke="#222"/>
+<rect x="336.4" y="99.3" width="19.4" height="70.3" fill="#1f6fb2"/>
+<line x1="346.2" x2="346.2" y1="246.5" y2="92.7" stroke="#222"/>
+<rect x="415.6" y="93.4" width="19.4" height="5.9" fill="#1f6fb2"/>
+<line x1="425.3" x2="425.3" y1="118.7" y2="68.0" stroke="#222"/>
+<rect x="494.7" y="86.0" width="19.4" height="13.3" fill="#1f6fb2"/>
+<line x1="504.4" x2="504.4" y1="86.8" y2="85.2" stroke="#222"/>
+<rect x="573.9" y="85.4" width="19.4" height="13.9" fill="#1f6fb2"/>
+<line x1="583.6" x2="583.6" y1="86.1" y2="84.8" stroke="#222"/>
+<rect x="230" y="382" width="10" height="10" fill="#1f6fb2"/><text x="245" y="391" font-family="sans-serif" font-size="11">eps 0.005</text>
+<rect x="120.1" y="99.3" width="19.4" height="14.3" fill="#2e8b57"/>
+<line x1="129.8" x2="129.8" y1="123.0" y2="104.1" stroke="#222"/>
+<rect x="199.3" y="99.3" width="19.4" height="49.7" fill="#2e8b57"/>
+<line x1="209.0" x2="209.0" y1="242.4" y2="55.6" stroke="#222"/>
+<rect x="278.4" y="99.3" width="19.4" height="104.9" fill="#2e8b57"/>
+<line x1="288.1" x2="288.1" y1="300.0" y2="108.4" stroke="#222"/>
+<rect x="357.6" y="99.3" width="19.4" height="49.7" fill="#2e8b57"/>
+<line x1="367.3" x2="367.3" y1="242.4" y2="55.6" stroke="#222"/>
+<rect x="436.7" y="99.3" width="19.4" height="42.2" fill="#2e8b57"/>
+<line x1="446.4" x2="446.4" y1="229.4" y2="53.6" stroke="#222"/>
+<rect x="515.8" y="85.6" width="19.4" height="13.7" fill="#2e8b57"/>
+<line x1="525.5" x2="525.5" y1="86.3" y2="84.9" stroke="#222"/>
+<rect x="595.0" y="85.4" width="19.4" height="13.9" fill="#2e8b57"/>
+<line x1="604.7" x2="604.7" y1="86.1" y2="84.8" stroke="#222"/>
+<rect x="380" y="382" width="10" height="10" fill="#2e8b57"/><text x="395" y="391" font-family="sans-serif" font-size="11">eps 0.020</text>
+</svg>

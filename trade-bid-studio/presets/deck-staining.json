@@ -1,0 +1,55 @@
+{
+  "slug": "deck-staining-bid-calculator",
+  "name": "Deck staining",
+  "group": "Exterior & roofing",
+  "summary": "Deck wash, prep and stain priced per stainable square foot, rail foot and stair run.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 38,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 28,
+  "items": [
+    {
+      "label": "Wash and stain walking surface, 1 coat water-based",
+      "unit": "sq ft",
+      "qty": 200,
+      "hoursPerUnit": 0.012,
+      "materialPerUnit": 0.2394,
+      "source": "prep 0.55 + coat 0.65 x 1 coat h per 100 sf (suggestedPrepKit wash, suggestedFinishKit water; index.html); prep $3.50/100 sf + stain $46/gal / 225 sf/gal (index.html); 200 sf default (index.html deckSqFt)"
+    },
+    {
+      "label": "Railing",
+      "unit": "linear ft",
+      "qty": 0,
+      "hoursPerUnit": 0.108,
+      "materialPerUnit": 2.155,
+      "source": "9 stainable sf per rail lf (index.html railSfPerLf) x the per-sf rates above; 0 lf default (index.html)"
+    },
+    {
+      "label": "Stair run",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.48,
+      "materialPerUnit": 9.578,
+      "source": "40 sf per stair run (index.html stairSf) x the per-sf rates above; 0 runs default (index.html)"
+    },
+    {
+      "label": "Move furniture and planters",
+      "unit": "job",
+      "qty": 0,
+      "hoursPerUnit": 1.4,
+      "materialPerUnit": 45,
+      "source": "hoursFurniture 1.4 and furnitureFee $45 (index.html); unchecked by default"
+    },
+    {
+      "label": "Trip, setup, mobilization and truck",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.4,
+      "materialPerUnit": 160,
+      "source": "trip/setup 1.1 h + site/travel 0.3 h; mobilization $85 + travel, truck, recovery $75 (index.html hoursTrip, siteHours, mobilizationFee, travelAndEquipment)"
+    }
+  ],
+  "specialistModels": "Wash, sand or strip prep, oil vs water vs composite finishes with coat counts and coverage, and second-story staging hours."
+}

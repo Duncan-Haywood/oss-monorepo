@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where an AI coding agent&#39;s tokens go: 856 runs measured · Open Tools and Research</title>
+<meta name="description" content="We measured 856 unattended Claude Code runs: 96% of tokens are the agent re-reading its own context, 0.56% are output. The breakdown and what cuts it.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/where-an-ai-agent-runs-tokens-go/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="Where an AI coding agent&#39;s tokens go: 856 runs measured · Open Tools and Research">
+<meta property="og:description" content="We measured 856 unattended Claude Code runs: 96% of tokens are the agent re-reading its own context, 0.56% are output. The breakdown and what cuts it.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/where-an-ai-agent-runs-tokens-go/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Where an AI coding agent's tokens go: 856 runs measured","description":"We measured 856 unattended Claude Code runs: 96% of tokens are the agent re-reading its own context, 0.56% are output. The breakdown and what cuts it.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/where-an-ai-agent-runs-tokens-go/","keywords":"ai-agents, llm-cost, prompt-caching, software-engineering","wordCount":911}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>Where an AI coding agent&#39;s tokens go: 856 runs measured</h1>
+<p class="dek">We measured 856 unattended Claude Code runs: 96% of tokens are the agent re-reading its own context, 0.56% are output. The breakdown and what cuts it.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-where-an-ai-agent-runs-tokens-go.md">Source</a><br><span class="tag">ai-agents</span><span class="tag">llm-cost</span><span class="tag">prompt-caching</span><span class="tag">software-engineering</span></p>
+<p>This repository is built mostly by unattended AI coding sessions. Each one starts fresh, reads the repository&#39;s instructions, does a task and merges a pull request. Since 16 October every run records its own token usage, taken from the counts the API returned. That gives us 856 measured runs (826 on Claude Sonnet 5.5, 29 on Opus 5.5, 16 to 20 October 2026). We used them to answer a plain question: when an agent uses a million tokens, what are they spent on?</p>
+<h3>Almost all of it is re-reading</h3>
+<p>A coding agent is a loop. The model asks for a tool call, the harness runs the tool, and the whole conversation so far goes back to the model with the result added. Prompt caching makes the re-read cheap per token, but every request still processes all of it.</p>
+<div class="scroll"><table><thead><tr><th>Kind of token</th><th>Share of tokens</th><th>Share of API-equivalent cost</th></tr></thead><tbody><tr><td>Cache read (re-reading the context)</td><td>96.0%</td><td>47.8%</td></tr><tr><td>Cache write (adding to the context)</td><td>3.4%</td><td>36.3%</td></tr><tr><td>Output (what the model writes, thinking included)</td><td>0.56%</td><td>15.9%</td></tr></tbody></table></div>
+<p>The model reads 177 tokens for every token it writes. A median run makes 19 requests and 22 tool calls, reads 1.57 million tokens, writes 8,561, and costs $0.67 at API list prices. (These runs are on a subscription, so that is an equivalent, not a bill.)</p>
+<p>Cache writes look odd at first: 3% of tokens but over a third of the cost. Writing to the 1-hour cache costs twice the normal input price, and a cache read costs a tenth of it. So the first time anything enters the context is expensive, and each later re-read is cheap but frequent.</p>
+<h3>Most of what is re-read is the same every time</h3>
+<p>If a run&#39;s context starts at P tokens and grows by g per request, its mean context per request is P + g × N / 2 for N requests. Fitting that across the 856 runs gives <strong>P ≈ 65,000 tokens</strong> (95% bootstrap interval 60,000 to 69,000) and <strong>g ≈ 1,700 tokens per request</strong> (1,200 to 2,100).</p>
+<p>So before an agent here has done anything, its context already holds about 65,000 tokens: the harness&#39;s instructions and tool definitions, the repository&#39;s <code>CLAUDE.md</code>, and the lists of available skills and tools. That fixed start is <strong>69% of every token read</strong>. The agent&#39;s actual work (files it read, command output, its own earlier turns) is the other 31%.</p>
+<p>In the session that wrote this post, the first request was 75,941 tokens. 47,778 came from a cache shared across sessions, and 28,161 were written fresh.</p>
+<h3>Mid-length runs are the cheapest per unit of work</h3>
+<p>A short run pays the fixed start for little work. A long run re-reads a long history at every step. Somewhere between them is a minimum:</p>
+<div class="scroll"><table><thead><tr><th>Requests in the run</th><th>Runs</th><th>Median cost per 1,000 output tokens</th></tr></thead><tbody><tr><td>under 25</td><td>626</td><td>$0.086</td></tr><tr><td>25 to 50</td><td>201</td><td>$0.064</td></tr><tr><td>50 to 100</td><td>21</td><td>$0.080</td></tr><tr><td>100 to 200</td><td>7</td><td>$0.105</td></tr></tbody></table></div>
+<p>The fitted model puts the minimum near 35 requests. The median run here stops at 19, so most runs end before they reach the cheapest length.</p>
+<h3>What gets more work out of the same quota</h3>
+<p>Holding the work (output) fixed, we estimated savings for a median run with the fitted model, which reproduces the measured median cost to within 2%:</p>
+<ul><li><strong>Batch independent tool calls.</strong> Pooled, there are 0.90 requests per tool call, so nearly every call costs a full re-read of the context. Making 20% fewer requests for the same work saves about 20% of tokens and 10% of cost.</li><li><strong>Cap tool output.</strong> Everything a command prints stays in the context and is paid for again on every later request. Halving growth per request saves about 11% of cost. <code>tail</code>, <code>head</code>, <code>grep -c</code> and quiet test flags do it.</li><li><strong>Shrink the always-read instructions.</strong> Each 10,000 tokens kept out of the starting context saves about 12% of cost and 13% of tokens, on every run. Instructions written for agents tend to grow, because each fix adds a paragraph. That paragraph costs a little on every request of every run from then on.</li><li><strong>Do related work in one run.</strong> Moving runs from 19 requests toward 35 lowers cost per request by about 10% in the model.</li><li><strong>Cache lifetime.</strong> A 5-minute cache instead of a 1-hour one would cut about 16% of cost. That is the harness&#39;s choice, not the agent&#39;s, and a short cache expires while long tools run.</li></ul>
+<p>We wrote these into a brief that sessions here now read (<a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/docs/reports/2026-10-20-token-flow-for-agents.md"><code>docs/reports/2026-10-20-token-flow-for-agents.md</code></a>), and we will measure whether requests per tool call and growth per request fall.</p>
+<h3>Caveats</h3>
+<p>Five days of data, and 97% of runs on one model. Costs are list-price equivalents. We do not know how a subscription&#39;s quota weights cached reads against output; on raw tokens re-reading is 96% of the total, and on price 84%. Output tokens are a proxy for work done, not for useful work. The prefix-and-growth split comes from a fit to per-run totals, not from inspecting each request.</p>
+<p>The analysis is one stdlib Python script, <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/docs/reports/assets/token-flow/analyze.py"><code>docs/reports/assets/token-flow/analyze.py</code></a>, and its full output is <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/docs/reports/assets/token-flow/results.txt"><code>results.txt</code></a>. The longer report is <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/docs/reports/2026-10-20-token-flow-for-people.md"><code>2026-10-20-token-flow-for-people.md</code></a>. Written with AI assistance (Claude).</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

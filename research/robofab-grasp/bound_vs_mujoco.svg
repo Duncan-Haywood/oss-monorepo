@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 420" role="img" aria-label="Log-log scatter of MuJoCo grip force against the analytic bound; all 33 points lie on the y = x line">
+<rect width="560" height="420" fill="#fff"/>
+<text x="280.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Grip force: MuJoCo vs analytic bound (33 cases)</text>
+<text x="280.0" y="38" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">largest deviation from y = x: 4.5%</text>
+<line x1="64" x2="544" y1="364.0" y2="364.0" stroke="#ddd"/><text x="58" y="368.0" text-anchor="end" font-family="sans-serif" font-size="11">0.001</text><line y1="48" y2="364" x1="64.0" x2="64.0" stroke="#ddd"/><text x="64.0" y="380" text-anchor="middle" font-family="sans-serif" font-size="11">0.001</text>
+<line x1="64" x2="544" y1="206.0" y2="206.0" stroke="#ddd"/><text x="58" y="210.0" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text><line y1="48" y2="364" x1="304.0" x2="304.0" stroke="#ddd"/><text x="304.0" y="380" text-anchor="middle" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="544" y1="48.0" y2="48.0" stroke="#ddd"/><text x="58" y="52.0" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text><line y1="48" y2="364" x1="544.0" x2="544.0" stroke="#ddd"/><text x="544.0" y="380" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64.0" y1="364.0" x2="544.0" y2="48.0" stroke="#888" stroke-dasharray="5 4"/>
+<circle cx="445.7" cy="112.5" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="392.4" cy="147.4" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="343.4" cy="179.8" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="445.7" cy="112.5" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="392.4" cy="147.4" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="343.4" cy="179.8" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="445.7" cy="112.5" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="392.4" cy="147.4" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="343.4" cy="179.8" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="445.7" cy="112.5" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="392.4" cy="147.4" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="343.4" cy="178.4" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="403.4" cy="140.6" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="350.2" cy="174.3" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="301.2" cy="207.6" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="403.4" cy="140.6" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="350.2" cy="175.6" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="301.2" cy="207.6" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="403.4" cy="140.6" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="350.2" cy="175.6" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="301.2" cy="207.6" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="403.4" cy="140.6" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="350.2" cy="175.6" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="301.2" cy="207.6" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="247.9" cy="242.5" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="194.7" cy="277.9" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="145.7" cy="307.2" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="247.9" cy="242.5" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="194.7" cy="277.9" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="145.7" cy="307.2" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="541.2" cy="49.6" r="4" fill="#c0392b" fill-opacity=".75"/>
+<circle cx="487.9" cy="84.7" r="4" fill="#1f6fb2" fill-opacity=".75"/>
+<circle cx="438.9" cy="116.9" r="4" fill="#2e8b57" fill-opacity=".75"/>
+<circle cx="76" cy="62" r="4" fill="#c0392b"/><text x="84" y="66" font-family="sans-serif" font-size="11">&#956; = 0.3</text>
+<circle cx="146" cy="62" r="4" fill="#1f6fb2"/><text x="154" y="66" font-family="sans-serif" font-size="11">&#956; = 0.5</text>
+<circle cx="216" cy="62" r="4" fill="#2e8b57"/><text x="224" y="66" font-family="sans-serif" font-size="11">&#956; = 0.8</text>
+<text x="280.0" y="410" text-anchor="middle" font-family="sans-serif" font-size="12">analytic bound (N)</text>
+<text transform="translate(16 210.0) rotate(-90)" text-anchor="middle" font-family="sans-serif" font-size="12">MuJoCo (N)</text></svg>

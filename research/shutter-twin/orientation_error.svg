@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of RMS orientation error in degrees against the speed range U in pixels per second; the twin-trained naive estimator grows from 0.24 to 0.97 degrees while the rolling-shutter-aware solver stays flat near 0.027 degrees">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Shutter twin: orientation error vs speed range U</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="271.8" y2="271.8" stroke="#ddd"/><text x="58" y="275.8" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="219.6" y2="219.6" stroke="#ddd"/><text x="58" y="223.6" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="167.4" y2="167.4" stroke="#ddd"/><text x="58" y="171.4" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="115.3" y2="115.3" stroke="#ddd"/><text x="58" y="119.3" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="63.1" y2="63.1" stroke="#ddd"/><text x="58" y="67.1" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">250</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">500</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">speed range U (px/s)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">RMS theta error (deg)</text>
+<polyline points="64.0,260.3 250.7,197.5 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="260.3" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="197.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">naive (twin-trained)</text>
+<polyline points="64.0,317.0 250.7,317.0 624.0,317.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="317.0" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="317.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="317.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">rolling-shutter-aware</text>
+</svg>

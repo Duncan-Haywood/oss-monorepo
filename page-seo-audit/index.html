@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free On-Page SEO Audit and AI-Readiness Checker — Page SEO Audit</title>
+  <meta name="description" content="Paste a page's HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.">
+  <meta property="og:title" content="Free on-page SEO audit that never uploads your page">
+  <meta property="og:description" content="Scored checklist for title, description, headings, canonical, structured data and AI-readiness, with a fix for every finding.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/page-seo-audit/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Page SEO Audit", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free on-page SEO and AI-readiness audit. Paste a page's HTML and get a scored checklist of title, description, headings, canonical, Open Graph, JSON-LD and alt text. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a free on-page SEO audit check?", "acceptedAnswer": {"@type": "Answer", "text": "Title and meta description length, a single h1 and a sane heading outline, a canonical link, the viewport tag, Open Graph link-preview tags, JSON-LD structured data that actually parses, image alt text, vague link text and how much real text is in the served HTML."}}, {"@type": "Question", "name": "How do I audit a page without uploading it anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "Open the page, choose View source, copy everything and paste it here. The audit runs in your browser and the page makes no network calls. The command-line version fetches a URL or reads a file on your own machine."}}, {"@type": "Question", "name": "What is AI-readiness here?", "acceptedAnswer": {"@type": "Answer", "text": "Six signals AI assistants and answer engines rely on when they read a page: not blocked by noindex, structured data present, enough text in the raw HTML, a description, one clear h1 and a canonical URL. It is a checklist of markup, not a promise of being cited."}}, {"@type": "Question", "name": "Does a score of 100 mean I will rank?", "acceptedAnswer": {"@type": "Answer", "text": "No. Ranking depends on content quality, links, speed and competition, none of which can be seen from one page's markup. This is not an SEO guarantee; it finds the mechanical mistakes that quietly hold a page back."}}, {"@type": "Question", "name": "Why does it ask for pasted HTML instead of a URL?", "acceptedAnswer": {"@type": "Answer", "text": "Browsers block a web page from reading another site's HTML. Pasting the source keeps the tool private and serverless. For URLs, the Node command-line version fetches the page directly and can fail a build below a minimum score."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 110px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 9px 11px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px ui-monospace, monospace; margin-bottom: 6px; }
+    label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 5px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .verdict { font-size: 1.3rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    .urlrow { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-size: .88rem; margin-bottom: 4px; }
+    .urlrow code { overflow-wrap: anywhere; word-break: break-word; }
+    .urlrow .tag { color: #55606f; font-size: .78rem; white-space: nowrap; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.critical { background: #fde8e8; color: #9a3412; }
+    .pill.warning { background: #fff4d6; color: #7a5b00; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    .pill.pass { background: #dcefe4; color: #14532d; }
+    .finding { border-bottom: 1px solid #e6eaf0; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 6px 0 4px; }
+    .finding .fix { font-size: .88rem; color: #17324a; background: #f7f9fb; border-left: 3px solid #17604a; padding: 8px 10px; border-radius: 0 6px 6px 0; margin-top: 8px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; font-size: .9rem; font-weight: 600; color: #17324a; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Free on-page SEO audit that never uploads your page","item":"https://duncan-haywood.github.io/monorepo-projects/page-seo-audit/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/page-seo-audit/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/page-seo-audit/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Free on-page SEO audit that never uploads your page — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/ci/">CI checks &amp; developer gates</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Free on-page SEO audit that never uploads your page</span></span></nav>
+  <header>
+    <p class="note">PAGE SEO AUDIT · RUNS IN YOUR BROWSER</p>
+    <h1>Audit one page's SEO and AI-readiness in ten seconds</h1>
+    <p>Paste the page's HTML (View source, copy all). You get a score, the mistakes ranked by how much they matter, and the exact fix for each: title and description length, headings, canonical, link previews, structured data that actually parses, image alt text, and whether the text exists before JavaScript runs.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this page makes no network calls.</p>
+  </header>
+  <section class="card">
+    <h2>1. Paste the page source</h2>
+    <label for="html">HTML</label>
+    <textarea id="html" style="min-height:200px" spellcheck="false" placeholder="&lt;!doctype html&gt;&#10;&lt;html lang=&quot;en&quot;&gt;…"></textarea>
+    <p>
+      <button type="button" id="run">Audit</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste HTML above and click Audit.</p>
+  </section>
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="facts"></p>
+    <div id="findings"></div>
+  </section>
+  <section class="card">
+    <h2>Run it in CI instead</h2>
+    <p class="note">Zero dependencies, Node 18+. It fetches a URL or reads a file; nothing else.</p>
+    <pre class="cmd">node cli.mjs audit https://example.com/
+node cli.mjs audit dist/index.html --min-score 85</pre>
+    <p class="note"><code>--min-score</code> exits 1 below the score, so a deploy can refuse to ship a page that lost its title or canonical.</p>
+  </section>
+  <section class="card">
+    <h2>Questions people actually ask</h2>
+    <h3>What does a free on-page SEO audit check?</h3>
+    <p>Title and meta description length, a single h1 and a sane heading outline, a canonical link, the viewport tag, Open Graph link-preview tags, JSON-LD structured data that actually parses, image alt text, vague link text and how much real text is in the served HTML.</p>
+    <h3>How do I audit a page without uploading it anywhere?</h3>
+    <p>Open the page, choose View source, copy everything and paste it here. The audit runs in your browser and the page makes no network calls. The command-line version fetches a URL or reads a file on your own machine.</p>
+    <h3>What is AI-readiness here?</h3>
+    <p>Six signals AI assistants and answer engines rely on when they read a page: not blocked by noindex, structured data present, enough text in the raw HTML, a description, one clear h1 and a canonical URL. It is a checklist of markup, not a promise of being cited.</p>
+    <h3>Does a score of 100 mean I will rank?</h3>
+    <p>No. Ranking depends on content quality, links, speed and competition, none of which can be seen from one page's markup. This is not an SEO guarantee; it finds the mechanical mistakes that quietly hold a page back.</p>
+    <h3>Why does it ask for pasted HTML instead of a URL?</h3>
+    <p>Browsers block a web page from reading another site's HTML. Pasting the source keeps the tool private and serverless. For URLs, the Node command-line version fetches the page directly and can fail a build below a minimum score.</p>
+    <p class="note">Longer version: <a href="seo-checklist-for-a-single-page.html">the on-page SEO checklist behind each finding</a>.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee about your site's search visibility or ranking, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming what each search engine reports for your own site. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the page makes no network calls. Anonymous feature events (<code>audit_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related one-slice checkers: <a href="../canonical-tag-check/">Canonical Tag Check</a>, <a href="../json-ld-rich-result-validator/">JSON-LD Rich Result Validator</a>, <a href="../ai-crawler-access-check/">AI Crawler Access Check</a> and <a href="../llms-txt-generator/">llms.txt Generator</a>. This tool is the whole-page overview; they go deeper on one thing each.</p>
+    <p class="support">Free and open source. If this found something worth fixing, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { audit } from "./analyze.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+    const prose = (text) => {
+      const f = document.createDocumentFragment();
+      String(text).split(/`([^`]+)`/).forEach((part, i) => {
+        if (i % 2) f.appendChild(el("code", null, part)); else if (part) f.appendChild(document.createTextNode(part));
+      });
+      return f;
+    };
+    function run() {
+      const r = audit($("html").value);
+      const status = $("status");
+      if (!r.ok) { $("results").hidden = true; status.textContent = r.error; status.className = "error"; return; }
+      record("audit_run");
+      $("results").hidden = false;
+      const v = $("verdict");
+      v.textContent = `Score ${r.score}/100 (${r.grade}) · AI-readiness ${r.aiReadiness}%`;
+      v.className = r.score >= 75 ? "verdict" : "verdict risk";
+      const x = r.facts;
+      $("facts").textContent = `${x.words} words, ${x.headings} headings, ${x.images} images, ${x.links} links. Structured data: ${x.schemaTypes.join(", ") || "none"}.`;
+      const box = $("findings");
+      box.replaceChildren();
+      if (!r.findings.length) box.appendChild(el("p", null, "Nothing found in the markup. That is not a ranking guarantee."));
+      for (const f of r.findings) {
+        const b = el("div", "finding");
+        b.appendChild(el("span", `pill ${f.severity === "warning" ? "warning" : f.severity}`, f.severity));
+        b.appendChild(el("h3", null, f.title));
+        const d = el("p"); d.appendChild(prose(f.detail)); b.appendChild(d);
+        const fx = el("p", "fix"); fx.appendChild(el("strong", null, "Fix: ")); fx.appendChild(prose(f.fix)); b.appendChild(fx);
+        box.appendChild(b);
+      }
+      status.textContent = `${r.counts.critical} critical, ${r.counts.warning} warning(s), ${r.counts.info} note(s). Not a ranking guarantee.`;
+      status.className = r.counts.critical ? "error" : "note";
+    }
+    $("run").addEventListener("click", run);
+    $("load-example").addEventListener("click", () => {
+      $("html").value = '<!doctype html>\n<html>\n<head>\n<title>Home</title>\n<script type="application/ld+json' + '">{"@type": "Organization", }<\/script>\n</head>\n<body>\n<h1>Welcome</h1><h1>Our products</h1>\n<h4>Pricing</h4>\n<img src="https://example.com/hero.jpg">\n<a href="https://example.com/pricing">click here</a>\n</body>\n</html>';
+      record("example_loaded");
+      run();
+    });
+    $("clear").addEventListener("click", () => { $("html").value = ""; $("results").hidden = true; $("status").textContent = "Paste HTML above and click Audit."; $("status").className = "note"; });
+    const optout = $("optout");
+    const paint = () => { optout.textContent = usageOptedOut() ? "Usage counting is off — turn it back on" : "Turn usage counting off"; };
+    optout.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+    paint();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../docker-base-image-eol-check/" data-pf-to="docker-base-image-eol-check">Is your Dockerfile's base image still supported?</a></li>
+      <li><a href="../docker-base-image-pin-check/" data-pf-to="docker-base-image-pin-check">Are your Dockerfile base images pinned to a digest?</a></li>
+      <li><a href="../docker-build-secrets-check/" data-pf-to="docker-build-secrets-check">Is a secret baked into your Docker image?</a></li>
+      <li><a href="../docker-cache-order-check/" data-pf-to="docker-cache-order-check">Is your Dockerfile busting its own build cache?</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=page-seo-audit">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=page-seo-audit">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/page-seo-audit/?pfEmbed=1&quot; title=&quot;Free on-page SEO audit that never uploads your page — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="page-seo-audit"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/page-seo-audit/" data-pf-embed-title="Free on-page SEO audit that never uploads your page" data-pf-embed-slug="page-seo-audit"></script>
+</body>
+</html>

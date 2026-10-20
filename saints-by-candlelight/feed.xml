@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:podcast="https://podcastindex.org/namespace/1.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Saints by Candlelight</title>
+    <link>https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/</link>
+    <atom:link href="https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>Lighthearted, faithful bedtime stories of the saints, angels and patriarchs of the Catholic and Orthodox traditions: the Archangel Raphael on the road with Tobias, the lion of Saint Gerasimus, Saint Nicholas and the three bags of gold, and many more. Each episode runs thirty minutes to an hour, slows down as it goes, and says plainly what is Scripture, what is history, what is legend and what we made up. Written by an AI, read by a synthetic voice, free to share under CC BY-SA 4.0.</description>
+    <language>en</language>
+    <copyright>CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Written by Claude, an AI model made by Anthropic.</copyright>
+    <podcast:license url="https://creativecommons.org/licenses/by-sa/4.0/">cc-by-sa-4.0</podcast:license>
+    <podcast:medium>podcast</podcast:medium>
+    <podcast:guid>53a01eb0-7011-5478-a9d7-698a7e64cd95</podcast:guid>
+    <itunes:author>Saints by Candlelight (written by Claude, an AI)</itunes:author>
+    <itunes:image href="https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/cover.png"/>
+    <image><url>https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/cover.png</url><title>Saints by Candlelight</title><link>https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/</link></image>
+    <itunes:category text="Religion &amp; Spirituality"><itunes:category text="Christianity"/></itunes:category>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:type>episodic</itunes:type>
+    <item>
+      <title>Nicholas and the Three Bags of Gold</title>
+      <link>https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-nicholas-and-the-three-bags-of-gold</guid>
+      <pubDate>Tue, 20 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A young man in fourth-century Lycia hears that his neighbour&#39;s three daughters cannot marry for want of a dowry, and on three dark nights a bag of gold comes through their window. The gentle, funny, true-hearted story of how Saint Nicholas of Myra learned to give in secret, and how the secret got out anyway. What&#39;s true: Nicholas was a real bishop of Myra in Lycia in the fourth century, and his tomb at Myra was a place of pilgrimage from early times; almost every detail of his life comes from later lives Legend: the three bags of gold, his childhood fasting, his election by a dream, the calming of the storm, the grain ships at Myra, and the striking of Arius at Nicaea are all from later lives and legends, labelled as such in the script Invented for this episode: the daughters&#39; names and personalities, the father&#39;s dialogue and embarrassment, the neighbours, and most small conversations are our own invention, told in the spirit of the old lives Feast day: 6 December in both traditions; the Orthodox also keep 9 May for the translation of his relics to Bari in 1087, a date also kept in Bari itself Full script and sources: https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A young man in fourth-century Lycia hears that his neighbour&#39;s three daughters cannot marry for want of a dowry, and on three dark nights a bag of gold comes through their window. The gentle, funny, true-hearted story of how Saint Nicholas of Myra learned to give in secret, and how the secret got out anyway.</itunes:summary>
+      <itunes:episode>3</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/audio/nicholas-and-the-three-bags-of-gold.mp3" length="13545800" type="audio/mpeg"/>
+      <itunes:duration>0:45:09</itunes:duration>
+      <podcast:transcript url="https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Gerasimus and the Lion Who Lost the Donkey</title>
+      <link>https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/gerasimus-and-the-lion.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-gerasimus-and-the-lion</guid>
+      <pubDate>Tue, 20 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A fifth-century abbot by the river Jordan pulls a thorn from a lion&#39;s paw, gives him a job guarding the monastery donkey, and learns something about blame when the donkey goes missing and the lion is left carrying the water. What&#39;s true: Gerasimus, his lavra near Jericho by the Jordan, its way of life, and his death in about the year four hundred and seventy-five are historical, attested by Cyril of Scythopolis Legend: The lion, the thorn, the lost donkey, the camel caravan and the lion&#39;s death at the grave come from John Moschus&#39;s Spiritual Meadow, written down well over a century after Gerasimus died Invented for this episode: The lion&#39;s and the donkey&#39;s personalities, most dialogue, the young monk Brother Theodore, the soldier&#39;s words, the camel drivers coming back to apologise, and small details of daily life are our own invention Feast day: Orthodox churches keep Saint Gerasimus on the fourth of March; the Roman Martyrology names him on the fifth of March Full script and sources: https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/gerasimus-and-the-lion.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A fifth-century abbot by the river Jordan pulls a thorn from a lion&#39;s paw, gives him a job guarding the monastery donkey, and learns something about blame when the donkey goes missing and the lion is left carrying the water.</itunes:summary>
+      <itunes:episode>2</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/audio/gerasimus-and-the-lion.mp3" length="12184154" type="audio/mpeg"/>
+      <itunes:duration>0:40:37</itunes:duration>
+      <podcast:transcript url="https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/gerasimus-and-the-lion.html" type="text/html"/>
+    </item>
+    <item>
+      <title>The Angel Who Called Himself Azarias</title>
+      <link>https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/the-angel-who-called-himself-azarias.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-the-angel-who-called-himself-azarias</guid>
+      <pubDate>Tue, 20 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A blind old man, a nervous young man, a bride with a very bad wedding-night record, a large fish, a dog with no name, and a travelling companion who is not quite who he says he is. The Book of Tobit, told for bedtime, with the Archangel Raphael. What&#39;s true: The events follow the Book of Tobit, which Catholic and Orthodox Christians read as part of the Old Testament. Legend: None beyond the book itself; the dog&#39;s wagging tail comes from Saint Jerome&#39;s Latin translation. Invented for this episode: Small conversations, the travellers&#39; jokes, and the narrator&#39;s guesses about the dog and the fish are our own; nothing invented changes what happens or what it means. Feast day: Saint Raphael is honoured with the other archangels on the twenty-ninth of September in the Catholic calendar and at the Synaxis of the Archangels on the eighth of November in the Orthodox calendar. Full script and sources: https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/the-angel-who-called-himself-azarias.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A blind old man, a nervous young man, a bride with a very bad wedding-night record, a large fish, a dog with no name, and a travelling companion who is not quite who he says he is. The Book of Tobit, told for bedtime, with the Archangel Raphael.</itunes:summary>
+      <itunes:episode>1</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/audio/the-angel-who-called-himself-azarias.mp3" length="16040364" type="audio/mpeg"/>
+      <itunes:duration>0:53:28</itunes:duration>
+      <podcast:transcript url="https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/the-angel-who-called-himself-azarias.html" type="text/html"/>
+    </item>
+  </channel>
+</rss>

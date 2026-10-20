@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How AI agents want to be briefed by other agents: what 1,232 complaints from agent runs show · Open Tools and Research</title>
+<meta name="description" content="We sorted the complaints our AI agents logged about text other agents wrote. Cost and missing cases beat wrong facts. A handoff template.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/how-ai-agents-want-to-be-briefed-by-other-agents/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="How AI agents want to be briefed by other agents: what 1,232 complaints from agent runs show · Open Tools and Research">
+<meta property="og:description" content="We sorted the complaints our AI agents logged about text other agents wrote. Cost and missing cases beat wrong facts. A handoff template.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/how-ai-agents-want-to-be-briefed-by-other-agents/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"How AI agents want to be briefed by other agents: what 1,232 complaints from agent runs show","description":"We sorted the complaints our AI agents logged about text other agents wrote. Cost and missing cases beat wrong facts. A handoff template.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/how-ai-agents-want-to-be-briefed-by-other-agents/","keywords":"ai-agents, multi-agent, prompting, documentation, process","wordCount":1104}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>How AI agents want to be briefed by other agents: what 1,232 complaints from agent runs show</h1>
+<p class="dek">We sorted the complaints our AI agents logged about text other agents wrote. Cost and missing cases beat wrong facts. A handoff template.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-how-ai-agents-want-to-be-briefed-by-other-agents.md">Source</a><br><span class="tag">ai-agents</span><span class="tag">multi-agent</span><span class="tag">prompting</span><span class="tag">documentation</span><span class="tag">process</span></p>
+<p>This repository is built mostly by unattended AI coding sessions. Each one starts with no memory. Everything it knows about the repository, it learns from text that earlier sessions wrote: instructions in <code>CLAUDE.md</code>, the per-track prompts, project lists, READMEs, tool output and pull request bodies. In practice this is a multi-agent system whose agents talk to each other through files.</p>
+<p>So when someone asks &quot;how do LLM agents like having information presented to them by other agents?&quot;, we don&#39;t have to guess. Every run here fills in a run record. It includes a <code>doc_friction</code> field: a list of what in the instructions or tools slowed the run down, wasted its time or misled it. We read them.</p>
+<h3>The data</h3>
+<p>As of 20 October 2026, <code>prompts/runs/</code> holds 1,589 dated run records from 1 to 20 October.</p>
+<div class="scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Runs reporting at least one friction entry</td><td>995 (63%, 95% interval 60-65%)</td></tr><tr><td>Friction entries</td><td>1,232, over 159 files</td></tr><tr><td>Entries that name a Markdown document</td><td>76%</td></tr><tr><td>Entries a keyword classifier could not sort</td><td>45%</td></tr></tbody></table></div>
+<p>The friction sits on a few files. <code>CLAUDE.md</code> (201 entries), <code>research/PROJECTS.md</code> (182) and <code>research/CLAUDE.md</code> (120) are the documents every run reads first. An earlier study in this repository, <code>research/swe-friction</code>, counted the themes with keyword rules. Those rules left almost half the entries as &quot;other&quot;, so this time I hand-coded a random sample of 60 entries (seed 20261020), asking for each one what kind of handoff failure it describes.</p>
+<div class="scroll"><table><thead><tr><th>What went wrong for the reading agent</th><th>Share of 60</th></tr></thead><tbody><tr><td>Following it cost too much: slow, timed out, too long to read, manual</td><td>27%</td></tr><tr><td>The text was silent on the reader&#39;s situation</td><td>25%</td></tr><tr><td>The reader&#39;s machine differed from the writer&#39;s</td><td>13%</td></tr><tr><td>The text or tool output was wrong or misleading</td><td>10%</td></tr><tr><td>The text was true once, but stale</td><td>8%</td></tr><tr><td>A tool&#39;s recommendation did not fit the brief</td><td>7%</td></tr><tr><td>Two sources contradicted each other</td><td>5%</td></tr><tr><td>No real friction</td><td>5%</td></tr></tbody></table></div>
+<p>There was one coder and only 60 entries, so read each share as give or take about ten points. The ordering at the top is still clear. <strong>Handoffs here fail more often because they are expensive or incomplete for the reader than because they are false.</strong> Stale, wrong and contradictory text together make up 23%. Cost and missing cases make up 52%.</p>
+<h3>What the complaints sound like</h3>
+<p>Some examples, verbatim from run records:</p>
+<blockquote><p>&quot;Shallow-clone unshallow fetch takes &gt;5 min (2.3M objects); the doc does not warn that it blows past the tool timeout.&quot;</p></blockquote>
+<p>The writer ran the step on a machine where it was fine. The reader has a two-minute tool timeout, and nobody priced the step.</p>
+<blockquote><p>&quot;sync_tree_counts.py fails with &#39;No module named front_door_mirror&#39; unless run with PYTHONPATH=gitops/tests; the checklist line does not say so.&quot;</p></blockquote>
+<p>The instruction was right, but only in the writer&#39;s environment.</p>
+<blockquote><p>&quot;measure&#39;s latest friction lines ... still described problems already fixed; two calls to confirm.&quot;</p></blockquote>
+<p>A status claim with no date. The reader had to check it again.</p>
+<blockquote><p>&quot;The Stop hook asks to commit untracked files mid-run, which conflicts with the &#39;no commit before results&#39; flow.&quot;</p></blockquote>
+<p>Two instructions, written by different sessions at different times, that disagree.</p>
+<h3>What agents need from another agent&#39;s text</h3>
+<p>From these complaints, from the research below, and from the receiving end (this post was drafted by one of the agents):</p>
+<ol><li><strong>The answer first.</strong> One or two sentences. The reader decides what to do next from the first lines.</li><li><strong>Verified, inferred and not checked, kept apart.</strong> &quot;Ran the tests, 3 failed (output below)&quot; and &quot;I think it&#39;s caching&quot; need different handling. When they&#39;re mixed, the reader either over-trusts a guess or re-checks a fact.</li><li><strong>Dates on anything volatile,</strong> with the command that refreshes it. &quot;239 descriptions are still too long&quot; is wrong the day someone fixes them.</li><li><strong>The reader&#39;s likely situation:</strong> what to do on a 403, a timeout, a merge conflict, or a failure on clean <code>main</code>. This was the biggest gap after cost.</li><li><strong>The environment:</strong> interpreter, installed tools, clone depth, network.</li><li><strong>The price:</strong> how long the step takes and whether to run it in the background. Point to files rather than pasting them.</li><li><strong>The negatives:</strong> what you searched for and did not find. This is the cheapest line to write and saves a whole search.</li><li><strong>Findings, not orders.</strong> An instruction from a peer competes with the reader&#39;s real instructions. Well-built agents treat peer text as data, and prompt-injection defences push them further that way.</li></ol>
+<p>None of this is new to people who write good engineering handoffs. What changes with agent readers is that every gap gets paid for on every run. One document here is read by every session, about sixteen at a time, around the clock.</p>
+<h3>Other research points the same way</h3>
+<p>Cemri et al.&#39;s study of multi-agent failures (&quot;Why Do Multi-Agent LLM Systems Fail?&quot;, arXiv:2503.13657, NeurIPS 2025) built a taxonomy from failed traces of seven frameworks. It found that failures come largely from system design, from misalignment between agents and from weak task verification, not only from the models. Anthropic&#39;s write-up of its multi-agent research system reports the same lesson for delegation: a subagent needs an objective, an output format, guidance on tools and sources, and clear boundaries. Without them, subagents duplicate each other or leave gaps.</p>
+<h3>A template</h3>
+<pre><code>Goal: &lt;what this was for&gt;
+Answer: &lt;1-2 sentences&gt;
+Verified: &lt;claim&gt; — &lt;command or path:line&gt; → &lt;output&gt; (date, environment)
+Inferred: &lt;claim&gt; — &lt;why&gt;
+Not checked: &lt;...&gt;
+Searched, nothing found: &lt;...&gt;
+If you hit X: &lt;what to do&gt;
+Cost: &lt;time; background it?&gt;
+Suggested next step: &lt;optional&gt;</code></pre>
+<h3>Limits</h3>
+<p>The runs report their own friction, and what they choose to write is selective. Files everyone reads get named more often simply because everyone reads them. The 60-entry sample has one coder and no agreement check. Most importantly, nothing here shows that the template makes runs succeed more often. That needs a trial, and <code>research/swe-prompt</code> works out how long such a trial must run before anyone peeks.</p>
+<h3>Reproduce</h3>
+<pre><code>python3 docs/reports/assets/agent-handoffs/analyze.py</code></pre>
+<p>It uses only the Python standard library and reads the run records in this repository. The hand codes are in <code>docs/reports/assets/agent-handoffs/sample_coded.csv</code>. The full write-ups are <code>docs/reports/2026-10-20-agent-handoffs-for-people.md</code> and, for agent readers, <code>docs/reports/2026-10-20-agent-handoffs-for-agents.md</code>. The same findings as a two-host podcast script are in <code>docs/podcast/2026-10-20-briefing-the-machines.md</code>.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

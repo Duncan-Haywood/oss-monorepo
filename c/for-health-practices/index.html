@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free tools for private practices, therapists and clinics | Open Tools and Research</title>
+  <meta name="description" content="Free tools for private practices: payer mix, the therapy 8-minute rule, good faith estimates, ABA authorizations, dental PPO write-offs and more.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/c/for-health-practices/">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../../favicon.ico" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="Open Tools and Research — new tools" href="../../feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Free tools for private practices, therapists and clinics">
+  <meta property="og:description" content="Free tools for private practices: payer mix, the therapy 8-minute rule, good faith estimates, ABA authorizations, dental PPO write-offs and more.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/c/for-health-practices/">
+  <meta property="og:site_name" content="Open Tools and Research">
+  <meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card-for-health-practices.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Free tools for private practices, therapists and clinics — free, private, in your browser">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Free tools for private practices, therapists and clinics","url":"https://duncan-haywood.github.io/monorepo-projects/c/for-health-practices/","description":"Free tools for private practices: payer mix, the therapy 8-minute rule, good faith estimates, ABA authorizations, dental PPO write-offs and more.","isPartOf":{"@type":"WebSite","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Therapists \u0026 clinics","item":"https://duncan-haywood.github.io/monorepo-projects/c/for-health-practices/"}]},"mainEntity":{"@type":"ItemList","numberOfItems":10,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://duncan-haywood.github.io/monorepo-projects/aba-authorization-tracker/","name":"ABA authorization tracker: units, expirations and reauth dates — free, private"},{"@type":"ListItem","position":2,"url":"https://duncan-haywood.github.io/monorepo-projects/chiropractor-new-patient-roi-calculator/","name":"Chiropractor New Patient ROI Calculator — free"},{"@type":"ListItem","position":3,"url":"https://duncan-haywood.github.io/monorepo-projects/dental-associate-pay-calculator/","name":"Dental Associate Pay Calculator — free, private, in your browser"},{"@type":"ListItem","position":4,"url":"https://duncan-haywood.github.io/monorepo-projects/dental-patient-financing-fee-calculator/","name":"Dental patient financing fee calculator"},{"@type":"ListItem","position":5,"url":"https://duncan-haywood.github.io/monorepo-projects/dental-ppo-writeoff-calculator/","name":"Dental PPO Write-Off Calculator"},{"@type":"ListItem","position":6,"url":"https://duncan-haywood.github.io/monorepo-projects/good-faith-estimate-generator/","name":"Good Faith Estimate generator for self-pay patients — free, private"},{"@type":"ListItem","position":7,"url":"https://duncan-haywood.github.io/monorepo-projects/massage-therapist-profit-calculator/","name":"Massage Therapist Profit Calculator — free, private, in your browser"},{"@type":"ListItem","position":8,"url":"https://duncan-haywood.github.io/monorepo-projects/medical-billing-pricing-calculator/","name":"Medical billing pricing calculator: percent vs per-claim vs flat"},{"@type":"ListItem","position":9,"url":"https://duncan-haywood.github.io/monorepo-projects/private-practice-payer-mix-calculator/","name":"Private Practice Payer Mix Calculator — free, private, in your browser"},{"@type":"ListItem","position":10,"url":"https://duncan-haywood.github.io/monorepo-projects/therapy-8-minute-rule-calculator/","name":"Therapy 8-minute rule calculator"}]}}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .starting { margin: 12px 0 0; max-width: 70ch; line-height: 1.6; padding: 12px 14px;
+                border-left: 3px solid var(--accent); background: var(--panel); border-radius: 0 9px 9px 0; }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    .jumps { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .jumps a { font-size: .85rem; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+               background: var(--panel); color: var(--ink); text-decoration: none; }
+    .jumps a:hover, .jumps a:focus-visible { border-color: var(--accent); }
+    .jumps span { color: var(--soft); }
+    .filter { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .filter label { font-size: .87rem; font-weight: 650; }
+    .filter input { flex: 1 1 260px; max-width: 420px; font: inherit; padding: 9px 12px; border-radius: 9px;
+                    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .filter span { font-size: .85rem; color: var(--muted); }
+    .filter[hidden] { display: none; }
+    .card .deploy-link { display: inline-block; margin-top: 10px; font-size: .85rem; font-weight: 650;
+                         color: var(--accent); text-decoration: none; }
+    .card .deploy-link:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+  </style>
+  <link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../c/">Tools</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Therapists &amp; clinics</span></span></nav>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Therapists &amp; clinics</p>
+      <h1>Free tools for private practices, therapists and clinics</h1>
+      <p class="lede">Tools for small health practices: billing rules such as the 8-minute rule, good faith estimates, payer mix, authorisation tracking, dental associate pay and PPO write-offs, and the economics of a massage or chiropractic practice.</p>
+      <p class="starting">Opening a private practice? The payer mix calculator shows what accepting each insurer does to your average visit before you sign their contract.</p>
+      <p class="count">10 free tools · no account · nothing you type is uploaded</p>
+    </header>
+    <nav class="jumps" aria-label="Sections on this page">
+      <a href="#for-health-practices-services">Service business pricing &amp; quotes <span>6</span></a>
+      <a href="#for-health-practices-backoffice">Back-office money &amp; contracts <span>4</span></a>
+    </nav>
+
+
+    <main>
+      <section class="subgroup" id="for-health-practices-services">
+        <h2>Service business pricing &amp; quotes <span class="subgroup-count">6</span></h2>
+        <ul class="cards">
+          <li class="card">
+            <a href="../../aba-authorization-tracker/" data-tool="aba-authorization-tracker" data-pf-to="aba-authorization-tracker">
+              <h3>ABA authorization tracker: units, expirations and reauth dates — free, private</h3>
+            </a>
+            <p>Free ABA authorization tracker: paste your authorizations and see which units run out early, which expire unused, and when each reauthorization is due. Private, runs in your…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../dental-patient-financing-fee-calculator/" data-tool="dental-patient-financing-fee-calculator" data-pf-to="dental-patient-financing-fee-calculator">
+              <h3>Dental patient financing fee calculator</h3>
+            </a>
+            <p>Free calculator for dental and orthodontic practices: third-party patient financing vs an in-house payment plan vs pay-in-full. What you keep per case after merchant fees…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../good-faith-estimate-generator/" data-tool="good-faith-estimate-generator" data-pf-to="good-faith-estimate-generator">
+              <h3>Good Faith Estimate generator for self-pay patients — free, private</h3>
+            </a>
+            <p>Free Good Faith Estimate generator for the No Surprises Act: list services with codes and charges, get a printable estimate, the delivery deadline, a completeness check, a $400…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../massage-therapist-profit-calculator/" data-tool="massage-therapist-profit-calculator" data-pf-to="massage-therapist-profit-calculator">
+              <h3>Massage Therapist Profit Calculator — free, private, in your browser</h3>
+            </a>
+            <p>Massage therapist profit calculator for solo therapists and clinic owners. Enter session types, minutes, supplies, no-shows and sessions per week to see profit per hour after…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../medical-billing-pricing-calculator/" data-tool="medical-billing-pricing-calculator" data-pf-to="medical-billing-pricing-calculator">
+              <h3>Medical billing pricing calculator: percent vs per-claim vs flat</h3>
+            </a>
+            <p>Free medical billing pricing calculator: compare percent of collections, per-claim and flat monthly fees against your cost to serve a practice. See margin, break-even claim…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../therapy-8-minute-rule-calculator/" data-tool="therapy-8-minute-rule-calculator" data-pf-to="therapy-8-minute-rule-calculator">
+              <h3>Therapy 8-minute rule calculator</h3>
+            </a>
+            <p>Free 8-minute rule calculator for physical and occupational therapy clinics: paste each visit's timed CPT minutes, get billable units under the CMS rule, which code gets each…</p>
+            
+          </li>
+        </ul>
+      </section>
+      <section class="subgroup" id="for-health-practices-backoffice">
+        <h2>Back-office money &amp; contracts <span class="subgroup-count">4</span></h2>
+        <ul class="cards">
+          <li class="card">
+            <a href="../../chiropractor-new-patient-roi-calculator/" data-tool="chiropractor-new-patient-roi-calculator" data-pf-to="chiropractor-new-patient-roi-calculator">
+              <h3>Chiropractor New Patient ROI Calculator — free</h3>
+            </a>
+            <p>Free chiropractor new patient ROI calculator: cost to acquire a patient, patient lifetime value by segment, payback in visits, and the most you can spend per lead. Works for…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../dental-associate-pay-calculator/" data-tool="dental-associate-pay-calculator" data-pf-to="dental-associate-pay-calculator">
+              <h3>Dental Associate Pay Calculator — free, private, in your browser</h3>
+            </a>
+            <p>Free dental associate pay calculator. Enter two offers, percent of production or collections, daily guarantee and lab fee share, to see what each pays at your expected production…</p>
+            
+          </li>
+          <li class="card">
+            <a href="../../dental-ppo-writeoff-calculator/" data-tool="dental-ppo-writeoff-calculator" data-pf-to="dental-ppo-writeoff-calculator">
+              <h3>Dental PPO Write-Off Calculator</h3>
+            </a>
+            <p>Your fee schedule is not what you collect. Enter one month of production and contractual write-offs by carrier and see the effective reimbursement rate for every plan, which plans…</p>
+            <p class="meta">5 questions answered</p>
+          </li>
+          <li class="card">
+            <a href="../../private-practice-payer-mix-calculator/" data-tool="private-practice-payer-mix-calculator" data-pf-to="private-practice-payer-mix-calculator">
+              <h3>Private Practice Payer Mix Calculator — free, private, in your browser</h3>
+            </a>
+            <p>Payer mix calculator for therapists and counselors in private practice. See what each insurance panel and your cash fee really net per session and per clinical hour after denials…</p>
+            
+          </li>
+        </ul>
+      </section>
+      <p class="empty" id="cat-filter-empty" hidden>No tool on this page matches that. <a href="../../#search">Search every tool</a>.</p>
+    </main>
+
+    <section class="siblings">
+      <h2>Other tools on this site</h2>
+      <ul>
+        <li><a href="../../c/self-hosted/">Self-hosted business apps</a> <span>(31)</span></li>
+        <li><a href="../../c/marketplace/">Free marketplace seller fee calculators</a> <span>(117)</span></li>
+        <li><a href="../../c/trades/">Free contractor bid calculators and estimating tools</a> <span>(187)</span></li>
+        <li><a href="../../c/food-service/">Free menu, pour cost and food truck pricing calculators</a> <span>(69)</span></li>
+        <li><a href="../../c/services/">Free pricing calculators for service businesses</a> <span>(197)</span></li>
+        <li><a href="../../c/logistics/">Free freight, 3PL and cloud cost calculators</a> <span>(36)</span></li>
+        <li><a href="../../c/evidence/">Free compliance check and evidence record tools</a> <span>(117)</span></li>
+        <li><a href="../../c/uk-tax/">Free UK tax, pay and benefits calculators</a> <span>(56)</span></li>
+        <li><a href="../../c/backoffice/">Free small-business cash flow and pricing tools</a> <span>(216)</span></li>
+        <li><a href="../../c/ci/">Free CI checks and developer gates</a> <span>(175)</span></li>
+        <li><a href="../../c/solo-earner/">Creator &amp; solo earner income</a> <span>(94)</span></li>
+        <li><a href="../../c/research-algorithms/">Research algorithms &amp; ML</a> <span>(3)</span></li>
+        <li><a href="../../c/learning/">Learning &amp; practice</a> <span>(4)</span></li>
+        <li><a href="../../c/more/">More free small-business calculators</a> <span>(5)</span></li>
+      </ul>
+    </section>
+    <section class="siblings">
+      <h2>Free tools by trade and business</h2>
+      <ul>
+        <li><a href="../../c/for-roofers/">Roofers</a> <span>(12)</span></li>
+        <li><a href="../../c/for-hvac/">HVAC contractors</a> <span>(10)</span></li>
+        <li><a href="../../c/for-plumbers/">Plumbers</a> <span>(10)</span></li>
+        <li><a href="../../c/for-electricians/">Electricians</a> <span>(8)</span></li>
+        <li><a href="../../c/for-painters/">Painters</a> <span>(8)</span></li>
+        <li><a href="../../c/for-cleaning-businesses/">Cleaning businesses</a> <span>(14)</span></li>
+        <li><a href="../../c/for-landscapers/">Landscapers</a> <span>(16)</span></li>
+        <li><a href="../../c/for-pool-hot-tub/">Pool &amp; hot tub pros</a> <span>(6)</span></li>
+        <li><a href="../../c/for-auto-detailing-repair/">Auto detailing &amp; repair</a> <span>(10)</span></li>
+        <li><a href="../../c/for-etsy-sellers/">Etsy sellers</a> <span>(5)</span></li>
+        <li><a href="../../c/for-ebay-sellers/">eBay sellers</a> <span>(5)</span></li>
+        <li><a href="../../c/for-amazon-sellers/">Amazon sellers &amp; KDP authors</a> <span>(10)</span></li>
+        <li><a href="../../c/for-shopify-stores/">Shopify stores</a> <span>(12)</span></li>
+        <li><a href="../../c/for-resellers/">Resellers</a> <span>(15)</span></li>
+        <li><a href="../../c/for-landlords/">Landlords &amp; hosts</a> <span>(27)</span></li>
+        <li><a href="../../c/for-freelancers/">Freelancers</a> <span>(40)</span></li>
+        <li><a href="../../c/for-photographers/">Photographers &amp; videographers</a> <span>(7)</span></li>
+        <li><a href="../../c/for-wedding-event-pros/">Wedding &amp; event pros</a> <span>(19)</span></li>
+        <li><a href="../../c/for-restaurants-bars/">Restaurants, cafes &amp; bars</a> <span>(21)</span></li>
+        <li><a href="../../c/for-pet-businesses/">Pet businesses</a> <span>(15)</span></li>
+        <li><a href="../../c/for-creators/">Creators</a> <span>(18)</span></li>
+        <li><a href="../../c/for-childcare/">Childcare providers</a> <span>(4)</span></li>
+        <li><a href="../../c/for-tutors-teachers/">Tutors &amp; teachers</a> <span>(11)</span></li>
+        <li><a href="../../c/for-truckers/">Truckers &amp; owner-operators</a> <span>(9)</span></li>
+        <li><a href="../../c/for-farms/">Farms &amp; homesteads</a> <span>(18)</span></li>
+        <li><a href="../../c/for-salons-beauty/">Salons &amp; beauty pros</a> <span>(8)</span></li>
+      </ul>
+    </section>
+
+    <footer>
+      <h2>No warranty</h2>
+      <p>
+        These tools are provided free and as-is, without warranty of any kind,
+        express or implied. They are not legal, tax, financial, or engineering
+        advice, and they do not replace a qualified professional.
+        <strong>You are responsible for reviewing and verifying any output
+        before relying on it</strong>, and for meeting any obligation it helps
+        you prepare for. To the maximum extent permitted by law, the authors
+        accept no liability for any loss or damage arising from their use.
+      </p>
+      <h2>Best-effort hosting, no SLA</h2>
+      <p>
+        These tools are free and experimental, and may be slow, broken, moved,
+        or taken offline without notice. We do not promise uptime, backups of
+        anything you type, or that a URL will keep working. Do not use them as
+        a system of record. If a tool needs to survive, export your inputs —
+        every one of them is open source and runs from a local file.
+      </p>
+      <h2>Privacy</h2>
+      <p>
+        Everything runs in your browser. What you type is never uploaded: there
+        is no account system, no tracking cookie, no analytics vendor, and no
+        server that could receive it. Except Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, Interview Content Studio: one interview, a month of content for every platform, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Turn meeting notes into owned, dated action items, Meter Keeper, MRR Pulse, Simulate conversations between fictional personalities, PQL Radar, Price drop alerts for any shop, on your own GitHub, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Cadence Builder, Sales Call Notes Desk, Shift Roster Builder, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay — each of which checks a live public API as its whole job, so what you paste there to look up goes to raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, localhost:11434, localhost:1234, localhost:8080, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, api.postmarkapp.com, api.sendgrid.com, stripe.com, proxy.local, ntfy.sh, pypi.org, api.usaspending.gov, duncan-haywood.github.io, www.w3.org, api.github.com, and marketplace.visualstudio.com and nowhere else. <a href="../../about/">About</a> says exactly what. We count anonymous, aggregate events —
+        which tools get opened, never anything about who opened them — and that
+        count stays in your own browser's local storage. Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>
+      <p class="pfs-foot"><a href="../../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../../research/">Research</a><span aria-hidden="true"> · </span><a href="../../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../../updates/">Updates &amp; roadmap</a><span aria-hidden="true"> · </span><a href="../../changelog/">Changelog</a><span aria-hidden="true"> · </span><a href="../../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../../lab/">Lab</a><span aria-hidden="true"> · </span><a href="../../feedback/">Report a problem or suggest a feature</a><span aria-hidden="true"> · </span><a href="../../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../../dev/daily/">Daily brief &amp; The Merge Report</a><span aria-hidden="true"> · </span><a href="../../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="../../changelog/feed.xml">Changelog feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+      <p><a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a> is optional and changes nothing about what these tools do.</p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every tool page loads, with the
+       category as its slug. Without it a category page is unmeasurable: we
+       would not know whether search sends anyone to one, nor whether the people
+       it does send go on to open a tool — which is the only evidence that would
+       justify keeping these pages or writing more of them. The cross_tool_click
+       count on each card is the second half of that: arrivals without opens
+       means the copy is wrong, not that the page is unwanted. -->
+  <script src="../../pf-site.js" data-pf-slug="c/for-health-practices" defer></script>
+</body>
+</html>

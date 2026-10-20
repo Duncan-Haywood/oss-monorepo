@@ -1,0 +1,59 @@
+{
+  "slug": "irrigation-winterization-bid-calculator",
+  "name": "Irrigation winterization",
+  "group": "Landscaping & outdoor",
+  "summary": "Sprinkler blowouts priced per spray, rotor and drip zone plus backflows, travel and a minimum stop.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.35,
+  "minOnSiteHours": 1,
+  "hourlyWage": 26,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 30,
+  "milesOneWay": 10,
+  "tripFee": 25,
+  "items": [
+    {
+      "label": "Blow out spray zones",
+      "unit": "zone",
+      "qty": 6,
+      "hoursPerUnit": 0.06667,
+      "materialPerUnit": 0,
+      "source": "4 min per spray zone (MINUTES_PER_ZONE, index.html); 6 spray zones in STARTING_SYSTEMS"
+    },
+    {
+      "label": "Blow out rotor zones",
+      "unit": "zone",
+      "qty": 2,
+      "hoursPerUnit": 0.08333,
+      "materialPerUnit": 0,
+      "source": "5 min per rotor zone; 2 rotor zones in STARTING_SYSTEMS"
+    },
+    {
+      "label": "Blow out drip zones",
+      "unit": "zone",
+      "qty": 2,
+      "hoursPerUnit": 0.1333,
+      "materialPerUnit": 0,
+      "source": "8 min per drip zone; 2 drip zones in STARTING_SYSTEMS"
+    },
+    {
+      "label": "Drain and insulate backflow",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 0.25,
+      "materialPerUnit": 0,
+      "source": "15 min per backflow (MINUTES_PER_BACKFLOW), 1 backflow (index.html)"
+    },
+    {
+      "label": "Compressor fuel and fittings",
+      "unit": "stop",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 16.0,
+      "source": "Compressor / fuel $12 + fittings $4 per stop (index.html)"
+    }
+  ],
+  "specialistModels": "Prices several systems per stop, applies a freeze-call after-hours premium, and times travel at 35 mph from miles one way."
+}

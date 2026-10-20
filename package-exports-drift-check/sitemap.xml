@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/vs-manually-checking-exports-targets.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/vs-publint.html</loc></url>
+  <url><loc>https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/why-package-json-exports-fields-drift-from-what-you-actually-publish.html</loc></url>
+</urlset>

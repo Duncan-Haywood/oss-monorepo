@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engineering brief, Saturday, 17 October 2026</title>
+<meta name="description" content="Engineering brief for Saturday, 17 October 2026: A morning brief for the engineering manager of the whole repository: CI and main, owner decisions, every product and research project that moved, the agent fleet and a watch list. About 15 minutes to read or listen.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-17/">
+<link rel="alternate" type="application/atom+xml" title="Daily engineering brief and The Merge Report" href="../feed.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Engineering brief, Saturday, 17 October 2026","datePublished":"2026-10-17","description":"Engineering brief for Saturday, 17 October 2026: A morning brief for the engineering manager of the whole repository: CI and main, owner decisions, every product and research project that moved, the agent fleet and a watch list. About 15 minutes to read or listen.","isAccessibleForFree":true,"author":{"@type":"Organization","name":"monorepo-projects"},"url":"https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-17/"}</script>
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7; --hl:#fff3c4; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542; --accent:#7aa2ff; --hl:#3b3416; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+  .wrap { max-width:760px; margin:0 auto; padding:24px 16px 56px; }
+  a { color:var(--accent); }
+  h1 { margin:.2em 0 .1em; line-height:1.25; } h2 { margin-top:1.8em; font-size:1.2rem; }
+  .kicker { text-transform:uppercase; letter-spacing:.06em; font-size:.78rem; color:var(--muted); margin:0; }
+  .meta, .note { color:var(--muted); font-size:.9rem; }
+  .listen { position:sticky; top:0; z-index:5; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin:16px 0 8px; display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; }
+  .listen .controls { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .listen button { font:inherit; padding:6px 14px; border-radius:8px; border:1px solid var(--line); background:var(--accent); color:#fff; cursor:pointer; }
+  .listen button[data-act=stop] { background:transparent; color:var(--ink); }
+  .listen button:disabled { opacity:.5; cursor:default; }
+  .listen select { font:inherit; font-size:.9rem; max-width:220px; padding:4px; border-radius:6px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+  .listen .status, .listen .unsupported { color:var(--muted); font-size:.85rem; }
+  .speaking { background:var(--hl); border-radius:4px; box-shadow:0 0 0 4px var(--hl); }
+  .switch { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .switch a { padding:4px 12px; border:1px solid var(--line); border-radius:999px; text-decoration:none; font-size:.9rem; background:var(--panel); }
+  .switch a[aria-current] { background:var(--accent); color:#fff; border-color:var(--accent); }
+  li { margin:.35em 0; } .pr { font-size:.85em; white-space:nowrap; }
+  .archive { columns:2 220px; padding-left:1.1em; }
+  .disclaimer { margin-top:2.5em; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+</style>
+<link rel="stylesheet" href="../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../c/">Tools</a><a data-pfs-nav="research" href="../../../research/">Research</a><a data-pfs-nav="writing" href="../../../writing/">Writing</a><a data-pfs-nav="updates" href="../../../updates/">Updates</a><a data-pfs-nav="ask" href="../../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../about/">About</a></span><form class="pfs-search" action="../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../">Development dashboard</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../">Daily</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Engineering brief</span></span></nav>
+<main class="wrap">
+  <p class="kicker">Engineering brief · Saturday, 17 October 2026</p>
+  <h1>Engineering brief, Saturday, 17 October 2026</h1>
+  <p class="meta">About 15 minutes aloud (2,265 words). A morning brief for the engineering manager of the whole repository: CI and main, owner decisions, every product and research project that moved, the agent fleet and a watch list.</p>
+  <nav class="switch" aria-label="Edition"><a href="../2026-10-17/" aria-current="page">Engineering brief</a><a href="../2026-10-17/show/">The Merge Report</a></nav>
+  <div class="listen" id="listen" data-kind="brief">
+    <div class="controls" hidden>
+      <button type="button" data-act="play">&#9654; Listen</button>
+      <button type="button" data-act="stop" disabled>Stop</button>
+      <label>Speed <select name="rate"><option value="0.9">0.9×</option><option value="1" selected>1×</option><option value="1.15">1.15×</option><option value="1.3">1.3×</option><option value="1.5">1.5×</option></select></label>
+      <label>Voice <select name="voice"><option value="">Device default</option></select></label>
+      <span class="status" aria-live="polite"></span>
+    </div>
+    <span class="unsupported" hidden>This browser cannot read aloud; the full script is below.</span>
+    <noscript><span class="status">Listening needs JavaScript; the full script is below.</span></noscript>
+  </div>
+<section id="bottom-line"><h2 data-say>The bottom line</h2>
+<p data-say>Good morning. This is the engineering brief for Saturday, 17 October 2026: everything that merged to main between midnight and midnight UTC, and what needs you.</p>
+<p data-say>277 pull requests merged, 139% above the seven-day average of 115.7. Together they changed 11,982 files, adding 107,721 lines and removing 2,979. The work reached 43 products and 83 research projects.</p>
+<p data-say>The headlines: 6 new products joined the catalogue, 42 new research projects started and 12 decisions still wait on the owner.</p></section>
+<section id="health"><h2 data-say>Health: CI, main and the queue</h2>
+<p data-say>This edition is from the archive, so the CI and pull-request state of that day was not recorded; the live numbers are in the newest edition and on the development dashboard.</p>
+<p data-say>Fix-forwards: 2 merges repaired a red main or a failing check without reverting.</p>
+<ul><li data-say>stripe-churn-cohort-analyzer: visible FAQ matches JSON-LD (fixes red build on main). faq-visible.test.mjs was red on main (build check) since #7755. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7761">#7761</a></li><li data-say>ci: fix two red tests on main (publish-surface snapshot, adopt_stranded) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7855">#7855</a></li></ul></section>
+<section id="decisions"><h2 data-say>Decisions waiting on you</h2>
+<p data-say>12 decisions only the owner can make are queued. In the decision queue’s own order, highest leverage first:</p>
+<ul><li data-say>payout-rail, waiting 59 days, gates revenue: Decide the binary in break-even.md: either commit to a merchant-of-record account (and the egress entry it needs), or say plainly that this portfolio is not going to earn under the current design, so the fleet cadence…</li><li data-say>funding-sponsors-live, waiting 54 days, gates revenue: Say yes or no to a live &quot;Sponsor&quot; button on this repo pointing at the owner&#39;s own GitHub Sponsors profile.</li><li data-say>pages-custom-domain, waiting 37 days, gates distribution: URGENT as of 2026-10-01 -- domain-takeover risk.</li><li data-say>egress-policy, waiting 59 days, gates measurement: One read-only egress allowlist decision covering api.wordpress.org, four public storefronts (formulae.brew.sh, www.raycast.com, obsidian.md, zed.dev) and the EU/US institutional publishers (eur-lex.europa.eu,…</li><li data-say>local-site-studio-subtree-gate-crossing, waiting 54 days, gates deployment: Review the already-merged #731 (1,405-commit local-site-studio subtree merge, 7b69f3d) and decide whether to accept it as-is or revert it.</li></ul>
+<p data-say>The other 7 are listed by the decision-queue tool.</p></section>
+<section id="products"><h2 data-say>Products</h2>
+<p data-say>Work landed on 43 products, 131 merges in all. New in the catalogue: survey-keeper, actions-schedule-check, aid-award-letter-comparator, review-reply-desk, jwt-security-check and sales-call-notes-desk.</p>
+<p data-say>league-schedule-generator: 25 merges.</p>
+<ul><li data-say>Double-elimination play-off bracket <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7586">#7586</a></li><li data-say>Redteam: league-schedule-generator calc tests close 3 escaped mutants <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7594">#7594</a></li><li data-say>Rest-between-games report <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7613">#7613</a></li><li data-say>Team withdrawals mid-season <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7611">#7611</a></li><li data-say>Rematch spacing report for double round-robins <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7630">#7630</a></li></ul>
+<p data-say>Plus 20 more product changes.</p>
+<p data-say>shift-roster-builder: 25 merges.</p>
+<ul><li data-say>Print a wall copy of the schedule (no pay shown) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7582">#7582</a></li><li data-say>How-to-avoid-clopening page, rest-gap costs measured on the sample cafe <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7590">#7590</a></li><li data-say>Unpaid meal-break deduction in payroll and overtime <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7598">#7598</a></li><li data-say>Per-day payroll and labor share of sales <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7604">#7604</a></li><li data-say>Shift-swap finder (one-for-one trades that keep both weeks valid) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7595">#7595</a></li></ul>
+<p data-say>Plus 20 more product changes.</p>
+<p data-say>state-residency-day-counter: 15 merges.</p>
+<ul><li data-say>Import Google Timeline history as stays <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7585">#7585</a></li><li data-say>Convenience-of-the-employer guide <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7624">#7624</a></li><li data-say>Day-by-day audit log CSV <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7646">#7646</a></li><li data-say>Printable audit packet (days by state, ranges, day-by-day log with evidence column) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7667">#7667</a></li><li data-say>Trip what-if (days added, limit crossed, longest safe trip) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7689">#7689</a></li></ul>
+<p data-say>Plus 10 more product changes.</p>
+<p data-say>crypto-cost-basis-calculator: 8 merges.</p>
+<ul><li data-say>Binance.US transaction-history importer <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7644">#7644</a></li><li data-say>Form 8949 Part I/II and Schedule D totals under the rows <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7653">#7653</a></li><li data-say>Crypto.com App transaction-history importer <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7692">#7692</a></li><li data-say>Gemini transaction-history importer <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7713">#7713</a></li><li data-say>Wallet-to-wallet transfers move lots with date and basis in per-wallet mode <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7742">#7742</a></li></ul>
+<p data-say>Plus 3 more product changes.</p>
+<p data-say>event-seating-chart-optimizer: 6 merges.</p>
+<ul><li data-say>Print table signs (one sheet per table) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7600">#7600</a></li><li data-say>Print a find-your-table list <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7641">#7641</a></li><li data-say>Guide on seating divorced parents, worked example recomputed by tests <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7703">#7703</a></li><li data-say>Meal column, per-table meal tally and caterer sheet <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7712">#7712</a></li><li data-say>Remember the guest list on this device and save/load a setup file <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7817">#7817</a></li></ul>
+<p data-say>Plus 1 more product change.</p>
+<p data-say>several products at once: 6 merges.</p>
+<ul><li data-say>Redteam: proposal-maker 2026-10-17 (resync 5 drifted byok.mjs copies, 4 boundary guards) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7671">#7671</a></li><li data-say>Distribution: pre-commit hooks channel for the venture linters <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7687">#7687</a></li><li data-say>SEO: brand 127 comparison-page titles with the product name (13 were identical across ventures) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7789">#7789</a></li><li data-say>Calculators: cap unbounded loops that hung or OOM&#39;d on a typed 1e12 (5 fixed) + calc_extremes probe <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7792">#7792</a></li><li data-say>READMEs name the alternatives for five ventures (401k fees, A/B test, ACA cliff, 1099-K, AI coding plan) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7811">#7811</a></li></ul>
+<p data-say>Plus 1 more product change.</p>
+<p data-say>cheap-meal-plan-optimizer: 4 merges.</p>
+<ul><li data-say>Variety limit (max share of calories from one food) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7658">#7658</a></li><li data-say>Copy share link (menu and targets in the URL fragment) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7665">#7665</a></li><li data-say>Weekly shopping list in whole packs with leftovers <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7724">#7724</a></li><li data-say>READMEs name the alternatives for three prototype ventures <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7800">#7800</a></li></ul>
+<p data-say>ab-test-significance-calculator: 2 merges.</p>
+<ul><li data-say>A/B/n panel with Holm-adjusted p-values <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7826">#7826</a></li><li data-say>Smallest detectable lift for a given traffic <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7835">#7835</a></li></ul>
+<p data-say>ad-spend-saturation-optimizer: 2 merges.</p>
+<ul><li data-say>Marginal vs average ROAS article (SEO, numbers from the engine) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7629">#7629</a></li><li data-say>Fit week-to-week carry-over (adstock) per channel <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7728">#7728</a></li></ul>
+<p data-say>economic-nexus-threshold-tracker: 2 merges.</p>
+<ul><li data-say>Import an orders CSV, total 12-month sales per state, project crossing dates <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7737">#7737</a></li><li data-say>Show percent of threshold used per state <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7746">#7746</a></li></ul>
+<p data-say>gig-driver-net-pay-calculator: 2 merges.</p>
+<ul><li data-say>Per-offer accept/decline page with minimum payout solver. Prices one delivery or rideshare offer (payout, miles, minutes incl. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7783">#7783</a></li><li data-say>Process: land stranded gig-driver offer FAQ fix; P034 pr field <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7816">#7816</a></li></ul>
+<p data-say>hoa-reserve-fund-calculator: 2 merges.</p>
+<ul><li data-say>Add a guide page on how much should be in an HOA reserve fund. Closes the guide-coverage gap for this venture (had a vs-spreadsheet comparison page but no informational guide). <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7553">#7553</a></li><li data-say>Redteam: hoa-reserve-fund-calculator 2026-10-17 — guard 3 escaped mutants <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7764">#7764</a></li></ul>
+<p data-say>stripe-churn-cohort-analyzer: 2 merges.</p>
+<ul><li data-say>CLI with churn-threshold exit code + vs ChartMogul/Baremetrics page <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7755">#7755</a></li><li data-say>Value of lower churn (page card and --what-if) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7762">#7762</a></li></ul>
+<p data-say>actions-checkout-credentials-check: 1 merge.</p>
+<ul><li data-say>Note when the flagged job also runs git push. Found by running the checker on this repo&#39;s own 525 workflows: two of the three findings are jobs that push, where the persisted credential may be deliberate. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7627">#7627</a></li></ul>
+<p data-say>ai-engineering-academy: 1 merge.</p>
+<ul><li data-say>README opens with live calculators link <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7675">#7675</a></li></ul>
+<p data-say>aid-award-letter-comparator: 1 merge.</p>
+<ul><li data-say>Compare college financial aid offers by true multi-year cost <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7676">#7676</a></li></ul>
+<p data-say>au-sole-trader-tax-set-aside-calculator: 1 merge.</p>
+<ul><li data-say>Redteam: au-sole-trader-tax-set-aside-calculator 2026-10-17. Catch rate 71% -&gt; 100% after two new tests. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7583">#7583</a></li></ul>
+<p data-say>cloud-bucket-exposure-check: 1 merge.</p>
+<ul><li data-say>Land two stranded guides: overtime bonus rate, cloud bucket listing <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7821">#7821</a></li></ul>
+<p data-say>container-load-planner: 1 merge.</p>
+<ul><li data-say>READMEs name the alternatives for crypto-cost-basis, stockx-seller-payout, container-load-planner <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7802">#7802</a></li></ul>
+<p data-say>customer-lifetime-value-predictor: 1 merge.</p>
+<ul><li data-say>Command-line mode and alternatives section <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7772">#7772</a></li></ul>
+<p data-say>depop-fee-calculator: 1 merge.</p>
+<ul><li data-say>Depop, facebook-marketplace fee calculators: carry the item into the where-to-sell comparison. Reverse handoff, as mercari/poshmark/ebay/reverb already have: price, shipping and cost travel in the where-to-sell #c= payload, with region/boost (Depop) and local-pickup (Marketplace) rates sent so the receiving preset is not wrong. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7639">#7639</a></li></ul>
+<p data-say>dunning-engine: 1 merge.</p>
+<ul><li data-say>Holdout experiment measures its own recovery uplift (HOLDOUT_PCT) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7807">#7807</a></li></ul>
+<p data-say>ebay-fee-calculator: 1 merge.</p>
+<ul><li data-say>Redteam: ebay-fee-calculator csv quantity fallback guard 2026-10-17 <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7682">#7682</a></li></ul>
+<p data-say>estimate-maker: 1 merge.</p>
+<ul><li data-say>Searchable index of the 121 trade bid calculators <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7804">#7804</a></li></ul>
+<p data-say>funeral-price-list-checker: 1 merge.</p>
+<ul><li data-say>Redteam: funeral-price-list-checker 2026-10-17 boundary tests. Catch rate 4/8 -&gt; 7/7 non-equivalent mutants. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7640">#7640</a></li></ul>
+<p data-say>jwt-security-check: 1 merge.</p>
+<ul><li data-say>Land stranded venture (client-side JWT decoder and misconfiguration checker). Content from the stranded branch behind PR #7544, plus its launched.json entry. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7729">#7729</a></li></ul>
+<p data-say>kickstarter-fee-calculator: 1 merge.</p>
+<ul><li data-say>Kickstarter/patreon fee calculators: link creator-funding siblings <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7814">#7814</a></li></ul>
+<p data-say>llm-spend-guard: 1 merge.</p>
+<ul><li data-say>Sign negative dollar amounts outside the symbol. main failed test_check_money_sign on the demo page&#39;s usd() formatter, which rendered a negative as $-9.24. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7618">#7618</a></li></ul>
+<p data-say>marketplace-fee-compare: 1 merge.</p>
+<ul><li data-say>Redteam: marketplace-fee-compare calc test pins own-store as only no-buyers channel 2026-10-17 <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7596">#7596</a></li></ul>
+<p data-say>medicaid-lookback-penalty-calculator: 1 merge.</p>
+<ul><li data-say>Redteam: medicaid-lookback-penalty-calculator 2026-10-17 <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7714">#7714</a></li></ul>
+<p data-say>Also touched, 13 merges in all: mobile-bartender-event-quote, proposal-maker, qsbs-exclusion-calculator, reseller-books, reverb-fee-calculator, review-reply-desk, sbom-diff-check, sump-pump-bid-calculator, turo-host-payout-calculator, uk-child-benefit-charge-calculator, uk-marriage-allowance-calculator, walmart-marketplace-calculator and where-to-sell-calculator.</p></section>
+<section id="research"><h2 data-say>Research</h2>
+<p data-say>83 research projects moved. Started that day: house-cost, house-costsens, robofab-mujocotorque, free-qmcdr, free-rdseeds, accel-gatedmux, house-sobol, house-schedule, house-schedule-check, free-robusttails and 32 more.</p>
+<p data-say>swe-orgs: 4 merges.</p>
+<ul><li data-say>Batch 11 (Flickr deploys, Parnas modules, Nygard circuit breaker) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7674">#7674</a></li><li data-say>Batch 11 (Flickr 10+ deploys a day, Segment back to one codebase), ledger rescored at 751 runs <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7673">#7673</a></li><li data-say>Batch 13 (Rigby and Bird on review, Humble and Farley&#39;s pipeline, Beck&#39;s XP) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7684">#7684</a></li><li data-say>Batch 14, layered defences and normalization of deviance <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7686">#7686</a></li></ul>
+<p data-say>house-structure: 2 merges.</p>
+<ul><li data-say>Do the openings or the loads limit a small house&#39;s shear walls? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7706">#7706</a></li><li data-say>Garage-door front wall experiment (G) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7757">#7757</a></li></ul>
+<p data-say>house-unequal: 2 merges.</p>
+<ul><li data-say>How far can the beam under a two-span joist sit from the middle? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7726">#7726</a></li><li data-say>Report uplift at the short span&#39;s end support <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7727">#7727</a></li></ul>
+<p data-say>simdesign-fwdcheck: 2 merges.</p>
+<ul><li data-say>Do the buckling-limited L-bracket designs pass the forward-load checks? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7736">#7736</a></li><li data-say>Research: live-page links for 3 simdesign READMEs + CI guard <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7781">#7781</a></li></ul>
+<p data-say>swe-prlifetime: 2 merges.</p>
+<ul><li data-say>Real PR lifetimes and per-PR replay conflicts <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7768">#7768</a></li><li data-say>Research/swe-sharedfiles, research/swe-prlifetime: add project-page figures <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7832">#7832</a></li></ul>
+<p data-say>accel-fetchprice: 1 merge.</p>
+<ul><li data-say>Research/accel-fpga, accel-fetchprice, accel-lutft: project-page figures <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7636">#7636</a></li></ul>
+<p data-say>accel-gatedmux: 1 merge.</p>
+<ul><li data-say>AND-OR accumulator read cuts gated-WS engine area 17-28% and lifts the lane sweep to P=64 <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7605">#7605</a></li></ul>
+<p data-say>accel-lutwide: 1 merge.</p>
+<ul><li data-say>Does a wider hidden layer make product-table inference beat int8? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7822">#7822</a></li></ul>
+<p data-say>ambient-dsaudit: 1 merge.</p>
+<ul><li data-say>Research/ambient-dsaudit, ambient-dshard, ambient-goldaudit: project-page figures <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7634">#7634</a></li></ul>
+<p data-say>ambient-rechime: 1 merge.</p>
+<ul><li data-say>When is a second or third earbud tone worth it before a glance? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7756">#7756</a></li></ul>
+<p data-say>chip-systolic-abcrobust: 1 merge.</p>
+<ul><li data-say>Does the array-vs-MAC ranking survive other ABC scripts? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7833">#7833</a></li></ul>
+<p data-say>chip-toolchain: 1 merge.</p>
+<ul><li data-say>Research/osrobot-specialise, chip-toolchain, garment-pattern-fit: project-page figures. Each figure is drawn by experiments/figure.py from the committed results.txt. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7694">#7694</a></li></ul>
+<p data-say>eda-equivinterval: 1 merge.</p>
+<ul><li data-say>Research/robofab-torquebound, research/eda-equivinterval: figures on the project pages. Both figures are parsed from the committed results.txt by experiments/figure.py. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7601">#7601</a></li></ul>
+<p data-say>eda-gridorder: 1 merge.</p>
+<ul><li data-say>Does grid visiting order change how fast the Pareto front is found? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7849">#7849</a></li></ul>
+<p data-say>free-qmcdr: 1 merge.</p>
+<ul><li data-say>Low-discrepancy vs iid scenario sampling for twin policy evaluation <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7599">#7599</a></li></ul>
+<p data-say>free-rdseeds: 1 merge.</p>
+<ul><li data-say>Why the R_d lattice loses its edge at d=5 <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7602">#7602</a></li></ul>
+<p data-say>free-robusttails: 1 merge.</p>
+<ul><li data-say>Which robust paired twin test survives t(2) cells and bad runs? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7662">#7662</a></li></ul>
+<p data-say>garment-smart: 1 merge.</p>
+<ul><li data-say>Research/garment-smart, research/garment-twonodemet: add project-page figures. Both figures are parsed from each project&#39;s committed results.txt by experiments/figure.py (via research/_shared/linefig.py). <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7810">#7810</a></li></ul>
+<p data-say>garment-stackcvar: 1 merge.</p>
+<ul><li data-say>Research/garment-stackcvar, garment-stackrobust, garment-twonodestep: project-page figures <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7631">#7631</a></li></ul>
+<p data-say>garment-teardown: 1 merge.</p>
+<ul><li data-say>Add project-page figure <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7754">#7754</a></li></ul>
+<p data-say>garment-twonodealign: 1 merge.</p>
+<ul><li data-say>Research/garment-twonodecheck, -align, -gate: figures on the project pages. Each experiments/figure.py parses the committed results.txt. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7610">#7610</a></li></ul>
+<p data-say>garment-twonodeheld: 1 merge.</p>
+<ul><li data-say>Research/garment-twonodeheld, -optics, -steady: figures on the project pages. Each experiments/figure.py parses the committed results.txt. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7616">#7616</a></li></ul>
+<p data-say>garment-twonodeswitch: 1 merge.</p>
+<ul><li data-say>Add project-page figure <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7766">#7766</a></li></ul>
+<p data-say>garment-wearpair: 1 merge.</p>
+<ul><li data-say>Is a second garment better than a dearer single one? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7748">#7748</a></li></ul>
+<p data-say>garment-wearwrong: 1 merge.</p>
+<ul><li data-say>How often can a wearer pick the wrong garment before a second garment stops paying? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7777">#7777</a></li></ul>
+<p data-say>heterogeneous-steps: 1 merge.</p>
+<ul><li data-say>Research/milestone-schedules, mode-elicitation, heterogeneous-steps: project-page figures <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7622">#7622</a></li></ul>
+<p data-say>house-continuous: 1 merge.</p>
+<ul><li data-say>Two- and three-span joists; continuity helps only where deflection governs <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7722">#7722</a></li></ul>
+<p data-say>house-cost: 1 merge.</p>
+<ul><li data-say>Where a new home&#39;s price goes (track 12, milestone 4) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7584">#7584</a></li></ul>
+<p data-say>house-costsens: 1 merge.</p>
+<ul><li data-say>Does the house-cost lever ranking survive its assumed driver splits? <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7588">#7588</a></li></ul>
+<p data-say>house-energy: 1 merge.</p>
+<ul><li data-say>Cost-optimal envelope by climate (30-year NPC) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7700">#7700</a></li></ul>
+<p data-say>Also touched, 53 merges in all: house-framing, house-offsite, house-schedule, house-schedule-check, house-season, house-sobol, house-vibration, market-manipulation, market-subspace-descent, mimic-mmdmujoco, mimic-twinregret, module-entry, noisy-referee, osrobot-lipsweep, osrobot-uavgust, osrobot-uavnogo, osrobot-uavvalue, peer-prediction-effort, pipeline-replication, robofab-bootstrap, robofab-cell-blocking, robofab-cell-bound, robofab-cell-ctmc, robofab-cell-monitor, robofab-graspfast, robofab-mujocotorque, robofab-reach, robofab-toppconv, router-impurity, selfrep-alurod, selfrep-alusearch, selfrep-costpayback, selfrep-materials, selfrep-nextmachine, selfrep-redesign, selfrep-satmarket, selfrep-sparehours, selfrep-stockmass, selfrep-terminalmarket, simdesign-gaugelayers, simdesign-gaugemesh, simdesign-gradedtip, simdesign-patchstress, simdesign-rank, simdesign-shellaspect, sparse-outer-sync, speed-race, swe-audit, swe-branchlife, swe-cleanbroken, twin-control-variate, twin-multifidelity and twin-screen.</p></section>
+<section id="platform"><h2 data-say>Platform, CI and process</h2>
+<p data-say>56 merges changed the machinery the products and research run on.</p>
+<p data-say>process, prompts and the ledger: 34 merges.</p>
+<ul><li data-say>Process: interim verify P020/P021, split P017 into P030-P031 <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7592">#7592</a></li><li data-say>Process: verify P020/P021, close P014 parent <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7593">#7593</a></li><li data-say>Shift-roster-builder: prefer: cell gives people the hours they want <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7597">#7597</a></li><li data-say>Process P031: move venture-only rules to ventures/CLAUDE.md <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7603">#7603</a></li><li data-say>Prompts: review 2026-10-17 <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7620">#7620</a></li></ul>
+<p data-say>Plus 29 more platform changes.</p>
+<p data-say>platform/ci: 10 merges.</p>
+<ul><li data-say>Process P030: move merge checklist block out of CLAUDE.md <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7608">#7608</a></li><li data-say>Unlanded_work: sweep skips branches whose content is already on main <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7654">#7654</a></li><li data-say>Redteam: check_duplicate_symbols 2026-10-17 <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7696">#7696</a></li><li data-say>Research: link every project README to its live Pages page <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7731">#7731</a></li><li data-say>Process: research_idea_dupe.py, a keyword claim check over research/ project descriptions <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7738">#7738</a></li></ul>
+<p data-say>Plus 5 more platform changes.</p>
+<p data-say>platform/pages: 8 merges.</p>
+<ul><li data-say>Pages: a Writing section, with two essays on running an unattended agent fleet <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7578">#7578</a></li><li data-say>Pages: Blog in the hub&#39;s top navigation <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7619">#7619</a></li><li data-say>Process: publish-branch.sh warns when publishing behind origin/main <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7695">#7695</a></li><li data-say>Process: venture-preflight checks the mirror before the build <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7741">#7741</a></li><li data-say>Redteam: link.mjs page-script tests (catch rate 25% -&gt; 100%) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7815">#7815</a></li></ul>
+<p data-say>Plus 3 more platform changes.</p>
+<p data-say>platform/distribution: 3 merges.</p>
+<ul><li data-say>Distribution: per-channel ?ref= attribution, so channels can reach the &quot;measured&quot; rung. Every channel&#39;s link back now carries a closed-list ref tag (canonical URLs stay clean); the page chrome sends a known tag with the counter ping and strips it from the address bar; the counter keeps ref:&lt;tag&gt; per day; attribution.mjs reports each channel&#39;s… <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7563">#7563</a></li><li data-say>Distribution: launch-kit.mjs prints owner-ready Show HN / Product Hunt / AlternativeTo / awesome-list drafts for recent launches <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7852">#7852</a></li><li data-say>Distribution: nix-flake channel, 19 venture linters runnable with nix run <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7854">#7854</a></li></ul>
+<p data-say>platform/devstats: 1 merge.</p>
+<ul><li data-say>Devstats: CI runs passed, failed and cancelled per day, by workflow and trigger; red on main now. The dev dashboard showed one CI pass rate over 200 main runs. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7587">#7587</a></li></ul></section>
+<section id="fleet"><h2 data-say>The agent fleet</h2>
+<p data-say>By co-author: Claude Sonnet 5.5 on 213 merges, Claude on 58 merges, Claude Opus 5.5 on 4 merges and unattributed on 2 merges.</p>
+<p data-say>231 agent runs filed a run record for the day. By track: research 90, ventures 71, process 24, redteam 22, explore 17 and review 7. By outcome: success 216 and partial 15.</p>
+<p data-say>The 164 runs with measured usage came to $120.37 at API list prices, an equivalent rather than a charge, over 848 active minutes.</p>
+<p data-say>Runs recorded 18 errors; the first: pkill -f in my own command killed the shell once; first run.py grid too slow (25x25), reduced.</p>
+<p data-say>Documentation that cost runs time, most reported first:</p>
+<ul><li data-say>research/PROJECTS.md, 54 reports: Track 4 milestones are all done; picking &#39;the next step&#39; means choosing among many near-duplicate follow-ups whose Next steps lists repeat (peakcheck/motorcurve/torquebound), and I first started a pro.</li><li data-say>CLAUDE.md, 19 reports: pyenv.py and sync_tree_counts needed manual workarounds; no pytest installed so test line unrunnable.</li><li data-say>prompts/process/prompt-1.md, 17 reports: Backlog had only owner rows; most recent doc_friction items I checked (BrokenPipe in measure, unlanded_work sweep, done-needs-pr) were already fixed, so finding a live one took several commands.</li></ul></section>
+<section id="notes"><h2 data-say>In the runs’ own words</h2>
+<p data-say>A few notes runs left in their records, verbatim:</p>
+<ul><li data-say>Built house-unequal independently, lost the race to a sibling run; rebuilt branch on main and shipped only the uplift addition.</li><li data-say>Critique mode. Added one line to CLAUDE.md pointing cloud sessions at the MCP PR tools (friction seen in 145 CLAUDE.md reports). Small doc-only change; no backlog ids touched.</li><li data-say>Gate said refresh Pages snapshot (started publish-branch.sh in background). Added Mexicano to league-schedule-generator; tests caught a rank-vs-index bug.</li><li data-say>Gap mutants verified by hand after refactor (rerun could not find moved lines); caught_after_fix left null. Real defect: slug substring match in preflight check filter.</li></ul></section>
+<section id="watch"><h2 data-say>Watch list</h2>
+<ul><li data-say>research/PROJECTS.md keeps slowing runs down; a clearer page there pays back on every run.</li><li data-say>The highest-leverage owner decision, payout-rail, has waited 59 days.</li></ul>
+<p data-say>That’s the brief for Saturday. Every item links to its pull request on the page.</p></section>
+  <h2>Other days</h2>
+  <ul class="archive"><li><a href="../2026-10-19/">Monday, 19 October 2026</a></li><li><a href="../2026-10-18/">Sunday, 18 October 2026</a></li><li><a href="../2026-10-17/">Saturday, 17 October 2026</a></li><li><a href="../2026-10-16/">Friday, 16 October 2026</a></li><li><a href="../2026-10-15/">Thursday, 15 October 2026</a></li><li><a href="../2026-10-14/">Wednesday, 14 October 2026</a></li><li><a href="../2026-10-13/">Tuesday, 13 October 2026</a></li></ul>
+  <p class="meta">Also: <a href="../2026-10-17/show/">The Merge Report for this day</a> · <a href="../../">Development dashboard</a> · <a href="../feed.xml">Atom feed</a> · <a href="../2026-10-17/facts.json">The facts behind this page (JSON)</a></p>
+  <div class="disclaimer note">
+    <strong>How this is made.</strong> Written automatically, by a template and not by a person or a language model, from this repository’s git history, its agent run records, the owner’s decision queue and, for the newest edition, a CI snapshot taken when the site was built (2026-10-20 22:59 UTC). Titles are quoted from pull requests as their authors wrote them. Costs are API-list-price equivalents, not charges. The audio is your own device’s speech synthesis: nothing is uploaded. Informational only; nothing here is advice.
+  </div>
+</main>
+<script src="../../../pf-site.js" data-pf-slug="dev-daily-brief"></script>
+<script>
+(function(){
+  var bar=document.getElementById('listen');
+  if(!bar)return;
+  if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined'){bar.querySelector('.unsupported').hidden=false;return;}
+  bar.querySelector('.controls').hidden=false;
+  var synth=window.speechSynthesis,play=bar.querySelector('[data-act=play]'),stop=bar.querySelector('[data-act=stop]');
+  var rate=bar.querySelector('select[name=rate]'),voiceSel=bar.querySelector('select[name=voice]'),status=bar.querySelector('.status');
+  var queue=[],idx=0,state='idle',current=null,counted=false;
+  function spoken(el){
+    var c=el.cloneNode(true);c.querySelectorAll('.pr').forEach(function(x){x.remove();});
+    return c.textContent.replace(/#(\d+)/g,'number $1').replace(/([A-Za-z])[-_\/]([A-Za-z0-9])/g,'$1 $2').replace(/([A-Za-z])[-_\/]([A-Za-z0-9])/g,'$1 $2').replace(/\s+/g,' ').trim();
+  }
+  function build(){
+    queue=[];
+    document.querySelectorAll('main [data-say]').forEach(function(el){
+      var t=spoken(el);if(!t)return;
+      (t.match(/[^.!?…]+[.!?…]*[\u201d"']?\s*/g)||[t]).forEach(function(s){if(s.trim())queue.push({el:el,text:s.trim()});});
+    });
+  }
+  function voices(){
+    var vs=synth.getVoices().filter(function(v){return /^en/i.test(v.lang);});
+    var keep=voiceSel.value;voiceSel.innerHTML='<option value="">Device default</option>';
+    vs.forEach(function(v){var o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';voiceSel.appendChild(o);});
+    voiceSel.value=keep;
+  }
+  voices();if(typeof synth.onvoiceschanged!=='undefined')synth.onvoiceschanged=voices;
+  function mark(el){if(current)current.classList.remove('speaking');current=el;if(el){el.classList.add('speaking');var r=el.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)el.scrollIntoView({block:'center',behavior:'smooth'});}}
+  function next(){
+    if(state!=='playing')return;
+    if(idx>=queue.length){reset();status.textContent='Finished.';return;}
+    var item=queue[idx],u=new SpeechSynthesisUtterance(item.text);
+    u.rate=parseFloat(rate.value)||1;u.lang='en-GB';
+    var v=synth.getVoices().filter(function(x){return x.name===voiceSel.value;})[0];if(v){u.voice=v;u.lang=v.lang;}
+    u.onend=function(){if(state==='playing'){idx++;next();}};
+    u.onerror=function(e){if(e.error==='interrupted'||e.error==='canceled')return;idx++;next();};
+    mark(item.el);status.textContent=Math.min(100,Math.round(idx/queue.length*100))+'%';
+    synth.speak(u);
+  }
+  function reset(){synth.cancel();state='idle';idx=0;mark(null);play.textContent='\u25B6 Listen';stop.disabled=true;}
+  play.addEventListener('click',function(){
+    if(state==='playing'){synth.pause();state='paused';play.textContent='\u25B6 Resume';return;}
+    if(state==='paused'){state='playing';synth.resume();if(!synth.speaking){next();}play.textContent='\u23F8 Pause';return;}
+    build();synth.cancel();state='playing';idx=0;play.textContent='\u23F8 Pause';stop.disabled=false;
+    if(!counted){counted=true;try{var k='portfolio-hub-usage',c=JSON.parse(localStorage.getItem(k)||'{}');var e='daily_listen:'+bar.getAttribute('data-kind');c[e]=(c[e]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(err){}}
+    next();
+  });
+  stop.addEventListener('click',function(){reset();status.textContent='';});
+  rate.addEventListener('change',function(){if(state==='playing'){synth.cancel();next();}});
+  addEventListener('pagehide',function(){synth.cancel();});
+})();
+</script>
+</body>
+</html>

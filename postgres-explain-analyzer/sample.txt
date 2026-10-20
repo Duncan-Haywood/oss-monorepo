@@ -1,0 +1,14 @@
+Sort  (cost=48211.12..48213.62 rows=1000 width=44) (actual time=912.402..912.611 rows=1000 loops=1)
+  Sort Key: (sum(o.total)) DESC
+  Sort Method: external merge  Disk: 4096kB
+  ->  HashAggregate  (cost=48100.00..48110.00 rows=1000 width=44) (actual time=905.1..908.3 rows=1000 loops=1)
+        Group Key: c.id
+        ->  Nested Loop  (cost=0.00..45000.00 rows=120 width=20) (actual time=0.06..800.0 rows=52800 loops=1)
+              ->  Seq Scan on customers c  (cost=0.00..2100.00 rows=50 width=8) (actual time=0.02..18.0 rows=4800 loops=1)
+                    Filter: (region = 'EU'::text)
+                    Rows Removed by Filter: 95200
+              ->  Seq Scan on orders o  (cost=0.00..8800.00 rows=2 width=16) (actual time=0.05..0.15 rows=11 loops=4800)
+                    Filter: (customer_id = c.id)
+                    Rows Removed by Filter: 99989
+Planning Time: 0.412 ms
+Execution Time: 913.208 ms

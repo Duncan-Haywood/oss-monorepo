@@ -1,0 +1,48 @@
+{
+  "slug": "concrete-lifting-bid-calculator",
+  "name": "Concrete lifting (mudjacking)",
+  "group": "Paving, concrete & masonry",
+  "summary": "Mudjacking and polyjacking priced from slab area and void depth, lift setup, mobilization and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 1.6,
+  "hourlyWage": 42,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Mudjack sunken slab, 1 in void",
+      "unit": "sq ft",
+      "qty": 80,
+      "hoursPerUnit": 0.015,
+      "materialPerUnit": 0.625,
+      "source": "slabSqFt 80, voidInches 1 -> 1/12 cu ft per sq ft (calc.mjs voidCubicFeet); hoursPerCf 0.18 and materialPerCf $7.50 (index.html, suggestedMethodKit mud)"
+    },
+    {
+      "label": "Set up the lift",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.2,
+      "materialPerUnit": 0,
+      "source": "hoursLift 1.2 (index.html, suggestedMethodKit mud); street-side access adds 0 h"
+    },
+    {
+      "label": "Mobilization",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 175,
+      "source": "mobilizationFee $175 (index.html)"
+    },
+    {
+      "label": "Travel, truck and recovery",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 95,
+      "source": "travelAndEquipment $95 (index.html)"
+    }
+  ],
+  "specialistModels": "Mud vs polyurethane kits by void volume, backyard and occupied-interior access, extra holes, joint sealing and interior containment."
+}

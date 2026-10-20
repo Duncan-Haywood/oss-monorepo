@@ -1,0 +1,63 @@
+{
+  "slug": "hardwood-refinishing-bid-calculator",
+  "name": "Hardwood floor refinishing",
+  "group": "Interior & finishes",
+  "summary": "Sand-and-finish or screen-and-recoat jobs priced from field square feet, stair treads, closets and coats.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Full sand and 3 coats, field",
+      "unit": "sq ft",
+      "qty": 800,
+      "hoursPerUnit": 0.08,
+      "materialPerUnit": 0.7814,
+      "source": "Full sand 8 h per 100 sq ft, factor 1 (index.html); 3 coats, 450 sq ft/gal/coat, $85/gal rounded up to 6 gal over 848 sq ft finish area, plus $18 per 100 sq ft supplies (index.html)"
+    },
+    {
+      "label": "Stair treads",
+      "unit": "tread",
+      "qty": 12,
+      "hoursPerUnit": 0.4,
+      "materialPerUnit": 3.126,
+      "source": "0.4 h per tread (index.html); 4 sq ft finish per tread (STAIR_SQ_FT_PER_TREAD) at the same finish+supplies rate"
+    },
+    {
+      "label": "Closets",
+      "unit": "closet",
+      "qty": 2,
+      "hoursPerUnit": 1.0,
+      "materialPerUnit": 0,
+      "source": "1 h per closet (index.html); specialist adds no closet material"
+    },
+    {
+      "label": "Move furniture",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 3.0,
+      "materialPerUnit": 0,
+      "source": "Furniture move 3 h (index.html default)"
+    },
+    {
+      "label": "Repair and fill",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 0,
+      "source": "Repair / fill 1.5 h (index.html default)"
+    },
+    {
+      "label": "Travel, dustless and containment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 185.0,
+      "source": "Travel, dustless, and containment $185 (index.html default)"
+    }
+  ],
+  "specialistModels": "Rounds finish and stain to whole gallons by coats and coverage, switches screen-and-recoat versus full sand, and adds stain and colour-change coat hours."
+}

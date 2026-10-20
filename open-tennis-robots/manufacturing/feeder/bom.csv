@@ -1,0 +1,56 @@
+item,kind,qty,what,notes
+head_motor_plate,laser,1,aluminium 5052 5 mm,Both outrunners mount on this plate (M4 on a 25 mm square; check your motor). Pivot bolt M8 through the lower hole.
+head_guard_plate,laser,1,aluminium 5052 5 mm,Keeps hands and balls off the open side of the wheels; held by four M5 standoffs.
+trunnion_cheek,laser,2,aluminium 5052 5 mm,Holds the head's M8 pivot bolt; a printed foot on each cheek bolts it to the turntable plate.
+mast_plate,laser,1,aluminium 5052 5 mm,Bolts to the end-tapped posts (M5) and to the fixed ring of the turntable bearing.
+turntable_plate,laser,1,aluminium 5052 5 mm,Bolts to the rotating ring of the bearing; a servo or stepper drives it (not modelled).
+base_deck,laser,1,aluminium 5052 5 mm,Sits on the rails (M5 and T-nuts); holds the battery and electronics.
+drive_bracket,laser,2,aluminium 5052 5 mm,"Gearmotor (37 mm class, M3 on a 31 mm circle) bolts to the inside face. M5 into the side rail's T-slot."
+idler_bracket,laser,2,aluminium 5052 5 mm,"608 bearing in the bore, 8 mm axle bolt. M5 into the side rail's T-slot."
+cheek_foot,print,4,PETG,"M4 heat-set inserts; bolts the cheek to the turntable plate, 4 walls, 40% infill."
+pole_foot,print,2,PETG,Sockets a 25 mm vertical pole 40 mm deep; M5 screws and T-nuts into the beam. 6 walls.
+pole_elbow,print,2,PETG,"Joins a vertical pole to the top pole; sockets 40 mm deep. 6 walls, 40% gyroid."
+camera_clamp,print,2,PETG,Clips the top pole and holds the 2020 stereo bar; add an M4 clamp screw each. 6 walls.
+net_beam,stock,1,"2040 T-slot, cut 3000 mm",Front member of the base and the foot of the net. Cut square.
+rear_rail,stock,1,"2040 T-slot, cut 900 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
+side_rail,stock,2,"2040 T-slot, cut 660 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
+mast_rail,stock,2,"2040 T-slot, cut 860 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
+mast_post,stock,4,"2040 T-slot, cut 445 mm, M5 tapped both ends",Four posts carry the mast plate.
+camera_bar,stock,1,"2020 T-slot, cut 800 mm",Stereo cameras mount on this; widen it for more depth accuracy.
+net_pole_vertical,stock,2,"25 mm OD x 1.5 mm aluminium tube (or fibreglass), cut 2437 mm",Two 1.2 m sections joined by a sleeve if it must fit a car.
+net_pole_top,stock,1,"25 mm OD x 1.5 mm aluminium tube, cut 3020 mm",Two sections joined by a sleeve at the middle.
+launcher_wheel,cots,2,150 x 45 mm polyurethane-tread wheel on an 8 mm shaft hub,
+launcher_motor,cots,2,"BLDC outrunner, 63 mm class, 8 mm shaft, 24 V, ~1 kW peak",
+head_standoff,cots,4,"M5 female-female standoff, 80 mm",
+turntable_bearing,cots,1,"Lazy-susan bearing, 150 mm, 10 mm tall, 4 x M5 on a 120 mm circle each ring",
+wheel,cots,4,"150 x 40 mm non-marking wheel, 6 mm D hub (drive) or 8 mm bore (idler)",
+gearmotor,cots,2,"37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft, quadrature encoder",
+levelling_foot,cots,2,"M10 levelling foot with a 40 mm rubber pad, 155 mm of stud; T-nut in the beam",
+battery,cots,1,"24 V (8S) LiFePO4 20 Ah with BMS, max 90 x 200 x 130 mm",
+M8 x 110 bolt + nyloc nut + 4 washers,cots,1,M8 x 110 bolt + nyloc nut + 4 washers,head pivot through the cheeks
+"M5 female-female standoff, 80 mm",cots,4,"M5 female-female standoff, 80 mm",between the head plates
+M5 x 12 button head,cots,34,M5 x 12 button head,"standoffs, mast plate to posts, turntable, deck, brackets"
+M5 T-nut (slot 6),cots,30,M5 T-nut (slot 6),"deck, brackets, feet and mast rails"
+M5 x 16 button head,cots,16,M5 x 16 button head,"posts to rails, pole feet"
+M4 x 12 socket cap screw,cots,8,M4 x 12 socket cap screw,cheek feet to the turntable plate and the cheeks
+"M4 heat-set insert, 5.7 mm long",cots,8,"M4 heat-set insert, 5.7 mm long",cheek feet
+M4 x 12 socket cap screw (motors),cots,8,M4 x 12 socket cap screw (motors),launcher motors to the motor plate
+M3 x 8 screw,cots,12,M3 x 8 screw,gearmotor faces
+"608 bearing, 8 x 22 x 7",cots,2,"608 bearing, 8 x 22 x 7",idler wheels
+M8 x 60 bolt + nyloc nut,cots,2,M8 x 60 bolt + nyloc nut,idler axles
+M10 T-nut (levelling foot),cots,2,M10 T-nut (levelling foot),beam ends
+Raspberry Pi 5 (4 GB),cots,1,Raspberry Pi 5 (4 GB),vision + planning
+Global-shutter camera module + cable,cots,2,Global-shutter camera module + cable,stereo bar
+ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmware/esp32, feeder role"
+"50 A+ BLDC ESC, servo-pulse input",cots,2,"50 A+ BLDC ESC, servo-pulse input",launcher wheels
+"Dual DC motor driver, 10 A/ch",cots,1,"Dual DC motor driver, 10 A/ch",base drive
+High-torque servo or linear actuator,cots,1,High-torque servo or linear actuator,elevation (bracket not modelled yet)
+Stepper or geared motor for the turntable,cots,1,Stepper or geared motor for the turntable,azimuth (drive not modelled yet)
+"Servo, metal gear",cots,1,"Servo, metal gear",feed gate
+TCRT5000 reflective sensor,cots,2,TCRT5000 reflective sensor,wheel tachometers
+22 mm NC mushroom e-stop + 24 V contactor,cots,1,22 mm NC mushroom e-stop + 24 V contactor,hard power cut
+"Wireless e-stop relay remote, latching",cots,1,"Wireless e-stop relay remote, latching",second cut-off
+5 V 5 A buck converter,cots,1,5 V 5 A buck converter,Pi supply
+30 A blade fuse + holder,cots,1,30 A blade fuse + holder,battery positive
+"Knotless netting, 25-35 mm mesh",cots,1,"Knotless netting, 25-35 mm mesh",about 3.5 x 3 m
+"Ballast (sand bags or water cells), see manifest",cots,1,"Ballast (sand bags or water cells), see manifest",tip-over margin

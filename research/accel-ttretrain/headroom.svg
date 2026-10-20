@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the largest accumulator and bias magnitude reached by 96 trained keyword-spotting models, as a percentage of the Tiny Tapeout engine's limit, against hidden width 8 to 64; every line stays below 45 percent">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Trained KWS models on the tile: worst use of each limit (% of limit; 100 = overflow)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">80</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="144.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="304.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">32</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">64</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">hidden width H</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">worst use, % of limit</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,292.1 144.0,289.4 304.0,292.4 624.0,293.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="292.1" r="3" fill="#c0392b"/>
+<circle cx="144.0" cy="289.4" r="3" fill="#c0392b"/>
+<circle cx="304.0" cy="292.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="293.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">layer-1 accumulator, 70 inputs</text>
+<polyline points="64.0,265.3 144.0,247.4 304.0,259.8 624.0,258.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="265.3" r="3" fill="#1f6fb2"/>
+<circle cx="144.0" cy="247.4" r="3" fill="#1f6fb2"/>
+<circle cx="304.0" cy="259.8" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="258.5" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">layer-1 accumulator, 120 inputs</text>
+<polyline points="64.0,303.0 144.0,301.5 304.0,273.7 624.0,267.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="303.0" r="3" fill="#2e8b57"/>
+<circle cx="144.0" cy="301.5" r="3" fill="#2e8b57"/>
+<circle cx="304.0" cy="273.7" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="267.4" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">layer-2 accumulator, 120 inputs</text>
+<polyline points="64.0,218.3 144.0,215.0 304.0,278.2 624.0,264.8" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="218.3" r="3" fill="#8e44ad"/>
+<circle cx="144.0" cy="215.0" r="3" fill="#8e44ad"/>
+<circle cx="304.0" cy="278.2" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="264.8" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">layer-1 bias, 120 inputs</text>
+</svg>

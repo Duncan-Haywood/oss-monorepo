@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: centre triangulation error in millimetres falls from 7.3 mm at 5 degrees of convergence to 0.64 mm at 90 degrees, at 3 m">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Two-camera triangulation error against convergence angle</text>
+<line x1="64" x2="624" y1="265.8" y2="265.8" stroke="#ddd"/><text x="58" y="269.8" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="198.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="332.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="466.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">40</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">90</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">convergence angle between the two cameras (deg)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">error at subject (mm, idealised)</text>
+<polyline points="64.0,70.4 198.3,138.2 332.6,204.4 466.9,266.8 624.0,309.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#c0392b"/>
+<circle cx="198.3" cy="138.2" r="3" fill="#c0392b"/>
+<circle cx="332.6" cy="204.4" r="3" fill="#c0392b"/>
+<circle cx="466.9" cy="266.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="309.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">camera pair at 3 m</text>
+</svg>

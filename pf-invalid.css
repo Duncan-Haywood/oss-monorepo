@@ -1,0 +1,9 @@
+.pf-invalid-field{outline:2px solid #c5321f;outline-offset:1px;
+  border-radius:4px;background:#c5321f14}
+@media (prefers-color-scheme:dark){
+  .pf-invalid-field{outline-color:#ff8a75;background:#ff8a7514}
+}
+/* The customer's proposal is printed from these pages and must never carry the
+   contractor's working state; see the print rule in rates.mjs for the same
+   reasoning applied to the shop-rates band. */
+@media print{.pf-invalid-field{outline:none;background:none}}

@@ -1,0 +1,47 @@
+{
+  "slug": "mini-split-bid-calculator",
+  "name": "Mini-split heat pump install",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Ductless mini-split installs priced from heads, outdoor unit, line-set extras and electrical work.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 22,
+  "items": [
+    {
+      "label": "Indoor 12k wall head, mount and commission",
+      "unit": "head",
+      "qty": 1,
+      "hoursPerUnit": 5,
+      "materialPerUnit": 550,
+      "source": "Indoor hours/head 4 x head factor 1 x story factor 1 + commission 1 h/head; indoor head $550 (index.html defaults, 'Single-zone 12k wall' SYSTEM_PRESETS)"
+    },
+    {
+      "label": "Outdoor unit, pad and mount",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 3,
+      "materialPerUnit": 1400,
+      "source": "Outdoor hours 3; outdoor unit $1,400 (index.html defaults)"
+    },
+    {
+      "label": "Extra line-set beyond included length",
+      "unit": "linear ft",
+      "qty": 0,
+      "hoursPerUnit": 0.1,
+      "materialPerUnit": 12,
+      "source": "15 ft line-set with 15 ft included per head = 0 extra; 1 h per extra 10 ft and $12 per extra foot (index.html defaults)"
+    },
+    {
+      "label": "Permit, travel and lift",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 260,
+      "source": "Permit fee $175 + travel and lift $85 (index.html defaults)"
+    }
+  ],
+  "specialistModels": "Head-type and story labor factors, included line-set allowance per head, electrical and condensate adder presets, and per-head / per-kBTU checks."
+}

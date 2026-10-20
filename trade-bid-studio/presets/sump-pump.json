@@ -1,0 +1,33 @@
+{
+  "slug": "sump-pump-bid-calculator",
+  "name": "Sump pump install",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Sump pump swaps and new pits priced from pump size, pit type, extra discharge, backup and alarm.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 1.35,
+  "hourlyWage": 42,
+  "burdenRate": 34,
+  "overheadRate": 16,
+  "targetMargin": 30,
+  "tripFee": 85,
+  "items": [
+    {
+      "label": "Swap 1/3 HP submersible pump, existing pit",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.1,
+      "materialPerUnit": 185,
+      "source": "hoursSwap 1.1, pumpCost $185 (index.html defaults; suggestedPumpKit('third-hp'))"
+    },
+    {
+      "label": "Check valve / union",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 38,
+      "source": "addCheckValve checked, checkValveCost $38 (index.html defaults); no separate hours in calculateBid"
+    }
+  ],
+  "specialistModels": "Pit kits (existing, dirt, slab cut), discharge footage past the included 15 ft, battery or water-powered backup, alarm and freeze protection; setupHours = 0.85 trip + 0.5 site hours."
+}

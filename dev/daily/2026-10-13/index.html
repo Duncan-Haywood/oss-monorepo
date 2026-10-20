@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engineering brief, Tuesday, 13 October 2026</title>
+<meta name="description" content="Engineering brief for Tuesday, 13 October 2026: A morning brief for the engineering manager of the whole repository: CI and main, owner decisions, every product and research project that moved, the agent fleet and a watch list. About 5 minutes to read or listen.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-13/">
+<link rel="alternate" type="application/atom+xml" title="Daily engineering brief and The Merge Report" href="../feed.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Engineering brief, Tuesday, 13 October 2026","datePublished":"2026-10-13","description":"Engineering brief for Tuesday, 13 October 2026: A morning brief for the engineering manager of the whole repository: CI and main, owner decisions, every product and research project that moved, the agent fleet and a watch list. About 5 minutes to read or listen.","isAccessibleForFree":true,"author":{"@type":"Organization","name":"monorepo-projects"},"url":"https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-13/"}</script>
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7; --hl:#fff3c4; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542; --accent:#7aa2ff; --hl:#3b3416; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+  .wrap { max-width:760px; margin:0 auto; padding:24px 16px 56px; }
+  a { color:var(--accent); }
+  h1 { margin:.2em 0 .1em; line-height:1.25; } h2 { margin-top:1.8em; font-size:1.2rem; }
+  .kicker { text-transform:uppercase; letter-spacing:.06em; font-size:.78rem; color:var(--muted); margin:0; }
+  .meta, .note { color:var(--muted); font-size:.9rem; }
+  .listen { position:sticky; top:0; z-index:5; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin:16px 0 8px; display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; }
+  .listen .controls { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .listen button { font:inherit; padding:6px 14px; border-radius:8px; border:1px solid var(--line); background:var(--accent); color:#fff; cursor:pointer; }
+  .listen button[data-act=stop] { background:transparent; color:var(--ink); }
+  .listen button:disabled { opacity:.5; cursor:default; }
+  .listen select { font:inherit; font-size:.9rem; max-width:220px; padding:4px; border-radius:6px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+  .listen .status, .listen .unsupported { color:var(--muted); font-size:.85rem; }
+  .speaking { background:var(--hl); border-radius:4px; box-shadow:0 0 0 4px var(--hl); }
+  .switch { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .switch a { padding:4px 12px; border:1px solid var(--line); border-radius:999px; text-decoration:none; font-size:.9rem; background:var(--panel); }
+  .switch a[aria-current] { background:var(--accent); color:#fff; border-color:var(--accent); }
+  li { margin:.35em 0; } .pr { font-size:.85em; white-space:nowrap; }
+  .archive { columns:2 220px; padding-left:1.1em; }
+  .disclaimer { margin-top:2.5em; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+</style>
+<link rel="stylesheet" href="../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../c/">Tools</a><a data-pfs-nav="research" href="../../../research/">Research</a><a data-pfs-nav="writing" href="../../../writing/">Writing</a><a data-pfs-nav="updates" href="../../../updates/">Updates</a><a data-pfs-nav="ask" href="../../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../about/">About</a></span><form class="pfs-search" action="../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../">Development dashboard</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../">Daily</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Engineering brief</span></span></nav>
+<main class="wrap">
+  <p class="kicker">Engineering brief · Tuesday, 13 October 2026</p>
+  <h1>Engineering brief, Tuesday, 13 October 2026</h1>
+  <p class="meta">About 5 minutes aloud (802 words). A morning brief for the engineering manager of the whole repository: CI and main, owner decisions, every product and research project that moved, the agent fleet and a watch list.</p>
+  <nav class="switch" aria-label="Edition"><a href="../2026-10-13/" aria-current="page">Engineering brief</a><a href="../2026-10-13/show/">The Merge Report</a></nav>
+  <div class="listen" id="listen" data-kind="brief">
+    <div class="controls" hidden>
+      <button type="button" data-act="play">&#9654; Listen</button>
+      <button type="button" data-act="stop" disabled>Stop</button>
+      <label>Speed <select name="rate"><option value="0.9">0.9×</option><option value="1" selected>1×</option><option value="1.15">1.15×</option><option value="1.3">1.3×</option><option value="1.5">1.5×</option></select></label>
+      <label>Voice <select name="voice"><option value="">Device default</option></select></label>
+      <span class="status" aria-live="polite"></span>
+    </div>
+    <span class="unsupported" hidden>This browser cannot read aloud; the full script is below.</span>
+    <noscript><span class="status">Listening needs JavaScript; the full script is below.</span></noscript>
+  </div>
+<section id="bottom-line"><h2 data-say>The bottom line</h2>
+<p data-say>Good morning. This is the engineering brief for Tuesday, 13 October 2026: everything that merged to main between midnight and midnight UTC, and what needs you.</p>
+<p data-say>68 pull requests merged, 21% above the seven-day average of 56.4. Together they changed 167,008 files, adding 52,296 lines and removing 7,657. The work reached 3 products.</p>
+<p data-say>The headlines: 62 new products joined the catalogue and 12 decisions still wait on the owner.</p></section>
+<section id="health"><h2 data-say>Health: CI, main and the queue</h2>
+<p data-say>This edition is from the archive, so the CI and pull-request state of that day was not recorded; the live numbers are in the newest edition and on the development dashboard.</p>
+<p data-say>No reverts and no fix-forwards of a red main that day.</p></section>
+<section id="decisions"><h2 data-say>Decisions waiting on you</h2>
+<p data-say>12 decisions only the owner can make are queued. In the decision queue’s own order, highest leverage first:</p>
+<ul><li data-say>payout-rail, waiting 55 days, gates revenue: Decide the binary in break-even.md: either commit to a merchant-of-record account (and the egress entry it needs), or say plainly that this portfolio is not going to earn under the current design, so the fleet cadence…</li><li data-say>funding-sponsors-live, waiting 50 days, gates revenue: Say yes or no to a live &quot;Sponsor&quot; button on this repo pointing at the owner&#39;s own GitHub Sponsors profile.</li><li data-say>pages-custom-domain, waiting 33 days, gates distribution: URGENT as of 2026-10-01 -- domain-takeover risk.</li><li data-say>egress-policy, waiting 55 days, gates measurement: One read-only egress allowlist decision covering api.wordpress.org, four public storefronts (formulae.brew.sh, www.raycast.com, obsidian.md, zed.dev) and the EU/US institutional publishers (eur-lex.europa.eu,…</li><li data-say>local-site-studio-subtree-gate-crossing, waiting 50 days, gates deployment: Review the already-merged #731 (1,405-commit local-site-studio subtree merge, 7b69f3d) and decide whether to accept it as-is or revert it.</li><li data-say>session-gate-economics-premise, waiting 50 days, gates deployment: Confirm, in one sentence, on this row or on #139: is fleet capacity for this account billed as a flat subscription (a session that runs and a session that idles cost the same), or metered per-session/per-token (an idle…</li></ul>
+<p data-say>The other 6 are listed by the decision-queue tool.</p></section>
+<section id="products"><h2 data-say>Products</h2>
+<p data-say>Work landed on 3 products, 3 merges in all. New in the catalogue: hydroponic-farm-profit-calculator, npm-audit-triage, ice-cream-shop-seasonal-profit-calculator, boba-tea-shop-profit-calculator, kombucha-brewery-profit-calculator, pet-boarding-daycare-profit-calculator, pip-audit-triage, convenience-store-gas-station-profit-calculator, pizzeria-profit-calculator, cargo-audit-triage and 52 more.</p>
+<p data-say>ca-gst-hst-small-supplier-checker: 1 merge.</p>
+<ul><li data-say>Add Quick Method vs regular accounting comparison <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6884">#6884</a></li></ul>
+<p data-say>several products at once: 1 merge.</p>
+<ul><li data-say>Convenience-store-gas-station-profit-calculator: new venture (fuel margin after card fees, break-even gallons, debt coverage). Browser-only monthly P&amp;L for independent c-store and gas station owners and buyers. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6843">#6843</a></li></ul>
+<p data-say>uk-cis-deduction-refund-calculator: 1 merge.</p>
+<ul><li data-say>Fix dead page (doubled template braces made the module script a SyntaxError). The inline module had {{ }} left over from generation, so the browser ran none of it: no calculate button, no example. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6895">#6895</a></li></ul></section>
+<section id="platform"><h2 data-say>Platform, CI and process</h2>
+<p data-say>65 merges changed the machinery the products and research run on.</p>
+<p data-say>process, prompts and the ledger: 64 merges.</p>
+<ul><li data-say>Hydroponic-farm-profit-calculator: new venture + fix coworking results panel. Also fixes coworking-space-profit-calculator, whose results panel threw on a nonexistent r.cfByYear and never displayed. <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6835">#6835</a></li><li data-say>Npm-audit-triage: new venture (rank npm audit findings by whether your code imports the vulnerable package) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6833">#6833</a></li><li data-say>Ice-cream-shop-seasonal-profit-calculator: new venture (seasonal shop twelve-month P&amp;L, open-or-close per month, winter cash reserve) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6834">#6834</a></li><li data-say>Prompt: one-repository end state, keeping both histories <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6839">#6839</a></li><li data-say>Boba-tea-shop-profit-calculator: new venture (leased-store pro forma: break-even cups a day with loan, delivery commission, target-margin price, 60-month ramp reserve) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6840">#6840</a></li><li data-say>Kombucha-brewery-profit-calculator: new venture (tank cycle, break-even gallons, power sensitivity, ramp-up reserve, payback) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6836">#6836</a></li><li data-say>Pet-boarding-daycare-profit-calculator: new venture <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6838">#6838</a></li><li data-say>Pip-audit-triage: new venture (rank pip-audit findings by whether your Python code imports the vulnerable package) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6841">#6841</a></li></ul>
+<p data-say>Plus 56 more platform changes.</p>
+<p data-say>platform/pages: 1 merge.</p>
+<ul><li data-say>Launched.json: sort indoor-play-center-profit-calculator into key order (fixes launched.test.mjs byte-for-byte check) <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/6856">#6856</a></li></ul></section>
+<section id="fleet"><h2 data-say>The agent fleet</h2>
+<p data-say>By co-author: Claude Sonnet 5.5 on 49 merges and Claude on 19 merges.</p>
+<p data-say>97 agent runs filed a run record for the day. By track: research 97. By outcome: success 93 and partial 4.</p>
+<p data-say>Runs recorded 59 errors; the first: OpenROAD nixpkgs build failed its own regression test dbSta.report_cell_usage_file.tcl; rebuilt with doCheck=false (about 3 h of compile in total).</p></section>
+<section id="notes"><h2 data-say>In the runs’ own words</h2>
+<p data-say>A few notes runs left in their records, verbatim:</p>
+<ul><li data-say>Track 1 drawn at random. Mass/cost inputs assumed and labelled; ambient-pipeline WIP branch sleepy-shannon-rx4szp left alone (claim &lt;3h, no PR).</li><li data-say>Queue empty (no open PRs; stale chip-systolic-batch branch superseded on main). Track 6 random pick; layer-count follow-up.</li><li data-say>Queue empty (PR 353 was another run&#39;s live work; orphan branches amazing-ramanujan-sysezg and trusting-knuth-gso2bw duplicate projects already on main, left alone). Citations copied from robofab-liftload, not re-verified.</li><li data-say>No open PRs; claude/amazing-ramanujan-sysezg (chip-systolic-batch duplicate, project already on main) left unmerged as superseded.</li><li data-say>Tobin 2017 and Rubinstein 1999 citations added from memory, unverified (no web access); flagged in README. PR 278 left open with blocker comment.</li><li data-say>Landing queue: no open PRs; unmerged claude/* branches (robofab-selfparts, sag-twin, ambient-pipeline WIP, cool-cori moved-notice) superseded by main or contradict CLAUDE.md; left alone.</li></ul></section>
+<section id="watch"><h2 data-say>Watch list</h2>
+<ul><li data-say>The highest-leverage owner decision, payout-rail, has waited 55 days.</li></ul>
+<p data-say>That’s the brief for Tuesday. Every item links to its pull request on the page.</p></section>
+  <h2>Other days</h2>
+  <ul class="archive"><li><a href="../2026-10-19/">Monday, 19 October 2026</a></li><li><a href="../2026-10-18/">Sunday, 18 October 2026</a></li><li><a href="../2026-10-17/">Saturday, 17 October 2026</a></li><li><a href="../2026-10-16/">Friday, 16 October 2026</a></li><li><a href="../2026-10-15/">Thursday, 15 October 2026</a></li><li><a href="../2026-10-14/">Wednesday, 14 October 2026</a></li><li><a href="../2026-10-13/">Tuesday, 13 October 2026</a></li></ul>
+  <p class="meta">Also: <a href="../2026-10-13/show/">The Merge Report for this day</a> · <a href="../../">Development dashboard</a> · <a href="../feed.xml">Atom feed</a> · <a href="../2026-10-13/facts.json">The facts behind this page (JSON)</a></p>
+  <div class="disclaimer note">
+    <strong>How this is made.</strong> Written automatically, by a template and not by a person or a language model, from this repository’s git history, its agent run records, the owner’s decision queue and, for the newest edition, a CI snapshot taken when the site was built (2026-10-20 22:59 UTC). Titles are quoted from pull requests as their authors wrote them. Costs are API-list-price equivalents, not charges. The audio is your own device’s speech synthesis: nothing is uploaded. Informational only; nothing here is advice.
+  </div>
+</main>
+<script src="../../../pf-site.js" data-pf-slug="dev-daily-brief"></script>
+<script>
+(function(){
+  var bar=document.getElementById('listen');
+  if(!bar)return;
+  if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined'){bar.querySelector('.unsupported').hidden=false;return;}
+  bar.querySelector('.controls').hidden=false;
+  var synth=window.speechSynthesis,play=bar.querySelector('[data-act=play]'),stop=bar.querySelector('[data-act=stop]');
+  var rate=bar.querySelector('select[name=rate]'),voiceSel=bar.querySelector('select[name=voice]'),status=bar.querySelector('.status');
+  var queue=[],idx=0,state='idle',current=null,counted=false;
+  function spoken(el){
+    var c=el.cloneNode(true);c.querySelectorAll('.pr').forEach(function(x){x.remove();});
+    return c.textContent.replace(/#(\d+)/g,'number $1').replace(/([A-Za-z])[-_\/]([A-Za-z0-9])/g,'$1 $2').replace(/([A-Za-z])[-_\/]([A-Za-z0-9])/g,'$1 $2').replace(/\s+/g,' ').trim();
+  }
+  function build(){
+    queue=[];
+    document.querySelectorAll('main [data-say]').forEach(function(el){
+      var t=spoken(el);if(!t)return;
+      (t.match(/[^.!?…]+[.!?…]*[\u201d"']?\s*/g)||[t]).forEach(function(s){if(s.trim())queue.push({el:el,text:s.trim()});});
+    });
+  }
+  function voices(){
+    var vs=synth.getVoices().filter(function(v){return /^en/i.test(v.lang);});
+    var keep=voiceSel.value;voiceSel.innerHTML='<option value="">Device default</option>';
+    vs.forEach(function(v){var o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';voiceSel.appendChild(o);});
+    voiceSel.value=keep;
+  }
+  voices();if(typeof synth.onvoiceschanged!=='undefined')synth.onvoiceschanged=voices;
+  function mark(el){if(current)current.classList.remove('speaking');current=el;if(el){el.classList.add('speaking');var r=el.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)el.scrollIntoView({block:'center',behavior:'smooth'});}}
+  function next(){
+    if(state!=='playing')return;
+    if(idx>=queue.length){reset();status.textContent='Finished.';return;}
+    var item=queue[idx],u=new SpeechSynthesisUtterance(item.text);
+    u.rate=parseFloat(rate.value)||1;u.lang='en-GB';
+    var v=synth.getVoices().filter(function(x){return x.name===voiceSel.value;})[0];if(v){u.voice=v;u.lang=v.lang;}
+    u.onend=function(){if(state==='playing'){idx++;next();}};
+    u.onerror=function(e){if(e.error==='interrupted'||e.error==='canceled')return;idx++;next();};
+    mark(item.el);status.textContent=Math.min(100,Math.round(idx/queue.length*100))+'%';
+    synth.speak(u);
+  }
+  function reset(){synth.cancel();state='idle';idx=0;mark(null);play.textContent='\u25B6 Listen';stop.disabled=true;}
+  play.addEventListener('click',function(){
+    if(state==='playing'){synth.pause();state='paused';play.textContent='\u25B6 Resume';return;}
+    if(state==='paused'){state='playing';synth.resume();if(!synth.speaking){next();}play.textContent='\u23F8 Pause';return;}
+    build();synth.cancel();state='playing';idx=0;play.textContent='\u23F8 Pause';stop.disabled=false;
+    if(!counted){counted=true;try{var k='portfolio-hub-usage',c=JSON.parse(localStorage.getItem(k)||'{}');var e='daily_listen:'+bar.getAttribute('data-kind');c[e]=(c[e]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(err){}}
+    next();
+  });
+  stop.addEventListener('click',function(){reset();status.textContent='';});
+  rate.addEventListener('change',function(){if(state==='playing'){synth.cancel();next();}});
+  addEventListener('pagehide',function(){synth.cancel();});
+})();
+</script>
+</body>
+</html>

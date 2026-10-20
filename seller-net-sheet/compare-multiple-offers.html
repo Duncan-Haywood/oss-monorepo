@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compare Multiple Home Offers: Net, Timing and Fall-Through Risk</title>
+  <meta name="description" content="Rank up to 12 home offers by the cash each leaves after buyer-broker pay and concessions, then adjust for days to close and the chance each falls through.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/seller-net-sheet/compare-multiple-offers.html">
+  <meta property="og:title" content="Compare Multiple Home Offers">
+  <meta property="og:description" content="The highest offer is not always the best one. Rank every offer on net cash, days to close and fall-through risk.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Multiple Offer Comparison for Home Sellers",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Rank several home offers by net cash, carrying cost of days to close, and chance of falling through; break-even fall-through chance per offer, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"
+  }
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I compare several offers on my house?","acceptedAnswer":{"@type":"Answer","text":"Put every offer through the same net sheet so buyer-broker pay and seller-paid closing help come off each price. Then adjust for time and risk: price the days to close at what it costs you to own the house each day, and weigh each offer by your own estimate of the chance it falls through. The page ranks the offers on that expected cash."}},{"@type":"Question","name":"What is the break-even fall-through chance?","acceptedAnswer":{"@type":"Answer","text":"For each offer, it is the highest chance of falling through at which that offer still beats the best of the others. If an offer's chance is above its break-even figure, a surer offer is worth more in expectation. It is exact on the numbers you entered, and only as good as your estimate of the chance."}},{"@type":"Question","name":"Where do the fall-through chances come from?","acceptedAnswer":{"@type":"Answer","text":"From you. The page ships no statistics, and the example rows are invented. Your listing agent can tell you how financing type, contingencies and the buyer's pre-approval change the odds on your own market. A blank chance is treated as zero, so fill it in for any offer with a financing or inspection contingency."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241c14; background: #f3eee6; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(2rem, 6vw, 2.8rem); line-height: 1.05; letter-spacing: -.04em; margin: 0 0 12px; }
+    p, li { line-height: 1.55; }
+    a { color: #8a5a18; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a5a18; margin: 0 0 6px; }
+    section { background: #fff; border: 1px solid #d8cbb8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #241c1410; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .85rem; color: #5c5146; }
+    .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #b7a68c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .offers { overflow-x: auto; position: relative; }
+    .offers table { min-width: 760px; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { padding: 6px 4px; text-align: right; border-bottom: 1px solid #e6dccb; vertical-align: middle; }
+    th:first-child, td:first-child { text-align: left; }
+    td input { min-width: 70px; padding: 8px; }
+    td.name input { min-width: 110px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7a68c; background: #f6f0e6; padding: 9px 13px; cursor: pointer; font-weight: 650; color: #241c14; }
+    button:hover { background: #ebe2d2; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+    .result { background: #2c2416; color: #f7f1e6; border-color: #2c2416; }
+    .result a { color: inherit; text-decoration: underline; }
+    .result th, .result td { border-bottom-color: #ffffff22; }
+    .headline { font-size: 1.15rem; font-weight: 700; margin: 0 0 8px; }
+    .negative { color: #ffb0a2; }
+    .note { font-size: .84rem; opacity: .86; }
+    .error { color: #ffb0a2; }
+    .result-scroll { overflow-x: auto; }
+    .result-scroll table { min-width: 640px; }
+    footer { margin-top: 32px; font-size: .82rem; color: #5c5146; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/seller-net-sheet/compare-multiple-offers.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/seller-net-sheet/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Compare Multiple Home Offers — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/backoffice/">Back-office money &amp; contracts</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../seller-net-sheet/">Seller Net Sheet Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Compare Multiple Home Offers</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <p class="eyebrow">SELLER NET SHEET</p>
+  <h1>Several offers on the house? Rank them on cash, time and risk.</h1>
+  <p>
+    The highest price is rarely the best deal once the buyer's broker, closing
+    help, a slow closing and a financing contingency are counted. Enter every
+    offer below. The page works out what each would leave you if it closed,
+    charges it for the days until closing, and weighs it by your own estimate of
+    the chance it falls through. Everything runs in this page and nothing is
+    uploaded. For one head-to-head with full cost lines, use the
+    <a href="index.html">seller net sheet</a>.
+  </p>
+
+  <section>
+    <h2>Costs that are the same on every offer</h2>
+    <div class="fields">
+      <label>Loan payoff <input id="loanPayoff" type="number" min="0" step="100" value="280000" inputmode="numeric"></label>
+      <label>Listing broker (%) <input id="listingRate" type="number" min="0" step="0.01" value="2.5" inputmode="decimal"></label>
+      <label>Title / escrow ($) <input id="titleFlat" type="number" min="0" step="1" value="2400" inputmode="numeric"></label>
+      <label>Transfer tax (%) <input id="transferTaxRate" type="number" min="0" step="0.01" value="0.11" inputmode="decimal"></label>
+      <label>Other closing costs ($) <input id="otherClosing" type="number" min="0" step="1" value="1000" inputmode="numeric"></label>
+      <label>Cost to own the house per day ($) <input id="carryPerDay" type="number" min="0" step="1" value="120" inputmode="numeric"></label>
+      <label>Days to re-sell if a deal fails <input id="fallbackDays" type="number" min="0" step="1" value="45" inputmode="numeric"></label>
+      <label>Price you would then settle for ($) <input id="fallbackPrice" type="number" min="0" step="100" placeholder="lowest offer" inputmode="numeric"></label>
+    </div>
+    <p class="hint">The daily cost is mortgage interest, property tax, insurance and utilities for one day. The fallback is what you expect if the deal you accept dies and the house goes back on the market; blank uses your lowest offer.</p>
+  </section>
+
+  <section>
+    <h2>The offers</h2>
+    <div class="offers">
+      <div class="pf-table-scroll"><table>
+        <thead>
+          <tr><th>Label</th><th>Price ($)</th><th>Buyer-broker (%)</th><th>Closing help etc. ($)</th><th>Days to close</th><th>Chance it falls through (%)</th><th><span class="visually-hidden">Remove</span></th></tr>
+        </thead>
+        <tbody id="offerRows"></tbody>
+      </table></div>
+    </div>
+    <div class="actions">
+      <button type="button" id="addOffer">Add an offer</button>
+      <span class="hint" id="addStatus" role="status" aria-live="polite"></span>
+    </div>
+    <p class="hint">"Closing help etc." is any dollar amount you would pay on top: closing-cost credit, repair credit, a rate buy-down. The fall-through chance is your own judgement; the example rows are invented and a blank chance counts as zero.</p>
+  </section>
+
+  <section class="result" aria-live="polite">
+    <h2>Ranking</h2>
+    <p id="headline" class="headline"></p>
+    <div class="result-scroll">
+      <div class="pf-table-scroll"><table>
+        <thead>
+          <tr><th>Offer</th><th>Price</th><th>Net if it closes</th><th>Days</th><th>Net after carrying cost</th><th>If it fails</th><th>Expected</th><th>Beats the rest while chance stays under</th></tr>
+        </thead>
+        <tbody id="ranking"></tbody>
+      </table></div>
+    </div>
+    <p id="detail" class="note"></p>
+    <div class="actions">
+      <button type="button" id="copyRanking">Copy ranking</button>
+      <span id="copyStatus" class="note" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <h2>How the ranking works</h2>
+  <p>
+    For each offer the page runs the usual seller net sheet: price, less loan
+    payoff, listing broker, the buyer-broker percentage, closing help and the
+    shared costs. It then subtracts your daily cost of owning the house for each
+    day until closing. If the offer falls through, you are back on the market:
+    you pay the daily cost for the days already spent plus the days to re-sell,
+    and you close at the fallback price. The expected cash is the weighted
+    average of the two outcomes. Nothing else is assumed.
+  </p>
+  <p>
+    The last column is the useful one. It is the highest fall-through chance at
+    which that offer still comes out ahead of the best of the others, found
+    exactly because the expected cash moves in a straight line with the chance.
+    If your honest estimate for an offer is above that number, a surer offer is
+    worth more to you, even at a lower price.
+  </p>
+  <h2>Common questions</h2>
+  <h3>How do I compare several offers on my house?</h3>
+  <p>Put every offer through the same net sheet so buyer-broker pay and seller-paid closing help come off each price. Then adjust for time and risk: price the days to close at what it costs you to own the house each day, and weigh each offer by your own estimate of the chance it falls through. The page ranks the offers on that expected cash.</p>
+  <h3>What is the break-even fall-through chance?</h3>
+  <p>For each offer, it is the highest chance of falling through at which that offer still beats the best of the others. If an offer's chance is above its break-even figure, a surer offer is worth more in expectation. It is exact on the numbers you entered, and only as good as your estimate of the chance.</p>
+  <h3>Where do the fall-through chances come from?</h3>
+  <p>From you. The page ships no statistics, and the example rows are invented. Your listing agent can tell you how financing type, contingencies and the buyer's pre-approval change the odds on your own market. A blank chance is treated as zero, so fill it in for any offer with a financing or inspection contingency.</p>
+  <p>
+    <a href="index.html">Seller net sheet</a> ·
+    <a href="offer-comparison.html">Higher offer vs cleaner offer</a> ·
+    <a href="vs-title-company-net-sheet.html">Versus your title company's net sheet</a>
+  </p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or real-estate advice, and it does not replace a qualified professional, title company, escrow officer, or attorney. You are responsible for reviewing and verifying its output before relying on it. It does not tell anyone which offer to accept. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your prices and loan balance are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter stores only an event name and a day, in this browser.</p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>.</p>
+  </footer>
+  <style>.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }</style>
+  <script type="module">
+    import { rankOffers } from "./calc.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+
+    const MAX_OFFERS = 12;
+    const el = (id) => document.getElementById(id);
+    const money = (n) => (n < 0 ? "−" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const COLUMNS = [
+      ["label", "text", "name", "aria-label"],
+      ["salePrice", "number"],
+      ["buyerBrokerRate", "number"],
+      ["concessionFlat", "number"],
+      ["daysToClose", "number"],
+      ["fallThroughPct", "number"],
+    ];
+    const SEED = [
+      { label: "Highest bid", salePrice: 440000, buyerBrokerRate: 2.5, concessionFlat: 8000, daysToClose: 45, fallThroughPct: 25 },
+      { label: "Cash offer", salePrice: 418000, buyerBrokerRate: 0, concessionFlat: 0, daysToClose: 14, fallThroughPct: 2 },
+      { label: "Mid, conventional", salePrice: 428000, buyerBrokerRate: 2, concessionFlat: 3000, daysToClose: 35, fallThroughPct: 10 },
+    ];
+
+    let optedOutNow = false;
+    const count = (event) => { try { recordUsage(localStorage, optedOutNow, event); } catch { /* storage is optional */ } };
+
+    function addRow(values = {}) {
+      const body = el("offerRows");
+      if (body.children.length >= MAX_OFFERS) {
+        el("addStatus").textContent = `Up to ${MAX_OFFERS} offers.`;
+        return;
+      }
+      const tr = document.createElement("tr");
+      for (const [key, type, cls] of COLUMNS) {
+        const td = document.createElement("td");
+        if (cls) td.className = cls;
+        const input = document.createElement("input");
+        input.type = type;
+        input.dataset.key = key;
+        if (type === "number") { input.min = "0"; input.step = key === "salePrice" ? "100" : "any"; }
+        input.setAttribute("aria-label", key === "label" ? "Offer label" : {
+          salePrice: "Offer price", buyerBrokerRate: "Buyer-broker percent", concessionFlat: "Closing help dollars",
+          daysToClose: "Days to close", fallThroughPct: "Chance it falls through, percent",
+        }[key]);
+        input.value = values[key] ?? "";
+        input.addEventListener("input", update);
+        td.append(input);
+        tr.append(td);
+      }
+      const last = document.createElement("td");
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "Remove";
+      remove.addEventListener("click", () => { tr.remove(); el("addStatus").textContent = ""; update(); });
+      last.append(remove);
+      tr.append(last);
+      body.append(tr);
+    }
+
+    function readOffers() {
+      return [...el("offerRows").children].map((tr) => {
+        const o = {};
+        for (const input of tr.querySelectorAll("input")) o[input.dataset.key] = input.value;
+        return o;
+      }).filter((o) => String(o.salePrice).trim() !== "");
+    }
+
+    function readShared() {
+      const v = (id) => el(id).value;
+      return {
+        loanPayoff: v("loanPayoff"), listingRate: v("listingRate"), titleFlat: v("titleFlat"),
+        transferTaxRate: v("transferTaxRate"), otherClosing: v("otherClosing"),
+      };
+    }
+
+    let lastText = "";
+    let userTouched = false;
+    let counted = false;
+    document.addEventListener("input", () => { userTouched = true; }, true);
+
+    function setError(message) {
+      el("headline").textContent = message;
+      el("headline").className = "headline error";
+      el("ranking").replaceChildren();
+      el("detail").textContent = "";
+      lastText = "";
+    }
+
+    function cell(text, cls) {
+      const td = document.createElement("td");
+      td.textContent = text;
+      if (cls) td.className = cls;
+      return td;
+    }
+
+    function update() {
+      try {
+        const offers = readOffers();
+        if (offers.length === 0) return setError("Add an offer with a price.");
+        const fallbackPrice = el("fallbackPrice").value;
+        const result = rankOffers(readShared(), offers, {
+          carryPerDay: el("carryPerDay").value,
+          fallbackDays: el("fallbackDays").value,
+          fallback: fallbackPrice === "" ? {} : { salePrice: fallbackPrice },
+        });
+        const w = result.winner;
+        el("headline").className = "headline";
+        let line = `${w.label} leaves the most expected cash: ${money(w.expected)}.`;
+        if (!result.winnerIsTopPrice) line += ` The highest price is ${result.topPrice.label} at ${money(result.topPrice.salePrice)}.`;
+        el("headline").textContent = line;
+        el("ranking").replaceChildren(...result.rows.map((r, i) => {
+          const tr = document.createElement("tr");
+          tr.append(
+            cell(`${i + 1}. ${r.label}`), cell(money(r.salePrice)), cell(money(r.net)), cell(String(r.days)),
+            cell(money(r.ifCloses), r.ifCloses < 0 ? "negative" : ""), cell(money(r.ifFails), r.ifFails < 0 ? "negative" : ""),
+            cell(money(r.expected), r.expected < 0 ? "negative" : ""),
+            cell(r.maxFallThroughPct === null ? "cannot lead at any chance" : r.maxFallThroughPct >= 100 ? "any chance" : `${r.maxFallThroughPct.toFixed(1)}%`),
+          );
+          return tr;
+        }));
+        const gap = result.expectedGapToRunnerUp;
+        el("detail").textContent =
+          `Fallback if a deal fails: ${money(result.fallback.net)} net at ${money(result.fallback.salePrice)}, ${result.fallback.days} days later. ` +
+          (gap === null ? "" : `Lead over second place: ${money(gap)}. `) +
+          "Chances are your own estimates; change them and watch the order move.";
+        lastText = [
+          "Offer ranking (expected cash to seller)",
+          ...result.rows.map((r, i) => `${i + 1}. ${r.label}: price ${money(r.salePrice)}, net if it closes ${money(r.net)}, ${r.days} days, expected ${money(r.expected)}`),
+          el("detail").textContent,
+          "Arithmetic from the numbers entered; not advice. Confirm with title/escrow and your broker.",
+        ].join("\n");
+        if (userTouched && !counted) { counted = true; count("offers_ranked"); }
+      } catch (error) {
+        setError(error.message);
+      }
+    }
+
+    el("addOffer").addEventListener("click", () => { addRow(); update(); });
+    el("copyRanking").addEventListener("click", async () => {
+      if (!lastText) return;
+      try { await navigator.clipboard.writeText(lastText); el("copyStatus").textContent = "Copied."; }
+      catch { el("copyStatus").textContent = "Copy failed; select the table instead."; }
+    });
+    for (const id of ["loanPayoff", "listingRate", "titleFlat", "transferTaxRate", "otherClosing", "carryPerDay", "fallbackDays", "fallbackPrice"]) {
+      el(id).addEventListener("input", update);
+    }
+    try { el("usageOptOut").checked = readOptOut(localStorage); optedOutNow = el("usageOptOut").checked; } catch { /* storage is optional */ }
+    el("usageOptOut").addEventListener("change", () => {
+      optedOutNow = el("usageOptOut").checked;
+      try { writeOptOut(localStorage, optedOutNow); } catch { /* storage is optional */ }
+    });
+    SEED.forEach(addRow);
+    update();
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../medicare-irmaa-cliff-calculator/" data-pf-to="medicare-irmaa-cliff-calculator">Medicare IRMAA Cliff Calculator — free, 2026</a></li>
+      <li><a href="../mega-backdoor-roth-calculator/" data-pf-to="mega-backdoor-roth-calculator">Mega Backdoor Roth 401(k) Calculator</a></li>
+      <li><a href="../merchant-cash-advance-true-cost-calculator/" data-pf-to="merchant-cash-advance-true-cost-calculator">Merchant Cash Advance True Cost Calculator — free, private, in your browser</a></li>
+      <li><a href="../meta-ads-fatigue-analyzer/" data-pf-to="meta-ads-fatigue-analyzer">Meta Ads Fatigue Analyzer — free, private, CSV in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=seller-net-sheet">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=seller-net-sheet">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="seller-net-sheet"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="seller-net-sheet" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="seller-net-sheet" data-pf-link-amount=""></script>
+</body>
+</html>

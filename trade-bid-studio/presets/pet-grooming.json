@@ -1,0 +1,31 @@
+{
+  "slug": "pet-grooming-bid-calculator",
+  "name": "Pet grooming",
+  "group": "Events & other services",
+  "summary": "Dog and cat grooms priced from size, coat, matting, add-ons and optional mobile travel.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 0,
+  "burdenRate": 25,
+  "overheadRate": 0,
+  "targetMargin": 35,
+  "items": [
+    {
+      "label": "Groom, medium dog, medium coat",
+      "unit": "pet",
+      "qty": 1,
+      "hoursPerUnit": 1.15,
+      "materialPerUnit": 6,
+      "source": "60 min (SIZE_TIERS.medium) x 1.15 (COAT_TYPES.medium) = 69 min; supplies $6 (defaults in calc.mjs, index.html). Wage defaults to $0 (owner-operator, '0 to skip'); in-shop, no matting or add-ons"
+    },
+    {
+      "label": "Job overhead allocation",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 5,
+      "source": "overhead $5 per groom (defaults in calc.mjs); the specialist allocates overhead in dollars, so overheadRate is 0"
+    }
+  ],
+  "specialistModels": "Size and coat time multipliers, matting surcharges with a severe-matting safety acknowledgment, add-on menu, mobile travel toggle, and a 3% payment fee on the quote."
+}

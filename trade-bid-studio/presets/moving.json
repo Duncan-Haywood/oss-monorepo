@@ -1,0 +1,39 @@
+{
+  "slug": "moving-bid-calculator",
+  "name": "Local moving",
+  "group": "Events & other services",
+  "summary": "Local moves priced from inventory hours, stairs and carry by volume, drive time and truck.",
+  "fit": "good",
+  "crewSize": 3,
+  "hourlyWage": 22,
+  "burdenRate": 25,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Load and unload, 3-bedroom house",
+      "unit": "house",
+      "qty": 1,
+      "hoursPerUnit": 5,
+      "materialPerUnit": 35,
+      "source": "3 bedroom house 1,100 cu ft, 5 clock hours (index.html default row; INVENTORY_PRESETS); materials (boxes, pads) $35 (index.html)"
+    },
+    {
+      "label": "Long carry (20 ft door to truck)",
+      "unit": "cu ft",
+      "qty": 1100,
+      "hoursPerUnit": 0.0002,
+      "materialPerUnit": 0,
+      "source": "(20 ft / 50) x 6 min per 50 ft per 200 cu ft / 60 / 200 = 0.0002 h per cu ft (carryFeet and ACCESS_DEFAULTS, index.html/calc.mjs); no stairs or elevator by default"
+    },
+    {
+      "label": "Drive time, truck and fuel",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 190,
+      "source": "Drive hours 1 (loaded + deadhead); truck $150 + fuel and tolls $40 (index.html defaults)"
+    }
+  ],
+  "specialistModels": "Room and specialty-item inventory presets, stairs and long-carry hours that scale with cubic feet, elevator wait, and a bedroom-count quote check."
+}

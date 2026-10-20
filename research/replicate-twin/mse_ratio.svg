@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: splitting a fixed budget into more replicates raises MSE slowly for phi=0.9 and sharply for phi=0.99">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Grand-mean MSE vs replicates r, relative to r=1 (N=20000)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="266.6" y2="266.6" stroke="#ddd"/><text x="58" y="270.6" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="209.2" y2="209.2" stroke="#ddd"/><text x="58" y="213.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="151.8" y2="151.8" stroke="#ddd"/><text x="58" y="155.8" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<line x1="64" x2="624" y1="94.4" y2="94.4" stroke="#ddd"/><text x="58" y="98.4" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="163.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="294.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="393.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="492.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">replicates r</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">MSE / MSE(r=1)</text>
+<line x1="64" x2="624" y1="209.2" y2="209.2" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,209.2 163.2,209.1 294.4,208.8 393.6,208.3 492.8,206.9 624.0,201.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="209.2" r="3" fill="#c0392b"/>
+<circle cx="163.2" cy="209.1" r="3" fill="#c0392b"/>
+<circle cx="294.4" cy="208.8" r="3" fill="#c0392b"/>
+<circle cx="393.6" cy="208.3" r="3" fill="#c0392b"/>
+<circle cx="492.8" cy="206.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="201.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">phi=0.9</text>
+<polyline points="64.0,209.2 163.2,208.4 294.4,205.4 393.6,198.7 492.8,180.0 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="209.2" r="3" fill="#1f6fb2"/>
+<circle cx="163.2" cy="208.4" r="3" fill="#1f6fb2"/>
+<circle cx="294.4" cy="205.4" r="3" fill="#1f6fb2"/>
+<circle cx="393.6" cy="198.7" r="3" fill="#1f6fb2"/>
+<circle cx="492.8" cy="180.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">phi=0.99</text>
+</svg>

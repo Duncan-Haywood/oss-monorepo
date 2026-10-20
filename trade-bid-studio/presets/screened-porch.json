@@ -1,0 +1,55 @@
+{
+  "slug": "screened-porch-bid-calculator",
+  "name": "Screened porches and lanais",
+  "group": "Exterior & roofing",
+  "summary": "Screen porches priced from panels, wall-screen area, doors, knee wall, roof and ceiling, not floor square feet.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 30,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Screen panel frames (36 in)",
+      "unit": "panel",
+      "qty": 11,
+      "hoursPerUnit": 0.55,
+      "materialPerUnit": 38,
+      "source": "panelCount 11 (32 lf at 36 in, suggestedPanelCount in calc.mjs); 0.55 h per panel + 0 extra for 8 ft walls; $38 per panel frame (index.html)"
+    },
+    {
+      "label": "Fiberglass wall screen",
+      "unit": "sq ft",
+      "qty": 256,
+      "hoursPerUnit": 0.011,
+      "materialPerUnit": 1.35,
+      "source": "wallScreenSf 256 (12x10 attached, 32 lf x 8 ft); 1.1 h per 100 sf; screen $1.35/sf (index.html; suggestedMeshKit('fiberglass'))"
+    },
+    {
+      "label": "Screen door",
+      "unit": "door",
+      "qty": 1,
+      "hoursPerUnit": 1.4,
+      "materialPerUnit": 285,
+      "source": "doorCount 1, 1.4 h per door, $285 per door (index.html)"
+    },
+    {
+      "label": "Trip/setup, site grade and travel",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.9,
+      "materialPerUnit": 0,
+      "source": "hoursTrip 2 + hoursSite 0.4 + travel siteHours 0.5 (index.html)"
+    },
+    {
+      "label": "Hardware, mobilization, travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 455,
+      "source": "hardwareLump $175 + mobilizationFee $185 + travelAndEquipment $95 (index.html)"
+    }
+  ],
+  "specialistModels": "Perimeter, screen height after knee wall and panel count derived from porch size, mesh/roof/ceiling/height presets, and fan, demo and permit add-ons."
+}

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TCGplayer Fee Calculator vs. Tracking Sales in a Spreadsheet</title>
+  <meta name="description" content="A spreadsheet is good for history; a fee calculator is good for the price. How to model TCGplayer’s capped commission…">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tcgplayer-fee-calculator/vs-tracking-tcgplayer-sales-in-a-spreadsheet.html">
+  <meta property="og:title" content="TCGplayer Fee Calculator vs. a Spreadsheet">
+  <meta property="og:description" content="When a spreadsheet beats a calculator for TCGplayer sales, and why one fee-percent column gets cheap and expensive orders wrong.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I track TCGplayer fees in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Yes, and many sellers do. The catch is that the fee is not one percentage: it is a commission with a per-product cap on cards plus shipping, a second percentage on the order total including tax, and a flat charge per order, so a single \"fee %\" column is wrong for cheap and expensive orders alike."}},{"@type":"Question","name":"When is a spreadsheet better than this calculator?","acceptedAnswer":{"@type":"Answer","text":"When you need history: every sale in a row, totals by month, and tax records. This calculator prices one order at a time and keeps nothing unless you save it on your own device; it is for deciding a price or a minimum order, not for bookkeeping."}},{"@type":"Question","name":"What should a spreadsheet formula include?","acceptedAnswer":{"@type":"Answer","text":"Commission as the lesser of 10.75% of the subtotal and $75 per product, plus 2.5% of the order total (subtotal and tax) plus $0.30 once per order. Check it against one real payout before trusting it."}}]}
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #13262a; background: #eef7f7; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { font-size: 1.15rem; }
+    section.card { background: #fff; border: 1px solid #c7e0e2; border-radius: 14px; padding: 18px 22px; box-shadow: 0 8px 24px #0a2a2d10; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c7e0e2; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #456466; }
+    .note { font-size: .9rem; color: #456466; }
+    footer { margin-top: 28px; font-size: .82rem; color: #456466; border-top: 1px solid #c7e0e2; padding-top: 16px; }
+    footer p { margin: .6rem 0; }
+    a { color: #0d5c63; }
+    @media (max-width: 700px) { table { display: block; overflow-x: auto; max-width: 100%; } }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tcgplayer-fee-calculator/vs-tracking-tcgplayer-sales-in-a-spreadsheet.html">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tcgplayer-fee-calculator/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TCGplayer Fee Calculator vs. a Spreadsheet — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/marketplace/">Marketplace seller tools</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../tcgplayer-fee-calculator/">TCGplayer Fee Calculator</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">TCGplayer Fee Calculator vs. a Spreadsheet</span></span></nav>
+  <p class="note"><a href="./">&larr; TCGplayer fee calculator</a></p>
+  <h1>TCGplayer fee calculator vs. tracking your sales in a spreadsheet</h1>
+  <p>This page compares two methods and names no specific product. A spreadsheet records what happened; the <a href="./">TCGplayer fee calculator</a> answers what to charge before you list. Comparing channels for a card? See the <a href="../where-to-sell-calculator/">where-to-sell calculator</a>.</p>
+  <section class="card">
+  <h2>Where each one fits</h2>
+  <div class="pf-table-scroll"><table>
+    <thead><tr><th></th><th>Spreadsheet</th><th>This calculator</th></tr></thead>
+    <tbody>
+      <tr><td>Best at</td><td>History, monthly totals, tax records</td><td>Pricing one order, minimum order size, target profit</td></tr>
+      <tr><td>Models the $75 cap and $0.30 per order</td><td>Only if you build it</td><td>Yes</td></tr>
+      <tr><td>Pro and pre-2026 rates side by side</td><td>Only if you build it</td><td>Yes</td></tr>
+      <tr><td>Keeps your data</td><td>Yes</td><td>Only on your device if you save</td></tr>
+    </tbody>
+  </table></div>
+  </section>
+  <section class="card">
+  <h2>Common questions</h2>
+  <h3>Can I track TCGplayer fees in a spreadsheet?</h3>
+  <p>Yes, and many sellers do. The catch is that the fee is not one percentage: it is a commission with a per-product cap on cards plus shipping, a second percentage on the order total including tax, and a flat charge per order, so a single "fee %" column is wrong for cheap and expensive orders alike.</p>
+  <h3>When is a spreadsheet better than this calculator?</h3>
+  <p>When you need history: every sale in a row, totals by month, and tax records. This calculator prices one order at a time and keeps nothing unless you save it on your own device; it is for deciding a price or a minimum order, not for bookkeeping.</p>
+  <h3>What should a spreadsheet formula include?</h3>
+  <p>Commission as the lesser of 10.75% of the subtotal and $75 per product, plus 2.5% of the order total (subtotal and tax) plus $0.30 once per order. Check it against one real payout before trusting it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic, not legal, tax, financial, or selling advice, and it does not replace a qualified professional. Rates change -- check one real TCGplayer payout against every figure before you reprice. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><strong>Nothing leaves your browser.</strong> This page runs no calculator of its own; the linked tool runs entirely client-side.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by TCGplayer. TCGplayer is a trademark of its owner, named here only to describe the fee schedule this page walks through. The rates come from TCGplayer's published fee table as relayed by search results, not from a direct read of its help centre.</p>
+    <p class="support">Free and open source. If it helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../poshmark-sales-report-analyzer/" data-pf-to="poshmark-sales-report-analyzer">Poshmark Sales Report Analyzer — free, private, CSV in your browser</a></li>
+      <li><a href="../price-increase-breakeven-calculator/" data-pf-to="price-increase-breakeven-calculator">How many customers can you lose after a price increase?</a></li>
+      <li><a href="../print-on-demand-profit-calculator/" data-pf-to="print-on-demand-profit-calculator">Print-on-Demand Profit Calculator — free, private, in your browser</a></li>
+      <li><a href="../reseller-books/" data-pf-to="reseller-books">Reseller Books — all your marketplaces in one set of books</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=tcgplayer-fee-calculator">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tcgplayer-fee-calculator">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="tcgplayer-fee-calculator"></script>
+</body>
+</html>

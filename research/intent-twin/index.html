@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How safe is a robot&#x27;s goal inference when its commit threshold was tuned against a simulated human? | Open research</title>
+<meta name="description" content="A robot commits to one of two goals when the evidence lead reaches  h  (a sequential test on binary motion cues); against a human of cue accuracy  p  the…">
+<meta property="og:title" content="How safe is a robot&#x27;s goal inference when its commit threshold was tuned against a simulated human?">
+<meta property="og:description" content="A robot commits to one of two goals when the evidence lead reaches  h  (a sequential test on binary motion cues); against a human of cue accuracy  p  the…">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbfaf7;--bg-2:#f3f1ec;--surface:#ffffff;--text:#1c1b22;--muted:#5d5b66;--faint:#8b8994;
+  --border:#e4e1da;--border-strong:#d3cfc6;--accent:#4f46e5;--accent-ink:#3730a3;--accent-soft:#eef0ff;
+  --code-bg:#f1efe9;--shadow:0 1px 2px rgba(28,27,34,.04),0 4px 16px rgba(28,27,34,.05);
+  --shadow-hover:0 2px 4px rgba(28,27,34,.06),0 12px 32px rgba(28,27,34,.09);
+  --t-scoring:#4f46e5;--t-effort:#0e9f6e;--t-games:#d9480f;--t-detection:#c2255c;
+  --t-routing:#1c7ed6;--t-markets:#9c36b5;--t-contributions:#b08900;--t-systems:#0b7285;--t-twins:#e8590c;--t-chip:#2f9e44;--t-robofab:#5f3dc4;--t-ambient:#d6336c;--t-selfrep:#868e00;--t-simdesign:#1098ad;--t-garment:#a61e4d;--t-accel:#c2255c;--t-eda:#0c8599;--t-osrobot:#37b24d;--t-swe:#e67700;--t-mimic:#7048e8;--t-house:#8f5b2e;--t-capture:#1971c2;--t-sensing:#087f5b;--t-energy:#d9480f;--t-society:#c92a2a;--t-codesign:#2b8a3e;--t-hanger:#5c7cfa;--t-qual:#ae3ec9;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f0f13;--bg-2:#15151b;--surface:#18181f;--text:#ecebf1;--muted:#a3a1ad;--faint:#75737f;
+  --border:#2a2a33;--border-strong:#3a3a45;--accent:#8b87ff;--accent-ink:#b4b1ff;--accent-soft:#1f1e36;
+  --code-bg:#23232c;--shadow:0 1px 2px rgba(0,0,0,.3);--shadow-hover:0 8px 28px rgba(0,0,0,.45);
+  --t-scoring:#8b87ff;--t-effort:#38d9a9;--t-games:#ff8c5a;--t-detection:#f783ac;
+  --t-routing:#74c0fc;--t-markets:#da77f2;--t-contributions:#ffd43b;--t-systems:#3bc9db;--t-twins:#ffa94d;--t-chip:#69db7c;--t-robofab:#9775fa;--t-ambient:#f06595;--t-selfrep:#c0eb75;--t-simdesign:#66d9e8;--t-garment:#faa2c1;--t-accel:#f783ac;--t-eda:#3bc9db;--t-osrobot:#8ce99a;--t-swe:#ffc078;--t-mimic:#b197fc;--t-house:#e0a872;--t-capture:#74c0fc;--t-sensing:#63e6be;--t-energy:#ff922b;--t-society:#ff8787;--t-codesign:#8ce99a;--t-hanger:#91a7ff;--t-qual:#e599f7;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+code{font:0.86em var(--mono);background:var(--code-bg);padding:.08em .35em;border-radius:4px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+@media (max-width:600px){.wrap{padding:0 16px}}
+.topbar{border-bottom:1px solid var(--border)}
+.topbar .wrap{display:flex;justify-content:space-between;align-items:center;height:56px;font-size:14px}
+.topbar a{color:var(--muted)}
+.topbar a:hover{color:var(--text)}
+.theme-tag{display:inline-block;margin-top:40px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--c,var(--accent))}
+h1{font:600 clamp(28px,5vw,40px)/1.2 var(--serif);letter-spacing:-.01em;margin:.4rem 0 1rem}
+.slug{font:13px var(--mono);color:var(--faint)}
+.lede{font-size:18px;color:var(--muted);margin:0 0 1.5rem}
+.stats{display:flex;gap:1rem;flex-wrap:wrap;margin:0 0 2rem}
+.stats span{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:.3rem .75rem;font-size:14px;color:var(--muted)}
+h2{font:600 22px/1.3 var(--serif);margin:2.2rem 0 .6rem}
+figure{margin:1rem 0;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+figure img{display:block;max-width:100%;height:auto;margin:0 auto;background:#fff;border-radius:4px}
+figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
+.links{display:flex;gap:.6rem;flex-wrap:wrap;padding:0;list-style:none;margin:0}
+.links a{display:inline-block;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);border-radius:8px;padding:.45rem .9rem;font-size:14px;font-weight:500}
+.links a.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.log-intro{font-size:14px;color:var(--muted);margin:0 0 1rem}
+.log-entry{border-left:3px solid var(--c,var(--accent));padding:.1rem 0 .1rem 1rem;margin:0 0 1.4rem}
+.log-entry h3{font:600 17px/1.35 var(--serif);margin:0 0 .4rem}
+.log-entry ul{margin:.3rem 0;padding-left:1.2rem}
+.log-entry li{margin:.25rem 0}
+.log-entry p{margin:.3rem 0}
+.note{font-size:14px;color:var(--muted);border-left:3px solid var(--border-strong);padding-left:1rem;margin-top:2.2rem}
+.pager{display:flex;justify-content:space-between;gap:1rem;margin:2.4rem 0 0;padding:1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-size:14px}
+.pager a{display:block;max-width:48%;color:var(--text)}
+.pager a small{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.pager .next{margin-left:auto;text-align:right}
+.more-list{list-style:none;padding:0;margin:0;display:grid;gap:.7rem}
+.more-list li{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:.7rem .9rem}
+.more-list a{font-weight:600;color:var(--text)}
+.more-list span{display:block;font-size:14px;color:var(--muted);margin-top:.2rem}
+.more-all{margin:.9rem 0 0;font-size:15px;font-weight:600}
+.topic-chips{display:flex;flex-wrap:wrap;gap:.45rem;margin:0}
+.topic-chips a{border:1px solid var(--border);border-radius:999px;padding:.25rem .75rem;font-size:13px;color:var(--text);background:var(--surface)}
+.topic-chips a[aria-current]{border-color:var(--c,var(--accent));font-weight:600}
+.topic-chips small{color:var(--muted);margin-left:.25rem}
+footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;font-size:13px;color:var(--faint)}
+.t-scoring{--c:var(--t-scoring)}
+.t-effort{--c:var(--t-effort)}
+.t-games{--c:var(--t-games)}
+.t-detection{--c:var(--t-detection)}
+.t-routing{--c:var(--t-routing)}
+.t-markets{--c:var(--t-markets)}
+.t-contributions{--c:var(--t-contributions)}
+.t-systems{--c:var(--t-systems)}
+.t-twins{--c:var(--t-twins)}
+.t-chip{--c:var(--t-chip)}
+.t-robofab{--c:var(--t-robofab)}
+.t-ambient{--c:var(--t-ambient)}
+.t-selfrep{--c:var(--t-selfrep)}
+.t-simdesign{--c:var(--t-simdesign)}
+.t-garment{--c:var(--t-garment)}
+.t-accel{--c:var(--t-accel)}
+.t-eda{--c:var(--t-eda)}
+.t-osrobot{--c:var(--t-osrobot)}
+.t-swe{--c:var(--t-swe)}
+.t-mimic{--c:var(--t-mimic)}
+.t-house{--c:var(--t-house)}
+.t-capture{--c:var(--t-capture)}
+.t-sensing{--c:var(--t-sensing)}
+.t-energy{--c:var(--t-energy)}
+.t-society{--c:var(--t-society)}
+.t-codesign{--c:var(--t-codesign)}
+.t-hanger{--c:var(--t-hanger)}
+.t-qual{--c:var(--t-qual)}
+</style>
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/research/intent-twin/">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/research/intent-twin/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/" aria-current="page">Research</a><a data-pfs-nav="writing" href="../../writing/">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../research/">Research</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../research/topics/twins/">Digital twins &amp; sim-to-real</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How safe is a robot&#x27;s goal inference when its commit threshold was tuned against a simulated human?</span></span></nav>
+<header class="topbar"><div class="wrap"><a href="../index.html">← All projects</a><a href="https://github.com/Duncan-Haywood/oss-monorepo">GitHub</a></div></header>
+<main class="wrap t-twins">
+  <a class="theme-tag" href="../topics/twins/">Digital twins & sim-to-real</a>
+  <h1>How safe is a robot's goal inference when its commit threshold was tuned against a simulated human?</h1>
+  <p class="slug">research/intent-twin</p>
+  <p class="lede">Goal inference tuned against a simulated human: exact real error <code>1/(1+r^h)</code> of a commit threshold, 3.9×–165× over target for a too-rational twin, 2–4.5× slower for a too-irrational one, population floor <code>P(p&lt;½)</code>, and calibration from n real cues misses the target 14–42% of the time.</p>
+  <div class="stats"><span>6 tests</span></div>
+  <h2>What it found</h2>
+  <p>A robot commits to one of two goals when the evidence lead reaches <em>h</em> (a sequential test on binary motion cues); against a human of cue accuracy <em>p</em> the wrong-goal probability is exactly 1/(1+<em>r</em><sup><em>h</em></sup>), <em>r</em>=<em>p</em>/(1&minus;<em>p</em>), matched to simulation. A threshold set for error 10<sup>&minus;3</sup> in a twin with <em>p</em><sub>s</sub>=0.9 gives real error 3.9&times; / 33&times; / 165&times; the target at <em>p</em>=0.8 / 0.7 / 0.6, while a too-irrational twin (<em>p</em><sub>s</sub>=0.6) is safe but 2.0&ndash;4.5&times; slower. A heterogeneous population (sd 0.08&ndash;0.10) doubles the error of the mean-human threshold, and humans with <em>p</em>&lt;&frac12; put a floor under any threshold. Calibrating <em>p</em><sub>s</sub> from <em>n</em> real cues misses the target with probability 0.38 / 0.42 / 0.33 / 0.30 / 0.14 at <em>n</em>=10 / 20 / 50 / 200 / 1000; a lower-confidence-bound design cuts that to &le;4% at the cost of time. Stylised: two goals, i.i.d. binary cues, simulated humans.</p>
+  <h2>A figure from its own output</h2>
+  <figure><img src="real_error.svg" alt="Figure produced by research/intent-twin: real_error" loading="lazy"><figcaption>intent-twin/experiments/real_error.svg, written by the project's own experiment code.</figcaption></figure>
+
+  <h2>Paper, code and results</h2>
+  <ul class="links">
+    <li><a class=primary href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/intent-twin#readme">README and method</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/intent-twin/paper">White paper</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/intent-twin/experiments">Experiments and results</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/intent-twin/src">Code</a></li>
+    <li><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/intent-twin/tests">Tests</a></li>
+  </ul>
+  <nav class="pager" aria-label="More in Digital twins &amp; sim-to-real"><a class="prev" href="../validate-twin/" rel="prev"><small>← Previous</small>How many real trials before “the twin passed validation” means anything for a rare failure?</a><a class="next" href="../sync-twin/" rel="next"><small>Next →</small>How much does a twin's perfectly synchronised sensor clock over-promise a fused estimate?</a></nav>
+  <h2 id="more">More in Digital twins & sim-to-real</h2>
+  <ul class="more-list">
+    <li><a href="../sync-twin/">How much does a twin's perfectly synchronised sensor clock over-promise a fused estimate?</a><span>Sensor clock offset and jitter a twin does not simulate: exact added variance <code>2σ²[1−(1+s²/ℓ²)^{−½}e^{−δ²/2(ℓ²+s²)}]</code>, a synchronised-clock fusion design is <code>1+ag/(b(a+b))</code>× its claim (+44% at 0.3ℓ) and worse than one sensor beyond 0.225ℓ, better delayed sensors hurt more, clock randomisation fixes it.</span></li>
+    <li><a href="../eiv-twin/">What does a twin get wrong when its gain is fitted from a noisy logged input, and does more data fix it?</a><span>A twin gain fitted from a noisy logged input is attenuated by exactly the reliability ratio <code>λ</code> (0.800 vs 0.802 simulated), more data makes the twin's own 95% interval worse (covers the true gain 53%→0% for n=20→200) with no residual warning, a feedforward controller overshoots by exactly <code>1/λ</code>, and known-noise or instrument repairs cost variance and fail at small n.</span></li>
+    <li><a href="../deadband-twin/">What does a twin with no actuator deadband promise a proportional loop, and what does the real one do?</a><span>An actuator deadband the twin lacks: real loop rests at exactly <code>d/k</code> while the twin goes to 0, tolerance <code>ε</code> needs <code>k ≥ d/ε</code>, a fitted linear gain is <code>2Q(d/s)</code> (excitation-dependent, small-signal gain 0), and bisection compensation leaves exact <code>(d−d̂)/k</code> or a <code>(d̂−d)/(2−k)</code> chatter (8 probes: 0.784 → 0.0005).</span></li>
+    <li><a href="../deadband-noise-twin/">Does measurement noise, or dither, hide an actuator deadband the twin lacks?</a><span>Follow-up to <code>deadband-twin</code>: measurement noise flips the linear twin's error from 27× optimistic (s=0.01) to conservative (0.37× at s=0.05), dither helps only without noise, and mild under-compensation beats the exact width under noise (single-seed simulations).</span></li>
+    <li><a href="../slew-twin/">How large a manoeuvre can a twin without an actuator rate limit be trusted for?</a><span>A twin without an actuator rate limit is exact only for <code>x₀ ≤ r/k</code>; beyond it the real loop overshoots (0.90 of <code>x₀</code> at <code>x₀/r=10⁴</code>) and settles in O(amplitude) steps, with an empirical overshoot threshold <code>2n(2n−1)</code> for <code>k=1/n</code>.</span></li>
+    <li><a href="../backlash-twin/">Does a twin with a rigid drivetrain miss the hunting cycle caused by gear backlash?</a><span>A rigid-drivetrain twin says the PI loop converges but gear backlash makes the real loop hunt at 1.3–2.9× the gap (exactly ∝ h); describing-function prediction 7–10% high, and bistable starts can hide it.</span></li>
+  </ul>
+  <p class="more-all"><a href="../topics/twins/">All 146 Digital twins & sim-to-real projects →</a></p>
+  <h2>Other research topics</h2>
+  <p class="topic-chips"><a href="../topics/scoring/">Proper scoring & elicitation<small>28</small></a><a href="../topics/effort/">Effort & peer prediction<small>9</small></a><a href="../topics/games/">Verification games & slashing<small>18</small></a><a href="../topics/detection/">Detection & tolerances<small>12</small></a><a href="../topics/routing/">Markets as routers<small>11</small></a><a href="../topics/markets/">Prediction-market design<small>9</small></a><a href="../topics/contributions/">Paying contributors<small>8</small></a><a href="../topics/systems/">Decentralised training systems<small>22</small></a><a href="../topics/twins/" aria-current=page>Digital twins & sim-to-real<small>146</small></a><a href="../topics/chip/">LLM chip design loops<small>37</small></a><a href="../topics/robofab/">Robot manufacturing loops<small>49</small></a><a href="../topics/ambient/">Ambient AI assistant<small>46</small></a><a href="../topics/selfrep/">Self-replicating manufacturing<small>34</small></a><a href="../topics/simdesign/">Simulation-first design<small>64</small></a><a href="../topics/garment/">Engineered clothing<small>45</small></a><a href="../topics/accel/">Task-specific AI accelerators<small>31</small></a><a href="../topics/eda/">Algorithmic chip-design loops<small>25</small></a><a href="../topics/osrobot/">Open-source purpose-built robots<small>28</small></a><a href="../topics/swe/">The software-engineering loop<small>41</small></a><a href="../topics/mimic/">Adversarial human imitation<small>33</small></a><a href="../topics/house/">Open-source residential construction<small>40</small></a><a href="../topics/capture/">Autonomous multi-angle capture<small>14</small></a><a href="../topics/sensing/">Sensing, imaging and 3D<small>14</small></a><a href="../topics/energy/">Energy supply and dense energy storage<small>10</small></a><a href="../topics/society/">Robot societies among people<small>10</small></a><a href="../topics/codesign/">Agentic co-design of low-cost robots<small>12</small></a><a href="../topics/hanger/">Laundry-hanging robots<small>12</small></a><a href="../topics/qual/">Machine learning on qualitative data<small>5</small></a></p>
+  <p class="note">Produced with AI assistance (Claude). Results are from the code in this repository and are simulated or stylised unless the abstract says otherwise; nothing here implies affiliation with or endorsement by any lab, researcher or company cited. MIT licensed.</p>
+</main>
+<footer><div class="wrap">© Duncan Haywood · <a href="https://github.com/Duncan-Haywood/oss-monorepo">github.com/Duncan-Haywood/oss-monorepo</a></div><div class="wrap"><p class="pfs-foot"><a href="../../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../../research/">Research</a><span aria-hidden="true"> · </span><a href="../../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../../updates/">Updates &amp; roadmap</a><span aria-hidden="true"> · </span><a href="../../changelog/">Changelog</a><span aria-hidden="true"> · </span><a href="../../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../../lab/">Lab</a><span aria-hidden="true"> · </span><a href="../../feedback/">Report a problem or suggest a feature</a><span aria-hidden="true"> · </span><a href="../../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../../dev/daily/">Daily brief &amp; The Merge Report</a><span aria-hidden="true"> · </span><a href="../../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="../../changelog/feed.xml">Changelog feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p></div></footer>
+</body>
+</html>

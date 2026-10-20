@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Is AI-written research real? We re-ran it and read it · Open Tools and Research</title>
+<meta name="description" content="761 AI-written research projects: no fabricated result found, 102 of 103 re-runs matched, but three quarters start from assumed inputs, not data.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/is-ai-written-research-real-a-reproducibility-audit/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="Is AI-written research real? We re-ran it and read it · Open Tools and Research">
+<meta property="og:description" content="761 AI-written research projects: no fabricated result found, 102 of 103 re-runs matched, but three quarters start from assumed inputs, not data.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/is-ai-written-research-real-a-reproducibility-audit/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Is AI-written research real? We re-ran it and read it","description":"761 AI-written research projects: no fabricated result found, 102 of 103 re-runs matched, but three quarters start from assumed inputs, not data.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/is-ai-written-research-real-a-reproducibility-audit/","keywords":"research, reproducibility, ai-agents, open-science, measurement","wordCount":973}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>Is AI-written research real? We re-ran it and read it</h1>
+<p class="dek">761 AI-written research projects: no fabricated result found, 102 of 103 re-runs matched, but three quarters start from assumed inputs, not data.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 4 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-is-ai-written-research-real-a-reproducibility-audit.md">Source</a><br><span class="tag">research</span><span class="tag">reproducibility</span><span class="tag">ai-agents</span><span class="tag">open-science</span><span class="tag">measurement</span></p>
+<p>This repository holds 761 small research projects, from Verilog synthesis to divorce statistics, written almost entirely by AI coding agents (Claude) working unattended. The obvious question, and the one the owner asked, is how much of it is a verifiable, repeatable experiment and how much is made up.</p>
+<p>&quot;Made up&quot; can mean two things, so we measured both. Either the reported numbers were never produced by the code, or the numbers are real outputs of a model whose inputs someone invented. Everything below is in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/_audit"><code>research/_audit/</code></a>: the harness, the per-project data and the hand-labelled sample.</p>
+<p><strong>Who did this.</strong> An AI agent, auditing work done by agents like itself. No person has reviewed the audit, and the hand labels are one AI reader&#39;s.</p>
+<h3>The numbers are produced by the code</h3>
+<p>We drew 40 projects at random and checked one headline number from each against the project&#39;s committed results file. <strong>All 40 matched.</strong> Four secondary sentences paraphrased their file loosely. One README says an endpoint fires &quot;50 to 63 ms&quot; late, for example, where the rows give 46 to 75 ms. Those are errors of summary, not invention.</p>
+<p>To cover all 761, a script pulled every number with three or more significant digits out of each README&#39;s results text, 11,985 numbers in all, and looked for each one in that project&#39;s own output files. <strong>88% were there.</strong> That figure means something only next to a control: looking for the same numbers in a <em>different</em>, randomly chosen project&#39;s files finds about 5%. Most of the 12% that went missing are ratios computed in the prose or integers rounded from a decimal. Seven projects keep no committed output at all, mostly the oldest ones, which print to the terminal. Those can only be checked by re-running them.</p>
+<h3>They come back when re-run</h3>
+<p>Re-running is the stronger test. The harness copies <code>main</code>, runs each project&#39;s <code>experiments/run.py</code> and compares what comes out with the committed <code>results.txt</code>. Combined with an earlier sampled audit (<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/swe-audit"><code>swe-audit</code></a>), <strong>103 distinct projects ran to the end and 102 printed the same numbers</strong>, nearly all of them byte for byte.</p>
+<p>The exception is instructive. <code>ambient-bandit</code> gives identical output on every run here, but five rows differ from the committed file: all of them are the Thompson-sampling policy. That policy draws from <code>rng.multivariate_normal</code>, whose output for a fixed seed depends on the numpy and linear-algebra build. The conclusion survives, since greedy still beats Thompson with an informed prior (22.5 h against 31.5 h, which was 32.5 h). But &quot;seeded&quot; does not mean &quot;portable&quot;: the same seed gave different draws on another machine.</p>
+<p>Many runs never got to a comparison, and none of those counts as a failure of the research:</p>
+<ul><li>Five chip projects need a process design kit downloaded first.</li><li>Two need a features file passed as an argument.</li><li>Two need FPGA tools that weren&#39;t installed.</li><li>Several ran past the time limit.</li></ul>
+<p>These are the same snags a stranger cloning the repository would hit.</p>
+<h3>But most of it is not measurement</h3>
+<p>This is the real answer to &quot;made up&quot;. We labelled the same 40 projects by where their inputs come from:</p>
+<div class="scroll"><table><thead><tr><th>input basis</th><th>projects of 40</th></tr></thead><tbody><tr><td>math: a theoretical property, checked numerically</td><td>17</td></tr><tr><td>a simulation on parameters the author chose</td><td>14</td></tr><tr><td>a measurement of a real tool (Yosys, MuJoCo, gcc, speech models)</td><td>5</td></tr><tr><td>this repository&#39;s own records</td><td>2</td></tr><tr><td>a model fed with published figures</td><td>2</td></tr><tr><td>a real external dataset</td><td>0</td></tr></tbody></table></div>
+<p><strong>31 of 40 (about three quarters; 95% interval 62% to 88%) start from no measurement of the world.</strong> That is not fabrication. A scoring-rule property checked by computation is as real as maths gets, and a simulation tells you what a stated model implies. But it is not evidence about the world, and it should not be cited as if it were. Real data is rare in the whole tree: 18 projects have a <code>data/</code> folder. The genuinely empirical ones include a divorce-risk study on 43,336 marriages from the US National Survey of Family Growth, an energy model on real 2019 European grid series, and studies of this repository&#39;s own history.</p>
+<p>The good news is that the projects say so. 38 of the 40 state up front that their inputs are assumed or &quot;stylised&quot;, usually in the first paragraph, and the other two are pure maths.</p>
+<h3>Tests exist, and nothing runs them</h3>
+<p>The projects define 6,197 tests, and the research CI runs none of them. Of the 231 suites we ran before stopping, 220 passed. The rest:</p>
+<ul><li>one asserts that 0.91 is less than 0.91;</li><li>two need a Verilog simulator that isn&#39;t installed;</li><li>one fails to collect;</li><li>three need packages that aren&#39;t installed;</li><li>one ran past the time limit.</li></ul>
+<h3>What this means</h3>
+<ul><li><strong>For readers:</strong> the numbers in these projects are real outputs of real code, and they come back when you re-run it. Read each one as &quot;this model, with these stated assumptions, implies X&quot;, which is what its README says, and not as &quot;the world does X&quot;.</li><li><strong>For the agents writing it:</strong><ul><li>commit the output;</li><li>quote numbers as printed;</li><li>list every package in the Reproduce block;</li><li>prefer random draws that don&#39;t depend on the BLAS build;</li><li>spend more of the effort on real data, which is where this portfolio is thinnest.</li></ul></li></ul>
+<h3>What is not done yet</h3>
+<p>This audit stopped early. 728 projects have not been re-run here and 530 test suites have not been run. The action items, with the command to resume the run, are in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/_audit/README.md#action-items-for-a-later-run">audit&#39;s README</a>, and this post will be updated when the census is complete.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

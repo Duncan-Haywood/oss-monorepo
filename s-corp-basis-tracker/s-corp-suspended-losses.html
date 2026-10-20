@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>S corp suspended losses and shareholder loan basis: why a loss is not deductible, with an example</title>
+  <meta name="description" content="Why an S corporation loss is suspended when your stock and loan basis run out, how later income restores loan basis before it frees the loss…">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/s-corp-basis-tracker/s-corp-suspended-losses.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Why an S corporation loss is suspended, and what frees it", "description": "Why an S corporation loss is suspended when your stock and loan basis run out, how later income restores loan basis before it frees the loss, and why repaying a loan with reduced basis creates gain. Worked example.", "author": {"@type": "Organization", "name": "S-Corp Basis Tracker"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do suspended S corporation losses expire?", "acceptedAnswer": {"@type": "Answer", "text": "No. They carry forward indefinitely for as long as you hold stock, and become deductible in a year when your basis is increased enough to absorb them. Losses still suspended when your stock is sold or the company ends are generally lost."}}, {"@type": "Question", "name": "Does a loan I made to the S corporation give me basis?", "acceptedAnswer": {"@type": "Answer", "text": "Only a direct loan from you to the company, at face value, gives debt basis. Guaranteeing a bank loan or lending through another entity generally does not. Ask a preparer how your loan is documented."}}, {"@type": "Question", "name": "Why did repaying my shareholder loan create taxable income?", "acceptedAnswer": {"@type": "Answer", "text": "If losses already reduced the loan's basis, repaying it returns more cash than the basis you have left, and the reduced part is gain. Income in later years restores loan basis first, which is why the order matters."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1d2330; background: #f4f2ee; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    a { color: #1b5e7a; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.4rem); line-height: 1.12; color: #3b3a2e; }
+    h2 { font-size: 1.2rem; color: #3b3a2e; margin-top: 28px; }
+    h3 { font-size: 1.02rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; } th, td { border-bottom: 1px solid #ddd8cc; padding: 6px; text-align: left; } td.n, th.n { text-align: right; }
+    footer { margin-top: 32px; border-top: 1px solid #ddd8cc; padding-top: 14px; font-size: .86rem; color: #54503f; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/s-corp-basis-tracker/s-corp-suspended-losses.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:title" content="S corp suspended losses and shareholder loan basis: why a loss is not deductible, with an example">
+<meta property="og:description" content="Why an S corporation loss is suspended when your stock and loan basis run out, how later income restores loan basis before it frees the loss…">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/s-corp-basis-tracker/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="S corp suspended losses and shareholder loan basis: why a loss is not deductible, with an example — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../s-corp-basis-tracker/">S-Corp Shareholder Basis Tracker — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">S corp suspended losses and shareholder loan basis: why a loss is not deductible, with an example</span></span></nav>
+<main>
+  <p><a href="./index.html">S-Corp Shareholder Basis Tracker</a> · free, in your browser</p>
+  <h1>Why an S corporation loss is suspended, and what frees it</h1>
+  <p>An S corporation passes its loss to you, but you can deduct it only up to your basis: stock basis first, then the basis in loans you made to the company directly. What does not fit is suspended and carried forward. Repaying a loan whose basis was used up is where a later surprise comes from.</p>
+  <h2>One invented example, three years</h2>
+  <p><strong>2024.</strong> You start with $20,000 of stock basis and lend the company $10,000. Your share of the loss is $40,000. It uses all $20,000 of stock basis and then the $10,000 of loan basis, so you deduct $30,000 and <strong>$10,000 is suspended</strong>. The loan is still owed to you at $10,000 but its basis is $0.</p>
+  <p><strong>2025.</strong> Your share of income is $4,000. Income first restores the loan's reduced basis, then it absorbs the suspended loss, so <strong>$6,000 is still suspended</strong> at year end and the loan basis is back to $0.</p>
+  <p><strong>2026.</strong> The company repays the $10,000 loan. With a basis of $0 the whole repayment is gain: <strong>$10,000 of gain</strong> (ordinary income if the loan is a note, capital gain if it is an open account), and the $6,000 loss is still suspended.</p>
+  <h2>What to check</h2>
+  <ul>
+    <li>Only money you put in yourself counts. A bank loan you guarantee does not raise your basis.</li>
+    <li>Basis is tested at year end for losses, so a contribution made after year end counts for the next year, not the one that was limited.</li>
+    <li>At-risk and passive-activity rules can limit a loss after basis does. The tracker does not model them.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>Do suspended S corporation losses expire?</h3>
+  <p>No. They carry forward indefinitely for as long as you hold stock, and become deductible in a year when your basis is increased enough to absorb them. Losses still suspended when your stock is sold or the company ends are generally lost.</p>
+  <h3>Does a loan I made to the S corporation give me basis?</h3>
+  <p>Only a direct loan from you to the company, at face value, gives debt basis. Guaranteeing a bank loan or lending through another entity generally does not. Ask a preparer how your loan is documented.</p>
+  <h3>Why did repaying my shareholder loan create taxable income?</h3>
+  <p>If losses already reduced the loan's basis, repaying it returns more cash than the basis you have left, and the reduced part is gain. Income in later years restores loan basis first, which is why the order matters.</p>
+  <p><a href="./index.html">Open the tracker</a> and put your own K-1 figures through it. Nothing is uploaded. Related: <a href="./form-7203-basis-order.html">the order basis is adjusted in</a> and <a href="./s-corp-distributions-over-basis.html">distributions over basis</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Not legal, tax, financial or accounting advice; the example is invented and the rules are summarised from commonly published guidance that may be out of date. Check Form 7203 instructions and your K-1, or ask a tax professional.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These pages may be slow, moved or taken offline without notice.</p>
+</footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../wise-statement-to-journal/" data-pf-to="wise-statement-to-journal">Wise statement to Xero / QuickBooks journal with realised FX — free, private</a></li>
+      <li><a href="../xero-bank-statement-csv-check/" data-pf-to="xero-bank-statement-csv-check">Xero Bank Statement CSV Check — free, private, in your browser</a></li>
+      <li><a href="../youtube-adsense-payout-to-journal/" data-pf-to="youtube-adsense-payout-to-journal">YouTube AdSense payments to Xero / QuickBooks journal — free, private</a></li>
+      <li><a href="../youtube-chapters-check/" data-pf-to="youtube-chapters-check">YouTube Chapters Check — free, private, in your browser</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=s-corp-basis-tracker">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=s-corp-basis-tracker">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="s-corp-basis-tracker"></script>
+</body>
+</html>

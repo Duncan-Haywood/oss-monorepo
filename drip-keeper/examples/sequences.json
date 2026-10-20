@@ -1,0 +1,26 @@
+[
+  {
+    "id": "onboarding",
+    "name": "Onboarding: get new signups to their first result",
+    "trigger": "signed_up",
+    "exitOn": ["upgraded"],
+    "sendHoursUTC": [13, 21],
+    "steps": [
+      { "waitHours": 0, "subject": "Welcome, {{name|there}}", "text": "Hi {{name|there}},\n\nThanks for signing up. The fastest way to see value is to create your first project:\nhttps://app.example.com/new\n\nReply to this email if you get stuck; a person reads it." },
+      { "waitHours": 48, "subject": "Did you get your first project going?", "text": "Hi {{name|there}},\n\nMost people who stick around create a project in their first two days. If something got in the way, tell me what and I will help.", "skipIf": "created_project" },
+      { "waitHours": 72, "subject": "Three things teams do next", "text": "Hi {{name|there}},\n\n1. Invite a teammate.\n2. Connect your data.\n3. Set up a weekly report.\n\nhttps://app.example.com/next" },
+      { "waitHours": 96, "subject": "Your trial: what you have used so far", "text": "Hi {{name|there}},\n\nYour trial ends soon. Upgrading keeps your projects and history:\nhttps://app.example.com/upgrade", "skipIf": "upgraded" }
+    ]
+  },
+  {
+    "id": "win-back",
+    "name": "Win-back: lapsed users",
+    "trigger": "went_inactive",
+    "exitOn": ["logged_in", "upgraded"],
+    "reenroll": true,
+    "steps": [
+      { "waitHours": 0, "subject": "We have not seen you in a while", "text": "Hi {{name|there}},\n\nSomething change? Reply with one line and I will read it.\n\nPick up where you left off: https://app.example.com" },
+      { "waitHours": 168, "subject": "What we shipped since you left", "text": "Hi {{name|there}},\n\nA short list of what is new: https://app.example.com/changelog" }
+    ]
+  }
+]

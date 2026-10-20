@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Open Tools and Research</title>
+  <subtitle>New free, browser-only calculators and checks for people who run a small business. No account, no upload: every number stays on the visitor's own device.</subtitle>
+  <link rel="self" type="application/atom+xml" href="https://duncan-haywood.github.io/monorepo-projects/feed.xml"/>
+  <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/"/>
+  <id>tag:marisstella.dev,2026:open-tools-and-research</id>
+  <updated>2026-10-20T00:00:00Z</updated>
+  <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Changepoint Detector — when did your series change?</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/"/>
+    <id>tag:marisstella.dev,2026:tool/changepoint-detector</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free changepoint detection for any time series. Paste a CSV and see when the level or volatility changed, with exact PELT segmentation and Bayesian online changepoint probabilities (Adams &amp; MacKay 2007; Killick et al. 2012). Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Conformal Prediction Intervals Calculator — free, private, in your browser</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/conformal-prediction-intervals/"/>
+    <id>tag:marisstella.dev,2026:tool/conformal-prediction-intervals</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free conformal prediction intervals calculator. Paste a CSV, pick the column to predict and a coverage level, and get distribution-free prediction intervals with a finite-sample guarantee: split conformal, locally weighted conformal and conformalized quantile regression (CQR), checked on held-out rows. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>CSV to SEPA pain.001 — free, private, in your browser</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/csv-to-sepa-pain001/"/>
+    <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain001</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free CSV to SEPA converter: turn a spreadsheet of supplier or payroll payments into a pain.001 XML file for your bank's bulk upload. Checks every IBAN and amount first, writes exact control totals, and never uploads your list.</summary>
+  </entry>
+  <entry>
+    <title>CSV to SEPA pain.008 direct debit — free, private, in your browser</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/csv-to-sepa-pain008/"/>
+    <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain008</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free CSV to SEPA direct debit converter: turn a spreadsheet of member or customer collections into a pain.008 XML file for your bank. Checks every IBAN, mandate and your creditor identifier first, groups FRST/RCUR/OOFF/FNAL batches, and never uploads your list.</summary>
+  </entry>
+  <entry>
+    <title>Hearth &amp; Horizon: free AI-written science fiction and Catholic bedtime stories, with audio</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/"/>
+    <id>tag:marisstella.dev,2026:tool/hearth-and-horizon</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Learning &amp; practice"/>
+    <summary type="text">Free short science fiction about the next thousand years, stories written for AI agents, and Catholic bedtime stories about the saints. Read or listen; podcast RSS feeds; CC BY-SA 4.0.</summary>
+  </entry>
+  <entry>
+    <title>Interview Content Studio: one interview, a month of content for every platform</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/interview-content-studio/"/>
+    <id>tag:marisstella.dev,2026:tool/interview-content-studio</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Answer one guided interview about your brand or topic and get a 4-week content calendar with drafts for LinkedIn, Instagram, TikTok, YouTube, X, newsletters, blogs and more. Free, runs in your browser, optional AI on your own key.</summary>
+  </entry>
+  <entry>
+    <title>Matrix Profile Explorer — find repeated patterns and anomalies in a time series</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/matrix-profile-explorer/"/>
+    <id>tag:marisstella.dev,2026:tool/matrix-profile-explorer</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free matrix profile tool for time series anomaly detection and motif discovery. Paste or upload a CSV and find repeated patterns (motifs) and the most unusual stretches (discords) with the exact STOMP algorithm. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Simulate conversations between fictional personalities</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/persona-conversation-simulator/"/>
+    <id>tag:marisstella.dev,2026:tool/persona-conversation-simulator</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Build fictional characters with Big Five personalities and simulate negotiations, team meetings and arguments between them. Free, private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Publish Kit — podcast feeds, EPUBs, audiobooks and paperback covers</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/publish-kit/"/>
+    <id>tag:marisstella.dev,2026:tool/publish-kit</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free podcast RSS feed generator, Markdown to EPUB converter, ACX audiobook checker and KDP spine calculator. Runs in your browser, or as a CLI for AI agents.</summary>
+  </entry>
+  <entry>
+    <title>Saints by Candlelight: a free bedtime podcast of saints, angels and Bible stories</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/"/>
+    <id>tag:marisstella.dev,2026:tool/saints-by-candlelight</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free bedtime story podcast of Catholic and Orthodox saints, angels and patriarchs: lighthearted, faithful, 30 to 60 minute episodes with full scripts and an honest note on what is history and what is legend.</summary>
+  </entry>
+  <entry>
+    <title>Sales Cadence Builder — a prospecting sequence for every lead, checked before you send</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/sales-cadence-builder/"/>
+    <id>tag:marisstella.dev,2026:tool/sales-cadence-builder</id>
+    <published>2026-10-20T00:00:00Z</published>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free sales cadence builder and outreach sequence planner. Paste your prospect list and get a multi-channel cadence (email, phone call with voicemail script, LinkedIn note, mailed letter) on business days, call times inside each prospect's local business hours, suppression and consent checks, and a CSV and calendar file. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Bid Price Engine — price any job at the margin you need</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/bid-price-engine/"/>
+    <id>tag:marisstella.dev,2026:tool/bid-price-engine</id>
+    <published>2026-10-19T00:00:00Z</published>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">Free job bid calculator for contractors and service trades: labor with payroll burden, materials with waste, subs, contingency and overhead turned into a price at the profit margin you choose. Shows your walk-away price and how far labor can overrun. Private, no signup.</summary>
+  </entry>
+  <entry>
+    <title>Discogs Fee Calculator</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/discogs-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/discogs-fee-calculator</id>
+    <published>2026-10-19T00:00:00Z</published>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Discogs seller fee calculator: the 9% selling fee on item price plus shipping ($0.10 minimum, $150 maximum), editable payment processing, your payout and profit after postage and cost, the price that hits a target profit, and a fee ladder from $3 singles to $2,500 grails. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Hands-Free Language Coach</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/hands-free-language-coach/"/>
+    <id>tag:marisstella.dev,2026:tool/hands-free-language-coach</id>
+    <published>2026-10-19T00:00:00Z</published>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Learning &amp; practice"/>
+    <summary type="text">Learn a language by voice alone: the coach says a phrase, you say it back, it listens and scores you, and moves on. No tapping, no screen. Streaks, XP and spaced review like a language game, free in your browser, plus a skill for Claude and ChatGPT voice mode.</summary>
+  </entry>
+  <entry>
+    <title>Listen &amp; Learn Audio</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/listen-and-learn-audio/"/>
+    <id>tag:marisstella.dev,2026:tool/listen-and-learn-audio</id>
+    <published>2026-10-19T00:00:00Z</published>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Learning &amp; practice"/>
+    <summary type="text">Short graded stories read aloud in Spanish, French, German and Italian, each line followed by English. Press play and listen while you walk or commute. Free in your browser, plus an AI skill for Claude and ChatGPT voice mode that tells new stories and podcast-style episodes on any topic, at your level.</summary>
+  </entry>
+  <entry>
+    <title>Open Tennis Robots — DIY tennis ball machine + ball collecting robot</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/open-tennis-robots/"/>
+    <id>tag:marisstella.dev,2026:tool/open-tennis-robots</id>
+    <published>2026-10-19T00:00:00Z</published>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Build your own tennis ball machine that catches your returns with a moving net, and a robot that picks up tennis balls while you practise. Open-source hardware designs, firmware and software (MIT), plus a shot simulator you can try in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Tutoring Group Schedule Optimizer — free, private, in your browser</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/tutoring-group-schedule-optimizer/"/>
+    <id>tag:marisstella.dev,2026:tool/tutoring-group-schedule-optimizer</id>
+    <published>2026-10-19T00:00:00Z</published>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free group schedule optimizer for tutoring centres, music, swim and language schools. Paste your possible weekly sessions and student availability to get the most profitable timetable. Exact for up to 10 slots. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Are you a US tax resident yet? The 183-day weighted count</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/us-substantial-presence-test-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/us-substantial-presence-test-calculator</id>
+    <published>2026-10-19T00:00:00Z</published>
+    <updated>2026-10-19T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the IRS substantial presence test: enter your days in the US and see the 183-day weighted count (this year + a third of last year + a sixth of the year before), how many more days you can spend before you become a US tax resident, and when you crossed the line.</summary>
+  </entry>
+  <entry>
+    <title>Demand Forecast Back-Tester — free, private, in your browser</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/demand-forecast-backtester/"/>
+    <id>tag:marisstella.dev,2026:tool/demand-forecast-backtester</id>
+    <published>2026-10-18T00:00:00Z</published>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free demand forecasting for small sellers. Upload a sales CSV to get a back-tested forecast per SKU, safety stock and reorder points at your service level, ABC-XYZ classes, and an honest check of whether the forecast beats repeating last month. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Grailed Fee Calculator</title>
+    <link rel="alternate" type="text/html" href="https://duncan-haywood.github.io/monorepo-projects/grailed-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/grailed-fee-calculator</id>
+    <published>2026-10-18T00:00:00Z</published>
+    <updated>2026-10-18T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Grailed seller fee calculator for the tiered commission (6% under $120 with a $1.99 minimum, 9% from $120) plus 3.49% + $0.49 payment processing. See your payout, profit, the price for a target profit, and the $120 step where the whole sale jumps to 9%. Nothing leaves your browser.</summary>
+  </entry>
+</feed>

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netherlands e-invoicing: B2G rules, NLCIUS, Peppol and what a free checker covers | E-invoice Preflight</title>
+<meta name="description" content="The Netherlands requires e-invoices for government suppliers (NLCIUS, a Dutch EN 16931 profile), while domestic B2B is still voluntary.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/netherlands-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netherlands e-invoicing: B2G rules, NLCIUS, Peppol and what a free checker covers">
+<meta property="og:description" content="The Netherlands requires e-invoices for government suppliers (NLCIUS, a Dutch EN 16931 profile), while domestic B2B is still voluntary.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/netherlands-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Netherlands' e-invoicing mandate?","acceptedAnswer":{"@type":"Answer","text":"Suppliers to central government have had to invoice electronically since 2017 on new contracts, and suppliers to all other public authorities since 18 April 2019. Domestic business-to-business invoicing is not mandatory today; it is voluntary. The government has been studying a Peppol-based B2B mandate, with a phased start reported around 2030 to 2032. No law has been adopted, so confirm the current position with the Belastingdienst or your adviser."}},{"@type":"Question","name":"What format do Dutch public bodies require?","acceptedAnswer":{"@type":"Answer","text":"NLCIUS, the Dutch implementation of EN 16931, usually sent as UBL (SI-UBL 2.0), through Peppol or the government's DIGIPOORT channel. An EN 16931 UBL invoice is the starting point, but NLCIUS adds national rules."}},{"@type":"Question","name":"Can this checker validate an NLCIUS invoice?","acceptedAnswer":{"@type":"Answer","text":"Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 and Peppol BIS 3.0 rules: totals, tax breakdown, VAT, IBAN and BIC typos, each with a rule ID and a fix. It does not apply the NLCIUS national rules or a Dutch public body's own acceptance checks."}},{"@type":"Question","name":"How do I check an invoice before sending it to a Dutch customer?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker. Nothing is uploaded when you use the page. It is an offline observation, not acceptance by a Dutch platform and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Netherlands e-invoicing: B2G rules, NLCIUS, Peppol and what a free checker covers — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/evidence/">Compliance checks &amp; evidence records</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../einvoice-preflight/">E-invoice Preflight — catch defects before submission</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Netherlands e-invoicing: B2G rules, NLCIUS, Peppol and what a free checker covers</span></span></nav>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>The Netherlands' e-invoicing: B2G and NLCIUS</h1>
+<p class="lede">Dutch government suppliers have to send e-invoices; business-to-business invoicing is still voluntary, with a Peppol-based mandate under study. Below: the dates, the format, and what a free local checker covers.</p>
+</header>
+<section>
+<h2>How it works (as reported)</h2>
+<div class="table-wrap">
+<div class="pf-table-scroll"><table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changed</th></tr></thead>
+<tbody>
+<tr><td>2017</td><td>Suppliers to central government must invoice electronically on new contracts.</td></tr>
+<tr><td>18 Apr 2019</td><td>The same applies to all other public authorities; Peppol is preferred.</td></tr>
+<tr><td>2030 to 2032 (policy direction)</td><td>A phased, Peppol-based B2B mandate with near real-time reporting was recommended in a 2026 report to Parliament. No law has been adopted.</td></tr>
+<tr><td>1 Jul 2030</td><td>EU ViDA deadline for e-invoicing of intra-EU B2B sales.</td></tr>
+</tbody>
+</table></div>
+</div>
+<p class="fine">Public bodies receive NLCIUS invoices (UBL) over Peppol or DIGIPOORT. This is a summary from secondary sources, not tax advice; the later dates are reported plans and sources differ, so confirm with the Belastingdienst or your adviser.</p>
+</section>
+<section>
+<h2>What it covers, and what it does not</h2>
+<p>NLCIUS is a Dutch profile of EN 16931, so a valid <strong>UBL</strong> invoice is the foundation, but the national rules on top of it are not part of this checker.</p>
+</section>
+<section>
+<h2>What this checker does and does not do</h2>
+<p>It reads JSON, UBL, CII and Factur-X files and applies the EN 16931 and Peppol BIS 3.0 rules: arithmetic, tax breakdown, VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). It does not apply the NLCIUS national rules. Open the <a href="./">checker</a>; no account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a> and <a href="croatia-e-invoice-mandate.html">Croatia</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is the Netherlands' e-invoicing mandate?</h3>
+<p>Suppliers to central government have had to invoice electronically since 2017 on new contracts, and suppliers to all other public authorities since 18 April 2019. Domestic business-to-business invoicing is not mandatory today; it is voluntary. The government has been studying a Peppol-based B2B mandate, with a phased start reported around 2030 to 2032. No law has been adopted, so confirm the current position with the Belastingdienst or your adviser.</p>
+<h3>What format do Dutch public bodies require?</h3>
+<p>NLCIUS, the Dutch implementation of EN 16931, usually sent as UBL (SI-UBL 2.0), through Peppol or the government's DIGIPOORT channel. An EN 16931 UBL invoice is the starting point, but NLCIUS adds national rules.</p>
+<h3>Can this checker validate an NLCIUS invoice?</h3>
+<p>Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 and Peppol BIS 3.0 rules: totals, tax breakdown, VAT, IBAN and BIC typos, each with a rule ID and a fix. It does not apply the NLCIUS national rules or a Dutch public body's own acceptance checks.</p>
+<h3>How do I check an invoice before sending it to a Dutch customer?</h3>
+<p>Drop the file into the checker. Nothing is uploaded when you use the page. It is an offline observation, not acceptance by a Dutch platform and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Dutch rules as reported by secondary sources; they can change, so check the Belastingdienst and Logius guidance before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../vendor-change-watch/" data-pf-to="vendor-change-watch">See exactly what changed in a vendor's terms</a></li>
+      <li><a href="../vendor-watch/" data-pf-to="vendor-watch">Vendor Watch | Vendor terms change tracker</a></li>
+      <li><a href="../vpat-acr-generator/" data-pf-to="vpat-acr-generator">Free VPAT / Accessibility Conformance Report Generator</a></li>
+      <li><a href="../wise-statement-to-journal/" data-pf-to="wise-statement-to-journal">Wise statement to Xero / QuickBooks journal with realised FX — free, private</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=einvoice-preflight">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=einvoice-preflight">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="einvoice-preflight"></script>
+</body></html>

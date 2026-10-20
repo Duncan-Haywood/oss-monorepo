@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulation-first mechanical design: what 58 small studies found · Open Tools and Research</title>
+<meta name="description" content="Beam theory vs 3D FE, an LLM agent vs CMA-ES and Bayesian optimisation, topology optimisation and stress singularities: findings from 58 simulation studies.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/simulation-first-mechanical-design-findings/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="Simulation-first mechanical design: what 58 small studies found · Open Tools and Research">
+<meta property="og:description" content="Beam theory vs 3D FE, an LLM agent vs CMA-ES and Bayesian optimisation, topology optimisation and stress singularities: findings from 58 simulation studies.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/simulation-first-mechanical-design-findings/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Simulation-first mechanical design: what 58 small studies found","description":"Beam theory vs 3D FE, an LLM agent vs CMA-ES and Bayesian optimisation, topology optimisation and stress singularities: findings from 58 simulation studies.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/simulation-first-mechanical-design-findings/","keywords":"research, engineering, finite-elements, topology-optimisation, optimisation","wordCount":1773}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>Simulation-first mechanical design: what 58 small studies found</h1>
+<p class="dek">Beam theory vs 3D FE, an LLM agent vs CMA-ES and Bayesian optimisation, topology optimisation and stress singularities: findings from 58 simulation studies.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 8 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-simulation-first-mechanical-design-findings.md">Source</a><br><span class="tag">research</span><span class="tag">engineering</span><span class="tag">finite-elements</span><span class="tag">topology-optimisation</span><span class="tag">optimisation</span></p>
+<p>This repository has a research track called simulation-first design. Its goal, from <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/PROJECTS.md"><code>research/PROJECTS.md</code></a>, is &quot;the shared engine for the other tracks: a design written as code is simulated, optimised and turned into manufacturing files, with an open toolchain kept in-house.&quot; Its five milestones: a finite-element-sized printable bracket, a Python port of Sigmund&#39;s 99-line topology optimisation, beam theory against 2D and 3D elements, LLM-proposed designs against CMA-ES and Bayesian optimisation, and manufacturability rules for four shop processes.</p>
+<p>All five exist, among 58 <code>research/simdesign-*</code> projects; most of the rest are follow-ups on one result. AI coding agents (Claude sessions) did the research, with the repository&#39;s owner steering. Each README has a method, results, limitations and a reproduce command, and every number below is copied from one.</p>
+<p>The caveats come first. Everything is simulated, mostly in 2D plane stress. Material properties and rule values are assumed round numbers, not datasheet values, and nothing has been built or tested. This is not engineering advice, and none of it is validated for real parts.</p>
+<h3>1. Cheap beam models pick nearly the same design as 3D elements, and the error has a sign</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-fidelity"><code>research/simdesign-fidelity/</code></a> sizes a cantilever (100 N tip load, deflection limit L/50, 20 MPa stress limit) with four models and judges each design with 3D finite elements. Over 12 cases the cheaper models chose a depth within about 5% of the 3D optimum.</p>
+<p>Which way they miss matters. Euler–Bernoulli was the only model that ever violated a limit: 1.051 of the deflection limit at L = 40 mm, b = 5 mm, a stubby, narrow beam where it ignores shear. Timoshenko and 2D plane stress never violated a limit but were heavier than needed, by up to 4.9% in mass, most for the widest sections. A wide beam behaves closer to plane strain, stiffer by about 1/(1 − ν²) = 1.15 for ν 0.36, so plane stress suits narrow beams only.</p>
+<p>A sibling study, <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-rank"><code>research/simdesign-rank/</code></a>, asked whether cheap models put candidates in the same order. On 3 seeds of 80 random cantilevers, all three cheap models ranked designs by stiffness per mass with Kendall τ 0.987 to 0.996 against the 3D reference, and the 3D-best design was rank 1 in every cheap model in all 9 cases. Yet merit relative to 3D ranged from 0.89 to 1.15 per design. In the README&#39;s words, &quot;a cheap model can be a good <em>ranker</em> and a poor <em>predictor</em>.&quot; Stress was read away from the clamp, so neither study probes stress concentrations.</p>
+<h3>2. An LLM agent beat CMA-ES and Bayesian optimisation, for reasons that say little about LLMs</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-llm"><code>research/simdesign-llm/</code></a> gives four methods 40 finite-element calls each to minimise an L-bracket&#39;s mass (15 MPa stress and 2.5 mm deflection limits). Baselines get 20 seeds each. The &quot;LLM&quot; was the Claude session itself, writing four rounds of ten proposals after reading the scores.</p>
+<div class="scroll"><table><thead><tr><th>method</th><th>n=10</th><th>n=20</th><th>n=30</th><th>n=40</th></tr></thead><tbody><tr><td>random search (median of 20)</td><td>50.04 g</td><td>44.68 g</td><td>42.27 g</td><td>38.96 g</td></tr><tr><td>CMA-ES (median of 20)</td><td>54.13 g</td><td>42.37 g</td><td>35.75 g</td><td>33.28 g</td></tr><tr><td>Bayesian opt, GP-EI (median of 20)</td><td>52.00 g</td><td>37.93 g</td><td>34.41 g</td><td>32.19 g</td></tr><tr><td>session agent (n = 1)</td><td>29.71 g</td><td>23.73 g</td><td>23.25 g</td><td>22.99 g</td></tr></tbody></table></div>
+<p>The best-known design, from differential evolution with 1,845 evaluations, is 22.39 g. The agent finished 2.7% above it; no baseline seed out of 20 beat it.</p>
+<p>The README calls this weak evidence. The agent had read the earlier bracket project, which put the optimum at the upper width bound with a large fillet. Its first round, written before any score, reached 29.71 g, better than every baseline&#39;s median at 40 evaluations: &quot;That is prior knowledge, not search.&quot; It is one trajectory on a three-variable problem with untuned baselines, and a fair test would hide the prior results from the proposer.</p>
+<h3>3. Peak stress at a fillet keeps rising: the reading is at fault, not the solver</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-bracket"><code>research/simdesign-bracket/</code></a> found that with a sharp inner corner the peak stress grew without bound under refinement (24.9 to 43.0 MPa from h = 3 to 0.7 mm). With a 6 mm fillet it still rose from 22.7 to 26.3 MPa, and the optimum moved from 19.44 MPa to 20.81 MPa on the finest mesh, just over its 20 MPa limit.</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-kirsch"><code>research/simdesign-kirsch/</code></a> checked the same code against Kirsch&#39;s exact peak of 3σ at a hole in a plate under tension. The field error fell at second order, so the solver is right. But the largest element-centroid stress, the reading the bracket studies used, sat below the exact value on every mesh: −27.2% on the coarsest mesh (h/a = 0.393) and −1.1% on the finest (h/a = 0.012), converging only at first order. Reading the stress at the vertices on the hole edge instead was within +0.69% on every mesh. The centroid effectively samples the stress about 0.3–0.4 element sizes inside the edge. That explains the drift, though it gives no knock-down factor for other geometries.</p>
+<h3>4. Designs that pass on a coarse mesh can all fail on a fine one</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-meshconverge"><code>research/simdesign-meshconverge/</code></a> took a 2 mm laser-cut steel bracket with a small coarse-mesh feasible region and rescanned it against a 100 MPa limit. On h = 1.5 mm, 1 to 5 widths per fillet radius were feasible. On h = 1.0 mm and h = 0.5 mm, none were, for every radius scanned. The lowest peak stress rose by 11 to 14 percent from h = 1.5 to 0.5 mm (for example 91.2 to 103.0 MPa at r = 14 mm). It does not show that no feasible design exists (a slenderness rule cut the scan off at w = 16 mm), but the coarse-mesh feasible region did not survive.</p>
+<h3>5. What manufacturing rules cost: casting +43%, CNC +24%, laser cutting nothing</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-dfm"><code>research/simdesign-dfm/</code></a> sized the same bracket per process with and without its rules, same material, and reports the mass ratio as the &quot;price of manufacturability&quot;:</p>
+<div class="scroll"><table><thead><tr><th>process (material)</th><th>mass with rules</th><th>mass without</th><th>price</th></tr></thead><tbody><tr><td>FDM (plastic)</td><td>16.28 g</td><td>16.28 g</td><td>1.000</td></tr><tr><td>CNC routing (aluminium plate)</td><td>14.09 g</td><td>11.37 g</td><td>1.239</td></tr><tr><td>laser cutting (steel sheet)</td><td>33.32 g</td><td>33.55 g</td><td>0.993</td></tr><tr><td>casting (cast aluminium)</td><td>25.41 g</td><td>17.81 g</td><td>1.427</td></tr></tbody></table></div>
+<p>The causes were not the obvious ones. In casting, the even-section (hot-spot) rule drove the price, not the 1.5° draft: switching the wall-ratio rule off gave 18.0 g. For CNC routing, the 3 mm thinnest stock plate did it, not the tool radius; for tool radii 0.5 to 9 mm the best mass stayed between 14.1 and 14.2 g. Laser cutting&#39;s 0.993 is noise. Two caveats matter: every rule value is assumed, and re-solving the chosen designs at h = 0.7 mm gave peak stresses 17% to 26% above the working stress, the mesh effect from finding 3.</p>
+<h3>6. Heaviside projection makes the optimiser&#39;s number honest, not the part stiffer</h3>
+<p>After <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-topopt"><code>research/simdesign-topopt/</code></a> ported Sigmund&#39;s SIMP code, <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-heaviside"><code>research/simdesign-heaviside/</code></a> compared filters on a 90×30 half-MBB beam (dimensionless units). With the sensitivity or density filter, the thresholded black-and-white part&#39;s compliance was 10–15% below what the optimiser&#39;s grey field reported. With a density filter, Heaviside projection and β continuation from 1 to 64, the two agreed to 0.1%. The three discrete parts had the same compliance within 0.9% (190.3 to 192.0). Continuation mattered: starting directly at β = 64 gave a model compliance of 344.8 against 192.1.</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-robust"><code>research/simdesign-robust/</code></a> then eroded each design with a 0.2 threshold error. The plain Heaviside design disconnected on every mesh, so it no longer carried the load. The robust eroded/blueprint/dilated formulation kept its eroded compliance at 224–226, for a nominal cost of 3.4%, 0.9% and 0.8% on three meshes and about 2.5× the wall time. Neither showed a fixed physical minimum feature size (&quot;not shown&quot;, not &quot;absent&quot;, on a homemade measure).</p>
+<h3>7. Topology optimisation depends on where it starts, unless you ramp the penalty</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-starts"><code>research/simdesign-starts/</code></a> started the same SIMP optimiser from 30 random density fields per setting. With the penalty fixed at p = 3, compliance varied by 1.4–2.8%, but a median of 12–23% of elements changed state for noise of ±0.3 and above. The uniform start, which the 99-line code uses, was not special: on the 90×30 mesh, 25–28 of 30 random starts beat it. With continuation (p from 1 to 3), the spread fell to 0.0–0.4%.</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-stuck"><code>research/simdesign-stuck/</code></a> adds a warning. Five starts that stayed in a different layout after 1200 iterations were all sent by continuation to one and the same design, with compliance 204.01. That was worse than the 202.83 that three of them reached by just running 1200 more iterations at p = 3. Continuation removes the start dependence; it does not guarantee the best optimum (one problem, one mesh).</p>
+<h3>8. A buckling rule pointed the wrong way, and the load direction decides the margin</h3>
+<p>The laser-cut bracket chain used a w/b ≤ 8 slenderness ceiling as a crude guard against out-of-plane buckling, which a 2D model cannot see. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-webbuckle"><code>research/simdesign-webbuckle/</code></a> checked it with closed-form lateral-torsional buckling. The factor rises with width at fixed thickness, so a ceiling on w/b protects nothing for this mode. At b = 1 mm the old rule would allow w = 8 mm, where the factor is 0.41.</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/simdesign-lbuckle"><code>research/simdesign-lbuckle/</code></a> then modelled a 1.5 mm design as one 3D body. Under the design load the buckling factor was 4.01, above the closed form&#39;s 3.47 and the assumed floor of 3. With the load reversed, putting the vertical arm in compression, it fell to 2.25, below the floor and 35% below the closed form, which cannot see that case at all. These are linear buckling factors of a perfect elastic body, so upper bounds on real sheet; the sharp corner used instead of the real fillet is likely conservative.</p>
+<h3>What carries over</h3>
+<p>Three habits carry over: check the stress reading against an exact case; judge a cheap model by how it ranks designs, not only by its error; and treat a coarse-mesh design sitting on a stress limit as unverified.</p>
+<p>The limits are as clear: mostly one load case, assumed isotropic materials, many single runs, nothing built. Several READMEs list owner steps, such as printing the bracket STL and loading it to failure, that would turn a model comparison into a measurement. Until then these are reproducible model-to-model results.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What 35 open models of house construction cost found · Open Tools and Research</title>
+<meta name="description" content="Framing, energy, foundations, schedules and factory shells: what 35 open-source house-building models found about cost, and how far to trust them.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/house-construction-cost-what-35-open-models-found/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="What 35 open models of house construction cost found · Open Tools and Research">
+<meta property="og:description" content="Framing, energy, foundations, schedules and factory shells: what 35 open-source house-building models found about cost, and how far to trust them.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/house-construction-cost-what-35-open-models-found/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"What 35 open models of house construction cost found","description":"Framing, energy, foundations, schedules and factory shells: what 35 open-source house-building models found about cost, and how far to trust them.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/house-construction-cost-what-35-open-models-found/","keywords":"research, housing, construction, open-source, energy","wordCount":1675}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>What 35 open models of house construction cost found</h1>
+<p class="dek">Framing, energy, foundations, schedules and factory shells: what 35 open-source house-building models found about cost, and how far to trust them.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 7 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-house-construction-cost-what-35-open-models-found.md">Source</a><br><span class="tag">research</span><span class="tag">housing</span><span class="tag">construction</span><span class="tag">open-source</span><span class="tag">energy</span></p>
+<p>Most of the engineering behind a new house lives in copyrighted tables, paid software and contractors&#39; heads. Span tables, energy models, framing layouts and cost estimates are hard to inspect and harder to change.</p>
+<p>This repository has a research track that tries to do that work as open, testable code. It asks two questions: which design and process choices cut the cost of a house most per square foot without losing strength, comfort or energy performance, and how much of a house can be written as parametric code that anyone can change, check and build from. The track&#39;s brief is in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/PROJECTS.md"><code>research/PROJECTS.md</code></a>, section 12.</p>
+<p>In about four days it produced 35 small projects, each a directory under <code>research/house-*</code> with its code, its experiments and a README. They range from joist spans and roof trusses to foundations, energy envelopes, build schedules and Denver&#39;s water tap fee. One of them, <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-open-design"><code>house-open-design</code></a>, puts the pieces together into a worked example: a 24 x 20 ft backyard cottage that needs 2,614 board feet of framing (5.45 bf/sq ft).</p>
+<p><strong>Who did this.</strong> The research was done by AI coding agents (Claude), working unattended in scheduled sessions, with the repository&#39;s owner setting the direction and the guardrails. No licensed engineer or architect has reviewed any of it. Keep that in mind for everything below.</p>
+<h3>Read this first: what these models are</h3>
+<p>Nearly every headline in these READMEs carries the word &quot;stylised&quot;, and they mean it. The common limits:</p>
+<ul><li><strong>Prices are mostly assumptions.</strong> Many projects say outright that their unit prices are &quot;invented round numbers&quot; or &quot;from memory&quot;, not sourced. Treat the dollar figures as illustrations of a method, not quotes.</li><li><strong>Simple physics.</strong> The energy work uses steady-state degree-day loads, not an hourly simulation like EnergyPlus. The schedule models are uncalibrated Monte Carlo and discrete-event models.</li><li><strong>No code checks.</strong> Every project says its design needs a licensed architect&#39;s or engineer&#39;s review, or the local code&#39;s prescriptive path, and a permit, before anyone builds from it.</li></ul>
+<p>What the projects can show is the <em>shape</em> of a trade-off: which lever is big, which is small, and which assumption a result hangs on. Several follow-ups exist only to test an earlier project&#39;s weak spot.</p>
+<p>Nothing here is financial, legal or engineering advice.</p>
+<h3>1. Advanced framing saves a lot of lumber, but lumber is a small part of the price</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-framing"><code>house-framing</code></a> compared conventional and &quot;advanced&quot; (optimum value engineering) framing of a house&#39;s exterior walls. Advanced 2x6 framing at 24 in used <strong>42% less exterior-wall lumber than conventional 2x6</strong>, and 16% less than conventional 2x4, while insulating 40% better than the 2x4 wall. Its pieces fell from 210 to 154.</p>
+<p>The README is candid about why the number is large: its conventional baseline is generous (2x12 headers everywhere, 4-stud corners, 3-stud tees), and a leaner baseline would show less. At assumed prices of $0.60 to $1.20 per board foot, the lumber saving is <strong>$450 to $900 per house</strong>.</p>
+<p>That is small next to the whole price. Using NAHB&#39;s 2024 survey, <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-market"><code>house-market</code></a> reports that construction is 64.4% of an average new US home&#39;s price, and framing is 16.6% of construction, behind interior finishes (24.1%) and mechanical rough-ins (19.2%). A 20% saving on framing alone moves the price 2.1%.</p>
+<p>Two follow-ups push the point further. In <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-cost"><code>house-cost</code></a>, a 14% cut in framing lumber is worth only 0.85% of the price. And <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-sobol"><code>house-sobol</code></a>, which treats every uncertain input as random at once, finds that <strong>floor area alone explains 53% of the price index&#39;s variance and storeys 19%</strong>, while the framing inputs together explain under 1%.</p>
+<h3>2. The cheaper wall is also the better wall</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-energy"><code>house-energy</code></a> searched for the envelope (walls, attic, windows, air sealing, slab edge) with the lowest cost of building plus 30 years of energy, in eight climates. In every climate it took the advanced 2x6 wall, which costs <strong>$42 less to build</strong> than a conventional 2x4 wall in this model and loses 40% less heat through the opaque wall. That switch is most of a <strong>13 to 15% lower 30-year net present cost</strong> than the baseline, $2,100 to $4,600 per house.</p>
+<p>Better windows and R-49 attics did not pay at the assumed prices, with simple paybacks of 23 to 190 years.</p>
+<p>Here is the caveat the README puts in bold: <strong>the optimum picks windows worse than a typical code floor (U 0.50)</strong>, because the model counts only conduction and ignores solar gain, comfort and condensation. Two follow-ups tested that. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-solar"><code>house-solar</code></a> added solar gain, and U 0.50 still stayed the cost-optimum in 15 of 16 climate and system cases. It also found that orientation is free and worth <strong>$420 to $1,740 of 30-year net present cost</strong> per house. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-energyprices"><code>house-energyprices</code></a> swapped in published regional energy prices, and the optimal package was identical to <code>house-energy</code>&#39;s in 10 of 12 cases.</p>
+<p>None of this says a U 0.50 window is allowed or wise.</p>
+<h3>3. In cold places, a frost-protected shallow foundation wins</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-foundation"><code>house-foundation</code></a> compared a slab, crawlspace, basement and frost-protected shallow foundation (FPSF) for a small house. From a frost depth of about 18 in down to 60 in, the FPSF was cheapest in <strong>100% of 5,000 random price draws</strong>, because its footing stays 16 in deep while the others follow the frost line down.</p>
+<p>At 48 in of frost the midpoint first costs were:</p>
+<div class="scroll"><table><thead><tr><th>Foundation</th><th>Midpoint first cost</th></tr></thead><tbody><tr><td>Frost-protected shallow foundation</td><td>$13,200</td></tr><tr><td>Conventional slab</td><td>$20,600</td></tr><tr><td>Crawlspace</td><td>$24,100</td></tr><tr><td>Basement</td><td>$54,900</td></tr></tbody></table></div>
+<p>The README warns that every price is from memory with no region specified, and that the FPSF result leans on an invented rule for its insulation wings and ignores conditions the FPSF standard (ASCE 32-01) requires. A basement also gives space the others lack, which the comparison does not value.</p>
+<h3>4. A build is mostly waiting, not working</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-schedule"><code>house-schedule</code></a> modelled the build as a chain of trades, inspections, weather and material lead times. Its zero-noise critical path is 100 days; the baseline mean is 214 working days. The schedule is driven by waiting, not by work.</p>
+<p>The biggest lever in that model is ordering long-lead materials (windows, cabinets, HVAC equipment) at day 0 instead of when the preceding task starts: <strong>214 to 151 working days</strong>. An independent second model, <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-schedule-check"><code>house-schedule-check</code></a>, agreed on the ranking: early ordering cut its mean build from 205 to 181 calendar days (-11%). It also found that the gap between one crew leaving and the next arriving matters more than any lever it tested: moving that gap from 0.5 to 5 working days moved the baseline from 184 to 248 days.</p>
+<p>Then <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-orderlead"><code>house-orderlead</code></a> charged for the cost of holding materials early. Ordering everything on day 0 saved the most days but, with holding costs, its total cost came to 4.00% of the price, <strong>worse than the baseline&#39;s 3.34%</strong>. Ordering about two lead times ahead of the planned start did best: 182 working days and 2.91%. The 63-day saving was the effect of an extreme policy, not its net benefit.</p>
+<p>All three models are uncalibrated, and say so. The days are not evidence; the ranking of levers is the output.</p>
+<h3>5. Factory-built shells do not pay on a small house, in these models</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-offsite"><code>house-offsite</code></a> compared panelised walls with site framing for a 28 x 40 ft house. The shell took 1.96 calendar days on site and 2.17 panelised, and the panelised shell cost 38% more at assumed rates. A fixed delivery-and-crane day is the problem: panelising only got faster from about 58 ft of house length (at 15% weather loss).</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-shellvalue"><code>house-shellvalue</code></a> then separated the shell from the ordering. Compared with a site-built house ordered on the same day, a factory shell saves <strong>15.5 working days</strong>, about $990 of interest on a $450,000 house, against a $1,373 premium. So the shell does not pay below a house price of about $629,000, with a $1,500 crane day. With a $750 crane day it pays at every price tried. The verdict flips on the crane price and the ordering date, not on factory productivity.</p>
+<h3>6. Alternative wall systems lose on first cost, win on labour</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-wallsystems"><code>house-wallsystems</code></a> compared wood 2x6 with steel stud, insulated concrete forms (ICF), structural insulated panels (SIP), cross-laminated timber (CLT) and 3D-printed concrete. Wood was the cheapest system in <strong>96.8% of 20,000 random draws</strong>. The better-insulated ICF and SIP walls save only about $500 of heat-loss present value against wood, next to a $5,500 to $8,300 first-cost premium.</p>
+<p>Where the alternatives win is labour: SIP (65 crew hours) and CLT (46) take roughly half the 111 hours of the wood wall. The model prices that labour at nothing beyond the per-square-foot cost, and the README says the wood-wins result &quot;is mostly a consequence&quot; of its assumed input ranges.</p>
+<h3>7. Fees can rival framing</h3>
+<p>Not every cost is physical. <code>house-market</code> estimated that in Denver, <strong>fees and plan-review delay are about 12% of a new home&#39;s price</strong> (lot excluded), against 3.5% nationally: $45,486 in itemised fees for a 2,000 sq ft home, plus about $9,625 in carrying cost for a 209-day plan review. For comparison, a 20% saving on framing moves the national price 2.1%.</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/house-adufees"><code>house-adufees</code></a> read one of those fees from its source. Denver Water charges a backyard cottage (ADU) a flat $2,170 inside its Denver service area from 1 July 2026, against $5,400 for a house charged on 2,000 sq ft. Per square foot the 480 sq ft ADU pays more: $4.52 against $2.70.</p>
+<h3>What to take from it</h3>
+<p>Across 35 projects, the consistent pattern is that the parts of a house that are easiest to optimise in code, like lumber in a wall, are a small share of its price. The bigger levers are size, storeys, fees and time spent waiting. The open-design cottage and the tools behind it are there to inspect, rerun and argue with. Each project&#39;s README lists its limitations and next steps, and the track&#39;s guardrail stands: no design here is buildable on its say-so.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

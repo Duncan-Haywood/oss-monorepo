@@ -1,0 +1,79 @@
+{
+  "slug": "dryer-vent-bid-calculator",
+  "name": "Dryer vent cleaning",
+  "group": "Cleaning & janitorial",
+  "summary": "Dryer vent cleaning priced from a base setup plus extra stories, run length, dryers and add-ons.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 38,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "items": [
+    {
+      "label": "Base clean: 1 story, 8 ft run, 1 dryer, wall cap",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.75,
+      "materialPerUnit": 18,
+      "source": "hoursBaseSetup 0.75 (suggestedJobHours wall; index.html); brush kit $18 (index.html brushKit); 1 story / 8 ft / 1 dryer included (index.html)"
+    },
+    {
+      "label": "Extra run beyond 8 ft",
+      "unit": "10 ft",
+      "qty": 0,
+      "hoursPerUnit": 0.25,
+      "materialPerUnit": 6,
+      "source": "hoursPerExtra10Feet 0.25, extra rod $6 / 10 ft (index.html); default 8 ft run is all included"
+    },
+    {
+      "label": "Extra story",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.45,
+      "materialPerUnit": 0,
+      "source": "hoursPerExtraStory 0.45 (index.html); no material in the specialist; default 1 story"
+    },
+    {
+      "label": "Extra dryer",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.55,
+      "materialPerUnit": 0,
+      "source": "hoursPerExtraDryer 0.55 (index.html); no material in the specialist; default 0 extra dryers"
+    },
+    {
+      "label": "Camera inspection",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 45,
+      "source": "hoursCamera 0.35, cameraFee $45 (index.html); unchecked by default"
+    },
+    {
+      "label": "Replace crushed flex",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.5,
+      "materialPerUnit": 38,
+      "source": "hoursFlex 0.5, flexKit $38 (index.html); unchecked by default"
+    },
+    {
+      "label": "Nest or heavy blockage",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.75,
+      "materialPerUnit": 22,
+      "source": "hoursNest 0.75, nestDisposal $22 (index.html); unchecked by default"
+    },
+    {
+      "label": "Site, travel, vacuum and ladders",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.4,
+      "materialPerUnit": 35,
+      "source": "siteHours 0.4; travel, vacuum, ladders $35 (index.html siteHours, travelAndEquipment)"
+    }
+  ],
+  "specialistModels": "Job-type setups (2-story, roof cap with a roof safety kit, multi-dryer), included-allowance logic and an occupied-home time add."
+}

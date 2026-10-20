@@ -1,0 +1,35 @@
+.pf-rates{font:inherit;font-size:.85rem;line-height:1.45;color:inherit;
+  max-width:1060px;margin:0 auto;padding:8px 18px 0;box-sizing:border-box}
+.pf-rates-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.pf-rates-status{opacity:.82}
+.pf-rates button{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
+  border:1px solid #80808059;border-radius:7px;padding:3px 9px;cursor:pointer}
+.pf-rates button:hover{background:#8080802e}
+.pf-rates-panel{margin:8px 0 0;padding:12px 14px;border:1px solid #80808040;
+  border-radius:10px;background:#8080800f}
+.pf-rates-panel p{margin:0 0 10px}
+.pf-rates-list{margin:0 0 10px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 18px}
+/* An author display declaration outranks the user agent's [hidden] rule, so
+   without this the list stayed in the layout — empty, with its own 10px
+   margin, and announced as a list by a screen reader — for every visitor who
+   has not saved their shop rates yet, which is every first-time visitor.
+   Caught by asking a rendered page; see checkHiddenDisplay in check.mjs. */
+.pf-rates-list[hidden]{display:none}
+.pf-rates-list li{margin:0}
+.pf-rates-list b{font-variant-numeric:tabular-nums}
+.pf-rates-actions{display:flex;flex-wrap:wrap;gap:8px}
+.pf-rates-note{margin:10px 0 0;opacity:.72}
+.pf-rates :focus-visible{outline:2px solid currentColor;outline-offset:2px}
+@media (max-width:780px){.pf-rates{padding:8px 14px 0}}
+
+/* Never print this band, and this one is not cosmetic.
+ *
+ * .pf-rates-list renders the contractor's saved crew wage, payroll burden,
+ * overhead and target net margin. Nine bid calculators also print a customer
+ * proposal (platform/proposal), and the whole point of that sheet is that the
+ * homeowner receives the price without the cost structure behind it — its own
+ * print rules hide header, main and footer for exactly that reason. This band
+ * is injected as a sibling of the page's main element, so it fell outside that
+ * allow-list: a contractor who had saved their rates and left the panel open
+ * would have handed the customer their margin along with the quote. */
+@media print{.pf-rates{display:none !important}}

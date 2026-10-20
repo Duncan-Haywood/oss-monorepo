@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot on a log axis of the Fano factor of false-wake counts against the window-to-window noise-scale drift: about 1 with no drift, rising to 30 to 60 at 10 percent drift">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Fano factor of wake counts per 1,000 s window</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#ddd"/><text x="58" y="313.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="176.0" y2="176.0" stroke="#ddd"/><text x="58" y="180.0" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.02</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">drift sigma (log-scale sd of noise level)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">Fano factor (log)</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,289.7 176.0,239.3 344.0,154.5 624.0,70.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="289.7" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="239.3" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="154.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">m = 1</text>
+<polyline points="64.0,302.5 176.0,258.1 344.0,179.3 624.0,98.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="302.5" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="258.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="179.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="98.3" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">m = 3</text>
+<polyline points="64.0,304.6 176.0,265.5 344.0,189.1 624.0,112.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="304.6" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="265.5" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="189.1" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="112.3" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">m = 5</text>
+</svg>

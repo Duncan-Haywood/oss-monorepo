@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hands-Free Language Coach — voice-only language practice while you drive or walk</title>
+  <meta name="description" content="Learn a language by voice alone: the coach says a phrase, you say it back, it listens and scores you, and moves on. No tapping, no screen.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/hands-free-language-coach/">
+  <meta property="og:title" content="Hands-Free Language Coach">
+  <meta property="og:description" content="Voice-only, hands-free language practice with streaks and XP. Say it back, get scored, keep walking.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hands-Free Language Coach","applicationCategory":"EducationalApplication","operatingSystem":"Any (Chrome, Edge or Safari for speech recognition)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A voice-only, hands-free language practice drill: the coach speaks a phrase, listens to you repeat it, scores your pronunciation against the expected words, and schedules weak phrases for review. Streaks, XP and spaced repetition, entirely in the browser.","featureList":"Voice-only practice loop; speech-recognition scoring; spoken commands (repeat, skip, stop); spaced review with Leitner boxes; daily streaks and XP; Spanish, French, German, Italian and Brazilian Portuguese starter packs; Claude and ChatGPT voice-mode skill, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I really learn a language without looking at a screen?","acceptedAnswer":{"@type":"Answer","text":"For speaking and listening practice, yes: every step of a session is spoken, and you answer out loud. Press Start once and the coach runs the session by voice. Say repeat, skip or stop at any time. Reading and writing still need a screen or a book."}},{"@type":"Question","name":"Is it safe to use while driving?","acceptedAnswer":{"@type":"Answer","text":"Start the session before you set off, mount the phone, and never look at or touch it while moving. Follow your local laws on phone use in vehicles. If the conversation competes with the road for your attention, say stop."}},{"@type":"Question","name":"How is my speaking scored?","acceptedAnswer":{"@type":"Answer","text":"Your browser's speech recogniser transcribes what you said, and the coach compares those words with the expected phrase, ignoring accents and punctuation. It is a check of whether the recogniser understood you, not a phonetic assessment by a teacher."}},{"@type":"Question","name":"Does my voice get uploaded?","acceptedAnswer":{"@type":"Answer","text":"This page sends nothing to us. Speech recognition is done by your browser, and some browsers (Chrome, for example) send the audio to their own speech service to transcribe it. Your progress is stored only in this browser."}},{"@type":"Question","name":"Can I use it with ChatGPT or Claude voice mode?","acceptedAnswer":{"@type":"Answer","text":"Yes. The project ships a ready-made skill for Claude and instructions for a custom GPT that run the same hands-free lesson protocol in any language, in the assistant's voice mode."}}]}</script>
+  <style>
+    :root{font:17px/1.5 system-ui,sans-serif;color:#14202e;background:#f4f7f5;--muted:#566472;--line:#d6e0da;--panel:#fff;--accent:#127a4b;--warn:#8a5a00}
+    *{box-sizing:border-box}body{margin:0;background:#f4f7f5}main{max-width:860px;margin:auto;padding:28px 16px 56px}
+    h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;margin:.2rem 0 .6rem}h2{font-size:1.15rem;margin:0 0 10px}
+    p,li{color:var(--muted)}.lede{max-width:680px;font-size:1.05rem}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin:18px 0}
+    label{color:var(--muted);font-size:.9rem;display:inline-flex;gap:8px;align-items:center;margin-right:14px}
+    select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid #b5c4bb}
+    button{border:0;border-radius:12px;background:var(--accent);color:#fff;padding:14px 22px;font:inherit;font-weight:700;cursor:pointer}
+    button.secondary{background:#e8efe9;color:#14202e}
+    button:focus,select:focus{outline:3px solid #8fd1ad;outline-offset:2px}
+    #startBtn{font-size:1.3rem;padding:20px 34px;width:100%;margin-top:14px}
+    .stats{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+    .stat{background:#f6faf7;border:1px solid var(--line);border-radius:10px;padding:8px 16px;text-align:center;min-width:96px}
+    .stat strong{display:block;font-size:1.5rem;color:#14202e}
+    #now{font-size:1.5rem;color:#14202e;min-height:2.2em;margin:10px 0 2px}
+    #heard{min-height:1.5em}
+    .notice{background:#fff8e5;border-left:4px solid #d49a00;padding:10px 13px;color:#5f4900;font-size:.92rem;border-radius:6px}
+    footer{border-top:1px solid var(--line);padding-top:16px;font-size:.88rem}footer p{color:var(--muted)}
+    a{color:var(--accent)}
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Hands-Free Language Coach","item":"https://duncan-haywood.github.io/monorepo-projects/hands-free-language-coach/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/hands-free-language-coach/">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/hands-free-language-coach/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hands-Free Language Coach — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/learning/">Learning &amp; practice</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Hands-Free Language Coach</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+<main>
+  <p><a href="https://duncan-haywood.github.io/monorepo-projects/">Free tools</a> · <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/hands-free-language-coach">Source</a></p>
+  <h1>Hands-Free Language Coach</h1>
+  <p class="lede">Language practice you do with your ears and voice only. Press Start once, put the phone away, and the coach runs the session: it says a phrase, you say it back, it scores you and moves on. Streaks, XP and spaced review, like a language game, without the tapping.</p>
+  <p class="notice"><strong>Driving?</strong> Start before you set off, mount the phone, never look at or touch it while moving, and follow your local laws. Say <em>stop</em> whenever the road needs your attention. This browser version needs the page to stay open with the screen on.</p>
+
+  <section class="panel" aria-labelledby="drillH">
+    <h2 id="drillH">Practise now</h2>
+    <label>Language <select id="pack"></select></label>
+    <label>Phrases per session <select id="size"><option>5</option><option selected>8</option><option>12</option></select></label>
+    <label>Speed <select id="rate"><option value="0.75">Slow</option><option value="0.9" selected>Normal</option><option value="1.05">Fast</option></select></label>
+    <button id="startBtn">▶ Start hands-free session</button>
+    <p id="now" aria-live="polite"></p>
+    <p id="heard" aria-live="polite"></p>
+    <div class="stats">
+      <div class="stat"><strong id="streak">0</strong>day streak</div>
+      <div class="stat"><strong id="xp">0</strong>XP</div>
+      <div class="stat"><strong id="mastered">0</strong>mastered</div>
+    </div>
+    <p id="mode" class="small"></p>
+    <button id="shareBtn" class="secondary">Share my streak</button> <span id="shareStatus"></span>
+    <p>Say <strong>repeat</strong>, <strong>skip</strong> or <strong>stop</strong> at any time (or the same word in the language you're learning).</p>
+  </section>
+
+  <section class="panel">
+    <h2>Use it in ChatGPT or Claude voice mode</h2>
+    <p>Want open conversation in any language, not just drills? The same hands-free lesson protocol ships as a <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/hands-free-language-coach/skill/SKILL.md">Claude skill</a> and as <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/hands-free-language-coach/gpt/instructions.md">custom GPT instructions</a>. Add it to your assistant, switch on voice mode, and say "start my language lesson". It runs on your own assistant subscription; nothing goes through us.</p>
+  </section>
+
+  <section class="panel">
+    <h2>How it works</h2>
+    <ul>
+      <li><strong>Voice only.</strong> Every prompt, correction and score is spoken. You never need to read the screen.</li>
+      <li><strong>Scored speaking.</strong> Your browser's speech recogniser transcribes you; the coach compares the words with the target phrase, ignoring accents and punctuation. It checks whether you were understood, not your accent in detail.</li>
+      <li><strong>Spaced review.</strong> Phrases you miss come back first; phrases you nail move up a box and appear less often.</li>
+      <li><strong>Streaks and XP.</strong> One finished session a day keeps your streak. Share it with a friend.</li>
+    </ul>
+    <p>Coming next: a native iOS app (then Android) that keeps going with the screen locked and through CarPlay and headphones, open conversation practice, friends' leagues, and listen-only stories (see the sibling project, <a href="../listen-and-learn-audio/">Listen &amp; Learn Audio</a>).</p>
+  </section>
+
+  <section class="panel" aria-labelledby="faqH">
+    <h2 id="faqH">Questions</h2>
+    <h3>Can I really learn a language without looking at a screen?</h3>
+    <p>For speaking and listening practice, yes: every step of a session is spoken, and you answer out loud. Press Start once and the coach runs the session by voice. Say repeat, skip or stop at any time. Reading and writing still need a screen or a book.</p>
+    <h3>Is it safe to use while driving?</h3>
+    <p>Start the session before you set off, mount the phone, and never look at or touch it while moving. Follow your local laws on phone use in vehicles. If the conversation competes with the road for your attention, say stop.</p>
+    <h3>How is my speaking scored?</h3>
+    <p>Your browser's speech recogniser transcribes what you said, and the coach compares those words with the expected phrase, ignoring accents and punctuation. It is a check of whether the recogniser understood you, not a phonetic assessment by a teacher.</p>
+    <h3>Does my voice get uploaded?</h3>
+    <p>This page sends nothing to us. Speech recognition is done by your browser, and some browsers (Chrome, for example) send the audio to their own speech service to transcribe it. Your progress is stored only in this browser.</p>
+    <h3>Can I use it with ChatGPT or Claude voice mode?</h3>
+    <p>Yes. The project ships a ready-made skill for Claude and instructions for a custom GPT that run the same hands-free lesson protocol in any language, in the assistant's voice mode.</p>
+  </section>
+
+  <footer>
+    <p><strong>Privacy.</strong> Your progress (XP, streak, which phrases you know) is stored only in this browser. This page uploads nothing to us and has no accounts, tracking cookies or analytics vendor. Speech recognition is performed by your browser, and some browsers send the audio to their own speech service to transcribe it. We count anonymous events in this browser only (sessions started and finished, nothing about you). <button id="usageToggle" class="secondary"></button></p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not professional language instruction or a certified assessment, and it does not replace a qualified teacher. You are responsible for reviewing and verifying its output before relying on it, and for using it safely and lawfully, including while driving. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>MIT licensed. <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsor on GitHub</a>.</p>
+  </footer>
+</main>
+<script type="module">
+  import { PACKS, grade, parseCommand, newProgress, updateStreak, recordAnswer, planSession, mastered, shareText } from "./drill.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const STORE = "hands-free-language-coach:progress";
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const canSpeak = "speechSynthesis" in window;
+
+  for (const [id, pack] of Object.entries(PACKS)) $("pack").add(new Option(pack.name, id));
+
+  function load() {
+    try { return { ...newProgress(), ...JSON.parse(localStorage.getItem(STORE) || "{}") }; } catch { return newProgress(); }
+  }
+  function save(p) { try { localStorage.setItem(STORE, JSON.stringify(p)); } catch { /* storage denied: progress lasts this page only */ } }
+  let progress = load();
+
+  function render() {
+    $("streak").textContent = progress.streak;
+    $("xp").textContent = progress.xp;
+    $("mastered").textContent = `${mastered(progress, $("pack").value)}/${PACKS[$("pack").value].phrases.length}`;
+  }
+  $("pack").addEventListener("change", render);
+  render();
+  $("mode").textContent = Recognition
+    ? "Scored mode: the coach listens and scores each answer."
+    : "Listen-and-repeat mode: this browser has no speech recognition (try Chrome, Edge or Safari for scoring). The coach leaves a pause for you to repeat each phrase.";
+
+  let voices = canSpeak ? speechSynthesis.getVoices() : [];
+  if (canSpeak) speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); };
+
+  function say(text, lang) {
+    return new Promise((resolve) => {
+      if (!canSpeak) return resolve();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      u.rate = lang.startsWith("en") ? 1 : Number($("rate").value);
+      u.voice = voices.find((v) => v.lang === lang) || voices.find((v) => v.lang.startsWith(lang.slice(0, 2))) || null;
+      u.onend = u.onerror = () => resolve();
+      speechSynthesis.speak(u);
+    });
+  }
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  function listen(lang) {
+    return new Promise((resolve) => {
+      const rec = new Recognition();
+      rec.lang = lang;
+      rec.maxAlternatives = 3;
+      rec.interimResults = false;
+      let done = false;
+      const finish = (alts) => { if (!done) { done = true; resolve(alts); } };
+      rec.onresult = (e) => finish(Array.from(e.results[0], (r) => r.transcript));
+      rec.onerror = rec.onend = () => finish([]);
+      setTimeout(() => { try { rec.stop(); } catch { /* already stopped */ } }, 8000);
+      rec.start();
+    });
+  }
+
+  let running = false;
+  let wakeLock = null;
+
+  async function session() {
+    const packId = $("pack").value;
+    const pack = PACKS[packId];
+    running = true;
+    $("startBtn").textContent = "■ Stop";
+    countUsage("session_started");
+    try { wakeLock = await navigator.wakeLock?.request("screen"); } catch { /* not granted: fine */ }
+    await say(`${pack.name} practice. Repeat after me.`, "en-US");
+    const plan = planSession(progress, packId, Number($("size").value));
+    let answered = 0;
+    for (let k = 0; k < plan.length && running; k++) {
+      const i = plan[k];
+      const phrase = pack.phrases[i];
+      let tries = 0;
+      for (;;) {
+        if (!running) break;
+        $("now").textContent = `${phrase.tl}  (${phrase.en})`;
+        $("heard").textContent = "";
+        await say(phrase.en, "en-US");
+        await say(phrase.tl, pack.voiceLang);
+        if (!Recognition) {
+          await wait(1200 + phrase.tl.length * 90);
+          await say(phrase.tl, pack.voiceLang);
+          await wait(1000 + phrase.tl.length * 90);
+          progress = recordAnswer(progress, packId, i, "close");
+          answered++;
+          break;
+        }
+        const alts = await listen(pack.voiceLang);
+        if (!running) break;
+        const command = parseCommand(alts[0] || "", packId);
+        if (command === "stop") { running = false; break; }
+        if (command === "repeat") continue;
+        if (command === "skip") break;
+        const result = grade(alts, phrase.tl);
+        $("heard").textContent = alts[0] ? `Heard: "${alts[0]}" (${Math.round(result.score * 100)}%)` : "Didn't catch that.";
+        if (result.verdict === "pass") {
+          await say("Great.", "en-US");
+        } else if (tries === 0) {
+          tries++;
+          await say(result.verdict === "close" ? "Close. Once more." : "Let's try that again.", "en-US");
+          continue;
+        } else {
+          await say("We'll come back to that one.", "en-US");
+        }
+        progress = recordAnswer(progress, packId, i, result.verdict);
+        answered++;
+        break;
+      }
+      save(progress);
+      render();
+    }
+    if (answered > 0) {
+      progress = updateStreak(progress, new Date().toLocaleDateString("en-CA"));
+      save(progress);
+      render();
+      countUsage("session_finished");
+      await say(`Session done. You have ${progress.xp} XP and a ${progress.streak} day streak.`, "en-US");
+    }
+    stop();
+  }
+
+  function stop() {
+    running = false;
+    if (canSpeak) speechSynthesis.cancel();
+    try { wakeLock?.release(); } catch { /* already released */ }
+    $("startBtn").textContent = "▶ Start hands-free session";
+    $("now").textContent = "";
+  }
+
+  $("startBtn").addEventListener("click", () => (running ? stop() : session()));
+
+  $("shareBtn").addEventListener("click", async () => {
+    const text = shareText(progress, $("pack").value);
+    const url = location.href.split("#")[0];
+    try {
+      if (navigator.share) await navigator.share({ text, url });
+      else { await navigator.clipboard.writeText(`${text} ${url}`); $("shareStatus").textContent = "Copied."; }
+      countUsage("streak_shared");
+    } catch { $("shareStatus").textContent = ""; }
+  });
+
+  function renderToggle() { $("usageToggle").textContent = usageAllowed() ? "Turn off counting" : "Turn on counting"; }
+  $("usageToggle").addEventListener("click", () => { setUsageEnabled(!usageAllowed()); renderToggle(); });
+  renderToggle();
+</script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../hearth-and-horizon/" data-pf-to="hearth-and-horizon">Hearth &amp; Horizon: free AI-written science fiction and Catholic bedtime stories, with audio</a></li>
+      <li><a href="../listen-and-learn-audio/" data-pf-to="listen-and-learn-audio">Listen &amp; Learn Audio</a></li>
+      <li><a href="../ai-engineering-academy/" data-pf-to="ai-engineering-academy">Free Electronics Calculators</a></li>
+      <li><a href="../hard-money-loan-cost-calculator/" data-pf-to="hard-money-loan-cost-calculator">Hard money loan cost calculator for fix-and-flip</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=hands-free-language-coach">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=hands-free-language-coach">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/hands-free-language-coach/?pfEmbed=1&quot; title=&quot;Hands-Free Language Coach — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="hands-free-language-coach"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/hands-free-language-coach/" data-pf-embed-title="Hands-Free Language Coach" data-pf-embed-slug="hands-free-language-coach"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="hands-free-language-coach" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="hands-free-language-coach" data-pf-link-amount=""></script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ask: a private assistant for every tool, by voice or chat | Open Tools and Research</title>
+  <meta name="description" content="Fill any of 1307 free calculators by voice or a typed sentence, find the right tool, hear the result. Private, in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/ask/">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../favicon.ico" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Ask: a private assistant for every tool, by voice or chat">
+  <meta property="og:description" content="Fill any of 1307 free calculators by voice or a typed sentence, find the right tool, hear the result. Private, in your browser.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ask/">
+  <meta property="og:site_name" content="Open Tools and Research">
+  <meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Open Tools and Research — free, private, in your browser">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Ask — site assistant","url":"https://duncan-haywood.github.io/monorepo-projects/ask/","description":"Fill any of 1307 free calculators by voice or a typed sentence, find the right tool, hear the result. Private, in your browser.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"isPartOf":{"@type":"WebSite","name":"Open Tools and Research","url":"https://duncan-haywood.github.io/monorepo-projects/"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I fill in a calculator by voice?","acceptedAnswer":{"@type":"Answer","text":"Yes. On any calculator press \"Speak or type\" (or \"Ask\" in the header) and say your numbers, for example \"2,400 square feet, 8/12 pitch, waste ten percent\". The assistant writes them into the matching fields, lists every change with an Undo, and can read the result back. Voice mode keeps listening, filling and speaking until you say \"stop\"."}},{"@type":"Question","name":"Does what I say or type leave my device?","acceptedAnswer":{"@type":"Answer","text":"Not unless you choose a provider that runs elsewhere. With no model (the default), the built-in browser model or the on-device model, everything runs in your browser. Speech recognition is the browser's on-device recogniser or Whisper running in your browser; cloud speech recognition is never used. If you enter your own API key, what you type goes from your browser to that provider and nowhere else."}},{"@type":"Question","name":"Do I need an AI model or an API key?","acceptedAnswer":{"@type":"Answer","text":"No. Without any model, a rule-based reader fills forms and the site search finds tools. A model adds open-ended answers and reads looser sentences; you can use your browser's built-in one, download one that runs on your device, or bring your own key."}},{"@type":"Question","name":"How accurate is it?","acceptedAnswer":{"@type":"Answer","text":"The rule-based reader is scored on every build against real sentences and real calculator forms. In its latest blind test (sentences written before the rules were run on them, on the same three, plus house cleaning and mileage, which the rules had never seen) it got 10 of 16 fully right and wrote a wrong value 4 times; those mistakes were then fixed, and the next blind round will measure the fixes. Always check the fields: every value it writes is listed with an Undo."}},{"@type":"Question","name":"Can an AI agent use these tools?","acceptedAnswer":{"@type":"Answer","text":"Yes. In a browser that supports WebMCP, every page offers search_site_tools, read_page_results and, on calculators, fill_form with a JSON Schema of its fields, so an agent fills the same form a person sees and every value is checked against the field first."}}]}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .starting { margin: 12px 0 0; max-width: 70ch; line-height: 1.6; padding: 12px 14px;
+                border-left: 3px solid var(--accent); background: var(--panel); border-radius: 0 9px 9px 0; }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    .jumps { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .jumps a { font-size: .85rem; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+               background: var(--panel); color: var(--ink); text-decoration: none; }
+    .jumps a:hover, .jumps a:focus-visible { border-color: var(--accent); }
+    .jumps span { color: var(--soft); }
+    .filter { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .filter label { font-size: .87rem; font-weight: 650; }
+    .filter input { flex: 1 1 260px; max-width: 420px; font: inherit; padding: 9px 12px; border-radius: 9px;
+                    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .filter span { font-size: .85rem; color: var(--muted); }
+    .filter[hidden] { display: none; }
+    .card .deploy-link { display: inline-block; margin-top: 10px; font-size: .85rem; font-weight: 650;
+                         color: var(--accent); text-decoration: none; }
+    .card .deploy-link:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+
+    .prose { max-width: 720px; }
+    .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
+    .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
+    .prose p { color: var(--muted); line-height: 1.62; margin: 0 0 14px; }
+    .prose ul { color: var(--muted); line-height: 1.62; padding-left: 22px; margin: 0 0 14px; }
+    .prose li { margin-bottom: 7px; }
+    .prose a { color: var(--accent); }
+    .prose strong { color: var(--ink); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+             padding: 18px 20px; margin: 0 0 16px; }
+    .panel h3 { margin-top: 0; }
+    .panel p:last-child, .panel ul:last-child { margin-bottom: 0; }
+    .boiler { font-size: .93rem; line-height: 1.6; color: var(--ink);
+              background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+              padding: 13px 15px; margin: 0 0 12px; white-space: pre-wrap;
+              overflow-wrap: anywhere;
+              font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  .ask-app{margin:18px 0 28px}
+  table{border-collapse:collapse;width:100%;font-size:15px}
+  th,td{border:1px solid var(--pfs-line);padding:7px 9px;text-align:left;vertical-align:top}
+  .tablewrap{overflow-x:auto}
+  </style>
+  <link rel="stylesheet" href="../pf-site.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/" aria-current="page">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><form class="pfs-search" action="../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Ask</span></span></nav>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Ask</p>
+      <h1>Ask: a private assistant for every tool, by voice or chat</h1>
+      <p class="lede">Say or type what you know, like “price 40, shipping 6”, and it goes into the right fields of the calculator you are on, with the result read back. Ask which tool fits a job, or what a page means. It runs in your browser, and no model downloads unless you switch one on.</p>
+    </header>
+    <div id="ask-app" class="ask-app">
+      <noscript><p>The assistant needs JavaScript. Every tool on this site still works without it, through its own form.</p></noscript>
+    </div>
+    <main class="prose">
+      <h2>Four ways into every tool</h2>
+      <ul>
+        <li><strong>See and click.</strong> Every calculator is an ordinary form and stays one.</li>
+        <li><strong>Type a sentence.</strong> “I paid 12, selling at 40, shipping label 5.” The assistant matches each number to a field and lists what it changed.</li>
+        <li><strong>Speak.</strong> Press the microphone, or turn on <em>Voice mode</em> to keep going hands-free: it listens, fills, reads the result aloud and listens again until you say “stop”.</li>
+        <li><strong>Let an agent do it.</strong> On browsers with WebMCP, every page offers tools to search the site, fill the form and read the result. See <a href="#agents">For AI agents</a>.</li>
+      </ul>
+
+      <h2 id="how">How it works, and where your words go</h2>
+      <p>You choose the engine in the panel’s Settings. The default is the first row. Nothing below the first row downloads or connects until you click to turn it on.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Engine</th><th>Downloads</th><th>What you type or say goes to</th><th>Good at</th></tr></thead>
+        <tbody>
+          <tr><td>No model (default)</td><td>Nothing (the assistant code is about 40 KB, fetched when you first open it)</td><td>Nowhere</td><td>Filling forms from clear sentences; finding tools; quoting the paragraph on this page that answers you</td></tr>
+          <tr><td>Your browser’s built-in model</td><td>Nothing from this site. Chrome downloads and manages its own model</td><td>Nowhere: it runs on your device</td><td>Looser sentences, short answers</td></tr>
+          <tr><td>On-device model (Qwen2.5 0.5B or 1.5B through WebLLM)</td><td>290 MB or 880 MB, once, from huggingface.co (the WebLLM code from cdn.jsdelivr.net), then kept in your browser’s cache</td><td>Nowhere: it runs in a background worker on your GPU</td><td>The same, offline; needs WebGPU</td></tr>
+          <tr><td>Your own key or local server</td><td>Nothing</td><td>The provider you choose (Anthropic, OpenAI, Gemini, any OpenAI-compatible URL) or Ollama, LM Studio or llama.cpp on your computer. The key stays in your browser</td><td>The strongest answers, depending on your model</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Voice in</strong> uses your browser’s on-device speech recognition where it has one. Otherwise it uses Whisper tiny.en (96 MB, once, from huggingface.co), which runs in your browser: an 11-second clip took about 4 seconds to transcribe on a laptop-class CPU in our test, word for word. Cloud speech recognition is never used, because it would send your audio to a company this page cannot name. <strong>Voice out</strong> uses your device’s own voices.</p>
+      <p>A model never writes into a form directly. It proposes values as JSON, constrained to the form’s own fields where the engine supports it. Every value is checked against the field’s type, range and choices before it is written, and anything refused is listed. The rule-based reader is the floor: when a model finds fewer values than the rules do, the rules’ reading is used.</p>
+
+      <h2 id="quality">How well it is measured to work</h2>
+      <p>The rule-based reader is tested on 52 sentences against 5 real calculator forms. The sentences are in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/assistant/evals.json"><code>platform/pages/assistant/evals.json</code></a> and the test is <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/assistant.test.mjs"><code>platform/pages/assistant.test.mjs</code></a>. Today it gets 52 of 52 fully right. That number is not an estimate of how it does on your sentences, because every mistake found was fixed. The estimate is the <strong>blind rounds</strong>: new sentences written before the rules were run on them, scored once, and recorded with the commit that produced the score, so anyone can reproduce it.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Blind round</th><th>Sentences</th><th>Fully right</th><th>Wrong value written</th><th>Reproduce at</th></tr></thead>
+        <tbody>
+          <tr><td>1 (2026-10-20): eBay fees, roofing bid, Amazon FBA (the forms the rules were written on)</td><td>12</td><td>6</td><td>1</td><td><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/0a350c26/platform/pages/assistant"><code>0a350c26</code></a></td></tr>
+          <tr><td>2 (2026-10-20): the same three, plus house cleaning and mileage, which the rules had never seen</td><td>16</td><td>10</td><td>4</td><td><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/1eec78c2/platform/pages/assistant"><code>1eec78c2</code></a></td></tr>
+        </tbody>
+      </table></div>
+      <p>The samples are small, and a wrong value written is the mistake that matters most, which is why every change the assistant makes is listed with an Undo. Model engines are not scored here yet; how they do depends on the model you pick.</p>
+
+      <h2 id="limits">Limitations</h2>
+      <ul>
+        <li><strong>Check every value.</strong> The panel lists each field it changed and offers Undo. The calculator’s own result is the answer, not the assistant’s summary of it.</li>
+        <li>The rule-based reader needs the field’s name near the number (“waste 10 percent”). It skips rather than guesses when two fields match equally, and when a value is outside a field’s range. It cannot fill text fields or dates; a model can.</li>
+        <li>Small on-device models make things up. They are told to answer only from the page and the site’s tool list, but they can still be wrong. Nothing here is legal, tax, financial or professional advice.</li>
+        <li>The on-device model needs WebGPU (recent Chrome or Edge on desktop; support elsewhere varies) and about 1–1.7 GB of GPU memory. Phones may not have enough.</li>
+        <li>Speech recognition gets numbers wrong in noise and with unusual words; what it heard is shown before anything is filled.</li>
+        <li>Some calculators build their fields in ways the reader cannot see. It tells you when it finds no field to fill.</li>
+      </ul>
+
+      <h2 id="agents">For AI agents</h2>
+      <p>On browsers with <a href="https://github.com/webmachinelearning/webmcp">WebMCP</a> (<code>navigator.modelContext</code>), each page registers:</p>
+      <ul>
+        <li><code>search_site_tools</code>: search every tool and research project by keywords.</li>
+        <li><code>fill_form</code> (calculators only): a JSON Schema of the page’s fields, built from the live form. Values outside a field’s range are refused, not clamped. Returns what was filled, what was refused, and the page’s result text.</li>
+        <li><code>read_page_results</code>: the page’s current result text.</li>
+      </ul>
+      <p>Without WebMCP, agents can read <a href="../llms.txt">llms.txt</a> and <a href="../catalog.json">catalog.json</a>. Every calculator is a plain HTML form an agent can fill directly.</p>
+
+      <h2>Source</h2>
+      <p>Everything here is open source, MIT licensed: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/assistant/client.js"><code>platform/pages/assistant/client.js</code></a> (the panel), <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/assistant/fill.mjs"><code>platform/pages/assistant/fill.mjs</code></a> (the rule-based reader), <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/assistant/worker.js"><code>platform/pages/assistant/worker.js</code></a> (on-device model and speech), <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/llm/byok.mjs"><code>platform/llm/byok.mjs</code></a> (bring your own key), and <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/assistant.mjs"><code>platform/pages/assistant.mjs</code></a> (how pages load it).</p>
+
+      <h2>Questions</h2>
+      <h3>Can I fill in a calculator by voice?</h3>
+      <p>Yes. On any calculator press &quot;Speak or type&quot; (or &quot;Ask&quot; in the header) and say your numbers, for example &quot;2,400 square feet, 8/12 pitch, waste ten percent&quot;. The assistant writes them into the matching fields, lists every change with an Undo, and can read the result back. Voice mode keeps listening, filling and speaking until you say &quot;stop&quot;.</p>
+      <h3>Does what I say or type leave my device?</h3>
+      <p>Not unless you choose a provider that runs elsewhere. With no model (the default), the built-in browser model or the on-device model, everything runs in your browser. Speech recognition is the browser's on-device recogniser or Whisper running in your browser; cloud speech recognition is never used. If you enter your own API key, what you type goes from your browser to that provider and nowhere else.</p>
+      <h3>Do I need an AI model or an API key?</h3>
+      <p>No. Without any model, a rule-based reader fills forms and the site search finds tools. A model adds open-ended answers and reads looser sentences; you can use your browser's built-in one, download one that runs on your device, or bring your own key.</p>
+      <h3>How accurate is it?</h3>
+      <p>The rule-based reader is scored on every build against real sentences and real calculator forms. In its latest blind test (sentences written before the rules were run on them, on the same three, plus house cleaning and mileage, which the rules had never seen) it got 10 of 16 fully right and wrote a wrong value 4 times; those mistakes were then fixed, and the next blind round will measure the fixes. Always check the fields: every value it writes is listed with an Undo.</p>
+      <h3>Can an AI agent use these tools?</h3>
+      <p>Yes. In a browser that supports WebMCP, every page offers search_site_tools, read_page_results and, on calculators, fill_form with a JSON Schema of its fields, so an agent fills the same form a person sees and every value is checked against the field first.</p>
+    </main>
+    <footer>
+      <h2>No warranty</h2>
+      <p>
+        These tools are provided free and as-is, without warranty of any kind,
+        express or implied. They are not legal, tax, financial, or engineering
+        advice, and they do not replace a qualified professional.
+        <strong>You are responsible for reviewing and verifying any output
+        before relying on it</strong>, and for meeting any obligation it helps
+        you prepare for. To the maximum extent permitted by law, the authors
+        accept no liability for any loss or damage arising from their use.
+      </p>
+      <h2>Best-effort hosting, no SLA</h2>
+      <p>
+        These tools are free and experimental, and may be slow, broken, moved,
+        or taken offline without notice. We do not promise uptime, backups of
+        anything you type, or that a URL will keep working. Do not use them as
+        a system of record. If a tool needs to survive, export your inputs —
+        every one of them is open source and runs from a local file.
+      </p>
+      <h2>Privacy</h2>
+      <p>
+        Everything runs in your browser. What you type is never uploaded: there
+        is no account system, no tracking cookie, no analytics vendor, and no
+        server that could receive it. Except Does your pinned workflow load something unpinned underneath it?, ATS Resume Checker, CAA Record Checker, Cancel Flow, Changelog Keeper, Churn Radar, Cron Heartbeat, Deal Keeper, DNS Change Evidence, Drip Keeper, Dunning Engine, Email Authentication Checker (SPF, DKIM, DMARC, BIMI), Error Keeper, Feedback Board, Form Inbox, ICP Lens, Interview Content Studio: one interview, a month of content for every platform, License Keeper, Would a spend cap have stopped your runaway LLM bill?, Turn meeting notes into owned, dated action items, Meter Keeper, MRR Pulse, Simulate conversations between fictional personalities, PQL Radar, Price drop alerts for any shop, on your own GitHub, Proposal Maker, Which of your PyPI dependencies lack a provenance attestation?, Which federal contracts in my niche expire next?, Rev Rec, Review Reply Desk, RFP Compliance Matrix Generator, Sales Cadence Builder, Sales Call Notes Desk, Shift Roster Builder, Sign Keeper, Slot Keeper, Sponsor Ready, status-keeper, Subdomain Takeover Checker, Support Desk, Survey Keeper, Testimonial Keeper, Trial Converter, Did an extension you already trust just change what it does?, Waitlist Keeper, and webhook-relay — each of which checks a live public API as its whole job, so what you paste there to look up goes to raw.githubusercontent.com, api.anthropic.com, api.openai.com, generativelanguage.googleapis.com, localhost:11434, localhost:1234, localhost:8080, cloudflare-dns.com, api.resend.com, api.stripe.com, x, github.com, api.telegram.org, dns.google, dns.quad9.net:5053, api.postmarkapp.com, api.sendgrid.com, stripe.com, proxy.local, ntfy.sh, pypi.org, api.usaspending.gov, duncan-haywood.github.io, www.w3.org, api.github.com, and marketplace.visualstudio.com and nowhere else. <a href="../about/">About</a> says exactly what. We count anonymous, aggregate events —
+        which tools get opened, never anything about who opened them — and that
+        count stays in your own browser's local storage. Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>
+      <p class="pfs-foot"><a href="../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../research/">Research</a><span aria-hidden="true"> · </span><a href="../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../updates/">Updates &amp; roadmap</a><span aria-hidden="true"> · </span><a href="../changelog/">Changelog</a><span aria-hidden="true"> · </span><a href="../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../lab/">Lab</a><span aria-hidden="true"> · </span><a href="../feedback/">Report a problem or suggest a feature</a><span aria-hidden="true"> · </span><a href="../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../dev/daily/">Daily brief &amp; The Merge Report</a><span aria-hidden="true"> · </span><a href="../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="../changelog/feed.xml">Changelog feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+    </footer>
+  </div>
+  <script type="module">
+    import { mount } from '../pf-assistant.js';
+    mount(document.getElementById('ask-app'));
+  </script>
+  <script src="../pf-site.js" data-pf-slug="ask" defer></script>
+</body>
+</html>

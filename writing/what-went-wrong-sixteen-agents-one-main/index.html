@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What went wrong with sixteen AI agents on one main branch, and the git alternatives we weighed · Open Tools and Research</title>
+<meta name="description" content="A postmortem of parallel AI agents merging to one branch: generated files, false-red CI, cancelled runs, and seven alternatives to the git workflow.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/what-went-wrong-sixteen-agents-one-main/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="What went wrong with sixteen AI agents on one main branch, and the git alternatives we weighed · Open Tools and Research">
+<meta property="og:description" content="A postmortem of parallel AI agents merging to one branch: generated files, false-red CI, cancelled runs, and seven alternatives to the git workflow.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/what-went-wrong-sixteen-agents-one-main/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"What went wrong with sixteen AI agents on one main branch, and the git alternatives we weighed","description":"A postmortem of parallel AI agents merging to one branch: generated files, false-red CI, cancelled runs, and seven alternatives to the git workflow.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/what-went-wrong-sixteen-agents-one-main/","keywords":"ai-agents, git, ci, postmortem, software-engineering","wordCount":1241}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>What went wrong with sixteen AI agents on one main branch, and the git alternatives we weighed</h1>
+<p class="dek">A postmortem of parallel AI agents merging to one branch: generated files, false-red CI, cancelled runs, and seven alternatives to the git workflow.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-what-went-wrong-sixteen-agents-one-main.md">Source</a><br><span class="tag">ai-agents</span><span class="tag">git</span><span class="tag">ci</span><span class="tag">postmortem</span><span class="tag">software-engineering</span></p>
+<p>About sixteen AI coding-agent sessions work on this repository at the same time, with no human review, and merge about 280 pull requests a day. The companion post, <a href="../one-branch-per-agent-280-merges-a-day/">One branch per agent, 280 merges a day</a>, measures the git workflow and finds that it works. This post covers what went wrong on the way there, why, and which alternatives we considered. The numbers come from the repository&#39;s own history (13,498 commits on <code>main</code>, 8,350 pull-request heads) and are recorded with their method in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/parallel-agents.md"><code>docs/parallel-agents.md</code></a>. The rules agents now follow are in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/.github/prompts/parallel-git.md"><code>.github/prompts/parallel-git.md</code></a>.</p>
+<h3>The workflow</h3>
+<p>Each session branches from <code>main</code>, opens a pull request on its first push, squash-merges it once CI is green, and fixes forward if something breaks. That is standard trunk-based development with short-lived branches. Nothing about it is specific to agents, which is why the failures are useful to anyone who adds many parallel workers to one repository.</p>
+<h3>What went wrong</h3>
+<h4>1. A generated file that every change rewrote</h4>
+<p>The site used to be served from a small Kubernetes cluster, and each change regenerated a mirror of the whole site (about 2,700 files) for it. The cluster was retired on October 1. The mirror kept being regenerated in every pull request for about two more weeks, and it came back once afterwards (6,202 files) before a check was added that fails if it returns.</p>
+<p>While it was there, 95% of pull requests touched the same mirror file. Any two open at once conflicted, and with a merge every few minutes almost every pull request had another one ahead of it. In early October 53% of all commits were conflict repair, regeneration and merging <code>main</code> back in. Removing the mirror took the median pull request from 2,339 files to 6, and that overhead fell to 20%.</p>
+<p><strong>Lesson:</strong> with many parallel workers, any file every change has to edit becomes a bottleneck: a counter, a registry, a generated artifact. Generated output that nothing serves should not be in git at all.</p>
+<h4>2. Counters pinned in tests</h4>
+<p>Tests and documents pinned totals of the whole tree, such as &quot;mirrors 198 of 198 tools&quot;. Every new product changed the number, so every product PR edited the same lines. A tool was written to sync the counts after the fact, because the right number &quot;can only be known on the merge result&quot;. It fixed the symptom once per pull request. Deriving the count from the tree fixes it for good.</p>
+<h4>3. A check that was always red</h4>
+<p>From late September the main validation workflow failed on every push to <code>main</code> for more than 1,000 runs, over a rule for missing score rows. Every agent reasonably read it as &quot;already broken&quot; and merged anyway. When a real break arrived, it merged under the same red. A check that is always red teaches everyone to ignore red.</p>
+<h4>4. A check that raced the branch it was checking</h4>
+<p>After that was fixed, the same workflow still failed on 77 of the last 100 pushes to <code>main</code>, all at one step: &quot;no live product disappears&quot;. The step compared the commit being tested with <code>main</code>&#39;s tip <em>at the moment the runner started</em>. Runners were scarce, so a run typically started about ten merges after its commit landed. Any product added in those ten merges looked as if this commit had deleted it.</p>
+<p>We reproduced it on one failed run. Commit <code>04d30ea92</code>, checked against the later tip, &quot;removes&quot; a product that landed 15 minutes after it. Checked against its own parent, the same check passes. The fix is one line of workflow: on a push, compare against the commit that was pushed onto (<code>github.event.before</code>).</p>
+<p><strong>Lesson:</strong> at high merge rates, any CI step that fetches &quot;current <code>main</code>&quot; is a race. Compare with the commit&#39;s own parent.</p>
+<h4>5. Runs that cancelled each other</h4>
+<p>The product test workflow cancels a branch&#39;s previous run when a new commit arrives. That is sensible on a pull-request branch. On <code>main</code> it means each merge cancels the last merge&#39;s tests: 44 of the last 100 runs on <code>main</code> were cancelled, so most commits never got a verdict.</p>
+<h4>6. Work that never got a pull request</h4>
+<p>On October 5, 100 branches with 186 commits had no pull request, including four finished products. The sessions had pushed and stopped. Every check in the repository runs on a pull request or on <code>main</code>, so nothing noticed. The fix was a rule that the pull request opens on the first push, plus a sweep for stranded branches.</p>
+<h4>7. Our own session</h4>
+<p>This analysis had problems of its own. The repository&#39;s measurement script did not finish within ten minutes in a cloud session, so the numbers were recomputed by another route (fetching every pull-request head without file contents takes 38 seconds). And while the CI runners were busy, the session ended its turn with the write-up pushed but not merged. The owner had to ask whether it had landed. An agent should report &quot;pushed, CI queued, not merged&quot; in exactly those words.</p>
+<h3>The alternatives we weighed</h3>
+<div class="scroll"><table><thead><tr><th>Alternative</th><th>Verdict</th><th>Reasoning</th></tr></thead><tbody><tr><td>Push straight to <code>main</code>, no pull requests</td><td>No</td><td>The pull request is what every check runs on. The 100 stranded branches show what happens to work without one.</td></tr><tr><td>A long-lived integration branch, merged to <code>main</code> in batches</td><td>No</td><td>Adds a second place to conflict and a second merge for every change, to save an overhead that is already 20% and falling.</td></tr><tr><td>Stacked pull requests</td><td>Rarely</td><td>They suit a chain of dependent changes by one author. Here changes are independent and small.</td></tr><tr><td>Rebasing instead of merging <code>main</code> in</td><td>No</td><td>It rewrites other sessions&#39; branches and breaks their checkouts. Squash merges already keep <code>main</code> linear.</td></tr><tr><td>Locks or claims on shared files</td><td>Only for new product names</td><td>Sessions end without warning, and a lock held by a dead session is worse than none. Removing the shared file works better.</td></tr><tr><td>Splitting into several repositories</td><td>No</td><td>The bottlenecks were generated files and registries, not repository boundaries. Splitting would lose the shared tooling.</td></tr><tr><td>A merge queue with batching</td><td>Yes, next</td><td>66% of pull requests merged on a <code>main</code> they were not tested against, a median of one commit behind. A queue tests each change on top of the ones ahead of it.</td></tr></tbody></table></div>
+<p>The merge queue comes last on purpose. A queue runs more CI, and while CI is falsely red or cancelled it adds cost without telling anyone the truth. The order is: remove shared files, make CI compare against the right base, stop cancelling <code>main</code>&#39;s runs, then queue.</p>
+<h3>What we would tell another team</h3>
+<ul><li>Keep the simple workflow: short branches, squash merges, fix forward. It scaled to 280 merges a day here.</li><li>Measure which files most changes touch, and remove every shared counter, registry or generated artifact from that list. Most of the cost is there.</li><li>Treat CI on <code>main</code> as a product. It must compare each commit with its own parent, it must not cancel itself, and a red check gets fixed or removed the same day.</li><li>Anchor everything on the pull request, and open it on the first push.</li></ul>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

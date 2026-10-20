@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Peak and patch stress ratio on the check mesh for the rules design, per setting and process">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Check-mesh stress / limit of the rules design (1 = limit)</text>
+<line x1="64" x2="624" y1="310.0" y2="310.0" stroke="#ddd"/><text x="58" y="314.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="265.0" y2="265.0" stroke="#ddd"/><text x="58" y="269.0" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="220.1" y2="220.1" stroke="#ddd"/><text x="58" y="224.1" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="175.1" y2="175.1" stroke="#ddd"/><text x="58" y="179.1" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<line x1="64" x2="624" y1="130.2" y2="130.2" stroke="#ddd"/><text x="58" y="134.2" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="85.2" y2="85.2" stroke="#ddd"/><text x="58" y="89.2" text-anchor="end" font-family="sans-serif" font-size="11">2.5</text>
+<line x1="64" x2="624" y1="40.3" y2="40.3" stroke="#ddd"/><text x="58" y="44.3" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<text x="14" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 175.0)">stress / limit</text>
+<text x="87.3" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 87.3 324)">A FDM</text>
+<rect x="68.7" y="203.0" width="17.7" height="107.0" fill="#1f6fb2"/>
+<rect x="87.3" y="228.2" width="17.7" height="81.8" fill="#c0392b"/>
+<text x="134.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 134.0 324)">A CNC routing</text>
+<rect x="115.3" y="189.5" width="17.7" height="120.5" fill="#1f6fb2"/>
+<rect x="134.0" y="230.9" width="17.7" height="79.1" fill="#c0392b"/>
+<text x="180.7" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 180.7 324)">A laser cutting</text>
+<rect x="162.0" y="194.0" width="17.7" height="116.0" fill="#1f6fb2"/>
+<rect x="180.7" y="228.2" width="17.7" height="81.8" fill="#c0392b"/>
+<text x="227.3" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 227.3 324)">A casting</text>
+<rect x="208.7" y="199.4" width="17.7" height="110.6" fill="#1f6fb2"/>
+<rect x="227.3" y="234.5" width="17.7" height="75.5" fill="#c0392b"/>
+<text x="274.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 274.0 324)">P FDM</text>
+<rect x="255.3" y="176.9" width="17.7" height="133.1" fill="#1f6fb2"/>
+<rect x="274.0" y="211.1" width="17.7" height="98.9" fill="#c0392b"/>
+<text x="320.7" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 320.7 324)">P CNC routing</text>
+<rect x="302.0" y="150.9" width="17.7" height="159.1" fill="#1f6fb2"/>
+<rect x="320.7" y="216.5" width="17.7" height="93.5" fill="#c0392b"/>
+<text x="367.3" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 367.3 324)">P laser cutting</text>
+<rect x="348.7" y="95.1" width="17.7" height="214.9" fill="#1f6fb2"/>
+<rect x="367.3" y="210.2" width="17.7" height="99.8" fill="#c0392b"/>
+<text x="414.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 414.0 324)">P casting</text>
+<rect x="395.3" y="159.0" width="17.7" height="151.0" fill="#1f6fb2"/>
+<rect x="414.0" y="212.9" width="17.7" height="97.1" fill="#c0392b"/>
+<text x="460.7" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 460.7 324)">Q FDM</text>
+<rect x="442.0" y="191.3" width="17.7" height="118.7" fill="#1f6fb2"/>
+<rect x="460.7" y="218.3" width="17.7" height="91.7" fill="#c0392b"/>
+<text x="507.3" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 507.3 324)">Q CNC routing</text>
+<rect x="488.7" y="136.5" width="17.7" height="173.5" fill="#1f6fb2"/>
+<rect x="507.3" y="215.6" width="17.7" height="94.4" fill="#c0392b"/>
+<text x="554.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 554.0 324)">Q laser cutting</text>
+<rect x="535.3" y="64.5" width="17.7" height="245.5" fill="#1f6fb2"/>
+<rect x="554.0" y="209.3" width="17.7" height="100.7" fill="#c0392b"/>
+<text x="600.7" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 600.7 324)">Q casting</text>
+<rect x="582.0" y="167.0" width="17.7" height="143.0" fill="#1f6fb2"/>
+<rect x="600.7" y="218.3" width="17.7" height="91.7" fill="#c0392b"/>
+<line x1="64" x2="624" y1="220.1" y2="220.1" stroke="#000" stroke-dasharray="4 3"/>
+<rect x="74" y="42" width="12" height="10" fill="#1f6fb2"/><text x="92" y="51" font-family="sans-serif" font-size="11">peak</text>
+<rect x="74" y="57" width="12" height="10" fill="#c0392b"/><text x="92" y="66" font-family="sans-serif" font-size="11">patch</text>
+</svg>

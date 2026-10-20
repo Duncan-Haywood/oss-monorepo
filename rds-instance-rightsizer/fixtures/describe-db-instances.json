@@ -1,0 +1,8 @@
+{
+  "DBInstances": [
+    { "DBInstanceIdentifier": "orders-prod", "Engine": "postgres", "DBInstanceClass": "db.r5.2xlarge", "MultiAZ": true, "AllocatedStorage": 500 },
+    { "DBInstanceIdentifier": "reports-replica", "Engine": "postgres", "DBInstanceClass": "db.m5.2xlarge", "MultiAZ": false, "AllocatedStorage": 1000 },
+    { "DBInstanceIdentifier": "dev-sandbox", "Engine": "mysql", "DBInstanceClass": "db.t3.large", "MultiAZ": false, "AllocatedStorage": 50 },
+    { "DBInstanceIdentifier": "legacy-oracle", "Engine": "oracle-ee", "DBInstanceClass": "db.m5.xlarge", "MultiAZ": false, "AllocatedStorage": 300 }
+  ]
+}

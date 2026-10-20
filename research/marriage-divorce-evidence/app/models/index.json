@@ -1,0 +1,26 @@
+{
+  "about": "Evidence lenses the app loads. One entry per model bundle in this directory (test-vector files excluded); tests/lenses.test.mjs fails if a bundle is missing here. 'adapter' says which form mapping scores it (see FORM_ADAPTERS in couple.js); a lens without one is listed with its population, target and skill but gives no number.",
+  "lenses": [
+    {"file": "nlsy79_couples.json", "label": "NLSY79 married couples (U.S., born 1957–64, observed 2000–2022)", "adapter": "nlsy79_couples"},
+    {"file": "nlsy79_individuals.json", "label": "NLSY79 married individuals, each partner's own traits (U.S., born 1957–64, observed 2000–2022)", "adapter": "nlsy79_individuals"},
+    {"file": "nlsy79_first_marriage.json", "label": "NLSY79 first marriages from the wedding (U.S., born 1957–64, weddings 1981–2022; legal divorce)"},
+    {"file": "nsfg_pooled_first_marriage.json", "label": "NSFG 1995–2023 first marriages, all eight survey cycles (U.S., weddings 1964–2023, from the wedding day; women, plus men in a both-sexes model)"},
+    {"file": "nlsy97_first_marriage.json", "label": "NLSY97 first marriages from the wedding (U.S., born 1980–84, weddings 1995–2024; separation or divorce)"},
+    {"file": "nsfg2002_first_marriage.json", "label": "NSFG 2002 women's first marriages (U.S., weddings 1972–2002, from the wedding day)", "adapter": "nsfg2002_first_marriage"},
+    {"file": "nsfg2002_family.json", "label": "NSFG 2002 women's first marriages: logistic hazard, naive Bayes, random forest and gradient boosting", "adapter": "nsfg2002_family"},
+    {"file": "gss_panel_marriages.json", "label": "GSS panels 2006–2020: married adults, divorced or separated 2 years later (U.S., prospective; includes marriage happiness)"},
+    {"file": "hcmst_couples.json", "label": "HCMST couples, married and unmarried, incl. same-sex (U.S., 2009–2017; break-up per follow-up period)"},
+    {"file": "newlywed_la_couples.json", "label": "Los Angeles newlyweds: observed conflict, satisfaction and divorce over 12 years (368 couples, 2009–2022)"},
+    {"file": "canada_gss_first_marriage.json", "label": "Statistics Canada GSS Families 1995–2017: first marriages from the wedding, one partner's report (Canada, weddings 1951–2016; separation or divorce)"},
+    {"file": "sipp_first_marriage.json", "label": "SIPP first marriages, men and women (U.S., weddings 1960–2025, retrospective)"},
+    {"file": "sipp_prospective_couples.json", "label": "SIPP married couples followed one year, with income and wealth (U.S., 2017–2024)"},
+    {"file": "acs_one_year_divorce.json", "label": "ACS one-year divorce incidence (U.S., 2019–2024; cross-sectional)"},
+    {"file": "hcmst_dating_marriage.json", "label": "HCMST unmarried couples 2009: chance of marrying the partner per follow-up period (U.S., 2009–2017; dating or cohabiting, incl. same-sex; before the wedding)"},
+    {"file": "nlsy97_cohab_marriage.json", "label": "NLSY97 first cohabiting unions: yearly chance of marrying the partner (U.S., born 1980–84, moved in 1994–2023; before the wedding)"},
+    {"file": "nlsy97_cohab_split.json", "label": "NLSY97 first cohabiting unions: yearly chance of splitting up before any wedding (U.S., born 1980–84, moved in 1994–2023; before the wedding)"},
+    {"file": "hcmst_dating_breakup.json", "label": "HCMST unmarried couples 2009: chance of breaking up before any wedding per follow-up period (U.S., 2009–2017; before the wedding)"},
+    {"file": "fair_redbook1974.json", "label": "Fair's Redbook survey: affairs reported by 6,366 married women (U.S., 1974; not divorce)"},
+    {"file": "fair_pt1969.json", "label": "Fair's Psychology Today survey: affairs reported by 601 married men and women (U.S., 1969; not divorce)"},
+    {"file": "prewedding_harmonized.json", "label": "Before the wedding: facts knowable on the wedding day, either partner (NSFG 1995–2023; validated on NLSY79, NLSY97, SIPP and Canada)", "adapter": "prewedding_harmonized"}
+  ]
+}

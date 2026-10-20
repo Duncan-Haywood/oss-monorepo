@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of total cloth in metres to cut 20 shirt orders under three cutting plans against the setup cost per marker: one garment per marker uses about 10 percent more cloth than the two plans that lay several garments per marker, which are within 1 to 4 percent of each other">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cutting plans: cloth for 20 orders vs setup cost</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="244.4" y2="244.4" stroke="#ddd"/><text x="58" y="248.4" text-anchor="end" font-family="sans-serif" font-size="11">1000</text>
+<line x1="64" x2="624" y1="164.8" y2="164.8" stroke="#ddd"/><text x="58" y="168.8" text-anchor="end" font-family="sans-serif" font-size="11">2000</text>
+<line x1="64" x2="624" y1="85.1" y2="85.1" stroke="#ddd"/><text x="58" y="89.1" text-anchor="end" font-family="sans-serif" font-size="11">3000</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="120.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">60</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">150</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">600</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">setup cost per marker (cm of cloth)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">cloth for 20 orders (m)</text>
+<polyline points="64.0,99.8 250.7,90.3 624.0,71.2 120.0,323.8 204.0,323.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="99.8" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="90.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="323.8" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="323.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">one garment per marker</text>
+<polyline points="64.0,120.4 250.7,108.5 624.0,89.4 120.0,324.0 204.0,324.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="120.4" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="108.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="89.4" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">single-size markers</text>
+<polyline points="64.0,121.3 250.7,112.1 624.0,98.1 120.0,323.6 204.0,323.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="121.3" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="112.1" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="98.1" r="3" fill="#2e8b57"/>
+<circle cx="120.0" cy="323.6" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="323.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">any size mix (optimal)</text>
+</svg>

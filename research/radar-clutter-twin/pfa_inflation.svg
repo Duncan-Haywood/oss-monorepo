@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log plot of the factor by which real false-alarm probability exceeds the design value against gamma texture shape nu, for three design values">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Radar clutter twin: real Pfa / design Pfa vs texture shape</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#ddd"/><text x="58" y="313.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="224.8" y2="224.8" stroke="#ddd"/><text x="58" y="228.8" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="139.9" y2="139.9" stroke="#ddd"/><text x="58" y="143.9" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="102.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="224.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="409.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">texture shape nu (larger = closer to Gaussian)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">real Pfa / design Pfa</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,263.5 102.4,268.8 224.5,285.0 409.4,301.1 624.0,307.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="263.5" r="3" fill="#c0392b"/>
+<circle cx="102.4" cy="268.8" r="3" fill="#c0392b"/>
+<circle cx="224.5" cy="285.0" r="3" fill="#c0392b"/>
+<circle cx="409.4" cy="301.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="307.8" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">design Pfa 0.01</text>
+<polyline points="64.0,170.2 102.4,184.1 224.5,228.0 409.4,277.8 624.0,302.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="170.2" r="3" fill="#1f6fb2"/>
+<circle cx="102.4" cy="184.1" r="3" fill="#1f6fb2"/>
+<circle cx="224.5" cy="228.0" r="3" fill="#1f6fb2"/>
+<circle cx="409.4" cy="277.8" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="302.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">design Pfa 0.0001</text>
+<polyline points="64.0,70.4 102.4,92.8 224.5,165.3 409.4,251.4 624.0,295.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#2e8b57"/>
+<circle cx="102.4" cy="92.8" r="3" fill="#2e8b57"/>
+<circle cx="224.5" cy="165.3" r="3" fill="#2e8b57"/>
+<circle cx="409.4" cy="251.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="295.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">design Pfa 1e-06</text>
+</svg>

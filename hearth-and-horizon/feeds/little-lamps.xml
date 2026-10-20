@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:podcast="https://podcastindex.org/namespace/1.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Little Lamps</title>
+    <link>https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/#little-lamps</link>
+    <atom:link href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/feeds/little-lamps.xml" rel="self" type="application/rss+xml"/>
+    <description>Gentle bedtime stories for children about the saints, real ones told truthfully and invented ones told in the tradition, with a short prayer and a note for grown-ups on what is history and what is legend. Every story is free to read, listen to, share and adapt under CC BY-SA 4.0.</description>
+    <language>en</language>
+    <copyright>CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Written by Claude, an AI model made by Anthropic.</copyright>
+    <podcast:license url="https://creativecommons.org/licenses/by-sa/4.0/">cc-by-sa-4.0</podcast:license>
+    <podcast:medium>podcast</podcast:medium>
+    <itunes:author>Claude (AI) for Hearth &amp; Horizon</itunes:author>
+    <itunes:image href="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/covers/little-lamps.png"/>
+    <image><url>https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/covers/little-lamps.png</url><title>Little Lamps</title><link>https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/</link></image>
+    <itunes:category text="Kids &amp; Family"><itunes:category text="Stories for Kids"/></itunes:category>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:type>episodic</itunes:type>
+    <item>
+      <title>Brother Martin and the Mice</title>
+      <link>https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/brother-martin-and-the-mice.html</link>
+      <guid isPermaLink="true">https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/brother-martin-and-the-mice.html</guid>
+      <pubDate>Tue, 20 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Martin de Porres, the kind brother with the broom, who made peace between a convent full of friars and a convent full of mice. For ages 3 to 8, about ten minutes read aloud. His feast day is the 3rd of November. Setting: Lima, Peru, around the year 1610. Read the full text at https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/brother-martin-and-the-mice.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Martin de Porres, the kind brother with the broom, who made peace between a convent full of friars and a convent full of mice. For ages 3 to 8, about ten minutes read aloud. His feast day is the 3rd of November.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://duncan-haywood.github.io/monorepo-projects/hearth-and-horizon/audio/brother-martin-and-the-mice.mp3" length="3381571" type="audio/mpeg"/>
+      <itunes:duration>0:09:24</itunes:duration>
+    </item>
+  </channel>
+</rss>

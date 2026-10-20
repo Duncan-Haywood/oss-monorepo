@@ -1,0 +1,101 @@
+.pf-jobs{font:inherit;font-size:.85rem;line-height:1.45;color:inherit;
+  max-width:1060px;margin:0 auto;padding:8px 18px 0;box-sizing:border-box}
+.pf-jobs-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.pf-jobs-status{opacity:.82}
+.pf-jobs button{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
+  border:1px solid #80808059;border-radius:7px;padding:3px 9px;cursor:pointer}
+.pf-jobs button:hover{background:#8080802e}
+.pf-jobs-panel{margin:8px 0 0;padding:12px 14px;border:1px solid #80808040;
+  border-radius:10px;background:#8080800f}
+.pf-jobs-panel p{margin:0 0 10px}
+.pf-jobs-save{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
+.pf-jobs-save input{font:inherit;font-size:.85rem;color:inherit;background:transparent;
+  border:1px solid #80808059;border-radius:7px;padding:3px 8px;min-width:0;flex:1 1 14em}
+.pf-jobs-list{margin:0 0 10px;padding:0;list-style:none;display:grid;gap:6px}
+/* Same guard as .pf-jobs-revision, and it was already needed here: the script
+   sets this list's hidden attribute when there are no saved bids, and grid
+   outranks the user agent rule, so a contractor with nothing saved got an
+   empty list element — announced by a screen reader, and carrying its own
+   10px margin — inside the panel. Caught by asking a rendered page rather
+   than by reading this file; see checkHiddenDisplay in check.mjs. */
+.pf-jobs-list[hidden]{display:none}
+.pf-jobs-list li{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;
+  padding:6px 0;border-top:1px solid #80808033}
+.pf-jobs-list li:first-child{border-top:0}
+.pf-jobs-name{font-weight:600;flex:1 1 10em;overflow-wrap:anywhere}
+.pf-jobs-amount{font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pf-jobs-when{opacity:.7;font-variant-numeric:tabular-nums}
+/* The summary is not dimmed like the note below it, and the waiting age is not
+   dimmed like the date beside it: both are what the panel is opened to read.
+   A decided row steps back, because the list is scanned for the open ones. */
+.pf-jobs-summary{margin:0 0 10px;font-weight:600}
+/* The chase line is the one thing in the panel a contractor should act on
+   today, so it is the one thing given a colour of its own — and that colour is
+   currentColor at full strength against a tinted rule, because 180 venture
+   palettes do not agree on a warning red. */
+.pf-jobs-chase{margin:0 0 10px;padding:8px 10px;border-left:3px solid currentColor;
+  background:#8080801a;border-radius:0 7px 7px 0}
+/* The price band is the panel's one piece of reading rather than tracking, so
+   it is set apart from the list without being dimmed out of it. */
+.pf-jobs-band{margin:0 0 10px;padding:8px 10px;border-left:3px solid #80808059;
+  background:#8080800f;border-radius:0 7px 7px 0;font-variant-numeric:tabular-nums}
+/* The gap reads as a second paragraph of the same band rather than a new kind
+   of thing, so it takes .pf-jobs-band's box and only closes the space between
+   them: the two paragraphs are one reading, and the second continues the
+   first rather than answering a different question. */
+.pf-jobs-gap{margin-top:-4px}
+/* The one reading in this band that lives outside the panel, because it is the
+   only one that is about the form rather than about the list: a contractor
+   comparing a revision is looking at the fields, not at their saved bids, and a
+   line they have to open a panel to see is a line they will not see. It takes
+   the chase line's currentColor rule for the same palette reason, and sits on
+   its own row so a long sentence never squeezes the Saved bids button. */
+.pf-jobs-revision{margin:6px 0 0;padding:8px 10px;border-left:3px solid currentColor;
+  background:#8080801a;border-radius:0 7px 7px 0;font-variant-numeric:tabular-nums;
+  display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+/* An author display declaration outranks the user agent's [hidden] rule, so
+   without this the line is visible — and empty — on every page load. It is the
+   only rule in this stylesheet that sets display on an element the script
+   toggles, which is why nothing else here needs the same guard. */
+.pf-jobs-revision[hidden]{display:none}
+.pf-jobs-revision-text{flex:1 1 16em}
+.pf-jobs-age{font-variant-numeric:tabular-nums}
+/* The row-level half of the chase line, and it takes that line's currentColor
+   treatment for the same reason: 180 venture palettes do not agree on a warning
+   colour, and one asserted here would be invisible on some of them. Weight and
+   a border carry it instead of a hue, so it also survives a monochrome print
+   and reads for a visitor who cannot distinguish the colour anyway. */
+.pf-jobs-quiet{font-size:.78rem;font-weight:700;letter-spacing:.03em;
+  border:1px solid currentColor;border-radius:6px;padding:1px 6px;white-space:nowrap}
+.pf-jobs-list li[data-pf-jobs-quiet] .pf-jobs-age{font-weight:700}
+.pf-jobs-state{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
+  border:1px solid #80808059;border-radius:7px;padding:3px 6px}
+/* Sized to the figure it holds, not to the row: a four-or-five digit price on
+   a 390px phone screen next to Restore and Delete, which is where these are
+   filled in. It shrinks but does not grow, so it yields before the name does. */
+/* One rule for both row boxes. They are the same control in the same slot —
+ * an optional figure the contractor types onto a decided row — and the only
+ * difference is which outcome shows it, so a second declaration would be a
+ * second thing to keep in step with the contrast pass that cleared this one. */
+.pf-jobs-lostto,.pf-jobs-cost{font:inherit;font-size:.85rem;color:inherit;background:transparent;
+  border:1px solid #80808059;border-radius:7px;padding:3px 6px;flex:0 1 7.5em;min-width:0;
+  font-variant-numeric:tabular-nums}
+.pf-jobs-list li[data-pf-jobs-decided] .pf-jobs-name{font-weight:500;opacity:.75}
+.pf-jobs-note{margin:10px 0 0;opacity:.72}
+/* The band inherits each venture's own colours, and 180 pages do not agree on
+   a link colour. currentColor plus an underline reads as a link on every one
+   of them without asserting a palette this band does not own. */
+.pf-jobs-note a{color:currentColor;text-decoration:underline}
+.pf-jobs :focus-visible{outline:2px solid currentColor;outline-offset:2px}
+@media (max-width:780px){.pf-jobs{padding:8px 14px 0}}
+
+/* Never print this band, and this one is not cosmetic.
+ *
+ * .pf-jobs-list renders the names a contractor gave their other bids — which
+ * are customer names and street addresses far more often than not. A hundred
+ * bid calculators print a customer proposal (platform/proposal), whose whole
+ * point is that the homeowner receives their own price and nothing else. This
+ * band is injected as a sibling of the page's main element, so it falls
+ * outside those sheets' allow-list: a contractor who left the panel open would
+ * have handed one customer a list of the others. */
+@media print{.pf-jobs{display:none !important}}

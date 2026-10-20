@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the critical feedback gain against delay d from 0 to 4; the closed form 2 sin(pi/(2(2d+1))) and the numerical mean-square threshold coincide, falling from 2.0 to 0.347">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Jitter twin: stability threshold of the constant-delay twin</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="260.8" y2="260.8" stroke="#ddd"/><text x="58" y="264.8" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="197.6" y2="197.6" stroke="#ddd"/><text x="58" y="201.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="134.4" y2="134.4" stroke="#ddd"/><text x="58" y="138.4" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">delay d (steps)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">critical gain k</text>
+<polyline points="64.0,71.2 204.0,197.6 344.0,245.9 484.0,267.7 624.0,280.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="197.6" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="245.9" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="267.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="280.1" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">closed form</text>
+<polyline points="64.0,71.2 204.0,197.6 344.0,245.9 484.0,267.8 624.0,280.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="197.6" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="245.9" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="267.8" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="280.1" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">numerical MS threshold</text>
+</svg>

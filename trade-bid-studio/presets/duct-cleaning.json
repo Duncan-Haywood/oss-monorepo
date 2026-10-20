@@ -1,0 +1,79 @@
+{
+  "slug": "duct-cleaning-bid-calculator",
+  "name": "Air duct cleaning",
+  "group": "Cleaning & janitorial",
+  "summary": "Air duct cleaning priced from a base setup plus extra systems, vents, returns, stories and add-ons.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 32,
+  "burdenRate": 28,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "items": [
+    {
+      "label": "Base clean: 1 system, 10 vents, 1 return, 1 story",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.5,
+      "materialPerUnit": 34,
+      "source": "hoursBaseSetup 2.5 (suggestedJobHours residential; index.html); filter $22 / system + consumables $12 (index.html filterCost, consumables); included counts (index.html)"
+    },
+    {
+      "label": "Extra system",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 1.6,
+      "materialPerUnit": 22,
+      "source": "hoursPerExtraSystem 1.6; filter $22 per system (index.html); default 1 system"
+    },
+    {
+      "label": "Extra supply vent",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 0,
+      "source": "hoursPerExtraVent 0.12 (index.html); no material in the specialist; default 10 vents all included"
+    },
+    {
+      "label": "Extra return",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.3,
+      "materialPerUnit": 0,
+      "source": "hoursPerExtraReturn 0.3 (index.html); no material in the specialist; default 1 return included"
+    },
+    {
+      "label": "Extra story",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.8,
+      "materialPerUnit": 0,
+      "source": "hoursPerExtraStory 0.8 (index.html); no material in the specialist; default 1 story"
+    },
+    {
+      "label": "Evaporator coil and blower clean",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.85,
+      "materialPerUnit": 0,
+      "source": "hoursCoil 0.85 (index.html); no material in the specialist; unchecked by default"
+    },
+    {
+      "label": "Sanitizer fog",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.3,
+      "materialPerUnit": 18,
+      "source": "hoursSanitizer 0.3, sanitizerCost $18 (index.html); unchecked by default"
+    },
+    {
+      "label": "Site, travel, truck and vacuum",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.4,
+      "materialPerUnit": 48,
+      "source": "siteHours 0.4; travel, truck, vacuum $48 (index.html siteHours, travelAndEquipment)"
+    }
+  ],
+  "specialistModels": "Job types (two-system, heavy debris, commercial), included-allowance logic, and crawl-access, occupied-home and heavy-debris time adds."
+}

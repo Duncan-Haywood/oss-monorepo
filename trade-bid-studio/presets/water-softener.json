@@ -1,0 +1,33 @@
+{
+  "slug": "water-softener-bid-calculator",
+  "name": "Water softener install",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Water softener installs priced from grain capacity, salt vs salt-free, pipe and drain runs and add-ons.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.9,
+  "hourlyWage": 42,
+  "burdenRate": 32,
+  "overheadRate": 18,
+  "targetMargin": 35,
+  "tripFee": 85,
+  "items": [
+    {
+      "label": "Hang 32k-grain salt softener with bypass valve",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.75,
+      "materialPerUnit": 445,
+      "source": "hoursSoftenerBase 1.75, softenerCost $380 (suggestedCapacityKit('32k')) + bypassCost $65 (index.html defaults); 8 ft PEX run is inside the 10 ft included, so no extra pipe"
+    },
+    {
+      "label": "Brine drain",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 0.25,
+      "materialPerUnit": 35,
+      "source": "hoursDrainBase 0.25, drainFittingCost $35 (suggestedSystemKit('salt')); 6 ft drain is inside the 15 ft included"
+    }
+  ],
+  "specialistModels": "Pipe and drain footage past the included runs, PEX vs copper rates, salt-free systems with no drain, iron filter and RO packages, haul-away and brine receptacle; setupHours = 0.5 trip + 0.4 site hours."
+}

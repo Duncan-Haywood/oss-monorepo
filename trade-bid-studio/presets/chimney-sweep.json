@@ -1,0 +1,35 @@
+{
+  "slug": "chimney-sweep-bid-calculator",
+  "name": "Chimney sweep",
+  "group": "Exterior & roofing",
+  "summary": "Chimney sweeps priced per flue with story height, roof pitch, creosote level, consumables and a trip fee.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.25,
+  "minOnSiteHours": 1,
+  "hourlyWage": 28,
+  "burdenRate": 32,
+  "overheadRate": 18,
+  "targetMargin": 30,
+  "milesOneWay": 12,
+  "tripFee": 45,
+  "items": [
+    {
+      "label": "Sweep wood-burning fireplace flue (2-story, steep, moderate creosote)",
+      "unit": "flue",
+      "qty": 1,
+      "hoursPerUnit": 2,
+      "materialPerUnit": 8,
+      "source": "STARTING_FLUES fireplace 1.0 h (index.html) x STORY_MULTIPLIERS[2] 1.35 + CREOSOTE_EXTRA_HOURS.moderate 0.25, then x (1 + ROOF_ACCESS_EXTRA.steep 0.25) (calc.mjs); consumablesPerFlue $8 (index.html)"
+    },
+    {
+      "label": "Sweep wood stove / insert flue (2-story, steep, moderate creosote)",
+      "unit": "flue",
+      "qty": 1,
+      "hoursPerUnit": 2.422,
+      "materialPerUnit": 8,
+      "source": "STARTING_FLUES stove 1.25 h x 1.35 + 0.25 moderate creosote, x 1.25 steep roof (calc.mjs); consumablesPerFlue $8 (index.html)"
+    }
+  ],
+  "specialistModels": "Story and roof-access multipliers on every on-site hour (including setup), glazed-creosote chemical, Level 2 and camera inspections, animal removal and add-on kits."
+}

@@ -1,0 +1,40 @@
+{
+  "slug": "interior-door-bid-calculator",
+  "name": "Interior door installation",
+  "group": "Interior & finishes",
+  "summary": "Interior doors priced per door by scope, door type and size, with paint, haul-away, hardware and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 1.15,
+  "hourlyWage": 42,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Hang hollow-core slab on existing jamb",
+      "unit": "door",
+      "qty": 1,
+      "hoursPerUnit": 0.95,
+      "materialPerUnit": 48.0,
+      "source": "0.75 h hang + 0.2 h casing, no frame or casing material (suggestedScopeKit hang-only); $48 slab (suggestedDoorKit hollow-slab); 1 door default"
+    },
+    {
+      "label": "Travel miles",
+      "unit": "mile",
+      "qty": 6,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "0.035 h and $2.80 per mile (suggestedExtraKit); 6 miles default"
+    },
+    {
+      "label": "Travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 45.0,
+      "source": "Travel & equipment $45 (index.html default)"
+    }
+  ],
+  "specialistModels": "Compares hang-only, prehung swap, new opening and pocket conversion scopes across door types and sizes, with paint, haul-away and lockset add-ons."
+}

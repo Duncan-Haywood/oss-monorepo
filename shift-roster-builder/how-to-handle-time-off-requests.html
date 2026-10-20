@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Handle Time-Off Requests When You Build The Schedule</title>
+  <meta name="description" content="How many weekend time-off requests can a small cafe grant before shifts go uncovered? Five requests granted one at a time on the same invented roster…">
+  <meta property="og:title" content="How many time-off requests can you grant?">
+  <meta property="og:description" content="Same cafe, five weekend requests granted one by one. Measured with the free roster builder.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/how-to-handle-time-off-requests.html">
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many time-off requests can I approve at once?", "acceptedAnswer": {"@type": "Answer", "text": "There is no fixed number; it depends on how many other people are available when the requester is off. Grant them one at a time and rebuild the week after each: the first request that leaves a shift open is the limit for that week. The roster builder takes an off: entry per person and shows any shift it can no longer fill."}}, {"@type": "Question", "name": "How do I schedule around time-off requests?", "acceptedAnswer": {"@type": "Answer", "text": "Put the approved days off into each person's availability before you assign anyone, so the schedule never gives them a shift on those days, then check whether any shift went uncovered. The roster builder reads an off: entry, such as off: Sat-Sun, and re-plans the week around it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/how-to-handle-time-off-requests.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How many time-off requests can you grant? — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/food-service/">Restaurant, bar &amp; food truck pricing</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../shift-roster-builder/">Shift Roster Builder — free, private, in your browser</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">How many time-off requests can you grant?</span></span></nav>
+  <p><a href="./">&larr; Shift roster builder</a></p>
+  <h1>How many time-off requests can you grant before a shift goes empty?</h1>
+  <p>Every request looks fine on its own. The trouble is the fourth one, when the people who were covering for the first three are now the ones asking. A good rule is to grant requests one at a time and rebuild the week after each, so you find the request that tips a shift into empty before you have promised it. We measured where that happens for one cafe.</p>
+  <p><a class="cta" href="./">Open the free roster builder</a></p>
+  <h2>The experiment</h2>
+  <p>The roster builder's built-in invented example: a seven-person cafe, 32 shifts, 235 hours to cover, a 40-hour overtime line and a 10-hour rest gap. We granted a Saturday-and-Sunday request to the five people with the widest weekend availability, one at a time in the order shown, and rebuilt the week after each. Everything else is the tool's defaults.</p>
+  <div class="pf-table-scroll"><table>
+    <tr><th>Weekends off granted to</th><th class="n">Shifts left open</th><th class="n">Hours covered of 235</th><th class="n">Payroll</th></tr>
+    <tr><td>Nobody</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+    <tr><td>Ana</td><td class="n">3</td><td class="n">216</td><td class="n">$3,624</td></tr>
+    <tr><td>Ana, Gus</td><td class="n">4</td><td class="n">213</td><td class="n">$3,561</td></tr>
+    <tr><td>Ana, Gus, Dev</td><td class="n">5</td><td class="n">200</td><td class="n">$3,337</td></tr>
+    <tr><td>Ana, Gus, Dev, Cleo</td><td class="n">7</td><td class="n">182</td><td class="n">$3,067</td></tr>
+    <tr><td>Ana, Gus, Dev, Cleo, Eli</td><td class="n">9</td><td class="n">169</td><td class="n">$2,906</td></tr>
+  </table></div>
+  <h2>What it shows</h2>
+  <p>The first request is nearly free: the week still covers 216 hours and payroll moves by $2. The second costs a shift. By the fifth, more than a quarter of the week's hours are uncovered, and the payroll that "fell" is only the pay for shifts nobody is working. So the number to watch is open shifts, not cost. This is one invented example, not a benchmark, and your availability decides where your limit falls.</p>
+  <p><a class="cta" href="./">Try your own requests</a></p>
+  <h2>How to do it by hand</h2>
+  <h3>1. Rank requests by how few people could cover</h3>
+  <p>For each requested day, count the people who are available for the busiest shift and are not also asking. Grant the requests with the most spare cover first.</p>
+  <h3>2. Recheck after every approval</h3>
+  <p>Each yes uses up someone who could have covered the next one, so the count drops by more than one.</p>
+  <h3>3. Say no early, with a reason</h3>
+  <p>Tell a person which shift would go empty. People take a specific reason better than silence. Check the rules where you operate for any notice or approval rules that apply.</p>
+  <h2>Questions</h2>
+  <h3>How many time-off requests can I approve at once?</h3>
+  <p>There is no fixed number; it depends on how many other people are available when the requester is off. Grant them one at a time and rebuild the week after each: the first request that leaves a shift open is the limit for that week. The roster builder takes an off: entry per person and shows any shift it can no longer fill.</p>
+  <h3>How do I schedule around time-off requests?</h3>
+  <p>Put the approved days off into each person's availability before you assign anyone, so the schedule never gives them a shift on those days, then check whether any shift went uncovered. The roster builder reads an off: entry, such as off: Sat-Sun, and re-plans the week around it.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what scheduling law requires of you. The example is invented and the numbers come from running this tool's own engine on it.</p>
+    <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional. See also <a href="how-to-cover-a-shift-when-someone-calls-out.html">covering a call-out</a> and <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a>.</p>
+  </footer>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Everything on this page runs in your browser too, except this one lookup: what you type here also goes to duncan-haywood.github.io, www.w3.org, and x, because that is what checking it means — see the note on this page for exactly what is sent.</p>
+    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>
+    <ul>
+      <li><a href="../microgreens-tray-planner/" data-pf-to="microgreens-tray-planner">Microgreens Tray Planner — What to Seed, Rack Space and the Best Crop Mix</a></li>
+      <li><a href="../mobile-bartender-event-quote/" data-pf-to="mobile-bartender-event-quote">Mobile Bartender Event Quote: price a bar service job and check the ask</a></li>
+      <li><a href="../oyster-farm-growout-planner/" data-pf-to="oyster-farm-growout-planner">Oyster Farm Growout Planner — free, private</a></li>
+      <li><a href="../pastured-poultry-profit-planner/" data-pf-to="pastured-poultry-profit-planner">Is pastured poultry profitable? Free batch and season profit planner</a></li>
+    </ul>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=shift-roster-builder">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=shift-roster-builder">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+<script src="../pf-site.js" data-pf-slug="shift-roster-builder"></script>
+</body>
+</html>

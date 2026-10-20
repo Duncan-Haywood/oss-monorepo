@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the number of feasible bracket widths in the 0.1 mm scan for four fillet radii against mesh size h; the count falls toward zero as h decreases">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Feasible bracket widths shrink as the mesh is refined</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="278.0" y2="278.0" stroke="#ddd"/><text x="58" y="282.0" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="232.1" y2="232.1" stroke="#ddd"/><text x="58" y="236.1" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="186.1" y2="186.1" stroke="#ddd"/><text x="58" y="190.1" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<line x1="64" x2="624" y1="140.1" y2="140.1" stroke="#ddd"/><text x="58" y="144.1" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<line x1="64" x2="624" y1="94.2" y2="94.2" stroke="#ddd"/><text x="58" y="98.2" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="379.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2.5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">mesh size h (mm), logarithmic</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">feasible widths (of the 0.1 mm scan)</text>
+<polyline points="624.0,232.1 379.4,278.0 64.0,301.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="232.1" r="3" fill="#c0392b"/>
+<circle cx="379.4" cy="278.0" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="301.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">r = 8 mm</text>
+<polyline points="624.0,140.1 379.4,186.1 64.0,255.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="140.1" r="3" fill="#1f6fb2"/>
+<circle cx="379.4" cy="186.1" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="255.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">r = 10 mm</text>
+<polyline points="624.0,163.1 379.4,94.2 64.0,232.1" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="624.0" cy="163.1" r="3" fill="#2e8b57"/>
+<circle cx="379.4" cy="94.2" r="3" fill="#2e8b57"/>
+<circle cx="64.0" cy="232.1" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">r = 12 mm</text>
+<polyline points="624.0,117.1 379.4,71.2 64.0,209.1" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="624.0" cy="117.1" r="3" fill="#8e44ad"/>
+<circle cx="379.4" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="64.0" cy="209.1" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">r = 14 mm</text>
+</svg>

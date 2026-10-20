@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" role="img" aria-label="High urgency: utility by mode vs react_rate">
+<rect width="600" height="360" fill="#fff"/>
+<text x="300.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">High urgency: utility by mode vs react_rate</text>
+<text x="14" y="165.0" text-anchor="middle" font-family="sans-serif" font-size="11" transform="rotate(-90 14 165.0)">utility per message</text>
+<line x1="70" x2="584" y1="290.0" y2="290.0" stroke="#ddd"/><text x="64" y="294.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="70" x2="584" y1="227.5" y2="227.5" stroke="#ddd"/><text x="64" y="231.5" text-anchor="end" font-family="sans-serif" font-size="11">0.427</text>
+<line x1="70" x2="584" y1="165.0" y2="165.0" stroke="#ddd"/><text x="64" y="169.0" text-anchor="end" font-family="sans-serif" font-size="11">0.854</text>
+<line x1="70" x2="584" y1="102.5" y2="102.5" stroke="#ddd"/><text x="64" y="106.5" text-anchor="end" font-family="sans-serif" font-size="11">1.28</text>
+<line x1="70" x2="584" y1="40.0" y2="40.0" stroke="#ddd"/><text x="64" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">1.71</text>
+<text x="112.8" y="306" text-anchor="middle" font-family="sans-serif" font-size="11">0.0</text>
+<text x="198.5" y="306" text-anchor="middle" font-family="sans-serif" font-size="11">0.02</text>
+<text x="284.2" y="306" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="369.8" y="306" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="455.5" y="306" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="541.2" y="306" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<polyline points="112.8,178.8 198.5,178.8 284.2,178.8 369.8,178.8 455.5,178.8 541.2,178.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="112.8" cy="178.8" r="3" fill="#c0392b"/>
+<circle cx="198.5" cy="178.8" r="3" fill="#c0392b"/>
+<circle cx="284.2" cy="178.8" r="3" fill="#c0392b"/>
+<circle cx="369.8" cy="178.8" r="3" fill="#c0392b"/>
+<circle cx="455.5" cy="178.8" r="3" fill="#c0392b"/>
+<circle cx="541.2" cy="178.8" r="3" fill="#c0392b"/>
+<rect x="80" y="342" width="10" height="10" fill="#c0392b"/><text x="95" y="351" font-family="sans-serif" font-size="11">speech</text>
+<polyline points="112.8,169.7 198.5,169.7 284.2,169.7 369.8,169.7 455.5,169.7 541.2,169.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="112.8" cy="169.7" r="3" fill="#1f6fb2"/>
+<circle cx="198.5" cy="169.7" r="3" fill="#1f6fb2"/>
+<circle cx="284.2" cy="169.7" r="3" fill="#1f6fb2"/>
+<circle cx="369.8" cy="169.7" r="3" fill="#1f6fb2"/>
+<circle cx="455.5" cy="169.7" r="3" fill="#1f6fb2"/>
+<circle cx="541.2" cy="169.7" r="3" fill="#1f6fb2"/>
+<rect x="210" y="342" width="10" height="10" fill="#1f6fb2"/><text x="225" y="351" font-family="sans-serif" font-size="11">glance</text>
+<polyline points="112.8,181.4 198.5,167.8 284.2,150.1 369.8,126.9 455.5,97.1 541.2,66.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="112.8" cy="181.4" r="3" fill="#2e8b57"/>
+<circle cx="198.5" cy="167.8" r="3" fill="#2e8b57"/>
+<circle cx="284.2" cy="150.1" r="3" fill="#2e8b57"/>
+<circle cx="369.8" cy="126.9" r="3" fill="#2e8b57"/>
+<circle cx="455.5" cy="97.1" r="3" fill="#2e8b57"/>
+<circle cx="541.2" cy="66.8" r="3" fill="#2e8b57"/>
+<rect x="340" y="342" width="10" height="10" fill="#2e8b57"/><text x="355" y="351" font-family="sans-serif" font-size="11">chime_glance</text>
+</svg>

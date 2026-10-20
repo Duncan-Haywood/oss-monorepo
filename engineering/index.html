@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Engineering status — oss-monorepo</title>
+<meta name="description" content="What the agent fleet working on the oss-monorepo shipped, is working on, spent, and is blocked on, rebuilt from the repository on every publish.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/engineering/">
+<meta property="og:title" content="Engineering status — oss-monorepo">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/engineering/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{
+  --bg:#f7f7f4;--surface:#fff;--text:#1d1d22;--muted:#5c5b66;--faint:#8a8994;--border:#e3e1da;--accent:#3949ab;--code:#efede7;
+  --ok:#2b8a3e;--warn:#b35c00;--bad:#c92a2a;
+  --t-ventures:#1c7ed6;--t-research:#7048e8;--t-process:#e8590c;--t-review:#2b8a3e;--t-redteam:#c2255c;--t-explore:#0b7285;--t-other:#868e96;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#111114;--surface:#19191e;--text:#ececf1;--muted:#a3a2ad;--faint:#75747f;--border:#2c2c34;--accent:#9fa8ff;--code:#25252d;
+  --ok:#69db7c;--warn:#ffa94d;--bad:#ff8787;
+  --t-ventures:#4dabf7;--t-research:#9775fa;--t-process:#ff922b;--t-review:#51cf66;--t-redteam:#f06595;--t-explore:#3bc9db;--t-other:#adb5bd;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+code{font:.86em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--code);padding:.05em .3em;border-radius:4px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+header{padding:32px 0 8px}
+h1{font-size:clamp(1.6rem,4vw,2.3rem);margin:.2rem 0 .4rem;letter-spacing:-.01em}
+h2{font-size:1.2rem;margin:0 0 .3rem}
+.lede{color:var(--muted);max-width:75ch;margin:0}
+.crumbs{font-size:14px;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:24px 0}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.tile-label{font-size:13px;color:var(--muted)}
+.tile-value{font-size:1.9rem;font-weight:650;margin:.1rem 0}
+.tile-note,.delta{font-size:12.5px;color:var(--faint)}
+section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 18px 14px;margin:0 0 16px}
+.sub{color:var(--muted);font-size:13.5px;margin:0 0 12px;max-width:85ch}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin:0 0 16px}
+.grid2>section{margin:0;min-width:0}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:12.5px;border-bottom:1px solid var(--border);padding:6px 8px}
+td{border-bottom:1px solid var(--border);padding:7px 8px;vertical-align:top}
+tr:last-child td{border-bottom:0}
+.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.nowrap{white-space:nowrap}
+.faint{color:var(--faint)}
+.na{font-size:.9rem;font-weight:500;color:var(--faint)}
+.track{display:inline-flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap}
+.track i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:4px 0 8px}
+.pill{display:inline-block;font-size:11.5px;padding:0 7px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.pill-merged{color:var(--ok)}.pill-open{color:var(--accent)}.pill-closed{color:var(--faint)}.pill-partial{color:var(--warn)}.pill-gate{color:var(--bad)}
+.tag{display:inline-block;font-size:12px;background:var(--code);border-radius:4px;padding:0 6px;margin:1px 0}
+.chart{width:100%;height:auto;display:block}
+.chart .grid{stroke:var(--border);stroke-width:1}
+.chart .axis{fill:var(--faint);font-size:10px}
+.hbars{display:grid;gap:6px}
+.hbar{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto;gap:10px;align-items:center;font-size:13.5px}
+.hbar-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar-track{height:8px;background:var(--code);border-radius:4px;overflow:hidden}
+.hbar-track i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.hbar-n{font-variant-numeric:tabular-nums;text-align:right;min-width:2.5em}
+ul.plain{list-style:none;margin:0;padding:0}
+.decision{padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
+.decision:last-child{border-bottom:0}
+.decision-head{margin-bottom:2px}
+footer{color:var(--muted);font-size:13px;padding:8px 0 40px}
+</style>
+<link rel="stylesheet" href="../pf-site.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><form class="pfs-search" action="../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Engineering status</span></span></nav>
+<div class="wrap">
+<header>
+  <div class="crumbs"><a href="https://github.com/Duncan-Haywood/oss-monorepo">Repository</a> · <a href="../dev/">Development dashboard</a></div>
+  <h1>Engineering status</h1>
+  <p class="lede">The monorepo as an engineering manager would read it: what shipped, what each agent session worked on, where the effort and compute went, and what is blocked on the owner. Rebuilt from <code>main</code> at <a href="https://github.com/Duncan-Haywood/oss-monorepo/commit/8bf9f1aa4ed99095a63be1e207900ac56c9afb71"><code>8bf9f1aa4e</code></a> on 2026-10-20 every time the site is published.</p>
+</header>
+
+<div class="tiles"><div class="tile"><div class="tile-label">Agent sessions, 7 days</div><div class="tile-value">1668</div><div class="tile-note"><span class="delta">▲ 1571 vs the week before</span></div></div><div class="tile"><div class="tile-label">Landed on main, 7 days</div><div class="tile-value">≥ 600</div><div class="tile-note">this build's history starts 2026-10-19</div></div><div class="tile"><div class="tile-label">Compute, 7 days</div><div class="tile-value">$932</div><div class="tile-note">API-equivalent, measured on 970 of 1668 sessions</div></div><div class="tile"><div class="tile-label">Sessions ending partial, 7 days</div><div class="tile-value">103</div><div class="tile-note">of 1668; the rest recorded success</div></div><div class="tile"><div class="tile-label">Waiting on the owner</div><div class="tile-value">13</div><div class="tile-note">oldest 62 days</div></div></div>
+
+<section>
+  <h2>Activity, last 20 days</h2>
+  <p class="sub">Agent sessions per day, by the track <code>prompt.md</code> routed them to. One session is one run record in <code>prompts/runs/</code>; the first record is dated 2026-10-01.</p>
+  <div class="legend"><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span> <span class="track"><i style="background:var(--t-research)"></i>research</span> <span class="track"><i style="background:var(--t-process)"></i>process</span> <span class="track"><i style="background:var(--t-review)"></i>review</span> <span class="track"><i style="background:var(--t-redteam)"></i>redteam</span> <span class="track"><i style="background:var(--t-explore)"></i>explore</span></div>
+  <svg class="chart" viewBox="0 0 720 180" role="img" aria-labelledby="activity-title"><title id="activity-title">Agent sessions per day by track, last 20 days</title><line class="grid" x1="28" x2="716" y1="158.0" y2="158.0"/><text class="axis" x="22" y="162.0" text-anchor="end">0</text><line class="grid" x1="28" x2="716" y1="83.0" y2="83.0"/><text class="axis" x="22" y="87.0" text-anchor="end">144</text><line class="grid" x1="28" x2="716" y1="8.0" y2="8.0"/><text class="axis" x="22" y="12.0" text-anchor="end">288</text><rect x="29.5" y="157.5" width="31.4" height="0.0" rx="1.5" fill="var(--t-research)"><title>2026-10-01 · research: 1</title></rect><text class="axis" x="251.6" y="174" text-anchor="middle">10-07</text><rect x="442.3" y="107.5" width="31.4" height="49.5" rx="1.5" fill="var(--t-research)"><title>2026-10-13 · research: 97</title></rect><rect x="476.7" y="122.1" width="31.4" height="34.9" rx="1.5" fill="var(--t-research)"><title>2026-10-14 · research: 69</title></rect><text class="axis" x="492.4" y="174" text-anchor="middle">10-14</text><rect x="511.1" y="127.8" width="31.4" height="29.2" rx="1.5" fill="var(--t-ventures)"><title>2026-10-15 · ventures: 58</title></rect><rect x="511.1" y="51.7" width="31.4" height="75.0" rx="1.5" fill="var(--t-research)"><title>2026-10-15 · research: 146</title></rect><rect x="511.1" y="41.9" width="31.4" height="8.9" rx="1.5" fill="var(--t-process)"><title>2026-10-15 · process: 19</title></rect><rect x="511.1" y="35.6" width="31.4" height="5.2" rx="1.5" fill="var(--t-review)"><title>2026-10-15 · review: 12</title></rect><rect x="511.1" y="27.8" width="31.4" height="6.8" rx="1.5" fill="var(--t-redteam)"><title>2026-10-15 · redteam: 15</title></rect><rect x="511.1" y="22.1" width="31.4" height="4.7" rx="1.5" fill="var(--t-explore)"><title>2026-10-15 · explore: 11</title></rect><rect x="545.5" y="122.6" width="31.4" height="34.4" rx="1.5" fill="var(--t-ventures)"><title>2026-10-16 · ventures: 68</title></rect><rect x="545.5" y="71.5" width="31.4" height="50.0" rx="1.5" fill="var(--t-research)"><title>2026-10-16 · research: 98</title></rect><rect x="545.5" y="52.3" width="31.4" height="18.3" rx="1.5" fill="var(--t-process)"><title>2026-10-16 · process: 37</title></rect><rect x="545.5" y="45.5" width="31.4" height="5.8" rx="1.5" fill="var(--t-review)"><title>2026-10-16 · review: 13</title></rect><rect x="545.5" y="35.1" width="31.4" height="9.4" rx="1.5" fill="var(--t-redteam)"><title>2026-10-16 · redteam: 20</title></rect><rect x="545.5" y="26.2" width="31.4" height="7.9" rx="1.5" fill="var(--t-explore)"><title>2026-10-16 · explore: 17</title></rect><rect x="579.9" y="121.0" width="31.4" height="36.0" rx="1.5" fill="var(--t-ventures)"><title>2026-10-17 · ventures: 71</title></rect><rect x="579.9" y="74.1" width="31.4" height="45.9" rx="1.5" fill="var(--t-research)"><title>2026-10-17 · research: 90</title></rect><rect x="579.9" y="61.6" width="31.4" height="11.5" rx="1.5" fill="var(--t-process)"><title>2026-10-17 · process: 24</title></rect><rect x="579.9" y="58.0" width="31.4" height="2.6" rx="1.5" fill="var(--t-review)"><title>2026-10-17 · review: 7</title></rect><rect x="579.9" y="46.5" width="31.4" height="10.5" rx="1.5" fill="var(--t-redteam)"><title>2026-10-17 · redteam: 22</title></rect><rect x="579.9" y="37.7" width="31.4" height="7.9" rx="1.5" fill="var(--t-explore)"><title>2026-10-17 · explore: 17</title></rect><rect x="614.3" y="99.7" width="31.4" height="57.3" rx="1.5" fill="var(--t-ventures)"><title>2026-10-18 · ventures: 112</title></rect><rect x="614.3" y="55.4" width="31.4" height="43.3" rx="1.5" fill="var(--t-research)"><title>2026-10-18 · research: 85</title></rect><rect x="614.3" y="38.2" width="31.4" height="16.2" rx="1.5" fill="var(--t-process)"><title>2026-10-18 · process: 33</title></rect><rect x="614.3" y="34.0" width="31.4" height="3.2" rx="1.5" fill="var(--t-review)"><title>2026-10-18 · review: 8</title></rect><rect x="614.3" y="15.8" width="31.4" height="17.2" rx="1.5" fill="var(--t-redteam)"><title>2026-10-18 · redteam: 35</title></rect><rect x="614.3" y="9.6" width="31.4" height="5.3" rx="1.5" fill="var(--t-explore)"><title>2026-10-18 · explore: 12</title></rect><rect x="648.7" y="101.2" width="31.4" height="55.8" rx="1.5" fill="var(--t-ventures)"><title>2026-10-19 · ventures: 109</title></rect><rect x="648.7" y="51.2" width="31.4" height="49.0" rx="1.5" fill="var(--t-research)"><title>2026-10-19 · research: 96</title></rect><rect x="648.7" y="36.1" width="31.4" height="14.1" rx="1.5" fill="var(--t-process)"><title>2026-10-19 · process: 29</title></rect><rect x="648.7" y="30.9" width="31.4" height="4.2" rx="1.5" fill="var(--t-review)"><title>2026-10-19 · review: 10</title></rect><rect x="648.7" y="16.9" width="31.4" height="13.1" rx="1.5" fill="var(--t-redteam)"><title>2026-10-19 · redteam: 27</title></rect><rect x="648.7" y="8.0" width="31.4" height="7.9" rx="1.5" fill="var(--t-explore)"><title>2026-10-19 · explore: 17</title></rect><rect x="683.1" y="102.8" width="31.4" height="54.2" rx="1.5" fill="var(--t-ventures)"><title>2026-10-20 · ventures: 106</title></rect><rect x="683.1" y="49.1" width="31.4" height="52.6" rx="1.5" fill="var(--t-research)"><title>2026-10-20 · research: 103</title></rect><rect x="683.1" y="27.3" width="31.4" height="20.9" rx="1.5" fill="var(--t-process)"><title>2026-10-20 · process: 42</title></rect><rect x="683.1" y="25.2" width="31.4" height="1.1" rx="1.5" fill="var(--t-review)"><title>2026-10-20 · review: 4</title></rect><rect x="683.1" y="17.4" width="31.4" height="6.8" rx="1.5" fill="var(--t-redteam)"><title>2026-10-20 · redteam: 15</title></rect><rect x="683.1" y="11.6" width="31.4" height="4.7" rx="1.5" fill="var(--t-explore)"><title>2026-10-20 · explore: 11</title></rect><text class="axis" x="698.8" y="174" text-anchor="middle">10-20</text></svg>
+</section>
+
+<section>
+  <h2>What sessions are working on</h2>
+  <p class="sub">The 30 most recent run records: the task each session took, its pull request and that PR's state when <code>prompts/derived/github.json</code> was last refreshed, and what the session cost (API-equivalent) and took (active minutes) where it measured them.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Date</th><th>Track</th><th>Task</th><th>PR</th><th class="num">Cost</th><th class="num">Min</th></tr></thead>
+    <tbody>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-process)"></i>process</span></td>
+  <td>(no task recorded) <span class="pill pill-partial">partial</span></td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num">$0.48</td>
+  <td class="num">3</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>research/house-liftnails: nail load path of a hung wall panel</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8952">#8952</a></td>
+  <td class="num">$0.74</td>
+  <td class="num">3</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>accel-ttretrain (track 8 follow-up from accel-ttfit Next steps)</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num">$1.39</td>
+  <td class="num">5</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>research/sensing-ghostedge: layered sub-pixel coverage model for the burst edge ring</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8951">#8951</a></td>
+  <td class="num">$0.90</td>
+  <td class="num">6</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>research/osrobot-lint: stdlib static linter for Opentrons scripts (362 of 522 seeded faults vs 270 for the real simulator)</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8950">#8950</a></td>
+  <td class="num">$0.94</td>
+  <td class="num">3</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>(no task recorded)</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num">$0.73</td>
+  <td class="num">7</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>hanger track 18, next step of hanger-print</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num">$1.09</td>
+  <td class="num">4</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>league-schedule-generator: page controls for venue fairness and season carry-over</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8946">#8946</a></td>
+  <td class="num">$0.66</td>
+  <td class="num">3</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>research/hanger-cellpick: hanger-cell with the simulated hanger-pick picker</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8945">#8945</a></td>
+  <td class="num">$0.78</td>
+  <td class="num">3</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>eda track 7 next step from eda-detectprob</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8940">#8940</a></td>
+  <td class="num">$1.21</td>
+  <td class="num">7</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>track 18 milestone 4 (duplicated by hanger-3d #8933; kept as hanger-wrap cross-check)</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8936">#8936</a></td>
+  <td class="num">$3.12</td>
+  <td class="num">14</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>research track 15 follow-up</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>changepoint-detector: negative-binomial PELT cost (--overdispersion nb)</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>Deepen flagship 6 (league-schedule-generator): venue fairness with multi-season carry-over</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>hanger-3d (track 18 milestone 4)</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num">$1.13</td>
+  <td class="num">9</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>osrobot-plate (track 9, new question: pipetting task)</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8935">#8935</a></td>
+  <td class="num">$0.84</td>
+  <td class="num">3</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>(no task recorded)</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num">$1.03</td>
+  <td class="num">4</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>free-choice</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8932">#8932</a></td>
+  <td class="num">$0.61</td>
+  <td class="num">3</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>(no task recorded)</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>Deepen flagship 1: temper the Bayesian pass by the count dispersion</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num">$1.01</td>
+  <td class="num">6</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-process)"></i>process</span></td>
+  <td>(no task recorded)</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>track 11 follow-up: mimic-webcam-stitch</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num">$0.77</td>
+  <td class="num">12</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-process)"></i>process</span></td>
+  <td>(no task recorded)</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num">$1.35</td>
+  <td class="num">7</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>Deepen flagship 6: league-schedule-generator relocate option</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8925">#8925</a></td>
+  <td class="num"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-research)"></i>research</span></td>
+  <td>qual-hypothesis</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8924">#8924</a></td>
+  <td class="num">$0.75</td>
+  <td class="num">4</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>(no task recorded)</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num">$0.56</td>
+  <td class="num">3</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>(no task recorded) <span class="pill pill-partial">partial</span></td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>Deepen flagship einvoice-preflight: Italy SdI page</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-redteam)"></i>redteam</span></td>
+  <td>redteam: changepoint-detector 2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8926">#8926</a></td>
+  <td class="num">$0.71</td>
+  <td class="num">23</td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td>
+  <td>Deepen (flagship 2): einvoice-preflight Poland KSeF mandate page</td>
+  <td class="nowrap"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+  <td class="num"><span class="faint">—</span></td>
+</tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Recently landed on main</h2>
+  <p class="sub">The 40 most recent commits on <code>main</code>'s first-parent line (merge commits and squash merges); this build's history reaches back to 2026-10-19. The areas column is every top-level part of the tree the merge changed.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Date</th><th>PR</th><th>Title</th><th>Areas</th></tr></thead>
+    <tbody>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8776">#8776</a></td>
+  <td>Pages: deploy on every merge again; tests run beside the build, not before it</td>
+  <td><span class="tag">ci</span> <span class="tag">gitops</span> <span class="tag">platform</span> <span class="tag">portfolio</span> <span class="tag">prompts</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8953">#8953</a></td>
+  <td>process: P040 step 2, research README bullets generated from project.json ledes</td>
+  <td><span class="tag">platform</span> <span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8952">#8952</a></td>
+  <td>research/house-liftnails: nail load path of a hung wall panel</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8944">#8944</a></td>
+  <td>research/accel-ttretrain: all 96 retrained KWS models fit the Tiny Tapeout tile's bias and accumulator limits</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8951">#8951</a></td>
+  <td>research/sensing-ghostedge: layered sub-pixel coverage model for the burst edge ring</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8950">#8950</a></td>
+  <td>research/osrobot-lint: stdlib static linter for Opentrons scripts (362 of 522 seeded faults vs 270 for the real simulator)</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8948">#8948</a></td>
+  <td>changepoint-detector: negative-binomial cost with --period and --trend</td>
+  <td><span class="tag">portfolio</span> <span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8947">#8947</a></td>
+  <td>research/hanger-split: two-piece printable hanger, bolted joint checked</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8946">#8946</a></td>
+  <td>league-schedule-generator: page controls for venue fairness and season carry-over</td>
+  <td><span class="tag">portfolio</span> <span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8945">#8945</a></td>
+  <td>research/hanger-cellpick: hanger-cell with the simulated hanger-pick picker</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8943">#8943</a></td>
+  <td>einvoice-preflight: Greece page phase 2 now 2 Nov 2026 (reported AADE A.1197/2026)</td>
+  <td><span class="tag">portfolio</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8942">#8942</a></td>
+  <td>einvoice-preflight: Bulgaria e-invoicing page (2028 draft, consultation to 23 Oct 2026)</td>
+  <td><span class="tag">portfolio</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8941">#8941</a></td>
+  <td>einvoice-preflight: Greece myDATA mandate page</td>
+  <td><span class="tag">portfolio</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8940">#8940</a></td>
+  <td>research/eda-deepdraw: 20,000-vector deep draw on the eda-verify survivors</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8850">#8850</a></td>
+  <td>P039: skip dead apex-mirror steps in Portfolio validate unless mirror/generator changed</td>
+  <td><span class="tag">ci</span> <span class="tag">prompts</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8936">#8936</a></td>
+  <td>research/hanger-wrap: a second 3D cloth model, wrapped over the arm, cross-checking hanger-3d</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8939">#8939</a></td>
+  <td>changepoint-detector: negative-binomial PELT cost for independent clumpy counts</td>
+  <td><span class="tag">portfolio</span> <span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8938">#8938</a></td>
+  <td>research/sensing-ghostring: explicit edge-ring treatments for burst merging (negative result)</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8933">#8933</a></td>
+  <td>research/hanger-3d: 3D cloth drape of the hanger shoulder, checked against hanger-fit</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8937">#8937</a></td>
+  <td>league-schedule-generator: venue fairness with multi-season carry-over</td>
+  <td><span class="tag">portfolio</span> <span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8935">#8935</a></td>
+  <td>research/osrobot-plate: 96-well plate fill, gantry vs arm, 1 vs 8 channels</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8934">#8934</a></td>
+  <td>research/swe-warmstart: does a cheaper start fix the small-budget loss of smart track allocation?</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8932">#8932</a></td>
+  <td>research/free-intervalcov: which 95% upper bound on a failure rate actually covers 95%?</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8930">#8930</a></td>
+  <td>einvoice-preflight: link every country mandate page to the Romania page</td>
+  <td><span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8929">#8929</a></td>
+  <td>einvoice-preflight: Romania RO e-Factura mandate page</td>
+  <td><span class="tag">portfolio</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8928">#8928</a></td>
+  <td>changepoint-detector: temper the Bayesian pass by the count dispersion</td>
+  <td><span class="tag">gitops</span> <span class="tag">portfolio</span> <span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8927">#8927</a></td>
+  <td>process: redteam prompt says to run slow campaigns in background and leave the target alone</td>
+  <td><span class="tag">prompts</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8923">#8923</a></td>
+  <td>research/mimic-webcam-stitch: why is block-stitched real webcam signal still caught?</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8926">#8926</a></td>
+  <td>redteam: changepoint-detector 2026-10-20</td>
+  <td><span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8924">#8924</a></td>
+  <td>research/qual-hypothesis: do word hypotheses survive a held-out check?</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8922">#8922</a></td>
+  <td>P037: verify base-ref fix; regenerate stale apex mirror failing main</td>
+  <td><span class="tag">gitops</span> <span class="tag">prompts</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8925">#8925</a></td>
+  <td>league-schedule-generator: relocate option for rainout make-ups</td>
+  <td><span class="tag">portfolio</span> <span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8921">#8921</a></td>
+  <td>einvoice-preflight: Netherlands e-invoice mandate page</td>
+  <td><span class="tag">portfolio</span> <span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8920">#8920</a></td>
+  <td>einvoice-preflight: link every country mandate page to the Italy page</td>
+  <td><span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8919">#8919</a></td>
+  <td>einvoice-preflight: Italy SdI/FatturaPA e-invoice mandate page</td>
+  <td><span class="tag">portfolio</span> <span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8915">#8915</a></td>
+  <td>einvoice-preflight: Spain Verifactu deadline page</td>
+  <td><span class="tag">portfolio</span> <span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8918">#8918</a></td>
+  <td>einvoice-preflight: Croatia e-invoice mandate page (Fiskalizacija 2.0)</td>
+  <td><span class="tag">portfolio</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8916">#8916</a></td>
+  <td>einvoice-preflight: Poland KSeF e-invoice mandate page for search</td>
+  <td><span class="tag">portfolio</span> <span class="tag">prompts</span> <span class="tag">ventures</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8913">#8913</a></td>
+  <td>research/capture-storage: footage volume, storage weight and nightly offload time</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+<tr>
+  <td class="nowrap">2026-10-20</td>
+  <td class="nowrap"><a href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8914">#8914</a></td>
+  <td>research/eda-detectprob: detection-probability model of the eda-verify mutation log</td>
+  <td><span class="tag">prompts</span> <span class="tag">research</span></td>
+</tr>
+    </tbody>
+  </table></div>
+</section>
+
+<div class="grid2">
+<section>
+  <h2>Where the effort goes</h2>
+  <p class="sub">Sessions and compute by track over 30 days (1766 sessions, $932 measured on 970).</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Track</th><th class="num">Sessions</th><th class="num">Share</th><th class="num">Compute (measured)</th><th class="num">Partial</th></tr></thead>
+    <tbody><tr><td><span class="track"><i style="background:var(--t-ventures)"></i>ventures</span></td><td class="num">524</td><td class="num">30%</td><td class="num">$260<span class="faint"> (281/524)</span></td><td class="num">51</td></tr><tr><td><span class="track"><i style="background:var(--t-research)"></i>research</span></td><td class="num">785</td><td class="num">44%</td><td class="num">$431<span class="faint"> (412/785)</span></td><td class="num">9</td></tr><tr><td><span class="track"><i style="background:var(--t-process)"></i>process</span></td><td class="num">184</td><td class="num">10%</td><td class="num">$159<span class="faint"> (118/184)</span></td><td class="num">31</td></tr><tr><td><span class="track"><i style="background:var(--t-review)"></i>review</span></td><td class="num">54</td><td class="num">3%</td><td class="num">$11.42<span class="faint"> (25/54)</span></td><td class="num">6</td></tr><tr><td><span class="track"><i style="background:var(--t-redteam)"></i>redteam</span></td><td class="num">134</td><td class="num">8%</td><td class="num">$36.83<span class="faint"> (86/134)</span></td><td class="num">4</td></tr><tr><td><span class="track"><i style="background:var(--t-explore)"></i>explore</span></td><td class="num">85</td><td class="num">5%</td><td class="num">$33.78<span class="faint"> (48/85)</span></td><td class="num">7</td></tr></tbody>
+  </table></div>
+</section>
+<section>
+  <h2>What landed where, 14 days</h2>
+  <p class="sub">Commits on <code>main</code> per area of the tree (history from 2026-10-19). One counts once in each area it changed.</p>
+  <div class="hbars"><div class="hbar"><span class="hbar-label">prompts</span><span class="hbar-track"><i style="width:100.0%"></i></span><span class="hbar-n">478</span></div><div class="hbar"><span class="hbar-label">ventures</span><span class="hbar-track"><i style="width:58.6%"></i></span><span class="hbar-n">280</span></div><div class="hbar"><span class="hbar-label">research</span><span class="hbar-track"><i style="width:45.6%"></i></span><span class="hbar-n">218</span></div><div class="hbar"><span class="hbar-label">portfolio</span><span class="hbar-track"><i style="width:23.6%"></i></span><span class="hbar-n">113</span></div><div class="hbar"><span class="hbar-label">platform</span><span class="hbar-track"><i style="width:16.1%"></i></span><span class="hbar-n">77</span></div><div class="hbar"><span class="hbar-label">gitops</span><span class="hbar-track"><i style="width:9.0%"></i></span><span class="hbar-n">43</span></div><div class="hbar"><span class="hbar-label">ci</span><span class="hbar-track"><i style="width:8.4%"></i></span><span class="hbar-n">40</span></div><div class="hbar"><span class="hbar-label">docs</span><span class="hbar-track"><i style="width:6.1%"></i></span><span class="hbar-n">29</span></div><div class="hbar"><span class="hbar-label">root</span><span class="hbar-track"><i style="width:4.2%"></i></span><span class="hbar-n">20</span></div><div class="hbar"><span class="hbar-label">other</span><span class="hbar-track"><i style="width:2.7%"></i></span><span class="hbar-n">13</span></div></div>
+  <h2 style="margin-top:16px">Most-touched projects, 14 days</h2><div class="hbars"><div class="hbar"><span class="hbar-label">research/marriage-divorce-evidence</span><span class="hbar-track"><i style="width:100.0%"></i></span><span class="hbar-n">38</span></div><div class="hbar"><span class="hbar-label">ventures/changepoint-detector</span><span class="hbar-track"><i style="width:97.4%"></i></span><span class="hbar-n">37</span></div><div class="hbar"><span class="hbar-label">ventures/einvoice-preflight</span><span class="hbar-track"><i style="width:78.9%"></i></span><span class="hbar-n">30</span></div><div class="hbar"><span class="hbar-label">ventures/league-schedule-generator</span><span class="hbar-track"><i style="width:76.3%"></i></span><span class="hbar-n">29</span></div><div class="hbar"><span class="hbar-label">ventures/shift-roster-builder</span><span class="hbar-track"><i style="width:42.1%"></i></span><span class="hbar-n">16</span></div><div class="hbar"><span class="hbar-label">ventures/where-to-sell-calculator</span><span class="hbar-track"><i style="width:28.9%"></i></span><span class="hbar-n">11</span></div><div class="hbar"><span class="hbar-label">ventures/state-residency-day-counter</span><span class="hbar-track"><i style="width:26.3%"></i></span><span class="hbar-n">10</span></div><div class="hbar"><span class="hbar-label">ventures/cheap-meal-plan-optimizer</span><span class="hbar-track"><i style="width:23.7%"></i></span><span class="hbar-n">9</span></div><div class="hbar"><span class="hbar-label">ventures/xero-invoice-csv-check</span><span class="hbar-track"><i style="width:21.1%"></i></span><span class="hbar-n">8</span></div><div class="hbar"><span class="hbar-label">ventures/email-list-csv-check</span><span class="hbar-track"><i style="width:18.4%"></i></span><span class="hbar-n">7</span></div><div class="hbar"><span class="hbar-label">ventures/event-seating-chart-optimizer</span><span class="hbar-track"><i style="width:18.4%"></i></span><span class="hbar-n">7</span></div><div class="hbar"><span class="hbar-label">ventures/crypto-cost-basis-calculator</span><span class="hbar-track"><i style="width:15.8%"></i></span><span class="hbar-n">6</span></div></div>
+</section>
+</div>
+
+<div class="grid2">
+<section>
+  <h2>Delivery health</h2>
+  <p class="sub">Of the 836 pull requests that the last 30 days of run records name, 823 have a derived GitHub row.</p>
+  <div class="hbars">
+    <div class="hbar"><span class="hbar-label">Merged</span><span class="hbar-track"><i style="width:99.8%;background:var(--ok)"></i></span><span class="hbar-n">821</span></div>
+    <div class="hbar"><span class="hbar-label">Merged with red CI on the head</span><span class="hbar-track"><i style="width:38.9%;background:var(--bad)"></i></span><span class="hbar-n">319</span></div>
+  </div>
+  <p class="sub" style="margin-top:10px">Red at merge is often the base branch's own failure rather than the PR's (process backlog P012); it is shown so it stays visible, not as a verdict on each PR.</p>
+</section>
+<section>
+  <h2>Waiting on the owner</h2>
+  <p class="sub">From <code>portfolio/ledger/decision_queue.py</code>, ordered by leverage. Only the owner can clear these.</p>
+  <ul class="plain"><li class="decision">
+  <div class="decision-head"><code>payout-rail</code> <span class="pill pill-gate">revenue</span> <span class="faint">waiting 62 days</span></div>
+  <div>Decide the binary in <code>break-even.md</code>: either commit to a merchant-of-record account (and the egress entry it needs), or say plainly that this portfolio is not going to earn under the current design, so the fleet cadence can be set to match.</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>funding-sponsors-live</code> <span class="pill pill-gate">revenue</span> <span class="faint">waiting 57 days</span></div>
+  <div>Say yes or no to a live &quot;Sponsor&quot; button on this repo pointing at the owner's own GitHub Sponsors profile. #839 is not the thing to act on -- it was merged on 2026-08-24 and reverted the same day by #862, so <code>.github/FUNDING.yml</code> is absent from <code>main</code> today and the safe state is already in place. Yes means re-landing…</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>pages-custom-domain</code> <span class="pill pill-gate">distribution</span> <span class="faint">waiting 40 days</span></div>
+  <div>**URGENT as of 2026-10-01 -- domain-takeover risk.** The owner deleted the Hetzner servers that day, but <code>marisstella.dev</code>, <code>www</code>, <code>tools</code> and the wildcard <code>A *</code> record (<code>portfolio/hosting/README.md</code>) still resolve to the released IP <code>89.167.29.39</code>. If Hetzner reassigns that address, a stranger serves content under th…</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>egress-policy</code> <span class="pill pill-gate">measurement</span> <span class="faint">waiting 62 days</span></div>
+  <div>One read-only egress allowlist decision covering <code>api.wordpress.org</code>, four public storefronts (<code>formulae.brew.sh</code>, <code>www.raycast.com</code>, <code>obsidian.md</code>, <code>zed.dev</code>) and the EU/US institutional publishers (<code>eur-lex.europa.eu</code>, <code>ec.europa.eu</code>, <code>www.ftc.gov</code>, <code>www.w3.org</code>, <code>www.federalregister.gov</code>, <code>euvd.enisa.europa.eu</code> and…</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>local-site-studio-subtree-gate-crossing</code> <span class="pill pill-gate">deployment</span> <span class="faint">waiting 57 days</span></div>
+  <div>Review the already-merged #731 (1,405-commit <code>local-site-studio</code> subtree merge, <code>7b69f3d</code>) and decide whether to accept it as-is or revert it.</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>session-gate-economics-premise</code> <span class="pill pill-gate">deployment</span> <span class="faint">waiting 57 days</span></div>
+  <div>Confirm, in one sentence, on this row or on #139: is fleet capacity for this account billed as a flat subscription (a session that runs and a session that idles cost the same), or metered per-session/per-token (an idle session costs less than an active one)? Either answer is fine; it is the one fact <code>session_gate.py</code>'…</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>branch-cleanup-automation</code> <span class="pill pill-gate">deployment</span> <span class="faint">waiting 57 days</span></div>
+  <div>Review and decide whether to accept or revert #829 (already merged, see correction below): <code>.github/workflows/branch-cleanup.yml</code>, deleting a PR's head branch immediately on merge and 24h after an unmerged close.</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>agent-cross-review-automerge</code> <span class="pill pill-gate">deployment</span> <span class="faint">waiting 57 days</span></div>
+  <div>Not informational any more -- #3024 merged <code>platform/ci/agent_review/</code> (<code>review.py</code>, <code>config.yaml</code>) plus <code>.github/workflows/agent-cross-review.yml</code> and <code>.github/workflows/agent-pr-auto-merge.yml</code> to <code>main</code> on 2026-09-03, the same shape #870 proposed and this row previously recorded as abandoned. It ships fail-closed:…</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>actions-runners-unavailable</code> <span class="pill pill-gate">deployment</span> <span class="faint">waiting 55 days</span></div>
+  <div>**Live again as of 2026-09-05, and it is now the widest blocker in this queue.** Measured, not inferred: run 33932676830 (<code>Portfolio validate</code>, 00:20:57Z today) came back <code>runner_id: 0</code> with no steps, and <code>python3 platform/ci/ci_starvation.py --run 33932676830</code> exits 1. Every check on the PR merged this morning was re…</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>agent-runner-subscription-login</code> <span class="pill pill-gate">deployment</span> <span class="faint">waiting 52 days</span></div>
+  <div>**Corrected 2026-10-01: the owner deleted the Hetzner servers (cpx22 and cpx52) that day, so the k3s <code>codex-governor-enable</code> route this paragraph used to prefer is gone and that row has been removed.** This LAN / Tailscale single-box runner is now the only queued route for unattended Codex work, and it needs a machine…</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>routine-trigger-cadence</code> <span class="pill pill-gate">deployment</span> <span class="faint">waiting 57 days</span></div>
+  <div>Decide whether the 4-minute routine cadence runs, now that the merge half is already done: #788 landed on 2026-08-24 and <code>.github/workflows/claude-routine-trigger.yml</code> is on <code>main</code> today. **Corrected 2026-09-01: the secret already exists, and its token is revoked.** This row said until 2026-09-01 that the secret was u…</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>deploy-settings</code> <span class="pill pill-gate">deployment</span> <span class="faint">waiting 62 days</span></div>
+  <div>**GRANTED — measured 2026-09-06. Do not flip anything; one 10-second confirmation is all that is left.** GitHub's own managed builder <code>dynamic/pages/pages-build-deployment</code> ran on <code>gh-pages</code> and concluded <code>success</code> (runs 34011996382 and 34012041708), and a managed Pages build is triggered only by a push to the *config…</div>
+</li>
+<li class="decision">
+  <div class="decision-head"><code>publication-identity</code> <span class="pill pill-gate">distribution</span> <span class="pill pill-closed">blocked</span> <span class="faint">waiting 62 days</span></div>
+  <div>Three related grants: one registry account signup (Packagist or RubyGems preferred; not Docker Hub), one GitHub App permission change, and one standing approval on whether an agent session may publish a *free* listing -- no payment, no personal data, no compliance claim -- under this portfolio's name.</div>
+</li></ul>
+</section>
+</div>
+
+<section>
+  <h2>Friction the sessions reported</h2>
+  <p class="sub">Files run records blamed for slowing a session down in the last 30 days (<code>doc_friction</code>), with the most recent complaint. The review track works from this list.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>File</th><th class="num">Reports</th><th>Latest</th></tr></thead>
+    <tbody><tr><td><code>CLAUDE.md</code></td><td class="num">212</td><td>Says the site is 'built and deployed by portfolio-pages.yml on every merge'; in fact every deploy job was skipped because vars.PAGES_ENABLED was never set, so nothing deployed after the source switch. <span class="faint">(2026-10-20)</span></td></tr><tr><td><code>research/PROJECTS.md</code></td><td class="num">199</td><td>energy-cell milestone does not say PyBaMM parameter sets are tuned for fast ageing; first design of the cycling protocol needed several probes <span class="faint">(2026-10-20)</span></td></tr><tr><td><code>research/CLAUDE.md</code></td><td class="num">148</td><td>hanger-fit tests need numpy; bare python3 -m unittest fails until pyenv.py is run (documented, but the README test command omits it) <span class="faint">(2026-10-20)</span></td></tr><tr><td><code>portfolio/router/allocate.py</code></td><td class="num">84</td><td>Took ~35s+ and a 50s fetch timeout in a shallow clone; the top venture rows were already saturated with guides, so picking a gap cost several reads. <span class="faint">(2026-10-20)</span></td></tr><tr><td><code>prompts/process/prompt-1.md</code></td><td class="num">78</td><td>measure's friction list: 2 of 3 top recent items (linefig docstring, sync_tree_counts PYTHONPATH) were already fixed; needed reads to find a live one <span class="faint">(2026-10-20)</span></td></tr><tr><td><code>prompts/ventures/prompt-1.md</code></td><td class="num">62</td><td>venture-preflight &gt;5 min; collided with my own record edits (regen --verify flagged prompts/runs file) <span class="faint">(2026-10-20)</span></td></tr><tr><td><code>prompt.md</code></td><td class="num">50</td><td>build.test.mjs takes ~17 minutes; no note on running only the relevant test with --test-name-pattern. <span class="faint">(2026-10-20)</span></td></tr><tr><td><code>prompts/research/prompt-0.md</code></td><td class="num">48</td><td>Claim step says check branches pushed in the last three hours; ls-remote gives no dates, so only grep by slug was done. <span class="faint">(2026-10-20)</span></td></tr></tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Process backlog</h2>
+  <p class="sub">Open items in <code>prompts/process/backlog/</code>, best effect-for-cost first.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Id</th><th>Title</th><th class="num">Effect</th><th class="num">Cost</th><th>Owner</th></tr></thead>
+    <tbody><tr><td><code>P018</code></td><td>Make the catalogue's sitemap discoverable despite the Pages subpath</td><td class="num">3</td><td class="num">1</td><td>owner</td></tr><tr><td><code>P005</code></td><td>Decide who publishes the gh-pages snapshot</td><td class="num">2</td><td class="num">1</td><td>owner</td></tr><tr><td><code>P042</code></td><td>Turn on GitHub's merge queue for main (owner setting)</td><td class="num">2</td><td class="num">1</td><td>owner</td></tr><tr><td><code>P011</code></td><td>Get a first usage reading for any product</td><td class="num">3</td><td class="num">2</td><td>owner</td></tr><tr><td><code>P035</code></td><td>Privacy rules went further than the law; bring every rule, check and page copy back to the legal line</td><td class="num">3</td><td class="num">2</td><td>agent</td></tr><tr><td><code>P036</code></td><td>Finish the deadweight cut: dead workflows, DIRECTION.md, the playbook, the red-team gate</td><td class="num">3</td><td class="num">2</td><td>agent</td></tr><tr><td><code>P040</code></td><td>research/_homepage/projects.json and research/README.md are the new top conflict files (~24% of PRs)</td><td class="num">3</td><td class="num">2</td><td>agent</td></tr></tbody>
+  </table></div>
+</section>
+
+<div class="grid2">
+<section>
+  <h2>Products</h2>
+  <p class="sub">1,310 ventures (1,307 prototype · 3 idea); 1,308 have a launch date in <code>launched.json</code>. Launches per week:</p>
+  <div class="hbars"><div class="hbar"><span class="hbar-label">08-26–09-01</span><span class="hbar-track"><i style="width:41.2%"></i></span><span class="hbar-n">147</span></div><div class="hbar"><span class="hbar-label">09-02–09-08</span><span class="hbar-track"><i style="width:12.3%"></i></span><span class="hbar-n">44</span></div><div class="hbar"><span class="hbar-label">09-09–09-15</span><span class="hbar-track"><i style="width:15.4%"></i></span><span class="hbar-n">55</span></div><div class="hbar"><span class="hbar-label">09-16–09-22</span><span class="hbar-track"><i style="width:13.7%"></i></span><span class="hbar-n">49</span></div><div class="hbar"><span class="hbar-label">09-23–09-29</span><span class="hbar-track"><i style="width:40.1%"></i></span><span class="hbar-n">143</span></div><div class="hbar"><span class="hbar-label">09-30–10-06</span><span class="hbar-track"><i style="width:100.0%"></i></span><span class="hbar-n">357</span></div><div class="hbar"><span class="hbar-label">10-07–10-13</span><span class="hbar-track"><i style="width:98.6%"></i></span><span class="hbar-n">352</span></div><div class="hbar"><span class="hbar-label">10-14–10-20</span><span class="hbar-track"><i style="width:37.3%"></i></span><span class="hbar-n">133</span></div></div>
+  <h2 style="margin-top:16px">Latest launches</h2>
+  <ul class="plain"><li><span class="faint">2026-10-20</span> <a href="../changepoint-detector/">changepoint-detector</a></li><li><span class="faint">2026-10-20</span> <a href="../conformal-prediction-intervals/">conformal-prediction-intervals</a></li><li><span class="faint">2026-10-20</span> <a href="../csv-to-sepa-pain001/">csv-to-sepa-pain001</a></li><li><span class="faint">2026-10-20</span> <a href="../csv-to-sepa-pain008/">csv-to-sepa-pain008</a></li><li><span class="faint">2026-10-20</span> <a href="../hearth-and-horizon/">hearth-and-horizon</a></li><li><span class="faint">2026-10-20</span> <a href="../interview-content-studio/">interview-content-studio</a></li><li><span class="faint">2026-10-20</span> <a href="../matrix-profile-explorer/">matrix-profile-explorer</a></li><li><span class="faint">2026-10-20</span> <a href="../persona-conversation-simulator/">persona-conversation-simulator</a></li><li><span class="faint">2026-10-20</span> <a href="../publish-kit/">publish-kit</a></li><li><span class="faint">2026-10-20</span> <a href="../saints-by-candlelight/">saints-by-candlelight</a></li></ul>
+</section>
+<section>
+  <h2>Research</h2>
+  <p class="sub">813 projects in 28 themes, from <code>research/_homepage/projects.json</code>.</p>
+  <div class="hbars"><div class="hbar"><span class="hbar-label">Digital twins &amp; sim-to-real</span><span class="hbar-track"><i style="width:100.0%"></i></span><span class="hbar-n">146</span></div><div class="hbar"><span class="hbar-label">Simulation-first design</span><span class="hbar-track"><i style="width:43.8%"></i></span><span class="hbar-n">64</span></div><div class="hbar"><span class="hbar-label">Robot manufacturing loops</span><span class="hbar-track"><i style="width:33.6%"></i></span><span class="hbar-n">49</span></div><div class="hbar"><span class="hbar-label">Ambient AI assistant</span><span class="hbar-track"><i style="width:31.5%"></i></span><span class="hbar-n">46</span></div><div class="hbar"><span class="hbar-label">Engineered clothing</span><span class="hbar-track"><i style="width:30.8%"></i></span><span class="hbar-n">45</span></div><div class="hbar"><span class="hbar-label">The software-engineering loop</span><span class="hbar-track"><i style="width:28.1%"></i></span><span class="hbar-n">41</span></div><div class="hbar"><span class="hbar-label">Open-source residential construction</span><span class="hbar-track"><i style="width:27.4%"></i></span><span class="hbar-n">40</span></div><div class="hbar"><span class="hbar-label">LLM chip design loops</span><span class="hbar-track"><i style="width:25.3%"></i></span><span class="hbar-n">37</span></div><div class="hbar"><span class="hbar-label">Self-replicating manufacturing</span><span class="hbar-track"><i style="width:23.3%"></i></span><span class="hbar-n">34</span></div><div class="hbar"><span class="hbar-label">Adversarial human imitation</span><span class="hbar-track"><i style="width:22.6%"></i></span><span class="hbar-n">33</span></div><div class="hbar"><span class="hbar-label">Task-specific AI accelerators</span><span class="hbar-track"><i style="width:21.2%"></i></span><span class="hbar-n">31</span></div><div class="hbar"><span class="hbar-label">Proper scoring &amp; elicitation</span><span class="hbar-track"><i style="width:19.2%"></i></span><span class="hbar-n">28</span></div><div class="hbar"><span class="hbar-label">Open-source purpose-built robots</span><span class="hbar-track"><i style="width:19.2%"></i></span><span class="hbar-n">28</span></div><div class="hbar"><span class="hbar-label">Algorithmic chip-design loops</span><span class="hbar-track"><i style="width:17.1%"></i></span><span class="hbar-n">25</span></div><div class="hbar"><span class="hbar-label">Decentralised training systems</span><span class="hbar-track"><i style="width:15.1%"></i></span><span class="hbar-n">22</span></div><div class="hbar"><span class="hbar-label">Verification games &amp; slashing</span><span class="hbar-track"><i style="width:12.3%"></i></span><span class="hbar-n">18</span></div><div class="hbar"><span class="hbar-label">Autonomous multi-angle capture</span><span class="hbar-track"><i style="width:9.6%"></i></span><span class="hbar-n">14</span></div><div class="hbar"><span class="hbar-label">Sensing, imaging and 3D</span><span class="hbar-track"><i style="width:9.6%"></i></span><span class="hbar-n">14</span></div><div class="hbar"><span class="hbar-label">Detection &amp; tolerances</span><span class="hbar-track"><i style="width:8.2%"></i></span><span class="hbar-n">12</span></div><div class="hbar"><span class="hbar-label">Agentic co-design of low-cost robots</span><span class="hbar-track"><i style="width:8.2%"></i></span><span class="hbar-n">12</span></div><div class="hbar"><span class="hbar-label">Laundry-hanging robots</span><span class="hbar-track"><i style="width:8.2%"></i></span><span class="hbar-n">12</span></div><div class="hbar"><span class="hbar-label">Markets as routers</span><span class="hbar-track"><i style="width:7.5%"></i></span><span class="hbar-n">11</span></div><div class="hbar"><span class="hbar-label">Energy supply and dense energy storage</span><span class="hbar-track"><i style="width:6.8%"></i></span><span class="hbar-n">10</span></div><div class="hbar"><span class="hbar-label">Robot societies among people</span><span class="hbar-track"><i style="width:6.8%"></i></span><span class="hbar-n">10</span></div><div class="hbar"><span class="hbar-label">Effort &amp; peer prediction</span><span class="hbar-track"><i style="width:6.2%"></i></span><span class="hbar-n">9</span></div><div class="hbar"><span class="hbar-label">Prediction-market design</span><span class="hbar-track"><i style="width:6.2%"></i></span><span class="hbar-n">9</span></div><div class="hbar"><span class="hbar-label">Paying contributors</span><span class="hbar-track"><i style="width:5.5%"></i></span><span class="hbar-n">8</span></div><div class="hbar"><span class="hbar-label">Machine learning on qualitative data</span><span class="hbar-track"><i style="width:3.4%"></i></span><span class="hbar-n">5</span></div></div>
+  <h2 style="margin-top:16px">Latest research log entries</h2><ul class="plain"><li><span class="faint">2026-10-20</span> <a href="../research/marriage-divorce-evidence/">marriage-divorce-evidence</a>: Flexible models and a pooled nine-survey model: neither beats the single-lens additive models where data are large</li><li><span class="faint">2026-10-20</span> <a href="../research/marriage-divorce-evidence/">marriage-divorce-evidence</a>: Profile report, marital satisfaction by years married, and dating length</li><li><span class="faint">2026-10-20</span> <a href="../research/marriage-divorce-evidence/">marriage-divorce-evidence</a>: Race detail, family of origin, religion, politics, occupation and wealth: they sort risk but add no held-out skill</li><li><span class="faint">2026-10-20</span> <a href="../research/marriage-divorce-evidence/">marriage-divorce-evidence</a>: Per-couple uncertainty for the &quot;before the wedding&quot; lens</li><li><span class="faint">2026-10-20</span> <a href="../research/marriage-divorce-evidence/">marriage-divorce-evidence</a>: Before the wedding, from living together: which NLSY97 couples marry, and which split (6,020 first cohabitations)</li><li><span class="faint">2026-10-20</span> <a href="../research/marriage-divorce-evidence/">marriage-divorce-evidence</a>: Browser-trained models: how much your score moves with the training sample</li><li><span class="faint">2026-10-20</span> <a href="../research/marriage-divorce-evidence/">marriage-divorce-evidence</a>: App: per-partner explanations and a default couple at first-wedding ages</li><li><span class="faint">2026-10-20</span> <a href="../research/marriage-divorce-evidence/">marriage-divorce-evidence</a>: App: not engaged yet? Marry each other, or break up first</li></ul>
+</section>
+</div>
+
+<footer>
+  <p>Built by <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/engineering.mjs"><code>platform/pages/engineering.mjs</code></a> from files committed to the repository; nothing here is typed by hand. Compute figures are API-list-price equivalents that the sessions measured from their own transcripts (<code>prompts/runcost.py</code>), not charges. A figure a source could not supply is marked as such rather than shown as zero.</p>
+  <p>Provided as-is, with no warranty of accuracy or completeness; it describes how the repository is being worked on and is not advice of any kind.</p>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="../favicon.ico" sizes="16x16">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tutoring Group Schedule Optimizer — which group sessions to run and who sits where</title>
+  <meta name="description" content="Free group schedule optimizer for tutoring centres, music, swim and language schools. Paste your possible weekly sessions and student availability to get the…">
+  <meta property="og:title" content="Tutoring Group Schedule Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Which weekly group sessions to run, which to skip, and who sits in each, from your students' availability.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/tutoring-group-schedule-optimizer/">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tutoring Group Schedule Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the weekly group sessions you could run and your students' availability, and get the most profitable timetable: which sessions to run, who sits where, and what each session is worth. Exact for up to 10 slots. Runs entirely in your browser.", "featureList": "tutoring group scheduling, which sessions to run, minimum group size, class timetable optimizer, min-cost flow seating, CSV export, saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out, a link that hands this bid to the customer with every figure in it, which tells them if the price their browser works out is not the one you sent"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I decide which tutoring group sessions to run?", "acceptedAnswer": {"@type": "Answer", "text": "Run a session only if the students you can seat in it pay more than it costs to run, and every student can only sit in one session they can actually attend. That is a matching problem, not a gut call: moving one student from Monday to Tuesday can make both sessions viable. This tool takes your slots, your minimum and maximum group sizes, what each session costs and each student's availability, and finds the most profitable set of sessions and seating."}}, {"@type": "Question", "name": "What is the minimum group size for a tutoring session to be profitable?", "acceptedAnswer": {"@type": "Answer", "text": "Cost to run the session divided by what each student pays. If a session costs $40 and students pay $25, you need two students just to cover the cost. Set that as the minimum for a slot and the tool will only open it when it can really fill it, taking into account who else needs those students."}}, {"@type": "Question", "name": "Is the answer exact or a heuristic?", "acceptedAnswer": {"@type": "Answer", "text": "For up to 10 slots it tries every combination of open slots and seats the students optimally in each, so the answer is exact. With more slots it uses a seeded local search and says plainly that the plan is good but not proven best. The seating itself, for any chosen set of slots, is always optimal."}}, {"@type": "Question", "name": "Does it handle students who can attend several slots?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Each student lists every slot that works for them, and is seated in at most one. The tool shows which closed slots would have fitted each student it could not place, so you can see what opening or moving a session would be worth."}}, {"@type": "Question", "name": "Does this work for music, swim, language or sports lessons?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, anything run as weekly small groups with a cost per session, a capacity and a minimum: tutoring, test prep, music or dance classes, swim lessons, language classes and after-school clubs. It does not model pricing per head by group size; each student has a price per session."}}, {"@type": "Question", "name": "Is my student list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Names and prices are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and it works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Open Tools and Research","item":"https://duncan-haywood.github.io/monorepo-projects/"},{"@type":"ListItem","position":2,"name":"Tutoring Group Schedule Optimizer — free, private, in your browser","item":"https://duncan-haywood.github.io/monorepo-projects/tutoring-group-schedule-optimizer/"}]}</script>
+<link rel="stylesheet" href="../pf-chrome.css">
+
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/tutoring-group-schedule-optimizer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Tools and Research">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/tutoring-group-schedule-optimizer/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tutoring Group Schedule Optimizer — free, private, in your browser — Open Tools and Research">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../pf-embed.css">
+<link rel="stylesheet" href="../pf-jobs.css">
+<style>
+.pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;
+  max-width:1060px;padding:0 18px;box-sizing:border-box}
+.pf-link-note[data-pf-link-warn]{opacity:1;font-weight:600}
+.pf-link-note a{color:currentColor;text-decoration:underline}
+@media (max-width:780px){.pf-link-note{padding:0 14px}}
+/* Never printed. The note says a price came from somebody else, which is not
+   part of the customer proposal these pages print and would read, on a sheet
+   handed to a homeowner, as a disclaimer about the number they are being
+   quoted. */
+@media print{.pf-link-note{display:none !important}}
+</style>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pf-chrome pf-chrome-top" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/" aria-current="page">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><a class="pfs-searchlink pfs-always" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../c/solo-earner/">Creator &amp; solo earner income</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Tutoring Group Schedule Optimizer — free, private, in your browser</span></span></nav>
+<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+  <p class="pf-jobs-line">
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
+    <button type="button" id="pf-link-copy" data-pf-link>Copy link to this bid</button>
+  </p>
+  <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.</p>
+    <div class="pf-jobs-save">
+      <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
+      <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
+      <button type="button" data-pf-jobs="save">Save this bid</button>
+    </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>
+    <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="../#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
+  </div>
+</section>
+<p class="pf-link-note" id="pf-link-note" role="status" hidden></p>
+  <header>
+    <p class="note">TUTORING GROUP SCHEDULE OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which group sessions should you run this term, and who sits in which?</h1>
+    <p>List the <strong>weekly group slots you could run</strong> (capacity, minimum group, what each costs you) and your <strong>students with what each pays and every slot they can attend</strong>. The tool finds the <strong>most profitable timetable</strong>: which slots to run, who to seat where, who cannot be placed and why, and what each slot is worth to you.</p>
+    <p class="note">Your student list never leaves this browser tab. Arithmetic on figures you supply, not advice. It does not model group-size pricing, tutor availability or travel.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your slots and students</h2>
+    <label for="slots">Slots you could run (header optional: slot, capacity, min, cost)</label>
+    <textarea id="slots" spellcheck="false" placeholder="slot,capacity,min,cost&#10;Mon 4pm,6,3,40&#10;Tue 4pm,6,3,40"></textarea>
+    <label for="students">Students (name, price per session, then the slots they can attend, separated by ; or |)</label>
+    <textarea id="students" spellcheck="false" placeholder="name,price,slots&#10;Ana,25,Mon 4pm;Tue 4pm&#10;Ben,28,Tue 4pm"></textarea>
+    <label for="file">…or upload a students CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="row3">
+      <div><label for="defmin">Default minimum group (if no column)</label><input id="defmin" inputmode="numeric" placeholder="1"></div>
+    </div>
+    <p class="note">Every student is seated in at most one slot a week. At least 4 students. Names of slots must match between the two boxes (case does not matter).</p>
+    <button type="button" id="analyze">Build the timetable</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste your slots and students, then click Build the timetable.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Every slot</h3>
+    <p class="note">"If flipped" is the change in weekly profit if you did the opposite for that one slot (run a skipped slot, drop a running one) and re-seated everyone optimally.</p>
+    <div class="scroll"><div class="pf-table-scroll"><table id="slotsOut"><thead><tr><th>Slot</th><th>Decision</th><th class="n">Students</th><th class="n">Capacity</th><th class="n">Revenue</th><th class="n">Cost</th><th class="n">If flipped</th></tr></thead><tbody></tbody></table></div></div>
+    <h3>Seating</h3>
+    <div class="scroll"><div class="pf-table-scroll"><table id="seats"><thead><tr><th>Student</th><th class="n">Pays</th><th>Slot</th><th>Why not placed</th></tr></thead><tbody></tbody></table></div></div>
+    <button type="button" id="download">Download timetable CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> for a chosen set of running slots, the best seating is a minimum-cost flow: each student takes at most one seat in a slot they can attend, each slot holds up to its capacity, and the first seats up to the minimum are weighted so that a slot is only valid if its minimum is really met. Which slots to run is then searched: every combination for up to 10 slots (exact), or a seeded local search with swaps and restarts above that (reported as not proven best). Profit is the fees of seated students minus the cost of every running slot.</p>
+    <p><strong>Not modelled:</strong> prices that change with group size, tutor availability and travel between sites, students who want more than one session a week, mixed subjects within a slot, drop-outs and trial periods. <strong>Unverified:</strong> checked in unit tests against an exhaustive search on 60 random small instances and against the exact answer on 12-slot instances, not against a real centre's timetable. Treat the output as a starting point and check it against students' real constraints.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I decide which tutoring group sessions to run?</h3>
+    <p>Run a session only if the students you can seat in it pay more than it costs to run, and every student can only sit in one session they can actually attend. That is a matching problem, not a gut call: moving one student from Monday to Tuesday can make both sessions viable. This tool takes your slots, your minimum and maximum group sizes, what each session costs and each student's availability, and finds the most profitable set of sessions and seating.</p>
+    <h3>What is the minimum group size for a tutoring session to be profitable?</h3>
+    <p>Cost to run the session divided by what each student pays. If a session costs $40 and students pay $25, you need two students just to cover the cost. Set that as the minimum for a slot and the tool will only open it when it can really fill it, taking into account who else needs those students.</p>
+    <h3>Is the answer exact or a heuristic?</h3>
+    <p>For up to 10 slots it tries every combination of open slots and seats the students optimally in each, so the answer is exact. With more slots it uses a seeded local search and says plainly that the plan is good but not proven best. The seating itself, for any chosen set of slots, is always optimal.</p>
+    <h3>Does it handle students who can attend several slots?</h3>
+    <p>Yes. Each student lists every slot that works for them, and is seated in at most one. The tool shows which closed slots would have fitted each student it could not place, so you can see what opening or moving a session would be worth.</p>
+    <h3>Does this work for music, swim, language or sports lessons?</h3>
+    <p>Yes, anything run as weekly small groups with a cost per session, a capacity and a minimum: tutoring, test prep, music or dance classes, swim lessons, language classes and after-school clubs. It does not model pricing per head by group size; each student has a price per session.</p>
+    <h3>Is my student list uploaded anywhere?</h3>
+    <p>No. Names and prices are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and it works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are arithmetic on the figures you supply; they do not guarantee what any session will earn.</p>
+    <p><strong>Independent.</strong> Not affiliated with any tutoring-management or booking-software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your student list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track, Global Privacy Control, or the button below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../tutor-weekly-schedule-optimizer/">tutor weekly schedule optimizer</a> for one-to-one lessons, the <a href="../studio-class-slot-optimizer/">studio class slot optimizer</a> for which classes to cut, the <a href="../class-price-and-minimum-optimizer/">class price and minimum optimizer</a>, the <a href="../childcare-enrollment-mix-optimizer/">childcare enrollment mix optimizer</a> and the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" data-pf-sponsor>support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSlots, parseStudents, analyze, reportCsv, sampleText, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function run() {
+      const dm = $("#defmin").value.trim();
+      const ps = parseSlots($("#slots").value, dm ? { min: Number(dm) } : {});
+      if (ps.error) { status.textContent = ps.error; report.hidden = true; return false; }
+      const pt = parseStudents($("#students").value);
+      if (pt.error) { status.textContent = pt.error; report.hidden = true; return false; }
+      const r = analyze(ps.slots, pt.students);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...ps.warnings, ...pt.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money(r.profit), "Weekly profit with this timetable" + (r.exact ? " (best possible)" : " (best found)")],
+        [`${r.opened} of ${r.slotsTotal}`, "Slots to run"],
+        [`${r.placed} of ${r.studentsTotal}`, "Students seated"],
+        [money(r.gainVsAll), `Better than running every slot (${money(r.baseline)})`],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#slotsOut tbody").innerHTML = r.rows.map((s) => `<tr><td>${esc(s.slot)}</td><td><span class="pill ${s.open ? "good" : "info"}">${s.open ? "run" : "skip"}</span></td><td class="n">${s.students}</td><td class="n">${s.capacity}</td><td class="n">${money(s.revenue)}</td><td class="n">${s.open ? money(s.cost) : "–"}</td><td class="n">${s.flipDelta === null ? "not possible" : money(s.flipDelta)}</td></tr>`).join("");
+      const why = new Map(r.unplaced.map((u) => [u.name, u.reason]));
+      $("#seats tbody").innerHTML = r.assignments.map((a) => `<tr><td>${esc(a.name)}</td><td class="n">${money(a.price)}</td><td>${esc(a.slot || "not placed")}</td><td>${esc(a.slot ? "" : why.get(a.name) || "")}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      const t = sampleText();
+      $("#slots").value = t.slots; $("#students").value = t.students;
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 34 invented students and 9 slots, not a real centre."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#students").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name} into the students box. Add your slots and click Build the timetable.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#slots").value = ""; $("#students").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste your slots and students, then click Build the timetable."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "group-timetable.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <ul>
+      <li><a href="../home-sale-net-proceeds-calculator/" data-pf-to="home-sale-net-proceeds-calculator">Home Sale Net Proceeds Calculator — what you really walk away with</a></li>
+      <li><a href="../house-hack-calculator/" data-pf-to="house-hack-calculator">House Hack Calculator — free, private</a></li>
+      <li><a href="../hsa-shoebox-reimbursement-planner/" data-pf-to="hsa-shoebox-reimbursement-planner">HSA shoebox planner: what are your unreimbursed receipts worth?</a></li>
+      <li><a href="../indie-game-payout-calculator/" data-pf-to="indie-game-payout-calculator">Indie Game Payout Calculator — free, private, in your browser</a></li>
+    </ul>
+    <p class="pf-for"><a href="../c/for-tutors-teachers/">More free tools for tutors and teachers →</a></p>
+    <p>
+      <a href="../" data-pf-to="hub">Browse all 1307 free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="../about/">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="../feedback/?tool=tutoring-group-schedule-optimizer">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
+      <a href="../deploy/?app=tutoring-group-schedule-optimizer">Run your own copy</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood" data-pf-sponsor>Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+    <details class="pf-chrome pf-embed-offer">
+      <summary>Embed this tool on your page</summary>
+      <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>&lt;iframe src=&quot;https://duncan-haywood.github.io/monorepo-projects/tutoring-group-schedule-optimizer/?pfEmbed=1&quot; title=&quot;Tutoring Group Schedule Optimizer — free, private, in your browser — free calculator, opens the full tool in a new tab&quot; style=&quot;width:100%;max-width:820px;border:0;min-height:1400px&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;script src=&quot;https://duncan-haywood.github.io/pf-embed-host.js&quot; async&gt;&lt;/script&gt;</textarea>
+      <p class="pf-embed-actions">
+        <button type="button" data-pf-embed-copy>Copy embed code</button>
+        <span data-pf-embed-status role="status"></span>
+      </p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed 1400px.</p>
+    </details>
+  </aside>
+<script src="../pf-site.js" data-pf-slug="tutoring-group-schedule-optimizer"></script>
+<script type="module" src="../pf-embed.js" data-pf-embed-url="https://duncan-haywood.github.io/monorepo-projects/tutoring-group-schedule-optimizer/" data-pf-embed-title="Tutoring Group Schedule Optimizer — free, private, in your browser" data-pf-embed-slug="tutoring-group-schedule-optimizer"></script>
+<script type="module" src="../pf-jobs.js" data-pf-jobs-slug="tutoring-group-schedule-optimizer" data-pf-jobs-amount=""></script>
+<script type="module" src="../pf-link.js" data-pf-link-slug="tutoring-group-schedule-optimizer" data-pf-link-amount=""></script>
+</body>
+</html>

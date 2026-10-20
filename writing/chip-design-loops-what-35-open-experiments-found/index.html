@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What 35 open chip-design experiments found about Yosys and ABC · Open Tools and Research</title>
+<meta name="description" content="Equivalent Verilog does not synthesise equally, local rewriting has little left to remove, and a MAC engine beat a systolic array: 35 open chip projects.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/chip-design-loops-what-35-open-experiments-found/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="What 35 open chip-design experiments found about Yosys and ABC · Open Tools and Research">
+<meta property="og:description" content="Equivalent Verilog does not synthesise equally, local rewriting has little left to remove, and a MAC engine beat a systolic array: 35 open chip projects.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/chip-design-loops-what-35-open-experiments-found/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"What 35 open chip-design experiments found about Yosys and ABC","description":"Equivalent Verilog does not synthesise equally, local rewriting has little left to remove, and a MAC engine beat a systolic array: 35 open chip projects.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/chip-design-loops-what-35-open-experiments-found/","keywords":"research, chip-design, verilog, yosys, abc, open-source","wordCount":1155}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>What 35 open chip-design experiments found about Yosys and ABC</h1>
+<p class="dek">Equivalent Verilog does not synthesise equally, local rewriting has little left to remove, and a MAC engine beat a systolic array: 35 open chip projects.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-chip-design-loops-what-35-open-experiments-found.md">Source</a><br><span class="tag">research</span><span class="tag">chip-design</span><span class="tag">verilog</span><span class="tag">yosys</span><span class="tag">abc</span><span class="tag">open-source</span></p>
+<p>If an AI agent proposes a rewrite of a piece of Verilog, how would you know the rewrite helped? This repository&#39;s chip track (<code>research/chip-*</code>, track 3 in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/PROJECTS.md"><code>research/PROJECTS.md</code></a>) spent 35 small projects on that question, using only open tools: Yosys, ABC, Icarus Verilog, Verilator, OpenROAD with SKY130, and Python. Each project is a directory with code, tests, an <code>experiments/results.txt</code> and a README that states its limits.</p>
+<p><strong>Who did this.</strong> AI coding agents (Claude) working unattended in scheduled sessions, under the owner&#39;s direction. No chip designer has reviewed it.</p>
+<p><strong>Read this first.</strong> Almost every number below is a <em>generic-gate count</em> from Yosys 0.33 on tiny, stylised blocks (adders, a 6x6 multiplier, a tiny quantised MLP). The one project that maps to SKY130 cells shows that such counts mislead across kinds of logic (below). Treat these as measurements of a toolchain&#39;s behaviour on toy designs, not as advice for a real tape-out.</p>
+<h3>1. Equivalent text is not equivalent input</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-abc-order"><code>chip-abc-order</code></a> took provably equivalent Verilog and changed only how it was written. Renaming wires and shuffling statements never changed a score (864 scored variants). Reordering the operands of added terms did, but only for the carry-select adder: up to <strong>1.43x</strong> between orders of the same function under the same script. That spread is as large as the 1.17x to 1.75x that <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-abc-sweep"><code>chip-abc-sweep</code></a> had credited to the choice of ABC script. The best order under the <code>dch; map</code> script (1,024) beat the text earlier called the best adder (1,232) by 17%, with the same function.</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-abc-orderpass"><code>chip-abc-orderpass</code></a> traced the cause to Yosys&#39;s <code>opt_merge</code>, which shares <code>a+b</code> between two adders only when both are written with <code>a</code> and <code>b</code> first. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-cse-style"><code>chip-cse-style</code></a> then checked the obvious human fix. Factoring out the common sum by hand scores <em>exactly</em> what the flow already found. A regrouped sum was 17% (<code>dch_map</code>) and 22% (<code>resyn2_map</code>) smaller, but 9% larger under Yosys&#39;s default script. The sign depended on the script.</p>
+<p>Why it matters: a rewrite loop that reports a win on one text and one script may be measuring one draw from a distribution that text order controls.</p>
+<h3>2. Local rewriting has almost nothing left to remove</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-exact4"><code>chip-exact4</code></a> computed the true minimum gate count of every 4-input function (all 222 NPN classes, by SAT) and compared Yosys/ABC against it on 884 functions. The default flow is exactly optimal on only <strong>34%</strong>, averaging 1.19 gates above the minimum. Heavier scripts did not help: <code>resyn2</code> was worse (mean gap 1.72).</p>
+<p>That suggests an exact local rewriter should find gains. It does not. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-cutheadroom"><code>chip-cutheadroom</code></a> looked for 4-input cones in real flow output that an exact optimum could shrink. Over 30 netlists (6 blocks, 5 flows), headroom was <strong>0 gates in 28 runs</strong> and 1 gate in the other two. Yet the default script&#39;s <code>add16</code> has 82 gates against 110 for plain <code>strash; map</code>. Whatever the flow gains is not local: it uses wider cuts, sharing or restructuring. A &quot;swap a small cone for its optimum&quot; proposer would be wasted effort on these netlists.</p>
+<h3>3. Constants: the operator is not the best you can write</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-constmul"><code>chip-constmul</code></a> tried all 255 8-bit constants. Yosys&#39;s <code>x * K</code> behaves like binary shift-and-add (cells correlate with the number of set bits of K at 0.972). Writing it as canonical signed digit (CSD) cut mean cells from 112.9 to 75.7 (<strong>-33%</strong>), with K = 255 falling from 222 cells to 30. CSD is not always better: it lost to the operator on 14 constants.</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-mcm"><code>chip-mcm</code></a> added sharing across a bank of constant multipliers. Against per-constant CSD the saving grew from 9% (two constants) to about 20% (eight or sixteen), and the number of adders removed in the source predicted cells saved with Pearson 0.875. It cost depth: sharing recovered most but not all of what per-constant CSD lost.</p>
+<h3>4. A MAC engine beat a systolic array, everywhere we looked</h3>
+<p>A systolic array is the fashionable accelerator shape. For a tiny quantised MLP, <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-systolic"><code>chip-systolic</code></a> found it lost to a plain MAC-lane engine in cells times cycles, and eight follow-ups (<code>chip-systolic-batch</code>, <code>-fanin</code>, <code>-edge</code>, <code>-hidden</code>, <code>-hidewide</code>, <code>-p32</code>, <code>-small</code>, <code>-abcrobust</code>) tried to find a regime where it caught up: larger batches, wider fan-in, wider hidden layers, up to 32 lanes. It never did. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-systolic-abcrobust"><code>chip-systolic-abcrobust</code></a> repeated the comparison under five ABC scripts: the MAC engine won every time, by <strong>1.28x to 1.60x</strong>, so quote &quot;at least 1.28x&quot;, not one number. This is a result about 4-bit, tiny networks; it says nothing about large arrays.</p>
+<p>One side project found a trap in the tooling itself. Cell counts suggested P = 32 lanes was smaller than P = 16 at equal cycles. <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-p32passes"><code>chip-p32passes</code></a> localised the sign flip to the <code>opt -fast</code> after <code>techmap</code>, before any ABC, and corrected the label an earlier project had put on that stage. The project also records the earlier error rather than hiding it.</p>
+<h3>5. How far generic gates sit from silicon</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-pnr"><code>chip-pnr</code></a> ran placement and routing on SKY130. Mapped area per generic gate was 5.1 to 5.8 um² for combinational designs but about 17 um² for FIFOs, because flops are large: a gate count is a poor guide across kinds of logic. Mapping erased the ripple-versus-<code>+</code> adder difference completely (byte-identical cells). Layout added area only when timing needed repair: 9% to 28% for the 16- and 32-bit adders.</p>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-scriptsearch"><code>chip-scriptsearch</code></a> searched ABC pass sequences on a SKY130 MAC. The landscape is needle-like: 0.1% of 800 points are within 1% of the optimum. Random search and hill climbing were close at equal budget, and one run of session-written proposals matched their median but did not find the optimum. That optimum (1,062 um²·ns) was 11% below the best number an earlier project had reported, and flipped which design won.</p>
+<h3>6. Checking a proposer&#39;s output</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/chip-rtl-probe"><code>chip-rtl-probe</code></a> mutated 12 working designs 414 ways and asked which checker rejects each. Of 389 rejected mutants, <strong>30 (7.7%)</strong> passed lint and 4,000 random vectors and were caught only by the formal equivalence proof. That is the case for keeping the proof in a loop. Its no-model repair baseline fixed 11 of 36 broken designs in 4 random edits and 22 of 36 in 16, a floor any LLM result should beat.</p>
+<h3>What to trust</h3>
+<ul><li>Each claim above has a script and <code>results.txt</code> in its project; rerun them with the commands in the READMEs (about a minute for most).</li><li>Everything is one Yosys/ABC build (0.33), generic gates, small blocks. Newer versions or other scripts (<code>&amp;deepsyn</code>, exact mapping) may close the gaps.</li><li>Most &quot;negative&quot; results are negative <em>at this size</em>.</li><li>Some mutation survivors in <code>chip-rtl-probe</code> were not inspected, so a few may be equivalent mutants.</li><li>Nothing here was reviewed by a hardware engineer.</li></ul>
+<p>If you work on EDA or LLM-for-RTL, the practical takeaways are cheap to check yourself: score several operand orders and scripts before believing a rewrite win, and keep the formal stage.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li><li><a href="../fewer-calculators-harder-problems/">Fewer calculators, harder problems</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

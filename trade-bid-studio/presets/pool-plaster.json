@@ -1,0 +1,47 @@
+{
+  "slug": "pool-plaster-bid-calculator",
+  "name": "Pool replaster",
+  "group": "Specialty & remediation",
+  "summary": "Pool resurfacing priced from floor-plus-wall plaster area, finish, chip-out, tile, coping and refill.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 36,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 26,
+  "items": [
+    {
+      "label": "White plaster, floor and walls",
+      "unit": "sq ft",
+      "qty": 1064,
+      "hoursPerUnit": 0.045,
+      "materialPerUnit": 1.85,
+      "source": "16x32 rectangle, 3.5-8 ft deep: 512 floor + 2 x 48 x 5.75 = 552 wall = 1,064 sq ft (poolGeometry in calc.mjs, index.html); 0.045 h and $1.85 per sq ft (suggestedFinishKit('white-plaster')); no chip-out"
+    },
+    {
+      "label": "Drain and refill",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 3.5,
+      "materialPerUnit": 264.3,
+      "source": "3.5 h (index.html); 512 x 5.75 x 7.48052 = 22,023 gal x $0.012/gal water (index.html, calc.mjs); drain and refill checked by default"
+    },
+    {
+      "label": "Permit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 125,
+      "source": "permitFee $125 (index.html default)"
+    },
+    {
+      "label": "Site / travel, mixer and pump fees",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2,
+      "materialPerUnit": 180,
+      "source": "siteHours 2; travel, mixer, pump fees $180 (index.html defaults)"
+    }
+  ],
+  "specialistModels": "Wall area from depths or a freeform multiplier, finish kits from plaster to glass bead, partial/full chip-out with dumpster, spa, steps, waterline tile, coping and acid wash."
+}

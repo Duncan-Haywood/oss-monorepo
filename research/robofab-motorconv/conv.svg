@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Change in time-optimal carry time from 1600 to 6400 solver nodes against motor no-load speed">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Time-optimal total: change from n = 1600 to n = 6400 vs motor no-load speed w0</text>
+<text x="320.0" y="40" text-anchor="middle" font-family="sans-serif" font-size="11">stylised toy arm; colour = jaw cap k (red 2, blue 5, green none); dash = arm size (solid 0.08 m, dashed 0.12 m, dotted 0.2 m)</text>
+<line x1="70" x2="610" y1="330.0" y2="330.0" stroke="#ddd"/><text x="62" y="334.0" text-anchor="end" font-family="sans-serif" font-size="11">0.00%</text>
+<line x1="70" x2="610" y1="276.0" y2="276.0" stroke="#ddd"/><text x="62" y="280.0" text-anchor="end" font-family="sans-serif" font-size="11">0.10%</text>
+<line x1="70" x2="610" y1="222.0" y2="222.0" stroke="#ddd"/><text x="62" y="226.0" text-anchor="end" font-family="sans-serif" font-size="11">0.20%</text>
+<line x1="70" x2="610" y1="168.0" y2="168.0" stroke="#ddd"/><text x="62" y="172.0" text-anchor="end" font-family="sans-serif" font-size="11">0.30%</text>
+<line x1="70" x2="610" y1="114.0" y2="114.0" stroke="#ddd"/><text x="62" y="118.0" text-anchor="end" font-family="sans-serif" font-size="11">0.40%</text>
+<line x1="70" x2="610" y1="60.0" y2="60.0" stroke="#ddd"/><text x="62" y="64.0" text-anchor="end" font-family="sans-serif" font-size="11">0.50%</text>
+<text x="70.0" y="348" text-anchor="middle" font-family="sans-serif" font-size="11">constant</text>
+<text x="205.0" y="348" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="340.0" y="348" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="475.0" y="348" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="610.0" y="348" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="340.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">no-load speed w0 (rad/s)</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="70.0,338.0 205.0,338.0 340.0,329.6 475.0,289.2 610.0,173.0"/>
+<polyline fill="none" stroke="#2874a6" stroke-width="2" points="70.0,333.8 205.0,332.1 340.0,331.5 475.0,331.4 610.0,329.7"/>
+<polyline fill="none" stroke="#1e8449" stroke-width="2" points="70.0,329.4 205.0,395.3 340.0,388.9 475.0,369.8 610.0,348.7"/>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="6 3" points="70.0,336.4 205.0,336.4 340.0,335.8 475.0,332.1 610.0,330.8"/>
+<polyline fill="none" stroke="#2874a6" stroke-width="2" stroke-dasharray="6 3" points="70.0,335.9 205.0,335.6 340.0,332.8 475.0,332.1 610.0,331.7"/>
+<polyline fill="none" stroke="#1e8449" stroke-width="2" stroke-dasharray="6 3" points="70.0,326.7 205.0,384.8 340.0,380.4 475.0,372.8 610.0,366.2"/>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="2 3" points="70.0,337.0 205.0,337.0 340.0,337.0 475.0,336.6 610.0,333.8"/>
+<polyline fill="none" stroke="#2874a6" stroke-width="2" stroke-dasharray="2 3" points="70.0,335.0 205.0,335.0 340.0,336.1 475.0,335.9 610.0,335.6"/>
+<polyline fill="none" stroke="#1e8449" stroke-width="2" stroke-dasharray="2 3" points="70.0,329.4 205.0,375.9 340.0,397.8 475.0,399.5 610.0,394.6"/>
+</svg>

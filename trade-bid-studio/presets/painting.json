@@ -1,0 +1,72 @@
+{
+  "slug": "painting-bid-calculator",
+  "name": "Interior painting",
+  "group": "Interior & finishes",
+  "summary": "Interior repaints priced from walls, ceilings, trim, doors and windows by production rate and coats.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2,
+  "hourlyWage": 25,
+  "burdenRate": 25,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Walls, 2 coats",
+      "unit": "sq ft",
+      "qty": 2400,
+      "hoursPerUnit": 0.00825,
+      "materialPerUnit": 0.2829,
+      "source": "200 sq ft/h, 2nd coat at 0.65 -> 1.65/200 h; paint $45/gal at 350 sq ft/gal/coat, 2 coats, 10% waste (index.html defaults and default rows)"
+    },
+    {
+      "label": "Ceilings, 2 coats",
+      "unit": "sq ft",
+      "qty": 1200,
+      "hoursPerUnit": 0.009429,
+      "materialPerUnit": 0.2829,
+      "source": "175 sq ft/h x 1.65 coat factor; paint as walls (index.html defaults)"
+    },
+    {
+      "label": "Trim / baseboard, 2 coats",
+      "unit": "linear ft",
+      "qty": 320,
+      "hoursPerUnit": 0.033,
+      "materialPerUnit": 0.1414,
+      "source": "50 lf/h x 1.65; 0.5 sq ft paintable per lf (SURFACE_PRESETS in calc.mjs) x 2 coats x 1.1 / 350 x $45"
+    },
+    {
+      "label": "Doors (both sides + jamb), 2 coats",
+      "unit": "door",
+      "qty": 8,
+      "hoursPerUnit": 1.32,
+      "materialPerUnit": 11.31,
+      "source": "1.25 doors/h x 1.65; 40 sq ft per door (SURFACE_PRESETS) x 2 coats x 1.1 / 350 x $45"
+    },
+    {
+      "label": "Windows / sashes, 1 coat",
+      "unit": "window",
+      "qty": 10,
+      "hoursPerUnit": 0.4,
+      "materialPerUnit": 1.697,
+      "source": "2.5 windows/h, 1 coat; 12 sq ft per window (SURFACE_PRESETS) x 1.1 / 350 x $45"
+    },
+    {
+      "label": "Prep: patch, sand, caulk, mask",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 6,
+      "materialPerUnit": 35,
+      "source": "Prep hours 6; tape, plastic, other $35 (index.html defaults)"
+    },
+    {
+      "label": "Travel and mileage",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 40,
+      "source": "travelCost $40 (index.html default); the specialist has no miles input"
+    }
+  ],
+  "specialistModels": "Ceiling-height slowdown on walls, extra-coat labor factor, per-surface paint coverage, and a check against a $/floor-sq-ft rule of thumb."
+}

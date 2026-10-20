@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The lab — experiments in what a tools website can be</title>
+<meta name="description" content="Contained experiments on making this site more useful, more beautiful, and easier for both people and AI agents to use. The ones that work get pulled into the rest of the site.">
+<meta name="robots" content="noindex">
+<style>
+:root{--bg:#f6f5f1;--surface:#fff;--text:#1b1b20;--muted:#5d5c66;--border:#e2e0d8;--accent:#4338ca;--accent-ink:#fff;--code:#efede6;--glow:rgba(67,56,202,.12)}
+@media (prefers-color-scheme:dark){:root{--bg:#0f0f13;--surface:#18181e;--text:#ececf1;--muted:#a4a3ae;--border:#2b2b33;--accent:#a5b4fc;--accent-ink:#111;--code:#24242c;--glow:rgba(165,180,252,.12)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+code{font:.86em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--code);padding:.05em .3em;border-radius:4px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+.hero{padding:44px 0 20px}
+.eyebrow{font:600 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:clamp(2rem,6vw,3.4rem);line-height:1.05;letter-spacing:-.025em;margin:.5rem 0 .8rem}
+h2{font-size:1.25rem;margin:0 0 .4rem;letter-spacing:-.01em}
+.lede{color:var(--muted);font-size:1.08rem;max-width:68ch;margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin:28px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 30px var(--glow)}
+.card .art{aspect-ratio:16/7;overflow:hidden;display:block}
+.card .art svg{width:100%;height:100%;display:block}
+.card .body{padding:14px 16px 16px}
+.card p{margin:.3rem 0;color:var(--muted);font-size:.95rem}
+.badge{display:inline-block;font:600 11px/1 ui-monospace,Menlo,monospace;text-transform:uppercase;letter-spacing:.08em;padding:4px 7px;border-radius:999px;border:1px solid var(--border);color:var(--muted)}
+.badge.live{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.why{font-style:italic}
+footer{border-top:1px solid var(--border);margin-top:40px;padding:20px 0 40px;color:var(--muted);font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<link rel="stylesheet" href="../pf-site.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../c/">Tools</a><a data-pfs-nav="research" href="../research/">Research</a><a data-pfs-nav="writing" href="../writing/">Writing</a><a data-pfs-nav="updates" href="../updates/">Updates</a><a data-pfs-nav="ask" href="../ask/">Ask</a><a data-pfs-nav="deploy" href="../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../about/">About</a></span><form class="pfs-search" action="../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">Lab</span></span></nav>
+<div class="wrap">
+<section class="hero">
+<span class="eyebrow">Open Tools and Research · Lab</span>
+<h1>What can a page of free tools be?</h1>
+<p class="lede">This is where the site tries things. Each experiment lives in its own corner and touches nothing else, so ideas are cheap to try. The ones that prove useful get pulled into every page; the rest stay here. Two rules carry over from the site: everything runs in your browser with no tracking, and every tool works for you <em>and</em> for the AI agent working for you.</p>
+</section>
+<div class="grid">
+<article class="card" id="handoff"><a class="art" href="handoff/" tabindex="-1" aria-hidden="true"><span class="art"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-hidden="true"><defs><linearGradient id="pfctsscws" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(343 70% 22%)"/><stop offset="1" stop-color="hsl(77 70% 14%)"/></linearGradient></defs><rect width="320" height="320" fill="url(#pfctsscws)"/><circle cx="154.8" cy="9.4" r="101.8" fill="hsl(77 80% 73% / 0.80)"/><circle cx="309.8" cy="189.3" r="107.3" fill="hsl(343 80% 66% / 0.42)"/><circle cx="124.1" cy="133.1" r="48.8" fill="hsl(77 80% 56% / 0.73)"/><circle cx="14.6" cy="289.2" r="66.4" fill="hsl(343 80% 70% / 0.46)"/><circle cx="256.7" cy="289.6" r="76.4" fill="hsl(77 80% 47% / 0.81)"/></svg></span></a><div class="body">
+<span class="badge live">live</span>
+<h2><a href="handoff/">Hand it to your agent</a></h2>
+<p>Pick any tool and get it in the form you need: a link for a person, an embed for a website, commands for a terminal or MCP client, or one prompt you paste into a coding agent that tells it how to put the tool into your own project.</p>
+<p class="why">Distribution where the tool travels with its own instructions. An agent can integrate a tool it was handed in one step instead of reverse-engineering a web page.</p>
+</div></article>
+<article class="card" id="covers"><a class="art" href="handoff/" tabindex="-1" aria-hidden="true"><span class="art"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-hidden="true"><defs><linearGradient id="pfciw36ce" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(26 70% 22%)"/><stop offset="1" stop-color="hsl(111 70% 14%)"/></linearGradient></defs><rect width="320" height="320" fill="url(#pfciw36ce)"/><path d="M311.7 303.7 Q 5.6 281.6 198.4 266.8" stroke="hsl(111 80% 52% / 0.37)" stroke-width="23.6" stroke-linecap="round" fill="none"/><path d="M111.8 129.6 Q 184.7 259.6 296.5 187.9" stroke="hsl(26 80% 48% / 0.82)" stroke-width="18.0" stroke-linecap="round" fill="none"/><path d="M171.9 22.5 Q 196.8 95.6 111.5 127.6" stroke="hsl(111 80% 69% / 0.51)" stroke-width="15.0" stroke-linecap="round" fill="none"/><path d="M4.9 281.5 Q 300.3 222.8 170.5 255.2" stroke="hsl(26 80% 69% / 0.36)" stroke-width="24.0" stroke-linecap="round" fill="none"/><path d="M276.7 221.8 Q 99.7 82.5 204.1 39.7" stroke="hsl(111 80% 59% / 0.56)" stroke-width="24.1" stroke-linecap="round" fill="none"/><path d="M231.7 217.7 Q 187.0 26.4 77.4 244.5" stroke="hsl(26 80% 57% / 0.57)" stroke-width="22.5" stroke-linecap="round" fill="none"/><path d="M246.7 130.6 Q 97.7 115.2 113.1 121.6" stroke="hsl(111 80% 61% / 0.54)" stroke-width="10.3" stroke-linecap="round" fill="none"/><path d="M78.2 96.0 Q 104.0 7.7 261.9 241.2" stroke="hsl(26 80% 48% / 0.47)" stroke-width="17.6" stroke-linecap="round" fill="none"/><path d="M247.0 102.0 Q 248.1 199.1 273.1 131.2" stroke="hsl(111 80% 75% / 0.66)" stroke-width="18.7" stroke-linecap="round" fill="none"/><path d="M166.0 158.6 Q 132.8 156.3 260.0 239.6" stroke="hsl(26 80% 72% / 0.37)" stroke-width="21.0" stroke-linecap="round" fill="none"/></svg></span></a><div class="body">
+<span class="badge live">live</span>
+<h2><a href="handoff/">Generative covers</a></h2>
+<p>Every tool gets its own cover art, drawn from its name by a few lines of code: same name, same picture, no image files, no AI bill. You can see them in the handoff experiment.</p>
+<p class="why">A catalogue of 1,000+ text cards is hard to scan. A stable picture per tool gives the eye a landmark, and the same function can draw social cards.</p>
+</div></article>
+<article class="card" id="palette"><span class="art"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-hidden="true"><defs><linearGradient id="pfc1lve5n9" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(111 70% 22%)"/><stop offset="1" stop-color="hsl(290 70% 14%)"/></linearGradient></defs><rect width="320" height="320" fill="url(#pfc1lve5n9)"/><rect x="211.2" y="115.4" width="94.0" height="225.6" rx="15.7" fill="hsl(290 80% 78% / 0.78)" transform="rotate(123 211.2 115.4)"/><rect x="80.2" y="155.3" width="72.6" height="174.2" rx="12.1" fill="hsl(111 80% 49% / 0.51)" transform="rotate(67 80.2 155.3)"/><rect x="267.3" y="212.9" width="116.5" height="279.6" rx="19.4" fill="hsl(290 80% 68% / 0.50)" transform="rotate(122 267.3 212.9)"/><rect x="240.1" y="124.7" width="41.4" height="99.4" rx="6.9" fill="hsl(111 80% 49% / 0.41)" transform="rotate(163 240.1 124.7)"/><rect x="228.5" y="294.2" width="62.9" height="151.0" rx="10.5" fill="hsl(290 80% 72% / 0.63)" transform="rotate(68 228.5 294.2)"/><rect x="159.0" y="98.6" width="82.3" height="197.5" rx="13.7" fill="hsl(111 80% 67% / 0.81)" transform="rotate(99 159.0 98.6)"/><rect x="282.0" y="79.9" width="106.1" height="254.6" rx="17.7" fill="hsl(290 80% 70% / 0.76)" transform="rotate(133 282.0 79.9)"/><rect x="214.5" y="62.8" width="54.8" height="131.5" rx="9.1" fill="hsl(111 80% 49% / 0.48)" transform="rotate(8 214.5 62.8)"/><rect x="298.9" y="195.4" width="107.2" height="257.3" rx="17.9" fill="hsl(290 80% 71% / 0.63)" transform="rotate(136 298.9 195.4)"/><rect x="106.7" y="22.3" width="31.2" height="74.9" rx="5.2" fill="hsl(111 80% 74% / 0.71)" transform="rotate(106 106.7 22.3)"/></svg></span><div class="body">
+<span class="badge">idea</span>
+<h2>Command palette on every page</h2>
+<p>Press / or ⌘K anywhere to jump to any tool, category, guide or post, and run &quot;hand to agent&quot; from the same box.</p>
+<p class="why">Navigation for people who know what they want, and one place an agent can drive with the keyboard.</p>
+</div></article>
+<article class="card" id="intent"><span class="art"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-hidden="true"><defs><linearGradient id="pfc114av00" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(210 70% 22%)"/><stop offset="1" stop-color="hsl(325 70% 14%)"/></linearGradient></defs><rect width="320" height="320" fill="url(#pfc114av00)"/><path d="M77.4 300.9 Q 82.8 300.0 36.8 221.2" stroke="hsl(325 80% 45% / 0.74)" stroke-width="11.1" stroke-linecap="round" fill="none"/><path d="M219.9 108.2 Q 52.9 297.1 111.7 201.9" stroke="hsl(210 80% 77% / 0.71)" stroke-width="20.9" stroke-linecap="round" fill="none"/><path d="M311.9 214.7 Q 232.1 156.5 10.5 117.7" stroke="hsl(325 80% 60% / 0.62)" stroke-width="9.3" stroke-linecap="round" fill="none"/><path d="M174.5 146.4 Q 201.5 296.8 260.2 298.6" stroke="hsl(210 80% 64% / 0.55)" stroke-width="8.0" stroke-linecap="round" fill="none"/><path d="M159.4 109.3 Q 274.4 23.3 291.1 66.7" stroke="hsl(325 80% 50% / 0.73)" stroke-width="11.0" stroke-linecap="round" fill="none"/><path d="M47.2 116.9 Q 153.3 69.7 80.9 13.0" stroke="hsl(210 80% 57% / 0.57)" stroke-width="25.2" stroke-linecap="round" fill="none"/><path d="M244.5 168.7 Q 248.9 100.3 74.2 215.1" stroke="hsl(325 80% 58% / 0.75)" stroke-width="23.3" stroke-linecap="round" fill="none"/></svg></span><div class="body">
+<span class="badge">idea</span>
+<h2>Ask, don’t browse</h2>
+<p>A front door that starts from &quot;what are you trying to do?&quot; and answers with the two or three tools that fit, matched in the browser against catalog.json.</p>
+<p class="why">Most visitors arrive with a problem, not a tool name.</p>
+</div></article>
+<article class="card" id="twins"><span class="art"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-hidden="true"><defs><linearGradient id="pfc13xop6l" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(183 70% 22%)"/><stop offset="1" stop-color="hsl(295 70% 14%)"/></linearGradient></defs><rect width="320" height="320" fill="url(#pfc13xop6l)"/><circle cx="116.4" cy="59.7" r="48.0" fill="hsl(295 80% 59% / 0.59)"/><circle cx="44.6" cy="248.8" r="102.3" fill="hsl(183 80% 68% / 0.59)"/><circle cx="47.9" cy="56.6" r="70.7" fill="hsl(295 80% 67% / 0.71)"/><circle cx="268.7" cy="131.3" r="59.2" fill="hsl(183 80% 49% / 0.55)"/><circle cx="187.0" cy="135.6" r="93.3" fill="hsl(295 80% 48% / 0.55)"/><circle cx="298.6" cy="32.4" r="40.2" fill="hsl(183 80% 51% / 0.61)"/><circle cx="272.4" cy="217.3" r="121.2" fill="hsl(295 80% 58% / 0.44)"/><circle cx="236.2" cy="135.9" r="31.4" fill="hsl(183 80% 77% / 0.79)"/></svg></span><div class="body">
+<span class="badge">idea</span>
+<h2>Agent twins of every page</h2>
+<p>A plain-Markdown copy of each page beside it (`index.md`), linked with rel=&quot;alternate&quot;, carrying the inputs, the formula and the disclaimer.</p>
+<p class="why">Assistants read text better than forms. llms.txt points at the site; twins would let it point at every page.</p>
+</div></article>
+<article class="card" id="explain"><span class="art"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-hidden="true"><defs><linearGradient id="pfc1bzbrft" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(69 70% 22%)"/><stop offset="1" stop-color="hsl(156 70% 14%)"/></linearGradient></defs><rect width="320" height="320" fill="url(#pfc1bzbrft)"/><rect x="23.3" y="62.2" width="69.4" height="166.6" rx="11.6" fill="hsl(156 80% 53% / 0.62)" transform="rotate(29 23.3 62.2)"/><rect x="168.9" y="171.4" width="59.9" height="143.8" rx="10.0" fill="hsl(69 80% 56% / 0.75)" transform="rotate(170 168.9 171.4)"/><rect x="91.6" y="250.1" width="95.4" height="229.0" rx="15.9" fill="hsl(156 80% 57% / 0.83)" transform="rotate(126 91.6 250.1)"/><rect x="157.9" y="84.3" width="27.4" height="65.8" rx="4.6" fill="hsl(69 80% 58% / 0.68)" transform="rotate(18 157.9 84.3)"/><rect x="209.3" y="138.2" width="116.5" height="279.6" rx="19.4" fill="hsl(156 80% 61% / 0.46)" transform="rotate(84 209.3 138.2)"/><rect x="228.1" y="9.3" width="45.8" height="109.9" rx="7.6" fill="hsl(69 80% 50% / 0.42)" transform="rotate(108 228.1 9.3)"/></svg></span><div class="body">
+<span class="badge">idea</span>
+<h2>Explain this result</h2>
+<p>A reading mode on any result that shows the arithmetic step by step, in words, with the inputs that moved it most.</p>
+<p class="why">A number people can follow is a number they trust and come back to.</p>
+</div></article>
+<article class="card" id="motion"><span class="art"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-hidden="true"><defs><linearGradient id="pfcalyi80" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(136 70% 22%)"/><stop offset="1" stop-color="hsl(233 70% 14%)"/></linearGradient></defs><rect width="320" height="320" fill="url(#pfcalyi80)"/><rect x="121.1" y="243.8" width="28.8" height="69.1" rx="4.8" fill="hsl(233 80% 71% / 0.56)" transform="rotate(163 121.1 243.8)"/><rect x="208.6" y="220.3" width="49.0" height="117.6" rx="8.2" fill="hsl(136 80% 47% / 0.55)" transform="rotate(177 208.6 220.3)"/><rect x="272.2" y="52.7" width="28.6" height="68.6" rx="4.8" fill="hsl(233 80% 61% / 0.50)" transform="rotate(116 272.2 52.7)"/><rect x="293.7" y="9.3" width="119.8" height="287.5" rx="20.0" fill="hsl(136 80% 53% / 0.57)" transform="rotate(35 293.7 9.3)"/><rect x="216.6" y="247.8" width="42.5" height="102.0" rx="7.1" fill="hsl(233 80% 62% / 0.82)" transform="rotate(9 216.6 247.8)"/><rect x="27.4" y="12.9" width="102.8" height="246.7" rx="17.1" fill="hsl(136 80% 71% / 0.37)" transform="rotate(29 27.4 12.9)"/><rect x="40.9" y="74.3" width="83.9" height="201.4" rx="14.0" fill="hsl(233 80% 60% / 0.68)" transform="rotate(160 40.9 74.3)"/><rect x="278.8" y="227.1" width="108.2" height="259.7" rx="18.0" fill="hsl(136 80% 53% / 0.62)" transform="rotate(171 278.8 227.1)"/></svg></span><div class="body">
+<span class="badge">idea</span>
+<h2>Programmatic video</h2>
+<p>Short walkthroughs recorded from the live pages by the browser checks that already drive them (Playwright), captioned from the page copy. No camera, no paid generator.</p>
+<p class="why">Short-form video is a discovery channel, and the site already has a robot that clicks through every tool.</p>
+</div></article>
+<article class="card" id="research-media"><span class="art"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-hidden="true"><defs><linearGradient id="pfcccg92m" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(292 70% 22%)"/><stop offset="1" stop-color="hsl(56 70% 14%)"/></linearGradient></defs><rect width="320" height="320" fill="url(#pfcccg92m)"/><rect x="156.5" y="124.6" width="119.6" height="287.0" rx="19.9" fill="hsl(56 80% 55% / 0.56)" transform="rotate(16 156.5 124.6)"/><rect x="128.9" y="174.4" width="76.9" height="184.6" rx="12.8" fill="hsl(292 80% 51% / 0.52)" transform="rotate(62 128.9 174.4)"/><rect x="95.7" y="72.2" width="29.3" height="70.3" rx="4.9" fill="hsl(56 80% 55% / 0.57)" transform="rotate(127 95.7 72.2)"/><rect x="207.2" y="305.2" width="33.4" height="80.2" rx="5.6" fill="hsl(292 80% 58% / 0.81)" transform="rotate(88 207.2 305.2)"/><rect x="283.6" y="113.3" width="92.4" height="221.8" rx="15.4" fill="hsl(56 80% 57% / 0.74)" transform="rotate(85 283.6 113.3)"/><rect x="188.5" y="16.6" width="110.6" height="265.4" rx="18.4" fill="hsl(292 80% 45% / 0.48)" transform="rotate(55 188.5 16.6)"/></svg></span><div class="body">
+<span class="badge">idea</span>
+<h2>Research in every format</h2>
+<p>Each research project in `research/` as a short write-up, a 60-second short (its key chart, animated), a long-form walkthrough, and a podcast episode, all generated from the project’s own LOG.md, data and charts, so nothing is said that the research did not find.</p>
+<p class="why">Research people can build on has to reach them first; the findings, figures and logs are already committed, and a pipeline that renders them costs nothing per episode.</p>
+</div></article>
+<article class="card" id="audio"><span class="art"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-hidden="true"><defs><linearGradient id="pfc10e2e84" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(334 70% 22%)"/><stop offset="1" stop-color="hsl(128 70% 14%)"/></linearGradient></defs><rect width="320" height="320" fill="url(#pfc10e2e84)"/><circle cx="299.2" cy="39.2" r="84.5" fill="hsl(128 80% 63% / 0.41)"/><circle cx="100.7" cy="180.0" r="118.0" fill="hsl(334 80% 70% / 0.43)"/><circle cx="110.0" cy="195.8" r="109.7" fill="hsl(128 80% 53% / 0.78)"/><circle cx="55.7" cy="212.4" r="99.3" fill="hsl(334 80% 47% / 0.50)"/><circle cx="106.4" cy="72.9" r="50.0" fill="hsl(128 80% 67% / 0.40)"/><circle cx="277.4" cy="73.2" r="32.3" fill="hsl(334 80% 65% / 0.41)"/><circle cx="257.0" cy="12.1" r="66.2" fill="hsl(128 80% 50% / 0.61)"/><circle cx="72.9" cy="16.4" r="85.6" fill="hsl(334 80% 79% / 0.66)"/></svg></span><div class="body">
+<span class="badge">idea</span>
+<h2>Engineering and research, read aloud</h2>
+<p>The posts in `writing/` and the research write-ups as a podcast feed, voiced in the listener’s own browser (Web Speech) at first, and by a model on the owner’s key only if the owner switches that on.</p>
+<p class="why">The engineering writing already exists; audio is a second door into it at no marginal cost.</p>
+</div></article>
+</div>
+<p class="lede">Ideas are rows in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/lab.mjs"><code>EXPERIMENTS</code></a>. To try one, build it under <code>lab/&lt;id&gt;/</code> and flip its status to <code>live</code>.</p>
+</div>
+<div class="wrap"><footer>
+<p>An experiment, built by <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/platform/pages/lab.mjs"><code>platform/pages/lab.mjs</code></a>. Provided as-is, with no warranty of any kind; nothing here is legal, tax, financial or other professional advice, and each tool's own page carries its own disclaimer.</p>
+<p class="pfs-foot"><a href="../c/">All tools by category</a><span aria-hidden="true"> · </span><a href="../research/">Research</a><span aria-hidden="true"> · </span><a href="../writing/">Writing</a><span aria-hidden="true"> · </span><a href="../updates/">Updates &amp; roadmap</a><span aria-hidden="true"> · </span><a href="../changelog/">Changelog</a><span aria-hidden="true"> · </span><a href="../guides/">Guides</a><span aria-hidden="true"> · </span><a href="../compare/">Comparisons</a><span aria-hidden="true"> · </span><a href="../deploy/">Deploy your own copy</a><span aria-hidden="true"> · </span><a href="../about/">About &amp; press kit</a><span aria-hidden="true"> · </span><a href="../lab/">Lab</a><span aria-hidden="true"> · </span><a href="../feedback/">Report a problem or suggest a feature</a><span aria-hidden="true"> · </span><a href="../engineering/">Engineering status</a><span aria-hidden="true"> · </span><a href="../dev/">Development dashboard</a><span aria-hidden="true"> · </span><a href="../dev/daily/">Daily brief &amp; The Merge Report</a><span aria-hidden="true"> · </span><a href="../catalog.json">Machine-readable catalog</a><span aria-hidden="true"> · </span><a href="../llms.txt">llms.txt</a><span aria-hidden="true"> · </span><a href="../sitemap.xml">Sitemap</a><span aria-hidden="true"> · </span><a href="../feed.xml">New tools feed</a><span aria-hidden="true"> · </span><a href="../changelog/feed.xml">Changelog feed</a><span aria-hidden="true"> · </span><a href="https://github.com/Duncan-Haywood/oss-monorepo">Source on GitHub</a></p>
+</footer></div>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When goals move faster than folders: what nine goals in six months did to one monorepo · Open Tools and Research</title>
+<meta name="description" content="A monorepo built by AI agents got a new goal every few weeks and kept every old folder. What that cost, the fixes, and what each fix would cost.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/when-goals-move-faster-than-folders/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="When goals move faster than folders: what nine goals in six months did to one monorepo · Open Tools and Research">
+<meta property="og:description" content="A monorepo built by AI agents got a new goal every few weeks and kept every old folder. What that cost, the fixes, and what each fix would cost.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/when-goals-move-faster-than-folders/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"When goals move faster than folders: what nine goals in six months did to one monorepo","description":"A monorepo built by AI agents got a new goal every few weeks and kept every old folder. What that cost, the fixes, and what each fix would cost.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/when-goals-move-faster-than-folders/","keywords":"monorepo, software-engineering, ai-agents, process, opinion","wordCount":1725}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>When goals move faster than folders: what nine goals in six months did to one monorepo</h1>
+<p class="dek">A monorepo built by AI agents got a new goal every few weeks and kept every old folder. What that cost, the fixes, and what each fix would cost.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 8 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-when-goals-move-faster-than-folders.md">Source</a><br><span class="tag">monorepo</span><span class="tag">software-engineering</span><span class="tag">ai-agents</span><span class="tag">process</span><span class="tag">opinion</span></p>
+<p>This repository started on 6 May 2026 as one app: a tool for safely ingesting and automating media. Six months and 13,514 commits later, it holds 1,307 products, 765 research projects, a hosting setup that no longer exists, and 78 instruction files for the AI agents that do most of the work. It has 33,403 files and 27 entries at the top level.</p>
+<p>No one designed that layout. It built up in layers, one per goal, and each goal made sense when it arrived. This post traces how, measures what it costs, and proposes fixes. Each fix comes with its downside, because &quot;just reorganise it&quot; is advice that ignores what reorganising costs in a repository where about sixteen agent sessions start work every hour.</p>
+<p>The full agent-facing version, with every number&#39;s source and a script that reproduces them, is <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/docs/reports/2026-10-20-repo-organization-for-agents.md">the repository organisation brief</a>.</p>
+<h3>Nine goals, nine layers</h3>
+<p>Here is how the goals arrived, and what each one left in the tree:</p>
+<ol><li><strong>One product (May to July).</strong> Next.js, Convex, a docs site. About 3,000 commits.</li><li><strong>A portfolio (29 July).</strong> Someone scaffolded <code>ventures/</code>, <code>platform/</code> and <code>portfolio/</code>, then merged four product repositories in as subtrees. There were 11 ventures and 6 top-level entries.</li><li><strong>An unattended agent fleet (18 August).</strong> Twenty workers an hour, and the first <code>CLAUDE.md</code>.</li><li><strong>Quality, then &quot;product-first&quot; (21 to 24 August).</strong> Five guidance documents landed at the root.</li><li><strong>Self-hosting (25 August).</strong> Kubernetes on two rented servers, with <code>gitops/</code>, <code>infra/</code> and <code>bootstrap/</code> at the top level.</li><li><strong>Breadth (late August to September).</strong> &quot;New ventures get first call.&quot; Ventures went from 31 to 558 in five weeks, most of them single-page calculators.</li><li><strong>Free hosting (1 October).</strong> The servers were deleted and GitHub Pages became the host.</li><li><strong>Research as a peer portfolio (14 October).</strong> A second repository was folded in with its own conventions. Instruction files went from 15 to 78 in a week.</li><li><strong>Depth over breadth, judgment over rules (20 October).</strong> Six flagship products now get most of the work.</li></ol>
+<p>Each goal added a place in the tree. Almost none removed one. So the repository is a rock face: you can read the strata. That&#39;s fine for a geologist. It&#39;s bad for an agent that starts every session with no memory and reads the tree to work out what matters.</p>
+<h3>What the strata cost</h3>
+<p><strong>Dead infrastructure that still gets work.</strong> The servers were deleted on 1 October. But a folder of generated web pages for those servers is still committed, and a test fails whenever the pages are out of date. Since 2 October, <strong>845 of 4,267 commits</strong> (about one in five) have regenerated files that nothing serves. 47 agent run records name the old hosting tree as a source of confusion, and the main instruction file spends a paragraph warning agents not to believe it.</p>
+<p><strong>Documents that describe a smaller project.</strong> Three quality documents at the root were last edited on 25 August, when there were 31 products. There are 1,307 now. The README still says the current priority is &quot;deploy what is already on <code>main</code>&quot;. That was true in September. The direction document is 875 lines long, with headings like &quot;Owner direction, relayed again&quot;. New directions were added on top of old ones and never replaced them. 95 run records complain that something was stale or out of date.</p>
+<p><strong>Names that mean two things.</strong> <code>research/</code> holds the research portfolio, while <code>portfolio/research/</code> holds studies about the product portfolio. There is distribution code in <code>platform/distribution/</code> and distribution state in <code>portfolio/distribution/</code>. Write-ups go in any of five places. Agents rarely report this kind of friction: a wrong first guess that gets corrected quickly doesn&#39;t get written down. But someone pays for it every time.</p>
+<p><strong>A shape that rewards the old goal.</strong> The quiet cost is the biggest one. Each product is one directory, and the median product is <strong>12 files</strong>. A new directory is the cheapest unit of work an agent can finish and merge. During the breadth phase that was a feature. When the goal turned to depth, the shape kept paying out for breadth. An <a href="../how-our-agents-built-121-bid-calculators/">earlier study</a> found five rules all pointing the same way, toward &quot;one more calculator&quot;. The folder layout was a sixth, and nobody wrote it down.</p>
+<h3>Why it happens</h3>
+<p>The general pattern isn&#39;t specific to AI agents. It&#39;s what you&#39;d expect in any fast-moving monorepo:</p>
+<ul><li><strong>Goals are recorded as additions.</strong> A new goal gets a new document, a new folder, a new workflow. Nobody&#39;s job is to ask what the new goal makes obsolete. Deleting the old thing feels risky, and leaving it costs nothing today.</li><li><strong>Retirement stops at the visible step.</strong> Deleting the servers was the decision. Deleting the manifests, the generators, the tests and the warnings was four more steps, and no one owned them.</li><li><strong>Generated output gets committed &quot;for now&quot;.</strong> A generated file needs a consumer that can&#39;t build it. When the consumer goes, the file stays, because a test checks that it&#39;s fresh, not that it&#39;s needed.</li><li><strong>The unit of work is set by the tree.</strong> Whatever is cheapest to add becomes what gets added. Conway&#39;s law says systems mirror the organisation that builds them. Here the organisation is a fleet of memoryless sessions, so the system mirrors whatever is cheapest to finish in one session.</li></ul>
+<p>The agent fleet makes this faster, not different. A human team would have taken two years to lay down nine strata. Here it took six months, so the fossils are fresher and easier to measure.</p>
+<h3>Fixes, and what each one costs</h3>
+<p><strong>1. Stop serving the dead. Archive or delete the old cluster.</strong> Remove the committed web pages from the freshness test. Point the one live check that reads them at the GitHub Pages sitemap instead, then move the cluster files to an archive (or delete them, since git keeps everything). <em>What it costs:</em> about 40 files and their tests change. Every open pull request that touched those pages will conflict once. The fastest path back to self-hosting goes away, and processes still need a host. An earlier attempt was dropped for exactly this reason, but half of its blocker has since been removed.</p>
+<p><strong>2. Archive stale root documents. Make directions supersede each other.</strong> Move the August quality documents to <code>docs/history/</code>. Generate the README&#39;s &quot;current priority&quot; from the flagship list. Give every direction a date and a &quot;superseded by&quot; field. <em>What it costs:</em> links break and have to be fixed in the same change. Deciding which parts of an 875-line brief still hold takes judgment, and deleting the reason for a rule that still matters is how a <a href="../cut-the-deadweight/">fence</a> comes down that should have stayed up.</p>
+<p><strong>3. Rename the colliding folders.</strong> For example, <code>portfolio/research/</code> becomes <code>portfolio/studies/</code>. <em>What it costs:</em> the 1,622 run records are history and shouldn&#39;t be rewritten, so their links rot. Every rename collides with whatever the sixteen sessions an hour have in flight. The measured friction here is low, so this should wait until someone is already in those files.</p>
+<p><strong>4. Don&#39;t regroup the 1,307 product folders. Make depth visible instead.</strong> Moving products into niche subfolders sounds tidy, but the build, the workflows, the routing and every published URL assume one flat folder per product. The cheaper fix is in progress: a flagship list that routes work, family engines that absorb dozens of calculators (one pricing engine now covers 120+ trades), and folded products marked so the router skips them. <em>What it costs:</em> the flat shape still rewards one more folder, so the router has to keep pushing against it. A full regroup would need redirects for every URL and would risk the search traffic the products depend on.</p>
+<p><strong>5. When a goal changes, list what it makes obsolete.</strong> The change that sets a new goal also lists the areas the old goal created, and marks each one kept, archived or deleted, with a reason. This is the root-cause fix. The agents&#39; rulebook needed the same discipline: it grew a rule per incident until the repository adopted a standing &quot;remove one rule every review&quot; habit. <em>What it costs:</em> goal changes get slower, and the owner changes goals often, on purpose. There&#39;s also a real risk of over-tidying. &quot;Kept, because...&quot; has to stay an acceptable answer.</p>
+<h3>What we&#39;d tell the next sub-repo</h3>
+<p>Every new project in this monorepo is a chance not to repeat this. Eight lessons:</p>
+<ol><li><strong>Write down why a folder exists on the day you create it</strong>: its purpose, who consumes it, and when to delete it. &quot;Exists for the cluster; delete when the cluster is gone&quot; makes retirement a lookup, not an investigation.</li><li><strong>A retirement is a checklist, not an event.</strong> The servers, then the manifests, the generators, the tests and the warnings.</li><li><strong>Don&#39;t commit generated output</strong> unless a named consumer can&#39;t build it. Name that consumer in the generator, and delete the output when it goes.</li><li><strong>Choose the unit of work to match the goal.</strong> If the goal is depth, make the project one directory with internal structure, not a field of siblings.</li><li><strong>Check a name isn&#39;t already taken somewhere else</strong> before using it.</li><li><strong>When folding in another repository, write the conventions map the same day</strong>: which instructions win, which toolchain, where its write-ups go.</li><li><strong>Directions are dated and replace each other.</strong> Keep one current direction. History belongs in a history folder.</li><li><strong>Measure before reorganising.</strong> This repository has an unusual asset: a record of every agent run, saying which files cost it time. Reorganise where the friction is, not where the tree only looks untidy.</li></ol>
+<h3>What we don&#39;t know</h3>
+<p>The friction numbers are keyword counts, so they&#39;re an upper bound per theme. And the kind of friction a messy layout causes is the kind agents report least. The downsides above are judgments, not measurements, and none of the proposed fixes has been tried yet. Fix 1 is the one to try first. It has the largest measured cost, and if it works, about one commit in five should stop touching a folder nobody reads.</p>
+<p><em>This post was written by an AI agent (Claude Code) working in the repository, with the owner steering. The numbers come from the repository&#39;s own git history and run records, and the script that produces them is public and MIT-licensed.</em></p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

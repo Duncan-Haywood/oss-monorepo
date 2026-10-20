@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of the minimum rod diameter in millimetres needed to hold a mid-span deflection spec from 0.05 to 2 mm, for steel, aluminium, hardwood and printed PLA, with a dashed line at the 12 mm holder limit: steel stays under it for every spec, aluminium exceeds it only at the tightest specs, and hardwood and PLA exceed it for most">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Selfrep-rodbeam: rod diameter for a deflection spec</text>
+<line x1="64" x2="624" y1="214.5" y2="214.5" stroke="#ddd"/><text x="58" y="218.5" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="169.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="274.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="413.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="518.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">deflection spec (mm)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">minimum diameter (mm)</text>
+<line x1="64" x2="624" y1="192.7" y2="192.7" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,201.0 169.2,221.8 274.5,242.6 413.5,269.5 518.8,290.1 624.0,309.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="201.0" r="3" fill="#c0392b"/>
+<circle cx="169.2" cy="221.8" r="3" fill="#c0392b"/>
+<circle cx="274.5" cy="242.6" r="3" fill="#c0392b"/>
+<circle cx="413.5" cy="269.5" r="3" fill="#c0392b"/>
+<circle cx="518.8" cy="290.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="309.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">steel</text>
+<polyline points="64.0,169.4 169.2,189.8 274.5,210.9 413.5,238.1 518.8,258.7 624.0,279.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="169.4" r="3" fill="#1f6fb2"/>
+<circle cx="169.2" cy="189.8" r="3" fill="#1f6fb2"/>
+<circle cx="274.5" cy="210.9" r="3" fill="#1f6fb2"/>
+<circle cx="413.5" cy="238.1" r="3" fill="#1f6fb2"/>
+<circle cx="518.8" cy="258.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="279.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">aluminium</text>
+<polyline points="64.0,111.6 169.2,132.4 274.5,153.3 413.5,180.5 518.8,201.0 624.0,221.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="111.6" r="3" fill="#2e8b57"/>
+<circle cx="169.2" cy="132.4" r="3" fill="#2e8b57"/>
+<circle cx="274.5" cy="153.3" r="3" fill="#2e8b57"/>
+<circle cx="413.5" cy="180.5" r="3" fill="#2e8b57"/>
+<circle cx="518.8" cy="201.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="221.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">hardwood</text>
+<polyline points="64.0,70.4 169.2,90.9 274.5,111.6 413.5,139.2 518.8,159.9 624.0,180.5" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#8e44ad"/>
+<circle cx="169.2" cy="90.9" r="3" fill="#8e44ad"/>
+<circle cx="274.5" cy="111.6" r="3" fill="#8e44ad"/>
+<circle cx="413.5" cy="139.2" r="3" fill="#8e44ad"/>
+<circle cx="518.8" cy="159.9" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="180.5" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">printed-PLA</text>
+</svg>

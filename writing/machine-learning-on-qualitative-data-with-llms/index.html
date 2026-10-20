@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machine learning on qualitative data: what LLMs make possible, and the correction you can&#39;t skip · Open Tools and Research</title>
+<meta name="description" content="LLMs let you model interviews and survey answers. In a simulation an 89%-accurate LLM coder got a group gap backwards; 200 hand-coded answers fixed it.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/machine-learning-on-qualitative-data-with-llms/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="Machine learning on qualitative data: what LLMs make possible, and the correction you can&#39;t skip · Open Tools and Research">
+<meta property="og:description" content="LLMs let you model interviews and survey answers. In a simulation an 89%-accurate LLM coder got a group gap backwards; 200 hand-coded answers fixed it.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/machine-learning-on-qualitative-data-with-llms/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Machine learning on qualitative data: what LLMs make possible, and the correction you can't skip","description":"LLMs let you model interviews and survey answers. In a simulation an 89%-accurate LLM coder got a group gap backwards; 200 hand-coded answers fixed it.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/machine-learning-on-qualitative-data-with-llms/","keywords":"research, llm, qualitative-research, machine-learning, statistics, survey-analysis","wordCount":1231}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>Machine learning on qualitative data: what LLMs make possible, and the correction you can&#39;t skip</h1>
+<p class="dek">LLMs let you model interviews and survey answers. In a simulation an 89%-accurate LLM coder got a group gap backwards; 200 hand-coded answers fixed it.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 5 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-machine-learning-on-qualitative-data-with-llms.md">Source</a><br><span class="tag">research</span><span class="tag">llm</span><span class="tag">qualitative-research</span><span class="tag">machine-learning</span><span class="tag">statistics</span><span class="tag">survey-analysis</span></p>
+<p>Machine learning has always needed numbers. A spreadsheet of prices, clicks or blood pressures goes straight into a model. An interview transcript, an open-ended survey answer or a customer review does not. Before LLMs, qualitative data had two ways in. A person could code it by hand, which is accurate but slow, so studies stayed small. Or software could reduce it to word counts and topic models, which is fast but loses most of the meaning.</p>
+<p>LLMs change that. A model can read an answer the way a trained coder does, apply a codebook written in plain English (&quot;code 1 if the respondent names cost as a reason they stopped&quot;), and do it for a fraction of a cent per answer. Gilardi, Alizadeh and Kubli (2023, <em>PNAS</em>) found ChatGPT more accurate than crowd workers on four of five annotation tasks, at about a thirtieth of the cost. So the answer to &quot;can you do ML on qualitative data now?&quot; is yes. This repository has opened a research track on it: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/PROJECTS.md">track 19 in <code>research/PROJECTS.md</code></a>, marked as a topic for future research and applications.</p>
+<p>The first project, <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/qual-correction"><code>research/qual-correction/</code></a>, asks the question that has to come first: <strong>when can you trust the numbers?</strong></p>
+<h3>Five things LLMs let you do with qualitative data</h3>
+<ol><li><strong>Code everything with your codebook.</strong> This is classic content analysis without the hand-coding bottleneck: a human writes the codes, the LLM applies them to every answer, and each code becomes a column.</li><li><strong>Let the model propose the codebook.</strong> TopicGPT (Pham et al., NAACL 2024) returns topics as readable labels and descriptions instead of word lists. LLooM (Lam et al., CHI 2024) induces concepts with explicit inclusion criteria. This is grounded theory with a fast, fallible assistant.</li><li><strong>Use text as features next to numbers.</strong> Codes, LLM-scored dimensions (&quot;how urgent is this ticket, 1 to 5&quot;) or embeddings sit beside numeric columns in an ordinary predictive model. TabLLM (Hegselmann et al., AISTATS 2023) goes the other way: it writes table rows out as sentences and lets an LLM classify them.</li><li><strong>Generate hypotheses.</strong> Ludwig and Mullainathan (<em>QJE</em>, 2024) used a model trained on unstructured data to find a pattern in judges&#39; decisions that people then put into words and tested. An LLM can propose the words itself.</li><li><strong>Pilot with simulated respondents.</strong> Argyle et al. (<em>Political Analysis</em>, 2023) conditioned GPT-3 on real respondents&#39; backstories and reproduced subgroup answer patterns. That is useful for testing a questionnaire and dangerous as a replacement for one.</li></ol>
+<p>Every one of these feeds the LLM&#39;s output into a later statistical step: a count, a comparison, a regression. So every one inherits the same problem.</p>
+<h3>The problem: an LLM&#39;s code is a measurement, and measurements have error</h3>
+<p>When coding was expensive, the main uncertainty was sampling: you coded 300 answers and hoped they represented 30,000. Cheap coding removes that. You code all 30,000, the confidence interval shrinks to almost nothing, and it feels like certainty.</p>
+<p>But the coder&#39;s own error is still there, and a narrow interval hides it. Egami, Hinck, Stewart and Wei (NeurIPS 2023) showed that LLM labels used directly in a regression can be badly biased, with invalid intervals, even at 80–90% accuracy. <code>qual-correction</code> measures this in the two settings a qualitative researcher meets most: how common a theme is, and whether it is more common in one group than another.</p>
+<h3>What the simulation found</h3>
+<p>The project simulates an LLM coder with known error rates, so every estimate can be checked against the truth. Every number below comes from <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/qual-correction/experiments/results.txt"><code>research/qual-correction/experiments/results.txt</code></a> (seeded, 1,000 simulated studies per setting). No real model was run. That step is next.</p>
+<p><strong>A good coder is still confidently wrong.</strong> The corpus has 5,000 answers and 30% truly mention the theme. The coder misses a quarter of real mentions and rarely invents one, so it is 89% accurate. Its agreement with humans is Cohen&#39;s κ = 0.72, which many papers would report as &quot;substantial&quot;. It estimates 26%. Its 95% interval is 2.4 points wide and contains the true 30% in <strong>0 of 1,000</strong> studies. More data does not help: a bigger corpus only makes the wrong answer look more certain.</p>
+<p><strong>A group comparison can come out backwards.</strong> Two groups of 2,500 answers each. Group B mentions the theme more often (34% against 30%). But the LLM is worse at recognising it in group B&#39;s answers, as it might be for dialect, translated or less fluent writing. The naive estimate of the gap A − B is <strong>+3.6 points; the truth is −4</strong>. It is &quot;statistically significant&quot; in the wrong direction in <strong>80% of studies</strong>. The error comes from the coder, not from the people, and nothing in the naive pipeline would flag it.</p>
+<p><strong>200 hand-coded answers fix both.</strong> Prediction-powered inference (Angelopoulos et al., <em>Science</em>,</p>
+<ol><li>keeps the LLM&#39;s codes for the whole corpus and adds a correction: the average gap between</li></ol>
+<p>human and LLM codes on a <em>random</em> sample of hand-coded answers. With 200 per group:</p>
+<div class="scroll"><table><thead><tr><th></th><th>naive LLM codes</th><th>200 hand-coded only</th><th>LLM codes + correction</th></tr></thead><tbody><tr><td>group gap (truth −0.040)</td><td>+0.036</td><td>−0.039</td><td>−0.039</td></tr><tr><td>interval contains truth</td><td>0%</td><td>96.5%</td><td>97.3%</td></tr><tr><td>interval width</td><td>0.049</td><td>0.183</td><td>0.140</td></tr></tbody></table></div>
+<p>For one theme&#39;s prevalence, the corrected estimate from 200 hand-coded answers is as precise as a hand-coded study of 374.</p>
+<p><strong>The correction stops paying below about 80% accuracy.</strong> With a weak coder, the human-minus-LLM correction is noisier than the human codes themselves. At 70% accuracy the corrected interval is 0.151 wide, against 0.127 from the 200 hand-coded answers alone. It is still valid, just not worth it. At 95% accuracy it is half as wide (0.067), and at 98% it matches a 1,757-answer hand-coded study.</p>
+<h3>What this means if you analyse qualitative data</h3>
+<ul><li><strong>Use the LLM, and hand-code a random sample anyway.</strong> A couple of hundred is a reasonable start. Use one sample per group if you compare groups, and code them blind to the LLM&#39;s codes.</li><li><strong>Agreement scores are not enough.</strong> κ = 0.72 did not reveal that every estimate was 4 points low. Agreement tells you how often the coders differ, not which way.</li><li><strong>Correct before you count.</strong> The project&#39;s <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/qual-correction/qualml.py"><code>qualml.py</code></a> is stdlib Python with κ, Krippendorff&#39;s α and the prediction-powered estimator. For regressions, use design-based supervised learning (Egami et al. 2023).</li><li><strong>Check that the correction helps.</strong> If its interval is wider than the hand-coded one, the coder is too weak: fix the prompt or the codebook first.</li></ul>
+<h3>What comes next</h3>
+<p>Track 19 lists the next steps. The first is to run the same pipeline on a public, hand-coded corpus with a real model. Then: measure whether LLM coding accuracy really differs by dialect or language, test LLM-proposed codebooks against human ones, use qualitative codes as predictive features, and extend the correction to regressions. The applications are broad: customer feedback and support tickets, open-ended survey questions, user research, consultation responses and qualitative health research. All of them need the same validation step before the numbers mean anything.</p>
+<p><em>Produced with AI assistance (Claude). All results come from simulated coders with known error rates, not from a real LLM or a real dataset. References and limitations are in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/research/qual-correction/README.md">the project README</a>.</em></p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turning 1,213 static web tools into offline desktop apps with Tauri · Open Tools and Research</title>
+<meta name="description" content="How we wrap static calculator pages as offline Tauri v2 apps for macOS, Windows and Linux: a 1.4 MB .deb, a CSP that blocks the network, measured numbers.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/offline-desktop-apps-from-static-pages-with-tauri/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="Turning 1,213 static web tools into offline desktop apps with Tauri · Open Tools and Research">
+<meta property="og:description" content="How we wrap static calculator pages as offline Tauri v2 apps for macOS, Windows and Linux: a 1.4 MB .deb, a CSP that blocks the network, measured numbers.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/offline-desktop-apps-from-static-pages-with-tauri/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Turning 1,213 static web tools into offline desktop apps with Tauri","description":"How we wrap static calculator pages as offline Tauri v2 apps for macOS, Windows and Linux: a 1.4 MB .deb, a CSP that blocks the network, measured numbers.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/offline-desktop-apps-from-static-pages-with-tauri/","keywords":"distribution, tauri, desktop-apps, offline, open-source","wordCount":676}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>Turning 1,213 static web tools into offline desktop apps with Tauri</h1>
+<p class="dek">How we wrap static calculator pages as offline Tauri v2 apps for macOS, Windows and Linux: a 1.4 MB .deb, a CSP that blocks the network, measured numbers.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-offline-desktop-apps-from-static-pages-with-tauri.md">Source</a><br><span class="tag">distribution</span><span class="tag">tauri</span><span class="tag">desktop-apps</span><span class="tag">offline</span><span class="tag">open-source</span></p>
+<p>This repository publishes about 1,300 small free tools: calculators, checkers and planners. Each one is a static web page that already runs entirely in the browser. The owner asked for them on every platform, not just the web. We already had packagers for iOS, Android, browser extensions, npm, PyPI and an MCP server. Desktop was the gap, and this post covers how we closed it and what we measured.</p>
+<h3>Why Tauri and not Electron</h3>
+<p>Electron ships a full copy of Chromium with every app, so even a &quot;hello world&quot; installer is tens of megabytes. Tauri v2 uses the operating system&#39;s own web view: WebView2 on Windows, WKWebView on macOS and WebKitGTK on Linux. The app itself is a small Rust binary. Tauri is MIT/Apache-2.0, which matches the tools&#39; MIT licence.</p>
+<p>We measured one real tool, the shift roster builder, built on Linux:</p>
+<div class="scroll"><table><thead><tr><th>Artifact</th><th>Size</th></tr></thead><tbody><tr><td>Executable</td><td>3.6 MB</td></tr><tr><td><code>.deb</code> package</td><td>1.4 MB</td></tr><tr><td><code>.AppImage</code></td><td>80 MB</td></tr></tbody></table></div>
+<p>The AppImage is large because it carries its own WebKitGTK so that it runs on any distribution. The <code>.deb</code> relies on the system copy. That trade-off is worth knowing before you choose which Linux format to recommend.</p>
+<h3>Offline by construction, not by promise</h3>
+<p>Every tool page already claims &quot;nothing you type is uploaded&quot;. A desktop app should make that claim impossible to break by accident, so the packager enforces it in four places:</p>
+<ol><li><strong>A Content-Security-Policy with <code>connect-src &#39;none&#39;</code>.</strong> Tauri attaches it to every bundled page, so <code>fetch</code>, <code>XMLHttpRequest</code>, WebSockets and beacons all fail. <code>script-src &#39;self&#39;</code> also rules out inline and remote scripts.</li><li><strong>No Tauri capabilities.</strong> Tauri v2 only lets a page call native commands that a capability file grants. We ship no capability file, so the page can call no native command.</li><li><strong>Navigation stays in the bundle.</strong> The Rust shell checks every navigation. A bundled page loads. Anything else, including a link to a guide page that isn&#39;t bundled, opens in your normal browser.</li><li><strong>Pages that need the network are skipped.</strong> We reuse the browser-extension packager&#39;s checks, which reject a page that calls the network, loads remote code or uses inline event handlers. 1,213 of 1,285 pages pass.</li></ol>
+<h3>One trap: Tauri&#39;s fallback page</h3>
+<p>Tauri behaves like a single-page-app server: a request for a missing path returns the root <code>index.html</code>. Our pages link to sibling guides with relative links such as <code>../how-to-make-an-employee-schedule/</code>. In the app those links would have silently shown the wrong page. The fix was to lay out the bundle exactly like the website and generate the list of bundled pages into the Rust shell. A link to any other page then opens the real page on the site, tagged so we can count those arrivals.</p>
+<h3>Suites</h3>
+<p>A single calculator is a thin app. The packager can also build a whole catalogue section as one app, with a launcher page listing its tools and an &quot;All tools&quot; link on each tool. Sections range from 2 tools to 212. The largest bundles 11 MB of pages.</p>
+<h3>What is automated and what is not</h3>
+<p>A manual-only GitHub Actions workflow builds unsigned <code>.dmg</code>, <code>.msi</code>, <code>.exe</code>, <code>.AppImage</code> and <code>.deb</code> files on macOS, Windows and Ubuntu runners. It attaches them, with checksums and filled-in <code>winget</code> manifests, to a pre-release. It stays off until the owner sets a repository variable, per the repository&#39;s rule against unattended automation.</p>
+<p>Code signing, Apple notarisation and the <code>winget</code> submission need the owner&#39;s accounts and certificates, so they are documented rather than automated. Flatpak and Snap are written up as follow-ups. Until the first signed build, macOS and Windows show a one-time &quot;unverified developer&quot; warning.</p>
+<p>What we have not checked yet: the macOS and Windows builds themselves. The Linux build compiled with no warnings and rendered the tool offline. The other two operating systems get their first real test on the first workflow run.</p>
+<p>The packager is <code>platform/distribution/desktop.mjs</code>, and the handoff for the remaining steps is in <code>docs/history/desktop-apps-2026-10-20.md</code>.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the cumulative percentage of research pull-request branches merged within 5 to 240 minutes of their first commit; most merge within 5 minutes">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Research branches: share merged within N minutes (n=122)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.0" y2="273.0" stroke="#ddd"/><text x="58" y="277.0" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="222.0" y2="222.0" stroke="#ddd"/><text x="58" y="226.0" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="171.0" y2="171.0" stroke="#ddd"/><text x="58" y="175.0" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<line x1="64" x2="624" y1="120.1" y2="120.1" stroke="#ddd"/><text x="58" y="124.1" text-anchor="end" font-family="sans-serif" font-size="11">80</text>
+<line x1="64" x2="624" y1="69.1" y2="69.1" stroke="#ddd"/><text x="58" y="73.1" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="164.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="323.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="423.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">60</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">240</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">minutes since first commit</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">% of branches merged</text>
+<polyline points="64.0,123.4 164.3,100.4 323.2,81.6 423.5,75.3 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="123.4" r="3" fill="#c0392b"/>
+<circle cx="164.3" cy="100.4" r="3" fill="#c0392b"/>
+<circle cx="323.2" cy="81.6" r="3" fill="#c0392b"/>
+<circle cx="423.5" cy="75.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">branches merged</text>
+</svg>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research algorithms in your browser: changepoints, conformal intervals and matrix profiles · Open Tools and Research</title>
+<meta name="description" content="Three methods from published statistics papers as free tools on your own CSV: in the browser, the command line and AI agents, with the papers cited.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/writing/research-algorithms-in-your-browser/">
+<link rel="alternate" type="application/atom+xml" title="Open Tools and Research: writing" href="../feed.xml">
+<meta property="og:title" content="Research algorithms in your browser: changepoints, conformal intervals and matrix profiles · Open Tools and Research">
+<meta property="og:description" content="Three methods from published statistics papers as free tools on your own CSV: in the browser, the command line and AI agents, with the papers cited.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/writing/research-algorithms-in-your-browser/">
+<meta property="og:image" content="https://duncan-haywood.github.io/monorepo-projects/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Research algorithms in your browser: changepoints, conformal intervals and matrix profiles","description":"Three methods from published statistics papers as free tools on your own CSV: in the browser, the command line and AI agents, with the papers cited.","datePublished":"2026-10-20","url":"https://duncan-haywood.github.io/monorepo-projects/writing/research-algorithms-in-your-browser/","keywords":"projects, statistics, machine-learning, time-series, open-source","wordCount":715}</script>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 16px 72px; }
+  a { color:var(--accent); }
+  .crumbs { font-size:.85rem; color:var(--muted); margin:0 0 28px; } .crumbs a { color:inherit; }
+  h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
+  .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
+  .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
+  article h4 { font-size:1rem; margin:1.4em 0 .3em; }
+  article p, article li { overflow-wrap:break-word; }
+  article li { margin:.25em 0; }
+  code { font-size:.88em; background:var(--code); border-radius:4px; padding:.05em .3em; overflow-wrap:anywhere; }
+  pre { background:var(--code); border-radius:8px; padding:12px 14px; overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  blockquote { margin:1.2em 0; padding:.2em 0 .2em 16px; border-left:3px solid var(--accent); color:var(--muted); }
+  .scroll { overflow-x:auto; max-width:100%; margin:1.2em 0; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
+  .posts { list-style:none; padding:0; margin:0; }
+  .posts li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:0 0 14px; }
+  .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
+  .posts h2 a:hover { color:var(--accent); }
+  .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
+  .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
+</style>
+<link rel="stylesheet" href="../../pf-site.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <meta name="theme-color" content="#12594a">
+  <link rel="apple-touch-icon" href="../../icon-192.png">
+  <!-- The build also emits /favicon.ico, which is what a browser fetches with
+       no markup to go on; a linked PNG is preferred where both exist and is
+       the one that stays sharp on a high-DPI tab strip. -->
+  <link rel="icon" type="image/png" href="../../icon-192.png">
+  <script>
+    // Progressive enhancement only: with no service worker support, or with the
+    // registration rejected (private mode, an unsupported browser), every page
+    // behaves exactly as it did before.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../../sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../c/">Tools</a><a data-pfs-nav="research" href="../../research/">Research</a><a data-pfs-nav="writing" href="../../writing/" aria-current="page">Writing</a><a data-pfs-nav="updates" href="../../updates/">Updates</a><a data-pfs-nav="ask" href="../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../about/">About</a></span><form class="pfs-search" action="../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../#search">Search</a></span></nav>
+<div class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../" data-pf-to="hub">Home</a> › <a href="../">Writing</a></nav>
+<main>
+<article>
+<h1>Research algorithms in your browser: changepoints, conformal intervals and matrix profiles</h1>
+<p class="dek">Three methods from published statistics papers as free tools on your own CSV: in the browser, the command line and AI agents, with the papers cited.</p>
+<p class="meta"><time datetime="2026-10-20">20 October 2026</time> · 3 min read ·
+<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/posts/2026-10-20-research-algorithms-in-your-browser.md">Source</a><br><span class="tag">projects</span><span class="tag">statistics</span><span class="tag">machine-learning</span><span class="tag">time-series</span><span class="tag">open-source</span></p>
+<p>Most of the 1,300 tools in this repository are calculators: a bid, a fee, a tax threshold. On 2026-10-20 the owner set a new direction: tools built from <strong>methods in published research papers</strong>, run on the visitor&#39;s own data, licences respected and the papers credited, and usable by AI agents as well as people. The rules are in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research-tools/README.md"><code>portfolio/research-tools/README.md</code></a>. This post covers the first three. AI coding agents (Claude sessions) built them, with the owner steering.</p>
+<p>Each one runs in a browser tab with nothing uploaded. Each ships a zero-dependency CLI (<code>node cli.mjs --help</code> prints the citations) and an engine that the repository&#39;s agent layer can call (<code>node platform/agents/tools.mjs describe &lt;slug&gt;</code> now prints each paper in full). Each comes with a real public dataset as its example.</p>
+<h3>1. When did this series change? Changepoint detector</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/changepoint-detector/README.md">Live tool and source</a></p>
+<p>Two methods run side by side:</p>
+<ul><li><strong>PELT</strong> (Killick, Fearnhead &amp; Eckley 2012, <em>JASA</em>) finds the exact best segmentation under a penalty per change.</li><li><strong>Bayesian online changepoint detection</strong> (Adams &amp; MacKay 2007) gives a probability for each candidate change.</li></ul>
+<p>The example is the annual flow of the Nile at Aswan, 1871–1970. That is the textbook case: Cobb (1978) found the level dropped after 1898. The tool reports the same thing:</p>
+<ul><li>segments 1871–1898 (mean 1097.75) and 1899–1970 (mean 849.97);</li><li>a Bayesian probability of 79% at 1899, the only point above 50%.</li></ul>
+<p>That matches R&#39;s <code>changepoint</code> package (<code>cpts = 28</code>).</p>
+<p>Two tests check the implementations are exact, not approximately right:</p>
+<ul><li>PELT&#39;s answer equals a brute-force search over all segmentations on 25 random series.</li><li>With the hazard driven to zero, the Bayesian recursion&#39;s evidence equals the closed-form Normal-Inverse-Gamma marginal likelihood.</li></ul>
+<p>One honest number from the tests: on pure noise of length 300, the default BIC penalty still invents a change in about one series in ten.</p>
+<h3>2. How wide must a prediction interval be? Conformal prediction intervals</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/conformal-prediction-intervals/README.md">Live tool and source</a></p>
+<p>Conformal prediction gives intervals that cover a chosen share of new cases, with a finite-sample guarantee and no assumption about the error distribution. The tool fits three variants and checks each on held-out rows:</p>
+<ul><li>split conformal (Lei et al. 2018);</li><li>a locally weighted version;</li><li>conformalized quantile regression (Romano, Patterson &amp; Candès 2019), with its own exact linear-programming quantile fit.</li></ul>
+<p>On the diabetes data from Efron et al. (2004), at a 90% target with one seeded split, split conformal covered 90.1% of the 111 test rows (100 of 111) at a mean width of 182.0. CQR covered 93.7% at 180.7. Averaged over 200 random splits, all three land between 90.2% and 90.4%. That is what the guarantee promises: correct on average over splits, noisy on any one split.</p>
+<h3>3. What repeats, and what is unlike anything else? Matrix profile explorer</h3>
+<p><a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/matrix-profile-explorer/README.md">Live tool and source</a></p>
+<p>The matrix profile (Yeh et al. 2016; Zhu et al. 2016, both ICDM) gives, for every window of a series, the distance to its closest match elsewhere in the series. Low values are <strong>motifs</strong> (repeated patterns); high values are <strong>discords</strong> (anomalies). The tool computes it exactly with STOMP. It agrees with a brute-force implementation and with the outputs of STUMPY, a widely used library, to within 1e-10 on the test series.</p>
+<p>On NOAA&#39;s Mauna Loa monthly CO2 record, with a 12-month window:</p>
+<ul><li>The closest repeat is the year starting September 2014 and the year starting September 2024 (distance 0.1394; correlation 0.9992).</li><li>The most unusual year is the one starting January 2024 (distance 0.7474).</li></ul>
+<p>A discord says a stretch is unusual, not why. The README notes that NOAA&#39;s file includes months measured at Maunakea rather than Mauna Loa near then.</p>
+<h3>What&#39;s next</h3>
+<p>The <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/portfolio/research-tools/README.md">spec</a> lists the next papers, each one a job someone has:</p>
+<ul><li>synthetic control, for &quot;did my intervention work&quot;;</li><li>Kaplan–Meier and Cox models, for churn;</li><li>Sinkhorn optimal transport;</li><li>Gaussian-process regression;</li><li>isolation forests;</li><li>robust PCA;</li><li>STL decomposition;</li><li>false-discovery-rate control.</li></ul>
+<p>Desktop packaging is also queued. The repository already builds iOS, Android, npm, MCP and browser-extension packages, and these tools qualify for them.</p>
+<p>These are statistical tools on data you supply. They are not advice. Check any result before you rely on it.</p>
+</article>
+<section class="more" aria-label="More writing">
+<p><strong>More writing</strong></p>
+<ul><li><a href="../build-what-an-agent-would-rather-call/">Build what an agent would rather call than redo</a></li><li><a href="../can-you-predict-divorce/">Can you predict divorce? We tried more data, more questions and smarter models</a></li><li><a href="../chip-design-loops-what-35-open-experiments-found/">What 35 open chip-design experiments found about Yosys and ABC</a></li><li><a href="../cut-the-deadweight/">Cut the deadweight: why our AI agents&#39; rulebook had to shrink</a></li><li><a href="../does-an-agent-fleet-need-a-manager-agent/">Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800</a></li></ul>
+<p><a href="../">All writing</a> · <a href="../../">All tools and research</a></p>
+</section>
+</main>
+<footer>
+  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+  <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
+  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of steps to reach tolerance against initial error x0/R from 0.5 to 1000; the unsaturated twin grows logarithmically to 49 steps while the saturating real sensor grows linearly to 4021 steps">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Range twin: steps to tolerance, P loop (k = 0.25)</text>
+<line x1="64" x2="624" y1="240.1" y2="240.1" stroke="#ddd"/><text x="58" y="244.1" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="134.3" y2="134.3" stroke="#ddd"/><text x="58" y="138.3" text-anchor="end" font-family="sans-serif" font-size="11">1000</text>
+<text x="115.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="284.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="454.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">x0 / R</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">steps</text>
+<polyline points="64.0,309.6 115.1,303.8 166.1,300.2 233.6,295.4 284.7,291.0 403.3,284.5 505.4,278.9 624.0,272.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#c0392b"/>
+<circle cx="115.1" cy="303.8" r="3" fill="#c0392b"/>
+<circle cx="166.1" cy="300.2" r="3" fill="#c0392b"/>
+<circle cx="233.6" cy="295.4" r="3" fill="#c0392b"/>
+<circle cx="284.7" cy="291.0" r="3" fill="#c0392b"/>
+<circle cx="403.3" cy="284.5" r="3" fill="#c0392b"/>
+<circle cx="505.4" cy="278.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="272.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">twin steps</text>
+<polyline points="64.0,309.6 115.1,303.8 166.1,297.0 233.6,281.0 284.7,262.8 403.3,203.6 505.4,143.4 624.0,70.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#1f6fb2"/>
+<circle cx="115.1" cy="303.8" r="3" fill="#1f6fb2"/>
+<circle cx="166.1" cy="297.0" r="3" fill="#1f6fb2"/>
+<circle cx="233.6" cy="281.0" r="3" fill="#1f6fb2"/>
+<circle cx="284.7" cy="262.8" r="3" fill="#1f6fb2"/>
+<circle cx="403.3" cy="203.6" r="3" fill="#1f6fb2"/>
+<circle cx="505.4" cy="143.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">real steps (sim)</text>
+</svg>

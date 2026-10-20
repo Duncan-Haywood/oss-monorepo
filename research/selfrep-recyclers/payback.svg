@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of payback in copies against retired plastic per copy for shredder plus extruder in a printer, CNC and laser shop, for two values of the recovery fraction phi: payback falls from 116 copies with no retired plastic to 31 or 12 copies at one or more units, depending on phi">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Selfrep-recyclers: payback vs retired plastic</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="280.4" y2="280.4" stroke="#ddd"/><text x="58" y="284.4" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="236.8" y2="236.8" stroke="#ddd"/><text x="58" y="240.8" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="193.2" y2="193.2" stroke="#ddd"/><text x="58" y="197.2" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<line x1="64" x2="624" y1="149.6" y2="149.6" stroke="#ddd"/><text x="58" y="153.6" text-anchor="end" font-family="sans-serif" font-size="11">80</text>
+<line x1="64" x2="624" y1="106.0" y2="106.0" stroke="#ddd"/><text x="58" y="110.0" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="62.5" y2="62.5" stroke="#ddd"/><text x="58" y="66.5" text-anchor="end" font-family="sans-serif" font-size="11">120</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">retired plastic per copy (eol)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">payback (copies)</text>
+<polyline points="64.0,71.2 204.0,256.4 344.0,256.4 624.0,256.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="256.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="256.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="256.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">phi = 0.3</text>
+<polyline points="64.0,71.2 204.0,278.2 344.0,297.8 624.0,297.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="278.2" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="297.8" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="297.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">phi = 0.8</text>
+</svg>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Merge Report, Sunday, 18 October 2026</title>
+<meta name="description" content="The Merge Report for Sunday, 18 October 2026: A light daily show about what an open-source studio of AI agents merged: the headline change, new products, research, plot twists and the numbers. About 2 minutes to read or listen.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-18/show/">
+<link rel="alternate" type="application/atom+xml" title="Daily engineering brief and The Merge Report" href="../../feed.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"The Merge Report, Sunday, 18 October 2026","datePublished":"2026-10-18","description":"The Merge Report for Sunday, 18 October 2026: A light daily show about what an open-source studio of AI agents merged: the headline change, new products, research, plot twists and the numbers. About 2 minutes to read or listen.","isAccessibleForFree":true,"author":{"@type":"Organization","name":"monorepo-projects"},"url":"https://duncan-haywood.github.io/monorepo-projects/dev/daily/2026-10-18/show/"}</script>
+<style>
+  :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7; --hl:#fff3c4; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542; --accent:#7aa2ff; --hl:#3b3416; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+  .wrap { max-width:760px; margin:0 auto; padding:24px 16px 56px; }
+  a { color:var(--accent); }
+  h1 { margin:.2em 0 .1em; line-height:1.25; } h2 { margin-top:1.8em; font-size:1.2rem; }
+  .kicker { text-transform:uppercase; letter-spacing:.06em; font-size:.78rem; color:var(--muted); margin:0; }
+  .meta, .note { color:var(--muted); font-size:.9rem; }
+  .listen { position:sticky; top:0; z-index:5; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin:16px 0 8px; display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; }
+  .listen .controls { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .listen button { font:inherit; padding:6px 14px; border-radius:8px; border:1px solid var(--line); background:var(--accent); color:#fff; cursor:pointer; }
+  .listen button[data-act=stop] { background:transparent; color:var(--ink); }
+  .listen button:disabled { opacity:.5; cursor:default; }
+  .listen select { font:inherit; font-size:.9rem; max-width:220px; padding:4px; border-radius:6px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+  .listen .status, .listen .unsupported { color:var(--muted); font-size:.85rem; }
+  .speaking { background:var(--hl); border-radius:4px; box-shadow:0 0 0 4px var(--hl); }
+  .switch { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .switch a { padding:4px 12px; border:1px solid var(--line); border-radius:999px; text-decoration:none; font-size:.9rem; background:var(--panel); }
+  .switch a[aria-current] { background:var(--accent); color:#fff; border-color:var(--accent); }
+  li { margin:.35em 0; } .pr { font-size:.85em; white-space:nowrap; }
+  .archive { columns:2 220px; padding-left:1.1em; }
+  .disclaimer { margin-top:2.5em; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+</style>
+<link rel="stylesheet" href="../../../../pf-site.css">
+</head>
+<body>
+<nav class="pfs-head" aria-label="Site" data-pfs-head><span class="pfs-bar"><a class="pfs-brand" href="../../../../" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>Open Tools and Research</a><span class="pfs-nav"><a data-pfs-nav="tools" href="../../../../c/">Tools</a><a data-pfs-nav="research" href="../../../../research/">Research</a><a data-pfs-nav="writing" href="../../../../writing/">Writing</a><a data-pfs-nav="updates" href="../../../../updates/">Updates</a><a data-pfs-nav="ask" href="../../../../ask/">Ask</a><a data-pfs-nav="deploy" href="../../../../deploy/">Deploy your own</a><a data-pfs-nav="about" href="../../../../about/">About</a></span><form class="pfs-search" action="../../../../" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit">Search</button></form><a class="pfs-searchlink" href="../../../../#search">Search</a></span><span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="../../../../" data-pf-to="hub">Home</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../../">Development dashboard</a><span class="pfs-sep" aria-hidden="true">›</span><a href="../../">Daily</a><span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">The Merge Report</span></span></nav>
+<main class="wrap">
+  <p class="kicker">The Merge Report · Sunday, 18 October 2026</p>
+  <h1>The Merge Report, Sunday, 18 October 2026</h1>
+  <p class="meta">About 2 minutes aloud (303 words). A light daily show about what an open-source studio of AI agents merged: the headline change, new products, research, plot twists and the numbers.</p>
+  <nav class="switch" aria-label="Edition"><a href="../../2026-10-18/">Engineering brief</a><a href="../../2026-10-18/show/" aria-current="page">The Merge Report</a></nav>
+  <div class="listen" id="listen" data-kind="show">
+    <div class="controls" hidden>
+      <button type="button" data-act="play">&#9654; Listen</button>
+      <button type="button" data-act="stop" disabled>Stop</button>
+      <label>Speed <select name="rate"><option value="0.9">0.9×</option><option value="1" selected>1×</option><option value="1.15">1.15×</option><option value="1.3">1.3×</option><option value="1.5">1.5×</option></select></label>
+      <label>Voice <select name="voice"><option value="">Device default</option></select></label>
+      <span class="status" aria-live="polite"></span>
+    </div>
+    <span class="unsupported" hidden>This browser cannot read aloud; the full script is below.</span>
+    <noscript><span class="status">Listening needs JavaScript; the full script is below.</span></noscript>
+  </div>
+<section id="open"><h2 data-say>Tonight</h2>
+<p data-say>Welcome to The Merge Report. Grab a coffee. The agents won’t; they run on tokens.</p>
+<p data-say>On Sunday, 18 October 2026, the agents merged 330 pull requests into main. That’s one roughly every 4 minutes, around the clock, 124% above the seven-day average of 147.4.</p></section>
+<section id="headline"><h2 data-say>The headline</h2>
+<p data-say>The biggest change of the day, by lines touched: “prompts: review 2026-10-18 (third)”. It added 9,011 lines and removed 683 across 6 files.</p><p class="meta">Pull request <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/8001">#8001</a></p></section>
+<section id="faces"><h2 data-say>New faces</h2>
+<p data-say>10 new products joined the lineup: s-corp-basis-tracker, grailed-fee-calculator, tcgplayer-fee-calculator, youth-lineup-rotator, page-seo-audit and meeting-action-items, and more.</p>
+<p data-say>The lab opened 72 new research projects: robofab-cell-fesc, free-citeaudit, house-open-design, free-secretarynoise and mimic-mauve.</p></section>
+<section id="products"><h2 data-say>Product corner</h2>
+<p data-say>39 products got attention. The busiest:</p>
+<ul><li data-say>league-schedule-generator, 34 merges, including “Third-place match option; share link keeps the double-elimination tick” <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7878">#7878</a></li><li data-say>shift-roster-builder, 21 merges, including “Price a seventh-day premium for scale” <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7881">#7881</a></li><li data-say>state-residency-day-counter, 15 merges, including “Import the phone&#39;s Timeline.json export” <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7884">#7884</a></li></ul></section>
+<section id="lab"><h2 data-say>From the lab</h2>
+<p data-say>Over in research, 82 projects moved forward.</p>
+<ul><li data-say>“research/swe-orgs: batch 15, Perrow&#39;s normal accidents and the DevOps Handbook” <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7864">#7864</a></li><li data-say>“research/house-open-design: a 480 sq ft ADU plan set generated from the house track&#39;s models” <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7875">#7875</a></li><li data-say>“research/selfrep-judgement: how much closure depends on make-or-buy judgements” <a class="pr" href="https://github.com/Duncan-Haywood/oss-monorepo/pull/7920">#7920</a></li></ul></section>
+<section id="twist"><h2 data-say>The plot twist</h2>
+<p data-say>Not a single revert all day. Somewhere, a CI pipeline is quietly proud of itself.</p></section>
+<section id="numbers"><h2 data-say>By the numbers</h2>
+<p data-say>125,290 lines in, 2,778 lines out: a net gain of 122,512.</p>
+<p data-say>Rush hour was 12:00 UTC, with 18 merges in sixty minutes.</p>
+<p data-say>The measured agent runs used $136.70 of compute at API list prices. That’s an equivalent, not a bill.</p></section>
+<section id="word"><h2 data-say>Word of the day</h2>
+<p data-say>Today’s word is “redteam”, which turned up in 37 pull request titles. Use it in a sentence at standup.</p></section>
+<section id="leaderboard"><h2 data-say>The leaderboard</h2>
+<p data-say>Merges by co-author: Claude Sonnet 5.5 with 261, Claude with 64, unattributed with 4 and Claude Opus 5.5 with 1. Claude Sonnet 5.5 takes the day.</p></section>
+<section id="signoff"><h2 data-say>Sign-off</h2>
+<p data-say>That’s the show. Same branch, same time tomorrow.</p></section>
+  <h2>Other days</h2>
+  <ul class="archive"><li><a href="../../2026-10-19/show/">Monday, 19 October 2026</a></li><li><a href="../../2026-10-18/show/">Sunday, 18 October 2026</a></li><li><a href="../../2026-10-17/show/">Saturday, 17 October 2026</a></li><li><a href="../../2026-10-16/show/">Friday, 16 October 2026</a></li><li><a href="../../2026-10-15/show/">Thursday, 15 October 2026</a></li><li><a href="../../2026-10-14/show/">Wednesday, 14 October 2026</a></li><li><a href="../../2026-10-13/show/">Tuesday, 13 October 2026</a></li></ul>
+  <p class="meta">Also: <a href="../../2026-10-18/">Engineering brief for this day</a> · <a href="../../../">Development dashboard</a> · <a href="../../feed.xml">Atom feed</a> · <a href="../../2026-10-18/facts.json">The facts behind this page (JSON)</a></p>
+  <div class="disclaimer note">
+    <strong>How this is made.</strong> Written automatically, by a template and not by a person or a language model, from this repository’s git history, its agent run records, the owner’s decision queue and, for the newest edition, a CI snapshot taken when the site was built (2026-10-20 22:59 UTC). Titles are quoted from pull requests as their authors wrote them. Costs are API-list-price equivalents, not charges. The audio is your own device’s speech synthesis: nothing is uploaded. Informational only; nothing here is advice.
+  </div>
+</main>
+<script src="../../../../pf-site.js" data-pf-slug="dev-daily-show"></script>
+<script>
+(function(){
+  var bar=document.getElementById('listen');
+  if(!bar)return;
+  if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined'){bar.querySelector('.unsupported').hidden=false;return;}
+  bar.querySelector('.controls').hidden=false;
+  var synth=window.speechSynthesis,play=bar.querySelector('[data-act=play]'),stop=bar.querySelector('[data-act=stop]');
+  var rate=bar.querySelector('select[name=rate]'),voiceSel=bar.querySelector('select[name=voice]'),status=bar.querySelector('.status');
+  var queue=[],idx=0,state='idle',current=null,counted=false;
+  function spoken(el){
+    var c=el.cloneNode(true);c.querySelectorAll('.pr').forEach(function(x){x.remove();});
+    return c.textContent.replace(/#(\d+)/g,'number $1').replace(/([A-Za-z])[-_\/]([A-Za-z0-9])/g,'$1 $2').replace(/([A-Za-z])[-_\/]([A-Za-z0-9])/g,'$1 $2').replace(/\s+/g,' ').trim();
+  }
+  function build(){
+    queue=[];
+    document.querySelectorAll('main [data-say]').forEach(function(el){
+      var t=spoken(el);if(!t)return;
+      (t.match(/[^.!?…]+[.!?…]*[\u201d"']?\s*/g)||[t]).forEach(function(s){if(s.trim())queue.push({el:el,text:s.trim()});});
+    });
+  }
+  function voices(){
+    var vs=synth.getVoices().filter(function(v){return /^en/i.test(v.lang);});
+    var keep=voiceSel.value;voiceSel.innerHTML='<option value="">Device default</option>';
+    vs.forEach(function(v){var o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';voiceSel.appendChild(o);});
+    voiceSel.value=keep;
+  }
+  voices();if(typeof synth.onvoiceschanged!=='undefined')synth.onvoiceschanged=voices;
+  function mark(el){if(current)current.classList.remove('speaking');current=el;if(el){el.classList.add('speaking');var r=el.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)el.scrollIntoView({block:'center',behavior:'smooth'});}}
+  function next(){
+    if(state!=='playing')return;
+    if(idx>=queue.length){reset();status.textContent='Finished.';return;}
+    var item=queue[idx],u=new SpeechSynthesisUtterance(item.text);
+    u.rate=parseFloat(rate.value)||1;u.lang='en-GB';
+    var v=synth.getVoices().filter(function(x){return x.name===voiceSel.value;})[0];if(v){u.voice=v;u.lang=v.lang;}
+    u.onend=function(){if(state==='playing'){idx++;next();}};
+    u.onerror=function(e){if(e.error==='interrupted'||e.error==='canceled')return;idx++;next();};
+    mark(item.el);status.textContent=Math.min(100,Math.round(idx/queue.length*100))+'%';
+    synth.speak(u);
+  }
+  function reset(){synth.cancel();state='idle';idx=0;mark(null);play.textContent='\u25B6 Listen';stop.disabled=true;}
+  play.addEventListener('click',function(){
+    if(state==='playing'){synth.pause();state='paused';play.textContent='\u25B6 Resume';return;}
+    if(state==='paused'){state='playing';synth.resume();if(!synth.speaking){next();}play.textContent='\u23F8 Pause';return;}
+    build();synth.cancel();state='playing';idx=0;play.textContent='\u23F8 Pause';stop.disabled=false;
+    if(!counted){counted=true;try{var k='portfolio-hub-usage',c=JSON.parse(localStorage.getItem(k)||'{}');var e='daily_listen:'+bar.getAttribute('data-kind');c[e]=(c[e]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(err){}}
+    next();
+  });
+  stop.addEventListener('click',function(){reset();status.textContent='';});
+  rate.addEventListener('change',function(){if(state==='playing'){synth.cancel();next();}});
+  addEventListener('pagehide',function(){synth.cancel();});
+})();
+</script>
+</body>
+</html>

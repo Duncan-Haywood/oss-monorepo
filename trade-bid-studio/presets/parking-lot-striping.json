@@ -1,0 +1,63 @@
+{
+  "slug": "parking-lot-striping-bid-calculator",
+  "name": "Parking lot striping",
+  "group": "Paving, concrete & masonry",
+  "summary": "Lot restripes and new layouts priced from stalls, ADA aisles, stencils, stop bars and coats.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 28,
+  "burdenRate": 28,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Restripe stall lines, 1 coat",
+      "unit": "stall",
+      "qty": 50,
+      "hoursPerUnit": 0.057,
+      "materialPerUnit": 2.1,
+      "source": "48 standard + 2 ADA stalls (index.html); restripe layout 0.012 h/stall + 18 lf/stall x 0.25 h/100 lf; 18 lf / 360 lf per gal x $42/gal (suggestedKit('restripe') in calc.mjs, index.html)"
+    },
+    {
+      "label": "ADA stall extras (hash aisle + sign)",
+      "unit": "stall",
+      "qty": 2,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 93.17,
+      "source": "hoursPerAdaExtra 0.35; 70 lf hash / 360 lf per gal x $42 + ADA sign $85 (suggestedKit, index.html)"
+    },
+    {
+      "label": "Handicap symbols",
+      "unit": "each",
+      "qty": 2,
+      "hoursPerUnit": 0.2,
+      "materialPerUnit": 3.055,
+      "source": "0.2 h each; 8 sq ft / 110 sq ft per gal x $42 (suggestedKit)"
+    },
+    {
+      "label": "Arrows",
+      "unit": "each",
+      "qty": 8,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 2.291,
+      "source": "0.12 h each; 6 sq ft / 110 sq ft per gal x $42 (suggestedKit)"
+    },
+    {
+      "label": "Stop bars",
+      "unit": "each",
+      "qty": 2,
+      "hoursPerUnit": 0.15,
+      "materialPerUnit": 1.867,
+      "source": "0.15 h each; 16 lf / 360 lf per gal x $42 (suggestedKit)"
+    },
+    {
+      "label": "Trip and mobilization",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 175,
+      "source": "hoursTrip 1.5 for a restripe; mobilization $175 (suggestedKit, index.html)"
+    }
+  ],
+  "specialistModels": "Restripe vs new-layout comparison, second-coat labor factor, night-work premium, crosswalk bar geometry, fire lane and curb paint."
+}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" font-family="sans-serif" font-size="13">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="10" y="20" font-weight="bold">doc_friction entries by keyword theme (n = 714)</text>
+<text x="162" y="50" text-anchor="end" fill="#222">other</text>
+<rect x="170" y="36" width="420" height="18" fill="#2b6cb0"/>
+<text x="595" y="50" fill="#222">296</text>
+<text x="162" y="76" text-anchor="end" fill="#222">missing-tooling</text>
+<rect x="170" y="62" width="182" height="18" fill="#2b6cb0"/>
+<text x="357" y="76" fill="#222">128</text>
+<text x="162" y="102" text-anchor="end" fill="#222">stale-or-wrong</text>
+<rect x="170" y="88" width="114" height="18" fill="#2b6cb0"/>
+<text x="289" y="102" fill="#222">80</text>
+<text x="162" y="128" text-anchor="end" fill="#222">unclear-or-missing</text>
+<rect x="170" y="114" width="82" height="18" fill="#2b6cb0"/>
+<text x="257" y="128" fill="#222">58</text>
+<text x="162" y="154" text-anchor="end" fill="#222">too-long</text>
+<rect x="170" y="140" width="52" height="18" fill="#2b6cb0"/>
+<text x="228" y="154" fill="#222">37</text>
+<text x="162" y="180" text-anchor="end" fill="#222">shallow-clone</text>
+<rect x="170" y="166" width="51" height="18" fill="#2b6cb0"/>
+<text x="226" y="180" fill="#222">36</text>
+<text x="162" y="206" text-anchor="end" fill="#222">timeout</text>
+<rect x="170" y="192" width="43" height="18" fill="#2b6cb0"/>
+<text x="218" y="206" fill="#222">30</text>
+<text x="162" y="232" text-anchor="end" fill="#222">duplicate-check</text>
+<rect x="170" y="218" width="31" height="18" fill="#2b6cb0"/>
+<text x="206" y="232" fill="#222">22</text>
+<text x="162" y="258" text-anchor="end" fill="#222">red-on-clean-main</text>
+<rect x="170" y="244" width="24" height="18" fill="#2b6cb0"/>
+<text x="199" y="258" fill="#222">17</text>
+<text x="162" y="284" text-anchor="end" fill="#222">no-good-candidate</text>
+<rect x="170" y="270" width="14" height="18" fill="#2b6cb0"/>
+<text x="189" y="284" fill="#222">10</text>
+</svg>

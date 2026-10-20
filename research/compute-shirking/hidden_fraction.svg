@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the hidden compute fraction against noise sigma-prime for reducible shares 1.00 to 0.05: lower reducible share hides more">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Hidden fraction f* vs noise (power law, beta 0.5, detection 1/2, alpha 0.05)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="272.8" y2="272.8" stroke="#ddd"/><text x="58" y="276.8" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="221.5" y2="221.5" stroke="#ddd"/><text x="58" y="225.5" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="170.3" y2="170.3" stroke="#ddd"/><text x="58" y="174.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="119.1" y2="119.1" stroke="#ddd"/><text x="58" y="123.1" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="67.8" y2="67.8" stroke="#ddd"/><text x="58" y="71.8" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.02</text>
+<text x="286.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="455.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">noise sigma'</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">hidden fraction f*</text>
+<polyline points="64.0,307.6 286.8,285.1 455.4,252.3 624.0,200.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="307.6" r="3" fill="#c0392b"/>
+<circle cx="286.8" cy="285.1" r="3" fill="#c0392b"/>
+<circle cx="455.4" cy="252.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="200.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">r=1.00</text>
+<polyline points="64.0,293.0 286.8,254.6 455.4,206.9 624.0,148.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="293.0" r="3" fill="#1f6fb2"/>
+<circle cx="286.8" cy="254.6" r="3" fill="#1f6fb2"/>
+<circle cx="455.4" cy="206.9" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="148.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">r=0.50</text>
+<polyline points="64.0,255.9 286.8,193.4 455.4,139.3 624.0,97.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="255.9" r="3" fill="#2e8b57"/>
+<circle cx="286.8" cy="193.4" r="3" fill="#2e8b57"/>
+<circle cx="455.4" cy="139.3" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="97.3" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">r=0.20</text>
+<polyline points="64.0,159.8 286.8,102.7 455.4,80.1 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="159.8" r="3" fill="#8e44ad"/>
+<circle cx="286.8" cy="102.7" r="3" fill="#8e44ad"/>
+<circle cx="455.4" cy="80.1" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">r=0.05</text>
+</svg>
