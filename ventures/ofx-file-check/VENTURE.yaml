@@ -38,7 +38,7 @@ hypotheses:
       the diagnosis) is what they came for.
     status: untested
     checked: null
-    evidence: usage-counters
+    evidence: customer-contact
     measure: >-
       ratio of fixes_applied to file_checked in the opt-in local counters
       (usage.mjs); needs a reading from real visitors, none yet.
