@@ -24,7 +24,7 @@ owner: duncan
 # and the page tells the user to confirm the two transactions really differ.
 #
 # Path to revenue (payment rails stay off): lead magnet for bookkeeper and accounting-software audiences;
-# a paid version, if usage appears, is a bulk CLI / CI check behind an env-var switch; none built.
+# a paid version, if usage appears, is a hosted bulk check behind an env-var switch; none built. The bulk CLI itself (cli.mjs) shipped 2026-10-20 as free open source.
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-every-vendor clause,
 # trademarks used nominatively, no acceptance promise.
