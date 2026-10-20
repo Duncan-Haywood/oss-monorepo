@@ -922,3 +922,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   counts). ventures 2 and review 2 unchanged (intervals overlap / under 10
   runs). `derived/` regenerated. No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E55: review 2026-10-20 (reduced pass, evening)
+
+- Change: none to prompts. `derived/` regenerated. A fix to the retire rule in
+  `promptctl.py verdict` (retire on integrity issues only at two or more, since
+  one self-disclosed caveat on research/1 keeps firing it) was blocked by the
+  auto-mode classifier twice (this run and draft PR #8901), so it is a proposal.
+- Proposal for the owner: allow `verdict` to require 2+ integrity issues before
+  "retire: more integrity issues". Three review friction reports on 2026-10-20
+  describe the manual look it costs each review.
+- Decisions: research candidate 1 kept (99% vs 98% success). ventures 2 and
+  review 2 unchanged (overlap / under 10 runs). No audit or drift report
+  (reduced pass).
+- Result: (next review)
