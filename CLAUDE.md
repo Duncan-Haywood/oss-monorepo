@@ -55,8 +55,11 @@ uses real data to tell the owner something new.
 None of these is a reason to stop with nothing done: "nothing to do", a vague
 brief, a blocked task, an empty queue, or finding that your task already
 landed. Take the next item from the queues (`session_gate.py`, `PROJECTS.md`,
-the track prompts). If none has one, **come up with something new that is
-valuable, useful or insightful and ship it.** It can be an open-source tool, a
+the track prompts). For venture work the default is the top flagship in
+[`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner, 2026-10-20:
+more of the work should deepen "existing projects that have real depth").
+If none of those fits, **come up with something new that is valuable, useful
+or insightful and ship it.** It can be an open-source tool, a
 product, academic or industry research, marketing, or anything else that
 helps users or the portfolio.
 
