@@ -464,13 +464,27 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
         self.assertEqual(promptctl._flag_stale("2026-10-17T13:00: x", "2026-10-17T12:00:00+00:00"),
                          "2026-10-17T13:00: x")
 
+    def test_changed_note_ignores_the_shallow_boundary(self):
+        from unittest import mock
+        run = mock.Mock(return_value=mock.Mock(stdout="abc123 2026-10-20T04:30:00+00:00\n"))
+        with mock.patch.object(promptctl.subprocess, "run", run), \
+                mock.patch.object(promptctl, "_shallow_boundary", return_value={"abc123"}):
+            note, changed = promptctl._changed_note("CLAUDE.md")
+        self.assertEqual(changed, "")
+        self.assertIn("shallow-clone edge", note)
+        with mock.patch.object(promptctl.subprocess, "run", run), \
+                mock.patch.object(promptctl, "_shallow_boundary", return_value=set()):
+            self.assertEqual(promptctl._changed_note("CLAUDE.md")[1], "2026-10-20T04:30:00+00:00")
+
     def test_latest_and_named_files(self):
         self.assertEqual(promptctl._latest("", "2026-10-17"), "2026-10-17")
         self.assertEqual(promptctl._latest("2026-10-18", "2026-10-17"), "2026-10-18")
         self.assertEqual(promptctl._latest("2026-10-18", ""), "2026-10-18")
         self.assertEqual(promptctl._named_files_changed("no path here"), "")
         self.assertEqual(promptctl._named_files_changed("nonexistent/zzz.py broke"), "")
-        self.assertTrue(promptctl._named_files_changed("prompts/promptctl.py is long"))
+        from unittest import mock
+        with mock.patch.object(promptctl, "_shallow_boundary", return_value=set()):  # shallow clones know no dates
+            self.assertTrue(promptctl._named_files_changed("prompts/promptctl.py is long"))
 
     def test_string_friction_and_deviation_entries_do_not_crash(self):
         import tempfile, json

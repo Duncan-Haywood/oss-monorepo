@@ -160,6 +160,15 @@ test("classify cleans invisible, full-width and labelled cells, and only when th
   assert.equal(classify("ABC123").kind, "bad");
 });
 
+test("GS1 Digital Link URLs, the (01) identifier and scanner symbology prefixes are unwrapped, then still check-digit validated", () => {
+  assert.equal(classify("https://id.gs1.org/01/09506000134352").value, "09506000134352");
+  assert.equal(classify("https://example.com/p/01/09506000134352/10/LOT7?x=1").value, "09506000134352");
+  assert.equal(classify("(01) 0 9506000 13435 2").value, "09506000134352");
+  assert.equal(classify("]E0036000291452").value, "036000291452");
+  assert.equal(classify("(01)09506000134353").kind, "bad");
+  assert.equal(classify("https://x.com/01/12345").kind, "bad");
+});
+
 test("a GTIN-14 case code is linked to the item code it wraps when both are listed", () => {
   const inner = "4006381333931";
   const pack = "1" + inner.slice(0, 12) + computeCheck("1" + inner.slice(0, 12));
