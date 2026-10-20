@@ -121,9 +121,10 @@ flagships:
       Partial nights are filled too (splitRounds, a page box: example league
       on 3 courts 17 -> 13 nights, README). Home/away breaks after rainouts are
       now counted (stats.homeAwayBreaks: 176 -> 395 on 8 seeded leagues) and a
-      balance option trims them 12% at +5 days of delay (README), off by default. Next: flip home/away of a moved
-      match when the totals allow (the real fix, nothing changes with split
-      rounds today), or multi-season carry-over of venue fairness.
+      balance option trims them 12% at +5 days of delay (README), off by default. Home/away flip of moved matches is in
+      (`flip: true`, a final pass, no delay: 345 -> 333 breaks on 7 seeds, README; small because teams sit at
+      +/-1 home games). Next: swap pairs of moved matches between two teams so totals stay even (a single flip
+      needs an opposite-signed partner), or multi-season carry-over of venue fairness.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
