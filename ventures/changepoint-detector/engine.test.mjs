@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, poissonSeasonal, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, poissonSeasonal, poissonTrend, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -533,7 +533,7 @@ test('trend with a seasonal cycle, and counts are refused', () => {
   // measured (seeds 601..640): 6.6 changes/series with --period alone, 1.25 with --trend; found 40/40
   console.log(`# period+trend: ${plain / N} vs ${tr / N}; found ${found}/${N}`);
   assert.ok(tr / N < 0.3 * (plain / N) && found >= 0.95 * N);
-  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], model: 'poisson', trend: true }), /counts/);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], model: 'poisson', trend: 'bends' }), /counts/);
 });
 
 test('trendAdjust keeps the mean level and returns the slope', () => {
@@ -777,4 +777,25 @@ test('seasonal counts report factors, a per-point rate and exposures-aware segme
   assert.equal(r.pelt.segments.length, 2);
   assert.ok(Math.abs(r.pelt.segments[0].mean - 10) < 1.5 && Math.abs(r.pelt.segments[1].mean - 20) < 2.5);
   assert.equal(r.adjusted.length, 210);
+});
+
+test('poissonTrend recovers a log-linear growth rate and keeps a rate step out of it', () => {
+  const r = rng(77);
+  const n = 200;
+  const x = [];
+  for (let t = 0; t < n; t++) x.push(poissons(r, 1, 10 * Math.exp(1.2 * t / (n - 1)) * (t >= 100 ? 1.6 : 1))[0]);
+  const { g, exposure } = poissonTrend(x, {});
+  assert.ok(Math.abs(g - 1.2) < 0.35, `g ${g}`);
+  assert.ok(Math.abs(exposure[n - 1] / exposure[0] - Math.exp(g)) < 1e-9);
+  const a = analyze({ values: x, model: 'poisson', trend: true });
+  assert.equal(a.trend.multiplicative, true);
+  assert.ok(a.pelt.changepoints.some((c) => Math.abs(c.index - 100) <= 8));
+  assert.ok(a.pelt.changepoints.length <= 2);
+});
+
+test('count trends refuse bends, and a flat series gets a growth near zero', () => {
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'bend' }), /bends are for/);
+  const r = rng(5);
+  const a = analyze({ values: poissons(r, 150, 8), model: 'poisson', trend: true });
+  assert.ok(Math.abs(a.trend.logGrowthAcrossSeries) < 0.4);
 });

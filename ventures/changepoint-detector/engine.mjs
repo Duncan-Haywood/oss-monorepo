@@ -182,6 +182,52 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
 }
 
 /**
+ * A common log-linear trend under the steps for counts: the rate at point t is
+ * (segment rate) x base[t] x exp(g u[t]), with u running from -0.5 to 0.5 over
+ * the series, so g is the total log change across it. The growth factor is an
+ * exposure in the Poisson likelihood, like the seasonal factors, and composes
+ * with them through `base`. Start from a Theil-Sen-style slope of log counts
+ * (median over lag-n/4 differences, which a step touches in only part of the
+ * pairs), then alternate: PELT under the current exposures, then a Newton step
+ * on g with each segment's rate profiled out, until g moves less than 1e-5.
+ * Returns { g, exposure, passes }.
+ */
+export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12 } = {}) {
+  const n = x.length;
+  const u = Array.from({ length: n }, (_, t) => (t - (n - 1) / 2) / Math.max(1, n - 1));
+  const b = (t) => (base ? base[t] : 1);
+  const y = x.map((v, t) => Math.log((v + 0.5) / b(t)));
+  const k = Math.max(1, Math.floor(n / 4));
+  const slopes = [];
+  for (let t = 0; t + k < n; t++) slopes.push((y[t + k] - y[t]) / (u[t + k] - u[t]));
+  let g = slopes.length ? median(slopes) : 0;
+  const GMAX = 20;  // a factor of e^20 across the series is not a trend any more
+  g = Math.max(-GMAX, Math.min(GMAX, g));
+  let done = 0;
+  for (; done < passes; done++) {
+    const e = Array.from({ length: n }, (_, t) => b(t) * Math.exp(g * u[t]));
+    const { changepoints } = pelt(x, { model: 'poisson', penalty, minSegment, exposure: e });
+    const bounds = [0, ...changepoints, n];
+    // Profile score and curvature in g: sum x u - sum_seg A * mean_w(u), curvature sum_seg A * var_w(u), w = b exp(g u).
+    let score = 0, curv = 0;
+    for (let i = 0; i + 1 < bounds.length; i++) {
+      let A = 0, W = 0, Wu = 0, Wuu = 0;
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) {
+        const w = e[t];
+        A += x[t]; W += w; Wu += w * u[t]; Wuu += w * u[t] * u[t];
+        score += x[t] * u[t];
+      }
+      if (W > 0) { const mu = Wu / W; score -= A * mu; curv += A * Math.max(0, Wuu / W - mu * mu); }
+    }
+    if (!(curv > 1e-12)) break;
+    const step = Math.max(-2, Math.min(2, score / curv));
+    g = Math.max(-GMAX, Math.min(GMAX, g + step));
+    if (Math.abs(step) < 1e-5) { done++; break; }
+  }
+  return { g, exposure: Array.from({ length: n }, (_, t) => b(t) * Math.exp(g * u[t])), passes: done };
+}
+
+/**
  * Drifting seasonal shape: each phase's detrended values are smoothed across
  * cycles: a Theil-Sen line through up to 9 cycles on series of 10 or more cycles,
  * a running median of 5 (3 when there are fewer than 6) on shorter ones, so a cycle whose amplitude grows or whose peak moves is followed instead
@@ -958,8 +1004,13 @@ export function analyze(input = {}) {
     } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
   let slope = null, slopeAfter, knot, knots, slopes;
-  if (o.trend) {
-    if (model === 'poisson') throw new Error('The trend removal subtracts a line, which breaks counts: use "mean" or "meanvar" with a trend.');
+  let growth = null;
+  if (o.trend && model === 'poisson') {
+    if (o.trend !== true) throw new Error('For counts, --trend takes one common growth rate under the steps (no bend): bends are for "mean" or "meanvar".');
+    const fit = poissonTrend(original, { base: exposure, penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
+    exposure = fit.exposure;
+    growth = fit.g;
+  } else if (o.trend) {
     ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   let sigma = robustSd(values);
@@ -1036,6 +1087,7 @@ export function analyze(input = {}) {
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
+    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
