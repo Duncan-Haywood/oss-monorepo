@@ -37,7 +37,7 @@ function drawSatisfaction(couple) {
 let datingData = null;
 let datingLoad = null;
 function drawDating(couple) {
-  const el = document.getElementById('datingOut');
+  const el = document.getElementById('datingLengthOut');
   if (!el) return;
   if (!datingLoad) {
     datingLoad = fetch('data/dating_length.json').then((r) => (r.ok ? r.json() : null)).catch(() => null)
@@ -99,7 +99,7 @@ function draw({ el, lens, lenses, a, b, couple }) {
     <div id="satOut" aria-live="polite"></div>
     <h3>How long you dated before marrying</h3>
     <p class="sub">Whether a longer courtship goes with fewer divorces: what one survey shows, a held-out test, and the published estimate, with its evidence grade.</p>
-    <div id="datingOut" aria-live="polite"></div>`;
+    <div id="datingLengthOut" aria-live="polite"></div>`;
   drawSatisfaction(couple);
   drawDating(couple);
 }
