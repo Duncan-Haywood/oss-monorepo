@@ -63,8 +63,8 @@ export function crateName(id) {
 export function suites() {
   const out = {};
   for (const c of catalogue.ALL_CATEGORIES) out[c.id] = { title: c.title, url: `${BASE_URL}${catalogue.categoryPagePath(c.id)}`, test: (slug) => catalogue.categoryFor(slug).id === c.id };
-  // The research-algorithms list, once build.mjs exports one, is a suite too.
-  if (Array.isArray(catalogue.RESEARCH_ALGORITHM_SLUGS)) {
+  // The research-algorithms list is a catalogue section today; keep it a suite if it ever stops being one.
+  if (Array.isArray(catalogue.RESEARCH_ALGORITHM_SLUGS) && !out['research-algorithms']) {
     const set = new Set(catalogue.RESEARCH_ALGORITHM_SLUGS);
     out['research-algorithms'] = { title: 'Research algorithms and ML', url: BASE_URL, test: (slug) => set.has(slug) };
   }

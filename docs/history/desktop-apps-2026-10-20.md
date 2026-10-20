@@ -26,7 +26,7 @@ still has to do.
   - There is no `capabilities/` directory, so the page can call no Tauri command.
   - `withGlobalTauri` is false.
   - Exports go to Downloads through `on_download`.
-- **Suites.** A suite is a catalogue section (`ALL_CATEGORIES` in `platform/pages/build.mjs`, 13 of them, from 2 to 212 tools). It gets a launcher page, and each tool gets an "All tools" link back to it. The brief named `RESEARCH_ALGORITHM_SLUGS`, but that list does not exist on `main`. If `build.mjs` ever exports it, `suites()` adds a `research-algorithms` suite automatically.
+- **Suites.** A suite is a catalogue section (`ALL_CATEGORIES` in `platform/pages/build.mjs`, 14 of them, from 2 to 212 tools). It gets a launcher page, and each tool gets an "All tools" link back to it. The brief's "Research algorithms & ML" suite is `research-algorithms` (`RESEARCH_ALGORITHM_SLUGS`, landed in #8747 while this was in review). It builds all 3 tools: `node platform/distribution/desktop.mjs --build research-algorithms <dir>`. Only the one-tool shift-roster-builder project was compiled.
 - **Icons.** `.ico` and `.icns` are built in JavaScript from the existing `renderIcon` PNGs, so no image tool is needed.
 - **winget.** Each project gets three manifest templates (schema 1.6.0) with a placeholder URL and SHA-256. After a run, the workflow fills them from the release's `.msi` and attaches them.
 
@@ -50,7 +50,7 @@ Verified in the session container (Linux, Rust 1.x, `libwebkit2gtk-4.1-dev` inst
 
 Do these in order. Each one is a separate PR, landed per `.github/prompts/land-your-work.md`.
 
-1. **First workflow run (owner switch needed).** It is `DISTRIBUTE_DESKTOP=true` plus one manual dispatch with target `learning` (2 tools, the smallest suite). If the owner has not set the variable, ask once through `portfolio/ledger/decision_queue.py`, and only if no such row exists. Then read the run:
+1. **First workflow run (owner switch needed).** It is `DISTRIBUTE_DESKTOP=true` plus one manual dispatch with target `research-algorithms` (3 tools, the suite the brief named) or `learning` (2 tools). If the owner has not set the variable, ask once through `portfolio/ledger/decision_queue.py`, and only if no such row exists. Then read the run:
    - macOS: Tauri's ad-hoc signature is `signingIdentity: "-"`. If `tauri build` rejects it, drop the key.
    - Windows: the WiX `.msi` needs a version and product name WiX accepts. `productName()` already strips `&`, `/`, `:` and non-ASCII. If WiX still complains, look there first.
    - The release job's `gh release create` runs on the `CI_RUNNER` switch. The self-hosted image has no `gh`, so while the switch is self-hosted, change this to `curl` against the REST API.

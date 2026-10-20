@@ -10,7 +10,7 @@ on:
       target:
         description: 'A venture slug or a suite id (node platform/distribution/desktop.mjs --suites lists them)'
         required: true
-        default: 'learning'
+        default: 'research-algorithms'
 permissions:
   contents: read
 concurrency:
