@@ -13,7 +13,7 @@ test("carries the no-warranty disclaimer and licence line", () => {
 });
 
 test("states the date and the format", () => {
-  assert.match(html, /1 October 2026/);
+  assert.match(html, /2 November 2026/);
   assert.match(html, /myDATA/);
   assert.match(html, /MARK/);
 });
