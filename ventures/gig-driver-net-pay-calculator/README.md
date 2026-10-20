@@ -79,7 +79,7 @@ and credits are not modelled.
 week as total net over total hours and miles (not an average of per-session
 rates), plus the share of gross the car ate ([`log.mjs`](log.mjs),
 [`log.test.mjs`](log.test.mjs)). Stored in your browser only; export a CSV
-any time.
+any time. It also lists net per hour by weekday and the best and worst session.
 
 **Copy session summary** turns the result into plain text. **Copy share
 link** puts the same inputs in a URL fragment so a partner or future-you can
