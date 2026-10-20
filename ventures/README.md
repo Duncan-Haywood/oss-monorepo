@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1298 when this list was last generated), grouped the way the live site
+Every tool in this folder (1299 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -23,7 +23,7 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [CI checks & developer gates](#ci-checks--developer-gates) (175)
 - [Creator & solo earner income](#creator--solo-earner-income) (91)
 - [Learning & practice](#learning--practice) (3)
-- [More free tools](#more-free-tools) (5)
+- [More free tools](#more-free-tools) (6)
 - [Other directories](#other-directories) (4)
 
 ## Self-hosted business apps
@@ -1387,6 +1387,7 @@ Everything else that runs entirely in your browser. [Browse this section on the 
 - [Open Tennis Robots — DIY tennis ball machine + ball collecting robot](https://duncan-haywood.github.io/monorepo-projects/open-tennis-robots/) · [code](open-tennis-robots/)
 - [Simulate conversations between fictional personalities](https://duncan-haywood.github.io/monorepo-projects/persona-conversation-simulator/) · [code](persona-conversation-simulator/)
 - [Price drop alerts for any shop, on your own GitHub](https://duncan-haywood.github.io/monorepo-projects/price-drop-watcher/) · [code](price-drop-watcher/)
+- [Saints by Candlelight: a free bedtime podcast of saints, angels and Bible stories](https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/) · [code](saints-by-candlelight/)
 - [What time is it there — and are they awake?](https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/) · [code](world-clock-widget/)
 
 ## Other directories

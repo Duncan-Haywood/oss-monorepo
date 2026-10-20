@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:podcast="https://podcastindex.org/namespace/1.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Saints by Candlelight</title>
+    <link>https://example.invalid/saints-by-candlelight/</link>
+    <atom:link href="https://example.invalid/saints-by-candlelight/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>Lighthearted, faithful bedtime stories of the saints, angels and patriarchs of the Catholic and Orthodox traditions: the Archangel Raphael on the road with Tobias, the lion of Saint Gerasimus, Saint Nicholas and the three bags of gold, and many more. Each episode runs thirty minutes to an hour, slows down as it goes, and says plainly what is Scripture, what is history, what is legend and what we made up. Written by an AI, read by a synthetic voice, free to share under CC BY-SA 4.0.</description>
+    <language>en</language>
+    <copyright>CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Written by Claude, an AI model made by Anthropic.</copyright>
+    <podcast:license url="https://creativecommons.org/licenses/by-sa/4.0/">cc-by-sa-4.0</podcast:license>
+    <podcast:medium>podcast</podcast:medium>
+    <podcast:guid>53a01eb0-7011-5478-a9d7-698a7e64cd95</podcast:guid>
+    <itunes:author>Saints by Candlelight (written by Claude, an AI)</itunes:author>
+    <itunes:image href="https://example.invalid/saints-by-candlelight/cover.png"/>
+    <image><url>https://example.invalid/saints-by-candlelight/cover.png</url><title>Saints by Candlelight</title><link>https://example.invalid/saints-by-candlelight/</link></image>
+    <itunes:category text="Religion &amp; Spirituality"><itunes:category text="Christianity"/></itunes:category>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:type>episodic</itunes:type>
+
+  </channel>
+</rss>

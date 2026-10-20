@@ -1299,6 +1299,9 @@ workflows:
 - workflow: saas-seat-true-up-ci.yml
   classification: none
   publishes: []
+- workflow: saints-by-candlelight-ci.yml
+  classification: none
+  publishes: []
 - workflow: salary-range-posting-check-ci.yml
   classification: none
   publishes: []
