@@ -93,9 +93,12 @@ flagships:
       ranking with random-effects 95% intervals and rank ranges (groupRanking.ts,
       coverage checked on seeded data). The admin form is in (SurveyBuilder on /admin: create a
       survey, copy its link, read the ranking with intervals and rank ranges,
-      download the CSV). Next: a /s/[slug] respondent page for
-      admin-made surveys, then the information-gain pair selector
-      (IMPROVEMENT-PLAN.md, P1).
+      download the CSV). The /s/[slug] respondent page is in (SurveyRespondent:
+      anonymous join via POST /api/surveys/[slug]/join, then the same pair
+      questions and Glicko-2 answers as the main flow, resumable from
+      localStorage, retry in place). Next: the information-gain pair selector
+      (IMPROVEMENT-PLAN.md, P1), measured against the current selector on
+      seeded respondents.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
