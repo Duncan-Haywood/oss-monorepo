@@ -1,0 +1,5 @@
+{
+ "theme": "swe",
+ "title": "Does a cheaper start fix the small-budget loss of smart track allocation?",
+ "summary": "<code>swe-decay</code> found greedy and Thompson track allocation losing to uniform at a 5,000-line budget (24 against 30 value points) because two forced pulls per track ate it. Here each track is pulled once, or a shrinkage rule uses no forced pulls. On the observed history one pull each removes the loss (pass A: 33.0 and 33.3 against uniform 30.0) but costs a few points at 20,000 lines in pass B; shrinkage greedy is no better than uniform on the observed order, matches the others on resampled histories, and is insensitive to its prior size. On 200 block-bootstrapped histories every start rule&rsquo;s 5,000-line interval over uniform still includes zero. Stylised: lines of code stand in for cost, the value scores agree weakly, and no live trial was run."
+}

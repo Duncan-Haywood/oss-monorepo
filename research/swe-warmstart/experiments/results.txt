@@ -1,0 +1,64 @@
+== value = pass_A
+-- part 1: observed history, 300 policy seeds (mean value points, 95% CI over seeds)
+budget 5000 (hindsight 42): uniform 30.0 [29.4, 30.6]; greedy 24.0 [24.0, 24.0]; greedy-1pull 33.0 [33.0, 33.0]; thompson 24.0 [24.0, 24.0]; thompson-1pull 33.3 [33.2, 33.4]; shrink-500 30.3 [29.5, 31.1]; shrink-2000 30.3 [29.5, 31.1]; shrink-8000 30.3 [29.5, 31.1]
+budget 10000 (hindsight 80): uniform 58.4 [57.7, 59.0]; greedy 58.0 [58.0, 58.0]; greedy-1pull 58.0 [58.0, 58.0]; thompson 59.4 [59.3, 59.5]; thompson-1pull 62.6 [62.0, 63.3]; shrink-500 58.3 [57.0, 59.7]; shrink-2000 58.3 [57.0, 59.7]; shrink-8000 58.3 [57.0, 59.7]
+budget 20000 (hindsight 138): uniform 114.0 [113.3, 114.7]; greedy 134.0 [134.0, 134.0]; greedy-1pull 133.0 [133.0, 133.0]; thompson 129.9 [129.5, 130.2]; thompson-1pull 131.2 [131.0, 131.5]; shrink-500 112.8 [110.1, 115.4]; shrink-2000 112.8 [110.1, 115.4]; shrink-8000 112.8 [110.1, 115.4]
+-- prior-size check, observed history (K = 0.001 and 10^7 pseudo-lines; budgets 5000 / 10000 / 20000): shrink-0.001 30.3 / 58.3 / 112.8; shrink-1e+07 30.3 / 58.3 / 112.8
+-- part 2: block-4 bootstrap, 200 histories x 3 seeds; policy minus uniform, 95% percentile interval, share of histories won
+budget 5000
+  greedy            diff   +2.3  [  -8.7,   +9.3]  wins 68%
+  greedy-1pull      diff   +6.2  [  -2.7,  +16.3]  wins 87%
+  thompson          diff   +2.3  [  -8.7,   +9.3]  wins 68%
+  thompson-1pull    diff   +5.8  [  -1.7,  +14.3]  wins 88%
+  shrink-500        diff   +5.3  [  -3.3,  +12.7]  wins 87%
+  shrink-2000       diff   +5.3  [  -3.3,  +12.7]  wins 87%
+  shrink-8000       diff   +5.3  [  -3.3,  +12.7]  wins 87%
+budget 10000
+  greedy            diff  +12.6  [  -1.7,  +26.0]  wins 94%
+  greedy-1pull      diff  +19.1  [  +1.3,  +32.7]  wins 98%
+  thompson          diff  +10.6  [  -0.3,  +23.3]  wins 96%
+  thompson-1pull    diff  +18.0  [  +1.7,  +31.0]  wins 99%
+  shrink-500        diff  +15.0  [  +0.0,  +27.0]  wins 98%
+  shrink-2000       diff  +15.0  [  +0.0,  +27.0]  wins 98%
+  shrink-8000       diff  +15.0  [  +0.0,  +27.0]  wins 98%
+budget 20000
+  greedy            diff  +34.6  [ +16.3,  +54.7]  wins 100%
+  greedy-1pull      diff  +38.4  [ +18.3,  +59.0]  wins 100%
+  thompson          diff  +31.9  [ +14.3,  +52.7]  wins 100%
+  thompson-1pull    diff  +36.4  [ +12.3,  +59.0]  wins 100%
+  shrink-500        diff  +36.0  [ +10.7,  +54.0]  wins 100%
+  shrink-2000       diff  +35.9  [ +10.7,  +53.0]  wins 100%
+  shrink-8000       diff  +35.7  [ +10.0,  +53.0]  wins 100%
+
+== value = pass_B
+-- part 1: observed history, 300 policy seeds (mean value points, 95% CI over seeds)
+budget 5000 (hindsight 43): uniform 27.5 [27.0, 28.1]; greedy 22.0 [22.0, 22.0]; greedy-1pull 30.0 [30.0, 30.0]; thompson 22.0 [22.0, 22.0]; thompson-1pull 30.5 [30.4, 30.6]; shrink-500 27.7 [26.8, 28.7]; shrink-2000 27.7 [26.8, 28.7]; shrink-8000 27.7 [26.8, 28.7]
+budget 10000 (hindsight 73): uniform 51.9 [51.3, 52.5]; greedy 62.0 [62.0, 62.0]; greedy-1pull 60.0 [60.0, 60.0]; thompson 56.3 [56.0, 56.6]; thompson-1pull 59.4 [59.2, 59.5]; shrink-500 52.0 [50.7, 53.3]; shrink-2000 52.0 [50.7, 53.3]; shrink-8000 52.0 [50.7, 53.3]
+budget 20000 (hindsight 130): uniform 101.3 [100.5, 102.0]; greedy 107.0 [107.0, 107.0]; greedy-1pull 103.0 [103.0, 103.0]; thompson 112.5 [112.1, 112.9]; thompson-1pull 105.5 [105.4, 105.7]; shrink-500 92.3 [90.5, 94.2]; shrink-2000 92.3 [90.5, 94.2]; shrink-8000 92.3 [90.5, 94.2]
+-- prior-size check, observed history (K = 0.001 and 10^7 pseudo-lines; budgets 5000 / 10000 / 20000): shrink-0.001 27.7 / 52.0 / 92.3; shrink-1e+07 27.7 / 52.0 / 92.3
+-- part 2: block-4 bootstrap, 200 histories x 3 seeds; policy minus uniform, 95% percentile interval, share of histories won
+budget 5000
+  greedy            diff   +2.1  [  -7.7,   +8.7]  wins 70%
+  greedy-1pull      diff   +3.9  [  -4.0,  +14.0]  wins 78%
+  thompson          diff   +2.0  [  -7.7,   +8.0]  wins 70%
+  thompson-1pull    diff   +3.8  [  -4.0,  +13.0]  wins 77%
+  shrink-500        diff   +5.9  [  -3.3,  +13.7]  wins 90%
+  shrink-2000       diff   +5.9  [  -3.3,  +13.7]  wins 90%
+  shrink-8000       diff   +5.9  [  -3.3,  +13.7]  wins 90%
+budget 10000
+  greedy            diff   +8.4  [  -3.7,  +23.7]  wins 90%
+  greedy-1pull      diff  +14.2  [  -1.7,  +34.3]  wins 96%
+  thompson          diff   +6.1  [  -3.7,  +20.0]  wins 86%
+  thompson-1pull    diff  +11.9  [  -2.3,  +32.7]  wins 90%
+  shrink-500        diff  +14.6  [  -2.3,  +30.3]  wins 96%
+  shrink-2000       diff  +14.6  [  -2.3,  +30.3]  wins 96%
+  shrink-8000       diff  +14.6  [  -2.3,  +30.3]  wins 96%
+budget 20000
+  greedy            diff  +27.9  [  +6.7,  +48.0]  wins 99%
+  greedy-1pull      diff  +30.8  [  +7.0,  +52.3]  wins 99%
+  thompson          diff  +24.6  [  +0.3,  +46.0]  wins 98%
+  thompson-1pull    diff  +28.2  [  +1.0,  +50.0]  wins 98%
+  shrink-500        diff  +27.4  [  +3.0,  +46.7]  wins 98%
+  shrink-2000       diff  +27.3  [  +3.3,  +46.7]  wins 98%
+  shrink-8000       diff  +27.2  [  +2.7,  +46.0]  wins 98%
+
