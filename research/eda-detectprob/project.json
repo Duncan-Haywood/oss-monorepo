@@ -1,0 +1,5 @@
+{
+ "theme": "eda",
+ "title": "How many random vectors does it take to see an RTL bug, and what can 1,280 clean vectors not rule out?",
+ "summary": "Detection-probability model of the <em>eda-verify</em> mutation log (91 mutants, 20 seeds). Random vectors catch 41 mutants on the first vector, 24 with a per-vector probability between 0.03 and 0.95, and never catch 25 (16 provably equivalent, 9 formal timeouts). A geometric first-failure model fits the observed miss rate within 0.005 at every budget up to 64 vectors, and predicts 45 vectors for a 1% miss rate and 118 for 0.1% (extrapolated beyond the data). The 1,280 clean vectors bound an undetected bug's per-vector probability below 0.0023 at 95%, so random testing cannot tell a rare bug from an equivalent mutant. Stylised: one design, 91 mutants, a tail set by 2&ndash;3 mutants; nothing new was simulated."
+}
