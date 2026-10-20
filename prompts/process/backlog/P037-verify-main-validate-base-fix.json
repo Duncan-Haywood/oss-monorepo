@@ -1,7 +1,7 @@
 {
   "id": "P037",
   "title": "Verify: Portfolio validate on main pushes is mostly green after the base-ref fix (#8765)",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 1,
@@ -19,7 +19,9 @@
   "baseline": "77 of 100 failed, all at that step (2026-10-20)",
   "opened": "2026-10-20",
   "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
-  "pr": null,
-  "result": null,
-  "history": []
+  "pr": "this",
+  "result": "No change in the pass rate, but the failing step moved. Last 100 completed push runs of portfolio-validate.yml on main (2026-10-20T08:35Z..19:59Z, mcp actions_list): 54 success / 46 failure, vs 23/77 before. 0 of the 46 failed at 'Check no live venture disappears' (the metric, was 77): the base-ref fix worked. Sampled run 39488183297 failed at step 7 'Check the apex tool mirror is not stale' (2 of 275 tests: robots.txt/sitemap and catalog.json under gitops/prod/front-door are stale, 'run: node platform/marketing/regen.mjs'); reproduced on origin/main locally. Failures cluster 09-11h and 16:59h onward (every run 17h-19h failed): each new venture page makes the dead apex mirror stale, and the step takes ~4.5 min. Remedy is P039 (PR #8850: run the step only when the mirror or its generator changes); main stays red until that merges or the mirror is regenerated.",
+  "history": [
+    "2026-10-20: verified; see result."
+  ]
 }
