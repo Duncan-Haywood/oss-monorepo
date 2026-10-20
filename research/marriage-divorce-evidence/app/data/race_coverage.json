@@ -242,6 +242,86 @@
    "note": "Per partner: White, Black, Hispanic (any race), Other (Asian, Native American, other). The couple input is 'Both <group>' when the two partners map to the same group, else 'Interracial'."
   },
   {
+   "lens": "hcmst_dating_marriage",
+   "input": "couple_race",
+   "source": "HCMST couple race composition (unmarried couples, 2009)",
+   "categories": [
+    "White",
+    "Black",
+    "Hispanic",
+    "Other"
+   ],
+   "couple_categories": [
+    "Both White",
+    "Both Hispanic",
+    "Both Other",
+    "Interracial",
+    "Unknown"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "Same coding as the HCMST couples lens: per partner White, Black, Hispanic (any race) or Other; the couple input is 'Both <group>' when both map to the same group, else 'Interracial' (Both Black is the reference level)."
+  },
+  {
+   "lens": "hcmst_dating_breakup",
+   "input": "couple_race",
+   "source": "HCMST couple race composition (unmarried couples, 2009)",
+   "categories": [
+    "White",
+    "Black",
+    "Hispanic",
+    "Other"
+   ],
+   "couple_categories": [
+    "Both White",
+    "Both Hispanic",
+    "Both Other",
+    "Interracial",
+    "Unknown"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "Same coding as the HCMST couples lens: per partner White, Black, Hispanic (any race) or Other; the couple input is 'Both <group>' when both map to the same group, else 'Interracial' (Both Black is the reference level)."
+  },
+  {
+   "lens": "prewedding_harmonized",
+   "input": "respondent_race",
+   "source": "NSFG race-ethnicity recode (HISPRACE), harmonized",
+   "categories": [
+    "Hispanic",
+    "White",
+    "Black",
+    "Other"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "Four groups, as harmonized across NSFG, NLSY, SIPP and Canada: Asian, AIAN, NHPI and Multiracial are scored as 'Other'. The spouse's race uses the same four groups and same_race compares them."
+  },
+  {
    "lens": "newlywed_la_couples",
    "input": null,
    "categories": [],

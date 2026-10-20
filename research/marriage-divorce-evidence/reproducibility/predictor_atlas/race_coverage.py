@@ -75,6 +75,20 @@ LENSES = [
                         Multiracial='Other', Other='Other'),
          note="Per partner: White, Black, Hispanic (any race), Other (Asian, Native American, other). The couple input is 'Both <group>' "
               "when the two partners map to the same group, else 'Interracial'."),
+    *[dict(lens=lens, input='couple_race', source='HCMST couple race composition (unmarried couples, 2009)',
+           categories=['White', 'Black', 'Hispanic', 'Other'],
+           couple_categories=['Both White', 'Both Hispanic', 'Both Other', 'Interracial', 'Unknown'],
+           form_mapping=m(White='White', Black='Black', Hispanic='Hispanic', Asian='Other', AIAN='Other', NHPI='Other',
+                          Multiracial='Other', Other='Other'),
+           note="Same coding as the HCMST couples lens: per partner White, Black, Hispanic (any race) or Other; the couple input "
+                "is 'Both <group>' when both map to the same group, else 'Interracial' (Both Black is the reference level).")
+      for lens in ('hcmst_dating_marriage', 'hcmst_dating_breakup')],
+    dict(lens='prewedding_harmonized', input='respondent_race', source='NSFG race-ethnicity recode (HISPRACE), harmonized',
+         categories=['Hispanic', 'White', 'Black', 'Other'],
+         form_mapping=m(White='White', Black='Black', Hispanic='Hispanic', Asian='Other', AIAN='Other', NHPI='Other',
+                        Multiracial='Other', Other='Other'),
+         note="Four groups, as harmonized across NSFG, NLSY, SIPP and Canada: Asian, AIAN, NHPI and Multiracial are scored as "
+              "'Other'. The spouse's race uses the same four groups and same_race compares them."),
     dict(lens='newlywed_la_couples', input=None, categories=[], form_mapping=m(), note='No race-ethnicity input.'),
     dict(lens='canada_gss_first_marriage', input=None, categories=[], form_mapping=m(),
          note='The Canadian GSS PUMF has no race input in these models (it carries a visible-minority flag only); '
