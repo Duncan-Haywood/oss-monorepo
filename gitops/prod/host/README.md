@@ -13,7 +13,7 @@ of each other*:
 
 | route | state | why |
 |---|---|---|
-| Argo CD on k3s ([`gitops/prod`](../)) | down | `:6443` refused on both boxes — [`Outage triage`](../../../.github/workflows/outage-triage.yml) run 33889983086 |
+| Argo CD on k3s ([`gitops/prod`](../)) | down | `:6443` refused on both boxes — `Outage triage` run 33889983086 (workflow since removed) |
 | GitHub Pages, Actions source ([`portfolio-pages.yml`](../../../.github/workflows/portfolio-pages.yml)) | down | needs an Actions runner; metered minutes exhausted |
 | self-hosted runners ([`gitops/ci/`](../../ci/README.md)) | down | they run **as pods in that same k3s** |
 

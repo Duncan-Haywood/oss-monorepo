@@ -187,12 +187,6 @@ class ClaimsNothingItDidNotMeasure(unittest.TestCase):
                 f"the report claims {forbidden!r}, which it cannot measure -- "
                 "no session can reach these boxes",
             )
-        self.assertIn(
-            "outage-triage",
-            lowered,
-            "the report must name who CAN answer reachability rather than "
-            "leaving the reader to assume it did",
-        )
 
     def test_the_module_makes_no_network_call_at_all(self):
         source = Path(hrs.__file__).read_text()

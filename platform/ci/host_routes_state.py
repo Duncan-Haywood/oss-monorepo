@@ -41,8 +41,7 @@ It deliberately makes **no network call**. It cannot: a session's egress proxy
 refuses arbitrary hosts, so any reachability claim from here would be a
 non-reading dressed as one -- the exact failure CLAUDE.md records against
 manifest-derived claims about a live surface. Whether a box answers is
-`.github/workflows/outage-triage.yml`'s question, and it is named in `next`
-rather than guessed at here.
+not asked here (the outage-triage workflow that did was removed 2026-10-20).
 
 What it does read is the half that is entirely local and entirely knowable
 before the owner starts: whether each driver is present and executable, and
@@ -233,8 +232,7 @@ def render(routes=ROUTES, which=shutil.which) -> tuple[str, bool]:
     if all_ready:
         say("    Every driver is present and this machine has the tools each")
         say("    preflight wants. What is not measured here is whether the")
-        say("    boxes answer — no session can make that request. Dispatch")
-        say("    `.github/workflows/outage-triage.yml` for that, or just run")
+        say("    boxes answer — no session can make that request. Run")
         say("    the driver you want with --check.")
     else:
         say("    Fix the gaps above BEFORE you hold the key. Every one of them")
