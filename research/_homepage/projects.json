@@ -1342,6 +1342,11 @@
      "summary": "Exact dynamic-programming comparison (no sampling) of Wald&rsquo;s sequential probability ratio test with the smallest fixed-size binomial test, both at 5% error, for deciding between an acceptable and an unacceptable failure rate. At either rate the sequential test uses about half the rollouts (for 1% vs 5%: 79 and 113 on average against 181). Between the two rates the saving shrinks to 6&ndash;17% at its worst point in the four cases tried. Assumes iid rollouts that match reality, so it says nothing about the sim-to-real gap."
     },
     {
+     "slug": "free-sprtcap",
+     "title": "How long can a sequential rollout test run, and what does capping it cost?",
+     "summary": "Exact dynamic-programming study (no sampling) of the stopping-time distribution of Wald&rsquo;s sequential test for certifying a failure rate at 5% error, and of adding a hard rollout cap that decides by the sign of the likelihood ratio. For 1% vs 5% (fixed test: 181 rollouts) the average is 79 but the 99th percentile is 309, and 28% of runs at the midpoint rate exceed the fixed size. Capping at the fixed size inflates the unacceptable-rate error to about 0.068; a cap of 1.5 times the fixed size brings it to 0.053&ndash;0.057 with the mean within 2% of the uncapped test. Four rate pairs, one truncation rule, iid rollouts matching reality; says nothing about the sim-to-real gap."
+    },
+    {
      "slug": "free-secretarymargin",
      "title": "With noisy scores, does a \"beat the record by a margin\" rule pick the best candidate more often than the best cutoff?",
      "summary": "Simulation (<em>n</em> = 50 candidates, parameters tuned on 8,000 training trials, scored on 60,000 fresh paired trials) of a two-parameter margin rule: skip <em>r</em>&minus;1 candidates, then take the first whose noisy score beats the earlier maximum by at least <em>d</em>. P(pick the true best) rises from 0.2334 to 0.2444 at noise 0.5 (+0.0111, se 0.0014) and from 0.1429 to 0.1491 at noise 1 (+0.0062, se 0.0015); at noise 2 the gain (+0.0018, se 0.0011) is not distinguishable from zero, and with no noise the tuning picks the plain cutoff. One setting, one seed pair, a coarse grid; the Bayes-optimal policy is not computed."
