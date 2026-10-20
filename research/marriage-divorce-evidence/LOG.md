@@ -6,6 +6,14 @@
 - Examples: a wife 24 / husband 26 couple wed in 1995 scores the 26th percentile, a 38/40 couple wed in 2002 the 86th, a 17/45 couple the 98.8th, and a 16/60 couple 99.1, above the suggested 99th-percentile abstention line. The held-out tail is heavy because a few recorded ages are implausible, so the score complements per-input range checks rather than replacing them.
 - `app/ROADMAP.md` section B now lists what workstream B finished (individual lens, NSFG classical family, abstention score) and what remains: page wiring with C, Cox/Weibull, k-NN, OOD for NLSY79, and per-couple intervals.
 
+## 2026-10-19 · App: the NSFG lens scores young couples from the wedding day
+
+- The NSFG 2002 first-marriage bundle (workstream A) is now wired to the form through a per-lens adapter in `couple.js`, so the app can score couples NLSY79 cannot: newly-weds and wives who married at 15–39, for up to 24 years of marriage. New inputs: race-ethnicity, children from an earlier relationship, whether the wife grew up with both parents, and whether the couple lived together first.
+- Honest refusals: no number when the wife was married before (first marriages only), a wedding age is outside the data, or the wife's race-ethnicity or family of origin is missing (the model has no "unknown" group for them). The refusal links to any lens that can score the couple. Weddings after 2002 are scored as 2002 weddings, with a note on the page.
+- The duration-only curve is treated as a baseline, like the constant rate: it is shown, but not averaged into the estimate. For a 27/29 couple who lived together first, the two models give 74.8% no break-up by year 10 (74.2–75.4%), against 63.8% for all first marriages and 70.9% for wives who married at 25–29 in the survey's own weighted Kaplan–Meier curve.
+- Couple-level what-ifs (living together first, marrying 2 or 5 years later) show the model range and agreement. Not cohabiting and marrying 5 years later each add about 2 points on average, but only the additive model moves; the tree is flat.
+- Mortality: SSA, CDC and mortality.org still return HTTP 000, so "lifelong" stays labelled as no break-up through the horizon, if both partners live.
+
 ## 2026-10-19 · Classical model family on NSFG 2002: logistic hazard, naive Bayes, forest, boosting
 
 - Trained four more model families on workstream A's NSFG 2002 first-marriage intervals (4,126 marriages, 1,492 dissolutions), using the same person folds. Held-out deviance gains over a constant rate: discrete-time logistic hazard 3.0% (95% person-bootstrap CI 1.9–4.1), Poisson gradient boosting 2.6% (1.6–3.7), random forest 2.3% (1.5–3.0), naive Bayes 0.2% (−1.8 to 2.1). A's additive spline Poisson gets 3.0% (2.0–4.1) and marriage length alone 0.4%.

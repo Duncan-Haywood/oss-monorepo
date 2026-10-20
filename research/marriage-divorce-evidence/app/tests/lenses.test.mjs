@@ -1,7 +1,8 @@
 // Lens manifest, lens summaries, shareable-scenario encoding and suggestion uncertainty.
 import { readFileSync, readdirSync } from 'node:fs';
 import { strict as assert } from 'node:assert';
-import { lensSummary, encodeScenario, decodeScenario, selfChanges, idealPartners } from '../couple.js';
+import { lensSummary, encodeScenario, decodeScenario, selfChanges, idealPartners, explain, nsfgRow, refusals, lensNotes, project as proj2, coupleChanges, scoringModels, isBaseline, coupleRate, adapterFor } from '../couple.js';
+import { predict } from '../engine.js';
 
 const dir = new URL('../models/', import.meta.url);
 const manifest = JSON.parse(readFileSync(new URL('index.json', dir)));
@@ -64,3 +65,84 @@ assert.equal(ideal.perModelTop.length, 5);
 assert.ok(ideal.distinctTops >= 1 && ideal.distinctTops <= 5);
 for (const t of ideal.perModelTop) assert.ok(t.survival >= ideal.best[0].minSurvival - 1e-12);
 console.log('per-model top partner profiles:', ideal.distinctTops, 'distinct;', ideal.perModelTop.map((t) => `${t.model}: ${t.partner.age}/${t.partner.degree}/$${t.partner.wages}`).join('; '));
+
+// ---- NSFG 2002 lens adapter (first marriages, the wife's report) ----
+const nsfg = JSON.parse(readFileSync(new URL('nsfg2002_first_marriage.json', dir)));
+const nsfgEntry = manifest.lenses.find((l) => l.file === 'nsfg2002_first_marriage.json');
+assert.equal(lensSummary(nsfg, nsfgEntry).scorable, true);
+assert.equal(adapterFor(nsfg).id, 'nsfg2002_first_marriage');
+assert.equal(adapterFor(bundle).id, 'nlsy79_couples');
+
+const w = { sex: 'Woman', age: 27, raceEth: 'White', intactFamily: 'Yes', priorMarriage: false };
+const h = { sex: 'Man', age: 29, raceEth: 'Hispanic', priorChildren: 'Yes', priorMarriage: true };
+const c0 = { yearsMarried: 0, cohabitedFirst: 'Yes', currentYear: 2026 };
+// Row mapping is order-free (who is "you" does not matter) and follows the bundle's inputs.
+const r = nsfgRow(nsfg, h, w, c0, 3);
+assert.deepEqual(r, nsfgRow(nsfg, w, h, c0, 3));
+assert.equal(r.marriage_years, 3);
+assert.equal(r.wife_age_at_marriage, 27);
+assert.equal(r.husband_age_at_marriage, 29);
+assert.equal(r.wedding_year, nsfg.support.wedding_year[1], 'held at the latest wedding year in the data');
+assert.equal(r.husband_married_before, 'Yes');
+assert.equal(r.husband_prior_children, 'Yes');
+assert.equal(r.same_race_ethnicity, 'Different');
+assert.equal(r.cohabited_first, 'Yes');
+assert.equal(nsfgRow(nsfg, w, h, { ...c0, yearsMarried: 10 }, 0).wife_age_at_marriage, 17);
+assert.equal(nsfgRow(nsfg, w, h, { yearsMarried: 30, currentYear: 2026 }, 0).wedding_year, 1996);
+assert.equal(nsfgRow(nsfg, w, h, {}, 0).cohabited_first, 'Unknown');
+assert.equal(nsfgRow(nsfg, w, { ...h, raceEth: '' }, c0, 0).same_race_ethnicity, 'Unknown');
+assert.ok(lensNotes(nsfg, w, h, c0)[0].includes('2002'));
+assert.equal(lensNotes(nsfg, w, h, { ...c0, yearsMarried: 30 }).length, 0);
+
+// One perspective: the couple's rate is the model's prediction on the wife's row.
+const m0 = nsfg.models.find((m) => m.key === 'additive_spline');
+assert.equal(coupleRate(nsfg, m0, w, h, c0, 2), predict(m0, nsfgRow(nsfg, w, h, c0, 2)));
+
+// Refusals: same-sex, wife married before, wedding ages outside the data, missing required inputs.
+assert.equal(refusals(nsfg, w, h, c0).length, 0);
+assert.ok(refusals(nsfg, w, { ...h, sex: 'Woman' }, c0).length);
+assert.ok(refusals(nsfg, { ...w, priorMarriage: true }, h, c0).some((x) => x.includes('first marriages')));
+assert.ok(refusals(nsfg, { ...w, age: 45 }, h, c0).some((x) => x.includes('wife’s age')));
+assert.ok(refusals(nsfg, w, { ...h, age: 16 }, c0).some((x) => x.includes('husband’s age')));
+assert.ok(refusals(nsfg, { ...w, raceEth: '' }, h, c0).some((x) => x.includes('race-ethnicity')));
+assert.ok(refusals(nsfg, { ...w, intactFamily: '' }, h, c0).some((x) => x.includes('both parents')));
+// The husband's earlier marriage is an input, not a refusal.
+assert.equal(refusals(nsfg, w, { ...h, priorMarriage: true }, c0).length, 0);
+// NLSY79 refusals are unchanged by the NSFG-only inputs.
+assert.equal(refusals(bundle, { ...w, age: 45, raceEth: '' }, h, c0).length, 0);
+
+// The duration-only curve is a baseline: shown, but not averaged.
+assert.deepEqual(scoringModels(nsfg).map((m) => m.key), ['additive_spline', 'tree_depth3']);
+assert.ok(nsfg.models.some(isBaseline));
+assert.equal(scoringModels(bundle).length, 5);
+const pn = proj2(nsfg, w, h, c0, 30);
+assert.deepEqual(Object.keys(pn[0].survival).sort(), ['additive_spline', 'tree_depth3']);
+assert.ok(pn[23].inSupport && !pn[24].inSupport, 'year 25 is beyond the 0–23 completed years in the data');
+for (let i = 1; i < pn.length; i++) assert.ok(pn[i].meanSurvival < pn[i - 1].meanSurvival);
+
+// Tree explanations come back one per perspective.
+assert.equal(explain(nsfg, nsfg.models.find((m) => m.kind === 'tree'), w, h, c0).tree.length, 1);
+assert.equal(explain(bundle, bundle.models.find((m) => m.kind === 'tree'), a, b, couple).tree.length, 2);
+
+// Couple-level changes: cohabitation and wedding timing; none for people already married.
+const cc = coupleChanges(nsfg, w, h, { ...c0, cohabitedFirst: 'Unknown' });
+assert.ok(cc.some((o) => o.label.startsWith('Live together')) && cc.some((o) => o.label.startsWith('Do not live')));
+assert.ok(cc.some((o) => o.label.startsWith('Marry 2 years later')));
+assert.ok(!coupleChanges(nsfg, w, h, { ...c0, yearsMarried: 3 }).some((o) => o.label.startsWith('Marry')));
+for (const o of cc) assert.ok(o.models === 2 && o.lo <= o.delta + 1e-15 && o.delta <= o.hi + 1e-15);
+// Changes that would push the wife outside the data are dropped, not scored.
+assert.ok(!coupleChanges(nsfg, { ...w, age: 37 }, h, c0).some((o) => o.label.startsWith('Marry 5')));
+assert.equal(selfChanges(nsfg, 'a', w, h, c0).length, 0);
+assert.equal(coupleChanges(bundle, a, b, couple).length, 0);
+
+// Partner search on this lens varies age, earlier marriage and children, and skips unscorable partners.
+const ip = idealPartners(nsfg, w, h, c0);
+assert.equal(ip.considered, 7 * 2 * 2);
+assert.equal(ip.models, 2);
+assert.ok(ip.best[0].description.startsWith('age '));
+assert.ok(idealPartners(nsfg, { ...w, age: 21 }, h, c0).considered < 28, 'partners under 17 at the wedding are skipped');
+
+// Scenario links carry the NSFG inputs.
+const sc = decodeScenario(encodeScenario({ 'a.raceEth': 'Black', 'b.priorChildren': 'Yes', 'a.intactFamily': 'No', cohabitedFirst: 'No', 'a.raceEth2': 'x' }));
+assert.deepEqual(sc, { 'a.raceEth': 'Black', 'b.priorChildren': 'Yes', 'a.intactFamily': 'No', cohabitedFirst: 'No' });
+console.log(`nsfg lens ok; 27/29 couple, cohabited, husband married before with children: ${(100 * pn[9].meanSurvival).toFixed(1)}% no break-up by year 10 (models ${(100 * pn[9].minSurvival).toFixed(1)}–${(100 * pn[9].maxSurvival).toFixed(1)}%)`);
