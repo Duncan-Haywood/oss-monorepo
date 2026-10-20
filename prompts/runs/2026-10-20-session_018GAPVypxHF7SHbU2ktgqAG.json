@@ -1,0 +1,138 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_018GAPVypxHF7SHbU2ktgqAG",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "what do you think about the git patterns do you think there might be a better git pattern after analyzing the actual performance of the current git pattern? / finish and merge what you don't complete leave as an action item for a later run.",
+  "input_sha256": "6fb2c067b186adfcc34d75ff9cc94a8ae071bf0fc29360a527b0e06b3bd7a25b",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-20T09:13:49Z",
+  "ended": "2026-10-20T09:30:42Z",
+  "wall_minutes": 17.01,
+  "tokens_in": 4059524,
+  "tokens_out": 18086,
+  "cost_usd": 1.8142,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": 8765,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First fix covered push only; this PR's own pull_request validate run failed the same way (saints-by-candlelight added to main after the test merge was made). Fixed: pull_request base = first parent of the test merge; simulated on a depth-1 clone of refs/pull/8765/merge: OK."
+  ],
+  "integrity_issues": [
+    "Earlier in this session the final reply described the write-up as done while the PR was pushed and CI-queued, not merged; the owner had to ask. Recorded as rule 8 in parallel-git.md."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/concurrency_tax.py",
+      "issue": "did not finish within 10 minutes in a cloud session (probe refresh); re-measured with the same arithmetic over refs/pull/* fetched with --filter=blob:none (38 s)"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "validate reports an unregistered runbook on stdout; piped through tail its failure did not stop the commit chain. Registered parallel-git.md in prompts/system.json."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "owner asked a question about the git pattern; answered with a re-measurement plus the one fix it exposed (false-red main validate) and left the remaining fixes as action items, per the owner's follow-up"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "did not link parallel-git.md from it: system.json marks it changed_by review and it is over its 160-line budget; the doc is registered in system.json and linked from docs/parallel-agents.md instead"
+    }
+  ],
+  "goal": null,
+  "notes": "Windows 10-02..13 / 10-14..16 / 10-17..20: concurrency tax 53%/36%/20%, PRs merging main back 66%/39%/22%, median files per PR 2339/8/6, merges per day 55/196/280. Portfolio validate on main: 77/100 failed at the venture-regression step (base = main tip at run start). Repro: 04d30ea92 vs tip fa7238982 -> hearth-and-horizon reported; vs parent 251913f0e -> OK. validate_workflows: 538 valid; check_md_links ok; checklist_coverage ok. Blog post docs/posts/2026-10-20-one-branch-per-agent-280-merges-a-day.md (writing.test.mjs 8/8 pass, check_md_links ok). Unfinished work filed as backlog items P037-P042 (prompts/process/backlog/) with steps, metric and baseline; promptctl validate ok. Added .github/prompts/parallel-git.md (agent rules, incident timeline, alternatives) and docs/posts/2026-10-20-what-went-wrong-sixteen-agents-one-main.md; linked from land-your-work.md. writing.test.mjs 8/8, prompts unittest 86 OK, check_md_links ok, check_code_refs 0. Pages build red on main since #8723 (feedback/ treated as a product by check.mjs); carried PR #8779's one-line SITE_OWN_DIRS fix so the posts can publish. Local build+check after the SITE_OWN_DIRS fix: 3 problems left (feedback/ og:url, og:image, twitter:card); added the about page's share-tag block to renderFeedbackPage; feedback-page.test.mjs 3/3. Local site build+check with both Pages fixes: build=0 check=0, 'looks publishable: 1302 products, 42 category pages, 3809 pages, no dead links'. Portfolio validate on 6cc436423 (first PR run with the base fix): success, 701 s on a real runner. gitops job red from #8717 (publish-branch test stub lacked platform/daily/build.mjs, 17 failures): added it to the stub. gitops: test_publish_branch::test_a_real_push_notifies_indexnow passes with the stub fix (1 passed, 30 s); test_ci_runner 24/24 after adding setup-python to portfolio-pages.yml build (also red on main per #8723). Merged main at 11:20: #8752 had landed both feedback/ fixes independently, so build.mjs/check.mjs now equal main (conflict resolved to main's side); the gitops stub and portfolio-pages setup-python fixes remain this PR's. After merge: writing+feedback tests 11/11, promptctl validate ok, md links ok, 544 workflows valid, code refs 0. Merged main at 11:25: main now has the publish-branch stub and setup-python fixes too, so this PR's diff is only its own work. The Pages build's 3 unit-test failures on 28ea623 (custom-domain, entities, faq-visible; from #8747/#8752 pages) pass on the merged tree: 17/17.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "692f13b2-70ea-5c6f-87e4-dfc852d52254",
+    "transcripts": 1,
+    "first": "2026-10-20T09:13:49Z",
+    "last": "2026-10-20T09:30:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 76,
+        "output": 18086,
+        "thinking": 4873,
+        "cache_read": 3977356,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82092,
+        "api_equivalent_usd": 1.8142,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 76,
+      "output": 18086,
+      "thinking": 4873,
+      "cache_read": 3977356,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82092,
+      "api_equivalent_usd": 1.8142,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 33,
+      "mcp__github__actions_list": 4,
+      "ToolSearch": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.01,
+      "active_minutes": 17.01,
+      "model_minutes": 4.24,
+      "tool_minutes": 12.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an engineer mining 2 weeks of git/CI history, root-causing a CI race and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 220.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

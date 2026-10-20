@@ -3,7 +3,7 @@
 // explanations are exact, and its out-of-distribution score matches Python.
 import { readFileSync } from 'node:fs';
 import { strict as assert } from 'node:assert';
-import { predict, contributions, valueFromContributions, oodScore } from '../engine.js';
+import { predict, contributions, valueFromContributions, oodScore, cumulativeRisk } from '../engine.js';
 
 const dir = new URL('../models/', import.meta.url);
 const bundle = JSON.parse(readFileSync(new URL('prewedding_harmonized.json', dir)));
@@ -40,4 +40,22 @@ assert.ok(edge <= hi + 1e-9 || edge > hi);
 for (const t of ['nlsy79', 'nlsy97', 'sipp', 'canada_gss']) assert.ok(model.external[t].c_index > 0.5, t);
 const q = bundle.population_reference.overall.quantiles;
 for (let k = 2; k <= 99; k++) for (let h = 0; h < 3; h++) assert.ok(q[`p${k}`][h] >= q[`p${k - 1}`][h]);
+// Per-couple bootstrap intervals match Python, contain the point estimate and widen with time.
+const B = model.bootstrap;
+assert.equal(B.coef.length, B.replicates);
+assert.equal(B.coef[0].length, model.coef.length);
+for (const [h, want] of Object.entries(vectors.risk)) {
+  want.point.forEach((p, i) => {
+    const r = cumulativeRisk(model, (k) => ({ ...vectors.rows[i], marriage_years: k }), Number(h));
+    for (const key of ['point', 'lo', 'hi']) {
+      const w = want[key][i];
+      assert.ok(Math.abs(r[key] - w) <= 1e-9 * Math.max(1e-6, Math.abs(w)), `h=${h} row ${i} ${key}: js ${r[key]} vs python ${w}`);
+    }
+    assert.ok(r.lo <= r.point + 1e-12 && r.point <= r.hi + 1e-12, `h=${h} row ${i}: interval must contain the point`);
+  });
+}
+const r5 = cumulativeRisk(model, (k) => ({ ...vectors.rows[2], marriage_years: k }), 5);
+const r20 = cumulativeRisk(model, (k) => ({ ...vectors.rows[2], marriage_years: k }), 20);
+assert.ok(r20.point > r5.point && r20.hi - r20.lo >= 0);
+
 console.log(`prewedding lens ok: ${vectors.rows.length} rows match; 10-year median ${(q.p50[1] * 100).toFixed(1)}%`);

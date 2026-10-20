@@ -19,6 +19,12 @@
 - ACS detail baselines (2019, 2021–24, replicate-weight and age-standardised CIs): one-year divorce per 1,000 by census race group (Asian 8.3, Black 23.6, AIAN 19.5, NHPI 12.1, multiracial 18.9), 18 Asian subgroups (Asian Indian 5.2, Chinese 8.3, Vietnamese 14.4) and 11 Hispanic origins (Mexican 13.7, Puerto Rican 20.3, Dominican 23.1); occupation (detailed, SOC major: healthcare support 25.8 vs architecture and engineering 10.3), industry, household income ($200k+ 6.3 vs under $25k 31.7) and tenure (renters 29.6 vs owners 8.4–9.7), all labelled as measured after any divorce (`app/data/acs_occupation_divorce.json`).
 - `app/data/race_coverage.json` says for every lens which race categories it distinguishes and how each finer form answer maps (NSFG and HCMST: Asian → Other; NLSY: Asian → non-Black non-Hispanic; GSS: Hispanic cannot be placed). Extended models ship in each bundle's `models_extended` with test vectors (new `tests/extended_models.test.mjs`, parity to 10<sup>-9</sup>); the app scores none of them until the form asks for the new inputs.
 
+## 2026-10-20 · Per-couple uncertainty for the "before the wedding" lens
+
+- The pre-wedding bundle now carries 50 person-bootstrap refits of its coefficients, with the spline knots and scaling held at the full fit, and `engine.cumulativeRisk()` returns a point estimate and a 95% interval for the chance a marriage has ended by any horizon. Across 2,000 sampled NSFG first marriages the 10-year interval is 5.2 points wide at the median (9.4 at the 90th percentile).
+- This is the model's sampling uncertainty only. Transport error between surveys is larger (observed/expected 0.85–1.07 on other U.S. surveys, 0.58 in Canada), and the app should say so next to the interval.
+- Parity: JavaScript reproduces Python's point estimates and interval ends at 5, 10 and 20 years for 20 test couples to 10<sup>-9</sup>; the bundle grew from 26 KB to 48 KB. ROADMAP B now lists what is done and what remains (intervals for other lenses, a pooled multi-survey model, recalibration to a target population).
+
 ## 2026-10-20 · Before the wedding, from living together: which NLSY97 couples marry, and which split (6,020 first cohabitations)
 
 - New pre-marriage lens from the NLSY97 public release (`reproducibility/nlsy97_cohabitation_to_marriage/`): every respondent's first cohabiting union (born 1980–84, moved in 1994–2023, never married before), followed in the monthly marital and cohabitation arrays. Of 6,020 couples, 2,109 married each other, 3,481 split first and 430 are censored.

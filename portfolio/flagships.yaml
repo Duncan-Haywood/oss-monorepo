@@ -10,6 +10,9 @@
 # rewrites it to the following milestone in the same PR. The owner can
 # reorder, add or drop entries; agents may too, with the evidence in the PR.
 #
+# Why depth, argued at more length (an opinion, not a rule):
+# portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
+#
 # Chosen 2026-10-20 from an audit of the largest ventures by source size,
 # keeping those whose code works today and whose next step is a hard business
 # or engineering problem. Passed over for now: local-site-studio (real
@@ -29,13 +32,13 @@ flagships:
     next: >-
       A Poisson cost for counts, a seasonal adjustment (--period n) and an
       AR(1)-aware noise scale (--ar1) are in, each measured on seeded
-      synthetic series (README Verification), and --ar1 now prewhitens the Bayesian
-      pass too (false detections 40/40 -> 1/40, power 25/40). The mean and
+      synthetic series (README Verification), and --ar1 gives the Bayesian pass a conditional AR(1)
+      likelihood (false detections 40/40 -> 0/40, power 40/40 at shift 8, up from 25/40 with prewhitening). The mean and
       mean-and-variance PELT match the independent ruptures package on 100 of 100
       seeded cases (fixture in data/). Next: a check of the Poisson model against
-      R's changepoint (R and a ruptures Poisson cost were unavailable), raising the power lost to prewhitening in the Bayesian pass (the PELT side now has a
+      R's changepoint (R and a ruptures Poisson cost were unavailable), re-estimating rho in the Bayesian pass from the PELT residuals as the joint fit does (the PELT side now has a
       joint mean-plus-AR(1) fit, --ar1 joint: 34/40 power at shift 4 against 28/40, same 4/40
-      false runs), and an STL step for a drifting seasonal shape.
+      false runs), and fewer false changes under --period --drift (--drift is in: 12.9 -> 2.9 changes per series on an amplitude-tripling cycle with a running median, 1.95 and exactly-one 24/40 with a Theil-Sen window from 10 cycles up, README; the window is fixed, not chosen from the data).
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -86,9 +89,14 @@ flagships:
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      A survey builder: an admin creates a survey from their own items and
-      attributes, shares a link and exports the ranking with confidence
-      intervals. Then the information-gain pair selector (IMPROVEMENT-PLAN.md, P1).
+      The survey builder's back end is in: POST /api/admin/surveys creates a
+      survey from an admin's own options (validated in surveyBuilder.ts), and
+      GET /api/admin/surveys/[slug]/ranking[?format=csv] returns the pooled
+      ranking with random-effects 95% intervals and rank ranges (groupRanking.ts,
+      coverage checked on seeded data). Next: an admin form on /admin that
+      calls them and shows the intervals, a /s/[slug] respondent page for
+      admin-made surveys, then the information-gain pair selector
+      (IMPROVEMENT-PLAN.md, P1).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

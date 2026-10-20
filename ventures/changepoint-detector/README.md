@@ -102,13 +102,14 @@ series, 40 each, in `engine.test.mjs`):
   clipped first differences, which a level shift barely touches) and false-change
   runs fall to 4 of 40. A real shift of 8 in the same noise was found exactly
   once within 10 points of the truth in 35 of 40 runs, so the correction costs
-  some power. Mean model only. The Bayesian pass runs on the
-  AR(1)-prewhitened series (x[t] - rho x[t-1]), where the noise is independent
-  again: on the same 40 no-change series it raised a detection in 40 of 40 runs
-  uncorrected and 1 of 40 with `--ar1`. The price is power: the shift of 8 was
-  detected within 10 points in 25 of 40 runs (40 of 40 uncorrected, which
-  also fires on every no-change series), because prewhitening shrinks a
-  persistent shift by (1 - rho).
+  some power. Mean model only. The Bayesian pass uses the conditional AR(1)
+  likelihood with rho fixed: a run's first point is stationary, x ~ N(mu, s2/(1-rho^2)), and
+  later points satisfy x[t] - rho x[t-1] = (1-rho) mu + e, so each run keeps a normal-inverse-gamma
+  posterior on mu and s2 (evidence equals the closed form, tested). On the same 40 no-change
+  series it raised a detection in 40 of 40 runs uncorrected and 0 of 40 with `--ar1`, and the
+  shift of 8 was detected within 10 points in 40 of 40 runs (shift 4: 27 of 40). The earlier
+  version ran the plain model on the prewhitened series x[t] - rho x[t-1], which shrinks a
+  persistent shift by (1 - rho) and gave 25 of 40 at shift 8 (7 of 40 at shift 4), 1 false run.
 - **Joint fit (`--ar1 joint`).** Instead of widening the noise scale, PELT runs on the
   exact Gaussian AR(1) likelihood (each segment's first point stationary, its mean fitted
   in closed form from prefix sums), and rho and the innovation sd are re-estimated from the
@@ -118,17 +119,29 @@ series, 40 each, in `engine.test.mjs`):
   long-run scale (shift 8: 34 against 35, no gain). A first version with rho taken once from
   the differences gave 7 of 40 false runs; with rho known the figure is 2 of 40, so the
   residual re-estimate is what keeps it honest. PELT on this cost equals optimal
-  partitioning (tested). The Bayesian pass still runs on the prewhitened series.
+  partitioning (tested). The Bayesian pass uses the conditional AR(1) likelihood above, with the same rho.
 - **Seasonality.** A level shift of 4 under a sine of amplitude 10 (period 12,
   144 points) gave exactly one change in 0 of 40 runs without adjustment and
   exactly one change within 1 point of the truth in 33 of 40 with `--period 12`
   (centred moving average, per-phase median, profile centred at zero). It needs
   two full cycles and is not offered for counts.
+- **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
+  cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
+  cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144
+  points with the amplitude growing from 4 to 12 and a shift of 5 at point 84 (seeds 401..440):
+  the fixed profile gave 12.9 changes per series and never exactly one; `--drift` gave 2.9
+  per series, found the shift within 3 points in 40 of 40 and exactly one change in 15 of 40.
+  The extra changes are still real noise in the estimated profile; it is better, not clean.
+  From 10 cycles up each phase follows a Theil-Sen line through its 9 nearest cycles instead of a
+  running median, which does not lag a growing cycle at the ends: on the same seeds 1.95 changes per
+  series (from 2.95), shift found 40 of 40, exactly one change 24 of 40 (from 15), false changes on
+  14 of 40 no-shift series (from 27). On a steady cycle (amplitude 10) it costs a little: exactly one
+  24 of 40 against 27, false 14 against 12.
 
 ## Limits
 
 Steps, not trends: a gradual drift is approximated by several steps. Seasonality is
-removed with `--period` (a fixed cycle only; no trend-seasonal STL). A changepoint describes the data, not its cause.
+removed with `--period` (`--drift` follows a changing shape with a running median; no full STL). A changepoint describes the data, not its cause.
 Up to 100,000 points; the Bayesian pass is the slow part on long series.
 
 ## Disclaimer
