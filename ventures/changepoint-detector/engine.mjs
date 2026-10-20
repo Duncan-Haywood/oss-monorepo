@@ -482,7 +482,7 @@ export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSeg
  * `changeProb[i]`: the posterior probability, given x[0..i+lag], that a new
  * segment started at x[i]. Also returns the log evidence sum log p(x_t | x_<t).
  */
-export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, model = 'mean' } = {}) {
+export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, model = 'mean', rho = 0 } = {}) {
   const n = x.length;
   const H = 1 / Math.max(1, hazardLambda);
   const pois = model === 'poisson';
@@ -505,7 +505,17 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
     const xt = x[t];
     const m = rl.length;
     const logPred = new Float64Array(m);
-    for (let i = 0; i < m; i++) logPred[i] = pois ? gammaPoissonLogPmf(xt, alpha[i], beta[i]) : studentLogPdf(xt, mu[i], kappa[i], alpha[i], beta[i]);
+    // AR(1) noise (rho > 0, mean model): the first point of a run is stationary, x ~ N(mu, s2 / (1 - rho^2)),
+    // i.e. z = x sqrt(1 - rho^2) has regressor a0 on mu; later points are x[t] - rho x[t-1] = (1 - rho) mu + e.
+    // Each run keeps a scalar-regression NIG posterior; a = 1 and no Jacobian when rho = 0.
+    const a0 = Math.sqrt(1 - rho * rho);
+    const zAt = (i) => (rl[i] === 0 ? xt * a0 : t ? xt - rho * x[t - 1] : (1 - rho) * xt);
+    const aAt = (i) => (rl[i] === 0 ? a0 : 1 - rho);
+    for (let i = 0; i < m; i++) {
+      if (pois) logPred[i] = gammaPoissonLogPmf(xt, alpha[i], beta[i]);
+      else if (!rho) logPred[i] = studentLogPdf(xt, mu[i], kappa[i], alpha[i], beta[i]);
+      else logPred[i] = studentLogPdfReg(zAt(i), aAt(i), mu[i], kappa[i], alpha[i], beta[i]) + (rl[i] === 0 ? Math.log(a0) : 0);
+    }
     // Growth and changepoint masses (log space).
     const grow = new Float64Array(m);
     let cpTerms = -Infinity;
@@ -519,6 +529,14 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
     let nlog = [cpTerms, ...grow];
     let nmu = [p0.mu], nk = [p0.kappa], na = [p0.alpha], nb = [p0.beta];
     for (let i = 0; i < m; i++) {
+      if (rho && !pois) {
+        const a = aAt(i), z = zAt(i), k1 = kappa[i] + a * a;
+        nmu.push((kappa[i] * mu[i] + a * z) / k1);
+        nk.push(k1);
+        na.push(alpha[i] + 0.5);
+        nb.push(beta[i] + (kappa[i] * (z - a * mu[i]) ** 2) / (2 * k1));
+        continue;
+      }
       const k1 = kappa[i] + 1;
       nmu.push((kappa[i] * mu[i] + xt) / k1);
       nk.push(k1);
@@ -598,6 +616,14 @@ function studentLogPdf(x, mu, kappa, alpha, beta) {
   const scale2 = (beta * (kappa + 1)) / (alpha * kappa);
   const z = (x - mu) ** 2 / (nu * scale2);
   return lgamma((nu + 1) / 2) - lgamma(nu / 2) - 0.5 * Math.log(nu * Math.PI * scale2) - ((nu + 1) / 2) * Math.log1p(z);
+}
+
+/** Student-t log density of z = a mu + e under the NIG posterior of mu (regressor a); a = 1 is studentLogPdf. */
+function studentLogPdfReg(z, a, mu, kappa, alpha, beta) {
+  const nu = 2 * alpha;
+  const scale2 = (beta * (1 + (a * a) / kappa)) / alpha;
+  const d = (z - a * mu) ** 2 / (nu * scale2);
+  return lgamma((nu + 1) / 2) - lgamma(nu / 2) - 0.5 * Math.log(nu * Math.PI * scale2) - ((nu + 1) / 2) * Math.log1p(d);
 }
 
 function logAdd(a, b) {
@@ -692,7 +718,9 @@ export function analyze(input = {}) {
     const s = stats(values.slice(bounds[i], bounds[i + 1]));
     segments.push({ start: bounds[i], end: bounds[i + 1] - 1, from: labels[bounds[i]], to: labels[bounds[i + 1] - 1], n: s.n, mean: round(s.mean), sd: round(s.sd) });
   }
-  const b = bocpd(rho ? prewhiten(values, rho) : values, { hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model });
+  // With --ar1 the Bayesian pass uses the conditional AR(1) likelihood on the original series (rho fixed),
+  // not the prewhitened one: prewhitening turns a shift into a spike plus a (1 - rho)-sized step.
+  const b = bocpd(values, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];

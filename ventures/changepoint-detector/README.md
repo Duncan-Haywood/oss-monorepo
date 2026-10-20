@@ -102,13 +102,14 @@ series, 40 each, in `engine.test.mjs`):
   clipped first differences, which a level shift barely touches) and false-change
   runs fall to 4 of 40. A real shift of 8 in the same noise was found exactly
   once within 10 points of the truth in 35 of 40 runs, so the correction costs
-  some power. Mean model only. The Bayesian pass runs on the
-  AR(1)-prewhitened series (x[t] - rho x[t-1]), where the noise is independent
-  again: on the same 40 no-change series it raised a detection in 40 of 40 runs
-  uncorrected and 1 of 40 with `--ar1`. The price is power: the shift of 8 was
-  detected within 10 points in 25 of 40 runs (40 of 40 uncorrected, which
-  also fires on every no-change series), because prewhitening shrinks a
-  persistent shift by (1 - rho).
+  some power. Mean model only. The Bayesian pass uses the conditional AR(1)
+  likelihood with rho fixed: a run's first point is stationary, x ~ N(mu, s2/(1-rho^2)), and
+  later points satisfy x[t] - rho x[t-1] = (1-rho) mu + e, so each run keeps a normal-inverse-gamma
+  posterior on mu and s2 (evidence equals the closed form, tested). On the same 40 no-change
+  series it raised a detection in 40 of 40 runs uncorrected and 0 of 40 with `--ar1`, and the
+  shift of 8 was detected within 10 points in 40 of 40 runs (shift 4: 27 of 40). The earlier
+  version ran the plain model on the prewhitened series x[t] - rho x[t-1], which shrinks a
+  persistent shift by (1 - rho) and gave 25 of 40 at shift 8 (7 of 40 at shift 4), 1 false run.
 - **Joint fit (`--ar1 joint`).** Instead of widening the noise scale, PELT runs on the
   exact Gaussian AR(1) likelihood (each segment's first point stationary, its mean fitted
   in closed form from prefix sums), and rho and the innovation sd are re-estimated from the
@@ -118,7 +119,7 @@ series, 40 each, in `engine.test.mjs`):
   long-run scale (shift 8: 34 against 35, no gain). A first version with rho taken once from
   the differences gave 7 of 40 false runs; with rho known the figure is 2 of 40, so the
   residual re-estimate is what keeps it honest. PELT on this cost equals optimal
-  partitioning (tested). The Bayesian pass still runs on the prewhitened series.
+  partitioning (tested). The Bayesian pass uses the conditional AR(1) likelihood above, with the same rho.
 - **Seasonality.** A level shift of 4 under a sine of amplitude 10 (period 12,
   144 points) gave exactly one change in 0 of 40 runs without adjustment and
   exactly one change within 1 point of the truth in 33 of 40 with `--period 12`
