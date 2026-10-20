@@ -432,7 +432,17 @@ Design choices the engine reproduces exactly (`tests/prewedding.test.mjs`, 60 of
   gives the four rows above. The predicted level is U.S. survey-specific: in Canada,
   observed divorce is about 0.58 times the prediction.
 
-Workstream C can make it the default lens: it has no form adapter yet.
+**Per-couple uncertainty.** `models[0].bootstrap` holds 50 person-bootstrap refits of the
+coefficients (spline knots and scaling held at the full fit). `engine.cumulativeRisk(model,
+rowAt, horizon)` returns the point estimate and a 95% interval for the chance the marriage has
+ended by `horizon` years. Across 2,000 sampled NSFG marriages the 10-year interval is 5.2
+points wide at the median (9.4 at the 90th percentile). It is the
+model's sampling uncertainty. It does not include the chance element in one marriage (which
+an individual probability already is) or the error of applying a U.S. survey model elsewhere,
+which is larger: the observed/expected ratio is 0.85–1.07 on the other U.S. surveys. The
+bundle is now 48 KB.
+
+Workstream C can make it the default lens (#8713 prefers it once an adapter exists).
 
 ## Train the models yourself, in the browser (`train/`)
 

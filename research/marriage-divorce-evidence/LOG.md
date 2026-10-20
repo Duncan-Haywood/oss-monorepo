@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-10-20 · Per-couple uncertainty for the "before the wedding" lens
+
+- The pre-wedding bundle now carries 50 person-bootstrap refits of its coefficients, with the spline knots and scaling held at the full fit, and `engine.cumulativeRisk()` returns a point estimate and a 95% interval for the chance a marriage has ended by any horizon. Across 2,000 sampled NSFG first marriages the 10-year interval is 5.2 points wide at the median (9.4 at the 90th percentile).
+- This is the model's sampling uncertainty only. Transport error between surveys is larger (observed/expected 0.85–1.07 on other U.S. surveys, 0.58 in Canada), and the app should say so next to the interval.
+- Parity: JavaScript reproduces Python's point estimates and interval ends at 5, 10 and 20 years for 20 test couples to 10<sup>-9</sup>; the bundle grew from 26 KB to 48 KB. ROADMAP B now lists what is done and what remains (intervals for other lenses, a pooled multi-survey model, recalibration to a target population).
+
 ## 2026-10-20 · Before the wedding, from living together: which NLSY97 couples marry, and which split (6,020 first cohabitations)
 
 - New pre-marriage lens from the NLSY97 public release (`reproducibility/nlsy97_cohabitation_to_marriage/`): every respondent's first cohabiting union (born 1980–84, moved in 1994–2023, never married before), followed in the monthly marital and cohabitation arrays. Of 6,020 couples, 2,109 married each other, 3,481 split first and 430 are censored.

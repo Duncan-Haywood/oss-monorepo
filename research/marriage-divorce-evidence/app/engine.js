@@ -301,3 +301,41 @@ export function oodScore(spec, row) {
   }
   return { d2, percentile, abstain: percentile > spec.abstain_above_percentile, unseen };
 }
+
+// numpy's default (linear) quantile of an unsorted array.
+function quantileLinear(xs, p) {
+  const s = [...xs].sort((a, b) => a - b);
+  const h = (s.length - 1) * p;
+  const lo = Math.floor(h);
+  return lo + 1 < s.length ? s[lo] + (h - lo) * (s[lo + 1] - s[lo]) : s[lo];
+}
+
+// Cumulative dissolution probability by `horizon` years after the wedding for one person,
+// with a bootstrap interval when the model ships `bootstrap` coefficient replicates (Poisson
+// GLMs). `rowAt(k)` returns the input row for marriage-year k (0 = first year). The interval
+// is the model's sampling uncertainty, not the chance element in one marriage.
+export function cumulativeRisk(model, rowAt, horizon, level = 0.95) {
+  let H = 0;
+  const boot = model.bootstrap;
+  const Hb = boot ? new Array(boot.replicates).fill(0) : null;
+  for (let k = 0; k < horizon; k++) {
+    const row = rowAt(k);
+    H += predict(model, row);
+    if (boot) {
+      const { values } = prepare(model, row);
+      for (let b = 0; b < boot.replicates; b++) {
+        let eta = boot.intercept[b];
+        const c = boot.coef[b];
+        for (let i = 0; i < values.length; i++) eta += c[i] * values[i];
+        Hb[b] += Math.exp(eta);
+      }
+    }
+  }
+  const out = { point: 1 - Math.exp(-H) };
+  if (boot) {
+    const draws = Hb.map((h) => 1 - Math.exp(-h));
+    out.lo = quantileLinear(draws, (1 - level) / 2);
+    out.hi = quantileLinear(draws, 1 - (1 - level) / 2);
+  }
+  return out;
+}
