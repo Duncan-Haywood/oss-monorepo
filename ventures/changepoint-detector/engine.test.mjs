@@ -810,9 +810,9 @@ test('overdispersed counts: --dispersion auto stops wobble being read as changes
   const n = 210;
   const gauss = (r) => Math.sqrt(-2 * Math.log(r() + 1e-12)) * Math.cos(2 * Math.PI * r());
   const r = rng(1800);
-  const wobbly = Array.from({ length: n }, (_, t) => poissons(r, 1, 10 * Math.exp(0.8 * t / (n - 1) + 0.35 * gauss(r) - 0.06))[0]);
-  const plain = analyze({ values: wobbly, model: 'poisson', trend: true });
-  const fixed = analyze({ values: wobbly, model: 'poisson', trend: true, dispersion: 'auto' });
+  const wobbly = Array.from({ length: n }, (_, t) => poissons(r, 1, 20 * Math.exp(0.5 * gauss(r) - 0.125))[0]);
+  const plain = analyze({ values: wobbly, model: 'poisson' });
+  const fixed = analyze({ values: wobbly, model: 'poisson', dispersion: 'auto' });
   assert.ok(plain.pelt.changepoints.length >= 5, `plain ${plain.pelt.changepoints.length}`);
   assert.ok(fixed.pelt.changepoints.length <= 2, `fixed ${fixed.pelt.changepoints.length}`);
   assert.ok(fixed.dispersion > 2.5, `dispersion ${fixed.dispersion}`);

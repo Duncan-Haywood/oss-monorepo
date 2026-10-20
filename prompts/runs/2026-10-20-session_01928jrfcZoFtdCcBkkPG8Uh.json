@@ -27,14 +27,14 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
+  "tests_added": 1,
   "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "goal": null,
-  "notes": "Measured count bends with --period (38/40) and added quasi-Poisson --dispersion auto. Engine suite was still running at commit time.",
+  "notes": "Measured count bends with --period (38/40) and added quasi-Poisson --dispersion auto. Engine suite: all passed except the new test, whose scenario was too weak; fixed and re-run alone (passes).",
   "corrections": [],
   "redteam": null
 }
