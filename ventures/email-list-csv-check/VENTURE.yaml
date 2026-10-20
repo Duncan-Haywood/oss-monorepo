@@ -47,4 +47,4 @@ hypotheses:
       them; measured as the share of file checks that supply a suppression list.
     status: untested
     checked: null
-    evidence: usage-counter
+    evidence: in-repo
