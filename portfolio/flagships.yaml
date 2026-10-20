@@ -46,10 +46,12 @@ flagships:
       the self-hosted API and lists the findings (official.mjs). The Peppol
       credit-note and XRechnung CII examples now pass the official rules in
       tests, and the 30 DE-R rules Peppol applies to German invoices have
-      English fixes. Next: a WASM/in-browser path so the static Pages copy can
-      run it too without a server (Saxon-JS in the page, SEF files built in CI
-      and served as static assets), then CreditNote and CII credit-note
-      defect examples.
+      English fixes. An in-browser path is in (node build-browser.mjs writes ./browser/ with Saxon-JS's
+      browser runtime and the SEFs; checked in headless Chromium, no server). It is not
+      on the owner's Pages copy because Saxon-JS's licence bars redistributing it from
+      a site that mainly serves it; the owner could ask Saxonica for permission, or the
+      rules could be ported to a plain-JS evaluator. Next: that decision, then
+      CreditNote and CII credit-note defect examples.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
