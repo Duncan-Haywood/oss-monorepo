@@ -253,9 +253,33 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
       if (!found) break;
       best = found;
     }
+    // the grid is coarse on long series (step n/40), and a knot a few points off leaves a small kink that is read as a step:
+    // slide each knot one point at a time within a grid step of where it landed, keeping any move that lowers BIC
+    const refine = (start) => {
+      let cur = start;
+      if (step > 1) {
+        for (let j = 0; j < cur.knots.length; j++) {
+          const lo = Math.ceil(0.2 * n), hi = Math.floor(0.8 * n);
+          const around = cur.knots[j];
+          let pick = null;
+          for (let knot = Math.max(lo, around - step + 1); knot <= Math.min(hi, around + step - 1); knot++) {
+            if (knot === around) continue;
+            const ks = cur.knots.map((k, i) => (i === j ? knot : k)).sort((p, q) => p - q);
+            if (ks.some((k, i) => i && k - ks[i - 1] < gap)) continue;
+            const f = fit(ks);
+            if (f.bic < (pick || cur).bic) pick = f;
+          }
+          if (pick) cur = pick;
+        }
+      }
+      return cur;
+    };
+    best = refine(best);
     // joint: also score every pair of grid knots (not only the greedy one's), since the best single knot of a two-bend ramp
-    // can sit between the two true ones and the second knot then looks unnecessary; the cheapest of greedy and pairs wins
-    if (joint && maxBends >= 2 ) {
+    // can sit between the two true ones and the second knot then looks unnecessary. The best pair is refined to the point like the
+    // greedy result, and the cheaper of the two refined fits wins (comparing the coarse pair with the refined greedy fit would
+    // favour the greedy one by the refinement alone, and the pair search is exact only on the grid)
+    if (joint && maxBends >= 2) {
       const grid = [];
       for (let knot = Math.ceil(0.2 * n); knot <= Math.floor(0.8 * n); knot += step) grid.push(knot);
       let pair = null;
@@ -263,26 +287,12 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
         for (let b = a + 1; b < grid.length; b++) {
           if (grid[b] - grid[a] < gap) continue;
           const f = fit([grid[a], grid[b]]);
-          if (f.bic < (pair || best).bic) pair = f;
+          if (f.bic < (pair || { bic: Infinity }).bic) pair = f;
         }
       }
-      if (pair) best = pair;
-    }
-    // the grid is coarse on long series (step n/40), and a knot a few points off leaves a small kink that is read as a step:
-    // slide each knot one point at a time within a grid step of where it landed, keeping any move that lowers BIC
-    if (step > 1 && best.knots.length) {
-      for (let j = 0; j < best.knots.length; j++) {
-        const lo = Math.ceil(0.2 * n), hi = Math.floor(0.8 * n);
-        const around = best.knots[j];
-        let pick = null;
-        for (let knot = Math.max(lo, around - step + 1); knot <= Math.min(hi, around + step - 1); knot++) {
-          if (knot === around) continue;
-          const ks = best.knots.map((k, i) => (i === j ? knot : k)).sort((p, q) => p - q);
-          if (ks.some((k, i) => i && k - ks[i - 1] < gap)) continue;
-          const f = fit(ks);
-          if (f.bic < (pick || best).bic) pick = f;
-        }
-        if (pick) best = pick;
+      if (pair) {
+        pair = refine(pair);
+        if (pair.bic < best.bic) best = pair;
       }
     }
   }
