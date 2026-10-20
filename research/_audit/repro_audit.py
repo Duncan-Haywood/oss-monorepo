@@ -192,6 +192,9 @@ def cmd_run(args) -> None:
     if out.exists():
         done = {json.loads(ln)["slug"] for ln in out.read_text().splitlines() if ln.strip()}
     todo = [s for s in slugs if s not in done]
+    if args.seed is not None:  # a random order makes any prefix of the run a random sample
+        import random
+        random.Random(args.seed).shuffle(todo)
     with out.open("a") as fh, cf.ThreadPoolExecutor(args.jobs) as ex:
         futs = {ex.submit(run_one, tree, s, args.python, args.timeout, args.readme,
                            args.siblings): s for s in todo}
@@ -436,6 +439,7 @@ def main(argv=None) -> None:
     r.add_argument("--only", nargs="*")
     r.add_argument("--readme", action="store_true",
                    help="run the README's own python commands even when experiments/run.py exists")
+    r.add_argument("--seed", type=int, help="run projects in a seeded random order")
     r.add_argument("--siblings", action="store_true", help="put every sibling project's src on PYTHONPATH")
     t = sub.add_parser("tests")
     t.add_argument("--tree", default=str(ROOT))
