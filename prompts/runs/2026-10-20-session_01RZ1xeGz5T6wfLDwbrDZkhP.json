@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01RZ1xeGz5T6wfLDwbrDZkhP",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-19T21:17:55Z",
+  "ended": "2026-10-20T00:53:03Z",
+  "wall_minutes": 215.56,
+  "tokens_in": 6015524,
+  "tokens_out": 40933,
+  "cost_usd": 2.3351,
+  "tool_calls": 55,
+  "task": "research/sensing-vio (track 15 milestone 2)",
+  "projects": [
+    "sensing-vio"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8523",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "first 30 s experiment gave non-monotonic, divergent results (smoother has no marginalisation); discarded and rerun at 12 s",
+    "first runs oversubscribed BLAS threads in a 4-worker pool (hours instead of minutes); fixed with OMP_NUM_THREADS=1",
+    "a stale results.txt made an until-loop watcher fire early"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says insert projects.json entry at end of theme list; the theme's list is not last in the file and a json.dump rewrite reformats 3700 lines - note to edit textually"
+    },
+    {
+      "file": "prompt.md",
+      "issue": "foreground sleep is blocked and background watcher timeouts killed two watchers; guidance on waiting for long experiments is thin"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Result is modest and honest: camera resolution matters, IMU grade not detectable on 12 s paths; limitations name the divergence. Synthetic only; EuRoC not used.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7557875e-9965-559a-982e-f07accb3e3d3",
+    "transcripts": 1,
+    "first": "2026-10-19T21:17:55Z",
+    "last": "2026-10-20T00:53:28Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 55,
+        "input": 117,
+        "output": 40933,
+        "thinking": 14200,
+        "cache_read": 5825296,
+        "cache_write_5m": 0,
+        "cache_write_1h": 190111,
+        "api_equivalent_usd": 2.3351,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 117,
+      "output": 40933,
+      "thinking": 14200,
+      "cache_read": 5825296,
+      "cache_write_5m": 0,
+      "cache_write_1h": 190111,
+      "api_equivalent_usd": 2.3351,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 49,
+      "Read": 3,
+      "mcp__github__search_pull_requests": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 215.56,
+      "active_minutes": 20.82,
+      "model_minutes": 6.22,
+      "tool_minutes": 14.6,
+      "waiting_on_human_minutes": 194.74,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "writing a planar VIO smoother, tests, a sensitivity study and write-up by a researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 513.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
