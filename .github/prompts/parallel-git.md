@@ -36,8 +36,10 @@ beats the pattern on its own.
    (`github.event.before`), never with `main`'s current tip.** *Why:* a
    queued run starts about 10 merges late, so the tip has moved. 77 of 100
    `Portfolio validate` runs on `main` failed because a venture added after
-   the commit looked as if the commit had deleted it. #8765 fixed this.
-   Review new workflow steps for "fetch `main`".
+   the commit looked as if the commit had deleted it. A pull-request run
+   has the same race: compare its test merge with that merge's first
+   parent. #8765 fixed both in `Portfolio validate`. Review new workflow
+   steps for "fetch `main`".
 4. **A red `main` is fixed or removed the same day.** *Why:* `Portfolio
    validate` stayed red for 1,000+ runs from 2026-09-29. Agents learned to
    merge on red, and #7226 broke `gitops/tests` behind it. If a red check

@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First fix covered push only; this PR's own pull_request validate run failed the same way (saints-by-candlelight added to main after the test merge was made). Fixed: pull_request base = first parent of the test merge; simulated on a depth-1 clone of refs/pull/8765/merge: OK."
+  ],
   "integrity_issues": [
     "Earlier in this session the final reply described the write-up as done while the PR was pushed and CI-queued, not merged; the owner had to ask. Recorded as rule 8 in parallel-git.md."
   ],
