@@ -3,7 +3,7 @@
 Free browser tool that checks a site-migration redirect map (CSV, TSV or one old-new pair per line)
 before launch: redirect loops and self-redirects, chains that should be one hop, the same old URL
 sent to two places, a large share of rows redirected to the homepage (a soft-404 pattern), spaces,
-#fragments, missing leading slashes, wildcards and other-host sources, temporary status codes, and
+#fragments, missing leading slashes, wildcards and other-host sources, temporary status codes, targets left on a staging or preview host, and
 -- if the new site's URL list is pasted -- redirects that end on a 404, plus old URLs with no rule
 at all, each with its line number. It then writes the map flattened, so every old URL points
 straight at its final destination, as a Shopify CSV, Netlify or Cloudflare Pages _redirects, Apache
