@@ -25,6 +25,7 @@ marriage, earlier marriage, children from before, race-ethnicity); the men's fil
 harmonised for the first wife by the lens, so the wife's fields are blank/Unknown for men.
 
 Usage: python3 -I build_nsfg_pooled.py [--refit]
+  (--refit --audit-only rewrites the audit without refitting.)
   Raw files in $NSFG_RAW or ../nsfg_pooled_first_marriage/raw (its download.sh). Writes
   work/nsfg_pooled.csv.gz (gitignored, person-level); with --refit also leakage_nsfg_pooled.csv
   and leakage_refit_nsfg_pooled.csv (the lens's additive spline Poisson GLM, its own 5 person
@@ -202,7 +203,7 @@ LEAKAGE = [
     ('wife_age_at_marriage', 'yes', 'at wedding', '(MARDAT01-CMBIRTH)/12; FMAR1AGE+0.5; 2015-17 men AGER + imputed wedding month', 'no',
      'retrospective report of a wedding-day fact (respondent age in the both-sexes model)'),
     ('husband_age_at_marriage', 'yes', 'at wedding', 'HXAGEMAR (1995 H1BORN/CHBORN; 2022-23 5-year bands -> mid-points)', 'no',
-     'husband age at the wedding, reported later but fixed; missing share by outcome checked below'),
+     'husband age at the wedding, reported later but fixed. Missing more often for dissolved marriages (women 1995 0.7% vs 8.0%; other cycles 0.2-1.0% vs 0.9-4.4%, printed by --refit), but the lens imputes the training median with no missing indicator, so missingness itself is not a model input'),
     ('wedding_year', 'yes', 'at wedding', 'MARDAT01', 'no', 'cohort term'),
     ('wife_premarital_sex_years', 'yes', 'before wedding', 'VRY1STAG vs age at marriage', 'no',
      'years sexually active before the wedding, floored at 0; first sex after the wedding gives 0, so nothing later enters'),
@@ -234,9 +235,12 @@ LEAKAGE = [
 HARMONIZED = [
     ('wife_age', 'at wedding', 'women: wife_age_at_marriage; men: not harmonised (blank)', 'no', ''),
     ('husband_age', 'at wedding', 'women: husband_age_at_marriage (2022-23 band mid-points); men: own age at marriage', 'no', ''),
-    ('wife_educ', 'before wedding', 'women: dated BA/HS items + HIEDUC as upper bound; men: Unknown', 'no',
-     'same-year (year-only cycles) and undated degrees -> Unknown; Some college is never datable -> Unknown'),
-    ('husband_educ', 'before wedding', 'men: dated BA/HS items + HIEDUC as upper bound; women: Unknown (husband education undated)', 'no',
+    ('wife_educ', 'before wedding', 'women: dated BA/HS items + HIEDUC as upper bound; men: Unknown', 'possible',
+     'every known level is dated on or before the wedding (same-year and undated degrees -> Unknown; Some college is never datable). '
+     'But the Unknown level is not uninformative: among respondents it collects those whose INTERVIEW education exceeds what can be '
+     'dated (college or a BA after the wedding, undated BA), so a model that treats Unknown as its own level reads post-wedding '
+     'education; treat it as missing (or use it only across datasets where it means the same)'),
+    ('husband_educ', 'before wedding', 'men: dated BA/HS items + HIEDUC as upper bound; women: Unknown (husband education undated)', 'possible',
      'as wife_educ'),
     ('wife_prior_marriage', 'before wedding', 'women: No by construction; men: Unknown (first wife not harmonised)', 'no', ''),
     ('husband_prior_marriage', 'before wedding', 'women: MARBEFHX; men: No by construction', 'no', ''),
@@ -352,6 +356,8 @@ def main(do_refit):
     if do_refit:
         nums, _ = write_leakage(d)
         print(nums)
+        if '--audit-only' in sys.argv:
+            return
         res = refit(d)
         res.to_csv(HERE / 'leakage_refit_nsfg_pooled.csv', index=False, float_format='%.5f')
         print(res.to_string(index=False))

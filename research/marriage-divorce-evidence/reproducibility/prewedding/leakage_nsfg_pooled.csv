@@ -1,7 +1,7 @@
 dataset,predictor,existing_lens_uses,measured_when,source,leaks,note
 nsfg_pooled,marriage_years,yes,after wedding,derived (time since wedding),no,"the time axis of the Poisson model, not a covariate; every model has it"
 nsfg_pooled,wife_age_at_marriage,yes,at wedding,(MARDAT01-CMBIRTH)/12; FMAR1AGE+0.5; 2015-17 men AGER + imputed wedding month,no,retrospective report of a wedding-day fact (respondent age in the both-sexes model)
-nsfg_pooled,husband_age_at_marriage,yes,at wedding,HXAGEMAR (1995 H1BORN/CHBORN; 2022-23 5-year bands -> mid-points),no,"husband age at the wedding, reported later but fixed; missing share by outcome checked below"
+nsfg_pooled,husband_age_at_marriage,yes,at wedding,HXAGEMAR (1995 H1BORN/CHBORN; 2022-23 5-year bands -> mid-points),no,"husband age at the wedding, reported later but fixed. Missing more often for dissolved marriages (women 1995 0.7% vs 8.0%; other cycles 0.2-1.0% vs 0.9-4.4%, printed by --refit), but the lens imputes the training median with no missing indicator, so missingness itself is not a model input"
 nsfg_pooled,wedding_year,yes,at wedding,MARDAT01,no,cohort term
 nsfg_pooled,wife_premarital_sex_years,yes,before wedding,VRY1STAG vs age at marriage,no,"years sexually active before the wedding, floored at 0; first sex after the wedding gives 0, so nothing later enters"
 nsfg_pooled,cohabited_first,yes,before wedding,LVTOGHX (1995 LVTOGH1/LVTOGCH; men PREMARW1),no,lived together before marrying this spouse
