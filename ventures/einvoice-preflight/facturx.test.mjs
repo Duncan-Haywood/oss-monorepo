@@ -40,6 +40,12 @@ test("parseInvoiceSource unwraps a Factur-X PDF into the same facts", async () =
   assert.equal(invoice.tax_exemption_reason, "Reverse charge");
 });
 
+test("the shipped Factur-X credit note unwraps, is a 381 and checks clean", async () => {
+  const invoice = await parseInvoiceSource("factur-x-credit-note.pdf", example("factur-x-credit-note.pdf"));
+  assert.equal(invoice.invoice_number, "GS-2026-0011");
+  assert.deepEqual(checkInvoice(invoice), []);
+});
+
 test("an encrypted PDF is refused without reading the attachment", async () => {
   const pdf = buildPdfWithAttachment(example("cii-invoice.xml"), "factur-x.xml", { encrypt: true });
   await assert.rejects(() => extractEmbeddedInvoiceXml(pdf), /encrypted/);
