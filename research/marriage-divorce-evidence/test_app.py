@@ -38,6 +38,12 @@ class AppTests(unittest.TestCase):
     def test_ood_score_matches_python(self):
         self.run_node('ood.test.mjs')
 
+    def test_gss_panel_bundle(self):
+        self.run_node('gss_panel.test.mjs')
+
+    def test_nlsy79_first_marriage_bundle(self):
+        self.run_node('nlsy79_first_marriage.test.mjs')
+
     def test_lenses_and_scenarios(self):
         self.run_node('lenses.test.mjs')
 
@@ -123,6 +129,33 @@ class RelationshipDatasetTests(unittest.TestCase):
                 self.assertAlmostEqual(float(r['odds_ratio']), a * d / (b * c), places=3)
         crude = [r for r in rows if r['group'] == 'All (crude)']
         self.assertEqual(sum(int(crude[0][k]) for k in ('exposed_divorced', 'exposed_married', 'unexposed_divorced', 'unexposed_married')), 1036)
+
+
+class GssPanelBundleTests(unittest.TestCase):
+    SRC = APP.parent / 'reproducibility' / 'gss_panel'
+
+    def test_bundle_agrees_with_audit_and_rates(self):
+        import csv, json
+        audit = json.loads((self.SRC / 'sample_audit.json').read_text())
+        # NORC's documented panel sizes (release notes; 2016-2020 codebook Table 2).
+        self.assertEqual(audit['panel_2006_documented_counts_verified'], {'1': 2000, '2': 1536, '3': 1276})
+        self.assertEqual(audit['panel_2008_documented_counts_verified'], {'1': 2023, '2': 1581, '3': 1295})
+        self.assertEqual(audit['panel_2010_documented_counts_verified'], {'1': 2044, '2': 1551, '3': 1304})
+        self.assertEqual(audit['panel_2020_documented_counts_verified'], {'1a': 2867, '1b': 2348, '2': 1823})
+        bundle = json.loads((APP / 'models' / 'gss_panel_marriages.json').read_text())
+        self.assertEqual(bundle['training']['events'], audit['two_year']['events'])
+        self.assertEqual(bundle['training']['records'], audit['two_year']['records'])
+        rows = [r for r in csv.DictReader(open(self.SRC / 'hapmar_dissolution_rates.csv'))
+                if r['variant'] == 'main' and r['horizon'] == '2']
+        self.assertEqual(sum(int(r['events']) for r in rows), audit['two_year']['events'])
+        rate = {r['level']: float(r['weighted_rate']) for r in rows}
+        self.assertGreater(rate['Not too happy'], rate['Pretty happy'])
+        self.assertGreater(rate['Pretty happy'], rate['Very happy'])
+        best = max(m['heldout']['logloss_improvement_percent'] for m in bundle['models'])
+        self.assertGreater(best, 0)
+        for cells in bundle['population_reference']['horizon_2']['subgroups'].values():
+            for cell in cells.values():
+                self.assertGreaterEqual(cell['respondents'], 100)
 
 
 if __name__ == '__main__':

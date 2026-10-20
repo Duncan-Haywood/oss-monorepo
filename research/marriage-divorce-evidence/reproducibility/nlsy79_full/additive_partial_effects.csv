@@ -1,0 +1,139 @@
+input,value,rate_ratio
+marriage_years,0,1.0000
+marriage_years,1,1.1490
+marriage_years,2,1.2826
+marriage_years,3,1.3910
+marriage_years,5,1.5000
+marriage_years,7,1.4410
+marriage_years,10,1.2330
+marriage_years,15,0.9141
+marriage_years,20,0.6569
+marriage_years,25,0.4930
+marriage_years,30,0.3895
+age_at_marriage,18,2.3615
+age_at_marriage,20,1.6226
+age_at_marriage,22,1.2429
+age_at_marriage,25,0.9829
+age_at_marriage,28,0.8066
+age_at_marriage,32,0.6428
+age_at_marriage,38,0.4974
+age_at_marriage,45,0.4190
+wedding_year,1982,0.8690
+wedding_year,1986,1.0000
+wedding_year,1990,1.0066
+wedding_year,1995,0.9619
+wedding_year,2000,0.9235
+wedding_year,2010,0.8628
+afqt,5,0.8921
+afqt,20,1.0647
+afqt,40,1.0159
+afqt,60,0.9678
+afqt,80,0.9484
+afqt,95,0.9085
+rotter,5,0.9984
+rotter,7,0.9664
+rotter,9,1.0000
+rotter,11,0.9470
+rotter,13,0.9168
+rosenberg,15,1.0454
+rosenberg,20,0.9807
+rosenberg,23,0.9997
+rosenberg,26,0.9720
+rosenberg,30,0.9313
+delinquency,0,0.8495
+delinquency,1,0.8693
+delinquency,3,1.0000
+delinquency,5,1.1463
+delinquency,8,1.3389
+delinquency,12,1.5019
+income_percentile,5,0.9893
+income_percentile,20,1.0294
+income_percentile,40,0.9835
+income_percentile,60,0.9456
+income_percentile,80,0.9381
+income_percentile,95,0.9520
+spouse_age_at_marriage,18,1.1073
+spouse_age_at_marriage,20,1.0535
+spouse_age_at_marriage,22,1.0184
+spouse_age_at_marriage,25,1.0000
+spouse_age_at_marriage,28,1.0199
+spouse_age_at_marriage,32,1.0455
+spouse_age_at_marriage,38,1.0659
+spouse_age_at_marriage,45,1.0611
+sex,Man,1.0000
+sex,Woman,1.0349
+race,Black,0.9618
+race,Hispanic,0.8844
+race,Non-Black non-Hispanic,1.0000
+own_education,12 years,1.0000
+own_education,13-15 years,0.9592
+own_education,16+ years,0.7864
+own_education,<12 years,1.0955
+own_education,Unknown,1.0722
+enrolled,Enrolled,0.8398
+enrolled,Not enrolled,1.0000
+enrolled,Unknown,1.0456
+mother_education,12 years,1.0000
+mother_education,13-15 years,0.9836
+mother_education,16+ years,1.0834
+mother_education,<12 years,0.8530
+mother_education,Unknown,0.9135
+father_education,12 years,0.9760
+father_education,13-15 years,1.1192
+father_education,16+ years,0.9206
+father_education,<12 years,1.0000
+father_education,Unknown,1.1200
+family_at_14,Both parents,1.0000
+family_at_14,Other arrangement,1.1409
+family_at_14,Parent and step-parent,1.0029
+family_at_14,Single parent,1.1057
+family_at_14,Unknown,1.2835
+religion_raised,Baptist,1.1496
+religion_raised,Catholic,1.0000
+religion_raised,Jewish,0.8058
+religion_raised,No religion,1.1685
+religion_raised,Other,1.2425
+religion_raised,Other Protestant,0.9945
+religion_raised,Unknown,1.2729
+attendance,Monthly,0.9569
+attendance,Never,0.9905
+attendance,Several times a year or less,1.0000
+attendance,Unknown,0.9352
+attendance,Weekly or more,0.8227
+poverty,In poverty,1.1403
+poverty,Not in poverty,1.0000
+poverty,Unknown,1.1442
+region,North Central,0.8053
+region,Northeast,0.7847
+region,South,1.0000
+region,Unknown,0.6875
+region,West,0.9716
+urban,Rural,0.9204
+urban,Unknown,1.0786
+urban,Urban,1.0000
+premarital_birth,No,1.0000
+premarital_birth,Yes,1.0119
+cohabiting_before,No,1.0000
+cohabiting_before,Unknown,1.1339
+cohabiting_before,Yes,1.0528
+lived_with_parents,No,1.0000
+lived_with_parents,Unknown,1.1339
+lived_with_parents,Yes,0.7774
+spouse_in_household,No,1.7213
+spouse_in_household,Yes,1.0000
+spouse_education,12 years,1.0000
+spouse_education,13-15 years,0.9351
+spouse_education,16+ years,0.6614
+spouse_education,<12 years,1.1788
+spouse_education,Unknown,0.9889
+spouse_worked,No,0.9012
+spouse_worked,Unknown,1.3096
+spouse_worked,Yes,1.0000
+afqt_missing,Missing,0.8390
+afqt_missing,Observed,1.0000
+income_missing,Missing,1.0034
+income_missing,Observed,1.0000
+rosenberg_missing,Missing,1.0147
+rosenberg_missing,Observed,1.0000
+delinquency_missing,Missing,1.0742
+delinquency_missing,Observed,1.0000

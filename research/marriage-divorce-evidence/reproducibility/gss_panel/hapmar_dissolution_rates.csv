@@ -1,0 +1,56 @@
+horizon,variant,group,level,records,respondents,events,unweighted_rate,weighted_rate,ci_low,ci_high,ratio_vs_reference,ratio_ci_low,ratio_ci_high
+2,main,hapmar,Very happy,2669,1861,69,0.025852,0.025233,0.018658,0.032367,1,1,1
+2,main,hapmar,Pretty happy,1623,1206,90,0.055453,0.054789,0.042318,0.069796,2.1713,1.4844,3.201
+2,main,hapmar,Not too happy,140,121,38,0.27143,0.23615,0.1649,0.31179,9.3587,6.0343,14.311
+2,main,hapmar,Unknown,21,21,6,0.28571,0.2155,0.062785,0.40544,8.5404,2.5166,17.305
+2,divorce only (separation not counted),hapmar,Very happy,2669,1861,39,0.014612,0.014472,0.0095022,0.020107,1,1,1
+2,divorce only (separation not counted),hapmar,Pretty happy,1623,1206,41,0.025262,0.023394,0.014826,0.033288,1.6166,0.93494,2.7076
+2,divorce only (separation not counted),hapmar,Not too happy,140,121,20,0.14286,0.12653,0.069619,0.19073,8.743,4.3722,16.068
+2,divorce only (separation not counted),hapmar,Unknown,21,21,2,0.095238,0.07683,0,0.21322,5.3089,0,17.065
+2,also counting a no-to-yes flip in the ever-divorced item,hapmar,Very happy,2669,1861,89,0.033346,0.032456,0.024813,0.040408,1,1,1
+2,also counting a no-to-yes flip in the ever-divorced item,hapmar,Pretty happy,1623,1206,113,0.069624,0.067502,0.053821,0.08358,2.0798,1.5224,2.9004
+2,also counting a no-to-yes flip in the ever-divorced item,hapmar,Not too happy,140,121,39,0.27857,0.24834,0.1758,0.32792,7.6516,5.083,11.429
+2,also counting a no-to-yes flip in the ever-divorced item,hapmar,Unknown,21,21,6,0.28571,0.2155,0.062785,0.40544,6.6398,1.8792,13.495
+2,unweighted,hapmar,Very happy,2669,1861,69,0.025852,0.025852,0.019746,0.031529,1,1,1
+2,unweighted,hapmar,Pretty happy,1623,1206,90,0.055453,0.055453,0.045058,0.066998,2.145,1.5964,2.9202
+2,unweighted,hapmar,Not too happy,140,121,38,0.27143,0.27143,0.20144,0.34483,10.499,7.1431,14.916
+2,unweighted,hapmar,Unknown,21,21,6,0.28571,0.28571,0.095238,0.48194,11.052,3.6287,19.811
+2,2006-2014 panels,hapmar,Very happy,2384,1576,62,0.026007,0.0264,0.018869,0.033926,1,1,1
+2,2006-2014 panels,hapmar,Pretty happy,1465,1048,81,0.05529,0.055475,0.04056,0.07046,2.1013,1.3947,3.2237
+2,2006-2014 panels,hapmar,Not too happy,129,110,36,0.27907,0.24405,0.17016,0.3263,9.2445,5.837,14.489
+2,2006-2014 panels,hapmar,Unknown,18,18,5,0.27778,0.22164,0.042728,0.45551,8.3957,1.5377,18.524
+2,2016-2020 panel,hapmar,Very happy,285,285,7,0.024561,0.013897,0.0046831,0.026311,1,1,1
+2,2016-2020 panel,hapmar,Pretty happy,158,158,9,0.056962,0.048116,0.01555,0.089263,3.4625,1.0639,12.664
+2,2016-2020 panel,hapmar,Not too happy,11,11,2,0.18182,0.13026,0,0.35492,9.3737,0,42.061
+2,2016-2020 panel,hapmar,Unknown,3,3,1,0.33333,0.17305,0,1,12.453,0,103.51
+4,main,hapmar,Very happy,1285,1285,62,0.048249,0.051812,0.037975,0.066973,1,1,1
+4,main,hapmar,Pretty happy,788,788,80,0.10152,0.10853,0.081235,0.13875,2.0948,1.452,3.0374
+4,main,hapmar,Not too happy,63,63,21,0.33333,0.30778,0.199,0.4329,5.9403,3.602,9.4631
+4,main,hapmar,Unknown,7,7,3,0.42857,0.32559,0,0.75017,6.2841,0,15.767
+4,divorce only (separation not counted),hapmar,Very happy,1285,1285,33,0.025681,0.026975,0.017493,0.037432,1,1,1
+4,divorce only (separation not counted),hapmar,Pretty happy,788,788,48,0.060914,0.063512,0.04112,0.088058,2.3545,1.3534,3.9659
+4,divorce only (separation not counted),hapmar,Not too happy,63,63,13,0.20635,0.17401,0.094205,0.27868,6.451,3.2288,11.708
+4,divorce only (separation not counted),hapmar,Unknown,7,7,2,0.28571,0.24036,0,0.61109,8.9105,0,26.666
+4,also counting a no-to-yes flip in the ever-divorced item,hapmar,Very happy,1285,1285,73,0.056809,0.058974,0.044982,0.07455,1,1,1
+4,also counting a no-to-yes flip in the ever-divorced item,hapmar,Pretty happy,788,788,89,0.11294,0.11728,0.089417,0.14782,1.9886,1.406,2.8421
+4,also counting a no-to-yes flip in the ever-divorced item,hapmar,Not too happy,63,63,22,0.34921,0.34516,0.22224,0.48193,5.8528,3.6684,8.9252
+4,also counting a no-to-yes flip in the ever-divorced item,hapmar,Unknown,7,7,3,0.42857,0.32559,0,0.75017,5.521,0,13.489
+4,unweighted,hapmar,Very happy,1285,1285,62,0.048249,0.048249,0.037794,0.059385,1,1,1
+4,unweighted,hapmar,Pretty happy,788,788,80,0.10152,0.10152,0.081758,0.12277,2.1041,1.5664,2.8582
+4,unweighted,hapmar,Not too happy,63,63,21,0.33333,0.33333,0.22636,0.45455,6.9086,4.4787,10.294
+4,unweighted,hapmar,Unknown,7,7,3,0.42857,0.42857,0,0.8,8.8825,0,18.294
+4,2006-2014 panels,hapmar,Very happy,1065,1065,58,0.05446,0.060391,0.042615,0.077137,1,1,1
+4,2006-2014 panels,hapmar,Pretty happy,654,654,63,0.09633,0.10155,0.074503,0.13312,1.6816,1.1544,2.5538
+4,2006-2014 panels,hapmar,Not too happy,56,56,20,0.35714,0.32868,0.19371,0.48208,5.4425,3.0327,9.1989
+4,2006-2014 panels,hapmar,Unknown,7,7,3,0.42857,0.32559,0,0.78414,5.3914,0,14.114
+4,2016-2020 panel,hapmar,Very happy,220,220,4,0.018182,0.01462,0.0018178,0.031853,1,1,1
+4,2016-2020 panel,hapmar,Pretty happy,134,134,17,0.12687,0.13862,0.068926,0.2196,9.4813,3.423,95.424
+4,2016-2020 panel,hapmar,Not too happy,7,7,1,0.14286,0.16086,0,0.54225,11.003,0,95.517
+2,NORC weight / modelled re-interview probability,hapmar,Very happy,2669,1861,69,0.025852,0.024831,0.018343,0.031747,1,1,1
+2,NORC weight / modelled re-interview probability,hapmar,Pretty happy,1623,1206,90,0.055453,0.05531,0.042758,0.070413,2.2274,1.5269,3.2369
+2,NORC weight / modelled re-interview probability,hapmar,Not too happy,140,121,38,0.27143,0.2288,0.15867,0.30462,9.214,5.915,14.13
+2,NORC weight / modelled re-interview probability,hapmar,Unknown,21,21,6,0.28571,0.21816,0.062451,0.40171,8.7856,2.4596,17.922
+4,NORC weight / modelled re-interview probability,hapmar,Very happy,1285,1285,62,0.048249,0.052293,0.038266,0.067673,1,1,1
+4,NORC weight / modelled re-interview probability,hapmar,Pretty happy,788,788,80,0.10152,0.11198,0.082079,0.147,2.1415,1.4534,3.1788
+4,NORC weight / modelled re-interview probability,hapmar,Not too happy,63,63,21,0.33333,0.29075,0.18382,0.41803,5.5601,3.2941,8.9787
+4,NORC weight / modelled re-interview probability,hapmar,Unknown,7,7,3,0.42857,0.33645,0,0.76709,6.434,0,15.865

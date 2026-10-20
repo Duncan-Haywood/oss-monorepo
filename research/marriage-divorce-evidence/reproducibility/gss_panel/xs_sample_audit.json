@@ -1,0 +1,39 @@
+{
+ "records_in_file": 75699,
+ "ever_married_18_89": 58009,
+ "analysed": 57753,
+ "ever_divorced_or_separated": 22193,
+ "years": [
+  1972,
+  2024
+ ],
+ "agewed_years": [
+  1972,
+  1973,
+  1974,
+  1975,
+  1976,
+  1977,
+  1978,
+  1980,
+  1982,
+  1983,
+  1984,
+  1985,
+  1986,
+  1987,
+  1988,
+  1989,
+  1990,
+  1991,
+  1993,
+  1994,
+  2006
+ ],
+ "agewed_known": 26324,
+ "aged_35_64": 32639,
+ "aged_35_64_agewed": 14134,
+ "weighted_share_35_64": 0.3911450214808933,
+ "weight": "WTSSPS (NORC post-stratified weight, 1972-2024), normalised to mean 1",
+ "caveat": "cross-sectional: status at interview, not a prospective rate; respondent bootstrap ignores the PSU design"
+}

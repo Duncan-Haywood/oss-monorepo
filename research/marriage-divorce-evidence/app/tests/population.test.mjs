@@ -171,3 +171,12 @@ test('just me: averaged over the partner distribution, with percentiles', () => 
     assert.match(r2.reason, /cover only/);
   }
 });
+
+test('references in another shape are not read', () => {
+  assert.equal(referenceFor({ population_reference: { cells: [{ variable: 'All', n: 100 }], quantiles: [0.5] } }), null);
+  assert.equal(referenceFor({ population_reference: { overall: { n: 1, quantiles: {} } } }), null);
+  const ok = { horizons: [10], overall: { n: 1, quantiles: {} } };
+  assert.equal(referenceFor({ population_reference: ok }), ok);
+  const couples = JSON.parse(readFileSync(new URL('../models/nlsy79_couples.json', import.meta.url)));
+  assert.equal(referenceFor(couples), null);
+});
