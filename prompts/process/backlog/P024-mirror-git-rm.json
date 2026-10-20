@@ -1,9 +1,9 @@
 {
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "opened": "2026-10-16",
   "source": "P021 split of P014",
-  "pr": 7440,
+  "pr": null,
   "history": [
     {
       "date": "2026-10-16",
@@ -24,6 +24,10 @@
     {
       "date": "2026-10-20",
       "note": "Process run (Critique): reopened. Tree re-created on main (6,202 files) and churned by venture PRs. A bare git rm was tried locally; the gitops pytest suite hung >10 min in this session, so nothing was validated and the deletion was not committed."
+    },
+    {
+      "date": "2026-10-20",
+      "note": "Process run: git rm + guard test landed together; the earlier 'hang' did not recur (test_manifests 21s)."
     }
   ],
   "touches": [
@@ -41,5 +45,6 @@
   ],
   "change": "Not a bare git rm. Tried 2026-10-16: deleting gitops/prod/front-door-tools makes regen --verify report 5,918 missing artifacts (front-door-tools.mjs --write is still one of its two generators) and fails gitops/tests/test_manifests.py::test_mirrored_tool_count_matches_what_the_docs_claim; kustomization.yaml also lists front-door-tools/ as a resource. So in one PR: (1) drop the front-door-tools.mjs step from regen.mjs --verify/write, (2) remove the front-door-tools/ resource and mirror-count assertions, (3) git rm the tree; keep front-door.mjs and the --headroom guard if still meaningful. The regen checklist lines stay (P023 dropped). 2026-10-20 finding: with the tree git-rm'd locally, `regen.mjs --verify` does not mention it (RETIRED_GENERATORS works), but gitops/prod/kustomization.yaml (resource + comment at ~375) and portfolio-front.yaml still mount it, gitops/tests/test_manifests.py asserts its shards and mirrored-tool count, and portfolio-validate.yml runs front-door-tools.mjs --headroom. Split: (a) find what makes venture PRs run `front-door-tools.mjs --write` (a test failing or doc line) and remove that, (b) drop the kustomization/portfolio-front mounts and test_manifests assertions for the retired origin, (c) git rm the tree plus a check that fails if it is tracked. Why (a) is not a one-liner: front-door-tools.test.mjs:1562 and test_manifests.py:1211 tell the agent to run `front-door-tools.mjs --write` because those tests compare the committed tree, so as long as it is tracked every venture merge that moves a page makes them red until it is rewritten; (b)+(c) must land together.",
   "metric": "Files under gitops/prod/front-door-tools in git",
-  "baseline": "5,839"
+  "baseline": "5,839",
+  "result": "Tree git-rm'd (6,202 files) with a guard test (test_manifests.py) that fails if any file under it is tracked. Tests, regen --verify and front-door-tools tests pass without it. Verify the count stays 0 after a few venture merges."
 }
