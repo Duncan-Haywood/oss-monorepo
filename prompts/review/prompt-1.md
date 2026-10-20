@@ -111,6 +111,9 @@ must notice and fix drift ("Judgment over rules" in `prompts/goals.md`).
    report. Cut the file that grew most or costs most: stale history, rules
    about things that no longer exist, duplicates. Judge the cut by friction
    after it (step 5). Never drop a `goals.md` guardrail.
+   Cut at least one rule or check that no longer earns its place, and name
+   one lesson from how other organisations run at this throughput
+   (`steering.md`, "Cut the deadweight").
 4. **Fix what is clear, propose what is not.** Correct drifted documents and
    sub-prompts directly (a sub-prompt through a candidate, step 4). If it
    needs the owner (touches `goals.md`, intent unclear), add a short proposal

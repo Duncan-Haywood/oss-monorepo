@@ -2871,6 +2871,11 @@
      "summary": "The output-stationary (OS) and reduction-tree (RT, RTp) engines of <em>accel-plane</em> for the 64&times;70 layer, 4-bit weights, at 1 to 32 lanes, through Yosys and nextpnr-ice40 on an iCE40 UP5K (5,280 logic cells, 8 DSP blocks), 3 seeds, with and without DSP mapping. OS at 16 lanes is the fastest design that fits: 10.2&nbsp;&micro;s per product, 2,942 cells, 27&nbsp;MHz, against 12.0&nbsp;&micro;s for RTp at 32 lanes (3,708 cells). Adder trees clock 1.5 to 2&times; slower than OS, and OS at 32 lanes does not fit. Letting Yosys use the DSP blocks cuts logic by 13 to 41&nbsp;% but fails to place beyond 8 lanes, as it does not fall back to logic. <strong>Stylised:</strong> synthesis and place-and-route only, operands from a shift register (no weight memory), no power, no board."
     },
     {
+     "slug": "accel-surrogatelock",
+     "title": "With a locking-free finite-element simulator, how much surrogate error can a design loop tolerate?",
+     "summary": "The 2D cantilever of <em>accel-surrogate2d</em> with a locking-free Q6 (incompatible-modes) element, which is within 0.6&nbsp;% of Timoshenko theory on a 16&times;2 mesh where Q4 gives half the deflection. An 8-32-32-1 MLP (float, 6 and 8 bits) imitates it at three mesh sizes. At 64&times;8 the surrogate adds about 0.5 to 0.8 points to the FE's own 2.3&nbsp;% error. In a minimum-mass search over 1,000 designs and 15 limits, a screen with no safety margin breaks the limit in 24 to 33&nbsp;% of cases (FE alone 6.7&nbsp;%); a 5 to 10&nbsp;% margin cuts this to 2 to 9&nbsp;% for about 0.5 to 1.6&nbsp;% extra mass. Stylised, random-pool screen, 3 seeds, modelled energy."
+    },
+    {
      "slug": "accel-surrogate2d",
      "title": "When the beam simulator is a 2D finite-element model, does a quantised surrogate (and an accelerator for it) pay?",
      "summary": "The cantilever of <em>accel-surrogate</em> meshed as a 2D plane-stress continuum (bilinear quadrilaterals, 32&times;4 and 64&times;8 meshes). An 8-32-32-1 MLP imitates each solve and is quantised to 6 and 8 weight bits. With assumed energy constants the FE solve costs 34&times; (32&times;4) and 319&times; (64&times;8) the 8-bit MLP's energy, so the break-even that failed for the closed-form beam is met. Against a 128&times;16 reference mesh the 64&times;8 solve is itself off by a median 9.2&nbsp;%, the float surrogate by 8.7&nbsp;% and the 6-bit QAT surrogate by 9.2&nbsp;%; the surrogate adds little beside the simulator's own error. Limitations: the locking Q4 elements make the simulator inaccurate, two meshes, three seeds, assumed energy model, no RTL. Stylised."
@@ -3952,6 +3957,10 @@
     "title": "Which three-finger pad design picks the most unbruised strawberry-like fruit under a 60 USD cap, and does a session agent beat CMA-ES and Bayesian optimisation?",
     "summary": "Five design variables (pad width, pad length, pad modulus, grip force, finger count) are scored on 600 simulated fruit with ripeness-dependent bruise thresholds, wet and dry friction and placement error, using closed-form line-contact pressure, friction hold and a capture-and-clutter law. At 40 evaluations the median best objective is 0.635 for Bayesian optimisation, 0.618 for a session agent&rsquo;s hand-written proposals (one run, by the model&rsquo;s own author), 0.611 for CMA-ES and 0.574 for random search; all 20 Bayesian-optimisation seeds matched or beat the agent. The best design (25&nbsp;mm pads, 0.19&nbsp;MPa, 8&nbsp;N, three fingers) picks 74% clean; about 20% of fruit are lost to clutter collisions that no pad setting can change. Stylised, with assumed constants and no learned policy."
    }   ,{
+     "slug": "codesign-logistics",
+    "title": "Which suction gripper picks the most of a stylised mixed tote under an 80 USD cap, and does a session agent beat CMA-ES and Bayesian optimisation?",
+    "summary": "Five design variables (cup diameter, cups in a row, pump vacuum, pump flow, cup compliance) are scored on 600 simulated items (boxes, leaky polybags, bottles) with a cup-fit law on each item&rsquo;s flat patch, vacuum lost to leaks, holding force against 1.5&times; a 1&nbsp;g-accelerated load, and a pick-time penalty. At 40 evaluations the median best objective is 0.478 for Bayesian optimisation, 0.361 for CMA-ES and 0.328 for random search; a session agent&rsquo;s hand-written proposals (one run, by the model&rsquo;s own author) reached 0.519, and 1 of 20 Bayesian-optimisation seeds matched it. The best design (two 18.5&nbsp;mm cups, 80&nbsp;kPa, 60&nbsp;L/min) holds 77% of items quickly; a catalogue-default single 30&nbsp;mm cup holds none quickly (J 0.075). Stylised, with assumed constants, no learned policy and no general-purpose arm modelled."
+   }   ,{
     "slug": "codesign-transfer",
     "title": "Does the ranking of printable soft-fruit gripper designs survive a shift in friction, fruit, placement error and print tolerance?",
     "summary": "Takes the <code>codesign-agri</code> contact model unchanged and widens what it holds fixed: per world the fruit size, placement error, wetness, bruise threshold and stem pull are drawn, and the printed gripper differs from the design (pad modulus, force and width tolerance). Over 600 random feasible designs and 30 held-out worlds the Spearman rank correlation with the nominal world is 0.993, so a nominal winner is a good candidate. The level still falls: the nominal CMA-ES optimum loses 13% of its objective (0.653 to 0.567), and a robust optimum trained on 10 other worlds gains only 0.015 on average and 0.034 in the worst world, from single runs. Sim-to-sim in a stylised model with assumed ranges; no gripper was printed."
@@ -3993,6 +4002,18 @@
     "slug": "hanger-insert",
     "title": "How does a laundry robot get a hanger into a garment, and what does it cost the neck?",
     "summary": "A swept-section geometry model passes a hanger through a garment&rsquo;s neck or hem loop: the loop must reach round the hull of the hanger&rsquo;s cross-section, and a planner finds the path of least stretch. A rigid hanger needs 43&ndash;61&nbsp;cm of loop (a whole arm), which stretches a tee&rsquo;s neck by up to 33% against an assumed 35% limit, and a buttoned woven collar cannot take it, so every shirt goes in at the hem and has its hook threaded out blind (about 10&nbsp;s against 6&nbsp;s). A telescoping hanger collapsed to a 10&nbsp;cm half width needs 31&nbsp;cm and passes five of seven shirt sizes; folding the arms down 60&deg; needs 37&ndash;40&nbsp;cm. The 2&ndash;3&nbsp;cm round end that <code>hanger-fit</code> needs adds only about 3&nbsp;cm of loop, so insertion changes the width design, not the end. Stylised: planar hanger, perimeter bound rather than cloth, assumed stretch limits and robot constants."
+   }
+  ]
+ },
+ {
+  "id": "qual",
+  "name": "Machine learning on qualitative data",
+  "blurb": "What LLMs make possible with interviews, open-ended survey answers, reviews and tickets, and when counts built from an LLM's codes can be trusted.",
+  "projects": [
+   {
+    "slug": "qual-correction",
+    "title": "Can you do machine learning on qualitative data with an LLM, and when can you trust the numbers?",
+    "summary": "An LLM can code free text (&ldquo;does this answer mention cost?&rdquo;) so that it can be counted and modelled like numbers, but its codes need a correction first. In a seeded simulation, an 89%-accurate LLM coder (Cohen&rsquo;s &kappa; = 0.72) understates a 30% code at 26%, and its naive 95% interval covers the truth in 0 of 1,000 studies. When the LLM reads one group&rsquo;s answers less accurately, the naive group gap comes out at +3.6 points against a true &minus;4, the wrong sign, and is &ldquo;significant&rdquo; 80% of the time. Prediction-powered inference with 200 random hand-coded answers per group removes the bias, covers the truth 95&ndash;98% of the time and gives intervals 23&ndash;26% narrower than hand-coding alone. Below about 80% coder accuracy, though, its interval is wider. Includes a stdlib tool (&kappa;, Krippendorff&rsquo;s &alpha;, PPI) and a survey of five ways LLMs bring qualitative data into ML. Simulated coders, not a real model."
    }
   ]
  }
