@@ -15,7 +15,7 @@ minutes long, or if it was encoded at a variable bitrate. None of this is
 hard. All of it is easy to get wrong, and the store tells you days later.
 
 That is work an AI agent should do, if it has tools it can't misuse. So we
-built [Publish Kit](https://duncan-haywood.github.io/monorepo-projects/publish-kit/):
+built [Publish Kit](/ventures/publish-kit/README.md):
 a free, MIT-licensed command-line kit, plus a browser page with the same code.
 
 ## What it does
@@ -82,4 +82,4 @@ a promise.
 The code is in
 [`ventures/publish-kit`](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/publish-kit).
 The browser version runs entirely on your device:
-[podcast feed generator, Markdown to EPUB, KDP spine calculator and ACX check](https://duncan-haywood.github.io/monorepo-projects/publish-kit/).
+[podcast feed generator, Markdown to EPUB, KDP spine calculator and ACX check](/ventures/publish-kit/README.md).
