@@ -1,0 +1,15 @@
+{
+ "couple": "man 30 and woman 30, wed 2025, divorce rate 0",
+ "both_alive_after": {
+  "10y": 0.9716,
+  "20y": 0.9332,
+  "30y": 0.8611,
+  "40y": 0.7536,
+  "50y": 0.5819
+ },
+ "with_constant_divorce_rate_0.01": {
+  "p_divorce": 0.3768,
+  "p_widowhood": 0.6232,
+  "p_still_married_80y": 0.0
+ }
+}

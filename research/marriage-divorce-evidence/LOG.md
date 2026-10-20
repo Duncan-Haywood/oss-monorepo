@@ -1,5 +1,13 @@
 # Research log
 
+## 2026-10-20 · Lifelong marriage needs mortality: UN WPP 2024 death rates and a competing-risks module
+
+- New data: UN World Population Prospects 2024 single-year U.S. death rates by sex (`mx1dt`, CC BY 3.0 IGO), from the `wpp2024` R data package on GitHub. SSA, CDC and the Human Mortality Database are still unreachable. Life expectancy recomputed from the rates matches the UN's published e0 within 0.02 years at 12 points from 1950 to 2023 (2023: men 76.862 against 76.864, women 81.847 against 81.849) (`reproducibility/un_wpp2024_mortality/`).
+- New `app/mortality.js` `competingRisks()` splits each marriage year exactly between divorce and the death of either partner, using constant hazards and calendar-year cohort death rates. It returns P(divorce first), P(widowhood first, i.e. lifelong) and the unresolved remainder, and stops where a lens gives no number. It reproduces the Python reference on 24 couples to within 10<sup>-9</sup>.
+- Why it matters: for a man and a woman both 30, marrying in 2025, the chance both are still alive is 93.3% after 20 years and 58.2% after 50. Even at a constant 1% divorce rate, 62.3% of such marriages end in widowhood rather than divorce (37.7% in divorce). "Chance of no divorce by year 40" therefore overstates how many marriages are still going then.
+- Limits: these are population death rates. Married people live longer and spouses' deaths are correlated; neither is modelled. Rates after 2023 are UN projections.
+- `app/ROADMAP.md` section A now lists what workstream A has delivered (four datasets, three lenses, the mortality table) and what remains blocked (later NSFG cycles, NLSY97, HCMST, GSS, Divorce Predictors Scale, CDC aggregates).
+
 ## 2026-10-20 · Out-of-distribution score so the app can abstain on unusual couples
 
 - New `tools/ood.py`: the squared Mahalanobis distance of a couple's fixed inputs from the 4,126 NSFG 2002 first marriages, turned into a percentile among held-out women (5 person folds). It ships as `ood` in `models/nsfg2002_family.json`, and `engine.oodScore()` matches Python on 68 of 68 rows to 10<sup>-9</sup>.
