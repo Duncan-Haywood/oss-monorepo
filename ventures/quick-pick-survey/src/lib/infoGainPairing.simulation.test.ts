@@ -10,6 +10,7 @@ import {
   pairKey,
   selectNextPair,
   selectNextPairByInformation,
+  type InformationOptions,
   type PairItem,
 } from "@/lib/pairing";
 
@@ -108,7 +109,13 @@ function compare(itemCount: number, budget: number, n = 10) {
       rank: median(rs.map((r) => r.rankAccuracy)),
     };
   };
-  return { shipped: run(selectNextPair), info: run(selectNextPairByInformation) };
+  const tuned = (opts: InformationOptions): Policy => (input) => selectNextPairByInformation(input, opts);
+  return {
+    shipped: run(selectNextPair),
+    info: run(selectNextPairByInformation),
+    conflict: run(tuned({ conflictBonus: 1.5 })),
+    coverage: run(tuned({ conflictBonus: 1.5, coverageWeight: 0.5 })),
+  };
 }
 
 describe("expectedVarianceReduction", () => {
@@ -128,8 +135,8 @@ describe("expectedVarianceReduction", () => {
 describe("information-gain selector vs the shipped selector", () => {
   for (const [items, budget] of [[41, 90], [41, 300], [220, 90], [220, 300]] as const) {
     it(`${items} items, ${budget} answers`, () => {
-      const { shipped, info } = compare(items, budget);
-      console.log(`MEASURE ${items} items ${budget} answers`, JSON.stringify({ shipped, info }));
+      const { shipped, info, conflict, coverage } = compare(items, budget);
+      console.log(`MEASURE ${items} items ${budget} answers`, JSON.stringify({ shipped, info, conflict, coverage }));
       // Measured 2026-10-20 (docs/INFORMATION-GAIN-SELECTOR.md): rank accuracy is higher at every cell.
       expect(info.rank).toBeGreaterThan(shipped.rank);
     }, 120_000);

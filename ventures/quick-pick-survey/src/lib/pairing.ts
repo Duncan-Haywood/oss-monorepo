@@ -341,15 +341,21 @@ export function expectedVarianceReduction(a: PairItem, b: PairItem): number {
   return (drop(phiA, phiB) + drop(phiB, phiA)) * GLICKO_SCALE * GLICKO_SCALE;
 }
 
-export function selectNextPairByInformation({
-  items,
-  timesShown,
-  recentPairKeys,
-  answeredCount = 0,
-  rand = Math.random,
-}: PairingInput): [string, string] {
+export type InformationOptions = {
+  /** Multiplier for a pair whose primary dimensions differ (the shipped selector uses 1.5). */
+  conflictBonus?: number;
+  /** Extra weight per appearance an item is below the pool average, as a fraction of the score. */
+  coverageWeight?: number;
+};
+
+export function selectNextPairByInformation(
+  { items, timesShown, recentPairKeys, answeredCount = 0, rand = Math.random }: PairingInput,
+  { conflictBonus = 1, coverageWeight = 0 }: InformationOptions = {}
+): [string, string] {
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
   const pool = activeItems(items, answeredCount, timesShown);
+  const avgShown = pool.reduce((sum, i) => sum + (timesShown.get(i.id) ?? 0), 0) / pool.length;
+  const lag = (i: PairItem) => Math.max(0, avgShown - (timesShown.get(i.id) ?? 0));
 
   let best: [string, string] | null = null;
   let bestScore = -Infinity;
@@ -358,7 +364,12 @@ export function selectNextPairByInformation({
       const repeatPenalty = recentPairKeys.has(pairKey(pool[i].id, pool[j].id)) ? 0.05 : 1;
       // A sliver of noise breaks exact ties (all-default start) without
       // reordering pairs whose scores differ.
-      const score = expectedVarianceReduction(pool[i], pool[j]) * repeatPenalty * (1 + rand() * 1e-6);
+      const da = pool[i].dimensions?.[0];
+      const db = pool[j].dimensions?.[0];
+      const conflict = da && db && da !== db ? conflictBonus : 1;
+      const coverage = 1 + coverageWeight * (lag(pool[i]) + lag(pool[j]));
+      const score =
+        expectedVarianceReduction(pool[i], pool[j]) * repeatPenalty * conflict * coverage * (1 + rand() * 1e-6);
       if (score > bestScore) {
         bestScore = score;
         best = [pool[i].id, pool[j].id];

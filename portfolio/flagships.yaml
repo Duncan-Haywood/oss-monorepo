@@ -101,9 +101,12 @@ flagships:
       (selectNextPairByInformation) is in and measured against the shipped one
       on seeded respondents (docs/INFORMATION-GAIN-SELECTOR.md: rank accuracy
       higher in all four cells, 70 vs 34 items under rd 150 at 300 answers on
-      220 items, but 1 vs 5 at 90 answers); not wired in. Next: add the
-      dimension-conflict bonus and active-set staging to its score, re-measure
-      rd<150 at 90 answers, then wire it in behind a survey flag.
+      220 items, but 1 vs 5 at 90 answers); not wired in. The dimension-conflict
+      bonus and a coverage term are options on it, measured: neither moves
+      rd<150 at 90 answers (1 and 0 against 5), the gap is structural (180
+      appearances, ~10 each to reach rd 150), so both default off. Next: a
+      staged hybrid (shipped selector until ~120 answers, information score
+      after) measured on the same four cells, then a survey flag.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
