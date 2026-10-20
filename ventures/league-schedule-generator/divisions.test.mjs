@@ -240,3 +240,20 @@ test("the split form field is read and shared", async () => {
   assert.equal(readDivisionsSpec(example).spec.splitRounds, false);
   assert.equal(decodeDivisionFields("#d=" + encodeDivisionFields({ ...example, split: "1" })).split, "1");
 });
+
+test("stats count home/away breaks, and rainouts with balance:true add fewer of them than the earliest-night default", () => {
+  const { spec } = readDivisionsSpec({ ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School" });
+  let plain = 0, balanced = 0;
+  for (let seed = 1; seed <= 4; seed++) {
+    const s = buildDivisions({ ...spec, seed });
+    assert.equal(typeof s.stats.homeAwayBreaks, "number");
+    const text = s.nights.filter((_, i) => i % 4 === 1).map((n) => dayIso(n.day)).join("\n");
+    const a = applyDivisionRainouts(s, text);
+    const b = applyDivisionRainouts(s, text, { balance: true });
+    assert.deepEqual(b.errors, []);
+    assert.deepEqual(validateDivisions(b.schedule).errors, []);
+    assert.equal(b.schedule.stats.matches, s.stats.matches);
+    plain += a.schedule.stats.homeAwayBreaks; balanced += b.schedule.stats.homeAwayBreaks;
+  }
+  assert.ok(balanced < plain, `balanced ${balanced} against ${plain}`); // measured 8 seeds: 395 -> 347 (README), 4 seeds here
+});

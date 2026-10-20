@@ -226,6 +226,8 @@ export function buildDivisions(spec) {
   return schedule;
 }
 
+const BALANCE_WINDOW = 6; // nights a make-up may be weighed over when keeping home/away alternating
+
 /**
  * Rainouts across divisions, one per line: "2026-10-13" (the whole night), "2026-10-13 U10" (a division) or
  * "2026-10-13 U10/Hawks, U12/Owls" (those teams' matches), optionally ending "-> 2026-10-20" for a make-up date
@@ -233,8 +235,10 @@ export function buildDivisions(spec) {
  * is open, never double-booking a court or a team and, where a free slot allows it, keeping linked teams out of
  * the same time slot; a refusal says why and leaves the match where it was. Nothing else moves.
  * Returns { schedule, moves[{division, home, away, from, to, court, time}], errors[] }.
+ * `{ balance: true }` weighs the first few nights that fit and takes the one that adds the fewest home/away breaks
+ * (two home or two away matches in a row for a team), preferring nights already on the calendar.
  */
-export function applyDivisionRainouts(schedule, text) {
+export function applyDivisionRainouts(schedule, text, { balance = false } = {}) {
   const s = JSON.parse(JSON.stringify(schedule));
   const cfg = s.config;
   const weekdays = new Set(cfg.weekdays || []), skip = new Set(cfg.skipDays || []);
@@ -276,6 +280,20 @@ export function applyDivisionRainouts(schedule, text) {
       const cand = fixed !== null ? [fixed] : [];
       if (fixed === null) for (let d = day + 1, g = 0; g < 400 && cand.length < 120; d++, g++) if (weekdays.has(dayOfWeek(d)) && !skip.has(d)) cand.push(d);
       let placed = null, why = "";
+      // home/away runs of the two teams without this match, to price each night it could move to
+      const runOf = (t, home) => {
+        const seq = [];
+        for (const n of s.nights) for (const x of n.matches) if (x.div === mt.div && (x.home === t || x.away === t)) seq.push([n.day, x.home === t]);
+        return { seq, home };
+      };
+      const breaksWith = ({ seq, home }, d) => {
+        const all = seq.concat([[d, home]]).sort((a, b) => a[0] - b[0]);
+        let n = 0;
+        for (let i = 1; i < all.length; i++) if (all[i][1] === all[i - 1][1]) n++;
+        return n;
+      };
+      const runs = [runOf(mt.home, true), runOf(mt.away, false)];
+      const options = [];
       for (const d of cand) {
         const target = nightOf(d);
         const there = target ? target.matches : [];
@@ -288,9 +306,13 @@ export function applyDivisionRainouts(schedule, text) {
           if (!best || score < best.score) best = { court, ti, score };
         }
         if (!best) { why = `${dayIso(d)}: no open court slot`; continue; }
-        placed = { d, ...best };
-        break;
+        options.push({ d, ...best, fresh: !target, breaks: runs.reduce((a, r) => a + breaksWith(r, d), 0) });
+        // with a fixed make-up date there is one choice; otherwise look at the first few nights that fit
+        if (fixed !== null || !balance || options.length >= BALANCE_WINDOW) break;
       }
+      // a night that is not on the calendar yet only wins when no night already playing has room: this trims, but does not remove, the delay balancing costs
+      const pool = options.some((o) => !o.fresh) ? options.filter((o) => !o.fresh) : options;
+      if (pool.length) placed = pool.reduce((a, o) => (o.breaks < a.breaks ? o : a));
       if (!placed) { errors.push(`${label}: ${why || "no play night found"}; left where it was.`); night.matches.push(mt); continue; }
       const rec = { ...mt, court: placed.court, time: cfg.times[placed.ti], venue: cfg.venues[placed.court] || placed.court };
       let target = nightOf(placed.d);
@@ -346,18 +368,22 @@ export function divisionStats(schedule) {
   const travel = schedule.config.travel && Object.keys(schedule.config.travel).length ? schedule.config.travel : null;
   const travelMin = makeTravelMin(travel);
   const last = new Map();
+  const role = new Map(); // "d/t" -> was the previous match at home
+  let homeAwayBreaks = 0;
   for (const night of schedule.nights) {
     for (const m of night.matches) {
       matches++;
-      for (const t of [m.home, m.away]) {
+      for (const [t, home] of [[m.home, true], [m.away, false]]) {
         const k = `${m.div}/${t}`;
+        if (role.get(k) === home) homeAwayBreaks++;
+        role.set(k, home);
         if (last.has(k) && last.get(k) !== m.venue) { trips++; travelMinutes += travelMin(last.get(k), m.venue); }
         last.set(k, m.venue);
       }
     }
   }
   const cap = schedule.config.courts.length * schedule.config.times.length;
-  return { nights: schedule.nights.length, matches, trips, ...(travel ? { travelMinutes } : {}), clashes: schedule.conflicts.length, utilisation: matches / (schedule.nights.length * cap), lastDay: schedule.nights.length ? schedule.nights[schedule.nights.length - 1].day : null };
+  return { nights: schedule.nights.length, matches, trips, homeAwayBreaks, ...(travel ? { travelMinutes } : {}), clashes: schedule.conflicts.length, utilisation: matches / (schedule.nights.length * cap), lastDay: schedule.nights.length ? schedule.nights[schedule.nights.length - 1].day : null };
 }
 
 /** Independent re-check of a finished multi-division schedule. */
