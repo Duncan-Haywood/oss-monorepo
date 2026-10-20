@@ -65,9 +65,10 @@ flagships:
       The exact check now has a coverage bound (min-cost flow over shifts,
       person-days and weekly hours): on the 32-shift sample week it proves the
       15 uncoverable hours and sits within ~$70 of the roster found, but the
-      proof of the cheapest roster still times out (the coverage flow now runs on a sparse graph, 1.7x more nodes in the same 8 s, ~11k nodes/s here, ~94k nodes vs 57k). Next: close
-      that last gap (a faster incremental bound or symmetry cuts between people
-      with equal availability and wage) so full weeks are proven, then
+      proof of the cheapest roster still times out (the coverage flow now runs on a sparse graph, 1.7x more nodes in the same 8 s, ~11k nodes/s here, ~94k nodes vs 57k). Symmetry cuts between people who differ only by name are in (equal
+      crews of 6-8 on 10 shifts now proven in under 0.5 s, 24x fewer nodes at 4 people; README), but the
+      all-different sample week is still not proven. Next: close that last gap (a faster incremental bound, or
+      dominance between people where one's availability and limits contain another's at the same wage) so full weeks are proven, then
       multi-week rostering that carries fairness and time off across weeks
       (README Limits).
   - venture: photo-editing
