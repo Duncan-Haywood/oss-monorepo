@@ -3860,6 +3860,11 @@
     "summary": "The <code>society-stubborn</code> model with a share <em>sl</em> of people who always walk the robots' side and <em>sr</em> who always walk the status-quo side. For memory&nbsp;9 the mean-field tipping robot share falls from 0.217 to 0.176, 0.131, 0.080 and 0.023 at <em>sl</em>&nbsp;=&nbsp;0.05, 0.10, 0.15 and 0.20 (about 0.8 robots saved per ally), and a crowd with 25% allies tips with no robots. Opposing blocs raise the self-tipping share (0.219 to 0.300 as <em>sr</em> goes 0 to 0.3), equal blocs are a knife edge, and simulation (200 people, 12 seeds) agrees with mean field within 0.01 at seven bloc mixes. Opposing blocs alone cost 0.195 conflicts per human meeting. Stylised; simulated walkers only."
    }
    ,{
+    "slug": "society-converts",
+    "title": "Does a stubborn block that slowly converts let a smaller robot minority tip a crowd's walking side?",
+    "summary": "The <code>society-stubborn</code> model with 40% stubborn walkers who each convert to an ordinary memory-rule walker with probability <em>c</em> per round. With the block fixed, 24% committed robots never tip the crowd (0 of 12) and 28% tip 5 of 12; with <em>c</em>&nbsp;=&nbsp;0.001 both tip all 12 (median round 721 and 185), and at <em>c</em>&nbsp;=&nbsp;0.1 at round 59 and 31. At 20% or fewer robots no crowd tipped at any <em>c</em>. Conversion mostly buys speed and moves the threshold towards the no-stubborn value. Stylised: simulated walkers, spontaneous conversion, 200 people, 12 seeds; the mean-field clock is only a rank-order check."
+   }
+   ,{
     "slug": "society-show",
     "title": "Can a simulation run be turned into a watchable, honest episode?",
     "summary": "Five seeded, clearly labelled fictional episodes of a robot town, built on <code>society-trust</code>: 48 invented townspeople, a trust-coloured grid, turning points found by code from the recorded data and a narration whose numbers all come from that record. Even-handed gossip recovers 46 rounds after the fix; gossip that weighs bad news 4&times; locks the town out (48 of 48 avoid working robots at round 399); robots that explain failures recover in 29 rounds with nobody avoiding; and at 2&times; the same settings recover on seed 0 and lock out on seed 1. Episodes are single illustrative runs, not statistics; stylised model, no viewer study."
