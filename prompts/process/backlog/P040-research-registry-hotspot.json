@@ -23,6 +23,7 @@
   "pr": null,
   "result": null,
   "history": [
-    "2026-10-20 step 1 shipped: research/<slug>/project.json cards merged by research/_homepage/registry.py (+ research-registry.mjs); qual-register migrated as the pilot. Remaining: step 2 (generate README.md list between markers), migrating the other 793 entries (mechanical, order-preserving)."
+    "2026-10-20 step 1 shipped: research/<slug>/project.json cards merged by research/_homepage/registry.py (+ research-registry.mjs); qual-register migrated as the pilot. Remaining: step 2 (generate README.md list between markers), migrating the other 793 entries (mechanical, order-preserving).",
+    "2026-10-20 step 2 shipped: a project.json `lede` becomes its research/README.md bullet, generated sorted by slug between projects:start/end markers by research_live_links.py --write; qual-register migrated. Remaining: migrating the other ~800 entries (cards + bullets), then re-measure."
   ]
 }
