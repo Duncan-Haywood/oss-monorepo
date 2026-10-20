@@ -34,7 +34,7 @@
     {
       "slug": "incident-postmortem-timeline",
       "file": "incident-postmortem-timeline.webp",
-      "caption": "Turns an incident log into a postmortem draft"
+      "caption": "Measures detect-to-resolve times and drafts a blameless postmortem"
     },
     {
       "slug": "greenhouse-bench-planner",

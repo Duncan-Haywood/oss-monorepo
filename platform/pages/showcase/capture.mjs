@@ -28,7 +28,7 @@ export const SHOTS = [
   { slug: 'event-seating-chart-optimizer', click: '#load-example', focus: 'Seating plan', caption: 'Seats every guest with the most wishes met' },
   { slug: 'invoice-maker', click: '#load-example', focus: 'Receivables', caption: 'Makes invoices and ages what is still owed' },
   { slug: 'ebay-fee-calculator', focus: 'Promoted Listings Standard vs skip', caption: 'Says what an eBay sale really leaves after fees' },
-  { slug: 'incident-postmortem-timeline', click: '#load-example', focus: 'Response metrics', caption: 'Turns an incident log into a postmortem draft' },
+  { slug: 'incident-postmortem-timeline', click: '#load-example', focus: 'Response metrics', caption: 'Measures detect-to-resolve times and drafts a blameless postmortem' },
   { slug: 'greenhouse-bench-planner', click: '#load-ok', focus: 'Result', caption: 'Plans sowing weeks against greenhouse bench space' },
 ];
 
