@@ -618,4 +618,12 @@ test('trend bends with sticky noise: --ar1 keeps the wandering from being cut in
   console.log(`# bends, AR(1) rho 0.5: ${runs.plain / N} changes/series plain, ${runs.ar1 / N} with --ar1, ${runs.both / N} with --ar1 --period 12; two knots ${two}/${N}`);
   assert.ok(runs.ar1 < 0.4 * runs.plain);
   assert.ok(runs.both / N < 3);
+  // straight ramp with the same sticky noise: the AR(1)-aware BIC must not invent a bend (11 of 40 before it)
+  let falseBend = 0;
+  for (let s = 1001; s <= 1000 + N; s++) {
+    let p = 0;
+    const st = normals(rng(s + 100), n).map((v, i) => { p = 0.5 * p + v; return 0.1 * i + p; });
+    falseBend += analyze({ values: st, trend: 'bends', ar1: true }).trend.slopeChangesAt !== undefined;
+  }
+  assert.ok(falseBend <= 3, `false bends ${falseBend}/${N}`);
 });
