@@ -228,6 +228,75 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
 }
 
 /**
+ * One bend in the count trend: log rate under the steps is g u + h max(u - kappa, 0), so the growth
+ * rate changes once, at u = kappa. For each knot on a grid (`knotMargin` to 1 - `knotMargin` of the
+ * series) the pair (g, h) is fitted by the same alternation as `poissonTrend` (PELT under the current
+ * exposures, then a 2-D Newton step with each segment's rate profiled out), and the knot with the
+ * smallest total -2 log-likelihood plus penalties wins. The bend is kept only if it beats the straight
+ * trend by 2 ln n (its knot and extra slope). Returns { g, h, knot, bent, exposure } with knot an
+ * index into the series, or null when the straight trend wins.
+ */
+export function poissonTrendBend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, knotMargin = 0.1, grid = 9 } = {}) {
+  const n = x.length;
+  const b = (t) => (base ? base[t] : 1);
+  const u = Array.from({ length: n }, (_, t) => (t - (n - 1) / 2) / Math.max(1, n - 1));
+  const GMAX = 20;
+  const clamp = (v) => Math.max(-GMAX, Math.min(GMAX, v));
+  const straight = poissonTrend(x, { base, penalty, minSegment, passes });
+  const total = (e, cost) => {
+    let ll = 0;
+    for (let t = 0; t < n; t++) if (x[t] > 0) ll += x[t] * Math.log(e[t]);
+    return cost - 2 * ll;  // pelt drops sum x log e, which does move with the exposures
+  };
+  const fit = (basis, th0) => {
+    let th = th0.slice(), last = null;
+    for (let done = 0; done < passes; done++) {
+      const e = Array.from({ length: n }, (_, t) => b(t) * Math.exp(th.reduce((a, v, j) => a + v * basis[j][t], 0)));
+      const r = pelt(x, { model: 'poisson', penalty, minSegment, exposure: e });
+      last = { e, cost: r.cost };
+      const bounds = [0, ...r.changepoints, n];
+      const k = th.length, score = new Array(k).fill(0), H = Array.from({ length: k }, () => new Array(k).fill(0));
+      for (let i = 0; i + 1 < bounds.length; i++) {
+        let A = 0, W = 0; const Wf = new Array(k).fill(0), Wff = Array.from({ length: k }, () => new Array(k).fill(0));
+        for (let t = bounds[i]; t < bounds[i + 1]; t++) {
+          const w = e[t]; A += x[t]; W += w;
+          for (let a = 0; a < k; a++) { Wf[a] += w * basis[a][t]; score[a] += x[t] * basis[a][t]; for (let c = 0; c < k; c++) Wff[a][c] += w * basis[a][t] * basis[c][t]; }
+        }
+        if (W > 0) for (let a = 0; a < k; a++) { score[a] -= A * Wf[a] / W; for (let c = 0; c < k; c++) H[a][c] += A * (Wff[a][c] / W - (Wf[a] / W) * (Wf[c] / W)); }
+      }
+      // solve H d = score (2x2), ridge-guarded
+      const ridge = 1e-9 * (H[0][0] + H[1][1]) + 1e-12;
+      const a11 = H[0][0] + ridge, a22 = H[1][1] + ridge, a12 = H[0][1], det = a11 * a22 - a12 * a12;
+      if (!(det > 1e-14)) break;
+      const d = [(score[0] * a22 - a12 * score[1]) / det, (a11 * score[1] - a12 * score[0]) / det];
+      const norm = Math.max(Math.abs(d[0]), Math.abs(d[1]));
+      const f = norm > 2 ? 2 / norm : 1;
+      th = th.map((v, j) => clamp(v + f * d[j]));
+      if (norm < 1e-5) break;
+    }
+    const e = Array.from({ length: n }, (_, t) => b(t) * Math.exp(th.reduce((a, v, j) => a + v * basis[j][t], 0)));
+    const r = pelt(x, { model: 'poisson', penalty, minSegment, exposure: e });
+    return { th, e, score: total(e, r.cost) };
+  };
+  const eStraight = straight.exposure;
+  const rS = pelt(x, { model: 'poisson', penalty, minSegment, exposure: eStraight });
+  const straightScore = total(eStraight, rS.cost);
+  const lo = Math.max(0.02, Math.min(0.45, knotMargin)), cand = [];
+  for (let i = 0; i < grid; i++) cand.push(lo + (1 - 2 * lo) * (grid === 1 ? 0.5 : i / (grid - 1)));
+  let best = null;
+  for (const q of cand) {
+    const kappa = q - 0.5;
+    const basis = [u, u.map((v) => Math.max(v - kappa, 0))];
+    const f = fit(basis, [straight.g, 0]);
+    if (!best || f.score < best.score) best = { ...f, kappa, q };
+  }
+  if (!best || !(best.score + 2 * Math.log(n) < straightScore)) {
+    return { g: straight.g, h: 0, knot: null, bent: false, exposure: straight.exposure, passes: straight.passes };
+  }
+  return { g: best.th[0], h: best.th[1], knot: Math.round(best.q * (n - 1) * 10) / 10, bent: true, exposure: best.e };
+}
+
+/**
  * Drifting seasonal shape: each phase's detrended values are smoothed across
  * cycles: a Theil-Sen line through up to 9 cycles on series of 10 or more cycles,
  * a running median of 5 (3 when there are fewer than 6) on shorter ones, so a cycle whose amplitude grows or whose peak moves is followed instead
@@ -1004,12 +1073,19 @@ export function analyze(input = {}) {
     } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
   let slope = null, slopeAfter, knot, knots, slopes;
-  let growth = null;
+  let growth = null, countBend = null;
   if (o.trend && model === 'poisson') {
-    if (o.trend !== true) throw new Error('For counts, --trend takes one common growth rate under the steps (no bend): bends are for "mean" or "meanvar".');
-    const fit = poissonTrend(original, { base: exposure, penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
+    if (o.trend !== true && o.trend !== 'bend') throw new Error('For counts, --trend takes one common growth rate under the steps, or "bend" for one change of growth rate: "bends" is for "mean" or "meanvar".');
+    const opts = { base: exposure, penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) };
+    const fit = o.trend === 'bend' ? poissonTrendBend(original, { ...opts, knotMargin: o.knotMargin === undefined ? 0.1 : Number(o.knotMargin) }) : poissonTrend(original, opts);
     exposure = fit.exposure;
     growth = fit.g;
+    if (fit.bent) {
+      // g is the log change across the series on the first slope; the second slope adds h per unit after the knot
+      const q = fit.knot / (original.length - 1);
+      growth = fit.g + fit.h * (1 - q);
+      countBend = { knot: fit.knot, logGrowthBefore: round(fit.g, 4), logGrowthAfter: round(fit.g + fit.h, 4) };
+    }
   } else if (o.trend) {
     ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
@@ -1087,7 +1163,7 @@ export function analyze(input = {}) {
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
-    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true } } : {}),
+    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countBend ? { bend: countBend } : {}) } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {

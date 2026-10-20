@@ -153,13 +153,23 @@ series, 40 each, in `engine.test.mjs`):
   -0.5 to 0.5 over the series, so g is the total log change. exp(g u) is another exposure in the Poisson
   likelihood and composes with `--period`. g starts from the median of lag-n/4 differences of log counts, then
   alternates with PELT: segment under the current exposures, one Newton step on g with each segment's rate
-  profiled out, until g moves less than 1e-5. One common growth rate only (`bend`/`bends` are refused for counts).
+  profiled out, until g moves less than 1e-5. `--trend bend` also allows the growth rate to change once (see "Count trend bends" below); `bends` is refused for counts.
   Measured on 200 counts, rate 10 growing by e^1.2 (seeds 500..539): no step, 3.80 changes per series without
   `--trend`, 0.07 with it; a x1.6 step at 100 on top of the ramp, 4.55 -> 1.40 changes per series, the step found
   within 8 points 40/40 either way and as the only change 0/40 -> 30/40; flat series 0.03 -> 0.05 (no cost).
   With `--period 7` (210 points, factors 0.4 to 1.6, growth e^1.0, x1.5 step at 105, seeds 900..919): 4.10 -> 1.20
   changes per series, step as the only change 0/20 -> 18/20, mean fitted g 1.04. Tests: growth recovered within 0.35, flat
   series near 0, bends refused.
+- **Count trend bends (`--model poisson --trend bend`, added 2026-10-20).** The log rate under the steps is
+  g u + h max(u - kappa, 0): the growth rate changes once. For each of 9 knots between 10% and 90% of the series
+  (`--knot-margin`) (g, h) is fitted by the same alternation as above (PELT, then a 2-D Newton step with each
+  segment's rate profiled out); the knot with the smallest -2 log-likelihood plus penalties wins, and the bend is
+  kept only if it beats the straight trend by 2 ln n. The result reports `trend.bend` (knot index, log growth
+  before and after). Measured on 240 counts, seeds 700..739, rate 10 growing at 0.004 per point and then 0.02 after
+  point 120: 8.93 changes per series with no trend, 5.35 with `--trend`, 1.40 with `--trend bend`; a bend reported on
+  39/40 runs, its knot within 20 points of 120 on 32/40. A straight e^(0.01 t) ramp: 0.15 changes per series with
+  `--trend` and with `--trend bend`, no bend reported on 0/40. Tests: bend found on a bent series, none on a
+  straight one. Not yet: two bends, a bend inside `--period` is untested.
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144

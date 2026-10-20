@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, poissonSeasonal, poissonTrend, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, poissonSeasonal, poissonTrend, poissonTrendBend, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -794,8 +794,21 @@ test('poissonTrend recovers a log-linear growth rate and keeps a rate step out o
 });
 
 test('count trends refuse bends, and a flat series gets a growth near zero', () => {
-  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'bend' }), /bends are for/);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', trend: 'bends' }), /"bends" is for/);
   const r = rng(5);
   const a = analyze({ values: poissons(r, 150, 8), model: 'poisson', trend: true });
   assert.ok(Math.abs(a.trend.logGrowthAcrossSeries) < 0.4);
+});
+
+test('poissonTrendBend finds a change of growth rate in counts and leaves a straight trend alone', () => {
+  const n = 240, knot = 120;
+  const mk = (seed, f) => { const r = rng(seed); const x = []; for (let t = 0; t < n; t++) x.push(poissons(r, 1, f(t))[0]); return x; };
+  const bent = mk(11, (t) => 10 * Math.exp(t < knot ? 0.004 * t : 0.48 + 0.02 * (t - knot)));
+  const fb = poissonTrendBend(bent, {});
+  assert.equal(fb.bent, true);
+  assert.ok(Math.abs(fb.knot - knot) <= 25, `knot ${fb.knot}`);
+  const a = analyze({ values: bent, model: 'poisson', trend: 'bend' });
+  assert.ok(a.trend.bend && a.trend.bend.logGrowthAfter > a.trend.bend.logGrowthBefore);
+  const flat = mk(12, (t) => 10 * Math.exp(0.01 * t));
+  assert.equal(poissonTrendBend(flat, {}).bent, false);
 });
