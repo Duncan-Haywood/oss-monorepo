@@ -178,7 +178,7 @@ function driftAdjust(x, m, trend0, profile) {
  * Returns { adjusted, slope } with the slope per point; the adjusted series
  * keeps the mean level of the input.
  */
-export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false } = {}) {
+export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false, joint = false } = {}) {
   const n = x.length;
   const d = [];
   for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
@@ -252,6 +252,21 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
       }
       if (!found) break;
       best = found;
+    }
+    // joint: also score every pair of grid knots (not only the greedy one's), since the best single knot of a two-bend ramp
+    // can sit between the two true ones and the second knot then looks unnecessary; the cheapest of greedy and pairs wins
+    if (joint && maxBends >= 2 ) {
+      const grid = [];
+      for (let knot = Math.ceil(0.2 * n); knot <= Math.floor(0.8 * n); knot += step) grid.push(knot);
+      let pair = null;
+      for (let a = 0; a < grid.length; a++) {
+        for (let b = a + 1; b < grid.length; b++) {
+          if (grid[b] - grid[a] < gap) continue;
+          const f = fit([grid[a], grid[b]]);
+          if (f.bic < (pair || best).bic) pair = f;
+        }
+      }
+      if (pair) best = pair;
     }
     // the grid is coarse on long series (step n/40), and a knot a few points off leaves a small kink that is read as a step:
     // slide each knot one point at a time within a grid step of where it landed, keeping any move that lowers BIC
@@ -833,7 +848,7 @@ export function analyze(input = {}) {
   let slope = null, slopeAfter, knot, knots, slopes;
   if (o.trend) {
     if (model === 'poisson') throw new Error('The trend removal subtracts a line, which breaks counts: use "mean" or "meanvar" with a trend.');
-    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false }));
+    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots }));
   }
   let sigma = robustSd(values);
   let rho = null;
