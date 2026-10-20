@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eda-screenxfer"
+version = "0.1.0"
+description = "Does a cost model trained on other design families work as a Pareto screen for a new family?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scikit-learn"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

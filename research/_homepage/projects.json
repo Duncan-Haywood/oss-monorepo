@@ -1332,6 +1332,11 @@
      "summary": "Lorenz-63 and R&ouml;ssler integrated with the same RK4 scheme in float32 and float64 from the same start. Float32 leaves the float64 trajectory (distance &gt; 1) after a median 12.3 time units on Lorenz and 164 on R&ouml;ssler, which matches a float64 start error of about 5&times;10<sup>&minus;6</sup>, roughly 100 times the float32 unit roundoff: departure time follows ln(1/&delta;<sub>0</sub>)/&lambda; with per-step rounding setting the effective error, and that error grows slowly with the number of steps (4.5&times;10<sup>&minus;6</sup> to 1.3&times;10<sup>&minus;5</sup> for 8&times; the steps). The Lyapunov exponent (0.8995 vs 0.8997) and long-run time averages agree within sampling error (|z| &lt; 1.2, 200 members), and a float16 run showed no detectable bias on 100 members either. Stylised: two autonomous flows, CPU numpy, no contact or policy."
     },
     {
+     "slug": "free-f32bounce",
+     "title": "Does a float32 simulation of a bouncing, chaotic system lose its statistics? Sinai billiard against float64",
+     "summary": "A point particle in a unit square with a circular obstacle (Sinai billiard), event-driven with specular reflection, run in float32 and float64 from the same start. Float32 leaves the float64 trajectory (position differs by &gt; 0.1) after a median 21 collisions, equal to a float64 start error of 4.6&times;10<sup>&minus;8</sup>, about one float32 unit roundoff (the smooth flows of free-f32shadow needed about 100&times;). The first different surface is hit exactly one collision after the position departs, at every error size tried. Mean free path (0.45296 vs 0.45325) and the circle's share of collisions agree within sampling error (|z| &lt; 0.6), and match Cauchy&rsquo;s exact mean free path 0.45321; no particle escaped and the direction vector&rsquo;s length drifted by about 10<sup>&minus;5</sup> after 2000 collisions. Stylised: straight-line flights, no time-stepped contact; a first attempt on a vibrating-table bouncing ball was not chaotic and is not used."
+    },
+    {
      "slug": "free-citeaudit",
      "title": "How many research READMEs admit their citations are unchecked, and which works need checking first?",
      "summary": "A stdlib scan of all 550 project READMEs for lines that flag a citation or figure as written from memory or not re-checked: 94 (17.1%) have at least one, 137 flagged lines in all, naming 41 distinct author-year works. Four recur most: Dawid &amp; Skene (1979) in 10 projects, Zhang et al. (2019) in 9, Horowitz (2014) and Horvitz (1999) in 6 each, so checking those once from a networked session clears many flags. A flag is the README's own admission, not a verdict; nothing was verified in this run (Crossref was unreachable)."
@@ -2983,6 +2988,11 @@
      "summary": "A follow-up to <code>eda-screen</code> on the same 80-design accelerator table. A random search that uses the free cycles and error objectives (no cell-count model) finds 0.901 of the true front&rsquo;s hypervolume at 12 syntheses, against 0.860 for plain random, 0.878 for TPE and 0.990 for the 4-fit screen (100 seeds). So +0.041 of the screen&rsquo;s +0.130 lead comes from the free objectives and +0.089 from the surrogate. The baseline stalls once the free-objective layer is spent and falls below random and TPE by 30 syntheses. Stylised: one 80-design space, generic-gate cell counts, no place and route."
     },
     {
+     "slug": "eda-screenxfer",
+     "title": "Can a cost model trained on other chip-design families screen a new family&rsquo;s Pareto front with a handful of syntheses?",
+     "summary": "A follow-up to <code>eda-screen</code> and <code>eda-adapt</code> on 100 sampled 27-design spaces of two families (MAC engine, FIR filter). A screen whose cell-count model was trained only on the other families reaches 0.94 to 0.98 of the true front&rsquo;s hypervolume with 3 Yosys syntheses and about 1.00 by 8, against 0.83 to 0.85 for random search at 8. The cost model&rsquo;s absolute error is large (median 22&ndash;222% for ridge), but its ranking is what the screen uses; refitting on the screen&rsquo;s own syntheses adds little, and spending the first syntheses on an adaptation spread hurts at tiny budgets. Stylised: tiny fronts (3&ndash;5 designs), generic-cell counts, one free objective, no place and route."
+    },
+    {
      "slug": "eda-flowtune",
      "title": "Does the best ABC recipe for one design transfer to another?",
      "summary": "All 400 ABC pass sequences (up to three passes of seven) mapped to SKY130 on eight small datapath designs, so every optimum is known. The best recipe differs per design and transfers badly: one design&rsquo;s best recipe scores a mean 1.31&times; (worst 2.06&times;) the other&rsquo;s optimum, and score rankings of recipes correlate only weakly across designs (Spearman &minus;0.51 to 0.46). A leave-one-out consensus recipe is only slightly better than a median sequence (1.22&times; against 1.26&times;), and warm-starting a hill climber with it helps one design (<em>mac4</em>) but is within noise of random search on average at budgets 10 to 40. Stylised: eight hand-picked toy designs, ABC&rsquo;s static delay, no place and route; the OpenROAD-settings half of the milestone is not done."
@@ -3649,6 +3659,16 @@
      "slug": "house-market",
      "title": "What does a new home cost to build in the US and Colorado in 2026, and where does the money go?",
      "summary": "A sourced, dated market report. The median new US home sold for $393,700 in August 2026 (&minus;5.8% y/y) while inputs to residential construction rose 10.3%, mortgage rates reached 7.4% and builder sentiment hit its lowest since 2012. On NAHB&rsquo;s 2024 breakdown, construction is 64.4% of price and foundations, framing and exterior 26%, so a 20% cheaper structural system moves the price only 5.2%; HUD-code manufactured homes cost about 52% of site-built per sq ft by building the whole house in a factory. In Denver, itemised fees and a 209-day plan review are about 12% of a modelled $462,000 home before land, against 3.5% nationally. Technique cost studies are old and often industry-funded; several figures are search excerpts, marked in the data."
+    },
+    {
+     "slug": "house-energyprices",
+     "title": "Does the cost-optimal home envelope change when invented fuel prices are replaced by EIA state prices?",
+     "summary": "Re-runs <code>house-energy</code>'s exhaustive 640-package search in six climates with EIA state residential prices (2025 gas, Jan&ndash;Jul 2026 electricity) instead of invented ones. The optimum is unchanged in 10 of 12 cases; the 30-year saving over the baseline moves by &minus;$496 to +$549; advanced 2x6 walls still win, and R-49 attics (27&ndash;40 y) and U&nbsp;0.27 windows (74&ndash;107 y) still do not pay. Only fuel prices are sourced; component costs are still invented. Stylised."
+    },
+    {
+     "slug": "house-adufees",
+     "title": "What does Denver Water's 2026 tap fee cost a 480 sq ft backyard cottage (ADU) against a house?",
+     "summary": "From Denver Water&rsquo;s own 2026 schedule: an ADU pays a flat $2,170 inside Denver from 1 July 2026 ($2,055 before), against $5,400 for a house charged on 2,000 sq ft, 60% less. Per floor sq ft the ADU is dearer ($4.52 against $2.70). Denver Water&rsquo;s share is small beside <code>house-market</code>&rsquo;s $16,930 &ldquo;water and sewer SDC&rdquo;, leaving about $12,000 for sewer and other items that this project could not read. One fee only; the page does not say whether the rate applies to lot or floor area."
     }
    ]
   },
@@ -3718,6 +3738,11 @@
     "slug": "sensing-burst",
     "title": "How many frames from a small sensor, merged, match one frame from a bigger one?",
     "summary": "Synthetic scenes with Poisson shot noise, Gaussian read noise and a full-well clip. A burst of <em>N</em> small-sensor frames (each at the large frame's exposure time) ties a sensor with <em>A</em>&times; the pixel area at <em>N</em>* = <em>A</em>&sup2;(<em>sx</em>+<em>r</em>&sup2;)/(<em>Asx</em>+<em>r</em>&sup2;): <em>A</em> frames when shot noise dominates, up to <em>A</em>&sup2; in the dark or at high read noise (simulation, <em>A</em>=4: 4.0 frames in bright light, 14.4 in dim light with 8 e<sup>&minus;</sup> read noise). Splitting the <em>same</em> total exposure into frames never ties: the burst has more variance than the large frame at every <em>N</em>. With hand shake and Fourier-shift registration, shifts are recovered to 0.09&ndash;0.8 px RMS in good light but fail in the dimmest case tested (3.1 px), and the registration blur means <em>A</em>=4 needs about 21 frames in bright light. A bracketed burst recovers clipped highlights (42 dB against 22 dB for one frame). Stylised: synthetic images, global translation only, no real raw files."
+   },
+   {
+   "slug": "sensing-ghost",
+   "title": "What does a moving subject do to a burst merge, and what does robust merging cost?",
+   "summary": "Still camera, one disc moving across a synthetic burst (Poisson shot noise, Gaussian read noise, a large sensor with 4&times; the pixel area). A plain mean merge ghosts at every speed tested and gets <em>worse</em> as frames are added (30.5&nbsp;dB at 8 frames, 25.0&nbsp;dB at 48 for 0.25&nbsp;px per frame, against 30.8&nbsp;dB for one large-sensor frame); median and sigma-clip merges do no better because a slow subject covers each pixel in most frames. A reference-guided merge (add a frame only where it agrees with frame&nbsp;0) keeps improving, to 37.6&nbsp;dB at 48 frames, and ties the large frame at about 6 frames; with nothing moving it costs 0.1&nbsp;dB against the mean, the median 1.3&nbsp;dB. Stylised: synthetic images, one translating disc, a still camera, untuned thresholds, no real raw files."
    },
    {
     "slug": "sensing-timesync",
@@ -3845,6 +3870,11 @@
     "summary": "The <code>society-stubborn</code> model with a share <em>sl</em> of people who always walk the robots' side and <em>sr</em> who always walk the status-quo side. For memory&nbsp;9 the mean-field tipping robot share falls from 0.217 to 0.176, 0.131, 0.080 and 0.023 at <em>sl</em>&nbsp;=&nbsp;0.05, 0.10, 0.15 and 0.20 (about 0.8 robots saved per ally), and a crowd with 25% allies tips with no robots. Opposing blocs raise the self-tipping share (0.219 to 0.300 as <em>sr</em> goes 0 to 0.3), equal blocs are a knife edge, and simulation (200 people, 12 seeds) agrees with mean field within 0.01 at seven bloc mixes. Opposing blocs alone cost 0.195 conflicts per human meeting. Stylised; simulated walkers only."
    }
    ,{
+    "slug": "society-converts",
+    "title": "Does a stubborn block that slowly converts let a smaller robot minority tip a crowd's walking side?",
+    "summary": "The <code>society-stubborn</code> model with 40% stubborn walkers who each convert to an ordinary memory-rule walker with probability <em>c</em> per round. With the block fixed, 24% committed robots never tip the crowd (0 of 12) and 28% tip 5 of 12; with <em>c</em>&nbsp;=&nbsp;0.001 both tip all 12 (median round 721 and 185), and at <em>c</em>&nbsp;=&nbsp;0.1 at round 59 and 31. At 20% or fewer robots no crowd tipped at any <em>c</em>. Conversion mostly buys speed and moves the threshold towards the no-stubborn value. Stylised: simulated walkers, spontaneous conversion, 200 people, 12 seeds; the mean-field clock is only a rank-order check."
+   }
+   ,{
     "slug": "society-show",
     "title": "Can a simulation run be turned into a watchable, honest episode?",
     "summary": "Five seeded, clearly labelled fictional episodes of a robot town, built on <code>society-trust</code>: 48 invented townspeople, a trust-coloured grid, turning points found by code from the recorded data and a narration whose numbers all come from that record. Even-handed gossip recovers 46 rounds after the fix; gossip that weighs bad news 4&times; locks the town out (48 of 48 avoid working robots at round 399); robots that explain failures recover in 29 rounds with nobody avoiding; and at 2&times; the same settings recover on seed 0 and lock out on seed 1. Episodes are single illustrative runs, not statistics; stylised model, no viewer study."
@@ -3861,6 +3891,11 @@
     "slug": "codesign-gripper",
     "title": "Which printable two-finger gripper holds eight different objects for the least plastic, and can an agent beat CMA-ES and Bayesian optimisation at 40 simulations?",
     "summary": "A parametric 3D-printable gripper finger (length, thickness, pad width, V angle) scored in MuJoCo on eight objects with a per-design grip force. At 40 evaluations the median best objective is 0.991 for Bayesian optimisation, 0.979 for CMA-ES, 0.965 for random search and 0.963 for a session agent&rsquo;s hand-written proposals (one run; Bayesian optimisation matched or beat it in 10 of 10 seeds). The best designs are tiny flat fingers (0.5&nbsp;g), but re-scored with object offsets tripled they hold 5 of 8 objects against 6 of 8 for the agent&rsquo;s wide V. Rigid, stylised, no learned policy, nothing printed."
+   }
+   ,{
+    "slug": "codesign-sar",
+    "title": "Which cheap wheel-legged rover covers the most stylised rubble under a 120 USD parts cap, and does a session agent beat CMA-ES and Bayesian optimisation?",
+    "summary": "Five design variables (wheel radius, wheelbase, flipper length, drive torque, battery) are scored on twelve held-out random-rubble terrains with Gamma-patchy friction, each design with its own evolution-strategies speed-and-flipper policy (not PPO). Wheel radius at its 90&nbsp;mm bound with torque of about 0.5&nbsp;N&nbsp;m reaches the ceiling J&nbsp;=&nbsp;0.783 (16 of 20&nbsp;m) at 69&nbsp;USD. Median best J at 40 evaluations: Bayesian optimisation 0.782, CMA-ES 0.782, session agent 0.783, random search 0.716; the gaps at the top are within policy-search noise. Falls were zero throughout, so the tip-over and recovery path is untested. Stylised statics, assumed unsourced prices, one agent run with a calibration-time prior."
    }
    ,{
     "slug": "codesign-ceiling",

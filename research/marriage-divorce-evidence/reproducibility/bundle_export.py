@@ -18,6 +18,8 @@ def export(pipe):
     prep, est = pipe.named_steps['prep'], pipe.named_steps['fit']
     num, cat = None, dict(columns=[], categories=[], drop_first=[])
     for name, tr, cols in prep.transformers_:
+        if len(cols) == 0:
+            continue
         if name == 'num':
             steps = dict(tr.steps)
             num = dict(columns=list(cols), impute=steps['impute'].statistics_.tolist())
@@ -32,6 +34,8 @@ def export(pipe):
         elif name == 'cat':
             cat = dict(columns=list(cols), categories=[list(map(str, c)) for c in tr.categories_],
                        drop_first=[int(i) == 0 for i in tr.drop_idx_])
+    if num is None:
+        num = dict(columns=[], impute=[])
     out = dict(numeric=num, categorical=cat, feature_names=prep.get_feature_names_out().tolist())
     if type(est).__name__ == 'LogisticRegression':
         assert list(est.classes_) == [0, 1], est.classes_

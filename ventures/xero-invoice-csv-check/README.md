@@ -29,6 +29,18 @@ numbers and two-digit years; due date before invoice date; quantity, unit amount
 formats; account code and tax type shape; invoice number and contact spelling variants; Excel
 damage; currency codes; email; tracking pairs; encoding; file length.
 
+## Check against your own Xero lists
+
+Paste the chart of accounts export, the contacts export (or one name per line) and your tax rate
+names, and `crossCheck()` compares every line: account codes that do not exist, an account *name*
+in the code column (the safe-fixes pass swaps in the code), archived accounts, non-revenue
+accounts, contacts that differ from an existing one only by case, punctuation or a `Ltd`/`Limited`
+suffix (Xero would create a duplicate), and tax rate names that are not spelled exactly. Export
+headings were read from memory, so matching is loose. The lists stay in the browser.
+
+The report also prints control totals (net before tax, per currency, with invoice counts) so a
+bookkeeper can reconcile the file against the source system before importing.
+
 ## Safe fixes and splitting
 
 `repair()` changes only things with one reasonable reading and lists every change. It never edits a

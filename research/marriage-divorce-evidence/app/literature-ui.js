@@ -20,6 +20,10 @@ export const LIT_CHOICES = {
 // Factors answered from the profiles above rather than asked again.
 export const FROM_PROFILE = { parental_divorce_wife: 'Woman', parental_divorce_husband: 'Man' };
 const PREFIX = 'lit.';
+// Answers about mental health, drinking, conflict and personality: kept in the page (and in a
+// JSON file only when the user ticks "include sensitive answers"), never written to a link,
+// browser storage or a CSV, and never read from a link.
+export const LIT_SENSITIVE = new Set(['depression', 'alcohol_problem', 'destructive_conflict_wife', 'destructive_conflict_husband', 'neuroticism_wife', 'neuroticism_husband']);
 
 function cleanAnswer(key, v) {
   const f = FACTORS[key];
@@ -33,24 +37,28 @@ function cleanAnswer(key, v) {
   return undefined;
 }
 
-// { depression: 'yes', neuroticism_wife: '0.5' } -> 'lit.depression=yes&lit.neuroticism_wife=0.5'
-// (FACTORS order; unknown keys, profile-derived factors and invalid values are left out).
-export function encodeLiterature(answers) {
+// { prior_cohabitations_other_partners: '1' } -> 'lit.prior_cohabitations_other_partners=1'
+// (FACTORS order; unknown keys, profile-derived factors and invalid values are left out, and so
+// are the LIT_SENSITIVE answers unless includeSensitive is set, which only in-page cleaning and
+// the opt-in JSON file do).
+export function encodeLiterature(answers, { includeSensitive = false } = {}) {
   const q = new URLSearchParams();
   for (const key of Object.keys(FACTORS)) {
+    if (!includeSensitive && LIT_SENSITIVE.has(key)) continue;
     const c = cleanAnswer(key, answers?.[key]);
     if (c !== undefined) q.set(PREFIX + key, c);
   }
   return q.toString();
 }
 
-export function decodeLiterature(hash) {
+export function decodeLiterature(hash, { includeSensitive = false } = {}) {
   const out = {};
   const q = new URLSearchParams(String(hash || '').replace(/^#/, ''));
   for (const [k, v] of q) {
     if (!k.startsWith(PREFIX)) continue;
     const key = k.slice(PREFIX.length);
     if (!Object.prototype.hasOwnProperty.call(FACTORS, key)) continue;
+    if (!includeSensitive && LIT_SENSITIVE.has(key)) continue;
     const c = cleanAnswer(key, v);
     if (c !== undefined) out[key] = c;
   }
@@ -258,7 +266,7 @@ export function syncLiteratureInputs(root, litAnswers) {
 export function readLiteratureInputs(root) {
   const out = {};
   for (const el of root.querySelectorAll('[data-lit]')) if (el.value !== '') out[el.dataset.lit] = el.value;
-  return decodeLiterature('#' + encodeLiterature(out));
+  return decodeLiterature('#' + encodeLiterature(out, { includeSensitive: true }), { includeSensitive: true });
 }
 
 const noDiv = (c) => (Number.isFinite(c) ? 1 - c : NaN);
