@@ -18,3 +18,22 @@ B. Longest solid panel whose top-plate bending stays within the allowable (lower
  picks  open ft  closed ft
      1       28         28
      2       60         56
+     3       60         60
+(search stops at 60 ft; searched in 4 ft steps)
+
+C. People needed to hand-carry each panel at the NIOSH 51 lb recommended limit per person (best case, ideal grip and posture)
+  open   : heaviest panel 559 lb -> 11 people; lightest (343 lb) -> 7
+  closed : heaviest panel 877 lb -> 18 people; lightest (376 lb) -> 8
+
+D. Wind speed (mph) at which a 20 ft front-wall panel hangs off the vertical by the swing angle, broad face to the wind
+ swing   Cd    open  closed
+    5d  1.2     9.8    11.8
+    5d  1.5     8.8    10.6
+    5d  2.0     7.6     9.1
+   10d  1.2    13.9    16.7
+   10d  1.5    12.4    15.0
+   10d  2.0    10.8    13.0
+   15d  1.2    17.2    20.6
+   15d  1.5    15.3    18.5
+   15d  2.0    13.3    16.0
+(front-wall panel 0-240 in: 162 ft2 of face, 546 lb open, 791 lb closed)

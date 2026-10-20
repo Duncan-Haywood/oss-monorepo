@@ -44,7 +44,7 @@ for c in (False, True):
     print(f"  {'closed' if c else 'open':<7}: heaviest panel {heaviest[c]:.0f} lb -> {hands_needed(heaviest[c])} people;"
           f" lightest ({light:.0f} lb) -> {hands_needed(light)}")
 
-print("\nD. Wind speed (mph) at which the heaviest wall panel hangs off the vertical by the swing angle, broad face to the wind")
+print("\nD. Wind speed (mph) at which a 20 ft front-wall panel hangs off the vertical by the swing angle, broad face to the wind")
 w0 = WALLS[0]
 face = 240 * H.plate_height_in / 144
 print(f"{'swing':>6}{'Cd':>5}{'open':>8}{'closed':>8}")
