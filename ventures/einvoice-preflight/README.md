@@ -609,3 +609,5 @@ IBAN is present and, when it looks like an RF creditor reference, is
 checked with the published ISO 11649 checksum only. The tool never
 contacts a bank, never stores the account number, BIC, or remittance,
 and never claims funds can be received or allocated there.
+
+`examples/factur-x-credit-note-with-defects.pdf` wraps the defective CII credit note in a Factur-X envelope: the built-in rules report INV-032 (unknown type code) and INV-038 (tax amount), identical to the bare XML (`facturx.test.mjs`); the official-rule findings for the same XML are pinned in `schematron.test.mjs`.

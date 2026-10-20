@@ -46,6 +46,13 @@ test("the shipped Factur-X credit note unwraps, is a 381 and checks clean", asyn
   assert.deepEqual(checkInvoice(invoice), []);
 });
 
+test("the Factur-X credit note with defects gives the same built-in findings as its XML", async () => {
+  const fromPdf = await parseInvoiceSource("factur-x-credit-note-with-defects.pdf", example("factur-x-credit-note-with-defects.pdf"));
+  const fromXml = await parseInvoiceSource("xrechnung-cii-credit-note-with-defects.xml", example("xrechnung-cii-credit-note-with-defects.xml"));
+  assert.deepEqual(checkInvoice(fromPdf), checkInvoice(fromXml));
+  assert.deepEqual(checkInvoice(fromPdf).map((f) => f.rule), ["INV-032", "INV-038"]);
+});
+
 test("an encrypted PDF is refused without reading the attachment", async () => {
   const pdf = buildPdfWithAttachment(example("cii-invoice.xml"), "factur-x.xml", { encrypt: true });
   await assert.rejects(() => extractEmbeddedInvoiceXml(pdf), /encrypted/);
