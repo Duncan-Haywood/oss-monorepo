@@ -201,11 +201,17 @@ ${posts.length ? `<ul class="posts">\n${items}\n</ul>` : '<p>No posts yet.</p>'}
   });
 }
 
-/** A link to another post's source file becomes a link to that post's page on this site. */
+// The site's default origin (build.mjs DEFAULT_BASE_URL). A post may link a live page with
+// its full URL so the link also works on GitHub; on the site it must be relative, or a build
+// under a custom domain would still point at this origin (custom-domain.test.mjs).
+const SITE_ORIGIN = 'https://duncan-haywood.github.io/monorepo-projects/';
+
+/** A link to another post's source file becomes a link to that post's page on this site, and a
+ * full URL on this site's own origin becomes relative to the post page (`writing/<slug>/`). */
 export function linkSiblings(html, posts) {
   let out = html;
   for (const p of posts) out = out.split(`href="${esc(REPO_BLOB + p.source)}"`).join(`href="../${esc(p.slug)}/"`);
-  return out;
+  return out.split(`href="${SITE_ORIGIN}`).join('href="../../');
 }
 
 export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) {
