@@ -305,3 +305,45 @@ node --test ../../app/tests/nlsy79_first_marriage.test.mjs
 the cache in parallel (`python3 train_first_marriage.py work --warm r0 r1 r2 ablation:0 …`).
 Set `OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1`: on a shared 4-core machine multithreaded BLAS
 and OpenMP made fits 10–50 times slower. Needs numpy, pandas and scikit-learn 1.7.2.
+
+## 2026-10-20 extension for the first-marriage lens (`extract_ext.py`, `extended_predictors.py`)
+
+`python3 -I extract_ext.py raw/nlsy79_all_1979-2022.zip work` streams 74 more columns;
+`python3 extended_predictors.py work` tests them. Every wedding is in 1981 or later, so the 1979
+items precede it; occupation and net wealth are taken from the last interview before the wedding.
+
+- `race_detail`: the screener cohorts, with non-Black non-Hispanic respondents split by their first
+  racial/ethnic origin in 1979 (FAM-30_1): 59 Asian or Pacific Islander origin, 218 "American Indian"
+  origin (NLS warns this origin was overstated in 1979). NLSY79 has no finer race.
+- `family_at_14_detail` (FAM-7 at full detail): both parents / mother and stepfather / father and
+  stepmother / mother only / father only / relatives / other. **The 1979 survey did not ask why a
+  parent was absent**, so divorce, death and never-married parents cannot be told apart.
+- `siblings` (FAM-28A); `attendance6` (R_REL-3 at all six answers, so "more than once a week" is
+  separate; 1982 if before the wedding, else 1979); `religion_1979` (current affiliation in 1979).
+- `occupation_group` (CPS current or last job, 1980 Census codes from 1982 and 1970 codes before;
+  major group); `net_worth_before_k` (family net wealth TNFW, asked from 1985: 3,733 marriages have
+  a pre-wedding value, the rest are "not measured" with the median imputed).
+- Politics: party affiliation was asked only in 2008 (ATT-POL-78), after almost every wedding in
+  this lens, so it is not usable here (the NLSY79 couples lens uses it; `politics_nlsy/`).
+
+Same 6,645 marriages, delayed-entry intervals, person folds (5 × 3 seeds) and additive spline GLM;
+paired person bootstrap (1,000):
+
+| Variant | Deviance gain % (95% CI) | Minus current, points (95% CI) |
+| --- | --- | --- |
+| current model | 5.07 (4.34–5.78) | — |
+| race detail | 5.06 (4.32–5.76) | −0.02 (−0.03 to −0.00) |
+| family at 14, full detail | 5.09 (4.33–5.80) | +0.01 (−0.02 to +0.05) |
+| + siblings | 5.11 (4.36–5.83) | +0.04 (−0.06 to +0.14) |
+| religion detail | 5.04 (4.30–5.76) | −0.03 (−0.08 to +0.02) |
+| + occupation before the wedding | 5.03 (4.29–5.76) | −0.04 (−0.10 to +0.02) |
+| + family net wealth before the wedding | 5.09 (4.36–5.81) | +0.02 (−0.08 to +0.11) |
+| + all new blocks | 5.07 (4.31–5.85) | −0.01 (−0.16 to +0.15) |
+
+**Nothing adds held-out skill.** Adjusted rate ratios (`extended_rate_ratios.csv`, 150 person
+refits): each extra sibling 0.96 (0.94–0.98); attendance more than once a week 0.83 (0.64–0.99)
+and once a week 0.84 (0.71–1.00) vs not at all; $100,000 more family net wealth before the
+wedding 0.90 (0.80–0.99); mother only at 14 1.12 (0.98–1.29), mother and stepfather 1.06
+(0.89–1.32) vs both parents; Asian or Pacific Islander origin 1.19 (0.76–1.82); service jobs 1.19
+(0.97–1.39) vs management and professional. `models_extended` (all blocks) and its test vectors
+are in the bundle for transparency.

@@ -1,0 +1,18 @@
+{
+ "married_couples": 1928,
+ "with_follow_up": 1686,
+ "breakups": 118,
+ "person_periods": 5575,
+ "dating_known": 1899,
+ "known_known": 1903,
+ "C": 1.0,
+ "repeats": 5,
+ "bootstrap": 1000,
+ "seed": 20261020,
+ "band_odds_ratios_vs_1_2_years_adjusted": {
+  "3+ years": 1.265308899627264,
+  "Unknown": 3.7049499097228074,
+  "under 1 year": 1.6349676224100491
+ },
+ "note": "Odds ratios are per follow-up period, from one unpenalised fit (no interval); the held-out comparison is the test."
+}

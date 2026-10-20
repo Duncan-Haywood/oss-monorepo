@@ -156,3 +156,12 @@ a queue of unmerged pull requests, and GitHub Actions never allocating a
 runner. Every API route now has a test; the remaining coverage gap is the page
 components, and below that the thing no suite can settle — somebody reading
 what two linked accounts actually produce on screen.
+
+## Build your own survey (API)
+
+Signed in as admin, `POST /api/admin/surveys` with `{"title": "...", "items": "one option per line"}`
+(or `Category | Option` lines, or an array) creates a survey shared at `/s/<slug>` (3-60 options).
+`GET /api/admin/surveys/<slug>/ranking` returns the pooled ranking; add `?format=csv` to download it.
+Each item carries a 95% interval from a random-effects pool of the respondents' Glicko-2 ratings
+(so disagreement widens it) and a best/worst rank range: items whose intervals overlap share a range
+rather than being ordered by noise. Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.

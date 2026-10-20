@@ -52,7 +52,15 @@ stays at none. Level 6 was the setting that shipped:
 | whole built site | 215,302,143 | 222,027,191 (+3.1%) |
 
 A visitor who receives a shared link downloads one card, so they pay about
-4.6 KB more. `node check.mjs dist` exits 0 on the new build. All 1,159 tests
+4.6 KB more.
+
+**Any change to the encoder's output bytes needs `node
+platform/marketing/regen.mjs`.** The apex's share card,
+`gitops/prod/front-door/social-card.png`, is committed, and
+`platform/marketing/front-door.test.mjs` compares it byte-for-byte with
+`renderSocialCard()`. This PR's first push turned that test red, and
+regenerating the card fixed it. Check `regen.mjs --verify`'s exit status
+directly, not through a pipe. `node check.mjs dist` exits 0 on the new build. All 1,159 tests
 in `node --test platform/pages/*.test.mjs` pass.
 
 ### 2. Router: merit scores parsed with pure-Python YAML (fixed)
@@ -226,25 +234,16 @@ What is left: the two builds that remain are the shared one and the
 for example letting a test run the offline step on its own. That is a design
 change, not test plumbing.
 
-### Main was red when this landed; fixed in the same PR
+### Main was red when this landed
 
-After `main` was merged into this branch, CI on PR #8789 failed on checks that
-also fail on `main` at that point. Neither this change nor PR #8767 caused
-them. No open PR fixed them, so they were fixed here:
+On the first merge of `main`, CI on PR #8789 failed on checks that also
+failed on `main`: `custom-domain.test.mjs` (posts linking live tools by their
+`github.io` address), `entities.test.mjs` (`&rho;`, `&lceil;`, `&rceil;`),
+`faq-visible.test.mjs` (`changepoint-detector`'s FAQ JSON-LD quotes) and the
+`platform/marketing` staleness tests. This PR fixed them. Before it merged,
+`main` landed its own fixes for all of them, and PR #8767 merged on its own.
+On the second merge this branch took `main`'s versions, so the PR's final diff
+is item A only: `build.test.mjs`, this section and the run record.
 
-- `custom-domain.test.mjs`: the post `2026-10-20-research-algorithms-in-your-browser`
-  links each live tool by its `github.io` address. The writing build now
-  rewrites links that point at `DEFAULT_BASE_URL` to the base it is building
-  for (`rebase` in `writing.mjs`, with a test in `writing.test.mjs`), so any
-  post can link a live tool without breaking a custom-domain build.
-- `entities.test.mjs`: added `&rho;`, `&lceil;` and `&rceil;` to `NAMED_ENTITIES`.
-- `faq-visible.test.mjs`: the `changepoint-detector` FAQ JSON-LD used single
-  quotes where the visible answer uses double quotes. The JSON-LD now matches
-  the page.
-- `platform/marketing` staleness tests: re-ran `node platform/marketing/regen.mjs`
-  (the share card changed with PR #8767's deflate level; the sitemap and
-  catalog changed with the new ventures on `main`).
-
-After those fixes, on the tree with `main` merged in: `node --test
-platform/pages/*.test.mjs` passes 1163/1163 in 422.8s, and `node --test
-"platform/marketing/*.test.mjs"` passes 275/275.
+Final check, on the tree with `main` at `f56d696e1` merged in: `node --test
+platform/pages/*.test.mjs` passes 1182/1182 in 412.7s.

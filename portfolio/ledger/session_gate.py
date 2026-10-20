@@ -668,16 +668,13 @@ def report(
         # for real visitors rather than something worth doing next, and
         # DIRECTION.md ranks it above the work the verdict is about to name.
         reasons = [
-            "THE LIVE SITE IS BEHIND `main`. Refresh the published snapshot "
-            "AFTER your PR merges, not before: the script refuses any HEAD not "
-            "on `origin/main`. Do your work first, merge, then "
-            "`git fetch origin main && git checkout --detach origin/main` and "
-            "run `CONFIRM=publish-pages-branch PUSH=1 "
-            "./platform/pages/publish-branch.sh` with `run_in_background` (10+ "
-            "minutes in a shallow clone), then `python3 "
-            "platform/ci/pages_state.py --require-current` to confirm. If the "
-            "push is denied as a production deploy or fails, say so in your "
-            "reply and carry on instead of retrying. "
+            "THE PUBLISHED SNAPSHOT IS BEHIND `main`. Since 2026-10-20 Pages "
+            "deploys from Actions (`portfolio-pages.yml`, on every site-input "
+            "merge and every three hours), not the `gh-pages` branch, so do "
+            "NOT run `publish-branch.sh`. Merging is the publish; check that "
+            "the latest `portfolio-pages.yml` run on `main` succeeded "
+            "(`python3 platform/ci/ci_starvation.py --run <id>` classifies a "
+            "red one) and say so in your reply if it did not. "
             f"Reason: {snap_reason}"
         ] + reasons
     elif snap != "current":

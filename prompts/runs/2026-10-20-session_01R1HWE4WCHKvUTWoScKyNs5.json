@@ -1,0 +1,122 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01R1HWE4WCHKvUTWoScKyNs5",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T11:39:04Z",
+  "ended": "2026-10-20T11:48:42Z",
+  "wall_minutes": 9.85,
+  "tokens_in": 2757296,
+  "tokens_out": 32104,
+  "cost_usd": 1.2241,
+  "tool_calls": 32,
+  "task": "sensing-superres (track 15, new question after milestones exhausted)",
+  "projects": [
+    "sensing-superres"
+  ],
+  "pr": 8811,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says plain python3 may lack numpy and to use pyenv.py in the background; the printed interpreter was /usr/bin/python3.13, fine, but the first python3 run failed before I knew."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Local checks: 10 pytest pass, research/_homepage/build.py ok, check_md_links ok, live_links ok. Baseline deblur_up uses best lambda on test scenes (favours baseline, disclosed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fdf7d7f5-8388-532d-bf0e-d51e09bfa283",
+    "transcripts": 1,
+    "first": "2026-10-20T11:39:04Z",
+    "last": "2026-10-20T11:48:54Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 30,
+        "input": 60,
+        "output": 32104,
+        "thinking": 10832,
+        "cache_read": 2664735,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92501,
+        "api_equivalent_usd": 1.2241,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 60,
+      "output": 32104,
+      "thinking": 10832,
+      "cache_read": 2664735,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92501,
+      "api_equivalent_usd": 1.2241,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 27,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.85,
+      "active_minutes": 9.85,
+      "model_minutes": 5.49,
+      "tool_minutes": 4.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "researcher estimate for model, experiments, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 980.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

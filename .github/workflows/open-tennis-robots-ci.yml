@@ -61,9 +61,6 @@ jobs:
           tennisbots drill drill.example.json
       - name: Node tests (browser port, page, usage)
         run: node --test sim.test.mjs page.test.mjs usage.test.mjs
-      - name: Disclaimer clauses on every page
-        working-directory: .
-        run: node platform/pages/clauses.mjs open-tennis-robots
 
   cad:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}

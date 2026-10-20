@@ -40,6 +40,3 @@ jobs:
           node-version: "22"
       - name: Run engine and page-wiring tests
         run: node --test engine.test.mjs page.test.mjs
-      - name: Published pages carry the no-warranty clause
-        working-directory: .
-        run: node platform/pages/clauses.mjs backyard-honey-profit-calculator

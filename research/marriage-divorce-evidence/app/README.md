@@ -52,6 +52,23 @@ browser.
   tell apart from the top one, and how many different profiles the models put first on
   their own. It never presents one ideal person.
 
+## Profile report (decision aid)
+
+`report.js` (pure; `tests/report.test.mjs`) and `report-ui.js` add the "Profile report" tab, run
+for you and, separately, for the person you are looking at, on the selected lens:
+"date everyone" (every partner type of your sex in the lens's `partner_distribution`, pooled over
+all conditioning cells and weighted by their marriages; for women the husband's race-ethnicity
+follows all husbands, assumed independent of the other traits), "likely partners" (the cell for
+people like you, as `population.js` `justMe`), each as N in 100 with the model range and a 95%
+interval from Dirichlet resampling of the mix shares; percentiles against `population_reference`;
+the lowest-risk partner profiles from `dashboard.js` `partnerDashboard` with model disagreement;
+factor impact (spread across each trait's levels) with grades from `data/decision_evidence.json`;
+and the biggest predicted drops from `whatIfs`. Lenses without a partner distribution say so.
+`satisfaction.js` charts `data/satisfaction_by_duration.json`
+(`../reproducibility/satisfaction_by_duration/`) and `dating-length.js` shows
+`data/dating_length.json` (`../reproducibility/dating_length/`). The report adds nothing to the
+link beyond `view=report`.
+
 ## Models
 
 | Model | Held-out deviance improvement vs a constant rate |
@@ -432,7 +449,17 @@ Design choices the engine reproduces exactly (`tests/prewedding.test.mjs`, 60 of
   gives the four rows above. The predicted level is U.S. survey-specific: in Canada,
   observed divorce is about 0.58 times the prediction.
 
-Workstream C can make it the default lens: it has no form adapter yet.
+**Per-couple uncertainty.** `models[0].bootstrap` holds 50 person-bootstrap refits of the
+coefficients (spline knots and scaling held at the full fit). `engine.cumulativeRisk(model,
+rowAt, horizon)` returns the point estimate and a 95% interval for the chance the marriage has
+ended by `horizon` years. Across 2,000 sampled NSFG marriages the 10-year interval is 5.2
+points wide at the median (9.4 at the 90th percentile). It is the
+model's sampling uncertainty. It does not include the chance element in one marriage (which
+an individual probability already is) or the error of applying a U.S. survey model elsewhere,
+which is larger: the observed/expected ratio is 0.85–1.07 on the other U.S. surveys. The
+bundle is now 48 KB.
+
+Workstream C can make it the default lens (#8713 prefers it once an adapter exists).
 
 ## Train the models yourself, in the browser (`train/`)
 
@@ -499,6 +526,23 @@ All five models at the Python settings, in headless Chromium on a 4-core cloud m
 Every thread count gives identical metrics. `tests/train_parallel.test.mjs` computes the folds
 in scrambled order through structured cloning and checks the merged result equals the
 single-thread one to 10<sup>−12</sup>.
+
+**How much a profile's score depends on the sample (2026-10-20).** Each fold returns its
+fitted model with its predictions. The scorer then shows, beside the full-data estimate, the
+year-10 range across the five fold models, each trained on a different four-fifths of the
+women. For the default profile the ranges are:
+
+| Model | Full-data estimate | Range across fold models |
+| --- | --- | --- |
+| Constant rate | 31.6% | 31.5–31.6% |
+| GLM | 21.3% | 18.6–22.9% |
+| Depth-4 tree | 34.2% | 26.5–34.6% |
+| Boosting | 18.7% | 15.0–23.1% |
+
+For a wife married at 19, the ranges are 33.9–41.7%, 41.5–51.2% and 26.1–40.7%. The flexible
+models move most. This covers sampling only, not what the survey never measured.
+`tests/train_parallel.test.mjs` checks each structured-cloned fold model reproduces its fold's
+held-out predictions to 10<sup>−12</sup>.
 
 `tests/train.test.mjs` takes about 40 s. It requires the JS GLM's coefficients to match
 scikit-learn's within 10<sup>−6</sup>; they agree to 4×10<sup>−14</sup>, on fold 0's training

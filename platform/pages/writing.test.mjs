@@ -82,19 +82,20 @@ test('a link to a sibling post file becomes a link to its page', async () => {
   assert.match(page, /data-pf-to="hub"/);
 });
 
-test('a link to the default origin points at the origin the site is built for', async () => {
+test('a full link to the default origin follows the address the site is built for', async () => {
+  const alias = 'https://default.test/site/';
   const root = repoWith({
-    '2026-10-01-first.md': post('First', '2026-10-01').replace(
-      'Body text',
-      '[Live tool](https://old.example/tools/calc/) and [elsewhere](https://other.example/calc/). Body text',
-    ),
+    '2026-10-01-first.md': post('First', '2026-10-01').replace('Body text', `Try [the tool](${alias}some-tool/). Body text`),
   });
-  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-rebase-'));
-  await buildWriting(out, BASE, { root, defaultBase: 'https://old.example/tools/' });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-'));
+  await buildWriting(out, BASE, { root, originAlias: alias });
   const page = await fs.readFile(path.join(out, WRITING_PATH, 'first/index.html'), 'utf8');
-  assert.ok(page.includes(`href="${BASE}calc/"`), 'the live-tool link follows the build origin');
-  assert.ok(!page.includes('old.example'), 'nothing names the default origin');
-  assert.ok(page.includes('href="https://other.example/calc/"'), 'other origins are left alone');
+  assert.match(page, new RegExp(`<a href="${BASE.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}some-tool/">the tool</a>`));
+  assert.ok(!page.includes(alias), 'the default origin must not survive a build under another address');
+
+  const same = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-same-'));
+  await buildWriting(same, alias, { root, originAlias: alias });
+  assert.match(await fs.readFile(path.join(same, WRITING_PATH, 'first/index.html'), 'utf8'), /default\.test\/site\/some-tool\//);
 });
 
 test('feed is valid-shaped with no posts', () => {
@@ -105,4 +106,10 @@ test('every committed post parses', () => {
   const posts = loadPosts();
   assert.ok(posts.length >= 1);
   for (const p of posts) assert.ok(p.title && p.description && /^\d{4}-\d{2}-\d{2}$/.test(p.date));
+});
+
+test('links to the published catalogue become root-relative on the site', async () => {
+  const { relinkSite } = await import('./writing.mjs');
+  const html = '<a href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/">x</a> <a href="https://example.com/">y</a>';
+  assert.equal(relinkSite(html, '../../'), '<a href="../../changepoint-detector/">x</a> <a href="https://example.com/">y</a>');
 });

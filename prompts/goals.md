@@ -238,6 +238,28 @@ a local server such as ComfyUI), at no per-call cost and with the data
 staying local. The deterministic path stays the product. How:
 [`platform/llm/`](../platform/llm/README.md) and `PRODUCT_PLAYBOOK.md` §3.
 
+## Direction: voice, chat and agents as primary ways in
+
+Set by the owner on 2026-10-20: "I want to add an ai assistant to the ghp. I
+also want voice interfaces and llm interfaces to be considered a primary use
+case for the browser. have them load well without killing app performance or
+opt in." And: "especially for calculators chat interface or voice interface
+as interchangeable is a nice add on. I'd rather give info by voice than
+clicking a bunch of stuff a lot of the time. I think multi method ui is a
+good thing agentic use, human use by visual ui voice type etc accessible
+output in voice etc. voice only modes for the apps. easily accessible tools
+for ai agent to use and plug ins with seo and auditable quality." And:
+"easily auditable quality limitations and transparency on how things work."
+
+Every tool is reachable four ways: the visual form, a typed sentence, the
+voice, and an AI agent. Output can be read aloud, and voice-only use must work.
+Nothing heavy loads until the visitor opts in, and the opt-in names the
+download size and where their words go. Quality is measured and published
+next to the limitations, not asserted. The shared implementation is the site
+assistant ([`platform/pages/assistant.mjs`](../platform/pages/assistant.mjs),
+the Ask page on the public site). Rules for products: `PRODUCT_PLAYBOOK.md`
+§4, "Every way in".
+
 ## Direction: write about the work
 
 Set by the owner on 2026-10-20: "let's add blog posts about the development
@@ -301,6 +323,28 @@ MCP server, and the app packagers in `platform/distribution/` (iOS, Android,
 browser extension; desktop is the open gap). Publishing under the
 portfolio's name stays an owner step; building the packages is not. Channel
 list and status: [`portfolio/distribution/README.md`](../portfolio/distribution/README.md).
+## Direction: depth over calculators
+
+Set by the owner on 2026-10-20: "we are still shipping all sorts of stupid
+calculators. I think we can move more of that effort into cooler projects
+like the ones I've suggested for example. a lot to work on there. also
+dedicating effort to actual research and research adjacent things is better
+than all these stupid caluclators." And on any calculator that does get
+built: "make calculators that take some effort and are actually hard to
+replicate. something inaccessible algorithms from research papers and
+whatnot", and "I better not be able to understand the math behind it at a
+glance with my ba in mathematics."
+
+So a run with a free choice picks research, a research-adjacent tool or a
+flagship milestone before a new small product. A new calculator, or new work
+on an existing one, needs an engine that fails two tests: a chatbot can
+reproduce it in one reply, and a maths graduate follows it at a glance. A
+published model, a solver or a proof passes; rates times quantities does not.
+Comparison pages on arithmetic calculators are not progress. Where to
+find such engines: "Research algorithms as tools" above. The posts:
+[`docs/posts/2026-10-20-fewer-calculators-harder-problems.md`](../docs/posts/2026-10-20-fewer-calculators-harder-problems.md)
+and
+[`docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md`](../docs/posts/2026-10-20-if-its-a-calculator-make-it-hard.md).
 
 ## Direction: files first, not the GitHub API
 
