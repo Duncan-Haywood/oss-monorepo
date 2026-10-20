@@ -37,11 +37,15 @@
     {
       "file": "prompts/ventures/prompt-1.md",
       "issue": "venture-preflight takes >5 min; fine, but run record flow needs a PR number before the record commit."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "regen --verify aborts if a run record is written under prompts/runs/ while it is running in the background; write the record after it finishes."
     }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "XRechnung+Peppol Schematron added; Docker build stage not run locally (no docker). venture-preflight run in background.",
+  "notes": "XRechnung+Peppol Schematron added; Docker build stage not run locally (no docker). venture-preflight run in background. No CI check runs appeared on the PR, so the checklist was run locally: checklist_coverage ok, regen --verify current (exit 0), platform/agents 15 pass, run_venture_tests --changed 1 suite 0 failed. venture-preflight aborted at regen --verify only because my run record was written into the tree while it ran (race), not from the change; its build half was not run.",
   "corrections": [],
   "redteam": null,
   "usage": {
