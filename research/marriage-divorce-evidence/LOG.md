@@ -1,5 +1,13 @@
 # Research log
 
+## 2026-10-20 · Los Angeles newlyweds: trained-observer conflict codes add nothing to divorce prediction
+
+- New data: Smith, Block & Karney's public OSF release (hxn84) of 368 low-income, mostly Hispanic Los Angeles newlywed couples followed for about 12 years, 145 divorced. Both spouses are measured, and couples' conflict discussions were coded by trained observers (IFIRS positivity, negativity, effective communication). Hostility, described elsewhere as observed, is a 14-item self-report questionnaire, so it is a separate block here.
+- Reproduction: 368 couples and 145 divorces exactly; all 22 Table S1 means and SDs and all 8 Table S8 percentages within rounding; Table S11 baseline hazards match as Bayesian posterior means; Table S12 survival odds ratios match approximately (same signs; wife vulnerability the only predictor whose CI excludes 1, as published). Table S2.1's "Included" and "Excluded" headers appear swapped in the supplement.
+- Held out by couple (20 × 5-fold, nested tuning, 1,000 couple resamples): the best model (ridge on all inputs) gains 3.42% (1.47–5.30%) in log loss over an interval-only model, C-index 0.63 (0.58–0.67), AUC 0.67 by 12 years, Brier 0.218 against 0.239. Observed codes alone: 0.63% (−0.07 to 1.26%), C-index 0.53.
+- The Gottman-style test: adding the observed codes to satisfaction, socioeconomic risk and each spouse's vulnerabilities changes held-out gain by −0.05 points (−0.51 to +0.39) and the C-index by +0.004 (−0.010 to +0.018). Socioeconomic risk and vulnerabilities over satisfaction add +1.32 points (+0.14 to +2.70). Per SD: husband satisfaction 0.78, wife satisfaction 0.72, self-reported hostility 1.33 (husband) and 1.38 (wife); of the observed codes only the wife's effective communication excludes 1 (0.81), and not after adjusting for satisfaction and hostility.
+- The bundle lists each observed code with a self-report question for app users and says plainly that the model was trained on observer codes, so self-ratings are an unvalidated approximation. Population reference in the standard shape (median 12-year divorce risk 0.38). Test vectors are synthetic. Limits: one low-income Los Angeles sample with no external validation; 36 divorces were first reported after a missed follow-up; the null covers these three codes, not Gottman's own coding or physiological measures.
+
 ## 2026-10-20 · NLSY97 first-marriage lens: the young cohort, marriages through 2024
 
 - Official NLSY97 public release (BLS, no login; sha256 recorded), streamed out of the 8 GB CSV without unzipping. Counts match the codebook: 8,984 respondents, round-1 weights summing to 19.38 million, 5,252 ever married, first-marriage ends 1,820 divorced, 20 widowed, 45 unknown.
