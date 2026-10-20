@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>This checker vs. reading the trust policy by eye | OIDC Trust Policy Check</title>
-<meta name="description" content="Reading a GitHub Actions OIDC trust policy for review catches an obvious asterisk. It does not catch a StringEquals condition where that asterisk is a literal character rather than a wildcard, or the fact that IAM's condition operator -- not the sub claim's shape -- decides which one you are looking at. This checker resolves that distinction for every statement automatically.">
+<meta name="description" content="Reading an OIDC trust policy catches an obvious asterisk, not whether the IAM operator makes it a literal or a wildcard. This checker resolves every statement.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/oidc-trust-policy-check/vs-reading-the-trust-policy-by-eye.html">
 <meta property="og:type" content="website">

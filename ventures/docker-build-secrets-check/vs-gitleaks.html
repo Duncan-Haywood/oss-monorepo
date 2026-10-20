@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Docker Build Secrets Check vs. gitleaks</title>
-  <meta name="description" content="gitleaks finds secret-shaped values via regex and entropy, wherever they appear in tracked files. It has no Dockerfile-instruction awareness, so it won't tell you that an ENV instruction bakes its value into docker inspect regardless of the value's shape, or flag a bare ARG declaration that invites an unsafe --build-arg. This free browser tool checks those Dockerfile-specific questions directly.">
+  <meta name="description" content="gitleaks matches secret-shaped values but ignores Dockerfile instructions like ENV and bare ARG. This free browser tool checks those Dockerfile-specific risks.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="./vs-gitleaks.html">
   <meta property="og:type" content="article">
