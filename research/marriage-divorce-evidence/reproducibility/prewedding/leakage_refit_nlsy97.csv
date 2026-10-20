@@ -1,0 +1,9 @@
+dataset,model,predictors_removed,gain_with_percent,gain_without_percent,change_points
+nlsy97,"additive_spline (first split, as published; METHODS 4.68)",flagged yes/possible: pregnant_at_wedding;spouse_education;spouse_married_before;spouse_has_children,4.67990,4.36488,-0.31501
+nlsy97,additive_spline (mean of 3 seeded splits),flagged yes/possible: pregnant_at_wedding;spouse_education;spouse_married_before;spouse_has_children,4.82325,4.49789,-0.32536
+nlsy97,"additive_spline (first split, as published; METHODS 4.68)",flagged + all remaining spouse traits (strict): pregnant_at_wedding;spouse_education;spouse_married_before;spouse_has_children;spouse_age_gap;spouse_race_ethnicity;same_race_ethnicity,4.67990,4.37560,-0.30429
+nlsy97,additive_spline (mean of 3 seeded splits),flagged + all remaining spouse traits (strict): pregnant_at_wedding;spouse_education;spouse_married_before;spouse_has_children;spouse_age_gap;spouse_race_ethnicity;same_race_ethnicity,4.82325,4.48977,-0.33348
+nlsy97,"gradient_boosting (first split, as published; METHODS 4.91)",flagged yes/possible: pregnant_at_wedding;spouse_education;spouse_married_before;spouse_has_children,4.91284,4.43143,-0.48141
+nlsy97,gradient_boosting (mean of 3 seeded splits),flagged yes/possible: pregnant_at_wedding;spouse_education;spouse_married_before;spouse_has_children,4.91284,4.63793,-0.27491
+nlsy97,"gradient_boosting (first split, as published; METHODS 4.91)",flagged + all remaining spouse traits (strict): pregnant_at_wedding;spouse_education;spouse_married_before;spouse_has_children;spouse_age_gap;spouse_race_ethnicity;same_race_ethnicity,4.91284,4.52665,-0.38619
+nlsy97,gradient_boosting (mean of 3 seeded splits),flagged + all remaining spouse traits (strict): pregnant_at_wedding;spouse_education;spouse_married_before;spouse_has_children;spouse_age_gap;spouse_race_ethnicity;same_race_ethnicity,4.91284,4.59897,-0.31387
