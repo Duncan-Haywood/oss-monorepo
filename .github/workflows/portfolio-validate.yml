@@ -207,12 +207,18 @@ jobs:
         run: |
           base=
           if [ "$EVENT" = pull_request ]; then
-            git fetch --no-tags --depth=2 origin "+$(git rev-parse HEAD):refs/ci/pr-merge" 2>/dev/null || true
+            if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+              git fetch --no-tags --depth=2 origin "+$(git rev-parse HEAD):refs/ci/pr-merge" 2>/dev/null || true
+            fi
             base=$(git rev-parse -q --verify HEAD^1 || true)
           elif [ "$EVENT" = push ] && [ "${BEFORE#0000000}" != "$BEFORE" ]; then
             base=
           elif [ "$EVENT" = push ]; then
-            git fetch --no-tags --depth=1 origin "$BEFORE" 2>/dev/null || true
+            if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+              git fetch --no-tags --depth=1 origin "$BEFORE" 2>/dev/null || true
+            else
+              git fetch --no-tags origin "$BEFORE" 2>/dev/null || true
+            fi
             base=$(git rev-parse -q --verify "$BEFORE^{commit}" || true)
           fi
           run=true
