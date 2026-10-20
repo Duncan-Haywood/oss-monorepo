@@ -4044,6 +4044,11 @@
     "slug": "qual-correction",
     "title": "Can you do machine learning on qualitative data with an LLM, and when can you trust the numbers?",
     "summary": "An LLM can code free text (&ldquo;does this answer mention cost?&rdquo;) so that it can be counted and modelled like numbers, but its codes need a correction first. In a seeded simulation, an 89%-accurate LLM coder (Cohen&rsquo;s &kappa; = 0.72) understates a 30% code at 26%, and its naive 95% interval covers the truth in 0 of 1,000 studies. When the LLM reads one group&rsquo;s answers less accurately, the naive group gap comes out at +3.6 points against a true &minus;4, the wrong sign, and is &ldquo;significant&rdquo; 80% of the time. Prediction-powered inference with 200 random hand-coded answers per group removes the bias, covers the truth 95&ndash;98% of the time and gives intervals 23&ndash;26% narrower than hand-coding alone. Below about 80% coder accuracy, though, its interval is wider. Includes a stdlib tool (&kappa;, Krippendorff&rsquo;s &alpha;, PPI) and a survey of five ways LLMs bring qualitative data into ML. Simulated coders, not a real model."
+   },
+   {
+    "slug": "qual-regression",
+    "title": "What happens to a regression coefficient when the regressor is an LLM's code?",
+    "summary": "Regressing an outcome on an LLM's codes attenuates the coded variable's coefficient (0.74 for a true 1.00, interval coverage 0% in 300 simulated studies) and, when the coder's error depends on another covariate, biases that perfectly measured covariate too (0.467 against 0.50, coverage 60%). Design-based supervised learning (DSL) with about 210 hand-coded items drawn at a known 7% rate recovers both (1.01 and 0.50, coverage 94&ndash;97%) but narrows the coded coefficient&rsquo;s interval by only 14%. For a 3-class code, naive class shares are off by up to 8.5 points with 0% coverage; per-class PPI covers 95.5&ndash;97%. Simulated coders only; no real LLM was run."
    }
   ]
  }

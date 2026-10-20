@@ -160,5 +160,6 @@ rounds left go first, so they finish together) and which match gets which court 
 - **Measured.** On the example (three divisions of 6, 8 and 6 teams, four courts at two venues, two time slots, three links),
   summed over 8 seeds, the optimiser makes 322 venue changes against 432 for the naive order (-25%). Both give 0 linked clashes here,
   so the example does not show the clash handling beating the naive order; the one-slot test shows an unavoidable clash being listed.
-- **Not done yet.** No page for it (command line and module only), no travel *distance* between venues (any change counts as one trip),
+- **Page.** `multi-division-league-schedule.html` runs it in the browser (divisions, courts at venues, times, skip dates, closures, links; CSV, plain-text and print exports; the same disclaimer and local-only usage counts as the main page), linked from `index.html` and the sitemap.
+- **Not done yet.** No travel *distance* between venues (any change counts as one trip),
   and rounds are placed whole, so a night with 1 spare slot stays partly empty.
