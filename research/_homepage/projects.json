@@ -3452,6 +3452,11 @@
      "slug": "mimic-twinpower",
      "title": "How many real trajectories does a classifier test need to flag a wrong digital twin, and are the twins it flags the ones that cost a controller?",
      "summary": "On the stylised pendulum of <code>mimic-twinregret</code>, a boosted-tree C2ST with <em>n</em> real and <em>n</em> twin trajectories flags a twin when its AUROC beats the 95th percentile of the exact-twin null at the same <em>n</em> (20 replicates per cell, <em>n</em> = 10 to 160). The six twins whose controller regret is at least 0.001 are all flagged in at least 80% of replicates by <em>n</em>&nbsp;=&nbsp;80 (by 40 for the four noise-level and noise-shape twins), so the test does not miss costly twins at that size. It also flags three twins that cost nothing (g/L &minus;20%, noise &times;0.5, noise &times;0.75) by <em>n</em>&nbsp;=&nbsp;40&ndash;80, while Coulomb &minus;10% and &minus;20% stay unflagged at 160. Spearman correlation of power at 80 with regret is 0.52 (p&nbsp;=&nbsp;0.048, 15 twins). A flag is a cheap alarm, not a verdict on usefulness. Limits: one system, one task, 20 replicates, a null threshold that is degenerate at <em>n</em>&nbsp;&le;&nbsp;20. Stylised, simulated, no LLM."
+    },
+    {
+     "slug": "mimic-dialogue",
+     "title": "Does a second turn make a plainly prompted LLM easier to spot in dialogue?",
+     "summary": "Qwen2.5-0.5B-Instruct, given only a plain prompt, writes a user's second and third message in 400 real OpenAssistant threads. A prompt-free character and word n-gram detector (5-fold cross-validation grouped by thread) gets AUROC 0.93 on a single turn and 0.98 on the two turns together (paired accuracy 0.98); length alone gets 0.65 and 0.71. A quarter of the imitations read like assistant replies; dropping those threads leaves 0.95 for the thread. Limits: volunteer prompter turns, one 0.5B imitator and prompt, one seed, teacher-forced turns, no group-level false-positive rates. Stylised baseline; no prompt is optimised."
     }
    ]
   },
