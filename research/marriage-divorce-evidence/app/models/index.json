@@ -19,6 +19,6 @@
     {"file": "hcmst_dating_breakup.json", "label": "HCMST unmarried couples 2009: chance of breaking up before any wedding per follow-up period (U.S., 2009–2017; before the wedding)"},
     {"file": "fair_redbook1974.json", "label": "Fair's Redbook survey: affairs reported by 6,366 married women (U.S., 1974; not divorce)"},
     {"file": "fair_pt1969.json", "label": "Fair's Psychology Today survey: affairs reported by 601 married men and women (U.S., 1969; not divorce)"},
-    {"file": "prewedding_harmonized.json", "label": "Before the wedding: facts knowable on the wedding day, either partner (NSFG 1995–2023; validated on NLSY79, NLSY97, SIPP and Canada)"}
+    {"file": "prewedding_harmonized.json", "label": "Before the wedding: facts knowable on the wedding day, either partner (NSFG 1995–2023; validated on NLSY79, NLSY97, SIPP and Canada)", "adapter": "prewedding_harmonized"}
   ]
 }
