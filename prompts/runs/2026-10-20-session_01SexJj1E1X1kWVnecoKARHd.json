@@ -39,11 +39,23 @@
     {
       "file": "ventures/csv-to-sepa-pain001/README.md",
       "issue": "`node --test ventures/<slug>/` (directory arg) fails on this Node; the glob *.test.mjs form works."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "`regen.mjs --verify` says current but front-door-tools.test.mjs fails on a stale 00-mirror-alias.conf; only `node platform/marketing/front-door-tools.mjs --write` rewrites it (and leaves an untracked front-door-tools/ dir to delete)."
+    },
+    {
+      "file": "platform/marketing/resolve-mirror-merge.sh",
+      "issue": "Handles only front-door-tools; conflicts in gitops/prod/front-door/*.gz needed manual checkout --theirs + regen."
+    },
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "New ventures fall into the 5-item catch-all category; the test failed with no pointer to the list to edit."
     }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Deepened SEPA set with a direct-debit generator; dropped pain.008.001.08 because sibling validator's date rule disagrees with my memory.",
+  "notes": "Deepened SEPA set with a direct-debit generator; dropped pain.008.001.08 because sibling validator's date rule disagrees with my memory. Fixed main's red validate (xero-invoice-csv-check evidence 'code' -> in-repo) in this PR.",
   "corrections": [],
   "redteam": null,
   "usage": {
