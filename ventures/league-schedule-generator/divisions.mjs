@@ -237,8 +237,11 @@ const BALANCE_WINDOW = 6; // nights a make-up may be weighed over when keeping h
  * Returns { schedule, moves[{division, home, away, from, to, court, time}], errors[] }.
  * `{ balance: true }` weighs the first few nights that fit and takes the one that adds the fewest home/away breaks
  * (two home or two away matches in a row for a team), preferring nights already on the calendar.
+ * `{ flip: true }` then swaps home and away of a moved match wherever that removes breaks and both teams stay
+ * within one home game of even (single round robins only: a double keeps each pair hosting once each way). It moves
+ * no match to another night, so it costs no delay; the `flipped` flag on a move says it happened.
  */
-export function applyDivisionRainouts(schedule, text, { balance = false } = {}) {
+export function applyDivisionRainouts(schedule, text, { balance = false, flip = false } = {}) {
   const s = JSON.parse(JSON.stringify(schedule));
   const cfg = s.config;
   const weekdays = new Set(cfg.weekdays || []), skip = new Set(cfg.skipDays || []);
@@ -325,15 +328,48 @@ export function applyDivisionRainouts(schedule, text, { balance = false } = {}) 
       rd.matches.push(plain);
       const old = dv.rounds.find((r) => r.day === day);
       if (old) old.matches = old.matches.filter((x) => !(x.home === mt.home && x.away === mt.away));
-      moves.push({ division: mt.division, home: mt.homeName, away: mt.awayName, from: day, to: placed.d, court: rec.court, time: rec.time });
+      moves.push({ division: mt.division, home: mt.homeName, away: mt.awayName, from: day, to: placed.d, court: rec.court, time: rec.time, _rec: rec, _rd: plain });
     }
   }
   for (const dv of s.divisions) { dv.rounds = dv.rounds.filter((r) => r.matches.length); dv.rounds.sort((a, b) => a.day - b.day); }
   s.nights = s.nights.filter((n) => n.matches.length).sort((a, b) => a.day - b.day);
   for (const n of s.nights) n.matches.sort((a, b) => cfg.times.indexOf(a.time) - cfg.times.indexOf(b.time) || cfg.courts.indexOf(a.court) - cfg.courts.indexOf(b.court));
+  if (flip) flipMoved(s, moves);
+  for (const m of moves) { delete m._rec; delete m._rd; }
   s.conflicts = linkConflicts(s);
   s.stats = divisionStats(s);
   return { schedule: s, moves, errors };
+}
+
+/**
+ * After the moves, swaps home and away of a moved match wherever that lowers the schedule's home/away breaks and
+ * leaves both teams within one home game of even, repeating until no swap helps. Doing it after all the moves (not
+ * match by match) means it can only ever lower the total. Single round robins only. Marks the move `flipped`.
+ */
+function flipMoved(s, moves) {
+  const swap = (rec, rd) => {
+    const [h, a, hn, an] = [rec.home, rec.away, rec.homeName, rec.awayName];
+    Object.assign(rec, { home: a, away: h, homeName: an, awayName: hn });
+    Object.assign(rd, { home: a, away: h, homeName: an, awayName: hn });
+  };
+  const counts = (dv, t) => {
+    let h = 0, a = 0;
+    for (const r of dv.rounds) for (const x of r.matches) { if (x.home === t) h++; else if (x.away === t) a++; }
+    return h - a;
+  };
+  for (let improved = true, guard = 0; improved && guard < 20; guard++) {
+    improved = false;
+    for (const mv of moves) {
+      const dv = s.divisions[mv._rec.div];
+      if (dv.double || !s.nights.some((n) => n.matches.includes(mv._rec))) continue; // a make-up cancelled again has moved on
+      const { home, away } = mv._rec;
+      if (Math.abs(counts(dv, home) - 2) > 1 || Math.abs(counts(dv, away) + 2) > 1) continue;
+      const before = divisionStats(s).homeAwayBreaks;
+      swap(mv._rec, mv._rd);
+      if (divisionStats(s).homeAwayBreaks < before) { mv.flipped = !mv.flipped; mv.home = mv._rec.homeName; mv.away = mv._rec.awayName; improved = true; }
+      else swap(mv._rec, mv._rd);
+    }
+  }
 }
 
 /** Minutes between two venues; an unlisted pair counts as the longest listed (1 per change with no table). */
