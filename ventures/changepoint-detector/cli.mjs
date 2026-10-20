@@ -27,7 +27,7 @@ Options:
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
   --trend [bend|bends]          fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
                             'bend' lets the slope change once, 'bends' up to three times, chosen by BIC
-  --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.2; 0.1 = 10 to 90%)
+  --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.1 = knots at 10 to 90%; 0.2 = the old 20 to 80%)
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
   --ar1 [joint]             allow for lag-1 autocorrelation (mean model): widen the noise scale, or
                             'joint' to fit the means and rho together (more power on small shifts)
