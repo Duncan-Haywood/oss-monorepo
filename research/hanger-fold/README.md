@@ -122,8 +122,7 @@ Python 3.9+ and NumPy (and `../hanger-fit`).
 
 ## Next steps
 
-1. `hanger-insert` (milestone 3): getting the hanger into the neck of a garment the rule says
-   to hang, and feeding the insertion result back into the hanger design.
+1. `hanger-insert` (milestone 3, done: see [`hanger-insert`](../hanger-insert)): buttoned shirt collars refuse every rigid hanger, so shirts go in at the hem.
 2. Replace the crease model with a measured crease-recovery angle per fabric (an owner step),
    since it drives the decision.
 3. Add trousers, dresses and a collar, which hang or fold differently from tops.
