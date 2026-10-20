@@ -4,8 +4,14 @@ Pipelines are Pipeline([('prep', ColumnTransformer([('num', ...), ('cat', ...)])
 where 'num' is SimpleImputer(median) -> [SplineTransformer] -> [StandardScaler] and 'cat' is
 OneHotEncoder(drop='first', handle_unknown='ignore'). Estimators: PoissonRegressor
 (kind 'poisson_glm'), LogisticRegression (kind 'logistic_glm', binary) and
-DecisionTreeRegressor (kind 'tree'; leaf value = mean outcome, a rate or a probability).
+DecisionTreeRegressor (kind 'tree'; leaf value = mean outcome, a rate or a probability),
+HistGradientBoostingRegressor(loss='poisson') (kind 'boosted': exp(baseline + sum of tree
+leaf values), the format app/tools/train_nsfg2002_family.py introduced) and
+RandomForestRegressor of Poisson trees (kind 'forest': mean of tree leaf rates).
+Pipelines whose estimator is none of these raise rather than export something the engine
+cannot reproduce.
 """
+import numpy as np
 
 
 def export(pipe):
@@ -32,9 +38,28 @@ def export(pipe):
         out.update(kind='logistic_glm', intercept=float(est.intercept_[0]), coef=est.coef_[0].tolist())
     elif hasattr(est, 'coef_'):
         out.update(kind='poisson_glm', intercept=float(est.intercept_), coef=est.coef_.tolist())
+    elif type(est).__name__ == 'HistGradientBoostingRegressor':
+        assert est.loss == 'poisson', est.loss
+        trees = []
+        for (pred,) in est._predictors:
+            n = pred.nodes
+            assert not n['is_categorical'].any()
+            trees.append(dict(left=[int(v) if not leaf else -1 for v, leaf in zip(n['left'], n['is_leaf'])],
+                              right=[int(v) if not leaf else -1 for v, leaf in zip(n['right'], n['is_leaf'])],
+                              feature=n['feature_idx'].astype(int).tolist(), threshold=n['num_threshold'].tolist(),
+                              missing_left=n['missing_go_to_left'].astype(bool).tolist(),
+                              value=n['value'].tolist(), n_node_samples=n['count'].astype(int).tolist()))
+        out.update(kind='boosted', baseline=float(np.ravel(est._baseline_prediction)[0]), trees=trees)
+    elif type(est).__name__ == 'RandomForestRegressor':
+        out.update(kind='forest', trees=[_tree(e.tree_) for e in est.estimators_])
+    elif hasattr(est, 'tree_'):
+        out.update(kind='tree', tree=_tree(est.tree_))
     else:
-        t = est.tree_
-        out.update(kind='tree', tree=dict(left=t.children_left.tolist(), right=t.children_right.tolist(),
-                                          feature=t.feature.tolist(), threshold=t.threshold.tolist(),
-                                          value=t.value[:, 0, 0].tolist(), n_node_samples=t.n_node_samples.tolist()))
+        raise TypeError(f'no engine format for {type(est).__name__}')
     return out
+
+
+def _tree(t):
+    return dict(left=t.children_left.tolist(), right=t.children_right.tolist(),
+                feature=t.feature.tolist(), threshold=t.threshold.tolist(),
+                value=t.value[:, 0, 0].tolist(), n_node_samples=t.n_node_samples.tolist())

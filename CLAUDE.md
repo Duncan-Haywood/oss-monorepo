@@ -266,15 +266,18 @@ python3 portfolio/ledger/supersede_check.py <pr>      # before closing a PR as "
 - **Overlap is not supersession, and a conflict is not a reason to close.**
   Merge `main` into the branch and resolve it. A conflict means the work is
   still wanted where others are editing.
-- **Shallow clones lie about history.** Run `git fetch --unshallow origin
-  main` with `run_in_background`: it took 2-15 min and up to ~5 GB in recent runs (foreground `sleep` is
-  blocked in cloud sessions; wait per `verify-and-merge.md`, "Long suites"). Name the ref, because a
-  bare `--unshallow` skips a ref you fetched by name. Then check
-  `git rev-list --count origin/main`, which should be in
-  the thousands, not 1. Otherwise `git merge` reports unrelated histories and
-  every branch seems to carry thousands of commits. Content reads
-  (`git show origin/main:<path>`) are unaffected; when the two disagree,
-  trust the content.
+- **Shallow clones lie about history.** `git merge` reports unrelated
+  histories and every branch seems to carry thousands of commits. Content
+  reads (`git show origin/main:<path>`) are unaffected, and most sessions need
+  nothing more: when the two disagree, trust the content. Fetch history only
+  for a step that needs it (merging `main` into a branch, dating a change).
+  Try `git fetch --deepen=500 origin main` first, and repeat until
+  `git merge-base HEAD origin/main` answers. A full `git fetch --unshallow
+  origin main` took 2-15 min and up to ~5 GB in recent runs, and two
+  `Monitor` waits expired at 20 min before one finished, so run it with
+  `run_in_background` only when you need it all (name the ref, because a bare
+  `--unshallow` skips a ref you fetched by name), then check
+  `git rev-list --count origin/main` is in the thousands, not 1.
 
 ## Reading CI
 
