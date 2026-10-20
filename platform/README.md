@@ -28,6 +28,7 @@ MIT licensed, like the rest of the repository.
 | [`marketing/`](marketing/README.md) | Distribution surfaces that sit outside the tools site: the front-door mirror's page, category pages, feed, sitemap and `llms.txt`, regenerated with `regen.mjs`. |
 | [`distribution/`](distribution/) | Packagers and announcers for registries and stores (npm, PyPI, Homebrew, VS Code, browser extensions, MCP, GitHub Actions, citation metadata). Each is off by default with a dry run; the rules are in [`portfolio/distribution/`](../portfolio/distribution/README.md). |
 | [`devstats/`](devstats/README.md) | Public development dashboard at [`/dev/`](https://duncan-haywood.github.io/monorepo-projects/dev/): merges, lead time, CI pass/fail, agent run cost. |
+| [`daily/`](daily/README.md) | Daily [engineering brief](https://duncan-haywood.github.io/monorepo-projects/dev/daily/) (~15 min) and [The Merge Report](https://duncan-haywood.github.io/monorepo-projects/dev/daily/show/) for the public, to read or listen to (browser speech). |
 | [`devlog/`](devlog/README.md) | Development analyses at `/dev/analyses/`: what the agents building this portfolio tried, measured and tripped on. |
 
 ## CI and repository automation
