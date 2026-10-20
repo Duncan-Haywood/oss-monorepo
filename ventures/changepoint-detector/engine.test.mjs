@@ -465,6 +465,7 @@ test('trend model: reports the jump and the slope on each side, and the summary 
   assert.ok(r.pelt.segments.every((sg) => typeof sg.slope === 'number'));
   assert.match(r.summary, /slope goes from/);
   assert.equal(r.bocpd.changeProb.length, 120);
+});
 
 test('trend: a ramp under one step leaves one change, not ten, and the slope is recovered', () => {
   const N = 40, n = 200;
