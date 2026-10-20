@@ -199,7 +199,7 @@ series, 40 each, in `engine.test.mjs`):
   18 to 20 of 20 and no run with exactly one change, with or without `--ar1`, so bends, seasonality and sticky noise together are
   not reliable yet. The first knot of a mild bend (slope change 0.1 against noise 1) is often 5 or more points off, and the cause is still being
   worked out.
-- **Scoring every pair of knots (`--trend bends --joint-knots`).** The greedy search keeps the single best knot first, and on a two-bend
+- **Scoring every pair of knots (`--trend bends --joint-knots`; on the web page, the "Score every pair of knots" box, used only with "Slope changes up to three times").** The greedy search keeps the single best knot first, and on a two-bend
   ramp that knot can land between the two true ones, after which the second bend no longer pays for itself under sticky noise.
   `--joint-knots` also fits every pair of grid knots (at least 15% apart, 20 to 80% of the series) and keeps the cheapest by the same
   BIC, then refines as before. 240 points, slope 0.1, 0.2 from point 80, -0.05 from point 160, seeds 1001..1040, `--ar1`:
