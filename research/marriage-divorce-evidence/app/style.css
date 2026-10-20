@@ -67,6 +67,7 @@ label.check input { width: auto; display: inline; margin: 0; }
 small { display: block; color: var(--text-muted); font-size: 0.8rem; }
 .refuse { margin-top: 20px; padding: 14px 16px; border: 1px solid var(--bad); border-radius: 8px; background: var(--surface-1); }
 .tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.tiles.three { grid-template-columns: repeat(3, 1fr); }
 .tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
 .tile .k { font-size: 0.82rem; color: var(--text-secondary); }
 .tile .v { font-size: 1.6rem; font-weight: 650; font-variant-numeric: tabular-nums; }
@@ -125,5 +126,6 @@ button.link:hover { background: none; }
   .grid, .two { grid-template-columns: 1fr; }
   .grid .couple { grid-template-columns: 1fr; }
   .tiles { grid-template-columns: repeat(2, 1fr); }
+  .tiles.three { grid-template-columns: 1fr; }
   h1 { font-size: 1.5rem; }
 }
