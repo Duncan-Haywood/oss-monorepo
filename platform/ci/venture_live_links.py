@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = "https://duncan-haywood.github.io/monorepo-projects/"
+BASE = "https://duncan-haywood.github.io/oss-monorepo/"
 
 
 def missing(root=ROOT):

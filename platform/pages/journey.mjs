@@ -11,7 +11,7 @@
 //   node platform/pages/journey.mjs
 //
 //   # or against production:
-//   BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
+//   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/journey.mjs
 //
 // **Check what is answering before you believe the result.** A server left
 // running by an earlier build keeps the port, the second `http.server` exits
@@ -21,16 +21,16 @@
 //
 //   curl -s http://localhost:8793/<slug>/ | grep -c 'the thing you just added'
 //
-// Serve it under a `/monorepo-projects/` prefix when you want the local run to
+// Serve it under a `/oss-monorepo/` prefix when you want the local run to
 // mirror the deployment, because some defects only exist at a path:
 //
-//   mkdir -p sp && cp -r dist sp/monorepo-projects
+//   mkdir -p sp && cp -r dist sp/oss-monorepo
 //   python3 -m http.server 8793 --directory sp &
-//   BASE_URL=http://localhost:8793/monorepo-projects node platform/pages/journey.mjs
+//   BASE_URL=http://localhost:8793/oss-monorepo node platform/pages/journey.mjs
 //
 // A browser with no declared icon asks the ORIGIN root for `/favicon.ico`, so
 // served from `/` a missing icon link is masked by the `favicon.ico` this build
-// writes, and served from `/monorepo-projects/` it is not -- which is the shape
+// writes, and served from `/oss-monorepo/` it is not -- which is the shape
 // GitHub Pages actually serves. Run both.
 //
 // PLAYWRIGHT overrides the module path when Playwright is installed somewhere
@@ -1585,7 +1585,7 @@ check('sitemap index lists a child per venture', children.length >= 30, `${child
 // nothing and the check passes over zero URLs.
 //
 // Which origin that is depends on where the artifact is going, and there are
-// now two: GitHub Pages serves it under `/monorepo-projects/`, and
+// now two: GitHub Pages serves it under `/oss-monorepo/`, and
 // `gitops/prod/portfolio-site.yaml` serves it at the root of
 // `tools.marisstella.dev` from the Hetzner box. This constant was hardcoded to
 // the Pages one, so against a Hetzner-stamped build — the artifact that

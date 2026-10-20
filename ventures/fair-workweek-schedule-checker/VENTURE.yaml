@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a premium or rest result that disagrees with the ordinance text for the preset they chose, and the preset is not corrected within a week.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/fair-workweek-schedule-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/fair-workweek-schedule-checker/
   analytics: null

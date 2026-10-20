@@ -6,7 +6,7 @@ are sometimes `null` become nullable. Integers stay integers until a decimal app
 always-ISO dates, UUIDs, emails and URLs are recognised; identical nested shapes share one
 type; ID-keyed objects become maps. Anything it had to guess is listed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/json-to-types-generator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/json-to-types-generator/
 
 [`index.html`](index.html) runs in a browser; nothing is uploaded and the page makes no
 network calls. [`how-to-type-an-api-response.html`](how-to-type-an-api-response.html) is

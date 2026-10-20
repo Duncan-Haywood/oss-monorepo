@@ -53,5 +53,5 @@ kill_criteria:
   - No external repository is found using check.py within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/dependency-confusion-check/
   analytics: null

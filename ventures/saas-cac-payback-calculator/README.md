@@ -4,7 +4,7 @@ A free browser calculator for SaaS and subscription founders: **how long a custo
 takes to pay back what you spent to win them, once churn is counted.** Entirely
 client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/saas-cac-payback-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/saas-cac-payback-calculator/
 
 After using this, you can now **see churn-adjusted CAC payback, LTV:CAC and the most
 you can spend per customer for your payback target**, which used to mean a cohort

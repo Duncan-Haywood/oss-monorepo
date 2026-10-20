@@ -4,7 +4,7 @@ Checks an Etsy bulk listing CSV in the browser before it is uploaded: title leng
 length, price, currency, quantity, image links, variation values, SKUs and Excel damage, each with
 its line number, plus a safe-fixes pass that only touches formatting.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/etsy-listing-csv-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/etsy-listing-csv-check/
 
 - Static ES modules, no build step, no dependencies. Open `index.html` or run `node --test`.
 - `calc.mjs` is pure (no DOM, no network); `usage.mjs` keeps opt-out, local-only event counts.

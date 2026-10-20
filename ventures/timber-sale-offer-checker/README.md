@@ -5,7 +5,7 @@ price per MBF on each species, enter a logger's offer, and see whether it looks 
 Board feet are computed under Doyle, Scribner and International 1/4-inch rules, because the
 same logs scale to very different volumes depending on the rule. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/timber-sale-offer-checker/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/timber-sale-offer-checker/
 
 After using this, you can now **tell whether a timber offer is in the right range and what a
 consulting forester has to add to pay for themselves**, which used to mean trusting the buyer's scale.

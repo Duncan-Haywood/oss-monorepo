@@ -72,5 +72,5 @@ kill_criteria:
     deployments still ship.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/dotenv-exposure-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/dotenv-exposure-check/
   analytics: null

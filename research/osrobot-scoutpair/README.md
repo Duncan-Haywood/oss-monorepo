@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-fieldtour` (track 9, open-source purpose-built robots). It took that project's two open next steps, "let the scout stage be a second, faster platform" and "price a mud-aware tour", and asked a different question from the tour-rule one it had been answering: does a second platform change the cost structure? In the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field-robot simulation; nothing here is affiliated with or endorsed by them. Produced with AI assistance (Claude). Pure Python standard library. **Every constant is an assumed round number (marked ASSUMED in `src/osrobot_scoutpair/model.py`; the ground-robot ones are copied unchanged from `osrobot-field`), not a measurement of any robot, drone, camera or crop, and nothing was built or flown.** All numbers are from `experiments/results.txt` (30 simulated fields per row; fields and random draws are shared across rows). Simulation only; a stylised, preliminary study.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-scoutpair/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-scoutpair/
 
 ![Share of weeds killed against total minutes for one inline robot and for a scout plus a ground treater](experiments/frontier.svg)
 

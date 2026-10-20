@@ -13,7 +13,7 @@ crowd with all three changes) and the personal-space cost (0.03 of agent time in
 assistance (Claude). Milestone 6 of research track 17 (`society`, `PROJECTS.md`). Every result is
 about simulated walkers following stated rules, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-twinfidelity/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-twinfidelity/
 
 ## Why this question
 

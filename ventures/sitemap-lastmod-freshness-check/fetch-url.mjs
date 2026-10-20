@@ -18,7 +18,7 @@ const DEFAULT_TIMEOUT_MS = 10_000;
 const MAX_REDIRECTS = 5;
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB is generous for a sitemap (the protocol caps at 50,000 URLs / 50 MB uncompressed)
 const USER_AGENT =
-  'sitemap-lastmod-freshness-check/1 (+https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/)';
+  'sitemap-lastmod-freshness-check/1 (+https://duncan-haywood.github.io/oss-monorepo/sitemap-lastmod-freshness-check/)';
 
 /** Returns `{parsed}` or `{error}` -- never throws, so callers format one
  * consistent error string regardless of which of the two ways parsing a URL

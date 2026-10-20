@@ -9,4 +9,4 @@ Free, read-only checker that scans GitHub Actions workflow YAML for schedule cro
     path: .
 ```
 
-Runs [`ventures/actions-schedule-check/check.py`](../../../../ventures/actions-schedule-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-schedule-check/?ref=gh-action
+Runs [`ventures/actions-schedule-check/check.py`](../../../../ventures/actions-schedule-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/oss-monorepo/actions-schedule-check/?ref=gh-action

@@ -97,7 +97,7 @@ export function formatSarif(report) {
       tool: {
         driver: {
           name: 'liability-audit',
-          informationUri: 'https://duncan-haywood.github.io/monorepo-projects/liability-audit/',
+          informationUri: 'https://duncan-haywood.github.io/oss-monorepo/liability-audit/',
           rules: RULES.map((r) => ({ id: r.id, shortDescription: { text: r.title }, fullDescription: { text: r.why }, help: { text: r.fix }, defaultConfiguration: { level: level[r.severity] }, properties: { category: r.category } })),
         },
       },

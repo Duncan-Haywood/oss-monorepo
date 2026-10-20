@@ -91,5 +91,5 @@ kill_criteria:
   - A user reports a materially wrong line, or a real bank export the tool cannot read, at which point the parser or the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/self-employed-schedule-c-categorizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/self-employed-schedule-c-categorizer/
   analytics: null

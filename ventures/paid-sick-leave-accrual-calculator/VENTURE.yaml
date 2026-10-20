@@ -38,5 +38,5 @@ kill_criteria:
   - A report that a rate, cap or size threshold differs from the cited statute on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/paid-sick-leave-accrual-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/paid-sick-leave-accrual-calculator/
   analytics: null

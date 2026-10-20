@@ -50,5 +50,5 @@ kill_criteria:
   - A user reports a lowest payback ticket that does not reproduce their payback target when typed back in as the ticket price.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/axe-throwing-bar-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/axe-throwing-bar-profit-calculator/
   analytics: null

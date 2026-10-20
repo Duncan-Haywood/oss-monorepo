@@ -3,7 +3,7 @@
 // WHY THIS EXISTS
 //
 // The site is served today from a project-Pages *subpath*
-// (`https://duncan-haywood.github.io/monorepo-projects/`), and
+// (`https://duncan-haywood.github.io/oss-monorepo/`), and
 // `platform/ci/pages_state.py`'s `indexing` row records what that costs: a
 // crawler fetches `robots.txt` from the *host* root, which belongs to the
 // owner's separate user-level Pages site, so the `Sitemap:` line this build
@@ -20,7 +20,7 @@
 // That gap was not theoretical. Every base-URL assertion in `build.test.mjs`
 // runs against `https://example.test/site/` — a subpath, like today's origin.
 // A custom domain moves the site to an origin *root*, which changes the base
-// path from `/monorepo-projects/` to `/`, and `applyBaseUrl` rewrites absolute
+// path from `/oss-monorepo/` to `/`, and `applyBaseUrl` rewrites absolute
 // URLs by string substitution of `DEFAULT_BASE_URL` (build.mjs:2152). A
 // substitution that misses one construction site ships a page whose canonical
 // tag still names the old origin — which is not a broken link a visitor would
@@ -205,7 +205,7 @@ test('every sitemap <loc> is an absolute URL on the custom origin', async () => 
   for (const loc of locs) {
     assert.ok(loc.startsWith(APEX), `sitemap <loc> is not on the custom origin: ${loc}`);
     // A doubled slash is the classic root-vs-subpath join bug: it only appears
-    // when the base path is "/" rather than "/monorepo-projects/", which is
+    // when the base path is "/" rather than "/oss-monorepo/", which is
     // exactly the case no other test here builds.
     assert.ok(
       !new URL(loc).pathname.includes('//'),

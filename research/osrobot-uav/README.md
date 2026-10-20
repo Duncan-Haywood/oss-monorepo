@@ -2,7 +2,7 @@
 
 Fourth milestone (`osrobot-uav`) of track 9, open-source purpose-built robots, in the direction of the RECUV and Autonomous Systems IRT interest in UAV simulation and targeted observation. Produced with AI assistance (Claude). Pure Python standard library. **Every technology constant (pack energy density, efficiencies, drag, structural mass fractions) is an assumed round number in `model.py` (marked ASSUMED), not a measurement of any product, and no UAV was designed for flight or flown.** All numbers below are from `experiments/results.txt`. Simulation only; **a stylised, preliminary sizing study. The PX4 or ArduPilot software-in-the-loop flight that the milestone mentions was not attempted in this run.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uav/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-uav/
 
 ![All-up mass against loiter time and distance](experiments/mass_sweeps.svg)
 

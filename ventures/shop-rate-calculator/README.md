@@ -4,7 +4,7 @@ A free browser tool that works out what one crew hour actually costs a trade
 contractor, and what it has to be sold at. Nothing is uploaded; the arithmetic
 runs on the visitor's own device.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shop-rate-calculator/
 
 ```
 cd ventures/shop-rate-calculator && node --test "*.test.mjs"

@@ -77,5 +77,5 @@ kill_criteria:
   - A user reports a bank rejecting a file this tool passed, or this tool failing a file a bank accepted, at which point the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sepa-pain002-status-reader/
+  production: https://duncan-haywood.github.io/oss-monorepo/sepa-pain002-status-reader/
   analytics: null

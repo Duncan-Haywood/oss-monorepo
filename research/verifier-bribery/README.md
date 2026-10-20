@@ -2,7 +2,7 @@
 
 Stdlib-only Python. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/verifier-bribery/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/verifier-bribery/
 
 ```bash
 cd research/verifier-bribery

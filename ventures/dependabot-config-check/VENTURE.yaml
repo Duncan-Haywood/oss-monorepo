@@ -54,5 +54,5 @@ kill_criteria:
   - A user reports a finding that is wrong against GitHub's documented Dependabot behaviour, at which point the rule table needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/dependabot-config-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/dependabot-config-check/
   analytics: null

@@ -82,5 +82,5 @@ kill_criteria:
   - A user reports a materially wrong figure, or a negative or harvest flag that contradicts a real report, at which point the model needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/amazon-ppc-search-term-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/amazon-ppc-search-term-analyzer/
   analytics: null

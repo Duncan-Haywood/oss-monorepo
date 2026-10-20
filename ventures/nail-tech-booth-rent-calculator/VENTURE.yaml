@@ -41,5 +41,5 @@ kill_criteria:
   - No nail tech reports changing a rent, split or schedule because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/nail-tech-booth-rent-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/nail-tech-booth-rent-calculator/
   analytics: null

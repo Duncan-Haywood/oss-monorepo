@@ -53,5 +53,5 @@ kill_criteria:
   - A CPA reports that the break-even disagrees with a hand calculation of self-employment tax and FICA on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/contract-vs-fte-rate-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/contract-vs-fte-rate-calculator/
   analytics: null

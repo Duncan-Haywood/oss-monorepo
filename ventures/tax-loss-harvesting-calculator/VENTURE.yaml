@@ -58,5 +58,5 @@ kill_criteria:
   - A user reports that the netting or carryforward result contradicts Schedule D on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tax-loss-harvesting-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/tax-loss-harvesting-calculator/
   analytics: null

@@ -159,5 +159,5 @@ kill_criteria:
     feedback) within that same 90-day window.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/pypi-provenance-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/pypi-provenance-check/
   analytics: null

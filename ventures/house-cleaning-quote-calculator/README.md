@@ -7,7 +7,7 @@ shows the cost of each visit, the lowest price that earns your target margin, th
 largest discount each frequency can take, the list price that makes every
 discount still clear target, and annual profit by frequency. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/house-cleaning-quote-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/house-cleaning-quote-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

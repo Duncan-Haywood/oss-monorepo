@@ -39,5 +39,5 @@ kill_criteria:
   - A report that a factor (survivor reduction, 82.5% limit, spousal reduction, delayed credit) gives a wrong figure for stated inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/social-security-survivor-spousal-benefit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/social-security-survivor-spousal-benefit-calculator/
   analytics: null

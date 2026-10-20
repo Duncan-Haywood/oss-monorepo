@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports an email sent after unsubscribe, a duplicate send, or an address shown to someone else; the send, suppression and privacy paths come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/drip-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/drip-keeper/
   analytics: null

@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-adapt` and `eda-adaptpick` ended on the same open step, to feed a surrogate into the `eda-proposers` loop as a screen and compare at equal syntheses with the surrogate's own fitting syntheses charged to the budget. Here that is done on the 80-design accelerator table. Produced with AI assistance (Claude). **Stylised and preliminary:** one 80-design space from one toy accelerator, generic-gate cell counts, no place and route, and a surrogate that interpolates inside one family (not the cross-family transfer `eda-adapt` studied).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-screen/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-screen/
 
 ## Result
 At 12 syntheses a screen that first synthesises 4 well-spread designs finds 0.990 of the true front's hypervolume (95% bootstrap interval 0.989 to 0.992, 100 seeds), against 0.860 for random search and 0.878 for TPE. It beats random on all 100 paired seeds. It reaches the whole front on 87% of seeds by 20 syntheses, where random and TPE reach it on none even at 30.

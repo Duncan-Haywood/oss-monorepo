@@ -47,5 +47,5 @@ kill_criteria:
   - A report that the NOI, debt-coverage or IRR arithmetic differs from the stated rules on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/rv-boat-storage-lot-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/rv-boat-storage-lot-calculator/
   analytics: null

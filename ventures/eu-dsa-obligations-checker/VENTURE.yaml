@@ -37,5 +37,5 @@ kill_criteria:
   - A report that an Article or threshold differs from the cited Regulation on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-dsa-obligations-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-dsa-obligations-checker/
   analytics: null

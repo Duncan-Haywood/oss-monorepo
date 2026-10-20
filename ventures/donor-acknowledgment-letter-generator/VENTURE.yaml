@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a letter whose wording is wrong for a normal gift list, at which point the rule logic needs revisiting before the next season.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/donor-acknowledgment-letter-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/donor-acknowledgment-letter-generator/
   analytics: null

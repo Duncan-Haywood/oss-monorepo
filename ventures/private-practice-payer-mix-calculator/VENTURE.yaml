@@ -67,5 +67,5 @@ kill_criteria:
   - A user reports that a net-per-hour figure disagrees with a hand calculation from the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/private-practice-payer-mix-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/private-practice-payer-mix-calculator/
   analytics: null

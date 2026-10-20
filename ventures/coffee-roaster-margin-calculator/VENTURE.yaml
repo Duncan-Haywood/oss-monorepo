@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a blend whose cost or score does not match a hand calculation.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/coffee-roaster-margin-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/coffee-roaster-margin-calculator/
   analytics: null

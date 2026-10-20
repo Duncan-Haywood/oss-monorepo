@@ -2,7 +2,7 @@
 
 Track 10 (`swe`, the software-engineering loop) asks what makes the agent loop produce more correct work per unit of budget. Every run record has a `doc_friction` field where the run lists instructions that were wrong, stale or slow. Nobody had counted them. This project does, to see whether the complaints are spread thin or sit on a few files, and whether they recur. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-friction/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-friction/
 
 **Headline.** Of 1,015 dated run records (1 to 18 October 2026), 575 (57%, 95% Wilson 54% to 60%) list at least one problem: 714 entries over 115 files. They are concentrated: `CLAUDE.md` (165) and `research/PROJECTS.md` (112) hold 39%, the top ten files 70%, Gini 0.75. A keyword rule leaves 41% unclassified; of the rest, missing tooling in a fresh image (pytest, numpy, `gh`, 403s) is largest (128), then stale or wrong text (80) and unclear or missing guidance (58). `review` and `process` runs report most per run (1.44 and 1.16) and `redteam` least (0.30). By 18 October, 83% of classified entries repeat a (file, theme) pair already reported on an earlier day; see the caveat below before reading that as "fixes are ignored".
 

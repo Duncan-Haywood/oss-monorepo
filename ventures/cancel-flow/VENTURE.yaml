@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a customer discounted twice, a subscription changed without the customer's click, or a cancel that did not take effect; the idempotency, cooldown and signed-link paths come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cancel-flow/
+  production: https://duncan-haywood.github.io/oss-monorepo/cancel-flow/
   analytics: null

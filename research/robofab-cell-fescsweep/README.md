@@ -2,7 +2,7 @@
 
 A stylised, simulation-only follow-up to `research/robofab-cell-fesc` (track `robofab`, milestone 4's next steps: "a sweep of the inspector's speed to find where the error peaks"). That project reported a mean error of 0.32% for the decomposition at one inspection time (3 min). Here I vary the inspection time over three orders of magnitude to see whether that figure is typical. This is a new axis (time-scale separation between the inspector and the arm-and-printers subsystem), not another seed or size. All numbers are from `experiments/results.txt`; Erlang-4 print time (cv 0.5), load 2 min, unload 2 min, one inspector, print 20 or 60 min, 2/4/6 printers, work in process N = P+2 and 2P (10 cells, 19 inspection times each, 0.1 to 100 min); times are illustrative, not measured.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-cell-fescsweep/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-cell-fescsweep/
 
 - **The earlier 0.3% was not the worst case.** Over the sweep the decomposition's error reaches −2.2% to −5.0% (mean −3.2%) in the 10 cells, an order of magnitude above the earlier mean. At 3 min inspection, the earlier setting, these cells sit on the shoulder of the peak, not at it.
 - **The error is a bump around one matched point and vanishes on both sides.** At 0.1 min inspection the error is 0.000% in every cell (the inspector is never a constraint, so the subsystem is the whole cell and the decomposition is exact). At 100 min it is at most 0.52% (nine cells: 0.02% or less). The bump spans roughly a factor of 10 in inspection time.

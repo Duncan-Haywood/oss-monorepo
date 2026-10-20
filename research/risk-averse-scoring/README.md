@@ -2,7 +2,7 @@
 
 Stdlib-only Python. A verifier with CARA utility is paid by a proper scoring rule; what does it report? See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/risk-averse-scoring/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/risk-averse-scoring/
 
 ```bash
 cd research/risk-averse-scoring

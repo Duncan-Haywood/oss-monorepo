@@ -66,5 +66,5 @@ kill_criteria:
   - A user reports a report this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-to-journal/
+  production: https://duncan-haywood.github.io/oss-monorepo/kdp-royalty-to-journal/
   analytics: null

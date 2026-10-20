@@ -53,5 +53,5 @@ kill_criteria:
   - Foresters report that the Scribner approximation or the missing defect deductions make the output misleading, at which point the tool should load printed tables and a cull percentage.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/timber-sale-offer-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/timber-sale-offer-checker/
   analytics: null

@@ -84,5 +84,5 @@ kill_criteria:
   - No external repository is found using check.py within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/docker-base-image-eol-check/
   analytics: null

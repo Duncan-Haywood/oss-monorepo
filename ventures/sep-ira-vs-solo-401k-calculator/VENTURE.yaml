@@ -50,5 +50,5 @@ kill_criteria:
   - A user reports a 2026 limit or a contribution this tool gets wrong.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sep-ira-vs-solo-401k-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/sep-ira-vs-solo-401k-calculator/
   analytics: null

@@ -61,5 +61,5 @@ kill_criteria:
   - A user reports an email sent after the trial ended or a customer emailed twice for the same step; the stale-step and idempotency paths come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/trial-converter/
+  production: https://duncan-haywood.github.io/oss-monorepo/trial-converter/
   analytics: null

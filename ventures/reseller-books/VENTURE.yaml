@@ -84,5 +84,5 @@ kill_criteria:
   - A user reports a materially wrong total, or a real export the tool cannot read, at which point the parsers need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/reseller-books/
+  production: https://duncan-haywood.github.io/oss-monorepo/reseller-books/
   analytics: null

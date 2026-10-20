@@ -46,5 +46,5 @@ kill_criteria:
   - No external repository, script or newsletter is found linking or reusing cli.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/price-increase-breakeven-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/price-increase-breakeven-calculator/
   analytics: null

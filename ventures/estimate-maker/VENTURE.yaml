@@ -71,5 +71,5 @@ kill_criteria:
   - A user reports a materially wrong total, or lost estimates to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/estimate-maker/
+  production: https://duncan-haywood.github.io/oss-monorepo/estimate-maker/
   analytics: null

@@ -87,5 +87,5 @@ kill_criteria:
   - A future FinCEN rulemaking or court ruling reverses the August 2026 final rule and this page is not updated within 14 days of that being confirmed -- a stale answer here is actively harmful, unlike most of this portfolio's static reference tables.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/boi-reporting-exemption-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/boi-reporting-exemption-checker/
   analytics: null

@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports a materially wrong figure from this tool's output despite the disclaimers, at which point the model or its wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/str-cleaning-fee-pricing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/str-cleaning-fee-pricing-calculator/
   analytics: null

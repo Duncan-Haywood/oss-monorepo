@@ -2,7 +2,7 @@
 
 A follow-up to `research/robofab-torquebound` (track `robofab`; its "speed-dependent torque limit" next step), on the same toy arm, parts and limits. There the joint torque limit was a constant 5 N m, which lets the unconstrained time-optimal profiles reach joint speeds of 6 to 139 rad/s. Here each joint's limit follows the linear torque-speed line of a brushed DC motor, 5 N m x (1 - |joint speed| / w0), for w0 = 20, 10, 6 and 4 rad/s (w0 = infinity is the constant limit). The same nine rows are solved (3 arm sizes x jaw cap k = 2, 5 or none, six printed parts each, no other speed limit). All numbers are from `experiments/results.txt` (solver n = 1600, trapezoid on the 14-value ramp grid with 40 extra samples per ramp).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-motorcurve/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-motorcurve/
 
 ![Edge against w0](experiments/edge.svg)
 

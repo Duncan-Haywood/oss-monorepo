@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a wrong deduction from this tool's output despite the disclaimers, at which point the disclosure wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mileage-deduction-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/mileage-deduction-calculator/
   analytics: null

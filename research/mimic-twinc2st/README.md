@@ -2,7 +2,7 @@
 
 A side project of track 11 (adversarial human imitation), milestone 8's idea that a detector's score is a fidelity score for any simulator, applied to a physical twin. It was chosen because the track's main milestone (`mimic-loop`) needs local LLM weights, and Hugging Face was unreachable (HTTP 403) from this run's container. **No LLM is used and no text is generated.** Stylised and simulated only.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twinc2st/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-twinc2st/
 
 Numbers come from `experiments/results.txt`.
 

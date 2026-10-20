@@ -4,7 +4,7 @@ A free browser tool for restaurant owners: **drop in your POS item-sales export 
 menu item as a Star, Plowhorse, Puzzle or Dog.** The file is read in the browser; nothing is
 uploaded and no POS login is needed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/restaurant-pos-menu-mix-analyzer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/restaurant-pos-menu-mix-analyzer/
 
 After using this, you can now **see, per item, its menu mix against the 70%-of-an-even-share
 rule, its contribution margin per plate against the weighted average, the dollar effect of a

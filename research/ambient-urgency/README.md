@@ -5,7 +5,7 @@ distribution and a combined chime-plus-glance mode). Produced with AI assistance
 simulated results only**: every parameter is a round figure I chose, nothing is fitted to people or
 measured on a device, and nothing is a claim about a real user or product.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-urgency/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-urgency/
 
 ## Motivation
 

@@ -41,5 +41,5 @@ kill_criteria:
   - No external repository is found wiring check.py into its own CI within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/
+  production: https://duncan-haywood.github.io/oss-monorepo/flaky-test-finder/
   analytics: null

@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports a true APR that differs by more than 0.1 point from the same cash flows solved independently.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/business-loan-offer-comparator/
+  production: https://duncan-haywood.github.io/oss-monorepo/business-loan-offer-comparator/
   analytics: null

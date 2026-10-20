@@ -238,9 +238,9 @@ test("the example repo parses through the same input path a visitor types", () =
   // The example is fed to requestSubmit(), so it must survive parseRepoInput
   // exactly as pasted text would. A malformed constant would fail only at
   // runtime, in the one flow a first-time visitor is most likely to use.
-  assert.deepStrictEqual(parseRepoInput("Duncan-Haywood/monorepo-projects"), {
+  assert.deepStrictEqual(parseRepoInput("Duncan-Haywood/oss-monorepo"), {
     owner: "Duncan-Haywood",
-    repo: "monorepo-projects",
+    repo: "oss-monorepo",
   });
 });
 

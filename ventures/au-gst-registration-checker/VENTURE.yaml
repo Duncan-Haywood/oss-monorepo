@@ -35,5 +35,5 @@ kill_criteria:
   - A report that a threshold or date differs from ATO guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/au-gst-registration-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/au-gst-registration-checker/
   analytics: null

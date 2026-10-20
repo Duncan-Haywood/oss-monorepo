@@ -47,5 +47,5 @@ kill_criteria:
   - No search impression for any regional-pricing query within 90 days of indexing.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ppp-pricing-table-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/ppp-pricing-table-generator/
   analytics: null

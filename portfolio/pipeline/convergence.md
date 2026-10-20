@@ -3,12 +3,12 @@
 On 2026-08-18 the hourly agent fleet ran the same brief — AI-heavy or software,
 no employees, low capital, low liability, agent-operable — six separate times.
 Each run started from a fresh checkout with no knowledge of the others, and each
-opened its own pull request: [#17](https://github.com/Duncan-Haywood/monorepo-projects/pull/17),
-[#18](https://github.com/Duncan-Haywood/monorepo-projects/pull/18),
-[#20](https://github.com/Duncan-Haywood/monorepo-projects/pull/20),
-[#27](https://github.com/Duncan-Haywood/monorepo-projects/pull/27),
-[#30](https://github.com/Duncan-Haywood/monorepo-projects/pull/30),
-[#34](https://github.com/Duncan-Haywood/monorepo-projects/pull/34).
+opened its own pull request: [#17](https://github.com/Duncan-Haywood/oss-monorepo/pull/17),
+[#18](https://github.com/Duncan-Haywood/oss-monorepo/pull/18),
+[#20](https://github.com/Duncan-Haywood/oss-monorepo/pull/20),
+[#27](https://github.com/Duncan-Haywood/oss-monorepo/pull/27),
+[#30](https://github.com/Duncan-Haywood/oss-monorepo/pull/30),
+[#34](https://github.com/Duncan-Haywood/oss-monorepo/pull/34).
 
 That was expensive duplication. It also produced, by accident, something a
 single run could not: six independent samples of the same question. This file

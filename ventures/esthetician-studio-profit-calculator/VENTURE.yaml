@@ -42,5 +42,5 @@ kill_criteria:
   - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/esthetician-studio-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/esthetician-studio-profit-calculator/
   analytics: null

@@ -42,5 +42,5 @@ kill_criteria:
   - No reseller reports changing a list-or-bulk decision because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/lot-split-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/lot-split-calculator/
   analytics: null

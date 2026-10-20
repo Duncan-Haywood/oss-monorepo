@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports two unrelated bugs merged into one group, or the same bug split across deploys; the grouping key comes before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/error-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/error-keeper/
   analytics: null

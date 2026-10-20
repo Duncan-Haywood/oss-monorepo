@@ -32,5 +32,5 @@ kill_criteria:
   - Mercari changes the published schedule again and the calculator's fixed constants no longer match a real payout statement.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mercari-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/mercari-fee-calculator/
   analytics: null

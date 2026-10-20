@@ -82,5 +82,5 @@ kill_criteria:
   - A user reports a materially wrong total or payment schedule, or lost proposals to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/proposal-maker/
+  production: https://duncan-haywood.github.io/oss-monorepo/proposal-maker/
   analytics: null

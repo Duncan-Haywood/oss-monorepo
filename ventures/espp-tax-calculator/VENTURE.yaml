@@ -60,5 +60,5 @@ kill_criteria:
   - A user reports a Form 8949 basis or ordinary-income figure the tool contradicts on a point of arithmetic, at which point the disposition rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/espp-tax-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/espp-tax-calculator/
   analytics: null

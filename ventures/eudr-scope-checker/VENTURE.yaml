@@ -40,5 +40,5 @@ kill_criteria:
   - A report that a duty, Article reference or date differs from the Regulation's text on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eudr-scope-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eudr-scope-checker/
   analytics: null

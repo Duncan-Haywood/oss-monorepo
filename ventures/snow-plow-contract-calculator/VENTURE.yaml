@@ -43,5 +43,5 @@ kill_criteria:
   - No contractor reports changing a seasonal price, contract model or account because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/snow-plow-contract-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/snow-plow-contract-calculator/
   analytics: null

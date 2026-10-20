@@ -27,5 +27,5 @@ kill_criteria:
   - Fewer than three qualified independent wedding/event photographers use the calculator twice within 90 days of public distribution.
   - Users say their studio management or invoicing software's own package pricing already produces the same accept/reprice decision just as fast.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/photo-addon-pricing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/photo-addon-pricing-calculator/
   analytics: null

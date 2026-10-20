@@ -239,7 +239,7 @@ Granting it as written would have bought nothing.
 The same runs found channels that *are* reachable, and narrowed the ask four
 times. The current version is materially cheaper than the one this document
 proposed, and it is tracked as **Ask 0** in
-[issue #139](https://github.com/Duncan-Haywood/monorepo-projects/issues/139),
+[issue #139](https://github.com/Duncan-Haywood/oss-monorepo/issues/139),
 the account owner's decision queue:
 
 > **Ask 0 (amended).** One free account signup and a scoped publish token on
@@ -323,7 +323,7 @@ egress denial from an origin refusal. The amendment above is confirmed on a
 second date, by a separate run, on a fresh checkout.
 
 **One consequence for the decision queue.** Ask 5 in
-[issue #139](https://github.com/Duncan-Haywood/monorepo-projects/issues/139)
+[issue #139](https://github.com/Duncan-Haywood/oss-monorepo/issues/139)
 asks the account owner to approve an agent session publishing a free listing.
 The measurements above say approving it as written buys nothing: there is no
 free channel this environment can reach to publish to. Ask 5 is not expensive,

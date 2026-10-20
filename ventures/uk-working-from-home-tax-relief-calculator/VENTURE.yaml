@@ -34,5 +34,5 @@ kill_criteria:
   - A report that a rate, deadline or eligibility rule differs from HMRC guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-working-from-home-tax-relief-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-working-from-home-tax-relief-calculator/
   analytics: null

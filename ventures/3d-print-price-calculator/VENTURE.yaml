@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Sellers report that separating failure-rate buffer and marketplace-fee-solved pricing from a flat per-print rate is more work than it is worth, without changing the price they would have listed.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/
   analytics: null

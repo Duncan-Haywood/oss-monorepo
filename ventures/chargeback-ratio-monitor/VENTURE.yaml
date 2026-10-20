@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports a ratio that differs from disputes divided by settled charges for the same file, at which point the parser or model needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/chargeback-ratio-monitor/
+  production: https://duncan-haywood.github.io/oss-monorepo/chargeback-ratio-monitor/
   analytics: null

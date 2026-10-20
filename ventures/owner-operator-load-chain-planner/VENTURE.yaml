@@ -42,5 +42,5 @@ kill_criteria:
   - No driver reports changing which load they booked or what rate they countered because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/owner-operator-load-chain-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/owner-operator-load-chain-planner/
   analytics: null

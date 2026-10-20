@@ -50,5 +50,5 @@ kill_criteria:
   - A user reports a figure that disagrees with their real operating agreement, at which point the convention needs review.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/syndication-waterfall-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/syndication-waterfall-calculator/
   analytics: null

@@ -80,5 +80,5 @@ kill_criteria:
   - No external repository is found wiring cli.mjs into its own CI/deploy pipeline within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/terraform-plan-secret-exposure-check/
   analytics: null

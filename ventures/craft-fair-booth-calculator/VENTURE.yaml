@@ -32,5 +32,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Makers report that the break-even and the hourly rate always agree with the decision they had already made, so the calculator confirms rather than changes which shows they apply to.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/craft-fair-booth-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/craft-fair-booth-calculator/
   analytics: null

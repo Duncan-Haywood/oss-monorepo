@@ -37,5 +37,5 @@ kill_criteria:
   - No developer reports changing their spend or pricing because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/app-subscription-proceeds-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/app-subscription-proceeds-calculator/
   analytics: null

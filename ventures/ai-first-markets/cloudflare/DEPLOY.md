@@ -18,7 +18,7 @@ Current account state (via MCP): **0 workers deployed**.
 
 ## Option A — Dashboard + GitHub (recommended)
 
-Connect `Duncan-Haywood/monorepo-projects`, use the `main` branch, and set the
+Connect `Duncan-Haywood/oss-monorepo`, use the `main` branch, and set the
 root directory to `ventures/ai-first-markets`.
 
 After connecting, set build secrets in **Workers & Pages → your worker → Settings → Builds → Variables and secrets**:
@@ -32,7 +32,7 @@ Build command: `npm run build`
 Deploy command: `npm run deploy`
 
 1. Open [Workers & Pages → Create](https://dash.cloudflare.com/?to=/:account/workers-and-pages/create)
-2. Connect `Duncan-Haywood/monorepo-projects`
+2. Connect `Duncan-Haywood/oss-monorepo`
 3. Select branch `main`
 4. Set the root directory to `ventures/ai-first-markets`
 5. Configure builds:

@@ -2,7 +2,7 @@
 
 A new question outside the priority tracks (a free-choice run). API rate limiting is everywhere, and the usual advice is that fixed windows allow a 2x burst at a boundary while "sliding" ones fix it. This project measures what each of five common limiters actually admits in a *true* rolling window, with an exhaustive adversarial search at small sizes and a Poisson overload test. Produced with AI assistance. **Stylised**: integer ticks, one client, a single limiter instance, no clock skew or distributed state.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ratelimit-burst/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ratelimit-burst/
 
 ## Question
 

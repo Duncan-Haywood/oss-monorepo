@@ -2,7 +2,7 @@
 
 First milestone of the agentic co-design track (`research/PROJECTS.md`, track 14, `codesign`; manufacturing domain). A parametric 3D-printable finger is scored in MuJoCo on eight objects (cylinders, cubes, a sphere, a thin plate). Four ways of choosing designs get the same 40 simulator evaluations. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-gripper/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-gripper/
 
 ![best objective vs evaluations](experiments/curves.png)
 

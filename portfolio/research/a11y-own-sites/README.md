@@ -277,8 +277,8 @@ it sees a page, not which pages are in scope. Engine agreement moved from
 **Effect on the pipeline.** No score moves. The `ai-first-markets` and
 `local-site-studio` numbers this fix surfaces are the same 333 and 21 already
 counted in `a11y-contrast-decidability` and already sitting in the
-account-owner-gated remainder of [#523](https://github.com/Duncan-Haywood/monorepo-projects/pull/523)
-(via [#531](https://github.com/Duncan-Haywood/monorepo-projects/pull/531)) —
+account-owner-gated remainder of [#523](https://github.com/Duncan-Haywood/oss-monorepo/pull/523)
+(via [#531](https://github.com/Duncan-Haywood/oss-monorepo/pull/531)) —
 this closes a measurement gap in a directory the pipeline's liability score
 cites, it does not add a new liability finding. What it does change: Finding
 1's precision numbers (0.821–0.881) were computed on a denominator that never
@@ -324,7 +324,7 @@ filenames deletes all 7 from the customer's audit and reports nothing unusual.
    `local-site-studio` and `quick-pick-survey` and left the other five apps'
    `500.html` in the record — a filter that looked finished, passed its tests,
    and collected 2 of the 7 false positives it was written for. Only rebuilding
-   the corpus showed it. (Note what this means for [#372](https://github.com/Duncan-Haywood/monorepo-projects/pull/372),
+   the corpus showed it. (Note what this means for [#372](https://github.com/Duncan-Haywood/oss-monorepo/pull/372),
    the pending `next@16.3.1` upgrade: merging it moves six of these apps from
    the second shell to the first. Both are handled, so the filter's result does
    not change — but a single-marker filter would have silently changed
@@ -358,7 +358,7 @@ floor rather than an estimate.
 all 7 apps to take this measurement, and every field of the new results file is
 identical to the committed 2026-08-21 run except the new `provenance` key —
 same 118 pages, same 780 findings, same 91/118 agreement. That independently
-confirms that [#601](https://github.com/Duncan-Haywood/monorepo-projects/pull/601)'s
+confirms that [#601](https://github.com/Duncan-Haywood/oss-monorepo/pull/601)'s
 fix to the shared CSS reader moved nothing on this corpus, which was asserted
 for `a11y-contrast-decidability` and had not been checked here.
 

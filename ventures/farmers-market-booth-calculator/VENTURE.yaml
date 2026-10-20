@@ -36,5 +36,5 @@ kill_criteria:
   - No vendor reports changing a market or price because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/farmers-market-booth-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/farmers-market-booth-calculator/
   analytics: null

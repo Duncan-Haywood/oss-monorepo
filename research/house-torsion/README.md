@@ -2,7 +2,7 @@
 
 A project of track 12, open-source residential construction (`PROJECTS.md`, milestone 6, a next step of [`house-nailedwall`](../house-nailedwall): "add accidental torsion"). `house-nailedwall` found a rigid roof diaphragm sheds load from a garage-door gable wall, but it put the wind load exactly at the centre of mass. Real loads land off-centre, and an off-centre load twists the roof toward the stiff wall. This offsets the load by up to 15% of the house length and asks whether the relief survives. Stylised and not a code check. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-torsion/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-torsion/
 
 **Headline (stylised).** Yes, the relief survives, but it shrinks. For a centred 22 ft garage door, line A's demand over capacity at 6 in nailing rises from 0.36 / 0.48 / 0.59 (load at the centre, v = 100 / 250 / 500 plf) to **0.38 / 0.51 / 0.63 at a 5% offset, 0.41 / 0.55 / 0.67 at 10%, and 0.44 / 0.58 / 0.71 at 15%**. That is 20% more demand at 15%, all of it still below the flexible split's 1.05. The partner wall, which has the stiffness, rises only from 0.27–0.31 to 0.29–0.33. A house with no door goes from 0.19 to 0.23.
 

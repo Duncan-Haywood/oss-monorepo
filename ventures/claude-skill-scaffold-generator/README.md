@@ -9,7 +9,7 @@ isn't a clean slug, a description written in the first person, a missing
 trigger condition, or a name/description outside the practical length
 this tool documents.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/claude-skill-scaffold-generator/
 
 After using this, you can now **start a new skill from a checked,
 correctly-shaped `SKILL.md`** instead of copy-pasting a sibling skill's

@@ -22,7 +22,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
    - **The two sites.** The research homepage
      (<https://duncan-haywood.github.io/oss-research-monorepo/>) is built here by
      `_homepage/build.py` from `_homepage/template.html` and `_homepage/projects.json`. The product catalogue
-     (<https://duncan-haywood.github.io/monorepo-projects/>) is built in `oss-monorepo` by
+     (<https://duncan-haywood.github.io/oss-monorepo/>) is built in `oss-monorepo` by
      `platform/pages/build.mjs`.
    - **The super homepage.** One landing page introduces the whole portfolio and routes visitors
      to the products and to the research. It must not be a third, thin page that each side

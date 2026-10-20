@@ -79,5 +79,5 @@ kill_criteria:
   - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/home-service-lead-roi-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/home-service-lead-roi-analyzer/
   analytics: null

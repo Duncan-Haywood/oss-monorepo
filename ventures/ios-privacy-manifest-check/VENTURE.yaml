@@ -53,5 +53,5 @@ kill_criteria:
     cause.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ios-privacy-manifest-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/ios-privacy-manifest-check/
   analytics: null

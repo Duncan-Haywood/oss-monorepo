@@ -51,5 +51,5 @@ kill_criteria:
   - No external repository is found using audit-triage.mjs or triage.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/npm-audit-triage/
+  production: https://duncan-haywood.github.io/oss-monorepo/npm-audit-triage/
   analytics: null

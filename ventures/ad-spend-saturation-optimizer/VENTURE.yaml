@@ -60,5 +60,5 @@ kill_criteria:
   - A user reports that the fitted curves or the recommended split disagree with a standard reference implementation on the same data.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ad-spend-saturation-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/ad-spend-saturation-optimizer/
   analytics: null

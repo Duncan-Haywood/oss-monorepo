@@ -6,7 +6,7 @@ transaction count) into each US state, and see which states' economic-nexus
 sales-tax-registration thresholds you've crossed, per state, against each
 state's own published figure.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/economic-nexus-threshold-tracker/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/economic-nexus-threshold-tracker/
 
 Open `index.html` in a browser. The calculation is local and works without
 an account, network request, or API key. It is arithmetic against the

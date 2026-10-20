@@ -27,5 +27,5 @@ kill_criteria:
   - Fewer than three contractors use the studio twice within 90 days.
   - Contractors report the trade-specific calculators are reached without ever using the studio, so the front door adds nothing.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/trade-bid-studio/
+  production: https://duncan-haywood.github.io/oss-monorepo/trade-bid-studio/
   analytics: null

@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports that a best price contradicts their own hand calculation on the same responses.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/gabor-granger-price-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/gabor-granger-price-analyzer/
   analytics: null

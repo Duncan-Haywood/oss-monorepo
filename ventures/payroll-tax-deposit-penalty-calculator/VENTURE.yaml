@@ -63,5 +63,5 @@ kill_criteria:
   - A user reports relying on the tool's figure instead of the IRS notice or their tax professional, despite the disclaimer -- at that point the wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/payroll-tax-deposit-penalty-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/payroll-tax-deposit-penalty-calculator/
   analytics: null

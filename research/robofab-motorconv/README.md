@@ -2,7 +2,7 @@
 
 A follow-up to `research/robofab-motorcurve` (track `robofab`; its "repeat the node-count convergence under the motor line" and "investigate the `cover` part at w0 = 4" next steps), on the same toy arm, printed parts and limits. That project solved the time-optimal carry at n = 1600 nodes only. Here the same nine rows and five motor settings (w0 = infinity, 20, 10, 6, 4 rad/s; torque limit 5 N m x (1 - |joint speed| / w0)) are solved at n = 400, 1600 and 6400. All numbers are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-motorconv/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-motorconv/
 
 ![Change of the time-optimal total from n = 1600 to 6400](experiments/conv.svg)
 

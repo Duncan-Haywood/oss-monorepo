@@ -53,5 +53,5 @@ kill_criteria:
   - A franchise buyer or lender reports that the cash arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/franchise-unit-economics-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/franchise-unit-economics-calculator/
   analytics: null

@@ -2,7 +2,7 @@
 
 Free, private browser tool: enter a gross salary, pension and student loan and see income tax, National Insurance and loan deductions for England, Wales and Northern Ireland (2025/26 rates), take-home pay per year, month and week, your marginal rate, and what the same pension costs under salary sacrifice, net pay and relief at source.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/uk-take-home-pay-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/uk-take-home-pay-calculator/
 
 After using this, you know what lands in your bank account and which pension method costs you least, without a payslip or a spreadsheet.
 

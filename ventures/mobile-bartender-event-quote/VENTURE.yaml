@@ -37,5 +37,5 @@ kill_criteria:
   - Operators report the per-head ask check does not change a quote they would have given.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mobile-bartender-event-quote/
+  production: https://duncan-haywood.github.io/oss-monorepo/mobile-bartender-event-quote/
   analytics: null

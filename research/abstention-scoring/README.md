@@ -2,7 +2,7 @@
 
 Stdlib-only Python. When reporting costs something, a truthful verifier under a proper scoring rule reports only when its score gain over an anchor exceeds the cost. This gives a closed-form abstention region, shows that silence is evidence, and quantifies what aggregators that ignore silence lose. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/abstention-scoring/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/abstention-scoring/
 
 ```bash
 cd research/abstention-scoring

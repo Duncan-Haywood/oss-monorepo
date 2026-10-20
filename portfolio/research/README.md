@@ -144,7 +144,7 @@ still a real option; it is just not, on its own, a listing.
 That is the cheapest action that produces the demand number this portfolio has
 been asking for since its sixth screening cycle. It is tracked, with the other
 independent asks and their costs, in
-[issue #139](https://github.com/Duncan-Haywood/monorepo-projects/issues/139) —
+[issue #139](https://github.com/Duncan-Haywood/oss-monorepo/issues/139) —
 the account owner's decision queue. **None of these is a decision an unattended
 session should make**, and nothing in this directory published, registered,
 submitted, or signed up for anything.

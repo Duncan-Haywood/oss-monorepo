@@ -24,7 +24,7 @@
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'source-map-leak-check/1 (+https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/)';
+  'source-map-leak-check/1 (+https://duncan-haywood.github.io/oss-monorepo/source-map-leak-check/)';
 const MAX_BODY_BYTES = 5_000_000; // 5 MB cap per fetched file, script or map
 
 function base64ToUtf8(b64) {

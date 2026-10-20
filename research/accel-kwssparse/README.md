@@ -2,7 +2,7 @@
 
 Track 8 (task-specific AI accelerators) in `PROJECTS.md`, milestone 5 re-run. `accel-sparse` swept pruning, int4/int8, ternary and binary MLPs but on scikit-learn's 8x8 digits, because Speech Commands was unreachable that day. On digits, a ternary pruned-50% MLP stayed within 1 point of float32 with no multiplier. Here the same 13 designs, the same training code and the same energy model run on the Speech Commands v0.02 MFCC features of `accel-kws`. **Headline: on this task no multiplier-free design comes within 5 points of float32.** The digits conclusion does not transfer. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-kwssparse/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-kwssparse/
 
 **Builds on.** `research/accel-sparse` (model, quantisers, pruning schedule and cost model are imported unchanged), `research/accel-kws` (MFCC front end, 11-class task, features from `prepare_features.py`). Ideas as cited in `accel-sparse`: Zhu and Gupta (2017) gradual pruning, Li and Liu (2016) ternary weight networks, Courbariaux et al. (2015) BinaryConnect. Those citations were not re-checked here. No CU Boulder group's work is built on or implied.
 

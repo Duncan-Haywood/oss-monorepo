@@ -69,5 +69,5 @@ kill_criteria:
   - A user reports a fee preset that is wrong, at which point the reference table needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/print-on-demand-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/print-on-demand-profit-calculator/
   analytics: null

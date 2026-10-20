@@ -35,5 +35,5 @@ kill_criteria:
   - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-child-benefit-charge-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-child-benefit-charge-calculator/
   analytics: null

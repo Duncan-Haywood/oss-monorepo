@@ -91,5 +91,5 @@ kill_criteria:
   - An emitted shard command is reported wrong for a common runner and is not corrected within 30 days -- a split that silently drops tests is worse than none.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ci-test-shard-balancer/
+  production: https://duncan-haywood.github.io/oss-monorepo/ci-test-shard-balancer/
   analytics: null

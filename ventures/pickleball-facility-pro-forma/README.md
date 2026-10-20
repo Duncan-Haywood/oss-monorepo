@@ -10,7 +10,7 @@ curve (months to cash break-even, peak drawdown), payback on the build-out,
 sensitivity tables, and a ranking of what raises profit most. Nothing is
 uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pickleball-facility-pro-forma/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/pickleball-facility-pro-forma/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

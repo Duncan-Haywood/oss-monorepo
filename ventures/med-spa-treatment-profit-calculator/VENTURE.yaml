@@ -51,5 +51,5 @@ kill_criteria:
   - A user reports the model omits a cost every med spa carries, at which point the model needs review.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/med-spa-treatment-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/med-spa-treatment-profit-calculator/
   analytics: null

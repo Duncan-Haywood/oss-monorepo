@@ -29,7 +29,7 @@ const DEFAULT_TIMEOUT_MS = 10_000;
 const BODY_CAP_BYTES = 16_384;
 const MAX_REDIRECTS = 5;
 const USER_AGENT =
-  'cloud-bucket-exposure-check/1 (+https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/)';
+  'cloud-bucket-exposure-check/1 (+https://duncan-haywood.github.io/oss-monorepo/cloud-bucket-exposure-check/)';
 
 /**
  * One GET request to `targetUrl`, following same-request-method redirects

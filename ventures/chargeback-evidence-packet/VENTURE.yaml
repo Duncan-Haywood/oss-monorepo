@@ -22,5 +22,5 @@ budget:
 kill_criteria:
   - No repeat usage or organic repository traffic after 60 days of availability.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/chargeback-evidence-packet/
+  production: https://duncan-haywood.github.io/oss-monorepo/chargeback-evidence-packet/
   analytics: null

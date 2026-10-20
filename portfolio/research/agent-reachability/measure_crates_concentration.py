@@ -48,7 +48,7 @@ API = "https://crates.io/api/v1"
 # personal address into a third party's logs.
 USER_AGENT = (
     "monorepo-projects-research/1.0 "
-    "(+https://github.com/Duncan-Haywood/monorepo-projects; portfolio research; read-only)"
+    "(+https://github.com/Duncan-Haywood/oss-monorepo; portfolio research; read-only)"
 )
 
 # Categories are the three the pipeline maps to a free, agent-listable channel --

@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports a suggestion that links a page to itself, to a noindex page, or with anchor text that is not on the source page; the matching and graph code come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/internal-link-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/internal-link-planner/
   analytics: null

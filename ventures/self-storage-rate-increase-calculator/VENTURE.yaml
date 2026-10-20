@@ -43,5 +43,5 @@ kill_criteria:
   - Operators report that their management software already reports a break-even move-out rate, so the number this exists to supply is one they already have.
   - The break-even rates it produces are so far above any move-out response operators recognise that the arithmetic is rejected rather than acted on.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/self-storage-rate-increase-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/self-storage-rate-increase-calculator/
   analytics: null

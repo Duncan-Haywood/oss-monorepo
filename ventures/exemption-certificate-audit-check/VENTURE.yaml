@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports a sale marked covered that a certificate does not support, or one marked unsupported that a certificate covers, on a normal export.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/exemption-certificate-audit-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/exemption-certificate-audit-check/
   analytics: null

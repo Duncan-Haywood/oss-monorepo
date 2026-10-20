@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports a plan that exceeds a person's hours, staffs someone without the skill, or earns less than the same inputs done by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/project-staffing-margin-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/project-staffing-margin-optimizer/
   analytics: null

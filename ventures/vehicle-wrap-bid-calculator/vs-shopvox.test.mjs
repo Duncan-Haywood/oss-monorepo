@@ -32,7 +32,7 @@ test('no unverifiable price is claimed for ShopVOX', () => {
 test('the canonical tag names this file at the real GitHub Pages origin', () => {
   assert.match(
     html,
-    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/vehicle-wrap-bid-calculator\/vs-shopvox\.html">/,
+    /<link rel="canonical" href="https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/vehicle-wrap-bid-calculator\/vs-shopvox\.html">/,
   );
 });
 

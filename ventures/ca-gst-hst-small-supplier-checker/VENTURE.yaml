@@ -35,5 +35,5 @@ kill_criteria:
   - A report that a threshold or date differs from CRA guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ca-gst-hst-small-supplier-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/ca-gst-hst-small-supplier-checker/
   analytics: null

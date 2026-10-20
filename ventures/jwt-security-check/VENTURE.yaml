@@ -171,7 +171,7 @@ kill_criteria:
   - A finding's stated category (alg-none / missing-alg / embedded-key-header / algorithm-confusion-risk / kid-injection-risk / missing-exp / expired / excessive-lifetime / missing-iat / iat-in-future / not-yet-valid / missing-aud / missing-iss / sensitive-field-name) is wrong for a real, well-formed JWT a user pastes, and cannot be fixed by tightening a pattern or threshold.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/jwt-security-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/jwt-security-check/
   analytics: null
 
 channel_notes: >-

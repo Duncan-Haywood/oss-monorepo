@@ -48,5 +48,5 @@ kill_criteria:
   - No external repository is found wiring cli.mjs into its own CI within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-advisor/
+  production: https://duncan-haywood.github.io/oss-monorepo/s3-storage-class-advisor/
   analytics: null

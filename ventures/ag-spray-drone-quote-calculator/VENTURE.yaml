@@ -57,5 +57,5 @@ kill_criteria:
   - An operator reports that the modelled time per field disagrees materially with flown jobs on a comparable drone and settings.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ag-spray-drone-quote-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/ag-spray-drone-quote-calculator/
   analytics: null

@@ -5,7 +5,7 @@ are kept here because agent sessions cannot create repositories (the GitHub
 App returns 403 on `POST /user/repos`).
 
 **Why it matters.** The catalogue is a *project* Pages site at
-`/monorepo-projects/`. Crawlers read `robots.txt` only from the root of a
+`/oss-monorepo/`. Crawlers read `robots.txt` only from the root of a
 host, which is `https://duncan-haywood.github.io/robots.txt` and belongs to
 the user site. Until that file exists, the `Sitemap:` line the catalogue
 publishes is never read, so no crawler discovers the 1,200+ pages through the

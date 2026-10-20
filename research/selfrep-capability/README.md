@@ -2,7 +2,7 @@
 
 A new question for track 1 (`PROJECTS.md`), taking the "Next steps" of `selfrep-learnfirst` (which imported part to learn first) one step further: that project priced every part as a free, independent upgrade; here a part needs *capabilities* (a lathe with taps and dies, heat treatment, coil winding, ...) with an assumed development effort each, and a capability is paid once however many parts use it. Produced with AI assistance (Claude). Computed only; nothing was built or tested.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-capability/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-capability/
 
 **Headline (stylised, preliminary).** In this model the best first capability is a lathe with threading: effort 4 buys +31 points of mass closure (all the nuts, bolts, grub screws and threaded rods) but only +10 of cost closure. By cost the best first buy is winding plus sheet stamping (effort 8, +30 points, the NEMA17 motors). A lathe, winding and stamping together (effort 12) give +53 mass and +40 cost, and adding heat treatment (15) gives +54 and +52. Choosing capability sets exactly beats picking parts one at a time by up to 10 points of mass closure at the same real cost, but the nominal choice is fragile to the assumed efforts.
 

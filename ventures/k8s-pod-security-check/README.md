@@ -5,7 +5,7 @@ StatefulSet, DaemonSet, ReplicaSet, Job, CronJob; multi-document `---` files
 work) for risky pod and container security settings. Each finding prints
 `file:line`, the resource and container, the risk and the exact YAML fix.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/k8s-pod-security-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/k8s-pod-security-check/
 
 | Type | Severity | What it flags |
 | --- | --- | --- |

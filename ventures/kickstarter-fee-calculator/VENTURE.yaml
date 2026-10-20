@@ -28,5 +28,5 @@ kill_criteria:
   - Kickstarter's published US fee schedule changes and the calculator's fixed constants no longer match a real payout statement.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/kickstarter-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/kickstarter-fee-calculator/
   analytics: null

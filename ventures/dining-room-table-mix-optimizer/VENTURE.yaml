@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports a recommended mix that exceeds the floor they entered, or a simulation that is not reproducible for the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/dining-room-table-mix-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/dining-room-table-mix-optimizer/
   analytics: null

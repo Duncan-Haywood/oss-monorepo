@@ -4,7 +4,7 @@ A free browser tool for Patreon creators: **drop in your Members export CSV and 
 is leaving, what is at risk and what the fees leave you.** The file is read in the
 browser; nothing is uploaded and no Patreon account access is needed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/patreon-members-churn-analyzer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/patreon-members-churn-analyzer/
 
 After using this, you can now **see active, declined and former patron counts, monthly
 recurring income (MRR) overall and by tier, the tenure distribution, churn by join

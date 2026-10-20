@@ -2,7 +2,7 @@
 
 Follow-up to `simdesign-robust` (track 5, `PROJECTS.md`), taking its first listed next step: vary the filter radius and the threshold gap Δη. It is a sweep rather than a new seed because the previous README left open which of the two controls feature size; the answer here is that, by the opening-rule measure, neither does clearly. Produced with AI assistance (Claude). Stylised: 2D dimensionless compliance, one load case, one run per cell.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-robustradius/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-robustradius/
 
 **Builds on.** `simdesign-robust`, `simdesign-heaviside` and `simdesign-topopt` (this repository), imported unchanged. Wang, Lazarov and Sigmund (2011), "On projection methods, convergence and robust formulations in topology optimization", *Struct. Multidisc. Optim.* 43(6):767–784, <https://doi.org/10.1007/s00158-010-0602-y>. No code copied.
 

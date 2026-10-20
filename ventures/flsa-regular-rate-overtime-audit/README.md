@@ -4,7 +4,7 @@ Free, browser-only audit of overtime paid on the wrong rate. Paste payroll rows
 (name, week, hours, hourly rate, nondiscretionary bonus, shift differential or
 commission, excluded pay, overtime premium actually paid). It reports:
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/flsa-regular-rate-overtime-audit/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/flsa-regular-rate-overtime-audit/
 
 - **Regular rate** per employee per workweek: total includable remuneration
   divided by total hours worked (29 CFR 778.109). Excluded pay is left out.

@@ -61,5 +61,5 @@ kill_criteria:
   - A user reports an order worse than their own on the same coordinates under the stated travel model, or a window violation the page did not flag.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/route-stop-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/route-stop-optimizer/
   analytics: null

@@ -6,7 +6,7 @@ paint and a drop ceiling versus framed-finish versus legal living,
 carpet versus LVP, then a bath, egress windows, HVAC, and a permit
 — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/basement-finishing-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/basement-finishing-bid-calculator/
 
 **After using this, you can now** send a walk-away basement-finish
 price that sees the scope and the extras, **which used to take**

@@ -432,7 +432,7 @@ GITOPS = REPO / "gitops"
 # with any `.git` suffix and scheme stripped, because an Application pointing at
 # a *different* repo (the ingress-nginx or cert-manager charts, say) is somebody
 # else's artifact and not something a merge here publishes.
-REPO_REMOTE = "github.com/duncan-haywood/monorepo-projects"
+REPO_REMOTE = "github.com/Duncan-Haywood/oss-monorepo"
 
 
 def _normalise_remote(url) -> str:

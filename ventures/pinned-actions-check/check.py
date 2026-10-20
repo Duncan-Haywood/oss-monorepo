@@ -250,7 +250,7 @@ def render_sarif(findings, root):
                 "tool": {
                     "driver": {
                         "name": "pinned-actions-check",
-                        "informationUri": "https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/",
+                        "informationUri": "https://duncan-haywood.github.io/oss-monorepo/pinned-actions-check/",
                         "rules": [
                             {
                                 "id": _SARIF_RULE_ID,
@@ -264,7 +264,7 @@ def render_sarif(findings, root):
                                         "different code at any time."
                                     )
                                 },
-                                "helpUri": "https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/how-to-pin-a-github-action-to-a-commit-sha.html",
+                                "helpUri": "https://duncan-haywood.github.io/oss-monorepo/pinned-actions-check/how-to-pin-a-github-action-to-a-commit-sha.html",
                             }
                         ],
                     }

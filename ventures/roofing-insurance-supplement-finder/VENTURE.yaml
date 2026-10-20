@@ -56,5 +56,5 @@ kill_criteria:
   - A roofing estimator reports that the arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/roofing-insurance-supplement-finder/
+  production: https://duncan-haywood.github.io/oss-monorepo/roofing-insurance-supplement-finder/
   analytics: null

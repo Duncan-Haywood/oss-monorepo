@@ -2,7 +2,7 @@
 
 Stylised and preliminary: on a synthetic bust/hip population (assumed parameters, no survey), allowing a garment to stretch 10% over the body cuts the sizes needed to fit 80% of people from 6 to 8 (or more than 8) down to 2 or 3. This is the follow-up `garment-sizeset` named ("a stretch-dependent tolerance"), and a new question after the run of micro-variants: it changes the fit model, not the seed or N. Track 6 (`PROJECTS.md`). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-sizestretch/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/garment-sizestretch/
 
 **Builds on.** `garment-sizeset` (maximum-coverage size runs; Nemhauser, Wolsey and Fisher 1978, *Mathematical Programming* 14, 265-294). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

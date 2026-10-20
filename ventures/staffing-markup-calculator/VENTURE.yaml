@@ -44,5 +44,5 @@ kill_criteria:
   - The margins it produces prove so far from what agencies actually see that the arithmetic is rejected rather than acted on.
   - Agencies report that they already price from a burden-loaded cost rather than a markup on the pay rate, so the mistake this tool exists to catch is not one they make.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/staffing-markup-calculator/
   analytics: null

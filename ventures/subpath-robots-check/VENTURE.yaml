@@ -94,5 +94,5 @@ kill_criteria:
   - No external repository is found using cli.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/subpath-robots-check/
   analytics: null

@@ -38,5 +38,5 @@ kill_criteria:
   - A report that a threshold, deadline or period differs from the Directive's text on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-whistleblower-channel-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-whistleblower-channel-checker/
   analytics: null

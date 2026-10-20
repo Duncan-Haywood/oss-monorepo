@@ -106,5 +106,5 @@ kill_criteria:
   - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/apparel-decoration-price-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/apparel-decoration-price-calculator/
   analytics: null

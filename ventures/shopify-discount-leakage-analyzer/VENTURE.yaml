@@ -71,5 +71,5 @@ kill_criteria:
   - A user reports a materially wrong discount or break-even figure from a real Shopify export, at which point the model needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/shopify-discount-leakage-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/shopify-discount-leakage-analyzer/
   analytics: null

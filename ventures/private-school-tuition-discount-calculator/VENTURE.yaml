@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports a discount rate or net tuition figure that does not reproduce the plain arithmetic of the tool's own inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/private-school-tuition-discount-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/private-school-tuition-discount-calculator/
   analytics: null

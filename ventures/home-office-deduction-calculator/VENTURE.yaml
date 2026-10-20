@@ -70,5 +70,5 @@ kill_criteria:
   - A user reports a wrong deduction from this tool's output despite the disclaimers, at which point the wording or the formula needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/home-office-deduction-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/home-office-deduction-calculator/
   analytics: null

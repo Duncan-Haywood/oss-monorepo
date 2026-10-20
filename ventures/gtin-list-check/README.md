@@ -8,7 +8,7 @@ and its EAN-13 form count as one), blanks, placeholders, GS1 reserved prefixes a
 with its line number. It writes the file back with every provable fix applied. The file is read
 locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gtin-list-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/gtin-list-check/
 
 ## Run it
 

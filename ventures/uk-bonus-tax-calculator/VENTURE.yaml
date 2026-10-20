@@ -34,5 +34,5 @@ kill_criteria:
   - A report that a rate, threshold or rule differs from GOV.UK or HMRC guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-bonus-tax-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-bonus-tax-calculator/
   analytics: null

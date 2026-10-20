@@ -50,5 +50,5 @@ kill_criteria:
   - A landowner or adviser reports that a worked present value or implied return disagrees with the same inputs done by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cell-tower-lease-buyout-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/cell-tower-lease-buyout-calculator/
   analytics: null

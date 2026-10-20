@@ -2,7 +2,7 @@
 
 Third project of track 13, autonomous multi-angle capture (`PROJECTS.md`, milestone 3). In a 2-D geometric model it places N cameras on a full ring or a 90 degree front arc around a subject 3 m away and scores angle coverage and triangulation (stereo depth) error. **Headline:** the number of cameras buys *angle coverage*, the angle between them buys *depth accuracy*. Coverage costs a lot: a gap of 30 degrees between neighbours needs 13 cameras, 15 degrees needs 25. Depth error barely moves with N (a full ring of 3 gives 0.52 mm, 16 gives 0.23 mm) but falls 11x as a pair's convergence angle goes from 5 to 90 degrees (7.3 mm to 0.64 mm). A tripod bar of cameras a hand apart is a poor stereo rig for a subject 3 m away. Idealised lower bounds, not image quality. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-rig/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-rig/
 
 **Builds on.** `capture-crop` (milestone 1: pixel and perspective limits) and `capture-kit` (milestone 2: weight and battery budget). Prior work for the idea: Kanade, Rander and Narayanan (1997), Virtualized Reality, *IEEE MultiMedia*, and Joo et al. (2015), the Panoptic Studio, ICCV, which surround a subject with many cameras. This project does not reproduce either. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

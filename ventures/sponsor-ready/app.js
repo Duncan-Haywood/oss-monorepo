@@ -279,7 +279,7 @@ function escapeHtml(str) {
 // well-known third-party project: the page would otherwise open by publicly
 // scoring somebody else's work, and a low score on a stranger's repo reads as a
 // judgement the tool has no standing to make. Scoring ourselves does not.
-const EXAMPLE_REPO = "Duncan-Haywood/monorepo-projects";
+const EXAMPLE_REPO = "Duncan-Haywood/oss-monorepo";
 
 function initApp() {
   const form = document.getElementById("scan-form");

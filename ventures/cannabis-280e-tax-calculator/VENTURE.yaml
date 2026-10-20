@@ -39,5 +39,5 @@ kill_criteria:
   - No search impression for any 280E query within 90 days of indexing.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cannabis-280e-tax-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/cannabis-280e-tax-calculator/
   analytics: null

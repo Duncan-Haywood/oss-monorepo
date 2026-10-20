@@ -1,7 +1,7 @@
 variable "gitops_repo_url" {
   type        = string
   description = "HTTPS URL Argo CD pulls. Public anonymous clone, or a deploy-key Secret after bootstrap."
-  default     = "https://github.com/Duncan-Haywood/monorepo-projects.git"
+  default     = "https://github.com/Duncan-Haywood/oss-monorepo.git"
 }
 
 variable "gitops_revision" {

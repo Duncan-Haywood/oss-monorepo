@@ -35,5 +35,5 @@ kill_criteria:
   - A report that a band, rate or allowance differs from GOV.UK guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-100k-tax-trap-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-100k-tax-trap-calculator/
   analytics: null

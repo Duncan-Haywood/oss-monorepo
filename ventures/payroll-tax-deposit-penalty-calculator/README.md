@@ -5,7 +5,7 @@ deposits and returns the deposit schedule, every due date, the
 failure-to-deposit penalty, and the cheapest way to apply the deposits.
 Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/payroll-tax-deposit-penalty-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/payroll-tax-deposit-penalty-calculator/
 
 After using this, you can now **see which deposits are late, what the 2% / 5% /
 10% penalty comes to, and whether designating your deposits to different

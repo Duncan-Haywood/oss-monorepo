@@ -162,7 +162,7 @@ kill_criteria:
   - A finding's stated codepoint, name, or severity is wrong against the Unicode Standard's own character database, and cannot be fixed by correcting a single table entry.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/hidden-unicode-check/
   analytics: null
 
 channel_notes: >-

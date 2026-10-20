@@ -9,7 +9,7 @@ so it can be matched to the bank feed, and can prove a month against a Net Total
 Square. Money no column explains is journalled to an uncategorised account rather than dropped. The
 file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/square-sales-to-journal/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/square-sales-to-journal/
 
 ## Run it
 

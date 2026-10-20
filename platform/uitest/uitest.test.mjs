@@ -54,8 +54,8 @@ test('bad specs fail with every problem named, not just the first', () => {
 });
 
 test('scenario urls keep a base path prefix; origins allow-list the base', () => {
-  assert.equal(scenarioUrl('http://h.test/monorepo-projects', '/'), 'http://h.test/monorepo-projects/');
-  assert.equal(scenarioUrl('http://h.test/monorepo-projects/', '/paint/'), 'http://h.test/monorepo-projects/paint/');
+  assert.equal(scenarioUrl('http://h.test/oss-monorepo', '/'), 'http://h.test/oss-monorepo/');
+  assert.equal(scenarioUrl('http://h.test/oss-monorepo/', '/paint/'), 'http://h.test/oss-monorepo/paint/');
   assert.equal(scenarioUrl('http://h.test/', 'https://x.test/a'), 'https://x.test/a');
   assert.deepEqual([...allowedOrigins({ baseUrl: 'http://h.test:8080/x', allowedOrigins: ['https://auth.test/login'] })], ['http://h.test:8080', 'https://auth.test']);
 });

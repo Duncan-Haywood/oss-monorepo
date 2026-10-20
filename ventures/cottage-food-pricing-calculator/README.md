@@ -6,7 +6,7 @@ computes the full cost per sellable unit including your time, overhead and unsol
 goods, the price to charge online, at a farmers market and wholesale, and what you
 really earn per hour at your current price. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cottage-food-pricing-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/cottage-food-pricing-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

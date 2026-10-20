@@ -138,7 +138,7 @@ kill_criteria:
   - A finding's category (invalid-matcher-regex / empty-hook-command / unknown-hook-event / malformed-rule / duplicate-rule / cross-file-contradiction) is wrong for a real settings.json a user pastes, and cannot be fixed by tightening a pattern or threshold.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/claude-code-settings-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/claude-code-settings-check/
   analytics: null
 
 channel_notes: >-

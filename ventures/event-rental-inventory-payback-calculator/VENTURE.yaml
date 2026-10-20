@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports a lowest price that does not reproduce their payback target when typed back in as the rental price.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/event-rental-inventory-payback-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/event-rental-inventory-payback-calculator/
   analytics: null

@@ -71,5 +71,5 @@ kill_criteria:
   - A user reports a materially wrong total, a double-billed entry, or lost entries to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/time-tracker/
+  production: https://duncan-haywood.github.io/oss-monorepo/time-tracker/
   analytics: null

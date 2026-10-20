@@ -33,5 +33,5 @@ kill_criteria:
   - A report that an ATO figure differs from ato.gov.au.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/au-sole-trader-tax-set-aside-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/au-sole-trader-tax-set-aside-calculator/
   analytics: null

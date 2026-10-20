@@ -45,5 +45,5 @@ kill_criteria:
   - A user reports a unit count that differs from the published CMS table for the same total timed minutes.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/therapy-8-minute-rule-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/therapy-8-minute-rule-calculator/
   analytics: null

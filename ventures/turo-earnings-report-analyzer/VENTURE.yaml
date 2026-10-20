@@ -76,5 +76,5 @@ kill_criteria:
   - A user reports a materially wrong profit figure, or a real export the tool cannot read, at which point the parser needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/turo-earnings-report-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/turo-earnings-report-analyzer/
   analytics: null

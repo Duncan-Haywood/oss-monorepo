@@ -405,7 +405,7 @@ codes as exit 42 and a rejected credential as exit 43.
 >   34012041708, 34066715531), and a managed Pages build fires only for the
 >   *configured source* — so the catalogue has a public URL today, without
 >   the cluster, without a runner, and without any step in this section:
->   **https://duncan-haywood.github.io/monorepo-projects/**
+>   **https://duncan-haywood.github.io/oss-monorepo/**
 >
 > Ask `python3 platform/ci/pages_state.py` rather than trusting either this
 > box or the prose below it — it prints the live route, whether the snapshot

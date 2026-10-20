@@ -54,5 +54,5 @@ kill_criteria:
   - A payroll professional reports that the withholding arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/bonus-take-home-gross-up-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/bonus-take-home-gross-up-calculator/
   analytics: null

@@ -81,5 +81,5 @@ kill_criteria:
   - No external repository is found using check.py or classify.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/required-checks-drift-check/
   analytics: null

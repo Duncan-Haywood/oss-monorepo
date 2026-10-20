@@ -65,5 +65,5 @@ kill_criteria:
   - A user reports a register this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/payroll-register-to-journal/
+  production: https://duncan-haywood.github.io/oss-monorepo/payroll-register-to-journal/
   analytics: null

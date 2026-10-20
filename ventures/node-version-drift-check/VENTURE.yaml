@@ -56,7 +56,7 @@ kill_criteria:
   - No external repository is found wiring cli.mjs --fail-on-risk into its own CI within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/node-version-drift-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/node-version-drift-check/
   analytics: null
 
 # Scored against portfolio/pipeline/README.md's eight dimensions, 2026-10-12.

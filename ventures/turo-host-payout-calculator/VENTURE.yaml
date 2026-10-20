@@ -91,5 +91,5 @@ kill_criteria:
   - Turo's rate structure proves so far from what this calculator models (rebuilt again after this session) that hosts report the numbers as unusable without a data source this portfolio has no way to gather.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/turo-host-payout-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/turo-host-payout-calculator/
   analytics: null

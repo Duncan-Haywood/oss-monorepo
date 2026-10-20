@@ -60,5 +60,5 @@ kill_criteria:
   - A user reports that a deadline or total disagrees with a hand calculation from the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/good-faith-estimate-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/good-faith-estimate-generator/
   analytics: null

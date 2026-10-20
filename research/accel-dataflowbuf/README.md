@@ -2,7 +2,7 @@
 
 Follow-up to `accel-dataflow`, track 8 (task-specific AI accelerators) in `PROJECTS.md`; it takes that project's first "Next steps" item, a bounded input buffer. `accel-dataflow` found that giving every dataflow an unbounded activation buffer flips the winner at 32 lanes, and left open how large the buffer has to be. Here the buffer has a size K, in 8-bit words. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-dataflowbuf/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-dataflowbuf/
 
 **Builds on.** `research/accel-dataflow` (its schedules, simulator and cost model are imported unchanged) and `research/accel-kws` (the 40 models). Dataflow vocabulary follows Chen, Emer and Sze (2016), "Eyeriss", ISCA, and Sze et al. (2017), *Proc. IEEE*; the buffer is a small LRU cache, not a design from either paper. Energy constants are `accel-kws`'s assumed ones (Horowitz 2014 style, not re-checked). No paper's numbers are reproduced, and the project builds on none of the CU Boulder groups in `prompt.md`.
 

@@ -72,5 +72,5 @@ kill_criteria:
   - No external repository is found wiring cli.mjs into its own CI (or publish workflow) within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/package-exports-drift-check/
   analytics: null

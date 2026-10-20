@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://duncan-haywood.github.io/monorepo-projects/sitemap.xml
+Sitemap: https://duncan-haywood.github.io/oss-monorepo/sitemap.xml

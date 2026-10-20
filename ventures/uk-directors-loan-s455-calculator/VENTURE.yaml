@@ -33,5 +33,5 @@ kill_criteria:
   - A report that a rate or date differs from GOV.UK guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-directors-loan-s455-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-directors-loan-s455-calculator/
   analytics: null

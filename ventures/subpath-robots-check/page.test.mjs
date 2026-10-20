@@ -132,7 +132,7 @@ test("the worked example the page loads really does produce the documented verdi
       "User-agent: *",
       "Allow: /",
       "",
-      "Sitemap: https://duncan-haywood.github.io/monorepo-projects/sitemap.xml",
+      "Sitemap: https://duncan-haywood.github.io/oss-monorepo/sitemap.xml",
     ].join("\n"),
   });
   assert.equal(report.ok, true);

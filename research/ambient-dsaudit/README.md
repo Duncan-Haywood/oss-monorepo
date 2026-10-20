@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-noisyaudit` (its first "Next step": Dawid-Skene with two auditors, and wrong assumed accuracies). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the classifier and both auditors are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-dsaudit/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-dsaudit/
 
 ## Motivation
 

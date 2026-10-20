@@ -76,5 +76,5 @@ kill_criteria:
   - A user reports a real bank file this tool misreads or a balance it computes differently from their bank, at which point the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-bank-statement-reader/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-bank-statement-reader/
   analytics: null

@@ -61,5 +61,5 @@ kill_criteria:
   - A user reports the threshold, TIN rules or card exclusion disagreeing with current IRS instructions, at which point the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/1099-vendor-csv-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/1099-vendor-csv-checker/
   analytics: null

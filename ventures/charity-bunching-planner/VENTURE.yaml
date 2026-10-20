@@ -49,5 +49,5 @@ kill_criteria:
   - A tax preparer or donor reports that a worked tax figure disagrees with the same inputs done by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/charity-bunching-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/charity-bunching-planner/
   analytics: null

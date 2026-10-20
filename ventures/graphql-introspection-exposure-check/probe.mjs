@@ -25,7 +25,7 @@
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
-  'graphql-introspection-exposure-check/1 (+https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/)';
+  'graphql-introspection-exposure-check/1 (+https://duncan-haywood.github.io/oss-monorepo/graphql-introspection-exposure-check/)';
 
 // Deliberately narrower than a client library's full introspection query:
 // no arguments, no descriptions, no deprecations, no interfaces/possible

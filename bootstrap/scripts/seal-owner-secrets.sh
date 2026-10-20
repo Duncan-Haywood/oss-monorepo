@@ -28,7 +28,7 @@
 # adds them to the right kustomization; Argo does the rest on your next push.
 set -euo pipefail
 
-REPO_SLUG="Duncan-Haywood/monorepo-projects"
+REPO_SLUG="Duncan-Haywood/oss-monorepo"
 CONTROLLER_NS="sealed-secrets"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 

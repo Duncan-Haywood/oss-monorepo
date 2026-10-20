@@ -6,7 +6,7 @@ the included one-system ranch, then extra air handlers, extra vents,
 extra stories, crawl access, and a coil clean — and shows the margin
 before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/duct-cleaning-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/duct-cleaning-bid-calculator/
 
 **After using this, you can now send a priced duct-cleaning bid with a
 walk-away number**, which used to take a napkin estimate against a
@@ -105,5 +105,5 @@ law, the authors accept no liability for any loss or damage arising
 from its use.
 
 Free and open source. Support via the
-[project on GitHub](https://github.com/Duncan-Haywood/monorepo-projects)
+[project on GitHub](https://github.com/Duncan-Haywood/oss-monorepo)
 is entirely optional and never changes what the tool does.

@@ -101,7 +101,7 @@ kill_criteria:
   - Users cannot correctly reproduce a known vendor's monthly-cost number using the calculator and that vendor's own published rates.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/llm-api-pricing-calculator/
   analytics: null
 
 channel_notes: >-

@@ -47,5 +47,5 @@ kill_criteria:
   - No external repository, spreadsheet or forum thread is found linking or reusing cli.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ticket-resale-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/ticket-resale-profit-calculator/
   analytics: null

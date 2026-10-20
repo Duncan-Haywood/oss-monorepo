@@ -33,5 +33,5 @@ kill_criteria:
   - Practices report that their management system will not produce production and contractual adjustments split by carrier for a single period, so the plan table cannot be filled in from a report they already run.
   - The reimbursement rates it produces prove so far from what practices recognise in their own numbers that the arithmetic is rejected rather than acted on.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/dental-ppo-writeoff-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/dental-ppo-writeoff-calculator/
   analytics: null

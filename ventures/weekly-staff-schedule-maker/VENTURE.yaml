@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports a schedule that breaks a rule the page says it enforces (role, day off, hour cap, rest, run length).
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/weekly-staff-schedule-maker/
+  production: https://duncan-haywood.github.io/oss-monorepo/weekly-staff-schedule-maker/
   analytics: null

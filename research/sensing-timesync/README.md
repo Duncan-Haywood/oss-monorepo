@@ -2,7 +2,7 @@
 
 A camera and a gyro whose clocks disagree by a few milliseconds feed a fused attitude filter wrong data. On a stylised single-axis simulation (30 Hz camera, 200 Hz gyro, 30 deg/s rms motion): **a 12–14 ms offset doubles the fused attitude error, the offset that doubles it shrinks with faster motion (32–34 ms at 10 deg/s and 8–10 ms at 90 deg/s at the same camera noise) and grows with camera noise, and a simple alignment fit recovers the offset to about 1 ms rms from 10 s of motion, which brings the error back to within 0.005 deg of the zero-offset value. With a nearly still platform the same fit fails (errors of tens of ms).** Produced with AI assistance (Claude). Third project of track 15 (`PROJECTS.md`, milestone 3). It builds on none of the CU Boulder groups in `prompt.md`. Everything here is synthetic; nothing is measured on a real camera or IMU.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-timesync/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-timesync/
 
 **Builds on.** Online temporal calibration of camera-IMU systems is studied in Kalibr (Furgale, Rehder and Siegwart, "Unified temporal and spatial calibration for multi-sensor systems", IROS 2013) and in visual-inertial estimators that carry the offset as a state (Qin and Shen, "Online temporal calibration for monocular visual-inertial systems", IROS 2018). This project does not reproduce either: it is a small independent simulation that asks how large the offset has to be to matter, and where a plain alignment fit stops working.
 

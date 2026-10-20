@@ -133,7 +133,7 @@ from datetime import datetime, timedelta, timezone
 SEARCH_URL = "https://registry.npmjs.org/-/v1/search"
 USER_AGENT = (
     "monorepo-projects-portfolio-research/1.0 "
-    "(+https://github.com/Duncan-Haywood/monorepo-projects)"
+    "(+https://github.com/Duncan-Haywood/oss-monorepo)"
 )
 PAGE_SIZE = 250
 

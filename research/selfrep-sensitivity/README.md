@@ -2,7 +2,7 @@
 
 Track 1 (`PROJECTS.md`). The `selfrep-growth` model has no measured input, so the useful question is which input a real measurement should pin down first. The track's recent chain had narrowed to variants of rod sizing; this asks a different question of the growth model itself: a variance-based (Sobol) global sensitivity analysis of its doubling time. Produced with AI assistance (Claude). Computed only; no machine was built or measured.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-sensitivity/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-sensitivity/
 
 **Builds on.** `selfrep-growth` (fluid and discrete-event model, imported by relative path) and through it `selfrep-closure`. Method: Saltelli et al. (2010), "Variance based sensitivity analysis of model output", *Computer Physics Communications* 181(2), <https://doi.org/10.1016/j.cpc.2009.09.018> (first-order estimator); Jansen (1999) estimator for total indices. It builds on none of the labs in `prompt.md`.
 

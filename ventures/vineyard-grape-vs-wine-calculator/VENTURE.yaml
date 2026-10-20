@@ -51,5 +51,5 @@ kill_criteria:
   - Users report that capital cost and cash-flow timing, not annual margin, decide the choice, at which point the tool should model start-up capital and inventory carrying cost.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/vineyard-grape-vs-wine-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/vineyard-grape-vs-wine-calculator/
   analytics: null

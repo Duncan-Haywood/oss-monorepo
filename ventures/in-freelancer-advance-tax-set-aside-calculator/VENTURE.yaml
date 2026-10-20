@@ -33,5 +33,5 @@ kill_criteria:
   - A report that an income tax figure differs from the official source.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/in-freelancer-advance-tax-set-aside-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/in-freelancer-advance-tax-set-aside-calculator/
   analytics: null

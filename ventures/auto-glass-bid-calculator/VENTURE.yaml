@@ -28,5 +28,5 @@ kill_criteria:
   - Shops report that separating calibration, mobile fee, and cash/insurance billing is more work than their existing method without changing the price they would have bid.
   - The starting hours and glass-cost tiers prove so far from real shop invoices that the tool cannot be used without vehicle-specific data we have no way to gather.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/auto-glass-bid-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/auto-glass-bid-calculator/
   analytics: null

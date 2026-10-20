@@ -29,5 +29,5 @@ kill_criteria:
   - A real TCGplayer payout statement disagrees with the calculator's constants (taken from search results relaying the fee table, not a direct read of the help centre) and the schedule is not corrected within a week.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tcgplayer-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/tcgplayer-fee-calculator/
   analytics: null

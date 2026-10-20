@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports coverage at a price that does not equal their stated requirement at the debt-limit price, or a cost the tool double-counts.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/laundromat-acquisition-offer-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/laundromat-acquisition-offer-calculator/
   analytics: null

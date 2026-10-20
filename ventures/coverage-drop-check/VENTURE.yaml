@@ -38,5 +38,5 @@ kill_criteria:
   - No external repository is found wiring check.py into its own CI within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/coverage-drop-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/coverage-drop-check/
   analytics: null

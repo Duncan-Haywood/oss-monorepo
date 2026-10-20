@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-adapt` drew its k adaptation designs at random with equal weight, and listed "weight the new family's points and choose them (a spread over the feature range) instead of drawing at random" as its first open step. In a design-search loop the k syntheses are a cost you choose how to spend, so how they are picked is a free lever. Produced with AI assistance (Claude). **Stylised and preliminary:** the same 133 small designs in four generator families, a Yosys generic-cell-count target, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-adaptpick/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-adaptpick/
 
 **Builds on.** `research/eda-adapt` and `research/eda-surrogate` (the dataset is copied unchanged; the models are copied with one change, optional sample weights). Models use scikit-learn (Pedregosa et al., 2011, *JMLR* 12:2825-2830). The farthest-point rule is the standard greedy k-centre heuristic (Gonzalez, 1985, *Theoretical Computer Science* 38:293-306). Tools behind the dataset: Yosys (Wolf, Glaser and Kepler, 2013) and ABC (Brayton and Mishchenko, 2010). No CU Boulder lab's work is built on and no affiliation is implied.
 

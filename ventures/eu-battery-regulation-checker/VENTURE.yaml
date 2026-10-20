@@ -40,5 +40,5 @@ kill_criteria:
   - A report that a date, scope or Article reference differs from the Regulation's text (or a later implementing act) on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-battery-regulation-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-battery-regulation-checker/
   analytics: null

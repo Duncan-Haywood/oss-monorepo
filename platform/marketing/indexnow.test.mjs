@@ -59,7 +59,7 @@ test('urlsFromCatalog de-duplicates and tolerates a catalog missing optional sec
 });
 
 test('buildPayload names the key file at the site root, not the host root', () => {
-  const payload = buildPayload({ baseUrl: 'https://duncan-haywood.github.io/monorepo-projects/', urls: ['https://duncan-haywood.github.io/monorepo-projects/'] });
+  const payload = buildPayload({ baseUrl: 'https://duncan-haywood.github.io/oss-monorepo/', urls: ['https://duncan-haywood.github.io/oss-monorepo/'] });
   assert.equal(payload.host, 'duncan-haywood.github.io');
   assert.equal(payload.key, INDEXNOW_KEY);
   // The whole point of naming keyLocation explicitly (see build.mjs's
@@ -68,9 +68,9 @@ test('buildPayload names the key file at the site root, not the host root', () =
   // found in robots.txt's Sitemap: line.
   assert.equal(
     payload.keyLocation,
-    `https://duncan-haywood.github.io/monorepo-projects/${indexNowKeyFileName()}`,
+    `https://duncan-haywood.github.io/oss-monorepo/${indexNowKeyFileName()}`,
   );
-  assert.deepEqual(payload.urlList, ['https://duncan-haywood.github.io/monorepo-projects/']);
+  assert.deepEqual(payload.urlList, ['https://duncan-haywood.github.io/oss-monorepo/']);
 });
 
 test('submit posts JSON to the IndexNow endpoint and reports the response', async (t) => {
@@ -362,7 +362,7 @@ test('an explicit --base-url wins over both readings', () => {
   const resolved = resolveBaseUrl({
     explicit: 'https://marisstella.dev/',
     catalog: CATALOG,
-    published: { baseUrl: 'https://duncan-haywood.github.io/monorepo-projects/', source: 'project-pages' },
+    published: { baseUrl: 'https://duncan-haywood.github.io/oss-monorepo/', source: 'project-pages' },
     comparable: true,
   });
   assert.equal(resolved.baseUrl, 'https://marisstella.dev/');
@@ -395,7 +395,7 @@ test('the artifact wins when the serving branch was never read', () => {
   const resolved = resolveBaseUrl({
     catalog: { url: 'https://marisstella.dev/' },
     published: {
-      baseUrl: 'https://duncan-haywood.github.io/monorepo-projects/',
+      baseUrl: 'https://duncan-haywood.github.io/oss-monorepo/',
       source: 'assumed-default',
     },
   });

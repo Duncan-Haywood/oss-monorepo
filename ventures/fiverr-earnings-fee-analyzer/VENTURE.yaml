@@ -76,5 +76,5 @@ kill_criteria:
   - A user reports a materially wrong take-home figure, or a real export the tool cannot read, at which point the parser needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/fiverr-earnings-fee-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/fiverr-earnings-fee-analyzer/
   analytics: null

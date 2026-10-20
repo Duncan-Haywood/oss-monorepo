@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-labelmatch`, whose first next step was "doubly robust weights on the same logged history". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Negative result.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-dr/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-dr/
 
 ## Motivation
 

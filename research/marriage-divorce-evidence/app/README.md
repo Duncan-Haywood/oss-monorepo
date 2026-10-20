@@ -1,6 +1,6 @@
 # Divorce odds calculator for couples (explainable ML in the browser)
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/app/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/marriage-divorce-evidence/app/
 
 Enter your profile and your partner's; five interpretable models trained on the NLSY79
 estimate the divorce rate for each year of your marriage, turn it into the chance of no

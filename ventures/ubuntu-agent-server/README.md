@@ -224,7 +224,7 @@ no extra coordination logic needed.
    point of `dry_run` is to give you runs to watch. But it means "touches
    nothing on GitHub beyond a comment" is true of the *work*, not of the
    whole loop — worth knowing before you flip the kill switch, because
-   `Duncan-Haywood/monorepo-projects` is configured this way today.
+   `Duncan-Haywood/oss-monorepo` is configured this way today.
 3. **Repo allowlist**: the runner only ever looks at repos explicitly listed
    in `config/repos.yml` — never "every repo this token can see." This file
    is real, version-controlled config now (see "Everything as code" below)

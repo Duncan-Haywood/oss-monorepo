@@ -41,5 +41,5 @@ kill_criteria:
   - No shop owner reports changing a markdown or intake rule because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/consignment-markdown-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/consignment-markdown-planner/
   analytics: null

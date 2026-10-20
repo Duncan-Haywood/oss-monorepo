@@ -16,7 +16,7 @@ costs the robots 10.5% of their crossings and lifts people's crossings by 20% (0
 project of research track 17 (`society`, `PROJECTS.md`, milestone 4). Every result is about
 simulated agents following a stated rule, not about real people or robots.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-commons/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-commons/
 
 ## Why this question
 

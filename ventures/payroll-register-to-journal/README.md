@@ -10,7 +10,7 @@ creates, and can prove a run against the net pay typed in from the bank. Money n
 journalled to an uncategorised account rather than dropped, and unknown tax columns are reported.
 The file is read locally and never uploaded; employee names are never written into a journal.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/payroll-register-to-journal/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/payroll-register-to-journal/
 
 ## Run it
 

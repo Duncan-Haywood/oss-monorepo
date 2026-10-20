@@ -42,5 +42,5 @@ kill_criteria:
   - No appraiser or inspector reports changing a file they accept or a fee they counter with because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/appraisal-assignment-picker/
+  production: https://duncan-haywood.github.io/oss-monorepo/appraisal-assignment-picker/
   analytics: null

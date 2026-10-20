@@ -5,7 +5,7 @@ agencies. It turns a proposed price, delivery hours, overhead, subcontractor
 costs, and revision buffer into a transparent effective hourly rate and a
 target-price comparison.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/quote-margin-check/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/quote-margin-check/
 
 **Browser calculator** (no install, nothing uploaded): open
 [`site/index.html`](site/index.html) directly in a browser, or serve the

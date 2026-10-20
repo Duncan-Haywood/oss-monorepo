@@ -42,5 +42,5 @@ kill_criteria:
   - No vendor reports dropping or choosing an event because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/market-event-picker/
+  production: https://duncan-haywood.github.io/oss-monorepo/market-event-picker/
   analytics: null

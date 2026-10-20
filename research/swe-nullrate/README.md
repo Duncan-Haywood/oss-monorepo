@@ -1,6 +1,6 @@
 # How often does this portfolio report a negative or mixed result? A hand-labelled census of 80 project summaries
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-nullrate/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-nullrate/
 
 Pure Python standard library. Track 10 (the software-engineering loop), a new question rather than a listed milestone. Why it seemed worth asking: a portfolio written by automated runs could drift toward reporting only wins, which would make every other number in it less trustworthy. The track's integrity rule says negative and preliminary results must be marked as such; this counts how often the portfolio's own summaries do. Produced with AI assistance (Claude); the labels are one reader's (the same model family that wrote many of the summaries), not an independent pass.
 

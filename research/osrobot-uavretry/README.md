@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-uavnogo` (track 9, open-source purpose-built robots), taking its "let a scrubbed mission be retried later (a Markov wind model)" next step, in the direction of the RECUV and Autonomous Systems IRT interest in UAV simulation and targeted observation. Worth doing because `osrobot-uavnogo` counted a scrub as a lost mission; a crew can wait and look again, but a windy morning tends to be followed by a windy noon, so the gain from retrying depends on how persistent the wind is. Produced with AI assistance (Claude). Pure Python standard library; it imports the sizing and go/no-go models of `osrobot-uavnogo`, `osrobot-uavgust`, `osrobot-uavwind` and `osrobot-uav`. **Every technology constant is an assumed round number from those projects, and the wind persistence, forecast-error and slot structure are scenario inputs, not measurements of any site; no UAV was designed for flight or flown.** All numbers below are from `experiments/results.txt`. Simulation only; a stylised, preliminary study.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uavretry/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-uavretry/
 
 ![Probability of completing the mission that day against launch slots per day](experiments/complete_vs_slots.svg)
 

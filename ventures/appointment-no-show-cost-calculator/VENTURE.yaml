@@ -53,5 +53,5 @@ kill_criteria:
   - A practice manager reports that the arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-cost-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/appointment-no-show-cost-calculator/
   analytics: null

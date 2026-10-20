@@ -54,5 +54,5 @@ kill_criteria:
   - A report of a real message filed as spam with no way to recover it, a script injection in the admin pages, or an admin action accepted without the key; escaping, auth and the spam review path come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/form-inbox/
+  production: https://duncan-haywood.github.io/oss-monorepo/form-inbox/
   analytics: null

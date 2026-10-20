@@ -21,7 +21,7 @@ import { request as httpsRequest } from 'node:https';
 const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_MAX_HOPS = 10;
 const USER_AGENT =
-  'redirect-chain-check/1 (+https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/)';
+  'redirect-chain-check/1 (+https://duncan-haywood.github.io/oss-monorepo/redirect-chain-check/)';
 
 /**
  * Makes exactly one HTTP request to `targetUrl` and reports its status and

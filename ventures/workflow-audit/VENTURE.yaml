@@ -35,5 +35,5 @@ kill_criteria:
   - No external repository is found using the Action within 90 days of the Marketplace listing.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/workflow-audit/
+  production: https://duncan-haywood.github.io/oss-monorepo/workflow-audit/
   analytics: null

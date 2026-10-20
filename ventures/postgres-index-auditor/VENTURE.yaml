@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports a candidate that was a constraint-backing, primary or unique index, at which point the protection rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/postgres-index-auditor/
+  production: https://duncan-haywood.github.io/oss-monorepo/postgres-index-auditor/
   analytics: null

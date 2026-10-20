@@ -69,7 +69,7 @@ dimension costs it.
 
 ## Finding 0 — two independent raters, and they agree
 
-This pass was built without knowledge of [#321](https://github.com/Duncan-Haywood/monorepo-projects/pull/321),
+This pass was built without knowledge of [#321](https://github.com/Duncan-Haywood/oss-monorepo/pull/321),
 which landed on `main` the same day: another scheduled session, given the same
 hypothesis, scored the same eleven ventures on the same six dimensions from the
 same repository evidence, in
@@ -146,7 +146,7 @@ question when nobody is currently trying to sell it:
 ### Amendment — Finding 1 acted on, and the score row kept
 
 Finding 1 diagnosed `ai-first-markets` as internal decision infrastructure.
-[#337](https://github.com/Duncan-Haywood/monorepo-projects/pull/337) acted on
+[#337](https://github.com/Duncan-Haywood/oss-monorepo/pull/337) acted on
 it, giving the directory a
 [`NOT-A-VENTURE`](../../ventures/ai-first-markets/NOT-A-VENTURE) marker: the
 router, the scorer, and `validate.py` now skip it, its $50/mo protected explore
@@ -236,7 +236,7 @@ same way, because they are estimates too.
 
 ## Finding 3 — the decision queue is ordered by cost, not by value
 
-[Issue #139](https://github.com/Duncan-Haywood/monorepo-projects/issues/139)
+[Issue #139](https://github.com/Duncan-Haywood/oss-monorepo/issues/139)
 lists the account owner's asks "cheapest first". That ordering is sensible when
 nothing is known about what each ask unblocks. Something is now known:
 

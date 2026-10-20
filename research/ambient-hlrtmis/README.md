@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-hlrtlevel`, whose first "Next step" asked for the level under a misspecified null. Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose and the auditors and classifier are made-up uniform-error confusion matrices; nothing here is a claim about a real user or product. No lab from `prompt.md` is built on; there is no lab tag.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-hlrtmis/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-hlrtmis/
 
 ## Builds on
 

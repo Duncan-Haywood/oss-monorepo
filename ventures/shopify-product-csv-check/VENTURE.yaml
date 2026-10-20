@@ -74,5 +74,5 @@ kill_criteria:
   - A user reports Shopify rejecting a file this tool passed, or this tool failing a file Shopify accepted, at which point the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/shopify-product-csv-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/shopify-product-csv-check/
   analytics: null

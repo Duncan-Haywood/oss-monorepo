@@ -35,5 +35,5 @@ kill_criteria:
   - A report that a threshold, rate or term differs from GOV.UK guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-student-loan-repayment-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-student-loan-repayment-calculator/
   analytics: null

@@ -51,5 +51,5 @@ kill_criteria:
   - A user reports a lowest peak rate that does not reproduce their payback target when typed back in as the peak rate.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/golf-simulator-bay-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/golf-simulator-bay-profit-calculator/
   analytics: null

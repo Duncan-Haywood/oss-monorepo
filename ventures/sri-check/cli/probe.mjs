@@ -15,7 +15,7 @@
 import { digestBase64, ALGORITHMS } from '../sri.mjs';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
-const USER_AGENT = 'sri-check/1 (+https://duncan-haywood.github.io/monorepo-projects/sri-check/)';
+const USER_AGENT = 'sri-check/1 (+https://duncan-haywood.github.io/oss-monorepo/sri-check/)';
 
 async function timedFetch(url, { timeoutMs = DEFAULT_TIMEOUT_MS, fetchImpl = globalThis.fetch } = {}) {
   const controller = typeof AbortController === 'function' ? new AbortController() : null;

@@ -85,5 +85,5 @@ kill_criteria:
   - A user reports a materially wrong line, or a real bank export the tool cannot read, at which point the parser or the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/freelancer-schedule-c-categorizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/freelancer-schedule-c-categorizer/
   analytics: null

@@ -512,8 +512,8 @@ reference reports it" against "the reference does not run it", with nothing
 in between.
 
 **Two sessions implemented it within the hour**, independently
-([#622](https://github.com/Duncan-Haywood/monorepo-projects/pull/622) merged
-first, [#621](https://github.com/Duncan-Haywood/monorepo-projects/pull/621)
+([#622](https://github.com/Duncan-Haywood/oss-monorepo/pull/622) merged
+first, [#621](https://github.com/Duncan-Haywood/oss-monorepo/pull/621)
 consolidated after). What settled which rule survives was this directory's own
 kind of evidence: run against the 118-page corpus, the merged rule reported
 **30 findings on `photo-editing/docs-site` where axe reports 1**. The

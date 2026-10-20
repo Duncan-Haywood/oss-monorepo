@@ -1,6 +1,6 @@
 # Does refitting a human-vs-machine text detector on attacked text stop a black-box evader?
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-retrain/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-retrain/
 
 Track 11 (adversarial human imitation), the "retrained-detector round with the black-box attack" that `mimic-blackbox` listed under "Next steps". **Preliminary, stylised: a scripted attack on a linear detector, one seed, held-out poetry, reviews and wiki only, and the edited text is not checked for fluency or meaning.** Produced with AI assistance (Claude). No LLM was run and no text was written by the session agent.
 

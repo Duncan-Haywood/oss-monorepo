@@ -145,7 +145,7 @@ kill_criteria:
   - The generated frontmatter or folder layout is wrong for a real skill a user builds from it, and cannot be fixed by tightening the template.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/claude-skill-scaffold-generator/
   analytics: null
 
 channel_notes: >-

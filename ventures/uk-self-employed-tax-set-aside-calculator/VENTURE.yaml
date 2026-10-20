@@ -33,5 +33,5 @@ kill_criteria:
   - A report that an HMRC figure differs from the official source.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-self-employed-tax-set-aside-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-self-employed-tax-set-aside-calculator/
   analytics: null

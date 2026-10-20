@@ -43,5 +43,5 @@ kill_criteria:
   - A user reports a figure that differs from the stated formulas for the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/veterinary-dental-estimate-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/veterinary-dental-estimate-calculator/
   analytics: null
