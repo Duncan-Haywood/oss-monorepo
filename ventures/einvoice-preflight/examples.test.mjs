@@ -160,3 +160,13 @@ test("the XRechnung CII example is readable, internally consistent and passes th
   assert.deepEqual(checkInvoice(invoice), []);
   assert.deepEqual(checkInvoice(await parseInvoiceSource("xrechnung-cii-invoice.xml", xml)), []);
 });
+
+test("the Peppol credit note example is read as a credit note and passes the built-in rules", async () => {
+  const xml = example("peppol-credit-note.xml");
+  assert.equal(looksLikeXml("peppol-credit-note.xml", xml), true);
+  const invoice = parseUblInvoice(xml);
+  assert.equal(invoice.invoice_number, "CN-2026-0007");
+  assert.equal(invoice.document_type, "credit_note");
+  assert.deepEqual(checkInvoice(invoice), []);
+  assert.deepEqual(checkInvoice(await parseInvoiceSource("peppol-credit-note.xml", xml)), []);
+});
