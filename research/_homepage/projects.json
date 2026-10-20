@@ -4002,6 +4002,11 @@
     "slug": "hanger-insert",
     "title": "How does a laundry robot get a hanger into a garment, and what does it cost the neck?",
     "summary": "A swept-section geometry model passes a hanger through a garment&rsquo;s neck or hem loop: the loop must reach round the hull of the hanger&rsquo;s cross-section, and a planner finds the path of least stretch. A rigid hanger needs 43&ndash;61&nbsp;cm of loop (a whole arm), which stretches a tee&rsquo;s neck by up to 33% against an assumed 35% limit, and a buttoned woven collar cannot take it, so every shirt goes in at the hem and has its hook threaded out blind (about 10&nbsp;s against 6&nbsp;s). A telescoping hanger collapsed to a 10&nbsp;cm half width needs 31&nbsp;cm and passes five of seven shirt sizes; folding the arms down 60&deg; needs 37&ndash;40&nbsp;cm. The 2&ndash;3&nbsp;cm round end that <code>hanger-fit</code> needs adds only about 3&nbsp;cm of loop, so insertion changes the width design, not the end. Stylised: planar hanger, perimeter bound rather than cloth, assumed stretch limits and robot constants."
+   },
+   {
+    "slug": "hanger-cell",
+    "title": "How many dryers can one laundry-hanging robot serve, and what limits it?",
+    "summary": "A discrete-event model of the whole cell (pick, sense, hanger feeder, insertion, rail and fold table) fed with <code>hanger-insert</code>&rsquo;s insertion times and <code>hanger-fold</code>&rsquo;s hang-or-fold shares. With assumed pick and fold times, one arm clears a 25-item dryer load in 8.9&nbsp;min (169 items/h, about 5 dryers on a 45&nbsp;min cycle); a second arm adds 22% and then the fold table is the bottleneck. The five hanger designs differ by at most 3% in time per load. Doubling the fold time adds 5.9&nbsp;min and doubling the pick time 3.4, against under 1&nbsp;min for insertion, though a threefold slower insertion costs a one-arm cell 22%. A poor picker (0.60 success) costs 13% throughput but leaves 7 of every 100 items for a person. Stylised: every station time except insertion is an assumed placeholder, no layout or collisions."
    }
   ]
  },

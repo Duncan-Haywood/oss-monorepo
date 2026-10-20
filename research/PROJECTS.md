@@ -1318,7 +1318,7 @@ PyBullet, SoftGym, Blender's cloth solver, Gymnasium. Check each before citing i
    collars), checked against milestone 1 on the cases both can run.
 5. `hanger-pick`: picking one garment out of a tangled dryer load and finding its neck or
    waistband, on simulated cloth, with a scripted baseline before any learned policy.
-6. `hanger-cell`: the whole cell as a discrete-event model (dryer or loader, picker, hanger
+6. `hanger-cell` (done 2026-10-20; station times other than insertion are assumed placeholders: pick and fold dominate, the hanger design moves time per load by under 3%): the whole cell as a discrete-event model (dryer or loader, picker, hanger
    feeder, rail): throughput, failure and recovery rates, and the cost of each station, built
    on milestones 2 to 5.
 7. `hanger-print`: the winning hanger shapes as parametric, printable CAD (OpenSCAD or

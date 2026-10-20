@@ -5542,14 +5542,18 @@ function disclaimerHtml(toRoot, surfaces = []) {
       <p>
         Everything runs in your browser. What you type is never uploaded: there
         is no account system, no tracking cookie, no analytics vendor, and no
-        server that could receive it.${exceptionNote} We count anonymous, aggregate events —
+        server that could receive it.${exceptionNote}${feedbackOn() ? ` The one thing
+        that is sent on purpose is a message you choose to submit through the
+        <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a>, which
+        is published in this site's public GitHub repository.` : ''} We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
         count stays in your own browser's local storage.${counterOn() ? ` Each page load
         also adds one to a daily per-page total on our own open-source counter
         (which page, which day, and — if you followed one of our own channel
         links, such as a release note or package page — which channel, and what
         kind of site sent you, such as "google" or "reddit", never its address;
-        nothing you type, no cookie, no IP address stored), and those totals are
+        nothing you type, no cookie, no IP address stored; its host sees each
+        request the way any web server does), and those totals are
         published in the repository.` : ''} Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
@@ -6989,7 +6993,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
       <h2>What happens to what you type</h2>
       <div class="panel">
-        <h3>${exceptions.length ? `Nothing, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`} below.` : 'Nothing. There is no server that could receive it.'}</h3>
+        <h3>${exceptions.length ? `Nothing, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`} below.` : feedbackOn() ? 'Nothing. No tool sends it anywhere.' : 'Nothing. There is no server that could receive it.'}</h3>
         <p>
           Every tool on this site is a static page. The calculation happens in
           your browser, in JavaScript you can read with your browser's own
@@ -7000,7 +7004,8 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
           <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
           <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
-          <li><strong>No cookies and no cross-site identifiers.</strong></li>
+          <li><strong>No cookies and no cross-site identifiers.</strong></li>${feedbackOn() ? `
+          <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, and is then published in the site's public GitHub repository. Nothing about you is stored with it, and email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
           <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionNames}, whose whole point is a live lookup, so it needs the connection back to check anything new` : ''}.</li>
         </ul>
       </div>
@@ -7018,7 +7023,8 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         address itself is never sent), and nothing else. The counter keeps one
         number per page, per channel and per kind of site, per day. No IP
         address, cookie, browser string or referring address is stored. The daily totals are committed to the public
-        repository` : ` and is never
+        repository. That counter's host sees each request the way any web server
+        does; the counter stores none of it` : ` and is never
         sent anywhere`}. It exists so the next tool built is one people actually
         opened. Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
         <em>Global&nbsp;Privacy&nbsp;Control</em> are not counted at all, and
@@ -7130,6 +7136,148 @@ ${categoryLinks}
 </html>
 `;
 }
+
+/** Where the feedback page is served, relative to the site root. */
+export const FEEDBACK_PATH = 'feedback/';
+
+/**
+ * "Report a problem or suggest a feature", linked from every tool's footer
+ * (with `?tool=<slug>`) and from the shared footer nav.
+ *
+ * Two ways in, because the site serves two audiences. A developer with a
+ * GitHub account gets the repository's issue forms, pre-filled with the tool.
+ * Everyone else (a roofer pricing a job has no reason to own a GitHub account)
+ * gets a plain form, which posts to `platform/edge/`; a daily workflow copies
+ * the messages into `portfolio/usage/site-feedback.json`. The form is rendered only when the build knows that endpoint
+ * (`feedbackOn()`), so the page never offers a form that goes nowhere.
+ *
+ * `noindex`, and not in the sitemap: it is a utility page, and a search result
+ * for "report a problem" helps nobody.
+ */
+export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_FEEDBACK_URL }) {
+  const url = `${baseUrl}${FEEDBACK_PATH}`;
+  const toRoot = '../';
+  const title = 'Report a problem or suggest a feature';
+  const description = `Tell us what is wrong with one of these ${surfaces.length} free tools, or what you would like one to do. No account needed.`;
+  const issueBase = `${REPO_URL}/issues/new`;
+  const form = feedbackUrl
+    ? `
+      <form id="fb" class="panel" novalidate>
+        <h2>Send feedback</h2>
+        <p>No account needed. Your message is published in
+        <a href="${escapeHtml(REPO_URL)}">this site's public GitHub repository</a>, where
+        the people and agents who maintain these tools read it. Nothing about
+        you is stored with it, and email addresses are removed. Don't include
+        anything private.</p>
+        <fieldset>
+          <legend>What kind of feedback is it?</legend>
+          <label><input type="radio" name="type" value="problem" checked> Something is wrong or broken</label>
+          <label><input type="radio" name="type" value="idea"> An idea or feature request</label>
+          <label><input type="radio" name="type" value="other"> Something else</label>
+        </fieldset>
+        <p id="fb-tool-line" hidden>About: <a id="fb-tool-link" href="${escapeHtml(toRoot)}"></a></p>
+        <label for="fb-message">Your message</label>
+        <textarea id="fb-message" name="message" rows="7" minlength="5" maxlength="4000" required
+          placeholder="What did you expect, and what happened instead? Which numbers did you enter?"></textarea>
+        <div class="fb-hp" aria-hidden="true"><label for="fb-website">Leave this empty</label><input id="fb-website" name="website" tabindex="-1" autocomplete="off"></div>
+        <button type="submit">Send feedback</button>
+        <p id="fb-status" role="status" aria-live="polite"></p>
+      </form>`
+    : '';
+  const script = `
+(function(){
+  var q=new URLSearchParams(location.search),tool=q.get('tool')||'';
+  if(!/^[a-z0-9][a-z0-9._/-]{0,119}$/.test(tool)||tool.indexOf('..')>=0)tool='';
+  var links=document.querySelectorAll('[data-fb-issue]');
+  for(var i=0;i<links.length;i++){
+    var a=links[i],u=new URL(a.href);
+    if(tool){u.searchParams.set('title','['+tool+'] ');u.searchParams.set('tool',tool);}
+    a.href=u.toString();
+  }
+  var f=document.getElementById('fb');${feedbackUrl ? `
+  if(!f)return;
+  if(tool){
+    var l=document.getElementById('fb-tool-link');
+    l.textContent=tool;l.href='${toRoot}'+tool+'/';
+    document.getElementById('fb-tool-line').hidden=false;
+  }
+  var st=document.getElementById('fb-status'),btn=f.querySelector('button');
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var msg=f.message.value.trim();
+    if(msg.length<5){st.textContent='Please write a few words first.';f.message.focus();return;}
+    var body={type:f.querySelector('input[name=type]:checked').value,tool:tool,page:document.referrer?(function(){try{var r=new URL(document.referrer);return r.origin===location.origin?r.pathname:'';}catch(x){return '';}})():'',message:msg,website:f.website.value};
+    btn.disabled=true;st.textContent='Sending...';
+    fetch(${JSON.stringify(`${feedbackUrl}/feedback`)},{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){
+        if(r.ok){
+          f.message.value='';
+          st.textContent='Thank you, it has been sent.';
+        }else if(r.status===429){st.textContent='Too many messages right now. Please try again later.';}
+        else{st.textContent='That did not go through. Please try again, or use a GitHub issue below.';}
+      })
+      .catch(function(){st.textContent='That did not go through. Please check your connection and try again.';})
+      .then(function(){btn.disabled=false;});
+  });` : ''}
+})();
+`;
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <style>${CATEGORY_STYLE}${ABOUT_STYLE}${FEEDBACK_STYLE}  </style>
+  ${siteStyleLink(toRoot)}
+</head>
+<body>
+  ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'Feedback' }] })}
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Feedback</p>
+      <h1>${escapeHtml(title)}</h1>
+      <p class="lede">Found a wrong number, a broken page, or a tool that almost does what you need? Tell us. Every report is read.</p>
+    </header>
+
+    <main class="prose">${form}
+      <h2>${feedbackUrl ? 'Or, with a GitHub account' : 'Open an issue on GitHub'}</h2>
+      <p>${feedbackUrl ? 'If you have a GitHub account, an issue there lets you follow the reply and add screenshots.' : 'Feedback goes to this site\'s public GitHub repository as an issue, which needs a free GitHub account.'}</p>
+      <ul>
+        <li><a data-fb-issue href="${escapeHtml(`${issueBase}?template=bug.yml`)}">Report a problem</a> (a wrong result, a broken page, something confusing)</li>
+        <li><a data-fb-issue href="${escapeHtml(`${issueBase}?template=feature.yml`)}">Suggest a feature or a new tool</a></li>
+      </ul>
+      <p>Whatever you send is public. Please leave out names, addresses and anything else private.</p>
+    </main>
+
+    <footer>
+      ${renderSiteFooterNav({ toRoot })}
+    </footer>
+  </div>
+  <script>${script}</script>
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="feedback" defer></script>
+</body>
+</html>
+`;
+}
+
+const FEEDBACK_STYLE = `
+    #fb h2 { margin-top: 0; }
+    #fb label, #fb legend { display: block; font-weight: 600; color: var(--ink); margin: 12px 0 6px; }
+    #fb fieldset { border: 0; padding: 0; margin: 0; }
+    #fb fieldset label { font-weight: 400; color: var(--muted); margin: 4px 0; }
+    #fb textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 10px 12px;
+                   border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
+    #fb button { margin-top: 12px; font: inherit; font-weight: 600; padding: 9px 18px; border-radius: 9px;
+                 border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+    #fb button:disabled { opacity: .6; cursor: progress; }
+    #fb-status { min-height: 1.5em; margin-top: 10px; }
+    .fb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+`;
 
 /** The slim search index the hub (and nothing else) loads. See `renderSearchIndex`. */
 export const SEARCH_INDEX_FILE = 'search-index.json';
@@ -8553,6 +8701,17 @@ let SITE_COUNTER_URL = '';
 export function counterOn() {
   return SITE_COUNTER_URL !== '';
 }
+/**
+ * The feedback endpoint (`platform/edge/`), off unless the build is given its
+ * origin (`--feedback-url=`, `PAGES_FEEDBACK_URL`, or `platform/edge/site.json`).
+ * Off, the feedback page offers GitHub issues only and the privacy copy says
+ * nothing is sent; on, the page carries the form and the copy says where its
+ * text goes. Same lifetime and reason as `SITE_COUNTER_URL`.
+ */
+let SITE_FEEDBACK_URL = '';
+export function feedbackOn() {
+  return SITE_FEEDBACK_URL !== '';
+}
 export function normaliseCounterUrl(raw) {
   if (!raw) return '';
   const u = new URL(raw);
@@ -9439,6 +9598,8 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
       &nbsp;·&nbsp;
+      <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?tool=${encodeURIComponent(slug)}`)}">Report a problem or suggest a feature</a>
+      &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}deploy/?app=${encodeURIComponent(slug)}`)}">Run your own copy</a>
       &nbsp;·&nbsp;
       <a href="${SPONSORS_URL}">Sponsoring on GitHub</a>
@@ -10263,13 +10424,17 @@ export async function buildSite({
   disableWorker = false,
   // platform/counter's origin; '' (the default) builds with no beacon.
   counterUrl = '',
+  // platform/edge's origin; '' (the default) builds the feedback page without its form.
+  feedbackUrl = '',
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   SITE_COUNTER_URL = normaliseCounterUrl(counterUrl);
+  SITE_FEEDBACK_URL = normaliseCounterUrl(feedbackUrl);
   try {
     return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker });
   } finally {
     SITE_COUNTER_URL = '';
+    SITE_FEEDBACK_URL = '';
   }
 }
 
@@ -10495,6 +10660,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     path.join(aboutDir, 'index.html'),
     renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
   );
+  const feedbackDir = path.join(outDir, FEEDBACK_PATH);
+  await fs.mkdir(feedbackDir, { recursive: true });
+  await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
 
   // The assistant's own page, and the files every page lazy-loads it from.
   const askDir = path.join(outDir, ASK_PATH);
@@ -10855,6 +11023,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     counterUrl: process.argv.find((a) => a.startsWith('--counter-url='))?.slice('--counter-url='.length)
       ?? process.env.PAGES_COUNTER_URL
       ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'counter', 'site.json'), 'utf8')).url,
+    feedbackUrl: process.argv.find((a) => a.startsWith('--feedback-url='))?.slice('--feedback-url='.length)
+      ?? process.env.PAGES_FEEDBACK_URL
+      ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'edge', 'site.json'), 'utf8')).url,
     log: console.log,
   });
 
