@@ -507,10 +507,13 @@ export const SERVED_EXTENSIONS = new Map([
   ['.webp', 'stock'],
   ['.mp4', 'stock'],
   ['.webm', 'stock'],
+  // Podcast audio (hearth-and-horizon); nginx's mime.types lists audio/mpeg mp3.
+  ['.mp3', 'stock'],
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
   ['.py', 'conf'],
+  ['.gz', 'conf'],
 ]);
 
 // Where the served config lives, relative to the repo root. The build pod

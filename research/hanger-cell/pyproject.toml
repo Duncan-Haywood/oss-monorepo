@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-cell"
+version = "0.1.0"
+description = "The laundry-hanging cell as a discrete-event model: pick, sense, hanger feeder, insertion, rail and fold table, with throughput, bottleneck and recovery rates, fed from hanger-insert and hanger-fold results"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
