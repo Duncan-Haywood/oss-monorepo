@@ -948,3 +948,28 @@ test('--overdispersion nb reaches the Bayesian pass: clumpy counts keep the powe
   assert.ok(falseNb / 20 < 0.3, `false flags per series ${falseNb / 20}`);
   assert.ok(hitNb >= 14 && hitNb > hitQ + 5, `NB found ${hitNb} of 20, quasi-Poisson ${hitQ}`);
 });
+
+test('negative-binomial BOCPD with exposures: the grid evidence matches the Gamma-Poisson closed form as r grows, up to the prior mass the grid cuts off', () => {
+  const x = [3, 5, 4, 6, 2, 7, 4, 5, 3, 6, 5, 4];
+  const m = x.reduce((a, b) => a + b, 0) / x.length;
+  const b = bocpd(x, { hazardLambda: 1e15, prune: 0, model: 'poisson', nbSize: 1e7, exposure: x.map(() => 1) });
+  const exact = gammaPoissonLogMarginal(x, { alpha: 1, beta: 1 / m });
+  // the grid spans m/10 to 10 m and renormalises the Gamma(1) prior: it drops the mass below m/10, 1 - exp(-0.1)
+  const cut = -Math.log(Math.exp(-0.1) - Math.exp(-10));
+  assert.ok(Math.abs(b.logEvidence - (exact + cut)) < 0.02, `${b.logEvidence} vs ${exact + cut}`);
+});
+
+test('--overdispersion nb --period reaches the Bayesian pass: weekly clumpy counts, a 3.5x step found without false flags', () => {
+  const season = [1.6, 1.4, 1.2, 1, 0.8, 0.5, 0.5];
+  let falseNb = 0, hitNb = 0, hitQ = 0;
+  for (let seed = 1800; seed < 1812; seed++) {
+    const r = rng(seed);
+    const gen = (step) => Array.from({ length: 210 }, (_, i) => poissons(r, 1, 10 * season[i % 7] * (step && i >= 105 ? 3.5 : 1) * Math.exp(0.35 * normals(r, 1)[0] - 0.06))[0]);
+    falseNb += analyze({ values: gen(false), model: 'poisson', period: 7, overdispersion: 'nb' }).bocpd.detections.length;
+    const step = gen(true);
+    if (analyze({ values: step, model: 'poisson', period: 7, overdispersion: 'nb' }).bocpd.detections.some((d) => Math.abs(d.index - 105) <= 8)) hitNb++;
+    if (analyze({ values: step, model: 'poisson', period: 7, overdispersion: true }).bocpd.detections.some((d) => Math.abs(d.index - 105) <= 8)) hitQ++;
+  }
+  assert.ok(falseNb / 12 < 0.3, `false flags per series ${falseNb / 12}`);
+  assert.ok(hitNb >= 9 && hitNb > hitQ + 3, `NB found ${hitNb} of 12, quasi-Poisson ${hitQ}`);
+});

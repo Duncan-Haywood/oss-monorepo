@@ -894,6 +894,8 @@ export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSeg
 
 // ---------------------------------------------------------------- BOCPD
 
+const NB_GRID = 240, NB_SPAN = 10;
+
 /**
  * Bayesian online changepoint detection with a constant hazard and a
  * Normal-Inverse-Gamma prior (mu0, kappa0, alpha0, beta0).
@@ -912,6 +914,28 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
   // Clumpy counts (nbSize r > 0, no exposure): x ~ NB(r, p) with p ~ Beta(a, b), conjugate: a += r, b += x.
   // The predictive is beta-negative-binomial; alpha and beta hold a and b. Dispersion is not applied on top.
   const useNb = pois && nbSize > 0 && !exposure;
+  // Clumpy counts with exposures (nbSize r > 0 and a season or trend): the rate lam has no conjugate prior when the
+  // NB success probability changes with the exposure e[t], so each run keeps its posterior over lam on a log grid
+  // (NB_GRID points, a factor of NB_SPAN either side of the series' mean rate per unit exposure), and the
+  // predictive is the exact grid sum. The prior is Gamma(1) on lam, which is flat-ish and decays beyond the mean.
+  const useNbGrid = pois && nbSize > 0 && !!exposure;
+  let lamGrid = null, priorGrid = null;
+  if (useNbGrid) {
+    let sx = 0, se = 0;
+    for (let t = 0; t < n; t++) { sx += x[t]; se += exposure[t]; }
+    const m = Math.max(sx / se, 1e-3);
+    lamGrid = new Float64Array(NB_GRID);
+    priorGrid = new Float64Array(NB_GRID);
+    let z = -Infinity;
+    for (let g = 0; g < NB_GRID; g++) {
+      lamGrid[g] = m * Math.exp(Math.log(NB_SPAN) * (2 * g / (NB_GRID - 1) - 1));
+      priorGrid[g] = Math.log(lamGrid[g]) - lamGrid[g] / m; // Gamma(1, 1/m) density times the log-grid Jacobian
+      z = logAdd(z, priorGrid[g]);
+    }
+    for (let g = 0; g < NB_GRID; g++) priorGrid[g] -= z;
+  }
+  let grids = useNbGrid ? [priorGrid] : null;
+  const lgR = useNbGrid ? lgamma(nbSize) : 0;
   // Poisson counts: Gamma(alpha, beta) rate prior, negative-binomial predictive; mu and kappa are unused.
   const p0 = prior ?? (useNb ? defaultNbPrior(x, nbSize) : pois ? defaultPoissonPrior(x) : defaultPrior(x));
   // Parallel arrays over current run lengths r = 0..R-1 (index = run length, possibly pruned to a tail).
@@ -937,7 +961,26 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
     const a0 = Math.sqrt(1 - rho * rho);
     const zAt = (i) => (rl[i] === 0 ? xt * a0 : t ? xt - rho * x[t - 1] : (1 - rho) * xt);
     const aAt = (i) => (rl[i] === 0 ? a0 : 1 - rho);
+    let lik = null;
+    if (useNbGrid) {
+      // log NB(x_t | r, lam e_t) on the grid: p = r / (r + lam e)
+      lik = new Float64Array(NB_GRID);
+      const c = lgamma(xt + nbSize) - lgR - lgamma(xt + 1), e = exposure[t];
+      for (let g = 0; g < NB_GRID; g++) {
+        const mean = lamGrid[g] * e;
+        lik[g] = c + nbSize * Math.log(nbSize / (nbSize + mean)) + (xt > 0 ? xt * Math.log(mean / (nbSize + mean)) : 0);
+      }
+      for (let i = 0; i < m; i++) {
+        const w = grids[i];
+        let top = -Infinity;
+        for (let g = 0; g < NB_GRID; g++) { const v = w[g] + lik[g]; if (v > top) top = v; }
+        let acc = 0;
+        for (let g = 0; g < NB_GRID; g++) acc += Math.exp(w[g] + lik[g] - top);
+        logPred[i] = top + Math.log(acc);
+      }
+    }
     for (let i = 0; i < m; i++) {
+      if (useNbGrid) continue;
       if (useNb) logPred[i] = lgamma(xt + nbSize) - lgamma(nbSize) - lgamma(xt + 1) + lbeta(alpha[i] + nbSize, beta[i] + xt) - lbeta(alpha[i], beta[i]);
       else if (pois) logPred[i] = phi === 1 ? gammaPoissonLogPmf(xt, alpha[i], beta[i], exposure ? exposure[t] : 1)
         : gammaPoissonLogPmf(xt / phi, alpha[i], beta[i], (exposure ? exposure[t] : 1) / phi) + lgamma(xt / phi + 1) - lgamma(xt + 1);
@@ -956,6 +999,15 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
     let nrl = [0, ...rl.map((r) => r + 1)];
     let nlog = [cpTerms, ...grow];
     let nmu = [p0.mu], nk = [p0.kappa], na = [p0.alpha], nb = [p0.beta];
+    let ngrids = null;
+    if (useNbGrid) {
+      ngrids = [priorGrid];
+      for (let i = 0; i < m; i++) {
+        const w = grids[i], u = new Float64Array(NB_GRID);
+        for (let g = 0; g < NB_GRID; g++) u[g] = w[g] + lik[g] - logPred[i];
+        ngrids.push(u);
+      }
+    }
     for (let i = 0; i < m; i++) {
       if (rho && !pois) {
         const a = aAt(i), z = zAt(i), k1 = kappa[i] + a * a;
@@ -968,7 +1020,9 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
       const k1 = kappa[i] + 1;
       nmu.push((kappa[i] * mu[i] + xt) / k1);
       nk.push(k1);
-      if (useNb) {
+      if (useNbGrid) {
+        na.push(0); nb.push(0);
+      } else if (useNb) {
         na.push(alpha[i] + nbSize);
         nb.push(beta[i] + xt);
       } else if (pois) {
@@ -988,11 +1042,13 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
     if (keep.some((k) => !k)) {
       const f = (arr) => arr.filter((_, i) => keep[i]);
       nrl = f(nrl); nmu = f(nmu); nk = f(nk); na = f(na); nb = f(nb); nlog = f(nlog);
+      if (ngrids) ngrids = f(ngrids);
       let z2 = -Infinity;
       for (const v of nlog) z2 = logAdd(z2, v);
       nlog = nlog.map((v) => v - z2);
     }
     rl = nrl; mu = nmu; kappa = nk; alpha = na; beta = nb; logR = nlog;
+    if (ngrids) grids = ngrids;
     let best = 0, bestV = -Infinity, e = 0;
     const post = new Map();
     for (let i = 0; i < rl.length; i++) {
