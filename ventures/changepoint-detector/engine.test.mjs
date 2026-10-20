@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  PAPERS, DEFAULTS, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, seasonalAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -256,6 +256,24 @@ test('ar1 correction still finds a real shift in autocorrelated noise', () => {
     if (c.length === 1 && Math.abs(c[0].index - 150) <= 10) hit++;
   }
   assert.ok(hit >= 0.8 * N, `found once near 150 in ${hit}/${N}`); // measured 35/40
+});
+
+test('ar1 correction reaches the Bayesian pass (prewhitening)', () => {
+  assert.deepEqual(prewhiten([5, 7, 3], 0.5), [2.5, 4.5, -0.5]);
+  let plain = 0, fixed = 0, hitPlain = 0, hitFixed = 0;
+  const N = 40;
+  const near = (a) => a.bocpd.detections.some((d) => Math.abs(d.index - 150) <= 10);
+  for (let s = 1; s <= N; s++) {
+    const x = ar1Series(s, 0.8, 300);
+    plain += analyze({ values: x }).bocpd.detections.length > 0;
+    fixed += analyze({ values: x, ar1: true }).bocpd.detections.length > 0;
+    const y = ar1Series(s + 100, 0.8, 300, 150, 8);
+    hitPlain += near(analyze({ values: y }));
+    hitFixed += near(analyze({ values: y, ar1: true }));
+  }
+  assert.ok(plain >= 0.9 * N, `uncorrected false Bayesian runs ${plain}/${N}`); // measured 40/40
+  assert.ok(fixed <= 0.1 * N, `corrected false Bayesian runs ${fixed}/${N}`);   // measured 1/40
+  assert.ok(hitFixed >= 0.5 * N, `corrected hits ${hitFixed}/${N}`);            // measured 25/40 (uncorrected ${hitPlain} = 40)
 });
 
 test('seasonalAdjust removes a seasonal cycle and centres the profile', () => {

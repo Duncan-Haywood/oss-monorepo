@@ -8,6 +8,23 @@
 - Leakage caught: the partner section's traits (age, schooling, earlier marriage, children) are recorded in a way that depends on how the union ended. Partner schooling is known for couples who split 87% of the time, against 47% where unknown. They are excluded, which cut the split model's apparent gain from 14.9% to 9.3%.
 - Exported as `app/models/nlsy97_cohab_marriage.json` and `nlsy97_cohab_split.json` (`stage: before`), listed without an adapter. Parity is 300/300 to 10<sup>-9</sup>. ROADMAP A updated: NLSY97 cohabitation done; remaining are Add Health, OSF/Zenodo premarital studies, and PSID / Fragile Families / Understanding Society (403).
 
+## 2026-10-20 · Browser-trained models: how much your score moves with the training sample
+
+- The profile scorer in "Train the models yourself" now shows two things for each model the visitor trained: its estimate on all 29,202 marriages, and the year-10 range across the five fold models from the held-out test. Each fold model learned from a different four-fifths of the women.
+- For the default profile (the most common answers, wedding in 2020, wife aged 23), the range is narrow for the simple models and wide for the flexible ones:
+
+  | Model | Full-data estimate | Range across fold models | Width |
+  | --- | --- | --- | --- |
+  | Constant rate | 31.6% | 31.5–31.6% | 0.1 points |
+  | Duration-only GLM | 33.2% | 33.1–33.4% | 0.3 points |
+  | Additive GLM | 21.3% | 18.6–22.9% | 4.3 points |
+  | Depth-4 tree | 34.2% | 26.5–34.6% | 8.1 points |
+  | Boosting | 18.7% | 15.0–23.1% | 8.1 points |
+
+- With the wife married at 19, the additive GLM gives 38.3% (33.9–41.7%), the tree 51.0% (41.5–51.2%) and boosting 34.1% (26.1–40.7%).
+- The tree's full-data estimate sits at the top of its fold range, so its single splits are fragile. A profile's number should be read with a spread of several points even before counting what the survey does not measure.
+- `tests/train_parallel.test.mjs` checks that each fold model, after structured cloning, reproduces its fold's held-out predictions to 10<sup>−12</sup>. In headless Chromium at 1200 and 390 px: no console errors, no horizontal scroll.
+
 ## 2026-10-20 · App: per-partner explanations and a default couple at first-wedding ages
 
 - Explanations for lenses that score a couple from both partners' sides (the harmonized before-the-wedding lens, NLSY79 couples and individuals) now show one bar set per partner. Each set is exact: its factors multiply (forest: add) to that partner's rate. The page says the couple's rate is the average of the two. The averaged bars they replace were only approximate for the averaged rate. A test checks exactness and the average for every additive model in those three lenses.
