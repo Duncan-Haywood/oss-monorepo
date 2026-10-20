@@ -46,5 +46,7 @@ hypotheses:
       bounced before the import, because platform imports otherwise re-subscribe
       them; measured as the share of file checks that supply a suppression list.
     status: untested
+    # 2026-10-20: counters are local-only, so no reading existed. The footer now offers visitors an opt-in
+    # "share my anonymous counts" link (prefilled GitHub issue, event counts only); read the issues for the share.
     checked: null
     evidence: in-repo
