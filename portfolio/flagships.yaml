@@ -96,8 +96,9 @@ flagships:
       Multi-division scheduling on shared venues is in (divisions.mjs, and now
       a browser page, multi-division-league-schedule.html, linked from the
       index and sitemap; venue changes -25% against the naive order on the
-      example, unavoidable clashes listed). Next: venue-to-venue travel times
-      instead of a flat trip count, filling partial nights (split a round
+      example, unavoidable clashes listed). Venue-to-venue travel times are in
+      (`travel` field, minutes per venue pair; -10% road minutes against a flat
+      trip count on three venues, README). Next: filling partial nights (split a round
       across nights without breaking its balance), rainout moves that work
       across divisions, and a share link that carries the division form.
   - venture: open-tennis-robots

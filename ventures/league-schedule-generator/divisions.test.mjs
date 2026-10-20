@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseDivisions, parseDivisionLinks, buildDivisions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec } from "./divisions.mjs";
+import { parseDivisions, parseDivisionLinks, buildDivisions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -97,4 +97,37 @@ test("a double round robin hosts each pair once each way", () => {
   assert.deepEqual(validateDivisions(s).errors, []);
   assert.equal(s.stats.matches, 12);
   assert.equal(dayIso(parseDate("2026-10-06")), "2026-10-06");
+});
+
+test("parseTravel reads minutes in either direction and names venues it does not know", () => {
+  const r = parseTravel("Park - School: 25\nschool to Mall: 10\nPark - Park: 5\nPark - Mall: 0\nPark - Mall: 55 min", ["Park", "School", "Mall"]);
+  assert.deepEqual(r.travel, { "Park|School": 25, "Mall|Park": 55 });
+  assert.equal(r.errors.length, 3);
+});
+
+test("with a travel table the optimiser cuts minutes on the road, not just venue changes (measured on 8 seeds)", () => {
+  const travelText = "Park - School: 10\nPark - Lake: 60\nSchool - Lake: 55";
+  const f = { ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School, Gym B @ Lake", courtClosures: "", travel: travelText };
+  const { spec, errors } = readDivisionsSpec(f);
+  assert.deepEqual(errors, []);
+  let flat = 0, aware = 0, naive = 0;
+  for (let seed = 1; seed <= 8; seed++) {
+    const withTable = buildDivisions({ ...spec, seed });
+    assert.deepEqual(validateDivisions(withTable).errors, []);
+    aware += withTable.stats.travelMinutes;
+    // the same league scheduled as if every change cost the same, then priced with the table
+    const blind = buildDivisions({ ...spec, travel: {}, seed });
+    flat += divisionStats({ ...blind, config: { ...blind.config, travel: spec.travel } }).travelMinutes;
+    const base = buildDivisions({ ...spec, optimize: false, seed });
+    naive += base.stats.travelMinutes;
+  }
+  assert.ok(aware < flat, `travel-aware ${aware} min vs flat ${flat} min`);
+  assert.ok(aware < naive, `travel-aware ${aware} min vs naive ${naive} min`);
+  console.log(`travel minutes over 8 seeds: naive ${naive}, flat-cost optimiser ${flat}, travel-aware ${aware}`);
+});
+
+test("no travel table leaves the schedule and stats exactly as before", () => {
+  const s = build();
+  assert.equal(s.stats.travelMinutes, undefined);
+  assert.ok(!divisionsText(s).includes("min of travel"));
 });
