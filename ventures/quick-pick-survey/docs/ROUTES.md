@@ -46,6 +46,8 @@ that stops being read.
 | `admin/login` | POST | none | `AdminLoginAttempt` | per-IP attempts | integration |
 | `admin/logout` | POST | admin | no | — | integration |
 | `admin/overview` | GET | admin | no | — | integration |
+| `admin/surveys` | POST | admin | `Survey`, `Item` | admin-only | unit (`surveyBuilder`) |
+| `admin/surveys/[slug]/ranking` | GET | admin | no | — | unit (`groupRanking`) |
 | `admin/report` | POST | admin | `UserReport` | admin-only | integration |
 | `auth/login` | POST | none | `UserSession` | per-email and per-IP | — |
 | `auth/logout` | POST | session | no | — | — |
