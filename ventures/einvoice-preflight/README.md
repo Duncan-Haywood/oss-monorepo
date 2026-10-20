@@ -77,8 +77,7 @@ find what a German public buyer would reject: no seller contact (BR-DE-2) and no
 buyer post code (BR-DE-9). The Docker image builds the rules in a first stage and
 ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. On a self-hosted copy the web page has an "Also run the official EN 16931 Schematron" box: it posts the XML to the page's own `/v1/validate?schematron=1` (`official.mjs`) and lists the official findings beside the built-in ones; on a static host with no API it says the check did not run, never a pass. The
 XRechnung messages are in German, as the KoSIT rules publish them; the `fix` line
-is English. The XRechnung CII rules are built but not yet exercised by a test
-example.
+is English. `examples/xrechnung-cii-invoice.xml` and `examples/peppol-credit-note.xml` (Peppol BIS 3 UBL credit note) pass the official rules and are pinned by tests. Peppol also applies its German `DE-R-nnn` rules to a domestic German invoice (seller contact, buyer post code, payment groups); each has an English fix.
 
 ```sh
 cd ventures/einvoice-preflight
@@ -102,6 +101,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/cii-invoice.xml
 PYTHONPATH=src python3 -m einvoice_preflight examples/factur-x-invoice.pdf
 PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice.xml
+PYTHONPATH=src python3 -m einvoice_preflight examples/peppol-credit-note.xml
 # The one example that is meant to fail: six planted defects, annotated at the
 # top of the file and pinned by tests/test_examples.py. Exits 1.
 PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice-with-defects.xml

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  PAPERS, DEFAULTS, analyze, bocpd, defaultPrior, lgamma, nigLogMarginal, optimalPartitioning, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -151,4 +151,62 @@ test('every paper is cited with a URL and BibTeX', () => {
     assert.ok(p.implemented.length > 40 && p.deviations.length > 20);
   }
   assert.match(DEFAULTS.csv, /^year,volume\n1871,1120/);
+});
+
+// Poisson counts: Knuth's multiplication sampler on the seeded generator.
+function poissons(r, n, lambda) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const L = Math.exp(-lambda);
+    let k = 0, p = 1;
+    do { k++; p *= r(); } while (p > L);
+    out.push(k - 1);
+  }
+  return out;
+}
+
+test('Poisson cost matches a hand-computed -2 log-likelihood (constant dropped)', () => {
+  // x = [2, 4, 6]: rate 4; -2 sum(x log 4 - 4) = -2 * (12 log 4 - 12) = 24 - 24 log 4.
+  const c = makeCost([2, 4, 6], 'poisson');
+  assert.ok(Math.abs(c(0, 3) - (24 - 24 * Math.log(4))) < 1e-12);
+  assert.equal(makeCost([0, 0, 0], 'poisson')(0, 3), 0);
+});
+
+test('Poisson PELT equals brute-force optimal partitioning', () => {
+  for (let seed = 40; seed < 55; seed++) {
+    const r = rng(seed);
+    const x = [...poissons(r, 25, 3), ...poissons(r, 20, 9), ...poissons(r, 25, 2)];
+    for (const penalty of ['bic', 'aic', 6]) {
+      const a = pelt(x, { model: 'poisson', penalty });
+      const b = optimalPartitioning(x, { model: 'poisson', penalty });
+      assert.deepEqual(a.changepoints, b.changepoints, `seed ${seed} ${penalty}`);
+      assert.ok(Math.abs(a.cost - b.cost) < 1e-8);
+    }
+  }
+});
+
+test('Poisson model recovers a planted rate shift and stays quiet on a constant rate', () => {
+  const r = rng(5);
+  const x = [...poissons(r, 80, 4), ...poissons(r, 70, 12)];
+  const res = analyze({ values: x, model: 'poisson' });
+  assert.equal(res.pelt.changepoints.length, 1);
+  assert.ok(Math.abs(res.pelt.changepoints[0].index - 80) <= 3, String(res.pelt.changepoints[0].index));
+  assert.ok(res.bocpd.detections.some((d) => Math.abs(d.index - 80) <= 4));
+  assert.match(res.summary, /change in rate/);
+  let fp = 0;
+  for (let seed = 200; seed < 220; seed++) if (pelt(poissons(rng(seed), 200, 5), { model: 'poisson' }).changepoints.length) fp++;
+  assert.ok(fp <= 3, String(fp));
+});
+
+test('Poisson BOCPD log evidence equals the closed-form Gamma-Poisson marginal when the hazard vanishes', () => {
+  const x = poissons(rng(9), 40, 6);
+  const prior = defaultPoissonPrior(x);
+  const b = bocpd(x, { hazardLambda: 1e15, prior, prune: 0, model: 'poisson' });
+  const exact = gammaPoissonLogMarginal(x, prior);
+  assert.ok(Math.abs(b.logEvidence - exact) < 1e-6, `${b.logEvidence} vs ${exact}`);
+});
+
+test('Poisson model rejects values that are not counts', () => {
+  assert.throws(() => analyze({ values: [1, 2, 3.5, 4, 5], model: 'poisson' }), /needs counts/);
+  assert.throws(() => analyze({ values: [1, 2, -3, 4, 5], model: 'poisson' }), /needs counts/);
 });
