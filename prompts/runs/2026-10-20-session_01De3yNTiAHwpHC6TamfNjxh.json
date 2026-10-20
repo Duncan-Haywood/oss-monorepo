@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01De3yNTiAHwpHC6TamfNjxh",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "is there any performance engineering worth doing on any of the tools that get run a lot rewriting in rust or other for example?",
+  "input_sha256": "d08ada7aefb3db14a8356caf1e616dada091b3f6b39346cf36d34396a945f995",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-20T09:16:30Z",
+  "ended": "2026-10-20T09:36:16Z",
+  "wall_minutes": 20.34,
+  "tokens_in": 2799782,
+  "tokens_out": 12887,
+  "cost_usd": 1.2833,
+  "tool_calls": 35,
+  "task": "Find performance work worth doing on frequently run tools; ship the biggest win",
+  "projects": [
+    "platform/pages",
+    "portfolio/router"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8767",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "route drew track research; the user's question was platform performance, so the work followed the question. Track recorded as drawn."
+    }
+  ],
+  "goal": null,
+  "notes": "Profiled the hot tools before deciding on any rewrite. node build.mjs: 182s, of which 112s zlib.deflateSync level 9 in offline.mjs encodeRaw (~1,450 1200x630 share cards, ~80ms each). Level 6: 11ms/card, +9% bytes. Build now 1m21s; PNG total 74.7MB -> 81.4MB. node --test platform/pages/*.test.mjs: 1159/1159 pass in 8m54s (4 tests doing full builds take 88-182s each; sharing builds across them is the next win). node check.mjs dist: exit 0. allocate.py load_merit_scores via libyaml: 1.36s -> 0.12s, dict identical; test_allocate 73 OK. Other timings: session_gate 6.9s, validate_workflows 4.7s, publish_surface 2.0s, clauses.mjs 1.3s, promptctl route 0.4s; allocate.py 18s warm (12.7s is git deepen of a shallow clone). No tool here is CPU-bound in a way that a Rust rewrite would help more than these fixes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "de309809-3647-5072-9df5-01561f544721",
+    "transcripts": 1,
+    "first": "2026-10-20T09:16:30Z",
+    "last": "2026-10-20T09:36:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 60,
+        "output": 12887,
+        "thinking": 2808,
+        "cache_read": 2740053,
+        "cache_write_5m": 0,
+        "cache_write_1h": 59669,
+        "api_equivalent_usd": 1.2833,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 60,
+      "output": 12887,
+      "thinking": 2808,
+      "cache_read": 2740053,
+      "cache_write_5m": 0,
+      "cache_write_1h": 59669,
+      "api_equivalent_usd": 1.2833,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 30,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.34,
+      "active_minutes": 20.34,
+      "model_minutes": 3.25,
+      "tool_minutes": 17.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "profiling a 3-minute build, benchmarking deflate settings, running the 9-minute suite",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 155.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
