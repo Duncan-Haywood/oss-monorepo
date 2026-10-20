@@ -118,6 +118,26 @@ In order of what I would do:
    growth per request are both in `results.txt`. If the brief works, the first
    falls and the second shrinks.
 
+## Action items for a later run
+
+Left open when this report merged on 2026-10-20:
+
+1. **Confirm CI.** The PR (#8755) merged while its `test`, `duplicate-symbols`
+   and one `check` job were still queued, with the local checks for what it
+   touches passing: `pytest prompts` (86 passed), `promptctl.py validate`,
+   `checklist_coverage.py`, `regen.mjs --verify`, `check_md_links.py` and
+   `node --test platform/pages/writing.test.mjs` (8 of 8). If any of those
+   jobs is red on `main` for this change, fix it forward.
+2. **Measure what fills the context, per tool.** Extend `prompts/runcost.py`
+   to record each tool's result size (characters per tool) in the `usage`
+   block. Then the 31% of reads that is accumulated work can be split by
+   source across all runs, not just one session.
+3. **Add a token budget for the always-read set** to `promptctl.py map`,
+   alongside the existing line budgets (item 2 of the list above).
+4. **Re-measure in a week.** Rerun `analyze.py`. Then compare requests per
+   tool call (0.90 now) and growth per request (about 1,700 tokens now)
+   before and after the brief was linked from `cloud-session.md`.
+
 ## What this cannot tell you
 
 - How the subscription quota counts tokens. If it counts raw tokens, re-reading
