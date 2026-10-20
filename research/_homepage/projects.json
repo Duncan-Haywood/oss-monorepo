@@ -4012,6 +4012,11 @@
     "slug": "hanger-cell",
     "title": "How many dryers can one laundry-hanging robot serve, and what limits it?",
     "summary": "A discrete-event model of the whole cell (pick, sense, hanger feeder, insertion, rail and fold table) fed with <code>hanger-insert</code>&rsquo;s insertion times and <code>hanger-fold</code>&rsquo;s hang-or-fold shares. With assumed pick and fold times, one arm clears a 25-item dryer load in 8.9&nbsp;min (169 items/h, about 5 dryers on a 45&nbsp;min cycle); a second arm adds 22% and then the fold table is the bottleneck. The five hanger designs differ by at most 3% in time per load. Doubling the fold time adds 5.9&nbsp;min and doubling the pick time 3.4, against under 1&nbsp;min for insertion, though a threefold slower insertion costs a one-arm cell 22%. A poor picker (0.60 success) costs 13% throughput but leaves 7 of every 100 items for a person. Stylised: every station time except insertion is an assumed placeholder, no layout or collisions."
+   },
+   {
+    "slug": "hanger-print",
+    "title": "Can the hanger a cloth simulation designed be 3D-printed, and does it hold a garment?",
+    "summary": "Exports <code>hanger-fit</code>&rsquo;s adjustable shape and four-width rack as parametric STL and OpenSCAD, with a cantilever strength, deflection and print-bed check. Printed flat in PLA under assumed constants (1.5&nbsp;kg garment, 2&times; motion factor), the round-ended arm (end radius 2.86&nbsp;cm) has a safety factor of 40&ndash;70 at 12&nbsp;mm depth and bends under 0.04&nbsp;mm, so strength never limits it; a wire-like arm (end radius 1.5&nbsp;mm) has a safety factor of 0.13 and fails. No hanger of useful width fits a 220&nbsp;mm bed whole, but one arm with its hub does up to 24.8&nbsp;cm. Stylised: assumed material constants, flat extrusion, OpenSCAD files not rendered, no two-piece joint."
    }
   ]
  },
