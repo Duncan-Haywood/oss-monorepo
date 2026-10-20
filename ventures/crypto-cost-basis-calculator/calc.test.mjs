@@ -692,6 +692,31 @@ test("idRecord lists exactly the lots planSale picks, with wallet, date, quantit
   assert.equal(idRecord(planSale(lots, { asset: "SOL", price: 1, asOf: "2026-10-16", qty: 1 }), "FIFO"), null);
 });
 
+test("swap rows split into a sale of the coin given up and a buy of the coin received", () => {
+  const csv = [
+    "date,type,asset,quantity,total,fee,to asset,to quantity",
+    "2023-01-10,buy,ETH,2,3000,0,,",
+    "2024-03-01,swap,ETH,1,3500,10,SOL,35",
+    "2024-06-01,sell,SOL,35,4000,0,,",
+  ].join("\n");
+  const parsed = parseTransactions(csv);
+  assert.deepEqual(parsed.errors, []);
+  assert.equal(parsed.transactions.length, 4);
+  const r = analyze(csv, { method: "FIFO" });
+  const eth = r.rows.find((x) => x.asset === "ETH");
+  close(eth.proceeds, 3490, "swap proceeds are value minus fee");
+  close(eth.basis, 1500, "ETH basis");
+  const sol = r.rows.find((x) => x.asset === "SOL");
+  close(sol.basis, 3500, "received coin takes the swap's USD value as basis");
+  close(sol.proceeds - sol.basis, 500, "SOL gain");
+});
+
+test("swap rows without the received coin or a value are reported, not guessed", () => {
+  const bad = parseTransactions("date,type,asset,quantity,total,to asset,to quantity\n2024-03-01,swap,ETH,1,3500,ETH,5\n2024-03-01,swap,ETH,1,3500,,\n2024-03-01,swap,ETH,1,,SOL,5\n");
+  assert.equal(bad.transactions.length, 0);
+  assert.equal(bad.errors.length, 3);
+});
+
 test("tax-software CSV: five columns, US dates, rows with no purchase left out and counted", () => {
   const r = analyze("date,type,asset,quantity,total\n2023-01-10,buy,BTC,1,10000\n2024-02-01,sell,BTC,1,15000\n2024-03-01,sell,ETH,1,100\n", { year: 2024 });
   const lines = toTurboTaxCsv(r.rows).trim().split("\n");

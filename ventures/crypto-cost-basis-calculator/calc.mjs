@@ -63,6 +63,8 @@ const HEADER_ALIASES = {
   fee: ["fee", "fees", "fee usd", "fees usd", "commission"],
   wallet: ["wallet", "account", "exchange", "platform", "source"],
   reported: ["reported", "broker reported", "1099-da", "form 1099-da", "reported on 1099-da"],
+  toAsset: ["to asset", "received asset", "asset received", "buy asset", "to coin", "to currency"],
+  toQuantity: ["to quantity", "received quantity", "quantity received", "buy quantity", "to amount", "received amount"],
   toWallet: ["to wallet", "to account", "to", "destination", "destination wallet", "to exchange"],
 };
 
@@ -82,6 +84,7 @@ const TYPE_WORDS = {
   buy: ["buy", "purchase", "bought", "advanced trade buy", "market buy", "limit buy"],
   income: ["income", "reward", "rewards", "staking", "staking reward", "airdrop", "mining", "interest", "earn", "learning reward", "referral", "payment received"],
   sell: ["sell", "sale", "sold", "spend", "market sell", "limit sell", "advanced trade sell", "payment sent", "convert out"],
+  swap: ["swap", "trade", "exchange", "convert", "dex swap", "token swap"],
   transfer: ["transfer", "send", "receive", "deposit", "withdrawal", "withdraw", "move"],
 };
 
@@ -148,6 +151,30 @@ export function parseTransactions(text) {
     const kind = normalizeType(get("type"));
     if (kind === null) { out.errors.push(`Line ${line}: unrecognised type "${get("type")}" (use buy, sell, income or transfer).`); continue; }
     const toWallet = map.toWallet === undefined ? "" : (r[map.toWallet] ?? "");
+    if (kind === "swap") {
+      // A coin-for-coin swap is a sale of the coin given up and a buy of the coin received,
+      // both at the USD value you give for the swap.
+      const date = parseDate(get("date"));
+      if (!date) { out.errors.push(`Line ${line}: unreadable date "${get("date")}" (use YYYY-MM-DD or MM/DD/YYYY).`); continue; }
+      const asset = get("asset").toUpperCase();
+      const toAsset = map.toAsset === undefined ? "" : (r[map.toAsset] ?? "").toUpperCase();
+      const qty = Math.abs(parseNumber(get("quantity")));
+      const toQty = map.toQuantity === undefined ? NaN : Math.abs(parseNumber(r[map.toQuantity]));
+      if (!asset || !toAsset) { out.errors.push(`Line ${line}: a swap needs the coin given up (asset) and the coin received (to asset).`); continue; }
+      if (asset === toAsset) { out.errors.push(`Line ${line}: a swap needs two different coins.`); continue; }
+      if (!(qty > 0) || !(toQty > 0)) { out.errors.push(`Line ${line}: a swap needs a positive quantity and to quantity.`); continue; }
+      const totalRaw = map.total === undefined ? null : parseNumber(get("total"));
+      const priceRaw = map.price === undefined ? null : parseNumber(get("price"));
+      let usd = totalRaw !== null && !Number.isNaN(totalRaw) ? Math.abs(totalRaw) : null;
+      if (usd === null && priceRaw !== null && !Number.isNaN(priceRaw)) usd = Math.abs(priceRaw) * qty;
+      if (usd === null) { out.errors.push(`Line ${line}: a swap needs the USD value of the swap (total) on that day.`); continue; }
+      const feeRaw = map.fee === undefined ? 0 : parseNumber(get("fee"));
+      const fee = Number.isNaN(feeRaw) || feeRaw === null ? 0 : Math.abs(feeRaw);
+      const wallet = get("wallet") || "";
+      out.transactions.push({ line, date, kind: "sell", asset, qty, usd, fee, wallet, swap: true });
+      out.transactions.push({ line, date, kind: "buy", asset: toAsset, qty: toQty, usd, fee: 0, wallet, swap: true });
+      continue;
+    }
     if (kind === "transfer" && !toWallet) { out.skipped.push(`Line ${line}: transfer ignored (not a taxable event; add a "to wallet" column to move its lots in per-wallet mode).`); continue; }
     const date = parseDate(get("date"));
     if (!date) { out.errors.push(`Line ${line}: unreadable date "${get("date")}" (use YYYY-MM-DD or MM/DD/YYYY).`); continue; }
