@@ -1,0 +1,33 @@
+name: csv-to-sepa-pain008
+description: >-
+  Free browser tool that turns a CSV or Excel export of collections (debtor, IBAN, amount, mandate id, mandate date) into a
+  SEPA direct debit file (ISO 20022 pain.008.001.02, Core or B2B) for a business bank's upload. The creditor identifier gets
+  its ISO 7064 check, every IBAN the mod-97 and country-length check, amounts are read as exact cents, rows are grouped into
+  the FRST / RCUR / FNAL / OOFF blocks banks require, mandates signed in the future or after the collection date are
+  refused, and no file is written while any collection has an error. The list is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-20 as the direct-debit half of csv-to-sepa-pain001, the "pain.008 direct debits" item its notes named as the
+# paid-version idea. Clubs, gyms, landlords and small subscription businesses in the euro area collect fixed amounts under
+# mandates; their bank takes a pain.008 upload but their membership list is a spreadsheet. A test feeds this tool's output to
+# the sibling `sepa-pain001-validator` (which checks pain.008): no errors for Core and B2B.
+#
+# Archetype: paste-your-file converter with an arithmetic core (exact-cent control totals per block) and a check-digit core
+# (creditor identifier). Free alternatives a user has today: the bulk-direct-debit module of accounting and membership
+# software (paid, tied to that package), the bank's own web form (one row at a time), and a handful of web converters that
+# upload the list to a server. The angle here is private (nothing uploaded), free, refuses a half-correct batch, and says why
+# per line, including the mandate rules that make a bank reject a first file.
+#
+# First visitor: a club treasurer, bookkeeper or small-business owner whose bank gave them a creditor identifier and a
+# "file upload" menu, searching "CSV to SEPA direct debit", "Excel to pain.008", "Lastschrift XML erstellen". Volume not
+# measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet. A paid version, if usage appears, is a saved mandate register with
+# automatic FRST-to-RCUR sequencing, pre-notification letters, R-transaction (return) handling from pain.002/camt files and
+# an API behind an env-var switch; none built. pain.008.001.08 is not offered because the sibling validator's reading of that
+# version's date element could not be reconciled from memory.
+#
+# Liability: generates a file from the user's own list, no warranty, independent of every bank and the EPC, no promise the
+# bank accepts it, user holds the signed mandates, sends the pre-notification and confirms bank details. Reference data read
+# from memory of public sources.

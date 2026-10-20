@@ -1,0 +1,32 @@
+{
+  "id": "P035",
+  "title": "Privacy rules went further than the law; bring every rule, check and page copy back to the legal line",
+  "status": "in_progress",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "The usage rules banned cookies outright, made counting opt-in, forbade storing even the kind of referring site, and banned any analytics vendor. The law (GDPR, ePrivacy/PECR, CCPA) requires none of that for functional cookies or anonymous aggregate counts. The extra restrictions cost the portfolio its measurement: live_url_visitors is null on every reading, and distribution (the stated limiter) cannot be judged without knowing where visitors come from. The owner, 2026-10-20: 'follow laws but going beyond them is too much.'",
+  "evidence": [
+    "portfolio/usage/README.md rule 1 before 2026-10-20: 'No accounts, no cookies, no IP storage, no device fingerprints, no cross-site identifiers, no content.'",
+    "platform/counter/counter.mjs before 2026-10-20: 'no referrer' stored, so no reading could say which kind of site sends visitors.",
+    "portfolio/usage/validate_usage.py FORBIDDEN_SIGNAL_TOKENS included 'cookie', so even a count named like cookie_banner_dismissed failed validation."
+  ],
+  "change": "Done in the first PR: owner direction recorded in prompts/goals.md; usage README rules, PRODUCT_PLAYBOOK privacy and usage sections, AGENTS.md and DIRECTION.md rewritten to 'follow the law, no stricter'; 'cookie' dropped from the validator's forbidden tokens; the counter records the referring-site class (src:<class>, closed list, reduced in the browser, so no host is sent) with tests and matching site copy. Still to do: (1) deploy platform/counter so the default-on count actually runs (needs one always-on HTTPS host; the owner has to provide or approve the machine); (2) a small shared consent helper (EU/UK prior consent, a disclosure elsewhere) so a product can use an identifier for returning-visitor counts or A/B tests when it needs to; (3) sweep remaining code comments and tests that state the old rule as a reason (grep 'never people', 'no analytics vendor', 'No cookies') and update those that now block a legal feature; descriptive copy that is still true can stay.",
+  "touches": [
+    "prompts/goals.md",
+    "portfolio/usage/README.md",
+    "portfolio/usage/validate_usage.py",
+    "PRODUCT_PLAYBOOK.md",
+    "AGENTS.md",
+    "portfolio/DIRECTION.md",
+    "platform/counter/",
+    "platform/pages/build.mjs"
+  ],
+  "metric": "readings in portfolio/usage/site-visits.json with page_loads > 0 and at least one src:<class> key",
+  "baseline": "0: site-visits.json does not exist yet and platform/counter/site.json has an empty url (2026-10-20)",
+  "opened": "2026-10-20",
+  "source": "owner, in session 2026-10-20",
+  "pr": null,
+  "result": null,
+  "history": []
+}
