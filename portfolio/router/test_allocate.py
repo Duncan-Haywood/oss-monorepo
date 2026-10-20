@@ -17,6 +17,7 @@ from allocate import (
     decisions_by_merit,
     diversify,
     family_of,
+    load_flagships,
     load_merit_scores,
     load_ventures,
     next_task,
@@ -25,6 +26,7 @@ from allocate import (
     LEDGER_DIR,
     SCORES_PATH,
     VENTURES_DIR,
+    FLAGSHIPS_PATH,
 )
 
 
@@ -666,3 +668,56 @@ class ReexecTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FlagshipTests(unittest.TestCase):
+    def flag(self, name, rank_, next_="Build the thing."):
+        v = make(name)
+        v.flagship_rank = rank_
+        v.flagship_next = next_
+        return v
+
+    def test_flagships_rank_ahead_of_other_dispatchable_work_in_file_order(self):
+        small = make("tiny-csv-check", merit=0.9)
+        second = self.flag("second", 1)
+        first = self.flag("first", 0)
+        ordered = [v.name for v in rank([small, second, first])]
+        self.assertEqual(ordered, ["first", "second", "tiny-csv-check"])
+
+    def test_heavily_worked_flagship_is_not_demoted(self):
+        hot = self.flag("deep", 0)
+        hot.recent_commits = 40
+        cold = make("cold")
+        self.assertEqual(rank([cold, hot])[0].name, "deep")
+
+    def test_flagship_waiting_on_customers_still_gets_its_deepen_task(self):
+        # Its next hypothesis needs a customer, but the milestone is code.
+        waiting = self.flag("deep", 0)
+        waiting.hypotheses = [{"claim": "c", "status": "untested", "evidence": "customer-contact"}]
+        startable = make("startable")
+        self.assertEqual(rank([waiting, startable])[0].name, "deep")
+        self.assertTrue(next_task(waiting).startswith("Deepen"))
+
+    def test_flagship_task_names_its_milestone_and_skips_consolidation(self):
+        v = self.flag("roof-bid-calculator", 0, "Ship the solver.")
+        task = next_task(v)
+        self.assertTrue(task.startswith("Deepen (flagship 1): Ship the solver."), task)
+        others = [make(f"x{i}-roof-bid-calculator") for i in range(6)]
+        queue = work_queue([v] + others)
+        self.assertTrue(queue[0]["flagship"])
+        self.assertTrue(queue[0]["task"].startswith("Deepen"))
+
+    def test_load_flagships_reads_order_and_tolerates_missing_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            self.assertEqual(load_flagships(p), {})
+            p.write_text("flagships:\n  - venture: a\n    next: do a\n  - venture: b\n")
+            self.assertEqual(load_flagships(p), {"a": (0, "do a"), "b": (1, "")})
+
+    def test_every_listed_flagship_is_a_real_routable_venture(self):
+        names = {v.name for v in load_ventures()}
+        listed = load_flagships(FLAGSHIPS_PATH)
+        self.assertTrue(listed, "portfolio/flagships.yaml lists no flagships")
+        for name, (_, milestone) in listed.items():
+            self.assertIn(name, names, f"flagship {name} has no routable VENTURE.yaml")
+            self.assertTrue(milestone, f"flagship {name} has no `next:` milestone")

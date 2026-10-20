@@ -1434,6 +1434,11 @@
      "summary": "A follow-up to <code>chip-abc-order</code>. All 36 operand orders of a 16-bit carry-select adder's <code>a + b + const</code> chains (each proved equivalent to the reference) are run through <code>synth</code> one pass at a time. The cell counts first diverge in <code>opt_merge</code>: when a block's two sums both start with <code>a</code> and <code>b</code>, one shared <code>a + b</code> is kept (7 adders instead of 10), which happens in 4 of 36 orders. Cells&times;depth then takes only two values per ABC script, and the shared netlist is 1.20&ndash;1.28&times; larger under <code>dch_map</code> and <code>resyn2_map</code> but 0.92&times; under Yosys's default script. Removing <code>opt_merge</code> does not remove the dependence: the spread over orders widens to 1.44&ndash;3.17&times;. Stylised: one adder, Yosys 0.33, generic-gate cells&times;depth, no place and route."
     },
     {
+     "slug": "chip-sharesign",
+     "title": "Does letting Yosys share a common a + b make adders smaller under every ABC script?",
+     "summary": "Eleven small adder-shaped designs whose outputs all contain <code>a + b</code> are written once so <code>opt_merge</code> shares the sum and once so it cannot (each pair proved equivalent). Scored under five ABC scripts, sharing gives fewer cells in 54 of 55 pairs (median ratio 0.76&ndash;0.85), but is deeper in 6&ndash;9 of 11 designs, so cells&nbsp;&times;&nbsp;depth favours it in 7&ndash;9 of 11. The sign flip seen on the 16-bit carry-select adder in <code>chip-abc-orderpass</code> does not appear. Stylised: generic gates, Yosys 0.33, no place and route."
+    },
+    {
      "slug": "chip-cse-style",
      "title": "Does writing the shared a + b sum of a carry-select adder explicitly change what Yosys and ABC synthesise?",
      "summary": "Six equivalent 16-bit adder styles (each proved against <code>a + b</code> with a Yosys miter) are scored with three ABC scripts. Writing the shared sum by hand (<code>p = a + b</code>, <code>y = p + 1</code>) or as an incrementer (<code>y = x + 1</code>) gives exactly the netlist <code>opt_merge</code> finds for the plain <code>a + b + 0 / a + b + 1</code> text (cells&times;depth 2090 / 1232 / 1665), so a hand common-subexpression rewrite is a no-op. Attaching the constant to <code>b</code> first, <code>a + (b + k)</code>, defeats the sharing: 2268 / 1024 / 1300, 17&ndash;22% smaller under the two optimising scripts and 9% larger under <code>yosys_default</code>. One design, one tool version (0.33), generic gates. Stylised."
@@ -3497,6 +3502,11 @@
      "slug": "mimic-dialogue",
      "title": "Does a second turn make a plainly prompted LLM easier to spot in dialogue?",
      "summary": "Qwen2.5-0.5B-Instruct, given only a plain prompt, writes a user's second and third message in 400 real OpenAssistant threads. A prompt-free character and word n-gram detector (5-fold cross-validation grouped by thread) gets AUROC 0.93 on a single turn and 0.98 on the two turns together (paired accuracy 0.98); length alone gets 0.65 and 0.71. A quarter of the imitations read like assistant replies; dropping those threads leaves 0.95 for the thread. Limits: volunteer prompter turns, one 0.5B imitator and prompt, one seed, teacher-forced turns, no group-level false-positive rates. Stylised baseline; no prompt is optimised."
+    },
+    {
+     "slug": "mimic-cursor",
+     "title": "Can an imitator that changes its own code fool a human-vs-bot cursor detector, and does shared feedback help either side?",
+     "summary": "Browser use, the first subject of the adversarial-imitation track beyond writing. Cursor strokes of 46 people from DUX (CC-BY-4.0) against an imitator built from code components and a detector that picks 3 of 11 feature functions, 4 feedback conditions &times; 8 seeds &times; 30 rounds at equal budget. A reference detector the loop never saw catches every final imitator at AUROC 0.99 to 1.00; detector explanations and shared imitator code did not make a better imitator. Detectors trained with two-way sharing did best against other runs&rsquo; imitators (cross-play AUROC 0.81 vs 0.70 blind), but the paired interval includes zero. An 8&times; larger search ends at 0.88, no better than replaying a real stroke, so the component library is the limit. Preliminary: one web form, 8 seeds, no model-written code."
     }
    ]
   },
@@ -3686,6 +3696,11 @@
      "summary": "Fits an hourly temperature distribution to each climate's degree days and lets heating COP fall with temperature (an assumed curve, floored at 1), then reruns the break-even premium of <code>house-hvacnpc</code>. Seasonal COP is 4.01 in Miami to 2.30 in Duluth, so the constant 2.5 understated the heat pump in the South: the break-even premium rises to $156, $952 and $1,979 in Miami, Houston and Atlanta and falls to &minus;$8,050 in Duluth. Signs do not change; Duluth spans &minus;$1,961 to &minus;$16,661 across nine curves. The curve is assumed, not sourced, and the normal temperature model is crude. Stylised."
     },
     {
+     "slug": "house-escalate",
+     "title": "How fast must gas prices rise against electricity before a heat pump ties a gas furnace on 30-year cost?",
+     "summary": "Separates each house package&rsquo;s yearly bill into gas and electricity and lets each grow at its own real rate, then reruns the break-even premium of <code>house-hvacnpc</code>, which held prices flat. With electricity flat, a heat pump of equal installed cost already ties in Miami, Houston and Atlanta unless gas gets cheaper (&minus;2.9%, &minus;0.3%, &minus;1.1% a year), while in Chicago, Minneapolis and Duluth gas must rise 4.6%, 3.7% and 3.7% a year in real terms for 30 years; a $4,000 premium raises that to 5.2&ndash;6.3%. Constant 2.5 COP, constant growth rates, no forecast. Stylised."
+    },
+    {
      "slug": "house-adufees",
      "title": "What does Denver Water's 2026 tap fee cost a 480 sq ft backyard cottage (ADU) against a house?",
      "summary": "From Denver Water&rsquo;s own 2026 schedule: an ADU pays a flat $2,170 inside Denver from 1 July 2026 ($2,055 before), against $5,400 for a house charged on 2,000 sq ft, 60% less. Per floor sq ft the ADU is dearer ($4.52 against $2.70). Denver Water&rsquo;s share is small beside <code>house-market</code>&rsquo;s $16,930 &ldquo;water and sewer SDC&rdquo;, leaving about $12,000 for sewer and other items that this project could not read. One fee only; the page does not say whether the rate applies to lot or floor area."
@@ -3711,6 +3726,11 @@
     "slug": "capture-rig",
     "title": "How many cameras, and where, to film a person from every angle?",
     "summary": "A 2-D geometric model of N cameras on a ring or a 90&deg; front arc 3 m from a subject, scored on angle coverage and triangulation error. Cameras buy coverage, angle buys depth accuracy: a 30&deg; gap between neighbours needs 13 cameras (15&deg; needs 25), while centre depth error barely moves with count (0.52 mm for 3 on a ring, 0.23 mm for 16) but falls 11&times; as a pair&rsquo;s convergence angle goes from 5&deg; to 90&deg; (7.3 mm to 0.64 mm). Four cameras on a front arc are within 11% of four on a ring. Idealised lower bounds with assumed noise (0.5 px) and no occlusion; novel-view quality is not modelled."
+   },
+   {
+    "slug": "capture-novelview",
+    "title": "How far apart can cameras be before a reel editor can no longer synthesise the angle between them?",
+    "summary": "A ray-traced toy scene, two ring cameras, a depth-based warp to the midpoint, scored against the ray-traced truth. With exact depth, synthesis beats cutting to the nearest camera only up to a gap of about 30&deg; (24.8 against 23.6 dB); at 45&deg; it is worse (19.3 against 23.1 dB) because 8% of the target is a hole neither camera saw, though pixels it does fill stay near 29&ndash;30 dB. A bystander pulls the crossover in to about 15&deg;, and depth error on the sources costs about 1.4 dB per percent at first (27.5 dB exact, 22.0 dB at 10%). Toy scene with smooth textures and oracle depth: read the ordering, not the decibels."
    },
    {
     "slug": "capture-follow",
@@ -3922,6 +3942,16 @@
     "title": "Which cheap wheel-legged rover covers the most stylised rubble under a 120 USD parts cap, and does a session agent beat CMA-ES and Bayesian optimisation?",
     "summary": "Five design variables (wheel radius, wheelbase, flipper length, drive torque, battery) are scored on twelve held-out random-rubble terrains with Gamma-patchy friction, each design with its own evolution-strategies speed-and-flipper policy (not PPO). Wheel radius at its 90&nbsp;mm bound with torque of about 0.5&nbsp;N&nbsp;m reaches the ceiling J&nbsp;=&nbsp;0.783 (16 of 20&nbsp;m) at 69&nbsp;USD. Median best J at 40 evaluations: Bayesian optimisation 0.782, CMA-ES 0.782, session agent 0.783, random search 0.716; the gaps at the top are within policy-search noise. Falls were zero throughout, so the tip-over and recovery path is untested. Stylised statics, assumed unsourced prices, one agent run with a calibration-time prior."
    }
+   ,{
+    "slug": "codesign-agri",
+    "title": "Which three-finger pad design picks the most unbruised strawberry-like fruit under a 60 USD cap, and does a session agent beat CMA-ES and Bayesian optimisation?",
+    "summary": "Five design variables (pad width, pad length, pad modulus, grip force, finger count) are scored on 600 simulated fruit with ripeness-dependent bruise thresholds, wet and dry friction and placement error, using closed-form line-contact pressure, friction hold and a capture-and-clutter law. At 40 evaluations the median best objective is 0.635 for Bayesian optimisation, 0.618 for a session agent&rsquo;s hand-written proposals (one run, by the model&rsquo;s own author), 0.611 for CMA-ES and 0.574 for random search; all 20 Bayesian-optimisation seeds matched or beat the agent. The best design (25&nbsp;mm pads, 0.19&nbsp;MPa, 8&nbsp;N, three fingers) picks 74% clean; about 20% of fruit are lost to clutter collisions that no pad setting can change. Stylised, with assumed constants and no learned policy."
+   }   ,{
+    "slug": "codesign-transfer",
+    "title": "Does the ranking of printable soft-fruit gripper designs survive a shift in friction, fruit, placement error and print tolerance?",
+    "summary": "Takes the <code>codesign-agri</code> contact model unchanged and widens what it holds fixed: per world the fruit size, placement error, wetness, bruise threshold and stem pull are drawn, and the printed gripper differs from the design (pad modulus, force and width tolerance). Over 600 random feasible designs and 30 held-out worlds the Spearman rank correlation with the nominal world is 0.993, so a nominal winner is a good candidate. The level still falls: the nominal CMA-ES optimum loses 13% of its objective (0.653 to 0.567), and a robust optimum trained on 10 other worlds gains only 0.015 on average and 0.034 in the worst world, from single runs. Sim-to-sim in a stylised model with assumed ranges; no gripper was printed."
+   }
+
    ,{
     "slug": "codesign-ceiling",
     "title": "Which grasp scenes can no printable two-finger gripper hold, and what limits the ceiling?",
