@@ -79,6 +79,48 @@
    "note": "NLSY79 sampled Hispanic, Black and 'non-Black non-Hispanic' cohorts; Asian, AIAN, NHPI and Other are scored as non-Black non-Hispanic. Multiracial cannot be placed (a multiracial Black or Hispanic person would be in those cohorts)."
   },
   {
+   "lens": "nlsy97_cohab_marriage",
+   "input": "race_ethnicity",
+   "source": "KEY!RACE_ETHNICITY (1997)",
+   "categories": [
+    "Black",
+    "Hispanic",
+    "Non-Black non-Hispanic"
+   ],
+   "form_mapping": {
+    "White": "Non-Black non-Hispanic",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Non-Black non-Hispanic",
+    "American Indian or Alaska Native": "Non-Black non-Hispanic",
+    "Native Hawaiian or Pacific Islander": "Non-Black non-Hispanic",
+    "Multiracial": "Non-Black non-Hispanic",
+    "Other": "Non-Black non-Hispanic"
+   },
+   "note": "Same NLSY97 race-ethnicity coding as the first-marriage lens: Asian, AIAN, NHPI, Multiracial and Other are scored as non-Black non-Hispanic."
+  },
+  {
+   "lens": "nlsy97_cohab_split",
+   "input": "race_ethnicity",
+   "source": "KEY!RACE_ETHNICITY (1997)",
+   "categories": [
+    "Black",
+    "Hispanic",
+    "Non-Black non-Hispanic"
+   ],
+   "form_mapping": {
+    "White": "Non-Black non-Hispanic",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Non-Black non-Hispanic",
+    "American Indian or Alaska Native": "Non-Black non-Hispanic",
+    "Native Hawaiian or Pacific Islander": "Non-Black non-Hispanic",
+    "Multiracial": "Non-Black non-Hispanic",
+    "Other": "Non-Black non-Hispanic"
+   },
+   "note": "Same NLSY97 race-ethnicity coding as the first-marriage lens: Asian, AIAN, NHPI, Multiracial and Other are scored as non-Black non-Hispanic."
+  },
+  {
    "lens": "nlsy97_first_marriage",
    "input": "race_ethnicity",
    "source": "KEY!RACE_ETHNICITY (1997)",

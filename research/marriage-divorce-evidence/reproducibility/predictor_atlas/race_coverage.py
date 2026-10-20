@@ -35,6 +35,12 @@ LENSES = [
                                    'Asian cell, American Indian origin overstated in 1979 (NLS note); held out it added nothing'),
          note="NLSY79 sampled Hispanic, Black and 'non-Black non-Hispanic' cohorts; Asian, AIAN, NHPI and Other are scored "
               "as non-Black non-Hispanic. Multiracial cannot be placed (a multiracial Black or Hispanic person would be in those cohorts)."),
+    *[dict(lens=lens, input='race_ethnicity', source='KEY!RACE_ETHNICITY (1997)',
+         categories=['Black', 'Hispanic', NBNH],
+         form_mapping=m(White=NBNH, Black='Black', Hispanic='Hispanic', Asian=NBNH, AIAN=NBNH, NHPI=NBNH, Multiracial=NBNH, Other=NBNH),
+         note="Same NLSY97 race-ethnicity coding as the first-marriage lens: Asian, AIAN, NHPI, Multiracial and Other are scored "
+              "as non-Black non-Hispanic.")
+      for lens in ('nlsy97_cohab_marriage', 'nlsy97_cohab_split')],
     dict(lens='nlsy97_first_marriage', input='race_ethnicity', source='KEY!RACE_ETHNICITY (1997)',
          categories=['Black', 'Hispanic', NBNH],
          form_mapping=m(White=NBNH, Black='Black', Hispanic='Hispanic', Asian=NBNH, AIAN=NBNH, NHPI=NBNH, Multiracial=NBNH, Other=NBNH),
