@@ -21,7 +21,7 @@ def main():
     rows = [json.loads(l) for l in open(os.path.join(HERE, "raw.jsonl"))]
     rows = [r for r in rows if not r["reply"].startswith("ERROR")]
     for r in rows:
-        r["label"], r["langs"] = label(TASKS[r["task"]], r["reply"])
+        r["label"], r["langs"] = label(TASKS[r["task"]], r["reply"], r.get("files"))
     served = collections.Counter(m for r in rows for m in r["served"])
     print(f"Replies: {len(rows)}  (models served: {dict(served)})")
     models = sorted({r["model"] for r in rows})

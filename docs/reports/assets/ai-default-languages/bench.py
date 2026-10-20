@@ -2,7 +2,7 @@
 
 Usage: python3 bench.py > bench.txt
 Reads primes, wordfreq and csvmonthly replies from raw.jsonl (default
-language, sonnet, agent framing) and pushed.jsonl (language named).
+language, sonnet, both framings; agent rows use the file it wrote) and pushed.jsonl (language named).
 Inputs are generated deterministically here. Each program gets its input
 path as argv[1], on stdin, and under common file names in its working
 directory. Needs python3+pandas, gcc, rustc/cargo, go, node on PATH.
@@ -14,6 +14,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 TASKS = {t["id"]: t for t in json.load(open(os.path.join(HERE, "tasks.json")))}
 WORK = tempfile.mkdtemp(prefix="lang-bench-")
 TIMEOUT = 300
+FILES = None
 
 def make_inputs():
     rnd = random.Random(20261020)
@@ -37,7 +38,14 @@ def make_inputs():
             fh.write(f"{d},{reg},{amt}\n")
     return {"wordfreq": text, "csvmonthly": csv}, totals
 
-def main_block(reply):
+def main_block(reply, files=None):
+    if files:
+        from classify import EXT, SKIP
+        src = {p: c for p, c in files.items() if p.rsplit("/", 1)[-1] not in SKIP and "test" not in p.lower()
+               and p.rsplit(".", 1)[-1] in EXT and not p.endswith(".md")}
+        if src:
+            p = max(src, key=lambda k: len(src[k]))
+            return p.rsplit(".", 1)[-1], src[p]
     bs = [(t, b) for t, b in blocks(reply) if t not in ("", "text", "console", "output", "bash", "sh", "toml")]
     return max(bs, key=lambda tb: len(tb[1])) if bs else (None, None)
 
@@ -63,6 +71,7 @@ def build(lang, src, reply, d):
         return (["./main"], None) if r.returncode == 0 else (None, r.stderr[-300:])
     if lang == "Rust":
         toml = [b for t, b in blocks(reply) if t == "toml" and "[dependencies]" in b]
+        toml += [c for p, c in (FILES or {}).items() if p.endswith("Cargo.toml") and "[dependencies]" in c]
         if toml:
             os.makedirs(f"{d}/src")
             t = toml[0]
@@ -93,14 +102,20 @@ def check(task, out, totals):
         return sum(w in flat or w.rstrip("0").rstrip(".") in flat for w in want) >= 4
     return None
 
-def run(task, lang, reply, inputs, totals):
-    tag, src = main_block(reply)
+def run(task, lang, reply, inputs, totals, files=None):
+    tag, src = main_block(reply, files)
     if not src:
         return {"ok": False, "err": "no code"}
     d = tempfile.mkdtemp(dir=WORK)
     if task in inputs:
         for name in ("input.txt", "sales.csv", "data.csv", "sales_data.csv", "text.txt", "file.txt"):
             os.symlink(inputs[task], f"{d}/{name}")
+    global FILES
+    FILES = files
+    if files:
+        for p, c in files.items():
+            if p.endswith(("go.mod", "Cargo.toml")):
+                pass
     argv, err = build(tag, src, reply, d)
     lines = len(src.splitlines())
     if err:
@@ -123,14 +138,14 @@ def main():
     inputs, totals = make_inputs()
     jobs = []
     for r in map(json.loads, open(os.path.join(HERE, "raw.jsonl"))):
-        if r["task"] in ("primes", "wordfreq", "csvmonthly") and r["model"] == "sonnet" and r["framing"] == "agent":
-            jobs.append((r["task"], "default", r["reply"]))
+        if r["task"] in ("primes", "wordfreq", "csvmonthly") and r["model"] == "sonnet":
+            jobs.append((r["task"], "default/" + r["framing"], r["reply"], r.get("files")))
     if os.path.exists(os.path.join(HERE, "pushed.jsonl")):
         for r in map(json.loads, open(os.path.join(HERE, "pushed.jsonl"))):
-            jobs.append((r["task"], "pushed " + r["lang"], r["reply"]))
+            jobs.append((r["task"], "pushed " + r["lang"], r["reply"], r.get("files")))
     print(f"cores={os.cpu_count()}  inputs: wordfreq 20M words, csvmonthly 200k rows, primes below 1e9")
-    for task, cond, reply in sorted(jobs, key=lambda j: (j[0], j[1])):
-        res = run(task, cond, reply, inputs, totals)
+    for task, cond, reply, files in sorted(jobs, key=lambda j: (j[0], j[1])):
+        res = run(task, cond, reply, inputs, totals, files)
         print(f"{task:10} {cond:13} lang={res.get('lang', '?'):10} lines={res.get('lines', 0):4} "
               f"ok={res['ok']!s:5} secs={res.get('secs', '-')!s:7} {res['err'] or ''}", flush=True)
     shutil.rmtree(WORK, ignore_errors=True)

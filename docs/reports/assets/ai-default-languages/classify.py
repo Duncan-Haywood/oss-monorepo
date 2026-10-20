@@ -1,6 +1,7 @@
 """Label the language (code tasks) or format (document tasks) of each reply.
 
-Rule: the language of the longest fenced code block, ignoring blocks tagged
+Rule: for an agent reply that wrote files, the language of its largest
+non-test source file (by extension); otherwise the longest fenced code block, ignoring blocks tagged
 as program output (text, console, output, untagged). A document reply with
 no qualifying block is "Markdown". Diagrams and derivations get extra
 checks (Mermaid vs ASCII art, LaTeX math in prose). Imported by analyze.py.
@@ -31,10 +32,35 @@ def blocks(reply):
         out.append((tag, m.group(3)))
     return out
 
-def label(task, reply):
+EXT = {"py": "Python", "js": "JavaScript", "mjs": "JavaScript", "ts": "TypeScript", "html": "HTML",
+       "rs": "Rust", "go": "Go", "c": "C", "cpp": "C++", "cc": "C++", "ino": "Arduino C++", "sh": "Shell",
+       "sql": "SQL", "yaml": "YAML", "yml": "YAML", "json": "JSON", "toml": "TOML", "ini": "INI",
+       "env": "dotenv", "md": "Markdown", "mmd": "Mermaid", "tex": "LaTeX", "swift": "Swift",
+       "kt": "Kotlin", "dart": "Dart", "java": "Java", "jsx": "JavaScript", "tsx": "TypeScript", "css": "CSS"}
+SKIP = ("go.mod", "go.sum", "Cargo.toml", "Cargo.lock", "package.json", "requirements.txt", "pyproject.toml")
+
+def file_label(task, files):
+    src = {p: c for p, c in files.items() if p.rsplit("/", 1)[-1] not in SKIP and "test" not in p.lower()
+           and p.rsplit(".", 1)[-1] in EXT}
+    if task["kind"] == "code":
+        src = {p: c for p, c in src.items() if not p.endswith(".md")} or src
+    if not src:
+        return None
+    p = max(src, key=lambda k: len(src[k]))
+    lab = EXT[p.rsplit(".", 1)[-1]]
+    if lab == "HTML" and "<script" in src[p]:
+        lab = "HTML + inline JS"
+    return lab
+
+def label(task, reply, files=None):
     """Return (label, all_languages) for one reply."""
     if reply.startswith("ERROR"):
         return "error", []
+    if files:
+        fl = file_label(task, files)
+        if fl and task["id"] not in ("diagram", "derivation"):
+            langs = sorted({EXT[p.rsplit(".", 1)[-1]] for p in files if p.rsplit(".", 1)[-1] in EXT})
+            return fl, langs
     bs = blocks(reply)
     langs = sorted({ALIAS.get(t, t) for t, _ in bs if t not in OUTPUT_TAGS})
     real = [(t, b) for t, b in bs if t not in OUTPUT_TAGS]
@@ -52,7 +78,7 @@ def label(task, reply):
     if not real:
         if task["kind"] == "doc":
             return "Markdown", langs
-        return "no code", langs
+        return ("no code (looked for input)" if files is not None else "no code"), langs
     tag, _ = max(real, key=lambda tb: len(tb[1]))
     lab = ALIAS.get(tag, tag)
     if lab == "HTML" and "<script" in _:

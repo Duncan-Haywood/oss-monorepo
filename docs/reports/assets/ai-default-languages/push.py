@@ -1,7 +1,7 @@
 """Pushed-language condition: the same tasks with a language named.
 
 Usage: python3 push.py  -> appends to pushed.jsonl (resumable)
-Default framing (Claude Code system prompt, no tools), sonnet, 3 reps.
+Agent framing (Claude Code system prompt, file tools only), sonnet, 3 reps.
 The default-language replies for the same tasks come from raw.jsonl.
 """
 import json, os, tempfile
@@ -19,13 +19,18 @@ def main():
     if os.path.exists(OUT):
         done = {(r["task"], r["lang"], r["rep"]) for r in map(json.loads, open(OUT))}
     jobs = [(t, l, r) for t, l in PUSHES for r in range(3) if (t, l, r) not in done]
-    cwd = tempfile.mkdtemp(prefix="lang-push-")
     def work(job):
         t, l, r = job
+        cwd = tempfile.mkdtemp(prefix="lang-push-")
         reply, usage = call("sonnet", "agent", f"{TASKS[t]} Use {l}.", cwd)
+        files = {}
+        for dp, _, fs in os.walk(cwd):
+            for fn in fs:
+                p = os.path.join(dp, fn)
+                files[os.path.relpath(p, cwd)] = open(p, errors="replace").read()[:20000]
         with open(OUT, "a") as fh:
             fh.write(json.dumps({"task": t, "lang": l, "rep": r, "served": sorted(usage),
-                                 "reply": reply}) + "\n")
+                                 "reply": reply, "files": files}) + "\n")
     with ThreadPoolExecutor(4) as ex:
         list(ex.map(work, jobs))
 
