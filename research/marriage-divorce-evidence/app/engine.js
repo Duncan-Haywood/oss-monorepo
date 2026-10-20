@@ -55,10 +55,11 @@ export function splineFeatures(spec, j, x) {
   const hi = t[t.length - d - 1];
   let out;
   if (x < lo || x > hi) {
-    // extrapolation='linear': continue each basis from its boundary value and slope.
+    // extrapolation='linear': continue each basis from its boundary value and slope;
+    // 'constant': hold each basis at its boundary value.
     const edge = x < lo ? lo : hi;
     const { value, deriv } = bsplineBasis(t, d, edge, interval(t, d, edge));
-    out = value.map((v, i) => v + deriv[i] * (x - edge));
+    out = spec.extrapolation === 'constant' ? value : value.map((v, i) => v + deriv[i] * (x - edge));
   } else {
     out = bsplineBasis(t, d, x, interval(t, d, x)).value;
   }
@@ -104,7 +105,10 @@ export function prepare(model, row) {
   cat.columns.forEach((col, j) => {
     const cats = cat.categories[j];
     const start = cat.drop_first[j] ? 1 : 0;
-    const v = row[col] === null || row[col] === undefined ? 'Unknown' : String(row[col]);
+    let v = row[col] === null || row[col] === undefined ? 'Unknown' : String(row[col]);
+    // Optional categorical imputation (SimpleImputer most_frequent on 'Unknown'): a missing
+    // or unknown answer takes the training mode instead of a level of its own.
+    if (cat.impute && v === 'Unknown') v = cat.impute[j];
     for (let k = start; k < cats.length; k++) {
       values.push(cats[k] === v ? 1 : 0);
       owners.push(col);
@@ -273,7 +277,8 @@ export function oodScore(spec, row) {
   }
   for (const c of spec.categorical) {
     const lv = spec.levels[c];
-    const v = row[c] === null || row[c] === undefined ? 'Unknown' : String(row[c]);
+    let v = row[c] === null || row[c] === undefined ? 'Unknown' : String(row[c]);
+    if (spec.impute && v === 'Unknown') v = spec.impute[c]; // bundles that map Unknown to the mode
     if (!lv.includes(v)) unseen.push(c);
     for (let k = 1; k < lv.length; k++) x.push(lv[k] === v ? 1 : 0);
   }

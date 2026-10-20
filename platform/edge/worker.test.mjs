@@ -62,13 +62,14 @@ const req = (path, { method = 'POST', body, headers = {} } = {}) =>
 
 test('a hit is counted per day and slug, and /counts returns it', async () => {
   const e = env();
-  for (let i = 0; i < 2; i++) await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid', r: 'npm' }) }), e);
+  for (let i = 0; i < 2; i++) await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid', r: 'npm', s: 'google' }) }), e);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid', s: 'example.com' }) }), e);
   await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid' }), headers: { dnt: '1' } }), e);
   await worker.fetch(req('/hit', { body: JSON.stringify({ p: '../etc' }) }), e);
   const res = await worker.fetch(req('/counts', { method: 'GET' }), e);
   const { days } = await res.json();
   const [day] = Object.keys(days);
-  assert.deepEqual(days[day], { 'roof-bid': 2, 'ref:npm': 2 });
+  assert.deepEqual(days[day], { 'roof-bid': 3, 'ref:npm': 2, 'src:google': 2 }, 'a source outside the closed list is dropped');
 });
 
 test('feedback validation, with emails removed', () => {

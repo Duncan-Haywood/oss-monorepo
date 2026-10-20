@@ -1,0 +1,23 @@
+Real system: {'visc': 0.1, 'coul': 0.3, 'sd': 0.02, 'kind': 'student3', 'glo': 9.81}. swing-up grid of 90 controllers (ke, kp, kd, cap), tuned on 150 twin starts, scored on 600 held-out real starts.
+Regret = real cost of the twin-tuned controller minus the best in the grid on the real system (cost: mean (1+cos theta)/2 plus 0.002 u^2 over 400 steps).
+Mean and sd over 12 tuning seeds. AUROC: boosted trees on raw + second differences, 800 vs 800, mean over seeds (0, 1, 2).
+
+twin                        AUROC  pairedRMSE    regret       sd   median  regret-null
+exact twin (null)           0.513     0.00000   0.00009  0.00013  0.00000      0.00000
+coul -10%                   0.581     0.00553   0.00007  0.00013  0.00000     -0.00002
+coul -20%                   0.823     0.01110   0.00032  0.00082  0.00001      0.00023
+coul -33%                   0.960     0.01858   0.00007  0.00011  0.00000     -0.00002
+coul -67%                   0.997     0.03759   0.00006  0.00012  0.00000     -0.00003
+coul = 0                    0.999     0.05708   0.00094  0.00202  0.00001      0.00085
+visc x2                     0.959     0.04447   0.00016  0.00033  0.00002      0.00007
+visc x0.5                   0.911     0.02525   0.00011  0.00014  0.00002      0.00002
+g/L +20%                    0.998     0.22741   0.02921  0.03310  0.01010      0.02912
+g/L -20%                    0.999     0.25114   0.01296  0.00314  0.01414      0.01287
+gauss noise, same sd        0.922     0.00000   0.00075  0.00034  0.00085      0.00066
+noise sd x0.5               0.992     0.00000   0.00006  0.00010  0.00000     -0.00003
+noise sd x0.75              0.861     0.00000   0.00006  0.00010  0.00001     -0.00003
+noise sd x1.5               0.941     0.00000   0.00090  0.00022  0.00085      0.00080
+noise sd x2                 0.993     0.00000   0.00100  0.00024  0.00099      0.00091
+noise sd x0 (no noise)      1.000     0.00000   0.00006  0.00010  0.00000     -0.00003
+Spearman(auroc, regret) over 15 wrong twins: rho=0.16, p=0.567
+Spearman(rmse, regret) over 15 wrong twins: rho=0.43, p=0.106

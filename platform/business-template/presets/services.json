@@ -1,0 +1,22 @@
+{
+  "label": "Professional services (consulting, agency, freelance)",
+  "default_stack": "Static site with case studies, a scoping calculator and a booking link on GitHub Pages; proposals and invoices generated as documents in the repository; payment by bank transfer or Stripe invoice, set up by the owner.",
+  "weights": {
+    "build":  {"product": 0.35, "marketing": 0.25, "sales": 0.20, "finance": 0.10, "legal": 0.05, "support": 0.00, "review": 0.05},
+    "launch": {"product": 0.10, "marketing": 0.35, "sales": 0.35, "finance": 0.10, "legal": 0.05, "support": 0.00, "review": 0.05},
+    "grow":   {"product": 0.10, "marketing": 0.30, "sales": 0.35, "finance": 0.15, "legal": 0.00, "support": 0.05, "review": 0.05}
+  },
+  "questions": [
+    {"id": "offer", "ask": "What is the one fixed-scope offer you would sell first, and what does the client get?", "default": "A fixed-price audit or starter package the idea implies, written up as one page."},
+    {"id": "client", "ask": "Who signs the cheque (title, company size, industry)?", "default": "Owner-operated businesses of 5-50 people in the industry the idea names."},
+    {"id": "proof", "ask": "What past work or credentials can be shown publicly?", "default": "None assumed; the agent writes worked examples, clearly labelled as examples."},
+    {"id": "rate", "ask": "What day rate or project price do you want?", "default": "The median of three published competitor prices, cited."},
+    {"id": "hours", "ask": "How many hours a week can you take calls and deliver?", "default": "Ten hours a week of delivery, two of sales calls."}
+  ],
+  "owner_setup": [
+    {"id": "entity", "what": "Decide whether to trade as yourself or register a company.", "why": "Liability and tax; an agent cannot sign registration forms."},
+    {"id": "insurance", "what": "Consider professional indemnity insurance for the offer.", "why": "Needs a card; the agent lists what is typical for the offer."},
+    {"id": "calendar", "what": "Create a booking link (Cal.com, Calendly) and paste the public URL into BUSINESS.md.", "why": "Bookings go to your calendar."},
+    {"id": "bank", "what": "Open a separate business bank account.", "why": "Keeps the books clean; needs your ID."}
+  ]
+}

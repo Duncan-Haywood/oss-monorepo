@@ -29,6 +29,7 @@ node cli.mjs check ride.gpx               # exit 1 if there are errors
 node cli.mjs check routes/ --strict       # every .gpx under a folder; warnings fail too
 node cli.mjs check ride.gpx --json
 node cli.mjs fix ride.gpx                 # writes ride.fixed.gpx (--in-place overwrites)
+node cli.mjs thin ride.gpx --max-points=500   # writes ride.thin.gpx, shape kept within the smallest tolerance that fits
 ```
 
 Exit codes: 0 clean, 1 findings at the failing level, 2 usage or read error.

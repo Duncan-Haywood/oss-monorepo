@@ -29,9 +29,10 @@ import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 
 import { decodeEntities } from './entities.mjs';
-import { REFS as CHANNEL_REFS } from '../counter/counter.mjs';
+import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { buildWriting, WRITING_PATH } from './writing.mjs';
+import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
@@ -121,6 +122,15 @@ import {
   siteStyleLink,
   writeResearchChrome,
 } from './site-nav.mjs';
+import {
+  HERO_BACKDROP_HTML,
+  HOME_MOTION_CSS,
+  HOME_MOTION_SCRIPT,
+  copyShowcase,
+  loadShowcase,
+  renderMarquee,
+  renderShowcaseSection,
+} from './showcase.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -1852,6 +1862,10 @@ const CATEGORY_RULES = [
       // `sepa-pain002-status-reader` joined 2026-10-04 on its first commit: the receiving end of `sepa-pain001-validator` -- the bank's
       // status report on an uploaded SEPA file, read per payment with each rejection code explained.
       || slug === 'sepa-pain002-status-reader'
+      // `csv-to-sepa-pain001` and `csv-to-sepa-pain008` joined 2026-10-20: the generator halves of the SEPA set above -- a bookkeeper's
+      // payment or collection spreadsheet turned into the bank upload file the validator checks.
+      || slug === 'csv-to-sepa-pain001'
+      || slug === 'csv-to-sepa-pain008'
       // `edi-x12-order-checker` joined 2026-10-04 on its first commit: a supplier's EDI purchase order, invoice and ship
       // notice checked before they go to a retailer -- the same back-office document-preflight job as the payment-file checkers.
       || slug === 'edi-x12-order-checker'
@@ -3609,6 +3623,8 @@ const CATEGORY_RULES = [
         'freelance-lead-tracker',
         // `sales-call-notes-desk` joined 2026-10-17 on its first commit: a seller or founder turning discovery-call notes into CRM fields, qualification gaps and the follow-up email, the step between the lead and the proposal.
         'sales-call-notes-desk',
+        // `sales-cadence-builder` joined 2026-10-20 on its first commit: the multi-channel prospecting plan (email, call, LinkedIn, letter) for a list the seller already has, the step before the call notes.
+        'sales-cadence-builder',
         // `rental-ledger` joined 2026-10-07: the records-and-Schedule-E home for the landlord calculators, which each answer one typed question and hold nothing.
         'rental-ledger',
         // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
@@ -5531,10 +5547,11 @@ function disclaimerHtml(toRoot, surfaces = []) {
         count stays in your own browser's local storage.${counterOn() ? ` Each page load
         also adds one to a daily per-page total on our own open-source counter
         (which page, which day, and — if you followed one of our own channel
-        links, such as a release note or package page — which channel; nothing
-        you type, no cookie, no IP address stored; its host sees each request
-        the way any web server does), and those totals are published in the
-        repository.` : ''} Browsers sending
+        links, such as a release note or package page — which channel, and what
+        kind of site sent you, such as "google" or "reddit", never its address;
+        nothing you type, no cookie, no IP address stored; its host sees each
+        request the way any web server does), and those totals are
+        published in the repository.` : ''} Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
       </p>`;
@@ -6982,7 +6999,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
           <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>${feedbackOn() ? `
           <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, and is then published in the site's public GitHub repository. Nothing about you is stored with it, and email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
@@ -6997,9 +7014,12 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         it carries the page's name and, when you arrived by one of this
         portfolio's own channel links (a <code>?ref=</code> tag such as
         <code>?ref=npm</code>, removed from the address bar on arrival), that
-        channel's name, and nothing else. The counter keeps one number per page
-        per day and one per channel per day — no IP address, cookie, browser
-        string or referrer is stored. The daily totals are committed to the public
+        channel's name, plus what kind of site sent you (a label from a fixed
+        list, such as <code>google</code>, <code>reddit</code> or
+        <code>other</code>, worked out in your browser so the referring
+        address itself is never sent), and nothing else. The counter keeps one
+        number per page, per channel and per kind of site, per day. No IP
+        address, cookie, browser string or referring address is stored. The daily totals are committed to the public
         repository. That counter's host sees each request the way any web server
         does; the counter stores none of it` : ` and is never
         sent anywhere`}. It exists so the next tool built is one people actually
@@ -7373,7 +7393,11 @@ ${themesHtml}
     </section>`;
 }
 
-export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { featured: [], themes: [] } } = {}) {
+export function renderHub(
+  surfaces,
+  baseUrl,
+  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null } } = {},
+) {
   const groups = groupByCategory(surfaces);
   const audiencePages = audienceGroups(surfaces);
   const apps = surfaces.filter((s) => s.kind === 'app');
@@ -7438,6 +7462,14 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
     .slice(0, 6)
     .map(({ items }) => exampleTools(items, 1)[0])
     .filter(Boolean);
+
+  // The moving shelf under the hero: a few tools from every section, split
+  // across two rows so neither repeats a section back to back.
+  const shortName = (s) => s.title.split(' — ')[0];
+  const shelf = groups.flatMap(({ items }) => exampleTools(items, 5)).map((s) => ({ slug: s.slug, name: shortName(s) }));
+  const marqueeRows = [shelf.filter((_, i) => i % 2 === 0), shelf.filter((_, i) => i % 2 === 1)];
+  const titles = new Map(surfaces.map((s) => [s.slug, shortName(s)]));
+  const audienceWords = audiencePages.map(({ audience }) => audience.name).slice(0, 14);
 
   return `<!doctype html>
 <html lang="en">
@@ -7696,6 +7728,7 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
        that belongs. */
     @media print { .backup { display: none; } }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+${HOME_MOTION_CSS}
   </style>
 </head>
 <body>
@@ -7703,9 +7736,15 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
   ${renderSiteHeader({ toRoot: '', current: 'home' })}
 
   <header class="hero">
+${HERO_BACKDROP_HTML}
     <div class="hero-inner">
       <p class="eyebrow">Open source · MIT licensed · Built in public</p>
-      <h1>Software and research that anyone can use, inspect, and run themselves.</h1>
+      <h1>Software and research that anyone can <span class="grad">use, inspect, and run</span> themselves.</h1>
+${
+  audienceWords.length
+    ? `      <p class="ticker">Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</p>\n`
+    : ''
+}
       <p class="lede">
         ${escapeHtml(SITE_NAME)} is an open portfolio of business software and research:
         focused tools that run entirely in your browser, self-hostable apps a small
@@ -7740,6 +7779,8 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
       </dl>
     </div>
   </header>
+
+${renderMarquee(marqueeRows)}
 
   <main class="wrap" id="main">
     <!-- Filled in by script from the saved bids on this device. Above everything
@@ -7799,6 +7840,8 @@ ${BACKUP_WIDGET_HTML}
       </p>
       <ul id="yoursList"></ul>
     </section>
+
+${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
 
     <section class="band" id="browse" aria-labelledby="browse-h">
       <p class="section-eyebrow">Browse</p>
@@ -8611,6 +8654,8 @@ ${BID_PRICING_HELPERS}
 ${BACKUP_WIDGET_SCRIPT}
 ${OFFLINE_WIDGET_SCRIPT}
   </script>
+  <script>${HOME_MOTION_SCRIPT}
+  </script>
 </body>
 </html>
 `;
@@ -8846,6 +8891,10 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
         var s=q.toString();
         history.replaceState(history.state,'',location.pathname+(s?'?'+s:'')+location.hash);
       }
+    }catch(e){}
+    try{
+      var rh=document.referrer?new URL(document.referrer).hostname:'';
+      if(rh&&rh!==location.hostname){var src=(${sourceOf.toString()})(rh,${JSON.stringify(SOURCE_HOSTS)},${JSON.stringify(SOURCE_LABELS)});if(src)hit.s=src;}
     }catch(e){}
     try{navigator.sendBeacon(${JSON.stringify(`${counterUrl}/hit`)},new Blob([JSON.stringify(hit)],{type:'text/plain'}));}catch(e){}` : ''}
     var k='portfolio-hub-usage';
@@ -10083,7 +10132,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
   const optional = [
     '## Optional',
     '',
-    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Research](${baseUrl}${RESEARCH_PATH}): the open research portfolio built in the same repository — white papers with reproducible code on mechanism design for verifiable decentralised ML, and digital twins and sim-to-real gaps.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
@@ -10507,9 +10556,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   }
 
   const research = researchHighlights();
+  // Stills and a recording of real tools for the hub (showcase/capture.mjs).
+  const showcase = loadShowcase(surfaces.map((s) => s.slug));
+  log(`Published ${await copyShowcase(outDir, showcase)} showcase file(s).`);
   await fs.writeFile(
     path.join(outDir, 'index.html'),
-    renderHub(surfaces, base, { researchCount: researchProjectCount(), research }),
+    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase }),
   );
   // The index the hub's search fetches, and the stylesheet every site-owned
   // page links for the shared header (site-nav.mjs).
@@ -10635,6 +10687,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
   const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+
+  // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
+  // site can be. Its handoff page reads catalog.json in the browser.
+  await buildLab(outDir);
 
   // The open book (see `updates.mjs`): what shipped, what is in progress, the
   // owner's direction and the process, plus the changelog of every merge.

@@ -132,6 +132,13 @@ Additive model, all shared features:
   carries spouse traits. Its additive model is the best calibrated across the other U.S.
   surveys, so it is the candidate for the app's "before the wedding" lens.
 
+## The app lens
+
+`../../app/tools/export_prewedding.py` exports the NSFG additive model as
+`app/models/prewedding_harmonized.json` (26 KB), with its within-NSFG and external skill,
+cross-fitted population quantiles (10-year dissolution median 28%, 10th–90th percentile
+16–51%) and an out-of-distribution score; see `../../app/README.md`.
+
 ## What pre-wedding traits cannot capture
 
 These are demographic and family-history facts. They say nothing about how the couple get on:

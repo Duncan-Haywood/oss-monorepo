@@ -21,7 +21,7 @@
 // written) and stops answering past them rather than billing. Nothing here can
 // run up a charge. Setup: `README.md` beside this file.
 
-import { classify, utcDay, REF_KEY } from '../counter/core.mjs';
+import { classify, utcDay, REF_KEY, SOURCE_KEY } from '../counter/core.mjs';
 import { feedbackRecord } from './feedback.mjs';
 
 const FEEDBACK_MAX_BODY = 6000;
@@ -40,7 +40,9 @@ async function countHit(request, env, headers) {
       'INSERT INTO counts (day, slug, n) VALUES (?1, ?2, 1) ON CONFLICT (day, slug) DO UPDATE SET n = n + 1 WHERE n < ?3',
     ).bind(day, slug, cap).run();
   const r = await add(verdict.slug);
-  if (verdict.ref && r?.meta?.changes) await add(`${REF_KEY}${verdict.ref}`);
+  if (!r?.meta?.changes) return;
+  if (verdict.ref) await add(`${REF_KEY}${verdict.ref}`);
+  if (verdict.src) await add(`${SOURCE_KEY}${verdict.src}`);
 }
 
 async function readCounts(env, since) {

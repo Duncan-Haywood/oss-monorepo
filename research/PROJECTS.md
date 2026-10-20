@@ -1,7 +1,7 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19 and track 18 on 2026-10-19. Runs
-started from `prompt.md` take their new work from here. There are eighteen tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 and track 19 on 2026-10-20. Runs
+started from `prompt.md` take their new work from here. There are nineteen tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-18, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-19, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -116,6 +116,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 16. Energy supply and dense energy storage | `energy` |
 | 17. Societies of AI agents in robots among people | `society` |
 | 18. Laundry-hanging robots and custom hangers | `hanger` |
+| 19. Machine learning on qualitative data with LLMs | `qual` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -793,6 +794,43 @@ agents. Pillutla et al. (2021), MAUVE, compares model and human text as distribu
    from updating weights, as in RADAR, does prompt-only adaptation reach? Fine-tuning on a GPU
    is an owner step.
 
+**Owner direction, 2026-10-20: three subjects, code as a free parameter, shared feedback.**
+The owner asked for browser use and webcam to be subjects alongside writing, for code (not only
+the prompt) to be something either side may change, and for the detector and imitator agents
+to share feedback. This widens "what is free" above:
+- *Subjects.* Writing (milestones 1 to 6), browser use (how a person moves a cursor, types and
+  scrolls in a web page) and webcam (how a person's face and head behave on camera, as signals
+  such as expression, head pose and blinks). Each needs licence-checked human references.
+- *Code is free too.* Either side's program may change, not only its prompt: an imitator's
+  generator (for a cursor, its path, speed profile, event clock and noise components), a
+  detector's feature functions. Say whether the code comes from a fixed component library, a
+  search over it, or a model that writes code, because those are different claims.
+- *Shared feedback.* Besides the blind game, run conditions where the detector tells the
+  imitator why it caught it (which features, how far apart), and where the imitator shares its
+  program with the detector. Hold the evaluation budget equal across conditions and report
+  which channel helps which side, on a detector neither side saw.
+
+9. `mimic-cursor`: browser use, code as the free parameter, with and without shared feedback.
+   Human cursor strokes from DUX (Bieber et al. 2023, CC-BY-4.0: 46 people filling in a web
+   form), split by person. The imitator is a stroke generator built from code components;
+   the detector picks feature functions. Four feedback conditions at equal budget, scored by a
+   reference detector the loop never sees, with a memorization check on any component that
+   draws on human examples. Keystroke timing and scrolling from the same corpus come next.
+   Landed 2026-10-20: every final imitator is caught at reference AUROC 0.99 to 1.00, shared
+   feedback did not help the imitator, and an 8 times larger search stops at the level of
+   replaying real strokes (0.88), so the component library is the limit; two-way sharing gave
+   the strongest detectors in cross-play, not yet significant at 8 seeds.
+10. `mimic-webcam`: webcam signals, signals first. Start from derived per-frame signals, not
+   pixels: DUX also logs webcam emotion scores from a facial-coding tool for each event, and
+   open face-landmark or head-pose corpora with a known licence are candidates. The imitator
+   writes the signal sequence for a context (filling in a form, reading an error message); the
+   detector tells it from a person's. Rendering faces is out of scope until the guardrails
+   below are met. Time any vision model on the CPU first, as in milestone 7.
+11. `mimic-codeloop`: code written by a model. Replace the component search with an open
+   code model that reads the detector's feedback and rewrites the generator or the feature
+   functions, at the same budget as the component search, so the two can be compared. Size the
+   model to the CPU and give a GPU's priced cost as an owner step if it does not fit.
+
 **Guardrails: research on detection, not an evasion service.**
 - *Both sides ship.* Every imitator result ships with the detector prompts and the cross-play
   results that answer it. The detector is a deliverable, not a foil.
@@ -821,6 +859,14 @@ agents. Pillutla et al. (2021), MAUVE, compares model and human text as distribu
 - *Synthetic media.* Before generated audio, images or video leave the repository, check the
   disclosure duties that apply, such as Article 50 of the EU AI Act, which applies from 2 August
   2026.
+- *Browser use stays in the lab.* Generated cursor, keyboard and scroll input is scored only
+  offline by detectors built here. It is never replayed in a live site, a CAPTCHA, a login or
+  a platform's bot filter, and the generators are not packaged as plug-ins for browser
+  automation tools. Every generator ships with the detector that answers it.
+- *Webcam is signals, not faces.* Use derived signals (expression scores, landmarks, head pose)
+  from licence-checked corpora. Never render, synthesise or alter video of a real or
+  identifiable person, and never capture anyone's webcam: recording people is an owner step,
+  as for human judges above.
 - *Lab tags.* Milestones that use the imitator as a simulated partner build on CAIRO's and
   HIRO's directions in `prompt.md`, simulated human models and social intelligence. The others
   build on none of the groups, so say so.
@@ -1288,6 +1334,59 @@ PyBullet, SoftGym, Blender's cloth solver, Gymnasium. Check each before citing i
   every hardware design lists the hazards and a stop, and no run builds or powers hardware.
 - *Lab tags.* This track may build on track 9's purpose-built robots and track 14's co-design
   loop; say so only where a project actually does.
+
+## 19. Machine learning on qualitative data with LLMs (`qual`)
+
+Added on 2026-10-20 at the owner's request, marked as an interesting topic for future research
+and applications.
+
+**Goal.** Machine learning has needed numbers. Qualitative data (interviews, open survey answers,
+reviews, support tickets, field notes) could join in only after slow hand-coding or crude word
+counts. LLMs read text the way a coder does and follow a codebook written in plain language, so
+qualitative data can now be coded, counted, compared, modelled and used to generate hypotheses at
+scale. This track asks what that makes possible and when the resulting numbers can be trusted:
+an LLM's code is a measurement with error, and the error can differ between groups.
+
+**Prior work.** Gilardi, Alizadeh and Kubli (2023), *PNAS*, LLM vs crowd-worker annotation.
+Ziems et al. (2024), *Computational Linguistics*, LLMs on 24 computational social science
+benchmarks. Egami, Hinck, Stewart and Wei (2023), NeurIPS, design-based supervised learning for
+LLM labels. Angelopoulos et al. (2023), *Science*, prediction-powered inference. Pham et al.
+(2024), NAACL, TopicGPT. Lam et al. (2024), CHI, LLooM concept induction. Hegselmann et al.
+(2023), AISTATS, TabLLM. Ludwig and Mullainathan (2024), *QJE*, ML for hypothesis generation.
+Argyle et al. (2023), *Political Analysis*, simulated survey samples. Krippendorff (2011),
+alpha reliability. Check each before citing it.
+
+**Milestones.**
+1. `qual-correction` (done 2026-10-20): when can you count an LLM's codes? Naive, human-only and
+   prediction-powered estimates of a code's prevalence and of a group gap, against simulated
+   coders with known error. An 89%-accurate coder is confidently wrong; with differential error
+   the naive gap has the wrong sign; PPI with 200 hand-coded items fixes both, and stops paying
+   below about 80% coder accuracy.
+2. `qual-real`: the same pipeline on a public, hand-coded corpus (open-ended survey answers or
+   annotated reviews with a licence that allows it), with a model behind `ANTHROPIC_API_KEY` and a
+   deterministic stub. Without a key, label any session-agent coding as such.
+3. `qual-dialect`: measure milestone 1's mechanism on real data, whether LLM coding accuracy
+   differs across dialects, languages or writing fluency, and how much that moves group
+   comparisons.
+4. `qual-induce`: inductive coding. Compare LLM-proposed codebooks (TopicGPT/LLooM style) with
+   a human codebook on the same corpus: coverage, redundancy, and agreement when each is applied.
+5. `qual-features`: qualitative codes and LLM-scored dimensions as features next to numeric ones
+   in a predictive model, against embeddings and bag-of-words at the same labelling budget.
+6. `qual-hypothesis`: LLM-proposed, human-readable hypotheses about what separates two sets of
+   documents, scored on held-out data, with a check for hypotheses that merely restate the label.
+7. `qual-regression`: extend the correction from means to regression coefficients (DSL, PPI++)
+   and to multi-class codes.
+
+**Applications.** Customer feedback and support-ticket analytics, open-ended survey analysis,
+user research synthesis, policy consultation responses, qualitative health research, and the
+portfolio's own run records. Each needs the same validation step.
+
+**Guardrails.**
+- *Codes are measurements.* Every count, gap or model built on LLM codes reports how it was
+  validated against a random hand-coded sample, not just an agreement score.
+- *Privacy and consent.* Use only public data whose licence allows the use; never put personal
+  data in the repository.
+- *No benchmark claims without a real model.* Simulated coders are labelled as simulated.
 
 ## References
 

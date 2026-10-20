@@ -3,6 +3,7 @@
 // permissions (read probes only; nothing is written), the webhook endpoint and
 // its events, and the customer portal. Exit 1 if any check fails.
 import { createStripe } from "./stripe.mjs";
+import { mailProblems, providerName } from "./mail.mjs";
 
 export const REQUIRED_EVENTS = [
   "invoice.payment_failed", "invoice.paid", "invoice.payment_succeeded", "invoice.voided",
@@ -35,8 +36,9 @@ export function checkEnv(env) {
   if (!live) out.push(ok("DRY_RUN", "on (default): nothing is sent or charged"));
   else {
     out.push(warn("DRY_RUN", "off: this will email customers and retry charges"));
-    if (!env.RESEND_API_KEY || !env.MAIL_FROM) out.push(fail("RESEND_API_KEY / MAIL_FROM", "both are required when DRY_RUN=false"));
-    else out.push(ok("RESEND_API_KEY / MAIL_FROM", "set"));
+    const mailMissing = mailProblems(env);
+    if (mailMissing.length) out.push(fail(`mail (${providerName(env)})`, `required when DRY_RUN=false: ${mailMissing.join(", ")}`));
+    else out.push(ok(`mail (${providerName(env)})`, "set"));
     if (!env.COMPANY_ADDRESS) out.push(warn("COMPANY_ADDRESS", "not set; many countries expect a postal address in the footer of customer email"));
     if (env.STATE && !/^\/(data|var|mnt)\//.test(env.STATE)) out.push(warn("STATE", `${env.STATE} may not survive a restart; open cases live in this file, so put it on a volume`));
     if (!env.STATE) out.push(warn("STATE", "unset, so state.json in the working directory; make sure that is on a volume"));

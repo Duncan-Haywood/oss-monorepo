@@ -6,7 +6,20 @@
 
 **Live page:** https://marriage-divorce-evidence.duncan1921.chatgpt.site/?view=1
 
-**Try it:** the [divorce odds calculator for couples](app/) ([live](https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/app/)) runs these models in your browser. Enter two profiles to see:
+**Try it — will your marriage last? A divorce risk calculator for before you marry:** the [calculator](app/) ([live](https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/app/)) opens on **Before the wedding**: for an engaged couple, or for you and a candidate partner, it estimates the chance of divorce in each year from the wedding day and the chance of a lifelong marriage counting mortality.
+
+- It uses only facts known by the wedding day, and only lenses whose clock starts at the wedding.
+  - **Default:** workstream B's harmonized before-the-wedding model. It is fitted on 43,336 NSFG 1995–2023 first marriages, scores both partners as the surveyed spouse and averages them.
+    - Held-out skill: C 0.661, AUC at 10 years 0.656.
+    - It ranks as well on other surveys: C 0.647 on NLSY97, 0.626 on SIPP, 0.621 on NLSY79 and 0.611 on Canada. It predicts Canada's level 1.7 times too high.
+  - **Alongside it:** NSFG 1995–2023 pooled, NLSY97, NLSY79 first marriages, SIPP first marriages, Statistics Canada GSS and NSFG 2002.
+  - **Example, typical engaged couple** (28 and 30, bachelor's degrees, living together first, no children before): 7.4% break-up risk by 5 years, 12.5% by 10, 19.1% by 20. That is the 2nd percentile of NSFG's first marriages, whose median 10-year risk is 28%.
+  - **Example, younger couple** (22 and 23, a child before the wedding, not living together first): 22.5% by 10 years, the 32nd percentile.
+- Lenses that score marriages already under way sit behind **Already married**: NLSY79 couples and individuals, GSS panels, HCMST couples, the Los Angeles newlyweds, SIPP couples and ACS.
+- How well can divorce be predicted before the wedding? Modestly. The leakage-free models in [`reproducibility/prewedding/`](reproducibility/prewedding/) rank who divorces first at a C-index of 0.63–0.66 within each survey and 0.61–0.66 across U.S. surveys. That is better than chance, far from certain.
+- The lenses disagree on levels. For a typical engaged couple (28 and 30, both with a bachelor's degree, living together first, no earlier marriages or children), the chance of a break-up within 10 years runs from 6.7% (NSFG 1995–2023, models 3.8–9.7%) to 24.7% (NSFG 2002, which also counts separations and holds weddings at 2002). The app shows every lens side by side and never pools them.
+
+In either view, enter two profiles to see:
 
 - a **summary across 15 evidence lenses**: each lens’s chance of divorce or break-up at the horizons its own data support (5/10/20 years for the from-the-wedding lenses; 2 years for GSS; 2.2/4.1/8.4 years for HCMST; 2.3–12 years for the Los Angeles newlyweds; 1 year for SIPP couples and ACS), with the range across its models, its held-out skill (gain, C-index, AUC), how typical the couple is of its data, its population percentile, and a plain-language synthesis of where the lenses agree or disagree and which is most relevant — never a pooled number;
 - lenses that ask about the relationship itself: relationship quality (HCMST, for married and unmarried, same-sex and different-sex couples), marriage happiness (GSS panels), and newlywed satisfaction, self-reported hostility and conflict behaviour (an approximation of trained observers’ codes, labelled as such);

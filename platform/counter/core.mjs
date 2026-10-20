@@ -11,6 +11,37 @@ export const MAX_BODY = 256;
 export const REFS = Object.freeze(['android', 'bluesky', 'devto', 'gh-action', 'ghcr', 'hashnode', 'homebrew', 'ios', 'mastodon', 'mcp', 'npm', 'pypi', 'release', 'vscode', 'webext', 'wordpress']);
 // `:` is outside SLUG_RE, so a channel key can never collide with a page slug.
 export const REF_KEY = 'ref:';
+// Referring-site classes. The page maps the referrer's hostname to one of
+// these in the browser (`sourceOf`, inlined into the site's shared chrome) and
+// sends only the class. `SOURCE_HOSTS` matches an exact host (after `www.`),
+// `SOURCE_LABELS` any dot-separated label but the last, so google.co.uk and
+// news.google.com both read as `google`. Anything else is `other`.
+export const SOURCE_HOSTS = Object.freeze({
+  't.co': 'x', 'x.com': 'x', 'twitter.com': 'x', 'news.ycombinator.com': 'hackernews',
+  'bsky.app': 'bluesky', 'dev.to': 'devto', 'lobste.rs': 'lobsters', 'chat.openai.com': 'chatgpt',
+  'copilot.microsoft.com': 'copilot', 'gemini.google.com': 'gemini',
+});
+export const SOURCE_LABELS = Object.freeze({
+  google: 'google', bing: 'bing', duckduckgo: 'duckduckgo', yahoo: 'yahoo', ecosia: 'ecosia',
+  brave: 'brave', kagi: 'kagi', yandex: 'yandex', baidu: 'baidu', startpage: 'startpage',
+  chatgpt: 'chatgpt', perplexity: 'perplexity', claude: 'claude', reddit: 'reddit',
+  github: 'github', linkedin: 'linkedin', facebook: 'facebook', instagram: 'instagram',
+  youtube: 'youtube', mastodon: 'mastodon', medium: 'medium', substack: 'substack',
+  stackoverflow: 'stackoverflow', stackexchange: 'stackoverflow', npmjs: 'npm', pypi: 'pypi',
+});
+export const SOURCES = Object.freeze([...new Set([...Object.values(SOURCE_HOSTS), ...Object.values(SOURCE_LABELS), 'other'])].sort());
+export const SOURCE_KEY = 'src:';
+
+/** Hostname -> source class, or '' for none. The chrome script inlines this function's source, so it stays ES5. */
+export function sourceOf(host, hosts, labels) {
+  host = String(host || '').toLowerCase().replace(/^www\./, '');
+  if (!host) return '';
+  var own = Object.prototype.hasOwnProperty;
+  if (own.call(hosts, host)) return hosts[host];
+  var parts = host.split('.');
+  for (var i = parts.length - 2; i >= 0; i--) if (own.call(labels, parts[i])) return labels[parts[i]];
+  return 'other';
+}
 
 export function utcDay(now = new Date()) {
   return now.toISOString().slice(0, 10);
@@ -25,17 +56,21 @@ export function classify({ method, url, headers = {}, body = '' }) {
   if (body.length > MAX_BODY) return { count: false, reason: 'size' };
   let slug;
   let ref;
+  let src;
   try {
-    ({ p: slug, r: ref } = JSON.parse(body));
+    ({ p: slug, r: ref, s: src } = JSON.parse(body));
   } catch {
     return { count: false, reason: 'body' };
   }
   if (typeof slug !== 'string' || !SLUG_RE.test(slug) || slug.includes('..')) {
     return { count: false, reason: 'slug' };
   }
-  // A channel tag outside the closed list is dropped, not refused: the page
-  // load still happened, only its attribution is unknown.
-  return REFS.includes(ref) ? { count: true, slug, ref } : { count: true, slug };
+  // A channel tag or source class outside its closed list is dropped, not
+  // refused: the page load still happened, only its attribution is unknown.
+  const out = { count: true, slug };
+  if (REFS.includes(ref)) out.ref = ref;
+  if (SOURCES.includes(src)) out.src = src;
+  return out;
 }
 
 export class Tally {

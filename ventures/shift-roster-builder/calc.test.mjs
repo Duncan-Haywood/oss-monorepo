@@ -195,6 +195,40 @@ test("the search finds the true optimum on small problems (brute force)", () => 
   }
 });
 
+test("exact mode proves the optimum against brute force, including the options that make the score non-monotone", () => {
+  const cases = [
+    ["A,12,16,0,Mon-Fri 8-18\nB,10,12,6,Mon-Wed 6-16\nC,15,40,0,any", "Mon,8,14,1\nMon,12,18,1\nTue,8,16,1\nWed,6,12,2\nThu,10,18,1\nFri,8,13,1", { balance: 30, otAfter: 12 }],
+    ["A,9,10,10,any\nB,14,40,10,Mon-Sat 6-22\nC,11,20,0,Tue-Sun 10-24", "Mon,6,14,1\nTue,10,18,1\nTue,14,22,1\nWed,8,16,1\nSat,12,20,1\nSun,10,18,1", { balance: 60, toughBalance: 40 }],
+    ["A,10,30,0,any,prefer: Mon\nB,10,30,0,any,avoid: Tue\nC,20,40,0,any", "Mon,8,16,1\nMon,9,17,1\nTue,8,16,1\nTue,9,17,1\nWed,8,16,1", { dailyOtAfter: 6, otAfter: 14, burdenPct: 10 }],
+  ];
+  for (const [st, sh, opts] of cases) {
+    const staff = staffOf(st), slots = slotsOf(sh);
+    const exactBrute = bruteForceBest(staff, slots, opts);
+    const r = buildRoster(staff, slots, { ...opts, exact: true });
+    assert.ok(r.optimality, "optimality reported");
+    assert.notEqual(r.optimality.status, "bounded");
+    assert.ok(Math.abs(r.score - exactBrute) < 1e-6, `exact ${r.score} vs brute ${exactBrute}`);
+    assert.ok(r.optimality.gap >= 0 && r.optimality.annealScore >= r.optimality.bestScore - 1e-9);
+  }
+});
+
+test("exact mode on a deliberately weak anneal finds the improvement and reports the gap", () => {
+  const staff = staffOf("A,10,40,0,any\nB,11,40,0,any\nC,12,40,0,any\nD,13,40,0,any"), slots = slotsOf("Mon,8,16,2\nTue,8,16,2\nWed,8,16,2\nThu,8,16,1\nFri,8,16,1");
+  const weak = buildRoster(staff, slots, { restarts: 1, iterations: 1 });
+  const r = buildRoster(staff, slots, { restarts: 1, iterations: 1, exact: true });
+  assert.ok(r.score <= weak.score + 1e-9);
+  assert.ok(["optimal", "improved"].includes(r.optimality.status));
+  assert.equal(Math.round(r.optimality.gap * 100) / 100, Math.round((weak.score - r.score) * 100) / 100);
+});
+
+test("exact mode gives up honestly: a tiny node limit reports a bound, not a proof", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50 });
+  assert.equal(r.optimality.status, "bounded");
+  assert.ok(r.optimality.lowerBound <= r.score + 1e-6);
+  assert.ok(r.optimality.gap >= 0);
+});
+
 test("same input gives the same roster", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
   const a = buildRoster(staff, slots, {}), b = buildRoster(staff, slots, {});
@@ -1318,4 +1352,13 @@ test("ownerValid judges a person's shifts in time order, whatever order the slot
     const ctx = _internals.buildContext(staff, slots, {});
     assert.ok(!_internals.ownerValid(ctx, [0, 0]), "overlapping shifts are invalid");
   }
+});
+
+test("exact search runs by itself on small weeks and can be switched off", () => {
+  const staff = staffOf("Ana,15,24,0,Mon-Fri 8-18\nBen,12,16,8,Mon-Wed 6-16\nCy,18,40,0,any");
+  const small = slotsOf("Mon,8,14,1\nTue,8,16,1\nWed,6,12,2");
+  assert.ok(buildRoster(staff, small).optimality, "a 4-shift week is checked without asking");
+  assert.equal(buildRoster(staff, small, { exact: false }).optimality, null);
+  const big = slotsOf("Mon,8,16,3\nTue,8,16,3\nWed,8,16,3\nThu,8,16,3\nFri,8,16,3");
+  assert.equal(buildRoster(staff, big).optimality, null, "15 shifts is past the automatic limit");
 });

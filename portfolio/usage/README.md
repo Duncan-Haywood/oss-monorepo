@@ -21,18 +21,35 @@ Note what the old line *was* right about, because it is the reason this
 directory still reads mostly zeros: an unreachable product cannot be measured.
 The correction is that unreachability is no longer the reason. The remaining
 reason is narrower and worth stating plainly — **GitHub Pages exposes no
-server-side visitor analytics**, and until 2026-10-20 this portfolio would not
-add a third-party one (see "Third-party services" below for what changed). So `live_url_visitors` stays `null` on
-these rows not because nobody can visit, but because the honest signal on a
-static host is the local-first, opt-in counter described further down, plus
+server-side visitor analytics**, and the first-party counter that fills the
+gap (`platform/counter/`, hosted by the `platform/edge/` Cloudflare Worker) is
+built but not yet deployed (its `site.json` URL is empty). So `live_url_visitors` stays `null` on these rows not because nobody
+can visit, but because nothing is collecting the count yet. Until then the
+signal is the local `localStorage` counter described further down, plus
 whatever the products' own repos report. Record that distinction in a note
 rather than letting a `null` read as "still dark".
 
 Two rules decide everything else in this file:
 
-1. **Count events, never people.** No accounts, no cookies, no IP storage, no
-   device fingerprints, no cross-site identifiers, no content. If a number
-   could help identify or re-identify a user, we don't collect it.
+1. **Follow the law; go no stricter than it** (owner, 2026-10-20, in
+   [`prompts/goals.md`](../../prompts/goals.md)). Concretely:
+   - **Functional storage needs no permission.** A cookie or `localStorage`
+     entry a feature needs (a setting, saved inputs, a referral code, a cart)
+     is fine. The old blanket "no cookies" rule is gone.
+   - **Anonymous aggregate counting is on by default.** Counting page loads or
+     events, and which *kind* of site sent a visitor, stores nothing on the
+     device and nothing that identifies anyone, so it needs no consent. Keep
+     honouring `DNT`/`Sec-GPC` and the opt-out: it costs little and is
+     expected.
+   - **Identifiers need the consent the law requires.** Anything that puts an
+     ID on the device to recognise a returning browser (unique visitors,
+     A/B buckets, cross-page funnels) needs prior consent from EU/UK visitors
+     (ePrivacy, PECR) and a disclosure everywhere. Allowed, but behind that
+     consent.
+   - **Nothing personal reaches this repository.** It is public. What is
+     committed is aggregate: counts per day, per page, per channel or source
+     class. No IP addresses, emails, user or device IDs, or free text a
+     visitor typed.
 2. **A number nobody wrote down does not exist.** A counter that only lives in
    a running process is not a signal — it has to reach
    [`usage.yaml`](usage.yaml), which is what the router and the next session
@@ -57,35 +74,25 @@ These are public, aggregate, and free. Read them, write them down, move on.
 ## When a product needs its own counter
 
 Only when the signals above cannot answer "is anyone using the thing at all",
-and then under all of these constraints:
+and then within rule 1:
 
-- **Aggregate only.** Increment a count of an event name. Never store a
-  per-user record, never a session identifier that outlives the page.
-- **No IPs, no user agents retained.** If a request must hit a server, log the
-  event name and the day, and nothing about the caller.
-- **No content.** Not the file they processed, not the text they typed, not the
-  URL they checked — the *fact* that the feature ran is the whole payload.
-- **Visible and off-switchable.** Say what is counted in the README's privacy
-  line, and give a real off switch (a settings toggle, an env var, a
-  `--no-usage` flag). Honour `DNT`/`Sec-GPC` when the platform sends it.
-- **Local-first where possible.** A browser app can keep counts in
-  `localStorage`, show the user their own numbers, and offer a one-click
-  "share anonymous usage" — which is more honest than a silent beacon and
-  usually enough to tell alive from dead.
-- **Third-party services: lawful and disclosed, not forbidden.** Until
-  2026-10-20 this line read "No analytics vendor". The owner replaced it that
-  day: "i dont like all this super privacy stuff. i mean obey the laws and
-  stuff but that's not the hill i'm dying on here. just have good and accurate
-  tos and privacy policies etc." So a hosted service (Cloudflare, an analytics
-  tool, a form backend) may be used when three things hold: it is lawful where
-  the site is used (no cookie or tracker that needs consent without a consent
-  banner, so prefer cookieless tools); the site's privacy copy names what is
-  collected and who processes it **in the same PR that turns it on**; and the
-  copy a page shows is generated from the same switch as the collection, so
-  the two cannot disagree (`counterOn()` and `feedbackOn()` in
-  `platform/pages/build.mjs` are the pattern). Accuracy is the rule now, not
-  minimalism. What a visitor types into a tool still stays in their browser:
-  that is a product promise, not this rule.
+- **Aggregate what you commit.** The server may count; what reaches
+  `usage.yaml` or `site-visits.json` is a count, never a per-user record.
+- **Don't retain IPs or user agents** unless a feature needs them and the
+  privacy copy says so. A counter needs neither.
+- **No content.** Not the file they processed, not the text they typed, not
+  the URL they checked. The *fact* that the feature ran is the payload.
+- **Say what you do.** The privacy line describes what is counted and stored,
+  in plain words, and matches the code. Offer an off switch for counting and
+  honour `DNT`/`Sec-GPC`.
+- **Prefer our own tooling** (owner, 2026-10-16, "Own the tooling") over a
+  vendor account. A vendor is not forbidden. If one is ever used, it goes
+  behind the consent the law requires, and the privacy copy names it.
+- **Hosting the counter or a form on a service is fine** (owner, 2026-10-20:
+  "obey the laws ... just have good and accurate tos and privacy policies").
+  `platform/edge/` runs on Cloudflare's free plan. The copy a page shows is
+  generated from the same switch as the collection (`counterOn()` and
+  `feedbackOn()` in `platform/pages/build.mjs`), so the two cannot disagree.
 
 An acceptable event payload, in full:
 

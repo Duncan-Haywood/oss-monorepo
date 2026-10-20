@@ -1,0 +1,136 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01TkN8KvHLTD44Guv4JvzRKm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "I want to work on ai sales agents and automated sales and marketing through all the tradtional methods.",
+  "input_sha256": "b15853af32004357a39d022613d6d2951211cbbbda3653c192e01aab13637e8e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-20T06:40:51Z",
+  "ended": "2026-10-20T06:55:39Z",
+  "wall_minutes": 15.02,
+  "tokens_in": 9646194,
+  "tokens_out": 70444,
+  "cost_usd": 4.5682,
+  "tool_calls": 62,
+  "task": "Build a multi-channel sales outreach tool (owner brief: AI sales agents and automated sales/marketing through traditional methods)",
+  "projects": [
+    "ventures/sales-cadence-builder"
+  ],
+  "pr": 8690,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 31,
+  "outcome": "success",
+  "errors": [
+    "ventures/sales-call-notes-desk ai.test.mjs (and 8 other ventures' byok drift tests) were red on main: copies of platform/llm/byok.mjs stale after a private-IP regex change; re-synced in this PR."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/README.md",
+      "issue": "No single checklist for registering a new venture on the site; found the steps (build.mjs list, launched.json, ventures-readme.mjs, sync_tree_counts.py, SWITCHES comment, test_manifests reason line) by grepping a sibling venture's slug and running the failing guards."
+    },
+    {
+      "file": "platform/llm/README.md",
+      "issue": "Says ventures keep a synced copy of byok.mjs but names no sync command; a change to the shared client left 9 copies stale and their tests red on main."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Read the brief as building, not as automated sending: the tool plans and drafts across channels and never sends, per portfolio/sales-tools/README.md guardrails. Automated unsolicited sending would break CAN-SPAM/TCPA/CASL norms and the repo's 'never break a platform's terms' rule."
+    }
+  ],
+  "goal": "Ship a tool that runs the traditional outbound channels (email, phone, voicemail, LinkedIn, mailed letter) as a planned cadence, with the compliance gating small teams lack, inside the 'user sends, tool drafts' guardrail.",
+  "notes": "New venture sales-cadence-builder (browser + CLI + library). Calls scheduled 9-17 prospect local (inside TCPA 8-21 and 8-20 state windows); two-zone states use the overlap; DST via Intl. Checked in headless Chromium at 390px.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "af32d533-c77e-5799-898f-d5040c68ad09",
+    "transcripts": 1,
+    "first": "2026-10-20T06:40:51Z",
+    "last": "2026-10-20T06:55:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 118,
+        "output": 70444,
+        "thinking": 12413,
+        "cache_read": 9488427,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157649,
+        "api_equivalent_usd": 4.5682,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 118,
+      "output": 70444,
+      "thinking": 12413,
+      "cache_read": 9488427,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157649,
+      "api_equivalent_usd": 4.5682,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 54,
+      "mcp__github__search_pull_requests": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.02,
+      "active_minutes": 15.02,
+      "model_minutes": 10.27,
+      "tool_minutes": 4.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "experienced JS developer: engine with tz/DST logic, compliance gate, templates, CLI, page, guide, 31 tests, site registration",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 218.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

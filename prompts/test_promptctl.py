@@ -323,6 +323,67 @@ class RepositoryTest(unittest.TestCase):
 
 
 
+class SystemMapTest(PromptTestCase):
+    """prompts/system.json: every guidance file has a layer (prompts/SYSTEM.md)."""
+
+    def system(self, docs, **extra) -> None:
+        data = {"layers": [{"id": "goals", "question": "?"}, {"id": "entry", "question": "?"},
+                           {"id": "area", "question": "?"}],
+                "changed_by": ["owner", "review", "any"], "docs": docs,
+                "guidance_patterns": ["prompt.md", "**/CLAUDE.md"], "ignore": ["**/fixtures/**"]}
+        data.update(extra)
+        (self.fx.root / "system.json").write_text(json.dumps(data))
+
+    def entry(self, **doc):
+        return {"layer": "entry", "changed_by": "review", "answers": "x", **doc}
+
+    def test_no_map_is_not_an_error(self):
+        self.assertEqual(promptctl.validate_system(self.fx.root), [])
+
+    def test_a_mapped_tree_is_valid(self):
+        (self.fx.repo / "ventures" / "a").mkdir(parents=True)
+        (self.fx.repo / "ventures" / "a" / "CLAUDE.md").write_text("notes\n")
+        self.system([self.entry(path="prompt.md"),
+                     {"glob": "ventures/*/CLAUDE.md", "layer": "area", "changed_by": "any", "answers": "x"}])
+        self.assertEqual(promptctl.validate_system(self.fx.root), [])
+
+    def test_an_unmapped_guidance_file_fails(self):
+        (self.fx.repo / "research" / "deep" / "p").mkdir(parents=True)
+        (self.fx.repo / "research" / "deep" / "p" / "CLAUDE.md").write_text("notes\n")
+        self.system([self.entry(path="prompt.md")])
+        errors = promptctl.validate_system(self.fx.root)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("research/deep/p/CLAUDE.md", errors[0])
+
+    def test_ignored_paths_are_not_guidance(self):
+        (self.fx.repo / "x" / "fixtures" / "repo").mkdir(parents=True)
+        (self.fx.repo / "x" / "fixtures" / "repo" / "CLAUDE.md").write_text("bait\n")
+        self.system([self.entry(path="prompt.md")])
+        self.assertEqual(promptctl.validate_system(self.fx.root), [])
+
+    def test_bad_entries_fail(self):
+        self.system([self.entry(path="prompt.md"), self.entry(path="gone.md"),
+                     self.entry(path="prompt.md"), {"path": "prompt.md", "glob": "x", "layer": "entry"},
+                     self.entry(path="prompts/goals.md", layer="nowhere", budget=0, answers=""),
+                     {"path": "prompts/README.md", "layer": "goals", "changed_by": "review", "answers": "x"}])
+        text = "\n".join(promptctl.validate_system(self.fx.root))
+        for needle in ("gone.md does not exist", "listed twice", "exactly one of path or glob",
+                       "layer 'nowhere'", "budget must be", "which question", "belongs to the owner"):
+            self.assertIn(needle, text)
+
+    def test_glob(self):
+        self.assertTrue(promptctl.glob_re("**/CLAUDE.md").match("CLAUDE.md"))
+        self.assertTrue(promptctl.glob_re("**/CLAUDE.md").match("a/b/CLAUDE.md"))
+        self.assertFalse(promptctl.glob_re("ventures/*/CLAUDE.md").match("ventures/a/b/CLAUDE.md"))
+        self.assertTrue(promptctl.glob_re("**/fixtures/**").match("v/t/fixtures/r/AGENTS.md"))
+        self.assertFalse(promptctl.glob_re("prompt.md").match("prompt.mdx"))
+
+    def test_the_real_map_feeds_measure(self):
+        self.assertIn("CLAUDE.md", promptctl.INSTRUCTION_FILES)
+        self.assertIn("prompts/goals.md", promptctl.INSTRUCTION_FILES)
+        self.assertEqual(promptctl.budget_for("prompts/ventures/prompt-9.md"), promptctl.SUBPROMPT_BUDGET)
+
+
 class RedteamTest(PromptTestCase):
     def _with_redteam(self, weight):
         data = json.loads((self.fx.root / "routing.json").read_text())
@@ -464,13 +525,27 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
         self.assertEqual(promptctl._flag_stale("2026-10-17T13:00: x", "2026-10-17T12:00:00+00:00"),
                          "2026-10-17T13:00: x")
 
+    def test_changed_note_ignores_the_shallow_boundary(self):
+        from unittest import mock
+        run = mock.Mock(return_value=mock.Mock(stdout="abc123 2026-10-20T04:30:00+00:00\n"))
+        with mock.patch.object(promptctl.subprocess, "run", run), \
+                mock.patch.object(promptctl, "_shallow_boundary", return_value={"abc123"}):
+            note, changed = promptctl._changed_note("CLAUDE.md")
+        self.assertEqual(changed, "")
+        self.assertIn("shallow-clone edge", note)
+        with mock.patch.object(promptctl.subprocess, "run", run), \
+                mock.patch.object(promptctl, "_shallow_boundary", return_value=set()):
+            self.assertEqual(promptctl._changed_note("CLAUDE.md")[1], "2026-10-20T04:30:00+00:00")
+
     def test_latest_and_named_files(self):
         self.assertEqual(promptctl._latest("", "2026-10-17"), "2026-10-17")
         self.assertEqual(promptctl._latest("2026-10-18", "2026-10-17"), "2026-10-18")
         self.assertEqual(promptctl._latest("2026-10-18", ""), "2026-10-18")
         self.assertEqual(promptctl._named_files_changed("no path here"), "")
         self.assertEqual(promptctl._named_files_changed("nonexistent/zzz.py broke"), "")
-        self.assertTrue(promptctl._named_files_changed("prompts/promptctl.py is long"))
+        from unittest import mock
+        with mock.patch.object(promptctl, "_shallow_boundary", return_value=set()):  # shallow clones know no dates
+            self.assertTrue(promptctl._named_files_changed("prompts/promptctl.py is long"))
 
     def test_string_friction_and_deviation_entries_do_not_crash(self):
         import tempfile, json

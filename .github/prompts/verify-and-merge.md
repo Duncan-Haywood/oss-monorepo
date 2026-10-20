@@ -35,6 +35,8 @@ python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records
+python3 -m unittest discover -s platform/business-template -v   # the generator: a repo per preset, each passing its own check
+d=$(mktemp -d) && python3 platform/business-template/new_business.py --name T --idea T --out "$d/b" && (cd "$d/b" && python3 -m unittest discover -s ops)  # platform/business-template/template/ops: runs in a generated copy, not in place
 (cd research/<project> && PYTHONPATH=$(ls -d ../*/src | tr '\n' :) python3 -m pytest tests -q)  # research/ changes: one project at a time
 python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches (>2 min: run_in_background)
 python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now? (>10 min: background)
@@ -149,3 +151,25 @@ rerun. Never use `ALLOW_REGRESSION=1` except for a deliberate rollback.
 `--record` keeps `decision_queue.py` from printing a false OUTAGE banner
 once a reading is more than three days old. Do not widen the ageing rule to
 silence the banner.
+
+## Reading CI (moved from `CLAUDE.md`, 2026-10-20)
+
+- **Absent CI is not failed CI, and red is not always real.** Agent PRs
+  authenticate with a PAT and do trigger workflows, so a blank check list is
+  something to verify, not the default.
+- **Classify before you debug:** `python3 platform/ci/ci_starvation.py --run
+  <run_id>` (or a job id, or `--from-json <file>`; it needs no `gh`). It
+  votes only on `runner_id`, because a starved job has `runner_id: 0` and
+  no steps. Exit 0: every job got a runner, so a failure is real and yours.
+  Exit 1: starved, so verify locally and say what you ran. Exit 2: the run
+  cannot answer. GitHub's managed `pages build and deployment` runs through
+  starvation and says nothing about Actions, so classify a `.github/`
+  workflow run.
+- **Starvation cycles** with the metered Actions allowance (it lifted on the
+  1st of the month in September). Its sub-cause cannot be known from a
+  session, and the run-timing API's `total_ms` of 0 is not a measurement.
+  `CI_RUNNER=self-hosted` needed the retired cluster, so it is not a
+  fallback now.
+- **Use check runs, not statuses.** `/commits/<sha>/status` and the MCP
+  `get_status` show only legacy statuses and report 0 on a PR with red check
+  runs. Use `/commits/<sha>/check-runs` or the PR's checks tab.
