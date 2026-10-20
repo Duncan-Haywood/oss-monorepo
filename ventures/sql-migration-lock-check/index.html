@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>SQL Migration Lock Check — Will This Migration Take Your Database Down?</title>
-  <meta name="description" content="Paste a PostgreSQL migration and find every statement that can lock the table and stall your app: CREATE INDEX without CONCURRENTLY, ALTER COLUMN TYPE, SET NOT NULL, a foreign key without NOT VALID, and a missing lock_timeout that turns a millisecond change into an outage. Free, runs in your browser, nothing uploaded, no database connection.">
+  <meta name="description" content="Paste a PostgreSQL migration to find statements that lock the table: CREATE INDEX without CONCURRENTLY, SET NOT NULL, a missing lock_timeout. No database connection.">
   <meta property="og:title" content="Will this migration take your database down?">
   <meta property="og:description" content="Most migrations that cause an outage look completely routine. Paste your PostgreSQL migration and get every statement that can block reads or writes — with the rewrite that avoids it.">
   <link rel="canonical" href="./index.html">

@@ -319,6 +319,23 @@ export function validate(input) {
     }
     if (g_ok(qty, unit) && key) { const g = groups.get(key); const dn = discRaw.trim() ? +discRaw.trim().replace(/%$/, "").replace(",", ".") || 0 : 0; g.net += qty * unit * (1 - dn / 100); }
 
+    // Total and TaxAmount, when present, should agree with quantity x unit amount and the tax rate named in TaxType.
+    if (g_ok(qty, unit) && (get(r, "Total").trim() || get(r, "TaxAmount").trim())) {
+      const dn = discRaw.trim() ? +discRaw.trim().replace(/%$/, "").replace(",", ".") || 0 : 0;
+      const net = qty * unit * (1 - dn / 100);
+      const totC = get(r, "Total").trim() ? cleanNumber(get(r, "Total")) : null;
+      const taxC = get(r, "TaxAmount").trim() ? cleanNumber(get(r, "TaxAmount")) : null;
+      const rate = /^(\d+(?:\.\d+)?)%/.exec(get(r, "TaxType").trim());
+      if (totC && !totC.ok) add("error", L, `Total "${get(r, "Total").trim()}" is not a number`, "Total is digits and a decimal point only.");
+      if (taxC && !taxC.ok) add("error", L, `TaxAmount "${get(r, "TaxAmount").trim()}" is not a number`, "TaxAmount is digits and a decimal point only.");
+      if (taxC?.ok && rate && Math.abs(+taxC.value - net * (+rate[1] / 100)) > 0.015) add("warning", L, `TaxAmount ${taxC.value} does not match ${rate[1]}% of ${net.toFixed(2)}`, `Quantity x UnitAmount less discount is ${net.toFixed(2)}, so ${rate[1]}% tax is ${(net * +rate[1] / 100).toFixed(2)}. Xero recalculates tax from the tax rate; a different figure usually means a wrong rate or a pasted total.`);
+      if (totC?.ok) {
+        const exTax = Math.abs(+totC.value - net) <= 0.015;
+        const withTax = taxC?.ok ? Math.abs(+totC.value - (net + +taxC.value)) <= 0.015 : rate ? Math.abs(+totC.value - net * (1 + +rate[1] / 100)) <= 0.015 : false;
+        if (!exTax && !withTax) add("warning", L, `Total ${totC.value} does not match the line amount ${net.toFixed(2)}`, "Total should equal quantity x unit amount less discount (plus tax if your export includes it). A mismatch usually means a stale formula, a rounded unit price or a shifted column.");
+      }
+    }
+
     // identical line repeated
     if (key) {
       const sig = [key, get(r, "Description").trim(), qtyRaw.trim(), unitRaw.trim(), get(r, "AccountCode").trim()].join("|");
@@ -326,6 +343,10 @@ export function validate(input) {
       else lineSeen.set(sig, L);
     }
 
+    for (const n of ["ContactName", "InvoiceNumber", "Reference", "Description"]) {
+      const v = get(r, n).trim();
+      if (/^[=@]/.test(v) || /^[+-]\s*[A-Za-z(]/.test(v)) add("warning", L, `${n} "${v.slice(0, 30)}" starts like a spreadsheet formula`, "A cell beginning with =, @, + or - is run as a formula when the file is opened in Excel or Sheets, which is how CSV injection works, and Excel may already have mangled it. Prefix it with an apostrophe or reword it.");
+    }
     const desc = get(r, "Description");
     if (desc.length > 4000) add("warning", L, `Description is ${desc.length} characters`, "Xero limits a line description to about 4,000 characters (from memory of its help pages).");
 
@@ -349,6 +370,7 @@ export function validate(input) {
     for (const n of [1, 2]) { const a = get(r, `TrackingName${n}`).trim(), b = get(r, `TrackingOption${n}`).trim(); if ((a && !b) || (!a && b)) add("warning", L, `Tracking ${n} has a ${a ? "name but no option" : "option but no name"}`, "Both halves are needed for Xero to tag the line."); }
   }
 
+  for (const g of groups.values()) if (g.lines && Math.round(g.net * 100) <= 0 && g.net === g.net) add("warning", g.line, g.net < 0 ? `Invoice ${g.number} totals ${g.net.toFixed(2)}` : `Invoice ${g.number} totals zero`, g.net < 0 ? "A negative invoice is a credit note, which Xero imports from its own template, not the sales invoice one. Check the signs on the quantity and unit amount." : "Every line nets to nothing, so the invoice would post as zero. Check for a missing unit amount or quantity.");
   for (const [, m] of contactsByLower) if (m.size > 1) add("warning", [...m.values()][0], `Contact spelled ${m.size} ways: ${[...m.keys()].map((k) => `"${k}"`).join(", ")}`, "Xero matches contacts by exact name, so each spelling can create its own contact. Pick one.");
   for (const [, s] of invoiceLower) if (s.size > 1) add("warning", 0, `Invoice numbers differ only by case: ${[...s].join(", ")}`, "Xero treats invoice numbers as the same regardless of case, so these collide.");
   if (taxTypes.size) add("info", 0, `Tax types used: ${[...taxTypes].map(([k, v]) => `${k} (${v})`).join(", ")}`, "Each must match a tax rate name in your Xero organisation exactly, including capitals and brackets. This tool cannot see your tax rates.");

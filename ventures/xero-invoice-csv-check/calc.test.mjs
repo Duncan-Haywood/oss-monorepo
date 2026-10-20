@@ -209,3 +209,39 @@ test("findingsCsv round-trips", () => {
   assert.equal(parseCsv(out).rows[0].cells[0], "severity");
   assert.equal(toCsv([["a,b", "c"]]), "\"a,b\",c\r\n");
 });
+
+const HEAD_TOT = HEAD + ",Total,TaxAmount";
+const totFile = (...rows) => [HEAD_TOT, ...rows].join("\n") + "\n";
+
+test("Total and TaxAmount that agree with the line produce no warning", () => {
+  const r = validate(totFile("Acme,INV-1,01/10/2026,31/10/2026,Work,2,100,10,200,20% (VAT on Income),GBP,216,36"));
+  assert.ok(!has(r, /does not match/));
+});
+
+test("a TaxAmount that disagrees with the named rate is flagged", () => {
+  const r = validate(totFile("Acme,INV-1,01/10/2026,31/10/2026,Work,2,100,,200,20% (VAT on Income),GBP,240,50"));
+  assert.ok(has(r, /TaxAmount 50 does not match 20% of 200\.00/));
+});
+
+test("a Total that matches neither the net nor net plus tax is flagged", () => {
+  const r = validate(totFile("Acme,INV-1,01/10/2026,31/10/2026,Work,2,100,,200,Tax Exempt,GBP,199,0"));
+  assert.ok(has(r, /Total 199 does not match the line amount 200\.00/));
+});
+
+test("a non-numeric Total is an error", () => {
+  const r = validate(totFile("Acme,INV-1,01/10/2026,31/10/2026,Work,2,100,,200,Tax Exempt,GBP,abc,"));
+  assert.ok(titles(r, "error").some((t) => /Total "abc"/.test(t)));
+});
+
+test("text cells that start like a formula are flagged, plain negatives and hyphens are not", () => {
+  const r = validate(file("=HYPERLINK(\"x\"),INV-1,01/10/2026,31/10/2026,Work,1,100,,200,Tax Exempt,GBP", "Acme,INV-2,01/10/2026,31/10/2026,-5% retainer,1,100,,200,Tax Exempt,GBP", "Acme,INV-3,01/10/2026,31/10/2026,Work,1,100,,200,Tax Exempt,GBP"));
+  assert.equal(r.findings.filter((f) => /spreadsheet formula/.test(f.title)).length, 1);
+  assert.ok(has(r, /ContactName .* spreadsheet formula|ContactName "=HYPER/));
+});
+
+test("an invoice that nets to a negative or zero amount is flagged", () => {
+  const r = validate(file("Acme,INV-1,01/10/2026,31/10/2026,Work,-2,100,,200,Tax Exempt,GBP", "Acme,INV-2,01/10/2026,31/10/2026,Work,1,0,,200,Tax Exempt,GBP", "Acme,INV-3,01/10/2026,31/10/2026,Work,1,50,,200,Tax Exempt,GBP"));
+  assert.ok(has(r, /Invoice INV-1 totals -200\.00/));
+  assert.ok(has(r, /Invoice INV-2 totals zero/));
+  assert.ok(!has(r, /INV-3 totals/));
+});
