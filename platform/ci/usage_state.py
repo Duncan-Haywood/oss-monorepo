@@ -43,10 +43,10 @@ asserting it is a faithful restatement of the sentence before it.
 Nobody was careless. `usage.yaml`'s own README names the reason and it is
 structural:
 
-  - **GitHub Pages exposes no server-side visitor analytics**, and this
-    portfolio has ruled out adding a third-party one (README, "No analytics
-    vendor"). The catalogue's central promise is that what a visitor types
-    never leaves their device; an analytics vendor is in tension with it.
+  - **GitHub Pages exposes no server-side visitor analytics.** Since
+    2026-10-20 the route to a reading is `platform/edge/`, a free Cloudflare
+    Worker the owner deploys once (README, "Feedback and visit counts from
+    the live site"); until then nothing can count a visit to the site.
   - The counters that do exist are **local-first, opt-in, and off by default**,
     so they only ever report from a machine we do not own. A zero from one is
     "the counter was never switched on", not "the feature went unused".
@@ -327,10 +327,10 @@ def render(report: dict) -> str:
             f"`{VISITOR_SIGNAL}`, every one null. Not one reading of zero."
         )
         lines.append(
-            "                    GitHub Pages exposes no server-side analytics and this"
+            "                    GitHub Pages exposes no server-side analytics, the"
         )
         lines.append(
-            "                    portfolio adds no third-party one; the local counters are"
+            "                    platform/edge counter is not deployed yet, and the local counters are"
         )
         lines.append(
             "                    opt-in and off by default, so they report from machines we"
