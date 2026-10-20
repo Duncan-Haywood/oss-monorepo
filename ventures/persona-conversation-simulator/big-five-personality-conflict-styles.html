@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Big Five Personality and Conflict Styles: Who Clashes and Why</title>
+  <meta name="description" content="How Big Five traits map to conflict styles, which trait gaps cause friction, and a worked salary negotiation between two fictional personalities.">
+  <meta property="og:title" content="Big Five personality traits and conflict: who clashes, and why">
+  <meta property="og:description" content="Trait gaps that cause friction, the Thomas-Kilmann styles they map to, and a simulated negotiation where swapping roles moves the median deal by $16,000.">
+  <link rel="canonical" href="./big-five-personality-conflict-styles.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Big Five personality traits and conflict: who clashes, and why", "about": "Big Five personality traits, conflict styles and negotiation", "author": {"@type": "Organization", "name": "Persona Conversation Simulator"}, "datePublished": "2026-10-20"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which Big Five traits matter most in a conflict?", "acceptedAnswer": {"@type": "Answer", "text": "Agreeableness and neuroticism do the most work. Agreeableness sets how readily someone gives way, and neuroticism sets how quickly pressure turns into escalation. Extraversion decides who holds the floor, and conscientiousness and openness show up as arguments about pace, detail and new ideas."}}, {"@type": "Question", "name": "Which personality pairs clash the most?", "acceptedAnswer": {"@type": "Answer", "text": "Two low-agreeableness people (two hard lines), two high-neuroticism people (fast escalation), and pairs with a wide conscientiousness gap (a planner and an improviser arguing about pace and detail). A wide extraversion gap rarely causes open conflict, but the quieter person's view tends to surface late or not at all."}}]}</script>
+  <style>
+    :root { font: 17px/1.6 system-ui, sans-serif; color: #1d1b2a; background: #f4f2f8; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #2e2350; }
+    h2 { font-size: 1.2rem; margin-top: 28px; color: #2e2350; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #dad5e6; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #5a566b; }
+    .note, footer { font-size: .86rem; color: #5a566b; }
+    .cta { display: inline-block; background: #4b3a8c; color: #fff; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 32px; border-top: 1px solid #dad5e6; padding-top: 16px; }
+    @media (max-width: 600px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="index.html">Persona Conversation Simulator</a> · guide</p>
+  <h1>Big Five personality traits and conflict: who clashes, and why</h1>
+  <p>Most arguments between colleagues, housemates or a buyer and a seller are not about personality. But personality shapes how a disagreement goes: who speaks first, who gives way, who holds a line, and when it boils over. This page sets out the rules the <a href="index.html">simulator</a> uses to turn the five broad traits into those tendencies. The rules are written out so you can check them and disagree with them.</p>
+
+  <h2>The five traits, in conversation</h2>
+  <table>
+    <thead><tr><th>Trait</th><th>High</th><th>Low</th></tr></thead>
+    <tbody>
+      <tr><td>Openness</td><td>Reframes the problem, pushes new options</td><td>Wants proof it has worked before</td></tr>
+      <tr><td>Conscientiousness</td><td>Wants a plan, dates and owners</td><td>Improvises, moves on before details settle</td></tr>
+      <tr><td>Extraversion</td><td>Speaks first and most, thinks aloud</td><td>Speaks later and less, better in writing</td></tr>
+      <tr><td>Agreeableness</td><td>Seeks common ground, concedes to keep the peace</td><td>Blunt, sceptical, holds a hard line</td></tr>
+      <tr><td>Neuroticism</td><td>Feels pressure quickly, can escalate</td><td>Calm, hard to provoke</td></tr>
+    </tbody>
+  </table>
+
+  <h2>From traits to a conflict style</h2>
+  <p>The Thomas-Kilmann model sorts conflict behaviour on two axes: how hard you push for your own outcome (assertiveness), and how much you try to meet the other person's needs (cooperativeness). That gives five styles: competing, collaborating, compromising, accommodating and avoiding. The simulator approximates the two axes from the Big Five:</p>
+  <ul>
+    <li><strong>Assertiveness</strong> = 0.6 × extraversion + 0.4 × (100 − agreeableness)</li>
+    <li><strong>Cooperativeness</strong> = 0.75 × agreeableness + 0.25 × openness</li>
+  </ul>
+  <p>Both near the middle reads as compromising. Otherwise the quadrant picks the style. This is a heuristic mapping written for the tool, not a validated psychometric conversion.</p>
+
+  <h2>Which trait gaps cause friction</h2>
+  <ul>
+    <li><strong>Two low-agreeableness people.</strong> Two hard lines and little giving way. This is the strongest friction signal the tool uses.</li>
+    <li><strong>Two high-neuroticism people.</strong> Small disagreements escalate quickly. A calm partner (low neuroticism) steadies an anxious one instead.</li>
+    <li><strong>A wide agreeableness gap.</strong> The softer person may concede more than they meant to.</li>
+    <li><strong>A wide conscientiousness gap.</strong> A planner and an improviser argue about pace and detail more than about the goal.</li>
+    <li><strong>A wide extraversion gap.</strong> Rarely open conflict, but the quieter person's view surfaces late or not at all. Ask them directly.</li>
+    <li><strong>Shared high openness or conscientiousness</strong> counts as rapport: good at finding a third option, or at leaving with owners and dates.</li>
+  </ul>
+  <p>Research on bargaining points the same way for agreeableness and extraversion. In a straight haggle over one number, both traits have been found to be liabilities rather than strengths (Barry and Friedman, 1998, on distributive negotiation). The simulator's concession sizes follow that direction. Its exact weights are hand-set, not fitted to any study.</p>
+
+  <h2>Worked example: same two people, roles swapped</h2>
+  <p>Two invented characters. Rosa Juniper scores O70 C80 E75 A20 N30. Linus Oakhaven scores O40 C30 E20 A80 N70. The tool rates the pair <strong id="ex-verdict">high friction</strong>:</p>
+  <ul id="ex-notes">
+    <li>Rosa is far blunter than Linus; Linus may concede more than they meant to.</li>
+    <li>Rosa will take most of the airtime; Linus's view may surface late or not at all.</li>
+    <li>Rosa wants a plan and dates; Linus wants to keep it loose. Pace and detail are the likely sore point.</li>
+    <li>Rosa's calm can steady Linus when things get tense.</li>
+  </ul>
+  <p>Run the salary negotiation 500 times with seed <code>guide</code>, then swap who is the candidate:</p>
+  <table id="ex-table">
+    <thead><tr><th>Candidate</th><th>Hiring manager</th><th>Deal reached</th><th>Median salary when they agree</th></tr></thead>
+    <tbody>
+      <tr><td>Rosa</td><td>Linus</td><td>57%</td><td>$118,000</td></tr>
+      <tr><td>Linus</td><td>Rosa</td><td>53%</td><td>$102,000</td></tr>
+    </tbody>
+  </table>
+  <p>With the same two people and the same budgets, the median deal moves by $16,000 depending on which side the blunt, assertive character sits. In both directions the deal lands near the edge of Linus's range. That is the rehearsal point. If you concede easily, decide your limit before the conversation, and say less after you have made your offer.</p>
+  <p><a class="cta" href="index.html">Build your own cast and run it</a></p>
+
+  <h2>Which Big Five traits matter most in a conflict?</h2>
+  <p>Agreeableness and neuroticism do the most work. Agreeableness sets how readily someone gives way, and neuroticism sets how quickly pressure turns into escalation. Extraversion decides who holds the floor, and conscientiousness and openness show up as arguments about pace, detail and new ideas.</p>
+
+  <h2>Which personality pairs clash the most?</h2>
+  <p>Two low-agreeableness people (two hard lines), two high-neuroticism people (fast escalation), and pairs with a wide conscientiousness gap (a planner and an improviser arguing about pace and detail). A wide extraversion gap rarely causes open conflict, but the quieter person's view tends to surface late or not at all.</p>
+
+  <h2>What this is not</h2>
+  <p>Trait scores describe broad tendencies across many people. They do not tell you what one person will do on a given day, and nothing here is a way to assess a real person. The simulator builds invented characters only and refuses profile links, handles and contact details.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide and the simulator are provided free and as-is, without warranty of any kind. They are not psychological, medical, HR, legal or career advice, and not a personality assessment of anyone. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+    <p>Free and open source under the <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+  </footer>
+</body>
+</html>

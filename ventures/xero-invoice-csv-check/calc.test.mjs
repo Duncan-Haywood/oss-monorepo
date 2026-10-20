@@ -232,3 +232,16 @@ test("a non-numeric Total is an error", () => {
   const r = validate(totFile("Acme,INV-1,01/10/2026,31/10/2026,Work,2,100,,200,Tax Exempt,GBP,abc,"));
   assert.ok(titles(r, "error").some((t) => /Total "abc"/.test(t)));
 });
+
+test("text cells that start like a formula are flagged, plain negatives and hyphens are not", () => {
+  const r = validate(file("=HYPERLINK(\"x\"),INV-1,01/10/2026,31/10/2026,Work,1,100,,200,Tax Exempt,GBP", "Acme,INV-2,01/10/2026,31/10/2026,-5% retainer,1,100,,200,Tax Exempt,GBP", "Acme,INV-3,01/10/2026,31/10/2026,Work,1,100,,200,Tax Exempt,GBP"));
+  assert.equal(r.findings.filter((f) => /spreadsheet formula/.test(f.title)).length, 1);
+  assert.ok(has(r, /ContactName .* spreadsheet formula|ContactName "=HYPER/));
+});
+
+test("an invoice that nets to a negative or zero amount is flagged", () => {
+  const r = validate(file("Acme,INV-1,01/10/2026,31/10/2026,Work,-2,100,,200,Tax Exempt,GBP", "Acme,INV-2,01/10/2026,31/10/2026,Work,1,0,,200,Tax Exempt,GBP", "Acme,INV-3,01/10/2026,31/10/2026,Work,1,50,,200,Tax Exempt,GBP"));
+  assert.ok(has(r, /Invoice INV-1 totals -200\.00/));
+  assert.ok(has(r, /Invoice INV-2 totals zero/));
+  assert.ok(!has(r, /INV-3 totals/));
+});

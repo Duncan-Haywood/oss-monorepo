@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -722,5 +723,22 @@ def main(argv: Optional[list[str]] = None) -> int:
     return 0
 
 
+def _reexec_with_libyaml() -> None:
+    """Re-run this script under an interpreter whose PyYAML has libyaml (35s -> ~2s).
+
+    Only when run as a script and the current PyYAML lacks libyaml; one hop
+    (ALLOCATE_REEXEC) so a bad candidate cannot loop. Silent if none is found.
+    """
+    if getattr(yaml, "CSafeLoader", None) or os.environ.get("ALLOCATE_REEXEC"):
+        return
+    probe = "import yaml,sys; sys.exit(0 if getattr(yaml,'CSafeLoader',None) else 1)"
+    for cand in ("/usr/bin/python3.13", "/usr/bin/python3.12", "/usr/bin/python3"):
+        if cand != sys.executable and os.path.exists(cand) and \
+                subprocess.run([cand, "-I", "-c", probe], capture_output=True).returncode == 0:
+            os.environ["ALLOCATE_REEXEC"] = "1"
+            os.execv(cand, [cand, *sys.argv])
+
+
 if __name__ == "__main__":
+    _reexec_with_libyaml()
     sys.exit(main())
