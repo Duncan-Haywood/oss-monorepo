@@ -57,6 +57,7 @@ export const CHANNEL_REFS = Object.freeze({
   'wordpress-plugin': 'wordpress',
   'android-play-store': 'android',
   'ios-app-store': 'ios',
+  'desktop-apps': 'desktop',
 });
 
 

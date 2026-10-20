@@ -141,3 +141,30 @@ MIT licence, see `LICENSE`.
 **A message per team.** "Download a message per team" writes one ready-to-paste note for each team ("Hi Hawks, your fixtures: ...") with only that team's dates, venues, opponents and byes, so a coordinator can message each team instead of forwarding the whole league (`teamMessages` in `calc.mjs`).
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
+
+## Several divisions on shared courts (`divisions.mjs`)
+
+A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`
+solves them together: each division keeps its own circle-method round robin (home/away balance, byes,
+optional `(double)`), and one pass decides which divisions play on which night (divisions with the most
+rounds left go first, so they finish together) and which match gets which court and time.
+
+- **What it minimises.** Teams that share a coach or players (`U10/Hawks, U12/Hawks`) are kept out of the same time slot on a night
+  (and off consecutive slots at different venues); each team plays at the venue it used last time where it can
+  (`Court 1 @ Park` puts a court at a venue). Court closures and skip dates are respected. A clash that cannot be avoided is
+  listed under `conflicts`, never hidden.
+- **Run it.** `node divisions.mjs example-divisions.json` prints the nights; add `--csv` for the sheet. `example-divisions.json`
+  holds the form fields (divisions, courts, times, weekdays, skip dates, closures, links).
+- **Checked.** `validateDivisions` re-checks every pair meets once (twice for a double), home/away stays balanced, no court is
+  booked twice, no closed court is used and the conflict list matches a recount. `node --test divisions.test.mjs` (14 tests).
+- **Measured.** On the example (three divisions of 6, 8 and 6 teams, four courts at two venues, two time slots, three links),
+  summed over 8 seeds, the optimiser makes 322 venue changes against 432 for the naive order (-25%). Both give 0 linked clashes here,
+  so the example does not show the clash handling beating the naive order; the one-slot test shows an unavoidable clash being listed.
+- **Page.** `multi-division-league-schedule.html` runs it in the browser (divisions, courts at venues, times, skip dates, closures, links; CSV, plain-text and print exports; the same disclaimer and local-only usage counts as the main page), linked from `index.html` and the sitemap.
+- **Travel times.** A `travel` field (`Park - School: 25`, minutes, either direction) prices each venue change by its time
+  instead of counting it as one; a pair not listed counts as the longest one given. The optimiser then avoids the long hops first,
+  and `stats.travelMinutes` (and the text read-out) report the total. On three venues (Park-School 10, Park-Lake 60, School-Lake 55)
+  summed over 8 seeds: 14,840 minutes in the naive order, 11,335 when scheduled with every change costing the same, 10,230 with
+  the table (-10% against flat); the search runs 10x more moves when a table is given, which is what made that gain appear
+  (`divisions.test.mjs`). No table means the schedule is unchanged.
+- **Not done yet.** Rounds are placed whole, so a night with 1 spare slot stays partly empty.

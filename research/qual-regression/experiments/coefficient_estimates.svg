@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 260" role="img" aria-labelledby="t d">
+<title id="t">Estimates of a regression coefficient on an LLM-coded variable</title>
+<desc id="d">Naive estimate is 0.74 with a narrow interval that excludes the true value 1.0; human-only and DSL estimates are near 1.0, DSL with a narrower interval.</desc>
+<style>text{font:13px sans-serif;fill:#222}@media(prefers-color-scheme:dark){text{fill:#eee}}</style>
+<line x1="299.99999999999994" x2="299.99999999999994" y1="30" y2="220" stroke="#888" stroke-dasharray="4"/>
+<text x="299.99999999999994" y="22" text-anchor="middle">true value 1.0</text>
+<text x="70" y="56">Naive: OLS on LLM codes</text>
+<line x1="166.59999999999997" x2="234.06666666666663" y1="70" y2="70" stroke="#c0392b" stroke-width="3"/>
+<circle cx="200.33333333333331" cy="70" r="6" fill="#c0392b"/>
+<text x="242.06666666666663" y="75">0.74 ± 0.09</text>
+<text x="70" y="111">Human-only (about 210 items)</text>
+<line x1="184.2333333333333" x2="411.93333333333334" y1="125" y2="125" stroke="#888" stroke-width="3"/>
+<circle cx="298.08333333333326" cy="125" r="6" fill="#888"/>
+<text x="419.93333333333334" y="130">0.99 ± 0.30</text>
+<text x="70" y="166">DSL: LLM codes + hand-coded</text>
+<line x1="206.2749999999999" x2="402.15833333333325" y1="180" y2="180" stroke="#1f6fb2" stroke-width="3"/>
+<circle cx="304.2166666666666" cy="180" r="6" fill="#1f6fb2"/>
+<text x="410.15833333333325" y="185">1.01 ± 0.26</text>
+<text x="280.0" y="252" text-anchor="middle">coefficient on the code (mean estimate, mean 95% half-width)</text></svg>
