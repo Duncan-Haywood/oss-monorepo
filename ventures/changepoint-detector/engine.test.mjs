@@ -641,3 +641,17 @@ test('trend bends --joint-knots: scoring every pair of knots finds both bends on
   console.log(`# joint knots, 12 series: two knots ${greedy} greedy, ${joint} joint`);
   assert.ok(joint >= greedy + 3, `${joint} joint against ${greedy} greedy`);
 });
+
+test('trend bends --joint-knots: the refined pair places knots as well as the greedy search on white noise', () => {
+  // same ramp, independent noise, seeds 1001..1012; the coarse pair alone placed knots worse than greedy (README, "Scoring every pair of knots")
+  const n = 240, f = (i) => 0.1 * i + 0.1 * Math.max(0, i - 80) - 0.25 * Math.max(0, i - 160);
+  const near = (o) => { const k = o.knots || []; return k.length === 2 && Math.abs(k[0] - 80) <= 8 && Math.abs(k[1] - 160) <= 8; };
+  let greedy = 0, joint = 0;
+  for (let s = 1001; s <= 1012; s++) {
+    const x = normals(rng(s), n).map((v, i) => f(i) + v);
+    greedy += near(trendAdjust(x, { bend: 3 }));
+    joint += near(trendAdjust(x, { bend: 3, joint: true }));
+  }
+  console.log(`# joint knots, white noise, 12 series: both within 8 points ${greedy} greedy, ${joint} joint`);
+  assert.ok(joint >= greedy - 1, `${joint} joint against ${greedy} greedy`); // 40 series: 33 and 33 (was 27 joint before the pair was refined)
+});
