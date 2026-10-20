@@ -815,6 +815,10 @@ to share feedback. This widens "what is free" above:
    the detector picks feature functions. Four feedback conditions at equal budget, scored by a
    reference detector the loop never sees, with a memorization check on any component that
    draws on human examples. Keystroke timing and scrolling from the same corpus come next.
+   Landed 2026-10-20: every final imitator is caught at reference AUROC 0.99 to 1.00, shared
+   feedback did not help the imitator, and an 8 times larger search stops at the level of
+   replaying real strokes (0.88), so the component library is the limit; two-way sharing gave
+   the strongest detectors in cross-play, not yet significant at 8 seeds.
 10. `mimic-webcam`: webcam signals, signals first. Start from derived per-frame signals, not
    pixels: DUX also logs webcam emotion scores from a facial-coding tool for each event, and
    open face-landmark or head-pose corpora with a known licence are candidates. The imitator

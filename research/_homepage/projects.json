@@ -3501,7 +3501,7 @@
     {
      "slug": "mimic-cursor",
      "title": "Can an imitator that changes its own code fool a human-vs-bot cursor detector, and does shared feedback help either side?",
-     "summary": "Browser use, the first subject of the adversarial-imitation track beyond writing. Cursor strokes of 46 people from DUX (CC-BY-4.0); an imitator built from code components and a detector that picks feature functions play at equal budget, blind or with shared feedback. So far: a naive bot and every hand-written kinematic generator are caught at AUROC about 1.0, and even a rotated replay of a real stroke at 0.82. Preliminary; main results pending."
+     "summary": "Browser use, the first subject of the adversarial-imitation track beyond writing. Cursor strokes of 46 people from DUX (CC-BY-4.0) against an imitator built from code components and a detector that picks 3 of 11 feature functions, 4 feedback conditions &times; 8 seeds &times; 30 rounds at equal budget. A reference detector the loop never saw catches every final imitator at AUROC 0.99 to 1.00; detector explanations and shared imitator code did not make a better imitator. Detectors trained with two-way sharing did best against other runs&rsquo; imitators (cross-play AUROC 0.81 vs 0.70 blind), but the paired interval includes zero. An 8&times; larger search ends at 0.88, no better than replaying a real stroke, so the component library is the limit. Preliminary: one web form, 8 seeds, no model-written code."
     }
    ]
   },

@@ -119,3 +119,9 @@ template replay, tol 10 deg, mix 0.3: reference 0.892, copy_rate 0.121
 template replay, tol 3 deg, mix 0.0: reference 0.602, copy_rate 0.917
 template replay, tol 3 deg, mix 0.3: reference 0.868, copy_rate 0.216
 held-out people (copy rate only): copy_rate 0.064
+
+== J. Ceiling: a (1+4) evolution strategy against a logistic regression on every feature (ceiling.py)
+restart 0: 1000 evaluations, reference 0.882, copy rate 0.091, path template, clock template, dur template
+restart 1: 1000 evaluations, reference 0.953, copy rate 0.114, path template, clock empirical, dur template
+restart 2: 1000 evaluations, reference 0.952, copy rate 0.114, path template, clock empirical, dur template
+restart 3: 1000 evaluations, reference 0.993, copy rate 0.115, path template, clock template, dur fitts
