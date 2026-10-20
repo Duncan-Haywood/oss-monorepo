@@ -277,6 +277,22 @@ channels:
       - bundle ids are io.github.<owner>.<slug>; change one if Apple says it is taken
     owner_ask: join the Apple Developer Program, then follow the generated BUILD.md for one tool at a time (Simulator, TestFlight, then App Review)
     dry_run: node platform/distribution/ios.mjs
+  - id: desktop-apps
+    rung: artifact
+    built: 2026-10-20
+    code: platform/distribution/desktop.mjs
+    workflow: .github/workflows/distribute-desktop.yml (workflow_dispatch only; the build jobs are skipped unless DISTRIBUTE_DESKTOP is true)
+    enabled_by: repository variable DISTRIBUTE_DESKTOP=true, then a manual run with a venture slug or suite id. No secret is read; signing and notarisation are the owner's steps
+    what_it_posts: 'nothing automatically. `desktop.mjs --build <slug|suite> <dir>` writes a Tauri v2 project (dist/ mirroring the site layout, a Rust shell, tauri.conf.json, .ico/.icns/.png icons, winget manifest templates, BUILD.md) for any static venture page the browser-extension packager accepts (1213 of 1285 today), or for a catalogue section as a suite with a launcher page. The CSP has connect-src none, no Tauri capability is granted, and the window loads only bundled pages; other links open in the system browser tagged ?ref=desktop. A manual workflow run builds unsigned .dmg (macOS), .msi/.exe (Windows) and .AppImage/.deb (Linux) on the matching runners and attaches them, SHA256SUMS.txt and filled-in winget manifests to a pre-release.'
+    dedupe: one pre-release per run (tag desktop-<target>-<run number>); nothing is overwritten
+    verified: 2026-10-20 the generated shift-roster-builder project compiled with Tauri 2.12 on Linux (no errors or warnings), bundled a 1.4 MB .deb and an 80 MB .AppImage, and rendered the tool offline under Xvfb
+    not_verified: the macOS and Windows builds and the workflow itself were not run (no runners for them in the build session); the first manual run is that check
+    terms_to_confirm_by_owner_when_enabling:
+      - unsigned installers warn on first launch (macOS Gatekeeper, Windows SmartScreen); a Developer ID (Apple Developer Program, annual fee) and a Windows code-signing certificate or Azure Trusted Signing remove that, per the generated BUILD.md
+      - winget-pkgs contribution policy (the manifests are submitted as a pull request under the owner's account); Flathub and Snap Store submission rules if those follow-ups are taken up
+      - identifiers are io.github.<owner>.<slug> (suites io.github.<owner>.suite<id>)
+    owner_ask: set DISTRIBUTE_DESKTOP=true and run the workflow for one tool or suite; signing, notarisation and the winget/Flathub/Snap submissions follow BUILD.md
+    dry_run: node platform/distribution/desktop.mjs
   # The distribution hub (platform/distribution/hub.mjs): one composer, per-platform variants, one scoreboard.
   - id: hub-threads
     rung: artifact
@@ -374,7 +390,7 @@ channels:
     code: platform/distribution/hub.mjs
     workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact)
     enabled_by: nothing; drafts only, never posted automatically
-    why_drafts_only: "Medium no longer issues integration tokens; use its "Import a story", which keeps the canonical link"
+    why_drafts_only: "Medium no longer issues integration tokens; use its 'Import a story', which keeps the canonical link"
     what_it_posts: nothing. `hub.mjs pack --out <dir>` writes medium.md with paste-ready text whose links carry ?ref=medium
     owner_ask: none; post by hand when wanted
     dry_run: node platform/distribution/hub.mjs plan --only medium

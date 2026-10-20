@@ -57,6 +57,7 @@ export const CHANNEL_REFS = Object.freeze({
   'wordpress-plugin': 'wordpress',
   'android-play-store': 'android',
   'ios-app-store': 'ios',
+  'desktop-apps': 'desktop',
   // The distribution hub (platform/distribution/hub.mjs), one row per platform it writes for.
   'hub-threads': 'threads',
   'hub-facebook': 'facebook',

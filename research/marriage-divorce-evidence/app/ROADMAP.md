@@ -211,21 +211,23 @@ Done (2026-10-19/20, PRs #8537, #8556 and the round-3 PR):
   selected before-the-wedding lens for the years after a wedding (a labelled approximation that
   joins two surveys). Shown only before the wedding; relationship questions are visible there
   and the relationship status follows the stage (`tests/dating.test.mjs`).
+- Per-partner explanations: a two-perspective lens shows one bar set per partner, each exact for
+  that perspective's rate, and states that the couple's rate is their average
+  (`tests/explain_rows.test.mjs`). Default ages follow the stage: 28 and 30 before the wedding
+  (about the recent U.S. median ages at first marriage), 36 and 38 in the married view (inside
+  NLSY79's 35–64); a typed age is never changed.
 
 Remaining:
 
-- Before the wedding, next: a default couple at typical first-wedding ages; per-model ranges
-  for the dating chain once the trees beat the period-only baseline; and a joint (not two
-  separately fitted) marry/break-up model if workstream A refits HCMST.
+- Before the wedding, next: B's per-couple uncertainty intervals for the harmonized lens
+  (#8736, still a draft) shown on the tiles once merged; a joint (not two separately fitted)
+  marry/break-up model if workstream A refits HCMST.
 - Mortality refinements. Married people's lower death rates and the correlation between
   spouses' deaths are not modelled; the app says so under the lifelong tiles. Lifelong figures
   over long horizons also lean on years outside each lens's data (the page counts them).
 - Fair's affairs lenses are listed but not scored. Their outcome is a reported affair, not
   divorce, and they need marriage-rating, religiousness and occupation inputs. If added, they
   belong in a separate "relationship quality" panel, not the divorce chart.
-- Explanations for two-perspective lenses average the per-input log contributions of the two
-  rows. That is exact for each row but only approximate for the averaged rate; show per-partner
-  bars instead.
 - Calibration plots and bootstrap intervals once workstream B ships them per bundle. Today's
   uncertainty is the spread across models only.
 - Done 2026-10-20: every lens scored (adapters in `lens-adapters.js`), per-lens OOD (the NLSY79

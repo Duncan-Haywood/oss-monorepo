@@ -55,6 +55,15 @@ DOCKER_DEPENDENT_JOBS = {
     ("quick-pick-survey-ci.yml", "verify"),
 }
 
+# Jobs that build for an operating system the self-hosted pod cannot be: the
+# desktop packager's .dmg and .msi need macOS and Windows runners, so the job
+# takes its runner from its OS matrix. Manual-only and owner-gated
+# (DISTRIBUTE_DESKTOP), so it never runs on a push and never starves on one.
+OS_MATRIX_JOBS = {
+    ("distribute-desktop.yml", "build"),
+}
+OFF_SWITCH_JOBS = DOCKER_DEPENDENT_JOBS | OS_MATRIX_JOBS
+
 
 def _ci_docs() -> dict[str, dict]:
     docs: dict[str, dict] = {}
@@ -80,6 +89,12 @@ def test_every_workflow_reads_the_runner_switch() -> None:
         for name, job in (spec.get("jobs") or {}).items():
             if (path.name, name) in DOCKER_DEPENDENT_JOBS:
                 assert job.get("runs-on") == "ubuntu-latest", f"{path.name}:{name}"
+                continue
+            if (path.name, name) in OS_MATRIX_JOBS:
+                assert job.get("runs-on") == "${{ matrix.os }}", f"{path.name}:{name}"
+                assert {"macos-latest", "windows-latest"} <= {
+                    row["os"] for row in job["strategy"]["matrix"]["include"]
+                }, f"{path.name}:{name} needs no OS matrix -- put it back on the switch"
                 continue
             assert job.get("runs-on") == RUNS_ON, f"{path.name}:{name}"
 
@@ -116,7 +131,7 @@ def test_readme_runs_on_count_matches_reality() -> None:
     for path in workflows:
         spec = yaml.safe_load(path.read_text())
         total_runs_on += len(spec.get("jobs") or {})
-    switch_count = total_runs_on - len(DOCKER_DEPENDENT_JOBS)
+    switch_count = total_runs_on - len(OFF_SWITCH_JOBS)
 
     readme = (CI / "README.md").read_text()
     match = re.search(
@@ -156,7 +171,7 @@ def test_sync_readme_counts_agrees_with_the_allowlist_derivation() -> None:
     total_runs_on = sum(
         len(yaml.safe_load(p.read_text()).get("jobs") or {}) for p in workflows
     )
-    expected = (total_runs_on - len(DOCKER_DEPENDENT_JOBS), total_runs_on, len(workflows))
+    expected = (total_runs_on - len(OFF_SWITCH_JOBS), total_runs_on, len(workflows))
     assert _sync.counts() == expected, (
         "sync_readme_counts.counts() disagrees with the DOCKER_DEPENDENT_JOBS "
         "derivation -- the allowlist and the workflow tree have drifted apart"

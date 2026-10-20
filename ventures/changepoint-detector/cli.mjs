@@ -20,9 +20,11 @@ Usage:
 Options:
   --column <name|index>     value column (default: last numeric column)
   --label-column <name|i>   label/date column (default: first column)
-  --model mean|meanvar      change in level, or in level and volatility (default: mean)
+  --model mean|meanvar|poisson  change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|hannan-quinn|<number>   PELT penalty per change (default: bic)
   --min-segment <n>         shortest segment (default: 2 for mean, 5 for meanvar)
+  --period <n>              remove a seasonal cycle of n points first (12 monthly, 7 daily-weekly); mean/meanvar
+  --ar1                     widen the noise scale for lag-1 autocorrelation (mean model)
   --hazard <n>              Bayesian expected points between changes (default: ${DEFAULTS.hazardLambda})
   --threshold <p>           report Bayesian changes at or above p (default: ${DEFAULTS.threshold})
   --example                 run on the bundled Nile river flow series
@@ -39,19 +41,20 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   let file = null;
   let json = false;
   let example = false;
-  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold' };
+  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
     else if (a === '--json') json = true;
     else if (a === '--example') example = true;
+    else if (a === '--ar1') opt.ar1 = true;
     else if (flags[a]) {
       if (i + 1 >= argv.length) throw new Error(`${a} needs a value`);
       opt[flags[a]] = argv[++i];
     } else if (a.startsWith('-')) throw new Error(`Unknown option ${a}. Try --help.`);
     else file = a;
   }
-  for (const k of ['minSegment', 'hazardLambda', 'threshold']) if (opt[k] != null) opt[k] = Number(opt[k]);
+  for (const k of ['minSegment', 'hazardLambda', 'threshold', 'period']) if (opt[k] != null) opt[k] = Number(opt[k]);
   if (!example) {
     if (file) opt.csv = await readFile(file, 'utf8');
     else {
