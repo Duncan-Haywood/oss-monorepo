@@ -50,6 +50,10 @@
     {
       "file": "platform/pages/build.test.mjs",
       "issue": "Full suite exceeded 15 minutes locally and was killed by timeout; one cache-name test failed in that run while the tree was being edited concurrently."
+    },
+    {
+      "file": "platform/marketing/front-door-tools.mjs",
+      "issue": "Its usage comment says --write output in gitops/prod/front-door-tools/ is committed, but main does not track that directory; it leaves ~6,000 untracked files."
     }
   ],
   "deviations": [
@@ -63,7 +67,7 @@
     }
   ],
   "goal": null,
-  "notes": "Two tools were built by subagents in parallel to a spec written first, then reviewed: all three venture suites pass (run_venture_tests.py), headless Chromium at 390px shows no console errors, no external requests and no horizontal scroll (one overflow fixed on the conformal page). Verification numbers are in each venture README. Desktop app packaging (macOS/Windows/Linux) is the open distribution gap; queued as a suggested task for the owner.",
+  "notes": "Two tools were built by subagents in parallel to a spec written first, then reviewed: all three venture suites pass (run_venture_tests.py), headless Chromium at 390px shows no console errors, no external requests and no horizontal scroll (one overflow fixed on the conformal page). Verification numbers are in each venture README. Desktop app packaging (macOS/Windows/Linux) is the open distribution gap; queued as a suggested task for the owner. Report and handoff steps: docs/history/research-tools-2026-10-20.md; blog post docs/posts/2026-10-20-research-algorithms-in-your-browser.md. Also synced a stale runs-on count in gitops/ci/README.md that was red on main.",
   "corrections": [],
   "redteam": null
 }
