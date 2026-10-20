@@ -164,3 +164,12 @@ test("a UBL credit note with defects reports each official rule with a specific 
   assert.deepEqual(rules, ["BR-CL-01", "BR-CO-14", "BR-CO-15", "DE-R-015", "PEPPOL-EN16931-P0101", "PEPPOL-EN16931-R003"]);
   assert.ok(r.findings.every((f) => hasSpecificFix(f.rule)), "every finding has a rule-specific English fix");
 });
+
+test("a CII credit note with defects reports each official rule with a specific fix", { skip: !ciiXrReady && "run build-schematron.mjs" }, (t) => {
+  const r = runSchematron(read("xrechnung-cii-credit-note-with-defects.xml"));
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  assert.deepEqual(r.sets, ["en16931", "xrechnung"]);
+  const rules = r.findings.map((f) => f.rule).sort();
+  assert.deepEqual(rules, ["BR-CL-01", "BR-CO-14", "BR-CO-17", "BR-DE-15", "BR-DE-17", "BR-DE-2", "BR-DE-TMP-32", "BR-S-09"]);
+  assert.ok(r.findings.every((f) => hasSpecificFix(f.rule)), "every finding has a rule-specific English fix");
+});

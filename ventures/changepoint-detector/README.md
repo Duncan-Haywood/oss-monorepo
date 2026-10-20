@@ -153,6 +153,31 @@ series, 40 each, in `engine.test.mjs`):
   the shift found in 39 of 40, exactly one change in 33 of 40, false changes on 9 of 40. With independent
   noise `--ar1` still helps (exactly one 24 to 36 of 40, false 14 to 5), because the drift profile leaves
   correlated residue. `--ar1 joint` is about the same (exactly one 30 of 40, false 15 at rho 0.5).
+- **A trend under the steps (`--trend`).** A slow ramp reads as many small steps. `--trend` fits one
+  line under the steps: start from the median first difference (a step touches one difference), segment
+  with PELT, re-estimate the slope as the pooled within-segment least-squares slope (segments of 8 or more
+  points), repeat. The segmentation inside that loop uses three times the penalty, because with the normal
+  penalty a slightly wrong slope makes PELT cut the residual ramp and the cuts then confirm the slope (seed 3
+  below stuck at 0.111 for a true 0.1); the final segmentation uses the normal penalty. On 200 points, slope 0.1,
+  shift 5 at point 100, seeds 501..540: 10.1 changes per series without, 1.13 with; mean slope 0.1003; shift found
+  40 of 40, exactly one change 37 of 40, a false change on 3 of 40 series with no shift (9.75 changes per
+  series without). Combined with `--period 12` (144 points, slope 0.08, amplitude 8, shift 5 at 84, seeds
+  601..640): 6.6 changes per series with `--period` alone, 1.25 with `--trend`, found 40 of 40, exactly one 36
+  of 40. One common slope only; a slope that itself changes is still read as steps. Not offered for counts.
+- **A slope that changes once (`--trend bend`).** `--trend` alone reads a ramp whose slope doubles as steps. `--trend bend`
+  tries every knot between 20% and 80% of the series (about 40 candidates), fits a second slope after it
+  (continuous at the knot), and keeps the bend only if BIC (n ln(rss/n), ln n per step and per slope parameter) falls.
+  On 200 points, slope 0.1 doubling to 0.2 at point 100, seeds 801..840: 4.58 changes per series with `--trend`,
+  0.48 with `--trend bend`; mean knot 100.5, mean second slope 0.195; with a step of 5 added at 150 it was found
+  in 40 of 40; on 40 straight ramps with no bend, a bend was kept in 0 of 40. One bend only; CLI and API
+  (`trend: 'bend'`), not yet the web page. Output: `trend.slopeAfter`, `trend.slopeChangesAt`.
+- **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
+  steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
+  long-run factor. On 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at point 100 (seeds 701..740): PELT gave
+  8.68 changes per series with `--trend` alone and 1.38 with `--trend --ar1`; false changes on the 40 no-shift
+  series fell from 39 to 3 (PELT) and 30 to 0 (Bayesian pass); the shift was found in 36 of 40, and the Bayesian
+  pass reported exactly one change near it in 34 of 40. Before the loop was made AR(1)-aware, `--trend --ar1`
+  still gave a false PELT change on 28 of 40 series. `--ar1 joint` is close (Bayesian exactly one 35 of 40, false 1).
 - **Choosing the drift window from the data: tried, not kept.** Picking the half-width (1 to 6 cycles) by
   leave-one-out prediction error, with and without a 10% margin over the fixed default, was worse than
   the fixed rule in all five series shapes tried (growing, steady, fast-growing, 72-point and a
@@ -160,9 +185,22 @@ series, 40 each, in `engine.test.mjs`):
   and gave 32 changes per series against 3.3. The held-out error rewards narrow windows that follow noise,
   so it is not a proxy for clean detection. The fixed rule stays.
 
+- **Trending series (`--model trend`).** The level model reads a steady climb as a staircase. The `trend`
+  model fits one straight line per segment (cost: residual sum of squares about the segment's least-squares
+  line, from prefix sums; BIC charges 3 log n per change for location, level and slope; minimum segment 4),
+  so it finds both jumps and changes of slope. Exact: PELT equals optimal partitioning and the cost equals a
+  direct regression (tested). Seeded synthetic series, 120 points, noise sd 1, seeds 1..40, level model
+  against trend model: a pure ramp of slope 0.1 with no change gave 5.5 against 0.15 changes per series;
+  a slope break at point 60 (0.1 to 0.4) gave 10.4 against 1.1, with the break found within 5 points in
+  30 of 40 and exactly one change near it in 27 of 40; a ramp with a jump of 5 at point 60 gave exactly one
+  change near it in 38 of 40. The Bayesian pass stays a level-change detector: it runs on the series minus a
+  line whose slope is the median first difference (a level shift touches one difference, so it does not
+  bend the slope), so it does not flag pure slope changes, which only PELT reports. Not combined with
+  `--ar1` and not offered for counts; with `--period` the profile is removed first.
+
 ## Limits
 
-Steps, not trends: a gradual drift is approximated by several steps. Seasonality is
+Steps by default: a gradual drift is approximated by several steps unless you choose `--model trend` (a line per segment, no curvature). Seasonality is
 removed with `--period` (`--drift` follows a changing shape with a running median; no full STL). A changepoint describes the data, not its cause.
 Up to 100,000 points; the Bayesian pass is the slow part on long series.
 

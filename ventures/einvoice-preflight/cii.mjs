@@ -249,6 +249,9 @@ export function parseCiiInvoice(source) {
     || nestedText(settlement, "DueDateDateTime", "DateTimeString"));
   if (due) invoice.due_date = due;
   if (typeCode) invoice.document_code = typeCode;
+  // BT-25: the invoice a credit note reverses (BG-3), in the settlement header.
+  const original = nestedText(settlement, "InvoiceReferencedDocument", "IssuerAssignedID");
+  if (original) invoice.original_invoice = original;
   const buyerRef = textOf(agreement, "BuyerReference");
   if (buyerRef) invoice.buyer_reference = buyerRef;
   const specification = nestedText(firstChild(root, "ExchangedDocumentContext"), "GuidelineSpecifiedDocumentContextParameter", "ID");

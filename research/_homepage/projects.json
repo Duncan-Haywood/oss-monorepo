@@ -1429,6 +1429,11 @@
      "summary": "Provably equivalent rewrites of generated adder and multiplier RTL (random wire names, shuffled statements, shuffled order of added operands; 864 scored variants, every text proved equivalent to its reference) are scored under three ABC scripts. Names and statement order never change cells&times;depth. Operand order changes one carry-select adder by up to 1.43&times; within a script, and its best variant under <code>dch</code> is 17% better than the best adder <code>chip-abc-sweep</code> reported, so that earlier best was one draw from a distribution the text controls. Five other structures are unaffected. Stylised: two designs, one Yosys version, 12 seeds, generic-gate counts, cause not yet traced."
     },
     {
+     "slug": "chip-abc-orderblocks",
+     "title": "Do the blocks of a carry-select adder share a + b independently when every chain gets its own operand order?",
+     "summary": "A follow-up to <code>chip-abc-orderpass</code>, which only ran uniform orders. 400 random mixed variants of a 16-bit carry-select adder (each of the 7 <code>a + b + const</code> chains in its own random operand order; all proved equivalent to the reference) are scored under three ABC scripts. The set of blocks whose two chains both start with <em>a</em>, <em>b</em> predicts the Yosys adder count after <code>opt</code> in 400 of 400 variants and fixes the cells &times; depth: all 8 possible sets occurred, and each had exactly one score per script. The effect is not additive: sharing only block 1 costs 1.38&times; under <code>dch_map</code>, only block 3 costs 1.00&times;. Stylised: one adder, Yosys 0.33, a generic-gate library, no place and route."
+    },
+    {
      "slug": "chip-abc-orderpass",
      "title": "Which Yosys pass makes the operand order of a + b + constant change the synthesised adder?",
      "summary": "A follow-up to <code>chip-abc-order</code>. All 36 operand orders of a 16-bit carry-select adder's <code>a + b + const</code> chains (each proved equivalent to the reference) are run through <code>synth</code> one pass at a time. The cell counts first diverge in <code>opt_merge</code>: when a block's two sums both start with <code>a</code> and <code>b</code>, one shared <code>a + b</code> is kept (7 adders instead of 10), which happens in 4 of 36 orders. Cells&times;depth then takes only two values per ABC script, and the shared netlist is 1.20&ndash;1.28&times; larger under <code>dch_map</code> and <code>resyn2_map</code> but 0.92&times; under Yosys's default script. Removing <code>opt_merge</code> does not remove the dependence: the spread over orders widens to 1.44&ndash;3.17&times;. Stylised: one adder, Yosys 0.33, generic-gate cells&times;depth, no place and route."
@@ -2935,7 +2940,7 @@
     {
      "slug": "eda-harness",
      "title": "Can one harness check, score, cache and log candidate chip designs for any proposer?",
-     "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
+     "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. A follow-up reuses one Yosys run for the gate check and the score: identical metrics on all 40 designs and 50% less wall time (561&nbsp;s to 280&nbsp;s, single timing runs). Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
     },
     {
      "slug": "eda-gridxfer",
@@ -3748,7 +3753,7 @@
     {
      "slug": "house-adufees",
      "title": "What does Denver Water's 2026 tap fee cost a 480 sq ft backyard cottage (ADU) against a house?",
-     "summary": "From Denver Water&rsquo;s own 2026 schedule: an ADU pays a flat $2,170 inside Denver from 1 July 2026 ($2,055 before), against $5,400 for a house charged on 2,000 sq ft, 60% less. Per floor sq ft the ADU is dearer ($4.52 against $2.70). Denver Water&rsquo;s share is small beside <code>house-market</code>&rsquo;s $16,930 &ldquo;water and sewer SDC&rdquo;, leaving about $12,000 for sewer and other items that this project could not read. One fee only; the page does not say whether the rate applies to lot or floor area."
+     "summary": "From Denver Water&rsquo;s own 2026 schedule: an ADU pays a flat $2,170 inside Denver from 1 July 2026 ($2,055 before), against $5,400 for a house charged on 2,000 sq ft, 60% less. Per floor sq ft the ADU is dearer ($4.52 against $2.70). Denver Water&rsquo;s share is small beside <code>house-market</code>&rsquo;s $16,930 &ldquo;water and sewer SDC&rdquo;, leaving about $12,000 for sewer and other items. Denver DOTI&rsquo;s own 2026 sewer schedule ($6,480 per residential unit, plus $575 application and inspection) puts an ADU that shares the house&rsquo;s water tap at about $2,745 for water and sewer permits together, and one needing its own tap at up to $9,225 (an upper-bound reading: DOTI publishes no ADU amount); about $5,500 of <code>house-market</code>&rsquo;s figure stays unexplained. Two utilities only; the page does not say whether the rate applies to lot or floor area."
     }
    ]
   },
@@ -3776,6 +3781,11 @@
     "slug": "capture-novelview",
     "title": "How far apart can cameras be before a reel editor can no longer synthesise the angle between them?",
     "summary": "A ray-traced toy scene, two ring cameras, a depth-based warp to the midpoint, scored against the ray-traced truth. With exact depth, synthesis beats cutting to the nearest camera only up to a gap of about 30&deg; (24.8 against 23.6 dB); at 45&deg; it is worse (19.3 against 23.1 dB) because 8% of the target is a hole neither camera saw, though pixels it does fill stay near 29&ndash;30 dB. A bystander pulls the crossover in to about 15&deg;, and depth error on the sources costs about 1.4 dB per percent at first (27.5 dB exact, 22.0 dB at 10%). Toy scene with smooth textures and oracle depth: read the ordering, not the decibels."
+   },
+   {
+    "slug": "capture-stereodepth",
+    "title": "Is the depth a camera rig can actually measure good enough for the in-between angle?",
+    "summary": "capture-novelview assumed independent depth noise of 2&ndash;5%. Here depth is measured instead: block-matching stereo on a rendered rectified pair, fed into the same two-view warp and scored against ray-traced truth at a 15&deg; gap. Mean depth error falls from 14.9% at a 3 cm baseline to 2.7% at 50 cm, but coverage peaks at 91% near 20 cm (stereo cannot match occluded or flat pixels), and the synthesised view never beats cutting to the nearest camera: best 22.3 dB at 20 cm against 24.8 dB, with exact depth at 27.3 dB. Independent noise with the same mean error is optimistic by 1optimistic by 1&ndash;5 dBndash;7 dB, because real errors are correlated and missing depth leaves holes. Sensor noise of 3% already costs 3 dB. Toy scene, smooth textures, a classic matcher with no learned prior or hole filler."
    },
    {
     "slug": "capture-follow",

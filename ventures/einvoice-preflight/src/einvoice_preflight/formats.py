@@ -408,6 +408,10 @@ def _parse_cii(root: Any) -> dict[str, Any]:
         "currency": _text(settlement, f"{{{RAM}}}InvoiceCurrencyCode"),
         "buyer_reference": _text(agreement, f"{{{RAM}}}BuyerReference"),
     }
+    # BT-25: the invoice a credit note reverses (BG-3), in the settlement header.
+    original = _text(settlement, f"{{{RAM}}}InvoiceReferencedDocument", f"{{{RAM}}}IssuerAssignedID")
+    if original:
+        document["original_invoice"] = original
 
     for key, tag in (("supplier", "SellerTradeParty"), ("customer", "BuyerTradeParty")):
         party = None if agreement is None else agreement.find(f"{{{RAM}}}{tag}")
@@ -623,6 +627,8 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         invoice["document_code"] = document["type_code"]
     if document.get("buyer_reference"):
         invoice["buyer_reference"] = document["buyer_reference"]
+    if document.get("original_invoice"):
+        invoice["original_invoice"] = document["original_invoice"]
     if header_reason:
         invoice["tax_exemption_reason"] = header_reason
     if totals_src.get("prepaid") not in (None, ""):

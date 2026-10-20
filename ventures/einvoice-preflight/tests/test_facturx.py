@@ -42,6 +42,12 @@ class FacturxDetectionTest(unittest.TestCase):
         self.assertEqual(syntax, "cii")
         self.assertEqual(document["invoice_number"], "INV-2026-0043")
 
+    def test_shipped_credit_note_unwraps_and_checks_clean(self) -> None:
+        document, syntax = parse_bytes((EXAMPLES / "factur-x-credit-note.pdf").read_bytes())
+        self.assertEqual(syntax, "cii")
+        self.assertEqual(document["invoice_number"], "GS-2026-0011")
+        self.assertEqual(document["original_invoice"], "RE-2026-0107")
+
     def test_flate_compressed_attachment_still_unwraps(self) -> None:
         pdf = build_pdf_with_attachment(CII.read_bytes(), flate=True)
         extracted = extract_embedded_invoice_xml(pdf)

@@ -25,5 +25,11 @@ p(f"Denver Water ${m.house_sdc(2000, '2026-01-01'):,.0f}; remainder (sewer and o
 p("== G. Charged area implied by the $10,450 single-family fee reported for Denver in 2026 (search excerpt, Colorado Sun)")
 implied = (10450 - 3380) / 1.01
 p(f"July 2026 schedule: ${m.house_sdc(implied):,.0f} at {implied:,.0f} sq ft charged (a lot-sized area, not a floor area)")
+p("== H. DOTI 2026 sewer permit fees (inside Denver, July 2026 water step)")
+p(f"fees: application $425 + inspection $150 = ${m.sewer_permit_fees(False):,.0f}; per-unit connection fee ${m.sewer()['total_per_unit']:,.0f}")
+p(f"ADU sharing the house's water tap: SDC ${m.adu_sdc():,.0f} + sewer permit ${m.sewer_permit_fees(False):,.0f} = ${m.adu_water_sewer_total(False):,.0f}")
+p(f"ADU with its own tap (upper-bound reading): ${m.adu_water_sewer_total(True):,.0f}")
+p(f"house on 2,000 sq ft charged: ${m.house_water_sewer_total():,.0f}")
+p(f"house-market's $16,930 less Denver Water Jan-step SDC less DOTI per-unit fee: ${m.unexplained_after_sewer():,.0f} still unexplained")
 (HERE / "results.txt").write_text("\n".join(out) + "\n")
 print("\n".join(out))

@@ -64,6 +64,7 @@ that stops being read.
 | `session/start` | POST | optional session | `Participant` | per-IP, accounts exempt | unit + integration |
 | `session/status` | POST | owns the participant | no | fan-out capped at 20 ids | integration |
 | `surveys/[slug]` | GET | none | no | — | — |
+| `surveys/[slug]/join` | POST | none | `Participant` | per-IP | unit |
 | `trials/answer` | POST | none | no | claims its own trial once | integration |
 | `trials/next` | POST | none | `Trial` | pending row reused for 30 min | unit + integration |
 | `trials/undo` | POST | none | no | replays a stored snapshot | integration |

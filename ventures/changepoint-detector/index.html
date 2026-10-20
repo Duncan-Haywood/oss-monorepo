@@ -57,10 +57,11 @@
     <div class="grid">
       <div><label for="column">Value column (name or number; blank = last numeric)</label><input id="column" type="text" placeholder="e.g. volume"></div>
       <div><label for="model">Look for a change in</label>
-        <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="poisson">Rate of counts (Poisson)</option></select></div>
+        <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option></select></div>
       <div><label for="penalty">Penalty per change (PELT)</label>
         <select id="penalty"><option value="bic">BIC (default)</option><option value="aic">AIC (finds more)</option><option value="hannan-quinn">Hannan-Quinn</option><option value="custom">Custom number…</option></select></div>
       <div><label for="penaltyValue">Custom penalty</label><input id="penaltyValue" type="number" min="0" step="any" value="10" disabled></div>
+      <div><label for="trend"><input id="trend" type="checkbox"> Remove a linear trend under the steps</label></div>
       <div><label for="drift"><input id="drift" type="checkbox"> Seasonal shape drifts (needs a period)</label></div>
       <div><label for="period">Seasonal period in points (0 = none)</label><input id="period" type="number" min="0" step="1" value="0"></div>
       <div><label for="ar1">Autocorrelated noise (level model)</label><select id="ar1"><option value="">Assume independent</option><option value="1">Allow for it</option><option value="joint">Allow for it (joint fit)</option></select></div>
@@ -88,7 +89,7 @@
     <h2 id="method-h">Method and citation</h2>
     <p><strong>PELT</strong> (Pruned Exact Linear Time; Killick, Fearnhead &amp; Eckley 2012) minimises the total cost of a segmentation — twice the negative Gaussian log-likelihood of each segment, plus a penalty for every change — over <em>every</em> possible set of changes. Dynamic programming makes this exact; pruning discards candidate change locations that can never be optimal, which makes it about linear in the length of the series. For a change in level, the noise standard deviation is estimated once from the median absolute difference of successive points, so the level shifts themselves do not inflate it.</p>
     <p><strong>Bayesian online changepoint detection</strong> (Adams &amp; MacKay 2007) keeps a posterior distribution over the <em>run length</em> — how many points since the last change — and updates it with each new point. Each segment has an unknown mean and variance with a Normal-Inverse-Gamma prior, so predictions are Student-t and the update is exact. The prior is centred on your data (its median and robust noise variance) and kept weak. Because the probability of a change <em>at</em> the newest point always equals the hazard, this tool reports, for each point, the posterior probability — seen five points later — that a new segment began there.</p>
-    <p><strong>Limits.</strong> Both methods assume the points within a segment are independent around a constant level; strong seasonality or autocorrelation shows up as extra changes, so remove a known seasonal pattern first. Gradual trends are approximated as steps. BIC, the default penalty, still splits roughly one series in ten of pure noise of length 300 (our tests measure this), so treat a single small change with care. A changepoint is a statement about the data, not about what caused it.</p>
+    <p><strong>Limits.</strong> Both methods assume the points within a segment are independent around a constant level; strong seasonality or autocorrelation shows up as extra changes, so remove a known seasonal pattern first. Gradual trends are approximated as steps unless you choose the level-or-slope model, which fits a straight line per segment. BIC, the default penalty, still splits roughly one series in ten of pure noise of length 300 (our tests measure this), so treat a single small change with care. A changepoint is a statement about the data, not about what caused it.</p>
     <p>Source, tests and a command-line version: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changepoint-detector">GitHub</a>. AI agents can call the same engine: <code>node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'</code>.</p>
     <h3>Cite the methods</h3>
 <pre>@article{adams2007bayesian,
@@ -172,7 +173,7 @@
       $("#error").textContent = "";
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
       try {
-        last = analyze({ csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, period: Number($("#period").value) || 0, drift: $("#drift").checked, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) });
+        last = analyze({ csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, period: Number($("#period").value) || 0, drift: $("#drift").checked, trend: $("#trend").checked, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) });
       } catch (e) { $("#results").hidden = true; $("#error").textContent = e.message; return; }
       const r = last;
       $("#summary").textContent = r.summary;

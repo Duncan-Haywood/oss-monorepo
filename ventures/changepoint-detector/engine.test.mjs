@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -410,4 +410,157 @@ test('seasonal drift with --ar1: sticky noise on a growing cycle stays one chang
   console.log(`# period+drift+ar1: ${plain / N} vs ${ar / N} changes/series; found ${found}/${N}; exactly one ${exact}/${N}; false ${falseRuns}/${N}`);
   assert.ok(ar / N < 0.3 * (plain / N), `${ar / N} vs ${plain / N}`);
   assert.ok(found >= 0.9 * N && exact >= 0.6 * N && falseRuns <= 0.4 * N);
+});
+
+test('trend model: the segment cost equals a direct least-squares fit, and PELT equals optimal partitioning', () => {
+  const x = normals(rng(77), 60).map((e, i) => 0.2 * i + (i >= 30 ? 6 : 0) + e);
+  const cost = makeCost(x, 'trend', 1);
+  for (const [s, t] of [[0, 60], [0, 30], [30, 60], [10, 25]]) {
+    const m = t - s;
+    const tb = (s + t - 1) / 2, xb = x.slice(s, t).reduce((a, v) => a + v, 0) / m;
+    let sxx = 0, sxy = 0;
+    for (let i = s; i < t; i++) { sxx += (i - tb) ** 2; sxy += (i - tb) * (x[i] - xb); }
+    let rss = 0;
+    for (let i = s; i < t; i++) rss += (x[i] - xb - (sxy / sxx) * (i - tb)) ** 2;
+    assert.ok(Math.abs(cost(s, t) - rss) < 1e-8, `${s}..${t}: ${cost(s, t)} vs ${rss}`);
+  }
+  for (const penalty of ['bic', 'aic', 5]) {
+    const a = pelt(x, { model: 'trend', penalty, minSegment: 4, sigma: 1 });
+    const b = optimalPartitioning(x, { model: 'trend', penalty, minSegment: 4, sigma: 1 });
+    assert.deepEqual(a.changepoints, b.changepoints);
+  }
+});
+
+test('trend model: a steady ramp is not cut into steps, and a slope break or a jump on a ramp is found', () => {
+  const N = 40, n = 120;
+  const tally = { rampMean: 0, rampTrend: 0, brkMean: 0, brkTrend: 0, brkHit: 0, brkExact: 0, jumpExact: 0 };
+  for (let s = 1; s <= N; s++) {
+    const ramp = normals(rng(s), n).map((e, i) => 0.1 * i + e);
+    tally.rampMean += analyze({ values: ramp }).pelt.changepoints.length;
+    tally.rampTrend += analyze({ values: ramp, model: 'trend' }).pelt.changepoints.length;
+    const brk = normals(rng(s + 100), n).map((e, i) => 0.1 * i + (i > 60 ? 0.3 * (i - 60) : 0) + e);
+    tally.brkMean += analyze({ values: brk }).pelt.changepoints.length;
+    const bt = analyze({ values: brk, model: 'trend' }).pelt.changepoints;
+    tally.brkTrend += bt.length;
+    tally.brkHit += bt.some((c) => Math.abs(c.index - 60) <= 5);
+    tally.brkExact += bt.length === 1 && Math.abs(bt[0].index - 60) <= 5;
+    const jump = normals(rng(s + 200), n).map((e, i) => 0.1 * i + (i >= 60 ? 5 : 0) + e);
+    const jt = analyze({ values: jump, model: 'trend' }).pelt.changepoints;
+    tally.jumpExact += jt.length === 1 && Math.abs(jt[0].index - 60) <= 5;
+  }
+  // measured (seeds 1..40, 120 points, noise sd 1): changes per series on a pure ramp of slope 0.1, level model vs
+  // trend model 5.5 vs 0.15; on a slope break at 60 (0.1 -> 0.4) 10.4 vs 1.1, break found within 5 points 30/40,
+  // exactly one change near it 27/40; ramp plus a jump of 5 at 60: exactly one change near it 38/40
+  console.log(`# trend: ${JSON.stringify(tally)}`);
+  assert.ok(tally.rampTrend / N < 0.5 && tally.rampMean / N > 3, JSON.stringify(tally));
+  assert.ok(tally.brkTrend / N < 0.25 * (tally.brkMean / N) && tally.brkHit >= 0.7 * N, JSON.stringify(tally));
+  assert.ok(tally.jumpExact >= 0.85 * N, JSON.stringify(tally));
+});
+
+test('trend model: reports the jump and the slope on each side, and the summary says so', () => {
+  const x = normals(rng(5), 120).map((e, i) => 0.1 * i + (i > 60 ? 0.3 * (i - 60) : 0) + e);
+  const r = analyze({ values: x, model: 'trend' });
+  const c = r.pelt.changepoints[0];
+  assert.ok(Math.abs(c.slopeBefore - 0.1) < 0.1 && Math.abs(c.slopeAfter - 0.4) < 0.15, JSON.stringify(c));
+  assert.ok(r.pelt.segments.every((sg) => typeof sg.slope === 'number'));
+  assert.match(r.summary, /slope goes from/);
+  assert.equal(r.bocpd.changeProb.length, 120);
+});
+
+test('trend: a ramp under one step leaves one change, not ten, and the slope is recovered', () => {
+  const N = 40, n = 200;
+  let plain = 0, tr = 0, found = 0, exact = 0, falseRuns = 0, slope = 0;
+  for (let s = 1; s <= N; s++) {
+    const z = normals(rng(s + 500), n);
+    const base = z.map((e, i) => 0.1 * i + e);
+    const x = base.map((v, i) => v + (i >= 100 ? 5 : 0));
+    plain += analyze({ values: x }).pelt.changepoints.length;
+    const r = analyze({ values: x, trend: true });
+    const c = r.pelt.changepoints;
+    tr += c.length; slope += r.trend.slopePerPoint;
+    const hit = c.some((p) => Math.abs(p.index - 100) <= 3);
+    found += hit; exact += hit && c.length === 1;
+    falseRuns += analyze({ values: base, trend: true }).pelt.changepoints.length > 0;
+  }
+  // measured (seeds 501..540, slope 0.1, shift 5 at 100): 10.1 changes/series without, 1.13 with; slope 0.1003;
+  // shift found 40/40, exactly one 37/40, false changes on 3/40 no-shift series
+  console.log(`# trend: ${plain / N} vs ${tr / N} changes/series; slope ${(slope / N).toFixed(4)}; found ${found}/${N}; exact ${exact}/${N}; false ${falseRuns}/${N}`);
+  assert.ok(tr / N < 0.25 * (plain / N));
+  assert.ok(Math.abs(slope / N - 0.1) < 0.005);
+  assert.ok(found >= 0.95 * N && exact >= 0.8 * N && falseRuns <= 0.2 * N);
+});
+
+test('trend with ar1: sticky noise over a ramp with one step is not cut into extra changes', () => {
+  const N = 40, n = 200, rho = 0.5;
+  let plainCh = 0, ar = 0, found = 0, falsePelt = 0, falsePlain = 0, falseBayes = 0, exactBayes = 0;
+  const gen = (seed, step) => {
+    const z = normals(rng(seed), n);
+    let e = 0;
+    return z.map((v, i) => { e = rho * e + v; return 0.1 * i + e + (step && i >= 100 ? 5 : 0); });
+  };
+  for (let s = 701; s <= 700 + N; s++) {
+    const x = gen(s, true), base = gen(s, false);
+    plainCh += analyze({ values: x, trend: true }).pelt.changepoints.length;
+    const r = analyze({ values: x, trend: true, ar1: true });
+    const c = r.pelt.changepoints;
+    ar += c.length;
+    found += c.some((p) => Math.abs(p.index - 100) <= 3);
+    const d = r.bocpd.detections;
+    exactBayes += d.length === 1 && Math.abs(d[0].index - 100) <= 3;
+    falsePlain += analyze({ values: base, trend: true }).pelt.changepoints.length > 0;
+    const q = analyze({ values: base, trend: true, ar1: true });
+    falsePelt += q.pelt.changepoints.length > 0;
+    falseBayes += q.bocpd.detections.length > 0;
+  }
+  // measured (seeds 701..740, 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at 100): PELT changes/series 8.68 with
+  // --trend, 1.38 with --trend --ar1; false runs on no-shift series 39 -> 3 (PELT), Bayesian 30 -> 0; shift found 36/40,
+  // Bayesian exactly one change near it 34/40. Before the ar1-aware slope loop: PELT false 28/40, Bayesian 5/40.
+  console.log(`# trend+ar1: ${plainCh / N} vs ${ar / N} changes/series; found ${found}/${N}; false pelt ${falsePlain} -> ${falsePelt}, bayes ${falseBayes}; bayes exact ${exactBayes}`);
+  assert.ok(ar / N < 0.3 * (plainCh / N));
+  assert.ok(found >= 0.85 * N && falsePelt <= 0.15 * N && falseBayes <= 0.1 * N && exactBayes >= 0.75 * N);
+});
+
+test('trend with a seasonal cycle, and counts are refused', () => {
+  const N = 40;
+  let plain = 0, tr = 0, found = 0;
+  for (let s = 1; s <= N; s++) {
+    const z = normals(rng(s + 600), 144);
+    const x = z.map((e, i) => 0.08 * i + 8 * Math.sin((2 * Math.PI * i) / 12) + (i >= 84 ? 5 : 0) + e);
+    plain += analyze({ values: x, period: 12 }).pelt.changepoints.length;
+    const c = analyze({ values: x, period: 12, trend: true }).pelt.changepoints;
+    tr += c.length; found += c.some((p) => Math.abs(p.index - 84) <= 3);
+  }
+  // measured (seeds 601..640): 6.6 changes/series with --period alone, 1.25 with --trend; found 40/40
+  console.log(`# period+trend: ${plain / N} vs ${tr / N}; found ${found}/${N}`);
+  assert.ok(tr / N < 0.3 * (plain / N) && found >= 0.95 * N);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], model: 'poisson', trend: true }), /counts/);
+});
+
+test('trendAdjust keeps the mean level and returns the slope', () => {
+  const x = Array.from({ length: 60 }, (_, i) => 2 + 0.5 * i);
+  const { adjusted, slope } = trendAdjust(x);
+  assert.ok(Math.abs(slope - 0.5) < 1e-9);
+  const mean = adjusted.reduce((a, b) => a + b, 0) / 60;
+  assert.ok(Math.abs(mean - x.reduce((a, b) => a + b, 0) / 60) < 1e-9);
+  assert.ok(Math.max(...adjusted) - Math.min(...adjusted) < 1e-9);
+});
+
+test('trend bend: a ramp whose slope doubles is one line with a bend, not a step', () => {
+  const N = 40, n = 200;
+  let plain = 0, bent = 0, falseBend = 0, knot = 0, s2 = 0, found = 0;
+  const ramp = (seed, step) => normals(rng(seed), n).map((e, i) => 0.1 * i + 0.1 * Math.max(0, i - 100) + e + (step && i >= 150 ? 5 : 0));
+  for (let s = 801; s <= 800 + N; s++) {
+    const x = ramp(s, false);
+    plain += analyze({ values: x, trend: true }).pelt.changepoints.length;
+    const r = analyze({ values: x, trend: 'bend' });
+    bent += r.pelt.changepoints.length;
+    if (r.trend.slopeChangesAt !== undefined) { knot += r.trend.slopeChangesAt; s2 += r.trend.slopeAfter; }
+    const y = analyze({ values: ramp(s, true), trend: 'bend' }).pelt.changepoints;
+    found += y.some((p) => Math.abs(p.index - 150) <= 3);
+    const straight = normals(rng(s + 100), n).map((e, i) => 0.1 * i + e);
+    falseBend += analyze({ values: straight, trend: 'bend' }).trend.slopeChangesAt !== undefined;
+  }
+  console.log(`# bend: ${plain / N} vs ${bent / N} changes/series; knot ${(knot / N).toFixed(1)}; slope after ${(s2 / N).toFixed(3)}; step found ${found}/${N}; false bend ${falseBend}/${N}`);
+  assert.ok(bent / N < 0.5 * (plain / N));
+  assert.ok(found >= 0.85 * N && falseBend <= 0.15 * N);
 });
