@@ -744,24 +744,27 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
   const coverableHours = (k, left) => {
     const n = S - k, N = n + P * D + P + 2, src = N - 2, snk = N - 1, eps = 1e-9;
     const pd = (p, j) => n + p * D + j, pn = (p) => n + P * D + p;
-    const cap = Array.from({ length: N }, () => new Array(N).fill(0));
-    const cst = Array.from({ length: N }, () => new Array(N).fill(0));
+    // Sparse residual graph: edge e goes to[e] with capacity cap[e] and cost cst[e]; its reverse is e ^ 1.
+    const to = [], cap = [], cst = [], adj = Array.from({ length: N }, () => []);
+    const link = (u, v, c, w) => {
+      adj[u].push(to.length); to.push(v); cap.push(c); cst.push(w);
+      adj[v].push(to.length); to.push(u); cap.push(0); cst.push(-w);
+    };
     const edge = Array.from({ length: P }, () => []);
     const byDay = Array.from({ length: P }, () => Array.from({ length: D }, () => []));
     for (let a = 0; a < n; a++) {
       const i = order[k + a];
-      cap[src][a] = len[i];
+      link(src, a, len[i], 0);
       for (let p = 0; p < P; p++) {
         if (!elig[p][i] || left[p] <= eps || !validList(ctx, p, insertSorted(ctx, lists[p], i))) continue;
         const j = dayAt.get(slots[i].day);
-        cap[a][pd(p, j)] = len[i];
-        cst[a][pd(p, j)] = rate(p, i); cst[pd(p, j)][a] = -rate(p, i);
+        link(a, pd(p, j), len[i], rate(p, i));
         edge[p].push(i);
         byDay[p][j].push(i);
       }
     }
     for (let p = 0; p < P; p++) {
-      for (let j = 0; j < D; j++) if (byDay[p][j].length) cap[pd(p, j)][pn(p)] = bestDay(p, byDay[p][j]);
+      for (let j = 0; j < D; j++) if (byDay[p][j].length) link(pd(p, j), pn(p), bestDay(p, byDay[p][j]), 0);
       let room = left[p];
       if (quarter) {
         const r = Math.floor(left[p] * 4 + 1e-6);
@@ -774,29 +777,31 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
         room = 0;
         for (let x = r; x > 0; x--) if (fits[x]) { room = x / 4; break; }
       }
-      cap[pn(p)][snk] = room;
+      link(pn(p), snk, room, 0);
     }
-    // Successive cheapest augmenting paths (Bellman-Ford): the most hours that can be covered, and the least straight-time pay for them.
+    // Successive cheapest augmenting paths (SPFA): the most hours that can be covered, and the least straight-time pay for them.
     let flow = 0, cost = 0;
+    const dist = new Float64Array(N), prevE = new Int32Array(N), inQ = new Uint8Array(N);
     for (;;) {
-      const dist = new Array(N).fill(Infinity), prev = new Array(N).fill(-1), inQ = new Array(N).fill(false);
+      dist.fill(Infinity); prevE.fill(-1); inQ.fill(0);
       dist[src] = 0;
       const q = [src];
-      inQ[src] = true;
+      inQ[src] = 1;
       for (let h = 0; h < q.length; h++) {
         const u = q[h];
-        inQ[u] = false;
-        for (let v = 0; v < N; v++) {
-          if (cap[u][v] > eps && dist[u] + cst[u][v] < dist[v] - 1e-12) {
-            dist[v] = dist[u] + cst[u][v]; prev[v] = u;
-            if (!inQ[v]) { inQ[v] = true; q.push(v); }
+        inQ[u] = 0;
+        for (const e of adj[u]) {
+          const v = to[e];
+          if (cap[e] > eps && dist[u] + cst[e] < dist[v] - 1e-12) {
+            dist[v] = dist[u] + cst[e]; prevE[v] = e;
+            if (!inQ[v]) { inQ[v] = 1; q.push(v); }
           }
         }
       }
-      if (prev[snk] < 0) return { flow, cost };
+      if (prevE[snk] < 0) return { flow, cost };
       let f = Infinity;
-      for (let v = snk; v !== src; v = prev[v]) f = Math.min(f, cap[prev[v]][v]);
-      for (let v = snk; v !== src; v = prev[v]) { cap[prev[v]][v] -= f; cap[v][prev[v]] += f; }
+      for (let v = snk; v !== src; v = to[prevE[v] ^ 1]) f = Math.min(f, cap[prevE[v]]);
+      for (let v = snk; v !== src; v = to[prevE[v] ^ 1]) { cap[prevE[v]] -= f; cap[prevE[v] ^ 1] += f; }
       flow += f;
       cost += f * dist[snk];
     }

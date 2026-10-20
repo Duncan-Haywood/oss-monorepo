@@ -3086,7 +3086,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
     # +1: `s-corp-basis-tracker` graduated (browser S corporation stock and debt basis roll-forward in Form 7203 order, suspended losses and excess distributions).
     # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
-    total = 1301  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1301 tools" wording.
+    total = 1306  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1306 tools" wording.
     # +1: `open-tennis-robots` graduated (open-source tennis ball machine with a moving catch net and a ball-collecting rover: shot planner, catch simulation, route planner, ESP32 firmware, seller listing tool, collector manufacturing package).
     # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
     # +1: `sales-cadence-builder` graduated (browser and CLI multi-channel prospecting cadence: email, call with voicemail, LinkedIn note and letter on business days, calls in the prospect's local 9-5, suppression and CASL/EU consent gating, CSV and .ics export, optional own-key AI).
@@ -3127,6 +3127,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `us-substantial-presence-test-calculator` graduated (browser IRS substantial presence test: 183-day weighted count, days left this year, crossing date, planned-trip what-if).
     # +1: `discogs-fee-calculator` graduated (browser Discogs seller fee calculator: 9% on item plus shipping with the $0.10/$150 limits, editable processing, target-profit price, fee ladder).
     # +1: `tutoring-group-schedule-optimizer` graduated (browser exact timetable for weekly small-group sessions: min-cost-flow seating inside a search over which slots to run).
+    # +1: `hearth-and-horizon` graduated (free CC BY-SA AI-written stories: sci-fi, stories for AI agents, Catholic saints bedtime stories; pages, podcast RSS feeds and Piper audio).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

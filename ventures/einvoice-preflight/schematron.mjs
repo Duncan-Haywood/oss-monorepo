@@ -19,7 +19,7 @@ const FILES = { ubl: "ubl.sef.json", cii: "cii.sef.json" };
 // and OpenPEPPOL peppol-bis-invoice-3 (MPL-2.0), compiled by build-schematron.mjs.
 const ADDONS = {
   xrechnung: { source: "xrechnung-schematron", match: /xrechnung/i, files: { ubl: "xrechnung-ubl.sef.json", cii: "xrechnung-cii.sef.json" } },
-  peppol: { source: "peppol-schematron", match: /peppol\.eu/i, files: { ubl: "peppol-ubl.sef.json" } },
+  peppol: { source: "peppol-schematron", match: /peppol\.eu/i, files: { ubl: "peppol-ubl.sef.json", cii: "peppol-cii.sef.json" } },
 };
 
 export function schematronAvailable(syntax) {
@@ -28,7 +28,10 @@ export function schematronAvailable(syntax) {
 
 // Which add-on sets apply to this invoice and are built.
 export function addonsFor(xml, syntax) {
-  const id = xml.match(/<(?:\w+:)?CustomizationID\b[^>]*>([^<]*)</)?.[1] ?? "";
+  // BT-24 is cbc:CustomizationID in UBL and the ID inside
+  // GuidelineSpecifiedDocumentContextParameter in CII.
+  const id = xml.match(/<(?:\w+:)?CustomizationID\b[^>]*>([^<]*)</)?.[1]
+    ?? xml.match(/<(?:\w+:)?GuidelineSpecifiedDocumentContextParameter\b[^>]*>\s*<(?:\w+:)?ID\b[^>]*>([^<]*)</)?.[1] ?? "";
   return Object.entries(ADDONS).filter(([, a]) => a.match.test(id) && a.files[syntax] && existsSync(join(SEF_DIR, a.files[syntax])));
 }
 

@@ -87,12 +87,264 @@ const FIXES = {
   "BR-DE-23-a": "For a credit transfer (payment means 30 or 58) give the payee account (BG-17, BT-84) and do not add card or direct-debit groups.",
   "BR-DE-TMP-32": "Give the delivery or service date (BT-72) or an invoicing period (BG-14); XRechnung expects one of them.",
   "BR-DE-15": "Add the buyer reference (BT-10); for German public buyers this is the Leitweg-ID.",
+  "BR-DE-3": "Add the seller's city (BT-37).",
+  "BR-DE-4": "Add the seller's post code (BT-38).",
+  "BR-DE-5": "Add a seller contact name or department (BT-41).",
+  "BR-DE-6": "Add the seller contact telephone number (BT-42).",
+  "BR-DE-7": "Add the seller contact email address (BT-43).",
+  "BR-DE-8": "Add the buyer's city (BT-52) to the buyer address.",
+  "BR-DE-10": "Add the city (BT-77) to the deliver-to address, or drop the deliver-to address group (BG-15).",
+  "BR-DE-11": "Add the post code (BT-78) to the deliver-to address, or drop the deliver-to address group (BG-15).",
+  "BR-DE-14": "Give the VAT rate (BT-119) in every VAT breakdown row.",
+  "BR-DE-16": "Give the seller's VAT identifier (BT-31), tax number (BT-32) or tax representative VAT identifier (BT-63) when any line uses VAT category S, Z, E, AE, K, G, L or M.",
+  "BR-DE-17": "Use one of the invoice type codes XRechnung allows: 326, 380, 381, 384, 389, 875, 876 or 877.",
+  "BR-DE-18": "Write early-payment discount lines in BT-20 exactly as #SKONTO#TAGE=n#PROZENT=n.nn# with a line break after each entry, in capitals and with no extra spaces.",
+  "BR-DE-20": "The debited account identifier (BT-91) must be a valid IBAN when the payment means is a SEPA direct debit (59).",
+  "BR-DE-21": "Set the specification identifier (BT-24) to an XRechnung one, for example urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0.",
+  "BR-DE-22": "Give every embedded attachment a different file name (the filename attribute of EmbeddedDocumentBinaryObject).",
+  "BR-DE-25-a": "For a direct debit (payment means 59) give the direct debit group (BG-19) and no credit transfer group.",
+  "BR-DE-23-b": "A credit transfer (payment means 30 or 58) must not also carry payment card (BG-18) or direct debit (BG-19) groups; remove them.",
+  "BR-DE-24-a": "For a card payment (payment means 48, 54 or 55) give the payment card group (BG-18).",
+  "BR-DE-24-b": "A card payment (payment means 48, 54 or 55) must not also carry credit transfer (BG-17) or direct debit (BG-19) groups; remove them.",
+  "BR-DE-25-b": "A direct debit (payment means 59) must not also carry credit transfer (BG-17) or payment card (BG-18) groups; remove them.",
+  "BR-DE-26": "A corrected invoice (type code 384) must reference the invoice it corrects in the preceding invoice reference (BG-3).",
+  "BR-DE-27": "Write the seller contact telephone number (BT-42) with at least three digits.",
+  "BR-DE-28": "Write the seller contact email (BT-43) with exactly one @, at least two characters on each side of it, and no leading or trailing dot or spaces.",
+  "BR-DE-31": "A direct debit (BG-19) needs the debited account identifier (BT-91), an IBAN.",
+  "BR-DE-30": "A direct debit (BG-19) needs the bank-assigned creditor identifier (BT-90).",
+  "PEPPOL-EN16931-R006": "Give at most one invoiced object identifier (BT-18, type code 130) at document level.",
+  "PEPPOL-EN16931-R007": "Write the business process (BT-23) as urn:fdc:peppol.eu:2017:poacc:billing:NN:1.0, where NN is the process number (01 for billing).",
+  "PEPPOL-EN16931-R008": "Remove empty elements from the XML; Peppol rejects documents that contain them.",
+  "PEPPOL-EN16931-R051": "Use the invoice currency (BT-5) in every currencyID attribute; only the VAT total in the accounting currency (BT-111) may differ.",
+  "PEPPOL-EN16931-R053": "Give exactly one tax total (TaxTotal) that carries the VAT breakdown subtotals; the accounting-currency VAT total is a separate TaxTotal without them.",
+  "PEPPOL-EN16931-R061": "A direct debit needs a mandate reference (BT-89).",
+  "PEPPOL-EN16931-R100": "Give at most one invoiced object identifier (BT-18) per invoice line.",
+  "DE-R-001": "Add payment instructions (BG-16): a payment means code and, for a transfer, the payee account.",
+  "DE-R-002": "Add a seller contact (BG-6) with a contact name (BT-41), telephone (BT-42) and email (BT-43); Peppol applies this to German domestic invoices.",
+  "DE-R-003": "Add the seller's city (BT-37).",
+  "DE-R-004": "Add the seller's post code (BT-38).",
+  "DE-R-005": "Add the seller contact name (BT-41).",
+  "DE-R-006": "Add the seller contact telephone number (BT-42).",
+  "DE-R-007": "Add the seller contact email address (BT-43).",
+  "DE-R-008": "Add the buyer's city (BT-52).",
+  "DE-R-009": "Add the buyer's post code (BT-53) to the buyer address.",
+  "DE-R-010": "Add the deliver-to city (BT-77); it is required whenever a deliver-to address is given.",
+  "DE-R-011": "Add the deliver-to post code (BT-78); it is required whenever a deliver-to address is given.",
+  "DE-R-014": "Give the VAT rate (BT-119) on every VAT breakdown.",
+  "DE-R-015": "Add the buyer reference (BT-10); for German public buyers this is the Leitweg-ID.",
+  "DE-R-016": "With a standard, zero, exempt, reverse-charge or similar VAT code, give the seller VAT identifier (BT-31), tax registration identifier (BT-32) or a tax representative (BG-11).",
+  "DE-R-017": "Use an invoice type code (BT-3) from the German list: 326, 380, 381, 384, 389, 875, 876 or 877.",
+  "DE-R-018": "Write a cash discount (Skonto) in the payment terms (BT-20) as #SKONTO#TAGE=n#PROZENT=n.nn# in capitals, one entry per line, with no extra whitespace.",
+  "DE-R-019": "The payment account (BT-84) must be a valid IBAN when the payment means code is 58 (SEPA credit transfer).",
+  "DE-R-020": "The debited account (BT-91) must be a valid IBAN when the payment means code is 59 (SEPA direct debit).",
+  "DE-R-022": "Give every attached supporting document (BG-24) a unique filename, ignoring case.",
+  "DE-R-026": "A corrected invoice (type code 384) needs a preceding invoice reference (BG-3) naming the invoice it corrects.",
+  "DE-R-027": "The seller contact telephone (BT-42) needs at least three digits.",
+  "DE-R-028": "The seller contact email (BT-43) needs exactly one @ with at least two characters on each side and no space or dot next to it.",
+  "DE-R-030": "For a direct debit (BG-19) add the bank-assigned creditor identifier (BT-90).",
+  "DE-R-031": "For a direct debit (BG-19) add the debited account identifier (BT-91).",
+  "DE-R-023-1": "For a credit transfer (payment means 30 or 58) give the payee account (BG-17, BT-84).",
+  "DE-R-023-2": "For a credit transfer (payment means 30 or 58) remove the card (BG-18) and direct-debit (BG-19) groups.",
+  "DE-R-024-1": "For a card payment (payment means 48, 54 or 55) give the payment card information (BG-18).",
+  "DE-R-024-2": "For a card payment (payment means 48, 54 or 55) remove the credit transfer (BG-17) and direct-debit (BG-19) groups.",
+  "DE-R-025-1": "For a SEPA direct debit (payment means 59) give the direct debit group (BG-19).",
+  "DE-R-025-2": "For a SEPA direct debit (payment means 59) remove the credit transfer (BG-17) and card (BG-18) groups.",
   "PEPPOL-EN16931-R001": "Set the business process (BT-23), for example urn:fdc:peppol.eu:2017:poacc:billing:01:1.0.",
   "PEPPOL-EN16931-R003": "Add a buyer reference (BT-10) or an order reference (BT-13); a Peppol access point rejects invoices with neither.",
   "PEPPOL-EN16931-R004": "Set the specification identifier (BT-24) to urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0.",
   "PEPPOL-EN16931-R010": "Give the buyer's electronic address (BT-49) with a scheme from the Peppol participant identifier list.",
   "PEPPOL-EN16931-R020": "Give the seller's electronic address (BT-34) with a scheme from the Peppol participant identifier list.",
 };
+
+// The VAT category rules repeat one pattern per category (xx-01 .. xx-10), so
+// they are generated from this table rather than written out 80 times.
+const VAT_CATEGORIES = {
+  S: { name: "standard-rated (S)", code: "S", count: "at least one", ids: "seller", rate: "above 0", tax: "rate", reason: "no" },
+  Z: { name: "zero-rated (Z)", code: "Z", count: "exactly one", ids: "seller", rate: "0", tax: "zero", reason: "no" },
+  E: { name: "exempt (E)", code: "E", count: "exactly one", ids: "seller", rate: "0", tax: "zero", reason: "yes" },
+  AE: { name: "reverse-charge (AE)", code: "AE", count: "exactly one", ids: "both", rate: "0", tax: "zero", reason: "yes" },
+  G: { name: "export outside the EU (G)", code: "G", count: "exactly one", ids: "seller-no-tax-number", rate: "0", tax: "zero", reason: "yes" },
+  IC: { name: "intra-community supply (K)", code: "K", count: "exactly one", ids: "both-no-tax-number", rate: "0", tax: "zero", reason: "yes" },
+  O: { name: "not subject to VAT (O)", code: "O", count: "exactly one", ids: "", rate: "", tax: "zero", reason: "yes" },
+  IG: { name: "IPSI (M)", code: "M", count: "at least one", ids: "seller", rate: "0 or above", tax: "rate", reason: "no" },
+  IP: { name: "IGIC (L)", code: "L", count: "at least one", ids: "seller", rate: "0 or above", tax: "rate", reason: "no" },
+};
+const SELLER_IDS = {
+  seller: "the seller's VAT identifier (BT-31), tax registration identifier (BT-32) or tax representative VAT identifier (BT-63)",
+  both: "the seller's VAT identifier (BT-31), tax registration identifier (BT-32) or tax representative VAT identifier (BT-63), and the buyer's VAT identifier (BT-48)",
+  "seller-no-tax-number": "the seller's VAT identifier (BT-31) or tax representative VAT identifier (BT-63)",
+  "both-no-tax-number": "the seller's VAT identifier (BT-31) or tax representative VAT identifier (BT-63), and the buyer's VAT identifier (BT-48)",
+};
+const PLACES = [["an invoice line", "line", "BT-152"], ["a document-level allowance", "allowance", "BT-96"], ["a document-level charge", "charge", "BT-103"]];
+for (const [rulePrefix, c] of Object.entries(VAT_CATEGORIES)) {
+  const pre = `BR-${rulePrefix}-`;
+  const id = (n) => pre + String(n).padStart(2, "0");
+  FIXES[id(1)] = `Add ${c.count} VAT breakdown (BG-23) with VAT category code (BT-118) ${c.code}; the invoice uses ${c.name} on a line, allowance or charge.`;
+  if (rulePrefix !== "O") PLACES.forEach(([where], i) => {
+    FIXES[id(2 + i)] = `Because ${where} uses VAT category ${c.name}, give ${SELLER_IDS[c.ids]}.`;
+  });
+  if (rulePrefix !== "O") {
+    PLACES.forEach(([where, , bt], i) => {
+      const rate = c.rate === "above 0" ? "above 0" : c.rate === "0" ? "0" : c.rate;
+      FIXES[id(5 + i)] = `The VAT rate (${bt}) of ${where} with VAT category ${c.name} must be ${rate}. Correct the rate or the VAT category code.`;
+    });
+  }
+  FIXES[id(8)] = `The taxable amount (BT-116) of the ${c.name} VAT breakdown must equal the ${c.name} line net amounts (BT-131) minus document allowances (BT-92) plus document charges (BT-99). Recalculate it${c.tax === "rate" ? " for each rate" : ""}.`;
+  FIXES[id(9)] = c.tax === "zero"
+    ? `The VAT category tax amount (BT-117) of the ${c.name} breakdown must be 0.`
+    : `The VAT category tax amount (BT-117) of the ${c.name} breakdown must equal its taxable amount (BT-116) times the rate (BT-119) / 100. Recalculate it.`;
+  FIXES[id(10)] = c.reason === "yes"
+    ? `The ${c.name} VAT breakdown needs a VAT exemption reason code (BT-121), for example a VATEX code, or reason text (BT-120).`
+    : `Remove the VAT exemption reason code (BT-121) and reason text (BT-120) from the ${c.name} VAT breakdown; they apply only to exempt categories.`;
+}
+FIXES["BR-IC-11"] = "For intra-community supply (K) give the actual delivery date (BT-72) or an invoicing period (BG-14).";
+FIXES["BR-IC-12"] = "For intra-community supply (K) give the deliver-to country code (BT-80).";
+FIXES["BR-AE-10"] = FIXES["BR-AE-10"].replace("for example a VATEX code, or reason text (BT-120)", "for example VATEX-EU-AE, or the text 'Reverse charge' (BT-120)");
+FIXES["BR-O-02"] = "Because a line is not subject to VAT (O), remove the seller's VAT identifier (BT-31), tax representative VAT identifier (BT-63) and the buyer's VAT identifier (BT-48).";
+FIXES["BR-O-03"] = "Because a document-level allowance is not subject to VAT (O), remove the seller's VAT identifier (BT-31), tax representative VAT identifier (BT-63) and the buyer's VAT identifier (BT-48).";
+FIXES["BR-O-04"] = "Because a document-level charge is not subject to VAT (O), remove the seller's VAT identifier (BT-31), tax representative VAT identifier (BT-63) and the buyer's VAT identifier (BT-48).";
+FIXES["BR-O-05"] = "Remove the VAT rate (BT-152) from lines that are not subject to VAT (category O).";
+FIXES["BR-O-06"] = "Remove the VAT rate (BT-96) from document-level allowances that are not subject to VAT (category O).";
+FIXES["BR-O-07"] = "Remove the VAT rate (BT-103) from document-level charges that are not subject to VAT (category O).";
+FIXES["BR-O-10"] = "The not-subject-to-VAT (O) breakdown needs a VAT exemption reason code (BT-121), for example VATEX-EU-O, or reason text (BT-120).";
+FIXES["BR-O-11"] = "Category O (not subject to VAT) cannot share an invoice with other VAT breakdowns; use one invoice for these lines and another for the rest.";
+FIXES["BR-O-12"] = "An invoice with a category O VAT breakdown can only have category O lines; move the other lines to a separate invoice.";
+FIXES["BR-O-13"] = "An invoice with a category O VAT breakdown can only have category O document-level allowances; change their VAT category code (BT-95) to O.";
+FIXES["BR-O-14"] = "An invoice with a category O VAT breakdown can only have category O document-level charges; change their VAT category code (BT-102) to O.";
+FIXES["BR-IP-05"] = "The VAT rate (BT-152) of an IGIC (L) invoice line must be above 0.";
+FIXES["BR-B-01"] = "The Italian split-payment category (B) is only valid on a domestic Italian invoice: seller and buyer both in Italy.";
+FIXES["BR-B-02"] = "An invoice with split-payment (B) lines, allowances or charges cannot also contain standard-rated (S) ones; split them into two invoices.";
+
+// Code lists: BR-CL-nn, each says which field takes which list.
+const CODE_LISTS = {
+  "BR-CL-01": ["invoice type code (BT-3)", "UNTDID 1001, for example 380 or 381"],
+  "BR-CL-03": ["currencyID attribute", "ISO 4217 alpha-3, for example EUR"],
+  "BR-CL-04": ["invoice currency code (BT-5)", "ISO 4217 alpha-3, for example EUR"],
+  "BR-CL-05": ["VAT accounting currency code (BT-6)", "ISO 4217 alpha-3, for example SEK"],
+  "BR-CL-06": ["VAT point date code (BT-8)", "the allowed UNTDID 2475 values (3, 35 or 432)"],
+  "BR-CL-07": ["invoiced object scheme identifier (BT-18)", "UNTDID 1153, normally AWV"],
+  "BR-CL-08": ["note subject code (BT-21)", "UNTDID 4451, for example AAI or SUR"],
+  "BR-CL-10": ["party identifier scheme (BT-29, BT-46, BT-60 or BT-71)", "the ISO 6523 ICD list, for example 0088 for a GLN"],
+  "BR-CL-11": ["legal registration identifier scheme (BT-30 or BT-47)", "the ISO 6523 ICD list, for example 0002 for a SIRENE number"],
+  "BR-CL-13": ["item classification scheme (BT-158)", "UNTDID 7143, for example HS or STI"],
+  "BR-CL-14": ["country code (BT-40, BT-55, BT-69 or BT-80)", "ISO 3166-1 alpha-2, for example DE"],
+  "BR-CL-15": ["country code", "ISO 3166-1 alpha-2, for example DE"],
+  "BR-CL-16": ["payment means type code (BT-81)", "UNTDID 4461, for example 30 or 58"],
+  "BR-CL-17": ["VAT category code (BT-118)", "UNCL 5305: S, Z, E, AE, K, G, O, L or M"],
+  "BR-CL-18": ["VAT category code (BT-151, BT-95 or BT-102)", "UNCL 5305: S, Z, E, AE, K, G, O, L or M"],
+  "BR-CL-19": ["allowance reason code (BT-98 or BT-140)", "UNCL 5189, for example 95 for a discount"],
+  "BR-CL-20": ["charge reason code (BT-105 or BT-145)", "UNCL 7161, for example FC for freight"],
+  "BR-CL-21": ["item standard identifier scheme (BT-157)", "the ISO 6523 ICD list, for example 0160 for a GTIN"],
+  "BR-CL-22": ["VAT exemption reason code (BT-121)", "the CEF VATEX list, for example VATEX-EU-AE"],
+  "BR-CL-23": ["unit of measure code (BT-130 or BT-150)", "UN/ECE Recommendation 20 or 21, for example C62, HUR or KGM"],
+  "BR-CL-24": ["attachment mimeCode attribute (BT-125)", "an allowed type: application/pdf, image/png, image/jpeg, text/csv, a spreadsheet type or application/xml"],
+  "BR-CL-25": ["electronic address scheme (BT-34 or BT-49)", "the CEF EAS list, for example 0088 or EM"],
+  "BR-CL-26": ["deliver-to location scheme (BT-71)", "the ISO 6523 ICD list, for example 0088"],
+};
+for (const [id, [field, list]] of Object.entries(CODE_LISTS)) {
+  FIXES[id] = `The ${field} is not on the allowed list. Use a code from ${list}.`;
+}
+
+// Decimals: BR-DEC-nn, document and line amounts allow two decimals.
+const DECIMALS = {
+  "BR-DEC-01": "document-level allowance amount (BT-92)", "BR-DEC-02": "document-level allowance base amount (BT-93)",
+  "BR-DEC-05": "document-level charge amount (BT-99)", "BR-DEC-06": "document-level charge base amount (BT-100)",
+  "BR-DEC-09": "sum of line net amounts (BT-106)", "BR-DEC-10": "sum of document-level allowances (BT-107)",
+  "BR-DEC-11": "sum of document-level charges (BT-108)", "BR-DEC-12": "invoice total without VAT (BT-109)",
+  "BR-DEC-13": "total VAT amount (BT-110)", "BR-DEC-14": "invoice total with VAT (BT-112)",
+  "BR-DEC-15": "total VAT amount in the accounting currency (BT-111)", "BR-DEC-16": "prepaid amount (BT-113)",
+  "BR-DEC-17": "rounding amount (BT-114)", "BR-DEC-18": "amount due for payment (BT-115)",
+  "BR-DEC-19": "VAT category taxable amount (BT-116)", "BR-DEC-20": "VAT category tax amount (BT-117)",
+  "BR-DEC-24": "line allowance amount (BT-136)", "BR-DEC-25": "line allowance base amount (BT-137)",
+  "BR-DEC-27": "line charge amount (BT-141)", "BR-DEC-28": "line charge base amount (BT-142)",
+};
+for (const [id, field] of Object.entries(DECIMALS)) FIXES[id] = `Round the ${field} to at most two decimals.`;
+
+Object.assign(FIXES, {
+  "BR-17": "Give the payee's name (BT-59) when the payee is not the seller.",
+  "BR-18": "Give the seller tax representative's name (BT-62).",
+  "BR-19": "Give the seller tax representative's postal address (BG-12).",
+  "BR-20": "Give the country code (BT-69) in the seller tax representative's postal address.",
+  "BR-CO-06": "A document-level charge reason code (BT-105) and its text (BT-104) must describe the same reason; change one to match.",
+  "BR-CO-07": "A line-level allowance reason code (BT-140) and its text (BT-139) must describe the same reason; change one to match.",
+  "BR-CO-08": "A line-level charge reason code (BT-145) and its text (BT-144) must describe the same reason; change one to match.",
+  "BR-DEX-01": "A sub invoice line element of the XRechnung extension is not allowed or malformed; the message names the element. Or remove the sub invoice lines (BG-DEX-01).",
+  "BR-DEX-03": "Give each sub invoice line (BG-DEX-01) exactly one VAT information group (BG-DEX-06).",
+  "BR-DEX-04": "Use a scheme identifier from the ISO 6523 ICD list for the identifiers in the sub invoice line.",
+  "BR-DEX-05": "Use a scheme identifier from the ISO 6523 ICD list for the identifiers in the sub invoice line.",
+  "BR-DEX-06": "Use a scheme identifier from the ISO 6523 ICD list for the identifiers in the sub invoice line.",
+  "BR-DEX-07": "Use a scheme identifier from the CEF EAS list for the endpoint identifier.",
+  "BR-DEX-08": "Use a scheme identifier from the ISO 6523 ICD list for the deliver-to location identifier.",
+  "BR-DEX-02": "A line's net amount (BT-131) must equal the sum of the net amounts of its sub lines; XRechnung extension (BG-DEX-01).",
+  "BR-DEX-09": "Amount due (BT-115) = total with VAT (BT-112) - prepaid amount (BT-113) + rounding (BT-114) + third-party payments (BT-DEX-002). Recalculate it.",
+  "BR-DEX-10": "Give the third-party payment type (BT-DEX-001) in every third-party payment group.",
+  "BR-DEX-11": "Give the third-party payment amount (BT-DEX-002) in every third-party payment group.",
+  "BR-DEX-12": "Give the third-party payment description (BT-DEX-003) in every third-party payment group.",
+  "BR-DEX-13": "Round the third-party payment amount (BT-DEX-002) to at most two decimals.",
+  "BR-DEX-14": "The currency of the third-party payment amount (BT-DEX-002) must be the invoice currency (BT-5).",
+  "BR-DEX-15": "Remove the ParentLineID elements: XRechnung does not support sub invoice lines in CII.",
+  "BR-TMP-2": "Write the external document location (BT-124) as an absolute URL with a scheme, for example https://example.com/doc.pdf.",
+  "BR-TMP-3": "Give the price base quantity (BT-149) the same value in the gross and net price, and give the unit code (BT-150) on both if it is on the net price.",
+  "BR-TMP-4": "Give each additional supporting document (BG-24) at most one description (BT-123).",
+  "BR-TMP-5": "Give each additional supporting document (BG-24) at most one attached document (BT-125).",
+  "BR-TMP-6": "Write UBL dates as YYYY-MM-DD.",
+  "BR-TMP-7": "Write CII dates as YYYYMMDD with the attribute format=\"102\".",
+  "BR-DE-CVD-01": "A contract reference (BT-12) must not be empty when the element is present; fill it or remove it.",
+  "BR-DE-CVD-02": "A despatch advice reference (BT-16) must not be empty when the element is present; fill it or remove it.",
+  "BR-DE-CVD-03": "A Clean Vehicles Directive invoice needs at least one line whose item classification scheme is CVD and which carries the 'cva' vehicle property.",
+  "BR-DE-CVD-04": "A CVD item classification (BT-158 with scheme CVD) must use one of the allowed vehicle category codes.",
+  "BR-DE-CVD-05": "The 'cva' vehicle property value must be one of the allowed clean-vehicle codes.",
+  "BR-DE-CVD-06-a": "A line with a CVD classification needs exactly one 'cva' item property.",
+  "BR-DE-CVD-06-b": "A 'cva' item property needs exactly one CVD item classification on the same line.",
+  "BR-TMP-CVD-01": "Use a valid UNTDID 7143 scheme code for the item classification (BT-158); with CVD it must be exactly CVD.",
+  "PEPPOL-COMMON-R040": "Write the GLN so it passes the GS1 check digit: digits only, last digit computed from the others.",
+  "PEPPOL-COMMON-R041": "Write the Norwegian organization number as nine digits that pass the mod-11 check.",
+  "PEPPOL-COMMON-R042": "Write the Danish CVR number as eight digits, optionally with a DK prefix.",
+  "PEPPOL-COMMON-R043": "Write the Belgian enterprise number as ten digits that pass the mod-97 check.",
+  "PEPPOL-COMMON-R044": "Write the Italian IPA code (Codice Univoco Unità Organizzativa) in its valid format.",
+  "PEPPOL-COMMON-R045": "Write the Italian Codice Fiscale in its valid format.",
+  "PEPPOL-COMMON-R046": "Write the Italian Codice Fiscale in its valid format.",
+  "PEPPOL-COMMON-R047": "Write the Italian VAT number (Partita IVA) in its valid format, with a correct check digit.",
+  "PEPPOL-COMMON-R049": "Write the Swedish organization number as ten digits that pass the check.",
+  "PEPPOL-COMMON-R050": "Write the Australian Business Number as eleven digits that pass the ABN check.",
+  "PEPPOL-COMMON-R052": "Write the Danish chamber of commerce (P) number as ten digits.",
+  "PEPPOL-COMMON-R053": "Write the Danish ERSTORG (SE) number as ten characters: DK followed by eight digits.",
+  "PEPPOL-EN16931-CL001": "Use an attachment mime code from the allowed subset of the IANA list: application/pdf, image/png, image/jpeg, text/csv, a spreadsheet type or application/xml.",
+  "PEPPOL-EN16931-CL002": "Use an allowance reason code from the Peppol subset of UNCL 5189.",
+  "PEPPOL-EN16931-CL003": "Use a charge reason code from UNCL 7161.",
+  "PEPPOL-EN16931-CL006": "Use an invoice period description code from UNCL 2005 (3, 35 or 432).",
+  "PEPPOL-EN16931-CL007": "Use a currency code from ISO 4217, for example EUR.",
+  "PEPPOL-EN16931-CL008": "Use an electronic address scheme from the Peppol EAS list, for example 0088 or 0204.",
+  "PEPPOL-EN16931-F001": "Write the date as YYYY-MM-DD, with no time and no extra characters.",
+  "PEPPOL-EN16931-P0100": "Use an invoice type code Peppol allows for the billing profile, for example 380 (invoice) or 384 (corrected invoice).",
+  "PEPPOL-EN16931-P0101": "Use a credit note type code Peppol allows for the billing profile, for example 381.",
+  "PEPPOL-EN16931-P0104": "With exemption reason VATEX-EU-G the VAT category must be G.",
+  "PEPPOL-EN16931-P0105": "With exemption reason VATEX-EU-O the VAT category must be O.",
+  "PEPPOL-EN16931-P0106": "With exemption reason VATEX-EU-IC the VAT category must be K.",
+  "PEPPOL-EN16931-P0107": "With exemption reason VATEX-EU-AE the VAT category must be AE.",
+  "PEPPOL-EN16931-P0108": "With exemption reason VATEX-EU-D the VAT category must be E.",
+  "PEPPOL-EN16931-P0109": "With exemption reason VATEX-EU-F the VAT category must be E.",
+  "PEPPOL-EN16931-P0110": "With exemption reason VATEX-EU-I the VAT category must be E.",
+  "PEPPOL-EN16931-P0111": "With exemption reason VATEX-EU-J the VAT category must be E.",
+  "PEPPOL-EN16931-P0112": "Type codes 326 and 384 are only for German sellers and buyers; use 380 for other invoices.",
+  "PEPPOL-EN16931-R002": "Keep a single document-level note (BT-22); merge the text into one note.",
+  "PEPPOL-EN16931-R005": "The VAT accounting currency (BT-6) must differ from the invoice currency (BT-5); remove it if they are the same.",
+  "PEPPOL-EN16931-R040": "An allowance or charge amount must equal base amount x percentage / 100 (within 0.02) when both are given. Recalculate it.",
+  "PEPPOL-EN16931-R041": "Add the base amount to an allowance or charge that has a percentage.",
+  "PEPPOL-EN16931-R042": "Add the percentage to an allowance or charge that has a base amount.",
+  "PEPPOL-EN16931-R043": "Set ChargeIndicator to exactly true (a charge) or false (an allowance).",
+  "PEPPOL-EN16931-R044": "A charge cannot sit on the price; in the price allowance set ChargeIndicator to false.",
+  "PEPPOL-EN16931-R046": "Net price (BT-146) must equal gross price (BT-148) minus the price allowance (BT-147). Recalculate it.",
+  "PEPPOL-EN16931-R054": "When a VAT accounting currency is given, add exactly one TaxTotal without subtotals for it; otherwise add none.",
+  "PEPPOL-EN16931-R055": "The total VAT (BT-110) and the total VAT in the accounting currency (BT-111) must have the same sign.",
+  "PEPPOL-EN16931-R080": "Give at most one project reference (BT-11) on the invoice.",
+  "PEPPOL-EN16931-R101": "A line-level document reference may only hold the invoiced object (type code 130); move other references to document level.",
+  "PEPPOL-EN16931-R110": "A line period start date (BT-134) must not be before the invoicing period start date (BT-73).",
+  "PEPPOL-EN16931-R111": "A line period end date (BT-135) must not be after the invoicing period end date (BT-74).",
+  "PEPPOL-EN16931-R120": "Line net amount (BT-131) = quantity x (net price / base quantity) + line charges - line allowances, within 0.02. Recalculate it.",
+  "PEPPOL-EN16931-R121": "The price base quantity (BT-149) must be above 0.",
+  "PEPPOL-EN16931-R130": "The unit code of the price base quantity (BT-150) must equal the unit code of the invoiced quantity (BT-130).",
+});
 
 const FAMILIES = [
   [/^BR-S-/, "Standard-rated VAT: the line, allowance or charge category S needs a rate above 0, and the breakdown must show a taxable amount and tax amount that agree with it."],
@@ -107,6 +359,7 @@ const FAMILIES = [
   [/^BR-DEC-/, "An amount has more decimals than the standard allows. Round it to two decimals (unit prices may keep more)."],
   [/^BR-CO-/, "A calculation or consistency rule is broken. Recompute the totals from the lines and make the codes agree."],
   [/^BR-DE-/, "A German XRechnung rule (BR-DE) failed. Check seller contact, payment instructions, buyer reference (Leitweg-ID) and address fields."],
+  [/^DE-R-/, "A German domestic rule that Peppol applies (DE-R) failed. Check seller contact, addresses, buyer reference and payment instructions."],
   [/^BR-FR-/, "A French CIUS rule failed. Check the SIREN or SIRET identifiers and the mandatory legal mentions."],
   [/^BR-/, "A mandatory EN 16931 business rule failed. The message names the business term (BT-nn) to fill in or correct."],
   [/^PEPPOL-/, "A Peppol BIS Billing 3.0 rule failed. Check the electronic address schemes and the references the access point requires."],
