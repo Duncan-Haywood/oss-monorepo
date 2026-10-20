@@ -83,3 +83,9 @@ test('transcripts drop [pause] and turn scene breaks into rules', () => {
   assert.equal(wordCount('One two.\n\n[pause]\n\nThree.'), 3);
   assert.equal(formatDuration(3725.4), '1:02:05');
 });
+
+test('every page links its sibling audio venture (platform/pages/siblings.mjs)', () => {
+  for (const [rel, contents] of Object.entries(buildAll())) {
+    if (rel.endsWith('.html')) assert.match(contents, /href="\.\.\/listen-and-learn-audio\/"/, rel);
+  }
+});
