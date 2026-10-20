@@ -15,6 +15,10 @@ A contacts, accounts or deals CSV whose headings are ActiveCampaign field names 
 `Tags`, `Account Name`, `Title`, `Value`, `Status`). Comma, semicolon or tab separated; UTF-8 with or
 without a BOM. The kind is worked out from the headings, or chosen.
 
+Optional: a do-not-email list (unsubscribes, bounces, complaints; one address per line, or `@domain` to
+block a domain). Contacts on it are flagged as errors and Apply safe fixes drops those rows, so the
+import cannot re-subscribe them. Read in the browser like the file.
+
 ## Checks
 
 Required Email, Account Name or Title; headings against standard field names (typos, aliases, spelling,
