@@ -28,12 +28,13 @@ the site. Pull-request builds keep their filter and add `docs/podcast/**`.
   Settings → Secrets and variables → Actions → Variables.
 - **`main`'s site build was red.** The feedback page from #8723 was held to a
   product's contract by `check.mjs`, which reported 7 problems and blocked
-  both publishing routes. This PR carries the same fix as PR #8779:
-  `feedback/` joins `SITE_OWN_DIRS`, and the page gets og and twitter tags.
-  The change is identical, so whichever PR lands second no-ops. Locally it
-  checks clean: "publishable: 1305 products, 3816 pages, no dead links".
+  both publishing routes. The fix (`feedback/` joins `SITE_OWN_DIRS`, and
+  the page gets og and twitter tags) landed on `main` while this PR was
+  open. This PR carried the same change until then.
 
-- **`main` had two more red checks**, both fixed in this PR:
+- **`main` had more red checks.** This PR carried fixes for them until
+  `main` fixed them itself. Only the `writing.mjs` custom-domain rewrite is
+  still this PR's:
   - `gitops`: 17 tests in `gitops/tests/test_publish_branch.py`. The stub
     did not know the daily brief builder added by #8717.
   - The Pages `build` job: 3 site tests from #8747. Two named entities were
@@ -97,6 +98,10 @@ ventures above, so the site's checker publishes the audio.
   - `node build.mjs` then `node check.mjs` gave "publishable: 1300 products,
     3810 pages, no dead links".
   - `writing/podcast/` held 15 MP3s, and `feed.xml` had 15 `<item>`s.
+- After the final merge with `main`, `node build.mjs` then `node check.mjs`
+  gave "publishable: 1307 products, 3841 pages, no dead links". The
+  custom-domain, entities, faq-visible, writing, feedback-page and check
+  test files passed 127/127. `gitops/tests/test_ci_runner.py` passed 24/24.
 - `pages_state.py` reads `publish-pages-branch.yml`'s filter, not this
   workflow's, so it is unaffected.
 
