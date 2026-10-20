@@ -627,3 +627,17 @@ test('trend bends with sticky noise: --ar1 keeps the wandering from being cut in
   }
   assert.ok(falseBend <= 3, `false bends ${falseBend}/${N}`);
 });
+
+test('trend bends --joint-knots: scoring every pair of knots finds both bends on sticky noise more often than the greedy search', () => {
+  // 240 points, slope 0.1, 0.2 from point 80, -0.05 from point 160, AR(1) rho 0.5, seeds 1001..1012 (README: 20 of 40 greedy, 36 of 40 joint)
+  const n = 240, f = (i) => 0.1 * i + 0.1 * Math.max(0, i - 80) - 0.25 * Math.max(0, i - 160);
+  let greedy = 0, joint = 0;
+  for (let s = 1001; s <= 1012; s++) {
+    let p = 0;
+    const x = normals(rng(s), n).map((v, i) => { p = 0.5 * p + v; return f(i) + p; });
+    greedy += (trendAdjust(x, { bend: 3, ar1: true }).knots || []).length === 2;
+    joint += (trendAdjust(x, { bend: 3, ar1: true, joint: true }).knots || []).length === 2;
+  }
+  console.log(`# joint knots, 12 series: two knots ${greedy} greedy, ${joint} joint`);
+  assert.ok(joint >= greedy + 3, `${joint} joint against ${greedy} greedy`);
+});
