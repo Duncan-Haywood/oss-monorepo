@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poland KSeF e-invoice mandate: dates, FA(3) format and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="Poland's KSeF e-invoicing started 1 February 2026 for the largest taxpayers and 1 April 2026 for the rest, with a small-business deferral to 1 January 2027. The dates, the FA(3) format and a free local EN 16931 and Peppol checker.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/poland-ksef-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Poland KSeF e-invoice mandate: dates, FA(3) format and a free pre-send check">
+<meta property="og:description" content="Poland's KSeF e-invoicing started 1 February 2026 for the largest taxpayers and 1 April 2026 for the rest, with a small-business deferral to 1 January 2027. The dates, the FA(3) format and a free local EN 16931 and Peppol checker.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/poland-ksef-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When did Poland's KSeF e-invoicing mandate start?","acceptedAnswer":{"@type":"Answer","text":"KSeF (Krajowy System e-Faktur, the national e-invoicing system) became mandatory on 1 February 2026 for taxpayers whose sales in the reference year were above PLN 200 million, and on 1 April 2026 for other VAT-registered businesses. Businesses whose monthly invoiced sales stay at or below PLN 10,000 may stay outside the system until 31 December 2026 and join on 1 January 2027. Confirm your own date with your accountant or the Ministry of Finance; this page is a summary, not advice."}},{"@type":"Question","name":"Which invoice format does KSeF require?","acceptedAnswer":{"@type":"Answer","text":"A structured XML invoice in the national FA(3) schema, issued and received through the KSeF platform, which assigns each invoice a KSeF number. It is not the Peppol or EN 16931 format; EN 16931 and Peppol invoices have to be mapped to FA(3) for Poland. A PDF is only a visualisation. This checker does not validate FA(3); it checks EN 16931, Peppol BIS 3.0, XRechnung and Factur-X files, which helps when you sell across borders or build the invoice data before mapping it."}},{"@type":"Question","name":"What are the penalties under KSeF?","acceptedAnswer":{"@type":"Answer","text":"Sources disagree on timing, so check the Ministry of Finance guidance. Reporting that the penalty regime for invoices issued outside KSeF applies from 1 January 2027 is common, with penalties tied to the VAT on the invoice. Treat any amount on this page as unconfirmed and check the current statute before relying on it."}},{"@type":"Question","name":"How do I check an invoice before sending it to a Polish customer?","acceptedAnswer":{"@type":"Answer","text":"If the customer takes a Peppol or EN 16931 invoice, drop the file into the checker and tick the Peppol option: it tests identifiers, electronic addresses, totals and tax breakdown arithmetic, and VAT, IBAN and BIC typos, each with a rule ID and a fix. For a Polish domestic invoice in FA(3) use the Ministry's own validation and test environment. Nothing is uploaded when you use the page; it is not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Poland's KSeF e-invoice mandate: what applies now</h1>
+<p class="lede">Since 2026, VAT invoices in Poland go through KSeF, the national e-invoicing system, in a structured XML format called FA(3). Below: the dates, the format that counts, and how to test the invoice data before it goes to a customer.</p>
+</header>
+<section>
+<h2>The timeline (domestic invoices)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>1 Feb 2026</td><td>KSeF is mandatory for taxpayers whose sales in the reference year were above PLN 200 million.</td></tr>
+<tr><td>1 Apr 2026</td><td>KSeF is mandatory for the other VAT-registered businesses.</td></tr>
+<tr><td>1 Jan 2027</td><td>Businesses whose monthly invoiced sales stay at or below PLN 10,000 join; until 31 December 2026 they may stay outside.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Exceptions and transitional rules exist, and sources disagree on when penalties for invoices issued outside KSeF begin. This is a summary, not tax advice; confirm with your accountant or the Ministry of Finance KSeF guidance.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>The invoice is an <strong>FA(3)</strong> XML document submitted to the KSeF platform, which returns a KSeF number; the buyer retrieves it from KSeF. It is a national schema, not Peppol BIS or XRechnung. Businesses that already produce EN 16931 invoices for other countries map them to FA(3) for Poland. A PDF is only a visualisation.</p>
+</section>
+<section>
+<h2>Test the invoice data before you send it</h2>
+<p>This checker does not read FA(3). It reads JSON, UBL, CII and Factur-X files and applies the EN 16931 and Peppol BIS 3.0 rules, which is useful when a Polish customer takes a Peppol invoice, when you sell into several countries from one data set, or when you want arithmetic, tax breakdown, VAT, IBAN and BIC mistakes caught before mapping (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). Open the <a href="./">checker</a>; no account, nothing uploaded. For FA(3) itself use the Ministry's validation and test environment.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Selling into other countries? See <a href="germany-e-invoice-mandate.html">the German dates</a>, <a href="france-e-invoice-mandate.html">the French dates</a> and <a href="belgium-e-invoice-mandate.html">the Belgian dates</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>When did Poland's KSeF e-invoicing mandate start?</h3>
+<p>KSeF (Krajowy System e-Faktur, the national e-invoicing system) became mandatory on 1 February 2026 for taxpayers whose sales in the reference year were above PLN 200 million, and on 1 April 2026 for other VAT-registered businesses. Businesses whose monthly invoiced sales stay at or below PLN 10,000 may stay outside the system until 31 December 2026 and join on 1 January 2027. Confirm your own date with your accountant or the Ministry of Finance; this page is a summary, not advice.</p>
+<h3>Which invoice format does KSeF require?</h3>
+<p>A structured XML invoice in the national FA(3) schema, issued and received through the KSeF platform, which assigns each invoice a KSeF number. It is not the Peppol or EN 16931 format; EN 16931 and Peppol invoices have to be mapped to FA(3) for Poland. A PDF is only a visualisation. This checker does not validate FA(3); it checks EN 16931, Peppol BIS 3.0, XRechnung and Factur-X files, which helps when you sell across borders or build the invoice data before mapping it.</p>
+<h3>What are the penalties under KSeF?</h3>
+<p>Sources disagree on timing, so check the Ministry of Finance guidance. Reporting that the penalty regime for invoices issued outside KSeF applies from 1 January 2027 is common, with penalties tied to the VAT on the invoice. Treat any amount on this page as unconfirmed and check the current statute before relying on it.</p>
+<h3>How do I check an invoice before sending it to a Polish customer?</h3>
+<p>If the customer takes a Peppol or EN 16931 invoice, drop the file into the checker and tick the Peppol option: it tests identifiers, electronic addresses, totals and tax breakdown arithmetic, and VAT, IBAN and BIC typos, each with a rule ID and a fix. For a Polish domestic invoice in FA(3) use the Ministry's own validation and test environment. Nothing is uploaded when you use the page; it is not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Polish rules as publicly documented; dates and penalties can change, so check the Ministry of Finance KSeF guidance (podatki.gov.pl/ksef) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
