@@ -42,6 +42,10 @@
     {
       "file": "platform/pages/ink.mjs",
       "issue": "A compound selector like header.hero is not recognised as a background box, so a light link on a dark header reads as 1.46:1; switching to .hero passes. Not documented in PRODUCTION_PLAYBOOK or the error message."
+    },
+    {
+      "file": "platform/marketing/front-door-tools.mjs",
+      "issue": "regen.mjs does not rewrite 00-mirror-alias.conf or the portfolio-front.yaml shard mount; a new venture also needs front-door-tools.mjs --write, and that writes an uncommitted gitops/prod/front-door-tools/ scratch dir that must be deleted by hand."
     }
   ],
   "deviations": [
@@ -51,7 +55,7 @@
     }
   ],
   "goal": null,
-  "notes": "Three episodes (53, 41, 45 min) written to a new series bible, rendered offline with Kokoro, served with an RSS feed. Two episodes drafted by subagents and reviewed for doctrine and sources. Weekly scheduled session created to add an episode per week. Owner steps: public email in podcast.json and directory submissions.",
+  "notes": "Three episodes (53, 41, 45 min) written to a new series bible, rendered offline with Kokoro, served with an RSS feed. Two episodes drafted by subagents and reviewed for doctrine and sources. Weekly scheduled session created to add an episode per week. Owner steps: public email in podcast.json and directory submissions. Full report and verification log: docs/reports/2026-10-20-saints-by-candlelight.md. Main was merged in three times (hearth-and-horizon landed mid-run); each time the front-door mirror, alias map, shard mount and tree counts were regenerated rather than hand-merged.",
   "corrections": [],
   "redteam": null,
   "usage": {
