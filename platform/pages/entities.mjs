@@ -35,6 +35,7 @@ export const NAMED_ENTITIES = Object.freeze({
   nbsp: ' ',
   mdash: '—',
   ndash: '–',
+  eacute: 'é',
   ldquo: '“',
   rdquo: '”',
   lsquo: '‘',
