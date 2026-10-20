@@ -18,7 +18,7 @@
 import { readFile } from "node:fs/promises";
 import process from "node:process";
 import {
-  parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, optimalityText, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -40,6 +40,7 @@ Options:
   --ics [--person <name>]    calendar file for the week (needs --week-start, a Monday); one person's shifts with --person
   --messages                 a paste-ready text per person
   --open-post                a group message for the shifts left open and who could take each (empty when none)
+  --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
   -h, --help          this text
@@ -65,6 +66,7 @@ export function parseArgs(argv) {
     else if (a === "--open-post") o.mode = "open-post";
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--check") o.check = true;
+    else if (a === "--prove") o.options.exact = true;
     else if (a === "--example") o.example = true;
     else if (a === "--last-week") { o.lastWeek = argv[++i]; if (!o.lastWeek) throw new Error("--last-week needs a CSV file"); }
     else if (a === "--week-start") {
@@ -120,7 +122,7 @@ export function run(staffText, shiftsText, opts = {}) {
         assignments: r.assignments.map((a) => ({ day: DAYS[a.slot.day], start: fmtClock(a.slot.startMin), end: fmtClock(a.slot.endMin), label: a.slot.label || "", role: a.slot.role || "", person: a.person })),
         people: r.people.map((p) => ({ name: p.name, hours: p.hours, short: p.short })),
         unfilled: r.unfilled.map((u) => ({ day: DAYS[u.slot.day], start: fmtClock(u.slot.startMin), end: fmtClock(u.slot.endMin), why: u.text })),
-        critical: r.critical, warnings: r.warnings,
+        critical: r.critical, warnings: r.warnings, optimality: r.optimality || undefined,
       }, null, 2) + "\n",
     };
   }
@@ -139,6 +141,7 @@ export function run(staffText, shiftsText, opts = {}) {
     for (const c of r.critical) lines.push(`  ${c.name}: without them ${num(c.extraUnfilledHours)} more hours go uncovered`);
   }
   if (r.warnings.length) lines.push("", ...r.warnings.map((x) => `Note: ${x}`));
+  if (r.optimality) lines.push("", optimalityText(r.optimality));
   if (r.savingVsListed > 0.5) lines.push("", `Versus filling shifts in the order listed: saves ${money(r.savingVsListed)}.`);
   lines.push("", "Planning aid, not legal advice. Local scheduling-notice, break and minor-labor rules are not modelled.");
   return { code, out: lines.join("\n") + "\n" };
