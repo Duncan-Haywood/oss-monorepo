@@ -46,11 +46,12 @@ it never creates a charge, and no card is needed.
    (Or start from the **Edit Cloudflare Workers** template and add
    Account → D1 → Edit.) Copy the token, and copy your **Account ID**: it is
    already assigned, shown on the right of the Workers & Pages overview page.
-3. **Repository settings** (*Settings → Secrets and variables → Actions*):
-   - Secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
-   - Variables: `EDGE_DEPLOY_ENABLED` = `true`.
-4. **Deploy.** Run the **edge-deploy** workflow (*Actions → edge-deploy → Run
-   workflow*). It tests the Worker, creates the D1 database if it does not
+3. **Repository secrets** (*Settings → Secrets and variables → Actions →
+   Secrets*): `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. No variables
+   are needed: the deploy runs whenever both secrets exist.
+4. **Deploy.** The **edge-deploy** workflow runs by itself when a change to
+   `platform/edge/` reaches `main`, or by hand from *Actions → edge-deploy →
+   Run workflow*. It tests the Worker, creates the D1 database if it does not
    exist, applies `schema.sql`, and deploys. The log prints the Worker's
    address, like `https://monorepo-projects-edge.<your-subdomain>.workers.dev`.
 5. **Point the site at it.** Put that address in both
@@ -58,8 +59,8 @@ it never creates a charge, and no card is needed.
    `platform/counter/site.json` (turns on the counts) as `"url"`, or paste it
    to an agent session and ask it to. The next Pages build switches on the
    form, the ping and the matching privacy copy together.
-6. **Daily counts and feedback into the repo.** Set the variable
-   `SITE_USAGE_PULL` = `true`. The **site-usage-pull** workflow then commits
+6. **Daily counts and feedback into the repo.** Nothing to set: once step 5
+   is on `main`, the **site-usage-pull** workflow commits
    `portfolio/usage/site-visits.json` and `site-feedback.json` once a day.
    If `main` is protected against pushes from Actions, allow
    `github-actions[bot]` or leave it off; any session can run

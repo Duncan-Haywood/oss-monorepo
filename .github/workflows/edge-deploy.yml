@@ -1,7 +1,8 @@
 # Deploys platform/edge (the Cloudflare Worker behind the site's feedback form
-# and page-view counts) on the free plan. Off until the owner sets
-# vars.EDGE_DEPLOY_ENABLED to 'true' and adds the secrets platform/edge/README.md
-# lists. Free plan: going over a daily limit fails requests, never bills.
+# and page-view counts) on the free plan. Does nothing until the repository has
+# the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets (owner, 2026-10-20);
+# see platform/edge/README.md. Free plan: going over a daily limit fails
+# requests, never bills.
 name: edge-deploy
 on:
   push:
@@ -18,8 +19,24 @@ concurrency:
   group: edge-deploy
   cancel-in-progress: false
 jobs:
+  # A job-level `if:` cannot read secrets, so a first job reports whether the
+  # Cloudflare ones exist; without them the deploy is skipped, not failed.
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          HAS_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+          HAS_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        run: |
+          if [ "$HAS_TOKEN" = true ] && [ "$HAS_ACCOUNT" = true ]; then echo "ready=true" >> "$GITHUB_OUTPUT"
+          else echo "ready=false" >> "$GITHUB_OUTPUT"; echo "Cloudflare secrets are not set; skipping the deploy."; fi
   deploy:
-    if: ${{ vars.EDGE_DEPLOY_ENABLED == 'true' }}
+    needs: gate
+    if: ${{ needs.gate.outputs.ready == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
