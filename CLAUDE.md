@@ -96,6 +96,10 @@ section your work touches:
   2026-10-20) in `docs/posts/`, served at `writing/`. A post with real data
   counts as useful work; `node platform/pages/writing-backlog.mjs` names the
   research tracks nobody has written up yet.
+- **Files first, not the GitHub API** (owner, 2026-10-20): what a later
+  reader needs (verification output, decisions, why) goes in a file in the
+  same PR (run record, README, `docs/history/`). A PR body, comment or CI log
+  is a summary that points to it, never the source.
 
 These are directions for many runs, not tasks every session must start on.
 
@@ -180,7 +184,8 @@ have disclaimers and usage tracking.
 first with `python3 platform/ci/ci_starvation.py --run <run_id>` (below).
 When it says starvation, run what your change reaches from the checklist in
 [`.github/prompts/verify-and-merge.md`](.github/prompts/verify-and-merge.md),
-and say in the PR what each line printed. Every line there exists because a
+and put what each line printed in the run record's `notes`, with a summary in
+the PR. Every line there exists because a
 guard outside the list once went unrun while `main` broke (full incidents:
 [`docs/history/claude-md-2026-10-15.md`](docs/history/claude-md-2026-10-15.md)).
 That file also holds the traps in running the lines (shallow clones, installing
