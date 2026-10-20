@@ -1,0 +1,17 @@
+50 feasible airframes on a 9x9 grid; gains tuned per cell by CMA-ES, 96 evaluations of 16 training episodes; held-out 64 episodes (different seed)
+plant multipliers drawn uniformly per episode (assumed): narrow: tau 0.9-1.0, mass 0.95-1.15, lag 1.0-1.4; wide: tau 0.7-1.0, mass 0.9-1.3, lag 1.0-2.0
+
+median / best held-out RMS roll error (deg), rows = gains tuned on, columns = evaluated on:
+  tuned on nominal  nominal: med  6.57 best  5.33  narrow: med  7.15 best  5.64  wide: med  8.41 best  6.20
+  tuned on narrow   nominal: med  6.63 best  5.49  narrow: med  6.96 best  5.61  wide: med  7.62 best  6.07
+  tuned on wide     nominal: med  6.85 best  5.46  narrow: med  7.04 best  5.65  wide: med  7.54 best  6.00
+
+airframe ranking, nominal-tuned gains (the codesign-aero pipeline):
+  nominal vs narrow: Spearman 0.96; nominal optimum (L 0.135, D 0.101) scores 5.65 on narrow vs 5.64 for the narrow optimum (regret +0.01 deg, rank 2/50); top-5 overlap 5/5
+  nominal vs wide: Spearman 0.75; nominal optimum (L 0.135, D 0.101) scores 6.37 on wide vs 6.20 for the wide optimum (regret +0.17 deg, rank 2/50); top-5 overlap 5/5
+
+robust tuning (gains tuned on the wide plant), evaluated on the wide plant:
+  wide optimum: L 0.107, D 0.101, 6.00 deg; nominal-pipeline optimum airframe with wide-tuned gains 6.08 deg (rank 3/50)
+  gain from tuning on the wide plant, median over cells: +0.91 deg; cells where it helps by >0.5 deg: 0.66
+  Spearman of wide-tuned vs nominal-tuned rankings on the wide plant: 0.82
+  cells above 20 deg RMS on the wide plant: nominal-tuned 0/50, wide-tuned 0/50
