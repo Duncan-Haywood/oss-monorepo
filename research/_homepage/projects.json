@@ -3649,6 +3649,11 @@
      "slug": "house-market",
      "title": "What does a new home cost to build in the US and Colorado in 2026, and where does the money go?",
      "summary": "A sourced, dated market report. The median new US home sold for $393,700 in August 2026 (&minus;5.8% y/y) while inputs to residential construction rose 10.3%, mortgage rates reached 7.4% and builder sentiment hit its lowest since 2012. On NAHB&rsquo;s 2024 breakdown, construction is 64.4% of price and foundations, framing and exterior 26%, so a 20% cheaper structural system moves the price only 5.2%; HUD-code manufactured homes cost about 52% of site-built per sq ft by building the whole house in a factory. In Denver, itemised fees and a 209-day plan review are about 12% of a modelled $462,000 home before land, against 3.5% nationally. Technique cost studies are old and often industry-funded; several figures are search excerpts, marked in the data."
+    },
+    {
+     "slug": "house-adufees",
+     "title": "What does Denver Water's 2026 tap fee cost a 480 sq ft backyard cottage (ADU) against a house?",
+     "summary": "From Denver Water&rsquo;s own 2026 schedule: an ADU pays a flat $2,170 inside Denver from 1 July 2026 ($2,055 before), against $5,400 for a house charged on 2,000 sq ft, 60% less. Per floor sq ft the ADU is dearer ($4.52 against $2.70). Denver Water&rsquo;s share is small beside <code>house-market</code>&rsquo;s $16,930 &ldquo;water and sewer SDC&rdquo;, leaving about $12,000 for sewer and other items that this project could not read. One fee only; the page does not say whether the rate applies to lot or floor area."
     }
    ]
   },
