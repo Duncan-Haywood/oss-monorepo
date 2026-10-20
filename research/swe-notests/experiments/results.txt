@@ -1,0 +1,36 @@
+records 1629   with a tests_added count 621   adding no tests 84 (13.5%)
+dates 2026-10-01 to 2026-10-20
+
+== A. share of counted runs that add no tests, by track
+  research     71/402    17.7%
+  ventures      6/160     3.8%
+  explore       5/33     15.2%
+  process       2/16     12.5%
+  redteam       0/9       0.0%
+  review        0/1       0.0%
+
+== B. partial outcomes, no tests vs tests, within track x early/late
+    stratum              partial/n no tests   partial/n with tests
+    explore  late         0/5                 1/23  
+    process  late         0/2                 0/12  
+    research early        2/52                5/213 
+    research late         0/19                0/118 
+    ventures early        0/3                 3/35  
+    ventures late         2/3                 5/119 
+    all counted: partial 4/84 without tests; with tests 16/537
+    pooled difference in partial share (no tests - tests) +2.6 points   permutation p = 0.2268  (5000 shuffles inside strata)
+
+== C. cost_usd medians within strata
+  strata with >=3 priced runs in each arm: 2 of 6
+    stratum              n_none n_tests  median_none median_tests
+    explore  late           4      7         0.54       0.66
+    research late          11     97         0.56       0.99
+    pooled log cost ratio (none/tests) -0.472 = x0.62   permutation p = 0.0002
+
+== D. what the no-test runs shipped: projects listed (0 means no project)
+  no tests  15/84 list no project (17.9%)
+  tests     91/537 list no project (16.9%)
+
+== E. partial rate among no-test runs that list a project vs none
+  project    4/69 partial
+  no project 0/15 partial

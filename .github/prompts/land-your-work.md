@@ -22,10 +22,9 @@ step below. How to load them, and what an HTTP 500 from
 
 ## Why this has its own prompt
 
-Measured 2026-10-05: PRs that get opened land (1,251 merged, 23 closed in two
-weeks), but 100 branches with 186 commits never got a PR, including four
-finished ventures. Work was dropped between `git push` and opening the PR, and
-every guard here runs on a PR or on `main`.
+Work gets dropped between `git push` and opening the PR (2026-10-05: 100
+branches, four of them finished ventures, never got one), and every guard here
+runs on a PR or on `main`.
 
 ## The finish line: do all of it, in this order
 
@@ -45,7 +44,6 @@ every guard here runs on a PR or on `main`.
 5. **Merge it yourself.** Mark the draft ready and squash-merge. A research
    mirror PR is the one exception: it merges with a merge commit, never a
    squash (`prompt.md`). Don't wait for a human or for bot approvals.
-   `ventures/*` product code counts too:
    If the merge won't go:
    - **Conflict:** merge `origin/main` into your branch, re-run what the
      checklist says (`node platform/marketing/regen.mjs`, `sync_tree_counts.py`), re-verify, and
@@ -78,11 +76,6 @@ session on a push to a merged PR's branch.
 `origin/main` after the merge is fine locally, but pushing it recreates the
 branch cleanup just deleted (872 of 875 surviving merged-PR branches on
 2026-10-16). Push again only once it has a new commit, and open a new PR for it.
-
-If `git push --force-with-lease` is rejected with "stale info" after you reset
-the branch, the remote ref was deleted and your tracking ref is stale (reported
-by five runs). Don't retry the flag: `git fetch --prune origin`, then a plain
-`git push -u origin <branch>`.
 
 ## Not shipping something? Leave nothing to push
 
@@ -123,8 +116,7 @@ These are **not** reasons:
   the survivor ([`duplicate-work.md`](duplicate-work.md)).
   To check open PRs cheaply, use `search_pull_requests` with
   `is:open repo:duncan-haywood/oss-monorepo <slug or keyword> in:title` and
-  `minimal_output`; `list_pull_requests` returns tens of KB of unrelated PRs
-  (reported by research, ventures and review runs).
+  `minimal_output`; `list_pull_requests` returns tens of KB of unrelated PRs.
 - **The brief didn't say to open a PR.** This file says so.
 
 ## Other agents' unlanded work is yours too
