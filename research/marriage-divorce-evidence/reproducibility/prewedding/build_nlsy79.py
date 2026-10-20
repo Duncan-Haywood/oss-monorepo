@@ -58,9 +58,17 @@ def extra_items(cdb_text):
         if ref == 'R0172700':  # Q15-1, 1979: INT REMARKS - RACE OF R (1 white, 2 black, 3 other)
             items[ref] = 'race_observed_1979'
             continue
-        if not (year.isdigit() and 1981 <= int(year) <= 1994):
+        if not (year.isdigit() and int(year) >= 1981):
             continue
         title = ' '.join(l.strip() for l in b.split('\n')[1:6] if l.strip() and 'PRIMARY' not in l)
+        # the new spouse's birth month and year, asked at the first interview after any marriage
+        sb = re.match(r'(?:(MONTH|YEAR) OF BIRTH OF (?:MOST RECENT|NEW) SPOUSE|DATE OF BIRTH OF NEW SPOUSE)', title)
+        if sb:
+            mo = sb[1] == 'MONTH' if sb[1] else name.endswith('~M')
+            items[ref] = f"sdob{year}_{'m' if mo else 'y'}"
+            continue
+        if int(year) > 1994:
+            continue
         t = re.match(r'(1ST|2ND|3RD) CHANGE IN MARITAL STATUS SINCE LAST INT( \(B\))?(?: ORIGINAL| Since|$)', title)
         if t:
             # 1993-94: the "(B)" item is consolidated into the main one, except 1994's 3rd change,
@@ -204,7 +212,27 @@ for r in m.itertuples(index=False):
                 sp_educ = band(gr)
                 audit['spouse_educ_from_prewedding_partner'] += 1
     own_age = r.age_at_marriage
-    sp_age = r.spouse_age_at_marriage if np.isfinite(r.spouse_age_at_marriage) else np.nan
+    # partner's age at the wedding from the partner's birth month and year, asked of everyone who
+    # married since the last interview, at the first interview after the wedding (whatever the
+    # couple's state by then); skipped when a second marriage began before that interview, since
+    # "new spouse" would then be the second one.
+    post = sorted((mo, y) for y, mo in months.items() if mo > w)
+    sp_age, entry_round = np.nan, post[0][1]
+    if entry_round >= 1981 and not (np.isfinite(second[i]) and second[i] <= post[0][0]) and f'sdob{entry_round}_y' in X:
+        by, bm = X[f'sdob{entry_round}_y'][i], X[f'sdob{entry_round}_m'][i]
+        by = by + 1900 if 0 <= by < 100 else by
+        if 1900 <= by <= 2010 and 1 <= bm <= 12:
+            a = (w - (by * 12 + bm - 1)) / 12
+            if 14 <= a <= 99:
+                sp_age = a
+    sp_roster = r.spouse_age_at_marriage
+    audit.setdefault('partner_age_from_birth_date', 0)
+    audit.setdefault('partner_age_birth_date_vs_roster_abs_diff_le_1y', [0, 0])
+    if np.isfinite(sp_age):
+        audit['partner_age_from_birth_date'] += 1
+        if np.isfinite(sp_roster):
+            audit['partner_age_birth_date_vs_roster_abs_diff_le_1y'][0] += int(abs(sp_age - sp_roster) <= 1)
+            audit['partner_age_birth_date_vs_roster_abs_diff_le_1y'][1] += 1
     woman = r.sex == 'Woman'
     own_educ = band(r.grade_completed)
     fam = r.family_at_14
