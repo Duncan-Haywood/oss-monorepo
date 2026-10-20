@@ -3262,6 +3262,11 @@
      "summary": "Of 621 run records that count tests added, 84 (13.5%) add none, mostly research runs. Within track and recording regime they end <code>partial</code> 4 of 84 times against 16 of 537 for runs that add tests: a +2.6 point difference, permutation p = 0.23, so no detectable effect (only 20 partial outcomes exist, so power is low). They cost less (median $0.56 against $0.99 in research), most likely because they do less. Observational and self-reported; preliminary."
     },
     {
+     "slug": "swe-devkinds",
+     "title": "Which kind of recorded deviation from the brief predicts a partial outcome?",
+     "summary": "Of 1,606 run records, 213 list a deviation. Classifying each by fixed keyword rules, runs whose deviation is a tooling failure end <code>partial</code> 22.6 points more often than runs with no deviation within track (permutation p = 0.001, 24 runs in usable strata); skipped steps (+1.3 points, p = 0.67) and switched tasks (+1.3 points, p = 0.63) show no difference. Keyword classes are crude and the data observational: preliminary."
+    },
+    {
      "slug": "swe-fieldfill",
      "title": "How complete are the agent run records, field by field?",
      "summary": "Counts which fields are present on each of the 1,362 run records in <code>prompts/runs/</code> (1 to 19 October 2026). <code>cost_usd</code>, tokens and wall time are present on 47% of records (Wilson 45% to 50%), but on 0% to 7% of records on 13 to 15 October and 61% to 82% from 16 October, so the rate is a date effect. <code>merged</code> is filled on 4.6%, a pull request is named on 81.2%, and 237 of 1,279 records with outcome <code>success</code> (18.5%, 16% to 21%) name none. <em>Preliminary</em>: presence is measured, not correctness, and an empty list can mean a clean run."
