@@ -1955,6 +1955,33 @@ test("score sheets give every round its own page, escape names and stay self-con
   assert.ok(!/(src|href)=["']https?:/.test(html));
 });
 
+test("oneDayTimetable minRest: every pair meets once, no team twice in a slot, rest met when courts allow", () => {
+  for (const [n, courts, rest] of [[8, 2, 1], [10, 2, 1], [12, 3, 1], [6, 1, 1], [8, 1, 2], [9, 2, 1], [16, 4, 1]]) {
+    const tt = oneDayTimetable(names(n), { courts, minRest: rest });
+    const pairs = new Map();
+    for (const s of tt.slots) {
+      const seen = new Set();
+      assert.ok(s.matches.length <= courts);
+      for (const m of s.matches) {
+        assert.ok(!seen.has(m.home) && !seen.has(m.away), `team twice in slot, n=${n}`);
+        seen.add(m.home); seen.add(m.away);
+        const k = [m.home, m.away].sort().join("-");
+        pairs.set(k, (pairs.get(k) || 0) + 1);
+      }
+    }
+    assert.equal(pairs.size, n * (n - 1) / 2);
+    assert.ok([...pairs.values()].every((v) => v === 1));
+    assert.ok(tt.restSlots >= rest, `rest ${tt.restSlots} < ${rest} for n=${n}`);
+    const plain = oneDayTimetable(names(n), { courts });
+    assert.equal(tt.games, plain.games);
+  }
+  assert.ok(oneDayTimetable(names(8), { courts: 2, minRest: 1 }).restSlots >= 1);
+  assert.ok(oneDayTimetable(names(12), { courts: 3, minRest: 1 }).restSlots >= 1);
+  assert.equal(oneDayTimetable(names(5), { double: true, minRest: 1 }).games, 20);
+  assert.throws(() => oneDayTimetable(names(4), { minRest: 9 }), /Rest slots/);
+  assert.match(oneDayText(oneDayTimetable(names(8), { courts: 2, minRest: 1 })), /Every team rests at least 1 slot/);
+});
+
 test("season grid has one cell per team per round and agrees with the schedule", () => {
   for (const n of [4, 5, 7]) {
     const sched = buildSchedule(baseSpec(n, { double: true }));
