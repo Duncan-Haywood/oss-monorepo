@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_011qeNDjbbcRjGKFaqPtt5pY",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Owner: output to most platforms (Substack, IG, FB, Threads, X, TikTok, YouTube, email, search, AI providers) with measurement of what does best; then: AI content creation for all platforms from interviews, for this repo and for businesses/individuals.",
+  "input_sha256": "0f18735d5b8acbe050b417b18829fa3efe9a2dad80a47cada4558fd63e632061",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-20T08:16:53Z",
+  "ended": "2026-10-20T08:49:23Z",
+  "wall_minutes": 32.69,
+  "tokens_in": 26576680,
+  "tokens_out": 67597,
+  "cost_usd": 9.1492,
+  "tool_calls": 156,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8741",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First push failed portfolio-validate: new workflow distribute-hub.yml missing from platform/ci/publish-surface.yaml (fixed with publish_surface.py --write)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The verify checklist does not mention that adding any workflow requires publish_surface.py --write; found only when CI went red."
+    },
+    {
+      "file": ".github/workflows/portfolio-validate.yml",
+      "issue": "Running its validate job locally is hard: multi-line run blocks, a shallow-clone base fetch and a >5 min marketing suite; no one-command local runner for this job."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/distribution/README.md",
+      "why": "X listed as an owner-suggested automated channel; built as drafts-only because the X API became pay-per-use for new developers on 2026-02-06 and the same spec forbids paid channels."
+    }
+  ],
+  "goal": null,
+  "notes": "Shipped (1) platform/distribution/hub.mjs: 18-platform registry with mode+reason, per-platform composer with rotating copy templates, live adapters for Threads/Facebook/Instagram/Buttondown (off by default, not exercised against live accounts), drafts for X/LinkedIn/Substack/Medium/TikTok/YouTube/Reddit/HN, scoreboard joining platform metrics with ?ref= arrivals (shrinkage, min 5 posts); 12 new counter ref tags; distribute-hub.yml (dry run, artifact only). (2) ventures/interview-content-studio, built by a subagent: interview -> per-platform cadence -> 4-week calendar -> drafts, no-key template engine plus BYOK AI with a no-invented-numbers validator. Checks: node --test platform/distribution + counter 155/155; privacy 94/94 after bumping the opt-out switch count; venture 40/40; validate_workflows ok; publish_surface --check ok; check_venture_regression OK vs origin/main. Pre-existing on main, not this PR: activecampaign-import-csv-check hypothesis lacks evidence (router validate.py and test_allocate fail). Later in the run: merged main twice; carried two fixes for main breakage (setup-python in portfolio-pages.yml; daily/build.mjs in the publish-branch test stub); added the report and handoff portfolio/distribution/hub-report-2026-10-20.md and the post docs/posts/2026-10-20-one-tool-for-every-platform-what-the-apis-allow.md at the owner's request.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e3632837-0be2-5616-87fd-26bf4bce2d8e",
+    "transcripts": 2,
+    "first": "2026-10-20T08:16:53Z",
+    "last": "2026-10-20T08:49:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 144,
+        "input": 296,
+        "output": 67597,
+        "thinking": 12061,
+        "cache_read": 26173757,
+        "cache_write_5m": 219894,
+        "cache_write_1h": 182733,
+        "api_equivalent_usd": 9.1492,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 144,
+      "input": 296,
+      "output": 67597,
+      "thinking": 12061,
+      "cache_read": 26173757,
+      "cache_write_5m": 219894,
+      "cache_write_1h": 182733,
+      "api_equivalent_usd": 9.1492,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 156,
+    "tools": {
+      "Bash": 113,
+      "Write": 16,
+      "ToolSearch": 5,
+      "WebSearch": 4,
+      "Read": 4,
+      "Monitor": 3,
+      "mcp__github__search_pull_requests": 2,
+      "ReadNotifications": 2,
+      "TaskStop": 2,
+      "Agent": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1,
+      "mcp__github__get_job_logs": 1,
+      "SubagentHandback": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 32.69,
+      "active_minutes": 20.3,
+      "model_minutes": 10.3,
+      "tool_minutes": 10.0,
+      "waiting_on_human_minutes": 12.4,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 21.94
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "estimate: ~10 h for the hub (registry research, 4 API adapters, metrics, tests) and ~14 h for a tested product page with an AI path",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 262.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

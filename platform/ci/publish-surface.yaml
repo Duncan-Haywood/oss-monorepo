@@ -489,6 +489,9 @@ workflows:
 - workflow: distribute-homebrew.yml
   classification: none
   publishes: []
+- workflow: distribute-hub.yml
+  classification: none
+  publishes: []
 - workflow: distribute-mastodon.yml
   classification: none
   publishes: []
@@ -815,6 +818,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: interview-content-studio-ci.yml
   classification: none
   publishes: []
 - workflow: invoice-payment-terms-calculator-ci.yml

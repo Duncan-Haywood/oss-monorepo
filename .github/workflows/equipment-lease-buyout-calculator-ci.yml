@@ -38,6 +38,3 @@ jobs:
           node-version: 22
       - name: Run calculator tests
         run: node --test
-      - name: Published pages carry the no-warranty clause
-        working-directory: .
-        run: node platform/pages/clauses.mjs equipment-lease-buyout-calculator

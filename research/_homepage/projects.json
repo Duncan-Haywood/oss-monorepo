@@ -4037,6 +4037,11 @@
     "slug": "hanger-print",
     "title": "Can the hanger a cloth simulation designed be 3D-printed, and does it hold a garment?",
     "summary": "Exports <code>hanger-fit</code>&rsquo;s adjustable shape and four-width rack as parametric STL and OpenSCAD, with a cantilever strength, deflection and print-bed check. Printed flat in PLA under assumed constants (1.5&nbsp;kg garment, 2&times; motion factor), the round-ended arm (end radius 2.86&nbsp;cm) has a safety factor of 40&ndash;70 at 12&nbsp;mm depth and bends under 0.04&nbsp;mm, so strength never limits it; a wire-like arm (end radius 1.5&nbsp;mm) has a safety factor of 0.13 and fails. No hanger of useful width fits a 220&nbsp;mm bed whole, but one arm with its hub does up to 24.8&nbsp;cm. Stylised: assumed material constants, flat extrusion, OpenSCAD files not rendered, no two-piece joint."
+   },
+   {
+    "slug": "hanger-pick",
+    "title": "How should a laundry robot pick one garment out of a tangled dryer load?",
+    "summary": "A stylised 2D pile of overlapping disc garments, 40% with the opening hidden by the garment itself, emptied by three scripted policies with assumed times. Aiming at a visible neck or waistband takes 13.4 s per garment against 22.7 s for pinching the top and regrasping; pushing garments aside first is slower (17.7 s) because neighbours rarely hide every opening, the garments themselves do. In <code>hanger-cell</code> the policies give 151, 110 and 127 items an hour for one arm, against 169 for its placeholder pick. Stylised: assumed times, disc cloth, not a measurement of a robot."
    }
   ]
  },
