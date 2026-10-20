@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance } from "./divisions.mjs";
+import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -337,4 +337,15 @@ test("fairness off leaves the schedule untouched; history counts add up and a ba
   assert.equal(played, 2 * build({ seed: 3 }).stats.matches);
   assert.ok(readDivisionsSpec({ ...example, venueHistory: "{nope" }).errors.some((e) => /Venue history/.test(e)));
   assert.deepEqual(readDivisionsSpec({ ...example, venueHistory: JSON.stringify(h), venueFairness: "yes" }).errors, []);
+});
+
+test("a share link carries the venue-fairness switch and last season's history", () => {
+  const h = JSON.stringify(carryVenueHistory(build({ seed: 3, venueFairness: true })));
+  const back = decodeDivisionFields("#d=" + encodeDivisionFields({ ...example, venueFairness: "1", venueHistory: h }));
+  assert.equal(back.venueFairness, "1");
+  assert.equal(back.venueHistory, h);
+  const { spec, errors } = readDivisionsSpec(back);
+  assert.deepEqual(errors, []);
+  assert.equal(spec.venueFairness, true);
+  assert.ok(buildDivisions(spec).config.venueFairness);
 });

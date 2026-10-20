@@ -127,8 +127,9 @@ flagships:
       single flips, no change from pairs; README). Moving a make-up to an earlier night already on the calendar is in
       (relocate: true; 345 -> 345 alone, 300 -> 296 breaks with balance, no delay, README). Venue fairness
       with multi-season carry-over is in (venueFairness, venueHistory, CLI --history; 3-season imbalance
-      5.83 -> 1.29 matches, at +18% venue changes; README). Next: a page field for it and a weight between
-      fairness and travel, or letting a relocation swap two make-ups' nights.
+      5.83 -> 1.29 matches, at +18% venue changes; README). The page has the switch and a box for last season's
+      counts, prints next season's history to paste back, and share links carry both (checked in headless
+      Chromium). Next: a weight between fairness and travel, or letting a relocation swap two make-ups' nights.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

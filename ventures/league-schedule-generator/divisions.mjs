@@ -646,7 +646,7 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "split", "seed"];
+const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "split", "venueFairness", "venueHistory", "seed"];
 
 /** Form fields -> URL-safe text for the `#` part of a link (`#d=...`). The fragment is never sent to a server. */
 export function encodeDivisionFields(f) {
