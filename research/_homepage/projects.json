@@ -3472,6 +3472,11 @@
      "slug": "mimic-dialogue",
      "title": "Does a second turn make a plainly prompted LLM easier to spot in dialogue?",
      "summary": "Qwen2.5-0.5B-Instruct, given only a plain prompt, writes a user's second and third message in 400 real OpenAssistant threads. A prompt-free character and word n-gram detector (5-fold cross-validation grouped by thread) gets AUROC 0.93 on a single turn and 0.98 on the two turns together (paired accuracy 0.98); length alone gets 0.65 and 0.71. A quarter of the imitations read like assistant replies; dropping those threads leaves 0.95 for the thread. Limits: volunteer prompter turns, one 0.5B imitator and prompt, one seed, teacher-forced turns, no group-level false-positive rates. Stylised baseline; no prompt is optimised."
+    },
+    {
+     "slug": "mimic-cursor",
+     "title": "Can an imitator that changes its own code fool a human-vs-bot cursor detector, and does shared feedback help either side?",
+     "summary": "Browser use, the first subject of the adversarial-imitation track beyond writing. Cursor strokes of 46 people from DUX (CC-BY-4.0); an imitator built from code components and a detector that picks feature functions play at equal budget, blind or with shared feedback. So far: a naive bot and every hand-written kinematic generator are caught at AUROC about 1.0, and even a rotated replay of a real stroke at 0.82. Preliminary; main results pending."
     }
    ]
   },
