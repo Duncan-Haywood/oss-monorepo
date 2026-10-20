@@ -38,6 +38,29 @@ export function parseDivisions(text) {
   return { divisions, errors };
 }
 
+/**
+ * Travel times between venues, one per line: "Park - School: 25" (minutes, either direction).
+ * Venues are the names after "@" in the courts box; a pair not listed is treated as the longest one given.
+ */
+export function parseTravel(text, venues) {
+  const errors = [];
+  const travel = {};
+  const known = new Map((venues || []).map((v) => [v.toLowerCase(), v]));
+  for (const raw of String(text || "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(.+?)\s*(?:-|–|<->)\s*(.+?)\s*:\s*(\d+(?:\.\d+)?)\s*(?:min\w*)?$/i);
+    if (!m) { errors.push(`"${line}": write travel as "Park - School: 25" (minutes).`); continue; }
+    const a = known.get(m[1].trim().toLowerCase()), b = known.get(m[2].trim().toLowerCase());
+    if (!a || !b) { errors.push(`"${line}": ${!a ? m[1].trim() : m[2].trim()} is not a venue in the courts box (write a court as "Field 1 @ Park").`); continue; }
+    if (a === b) { errors.push(`"${line}": a venue is not away from itself.`); continue; }
+    const mins = Number(m[3]);
+    if (!(mins > 0)) { errors.push(`"${line}": minutes must be above zero.`); continue; }
+    travel[[a, b].sort().join("|")] = mins;
+  }
+  return { travel, errors };
+}
+
 /** Links, one group per line: "U10/Hawks, U12/Hawks" (teams that share a coach or players). */
 export function parseDivisionLinks(text, divisions) {
   const errors = [];
@@ -82,6 +105,9 @@ export function buildDivisions(spec) {
   if (!(spec.weekdays || []).length) throw new Error("Pick at least one weekday to play on.");
   const venueOf = (c) => (spec.venues && spec.venues[c]) || c;
   const closures = spec.courtClosures || {};
+  const travel = spec.travel && Object.keys(spec.travel).length ? spec.travel : null;
+  const travelMin = makeTravelMin(travel);
+  const tripUnit = travel ? Math.min(...Object.values(travel)) : 1;
   const cfg = { courts, times, closures };
   const rng = mulberry32(spec.seed ?? 1);
   const optimize = spec.optimize !== false;
@@ -126,7 +152,7 @@ export function buildDivisions(spec) {
     const trip = (m, c) => {
       const v = venueOf(courts[open[c].ci]);
       let n = 0;
-      for (const t of [m.home, m.away]) { const pv = lastVenue.get(`${m.div}/${t}`); if (pv !== undefined && pv !== v) n++; }
+      for (const t of [m.home, m.away]) { const pv = lastVenue.get(`${m.div}/${t}`); if (pv !== undefined && pv !== v) n += travelMin(pv, v) / tripUnit; }
       return n;
     };
     const clashCost = (k, c, cells) => {
@@ -150,7 +176,7 @@ export function buildDivisions(spec) {
     const total = (cells) => cells.reduce((s, c, k) => s + W_TRIP * trip(ms[k], c) + clashCost(k, c, cells) / 2, 0);
     if (optimize) {
       let cur = total(cellOf);
-      const iters = 600 + 40 * ms.length;
+      const iters = (travel ? 6000 : 600) + 40 * ms.length; // a travel table has more to gain from search (measured in divisions.test.mjs)
       for (let it = 0; it < iters && cur > 0; it++) {
         const k = Math.floor(rng() * ms.length);
         const spare = free();
@@ -184,10 +210,17 @@ export function buildDivisions(spec) {
     nights.push(night);
   }
   if (queues.some((q) => q.next < q.plan.length)) throw new Error("Not enough playable nights in the next few years for every division. Add weekdays, courts or time slots.");
-  const schedule = { divisions: out, nights, config: { courts, times, venues: Object.fromEntries(courts.map((c) => [c, venueOf(c)])), closures, start: spec.start, links: spec.links || [], seed: spec.seed ?? 1 } };
+  const schedule = { divisions: out, nights, config: { courts, times, venues: Object.fromEntries(courts.map((c) => [c, venueOf(c)])), closures, start: spec.start, links: spec.links || [], travel: travel || {}, seed: spec.seed ?? 1 } };
   schedule.conflicts = linkConflicts(schedule);
   schedule.stats = divisionStats(schedule);
   return schedule;
+}
+
+/** Minutes between two venues; an unlisted pair counts as the longest listed (1 per change with no table). */
+function makeTravelMin(travel) {
+  if (!travel) return () => 1;
+  const longest = Math.max(...Object.values(travel));
+  return (a, b) => travel[[a, b].sort().join("|")] ?? longest;
 }
 
 /** Linked teams in two matches at the same time on the same night. */
@@ -211,20 +244,22 @@ export function linkConflicts(schedule) {
 }
 
 export function divisionStats(schedule) {
-  let trips = 0, matches = 0;
+  let trips = 0, matches = 0, travelMinutes = 0;
+  const travel = schedule.config.travel && Object.keys(schedule.config.travel).length ? schedule.config.travel : null;
+  const travelMin = makeTravelMin(travel);
   const last = new Map();
   for (const night of schedule.nights) {
     for (const m of night.matches) {
       matches++;
       for (const t of [m.home, m.away]) {
         const k = `${m.div}/${t}`;
-        if (last.has(k) && last.get(k) !== m.venue) trips++;
+        if (last.has(k) && last.get(k) !== m.venue) { trips++; travelMinutes += travelMin(last.get(k), m.venue); }
         last.set(k, m.venue);
       }
     }
   }
   const cap = schedule.config.courts.length * schedule.config.times.length;
-  return { nights: schedule.nights.length, matches, trips, clashes: schedule.conflicts.length, utilisation: matches / (schedule.nights.length * cap), lastDay: schedule.nights.length ? schedule.nights[schedule.nights.length - 1].day : null };
+  return { nights: schedule.nights.length, matches, trips, ...(travel ? { travelMinutes } : {}), clashes: schedule.conflicts.length, utilisation: matches / (schedule.nights.length * cap), lastDay: schedule.nights.length ? schedule.nights[schedule.nights.length - 1].day : null };
 }
 
 /** Independent re-check of a finished multi-division schedule. */
@@ -292,7 +327,7 @@ export function divisionsText(schedule) {
     for (const m of night.matches) lines.push(`  ${m.time || "--"} ${m.court} [${m.division}] ${m.homeName} v ${m.awayName}`);
   }
   const s = schedule.stats;
-  lines.push("", `${s.matches} matches over ${s.nights} nights, ${s.trips} venue changes, ${s.clashes} linked-team clash(es), ${(s.utilisation * 100).toFixed(0)}% of court slots used.`);
+  lines.push("", `${s.matches} matches over ${s.nights} nights, ${s.trips} venue changes${s.travelMinutes !== undefined ? ` (${s.travelMinutes} min of travel)` : ""}, ${s.clashes} linked-team clash(es), ${(s.utilisation * 100).toFixed(0)}% of court slots used.`);
   for (const c of schedule.conflicts) lines.push(`Conflict: ${c}`);
   return lines.join("\n") + "\n";
 }
@@ -316,9 +351,11 @@ export function readDivisionsSpec(f) {
   // "Court 1 @ Park" puts a court at a venue; plain names are their own venue
   const venues = {};
   const names = courts.map((c) => { const m = c.match(/^(.*?)\s*@\s*(.+)$/); if (!m) return c; venues[m[1].trim()] = m[2].trim(); return m[1].trim(); });
+  const tr = parseTravel(f.travel, [...new Set(names.map((c) => venues[c] || c))]);
+  errors.push(...tr.errors);
   const cc = parseCourtClosures(f.courtClosures, names.length ? names : null);
   errors.push(...cc.errors);
-  return { errors, spec: { divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1 } };
+  return { errors, spec: { divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1 } };
 }
 
 // node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV). spec.json holds the form fields.
