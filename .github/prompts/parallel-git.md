@@ -27,7 +27,7 @@ beats the pattern on its own.
    generated mirror (about 2,700 files) and 53% of all commits were conflict
    overhead. Removing it took the median PR from 2,339 files to 6. To check
    your change, run `concurrency_tax.py`, or the method in
-   `docs/parallel-agents.md` (P040 makes the script work in cloud sessions).
+   `docs/parallel-agents.md` (P041 makes the script work in cloud sessions).
 2. **Generated output that nothing serves does not belong in git.** Build it
    when you deploy. *Why:* the mirror for the server retired on 2026-10-01
    stayed in every PR for about two more weeks. It came back once (6,202
@@ -45,7 +45,7 @@ beats the pattern on its own.
    it on the commit itself before you merge on top of it.
 5. **Do not let `main` runs cancel each other.** Use `cancel-in-progress`
    only on PR branches. *Why:* 44 of 100 `ventures tests` runs on `main` were
-   cancelled by the next merge, so most commits never got a verdict (P037).
+   cancelled by the next merge, so most commits never got a verdict (P038).
 6. **Squash-merge.** Merge `main` into your branch to resolve a conflict;
    never rebase or force-push a branch that is not yours. *Why:* squash keeps
    `main`'s first-parent history one commit per PR, which every measurement
@@ -71,8 +71,8 @@ beats the pattern on its own.
 | 10-05 | 100 branches never got a PR | four finished ventures not on `main` | `unlanded_work.py`; rule 7 |
 | 10-19 | Mirror tree came back (6,202 files) | one more removal round | #8638 guard |
 | to 10-20 | Regression check compared each push with a later `main` tip | 77% of `main` validate runs falsely red | #8765; rule 3 |
-| to 10-20 | `main` test runs cancelled by the next merge | 44% of `main` runs gave no verdict | P037; rule 5 |
-| 10-20 | `concurrency_tax.py` timed out in a cloud session | the measurement had to be rebuilt by hand | P040 |
+| to 10-20 | `main` test runs cancelled by the next merge | 44% of `main` runs gave no verdict | P038; rule 5 |
+| 10-20 | `concurrency_tax.py` timed out in a cloud session | the measurement had to be rebuilt by hand | P041 |
 
 ## Alternatives we weighed (2026-10-20)
 
@@ -84,12 +84,12 @@ beats the pattern on its own.
 | Rebase instead of merging `main` in | no | It rewrites other sessions' branches and fails with stale tracking refs (`land-your-work.md`). Squash already gives a linear `main`. |
 | Locks or claims on shared files | only for new slugs | A lock held by a session that dies goes stale, and sessions die often. Removing the shared file (rule 1) works better. |
 | Split into several repositories | no | The hotspots were generated files and registries, not repository boundaries. Splitting would lose the shared tooling and checks. |
-| GitHub merge queue with batching | **yes, next** | 66% of PRs merged on a `main` they were not tested against (median 1 commit behind). A queue closes that gap. Turn it on after rules 3 and 5 hold, so the queue's CI tells the truth (P041, owner setting). |
+| GitHub merge queue with batching | **yes, next** | 66% of PRs merged on a `main` they were not tested against (median 1 commit behind). A queue closes that gap. Turn it on after rules 3 and 5 hold, so the queue's CI tells the truth (P042, owner setting). |
 
 ## Open work
 
 Backlog items in `prompts/process/backlog/`, each with steps, a metric and a
-baseline: **P036** (verify #8765 on `main`), **P037** (do not cancel `main`
-runs), **P038** (skip the dead-mirror check), **P039** (research registry
-hotspot), **P040** (`concurrency_tax.py` in the cloud), **P041** (merge
+baseline: **P037** (verify #8765 on `main`), **P038** (do not cancel `main`
+runs), **P039** (skip the dead-mirror check), **P040** (research registry
+hotspot), **P041** (`concurrency_tax.py` in the cloud), **P042** (merge
 queue, owner).

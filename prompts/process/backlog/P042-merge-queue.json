@@ -1,5 +1,5 @@
 {
-  "id": "P041",
+  "id": "P042",
   "title": "Turn on GitHub's merge queue for main (owner setting)",
   "status": "open",
   "owner": "owner",
@@ -9,7 +9,7 @@
   "evidence": [
     "924 PRs merged 2026-10-17..10-20T06:00: commits on main between the PR's merge-base and its merge: median 1, p75 3, p90 5; 310 at 0"
   ],
-  "change": "Owner: enable the merge queue on main in branch protection, with batching (e.g. up to 5) and the required checks that already run on PRs. Agents then: add `merge_group:` to the triggers of each required workflow, and switch land-your-work.md step 5 from 'squash-merge' to 'enable auto-merge / add to the queue'. Do this after P036-P038 so CI tells the truth first.",
+  "change": "Owner: enable the merge queue on main in branch protection, with batching (e.g. up to 5) and the required checks that already run on PRs. Agents then: add `merge_group:` to the triggers of each required workflow, and switch land-your-work.md step 5 from 'squash-merge' to 'enable auto-merge / add to the queue'. Do this after P037-P039 so CI tells the truth first.",
   "touches": [
     ".github/workflows/*.yml",
     ".github/prompts/land-your-work.md"

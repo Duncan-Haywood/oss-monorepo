@@ -170,19 +170,19 @@ Each one is a backlog item with exact steps, a metric and a baseline in
 [`prompts/process/backlog/`](../prompts/process/backlog/README.md); `python3
 prompts/promptctl.py backlog` lists them. Put the id in your PR title.
 
-- [ ] **P039** Derive `research/_homepage/projects.json` and the `research/README.md`
+- [ ] **P040** Derive `research/_homepage/projects.json` and the `research/README.md`
       project list from per-project files, so research PRs stop sharing them.
-- [ ] **P038** Take the apex-mirror staleness step out of `Portfolio validate`, or run
+- [ ] **P039** Take the apex-mirror staleness step out of `Portfolio validate`, or run
       it only when `gitops/prod/` or its generator changes (saves ~7.5 min
       a run).
-- [ ] **P037** On `main`, give `ventures tests` (and any workflow with a per-ref
+- [ ] **P038** On `main`, give `ventures tests` (and any workflow with a per-ref
       `cancel-in-progress`) a per-SHA group, or `cancel-in-progress: false`
       for `refs/heads/main`, so every merge gets a verdict.
-- [ ] **P036** Re-read after a day of runs: `Portfolio validate` on `main` pushes
+- [ ] **P037** Re-read after a day of runs: `Portfolio validate` on `main` pushes
       should be mostly green; any remaining red is a real finding.
-- [ ] **P040** Make `concurrency_tax.py` usable in a cloud session (reuse locally
+- [ ] **P041** Make `concurrency_tax.py` usable in a cloud session (reuse locally
       fetched `refs/pull/*` instead of refreshing its probe clone).
-- [ ] **P041** *Owner setting:* turn on GitHub's merge queue for `main` with batching
+- [ ] **P042** *Owner setting:* turn on GitHub's merge queue for `main` with batching
       now that the shared surface is small (fix 4 above); it closes the
       tested-is-not-merged gap in item 5.
 
