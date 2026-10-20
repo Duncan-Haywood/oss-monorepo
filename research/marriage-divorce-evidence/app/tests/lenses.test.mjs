@@ -111,8 +111,8 @@ assert.ok(refusals(nsfg, { ...w, intactFamily: '' }, h, c0).some((x) => x.includ
 assert.equal(refusals(nsfg, w, { ...h, priorMarriage: true }, c0).length, 0);
 // NLSY79 refusals are unchanged by the NSFG-only inputs.
 assert.equal(refusals(bundle, { ...a, raceEth: '', intactFamily: '' }, b, couple).length, 0);
-// ...but a near-empty profile (no schooling, wages or hours) is far from every NLSY79 couple: OOD abstains.
-assert.ok(refusals(bundle, { ...w, age: 45 }, h, c0).some((x) => x.includes('abstains')));
+// Inputs not given are neutral in the distance (not counted as unusual), and say so.
+assert.ok(typicality(bundle, { ...w, age: 45 }, h, c0).neutralised.includes('husband_school'));
 
 // The duration-only curve is a baseline: shown, but not averaged.
 assert.deepEqual(scoringModels(nsfg).map((m) => m.key), ['additive_spline', 'tree_depth3']);

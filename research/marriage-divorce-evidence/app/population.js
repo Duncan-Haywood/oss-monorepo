@@ -500,7 +500,8 @@ export function justMe(bundle, me, couple = {}, { horizons = lensHorizons(bundle
     const r = nlsyProfiles(pd, me, c0);
     if (!r.profiles) return { available: false, reason: r.reason };
     if (r.coverage < MIN_COVERAGE) return { available: false, reason: `The published partner profiles cover only ${Math.round(100 * r.coverage)}% of the surveyed marriages like you.` };
-    mix = { ...r, profiles: r.profiles.map((x) => ({ share: x.share, partner: x.partner, couple: c0 })) };
+    // You as the respondent: the spouse enters through their age and schooling only.
+    mix = { ...r, profiles: r.profiles.map((x) => ({ share: x.share, partner: x.partner, couple: { ...c0, perspectives: ['a'] } })) };
   } else {
     return { available: false, reason: ad.justMeReason || 'This lens has no partner distribution: its person-level data are not in the repository, so the app cannot average over realistic partners. Enter a partner instead.' };
   }
