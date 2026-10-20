@@ -1,8 +1,8 @@
 // Batch scoring: many couples from a CSV, or one person against many candidate partners.
 // Everything runs in the browser; nothing is uploaded. Each lens is scored separately and
 // reported per lens: lenses are never pooled. Pure functions (no DOM); tests/batch.test.mjs.
-import { PERSON_SPEC, COUPLE_SPEC, refusals, project, lifelong, rankPartners } from './couple.js';
-import { referenceFor, percentileFromSurvival, referenceAttrs, atWedding } from './population.js';
+import { PERSON_SPEC, COUPLE_SPEC, refusals, project, lifelong, rankPartners, stepAt, lensHorizons, primaryHorizon, isRateLens } from './couple.js';
+import { referenceFor, couplePercentile } from './population.js';
 
 export const MAX_ROWS = 10000;
 export const HORIZONS = [5, 10, 20];
@@ -56,12 +56,48 @@ export const PERSON_COLUMNS = [
   ['race_eth', 'raceEth', 'race-ethnicity (NSFG lenses need the wife’s)'],
   ['prior_children', 'priorChildren', 'Yes or No: children from an earlier relationship'],
   ['intact_family', 'intactFamily', 'Yes or No: lived with both parents from birth to 18'],
+  // Inputs of the newer lenses (all optional; a lens that needs one and lacks it abstains).
+  ['born_us', 'bornUS', 'Yes or No: born in the U.S. (SIPP, ACS)'],
+  ['marriages_before', 'marriagesBefore', '1 or 2+: earlier marriages, if married before (ACS, SIPP couples)'],
+  ['quality', 'quality', 'relationship quality (HCMST)'],
+  ['hapmar', 'hapmar', 'marriage happiness (GSS)'],
+  ['party', 'party', 'party preference (HCMST)'],
+  ['parents_view', 'parentsView', 'parents’ view of the partner (HCMST)'],
+  ['kids_before', 'kidsBefore', 'children born before the wedding: 0, 1, 2+ (NLSY, NSFG 1995–2023, Canada)'],
+  ['prior_partners', 'priorPartners', 'earlier live-in partners: 0, 1, 2+ (NLSY97, Canada)'],
+  ['enrolled', 'enrolled', 'Yes or No: in school or college at the wedding (NLSY)'],
+  ['religion_raised', 'religionRaised', 'religion raised in (NLSY, NSFG 1995–2023)'],
+  ['mother_edu', 'motherEdu', 'mother’s schooling (NSFG 1995–2023, NLSY79)'],
+  ['mother_age_first_birth', 'motherAgeFirst', 'mother’s age at her first birth (NSFG 1995–2023)'],
+  ['attend_detail', 'attendDetail', 'religious attendance in detail (NLSY, GSS)'],
+  ['satisfaction', 'satSum', 'relationship satisfaction, the newlywed study’s 8-item sum 8–37'],
+  ['hostility', 'hostSum', 'self-reported hostility, the newlywed study’s 14-item sum 0–42'],
+  ['positivity', 'obsPos', 'how often warm or attentive in disagreements (approximation of observer codes)'],
+  ['negativity', 'obsNeg', 'how often hostile or critical in disagreements (approximation)'],
+  ['effective', 'obsEff', 'how often clear and constructive in disagreements (approximation)'],
+  ['substance', 'substance', 'Yes or No: problem drinking or drug use, past 9 months (newlyweds)'],
+  ['ace', 'ace', 'Yes or No: adverse childhood experiences (newlyweds)'],
+  ['abuse', 'abuse', 'Yes or No: abuse or assault history (newlyweds)'],
+  ['low_mood', 'lowMood', 'Yes or No: often sad, hopeless or nervous, last 30 days (newlyweds)'],
 ];
 export const COUPLE_COLUMNS = [
   ['years_married', 'yearsMarried', 'completed years married, 0–60 (blank = 0)'],
   ['family_income', 'familyIncome', 'household income per year in dollars (blank = both wages)'],
   ['cohabited_first', 'cohabitedFirst', 'Yes or No: lived together before marrying'],
+  ['status', 'status', 'relationship now (HCMST, GSS, SIPP couples)'],
+  ['years_together', 'yearsTogether', 'years since the relationship began (HCMST)'],
+  ['how_met', 'howMet', 'how you met (HCMST)'],
+  ['children_home', 'childrenHome', 'children under 18 at home'],
+  ['place', 'place', 'where you live (U.S. region or Canadian region)'],
+  ['state', 'state', 'U.S. state, two-letter code (ACS; also sets the U.S. region)'],
+  ['expecting', 'expecting', 'Yes or No: a baby expected at the wedding (NLSY97)'],
+  ['cohab_months', 'cohabMonths', 'months lived together before the wedding (NLSY97)'],
+  ['net_worth', 'netWorth', 'household net worth, $ (SIPP couples)'],
+  ['debt', 'debt', 'household debt, $ (SIPP couples)'],
+  ['unsecured_debt', 'unsecuredDebt', 'household unsecured debt, $ (SIPP couples)'],
+  ['home_owner', 'homeOwner', 'Yes or No: own your home (SIPP couples)'],
 ];
+const COUPLE_FIELDS = COUPLE_COLUMNS.map(([, f]) => f);
 const REQUIRED = new Set(['sex', 'age']);
 
 export const couplesHeader = () => ['id', ...['a', 'b'].flatMap((w) => PERSON_COLUMNS.map(([c]) => `${w}_${c}`)), ...COUPLE_COLUMNS.map(([c]) => c)];
@@ -100,6 +136,7 @@ export function cleanCell(field, raw) {
 // Fill the derived fields the way the form does (app.js readForm).
 export function normalise(a, b, couple, currentYear = new Date().getUTCFullYear()) {
   const c = {
+    ...Object.fromEntries(COUPLE_FIELDS.map((f) => [f, couple[f] === undefined ? '' : couple[f]])),
     yearsMarried: Number.isFinite(couple.yearsMarried) ? couple.yearsMarried : 0,
     familyIncome: couple.familyIncome === '' || couple.familyIncome === undefined ? '' : String(couple.familyIncome),
     cohabitedFirst: couple.cohabitedFirst || 'Unknown',
@@ -188,55 +225,72 @@ export function validateCandidates(text, { maxRows = 200 } = {}) {
 // A template: the header, the allowed values, and two illustrative rows (not data).
 export function couplesTemplate() {
   const rows = [couplesHeader()];
-  rows.push(['example-1', 'Woman', 27, '16–17 years', 'Bachelor', 52000, '2,000+ hours', 'Less than weekly', 'No', '', 'White', 'No', 'Yes',
-    'Man', 29, '13–15 years', 'Some college', 48000, '2,000+ hours', 'Never', 'No', '', 'White', 'No', 'Yes', 0, '', 'Yes']);
-  rows.push(['example-2', 'Man', 40, '16–17 years', 'Bachelor', 60000, '2,000+ hours', 'Less than weekly', 'No', 30, '', '', '',
-    'Woman', 38, '16–17 years', 'Bachelor', 50000, '2,000+ hours', 'Less than weekly', 'No', 28, '', '', '', 5, '', '']);
+  const head = rows[0];
+  const ex1 = {
+    id: 'example-1', a_sex: 'Woman', a_age: 27, a_school: '16–17 years', a_degree: 'Bachelor', a_wages: 52000, a_work: '2,000+ hours', a_religion: 'Less than weekly', a_prior_marriage: 'No', a_race_eth: 'White', a_prior_children: 'No', a_intact_family: 'Yes',
+    b_sex: 'Man', b_age: 29, b_school: '13–15 years', b_degree: 'Some college', b_wages: 48000, b_work: '2,000+ hours', b_religion: 'Never', b_prior_marriage: 'No', b_race_eth: 'White', b_prior_children: 'No', b_intact_family: 'Yes',
+    years_married: 0, cohabited_first: 'Yes',
+    a_born_us: 'Yes', b_born_us: 'Yes', a_quality: 'Excellent', b_quality: 'Good', a_hapmar: 'Very happy', b_hapmar: 'Very happy', a_party: 'Democrat', b_party: 'Independent, other or no preference', a_kids_before: '0', b_kids_before: '0', a_prior_partners: '0', b_prior_partners: '1', a_enrolled: 'No', b_enrolled: 'No',
+    status: 'Married, living together', years_together: 3, how_met: 'Through friends', children_home: 0, place: 'U.S. — Midwest', state: 'OH', expecting: 'No', home_owner: 'No',
+  };
+  const ex2 = {
+    id: 'example-2', a_sex: 'Man', a_age: 40, a_school: '16–17 years', a_degree: 'Bachelor', a_wages: 60000, a_work: '2,000+ hours', a_religion: 'Less than weekly', a_prior_marriage: 'No', a_first_marriage_age: 30,
+    b_sex: 'Woman', b_age: 38, b_school: '16–17 years', b_degree: 'Bachelor', b_wages: 50000, b_work: '2,000+ hours', b_religion: 'Less than weekly', b_prior_marriage: 'No', b_first_marriage_age: 28, years_married: 5,
+  };
+  for (const ex of [ex1, ex2]) rows.push(head.map((h) => (h in ex ? ex[h] : '')));
   return toCsv(rows);
 }
 export function candidatesTemplate() {
-  return toCsv([candidatesHeader(),
-    ['Candidate A', 'Man', 29, '13–15 years', 'Some college', 48000, '2,000+ hours', 'Never', 'No', '', 'White', 'No', 'Yes'],
-    ['Candidate B', 'Man', 34, '18+ years', 'Master', 90000, '2,000+ hours', 'Weekly or more', 'Yes', 26, 'Hispanic', 'Yes', 'Yes']]);
+  const head = candidatesHeader();
+  const a = { name: 'Candidate A', sex: 'Man', age: 29, school: '13–15 years', degree: 'Some college', wages: 48000, work: '2,000+ hours', religion: 'Never', prior_marriage: 'No', race_eth: 'White', prior_children: 'No', intact_family: 'Yes', born_us: 'Yes', kids_before: '0', prior_partners: '0', enrolled: 'No' };
+  const b = { name: 'Candidate B', sex: 'Man', age: 34, school: '18+ years', degree: 'Master', wages: 90000, work: '2,000+ hours', religion: 'Weekly or more', prior_marriage: 'Yes', first_marriage_age: 26, race_eth: 'Hispanic', prior_children: 'Yes', intact_family: 'Yes', marriages_before: '1' };
+  return toCsv([head, ...[a, b].map((x) => head.map((h) => (h in x ? x[h] : '')))]);
 }
 
 // ---- Scoring ---------------------------------------------------------------------------
 const pctLabel = (c) => (!c ? '' : c.below || c.above ? c.label : c.percentile.toFixed(1));
 
+// The horizons a lens reports in a batch: the caller's (5/10/20 by default) for rate lenses,
+// and only the lens's own follow-up ends otherwise (never extrapolated).
+const horizonsFor = (bundle, horizons) => (isRateLens(bundle) ? horizons || HORIZONS : lensHorizons(bundle));
+
 // One couple through one lens. status: ok | abstain | not_scorable.
-export function scoreLens(lens, a, b, couple, { horizons = HORIZONS, mortality = null } = {}) {
+export function scoreLens(lens, a, b, couple, { horizons = null, mortality = null } = {}) {
   const bundle = lens.bundle;
   const base = { lens: lens.summary.id, label: lens.summary.label };
   if (!lens.summary.scorable) return { ...base, status: 'not_scorable', reason: 'listed only: inputs not on the form, or a different outcome' };
   const why = refusals(bundle, a, b, couple);
   if (why.length) return { ...base, status: 'abstain', reason: why[0] };
-  const H = Math.max(...horizons);
+  const hs = horizonsFor(bundle, horizons);
+  const H = Math.max(...hs);
   const p = project(bundle, a, b, couple, H);
-  const at = Object.fromEntries(horizons.map((h) => [h, { mean: p[h - 1].meanSurvival, min: p[h - 1].minSurvival, max: p[h - 1].maxSurvival, inSupport: p.slice(0, h).every((y) => y.inSupport), outside: p.slice(0, h).filter((y) => !y.inSupport).length }]));
-  const out = { ...base, status: 'ok', at, extrapolatedYears: p.filter((y) => !y.inSupport).length };
+  const at = {};
+  for (const h of hs) {
+    const y = stepAt(p, h);
+    if (!y) continue;
+    const upto = p.filter((z) => z.elapsed <= h + 0.01);
+    at[h] = { mean: y.meanSurvival, min: y.minSurvival, max: y.maxSurvival, inSupport: upto.every((z) => z.inSupport), outside: upto.filter((z) => !z.inSupport).length };
+  }
+  const out = { ...base, status: 'ok', horizons: Object.keys(at).map(Number), primary: primaryHorizon(bundle), at, extrapolatedYears: p.filter((y) => !y.inSupport).length };
   const ref = referenceFor(bundle);
   if (ref) {
-    // Compare risk from the wedding with the surveyed marriages (reuse the projection when
-    // the couple is marrying now).
-    const w = atWedding(a, b, couple);
-    const wp = w.a === a ? p : (refusals(bundle, w.a, w.b, w.couple).length ? null : project(bundle, w.a, w.b, w.couple, Math.max(...ref.horizons)));
-    if (wp) {
-      const surv = Object.fromEntries(ref.horizons.filter((h) => h <= wp.length).map((h) => [h, wp[h - 1].meanSurvival]));
-      const cmp = percentileFromSurvival(bundle, referenceAttrs(bundle, w.a, w.b, w.couple), surv);
-      out.percentile = Object.fromEntries(cmp.horizons.map((r) => [r.horizon, r.overall]));
-      out.comparison = cmp;
+    // The reference's own quantity (from the wedding, from today, or an annual rate now).
+    const pc = couplePercentile(bundle, a, b, couple);
+    if (pc) {
+      out.percentile = pc;
+      out.percentileOf = ref.quantity === 'annual_rate' ? 'annual rate now' : 'cumulative risk at this horizon';
     }
   } else out.percentileNote = 'no population reference for this lens';
   if (mortality) {
     const L = lifelong(bundle, mortality, a, b, couple, 40);
-    out.lifelong = { widowhood: L.widowhood, divorce: L.divorce, stillMarried: L.stillMarried, lastYear: L.lastYear, extrapolated: L.extrapolated };
+    if (L) out.lifelong = { widowhood: L.widowhood, divorce: L.divorce, stillMarried: L.stillMarried, lastYear: L.lastYear, extrapolated: L.extrapolated };
   }
   return out;
 }
 
 // Score many couples through every lens, in chunks so the page stays responsive.
 // onProgress(done, total) is called after each chunk.
-export async function scoreBatch(lenses, couples, { horizons = HORIZONS, onProgress = () => {}, chunk = 25, yieldFn } = {}) {
+export async function scoreBatch(lenses, couples, { horizons = null, onProgress = () => {}, chunk = 25, yieldFn } = {}) {
   const out = [];
   const pause = yieldFn || (() => new Promise((r) => setTimeout(r, 0)));
   for (let i = 0; i < couples.length; i += chunk) {
@@ -250,15 +304,19 @@ export async function scoreBatch(lenses, couples, { horizons = HORIZONS, onProgr
 }
 
 // Long format: one row per couple, lens and horizon. Never a pooled column.
+// Each lens contributes its own horizons (5/10/20 years, or its follow-up ends such as 2 years
+// for GSS); a lens that gives no number gets one row per default horizon with the reason.
 export function resultsCsv(results, horizons = HORIZONS) {
-  const rows = [['id', 'lens', 'horizon_years', 'no_divorce', 'model_min', 'model_max', 'population_percentile', 'status', 'abstain_reason', 'years_outside_data']];
+  const rows = [['id', 'lens', 'horizon_years', 'no_divorce', 'model_min', 'model_max', 'population_percentile', 'percentile_of', 'status', 'abstain_reason', 'years_outside_data']];
   const f = (x) => (Number.isFinite(x) ? x.toFixed(4) : '');
+  const hy = (h) => (Number.isInteger(h) ? h : h.toFixed(2));
   for (const r of results) {
     for (const l of r.lenses) {
-      for (const h of horizons) {
-        if (l.status !== 'ok') { rows.push([r.id, l.lens, h, '', '', '', '', l.status, l.reason, '']); continue; }
+      if (l.status !== 'ok') { for (const h of horizons) rows.push([r.id, l.lens, h, '', '', '', '', '', l.status, l.reason, '']); continue; }
+      for (const h of l.horizons) {
         const a = l.at[h];
-        rows.push([r.id, l.lens, h, f(a.mean), f(a.min), f(a.max), l.percentile?.[h] ? pctLabel(l.percentile[h]) : '', 'ok', '', a.outside]);
+        const pc = l.percentile?.[h] || (l.percentileOf === 'annual rate now' ? l.percentile?.[0] : null);
+        rows.push([r.id, l.lens, hy(h), f(a.mean), f(a.min), f(a.max), pc ? pctLabel(pc) : '', pc ? l.percentileOf : '', 'ok', '', a.outside]);
       }
     }
   }
@@ -270,26 +328,24 @@ export function resultsCsv(results, horizons = HORIZONS) {
 // ranked by its own mean chance of no divorce at `horizons[1]` (10 years by default);
 // `indistinguishable` marks candidates whose model range overlaps the top candidate's. A
 // candidate the lens abstains on is listed last with the reason. Nobody is called ideal.
-export function rankCandidates(lenses, me, candidates, couple, { horizons = HORIZONS, rankAt = 10, mortality = null } = {}) {
-  const hs = [rankAt, ...horizons.filter((h) => h !== rankAt)];
+// Each lens ranks at its own primary horizon (10 years, or the longest it supports up to 10) and
+// reports its own horizons.
+export function rankCandidates(lenses, me, candidates, couple, { horizons = HORIZONS, mortality = null } = {}) {
   return lenses.filter((l) => l.summary.scorable).map((l) => {
     const bundle = l.bundle;
+    const rankAt = primaryHorizon(bundle);
+    const own = horizonsFor(bundle, horizons);
+    const hs = [rankAt, ...own.filter((h) => h !== rankAt)];
     const r = rankPartners(bundle, me, couple, candidates, { horizons: hs, keepRefused: true, describe: (p) => p.name });
     const ref = referenceFor(bundle);
     for (const row of r.ranked) {
-      if (ref) {
-        const w = atWedding(me, row.partner, couple);
-        const wp = (couple.yearsMarried || 0) === 0 ? null : project(bundle, w.a, w.b, w.couple, Math.max(...ref.horizons));
-        const surv = Object.fromEntries(ref.horizons.map((h) => [h, wp ? wp[h - 1].meanSurvival : row.at[h]?.meanSurvival]).filter(([, v]) => Number.isFinite(v)));
-        const cmp = percentileFromSurvival(bundle, referenceAttrs(bundle, w.a, w.b, w.couple), surv);
-        row.percentile = Object.fromEntries(cmp.horizons.map((z) => [z.horizon, z.overall]));
-      }
+      if (ref) row.percentile = couplePercentile(bundle, me, row.partner, couple);
       if (mortality) {
         const L = lifelong(bundle, mortality, me, row.partner, couple, 40);
-        row.lifelong = { widowhood: L.widowhood, divorce: L.divorce, stillMarried: L.stillMarried, lastYear: L.lastYear };
+        if (L) row.lifelong = { widowhood: L.widowhood, divorce: L.divorce, stillMarried: L.stillMarried, lastYear: L.lastYear };
       }
     }
-    return { lens: l.summary.id, label: l.summary.label, ranked: r.ranked, refused: r.refused, tied: r.tied, models: r.models, hasReference: !!ref };
+    return { lens: l.summary.id, label: l.summary.label, ranked: r.ranked, refused: r.refused, tied: r.tied, models: r.models, hasReference: !!ref, horizons: own, rankAt, percentileOf: ref ? (ref.quantity === 'annual_rate' ? 'annual rate now' : 'cumulative risk') : null };
   });
 }
 

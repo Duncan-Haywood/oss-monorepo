@@ -5,6 +5,8 @@
 import { predict, contributions, explainTree, oodScore } from './engine.js';
 import { personRow, familyIncome, supportIssues as personIssues } from './individuals.js';
 import { competingRisks } from './mortality.js';
+import { NEW_ADAPTERS, bothSexesView, QUALITY, HAPMAR, PARTY, PARENTS_VIEW, COUNT3, RELIGION_RAISED, MOTHER_EDU, MOTHER_AGE, ATTEND_DETAIL, OFTEN, STATUS, HOW_MET, PLACE, STATES, YESNO, MARRIAGES_BEFORE, SAT_SCALE } from './lens-adapters.js';
+export const SAT_SCALE_KEYS = ['sat1', 'sat2', 'sat3', 'sat4', 'sat5', 'sat6', 'sat7', 'sat8'];
 
 export const SCHOOL = ['<12 years', '12 years', '13–15 years', '16–17 years', '18+ years'];
 export const DEGREE = ['Less than high school', 'High school', 'Some college', 'Associate', 'Bachelor', 'Master', 'PhD', 'Professional'];
@@ -154,7 +156,8 @@ const NLSY79 = {
 };
 
 // NSFG 2002: the wife's own report on her first marriage, scored from the wedding day.
-export const RACE_ETH = ['Hispanic', 'White', 'Black', 'Other'];
+export const RACE_ETH = ['Hispanic', 'White', 'Black', 'Asian', 'Other'];
+const RACE4_2002 = (r) => (r === 'Asian' ? 'Other' : ['Hispanic', 'White', 'Black', 'Other'].includes(r) ? r : null);
 const yn = (v) => (v === true || v === 'Yes' ? 'Yes' : v === false || v === 'No' ? 'No' : 'Unknown');
 
 export function nsfgRow(bundle, a, b, couple, k) {
@@ -163,8 +166,8 @@ export function nsfgRow(bundle, a, b, couple, k) {
   const ym = num(couple.yearsMarried) || 0;
   const s = bundle.support;
   const wy = (Number.isFinite(num(couple.currentYear)) ? num(couple.currentYear) : new Date().getUTCFullYear()) - ym;
-  const wr = RACE_ETH.includes(wife.raceEth) ? wife.raceEth : null;
-  const hr = RACE_ETH.includes(husband.raceEth) ? husband.raceEth : null;
+  const wr = RACE4_2002(wife.raceEth);
+  const hr = RACE4_2002(husband.raceEth);
   return {
     marriage_years: ym + k,
     wife_age_at_marriage: num(wife.age) - ym,
@@ -204,8 +207,6 @@ const NSFG2002 = {
     if (r.husband_age_at_marriage < s.husband_age_at_marriage[0] || r.husband_age_at_marriage > s.husband_age_at_marriage[1]) out.push(`The husband’s age on the wedding day (${r.husband_age_at_marriage.toFixed(0)}) is outside the ${s.husband_age_at_marriage[0]}–${s.husband_age_at_marriage[1]} in the data.`);
     if (!r.wife_race_ethnicity) out.push('This lens needs the wife’s race-ethnicity: the model has no “unknown” group for it, and guessing would change the number.');
     if (!r.wife_intact_family) out.push('This lens needs to know whether the wife lived with both parents until 18: the model has no “unknown” group for it.');
-    const o = typicality(bundle, a, b, couple);
-    if (!out.length && o && o.abstain) out.push(`This couple is more unusual than ${o.percentile.toFixed(2)}% of the surveyed marriages (distance from the training data, above the ${bundle.ood.abstain_above_percentile}th-percentile line), so the lens abstains.`);
     return out;
   },
   notes(bundle, a, b, couple) {
@@ -214,8 +215,6 @@ const NSFG2002 = {
     const out = wy > bundle.support.wedding_year[1]
       ? [`Wedding year ${wy} is after the latest in the data, so the models score it as a ${bundle.support.wedding_year[1]} wedding; newer marriages may differ.`]
       : [];
-    const o = typicality(bundle, a, b, couple);
-    if (o) out.push(`Typicality: this couple is more unusual than ${o.percentile.toFixed(0)}% of the surveyed marriages (the lens abstains above ${bundle.ood.abstain_above_percentile}%).`);
     return out;
   },
   changes(who, person, other) {
@@ -247,7 +246,7 @@ const NSFG2002 = {
   // which partner is the wife. A wife married before is outside the lens, so it is not varied.
   partnerTraits(me) {
     const sameOrNot = RACE_ETH.includes(me.raceEth)
-      ? [{ key: 'raceEth', label: 'Race-ethnicity', values: [me.raceEth, RACE_ETH.find((r) => r !== me.raceEth)], show: (v) => (v === me.raceEth ? 'same race-ethnicity as you' : 'different race-ethnicity') }]
+      ? [{ key: 'raceEth', label: 'Race-ethnicity', values: [me.raceEth, RACE_ETH.find((r) => RACE4_2002(r) !== RACE4_2002(me.raceEth))], show: (v) => (v === me.raceEth ? 'same race-ethnicity as you' : 'different race-ethnicity') }]
       : [];
     if (me.sex === 'Woman') {
       return [
@@ -259,7 +258,7 @@ const NSFG2002 = {
     }
     return [
       { key: 'age', label: 'Age gap (wife minus you)', gap: true, values: [-10, -8, -6, -4, -2, 0, 2, 4] },
-      { key: 'raceEth', label: 'Race-ethnicity', values: RACE_ETH },
+      { key: 'raceEth', label: 'Race-ethnicity', values: ['Hispanic', 'White', 'Black', 'Other'] },
       { key: 'intactFamily', label: 'Lived with both parents to 18', values: ['Yes', 'No'], show: (v) => (v === 'Yes' ? 'grew up with both parents' : 'did not grow up with both parents') },
     ];
   },
@@ -324,7 +323,7 @@ const NLSY79_IND = {
 
 // The NSFG classical-family bundle (workstream B) shares the first-marriage bundle's data,
 // inputs, folds and target, so it uses the same adapter.
-export const ADAPTERS = { nlsy79_couples: NLSY79, nsfg2002_first_marriage: NSFG2002, nsfg2002_family: NSFG2002, nlsy79_individuals: NLSY79_IND };
+export const ADAPTERS = { nlsy79_couples: NLSY79, nsfg2002_first_marriage: NSFG2002, nsfg2002_family: NSFG2002, nlsy79_individuals: NLSY79_IND, ...NEW_ADAPTERS };
 
 // Distance of the couple's fixed inputs from the training people (engine.oodScore), when
 // the bundle ships an `ood` spec; null otherwise.
@@ -336,9 +335,59 @@ export function shareOod(bundles) {
   return bundles;
 }
 
+// Distance from the training data, for THIS lens: each of the adapter's rows (its perspectives)
+// at the start of the projection is scored with the bundle's own `ood` spec, and the most unusual
+// one is reported (abstaining if any perspective is beyond the line). Null without a spec.
 export function typicality(bundle, a, b, couple) {
   if (!bundle.ood) return null;
-  return oodScore(bundle.ood, nsfgRow(bundle, a, b, couple, 0));
+  const ad = adapterFor(bundle);
+  const raw = ad.oodRows ? ad.oodRows(bundle, a, b, couple) : ad.rows(bundle, a, b, couple, 0);
+  if (!raw.length) return null;
+  const neutral = new Set();
+  const rows = raw.map((r) => neutralise(bundle.ood, r, neutral));
+  const scores = rows.map((r) => oodScore(bundle.ood, r));
+  const worst = scores.reduce((x, y) => (y.percentile > x.percentile ? y : x));
+  return { ...worst, perspectives: scores.length, unseen: [...new Set(scores.flatMap((z) => z.unseen))], neutralised: [...neutral] };
+}
+
+// Inputs the person did not give (null, "Unknown", "Missing", "Not asked") say nothing about how
+// unusual the couple is, so for the distance only they are set to the training data's most common
+// level (categorical; read off the spec's one-hot means) or its median (numeric, as oodScore does
+// for null). The models themselves still see the "unknown" level.
+const UNGIVEN = new Set(['Unknown', 'Missing', 'Not asked']);
+const MODES = new WeakMap();
+function modes(spec) {
+  if (MODES.has(spec)) return MODES.get(spec);
+  const out = {};
+  let i = spec.numeric.length;
+  for (const c of spec.categorical) {
+    const lv = spec.levels[c];
+    const freq = lv.slice(1).map((_, k) => spec.mean[i + k]);
+    const ref = 1 - freq.reduce((x, y) => x + y, 0);
+    let best = 0;
+    freq.forEach((f, k) => { if (f > (best === 0 ? ref : freq[best - 1])) best = k + 1; });
+    out[c] = lv[best];
+    i += lv.length - 1;
+  }
+  MODES.set(spec, out);
+  return out;
+}
+function neutralise(spec, row, seen) {
+  const r = { ...row };
+  const m = modes(spec);
+  for (const c of spec.categorical) {
+    const v = r[c];
+    if (v === null || v === undefined || UNGIVEN.has(v)) { r[c] = m[c]; seen.add(c); }
+  }
+  for (const c of spec.numeric) if (r[c] === null || r[c] === undefined || Number.isNaN(r[c])) seen.add(c);
+  return r;
+}
+
+// A bundle with extra views (NSFG 1995–2023 pooled carries a both-sexes model set) is loaded as
+// one lens per view; each view has the top-level fields every lens has.
+export function expandLens(bundle) {
+  const both = bothSexesView(bundle);
+  return both ? [bundle, both] : [bundle];
 }
 
 // A bundle with several training populations (nlsy79_individuals) is viewed through one of
@@ -358,18 +407,93 @@ export function lensView(bundle) {
 // reference, like the constant rate, and kept out of averages, ranges and agreement counts.
 // Naive Bayes is kept out for the same reason as a baseline: on held-out people it predicted
 // 173 dissolutions per 1,000 marriage-years in the riskiest tenth against 91 observed.
-export function excludeReason(m) {
-  if (m.baseline === true || m.key === 'duration_only') return 'baseline, ignores the couple; not averaged';
+// With a bundle, models outside the lens's scoring set (the bundle's own `scoring_models`, or
+// the adapter's `scoring` list) are reference rows too, with the adapter's reason.
+export function excludeReason(m, bundle = null) {
+  if (m.baseline === true || m.key === 'duration_only' || m.key === 'period_only') return 'baseline, ignores the couple; not averaged';
   if (m.kind === 'naive_bayes') return 'overconfident at the top on held-out people (173 predicted vs 91 observed per 1,000 in the riskiest tenth); not averaged';
+  if (bundle) {
+    const keys = scoringKeys(bundle);
+    if (keys && !keys.includes(m.key)) return adapterFor(bundle).referenceModels?.[m.key] || 'not one of this lens’s scoring models; shown for reference, not averaged';
+  }
   return null;
 }
 export const isBaseline = (m) => excludeReason(m) !== null;
-export const scoringModels = (bundle) => bundle.models.filter((m) => !isBaseline(m));
+function scoringKeys(bundle) {
+  if (Array.isArray(bundle.scoring_models)) return bundle.scoring_models;
+  return adapterFor(bundle).scoring || null;
+}
+export const scoringModels = (bundle) => bundle.models.filter((m) => excludeReason(m, bundle) === null);
+export const referenceOnlyModels = (bundle) => bundle.models.filter((m) => excludeReason(m, bundle) !== null);
 export const adapterFor = (bundle) => ADAPTERS[bundle.adapter || bundle.id] || NLSY79;
 
-// Reasons this lens cannot score this couple at all (refuse rather than guess).
-export const refusals = (bundle, a, b, couple = {}) => adapterFor(bundle).refuse(bundle, a, b, couple);
-export const lensNotes = (bundle, a, b, couple = {}) => adapterFor(bundle).notes(bundle, a, b, couple);
+// Reasons this lens cannot score this couple at all (refuse rather than guess), then the joint
+// out-of-distribution check on this lens's own rows.
+export function refusals(bundle, a, b, couple = {}) {
+  const out = adapterFor(bundle).refuse(bundle, a, b, couple);
+  if (out.length) return out;
+  const o = typicality(bundle, a, b, couple);
+  if (o && o.abstain) out.push(`This couple is more unusual than ${o.percentile.toFixed(2)}% of the surveyed ${bundle.ood.unit ? 'couple-years' : 'people'} (distance from the training data, above the ${bundle.ood.abstain_above_percentile}th-percentile line), so the lens abstains.`);
+  return out;
+}
+export function lensNotes(bundle, a, b, couple = {}) {
+  const out = adapterFor(bundle).notes(bundle, a, b, couple);
+  const o = typicality(bundle, a, b, couple);
+  if (o) out.push(`Typicality: this couple is more unusual than ${o.percentile.toFixed(0)}% of the surveyed ${bundle.ood.unit ? 'couple-years' : 'people'} (the lens abstains above ${bundle.ood.abstain_above_percentile}%)${o.perspectives > 1 ? `; the more unusual of ${o.perspectives} perspectives` : ''}.`);
+  return out;
+}
+// The perspective labels this lens averages over for this couple.
+export function rowLabels(bundle, a, b, couple = {}) {
+  const l = adapterFor(bundle).rowLabels;
+  return typeof l === 'function' ? l(a, b, couple) : l;
+}
+
+// ---- Time: annual rates, follow-up periods, or one fixed window ----------------------------
+// 'rate' lenses give an annual Poisson rate; 'periods' and 'fixed' lenses give a probability for
+// each period (logistic models and probability trees) or a rate over it (Poisson models).
+export const lensKind = (bundle) => adapterFor(bundle).kind || 'rate';
+export const isRateLens = (bundle) => lensKind(bundle) === 'rate';
+// The horizons (years from the start of the projection) a lens can speak to: 5/10/20 years for
+// rate lenses, otherwise only the ends of its own follow-up (never extrapolated).
+export function lensHorizons(bundle) {
+  const ad = adapterFor(bundle);
+  return ad.horizons ? ad.horizons(bundle) : [5, 10, 20];
+}
+// The horizon tables rank and summarise at: 10 years, or the longest supported horizon up to 10.
+export function primaryHorizon(bundle) {
+  const hs = lensHorizons(bundle);
+  if (isRateLens(bundle)) return hs.includes(10) ? 10 : hs[Math.min(1, hs.length - 1)];
+  const up = hs.filter((h) => h <= 10.01);
+  return up.length ? up[up.length - 1] : hs[0];
+}
+export const fmtYears = (h) => (Number.isInteger(h) ? String(h) : h.toFixed(1));
+function steps(bundle, couple, horizon) {
+  const ad = adapterFor(bundle);
+  if (ad.steps) return ad.steps(bundle).filter((st) => st.end <= horizon + 0.01);
+  return Array.from({ length: horizon }, (_, k) => ({ k, start: k, end: k + 1 }));
+}
+// Does a model give a probability over the step (logistic, or a tree fitted to 0/1 outcomes in a
+// probability lens) or a Poisson rate? Only matters outside the rate lenses.
+function givesProbability(bundle, m) {
+  if (isRateLens(bundle)) return false;
+  if (m.kind === 'logistic_glm') return true;
+  if (m.kind === 'tree') return !/poisson/i.test(m.label || '');
+  return false;
+}
+// Chance of the event over one step for one model, averaged over the adapter's perspectives.
+function stepProbability(bundle, m, a, b, couple, st) {
+  const rows = adapterFor(bundle).rows(bundle, a, b, couple, st.k);
+  const len = st.end - st.start;
+  const prob = givesProbability(bundle, m);
+  return rows.reduce((t, r) => {
+    const v = predict(m, r);
+    return t + (prob ? v : 1 - Math.exp(-v * len));
+  }, 0) / rows.length;
+}
+// The step of a projection that ends at horizon h (years from its start), or null.
+export function stepAt(proj, h) {
+  return proj.find((y) => Math.abs(y.elapsed - h) < 0.02) || null;
+}
 
 // Annual rate for a couple: the average over the adapter's perspectives. For NLSY79 that is
 // both partners as survey respondent, because the respondent's sex and own traits are inputs.
@@ -380,25 +504,39 @@ export function coupleRate(bundle, model, a, b, couple, years) {
 
 // Year-by-year projection. P(divorce in year k | married at its start) = 1 - exp(-rate_k).
 // Mortality is not modelled: "still married" means "no divorce, if both partners live".
+// For 'periods' and 'fixed' lenses each step is one follow-up period (P(no break-up through k) =
+// product of (1 - p_j), the bundles' how_to_combine), and steps beyond the lens's follow-up are
+// never produced, whatever `horizon` asks for. `rates` then holds the annual-equivalent rate
+// -ln(1 - p) / length, for display only.
 export function project(bundle, a, b, couple, horizon = 40, models = scoringModels(bundle)) {
   const ad = adapterFor(bundle);
+  const rate = isRateLens(bundle);
   const years = [];
   let surv = Object.fromEntries(models.map((m) => [m.key, 1]));
-  for (let k = 0; k < horizon; k++) {
+  for (const st of steps(bundle, couple, horizon)) {
+    const k = st.k;
     const rates = {};
     const yearProb = {};
     const survivalEnd = {};
     for (const m of models) {
-      rates[m.key] = coupleRate(bundle, m, a, b, couple, k);
-      yearProb[m.key] = 1 - Math.exp(-rates[m.key]);
-      surv[m.key] *= Math.exp(-rates[m.key]);
+      if (rate) {
+        rates[m.key] = coupleRate(bundle, m, a, b, couple, k);
+        yearProb[m.key] = 1 - Math.exp(-rates[m.key]);
+      } else {
+        yearProb[m.key] = stepProbability(bundle, m, a, b, couple, st);
+        rates[m.key] = -Math.log1p(-yearProb[m.key]) / (st.end - st.start);
+      }
+      surv[m.key] *= 1 - yearProb[m.key];
       survivalEnd[m.key] = surv[m.key];
     }
     const issues = ad.issues(bundle, a, b, couple, k);
     const vals = Object.values(yearProb);
     const svals = Object.values(survivalEnd);
     years.push({
-      year: num(couple.yearsMarried) + k + 1,
+      year: num(couple.yearsMarried) + st.end,
+      elapsed: st.end,
+      start: st.start,
+      label: st.label || null,
       rates,
       yearProb,
       survival: survivalEnd,
@@ -420,6 +558,8 @@ export function project(bundle, a, b, couple, horizon = 40, models = scoringMode
 // or is still going with both alive at the horizon. Population death rates: married people
 // live longer and spouses' deaths are correlated, neither of which is modelled.
 export function lifelong(bundle, table, a, b, couple, horizon = 40) {
+  // Short-horizon lenses (periods, a fixed window) never project 40 years: no lifelong figure.
+  if (!isRateLens(bundle)) return null;
   const sx = (p) => (p.sex === 'Man' ? 'M' : 'F');
   const years = project(bundle, a, b, couple, horizon);
   const start = Number.isFinite(num(couple.currentYear)) ? num(couple.currentYear) : new Date().getUTCFullYear();
@@ -512,10 +652,7 @@ export function groupedTerms(terms) {
   return Object.entries(out).sort((x, y) => Math.abs(y[1]) - Math.abs(x[1]));
 }
 
-const survivalAt = (bundle, a, b, couple, n) => {
-  const p = project(bundle, a, b, couple, n);
-  return p[p.length - 1];
-};
+const survivalAt = (bundle, a, b, couple, n) => stepAt(project(bundle, a, b, couple, n), n);
 
 // Score a list of what-if changes ({ label, a?, b?, couple? } patches) by the change in mean
 // n-year survival across models, with the model range and how many agree on the direction.
@@ -545,12 +682,12 @@ function scoreChanges(bundle, list, a, b, couple, n) {
 }
 
 // What-if changes for one partner.
-export function selfChanges(bundle, who, a, b, couple, n = 10) {
+export function selfChanges(bundle, who, a, b, couple, n = primaryHorizon(bundle)) {
   return scoreChanges(bundle, adapterFor(bundle).changes(who, who === 'a' ? a : b), a, b, couple, n);
 }
 
 // What-if changes the couple makes together (e.g. timing of the wedding), where the lens has any.
-export function coupleChanges(bundle, a, b, couple, n = 10) {
+export function coupleChanges(bundle, a, b, couple, n = primaryHorizon(bundle)) {
   return scoreChanges(bundle, adapterFor(bundle).coupleChanges(couple, a, b), a, b, couple, n);
 }
 
@@ -563,7 +700,7 @@ function defaultSchool(degree) {
 // the profiles whose model range overlaps the top profile's, `beats` how many models score a
 // profile above the partner as entered, and `distinctTops` how many different profiles the
 // models put first on their own. Profiles the lens cannot score are skipped.
-export function idealPartners(bundle, me, partnerTemplate, couple, { n = 10, top = 5 } = {}) {
+export function idealPartners(bundle, me, partnerTemplate, couple, { n = primaryHorizon(bundle), top = 5 } = {}) {
   const ad = adapterFor(bundle);
   const r = rankPartners(bundle, me, couple, ad.partnerGrid(me, partnerTemplate), { horizons: [n], current: partnerTemplate });
   const results = r.ranked;
@@ -588,7 +725,7 @@ export function idealPartners(bundle, me, partnerTemplate, couple, { n = 10, top
 // their reason when keepRefused is set (they rank last). `tied` counts the scored profiles
 // whose model range overlaps the top one's at the first horizon: the models cannot tell them
 // apart. `distinctTops` counts the different profiles the models put first on their own.
-export function rankPartners(bundle, me, couple, list, { horizons = [10], current = null, keepRefused = false, describe } = {}) {
+export function rankPartners(bundle, me, couple, list, { horizons = [primaryHorizon(bundle)], current = null, keepRefused = false, describe } = {}) {
   const ad = adapterFor(bundle);
   const models = scoringModels(bundle);
   const H = Math.max(...horizons);
@@ -597,7 +734,7 @@ export function rankPartners(bundle, me, couple, list, { horizons = [10], curren
   let cur = null;
   if (current && !refusals(bundle, me, current, couple).length) {
     const p = project(bundle, me, current, couple, H);
-    cur = stat(p[n - 1]);
+    cur = stat(stepAt(p, n));
   }
   const ranked = [];
   const refused = [];
@@ -609,16 +746,16 @@ export function rankPartners(bundle, me, couple, list, { horizons = [10], curren
       continue;
     }
     const proj = project(bundle, me, p, couple, H);
-    const y = proj[n - 1];
+    const y = stepAt(proj, n);
     ranked.push({
       partner: p,
       index: i,
       description,
       ...stat(y),
-      at: Object.fromEntries(horizons.map((h) => [h, stat(proj[h - 1])])),
+      at: Object.fromEntries(horizons.map((h) => [h, stat(stepAt(proj, h))])),
       beats: cur ? models.filter((m) => y.survival[m.key] > cur.survival[m.key]).length : null,
-      inSupport: proj.slice(0, n).every((z) => z.inSupport),
-      issues: [...new Set(proj.slice(0, H).flatMap((z) => z.issues))],
+      inSupport: proj.filter((z) => z.elapsed <= n + 0.01).every((z) => z.inSupport),
+      issues: [...new Set(proj.flatMap((z) => z.issues))],
     });
   }
   ranked.sort((x, y) => y.meanSurvival - x.meanSurvival || x.index - y.index);
@@ -645,15 +782,39 @@ export function rankPartners(bundle, me, couple, list, { horizons = [10], curren
 // with its population, target and skill, but gives no number.
 export const FORM_ADAPTERS = Object.keys(ADAPTERS);
 
+// Held-out skill of one model in one shape across bundles: the gain over a constant rate
+// (deviance or log loss, with its interval), the concordance (Harrell's C) and an AUC.
+export function modelSkill(m) {
+  const h = m.heldout || {};
+  const gain = Number.isFinite(h.deviance_improvement_percent) ? h.deviance_improvement_percent : Number.isFinite(h.logloss_improvement_percent) ? h.logloss_improvement_percent : null;
+  let gainCi = h.ci95 || h.logloss_improvement_ci || h.logloss_improvement_ci95 || null;
+  // NLSY79 individuals publish the interval per person-year; rescale it to percent.
+  if (gainCi && Number.isFinite(h.deviance_improvement_per_person_year) && h.deviance_improvement_per_person_year > 0) gainCi = gainCi.map((x) => (x * gain) / h.deviance_improvement_per_person_year);
+  if (gainCi && !(gainCi[0] <= gain + 1e-9 && gain <= gainCi[1] + 1e-9)) gainCi = null;
+  const cKey = ['harrell_c', 'c_index', 'c_index_10y'].find((k) => Number.isFinite(h[k]));
+  const aucKey = ['auc10', 'auc_10y', 'auc', 'auc_breakup_by_2011', 'auc_2.3y', 'auc5', 'auc_5y'].find((k) => Number.isFinite(h[k]));
+  return {
+    gain, gainCi,
+    c: cKey ? h[cKey] : null, cCi: cKey ? h[cKey + '_ci95'] || h[cKey + '_ci'] || null : null,
+    auc: aucKey ? h[aucKey] : null, aucCi: aucKey ? h[aucKey + '_ci95'] || h[aucKey + '_ci'] || null : null,
+    aucLabel: aucKey ? { auc10: 'AUC at 10 years', auc_10y: 'AUC at 10 years', auc: 'AUC', auc_breakup_by_2011: 'AUC for a break-up by 2011', 'auc_2.3y': 'AUC at 2.3 years', auc5: 'AUC at 5 years', auc_5y: 'AUC at 5 years' }[aucKey] : null,
+  };
+}
+// The lens's best scoring model by held-out gain, with its skill.
+export function lensSkill(bundle) {
+  const ms = (Array.isArray(bundle.models) ? scoringModels(bundle) : []).map((m) => ({ key: m.key, label: m.label, ...modelSkill(m) })).filter((m) => Number.isFinite(m.gain));
+  return ms.length ? ms.reduce((x, y) => (y.gain > x.gain ? y : x)) : null;
+}
+
 export function lensSummary(raw, entry = {}) {
   const bundle = lensView(raw);
-  const metrics = (bundle.models || []).map((m) => ({ key: m.key, label: m.label, ...(m.heldout || {}) }));
+  const metrics = (bundle.models || []).map((m) => ({ key: m.key, label: m.label, ...(m.heldout || {}), deviance_improvement_percent: modelSkill(m).gain }));
   const dev = metrics.filter((m) => Number.isFinite(m.deviance_improvement_percent));
   const best = dev.length ? dev.reduce((x, y) => (y.deviance_improvement_percent > x.deviance_improvement_percent ? y : x)) : null;
   const adapter = entry.adapter || bundle.adapter || bundle.id;
   return {
     id: bundle.id || entry.file,
-    label: entry.label || bundle.label || bundle.id,
+    label: (bundle.view_of ? null : entry.label) || bundle.label || entry.label || bundle.id,
     population: (bundle.source || bundle.population || 'not stated') + (bundle.population_label ? `; population used here: ${bundle.population_label.toLowerCase()}` : ''),
     target: bundle.target || 'not stated',
     training: bundle.training || {},
@@ -661,6 +822,7 @@ export function lensSummary(raw, entry = {}) {
     best: best ? { label: best.label, improvement: best.deviance_improvement_percent } : null,
     metrics,
     scorable: FORM_ADAPTERS.includes(adapter) && Array.isArray(bundle.models) && bundle.models.length > 0,
+    skill: Array.isArray(bundle.models) && FORM_ADAPTERS.includes(adapter) ? lensSkill(bundle) : null,
   };
 }
 
@@ -680,12 +842,43 @@ export const PERSON_SPEC = {
   raceEth: RACE_ETH,
   priorChildren: ['Yes', 'No'],
   intactFamily: ['Yes', 'No'],
+  // Questions the newer lenses use (lens-adapters.js says which lens reads which).
+  bornUS: YESNO,
+  marriagesBefore: MARRIAGES_BEFORE,
+  quality: QUALITY,
+  hapmar: HAPMAR,
+  party: PARTY,
+  parentsView: PARENTS_VIEW,
+  kidsBefore: COUNT3,
+  priorPartners: COUNT3,
+  enrolled: YESNO,
+  religionRaised: RELIGION_RAISED,
+  motherEdu: MOTHER_EDU,
+  motherAgeFirst: MOTHER_AGE,
+  attendDetail: ATTEND_DETAIL,
+  satSum: [8, 37],
+  hostSum: [0, 42],
+  obsPos: OFTEN,
+  obsNeg: OFTEN,
+  obsEff: OFTEN,
+  substance: YESNO,
+  ace: YESNO,
+  abuse: YESNO,
+  lowMood: YESNO,
+  ...Object.fromEntries(SAT_SCALE_KEYS.map((k) => [k, SAT_SCALE])),
 };
-export const COUPLE_SPEC = { yearsMarried: [0, 60], familyIncome: [0, 100000000], horizon: ['20', '30', '40', '50'], cohabitedFirst: ['Yes', 'No'] };
+export const COUPLE_SPEC = {
+  yearsMarried: [0, 60], familyIncome: [0, 100000000], horizon: ['20', '30', '40', '50'], cohabitedFirst: ['Yes', 'No'],
+  status: STATUS, yearsTogether: [0, 80], howMet: HOW_MET, childrenHome: [0, 15], place: PLACE, state: STATES,
+  expecting: YESNO, cohabMonths: [0, 240], netWorth: [-10000000, 100000000], debt: [0, 100000000], unsecuredDebt: [0, 10000000], homeOwner: YESNO,
+};
+// Answers that are never written into a shareable link (they stay in the page): hostility,
+// abuse, substance use, low mood, adverse childhood experiences.
+export const SENSITIVE = new Set(['hostSum', 'substance', 'ace', 'abuse', 'lowMood']);
 
 function specFor(name) {
   const [who, k] = name.includes('.') ? name.split('.') : [null, name];
-  if (who === 'a' || who === 'b') return PERSON_SPEC[k];
+  if (who === 'a' || who === 'b') return SENSITIVE.has(k) ? undefined : PERSON_SPEC[k];
   if (who === null) return COUPLE_SPEC[k] || (k === 'lens' ? 'id' : undefined);
   return undefined;
 }
