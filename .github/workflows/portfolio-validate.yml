@@ -195,6 +195,34 @@ jobs:
       - name: Validate VENTURE.yaml schema
         run: python3 portfolio/router/validate.py
 
+      # The mirror serves nothing since the k3s origin was retired
+      # (portfolio/hosting/README.md), and its two checks were 7.5 of this
+      # job's 10 minutes (P039). They only matter when the mirror or its
+      # generator changes, so any doubt (shallow fetch fails, no base) runs them.
+      - name: Does this change touch the apex mirror or its generator?
+        id: mirror
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          base=
+          if [ "$EVENT" = pull_request ]; then
+            git fetch --no-tags --depth=2 origin "+$(git rev-parse HEAD):refs/ci/pr-merge" 2>/dev/null || true
+            base=$(git rev-parse -q --verify HEAD^1 || true)
+          elif [ "$EVENT" = push ] && [ "${BEFORE#0000000}" != "$BEFORE" ]; then
+            base=
+          elif [ "$EVENT" = push ]; then
+            git fetch --no-tags --depth=1 origin "$BEFORE" 2>/dev/null || true
+            base=$(git rev-parse -q --verify "$BEFORE^{commit}" || true)
+          fi
+          run=true
+          if [ -n "$base" ] && changed=$(git diff --name-only "$base" HEAD 2>/dev/null); then
+            if ! printf '%s\n' "$changed" | grep -qE '^(gitops/prod/|platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'; then
+              run=false
+            fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+
       # The apex serves a mirrored copy of 14 whole ventures so that the front
       # door's cards work while `portfolio-site-repo` is unsealed. The copy is
       # committed (Argo CD delivers it; no CI job builds it), so editing one of
@@ -204,6 +232,7 @@ jobs:
       # `hetzner-gitops-ci.yml` used to run a duplicate copy and dropped it on
       # 2026-10-20 when it pushed that job past its timeout.
       - name: Check the apex tool mirror is not stale
+        if: steps.mirror.outputs.run == 'true'
         run: node --test "platform/marketing/*.test.mjs"
 
       # platform/agents/tools.mjs lets an agent call any tool's engine with no
@@ -234,6 +263,7 @@ jobs:
       # identical duplication, which is the remedy the constant's comment
       # spells out; raising the ceiling is not the first answer.
       - name: Check the apex tool mirror has room left
+        if: steps.mirror.outputs.run == 'true'
         run: node platform/marketing/front-door-tools.mjs --headroom
 
       - name: Check candidate scores agree across yaml, write-ups, and README
