@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Divorce Odds Calculator for Couples — Explainable ML in Your Browser</title>
-<meta name="description" content="Estimate a couple's divorce odds for each year of marriage with explainable ML models that run privately in your browser, showing model agreement and limits.">
+<meta name="description" content="Estimate divorce odds per year of marriage with explainable ML that runs in your browser: compare with the population, rank partners, score a CSV.">
 <meta property="og:title" content="Divorce odds calculator for couples (explainable, in-browser)">
 <meta property="og:description" content="Year-by-year divorce odds from explainable models trained on U.S. surveys (NLSY79 couples, NSFG first marriages), with model disagreement and limits.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from explainable models (additive and spline Poisson regressions and Poisson decision trees) trained on two U.S. surveys: NLSY79 married couples and NSFG 2002 first marriages from the wedding day. Runs entirely in the browser.","featureList":["Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link"],"license":"https://opensource.org/licenses/MIT"}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from explainable models (additive and spline Poisson regressions and Poisson decision trees) trained on two U.S. surveys: NLSY79 married couples and NSFG 2002 first marriages from the wedding day. Runs entirely in the browser.","featureList":["Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link","Population percentile overall and within subgroups","Just-me estimate averaged over realistic partners","Rank several candidate partners per lens","Batch CSV scoring in the browser with downloadable results","Dashboard of partner traits and what-ifs with non-negotiables"],"license":"https://opensource.org/licenses/MIT"}
 </script>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -33,6 +33,16 @@
   </details>
 </section>
 
+<nav class="modes" aria-label="What to compare">
+  <div role="tablist" aria-label="What to compare">
+    <button type="button" role="tab" id="tab-couple" data-view="couple" aria-controls="results">Me + one person</button>
+    <button type="button" role="tab" id="tab-justme" data-view="justme" aria-controls="justMe">Just me</button>
+    <button type="button" role="tab" id="tab-candidates" data-view="candidates" aria-controls="candidates">Me + many people</button>
+    <button type="button" role="tab" id="tab-dashboard" data-view="dashboard" aria-controls="dashboard">Your dashboard</button>
+    <button type="button" role="tab" id="tab-batch" data-view="batch" aria-controls="batch">Many couples (CSV)</button>
+  </div>
+</nav>
+
 <form id="form" class="grid" autocomplete="off">
   <fieldset data-who="a"><legend>You</legend></fieldset>
   <fieldset data-who="b"><legend>Your partner</legend></fieldset>
@@ -52,6 +62,9 @@
   <p class="sub">Average of the lens’s models; the range shows how much they disagree. Assumes both partners live through each year; the lifelong split below adds mortality. <span id="outcomeNote"></span></p>
   <div id="tiles" class="tiles"></div>
   <p id="support" class="support"></p>
+  <h2>Compared with the surveyed population</h2>
+  <p class="sub">Where this couple’s predicted risk sits among the lens’s own surveyed marriages, overall and within the groups the couple belongs to.</p>
+  <div id="popPanel"></div>
   <h2>Lifelong marriage, counting mortality</h2>
   <p class="sub">How the marriage ends over the projection horizon, if it ends: in divorce, or only when one partner dies.</p>
   <div id="lifelong"></div>
@@ -95,6 +108,62 @@
   <div class="table-wrap"><table id="idealTable"></table></div>
 </section>
 
+<section id="justMe" class="view" role="tabpanel" aria-labelledby="tab-justme" hidden>
+  <h2>Just me: averaged over realistic partners</h2>
+  <p class="sub">Your profile (“You” above), married now, scored against the mix of partners that people like you actually married in the survey: the lens’s partner distribution, weighted, given your sex, age band and race-ethnicity. The number is the average over that mix, not a forecast for any one partner. Lenses without a partner distribution say so rather than invent one.</p>
+  <div id="justMeOut" aria-live="polite"></div>
+</section>
+
+<section id="candidates" class="view" role="tabpanel" aria-labelledby="tab-candidates" hidden>
+  <h2>Me + many people</h2>
+  <p class="sub">Add partner cards (or load a CSV) and see each lens rank them for you, separately. A candidate is marked “indistinguishable from the top” when its model range overlaps the top candidate’s. Nothing is uploaded: files are read in your browser, and cards are not saved in the link.</p>
+  <p class="actions"><button type="button" id="addCard">Add a candidate</button> <button type="button" id="copyPartner">Copy the partner from the form</button> <button type="button" id="candTemplate">Download a candidates CSV template</button></p>
+  <details><summary>Load candidates from a CSV</summary>
+    <label>CSV file <input type="file" id="candFile" accept=".csv,text/csv"></label>
+    <label>Or paste CSV text <textarea id="candPaste" rows="4" spellcheck="false"></textarea></label>
+    <p><button type="button" id="candPasteGo">Load pasted candidates</button></p>
+    <p class="small">Columns: <code>name</code> plus the person columns listed under “Many couples (CSV)” without the <code>a_</code>/<code>b_</code> prefix. Up to 200 candidates.</p>
+    <div id="candErrors" aria-live="polite"></div>
+  </details>
+  <div id="cardList" class="cards"></div>
+  <div id="candOut" aria-live="polite"></div>
+</section>
+
+<section id="dashboard" class="view" role="tabpanel" aria-labelledby="tab-dashboard" hidden>
+  <h2>Your dashboard</h2>
+  <p class="sub">Given your profile (“You” above), which partner traits this lens links to a lower risk, and what changes on your side it links to one. The partner in the form is the reference profile. Lens: <strong id="dashLens"></strong> (switch it at the top; lenses are never pooled). Associations in past survey data, not causes, and no “ideal” partner.</p>
+  <details id="constraints" class="rules" open>
+    <summary>Non-negotiables</summary>
+    <p class="small">Locked traits never change; excluded values are never searched or suggested. The rules are kept in the link’s <code>#</code> fragment.</p>
+    <div class="two">
+      <fieldset><legend>I won’t change</legend><div id="ownLocks"></div></fieldset>
+      <fieldset><legend>Partner rules</legend><div id="partnerRules"></div></fieldset>
+    </div>
+    <p><button type="button" id="clearRules">Clear all rules</button></p>
+  </details>
+  <div id="dashOut" aria-live="polite"></div>
+</section>
+
+<section id="batch" class="view" role="tabpanel" aria-labelledby="tab-batch" hidden>
+  <h2>Many couples from a CSV</h2>
+  <p class="sub"><strong>Nothing is uploaded.</strong> The file is read and scored in this browser tab; results download from your own browser. Batch data are never put in the link. Up to <span id="batchCap">10,000</span> couples per file.</p>
+  <p class="actions"><button type="button" id="batchTemplate">Download the CSV template</button></p>
+  <label>CSV file of couples <input type="file" id="batchFile" accept=".csv,text/csv"></label>
+  <details><summary>Or paste CSV text</summary>
+    <label>CSV text <textarea id="batchPaste" rows="5" spellcheck="false"></textarea></label>
+    <p><button type="button" id="batchPasteGo">Score pasted couples</button></p>
+  </details>
+  <progress id="batchProgress" hidden value="0" max="1" aria-label="Scoring progress"></progress>
+  <p id="batchStatus" role="status"></p>
+  <div id="batchErrors" aria-live="polite"></div>
+  <p><button type="button" id="batchDownload" disabled>Download results CSV</button></p>
+  <div id="batchPreview"></div>
+  <details><summary>CSV columns and allowed values</summary>
+    <p class="small">One row per couple. Values must match exactly (an ASCII hyphen may stand for the en dash in ranges such as <code>13-15 years</code>). Blank means unknown, except where required. The results file has one row per couple, lens and horizon (5, 10, 20 years): <code>no_divorce</code> (the lens’s mean chance of no divorce), <code>model_min</code>/<code>model_max</code> (range across its models), <code>population_percentile</code> (risk from the wedding day among the surveyed marriages; blank when the lens has none), <code>status</code> (ok, abstain, not_scorable), <code>abstain_reason</code> and <code>years_outside_data</code>.</p>
+    <div class="table-wrap"><table id="batchSchema"></table></div>
+  </details>
+</section>
+
 <section class="limits">
   <h2>How it works and what it cannot tell you</h2>
   <ul>
@@ -105,6 +174,7 @@
     <li><strong>Per year.</strong> Each model gives an annual divorce <em>rate</em> for the couple at each marriage year (ages and duration advance; everything else stays as entered). A year’s divorce probability is 1 − e<sup>−rate</sup>, and the chance of still being married multiplies those years together.</li>
     <li><strong>Couple.</strong> Each survey interviewed one spouse. The NLSY79 lens scores the couple from both partners’ points of view and averages them; the NSFG lens uses the wife’s report, as the survey did. Same-sex couples were not in either survey, so the app shows no number for them rather than guessing.</li>
     <li><strong>Outside the data.</strong> Years outside what a lens saw (NLSY79: ages under 35 or over 64; NSFG: beyond year 24 of marriage) are shaded, and the numbers there are extrapolation. A couple a lens cannot speak to at all (for NSFG: a wife married before, or a wedding age outside the data) gets no number from that lens. Wealth, occupation and relationship quality are not covered.</li>
+    <li><strong>Population comparison.</strong> For the NSFG 2002 lenses, every surveyed woman’s first marriage was scored at its wedding by models fitted on the other four-fifths of women (the same held-out folds as the skill numbers), and the app stores only survey-weighted percentiles of those predictions, overall and in groups of at least 100 marriages. Your percentile is read off those, interpolated, and capped at “below p1” and “above p99”. The NLSY79 lenses have no reference yet (their person-level data are not in the repository).</li>
     <li><strong>Not causal, not personal.</strong> Coefficients describe who divorced in one cohort. No validated “ideal partner”, safe anniversary or personal forecast is established. Full methods: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/reproducibility/ml_couples/METHODS.md">ml_couples/METHODS.md</a> and the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/MODEL_CARD.md">model card</a>.</li>
   </ul>
   <p class="small">Open source (MIT): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/research/marriage-divorce-evidence/app">source code</a>. Not advice of any kind.</p>

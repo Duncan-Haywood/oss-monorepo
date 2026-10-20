@@ -152,11 +152,118 @@ couple, 99.1 (abstain). The quantiles are in
 `../reproducibility/nsfg2002_first_marriage/family_ood_heldout_quantiles.csv`, and
 `tests/ood.test.mjs` matches Python's distances on 68 rows to 10<sup>-9</sup>.
 
+## Compare with the population, just me, many people, many couples, and a dashboard
+
+Five views sit above the form (tabs; arrow keys move between them). Every view scores each
+lens separately through its own adapter and never pools lenses.
+
+- **Me + one person** (the couple view) gains a population panel: where the couple's predicted
+  break-up risk at 5, 10 and 20 years sits among the lens's own surveyed marriages, overall
+  and within each subgroup the couple belongs to, with the subgroup's median risk.
+  "Every lens, side by side" adds each lens's 10-year percentile.
+- **Just me** scores your profile alone, married now, averaged over the partners that people
+  like you actually married (the bundle's `partner_distribution`), next to your percentiles.
+- **Me + many people** ranks candidate partners for you: add, duplicate, edit and remove
+  cards, copy the partner from the form, or load a CSV (up to 200). Per lens: chance of no
+  divorce at 5/10/20 years with the model range (min–max over the lens's scoring models),
+  the lifelong split counting mortality (`mortality.js` `competingRisks`, 40 years), the
+  population percentile, abstentions with their reason (listed last), and an
+  "indistinguishable from the top" flag when a candidate's model range overlaps the top
+  candidate's. Nobody is called ideal.
+- **Your dashboard** (`dashboard.js`, built on `couple.js`'s adapters, `rankPartners` and
+  projection): summary cards (your estimate, your percentile, the top tier's range), a ranked
+  table of partner trait profiles over the traits the lens models (adapter `partnerTraits`,
+  capped at 600 profiles; traits that would exceed the cap are held at the partner in the
+  form and named), a one-trait-at-a-time view, and what-ifs for your own changeable traits
+  (5/10/20-year change, model range, agreement, how many models do not move, and whether
+  those are trees that never split on the input), plus "all helpful changes together".
+  Profiles whose model range overlaps the best one's form a single top tier. **Non-negotiables:**
+  lock your own traits (never changed in what-ifs), lock partner traits (held at the form),
+  exclude partner values, and cap the age gap. Rules live in the `#` fragment
+  (`lock=a.degree,b.religion&ex.b.religion=Never&gap=5`), decoded against a whitelist.
+- **Many couples (CSV)** scores up to 10,000 couples in the browser with a progress bar, shows
+  row-level errors and a preview, and downloads a results CSV. **Nothing is uploaded**: the
+  file is read with the File API and results download from a local Blob. Batch data never go
+  in the URL; only single-couple scenarios do.
+
+### Population reference (`population.js`, `tools/population_reference.py`)
+
+A bundle may carry `population_reference`: `{horizons, overall: {n, quantiles: {p1..p99}},
+subgroups: {<var>: {<level>: {n, quantiles}}}, subgroup_defs}` of survey-weighted predicted
+cumulative dissolution. A `pK` value may be a list aligned to `horizons` (what the tool
+writes), a number (one horizon), or `quantiles` may be keyed by horizon. A couple's
+percentile is interpolated linearly between neighbouring quantiles, a flat run of equal
+quantiles gives its midpoint, and values outside p1..p99 read "below p1" / "above p99".
+Subgroup membership uses `subgroup_defs` (bins on a numeric column, or a categorical column),
+or else the adapter row's attribute named like the variable; "Unknown" is never a subgroup.
+A married couple is compared as of its wedding day (ages and calendar year rewound).
+
+For both NSFG 2002 lenses, `tools/population_reference.py` refits each lens's scoring models
+on `train_models.py`'s five person folds (it checks the refit reproduces the published
+held-out deviance gains: additive spline 3.024%, tree 0.914%, logistic 2.982%, forest 2.262%,
+boosting 2.588%), scores each of the 4,126 women at her wedding with her own inputs and real
+wedding year, and writes weighted quantiles of the lens's mean 5/10/20-year dissolution,
+overall and by wife's age at marriage, cohabited first, husband married before, husband's
+prior children, wife's race-ethnicity, intact family of origin and wedding decade (cells of
+at least 100 unweighted marriages; `n` recorded). Nothing person-level is written, and every
+other byte of each bundle is unchanged (the tool asserts it). Medians of predicted
+dissolution (A's lens): 20.2% at 5 years, 33.7% at 10, 48.5% at 20; p10–p90 at 10 years is
+21.5–52.2%. The survey's own Kaplan–Meier gives 36.2% dissolved by 10 years. The NLSY79
+lenses show "no population reference": their person-level extracts are not in the repository.
+
+`partner_distribution` (same tool, both NSFG bundles): weighted joint frequencies of the
+partner's traits given your own coarse traits, both directions (given the wife's age band and
+race-ethnicity: husband's age gap, earlier marriage, children from before, same or different
+race-ethnicity, cohabited first; given the husband's: wife's age gap, race-ethnicity, family
+of origin, cohabited first). Conditioning cells need at least 30 marriages and a listed
+profile at least 10; shares are renormalised and `coverage` records the weighted share
+covered. The app uses a cell only when coverage is at least 50%, and says so otherwise.
+Age gaps are scored at the weighted median gap of their bin (−1, 1, 4, 7 and 13 years).
+
+### CSV formats
+
+Couples file: one row per couple. `id` (unique; blank = row number), then for each partner
+`a_` and `b_` prefixed:
+
+| Column | Meaning | Allowed values |
+| --- | --- | --- |
+| `sex` | required | `Woman`, `Man` |
+| `age` | age today, required | 16–100 |
+| `school` | years of schooling | `<12 years`, `12 years`, `13–15 years`, `16–17 years`, `18+ years` |
+| `degree` | highest degree | `Less than high school`, `High school`, `Some college`, `Associate`, `Bachelor`, `Master`, `PhD`, `Professional` |
+| `wages` | wages last year, $ | 0–10,000,000 |
+| `work` | work hours last year | `No work hours`, `1–1,999 hours`, `2,000+ hours` |
+| `religion` | service attendance | `Never`, `Less than weekly`, `Weekly or more` |
+| `prior_marriage` | married before | `Yes`, `No` (blank = No) |
+| `first_marriage_age` | age at first marriage | 13–80 (blank = this marriage) |
+| `race_eth` | race-ethnicity | `Hispanic`, `White`, `Black`, `Other` |
+| `prior_children` | children from before | `Yes`, `No` |
+| `intact_family` | lived with both parents to 18 | `Yes`, `No` |
+
+then `years_married` (0–60, blank = 0), `family_income` (0–100,000,000, blank = both wages)
+and `cohabited_first` (`Yes`, `No`). Blank means unknown; values must match exactly, except
+that an ASCII hyphen may stand for the en dash (`13-15 years`). Unknown or missing required
+columns stop the file; bad cells are reported by line and column and those rows skipped.
+The candidates file has `name` plus the person columns without a prefix. Templates download
+from the page.
+
+Results file (long format): `id, lens, horizon_years, no_divorce, model_min, model_max,
+population_percentile, status, abstain_reason, years_outside_data`, one row per couple, lens
+and horizon (5, 10, 20). `status` is `ok`, `abstain` (with the lens's reason) or
+`not_scorable`. Cells that start with `=`, `+`, `-` or `@` are prefixed with `'` so a
+spreadsheet does not run them.
+
+Tests: `tests/population.test.mjs` (percentile edges, formats, subgroup selection, the shipped
+blocks, just me), `tests/batch.test.mjs` (CSV parse/validate/round-trip, abstention
+passthrough, ranking and overlap flag, no pooling) and `tests/dashboard.test.mjs`
+(constraints and URL round-trip, locked or excluded fields never vary, the cap, tiers,
+what-if signs and order).
+
 ## Run and test
 
 ```sh
 python3 -m http.server 8080   # from research/marriage-divorce-evidence, then open /app/
-node --test app/tests/*.test.mjs
+node --test app/tests/*.test.mjs   # Node 22 needs the glob, not the directory
 python3 test_app.py           # the same tests via unittest
 ```
 

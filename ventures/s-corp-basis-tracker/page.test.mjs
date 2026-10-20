@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { run, parseYears, SAMPLE, step } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "form-7203-basis-order.html", "s-corp-distributions-over-basis.html", "s-corp-suspended-losses.html", "s-corp-loan-or-contribution-to-deduct-losses.html"];
+const PAGES = ["index.html", "form-7203-basis-order.html", "s-corp-distributions-over-basis.html", "s-corp-suspended-losses.html", "s-corp-loan-or-contribution-to-deduct-losses.html", "s-corp-k1-boxes-for-basis.html"];
 
 test("every page carries the no-warranty clause; the app also has privacy, independence and sponsor lines", () => {
   for (const n of PAGES) assert.match(page(n), /No warranty/, n);
@@ -148,4 +148,17 @@ test("K-1 box card is on the page, wired to fromK1Boxes, and its event is disclo
   assert.match(html, /id="k1-in"/);
   assert.match(html, /fromK1Boxes/);
   assert.match(html, /<code>k1_converted<\/code>/);
+});
+
+test("the K-1 box guide's year is recomputed from the typed box line", async () => {
+  const { fromK1Boxes } = await import("./calc.mjs");
+  const html = page("s-corp-k1-boxes-for-basis.html");
+  const k = fromK1Boxes("2024: 1=50000, 16A=2000, 16C=3000, 16D=20000");
+  assert.deepEqual(k.errors, []);
+  const r = run({ stock: 30000 }, k.rows);
+  assert.equal(r.closing.stock, 59000);
+  assert.equal(r.rows[0].lines.stockBeforeDistributions, 82000);
+  assert.equal(r.rows[0].lines.excessDistributions, 0);
+  for (const s of ["$30,000", "$82,000", "$59,000", "2024: 1=50000, 16A=2000, 16C=3000, 16D=20000"]) assert.ok(html.includes(s), s);
+  assert.ok(page("index.html").includes("s-corp-k1-boxes-for-basis.html") && page("sitemap.xml").includes("s-corp-k1-boxes-for-basis.html"));
 });

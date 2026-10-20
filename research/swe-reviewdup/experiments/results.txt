@@ -1,0 +1,39 @@
+commits on origin/main since 2026-10-13: 3452; review-track PRs: 35 (2026-10-14 to 2026-10-19)
+
+== clusters by window (minutes): clusters, PRs in clusters of 2+, extra PRs beyond one per cluster
+  2  30 clusters, 10 PRs in  5 clusters of 2+,  5 extra  (extra share 14.3%, Wilson 6.3-29.4%)
+  5  29 clusters, 12 PRs in  6 clusters of 2+,  6 extra  (extra share 17.1%, Wilson 8.1-32.7%)
+ 10  29 clusters, 12 PRs in  6 clusters of 2+,  6 extra  (extra share 17.1%, Wilson 8.1-32.7%)
+ 30  27 clusters, 16 PRs in  8 clusters of 2+,  8 extra  (extra share 22.9%, Wilson 12.1-39.0%)
+ 60  27 clusters, 16 PRs in  8 clusters of 2+,  8 extra  (extra share 22.9%, Wilson 12.1-39.0%)
+
+== window 10 min: every cluster of 2+ (merge times as committed; files changed outside prompts/runs/ shared by 2+ PRs)
+10-16 20:39-0600  PRs #7620,#7621  gap 1.6 min  shared files: prompts/derived/runs.json, prompts/experiments.md
+10-17 00:39-0600  PRs #7677,#7678  gap 1.3 min  shared files: prompts/experiments.md
+10-18 03:10-0600  PRs #8001,#8002  gap 0.4 min  shared files: prompts/derived/runs.json
+10-18 07:07-0600  PRs #8050,#8052  gap 2.5 min  shared files: prompts/derived/runs.json, prompts/experiments.md
+10-19 01:41-0600  PRs #8319,#8320  gap 1.2 min  shared files: prompts/derived/runs.json, prompts/experiments.md
+10-19 13:18-0600  PRs #8488,#8489  gap 1.0 min  shared files: prompts/experiments.md
+
+== what the duplicate PRs edited (window 10 min): extra PRs only, files outside prompts/runs/
+extra PRs: 6, of which with no file outside prompts/runs/: 0
+   5  prompts/derived/runs.json
+   5  prompts/experiments.md
+   1  prompts/drift/2026-10-17b.md
+   1  prompts/promptctl.py
+   1  prompts/derived/github.json
+   1  prompts/drift/2026-10-17c.md
+   1  research/PROJECTS.md
+   1  prompts/drift/2026-10-18e.md
+
+== recorded cost (cost_usd on the run record naming the PR)
+review PRs with a priced record: 3 of 35, total $1.47
+extra (duplicate) PRs with a priced record: 1 of 6, total $0.57
+
+== reviews per day (distinct clusters at 10 min / PRs)
+2026-10-15 6 6
+2026-10-16 4 4
+2026-10-17 5 7
+2026-10-18 6 8
+2026-10-19 8 10
+hours between distinct review clusters: n=28 min 0.2 median 4.0 max 12.3

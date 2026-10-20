@@ -73,6 +73,9 @@
         <input id="column" inputmode="numeric" placeholder="1 is the first column; blank = detect">
       </div>
       <div class="checkbox-row">
+        <input type="checkbox" id="sepa"><label for="sepa">This is a SEPA-only batch: flag IBANs from outside the core SEPA countries</label>
+      </div>
+      <div class="checkbox-row">
         <input type="checkbox" id="groups"><label for="groups">Write IBANs in groups of four (print format) instead of unbroken</label>
       </div>
     </div>
@@ -151,7 +154,7 @@
       a.download = name;
       a.click();
     }
-    const options = () => ({ column: $("#column").value, excelSafe: $("#groups").checked });
+    const options = () => ({ column: $("#column").value, excelSafe: $("#groups").checked, sepaOnly: $("#sepa").checked });
 
     function run(text) {
       const o = options();

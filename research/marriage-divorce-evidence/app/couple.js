@@ -141,6 +141,16 @@ const NLSY79 = {
   },
   describePartner: (p) => `age ${p.age}, ${p.degree.toLowerCase()}, wages $${Number(p.wages).toLocaleString('en-US')}`,
   partnerKey: (p) => `${p.age}|${p.degree}|${p.wages}`,
+  // Partner traits this lens models, in search priority order (dashboard.js). `gap` traits
+  // set the partner's age relative to yours.
+  partnerTraits: () => [
+    { key: 'age', label: 'Age gap (partner minus you)', gap: true, values: [-6, -3, 0, 3, 6] },
+    { key: 'degree', label: 'Highest degree', values: ['High school', 'Some college', 'Bachelor', 'Master', 'Professional'], patch: (v) => ({ degree: v, school: SCHOOL[defaultSchool(v)] }) },
+    { key: 'wages', label: 'Wages last year, $', values: [0, 15000, 30000, 50000, 80000, 120000] },
+    { key: 'religion', label: 'Religious attendance', values: RELIGION },
+    { key: 'work', label: 'Work hours', values: WORK },
+    { key: 'priorMarriage', label: 'Married before', values: [false, true], show: (v) => (v ? 'married before' : 'not married before') },
+  ],
 };
 
 // NSFG 2002: the wife's own report on her first marriage, scored from the wedding day.
@@ -233,6 +243,32 @@ const NSFG2002 = {
   },
   describePartner: (p) => `age ${p.age}, ${p.priorMarriage ? 'married before' : 'not married before'}, ${p.priorChildren === 'Yes' ? 'has children from before' : 'no children from before'}`,
   partnerKey: (p) => `${p.age}|${p.priorMarriage}|${p.priorChildren}`,
+  // Only the husband's history and the wife's background enter, so the traits depend on
+  // which partner is the wife. A wife married before is outside the lens, so it is not varied.
+  partnerTraits(me) {
+    const sameOrNot = RACE_ETH.includes(me.raceEth)
+      ? [{ key: 'raceEth', label: 'Race-ethnicity', values: [me.raceEth, RACE_ETH.find((r) => r !== me.raceEth)], show: (v) => (v === me.raceEth ? 'same race-ethnicity as you' : 'different race-ethnicity') }]
+      : [];
+    if (me.sex === 'Woman') {
+      return [
+        { key: 'age', label: 'Age gap (husband minus you)', gap: true, values: [-4, -2, 0, 2, 4, 6, 8, 10] },
+        { key: 'priorMarriage', label: 'Married before', values: [false, true], show: (v) => (v ? 'married before' : 'not married before') },
+        { key: 'priorChildren', label: 'Children from before', values: ['No', 'Yes'], show: (v) => (v === 'Yes' ? 'has children from before' : 'no children from before') },
+        ...sameOrNot,
+      ];
+    }
+    return [
+      { key: 'age', label: 'Age gap (wife minus you)', gap: true, values: [-10, -8, -6, -4, -2, 0, 2, 4] },
+      { key: 'raceEth', label: 'Race-ethnicity', values: RACE_ETH },
+      { key: 'intactFamily', label: 'Lived with both parents to 18', values: ['Yes', 'No'], show: (v) => (v === 'Yes' ? 'grew up with both parents' : 'did not grow up with both parents') },
+    ];
+  },
+  // Subgroup attributes for the population comparison: the wedding-day inputs, with the real
+  // wedding year (the model row holds it at the latest year in the data).
+  referenceAttrs(bundle, a, b, couple) {
+    const cy = Number.isFinite(num(couple.currentYear)) ? num(couple.currentYear) : new Date().getUTCFullYear();
+    return { ...nsfgRow(bundle, a, b, couple, 0), wedding_year: cy - (num(couple.yearsMarried) || 0) };
+  },
 };
 
 // NLSY79 individual models: each partner scored from their own traits only (the spouse's
@@ -278,6 +314,12 @@ const NLSY79_IND = {
   },
   describePartner: (p) => `age ${p.age}, ${p.degree.toLowerCase()}, ${p.work.toLowerCase()}`,
   partnerKey: (p) => `${p.age}|${p.degree}|${p.work}`,
+  partnerTraits: () => [
+    { key: 'age', label: 'Age gap (partner minus you)', gap: true, values: [-6, -3, 0, 3, 6] },
+    { key: 'degree', label: 'Highest degree', values: IND_DEGREES.map((d) => d[0]), patch: (v) => ({ degree: v, school: IND_DEGREES.find((d) => d[0] === v)[1] }) },
+    { key: 'religion', label: 'Religious attendance', values: RELIGION },
+    { key: 'work', label: 'Work hours', values: WORK },
+  ],
 };
 
 // The NSFG classical-family bundle (workstream B) shares the first-marriage bundle's data,
@@ -523,40 +565,77 @@ function defaultSchool(degree) {
 // models put first on their own. Profiles the lens cannot score are skipped.
 export function idealPartners(bundle, me, partnerTemplate, couple, { n = 10, top = 5 } = {}) {
   const ad = adapterFor(bundle);
-  const current = survivalAt(bundle, me, partnerTemplate, couple, n);
-  const results = [];
-  for (const p of ad.partnerGrid(me, partnerTemplate)) {
-    if (refusals(bundle, me, p, couple).length) continue;
-    const proj = project(bundle, me, p, couple, n);
-    const r = proj[proj.length - 1];
-    results.push({
+  const r = rankPartners(bundle, me, couple, ad.partnerGrid(me, partnerTemplate), { horizons: [n], current: partnerTemplate });
+  const results = r.ranked;
+  const best = results.slice(0, top);
+  return {
+    perModelTop: r.perModelTop,
+    distinctTops: r.distinctTops,
+    best,
+    worst: results[results.length - 1],
+    considered: results.length,
+    tied: r.tied,
+    current: r.current,
+    models: r.models,
+  };
+}
+
+// Score a list of partner profiles for `me` at each horizon (default 10 years) and rank them
+// by the lens's mean chance of no divorce. Shared by the partner search above, the dashboard's
+// partner ranking and the batch candidate table. Each entry carries the mean and model range
+// at every horizon, how many models score it above `current` (when given), and whether any
+// projected year is outside the data. Profiles the lens refuses are skipped, or kept with
+// their reason when keepRefused is set (they rank last). `tied` counts the scored profiles
+// whose model range overlaps the top one's at the first horizon: the models cannot tell them
+// apart. `distinctTops` counts the different profiles the models put first on their own.
+export function rankPartners(bundle, me, couple, list, { horizons = [10], current = null, keepRefused = false, describe } = {}) {
+  const ad = adapterFor(bundle);
+  const models = scoringModels(bundle);
+  const H = Math.max(...horizons);
+  const n = horizons[0];
+  const stat = (y) => ({ meanSurvival: y.meanSurvival, minSurvival: y.minSurvival, maxSurvival: y.maxSurvival, survival: y.survival });
+  let cur = null;
+  if (current && !refusals(bundle, me, current, couple).length) {
+    const p = project(bundle, me, current, couple, H);
+    cur = stat(p[n - 1]);
+  }
+  const ranked = [];
+  const refused = [];
+  for (const [i, p] of list.entries()) {
+    const why = refusals(bundle, me, p, couple);
+    const description = describe ? describe(p, i) : ad.describePartner(p);
+    if (why.length) {
+      if (keepRefused) refused.push({ partner: p, index: i, description, refused: why });
+      continue;
+    }
+    const proj = project(bundle, me, p, couple, H);
+    const y = proj[n - 1];
+    ranked.push({
       partner: p,
-      description: ad.describePartner(p),
-      meanSurvival: r.meanSurvival,
-      minSurvival: r.minSurvival,
-      maxSurvival: r.maxSurvival,
-      survival: r.survival,
-      beats: scoringModels(bundle).filter((m) => r.survival[m.key] > current.survival[m.key]).length,
-      inSupport: proj.every((y) => y.inSupport),
+      index: i,
+      description,
+      ...stat(y),
+      at: Object.fromEntries(horizons.map((h) => [h, stat(proj[h - 1])])),
+      beats: cur ? models.filter((m) => y.survival[m.key] > cur.survival[m.key]).length : null,
+      inSupport: proj.slice(0, n).every((z) => z.inSupport),
+      issues: [...new Set(proj.slice(0, H).flatMap((z) => z.issues))],
     });
   }
-  results.sort((x, y) => y.meanSurvival - x.meanSurvival);
-  const best = results.slice(0, top);
-  const worst = results[results.length - 1];
-  const tied = results.filter((r) => r.maxSurvival >= best[0].minSurvival).length;
-  const perModelTop = scoringModels(bundle).map((m) => {
-    const r = results.reduce((x, y) => (y.survival[m.key] > x.survival[m.key] ? y : x));
+  ranked.sort((x, y) => y.meanSurvival - x.meanSurvival || x.index - y.index);
+  const top = ranked[0];
+  for (const r of ranked) r.indistinguishable = !!top && r.maxSurvival >= top.minSurvival;
+  const perModelTop = ranked.length ? models.map((m) => {
+    const r = ranked.reduce((x, y) => (y.survival[m.key] > x.survival[m.key] ? y : x));
     return { model: m.label, partner: r.partner, survival: r.survival[m.key] };
-  });
+  }) : [];
   return {
+    ranked,
+    refused,
+    tied: ranked.filter((r) => r.indistinguishable).length,
     perModelTop,
-    distinctTops: new Set(perModelTop.map((t) => ad.partnerKey(t.partner))).size,
-    best,
-    worst,
-    considered: results.length,
-    tied,
-    current: { meanSurvival: current.meanSurvival, minSurvival: current.minSurvival, maxSurvival: current.maxSurvival },
-    models: scoringModels(bundle).length,
+    distinctTops: new Set(perModelTop.map((t) => (ad.partnerKey ? ad.partnerKey(t.partner) : JSON.stringify(t.partner)))).size,
+    current: cur,
+    models: models.length,
   };
 }
 
@@ -588,7 +667,7 @@ export function lensSummary(raw, entry = {}) {
 // ---- Shareable scenarios ---------------------------------------------------------------
 // A scenario lives in the URL fragment (never sent to a server). Decoding accepts only
 // known fields and allowed values, so a crafted link cannot inject anything.
-const PERSON_SPEC = {
+export const PERSON_SPEC = {
   sex: ['Woman', 'Man'],
   age: [16, 100],
   school: SCHOOL,
@@ -602,7 +681,7 @@ const PERSON_SPEC = {
   priorChildren: ['Yes', 'No'],
   intactFamily: ['Yes', 'No'],
 };
-const COUPLE_SPEC = { yearsMarried: [0, 60], familyIncome: [0, 100000000], horizon: ['20', '30', '40', '50'], cohabitedFirst: ['Yes', 'No'] };
+export const COUPLE_SPEC = { yearsMarried: [0, 60], familyIncome: [0, 100000000], horizon: ['20', '30', '40', '50'], cohabitedFirst: ['Yes', 'No'] };
 
 function specFor(name) {
   const [who, k] = name.includes('.') ? name.split('.') : [null, name];

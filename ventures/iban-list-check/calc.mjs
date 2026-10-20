@@ -17,6 +17,10 @@ const BBAN_SHAPE = {
   PL: /^\d{24}$/, PT: /^\d{21}$/, SE: /^\d{20}$/, CZ: /^\d{20}$/, SK: /^\d{20}$/, HR: /^\d{17}$/, SI: /^\d{15}$/,
   GB: /^[A-Z]{4}\d{14}$/, NL: /^[A-Z]{4}\d{10}$/, IE: /^[A-Z]{4}\d{14}$/, LU: /^\d{3}[A-Z0-9]{13}$/,
 };
+// Countries in the SEPA credit-transfer scheme as long established: EU 27 plus IS, LI, NO, CH, GB, AD, MC, SM, VA.
+// Newer or territory participants (for example ME, MK, MD, AL, RS, GI) are deliberately left out: a SEPA-only check
+// names them as "not on the core list, confirm with your bank" rather than claiming either way.
+export const SEPA_CORE = new Set("AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE IS LI NO CH GB AD MC SM VA".split(" "));
 const HEADER_RE = /iban|international bank|bank ?account|account ?(no|number)|konto/i;
 const STRONG_HEADER_RE = /iban/i;
 
@@ -155,6 +159,13 @@ export function validate(text, options = {}) {
   }
   if (blanks) add("warning", 0, `${blanks} blank IBAN${blanks === 1 ? "" : "s"}`, "Rows with an empty IBAN cell; a payment file will reject or skip them.");
   if (countries.size > 1) add("info", 0, "Several countries", [...countries.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join(", ") + ". Some bulk payment formats (a domestic or SEPA-only file) will reject IBANs from outside their scheme.");
+  if (options.sepaOnly) {
+    for (const it of items) {
+      if (it.result.kind !== "ok") continue;
+      const cc = it.result.value.slice(0, 2);
+      if (!SEPA_CORE.has(cc)) add("warning", it.line, "Not on the core SEPA country list", `${it.result.value} is a ${cc} IBAN. A SEPA-only batch (pain.001 SCT) may reject it; pay it in a separate non-SEPA batch or confirm with your bank that ${cc} is accepted.`);
+    }
+  }
   const total = body.length - blanks;
   return {
     findings: findings.sort((a, b) => (a.severity === b.severity ? a.line - b.line : a.severity === "error" ? -1 : b.severity === "error" ? 1 : a.severity === "warning" ? -1 : 1)),

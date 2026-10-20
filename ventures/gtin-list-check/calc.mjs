@@ -196,15 +196,30 @@ export function validate(text, options = {}) {
   };
 }
 
+// Re-express a valid GTIN at a target length (12, 13 or 14). Leading zeros are added or removed, which never changes
+// the check digit; returns null when the code has significant digits that would not fit.
+export function toLength(value, n) {
+  if (![12, 13, 14].includes(n) || !/^\d+$/.test(value)) return null;
+  if (value.length <= n) return value.padStart(n, "0");
+  const extra = value.length - n;
+  return /^0+$/.test(value.slice(0, extra)) ? value.slice(extra) : null;
+}
+
 // Rewrite the chosen column with normalised codes. Rows that cannot be fixed are left exactly as they were.
 export function repair(text, options = {}) {
   const table = parseTable(String(text ?? ""));
   const { col, header } = pickColumn(table, options.column);
   const changes = [];
+  const skipped = [];
   const outRows = table.rows.map((r, i) => {
     if (header && i === 0) return r.cells;
     const c = classify(r.cells[col]);
     const cells = r.cells.slice();
+    if (c.kind === "ok" && options.length) {
+      const v = toLength(c.value, Number(options.length));
+      if (v === null) skipped.push(`Line ${r.line}: ${c.value} cannot be written as ${options.length} digits without losing a significant digit, so it was left at ${c.value.length}`);
+      else if (v !== c.value) { c.value = v; c.fixed = true; c.notes = [...(c.notes || []), `written as ${options.length} digits`]; }
+    }
     if (c.kind === "ok" && c.fixed && cells[col] !== undefined) {
       changes.push(`Line ${r.line}: ${String(cells[col]).trim()} to ${c.value} (${c.notes.join("; ")})`);
       cells[col] = options.excelSafe ? `="${c.value}"` : c.value;
@@ -213,7 +228,7 @@ export function repair(text, options = {}) {
   });
   const d = table.delim;
   const q = (v) => (/["\n\r]/.test(v) || v.includes(d) ? `"${v.replace(/"/g, '""')}"` : v);
-  return { text: outRows.map((c) => c.map((v) => q(String(v ?? ""))).join(d)).join("\n") + "\n", changes };
+  return { text: outRows.map((c) => c.map((v) => q(String(v ?? ""))).join(d)).join("\n") + "\n", changes, skipped };
 }
 
 export function findingsCsv(result) {

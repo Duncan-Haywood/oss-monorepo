@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Helm Values Schema Check — Find a values.yaml Typo Helm Won't</title>
-  <meta name="description" content="Paste a Helm chart's values.yaml and its values.schema.json and get a deterministic report of every field values.yaml sets that the schema does not declare (Helm's template engine never errors on this -- it silently returns no value), every schema-required field missing from values.yaml, and every type, enum, or min/max mismatch. Free, runs entirely in your browser, no Helm binary needed, nothing is uploaded.">
+  <meta name="description" content="Paste a Helm values.yaml and values.schema.json to find silently ignored typos, missing required fields and type mismatches. Runs in your browser, no Helm needed.">
   <meta property="og:title" content="Does your values.yaml actually match its own schema?">
   <meta property="og:description" content="Check a Helm chart's values.yaml against values.schema.json without installing Helm -- catches the undeclared-field typo helm lint misses when additionalProperties isn't set to false, plus real schema violations. No account, no upload, with a matching CLI for CI.">
   <meta property="og:type" content="website">

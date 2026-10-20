@@ -41,6 +41,15 @@ class AppTests(unittest.TestCase):
     def test_lenses_and_scenarios(self):
         self.run_node('lenses.test.mjs')
 
+    def test_population_comparison(self):
+        self.run_node('population.test.mjs')
+
+    def test_batch_and_candidates(self):
+        self.run_node('batch.test.mjs')
+
+    def test_dashboard(self):
+        self.run_node('dashboard.test.mjs')
+
 
 class Nsfg2002BundleTests(unittest.TestCase):
     def test_bundle_agrees_with_audit_and_beats_baseline(self):
@@ -53,6 +62,16 @@ class Nsfg2002BundleTests(unittest.TestCase):
         self.assertEqual(bundle['training']['events'], audit['first_marriage_dissolutions'])
         best = max(m['heldout']['deviance_improvement_percent'] for m in bundle['models'])
         self.assertGreater(best, 0)
+
+    def test_population_reference_is_aggregate(self):
+        import json
+        for name in ('nsfg2002_first_marriage', 'nsfg2002_family'):
+            ref = json.loads((APP / 'models' / f'{name}.json').read_text())['population_reference']
+            self.assertEqual(ref['overall']['n'], 4126)
+            self.assertEqual(len(ref['overall']['quantiles']), 99)
+            for cells in ref['subgroups'].values():
+                for cell in cells.values():
+                    self.assertGreaterEqual(cell['n'], 100)
 
 
 class RelationshipDatasetTests(unittest.TestCase):
