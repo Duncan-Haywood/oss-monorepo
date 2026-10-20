@@ -1,5 +1,13 @@
 # Research log
 
+## 2026-10-20 · NLSY97 first-marriage lens: the young cohort, marriages through 2024
+
+- Official NLSY97 public release (BLS, no login; sha256 recorded), streamed out of the 8 GB CSV without unzipping. Counts match the codebook: 8,984 respondents, round-1 weights summing to 19.38 million, 5,252 ever married, first-marriage ends 1,820 divorced, 20 widowed, 45 unknown.
+- 5,076 first marriages (62 same-sex marriages excluded; 10 undatable dropped), 1,906 dissolutions (first month marked separated or divorced), 42 widowed and censored, 50,592 person-years. Predictors are fixed at or before the wedding; partner traits come from the household roster at the first interview after it (median 7 months), because the partner section only describes partners who are no longer current, which would leak the outcome.
+- Held out by person (5 folds × 3 repeats; 400 person bootstraps): gradient boosting 4.91% (4.23–5.52%), C 0.677, AUC 0.697 at 5 years and 0.686 at 10; additive spline 4.68%, C 0.672. Top decile 9.5% a year against 0.94% in the bottom; observed/expected 0.96. Weighted survival: 81.6% intact at 5 years, 67.7% at 10, 52.0% at 20.
+- Ablation: dropping partner traits loses 0.32 points (0.14–0.50), relationship history 0.23, both 0.68; every other block about 0 given the rest. Rate ratios (additive, adjusted associations): age at marriage 34 against 20, 0.55; spouse 16+ years of school against 12, 0.64; four years of living together first, 0.68; 2+ earlier live-in partners 1.33; lived with neither parent at 12 against both, 1.45; better mental health (MHI-5 87 against 53), 0.72.
+- The bundle carries an out-of-distribution score, a `population_reference` in the shape `population.js` reads (median predicted dissolution 17% / 30% / 47% at 5 / 10 / 20 years) and a partner distribution. Parity 3/3 on 80 rows. Listed in the app; scoring needs a form adapter.
+
 ## 2026-10-20 · NLSY79 rebuilt from the public release, a from-the-wedding NLSY79 lens, and the GSS marriage-happiness panels
 
 - NLSY79 full public release (BLS, no login). Re-running the four ml_couples scripts unchanged recovers the published sample exactly (40,818 intervals, 5,735 people, 726 divorces, the same folds). Held-out gains match within 0.003 points (additive enriched 3.4016% committed, 3.3988% rebuilt): numpy's sort orders tied incomes differently on this CPU, moving 59 intervals across a wage quartile. `app/tools/nlsy79_reference.py` can now add an out-of-distribution score and a population reference to the couples bundle; they are not attached yet, because the app's typicality check builds NSFG-shaped rows and needs an NLSY79 row first.

@@ -4,6 +4,7 @@
     {"file": "nlsy79_couples.json", "label": "NLSY79 married couples (U.S., born 1957–64, observed 2000–2022)", "adapter": "nlsy79_couples"},
     {"file": "nlsy79_individuals.json", "label": "NLSY79 married individuals, each partner's own traits (U.S., born 1957–64, observed 2000–2022)", "adapter": "nlsy79_individuals"},
     {"file": "nlsy79_first_marriage.json", "label": "NLSY79 first marriages from the wedding (U.S., born 1957–64, weddings 1981–2022; legal divorce)"},
+    {"file": "nlsy97_first_marriage.json", "label": "NLSY97 first marriages from the wedding (U.S., born 1980–84, weddings 1995–2024; separation or divorce)"},
     {"file": "nsfg2002_first_marriage.json", "label": "NSFG 2002 women's first marriages (U.S., weddings 1972–2002, from the wedding day)", "adapter": "nsfg2002_first_marriage"},
     {"file": "nsfg2002_family.json", "label": "NSFG 2002 women's first marriages: logistic hazard, naive Bayes, random forest and gradient boosting", "adapter": "nsfg2002_family"},
     {"file": "gss_panel_marriages.json", "label": "GSS panels 2006–2020: married adults, divorced or separated 2 years later (U.S., prospective; includes marriage happiness)"},

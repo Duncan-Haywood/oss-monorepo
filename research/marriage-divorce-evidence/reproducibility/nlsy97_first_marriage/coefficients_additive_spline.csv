@@ -1,0 +1,115 @@
+feature,coef
+num__marriage_years_sp_0,-0.18575
+num__marriage_years_sp_1,0.193492
+num__marriage_years_sp_2,-0.0649396
+num__marriage_years_sp_3,-0.023413
+num__marriage_years_sp_4,-0.092875
+num__age_at_marriage_sp_0,0.0134139
+num__age_at_marriage_sp_1,0.126667
+num__age_at_marriage_sp_2,0.0170179
+num__age_at_marriage_sp_3,-0.0813899
+num__age_at_marriage_sp_4,-0.0174219
+num__cohab_months_before_sp_0,0.106028
+num__cohab_months_before_sp_1,0.00751649
+num__cohab_months_before_sp_2,-0.0248267
+num__cohab_months_before_sp_3,-0.0341622
+num__cohab_months_before_sp_4,-0.0836087
+num__parent_max_grade_sp_0,-0.0193871
+num__parent_max_grade_sp_1,-0.0591817
+num__parent_max_grade_sp_2,-0.0131385
+num__parent_max_grade_sp_3,0.0130617
+num__parent_max_grade_sp_4,0.0187167
+num__poverty_ratio_1997_sp_0,0.00543668
+num__poverty_ratio_1997_sp_1,0.0861817
+num__poverty_ratio_1997_sp_2,0.0477448
+num__poverty_ratio_1997_sp_3,0.0739292
+num__poverty_ratio_1997_sp_4,0.0479508
+num__afqt_percentile_sp_0,0.018921
+num__afqt_percentile_sp_1,0.0071159
+num__afqt_percentile_sp_2,-0.00765992
+num__afqt_percentile_sp_3,0.0243118
+num__afqt_percentile_sp_4,-0.0865663
+num__delinquency_1997_sp_0,-0.0277754
+num__delinquency_1997_sp_1,0.00669796
+num__delinquency_1997_sp_2,-0.0216842
+num__delinquency_1997_sp_3,0.00510946
+num__delinquency_1997_sp_4,0.0236958
+num__substance_1997_sp_0,-0.0111411
+num__substance_1997_sp_1,-0.0228301
+num__substance_1997_sp_2,-0.0247081
+num__substance_1997_sp_3,0.00142598
+num__substance_1997_sp_4,0.0403387
+num__mhi5_before_sp_0,0.0216206
+num__mhi5_before_sp_1,0.014022
+num__mhi5_before_sp_2,0.0980219
+num__mhi5_before_sp_3,0.05563
+num__mhi5_before_sp_4,-0.00232567
+num__hours_year_before_sp_0,0.0331393
+num__hours_year_before_sp_1,0.0137372
+num__hours_year_before_sp_2,0.0305095
+num__hours_year_before_sp_3,0.00899567
+num__hours_year_before_sp_4,0.0308162
+num__earnings_year_before_k_sp_0,0.0332774
+num__earnings_year_before_k_sp_1,-0.00875679
+num__earnings_year_before_k_sp_2,-0.00222275
+num__earnings_year_before_k_sp_3,-0.120234
+num__earnings_year_before_k_sp_4,-0.0750317
+num__net_worth_before_k_sp_0,0.0607117
+num__net_worth_before_k_sp_1,0.0965261
+num__net_worth_before_k_sp_2,0.0836048
+num__net_worth_before_k_sp_3,0.0668633
+num__net_worth_before_k_sp_4,0.0643667
+num__spouse_age_gap_sp_0,-0.0567275
+num__spouse_age_gap_sp_1,0.0431846
+num__spouse_age_gap_sp_2,-0.0775867
+num__spouse_age_gap_sp_3,0.0133302
+num__spouse_age_gap_sp_4,-0.0222332
+cat__sex_Male,0.0380184
+cat__race_ethnicity_Hispanic,-0.0857515
+cat__race_ethnicity_Non-Black non-Hispanic,-0.0483414
+cat__region_Northeast,0.0139009
+cat__region_South,0.162464
+cat__region_Unknown,0.0757167
+cat__region_West,0.0104161
+cat__urban_Unknown,-0.0796191
+cat__urban_Urban,0.0205951
+cat__cohabited_first_Yes,0.189088
+cat__prior_cohabitations_band_1,0.174587
+cat__prior_cohabitations_band_2+,0.288581
+cat__children_before_marriage_1,0.12393
+cat__children_before_marriage_2+,0.15849
+cat__pregnant_at_wedding_Yes,-0.0194693
+cat__family_at_12_Both biological parents,-0.163249
+cat__family_at_12_Other arrangement,0.211144
+cat__family_at_12_Single biological parent,-0.010716
+cat__family_at_12_Unknown,0.0233717
+cat__religion_raised_None,0.0704621
+cat__religion_raised_Other,-0.00951857
+cat__religion_raised_Protestant,0.0155492
+cat__religion_raised_Unknown,-0.0660965
+cat__parent_attendance_1997_Less than monthly,-0.0663494
+cat__parent_attendance_1997_Never,-0.021358
+cat__parent_attendance_1997_Unknown,-0.032202
+cat__parent_attendance_1997_Weekly or more,-0.0994828
+"cat__first_sex_17 or older, or not by 2001",0.00783153
+cat__first_sex_Under 15,0.0690458
+cat__first_sex_Unknown,-0.123595
+cat__attendance_before_Less than monthly,-0.0178912
+cat__attendance_before_Never,0.0363645
+cat__attendance_before_Not measured before wedding,0.0409724
+cat__attendance_before_Weekly or more,-0.108989
+cat__education_at_marriage_Bachelor,-0.243282
+cat__education_at_marriage_Graduate degree,-0.164562
+cat__education_at_marriage_High school or GED,0.0375412
+cat__education_at_marriage_No high school credential,0.0489273
+cat__enrolled_at_marriage_Yes,-0.0918204
+cat__spouse_education_13-15 years,-0.16058
+cat__spouse_education_16+ years,-0.446859
+cat__spouse_education_Less than 12 years,0.0437712
+cat__spouse_race_ethnicity_Hispanic,-0.0468416
+cat__spouse_race_ethnicity_Non-Black non-Hispanic,-0.0520772
+cat__same_race_ethnicity_Same,-0.0684431
+cat__spouse_married_before_Unknown,0.0331706
+cat__spouse_married_before_Yes,0.135749
+cat__spouse_has_children_Unknown,0.0569855
+cat__spouse_has_children_Yes,0.210457

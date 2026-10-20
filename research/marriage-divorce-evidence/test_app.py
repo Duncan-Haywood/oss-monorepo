@@ -38,6 +38,9 @@ class AppTests(unittest.TestCase):
     def test_ood_score_matches_python(self):
         self.run_node('ood.test.mjs')
 
+    def test_nlsy97_bundle(self):
+        self.run_node('nlsy97.test.mjs')
+
     def test_gss_panel_bundle(self):
         self.run_node('gss_panel.test.mjs')
 
