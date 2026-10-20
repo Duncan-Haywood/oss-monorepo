@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-10-20 · Per-couple uncertainty for the "before the wedding" lens
+
+- The pre-wedding bundle now carries 50 person-bootstrap refits of its coefficients, with the spline knots and scaling held at the full fit, and `engine.cumulativeRisk()` returns a point estimate and a 95% interval for the chance a marriage has ended by any horizon. Across 2,000 sampled NSFG first marriages the 10-year interval is 5.2 points wide at the median (9.4 at the 90th percentile).
+- This is the model's sampling uncertainty only. Transport error between surveys is larger (observed/expected 0.85–1.07 on other U.S. surveys, 0.58 in Canada), and the app should say so next to the interval.
+- Parity: JavaScript reproduces Python's point estimates and interval ends at 5, 10 and 20 years for 20 test couples to 10<sup>-9</sup>; the bundle grew from 26 KB to 48 KB. ROADMAP B now lists what is done and what remains (intervals for other lenses, a pooled multi-survey model, recalibration to a target population).
+
 ## 2026-10-20 · "Before the wedding" lens exported to the app
 
 - New bundle `app/models/prewedding_harmonized.json` (26 KB): the harmonized pre-wedding additive model fitted on 43,336 NSFG 1995–2023 first marriages, inputs from either partner's point of view and nothing measured after the wedding. Held out by person in NSFG: C 0.661, AUC at 10 years 0.656, observed/expected 1.03. Applied unchanged elsewhere: NLSY97 C 0.647 (observed/expected 0.99), NLSY79 0.621 (1.07), SIPP 0.626 (0.85), Canada 0.611 (0.58).

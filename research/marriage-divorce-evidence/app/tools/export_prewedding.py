@@ -36,6 +36,7 @@ from bundle_export import export  # noqa: E402
 
 assert sklearn.__version__ == '1.7.2', 'use scikit-learn 1.7.2'
 HORIZONS = [5, 10, 20]
+BOOT = 50
 
 
 def pipeline(num, cat):
@@ -115,6 +116,29 @@ def main():
     model = dict(key='additive_spline', label='Additive spline Poisson (harmonized pre-wedding inputs)', **export(pipe))
     model['categorical']['impute'] = [modes[c] for c in model['categorical']['columns']]
 
+    # Uncertainty in one couple's prediction: refit the Poisson coefficients on person
+    # bootstrap resamples, holding the fitted spline knots and scaling fixed (so the
+    # replicates share the engine's prepared features). This is sampling uncertainty in the
+    # model, not the chance element in any one marriage, and not transport error between
+    # surveys (see `external`).
+    iv = apply_modes(cv.intervals(d), modes)
+    X = pipe.named_steps['prep'].transform(iv)
+    yy = (iv.y / iv.exposure).to_numpy()
+    sw0 = (iv.weight * iv.exposure).to_numpy()
+    person = iv.person.to_numpy()
+    brng = np.random.default_rng(cv.SEED + 11)
+    sig = lambda x: float(f'{x:.8g}')
+    b_int, b_coef = [], []
+    for b in range(BOOT):
+        counts = np.bincount(brng.integers(0, len(d), len(d)), minlength=len(d))
+        m = PoissonRegressor(alpha=1e-4, max_iter=3000, solver='newton-cholesky').fit(X, yy, sample_weight=sw0 * counts[person])
+        b_int.append(sig(m.intercept_))
+        b_coef.append([sig(c) for c in m.coef_])
+    model['bootstrap'] = dict(
+        method=(f'{BOOT} person-bootstrap refits of the coefficients with the spline knots and scaling held at the full fit; '
+                'percentile intervals of the cumulative dissolution probability (numpy linear quantiles)'),
+        replicates=BOOT, intercept=b_int, coef=b_coef)
+
     within = pd.read_csv(PRE / 'within_dataset.csv')
     w0 = within[(within.dataset == 'nsfg_pooled') & (within.model == 'additive_spline')].iloc[0]
     ext = pd.read_csv(PRE / 'external_validation.csv')
@@ -168,6 +192,23 @@ def main():
                       'communication, money) or what happens after the wedding. Associations in one survey population, not causes.'),
         models=[model], population_reference=reference, ood=ood_spec, sklearn=sklearn.__version__)
     OUT.mkdir(exist_ok=True)
+    # How wide are the intervals? 10-year 95% interval on 2,000 sampled NSFG marriages.
+    bi, bc = np.array(b_int), np.array(b_coef)
+
+    def risk_draws(frame, horizon):
+        f0 = apply_modes(frame, modes)
+        H = np.zeros((len(frame), BOOT))
+        for k in range(horizon):
+            f = f0.copy()
+            f['marriage_years'] = float(k)
+            H += np.exp(bi[None, :] + pipe.named_steps['prep'].transform(f) @ bc.T)
+        return 1 - np.exp(-H)
+    samp = d.sample(2000, random_state=1)
+    dr = risk_draws(samp, 10)
+    lo, hi = np.quantile(dr, 0.025, axis=1), np.quantile(dr, 0.975, axis=1)
+    model['bootstrap']['interval_width_10y'] = dict(
+        about='Width (high minus low) of the 95% interval for the 10-year dissolution probability, over 2,000 sampled NSFG first marriages',
+        median=round(float(np.median(hi - lo)), 4), p90=round(float(np.quantile(hi - lo, 0.9)), 4))
     (OUT / 'prewedding_harmonized.json').write_text(json.dumps(bundle, separators=(',', ':')))
 
     # Test vectors: rows across categories (including Unknown), ages, missing spouse age and
@@ -188,11 +229,20 @@ def main():
     vectors = dict(rows=json.loads(df.replace({np.nan: None}).to_json(orient='records')),
                    predictions=pipe.predict(apply_modes(df, modes)).tolist(),
                    ood_d2=ood.score(ood_fit, apply_modes(df, modes), ood_num, cat, levels).tolist())
+    # Cumulative-risk intervals: the first 20 rows, from marriage year 0, at each horizon.
+    head = df.head(20).copy()
+    risk = {}
+    for h in HORIZONS:
+        draws = risk_draws(head, h)
+        point = 1 - np.exp(-cumhaz(pipe, modes, head, h))
+        risk[str(h)] = dict(point=point.tolist(), lo=np.quantile(draws, 0.025, axis=1).tolist(),
+                            hi=np.quantile(draws, 0.975, axis=1).tolist())
+    vectors['risk'] = risk
     (OUT / 'prewedding_harmonized_testvectors.json').write_text(json.dumps(vectors))
     size = (OUT / 'prewedding_harmonized.json').stat().st_size
     print('features', num, cat)
     print('reference p10/p50/p90 at 10y:', quant[10][9], quant[10][49], quant[10][89])
-    print('bundle bytes', size)
+    print('bundle bytes', size, 'interval width 10y', model['bootstrap']['interval_width_10y'])
 
 
 if __name__ == '__main__':

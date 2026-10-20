@@ -90,9 +90,20 @@ schooling and how the couple met. Chain them into a marriage lens after the wedd
 
 ### B. Models (owns `tools/`, `engine.js`, `tests/`, model sections of `README.md`)
 
-Status at 2026-10-20 (three workstream-B rounds: PRs #8536, #8567 and the out-of-distribution PR).
+Status at 2026-10-20 (workstream-B PRs #8536, #8567, #8573, #8660, #8684 and the per-couple
+interval PR).
 
 Done:
+
+- **Before the wedding** (#8660, #8684). A leakage audit of the five first-marriage lenses
+  with refits, a harmonized pre-wedding feature set, the classical family within each survey
+  and across all 20 survey pairs (`../reproducibility/prewedding/`). The exported lens is
+  `models/prewedding_harmonized.json`: the NSFG additive model with external validation, a
+  population reference and an OOD score. `engine.js` gained constant spline extrapolation
+  and Unknown→mode imputation.
+- **Per-couple intervals.** 50 bootstrap coefficient replicates in the pre-wedding bundle, and
+  `engine.cumulativeRisk()` gives a point estimate and a 95% interval at any horizon (median
+  10-year width 5.2 points).
 
 - **NLSY79 individual lens** (#8536). Eight saved `ml_individuals` pipelines (additive and
   spline Poisson, depth-2/3 trees, two populations) are exported to
@@ -127,8 +138,13 @@ Remains:
   checks apply until they are restored (`scripts/restore_inputs.py`).
 - **The family protocol for every new bundle A lands** (Fair, and later NSFG cycles). Run
   `tools/train_nsfg2002_family.py`'s pattern on each.
-- **Conformal or bootstrap intervals on individual predictions.** Current intervals are on
-  held-out skill, not on a single couple's rate.
+- **Intervals for the other lenses.** Only the pre-wedding bundle carries bootstrap replicates
+  so far; the pattern in `tools/export_prewedding.py` applies to any Poisson GLM bundle.
+- **Pooled multi-survey pre-wedding model.** Train on several U.S. surveys with a survey level
+  and test on the one left out. Survey-specific missing inputs (SIPP has no cohabitation;
+  Canada has no race) need care, so that imputation does not stand in for an effect.
+- **Recalibration to a target population.** U.S. models put Canada's level 1.5–2.2 times too
+  high. A per-country intercept from official tables would fix the level but not the ranking.
 
 ### C. App and write-up (owns `index.html`, `app.js`, `couple.js`, `style.css`, `../README.md`, `../LOG.md` headline)
 
