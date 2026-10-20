@@ -13,6 +13,13 @@
 - ACS detail baselines (2019, 2021–24, replicate-weight and age-standardised CIs): one-year divorce per 1,000 by census race group (Asian 8.3, Black 23.6, AIAN 19.5, NHPI 12.1, multiracial 18.9), 18 Asian subgroups (Asian Indian 5.2, Chinese 8.3, Vietnamese 14.4) and 11 Hispanic origins (Mexican 13.7, Puerto Rican 20.3, Dominican 23.1); occupation (detailed, SOC major: healthcare support 25.8 vs architecture and engineering 10.3), industry, household income ($200k+ 6.3 vs under $25k 31.7) and tenure (renters 29.6 vs owners 8.4–9.7), all labelled as measured after any divorce (`app/data/acs_occupation_divorce.json`).
 - `app/data/race_coverage.json` says for every lens which race categories it distinguishes and how each finer form answer maps (NSFG and HCMST: Asian → Other; NLSY: Asian → non-Black non-Hispanic; GSS: Hispanic cannot be placed). Extended models ship in each bundle's `models_extended` with test vectors (new `tests/extended_models.test.mjs`, parity to 10<sup>-9</sup>); the app scores none of them until the form asks for the new inputs.
 
+## 2026-10-20 · Before the wedding, checked on a later cohort: 2009 dating models predict 2017 couples
+
+- The two HCMST before-the-wedding models (marry the partner, or break up first) were trained on couples unmarried in 2009. They were scored, without refitting, on the 777 couples unmarried in HCMST's fresh 2017 sample, using a harmonized variant without parents' view or religion (not asked in 2017).
+- By 2020: marrying AUC 0.767 (16.5% observed, 15.8% predicted); breaking up first AUC 0.838 (33.1% vs 34.4%). By 2022: marrying AUC 0.786 (21.7% vs 21.6%); breaking up first AUC 0.847 (43.8% vs 44.9%). That is at least as good as the 2009 held-out AUCs (0.72 and 0.70). This is one later cohort of the same survey, not a different population.
+- Data fix: 8 weddings to the 2017 partner newly reported in 2022 show up only in `w3_when_married_yr` plus `w3_partner_source`, because the derived `w3_partner_type` was not updated. Counting them raises 2022 marriages from 65 to 73.
+- The bundles now carry the harmonized model, the external results and `stage: before` (the convention in `couple.js`, #8713). Parity is 320/320 to 10<sup>-9</sup>. ROADMAP A item 3 is done.
+
 ## 2026-10-20 · App: the harmonized before-the-wedding model is the default lens
 
 - Workstream B's harmonized model (#8684) now scores couples in the app, and it is what "Before the wedding" opens on. It uses only facts knowable on the wedding day (NSFG 1995–2023, 43,336 first marriages; held-out C 0.661). Each partner is scored as the surveyed spouse, and the two rates are averaged. Unanswered inputs take the survey's most common answer, and the page names them.
