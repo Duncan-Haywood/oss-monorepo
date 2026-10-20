@@ -544,3 +544,23 @@ test('trendAdjust keeps the mean level and returns the slope', () => {
   assert.ok(Math.abs(mean - x.reduce((a, b) => a + b, 0) / 60) < 1e-9);
   assert.ok(Math.max(...adjusted) - Math.min(...adjusted) < 1e-9);
 });
+
+test('trend bend: a ramp whose slope doubles is one line with a bend, not a step', () => {
+  const N = 40, n = 200;
+  let plain = 0, bent = 0, falseBend = 0, knot = 0, s2 = 0, found = 0;
+  const ramp = (seed, step) => normals(rng(seed), n).map((e, i) => 0.1 * i + 0.1 * Math.max(0, i - 100) + e + (step && i >= 150 ? 5 : 0));
+  for (let s = 801; s <= 800 + N; s++) {
+    const x = ramp(s, false);
+    plain += analyze({ values: x, trend: true }).pelt.changepoints.length;
+    const r = analyze({ values: x, trend: 'bend' });
+    bent += r.pelt.changepoints.length;
+    if (r.trend.slopeChangesAt !== undefined) { knot += r.trend.slopeChangesAt; s2 += r.trend.slopeAfter; }
+    const y = analyze({ values: ramp(s, true), trend: 'bend' }).pelt.changepoints;
+    found += y.some((p) => Math.abs(p.index - 150) <= 3);
+    const straight = normals(rng(s + 100), n).map((e, i) => 0.1 * i + e);
+    falseBend += analyze({ values: straight, trend: 'bend' }).trend.slopeChangesAt !== undefined;
+  }
+  console.log(`# bend: ${plain / N} vs ${bent / N} changes/series; knot ${(knot / N).toFixed(1)}; slope after ${(s2 / N).toFixed(3)}; step found ${found}/${N}; false bend ${falseBend}/${N}`);
+  assert.ok(bent / N < 0.5 * (plain / N));
+  assert.ok(found >= 0.85 * N && falseBend <= 0.15 * N);
+});
