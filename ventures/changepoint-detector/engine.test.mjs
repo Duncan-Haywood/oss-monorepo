@@ -598,3 +598,24 @@ test('trend bends: knots are refined to the point on long series, not left on th
   }
   assert.ok(near >= 6, `second knot within 3 points on ${near} of 8`);
 });
+
+test('trend bends with sticky noise: --ar1 keeps the wandering from being cut into steps', () => {
+  const N = 40, n = 240;
+  const f = (i) => 0.1 * i + 0.1 * Math.max(0, i - 80) - 0.25 * Math.max(0, i - 160);
+  const runs = { plain: 0, ar1: 0, both: 0 };
+  let two = 0;
+  for (let s = 1001; s <= 1000 + N; s++) {
+    const e = normals(rng(s), n);
+    let p = 0;
+    const x = e.map((v, i) => { p = 0.5 * p + v; return f(i) + p; });
+    const seasonal = x.map((v, i) => v + 4 * Math.sin((2 * Math.PI * i) / 12));
+    runs.plain += analyze({ values: x, trend: 'bends' }).pelt.changepoints.length;
+    const a = analyze({ values: x, trend: 'bends', ar1: true });
+    runs.ar1 += a.pelt.changepoints.length;
+    two += (a.trend.slopeChangesAtAll || []).length === 2;
+    runs.both += analyze({ values: seasonal, trend: 'bends', ar1: true, period: 12 }).pelt.changepoints.length;
+  }
+  console.log(`# bends, AR(1) rho 0.5: ${runs.plain / N} changes/series plain, ${runs.ar1 / N} with --ar1, ${runs.both / N} with --ar1 --period 12; two knots ${two}/${N}`);
+  assert.ok(runs.ar1 < 0.4 * runs.plain);
+  assert.ok(runs.both / N < 3);
+});
