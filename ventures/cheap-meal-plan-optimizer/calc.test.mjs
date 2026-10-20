@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, planCsv, groceryList, groceryText, breakEvenPrices, stayInPrices, proteinPrices, encodeShare, decodeShare, sampleSpec, filterByStyle, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, varietyFrontier, budgetFrontier, weekMenu, weekText, planCsv, comparePlan, groceryList, groceryText, breakEvenPrices, stayInPrices, dropCosts, proteinPrices, encodeShare, decodeShare, sampleSpec, filterByStyle, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -452,4 +452,42 @@ test("proteinPrices ranks foods by dollars per 100 g of protein and marks the on
   assert.equal(pp[2].per100gProtein, null);
   assert.ok(Math.abs(pp[2].per1000kcal - (0.2 / 120) * 1000) < 1e-9);
   assert.equal(pp.find((r) => r.name === "Oil").inPlan, false);
+});
+
+test("comparePlan prices what you eat now, flags missed bounds and reports the saving", () => {
+  const spec = sampleSpec();
+  const res = solve(spec);
+  assert.equal(res.status, "optimal");
+  const first = spec.foods[0].name;
+  const c = comparePlan(spec, res, `${first} 3\nnot a food 2\n# note`);
+  assert.equal(c.used, true);
+  assert.deepEqual(c.unmatched, ["not a food 2"]);
+  assert.ok(Math.abs(c.cost - spec.foods[0].price * 3) < 1e-9);
+  assert.ok(c.misses.length > 0 && !c.meets, "three servings of one food cannot meet every bound");
+  assert.ok(c.saving < 0 || c.saving > 0 || c.saving === 0);
+  assert.ok(Math.abs(c.saving - (c.cost - res.cost)) < 1e-9);
+  // The solved plan fed back in meets every bound and saves nothing.
+  const text = res.items.map((it) => `${it.name} ${it.servings}`).join("\n");
+  const same = comparePlan(spec, res, text);
+  assert.equal(same.meets, true);
+  assert.ok(Math.abs(same.saving) < 1e-9);
+  assert.equal(comparePlan(spec, res, "").used, false);
+  assert.equal(comparePlan(spec, res, "x 1").saving, null);
+});
+
+test("dropCosts prices losing each food in the plan, and flags a food the targets depend on", () => {
+  // Need 100 g protein. Egg 10 g for 1.00 (used), Bean 10 g for 1.50 (spare), Pill 10 g for 3.00 (spare).
+  const spec = { ...DEFAULTS, kcalMin: "", kcalMax: "", fatMin: "", fatMax: "", fiberMin: "", step: 0, defaultMax: 20, foods: foods([["Egg", 1, [100, 10, 0, 0, 0]], ["Bean", 1.5, [100, 10, 0, 0, 0]], ["Pill", 3, [100, 10, 0, 0, 0]]]) };
+  const res = solve(spec);
+  const d = dropCosts(spec, res);
+  assert.equal(d.length, 1);
+  assert.equal(d[0].name, "Egg");
+  assert.ok(Math.abs(res.cost - 10) < 1e-6);
+  assert.ok(Math.abs(d[0].cost - 15) < 1e-6);
+  assert.ok(Math.abs(d[0].extra - 5) < 1e-6);
+  // Only one protein source: removing it leaves no plan.
+  const solo = { ...spec, foods: spec.foods.slice(0, 1) };
+  const only = dropCosts(solo, solve(solo));
+  assert.equal(only[0].cost, null);
+  assert.equal(only[0].extra, null);
 });

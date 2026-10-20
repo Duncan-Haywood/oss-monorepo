@@ -230,9 +230,16 @@ export function withSiteHeader(html, opts = {}) {
  */
 export function researchChromeTemplate() {
   const root = '{{ROOT}}';
+  // The breadcrumb variants: Home › Research › <topic> on a topic page, and
+  // Home › Research › <topic> › <project> on a project page. build.py fills
+  // {{TOPIC_ID}}, {{TOPIC}} and {{TITLE}} with escaped text.
+  const research = { href: `${root}research/`, label: 'Research' };
+  const topic = { href: `${root}research/topics/{{TOPIC_ID}}/`, label: '{{TOPIC}}' };
   return {
     style_file: SITE_STYLE_FILE,
     header: renderSiteHeader({ toRoot: root, current: 'research' }),
+    topic_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, { label: '{{TOPIC}}' }] }),
+    project_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, topic, { label: '{{TITLE}}' }] }),
     footer: renderSiteFooterNav({ toRoot: root }),
   };
 }

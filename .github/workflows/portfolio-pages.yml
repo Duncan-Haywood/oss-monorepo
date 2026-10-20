@@ -30,6 +30,7 @@ on:
       - "platform/pages/**"
       - "research/_homepage/**"
       - "research/README.md"
+      - "research/*/app/**"
       - ".github/workflows/portfolio-pages.yml"
   pull_request:
     paths:
@@ -37,6 +38,7 @@ on:
       - "platform/pages/**"
       - "research/_homepage/**"
       - "research/README.md"
+      - "research/*/app/**"
       - ".github/workflows/portfolio-pages.yml"
   workflow_dispatch:
 

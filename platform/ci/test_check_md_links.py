@@ -69,6 +69,14 @@ class Anchors(unittest.TestCase):
             )
             self.assertEqual([t for _, t in c.dead_links(doc, root)], ["#gone", "real.md#nope"])
 
+    def test_line_anchor_on_other_markdown_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "real.md").write_text("## Real Part\n")
+            doc = root / "a.md"
+            doc.write_text("[ok](real.md#L10) [ok2](real.md#L10-L20) [dead](#L5) [dead2](real.md#L)\n")
+            self.assertEqual([t for _, t in c.dead_links(doc, root)], ["#L5", "real.md#L"])
+
 
 class Main(unittest.TestCase):
     def run_main(self, root, *paths):

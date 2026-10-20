@@ -232,8 +232,10 @@ tool sits unused and the comparison ends at a ranking nobody acts on.
 
 So under the verdict, every channel that has a dedicated calculator **and** can
 accept inputs from a link gets a "keep going with this item" link, built from
-what is on screen. Today that is eBay, Etsy, Amazon, Mercari, Reverb, TikTok
-Shop, Whatnot, Poshmark, StockX and an own store (Shopify); a channel gains
+what is on screen. Today that is all 16 (`HANDOFFS` in `handoff.mjs`): eBay,
+Etsy, Amazon, Mercari, Reverb, TikTok Shop, Whatnot, Poshmark, StockX, Depop,
+Grailed, Facebook Marketplace, Walmart, TCGplayer, Discogs and an own store
+(Shopify); a channel gains
 one the day its calculator learns to read a link.
 
 **The handoff now runs both ways for every channel that has one.** Each of
@@ -241,7 +243,10 @@ one the day its calculator learns to read a link.
 `../amazon-fba-calculator/`, `../reverb-fee-calculator/`,
 `../shopify-fee-calculator/`, `../tiktok-shop-fee-calculator/`,
 `../whatnot-seller-payout/`, `../poshmark-fee-calculator/`,
-`../stockx-seller-payout-calculator/` and `../mercari-fee-calculator/`
+`../stockx-seller-payout-calculator/`, `../mercari-fee-calculator/`,
+`../depop-fee-calculator/`, `../grailed-fee-calculator/`,
+`../facebook-marketplace-fee-calculator/`, `../walmart-marketplace-calculator/`,
+`../tcgplayer-fee-calculator/` and `../discogs-fee-calculator/`
 carries its own item back into this page with
 that channel already switched on (each ships its own `to-where-to-sell.mjs`,
 mirroring this page's `handoff.mjs` in reverse). Reverb was first; eBay, Etsy,

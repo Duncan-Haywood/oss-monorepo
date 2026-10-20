@@ -1,0 +1,45 @@
+== A. 4-camera rig, 16 h day, 6 moments/h of 30 s, miss 0.1 (independent per detector), 2 false alarms/h per detector (simulated mean of 20 days)
+strategy  rig_Wh  packs  mean_cam_share  every_cam_share  any_cam_share
+independent  80.2  1  0.904  0.676  1.000
+sentinel_+_sleepers  41.5  1  0.751  0.700  0.906
+sentinel_+_standby  80.0  1  0.905  0.905  0.905
+any-of-N_+_standby  92.0  1  1.000  1.000  1.000
+continuous  320.0  4  1.000  1.000  1.000
+
+== B. Rig energy (Wh) against number of cameras (closed form, 6 moments/h, 30 s)
+cameras  independent  sentinel_sleepers  sentinel_standby  anyofN_standby  continuous
+1              19.4        19.4        19.4        19.4        80.0
+2              38.9        27.1        38.9        41.1       160.0
+3              58.3        34.8        58.4        63.7       240.0
+4              77.8        42.5        77.8        87.5       320.0
+6             116.7        57.9       116.8       138.9       480.0
+8             155.6        73.3       155.7       195.4       640.0
+
+== C. Share of event seconds on EVERY camera against the shared part of the miss (miss 0.1 fixed; simulated mean of 20 days)
+common  independent  sentinel_standby  anyofN_standby
+0.0           0.676        0.905        1.000
+0.02          0.711        0.908        0.984
+0.05          0.769        0.904        0.952
+0.08          0.840        0.903        0.924
+0.1           0.897        0.900        0.902
+
+== D. Rig energy (Wh) against false alarms per detector per hour (closed form, 4 cameras)
+false_per_h  independent  sentinel_standby  anyofN_standby
+0                   75.3         75.3         77.3
+1                   76.6         76.6         82.4
+2                   77.8         77.8         87.5
+5                   81.5         81.6        102.8
+10                  87.7         88.0        128.3
+20                 100.1        100.6        179.3
+40                 124.9        126.0        281.4
+
+== E. Per-camera share of event seconds against radio hop (s), sentinel + sleepers vs sentinel + standby (closed form)
+radio_s  sentinel_sleepers  sentinel_standby
+0                   0.742             0.900
+0.5                 0.731             0.900
+2                   0.698             0.900
+5                   0.630             0.900
+7                   0.585             0.900
+8                   0.562             0.878
+10                  0.518             0.833
+15                  0.405             0.720

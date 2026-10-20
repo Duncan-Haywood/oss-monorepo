@@ -4167,6 +4167,8 @@ export const GUIDES_PATH = 'guides/';
 // door. Not a venture: no launch date, no card, linked from the hub footer.
 export const RESEARCH_PATH = 'research/';
 export const RESEARCH_BUILDER = path.join('research', '_homepage', 'build.py');
+// One page per research theme, written by the same builder (`TOPICS_DIR` there).
+export const RESEARCH_TOPICS_DIR = 'topics';
 
 async function buildResearchPage(outDir, baseUrl) {
   // The site header and footer, handed to the Python builder as data so the
@@ -5322,12 +5324,46 @@ export function isPublishable(name) {
  * charset declaration so that stays the first thing the parser sees.
  */
 export function injectFavicon(html, toRoot) {
-  if (/<link[^>]+rel=["'][^"']*icon/i.test(html)) return html;
+  // `icon` as a whole rel token (`icon`, `shortcut icon`, `alternate icon`):
+  // an `apple-touch-icon` is a home-screen tile, not the tab icon, and treating
+  // it as one left bid-price-engine with no favicon.
+  if (/<link[^>]+rel=["'](?:[^"']*\s)?icon(?:\s[^"']*)?["']/i.test(html)) return html;
   const link = `\n  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">`;
   if (/<meta[^>]+charset/i.test(html)) {
     return html.replace(/<meta[^>]+charset[^>]*>/i, (meta) => `${meta}${link}`);
   }
   return html.replace(/<head(\s[^>]*)?>/i, (head) => `${head}${link}`);
+}
+
+/**
+ * Keep a page's `<meta name="description">` to what a results page can show.
+ *
+ * Venture pages were hand-written with descriptions up to 550 characters; a
+ * search engine cuts them mid-sentence. Rather than edit hundreds of other
+ * ventures' pages, the published copy ends the description at the last whole
+ * sentence that fits `max`, or at the last word with an ellipsis when the
+ * first sentence alone is longer. Only the authored text is shortened, never
+ * added to, and a description already within `max` is returned untouched.
+ */
+export const META_DESCRIPTION_MAX = 320;
+export function clampMetaDescription(html, max = META_DESCRIPTION_MAX) {
+  return html.replace(
+    /(<meta[^>]+name=["']description["'][^>]+content=")([^"]*)(")/i,
+    (whole, open, content, close) => {
+      if (content.length <= max) return whole;
+      const window = content.slice(0, max);
+      const stop = Math.max(
+        window.lastIndexOf('. '),
+        window.lastIndexOf('! '),
+        window.lastIndexOf('? '),
+      );
+      // A "sentence" under 80 characters is usually a heading fragment: prefer words.
+      if (stop >= 80) return `${open}${content.slice(0, stop + 1)}${close}`;
+      const cut = window.slice(0, max - 1);
+      const word = cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:\-\u2013\u2014(]+$/, '');
+      return `${open}${word}\u2026${close}`;
+    },
+  );
 }
 
 export async function copyTree(from, to, baseUrl) {
@@ -5352,7 +5388,11 @@ export async function copyTree(from, to, baseUrl) {
 
     if (REWRITABLE.has(path.extname(entry.name))) {
       const contents = await fs.readFile(src, 'utf8');
-      await fs.writeFile(dest, rewriteOrigin(contents, baseUrl));
+      const rewritten = rewriteOrigin(contents, baseUrl);
+      await fs.writeFile(
+        dest,
+        path.extname(entry.name) === '.html' ? clampMetaDescription(rewritten) : rewritten,
+      );
     } else {
       await fs.copyFile(src, dest);
     }
@@ -7173,7 +7213,7 @@ ${featured
     : '';
   const themesHtml = themes.length
     ? `      <p class="research-themes">${themes
-        .map((t) => `<a href="${escapeHtml(`${RESEARCH_PATH}#${t.id}`)}">${escapeHtml(decodeEntities(t.name))} <span>${t.count}</span></a>`)
+        .map((t) => `<a href="${escapeHtml(`${RESEARCH_PATH}${RESEARCH_TOPICS_DIR}/${t.id}/`)}">${escapeHtml(decodeEntities(t.name))} <span>${t.count}</span></a>`)
         .join(' ')}</p>`
     : '';
   return `    <section class="band" id="research" aria-labelledby="research-h">
@@ -10401,6 +10441,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     }
   }
   researchSlugs.sort();
+  // A project's static browser app (research/<slug>/app/) is a page in its own right.
+  const researchApps = [];
+  for (const slug of researchSlugs) {
+    if (await fs.stat(path.join(outDir, RESEARCH_PATH, slug, 'app', 'index.html')).catch(() => null)) researchApps.push(`${slug}/app`);
+  }
+  // The topic pages, research/topics/<id>/, for the sitemap.
+  const researchTopics = (
+    await fs.readdir(path.join(outDir, RESEARCH_PATH, RESEARCH_TOPICS_DIR), { withFileTypes: true }).catch(() => [])
+  )
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => `${RESEARCH_TOPICS_DIR}/${entry.name}`)
+    .sort();
 
   // The engineering status page: what the agent fleet shipped, is working on,
   // spent and is blocked on, read from the committed run records and history.
@@ -10473,7 +10525,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
         ...audiencePages.map(({ audience }) => audiencePageId(audience)),
       ],
       compareProducts.map((group) => group.key),
-      researchSlugs,
+      [...researchSlugs, ...researchTopics, ...researchApps],
       posts.map((post) => post.slug),
     ),
   );

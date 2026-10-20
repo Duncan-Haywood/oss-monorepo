@@ -49,7 +49,7 @@ Sources:
 - `research/README.md` — each project's bullet is reused as the card's one-line lede.
 - `research/<slug>/` — test counts are the `def test_` functions in its `test*.py` files.
 - `research/<slug>/LOG.md` (optional) — an ongoing project's research log: `## <date> · <title>` entries, newest first, with bullets. The project page shows it under "Research log" and the homepage lists every project that has one.
-- `_homepage/template.html` — layout, styles and search script. `_homepage/project.html` — the per-project home page (`_site/<slug>/index.html`); it shows the first image under the project's `experiments/` if there is one.
+- `_homepage/template.html` — layout, styles and search script. `_homepage/project.html` — the per-project home page (`_site/<slug>/index.html`); it shows the first image under the project's `experiments/` if there is one, a breadcrumb through its theme, previous/next and six more projects from the same theme. `_homepage/topic.html` — one page per theme (`_site/topics/<id>/index.html`) listing its projects; a project's theme is where a reader browsing for it will look, so pick it with care.
 
 Directories under `research/` whose names start with `_` or `.` are not projects.
 
@@ -77,6 +77,7 @@ from the repo root, `PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`
 `python3` (it returns at once when an interpreter already imports everything; stdout is only the
 interpreter path, and it can differ from the default `python3`).
 First use can build a venv and install packages: 20s to over 2 minutes (5 reports of a 120s foreground timeout), install chatter on stderr. Run it with `run_in_background` and read its stdout when it exits. The same goes for any `run.py` or experiment that may pass 2 minutes (foreground calls time out at 120s).
+The clone is shallow (about 50 commits). If you need history (claim checks, "what changed since", git-based studies), start `git fetch --unshallow origin main` with `run_in_background` at the beginning; it takes 2-5 minutes. Content reads (`git show origin/main:<path>`) work without it.
 EDA/chip projects also need `yosys` and `iverilog`, which the image lacks:
 `apt-get update -qq && apt-get install -y yosys iverilog` (about a minute; checked 2026-10-18).
 

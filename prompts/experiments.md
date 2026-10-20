@@ -854,3 +854,13 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   7 runs). Reduced pass: no audit, drift report or `derived/` regeneration
   (reports hours old, recent outputs research/doc-only).
 - Result: (next review)
+
+## E50: review 2026-10-19 (tenth)
+
+- Change: `prompt.md` step 2 gives the `pyenv.py pytest` one-liner (top
+  `CLAUDE.md`/`prompt.md` friction: bare `python3` lacked pytest, runs ran tests by hand).
+  `derived/` regenerated.
+- Metric: "pytest absent" friction reports on `CLAUDE.md`/`prompt.md`, next 20 runs.
+- Candidates: unchanged (review/2 has 8 runs; ventures 2 / research 1 overlap).
+  Reduced pass: no audit or drift report (hours-old report).
+- Result: (next review)

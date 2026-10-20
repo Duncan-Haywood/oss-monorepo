@@ -1,0 +1,13 @@
+[project]
+name = "energy-cell"
+version = "0.1.0"
+description = "Cell design as a search: PyBaMM cell scored on energy after cycling, random search vs Bayesian optimisation vs a session proposer"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "pybamm"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
