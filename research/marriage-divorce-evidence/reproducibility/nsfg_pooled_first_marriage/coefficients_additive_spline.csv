@@ -1,0 +1,60 @@
+feature,coef
+num__marriage_years_sp_0,0.0459344
+num__marriage_years_sp_1,0.151594
+num__marriage_years_sp_2,0.0986292
+num__marriage_years_sp_3,-0.102402
+num__wife_age_at_marriage_sp_0,-0.0106645
+num__wife_age_at_marriage_sp_1,0.21998
+num__wife_age_at_marriage_sp_2,-0.0985378
+num__wife_age_at_marriage_sp_3,-0.367047
+num__husband_age_at_marriage_sp_0,0.036139
+num__husband_age_at_marriage_sp_1,0.00432593
+num__husband_age_at_marriage_sp_2,-0.025243
+num__husband_age_at_marriage_sp_3,-0.0280226
+num__wedding_year_sp_0,0.0267953
+num__wedding_year_sp_1,0.174666
+num__wedding_year_sp_2,0.174057
+num__wedding_year_sp_3,0.230448
+num__wife_premarital_sex_years_sp_0,-0.120831
+num__wife_premarital_sex_years_sp_1,-0.0782851
+num__wife_premarital_sex_years_sp_2,-0.0439048
+num__wife_premarital_sex_years_sp_3,0.172085
+cat__cohabited_first_Unknown,0.00353956
+cat__cohabited_first_Yes,0.0128899
+cat__husband_married_before_Unknown,0.549203
+cat__husband_married_before_Yes,0.232574
+cat__husband_prior_children_Not asked,0.293388
+cat__husband_prior_children_Unknown,0.256264
+cat__husband_prior_children_Yes,0.296679
+cat__wife_race_ethnicity_Hispanic,-0.34413
+cat__wife_race_ethnicity_Other,-0.315903
+cat__wife_race_ethnicity_White,-0.311366
+cat__same_race_ethnicity_Not asked,-0.0948459
+cat__same_race_ethnicity_Same,-0.257387
+cat__same_race_ethnicity_Unknown,0.151203
+cat__wife_intact_family_Unknown,-0.0118953
+cat__wife_intact_family_Yes,-0.266035
+cat__wife_premarital_birth_Yes,0.181171
+cat__wife_premarital_partners_1,0.183747
+cat__wife_premarital_partners_10+,0.282256
+cat__wife_premarital_partners_2,0.409818
+cat__wife_premarital_partners_3-4,0.277522
+cat__wife_premarital_partners_5-9,0.097968
+cat__wife_premarital_partners_Unknown,-0.809723
+cat__wife_ba_by_wedding_Unknown,0.0349795
+cat__wife_ba_by_wedding_Yes,-0.46707
+cat__wife_mother_education_BA+,0.145612
+cat__wife_mother_education_HS,0.0482408
+cat__wife_mother_education_No mother figure,0.0987692
+cat__wife_mother_education_Some college,0.10662
+cat__wife_mother_age_first_birth_20-24,0.0583505
+cat__wife_mother_age_first_birth_25+,0.0806752
+cat__wife_mother_age_first_birth_<18,0.0674634
+cat__wife_mother_age_first_birth_No mother figure,0.147229
+cat__wife_religion_raised_None,0.0570453
+cat__wife_religion_raised_Not asked,-0.0948459
+cat__wife_religion_raised_Other,-0.00360975
+cat__wife_religion_raised_Protestant,0.00822706
+cat__wife_religion_raised_Unknown,-0.187158
+cat__wife_born_outside_us_Unknown,0.243803
+cat__wife_born_outside_us_Yes,-0.167361
