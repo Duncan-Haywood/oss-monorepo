@@ -5526,7 +5526,7 @@ function disclaimerHtml(toRoot, surfaces = []) {
         server that could receive it.${exceptionNote}${feedbackOn() ? ` The one thing
         that is sent on purpose is a message you choose to submit through the
         <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a>, which
-        is posted publicly as a GitHub issue.` : ''} We count anonymous, aggregate events —
+        is published in this site's public GitHub repository.` : ''} We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
         count stays in your own browser's local storage.${counterOn() ? ` Each page load
         also adds one to a daily per-page total on our own open-source counter
@@ -6985,7 +6985,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
           <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
           <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>${feedbackOn() ? `
-          <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, which opens a public GitHub issue with it. Email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
+          <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, and is then published in the site's public GitHub repository. Nothing about you is stored with it, and email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
           <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionNames}, whose whole point is a live lookup, so it needs the connection back to check anything new` : ''}.</li>
         </ul>
       </div>
@@ -7124,8 +7124,8 @@ export const FEEDBACK_PATH = 'feedback/';
  * Two ways in, because the site serves two audiences. A developer with a
  * GitHub account gets the repository's issue forms, pre-filled with the tool.
  * Everyone else (a roofer pricing a job has no reason to own a GitHub account)
- * gets a plain form, which posts to `platform/edge/` and becomes a public
- * issue. The form is rendered only when the build knows that endpoint
+ * gets a plain form, which posts to `platform/edge/`; a daily workflow copies
+ * the messages into `portfolio/usage/site-feedback.json`. The form is rendered only when the build knows that endpoint
  * (`feedbackOn()`), so the page never offers a form that goes nowhere.
  *
  * `noindex`, and not in the sitemap: it is a utility page, and a search result
@@ -7141,10 +7141,11 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
     ? `
       <form id="fb" class="panel" novalidate>
         <h2>Send feedback</h2>
-        <p>No account needed. Your message is posted publicly as an issue on
-        <a href="${escapeHtml(REPO_URL)}">this site's GitHub repository</a>, where
-        the people and agents who maintain these tools read it. Email addresses
-        are removed before it is posted. Don't include anything private.</p>
+        <p>No account needed. Your message is published in
+        <a href="${escapeHtml(REPO_URL)}">this site's public GitHub repository</a>, where
+        the people and agents who maintain these tools read it. Nothing about
+        you is stored with it, and email addresses are removed. Don't include
+        anything private.</p>
         <fieldset>
           <legend>What kind of feedback is it?</legend>
           <label><input type="radio" name="type" value="problem" checked> Something is wrong or broken</label>
@@ -7185,14 +7186,11 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
     var body={type:f.querySelector('input[name=type]:checked').value,tool:tool,page:document.referrer?(function(){try{var r=new URL(document.referrer);return r.origin===location.origin?r.pathname:'';}catch(x){return '';}})():'',message:msg,website:f.website.value};
     btn.disabled=true;st.textContent='Sending...';
     fetch(${JSON.stringify(`${feedbackUrl}/feedback`)},{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
-      .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {r:r,j:j};});})
-      .then(function(x){
-        if(x.r.ok){
+      .then(function(r){
+        if(r.ok){
           f.message.value='';
-          st.innerHTML='';
-          st.appendChild(document.createTextNode('Thank you, it has been sent. '));
-          if(x.j.url){var a=document.createElement('a');a.href=x.j.url;a.textContent='See it on GitHub';st.appendChild(a);}
-        }else if(x.r.status===429){st.textContent='Too many messages right now. Please try again later.';}
+          st.textContent='Thank you, it has been sent.';
+        }else if(r.status===429){st.textContent='Too many messages right now. Please try again later.';}
         else{st.textContent='That did not go through. Please try again, or use a GitHub issue below.';}
       })
       .catch(function(){st.textContent='That did not go through. Please check your connection and try again.';})

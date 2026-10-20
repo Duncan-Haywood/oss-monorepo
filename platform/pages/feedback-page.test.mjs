@@ -21,7 +21,7 @@ test('with an endpoint: the form posts to it and says the message is public', ()
   const html = renderFeedbackPage({ surfaces: [], baseUrl: base, feedbackUrl: 'https://edge.example' });
   assert.match(html, /<form id="fb"/);
   assert.match(html, /fetch\("https:\/\/edge\.example\/feedback"/);
-  assert.match(html, /posted\s+publicly/);
+  assert.match(html, /public GitHub repository/);
   assert.match(html, /name="website"/, 'honeypot field');
 });
 

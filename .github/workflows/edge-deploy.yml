@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - 'platform/edge/**'
+      - '!platform/edge/site.json'
       - 'platform/counter/core.mjs'
       - '.github/workflows/edge-deploy.yml'
   workflow_dispatch:
@@ -51,12 +52,3 @@ jobs:
         run: $WRANGLER d1 execute "$DB_NAME" --remote --file schema.sql
       - name: Deploy
         run: $WRANGLER deploy
-      - name: Store the GitHub token the Worker opens issues with
-        env:
-          FEEDBACK_GITHUB_TOKEN: ${{ secrets.FEEDBACK_GITHUB_TOKEN }}
-        run: |
-          if [ -z "$FEEDBACK_GITHUB_TOKEN" ]; then
-            echo "::warning::FEEDBACK_GITHUB_TOKEN is not set; /feedback answers 503 until it is."
-            exit 0
-          fi
-          printf '%s' "$FEEDBACK_GITHUB_TOKEN" | $WRANGLER secret put GITHUB_TOKEN

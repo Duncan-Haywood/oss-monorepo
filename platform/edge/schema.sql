@@ -11,7 +11,18 @@ CREATE TABLE IF NOT EXISTS counts (
   PRIMARY KEY (day, slug)
 );
 
--- How many feedback issues were opened each day, for the site-wide daily cap.
+-- Messages sent through the site's feedback form. `day` is the only time kept.
+-- Nothing about the sender is stored.
+CREATE TABLE IF NOT EXISTS feedback (
+  id      INTEGER PRIMARY KEY AUTOINCREMENT,
+  day     TEXT NOT NULL,
+  type    TEXT NOT NULL,
+  tool    TEXT NOT NULL DEFAULT '',
+  page    TEXT NOT NULL DEFAULT '',
+  message TEXT NOT NULL
+);
+
+-- How many feedback messages were accepted each day, for the site-wide daily cap.
 CREATE TABLE IF NOT EXISTS feedback_daily (
   day TEXT    PRIMARY KEY,
   n   INTEGER NOT NULL DEFAULT 0

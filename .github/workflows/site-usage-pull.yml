@@ -1,7 +1,7 @@
-# Copies the site's daily page-load counts from platform/edge into
-# portfolio/usage/site-visits.json, so agents can read them like any other
-# committed file. Aggregates only (one number per page per day). Off until the
-# owner sets vars.SITE_USAGE_PULL to 'true' (owner request, 2026-10-20).
+# Copies the site's daily page-load counts and feedback-form messages from
+# platform/edge into portfolio/usage/site-visits.json and site-feedback.json,
+# so agents can read them like any other committed file. Off until the owner
+# sets vars.SITE_USAGE_PULL to 'true' (owner request, 2026-10-20).
 name: site-usage-pull
 on:
   schedule:
@@ -27,10 +27,15 @@ jobs:
           url=$(node -p 'require("./platform/counter/site.json").url')
           if [ -z "$url" ]; then echo "platform/counter/site.json has no url; nothing to pull."; exit 0; fi
           COUNTER_URL="$url" node platform/counter/pull.mjs
+      - name: Pull feedback
+        run: |
+          url=$(node -p 'require("./platform/edge/site.json").url')
+          if [ -z "$url" ]; then echo "platform/edge/site.json has no url; nothing to pull."; exit 0; fi
+          EDGE_URL="$url" node platform/edge/pull-feedback.mjs
       - name: Commit
         run: |
-          git add portfolio/usage/site-visits.json 2>/dev/null || true
+          for f in portfolio/usage/site-visits.json portfolio/usage/site-feedback.json; do if [ -f "$f" ]; then git add "$f"; fi; done
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git -c user.name="monorepo-projects bot" -c user.email="noreply@users.noreply.github.com" \
-            commit -m "usage: daily site page-load counts from platform/edge"
+            commit -m "usage: daily site page-load counts and feedback from platform/edge"
           git push origin HEAD:main

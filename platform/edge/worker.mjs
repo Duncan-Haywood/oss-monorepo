@@ -8,10 +8,13 @@
 //                   the Node counter (`platform/counter/core.mjs`), stored in D1.
 //   GET  /counts    the daily aggregates, which `platform/counter/pull.mjs`
 //                   copies into `portfolio/usage/site-visits.json`.
-//   POST /feedback  the site's "Report a problem or suggest a feature" form.
-//                   Opens a GitHub issue with a token held here as a Worker
-//                   secret, so a visitor needs no GitHub account and no token
-//                   ever reaches a public page.
+//   POST /feedback  the site's "Report a problem or suggest a feature" form,
+//                   stored in D1. A visitor needs no GitHub account, and this
+//                   Worker holds no GitHub credential at all.
+//   GET  /feedback  the stored messages, which `pull-feedback.mjs` copies into
+//                   `portfolio/usage/site-feedback.json` for agents to read.
+//                   Public, like /counts: the same text is committed to a
+//                   public repository anyway.
 //   GET  /healthz   a health check.
 //
 // Cost: the free plan has hard daily limits (Workers requests, D1 rows
@@ -19,7 +22,7 @@
 // run up a charge. Setup: `README.md` beside this file.
 
 import { classify, utcDay, REF_KEY } from '../counter/core.mjs';
-import { feedbackIssue } from './feedback.mjs';
+import { feedbackRecord } from './feedback.mjs';
 
 const FEEDBACK_MAX_BODY = 6000;
 
@@ -57,32 +60,17 @@ async function underDailyCap(env) {
   return Boolean(r?.meta?.changes);
 }
 
-async function openIssue(env, issue) {
-  const post = (payload) => fetch(`https://api.github.com/repos/${env.GITHUB_REPO}/issues`, {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${env.GITHUB_TOKEN}`,
-      accept: 'application/vnd.github+json',
-      'content-type': 'application/json',
-      'user-agent': 'monorepo-projects-feedback',
-      'x-github-api-version': '2022-11-28',
-    },
-    body: JSON.stringify(payload),
-  });
-  let res = await post(issue);
-  // A token allowed to open issues but not to create a missing label gets a
-  // 403 or 422 for the labels alone. The report matters more than its tags.
-  if (res.status === 422 || res.status === 403) res = await post({ title: issue.title, body: issue.body });
-  if (!res.ok) return null;
-  const created = await res.json();
-  return created.html_url || null;
+async function readFeedback(env, after) {
+  const { results = [] } = await env.DB.prepare(
+    'SELECT id, day, type, tool, page, message FROM feedback WHERE id > ?1 ORDER BY id LIMIT 1000',
+  ).bind(after).all();
+  return results;
 }
 
 async function handleFeedback(request, env, headers, cors) {
   // Browsers always send Origin on a cross-site POST; anything else posting
   // here is a script, and the form only lives on the site.
   if (headers.origin !== env.ALLOWED_ORIGIN) return json(403, { error: 'origin' }, cors);
-  if (!env.GITHUB_TOKEN || !env.GITHUB_REPO) return json(503, { error: 'not-configured' }, cors);
   const raw = await request.text();
   if (raw.length > FEEDBACK_MAX_BODY) return json(413, { error: 'size' }, cors);
   let input;
@@ -91,7 +79,7 @@ async function handleFeedback(request, env, headers, cors) {
   } catch {
     return json(400, { error: 'body' }, cors);
   }
-  const verdict = feedbackIssue(input, { siteBase: env.SITE_BASE || '' });
+  const verdict = feedbackRecord(input);
   if (verdict.drop) return json(200, { ok: true }, cors);
   if (verdict.error) return json(400, { error: verdict.error }, cors);
   // Per-sender burst limit. The address is used for this check and never
@@ -101,8 +89,10 @@ async function handleFeedback(request, env, headers, cors) {
     if (!success) return json(429, { error: 'slow-down' }, cors);
   }
   if (!(await underDailyCap(env))) return json(429, { error: 'daily-cap' }, cors);
-  const url = await openIssue(env, verdict.issue);
-  return url ? json(201, { ok: true, url }, cors) : json(502, { error: 'github' }, cors);
+  const { type, tool, page, message } = verdict.record;
+  await env.DB.prepare('INSERT INTO feedback (day, type, tool, page, message) VALUES (?1, ?2, ?3, ?4, ?5)')
+    .bind(utcDay(), type, tool, page, message).run();
+  return json(201, { ok: true }, cors);
 }
 
 export default {
@@ -121,6 +111,11 @@ export default {
       if (request.method === 'GET' && url.pathname === '/counts') {
         const since = /^\d{4}-\d{2}-\d{2}$/.test(url.searchParams.get('since') || '') ? url.searchParams.get('since') : '0000-00-00';
         return json(200, { unit: 'page loads by browsers that did not opt out; not people', days: await readCounts(env, since) },
+          { 'cache-control': 'no-store', 'access-control-allow-origin': '*' });
+      }
+      if (request.method === 'GET' && url.pathname === '/feedback') {
+        const after = Math.max(0, Number.parseInt(url.searchParams.get('after') || '0', 10) || 0);
+        return json(200, { feedback: await readFeedback(env, after) },
           { 'cache-control': 'no-store', 'access-control-allow-origin': '*' });
       }
       if (request.method === 'POST' && url.pathname === '/hit') {

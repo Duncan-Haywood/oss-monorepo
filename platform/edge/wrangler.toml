@@ -9,13 +9,11 @@ compatibility_date = "2025-09-01"
 [vars]
 # The only origin whose pages may post feedback (scheme + host, no path).
 ALLOWED_ORIGIN = "https://duncan-haywood.github.io"
-# Where the site's tools live, for the link written into each issue.
-SITE_BASE = "https://duncan-haywood.github.io/monorepo-projects/"
-GITHUB_REPO = "Duncan-Haywood/oss-monorepo"
-# At most this many feedback issues a day, site-wide, whatever the source.
+# At most this many feedback messages a day, site-wide, whatever the source.
 FEEDBACK_DAILY_CAP = "50"
 MAX_PER_SLUG_PER_DAY = "20000"
-# GITHUB_TOKEN is a secret, never a var: `npx wrangler secret put GITHUB_TOKEN`.
+# No secrets: the Worker holds no GitHub credential. Feedback and counts are
+# pulled into the repository by .github/workflows/site-usage-pull.yml.
 
 [[d1_databases]]
 binding = "DB"

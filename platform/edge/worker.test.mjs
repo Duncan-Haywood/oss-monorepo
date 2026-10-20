@@ -1,14 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import worker from './worker.mjs';
-import { feedbackIssue, MESSAGE_MAX } from './feedback.mjs';
+import { feedbackRecord, MESSAGE_MAX } from './feedback.mjs';
+import { mergeFeedback } from './pull-feedback.mjs';
 
 /** An in-memory stand-in for the three D1 statements the worker issues. */
 function fakeDb() {
   const counts = new Map();
   const daily = new Map();
+  const feedback = [];
   return {
     counts,
+    feedback,
     prepare(sql) {
       return {
         bind(...args) {
@@ -29,9 +32,15 @@ function fakeDb() {
                 daily.set(day, n + 1);
                 return { meta: { changes: 1 } };
               }
+              if (sql.startsWith('INSERT INTO feedback ')) {
+                const [day, type, tool, page, message] = args;
+                feedback.push({ id: feedback.length + 1, day, type, tool, page, message });
+                return { meta: { changes: 1 } };
+              }
               throw new Error(`unexpected run: ${sql}`);
             },
             async all() {
+              if (sql.includes('FROM feedback')) return { results: feedback.filter((r) => r.id > args[0]) };
               const [since] = args;
               const results = [...counts].map(([k, n]) => { const [day, slug] = k.split('|'); return { day, slug, n }; })
                 .filter((r) => r.day >= since);
@@ -46,7 +55,7 @@ function fakeDb() {
 
 const ORIGIN = 'https://duncan-haywood.github.io';
 const env = (over = {}) => ({
-  DB: fakeDb(), ALLOWED_ORIGIN: ORIGIN, GITHUB_REPO: 'o/r', GITHUB_TOKEN: 't', SITE_BASE: `${ORIGIN}/monorepo-projects/`, FEEDBACK_DAILY_CAP: '2', ...over,
+  DB: fakeDb(), ALLOWED_ORIGIN: ORIGIN, FEEDBACK_DAILY_CAP: '2', ...over,
 });
 const req = (path, { method = 'POST', body, headers = {} } = {}) =>
   new Request(`https://edge.example${path}`, { method, body, headers: { 'user-agent': 'Mozilla/5.0', ...headers } });
@@ -62,81 +71,49 @@ test('a hit is counted per day and slug, and /counts returns it', async () => {
   assert.deepEqual(days[day], { 'roof-bid': 2, 'ref:npm': 2 });
 });
 
-test('feedback becomes a fenced, labelled issue with emails removed', () => {
-  const { issue } = feedbackIssue({
-    type: 'problem', tool: 'roof-bid', page: '/monorepo-projects/roof-bid/',
-    message: 'Total is wrong @someone see ![x](https://evil/p.png) mail me a@b.co\n~~~~\nclose',
-  }, { siteBase: 'https://s/' });
-  assert.deepEqual(issue.labels, ['site-feedback', 'bug']);
-  assert.match(issue.title, /^\[Problem\] roof-bid: Total is wrong/);
-  assert.ok(!issue.body.includes('a@b.co'));
-  assert.match(issue.body, /\[email removed\]/);
-  // The message's own tildes cannot close the fence early.
-  const fences = issue.body.split('\n').filter((l) => /^~~~~/.test(l));
-  assert.equal(fences.length, 2);
-  assert.match(issue.body, /https:\/\/s\/roof-bid\//);
+test('feedback validation, with emails removed', () => {
+  const { record } = feedbackRecord({ type: 'problem', tool: 'roof-bid', page: '/monorepo-projects/roof-bid/', message: 'Total is wrong, mail me a@b.co' });
+  assert.deepEqual(record, { type: 'problem', tool: 'roof-bid', page: '/monorepo-projects/roof-bid/', message: 'Total is wrong, mail me [email removed]' });
+  assert.deepEqual(feedbackRecord({ type: 'idea', message: 'hi', website: 'spam' }), { drop: true });
+  assert.equal(feedbackRecord({ type: 'nope', message: 'hello there' }).error, 'type');
+  assert.equal(feedbackRecord({ type: 'idea', tool: 'a b', message: 'hello there' }).error, 'tool');
+  assert.equal(feedbackRecord({ type: 'idea', message: 'x' }).error, 'message');
+  assert.equal(feedbackRecord({ type: 'idea', message: 'x'.repeat(MESSAGE_MAX + 1) }).error, 'message');
+  assert.equal(feedbackRecord({ type: 'other', message: 'hello there', page: 'javascript:alert(1)' }).record.page, '');
 });
 
-test('feedback validation', () => {
-  assert.deepEqual(feedbackIssue({ type: 'idea', message: 'hi', website: 'spam' }), { drop: true });
-  assert.equal(feedbackIssue({ type: 'nope', message: 'hello there' }).error, 'type');
-  assert.equal(feedbackIssue({ type: 'idea', tool: 'a b', message: 'hello there' }).error, 'tool');
-  assert.equal(feedbackIssue({ type: 'idea', message: 'x' }).error, 'message');
-  assert.equal(feedbackIssue({ type: 'idea', message: 'x'.repeat(MESSAGE_MAX + 1) }).error, 'message');
-  assert.ok(feedbackIssue({ type: 'other', message: 'hello there', page: 'javascript:alert(1)' }).issue.body.indexOf('Page') === -1);
-});
-
-test('/feedback posts to GitHub, refuses other origins, and honours the daily cap', async (t) => {
-  const posted = [];
-  t.mock.method(globalThis, 'fetch', async (url, init) => {
-    posted.push({ url, init: JSON.parse(init.body), auth: init.headers.authorization });
-    return new Response(JSON.stringify({ html_url: 'https://github.com/o/r/issues/1' }), { status: 201 });
-  });
+test('/feedback stores a message, refuses other origins, honours the daily cap, and serves what it stored', async (t) => {
+  const net = t.mock.method(globalThis, 'fetch', async () => { throw new Error('the worker makes no outbound call'); });
   const e = env();
-  const send = (origin) => worker.fetch(req('/feedback', {
-    body: JSON.stringify({ type: 'idea', tool: 'roof-bid', message: 'Add a metric toggle please' }),
+  const send = (origin, message = 'Add a metric toggle please') => worker.fetch(req('/feedback', {
+    body: JSON.stringify({ type: 'idea', tool: 'roof-bid', message }),
     headers: { origin, 'content-type': 'application/json' },
   }), e);
-
   assert.equal((await send('https://evil.example')).status, 403);
   const ok = await send(ORIGIN);
   assert.equal(ok.status, 201);
   assert.equal(ok.headers.get('access-control-allow-origin'), ORIGIN);
-  assert.equal((await ok.json()).url, 'https://github.com/o/r/issues/1');
-  assert.equal(posted[0].url, 'https://api.github.com/repos/o/r/issues');
-  assert.equal(posted[0].auth, 'Bearer t');
-  assert.deepEqual(posted[0].init.labels, ['site-feedback', 'enhancement']);
-  assert.equal((await send(ORIGIN)).status, 201);
+  assert.equal((await send(ORIGIN, 'Second message here')).status, 201);
   assert.equal((await send(ORIGIN)).status, 429, 'third of the day is over the cap of 2');
+  assert.equal(net.mock.callCount(), 0);
+
+  const all = await (await worker.fetch(req('/feedback', { method: 'GET' }), e)).json();
+  assert.deepEqual(all.feedback.map((r) => [r.id, r.tool, r.message]), [[1, 'roof-bid', 'Add a metric toggle please'], [2, 'roof-bid', 'Second message here']]);
+  const later = await (await worker.fetch(req('/feedback?after=1', { method: 'GET' }), e)).json();
+  assert.deepEqual(later.feedback.map((r) => r.id), [2]);
 });
 
-test('a label GitHub refuses does not lose the report', async (t) => {
-  const bodies = [];
-  t.mock.method(globalThis, 'fetch', async (_url, init) => {
-    bodies.push(JSON.parse(init.body));
-    return bodies.length === 1
-      ? new Response('{}', { status: 422 })
-      : new Response(JSON.stringify({ html_url: 'https://github.com/o/r/issues/2' }), { status: 201 });
-  });
-  const res = await worker.fetch(req('/feedback', {
-    body: JSON.stringify({ type: 'other', message: 'Nice tools' }), headers: { origin: ORIGIN },
-  }), env());
-  assert.equal(res.status, 201);
-  assert.equal(bodies[1].labels, undefined);
-});
-
-test('no token configured answers 503 instead of failing silently', async () => {
-  const res = await worker.fetch(req('/feedback', {
-    body: JSON.stringify({ type: 'other', message: 'Nice tools' }), headers: { origin: ORIGIN },
-  }), env({ GITHUB_TOKEN: '' }));
-  assert.equal(res.status, 503);
-});
-
-test('a filled honeypot is accepted and dropped', async (t) => {
-  const calls = t.mock.method(globalThis, 'fetch', async () => { throw new Error('must not post'); });
+test('a filled honeypot is accepted and dropped', async () => {
+  const e = env();
   const res = await worker.fetch(req('/feedback', {
     body: JSON.stringify({ type: 'other', message: 'Buy now', website: 'x' }), headers: { origin: ORIGIN },
-  }), env());
+  }), e);
   assert.equal(res.status, 200);
-  assert.equal(calls.mock.callCount(), 0);
+  assert.equal(e.DB.feedback.length, 0);
+});
+
+test('pulling feedback is append-only by id', () => {
+  const a = { id: 1, day: '2026-10-20', type: 'idea', tool: '', page: '', message: 'one' };
+  const merged = mergeFeedback([a], [{ ...a, message: 'rewritten' }, { id: 2, day: '2026-10-21', type: 'problem', message: 'two' }, { id: 'x', message: 'bad' }]);
+  assert.deepEqual(merged.map((r) => [r.id, r.message]), [[1, 'one'], [2, 'two']]);
 });
