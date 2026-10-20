@@ -3130,11 +3130,15 @@ test('the cache name carries the build, so a deploy cannot serve a stale mix', a
 });
 
 test('an identical build produces an identical cache name', async () => {
-  const first = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-a-'));
+  // One independent build compared with the suite's shared one: two builds in
+  // different temp directories, which is all the old pair of fresh builds
+  // proved, at the cost of one full build instead of two.
+  const a = await site();
   const second = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-b-'));
-  const a = await buildSite({ outDir: first, baseUrl: BASE });
   const b = await buildSite({ outDir: second, baseUrl: BASE });
+  assert.notEqual(a.outDir, b.outDir);
   assert.equal(a.offline.cacheName, b.offline.cacheName, 'the hash must not depend on build order or paths');
+  await fs.rm(second, { recursive: true, force: true });
 });
 
 test('the worker only ever touches same-origin GETs', async () => {
@@ -3369,8 +3373,12 @@ test('changing the worker itself changes the cache name', async () => {
   // Otherwise a fix to the worker's own logic ships under the old cache name,
   // no old cache is deleted, and every existing visitor keeps being served the
   // previous behaviour from cache indefinitely.
+  //
+  // addOfflineSupport rewrites every page in place, so it runs on a copy of
+  // the shared build rather than on the build the other tests read.
+  const built = await site();
   const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-version-'));
-  const built = await buildSite({ outDir, baseUrl: BASE });
+  await fs.cp(built.outDir, outDir, { recursive: true });
   const rebuilt = await addOfflineSupport({
     outDir,
     base: BASE,
@@ -3378,6 +3386,7 @@ test('changing the worker itself changes the cache name', async () => {
     codeVersion: 'pretend the worker was edited',
   });
   assert.notEqual(rebuilt.cacheName, built.offline.cacheName);
+  await fs.rm(outDir, { recursive: true, force: true });
 });
 
 // ---------------------------------------------------------------------------
