@@ -268,6 +268,100 @@ def build(work):
     return out, m, audit
 
 
+PRE = 'last interview before the wedding month'
+LEAKAGE = [
+    # ---- predictors of the existing lens's models (train_models.GROUPS)
+    ('marriage_years', 'yes', 'after wedding', 'time since the wedding (the Poisson interval clock)', 'no',
+     'the time axis of the hazard model, not a wedding-day trait; every model including the constant-rate baseline conditions on it'),
+    ('sex', 'yes', 'fixed at birth', 'KEY!SEX', 'no', ''),
+    ('race_ethnicity', 'yes', 'fixed at birth', 'KEY!RACE_ETHNICITY', 'no', ''),
+    ('age_at_marriage', 'yes', 'at wedding', 'wedding month - KEY birth month', 'no', ''),
+    ('region', 'yes', 'before wedding', f'CV_CENSUS_REGION, {PRE}', 'no', 'Unknown for the 5 weddings before the round-1 interview'),
+    ('urban', 'yes', 'before wedding', f'CV_URBAN-RURAL, {PRE}', 'no', ''),
+    ('cohabited_first', 'yes', 'before wedding', 'monthly MAR_STATUS / MAR_PARTNER_LINK, month before the wedding', 'no',
+     'dated monthly event history (filled in at later interviews but describing pre-wedding months)'),
+    ('cohab_months_before', 'yes', 'before wedding', 'monthly arrays counted back from the wedding', 'no', ''),
+    ('prior_cohabitations_band', 'yes', 'before wedding', 'monthly arrays, distinct earlier cohabiting partners', 'no', ''),
+    ('children_before_marriage', 'yes', 'before wedding', 'CV_CHILD_BIRTH_DATE birth months before the wedding month', 'no', ''),
+    ('pregnant_at_wedding', 'yes', 'after wedding', 'a birth in the wedding month or the 7 months after', 'possible',
+     'defined by a birth observed after the wedding (607 marriages Yes); the pregnancy usually existed at the wedding, but '
+     'pregnancies that did not end in a live birth are No and the information is dated after the wedding'),
+    ('parent_max_grade', 'yes', 'before wedding', 'CV_HGC_BIO/RES_MOM/DAD, 1997', 'no', '5 weddings precede the round-1 interview'),
+    ('family_at_12', 'yes', 'before wedding', 'CV_YTH_REL_HH_AGE_12, 1997 (refers to age 12)', 'no', ''),
+    ('poverty_ratio_1997', 'yes', 'before wedding', 'CV_HH_POV_RATIO 1997 (income of 1996)', 'no', '5 weddings precede the round-1 interview'),
+    ('religion_raised', 'yes', 'before wedding', 'YINF-3600 own religious preference, 1997, ages 12-16', 'no',
+     'current preference at 12-16 used as religion raised (the lens\'s proxy)'),
+    ('parent_attendance_1997', 'yes', 'before wedding', 'P2-015 parent questionnaire 1997', 'no', ''),
+    ('afqt_percentile', 'yes', 'before wedding', 'ASVAB math-verbal percentile, tests 1997-98', 'no',
+     '51 weddings before 1999 may precede the test; content is a test score, not marital'),
+    ('delinquency_1997', 'yes', 'before wedding', 'FP_YYCRIMI 1997', 'no', ''),
+    ('substance_1997', 'yes', 'before wedding', 'FP_YYSUBSI 1997', 'no', ''),
+    ('first_sex', 'yes', 'before wedding', 'FP_SEXAGE (2000) / YSAQ-300 (2001): age at first sex', 'no',
+     'reported in 2000-01 (after 264 weddings before 2001) but dated by age; bands are under 15 / 15-16 / 17+'),
+    ('attendance_before', 'yes', 'before wedding', f'YSAQ-282A, {PRE}', 'no', ''),
+    ('mhi5_before', 'yes', 'before wedding', f'YSAQ-282C-G, latest pre-wedding round', 'no', ''),
+    ('education_at_marriage', 'yes', 'before wedding', 'dated credentials CVC_GED/HS_DIPLOMA/AA/BA/MA/PHD/PROF on or before the wedding month', 'no', ''),
+    ('enrolled_at_marriage', 'yes', 'at wedding', 'monthly SCH_COLLEGE_STATUS in the wedding month', 'no', ''),
+    ('hours_year_before', 'yes', 'before wedding', 'CVC_HOURS_WK_YR_ALL, calendar year before the wedding year', 'no', 'created from dated weekly work arrays'),
+    ('earnings_year_before_k', 'yes', 'before wedding', 'YINC-1700, calendar year before (or two before) the wedding year', 'no',
+     'content pre-wedding; often reported at an interview after the wedding (recall), valid skip taken as 0'),
+    ('net_worth_before_k', 'yes', 'before wedding', 'CVC_HH_NET_WORTH_20/25 only if that interview preceded the wedding', 'no', ''),
+    ('spouse_age_gap', 'yes', 'fixed at birth', 'YMAR-3200A/3200 (+cohabitation months) or post-wedding roster birth date', 'no',
+     'value fixed by dates; missing (6.6%) median-imputed; missingness is outcome-related (41% vs 37% dissolved). Removed only in the strict variant'),
+    ('spouse_education', 'yes', 'after wedding', 'household roster HHI_HIGHGRADE at the first interview at/after the wedding (median 7 months after); '
+     'else partner-section YMAR-3500', 'yes',
+     'roster schooling measured after the wedding (spouse may finish school in between); partner-section schooling exists only for partners '
+     'not current at listing, i.e. mostly already separated (59% dissolved vs 35% for roster spouses); Unknown (6.7%, 61% dissolved) imputed by own education'),
+    ('spouse_race_ethnicity', 'yes', 'fixed at birth', 'post-wedding household roster, else partner section (non-current partners)', 'no',
+     'trait fixed, but where it is observed depends on post-wedding co-residence; Unknown imputed by own group (lens). Removed only in the strict variant'),
+    ('same_race_ethnicity', 'yes', 'fixed at birth', 'derived from the two race-ethnicities', 'no', 'as spouse_race_ethnicity; removed only in the strict variant'),
+    ('spouse_married_before', 'yes', 'after wedding', 'YMAR-4310/4310A at the interview where the partner is first listed (2011+ listings only)', 'possible',
+     'reported at the listing interview, after the wedding unless the couple cohabited across an interview; 99% answered among 2011+ listings, so '
+     'availability is not outcome-driven, but "Unknown" = listed before 2011 = earlier wedding cohort with longer follow-up (44% vs 17-29% dissolved)'),
+    ('spouse_has_children', 'yes', 'after wedding', 'YMAR-4315/4315A at the partner listing interview (2011+ only)', 'possible',
+     'children with someone else, reported after the wedding for most; could in principle include post-wedding births; same Unknown pattern as above'),
+    ('wedding_year', 'no', 'at wedding', 'wedding month', 'no', 'dropped by the lens (collinear with birth year + age)'),
+    # ---- harmonized columns (work/nlsy97.csv.gz)
+    ('wife_age / husband_age', 'yes', 'at wedding', 'respondent: birth month; spouse: YMAR-3200A/3200 or roster birth date', 'no',
+     'spouse age blank 3.1-3.5% of rows, disproportionately couples who split before the next interview'),
+    ('wife_educ / husband_educ', 'yes', 'before wedding',
+     'respondent: dated credentials + college enrolment months before the wedding + highest grade at the last pre-wedding interview; '
+     'spouse: HHI_HIGHGRADE of the cohabiting partner on the last PRE-wedding roster only', 'no',
+     'spouse education known for 2,093 marriages (cohabiting partners present at a pre-wedding interview); a lower bound if schooling continued until the '
+     'wedding. Post-wedding roster and partner-section schooling deliberately NOT used -> Unknown. Grade 16+ mapped to Bachelor+, 13-15 to Some college'),
+    ('wife_prior_marriage / husband_prior_marriage', 'yes', 'before wedding', 'respondent No by construction; spouse YMAR-4310 only if listed before the wedding', 'no', ''),
+    ('wife_prior_children / husband_prior_children', 'yes', 'before wedding', 'respondent: child birth months before the wedding; spouse: YMAR-4315 only if listed before the wedding', 'no', ''),
+    ('cohabited_first', 'yes', 'before wedding', 'monthly MAR_STATUS cohabiting with the same partner link in the month(s) before the wedding', 'no',
+     'Unknown when the month before the wedding is not covered by the array'),
+    ('wife_race / husband_race', 'yes', 'fixed at birth', 'respondent: KEY!RACE_ETHNICITY + KEY!RACE; spouse: roster HHI_ETHNICITY/HHI_RACE (first post-wedding '
+     'roster) else partner section YMAR-4250/4300', 'no',
+     'fixed trait; but spouse Unknown is outcome-related (61% dissolved vs 37% overall) because it marks couples apart by the next interview'),
+    ('intact_family', 'yes', 'before wedding', 'CV_YTH_REL_HH_AGE_12 and CV_YTH_REL_HH_CURRENT at rounds 1997-2003 before the wedding and the 19th birthday', 'no',
+     'Yes = both biological (or adoptive) parents at 12 and at every such round; the lens uses only the age-12 item (family_at_12)'),
+    ('religion_raised', 'yes', 'before wedding', 'YINF-3600, 1997 (ages 12-16)', 'no', 'current preference at 12-16 as proxy for religion raised'),
+    ('weight', 'yes', 'before wedding', 'SAMPLING_WEIGHT_CC 1997, mean 1 over rows', 'no', 'round-1 weight; attrition not reweighted'),
+]
+# Lens predictors flagged yes/possible (the harmonized rows are all 'no').
+REMOVED = [row[0] for row in LEAKAGE if row[4] in ('yes', 'possible')]
+STRICT = ['spouse_age_gap', 'spouse_race_ethnicity', 'same_race_ethnicity']
+
+
+def summary(out):
+    print(f'rows {len(out)}  events {int(out.event.sum())}  person-years {out.duration_years.sum():.1f}  '
+          f'weighted events {np.dot(out.weight, out.event):.1f}')
+    for c in COLUMNS[6:]:
+        if c in ('wife_age', 'husband_age'):
+            share = out[c].isna().mean()
+        elif out[c].dtype == object:
+            share = (out[c] == 'Unknown').mean()
+        else:
+            continue
+        print(f'  {c:24s} unknown/blank {100 * share:5.1f}%  dissolved if unknown '
+              f'{out.event[(out[c] == "Unknown") | out[c].isna()].mean() if share else float("nan"):.3f}')
+    for c in COLUMNS[11:21]:
+        print(' ', c, out[c].value_counts().to_dict())
+
+
 LEAK_COLS = ['dataset', 'predictor', 'existing_lens_uses', 'measured_when', 'source', 'leaks', 'note']
 
 
@@ -324,3 +418,13 @@ if __name__ == '__main__':
         (HERE / 'work').mkdir(exist_ok=True)
         out.to_csv(HERE / 'work' / 'nlsy97.csv.gz', index=False, float_format='%.6g')
         print(len(out), 'rows', audit)
+        summary(out)
+        if '--refit' in sys.argv[3:]:
+            pd.DataFrame(LEAKAGE, columns=LEAK_COLS[1:]).assign(dataset='nlsy97')[LEAK_COLS].to_csv(
+                HERE / 'leakage_nlsy97.csv', index=False)
+            _, tm = lens()
+            raw = pd.read_pickle(Path(work) / 'marriages.pkl')
+            res, info = refit(raw, tm, REMOVED, STRICT)
+            res.to_csv(HERE / 'leakage_refit_nlsy97.csv', index=False, float_format='%.5f')
+            print(info)
+            print(res.to_string(index=False))
