@@ -100,6 +100,12 @@ jobs:
         with:
           node-version: "22"
 
+      # The build runs python3 (decision_queue.py and the research homepage
+      # builder); gitops/tests/test_ci_runner.py requires the job to set it up.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       # A glob, not a list. The list named build and check only, so
       # `clauses.test.mjs` had never run here — a suite can be added beside the
       # thing it tests and silently not be CI's problem, which is the one way a
