@@ -176,6 +176,21 @@ vote manipulation, automated posting where a community forbids it, paid
 placement, or evading a platform's limits. Account creation and publishing
 under the portfolio's public name stay owner-only.
 
+**Privacy rules follow the law, not stricter** (the owner, 2026-10-20): "i
+mean follow laws but going beyond them is too much." And on the old blanket
+"no cookies" rule: "Idk how that got in there." So the law is the line, and
+self-imposed restrictions on top of it are not: cookies and `localStorage` a
+feature needs (a setting, a referral code, a cart, a saved session) are
+allowed without asking; anonymous aggregate measurement that stores nothing on
+the device and nothing that identifies a person (page loads, which kind of
+site sent the visitor, a coarse event) is on by default; analytics that puts
+an identifier on the device (returning visitors, A/B buckets) is allowed with
+the consent the law requires where the visitor is (prior consent in the
+EU/UK under ePrivacy/PECR). What stays: the law itself (GDPR, ePrivacy, PECR,
+CCPA and the rest), honest privacy copy that says what a page actually does,
+and nothing personal in this public repository. Spec:
+`portfolio/usage/README.md`.
+
 ## Direction: sales, marketing and business tools
 
 Set by the owner on 2026-10-16: "lets add a potential direction sales tools
@@ -454,6 +469,14 @@ time budgets. Each change should move one of the dashboard's CI numbers.
   owner's brief in the ventures sub-prompt (ambitious, AI/ML where it helps,
   mobile apps, real business potential). The finish line for a venture is a
   working one-click self-deploy page (the business model under Mission).
+  **Deepen the flagships** (the owner, 2026-10-20): "on the one hand I like
+  the thousand plus small tools, but on the other hand I want to work on
+  deeper business and engineering problems and more of the work to be to
+  deepening and improving existing projects that have real depth to them."
+  So the small tools stay and get maintained, but most venture runs deepen
+  one of the few ventures listed in
+  [`portfolio/flagships.yaml`](../portfolio/flagships.yaml), which
+  `allocate.py` ranks first.
 - **Research:** merged projects that pass the research guardrails and a
   quality audit: the code re-runs, the README numbers match its output, and
   every citation checks out.

@@ -23,9 +23,15 @@ per day per distribution channel (`"ref:npm": 2`) when a visitor followed one
 of the portfolio's own tagged links (`?ref=<tag>`, a closed list in `REFS`;
 see `platform/distribution/attribution.mjs`). Those keys are arrivals already
 counted under their page, so `pull.mjs` reports them separately rather than
-adding them to the total. It stores no
-IP address, user agent, referrer, cookie, identifier, or any time finer than
-the day. The page sends only its own `data-pf-slug`, and the server rejects
+adding them to the total. A load from another site also adds one to
+`"src:<class>"` (`"src:google": 5`): the page reduces `document.referrer` to
+one of the closed list `SOURCES` in `counter.mjs` (`google`, `bing`,
+`chatgpt`, `reddit`, `hackernews`, ..., `other`) in the browser, so the
+referring host is never sent. That answers "which kind of site sends people",
+which distribution work needs. It identifies no one and stores nothing on the
+device, so it needs no consent (`portfolio/usage/README.md`, rule 1). It
+stores no IP address, user agent, referring URL or host, cookie, identifier,
+or any time finer than the day. The page sends only its own `data-pf-slug`, and the server rejects
 anything that does not match `SLUG_RE`. Requests carrying `DNT: 1` or
 `Sec-GPC: 1`, self-declared crawlers, and the hub's "Don't count my visit"
 opt-out are not counted (the page stays silent for these too). Each slug is
