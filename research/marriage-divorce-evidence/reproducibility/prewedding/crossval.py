@@ -30,10 +30,13 @@ import survmetrics as sm  # noqa: E402  (weighted deviance, IPCW AUC, Kaplan-Mei
 
 SEED = 20261020
 MAX_YEARS = 30  # follow-up used for training and scoring
-NUMERIC = ['wife_age', 'husband_age', 'age_gap', 'wedding_year']
-CATEGORICAL = ['wife_educ', 'husband_educ', 'wife_prior_marriage', 'husband_prior_marriage',
-               'wife_prior_children', 'husband_prior_children', 'cohabited_first',
-               'wife_race', 'husband_race', 'same_race', 'intact_family', 'religion_raised',
+# Models use respondent/spouse columns derived from the SPEC's wife/husband columns: each
+# survey interviews one spouse, so the respondent's own traits are nearly always known and
+# the spouse's are known wherever the survey asks them.
+NUMERIC = ['respondent_age', 'spouse_age', 'age_gap', 'wedding_year']
+CATEGORICAL = ['respondent_educ', 'spouse_educ', 'spouse_prior_marriage',
+               'respondent_prior_children', 'spouse_prior_children', 'cohabited_first',
+               'respondent_race', 'spouse_race', 'same_race', 'intact_family', 'religion_raised',
                'respondent_sex']
 MIN_KNOWN = 0.5  # a feature is used only where at least half the rows know it
 # No missing-value indicators: whether a spouse trait is known can depend on the outcome (e.g.
@@ -44,7 +47,13 @@ def load(path):
     d = pd.read_csv(path, dtype=str, keep_default_na=False)  # 'None' is a religion level
     for c in ['weight', 'duration_years', 'event', 'wedding_year', 'wife_age', 'husband_age']:
         d[c] = pd.to_numeric(d[c], errors='coerce')
-    d['age_gap'] = d.husband_age - d.wife_age
+    d['age_gap'] = d.husband_age - d.wife_age  # husband minus wife
+    man = (d.respondent_sex == 'Man').to_numpy()
+    for trait in ['age', 'educ', 'prior_marriage', 'prior_children', 'race']:
+        d['respondent_' + trait] = np.where(man, d['husband_' + trait], d['wife_' + trait])
+        d['spouse_' + trait] = np.where(man, d['wife_' + trait], d['husband_' + trait])
+    for c in ['respondent_age', 'spouse_age']:
+        d[c] = pd.to_numeric(d[c], errors='coerce')
     both = d.wife_race.isin(['Hispanic', 'White', 'Black', 'Other']) & d.husband_race.isin(['Hispanic', 'White', 'Black', 'Other'])
     d['same_race'] = np.where(both, np.where(d.wife_race == d.husband_race, 'Same', 'Different'), 'Unknown')
     for c in CATEGORICAL:
