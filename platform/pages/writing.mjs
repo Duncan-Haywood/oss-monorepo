@@ -208,6 +208,16 @@ export function linkSiblings(html, posts) {
   return out;
 }
 
+// The published catalogue. A post that links a live tool by its full URL gets
+// a page-relative link instead, so a build under another domain (a custom
+// domain, a preview) points at its own copy of the tool, not the default origin.
+export const LIVE_SITE = 'https://duncan-haywood.github.io/monorepo-projects/';
+
+/** Point full links to the live site at the same page relative to a post (two levels below the root). */
+export function linkSite(html) {
+  return html.split(`href="${LIVE_SITE}`).join('href="../../');
+}
+
 export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) {
   const canonical = baseUrl ? `${baseUrl}${WRITING_PATH}${post.slug}/` : '';
   const others = posts.filter((p) => p.slug !== post.slug).slice(0, 5);
@@ -235,7 +245,7 @@ export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) 
 <p class="dek">${esc(post.description)}</p>
 <p class="meta"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read ·
 <a href="${REPO_BLOB}${esc(post.source)}">Source</a>${tags ? `<br>${tags}` : ''}</p>
-${linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts)}
+${linkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts))}
 </article>
 <section class="more" aria-label="More writing">
 <p><strong>More writing</strong></p>

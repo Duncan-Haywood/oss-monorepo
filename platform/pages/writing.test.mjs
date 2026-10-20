@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildWriting, loadPosts, parseFrontMatter, renderFeed, WRITING_PATH } from './writing.mjs';
+import { buildWriting, linkSite, LIVE_SITE, loadPosts, parseFrontMatter, renderFeed, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -90,4 +90,9 @@ test('every committed post parses', () => {
   const posts = loadPosts();
   assert.ok(posts.length >= 1);
   for (const p of posts) assert.ok(p.title && p.description && /^\d{4}-\d{2}-\d{2}$/.test(p.date));
+});
+
+test('a full link to the live site becomes page-relative, so other domains keep it', () => {
+  const html = `<a href="${LIVE_SITE}changepoint-detector/">Live tool</a> <a href="https://example.org/">x</a>`;
+  assert.equal(linkSite(html), '<a href="../../changepoint-detector/">Live tool</a> <a href="https://example.org/">x</a>');
 });
