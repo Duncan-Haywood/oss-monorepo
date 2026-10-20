@@ -1434,6 +1434,11 @@
      "summary": "A follow-up to <code>chip-abc-order</code>. All 36 operand orders of a 16-bit carry-select adder's <code>a + b + const</code> chains (each proved equivalent to the reference) are run through <code>synth</code> one pass at a time. The cell counts first diverge in <code>opt_merge</code>: when a block's two sums both start with <code>a</code> and <code>b</code>, one shared <code>a + b</code> is kept (7 adders instead of 10), which happens in 4 of 36 orders. Cells&times;depth then takes only two values per ABC script, and the shared netlist is 1.20&ndash;1.28&times; larger under <code>dch_map</code> and <code>resyn2_map</code> but 0.92&times; under Yosys's default script. Removing <code>opt_merge</code> does not remove the dependence: the spread over orders widens to 1.44&ndash;3.17&times;. Stylised: one adder, Yosys 0.33, generic-gate cells&times;depth, no place and route."
     },
     {
+     "slug": "chip-sharesign",
+     "title": "Does letting Yosys share a common a + b make adders smaller under every ABC script?",
+     "summary": "Eleven small adder-shaped designs whose outputs all contain <code>a + b</code> are written once so <code>opt_merge</code> shares the sum and once so it cannot (each pair proved equivalent). Scored under five ABC scripts, sharing gives fewer cells in 54 of 55 pairs (median ratio 0.76&ndash;0.85), but is deeper in 6&ndash;9 of 11 designs, so cells&nbsp;&times;&nbsp;depth favours it in 7&ndash;9 of 11. The sign flip seen on the 16-bit carry-select adder in <code>chip-abc-orderpass</code> does not appear. Stylised: generic gates, Yosys 0.33, no place and route."
+    },
+    {
      "slug": "chip-cse-style",
      "title": "Does writing the shared a + b sum of a carry-select adder explicitly change what Yosys and ABC synthesise?",
      "summary": "Six equivalent 16-bit adder styles (each proved against <code>a + b</code> with a Yosys miter) are scored with three ABC scripts. Writing the shared sum by hand (<code>p = a + b</code>, <code>y = p + 1</code>) or as an incrementer (<code>y = x + 1</code>) gives exactly the netlist <code>opt_merge</code> finds for the plain <code>a + b + 0 / a + b + 1</code> text (cells&times;depth 2090 / 1232 / 1665), so a hand common-subexpression rewrite is a no-op. Attaching the constant to <code>b</code> first, <code>a + (b + k)</code>, defeats the sharing: 2268 / 1024 / 1300, 17&ndash;22% smaller under the two optimising scripts and 9% larger under <code>yosys_default</code>. One design, one tool version (0.33), generic gates. Stylised."
@@ -3479,6 +3484,11 @@
      "summary": "In the stylised pendulum of <code>mimic-twinc2st</code> with a torque input, a PD controller on noisy feedback is tuned on each wrong twin (48-point gain grid, 200 twin start angles) and scored on 2,000 held-out start angles on the &lsquo;real&rsquo; system. Regret is its real cost minus the best grid point&rsquo;s (0.259). Six of 15 wrong twins have regret exactly 0 in all 12 tuning seeds although the classifier two-sample test separates them from the real system with AUROC 0.58&ndash;0.999, among them g/L &minus;20%, whose paired error is the largest (0.25 rad). The largest regret, 0.0099 (3.8%), comes from a twin with no sensor noise at all, whose paired error is 0. Across the 15 twins AUROC and regret correlate only loosely (Spearman 0.46, p&nbsp;=&nbsp;0.08) and paired RMSE not at all (&minus;0.28). Detecting a twin is not the same as the twin mattering for the task. Limits: one system, one task, a coarse grid that quantises regret, 12 tuning seeds. Stylised, simulated, no LLM: a side piece of track 11."
     },
     {
+     "slug": "mimic-twinswing",
+     "title": "On a swing-up task where friction matters, does a digital twin's detectability predict what tuning on it costs?",
+     "summary": "Follow-up to <code>mimic-twinregret</code> on the same stylised pendulum, now with a torque limit below gravity so the controller must pump energy against friction, then catch the top with PD. Controllers are tuned on 15 wrong twins (60-point grid, 12 seeds) and scored on held-out real starts. Only the two gravity-error twins cost much: g/L +20% adds 8.3% to the best real cost and g/L &minus;20% 3.7%; every other twin is under 0.3%, including no sensor noise, no Coulomb friction and doubled viscous friction, at C2ST AUROC up to 1.0. Spearman AUROC vs regret &rho;&nbsp;=&nbsp;0.16 (p&nbsp;=&nbsp;0.57), paired RMSE vs regret 0.43 (p&nbsp;=&nbsp;0.11). Stylised, one task, coarse grid; best gain on the grid edge for several twins."
+    },
+    {
      "slug": "mimic-twinrand",
      "title": "Does domain randomization over a wrong digital twin cut the controller regret of tuning on one wrong twin?",
      "summary": "Follow-up to <code>mimic-twinregret</code> on the same stylised pendulum and noisy-feedback PD task. Gains are tuned on 200 start angles spread over 8 randomized twins (noise level, Coulomb and viscous friction, g/L each uniform on nominal &plusmn; <em>w</em>&times; the real value) and scored on 2,000 held-out real start angles, over 24 tuning seeds. For the no-noise twin, whose single-twin regret is 0.0098, randomization with <em>w</em>&nbsp;=&nbsp;0.5 brings it to 0.00006, the same as the exact twin. No-Coulomb and g/L +20% twins fall from 0.0014 to 0.00012 at <em>w</em>&nbsp;=&nbsp;1&ndash;2. It does not always help: for a doubled-noise twin regret stays about 0.003 for <em>w</em>&nbsp;&le;&nbsp;1 and at <em>w</em>&nbsp;=&nbsp;2 the mean rises to 0.0057 with a worst seed 7.5&times; the single-twin worst. Limits: one system and task, a 48-point grid that quantises regret, one randomization family with a shared width. Stylised, simulated, no LLM."
@@ -3691,6 +3701,11 @@
      "summary": "Fits an hourly temperature distribution to each climate's degree days and lets heating COP fall with temperature (an assumed curve, floored at 1), then reruns the break-even premium of <code>house-hvacnpc</code>. Seasonal COP is 4.01 in Miami to 2.30 in Duluth, so the constant 2.5 understated the heat pump in the South: the break-even premium rises to $156, $952 and $1,979 in Miami, Houston and Atlanta and falls to &minus;$8,050 in Duluth. Signs do not change; Duluth spans &minus;$1,961 to &minus;$16,661 across nine curves. The curve is assumed, not sourced, and the normal temperature model is crude. Stylised."
     },
     {
+     "slug": "house-escalate",
+     "title": "How fast must gas prices rise against electricity before a heat pump ties a gas furnace on 30-year cost?",
+     "summary": "Separates each house package&rsquo;s yearly bill into gas and electricity and lets each grow at its own real rate, then reruns the break-even premium of <code>house-hvacnpc</code>, which held prices flat. With electricity flat, a heat pump of equal installed cost already ties in Miami, Houston and Atlanta unless gas gets cheaper (&minus;2.9%, &minus;0.3%, &minus;1.1% a year), while in Chicago, Minneapolis and Duluth gas must rise 4.6%, 3.7% and 3.7% a year in real terms for 30 years; a $4,000 premium raises that to 5.2&ndash;6.3%. Constant 2.5 COP, constant growth rates, no forecast. Stylised."
+    },
+    {
      "slug": "house-adufees",
      "title": "What does Denver Water's 2026 tap fee cost a 480 sq ft backyard cottage (ADU) against a house?",
      "summary": "From Denver Water&rsquo;s own 2026 schedule: an ADU pays a flat $2,170 inside Denver from 1 July 2026 ($2,055 before), against $5,400 for a house charged on 2,000 sq ft, 60% less. Per floor sq ft the ADU is dearer ($4.52 against $2.70). Denver Water&rsquo;s share is small beside <code>house-market</code>&rsquo;s $16,930 &ldquo;water and sewer SDC&rdquo;, leaving about $12,000 for sewer and other items that this project could not read. One fee only; the page does not say whether the rate applies to lot or floor area."
@@ -3716,6 +3731,11 @@
     "slug": "capture-rig",
     "title": "How many cameras, and where, to film a person from every angle?",
     "summary": "A 2-D geometric model of N cameras on a ring or a 90&deg; front arc 3 m from a subject, scored on angle coverage and triangulation error. Cameras buy coverage, angle buys depth accuracy: a 30&deg; gap between neighbours needs 13 cameras (15&deg; needs 25), while centre depth error barely moves with count (0.52 mm for 3 on a ring, 0.23 mm for 16) but falls 11&times; as a pair&rsquo;s convergence angle goes from 5&deg; to 90&deg; (7.3 mm to 0.64 mm). Four cameras on a front arc are within 11% of four on a ring. Idealised lower bounds with assumed noise (0.5 px) and no occlusion; novel-view quality is not modelled."
+   },
+   {
+    "slug": "capture-novelview",
+    "title": "How far apart can cameras be before a reel editor can no longer synthesise the angle between them?",
+    "summary": "A ray-traced toy scene, two ring cameras, a depth-based warp to the midpoint, scored against the ray-traced truth. With exact depth, synthesis beats cutting to the nearest camera only up to a gap of about 30&deg; (24.8 against 23.6 dB); at 45&deg; it is worse (19.3 against 23.1 dB) because 8% of the target is a hole neither camera saw, though pixels it does fill stay near 29&ndash;30 dB. A bystander pulls the crossover in to about 15&deg;, and depth error on the sources costs about 1.4 dB per percent at first (27.5 dB exact, 22.0 dB at 10%). Toy scene with smooth textures and oracle depth: read the ordering, not the decibels."
    },
    {
     "slug": "capture-follow",
@@ -3931,7 +3951,12 @@
     "slug": "codesign-agri",
     "title": "Which three-finger pad design picks the most unbruised strawberry-like fruit under a 60 USD cap, and does a session agent beat CMA-ES and Bayesian optimisation?",
     "summary": "Five design variables (pad width, pad length, pad modulus, grip force, finger count) are scored on 600 simulated fruit with ripeness-dependent bruise thresholds, wet and dry friction and placement error, using closed-form line-contact pressure, friction hold and a capture-and-clutter law. At 40 evaluations the median best objective is 0.635 for Bayesian optimisation, 0.618 for a session agent&rsquo;s hand-written proposals (one run, by the model&rsquo;s own author), 0.611 for CMA-ES and 0.574 for random search; all 20 Bayesian-optimisation seeds matched or beat the agent. The best design (25&nbsp;mm pads, 0.19&nbsp;MPa, 8&nbsp;N, three fingers) picks 74% clean; about 20% of fruit are lost to clutter collisions that no pad setting can change. Stylised, with assumed constants and no learned policy."
+   }   ,{
+    "slug": "codesign-transfer",
+    "title": "Does the ranking of printable soft-fruit gripper designs survive a shift in friction, fruit, placement error and print tolerance?",
+    "summary": "Takes the <code>codesign-agri</code> contact model unchanged and widens what it holds fixed: per world the fruit size, placement error, wetness, bruise threshold and stem pull are drawn, and the printed gripper differs from the design (pad modulus, force and width tolerance). Over 600 random feasible designs and 30 held-out worlds the Spearman rank correlation with the nominal world is 0.993, so a nominal winner is a good candidate. The level still falls: the nominal CMA-ES optimum loses 13% of its objective (0.653 to 0.567), and a robust optimum trained on 10 other worlds gains only 0.015 on average and 0.034 in the worst world, from single runs. Sim-to-sim in a stylised model with assumed ranges; no gripper was printed."
    }
+
    ,{
     "slug": "codesign-ceiling",
     "title": "Which grasp scenes can no printable two-finger gripper hold, and what limits the ceiling?",

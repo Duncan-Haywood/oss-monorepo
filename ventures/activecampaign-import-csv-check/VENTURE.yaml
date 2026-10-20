@@ -46,3 +46,5 @@ hypotheses:
       re-subscribes them; measured as the share of file checks that supply a
       suppression list (the suppression_used event over file_checked).
     status: untested
+    checked: null
+    evidence: customer-contact
