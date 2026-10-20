@@ -3576,7 +3576,7 @@
     {
      "slug": "mimic-webcam-tails",
      "title": "Does giving a webcam-signal generator real heavy tails and bursts fool a detector?",
-     "summary": "Follow-up to <em>mimic-webcam</em> on DUX facial-coding scores of 46 people. Generators that take each channel's marginal from the training people (Gaussian copula through empirical quantiles; quiet/burst regimes) still separate from 14 held-out people at reference AUROC 1.000 (8 seeds). Matching marginals alone made level and spread easier to catch (0.99&ndash;1.00 vs 0.91 and 0.94 for the Gaussian baseline); restoring per-window level and spread brings them to 0.54 and 0.57, but extremes (0.995), holds (0.995) and autocorrelation (0.94) still give it away. Stylised: hand-built generators, one context, post-hoc final variant."
+     "summary": "Follow-up to <em>mimic-webcam</em> on DUX facial-coding scores of 46 people. Generators that take each channel's marginal from the training people (Gaussian copula through empirical quantiles; quiet/burst regimes) still separate from 14 held-out people at reference AUROC 1.000 (8 seeds). Matching marginals alone made level and spread easier to catch (0.99&ndash;1.00 vs 0.91 and 0.94 for the Gaussian baseline); restoring per-window level and spread brings them to 0.54 and 0.57, but extremes (0.995), holds (0.995) and autocorrelation (0.94) still give it away. A sixth generator that copies a real window&rsquo;s whole value set puts level, spread, extremes and floor at chance (0.44&ndash;0.46), yet all-groups AUROC stays 0.998: holds, autocorrelation, roughness and cross-channel structure carry it. Stylised: hand-built generators, one context, post-hoc final variants."
     }
    ]
   },

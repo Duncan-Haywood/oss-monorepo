@@ -29,6 +29,7 @@ NQ = 512
 class TailFit:
     def __init__(self, W):
         self.base = S.Fit(W)
+        self.W = W
         flat = W.reshape(-1, NCH)
         qs = np.linspace(0, 1, NQ)
         self.quant = np.stack([np.quantile(flat[:, c], qs) for c in range(NCH)], 1)   # (NQ, 12)
@@ -120,6 +121,24 @@ def gen_copula_win(fit, n, rng, T=100, hold=0.0):
     return y
 
 
+def gen_copula_rank(fit, n, rng, T=100, hold=0.0, W=None):
+    """Copula dynamics, then each channel's values replaced by a random training window's
+    sorted values in the same rank order, so the window's level, spread, max and min match
+    exactly (per-window max/min match, the next step of mimic-webcam-tails G5)."""
+    y = gen_copula(fit, n, rng, T)
+    W = fit.W
+    for i in range(n):
+        w = W[rng.integers(len(W))]
+        r = np.argsort(np.argsort(y[i] + 1e-9 * rng.standard_normal(y[i].shape), axis=0), axis=0)
+        y[i] = np.take_along_axis(np.sort(w, axis=0), r, axis=0)
+        if hold > 0:
+            h = rng.random(T) < hold
+            for t in range(1, T):
+                if h[t]:
+                    y[i, t] = y[i, t - 1]
+    return y
+
+
 GENERATORS = {
     "G0 L5 (Gaussian, from mimic-webcam)": None,
     "G1 copula (empirical marginals)": lambda f, n, r: gen_copula(f, n, r),
@@ -127,4 +146,5 @@ GENERATORS = {
     "G3 regime (quiet/burst pools)": lambda f, n, r: gen_regime(f, n, r),
     "G4 regime + holds": lambda f, n, r: gen_regime(f, n, r, hold=f.hold),
     "G5 copula + window level/spread + holds": lambda f, n, r: gen_copula_win(f, n, r, hold=f.hold),
+    "G6 copula ranks through a real window's values + holds": lambda f, n, r: gen_copula_rank(f, n, r, hold=f.hold),
 }

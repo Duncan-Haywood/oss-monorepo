@@ -40,5 +40,15 @@ class TailTests(unittest.TestCase):
         self.assertTrue((y >= -100).all() and (y <= 100).all())
 
 
+
+    def test_rank_variant_matches_a_training_window_range(self):
+        y = T.gen_copula_rank(self.fit, 6, np.random.default_rng(5))
+        for i in range(6):
+            # each window's per-channel max and min are some training window's max and min
+            for c in range(12):
+                self.assertTrue(np.isclose(self.W[:, :, c].max(1), y[i, :, c].max()).any())
+                self.assertTrue(np.isclose(self.W[:, :, c].min(1), y[i, :, c].min()).any())
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,10 +1,10 @@
 # Does giving a webcam-signal generator real heavy tails and bursts fool a detector? No: it still separates at AUROC 1.000
 
-Follow-up to `mimic-webcam` (track 11, adversarial human imitation), the "heavy-tailed, zero-inflated component" next step. **Preliminary, stylised: 46 people filling in one web form, one context, five hand-built generators plus one baseline, 8 seeds.** Produced with AI assistance (Claude).
+Follow-up to `mimic-webcam` (track 11, adversarial human imitation), the "heavy-tailed, zero-inflated component" next step. **Preliminary, stylised: 46 people filling in one web form, one context, six hand-built generators plus one baseline, 8 seeds.** Produced with AI assistance (Claude).
 
 **Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-webcam-tails/
 
-**Result.** A generator that takes each channel's marginal from the training people (a Gaussian copula through the pooled empirical quantiles, or a quiet/burst two-state sampler) does not fool a boosted-tree reference detector on 14 held-out people: all-groups AUROC is 1.000 for every variant (lowest single seed 0.999). Single feature groups tell more: the plain empirical-marginal generators are *easier* to catch on level and spread (0.99 to 1.00) than the Gaussian baseline (0.91, 0.94), because the baseline drew each window's level and spread from a real window and the new ones do not. Adding that back (G5) drives level to 0.54 and spread to 0.57, near chance, but extremes (0.995), holds (0.995) and autocorrelation (0.94) still give it away.
+**Result.** A generator that takes each channel's marginal from the training people (a Gaussian copula through the pooled empirical quantiles, or a quiet/burst two-state sampler) does not fool a boosted-tree reference detector on 14 held-out people: all-groups AUROC is 1.000 for every variant (lowest single seed 0.999). Single feature groups tell more: the plain empirical-marginal generators are *easier* to catch on level and spread (0.99 to 1.00) than the Gaussian baseline (0.91, 0.94), because the baseline drew each window's level and spread from a real window and the new ones do not. Adding that back (G5) drives level to 0.54 and spread to 0.57, near chance, but extremes (0.995), holds (0.995) and autocorrelation (0.94) still give it away. G6 then matches each window's whole value distribution to a real window (ranks from the copula, values from a training window), which puts level, spread, extremes and floor at chance (0.44 to 0.46) yet all-groups AUROC is still 0.998: holds (0.999), autocorrelation (0.89), roughness (0.75) and cross-channel structure (0.83) carry the detection.
 
 ## Method
 
@@ -18,6 +18,7 @@ Same data, person split, feature groups and reference detector as [`mimic-webcam
 | G3 | regime: per channel a quiet state (values at or below the 60th percentile) and a burst state, Markov switching fitted from training, values drawn from the training pools |
 | G4 | G3 plus holds |
 | G5 | G2 with each channel's window mean and spread reset to a random training window's |
+| G6 | copula dynamics, then each channel's sorted values replaced by a random training window's, in the copula's rank order (so the window's level, spread, max, min and floor match exactly), then holds |
 
 The detector is gradient-boosted trees on all eight groups (the "all groups" column), and on one group at a time (the other columns).
 
@@ -31,8 +32,10 @@ The detector is gradient-boosted trees on all eight groups (the "all groups" col
 | G3 regime | 1.000 | 0.999 | 0.999 | 1.000 | 1.000 | 1.000 | 1.000 | 0.999 | 0.990 |
 | G4 regime + holds | 1.000 | 0.998 | 0.997 | 1.000 | 0.999 | 1.000 | 0.994 | 0.997 | 0.986 |
 | G5 copula + window level/spread + holds | 1.000 | 0.539 | 0.567 | 0.995 | 0.720 | 0.942 | 0.995 | 0.823 | 0.823 |
+| G6 copula ranks through a real window's values + holds | 0.998 | 0.456 | 0.447 | 0.445 | 0.750 | 0.886 | 0.999 | 0.464 | 0.828 |
 
 - Matching marginals is not what was missing. The window-to-window variation in level and spread is a structure the pooled marginals wash out, and a window's extremes remain a giveaway even when level and spread are matched.
+- G6 shows the extremes giveaway was a per-window max/min effect: copying a real window's value set removes it (0.445, slightly below chance, which with 14 test people is noise-level). What remains is temporal: the copula's AR(1) rank order and the hold mechanism (a held frame repeats exactly, which the holds group sees at 0.999 even at the training rate).
 - Fixing one group is not enough because the reference detector uses all eight; every group would need to be near chance at once.
 - The replay ceiling of `mimic-webcam` (0.61) says even real people from the training set are not at chance against this reference detector, so near-0.5 is not reachable for any generator.
 
@@ -46,14 +49,14 @@ The detector is gradient-boosted trees on all eight groups (the "all groups" col
 
 ## Next steps
 
-Let a loop (or a code model, `mimic-codeloop`) choose among the components here, with the extremes group as the target; add a per-window max/min match to G5.
+Per-window max/min matching is done (G6). The remaining giveaways are temporal: take roughness, autocorrelation and holds as the target (e.g. resample whole real hold/run-length patterns), or let a loop (or a code model, `mimic-codeloop`) choose among the components.
 
 ## Reproduce
 
 ```bash
 cd research/mimic-webcam-tails
 pip install numpy scipy scikit-learn
-python3 -m unittest discover -s tests -v   # 4 tests
+python3 -m unittest discover -s tests -v   # 5 tests
 python3 run.py 8                           # about 4 minutes on a few CPUs, writes results/tails.{json,txt}
 ```
 
