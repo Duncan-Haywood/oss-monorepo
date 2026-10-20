@@ -1,7 +1,7 @@
 {
   "id": "P040",
   "title": "research/_homepage/projects.json and research/README.md are the new top conflict files (~24% of PRs)",
-  "status": "open",
+  "status": "in_progress",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -22,5 +22,7 @@
   "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    "2026-10-20 step 1 shipped: research/<slug>/project.json cards merged by research/_homepage/registry.py (+ research-registry.mjs); qual-register migrated as the pilot. Remaining: step 2 (generate README.md list between markers), migrating the other 793 entries (mechanical, order-preserving)."
+  ]
 }

@@ -7,7 +7,7 @@
 
 platform/pages/build.mjs runs the last form to publish the page at <site>/research/.
 
-Card titles, abstracts and themes come from projects.json; the one-line lede is
+Card titles, abstracts and themes come from projects.json and any research/<slug>/project.json (registry.py); the one-line lede is
 each project's research/README.md bullet; test counts are the `def test_` functions under
 research/<slug>/. Directories under research/ starting with `_` or `.` are not projects. The build fails if any research/ project is missing from
 projects.json or README.md, or if either lists a project that does not exist.
@@ -19,6 +19,8 @@ import re
 import shutil
 import sys
 from pathlib import Path
+
+import registry
 
 REPO = "Duncan-Haywood/oss-monorepo"
 REPO_URL = f"https://github.com/{REPO}"
@@ -57,7 +59,7 @@ def duplicate_bullets():
 def validate(data, ledes):
     projects = {p.name for p in RESEARCH.iterdir() if p.is_dir() and p.name[0] not in "_."}
     listed = [p["slug"] for t in data["themes"] for p in t["projects"]]
-    errors = []
+    errors = list(data.get("registry_errors", []))
     errors += [f"projects.json: missing research/{s}" for s in sorted(projects - set(listed))]
     errors += [f"projects.json: nonexistent research/{s}" for s in sorted(set(listed) - projects)]
     errors += [f"projects.json: research/{s} listed twice" for s in sorted({s for s in listed if listed.count(s) > 1})]
@@ -373,7 +375,7 @@ def social_meta(base_url):
 
 
 def build(out, base_url=None, chrome=None):
-    data = json.loads((HERE / "projects.json").read_text())
+    data = registry.load(RESEARCH)
     ledes = readme_ledes()
     errors = validate(data, ledes)
     if errors:

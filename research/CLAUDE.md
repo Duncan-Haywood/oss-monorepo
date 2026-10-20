@@ -58,7 +58,7 @@ Whenever you add, rename or remove a project under `research/`, or change its he
 results, in the same commit:
 
 1. Update its bullet in `research/README.md`: ``- [`research/<name>`](<name>) — one-line summary.``
-2. Add or edit its entry in `_homepage/projects.json`, appended to the `projects` list of the theme (an item of top-level `themes`) it fits best; entries carry no theme key:
+2. **New project:** write its card as `research/<name>/project.json` (`theme` = a theme id from `projects.json`, plus `title` and `summary`); it is appended to that theme and touches no shared file, so concurrent research PRs do not conflict (`_homepage/registry.py`). Existing projects keep their entry in `_homepage/projects.json`; edit it there, appended to the `projects` list of the theme (an item of top-level `themes`) it fits best; entries carry no theme key:
    ```json
    {"slug": "<name>", "title": "Question the project answers?",
     "summary": "Plain-language abstract with the key quantitative results and the model's main limitations (e.g. Stylised.)."}

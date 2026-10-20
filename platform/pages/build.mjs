@@ -123,6 +123,7 @@ import {
   writeResearchChrome,
 } from './site-nav.mjs';
 import { ASK_PATH, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
+import { loadResearchRegistry } from './research-registry.mjs';
 import {
   HERO_BACKDROP_HTML,
   HOME_MOTION_CSS,
@@ -4695,9 +4696,8 @@ export function surfaceKind(ventureDir, slug = path.basename(ventureDir)) {
  * `research/` are kept, so a stale entry never becomes a dead link.
  */
 export function researchHighlights(repoRoot = REPO_ROOT) {
-  const file = path.join(repoRoot, 'research', '_homepage', 'projects.json');
-  if (!existsSync(file)) return { featured: [], themes: [], projects: [] };
-  const data = JSON.parse(readFileSync(file, 'utf8'));
+  const data = loadResearchRegistry(repoRoot);
+  if (!data) return { featured: [], themes: [], projects: [] };
   const exists = (slug) => existsSync(path.join(repoRoot, 'research', slug, 'README.md'));
   const bySlug = new Map();
   const themes = (data.themes ?? []).map((theme) => {

@@ -8,7 +8,7 @@ name: README live links
 
 on:
   pull_request:
-    paths: ["ventures/*/README.md", "research/README.md", "research/*/README.md", "research/_homepage/projects.json", "platform/ci/research_live_links.py", "platform/ci/venture_live_links.py", "platform/ci/readme_titles.py", "ventures/*/index.html", ".github/workflows/readme-live-links-ci.yml"]
+    paths: ["ventures/*/README.md", "research/README.md", "research/*/README.md", "research/_homepage/projects.json", "research/*/project.json", "research/_homepage/registry.py", "platform/ci/research_live_links.py", "platform/ci/venture_live_links.py", "platform/ci/readme_titles.py", "ventures/*/index.html", ".github/workflows/readme-live-links-ci.yml"]
   workflow_dispatch:
 
 permissions:
