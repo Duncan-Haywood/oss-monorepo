@@ -20,6 +20,15 @@ test("net per invoice applies quantity and discount", () => {
   assert.equal(inv.net, 450 + 3 * 120 * 0.9);
 });
 
+test("control totals sum invoice nets per currency", () => {
+  const r = validate(sampleFile());
+  const sum = r.summary.groups.reduce((a, g) => a + g.net, 0);
+  assert.equal(r.summary.totals.length, 1);
+  assert.equal(r.summary.totals[0].invoices, r.summary.invoices);
+  assert.ok(Math.abs(r.summary.totals[0].net - sum) < 0.005);
+  assert.deepEqual(validate("").summary.totals, []);
+});
+
 test("the broken sample surfaces the faults it is meant to", () => {
   const r = validate(sampleBrokenFile());
   for (const re of [/semicolon/, /Quantity "three"/, /scientific notation/, /Excel serial/, /Due date is before/, /looks like an account name/, /is a rate/, /stray space/, /Email/]) assert.ok(has(r, re), String(re));
