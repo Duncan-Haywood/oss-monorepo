@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validate, repair, parse, haversine, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+import { validate, repair, thin, parse, haversine, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
 
 const codes = (r) => r.findings.map((f) => f.code);
 
@@ -88,4 +88,36 @@ test("csv export quotes messages", () => {
 test("decodeBuffer strips a BOM and reads UTF-16", () => {
   assert.equal(decodeBuffer(new Uint8Array([0xef, 0xbb, 0xbf, 0x61]).buffer), "a");
   assert.equal(decodeBuffer(new Uint8Array([0xff, 0xfe, 0x61, 0x00]).buffer), "a");
+});
+
+function longTrack(n) {
+  const pts = [];
+  for (let i = 0; i < n; i++) pts.push(`    <trkpt lat="${(48 + i * 0.0001).toFixed(5)}" lon="${(2 + Math.sin(i / 20) * 0.001).toFixed(5)}"><ele>${30 + (i % 7)}</ele><time>2026-05-01T08:${String(Math.floor(i / 60)).padStart(2, "0")}:${String(i % 60).padStart(2, "0")}Z</time></trkpt>`);
+  return `<?xml version="1.0"?>\n<gpx version="1.1" creator="t" xmlns="http://www.topografix.com/GPX/1/1">\n<trk><trkseg>\n${pts.join("\n")}\n</trkseg></trk>\n</gpx>\n`;
+}
+
+test("thin keeps at most the cap, the endpoints, and leaves a valid file", () => {
+  const src = longTrack(300);
+  const t = thin(src, 40);
+  assert.ok(t.kept <= 40 && t.kept >= 2);
+  assert.equal(t.removed, 300 - t.kept);
+  const g = parse(t.text);
+  assert.equal(g.segments[0].points.length, t.kept);
+  assert.equal(g.segments[0].points[0].raw, parse(src).segments[0].points[0].raw);
+  assert.equal(g.segments[0].points.at(-1).raw, parse(src).segments[0].points.at(-1).raw);
+  assert.deepEqual(validate(t.text).findings, []);
+  assert.ok(t.toleranceM > 0);
+});
+
+test("thin leaves a short track untouched", () => {
+  const s = sampleFile();
+  const t = thin(s, 100);
+  assert.equal(t.text, s);
+  assert.equal(t.removed, 0);
+});
+
+test("thin keeps a straight line to its two ends", () => {
+  const pts = Array.from({ length: 50 }, (_, i) => `<trkpt lat="${48 + i * 0.001}" lon="2"><time>2026-05-01T08:00:${String(i).padStart(2, "0")}Z</time></trkpt>`);
+  const t = thin(`<gpx version="1.1" creator="t" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>\n${pts.join("\n")}\n</trkseg></trk></gpx>`, 2);
+  assert.equal(t.kept, 2);
 });
