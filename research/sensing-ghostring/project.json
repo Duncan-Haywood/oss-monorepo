@@ -1,0 +1,5 @@
+{
+ "theme": "sensing",
+ "title": "Can a background estimate or a subject mask fix the edge ring that burst alignment leaves behind?",
+ "summary": "Follow-up to <code>sensing-ghostalign</code>, on the same synthetic bursts (one disc moving across a still scene, Poisson shot noise, Gaussian read noise, a large sensor with 4&times; the pixel area). Four explicit treatments of the edge ring &mdash; frame 0 alone, a per-pixel temporal median, the aligned merge, the reject-only merge, each gated by a subject mask estimated against the temporal median &mdash; all leave the ring at 21.6&ndash;27.2&nbsp;dB at 8 frames against 31.6&ndash;32.0&nbsp;dB for the large frame. None beats plain aligned-plus-reject (27.0&nbsp;dB at 1&nbsp;px per frame); the median is the worst (22.3&nbsp;dB) unless the subject moves 4&nbsp;px per frame, and the mask recalls only 44&ndash;64% of a slow subject. A negative result. Stylised: synthetic scenes, one flat rigid disc, translation only."
+}
