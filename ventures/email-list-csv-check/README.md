@@ -42,3 +42,8 @@ advice. Platform heading names are read from memory of public help pages.
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+
+Also flagged: placeholder addresses (`test@test.com`, `none@none.com`). The safe-fixes copy rescues
+addresses wrapped in `mailto:`, `Name <a@b.com>`, quotes or trailing punctuation, and writes
+internationalised domains in punycode, instead of rejecting those rows.

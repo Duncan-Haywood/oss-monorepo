@@ -182,6 +182,42 @@ export function suggestDomain(domain) {
   return null;
 }
 
+// Placeholder addresses typed to get past a required field: the format is fine, nobody reads the mailbox.
+const PLACEHOLDER_DOMAINS = new Set(["example.com", "example.org", "example.net", "test.com", "domain.com", "email.com", "mail.com", "noemail.com", "none.com", "na.com", "nomail.com", "invalid.com", "sample.com", "yourdomain.com", "yourcompany.com", "company.com"]);
+const PLACEHOLDER_LOCALS = new Set(["test", "tester", "testing", "none", "noemail", "nomail", "no", "na", "n", "nobody", "null", "asdf", "qwerty", "abc", "abcd", "xxx", "xyz", "fake", "dummy", "sample", "example", "yourname", "name", "user", "email", "unknown", "notprovided", "declined", "refused"]);
+export function isPlaceholder(email) {
+  const at = email.lastIndexOf("@");
+  if (at < 0) return false;
+  const local = email.slice(0, at).toLowerCase().replace(/[._+-]/g, ""), domain = email.slice(at + 1).toLowerCase();
+  if (/\.(invalid|test|localhost)$/.test(domain)) return true;
+  if (PLACEHOLDER_DOMAINS.has(domain)) return PLACEHOLDER_LOCALS.has(local) || domain === "invalid.com" || domain === "noemail.com" || domain === "nomail.com";
+  return PLACEHOLDER_LOCALS.has(local) && /^(test|none|na|no|fake|dummy|nomail|noemail)\.[a-z]+$/.test(domain);
+}
+
+// One reasonable reading only: strips a mailto: prefix, surrounding angle brackets / quotes and
+// trailing punctuation, and turns "Name <a@b.com>" into the bare address. Returns the cleaned
+// address, or null when nothing changes or the result is ambiguous (two addresses in one cell).
+export function unwrapEmail(raw) {
+  let e = raw.trim();
+  const named = e.match(/^"?[^<>@"]*"?\s*<([^<>\s,;]+@[^<>\s,;]+)>$/);
+  if (named) e = named[1];
+  e = e.replace(/^mailto:/i, "").replace(/^[<"'(\[]+|[>"')\].,;:]+$/g, "");
+  if (e === raw.trim() || /[\s,;<>]/.test(e) || e.split("@").length !== 2) return null;
+  return e;
+}
+
+// A non-ASCII domain written the way mail servers carry it (xn--...). Null when already ASCII or not convertible.
+export function punycodeAddress(email) {
+  const at = email.lastIndexOf("@");
+  if (at < 0) return null;
+  const domain = email.slice(at + 1);
+  if (!/[^\x00-\x7f]/.test(domain) || /[^\x00-\x7f]/.test(email.slice(0, at))) return null;
+  try {
+    const ascii = new URL("http://" + domain).hostname;
+    return ascii && !/[^\x00-\x7f]/.test(ascii) ? email.slice(0, at + 1) + ascii : null;
+  } catch { return null; }
+}
+
 export const isRoleLocal = (local) => ROLE_LOCALS.has(local.toLowerCase().replace(/[._-]/g, ""));
 
 export function isDisposable(domain) {
@@ -327,7 +363,7 @@ export function validate(text, opts = {}) {
   const ragged = [];
   const sup = parseSuppression(opts.suppress);
   let suppressed = 0, suppressedAlias = 0;
-  let blank = 0, invalid = 0, dup = 0, aliasDup = 0, typos = 0, roles = 0, disposable = 0, ws = 0, notSub = 0, valid = 0;
+  let blank = 0, invalid = 0, dup = 0, aliasDup = 0, typos = 0, roles = 0, disposable = 0, placeholders = 0, ws = 0, notSub = 0, valid = 0;
   const consentIdx = f.header.map((h, i) => (CONSENT_HEADER.test(h) && i !== emailIdx ? i : -1)).filter((i) => i >= 0);
   if (consentIdx.length) summary.consentColumn = f.header[consentIdx[0]].trim();
   const zipIdx = new Set(f.header.map((h, i) => (ZIP_HEADER.test(h) ? i : -1)).filter((i) => i >= 0));
@@ -359,9 +395,14 @@ export function validate(text, opts = {}) {
     if (raw !== e) add("warning", "email-space", `Email has ${/^\s/.test(raw) ? "leading" : "trailing"} whitespace`, `"${raw.replace(/\t/g, "\\t")}" - some importers reject the row, others store the space. The safe-fixes file trims it.`, r.line);
     if (EXCEL_ERR.test(e)) { invalid++; add("error", "invalid", `Email is an Excel error value "${e}"`, "A formula failed before the file was saved.", r.line); continue; }
     const bad = checkSyntax(e);
+    if (bad && bad.level === "error") {
+      const un = unwrapEmail(e);
+      if (un && !checkSyntax(un)) add("warning", "wrapped", `Email "${e}" is wrapped in extra characters`, `Read as ${un}. The safe-fixes file applies this instead of rejecting the row.`, r.line);
+    }
     if (bad) {
       if (bad.level === "error") { invalid++; add("error", "invalid", `Invalid email "${e}"`, `This address ${bad.reason}.`, r.line); continue; }
-      add("warning", "non-ascii", `Email "${e}" needs a look`, `This address ${bad.reason}.`, r.line);
+      const pc = punycodeAddress(e);
+      add("warning", "non-ascii", `Email "${e}" needs a look`, `This address ${bad.reason}.${pc ? ` An internationalised domain can be written as ${pc}; the safe-fixes file does that.` : ""}`, r.line);
     }
     valid++;
     const at = e.lastIndexOf("@"), local = e.slice(0, at), domain = e.slice(at + 1).toLowerCase();
@@ -379,6 +420,7 @@ export function validate(text, opts = {}) {
     if (!firstAlias.has(ak)) firstAlias.set(ak, r.line);
     const fix = suggestDomain(domain);
     if (fix) { typos++; add("warning", "typo", `Domain "${domain}" looks like a typo of ${fix}`, `${e} would become ${local}@${fix}. Check before accepting: it is a guess. The safe-fixes file only applies it if you tick the box.`, r.line); }
+    if (isPlaceholder(e)) { placeholders++; add("warning", "placeholder", `Placeholder address ${e}`, "Looks typed to get past a required field (test@, none@, example.com and similar). It will pass a format check and never reach a person. Remove it or blank it.", r.line); }
     if (isRoleLocal(local)) { roles++; add("warning", "role", `Role address ${e}`, "Shared mailboxes (info@, admin@, support@, noreply@ and similar) are read by a team or nobody, complain more often, and some platforms suppress or reject them. Keep only if the person asked to hear from you there.", r.line); }
     if (isDisposable(domain)) { disposable++; add("warning", "disposable", `Disposable email domain ${domain}`, "A throwaway inbox service (from a small built-in list). The address is probably dead within hours.", r.line); }
   }
@@ -399,7 +441,7 @@ export function validate(text, opts = {}) {
 
   for (const [code, n] of counts) if (n > MAX_PER_CHECK) findings.push({ severity: "info", code: code + "-more", title: `${n - MAX_PER_CHECK} more "${code}" finding${n - MAX_PER_CHECK === 1 ? "" : "s"} not listed`, detail: `Only the first ${MAX_PER_CHECK} of each kind are shown; the counts above are complete.`, line: 0 });
   summary.suppressionLoaded = !!sup;
-  summary.counts = { suppressed, suppressedAlias, blank, invalid, duplicates: dup, aliasDuplicates: aliasDup, typos, roles, disposable, valid, notSubscribed: notSub, ragged: ragged.length };
+  summary.counts = { suppressed, suppressedAlias, blank, invalid, duplicates: dup, aliasDuplicates: aliasDup, typos, roles, disposable, placeholders, valid, notSubscribed: notSub, ragged: ragged.length };
   findings.sort((a, b) => SEV[a.severity] - SEV[b.severity] || a.line - b.line);
   return result;
 }
@@ -422,7 +464,7 @@ export function repair(text, opts = {}) {
     for (const r of platformReport(header, opts.platform).renames) { changes.push(`Renamed heading "${r.from}" to "${r.to}" (${PLATFORMS[opts.platform].name})`); header[r.index] = r.to; }
   }
   const kept = [header], rejected = [[...f.header.map((h) => h.trim()), "Rejected reason", "Original line"]];
-  let trimmed = 0, lowered = 0, resplit = 0;
+  let trimmed = 0, lowered = 0, resplit = 0, unwrapped = 0, puny = 0;
   const seen = new Map();
   const typoNotes = [];
   const sup = parseSuppression(opts.suppress);
@@ -434,8 +476,14 @@ export function repair(text, opts = {}) {
     const cells = r.cells.map((c) => { const t = c.trim(); if (t !== c) trimmed++; return t; });
     let e = cells[f.emailCol];
     if (!e) { reject(r, "Email is blank", "blank"); continue; }
+    let bad = checkSyntax(e);
+    if (bad && bad.level === "error") {
+      const un = unwrapEmail(e);
+      if (un && !checkSyntax(un)) { unwrapped++; e = un; bad = checkSyntax(e); }
+    }
+    const pc = punycodeAddress(e);
+    if (pc) { puny++; e = pc; bad = checkSyntax(e); }
     if (/[A-Z]/.test(e)) { e = e.toLowerCase(); lowered++; }
-    const bad = checkSyntax(e);
     if (bad && bad.level === "error") { reject(r, `Invalid email: ${bad.reason}`, "invalid"); continue; }
     if (opts.fixTypos) {
       const at = e.lastIndexOf("@"), fix = suggestDomain(e.slice(at + 1));
@@ -450,6 +498,8 @@ export function repair(text, opts = {}) {
   }
   if (trimmed) changes.push(`Trimmed spaces in ${trimmed} cell${trimmed === 1 ? "" : "s"}`);
   if (lowered) changes.push(`Lowercased ${lowered} email address${lowered === 1 ? "" : "es"}`);
+  if (unwrapped) changes.push(`Removed mailto:, angle brackets, quotes or trailing punctuation around ${unwrapped} email address${unwrapped === 1 ? "" : "es"} instead of rejecting the row${unwrapped === 1 ? "" : "s"}`);
+  if (puny) changes.push(`Wrote ${puny} internationalised domain${puny === 1 ? "" : "s"} in punycode (xn--) form`);
   if (resplit) changes.push(`Re-split ${resplit} row${resplit === 1 ? "" : "s"} that used a different separator`);
   if (typoNotes.length) changes.push(`Fixed ${typoNotes.length} typo domain${typoNotes.length === 1 ? "" : "s"} (opted in): ${typoNotes.slice(0, 20).join("; ")}${typoNotes.length > 20 ? `; and ${typoNotes.length - 20} more` : ""}`);
   if (rejCount.suppressed) changes.push(`Moved ${rejCount.suppressed} row${rejCount.suppressed === 1 ? "" : "s"} on your do-not-email list to the rejected file`);
