@@ -1,4 +1,4 @@
-# indie-game-payout-calculator
+# Indie Game Payout Calculator — Steam vs Epic vs itch.io vs GOG
 
 A free, private, browser-only calculator for indie game developers. Type a
 price, copies sold and what the game cost, and see what the **same copies**

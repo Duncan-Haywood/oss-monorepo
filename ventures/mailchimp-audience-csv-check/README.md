@@ -1,4 +1,4 @@
-# mailchimp-audience-csv-check
+# Mailchimp Audience CSV Check — Find Import Errors Before You Import
 
 Checks a Mailchimp audience import CSV in the browser before it is imported: emails and duplicates,
 rows with no email, unquoted commas in Tags, birthday format, phone Excel damage, mixed date formats

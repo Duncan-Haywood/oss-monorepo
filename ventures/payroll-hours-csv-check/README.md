@@ -1,4 +1,4 @@
-# payroll-hours-csv-check
+# Payroll Hours CSV Check — Find Timesheet Errors Before You Run Payroll
 
 Checks a payroll hours / timesheet CSV in the browser before it is keyed or imported into a payroll
 service: 8:30 mixed with 8.5, unit text, Excel date serials, mixed date formats, duplicate person-days,

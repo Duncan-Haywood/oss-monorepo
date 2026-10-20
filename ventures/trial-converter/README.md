@@ -1,4 +1,4 @@
-# trial-converter
+# Trial Converter — Free Self-Hosted Stripe Trial-to-Paid Conversion
 
 After using this, you can now **turn more Stripe free trials into paying
 customers, on your own server and with your own emails**: trials with a card

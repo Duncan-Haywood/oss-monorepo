@@ -1,4 +1,4 @@
-# dmarc-report-reader
+# DMARC Report Reader — Free, Private DMARC XML Analyzer
 
 After using this, you can now **read the DMARC aggregate reports your `rua=`
 mailbox collects** and know which sending sources fail alignment and why,

@@ -1,4 +1,4 @@
-# ai-coding-plan-cost-calculator
+# AI Coding Plan Cost Calculator — Subscription vs. API
 
 **Is your AI coding subscription actually cheaper than the API — or the
 other way round?**

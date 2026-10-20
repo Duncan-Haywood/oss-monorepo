@@ -1,4 +1,4 @@
-# k8s-rollout-safety-check
+# Kubernetes Rollout Safety Check — Will Your Deployment Drop Requests?
 
 **Will this Kubernetes rollout drop live requests?**
 

@@ -1,4 +1,4 @@
-# bounce-house-rental-calculator
+# Bounce House Rental Calculator | Price the Delivery, Attendant & Insurance
 
 A browser calculator for independent bounce house / inflatable party rental
 companies. It prices a booking the way the flat "per unit per day" rate sheet

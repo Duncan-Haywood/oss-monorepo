@@ -1,4 +1,4 @@
-# self-storage-rate-increase-calculator
+# Self-Storage Rate Increase Calculator | How Many Move-Outs It Can Absorb
 
 A browser calculator for independent self-storage operators. It prices an
 **existing-customer rate increase** the way the decision is actually made —

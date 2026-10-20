@@ -1,4 +1,4 @@
-# wildlife-exclusion-bid-calculator
+# Wildlife Exclusion Bid Calculator | Price the Trap Checks, the Height & the Warranty
 
 A browser calculator for independent nuisance wildlife control operators
 (NWCOs). It prices a bat, raccoon, squirrel, bird or ground-animal exclusion
