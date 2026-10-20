@@ -126,8 +126,8 @@ export function seasonalAdjust(x, period, opts = {}) {
 
 /**
  * Drifting seasonal shape: each phase's detrended values are smoothed across
- * cycles with a running median of up to 5 cycles (3 when there are fewer than
- * 6), so a cycle whose amplitude grows or whose peak moves is followed instead
+ * cycles: a Theil-Sen line through up to 9 cycles on series of 10 or more cycles,
+ * a running median of 5 (3 when there are fewer than 6) on shorter ones, so a cycle whose amplitude grows or whose peak moves is followed instead
  * of averaged away. Each cycle's profile is re-centred at zero. Returns the
  * mean profile too, for display.
  */
@@ -135,7 +135,7 @@ function driftAdjust(x, m, trend0, profile) {
   let trend = trend0;
   const n = x.length;
   const cycles = Math.ceil(n / m);
-  const w = cycles >= 6 ? 2 : 1; // half-width in cycles
+  const w = cycles >= 10 ? 4 : cycles >= 6 ? 2 : 1; // half-width in cycles
   // the moving average is missing half a period at each end: hold its nearest value so the end cycles keep their own shape
   const first = trend.findIndex((v) => v !== null), last = n - 1 - [...trend].reverse().findIndex((v) => v !== null);
   trend = trend.map((v, t) => (v !== null ? v : trend[t < first ? first : last]));
@@ -144,8 +144,14 @@ function driftAdjust(x, m, trend0, profile) {
     for (let c = 0; c < cycles; c++) { const t = c * m + p; col.push(t < n && trend[t] !== null ? x[t] - trend[t] : null); }
     return col.map((_, c) => {
       const win = [];
-      for (let k = Math.max(0, c - w); k <= Math.min(cycles - 1, c + w); k++) if (col[k] !== null) win.push(col[k]);
-      return win.length ? median(win) : profile[p];
+      for (let k = Math.max(0, c - w); k <= Math.min(cycles - 1, c + w); k++) if (col[k] !== null) win.push([k, col[k]]);
+      if (!win.length) return profile[p];
+      if (win.length < 5) return median(win.map((e) => e[1]));
+      // a robust line through the window, read at this cycle: a plain median lags a growing cycle at the ends
+      const sl = [];
+      for (let i = 0; i < win.length; i++) for (let j = i + 1; j < win.length; j++) sl.push((win[j][1] - win[i][1]) / (win[j][0] - win[i][0]));
+      const slope = median(sl);
+      return median(win.map((e) => e[1] - slope * (e[0] - c)));
     });
   });
   const adjusted = new Array(n);
