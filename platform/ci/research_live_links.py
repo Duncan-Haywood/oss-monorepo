@@ -63,8 +63,14 @@ def with_topics(text, block):
     return "\n".join(lines)
 
 
+def load_registry(root):
+    sys.path.insert(0, str(root / "research" / "_homepage"))
+    import registry
+    return registry.load(root / "research")
+
+
 def slugs(root=ROOT):
-    data = json.loads((root / "research" / "_homepage" / "projects.json").read_text())
+    data = load_registry(root)
     return sorted(p["slug"] for t in data["themes"] for p in t["projects"])
 
 
@@ -116,7 +122,7 @@ def main(argv=None):
     stale_topics = False
     index = args.root / "research" / "README.md"
     if index.exists():
-        data = json.loads((args.root / "research" / "_homepage" / "projects.json").read_text())
+        data = load_registry(args.root)
         text = index.read_text()
         want = with_topics(text, topics_block(data))
         if want != text:

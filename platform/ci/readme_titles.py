@@ -42,7 +42,9 @@ def research_titles(root):
     f = root / "research" / "_homepage" / "projects.json"
     if not f.exists():
         return {}
-    data = json.loads(f.read_text(encoding="utf-8"))
+    sys.path.insert(0, str(root / "research" / "_homepage"))
+    import registry
+    data = registry.load(root / "research")
     return {p["slug"]: " ".join(html.unescape(re.sub(r"<[^>]+>", "", p["title"])).split())
             for t in data["themes"] for p in t["projects"] if p.get("title")}
 
