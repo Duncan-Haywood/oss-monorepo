@@ -221,8 +221,8 @@ def run_vio(world, s, sens, init_v_sigma=0.02):
             for a in counts[l]:
                 ki.append(a); li.append(lpos[l]); z.append(by_frame[idx[a]][l])
         x0 = np.concatenate([est[idx].ravel(), np.array(l0).ravel() if l0 else np.zeros(0)])
-        pri_sig = np.array([1e-3, 1e-3, 1e-4, init_v_sigma * (1 if j == 1 else 3), init_v_sigma * (1 if j == 1 else 3),
-                            3e-3, 3e-2, 3e-2])
+        vs = init_v_sigma * (1 if j == 1 else 3)
+        pri_sig = np.array([1e-3, 1e-3, 1e-4, vs, vs, 3e-3, 3e-2, 3e-2])
         pri = dict(x=est[idx[0]].copy(), sig=pri_sig)
         imu = (g, a_, T, dt)
         ob = (np.array(ki, dtype=int), np.array(li, dtype=int), np.array(z))

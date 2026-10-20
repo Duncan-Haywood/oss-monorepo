@@ -1,6 +1,6 @@
 """Drift of a planar visual-inertial smoother against camera and IMU quality (synthetic).
 
-    python experiments/run.py [seeds] [T]     # writes results.txt; ~20 min on 4 cores
+    python experiments/run.py [seeds] [T]     # writes results.txt; ~15 min on 4 cores, set OMP_NUM_THREADS=1
 """
 import os
 import sys
@@ -39,7 +39,7 @@ def job(a):
 
 def main():
     seeds = int(sys.argv[1]) if len(sys.argv) > 1 else 4
-    T = float(sys.argv[2]) if len(sys.argv) > 2 else 30.0
+    T = float(sys.argv[2]) if len(sys.argv) > 2 else 12.0
     jobs = [(ci, k, T) for ci in range(len(CONFIGS)) for k in range(seeds)]
     with Pool(4) as p:
         res = p.map(job, jobs, chunksize=1)
