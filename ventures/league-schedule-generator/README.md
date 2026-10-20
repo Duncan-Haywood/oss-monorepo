@@ -181,6 +181,6 @@ rounds left go first, so they finish together) and which match gets which court 
   matches per venue; paste that JSON into next season's `venueHistory` field and the new season starts from it (`carryVenueHistory`,
   `venueImbalance`; stats gain `venueImbalance`, the mean gap between a team's most- and least-played venue). Measured on the example
   league over 3 seasons, 8 seeds, cumulative imbalance: 5.83 matches with it off, 3.11 with fairness inside each season only, 1.29 with
-  history carried (`divisions.test.mjs`). The cost is travel: 1,028 venue changes against 1,218 and 1,212 over the same runs. Off by default, and
+  history carried (`divisions.test.mjs`). On `multi-division-league-schedule.html` it is a checkbox plus a box for last season's counts; the report prints next season's history to paste back, and share links carry both. The cost is travel: 1,028 venue changes against 1,218 and 1,212 over the same runs. Off by default, and
   the schedule is byte-identical to before when it is off. Not on the browser page yet (CLI and spec JSON only).
 - **Not done yet.** Rounds are placed whole, so a night with 1 spare slot stays partly empty.
