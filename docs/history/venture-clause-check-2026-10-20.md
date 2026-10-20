@@ -104,4 +104,13 @@ python3 gitops/ci/sync_readme_counts.py --check  # current
 node platform/pages/clauses.mjs               # 2897 pages across 1302 surfaces carry their clauses
 ```
 
-`run_workflow_locally.py --for-changes`: see the PR's run record notes.
+`run_workflow_locally.py --for-changes` was not finished. A diff that touches
+281 workflow files pulls in every one of them, and the run stalled on an
+unrelated one. Instead, the workflows this change reaches were run by name:
+
+- `--force firewood-profit-calculator-ci.yml`: 1/1 `run:` step passed.
+- `--force backup-verification-evidence-ci.yml`: the tests pass. `ruff check .`
+  passes with the pinned 0.15.8. The container's own ruff 0.16.9 flags files
+  this change does not touch.
+- The new `ventures-tests.yml` step's command, run on this branch's diff:
+  `no venture touched, nothing to check`, exit 0.
