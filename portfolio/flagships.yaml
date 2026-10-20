@@ -28,7 +28,8 @@ flagships:
       BIS 3 (UBL) add-ons now run in Saxon-JS (opt-in, ?schematron=1, picked by
       BT-24) and the Docker image bakes them in. Next: show the official findings
       on the web page (index.html, needs a server or WASM path since Saxon-JS
-      runs in Node here), and English fixes for more BR-DE and PEPPOL rules.
+      runs in Node here), and English fixes for the remaining PEPPOL and CEN
+      rules (every BR-DE rule has one now; a test fails when a new one lacks it).
       A CII XRechnung example (examples/xrechnung-cii-invoice.xml) is tested
       against the official rules; CII BT-24 detection is fixed.
   - venture: shift-roster-builder
