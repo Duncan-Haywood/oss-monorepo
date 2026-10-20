@@ -10,7 +10,7 @@ from harmonize import VARS, SURVEYS
 
 # Inputs that do not carry over to a survey's population: never imputed into its analysis
 # design (their columns are held at the training mean for those units, i.e. averaged out).
-NOT_TRANSPORTABLE = {'canada_gss': ['race', 'interracial']}
+NOT_TRANSPORTABLE = {}   # superseded: every input a survey did not measure is held at its survey mean
 MEASURED_SHARE = 0.3
 
 
@@ -63,6 +63,18 @@ class Fitted:
         self.tau = tau
         d0 = completed[0][0]
         self.design = Design(d0, deviation_surveys(meas, self.train_surveys))
+        # Inputs a survey never measured enter its units' design at that survey's training mean
+        # (a constant the survey baseline absorbs): the survey neither informs nor biases them.
+        self.unmeasured = {s: [j for j, g in enumerate(self.design.groups)
+                               if g not in ('female', 'same_sex', 'union_type') and s not in meas.get(g, [])]
+                           for s in SURVEY_KEYS}
+        self.fill = {}
+        Xs = [self.design.matrix(d) for d, _ in completed]
+        for s in self.train_surveys:
+            m = (d0.survey == s).to_numpy()
+            cols = self.unmeasured[s]
+            self.fill[s] = np.mean([X[m][:, cols].mean(0) for X in Xs], axis=0) if cols else np.zeros(0)
+        del Xs
         self.layout = glm.Layout(len(self.train_surveys), self.design.n_main, len(self.design.dev))
         self.fits = []
         for d, sp in completed:
@@ -72,7 +84,18 @@ class Fitted:
             self.fits.append((th, H, lpost))
 
     def X(self, d):
-        return neutralise(self.design.matrix(d), d, self.design)
+        X = self.design.matrix(d)
+        s = d.survey.to_numpy()
+        for sv in np.unique(s):
+            cols = self.unmeasured.get(sv, [])
+            if not cols:
+                continue
+            m = s == sv
+            # Surveys not in the fit (leave-one-survey-out) use their own mean of the
+            # outcome-free imputations.
+            fill = self.fill[sv] if sv in self.fill else X[m][:, cols].mean(0)
+            X[np.ix_(m, cols)] = fill
+        return X
 
     def data(self, d, sp):
         E, Y, iv = followup(d, sp)

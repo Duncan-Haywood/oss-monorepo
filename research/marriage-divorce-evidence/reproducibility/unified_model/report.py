@@ -115,14 +115,20 @@ def auc(score, y, w):
     return float((pos * (below + 0.5 * neg)).sum() / (pos.sum() * neg.sum()))
 
 
-def cal_slope(O, P, w):
-    """Poisson regression O ~ exp(a + b log P), weighted; returns b."""
-    x = np.log(np.maximum(P, 1e-12))
-    a, b = np.log(O.sum() / P.sum()), 1.0
+def cal_slope(R, E, Y, iv, w):
+    """Calibration slope b in y ~ Poisson(exposure * exp(a + b log predicted hazard)) over every
+    unit-band (exact follow-up) and spell (interval follow-up; Poisson approximation), weighted.
+    1 = predictions spread exactly right; below 1 = too extreme."""
+    ui, bi = np.nonzero(E > 0)
+    y = np.r_[Y[ui, bi], iv['y']]
+    off = np.log(np.r_[E[ui, bi], iv['length']])
+    x = np.log(np.maximum(np.r_[R[ui, bi], R[iv['unit'], iv['band']]], 1e-12))
+    ww = np.r_[w[ui], w[iv['unit']]]
+    a, b = np.log(y @ ww / ((np.exp(off + x)) @ ww)), 1.0
     for _ in range(50):
-        mu = np.exp(a + b * x)
-        g = np.array([(w * (O - mu)).sum(), (w * (O - mu) * x).sum()])
-        H = np.array([[(w * mu).sum(), (w * mu * x).sum()], [(w * mu * x).sum(), (w * mu * x * x).sum()]])
+        mu = np.exp(a + b * x + off)
+        g = np.array([(ww * (y - mu)).sum(), (ww * (y - mu) * x).sum()])
+        H = np.array([[(ww * mu).sum(), (ww * mu * x).sum()], [(ww * mu * x).sum(), (ww * mu * x * x).sum()]])
         st = np.linalg.solve(H, g)
         a, b = a + st[0], b + st[1]
         if np.abs(st).max() < 1e-9:
@@ -194,7 +200,7 @@ def metrics_for(d, E, Y, iv, t0, t1, ev, R, models, base_model, seed):
         Pb = wsum_boot(exps[m])
         res = dict(units=int(n), events=int(ev.sum()), gain=100 * (1 - tot / base_tot), gain_ci=ci(gb),
                    c_index=c, c_ci=ci(np.array(cb)), oe=float((w * ev).sum() / (w * exps[m]).sum()), oe_ci=ci(O_b / Pb),
-                   slope=float(cal_slope(ev, exps[m], w)))
+                   slope=float(cal_slope(R[m], E, Y, iv, w)))
         if exact_from_wedding:
             h5 = window_hazard(R[m], t0, 5.0)
             known = (ev > 0) & (t1 <= 5) | (t1 >= 5)
@@ -332,7 +338,7 @@ def main(work):
     pd.DataFrame(cal_rows).to_csv(out / 'heldout_calibration_deciles.csv', index=False)
     pd.DataFrame(loso_rows).to_csv(out / 'leave_one_survey_out.csv', index=False)
     cov = pd.DataFrame(cov_rows)
-    cov.drop(columns=['pi90']).to_csv(out / 'interval_coverage.csv', index=False)
+    cov.drop(columns=['pi90']).to_csv(out / 'coverage_by_group.csv', index=False)
     summary['coverage'] = dict(groups=int(len(cov)), share_in_90=round(float(cov.in90.mean()), 4),
                                share_in_50=round(float(cov.in50.mean()), 4),
                                by_survey={s: dict(groups=int(len(g)), in90=round(float(g.in90.mean()), 3), in50=round(float(g.in50.mean()), 3))

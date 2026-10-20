@@ -227,6 +227,10 @@ def run_task(work, task):
     print(f'[{task}] pooled GLM done {time.time() - t_start:.0f}s; boosting', flush=True)
     # Pooled boosting on raw inputs.
     S_imp = comp[0][1]   # follow-up with derived durations (GSS, some SIPP couples) from chain 1
+    out['coef_mean'] = np.mean([th for th, _, _ in F.fits], axis=0)
+    out['columns'] = np.array(F.design.columns + [f'{n}@{s}' for n, s in F.design.dev])
+    test_spells = tec[0][1]
+    del comp, trc, tec, prep, F, EV, Th                # free memory before boosting
     Utr, Str = subset(U, S_imp, train)
     rows, scol = common.hgb_rows(Utr, Str, train_surveys, raw=Utr)
     m = common.hgb_fit(rows, survey_col=[len(VARS) + 3], seed=seed)
@@ -242,13 +246,11 @@ def run_task(work, task):
                     out[k] = np.full((n_te, NB), np.nan)
                 out[k][pos] = v
             print(f'[{task}] single-survey {s} done {time.time() - t_start:.0f}s', flush=True)
-    out['coef_mean'] = np.mean([th for th, _, _ in F.fits], axis=0)
-    out['columns'] = np.array(F.design.columns + [f'{n}@{s}' for n, s in F.design.dev])
     vd = Path(work) / 'val'
     vd.mkdir(exist_ok=True)
     np.savez_compressed(vd / f'{task.replace(":", "_")}.npz', **out)
     # Held-out follow-up with imputed durations (GSS) from the first chain, for metrics.
-    tec[0][1].to_parquet(vd / f'{task.replace(":", "_")}_spells.parquet')
+    test_spells.to_parquet(vd / f'{task.replace(":", "_")}_spells.parquet')
     print(f'[{task}] saved in {time.time() - t_start:.0f}s', flush=True)
 
 

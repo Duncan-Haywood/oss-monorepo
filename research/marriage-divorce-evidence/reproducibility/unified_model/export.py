@@ -143,11 +143,6 @@ def gaussian_vs_mi(F, comp, U, means, cov, rng, n=4000):
     beta = th[L.ib]
     idx = rng.choice(len(U), n, replace=False)
     Xo = observed_design(F, U.iloc[idx])
-    for sv, vs in common.NOT_TRANSPORTABLE.items():
-        m = (U.survey.iloc[idx] == sv).to_numpy()
-        for j, g in enumerate(F.design.groups):
-            if g in vs:
-                Xo[m, j] = np.nan
     mi = np.zeros(n)
     for d, _ in comp:
         X = F.X(d.iloc[idx])[:, :F.design.n_main]
@@ -368,8 +363,12 @@ def main(work):
     for f in ['validation_summary.json']:
         if (HERE / f).exists():
             vs = json.loads((HERE / f).read_text())
-    heldout = pd.read_csv(HERE / 'heldout_by_survey.csv').to_dict('records') if (HERE / 'heldout_by_survey.csv').exists() else []
-    loso = pd.read_csv(HERE / 'leave_one_survey_out.csv').to_dict('records') if (HERE / 'leave_one_survey_out.csv').exists() else []
+    def table(name):
+        try:
+            return pd.read_csv(HERE / name).to_dict('records')
+        except (FileNotFoundError, pd.errors.EmptyDataError):
+            return []
+    heldout, loso = table('heldout_by_survey.csv'), table('leave_one_survey_out.csv')
     bundle = dict(
         id='unified_multisurvey', kind='pooled_hazard', version='2026-10-20',
         title='Pooled multi-survey model (all surveys, partial pooling)',
@@ -394,7 +393,7 @@ def main(work):
         design=dict(columns=ds.columns, groups=ds.groups, mean=[sig(x, 12) for x in ds.mean], scale=[sig(x, 12) for x in ds.scale],
                     splines=splines, onehot={k: [str(x) if not isinstance(x, str) else x for x in v] for k, v in ONEHOT.items()},
                     linear=LINEAR, binary=BINARY, union_types=list(UNION_TYPES), deviation=deviation,
-                    not_transportable=common.NOT_TRANSPORTABLE),
+                    unmeasured={s: sorted({ds.groups[j] for j in v}) for s, v in F.unmeasured.items()}),
         posterior=dict(method=f'Laplace approximation per imputation, {M_FINAL} imputations, equal mixture; {S_EXPORT} draws',
                        tau=tau, layout=lay, surveys=list(SURVEY_KEYS),
                        draws=[[sig(x) for x in row] for row in Th]),

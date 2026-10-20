@@ -57,6 +57,7 @@ class Imputer:
         self.verbose = verbose
         self.n = len(self.U)
         self.surveys = self.U.survey.to_numpy()
+        self._sidx = pd.Index(list(SURVEYS)).get_indexer(self.surveys)
         self._prepare()
 
     # ------------------------------------------------------------------ setup
@@ -175,22 +176,35 @@ class Imputer:
             return (x / max(len(spec['levels']) - 1, 1))[:, None].astype(np.float32)
         return x[:, None].astype(np.float32)
 
-    def _survey_cols(self, v):
-        # Surveys with exact training answers (coarsened-only surveys get the average and their bounds).
-        if v in self._sc_cache:
-            return self._sc_cache[v]
-        meas = [s for s in SURVEYS if (self.obs[v] & self.train & (self.surveys == s)).sum() >= 30]
+    def _meas(self, v):
+        """Surveys with exact training answers (coarsened-only surveys get the average and their bounds)."""
+        if v not in self._sc_cache:
+            self._sc_cache[v] = [s for s in SURVEYS if (self.obs[v] & self.train & (self.surveys == s)).sum() >= 30]
+        return self._sc_cache[v]
+
+    def _survey_rows(self, v, rows):
+        """Survey dummies (first measuring survey = reference) for some rows; units of surveys that
+        never measured v get 1/K in each, i.e. the average of the measuring surveys' intercepts."""
+        meas = self._meas(v)
         if len(meas) <= 1:
-            out = np.zeros((self.n, 0), np.float32), meas
-        else:
-            cols = np.zeros((self.n, len(meas) - 1), np.float32)
-            for j, s in enumerate(meas[1:]):
-                cols[self.surveys == s, j] = 1
-            other = ~np.isin(self.surveys, meas)
-            cols[other] = 1.0 / len(meas)
-            out = cols, meas
-        self._sc_cache[v] = out
-        return out
+            return np.zeros((len(rows), 0), np.float32)
+        sv = self.surveys[rows]
+        cols = np.zeros((len(rows), len(meas) - 1), np.float32)
+        for j, s in enumerate(meas[1:]):
+            cols[sv == s, j] = 1
+        cols[~np.isin(sv, meas)] = 1.0 / len(meas)
+        return cols
+
+    def _outcome_rows(self, v, rows):
+        """Outcome terms interacted with the surveys that measure v exactly: an outcome-input
+        relation learned in one survey's follow-up design is never applied to another survey."""
+        meas = self._meas(v)
+        sv = self.surveys[rows]
+        B = np.zeros((len(rows), 3 * len(meas)), np.float32)
+        for k, s in enumerate(meas):
+            m = sv == s
+            B[m, 3 * k:3 * k + 3] = self.O[rows][m]
+        return B
 
     def _build_Z(self):
         """All inputs' current encodings side by side (updated in place as inputs are imputed)."""
@@ -213,10 +227,9 @@ class Imputer:
         """Design for the fit rows only: other inputs, structural, survey dummies, outcome terms."""
         keep = np.ones(self.Z.shape[1], bool)
         keep[self.cols[v]] = False
-        sc, _ = self._survey_cols(v)
-        parts = [self.Z[rows][:, keep], sc[rows]]
+        parts = [self.Z[rows][:, keep], self._survey_rows(v, rows)]
         if with_outcome:
-            parts.append(self.O[rows])
+            parts.append(self._outcome_rows(v, rows))
         return np.hstack(parts).astype(np.float64), keep
 
     def _lin_all(self, v, coef, keep, with_outcome):
@@ -224,14 +237,20 @@ class Imputer:
         bz = np.zeros(self.Z.shape[1], np.float32)
         nz = keep.sum()
         bz[keep] = coef[:nz]
-        sc, _ = self._survey_cols(v)
-        out = self.Z @ bz
-        k = sc.shape[1]
+        out = (self.Z @ bz).astype(np.float64)
+        meas = self._meas(v)
+        k = max(len(meas) - 1, 0)
         if k:
-            out = out + sc @ coef[nz:nz + k].astype(np.float32)
+            eff = np.r_[0.0, coef[nz:nz + k]]          # per measuring survey
+            per = dict(zip(meas, eff))
+            avg = eff.mean()
+            out += np.array([per.get(s, avg) for s in SURVEYS])[self._sidx]
         if with_outcome:
-            out = out + self.O @ coef[nz + k:nz + k + 3].astype(np.float32)
-        return out.astype(np.float64)
+            co = coef[nz + k:nz + k + 3 * len(meas)]
+            for j, s in enumerate(meas):
+                m = self.surveys == s
+                out[m] += self.O[m] @ co[3 * j:3 * j + 3]
+        return out
 
     # ------------------------------------------------------------------ one variable
     def _fit_rows(self, v, cap=FIT_N):
@@ -249,7 +268,10 @@ class Imputer:
         rows = self._fit_rows(v, FIT_N if spec['kind'] in ('num', 'ord') else FIT_N // 2)
         if len(rows) < 20:
             return
-        for with_outcome, target in ((True, miss & self.train), (False, miss & ~self.train)):
+        # Training units of surveys that measure v use the outcome terms (learned within their
+        # own survey); held-out units and surveys that never measured v are imputed without them.
+        own = np.isin(self.surveys, self._meas(v))
+        for with_outcome, target in ((True, miss & self.train & own), (False, miss & ~(self.train & own))):
             if not target.any():
                 continue
             if spec['kind'] in ('num', 'ord'):
