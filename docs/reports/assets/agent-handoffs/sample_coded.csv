@@ -1,0 +1,61 @@
+i,code,file,issue
+0,none,prompts/process/prompt-1.md,Backlog had only owner rows again; Critique on doc_friction was enough.
+1,ranking,portfolio/ledger/session_gate.py,Output is long; the router table from allocate.py repeats the same Explore hypothesis for most rows and gave no pointer to a small deepening task.
+2,wrong,prompt.md,router drew research for a brief that is the ventures brief verbatim; had to override with --track ventures
+3,case-missing,platform/marketing/regen.mjs,venture-preflight's regen --verify aborts when an untracked prompts/runs record exists (generator output outside gitops/prod); commit the run record before running preflight.
+4,environment,unspecified,"CLAUDE.md: gitops/tests pytest line unrunnable, no pytest installed and not installed (pip/apt not tried); skipped"
+5,stale,research/PROJECTS.md,Track 3 milestones are all done and the chip chain is micro-variants; had to invent a new question.
+6,cost,CLAUDE.md,"publish-branch.sh takes >9 min, over the foreground tool limit; run it in the background"
+7,environment,CLAUDE.md,"pytest not installed; project tests could not be run, only build.py ok"
+8,contradiction,prompts/research/prompt-0.md,"Says research work lands upstream until cutover, but PROJECTS.md milestones 1-2 are oss-monorepo tasks; had to infer mirror-sync/guards are the doable work here"
+9,stale,prompts/promptctl.py,"measure's latest friction lines for redteam and ventures prompt still described problems already fixed (PYTHONDONTWRITEBYTECODE, regen --verify); two calls to confirm"
+10,cost,prompts/review/prompt-1.md,Full review too large for a scheduled run; added a reduced-pass paragraph (E45).
+11,case-missing,CLAUDE.md,sync_tree_counts.py fails with 'No module named front_door_mirror' unless run with PYTHONPATH=gitops/tests; the checklist line does not say so.
+12,cost,CLAUDE.md,Full local checklist (platform/pages node suite) exceeds the 10 min tool limit; relied on CI for it.
+13,stale,prompts/process/prompt-1.md,"Most 'latest' friction entries in measure were already fixed (pr:'this', research_idea_dupe.py); measure does not mark stale entries."
+14,case-missing,research/CLAUDE.md,"linefig.table splits rows on whitespace, so '|'-separated results tables cannot be parsed; needed a separate whitespace section for the figure."
+15,cost,CLAUDE.md,Shallow-clone unshallow fetch takes >5 min (2.3M objects); the doc does not warn that it blows past the tool timeout.
+16,cost,portfolio/router/allocate.py,takes ~35s on PyYAML without libyaml and the 7-day fetch timed out in a shallow clone
+17,environment,CLAUDE.md,unlanded_work --sweep lists branches whose history cannot be compared in a shallow clone; supersede_check cannot resolve remote-only refs without a prior fetch.
+18,stale,prompts/process/prompt-1.md,"Backlog had only owner rows; most latest friction in measure was already fixed (pyenv scanning, background annotations), so Critique took several reads to find one live item."
+19,case-missing,prompts/review/prompt-1.md,Step 1 fetch limit and step 2 audit being unrunnable cost reading time; reworded.
+20,cost,research/swe-orgs/README.md,Source-count prose in the Method bullet is a hand-edited list of batches; each batch needs a manual edit
+21,case-missing,CLAUDE.md,The mrr-pulse cluster had 4 concurrent sessions adding overlapping features; the 'check open PRs' step cannot see a sibling that merges mid-run. Re-fetching main before choosing a feature would have caught it.
+22,wrong,CLAUDE.md,"Starvation checklist's platform/ci loop uses '|| break', and test_check_money_sign, test_check_step_grid and test_validate_workflows fail on clean main, so the loop as written stops before later modules."
+23,cost,CLAUDE.md,git fetch --unshallow takes >2 min and blocks the default tool timeout; run it in background
+24,cost,platform/ci/run_workflow_locally.py,--for-changes exceeds the 120s tool timeout; had to background it
+25,cost,research/CLAUDE.md,"Says run python3 research/_homepage/build.py; fine. platform/ci/pyenv.py prints the interpreter after installing pytest, which works but is slow to discover."
+26,ranking,portfolio/router/allocate.py,"Top ventures I opened (shift-roster-builder, league-schedule-generator, s-corp-basis-tracker) were already very deep; 'untested hypothesis' explore rows gave no feature gap to build, so I shipped an SEO guide page."
+27,cost,prompt.md,Said to read goals.md in full (446 lines) though research track only needed guardrails; skimmed.
+28,case-missing,research/PROJECTS.md,"All robofab milestones are done; the track's 'next step' lives only in the latest project's README, so finding it meant digging through git log."
+29,case-missing,prompts/review/prompt-1.md,Step 2 audit again unrunnable (recent outputs mirrored/doc-only); derive fetch got 25 of 30 PRs.
+30,ranking,portfolio/router/allocate.py,Top Explore rows (reverb-fee-calculator) are measurement hypotheses with nothing to ship; the ventures I opened were already saturated with features.
+31,cost,prompts/redteam/prompt-0.md,campaign on ventures/support-desk/render.mjs hit the 600s timeout and left the mutant in the working tree; had to git checkout it by hand
+32,none,prompts/process/prompt-1.md,"Backlog had only owner rows again; Critique pointed at the friction list, which was enough."
+33,environment,research/CLAUDE.md,pip installs went to /usr/bin/python3 while /usr/local/bin/python3 is first on PATH; had to call /usr/bin/python3 explicitly.
+34,wrong,research/chip-p32netlist/README.md,Called the `synth -run :abc` stage 'pre-abc'; in Yosys 0.33 it runs abc -fast. Corrected here.
+35,wrong,portfolio/usage/README.md,"Rule 1 banned cookies and referrers outright, stricter than the law; the owner did not know how it got there. Rewritten."
+36,case-missing,prompts/explore/prompt-0.md,"Says 239 meta descriptions >320 remain open but gives no generator; they are hand-written per venture, so a build-time clamp was the only tractable fix."
+37,wrong,research/_mirror/mirror.py,"sync printed 'merge is staged' but no MERGE_HEAD existed, so a plain git commit made a single-parent commit and check then failed on history; I made the two-parent commit with git commit-tree."
+38,stale,research/CLAUDE.md,"apt python3-numpy install breaks numpy import; only pyenv.py works, but the Reproduce guidance in sibling READMEs still says apt-get python3-numpy"
+39,environment,CLAUDE.md,pyenv.py and sync_tree_counts needed manual workarounds; no pytest installed so test line unrunnable.
+40,cost,portfolio/router/test_allocate.py,test_real_portfolio_rollup_is_consistent_with_queue runs the full real portfolio and takes minutes; unittest discover in portfolio/router exceeds the 2-minute foreground limit
+41,ranking,prompts/ventures/prompt-2.md,"Brief favours depth, but the gate's top candidates are all calculators/hypothesis tests; small rule additions to an existing non-calculator venture were the cheapest real value."
+42,environment,CLAUDE.md,yosys needed apt-get update before install; not documented in the research flow
+43,case-missing,prompts/redteam/prompt-0.md,does not say the record's mutants live under redteam.campaigns[].mutants; a naive script hits KeyError
+44,cost,prompts/review/prompt-1.md,Step 2 audit again unrunnable; derive.py fetch got 25 of 39 PRs in the time limit.
+45,case-missing,prompt.md,unclear whether to use a cloud-assigned branch vs new; used assigned branch. Also `node --test <dir>` fails on Node 22 (README of ventures says to use it); needs *.test.mjs glob.
+46,case-missing,prompts/derived/runs.json,"Top-level is {generated, rows, window_days} and merged lives under rows[].measured.merged; took three tries to read."
+47,wrong,prompts/runs/2026-10-15-session_013VkAq5ZZEf8SUo1nWJpT2J.json,"malformed record already on main makes promptctl validate and test_the_real_prompt_system_is_valid fail; not mine, left untouched"
+48,none,prompts/process/prompt-1.md,Backlog had only owner rows again; Critique on measure's friction listing was enough.
+49,cost,research/PROJECTS.md,Milestone 9 progress paragraph is a single enormous line of per-project history; hard to edit and find the open count.
+50,cost,prompts/research/prompt-0.md,"Says to claim via open PR/branches check before choosing; no helper command exists, had to hand-parse a 92k-char PR list."
+51,environment,research/CLAUDE.md,No mention that python3 on PATH may lack numpy while /usr/bin/python3 has pip installs; cost a few minutes.
+52,cost,prompts/ventures/prompt-1.md,preflight takes >5 min and fails first on a stale mirror; running regen.mjs before it would save a cycle
+53,case-missing,prompts/promptctl.py,RECORD_FIELDS had tokens_in/tokens_out/cost_usd for months but only 1-2 of 424 records filled them: a field with no tool to measure it stays empty. runcost.py now measures it.
+54,case-missing,prompts/research/prompt-0.md,"Says research work lands upstream until cutover, but the sub-prompt gives no way to tell what is due; PROJECTS.md milestone 1 (mirror-sync) is the actual action and had to be found by reading PROJECTS.md."
+55,contradiction,prompts/ventures/prompt-1.md,venture-preflight >5 min; collided with my own record edits (regen --verify flagged prompts/runs file)
+56,case-missing,prompts/ventures/prompt-1.md,"preflight failed twice on a venture added by another session (launched.json, front-door mirror); the prompt does not say preflight may need these regen steps first"
+57,case-missing,research/CLAUDE.md,linefig table() section prefix must account for '=' being replaced by spaces in figure.py; cost one failed run
+58,contradiction,prompt.md,"The Stop hook asks to commit untracked files mid-run, which conflicts with the 'no commit before results' flow; pushed code early as a draft claim instead."
+59,environment,CLAUDE.md,Checklist pytest line fails in image without pytest; run_workflow_locally --for-changes exceeds the 120s tool timeout.
