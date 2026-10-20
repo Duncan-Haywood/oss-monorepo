@@ -1,0 +1,3 @@
+{"theme": "capture",
+ "title": "How much footage does a multi-camera travel kit produce, and what limits carrying and backing it up?",
+ "summary": "Data volume, card and SSD weight, nightly offload time and unbacked footage for a rig of 1 to 8 cameras filming 4 h a day for a week, at assumed 60 to 200 Mbit/s bitrates. Four cameras make about 860 GB a day (6 TB a week), yet their cards weigh about 8 g and a camera's battery is 440 to 980 times heavier per recording hour than its card. The binding limit is the evening: one reader copying one day to one SSD takes 2.7 h, so two SSD copies inside 1 h need 6 readers and about 450 g, half an hour is infeasible, and halving the bitrate halves the weight. All device figures are assumed, not datasheets."}
