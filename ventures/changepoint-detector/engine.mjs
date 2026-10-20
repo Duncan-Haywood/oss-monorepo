@@ -568,7 +568,7 @@ export function ar1JointFit(x, { penalty = 'bic', minSegment = 2, passes = 3 } =
 // ---------------------------------------------------------------- input
 
 /** Split one CSV line, honouring double quotes. */
-function splitLine(line) {
+function splitLine(line, semi = false) {
   const out = [];
   let cur = '';
   let q = false;
@@ -579,16 +579,18 @@ function splitLine(line) {
       else if (c === '"') q = false;
       else cur += c;
     } else if (c === '"') q = true;
-    else if (c === ',' || c === '\t' || c === ';') { out.push(cur.trim()); cur = ''; }
+    else if (semi ? (c === ';' || c === '\t') : (c === ',' || c === '\t' || c === ';')) { out.push(cur.trim()); cur = ''; }
     else cur += c;
   }
   out.push(cur.trim());
   return out;
 }
 
-const num = (s) => {
+const numCell = (s, decimalComma = false) => {
   if (s == null) return NaN;
-  const t = String(s).replace(/[$,\s]/g, '');
+  const t = decimalComma
+    ? String(s).replace(/[$\s.]/g, '').replace(',', '.')
+    : String(s).replace(/[$,\s]/g, '');
   return t === '' ? NaN : Number(t);
 };
 
@@ -600,7 +602,10 @@ const num = (s) => {
 export function parseSeries(csv, column = null, labelColumn = null) {
   const lines = String(csv ?? '').split(/\r?\n/).filter((l) => l.trim() !== '');
   if (!lines.length) throw new Error('No data: paste a column of numbers or a CSV.');
-  const rows = lines.map(splitLine);
+  // A semicolon-separated file (Excel in a comma-decimal locale) writes 1,5 for 1.5: split on ; only and read the comma as a decimal point.
+  const semi = lines.some((l) => l.replace(/"[^"]*"/g, '').includes(';'));
+  const rows = lines.map((l) => splitLine(l, semi));
+  const num = (s) => numCell(s, semi);
   const width = Math.max(...rows.map((r) => r.length));
   const first = rows[0];
   const header = first.some((c) => c !== '' && Number.isNaN(num(c))) ? first : null;
