@@ -25,6 +25,12 @@ name: Portfolio Pages
 on:
   push:
     branches: [main]
+    # Every input of the published site, not only of `build.mjs`: the steps
+    # after "Check the built artifact" add the development analyses, the
+    # self-deploy page and the development dashboard. Kept a superset of
+    # `publish-pages-branch.yml`'s list, which this workflow replaced as the
+    # live route when the owner switched the Pages source to GitHub Actions
+    # (2026-10-20); a path missing here is a page that silently stops updating.
     paths:
       - "ventures/**"
       - "platform/pages/**"
@@ -34,7 +40,19 @@ on:
       - "research/_homepage/**"
       - "research/README.md"
       - "research/*/app/**"
+      - "research/*/LOG.md"
+      - "platform/devlog/**"
+      - "platform/deploy/**"
+      - "platform/devstats/**"
+      - "docs/posts/**"
+      - "prompts/**"
+      - "portfolio/research/**"
+      - "portfolio/ledger/asks.yaml"
       - ".github/workflows/portfolio-pages.yml"
+  # The development dashboard's CI, review and branch numbers move without a
+  # merge to the paths above; refresh the site every three hours.
+  schedule:
+    - cron: "41 */3 * * *"
   pull_request:
     paths:
       - "ventures/**"
@@ -72,6 +90,9 @@ jobs:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read
+      # Read-only, for the development dashboard's PR, review and CI metrics.
+      actions: read
+      pull-requests: read
     # Builds and checks the whole 500+-page site artifact -- measured at 173s
     # on a recent PR. See hetzner-gitops-ci.yml's timeout-minutes addition for
     # why an unbounded job is worth capping on a metered-minutes account.
@@ -80,6 +101,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          # The engineering page's "landed on main" view and the changelog's
+          # 14 days (~100-150 merges a day) read history. A pull request only
+          # needs the build to pass, so it keeps the cheap depth-1 clone.
+          fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 3000 }}
 
       - uses: actions/setup-node@v4
         with:
@@ -108,6 +133,29 @@ jobs:
       - name: Check the built artifact
         run: node check.mjs dist
         working-directory: platform/pages
+
+      # The same three additions `platform/pages/publish-branch.sh` makes,
+      # after `check.mjs` for the reasons given there: each is a separate app
+      # or document set, not a catalogue page. Without them `/dev/`,
+      # `/dev/analyses/` and `/deploy/` 404 on the live site.
+      - name: Build the development analyses and the self-deploy page
+        run: |
+          node platform/devlog/build.mjs --out=platform/pages/dist/dev/analyses >/dev/null
+          node platform/deploy/build.mjs --out=platform/pages/dist/deploy >/dev/null
+
+      # The dashboard's GitHub API metrics need a token, so pull requests skip
+      # it. The live `stats.json` lets it reuse the CI counts of days it
+      # already counted (a few dozen API requests rather than ~170); a missing
+      # one just costs the full count.
+      - name: Build the development dashboard
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SITE_URL: ${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
+        run: |
+          prev="${RUNNER_TEMP}/prev-stats.json"
+          curl -fsS --retry 3 "${SITE_URL%/}/dev/stats.json" -o "$prev" || rm -f "$prev"
+          node platform/devstats/build.mjs --out=platform/pages/dist/dev --previous="$prev" >/dev/null
 
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
@@ -197,3 +245,39 @@ jobs:
           curl -sS "${base}/feed.xml" | grep -q "<entry>" \
             || { echo "::error::feed.xml served without any entries"; exit 1; }
           echo "Published and verified: ${base}/ (product page /${slug}/)"
+
+      # Tell IndexNow-participating engines (Bing, Yandex, ...) which URLs the
+      # deploy just published. It reads the artifact this run deployed, not the
+      # `gh-pages` branch, which stopped being the serving copy when the Pages
+      # source moved to GitHub Actions. IndexNow is free and this pushes
+      # nothing. A runner with no egress to it (`EXIT_NO_EGRESS`) has broken
+      # nothing; a genuine refusal (a bad key file) fails the step.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Fetch the deployed artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/pages-artifact
+
+      - name: Announce the deployed site to IndexNow
+        env:
+          EXIT_NO_EGRESS: "3"
+          ARTIFACT: ${{ runner.temp }}/pages-artifact
+        run: |
+          site="${RUNNER_TEMP}/site"
+          mkdir -p "$site"
+          tar -xf "${ARTIFACT}/artifact.tar" -C "$site"
+          status=0
+          node platform/marketing/indexnow.mjs --submit --dir "$site" || status=$?
+          case "${status}" in
+            0) echo "IndexNow notified (accepted means asked, not indexed)." ;;
+            "${EXIT_NO_EGRESS}") echo "::notice::This runner has no egress to api.indexnow.org; nothing was submitted." ;;
+            *) echo "::error::IndexNow refused the submission -- see the log above."; exit "${status}" ;;
+          esac

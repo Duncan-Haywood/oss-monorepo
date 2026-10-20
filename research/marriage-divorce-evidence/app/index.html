@@ -9,7 +9,7 @@
 <meta property="og:description" content="Divorce odds for a couple from 15 survey lenses (NLSY, NSFG, GSS, HCMST, SIPP, ACS, Statistics Canada), side by side and never pooled, with model ranges.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce and break-up odds for a couple from explainable models trained on U.S. and Canadian surveys (NLSY79, NLSY97, NSFG 2002 and 1995–2023, GSS panels, HCMST, SIPP, ACS, Statistics Canada GSS, a Los Angeles newlywed study), each lens at the horizons it supports, with a summary across lenses that never pools them. Runs entirely in the browser.","featureList":["Summary across 15 evidence lenses with held-out skill and data fit","Relationship quality, marriage happiness and newlywed satisfaction lenses","Same-sex and unmarried couples (HCMST lens)","ACS one-year divorce rates for people like you","Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link","Population percentile overall and within subgroups","Just-me estimate averaged over realistic partners","Rank several candidate partners per lens","Batch CSV scoring in the browser with downloadable results","Dashboard of partner traits and what-ifs with non-negotiables","Optional literature-based adjustment for conflict, depression, alcohol problems, neuroticism and earlier cohabitations, from verified published hazard ratios","CDC/NCHS population baselines of first-marriage disruption by matching characteristics"],"license":"https://opensource.org/licenses/MIT"}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce and break-up odds for a couple from explainable models trained on U.S. and Canadian surveys (NLSY79, NLSY97, NSFG 2002 and 1995–2023, GSS panels, HCMST, SIPP, ACS, Statistics Canada GSS, a Los Angeles newlywed study), each lens at the horizons it supports, with a summary across lenses that never pools them. Runs entirely in the browser.","featureList":["Summary across 15 evidence lenses with held-out skill and data fit","Relationship quality, marriage happiness and newlywed satisfaction lenses","Same-sex and unmarried couples (HCMST lens)","ACS one-year divorce rates for people like you","Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link","Population percentile overall and within subgroups","Just-me estimate averaged over realistic partners","Rank several candidate partners per lens","Batch CSV scoring in the browser with downloadable results","Dashboard of partner traits and what-ifs with non-negotiables","Compare many saved options lens by lens against your current plan, out of 100 couples like you, with model ranges and agreement, vary-one-thing copies, charts and JSON/CSV export","Optional literature-based adjustment for conflict, depression, alcohol problems, neuroticism and earlier cohabitations, from verified published hazard ratios","CDC/NCHS population baselines of first-marriage disruption by matching characteristics"],"license":"https://opensource.org/licenses/MIT"}
 </script>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css">
@@ -41,6 +41,7 @@
     <button type="button" role="tab" id="tab-candidates" data-view="candidates" aria-controls="candidates">Me + many people</button>
     <button type="button" role="tab" id="tab-dashboard" data-view="dashboard" aria-controls="dashboard">Your dashboard</button>
     <button type="button" role="tab" id="tab-batch" data-view="batch" aria-controls="batch">Many couples (CSV)</button>
+    <button type="button" role="tab" id="tab-scenarios" data-view="scenarios" aria-controls="scenarios">Compare options</button>
   </div>
 </nav>
 
@@ -201,6 +202,47 @@
   <details><summary>CSV columns and allowed values</summary>
     <p class="small">One row per couple. Values must match exactly (an ASCII hyphen may stand for the en dash in ranges such as <code>13-15 years</code>). Blank means unknown, except where required. The results file has one row per couple, lens and horizon (5, 10, 20 years): <code>no_divorce</code> (the lens’s mean chance of no divorce), <code>model_min</code>/<code>model_max</code> (range across its models), <code>population_percentile</code> (risk from the wedding day among the surveyed marriages; blank when the lens has none), <code>status</code> (ok, abstain, not_scorable), <code>abstain_reason</code> and <code>years_outside_data</code>.</p>
     <div class="table-wrap"><table id="batchSchema"></table></div>
+  </details>
+</section>
+
+<section id="scenarios" class="view" role="tabpanel" aria-labelledby="tab-scenarios" hidden>
+  <h2>Compare options</h2>
+  <p class="sub">Save the form above as an option (both profiles, the marriage, every optional question and the published-evidence answers), change something, save again, and compare the options lens by lens against the one you mark as your current plan. Up to <span id="scenMax">50</span> options. Each lens is compared only with itself, at one horizon for every option, as “out of 100 couples like you”; lenses are never pooled. These are associations in past surveys to help you think, not a recommendation. Nothing is uploaded.</p>
+  <div class="scen-save">
+    <label>Name for the new option <input id="scenName" maxlength="80" autocomplete="off"></label>
+    <p class="actions"><button type="button" id="scenSave">Save the form as an option</button> <button type="button" id="scenUpdate" hidden>Save changes</button></p>
+  </div>
+  <p id="scenStatus" role="status" class="note"></p>
+  <p id="scenCapNote" class="note"></p>
+  <details class="qgroup" id="scenVary">
+    <summary>Vary one thing</summary>
+    <p class="small">Make copies of an option that differ in one answer only, one copy per allowed value (at most 12 at a time). The starting option becomes your current plan. Age, timing and family background are listed apart: varying them shows what the models respond to, not something to change. Sensitive answers are never varied.</p>
+    <div class="two">
+      <label>Start from <select id="varyBase"></select></label>
+      <label>Change <select id="varyField"></select></label>
+    </div>
+    <p><button type="button" id="varyGo">Make the copies</button></p>
+  </details>
+  <h3>Your options <span id="scenCount"></span></h3>
+  <p id="scenStorage" class="small"></p>
+  <p id="scenEmpty" class="note">No options yet. Fill in the form above and press “Save the form as an option”, or open “Vary one thing”.</p>
+  <ol id="scenList" class="scen-list"></ol>
+  <details class="qgroup" id="scenLenses" open>
+    <summary>Lenses and horizons to compare</summary>
+    <p class="small">Ticked at first: the lenses most relevant to your current plan (inside their data, typical of their people, skilful held out). Each lens offers only the horizons its own data cover.</p>
+    <div id="scenLensList" class="lens-picks"></div>
+  </details>
+  <div id="scenOut" aria-live="polite"></div>
+  <details class="qgroup" id="scenFiles">
+    <summary>Save, share, import and export</summary>
+    <p class="actions"><button type="button" id="scenJson">Download options (JSON)</button></p>
+    <label class="check"><input type="checkbox" id="scenSensitive"> Include sensitive answers (hostility, abuse, substance use, low mood, childhood adversity) in this JSON file only</label>
+    <label>Import options from a JSON file <input type="file" id="scenImport" accept=".json,application/json"></label>
+    <div id="scenErrors" aria-live="polite"></div>
+    <p class="actions"><button type="button" id="scenCsv">Download results (CSV)</button> <button type="button" id="scenLink">Copy a link to these options</button></p>
+    <label id="scenLinkWrap" hidden>Share link <input id="scenLinkOut" readonly></label>
+    <p class="small">The CSV has one row per option, ticked lens and horizon (the lens’s own horizons), with no answers in it. The link keeps everything in its <code>#</code> fragment, which browsers do not send to any server, and carries only the answers the single-scenario link does. Files are read and written in this browser.</p>
+    <p class="actions"><button type="button" id="scenClear">Delete all options</button></p>
   </details>
 </section>
 
