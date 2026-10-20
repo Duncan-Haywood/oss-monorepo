@@ -100,6 +100,12 @@ def main():
     res = {"n_threads": len(trees), "detectors": {}}
     for kind in ("ngram", "context", "length"):
         res["detectors"][kind] = metrics(rows, fold_scores(rows, kind), trees, rng)
+    # ablation: drop every thread where either imitated turn looks like an assistant reply (bold, numbered list, "Sure,")
+    bad = {r["tree"] for r in rows if r["label"] == 1 and ASSISTANTISM.search(r["text"])}
+    clean = [r for r in rows if r["tree"] not in bad]
+    ctrees = sorted({r["tree"] for r in clean})
+    res["clean_threads"] = len(ctrees)
+    res["detectors"]["ngram_clean"] = metrics(clean, fold_scores(clean, "ngram"), ctrees, rng)
     stats = {}
     for label, name in ((0, "human"), (1, "generated")):
         sel = [r for r in rows if r["label"] == label]
@@ -113,8 +119,9 @@ def main():
     lines = [f"threads {len(trees)} (each: human turn 2, turn 3 and the plain-prompt imitation of both); 5-fold CV grouped by thread"]
     lines.append(f"{'detector':<9}" + "".join(f"{k:>26}" for k in ("turn2_auroc", "turn3_auroc", "thread_auroc", "thread_paired")))
     for kind, d in res["detectors"].items():
-        lines.append(f"{kind:<9}" + "".join(f"{d[k][0]:>8.3f} [{d[k][1]:.3f},{d[k][2]:.3f}]" for k in
+        lines.append(f"{kind:<11}" + "".join(f"{d[k][0]:>8.3f} [{d[k][1]:.3f},{d[k][2]:.3f}]" for k in
                                            ("turn2_auroc", "turn3_auroc", "thread_auroc", "thread_paired")))
+    lines.append(f"ngram_clean = n-gram detector on the {len(ctrees)} threads with no assistant-style imitated turn")
     lines.append("")
     for name, s in stats.items():
         lines.append(f"{name:<10}" + "  ".join(f"{k}={v:.3f}" for k, v in s.items()))
