@@ -1353,3 +1353,12 @@ test("ownerValid judges a person's shifts in time order, whatever order the slot
     assert.ok(!_internals.ownerValid(ctx, [0, 0]), "overlapping shifts are invalid");
   }
 });
+
+test("exact search runs by itself on small weeks and can be switched off", () => {
+  const staff = staffOf("Ana,15,24,0,Mon-Fri 8-18\nBen,12,16,8,Mon-Wed 6-16\nCy,18,40,0,any");
+  const small = slotsOf("Mon,8,14,1\nTue,8,16,1\nWed,6,12,2");
+  assert.ok(buildRoster(staff, small).optimality, "a 4-shift week is checked without asking");
+  assert.equal(buildRoster(staff, small, { exact: false }).optimality, null);
+  const big = slotsOf("Mon,8,16,3\nTue,8,16,3\nWed,8,16,3\nThu,8,16,3\nFri,8,16,3");
+  assert.equal(buildRoster(staff, big).optimality, null, "15 shifts is past the automatic limit");
+});
