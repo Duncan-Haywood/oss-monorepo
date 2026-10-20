@@ -1,6 +1,6 @@
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { usageReport, record, readUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+import { record, readUsage, setUsageOptOut, usageOptedOut, usageShare } from "./usage.mjs";
 
 function fakeStorage() {
   const store = new Map();
@@ -62,12 +62,14 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   assert.equal(readUsage().file_checked, 1);
 });
 
-test("usageReport lists counts and the suppression share, and is empty with no counts", () => {
-  assert.equal(usageReport(), "");
-  record("file_checked");
-  record("file_checked");
-  record("suppression_used");
-  const report = usageReport();
-  assert.match(report, /file_checked: 2/);
-  assert.match(report, /suppression_share: 50% of file checks/);
+test("usageShare reports only the known event counts and builds an issue link", () => {
+  const s = usageShare({ file_checked: 4, suppression_used: 1, secret: "a@b.com", rejected_downloaded: "x" });
+  assert.equal(s.total, 5);
+  assert.match(s.text, /^file_checked: 4$/m);
+  assert.match(s.text, /^suppression_used: 1$/m);
+  assert.match(s.text, /^rejected_downloaded: 0$/m);
+  assert.ok(!s.text.includes("a@b.com"));
+  assert.ok(s.url.startsWith("https://github.com/Duncan-Haywood/oss-monorepo/issues/new?"));
+  assert.match(s.text, /^suppression_share: 25% of file checks$/m);
+  assert.equal(usageShare(null).total, 0);
 });

@@ -46,8 +46,7 @@ hypotheses:
       bounced before the import, because platform imports otherwise re-subscribe
       them; measured as the share of file checks that supply a suppression list.
     status: untested
+    # 2026-10-20: counters are local-only, so no reading existed. The footer now offers visitors an opt-in
+    # "share my anonymous counts" link (prefilled GitHub issue, event counts only); read the issues for the share.
     checked: null
     evidence: in-repo
-    # 2026-10-20: counts live only in each visitor's localStorage. The page now has "Show my usage counts",
-    # which prints them with suppression_share and offers a prefilled GitHub issue the visitor sends on purpose;
-    # settle this claim from those issues.
