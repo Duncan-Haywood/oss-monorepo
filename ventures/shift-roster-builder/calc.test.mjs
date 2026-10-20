@@ -229,6 +229,30 @@ test("exact mode gives up honestly: a tiny node limit reports a bound, not a pro
   assert.ok(r.optimality.gap >= 0);
 });
 
+test("the exact bound sees that hours, overlaps and rest force shifts open, and never overstates", () => {
+  // Sample week: the coverage flow proves 15 hours must stay open, so the root bound sits within a fraction of a percent of the best roster
+  // (before the flow it was 79% below it).
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 20000 });
+  assert.ok(r.optimality.lowerBound >= 15 * 100000, `bound ${r.optimality.lowerBound}`);
+  assert.ok(r.optimality.lowerBound <= r.score + 1e-6);
+  assert.ok((r.score - r.optimality.lowerBound) / r.score < 0.01, `bound ${r.optimality.lowerBound} vs ${r.score}`);
+  // Random tight weeks (caps, overlaps, rest rules all biting): the exact answer still equals brute force.
+  let seed = 7;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed % n; };
+  const days = ["Mon", "Tue", "Wed"];
+  for (let c = 0; c < 25; c++) {
+    const st = Array.from({ length: 2 + rnd(2) }, (_, p) => `P${p},${10 + rnd(10)},${8 + rnd(3) * 4},0,${days[rnd(3)]}-Wed ${6 + rnd(3)}-${18 + rnd(5)}`).join("\n");
+    const sh = Array.from({ length: 5 + rnd(3) }, () => { const a = 6 + rnd(8); return `${days[rnd(3)]},${a},${a + 3 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
+    const stf = staffOf(st), sl = slotsOf(sh);
+    if (sl.length > 9) continue;
+    const brute = bruteForceBest(stf, sl, {});
+    const got = buildRoster(stf, sl, { exact: true });
+    assert.notEqual(got.optimality.status, "bounded", `case ${c}`);
+    assert.ok(Math.abs(got.score - brute) < 1e-6, `case ${c}: exact ${got.score} vs brute ${brute}\n${st}\n${sh}`);
+  }
+});
+
 test("same input gives the same roster", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
   const a = buildRoster(staff, slots, {}), b = buildRoster(staff, slots, {});
@@ -1352,4 +1376,13 @@ test("ownerValid judges a person's shifts in time order, whatever order the slot
     const ctx = _internals.buildContext(staff, slots, {});
     assert.ok(!_internals.ownerValid(ctx, [0, 0]), "overlapping shifts are invalid");
   }
+});
+
+test("exact search runs by itself on small weeks and can be switched off", () => {
+  const staff = staffOf("Ana,15,24,0,Mon-Fri 8-18\nBen,12,16,8,Mon-Wed 6-16\nCy,18,40,0,any");
+  const small = slotsOf("Mon,8,14,1\nTue,8,16,1\nWed,6,12,2");
+  assert.ok(buildRoster(staff, small).optimality, "a 4-shift week is checked without asking");
+  assert.equal(buildRoster(staff, small, { exact: false }).optimality, null);
+  const big = slotsOf("Mon,8,16,3\nTue,8,16,3\nWed,8,16,3\nThu,8,16,3\nFri,8,16,3");
+  assert.equal(buildRoster(staff, big).optimality, null, "15 shifts is past the automatic limit");
 });

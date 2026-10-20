@@ -30,6 +30,8 @@ jobs:
           # 22.04 so the AppImage runs on older glibc too.
           - os: ubuntu-22.04
             bundles: appimage,deb
+    # Off the CI_RUNNER switch: macOS and Windows installers need those runners
+    # (gitops/tests/test_ci_runner.py, OS_MATRIX_JOBS).
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     defaults:
@@ -70,7 +72,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 15
     permissions:
       contents: write
