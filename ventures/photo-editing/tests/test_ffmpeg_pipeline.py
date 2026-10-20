@@ -181,6 +181,13 @@ class LocalPipelineTests(unittest.TestCase):
 
             self.assertTrue(result.rendered, result)
             self.assertEqual(result.needs_review_ids, ())
+            analyses = [json.loads(path.read_text()) for path in sorted((workspace / "analysis").glob("0*.json"))]
+            self.assertTrue(analyses)
+            for analysis in analyses:
+                self.assertEqual(analysis["analysis_method"], "frame_metrics", analysis["source_asset_path"])
+                self.assertRegex(analysis["perceptual_hash"], r"^[0-9a-f]{16}$")
+            video = next(a for a in analyses if a["media_type"] == "video")
+            self.assertGreater(video["duration_seconds"], 0.0)
             reel = _probe(workspace / "deliverables" / "instagram_reel.mp4")
             self.assertEqual((reel["codec_name"], reel["width"], reel["height"]), ("h264", 1080, 1920))
             slides = sorted((workspace / "deliverables" / "instagram_carousel").glob("slide_*.jpg"))
