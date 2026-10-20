@@ -797,6 +797,9 @@ workflows:
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: interview-content-studio-ci.yml
+  classification: none
+  publishes: []
 - workflow: invoice-payment-terms-calculator-ci.yml
   classification: none
   publishes: []
