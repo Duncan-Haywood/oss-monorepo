@@ -847,8 +847,11 @@ export function optimalPartitioning(x, { model = 'mean', penalty = 'bic', minSeg
  * `changeProb[i]`: the posterior probability, given x[0..i+lag], that a new
  * segment started at x[i]. Also returns the log evidence sum log p(x_t | x_<t).
  */
-export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, model = 'mean', rho = 0, exposure = null } = {}) {
+export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, model = 'mean', rho = 0, exposure = null, dispersion = 1 } = {}) {
   const n = x.length;
+  // Counts with dispersion phi > 1: temper the Poisson likelihood by 1/phi (quasi-likelihood), i.e. counts and exposure
+  // each divided by phi, so the evidence for a change is what phi times fewer independent Poisson counts would give.
+  const phi = model === 'poisson' ? Math.max(1, dispersion) : 1;
   const H = 1 / Math.max(1, hazardLambda);
   const pois = model === 'poisson';
   // Poisson counts: Gamma(alpha, beta) rate prior, negative-binomial predictive; mu and kappa are unused.
@@ -877,7 +880,8 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
     const zAt = (i) => (rl[i] === 0 ? xt * a0 : t ? xt - rho * x[t - 1] : (1 - rho) * xt);
     const aAt = (i) => (rl[i] === 0 ? a0 : 1 - rho);
     for (let i = 0; i < m; i++) {
-      if (pois) logPred[i] = gammaPoissonLogPmf(xt, alpha[i], beta[i], exposure ? exposure[t] : 1);
+      if (pois) logPred[i] = phi === 1 ? gammaPoissonLogPmf(xt, alpha[i], beta[i], exposure ? exposure[t] : 1)
+        : gammaPoissonLogPmf(xt / phi, alpha[i], beta[i], (exposure ? exposure[t] : 1) / phi) + lgamma(xt / phi + 1) - lgamma(xt + 1);
       else if (!rho) logPred[i] = studentLogPdf(xt, mu[i], kappa[i], alpha[i], beta[i]);
       else logPred[i] = studentLogPdfReg(zAt(i), aAt(i), mu[i], kappa[i], alpha[i], beta[i]) + (rl[i] === 0 ? Math.log(a0) : 0);
     }
@@ -906,8 +910,8 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
       nmu.push((kappa[i] * mu[i] + xt) / k1);
       nk.push(k1);
       if (pois) {
-        na.push(alpha[i] + xt);
-        nb.push(beta[i] + (exposure ? exposure[t] : 1));
+        na.push(alpha[i] + xt / phi);
+        nb.push(beta[i] + (exposure ? exposure[t] : 1) / phi);
       } else {
         na.push(alpha[i] + 0.5);
         nb.push(beta[i] + (kappa[i] * (xt - mu[i]) ** 2) / (2 * k1));
@@ -1123,7 +1127,7 @@ export function analyze(input = {}) {
     const slope = median(values.slice(1).map((v, i) => v - values[i]));
     bvals = values.map((v, i) => v - slope * i);
   }
-  const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure });
+  const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure, dispersion: phi ?? 1 });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];

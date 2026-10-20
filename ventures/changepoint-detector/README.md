@@ -182,7 +182,13 @@ series, 40 each, in `engine.test.mjs`):
   series) and 18.0 to 0.6 (straight), and on independent counts the cost is small (bend kept 38 to 39 of 40, knot within
   15 points 35 to 36). The cost on wandering counts is real: the planted bend is then found on 1 of 40 series, because
   a growth change of that size is hard to tell from the noise at phi 20; the false alarms are gone, the power is not.
-  The Bayesian pass stays Poisson, so it still flags extra points on such series. Page: "Counts are clumpy or sticky".
+  The Bayesian pass is tempered by the same phi (added 2026-10-20): each count and its exposure are divided by phi
+  before the Gamma-Poisson update, so it weighs evidence like phi-times-fewer independent counts. On 40 wandering weekly
+  series with no change (seeds 1700..1739, `--period 7 --overdispersion`) it flagged 5.8 points per series, on all 40
+  series, and now 0.25, on 4 of 40. The cost is power, said plainly: with a planted 1.8x rate step at the midpoint the
+  Bayesian pass was within 7 points on 22 of 40 series before (while flagging 6.4 other points per series) and 0 of 40
+  now; at 3x it is 34 to 2 of 40, at 5x 35 to 9 of 40. So on wandering counts treat PELT as the detector and the
+  Bayesian pass as a check that no longer cries wolf; a negative-binomial cost might recover power. Page: "Counts are clumpy or sticky".
 - **Drifting seasonality (`--period n --drift`).** The fixed profile is wrong when the
   cycle's amplitude grows or its peak moves. With `--drift` each phase is smoothed across
   cycles by a running median (5 cycles, 3 on short series), re-centred per cycle. On 144

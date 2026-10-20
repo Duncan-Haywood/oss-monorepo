@@ -839,3 +839,21 @@ test('countDispersion reads Poisson counts as 1 and clumpy counts as large, and 
   assert.equal(analyze({ values: plain, model: 'poisson', overdispersion: 3 }).dispersion, 3);
   assert.throws(() => analyze({ values: plain, model: 'mean', overdispersion: true }), /counts/);
 });
+
+test('overdispersion tempers the Bayesian pass too: wandering counts stop raising false detections', () => {
+  const r = rng(1710);
+  const W = [1.6, 1.3, 1.1, 0.9, 0.8, 0.5, 0.8];
+  let z = 0;
+  const sticky = Array.from({ length: 210 }, (_, t) => {
+    z = 0.6 * z + 0.35 * Math.sqrt(-2 * Math.log(Math.max(r(), 1e-12))) * Math.cos(2 * Math.PI * r());
+    return poissons(r, 1, 10 * Math.exp(z) * W[t % 7])[0];
+  });
+  const plain = analyze({ values: sticky, model: 'poisson', period: 7 });
+  const od = analyze({ values: sticky, model: 'poisson', period: 7, overdispersion: true });
+  assert.ok(plain.bocpd.detections.length >= 2, `plain ${plain.bocpd.detections.length}`);
+  assert.ok(od.bocpd.detections.length <= 1, `tempered ${od.bocpd.detections.length}`);
+  // phi = 1 leaves the Poisson pass exactly as it was
+  const x = [...poissons(rng(7), 60, 3), ...poissons(rng(8), 60, 12)];
+  assert.deepEqual(bocpd(x, { model: 'poisson', dispersion: 1 }).changeProb, bocpd(x, { model: 'poisson' }).changeProb);
+  assert.ok(bocpd(x, { model: 'poisson', dispersion: 4 }).changeProb[60] < bocpd(x, { model: 'poisson' }).changeProb[60]);
+});
