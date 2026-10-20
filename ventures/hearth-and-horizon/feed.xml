@@ -24,8 +24,8 @@
       <itunes:summary>A bedtime story about Saint Martin de Porres, the kind brother with the broom, who made peace between a convent full of friars and a convent full of mice. For ages 3 to 8, about ten minutes read aloud. His feast day is the 3rd of November.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
-      <enclosure url="https://example.invalid/hearth-and-horizon/audio/brother-martin-and-the-mice.mp3" length="3369503" type="audio/mpeg"/>
-      <itunes:duration>0:09:22</itunes:duration>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/brother-martin-and-the-mice.mp3" length="3381571" type="audio/mpeg"/>
+      <itunes:duration>0:09:24</itunes:duration>
     </item>
     <item>
       <title>NOTES.md</title>
