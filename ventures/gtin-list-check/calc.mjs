@@ -29,6 +29,18 @@ export function isbn10To13(s) {
   return body + computeCheck(body);
 }
 
+// UPC-E (8 digits, number system 0 or 1) is a zero-suppressed UPC-A; its check digit is the UPC-A one.
+export function upcEToUpcA(e) {
+  if (!/^[01]\d{7}$/.test(e)) return null;
+  const [n, a, b, c, d, f, g, chk] = e;
+  const mid = "012".includes(g) ? a + b + g + "0000" + c + d + f
+    : g === "3" ? a + b + c + "00000" + d + f
+    : g === "4" ? a + b + c + d + "00000" + f
+    : a + b + c + d + f + "0000" + g;
+  const out = n + mid + chk;
+  return checkDigitOk(out) ? out : null;
+}
+
 export function decodeBuffer(buf) {
   const b = new Uint8Array(buf);
   if (b[0] === 0xff && b[1] === 0xfe) return new TextDecoder("utf-16le").decode(b.subarray(2));
@@ -88,6 +100,8 @@ export function classify(raw) {
   if (s.length === 10 && isbn10Ok(s)) return { kind: "ok", value: isbn10To13(s), fixed: true, notes: [...notes, "ISBN-10 converted to ISBN-13 (978 prefix)"] };
   const t = tryDigits(s);
   if (t.ok) return { kind: "ok", value: t.value, fixed: t.value !== s || notes.length > 0, notes: t.value !== s ? [...notes, `leading zero${t.value.length - s.length === 1 ? "" : "s"} restored (${s.length} to ${t.value.length} digits)`] : notes };
+  const upca = upcEToUpcA(s);
+  if (upca) return { kind: "ok", value: upca, fixed: true, notes: [...notes, `read as a UPC-E (8-digit short UPC) and expanded to UPC-A; it is not a valid GTIN-8 as written`] };
   if (s.length > 14) return { kind: "bad", why: "too long", detail: `${s.length} digits; a GTIN has 8, 12, 13 or 14.` };
   const swap = findTransposition(s);
   return { kind: "bad", why: s.length < 8 || [9, 10, 11].includes(s.length) ? "wrong length" : "check digit", digits: s, swap };
