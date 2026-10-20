@@ -334,3 +334,52 @@ out-of-range values) are checked to 1e-9 by `app/tests/nlsy97.test.mjs`, togethe
 - **Associations only.** Nothing here identifies what would happen if a couple changed an input.
   The modest discrimination (C ≈ 0.68) means that most marriages, including high-scoring ones,
   last, and many low-scoring ones end.
+
+## 2026-10-20 extension: race detail, family of origin, religion, politics, occupation and wealth (`extended_predictors.py`)
+
+`select_vars_ext.py` streams 89 more columns from the same zip (`extract_ext.csv`); every new input
+is fixed at or before the wedding month:
+
+- `race_detail`: KEY!RACE × KEY!ETHNICITY (Hispanic; non-Hispanic White, Black, American Indian or
+  Alaska Native, Asian or Pacific Islander — one category in NLSY97 — and other). Only 74 Asian or
+  Pacific Islander and 21 AIAN first marriages.
+- `family_origin`: parent figures at 12 (CV_YTH_REL_HH_AGE_12) and whether a biological parent had
+  died by 1997 (YSAQ-057/146): both parents / a parent died / stepfamily / single parent / other.
+  NLSY97 cannot separate a divorced or separated parent from a never-married one: the age-2
+  parent-figure variable almost never differs from the age-12 one, and the direct parental-divorce
+  items (YHEA-3021) cover only divorces in the five years before 2002-2013 interviews.
+- Religion: worship attendance at all eight answers ("several times a week" and "every day"
+  separate), the four belief items asked 2002-2011 (prays more than once a day; teachings to be
+  obeyed exactly; asks God's help; does not need religion for good values), importance of faith
+  (2008, 2011) and the parent-reported religiosity index (1997), each at the last answer before the
+  wedding.
+- Politics: interest in public affairs (YPOL-105, 2004-2010). NLSY97 asks no party or ideology.
+- Occupation: first-listed employer's occupation (2002 Census codes) at the last interview before
+  the wedding, Census major group.
+- Wealth: financial assets, debts and home ownership at the age-20/25 assets interview, only if it
+  preceded the wedding (net worth was already an input).
+
+Same marriages, intervals, folds (the first 3 seeds of `train_models.py`) and additive spline GLM;
+paired person bootstrap of the held-out difference (1,000):
+
+| Variant | Deviance gain % (95% CI) | Minus current, points (95% CI) |
+| --- | --- | --- |
+| current model | 4.82 (4.07–5.61) | — |
+| race detail (replaces 3-group race) | 4.82 (4.04–5.62) | −0.00 (−0.02 to +0.02) |
+| family of origin, 6 levels | 4.81 (4.04–5.61) | −0.02 (−0.06 to +0.03) |
+| family at 12 as yes/no | 4.79 (4.01–5.59) | −0.03 (−0.09 to +0.03) |
+| religion detail | 4.70 (3.94–5.51) | −0.12 (−0.22 to −0.03) |
+| political interest | 4.80 (4.05–5.62) | −0.02 (−0.08 to +0.04) |
+| occupation before the wedding | 4.80 (4.04–5.59) | −0.02 (−0.07 to +0.03) |
+| wealth components | 4.75 (3.98–5.53) | −0.07 (−0.17 to +0.03) |
+| all new blocks | 4.57 (3.77–5.35) | −0.26 (−0.43 to −0.09) |
+
+**Nothing adds held-out skill**; the religion block and all blocks together make predictions
+slightly worse. Adjusted rate ratios (`extended_rate_ratios.csv`, every current input and a
+marriage-length spline, 200 person-bootstrap refits) — a single parent at 12 1.18 (1.03–1.31),
+"other" arrangements 1.66 (1.32–2.01), a parent died 1.13 (0.88–1.38), stepfamily 1.15
+(0.88–1.41) vs both parents; Asian or Pacific Islander 0.71 (0.34–1.09) vs White; attendance
+several times a week 0.78 (0.56–1.04) vs never; faith "not important at all" 1.39 (1.05–1.88) vs
+"somewhat important"; following public affairs most of the time 1.20 (1.01–1.48); no occupation
+group differs clearly from management and professional jobs. The bundle gains `models_extended`
+(current + all blocks) and `extended` test vectors for transparency.

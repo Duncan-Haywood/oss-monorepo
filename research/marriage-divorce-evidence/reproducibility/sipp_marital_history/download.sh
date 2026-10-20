@@ -22,3 +22,5 @@ done
 [ -f p08tm2d.txt ] || curl --fail -sSL -o p08tm2d.txt "$base/2008/w2/p08tm2d.txt"
 sha256sum -c "$here/SHA256SUMS"
 python3 -I "$here/extract_pu.py" "$work/pu" 2018 2019 2020 2021 2022 2023 2024 2025
+# 2026-10-20 extension: occupation and wealth components (re-downloads the annual files; downloads_ext.json)
+python3 -I "$here/extract_ext.py" "$work/pu" 2018 2019 2020 2021 2022 2023 2024 2025

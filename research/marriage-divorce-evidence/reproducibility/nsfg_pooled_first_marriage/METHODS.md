@@ -303,3 +303,45 @@ Files: `nsfgio.py` (readers), `harmonise.py` (per-cycle variable maps and recode
 `heldout_calibration_deciles.csv`, `additive_partial_effects.csv` (rate ratios with design
 bootstrap intervals), `coefficients_additive_spline.csv`, `tree_depth4.txt`,
 `weighted_survival.csv`.
+
+## 2026-10-20 extension: who she grew up with, and religion growing up (`extended_predictors.py`)
+
+Three childhood inputs (so before every wedding), asked on the 2006–2010 to 2017–2019 files and
+scored at their own "Not asked" level for 1995, 2002 and 2022–2023 women:
+
+- `wife_family_origin`: INTACT18 (both parents to 18), LVSIT14F/LVSIT14M (step-father or another
+  mother figure at 14) and PARMARR (biological parents married when she was born): both parents /
+  stepfamily / never-married single parent (parents not married at her birth) / parents split up or
+  a parent died (married at her birth, not intact — the public files do not separate divorce from
+  death) / other;
+- `wife_attend14`: attendance at 14 (ATTND14), all seven answers including "more than once a week".
+  On these files it is answered by about a third of all women (4,395 of 12,279 in 2006–2010) but by
+  only 1,015 of the 15,691 first-married women in 2006–2019 (14,676 "Unknown"), so it is weak here;
+- `wife_religion_raised_detail`: RELRAISD at full detail (Baptist, mainline, fundamentalist, other
+  and non-denominational Protestant, Catholic, none, other).
+
+Same women, intervals, person folds and additive spline GLM as `train_pooled.py`; paired person
+bootstrap (1,000) of the held-out difference (`../extended_eval.py`).
+
+| Women | Variant | Deviance gain % (95% CI) | Minus current, points (95% CI) |
+| --- | --- | --- | --- |
+| all 29,202 | current model | 5.69 (5.21–6.13) | — |
+| | family of origin, 6 levels (replaces intact yes/no) | 5.66 (5.19–6.11) | −0.03 (−0.09 to +0.04) |
+| | + attendance at 14 | 5.68 (5.21–6.13) | −0.01 (−0.02 to +0.01) |
+| | religion raised in full detail | 5.68 (5.20–6.13) | −0.01 (−0.05 to +0.02) |
+| | all three | 5.64 (5.17–6.08) | −0.05 (−0.12 to +0.02) |
+| 2006–2019 cycles only | all three | 5.14 (4.50–5.82) | −0.03 (−0.12 to +0.06) |
+
+**Nothing adds held-out skill.** The finer family of origin does sort risk (adjusted rate ratios
+vs both parents, 2006–2019 women, 100 design-cluster refits, `extended_rate_ratios.csv`):
+stepfamily 1.52 (1.35–1.68), parents split up or a parent died 1.32 (1.18–1.45), never-married
+single parent 1.20 (1.06–1.38); but the yes/no "intact to 18" input already carries almost all of
+it. Raised Baptist 1.13 (1.00–1.28) and other Protestant denomination 0.80 (0.62–0.99) vs Catholic;
+attendance at 14 has wide intervals. The bundle gains `models_extended` (all three) and `extended`
+test vectors; the app does not score it until the form asks.
+
+Race: the public files give Hispanic, non-Hispanic White, Black and Other only (Asian, AIAN, NHPI
+and multiracial are "Other"; `app/data/race_coverage.json`). Other pre-wedding items not yet used:
+mother's education is in; the respondent's age at first sex is in (as years before the wedding);
+whether she was raised in a two-parent home with a working mother (MOMWORKD), and the parents'
+education beyond the mother, are candidates for a later pass.
