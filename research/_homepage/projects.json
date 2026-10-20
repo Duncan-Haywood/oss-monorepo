@@ -3823,6 +3823,11 @@
     "summary": "A parametric 3D-printable gripper finger (length, thickness, pad width, V angle) scored in MuJoCo on eight objects with a per-design grip force. At 40 evaluations the median best objective is 0.991 for Bayesian optimisation, 0.979 for CMA-ES, 0.965 for random search and 0.963 for a session agent&rsquo;s hand-written proposals (one run; Bayesian optimisation matched or beat it in 10 of 10 seeds). The best designs are tiny flat fingers (0.5&nbsp;g), but re-scored with object offsets tripled they hold 5 of 8 objects against 6 of 8 for the agent&rsquo;s wide V. Rigid, stylised, no learned policy, nothing printed."
    }
    ,{
+    "slug": "codesign-ceiling",
+    "title": "Which grasp scenes can no printable two-finger gripper hold, and what limits the ceiling?",
+    "summary": "Why every method in <code>codesign-diagnose</code> plateaued near 0.85. A MuJoCo sweep of 150 feasible gripper designs over 140 grasp scenes (cylinders, spheres, boxes of 150&ndash;1500&nbsp;g) finds that 10 scenes (7%) are held by no design at any force, and all 10 are spheres where the simulated hand sits more than about 2&nbsp;mm above the sphere&rsquo;s centre height. Lowering only the hand height holds all 10 (hand at table level) or 8 of 10 (hand at sphere-centre height), so the ceiling comes from the scene geometry, not from friction, mass, force or finger strength; relaxing the finger strength limit lifts the best single design from 0.77 to 0.89 on fresh scenes. Stylised simulator; the 10-scene pattern was found after the fact and confirmed by one intervention."
+   }
+   ,{
     "slug": "codesign-diagnose",
     "title": "Does diagnostic feedback (a failure summary, full rollout logs) help a design loop find better printable grippers than the score alone?",
     "summary": "Three scripted readers of a MuJoCo gripper co-design loop differ only in what they may read about each design: the score, a failure summary, or full rollout logs. At 40 designs and 8 seeds all end at 0.84&ndash;0.86 median best held-out grasp success, the same as random search, CMA-ES and Bayesian optimisation (standard error about 0.05), and the richest reader proposes the worst designs on average. Negative and stylised: the readers are author-written rules, not an LLM."
