@@ -24,6 +24,7 @@ node --test platform/llm/*.test.mjs
 node --test platform/devstats/*.test.mjs
 node --test platform/daily/*.test.mjs
 node --test platform/counter/*.test.mjs
+node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
 node --test platform/uitest/*.test.mjs        # browser half skips unless PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 node --test research/marriage-divorce-evidence/app/tests/*.test.mjs

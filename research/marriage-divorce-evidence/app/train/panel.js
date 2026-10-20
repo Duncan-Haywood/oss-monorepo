@@ -2,7 +2,7 @@
 // held-out results next to the shipped Python ones, and scores a profile with the models the
 // visitor just trained. Self-contained: mounts into <section id="trainPanel"> and touches
 // nothing else on the page.
-import { KINDS, MODEL_LABELS, rates } from './fit.js';
+import { KINDS, MODEL_LABELS, MODEL_COST, rates } from './fit.js';
 
 const here = (p) => new URL(p, import.meta.url);
 const LABELS = {
@@ -55,11 +55,12 @@ export function mount(root) {
   }
   root.innerHTML = `
   <h2 id="trainHead">Train the models yourself</h2>
-  <p class="sub">Retrain the NSFG 1995–2023 lens from its survey data, here in your browser, with the same person-held-out five-fold test as the Python pipeline. The data are a compact public extract of 29,202 women’s first marriages from eight National Survey of Family Growth cycles (NCHS; U.S. government work, public domain), with inputs fixed at or before the wedding only. The models are fitted by plain JavaScript in a background worker, so the page stays usable. All five models take about 40 seconds on a laptop and a few minutes on a phone; you can cancel at any time. Nothing is sent anywhere.</p>
+  <p class="sub">Retrain the NSFG 1995–2023 lens from its survey data, here in your browser, with the same person-held-out five-fold test as the Python pipeline. The data are a compact public extract of 29,202 women’s first marriages from eight National Survey of Family Growth cycles (NCHS; U.S. government work, public domain), with inputs fixed at or before the wedding only. The models are fitted by plain JavaScript in a background worker, so the page stays usable. The five held-out folds train in parallel, one per spare core: all five models took 45 seconds on one thread of a 4-core machine and 18 seconds on three or more, and a phone takes longer. You can cancel at any time. Nothing is sent anywhere.</p>
   <fieldset class="train-opts"><legend>Models to train</legend>
     <div class="train-kinds">${KINDS.map((k) => `<label class="check"><input type="checkbox" name="kind" value="${k}" ${k === 'constant' ? 'checked disabled' : 'checked'}> ${esc(MODEL_LABELS[k])}</label>`).join('')}</div>
     <label>Boosting rounds <select name="iters"><option value="250" selected>250 (the Python setting)</option><option value="100">100 (faster, a little less skill)</option><option value="25">25 (quick look)</option></select></label>
     <label class="check"><input type="checkbox" name="final" checked> Then refit on every marriage, to score a profile below</label>
+    <label>Parallel threads <select name="threads">${threadOptions()}</select><small>The five held-out folds train at the same time on separate cores. More threads use more memory.</small></label>
   </fieldset>
   <p class="actions"><button type="button" data-act="start">Train in my browser</button> <button type="button" data-act="cancel" disabled>Cancel</button></p>
   <progress value="0" max="1" hidden aria-label="Training progress"></progress>
@@ -69,15 +70,16 @@ export function mount(root) {
   const $ = (s) => root.querySelector(s);
   const progress = $('progress'), status = $('.train-status'), results = $('.train-results'), scoreBox = $('.train-score');
   const start = $('[data-act=start]'), cancel = $('[data-act=cancel]');
-  let worker = null, meta = null, cv = null;
+  let meta = null;
   const python = Promise.all([
     fetch(here('../models/nsfg_pooled_first_marriage.json')).then((r) => r.json()).catch(() => null),
     fetch(here('sklearn_reference.json')).then((r) => r.json()).catch(() => null),
   ]).then(([b, r]) => shippedResults(b, r));
 
+  let workers = [];
   const stop = (text) => {
-    if (worker) worker.terminate();
-    worker = null;
+    for (const w of workers) w.terminate();
+    workers = [];
     start.disabled = false; cancel.disabled = true;
     progress.hidden = true;
     if (text) status.textContent = text;
@@ -87,41 +89,103 @@ export function mount(root) {
     const kinds = ['constant', ...[...root.querySelectorAll('input[name=kind]:checked')].map((i) => i.value).filter((k) => k !== 'constant')];
     const boostingIters = Number($('select[name=iters]').value);
     const finalFit = $('input[name=final]').checked;
+    const nThreads = Number($('select[name=threads]').value);
     results.innerHTML = ''; scoreBox.innerHTML = '';
     start.disabled = true; cancel.disabled = false;
     progress.hidden = false; progress.value = 0;
-    status.textContent = 'Starting the background worker…';
+    status.textContent = `Starting ${nThreads} background worker${nThreads > 1 ? 's' : ''}…`;
+    const cost = (k) => MODEL_COST[k] * (k === 'gradient_boosting' ? boostingIters / 250 : 1);
+    // The task queue: the five folds first (so held-out results arrive early), then the refits,
+    // biggest first; the metrics jump the queue as soon as every fold is in.
+    const tasks = [0, 1, 2, 3, 4].map((fold) => ({ cmd: 'fold', fold, kinds, boostingIters, cost: kinds.reduce((t, k) => t + cost(k), 0) }));
+    if (finalFit) kinds.map((kind) => ({ cmd: 'final', kind, boostingIters, cost: 1.25 * cost(kind) })).sort((x, y) => y.cost - x.cost).forEach((t) => tasks.push(t));
+    tasks.forEach((t, i) => { t.id = i; t.frac = 0; });
+    const totalCost = tasks.reduce((t, x) => t + x.cost, 0);
+    const queue = tasks.slice(), folds = [], models = {};
+    const labels = new Map();
+    const t0 = performance.now();
+    let cvSeconds = null, pendingCv = false, finished = 0;
+    const update = () => {
+      const value = tasks.reduce((t, x) => t + x.cost * x.frac, 0) / totalCost;
+      progress.value = value;
+      const now = [...labels.values()].slice(0, 2).join('; ');
+      status.textContent = `${Math.round(100 * value)}% · ${finished} of ${tasks.length} tasks done on ${workers.length} thread${workers.length > 1 ? 's' : ''}${now ? ` · ${now}` : ''} · ${((performance.now() - t0) / 1000).toFixed(0)} s`;
+    };
+    const dispatch = (w) => {
+      const t = queue.shift();
+      if (!t) { w.idle = true; return; }
+      w.idle = false;
+      const { cost: _c, frac: _f, ...msg } = t;
+      const transfer = t.cmd === 'summarize' ? [...new Set(t.folds.flatMap((fold) => Object.values(fold).flatMap((r) => [r.rows, r.pred, r.people, r.score10].map((a) => a.buffer))))] : [];
+      w.postMessage(msg, transfer);
+    };
+    const finish = () => {
+      if (finished < tasks.length || pendingCv || cvSeconds === null) return;
+      const total = ((performance.now() - t0) / 1000).toFixed(0);
+      stop(`Done in ${total} s on ${nThreads} thread${nThreads > 1 ? 's' : ''}. Held-out results${finalFit ? ' and a profile scorer for the models you trained' : ''} are below.`);
+      if (Object.keys(models).length) renderScorer(scoreBox, meta, models, kinds);
+    };
+    const onMessage = (w) => async (ev) => {
+      const m = ev.data;
+      if (!workers.length) return;                      // cancelled
+      if (m.type === 'error') { stop(`Training stopped: ${m.message}`); return; }
+      if (m.type === 'loaded') {
+        if (!meta) meta = m;
+        status.textContent = `Loaded ${m.n.toLocaleString('en-US')} marriages (${m.events.toLocaleString('en-US')} ended) as ${m.intervals.toLocaleString('en-US')} marriage-years in ${m.seconds.toFixed(1)} s. Training…`;
+        return;
+      }
+      if (m.type === 'progress') {
+        tasks[m.id].frac = m.frac; labels.set(m.id, m.label); update();
+        return;
+      }
+      if (m.type === 'fold' || m.type === 'final') {
+        tasks[m.id].frac = 1; labels.delete(m.id); finished++;
+        if (m.type === 'fold') folds.push(m.result);
+        else models[m.kind] = m.model;
+        if (m.type === 'fold' && folds.length === 5 && !pendingCv) {
+          // every fold is in: the next free worker pools and scores them (off the page's thread)
+          pendingCv = true;
+          queue.unshift({ cmd: 'summarize', id: -1, kinds, folds: folds.splice(0), cost: 0, frac: 0 });
+          const idle = workers.find((x) => x.idle);
+          if (idle) dispatch(idle);
+        }
+      }
+      if (m.type === 'cv') {
+        pendingCv = false;
+        cvSeconds = (performance.now() - t0) / 1000;
+        renderResults(results, kinds, m.results, await python, cvSeconds, boostingIters, nThreads);
+      }
+      update();
+      dispatch(w);
+      finish();
+    };
     try {
-      worker = new Worker(here('worker.js'), { type: 'module' });
+      for (let i = 0; i < nThreads; i++) {
+        const w = new Worker(here('worker.js'), { type: 'module' });
+        w.onmessage = onMessage(w);
+        w.onerror = (e) => stop(`A worker failed: ${e.message || 'unknown error'}.`);
+        workers.push(w);
+      }
     } catch (e) {
       stop(`This browser cannot run module workers (${e.message}).`);
       return;
     }
-    const t0 = performance.now();
-    worker.onerror = (e) => stop(`The worker failed: ${e.message || 'unknown error'}.`);
-    worker.onmessage = async (ev) => {
-      const m = ev.data;
-      if (m.type === 'status') status.textContent = m.text;
-      else if (m.type === 'loaded') {
-        meta = m;
-        status.textContent = `Loaded ${m.n.toLocaleString('en-US')} marriages (${m.events.toLocaleString('en-US')} ended) as ${m.intervals.toLocaleString('en-US')} marriage-years in ${m.seconds.toFixed(1)} s. Training…`;
-      } else if (m.type === 'progress') {
-        progress.value = m.value;
-        status.textContent = `${Math.round(100 * m.value)}% · ${m.label} · ${((performance.now() - t0) / 1000).toFixed(0)} s`;
-      } else if (m.type === 'cv') {
-        cv = m.results;
-        renderResults(results, kinds, cv, await python, m.seconds, boostingIters);
-        if (!finalFit) stop(`Done in ${m.seconds.toFixed(0)} s.`);
-      } else if (m.type === 'done') {
-        stop(`Done in ${m.seconds.toFixed(0)} s. Held-out results and a profile scorer for the models you trained are below.`);
-        if (Object.keys(m.models).length) renderScorer(scoreBox, meta, m.models, kinds);
-      } else if (m.type === 'error') stop(`Training stopped: ${m.message}`);
-    };
-    worker.postMessage({ kinds, boostingIters, finalFit });
+    workers[0].postMessage({ cmd: 'load', id: -2 });
+    for (const w of workers) dispatch(w);
   });
 }
 
-function renderResults(el, kinds, cv, py, seconds, iters) {
+// Default threads: one per spare core, at most five (one per fold), fewer on low-memory devices.
+function threadOptions() {
+  const cores = Math.max(1, (typeof navigator !== 'undefined' && navigator.hardwareConcurrency) || 2);
+  const mem = typeof navigator !== 'undefined' ? navigator.deviceMemory : undefined;
+  let auto = Math.min(5, Math.max(1, cores - 1));
+  if (mem && mem <= 2) auto = 1;
+  else if (mem && mem <= 4) auto = Math.min(auto, 3);
+  return [1, 2, 3, 4, 5].map((n) => `<option value="${n}" ${n === auto ? 'selected' : ''}>${n}${n === auto ? ' (suggested for this device)' : ''}</option>`).join('');
+}
+
+function renderResults(el, kinds, cv, py, seconds, iters, threads = 1) {
   const rows = kinds.map((k) => {
     const r = cv[k], s = py.shipped[k], x = py.extract[k];
     return `<tr><th scope="row">${esc(MODEL_LABELS[k])}</th>
@@ -139,9 +203,9 @@ function renderResults(el, kinds, cv, py, seconds, iters) {
     <h3>Held-out results: your browser versus Python</h3>
     <div class="table-wrap"><table class="train-table">
       <thead><tr><th scope="col" rowspan="2">Model</th><th scope="colgroup" colspan="4">Trained in your browser</th><th scope="colgroup" colspan="2">Shipped lens (Python)</th><th scope="col" rowspan="2" class="num">scikit-learn on this extract</th></tr>
-      <tr><th scope="col" class="num">Deviance gain</th><th scope="col" class="num">C</th><th scope="col" class="num">O/E</th><th scope="col" class="num">Time</th><th scope="col" class="num">Deviance gain</th><th scope="col" class="num">C</th></tr></thead>
+      <tr><th scope="col" class="num">Deviance gain</th><th scope="col" class="num">C</th><th scope="col" class="num">O/E</th><th scope="col" class="num">CPU time</th><th scope="col" class="num">Deviance gain</th><th scope="col" class="num">C</th></tr></thead>
       <tbody>${rows}</tbody></table></div>
-    <p class="small">Deviance gain: how much better than a constant annual rate the model predicts the 5,800 or so women held out in each fold, pooled over the five folds (Poisson deviance on marriage-years). C: Harrell’s concordance of the 10-year risk score. O/E: observed over predicted dissolutions. Python: scikit-learn 1.7.2 in <code>reproducibility/nsfg_pooled_first_marriage/train_pooled.py</code>, same folds${iters !== 250 ? `; your boosting used ${iters} rounds instead of 250, so expect less skill` : ''}. Total ${seconds.toFixed(0)} s here.</p>
+    <p class="small">Deviance gain: how much better than a constant annual rate the model predicts the 5,800 or so women held out in each fold, pooled over the five folds (Poisson deviance on marriage-years). C: Harrell’s concordance of the 10-year risk score. O/E: observed over predicted dissolutions. Python: scikit-learn 1.7.2 in <code>reproducibility/nsfg_pooled_first_marriage/train_pooled.py</code>, same folds${iters !== 250 ? `; your boosting used ${iters} rounds instead of 250, so expect less skill` : ''}. Time: CPU seconds for each model, summed over the five folds; the held-out results were ready after ${seconds.toFixed(0)} s on ${threads} thread${threads > 1 ? 's' : ''}.</p>
     ${cal}`;
 }
 
