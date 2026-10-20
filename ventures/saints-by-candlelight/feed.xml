@@ -17,6 +17,34 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Nicholas and the Three Bags of Gold</title>
+      <link>https://example.invalid/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-nicholas-and-the-three-bags-of-gold</guid>
+      <pubDate>Tue, 20 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A young man in fourth-century Lycia hears that his neighbour&#39;s three daughters cannot marry for want of a dowry, and on three dark nights a bag of gold comes through their window. The gentle, funny, true-hearted story of how Saint Nicholas of Myra learned to give in secret, and how the secret got out anyway. What&#39;s true: Nicholas was a real bishop of Myra in Lycia in the fourth century, and his tomb at Myra was a place of pilgrimage from early times; almost every detail of his life comes from later lives Legend: the three bags of gold, his childhood fasting, his election by a dream, the calming of the storm, the grain ships at Myra, and the striking of Arius at Nicaea are all from later lives and legends, labelled as such in the script Invented for this episode: the daughters&#39; names and personalities, the father&#39;s dialogue and embarrassment, the neighbours, and most small conversations are our own invention, told in the spirit of the old lives Feast day: 6 December in both traditions; the Orthodox also keep 9 May for the translation of his relics to Bari in 1087, a date also kept in Bari itself Full script and sources: https://example.invalid/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A young man in fourth-century Lycia hears that his neighbour&#39;s three daughters cannot marry for want of a dowry, and on three dark nights a bag of gold comes through their window. The gentle, funny, true-hearted story of how Saint Nicholas of Myra learned to give in secret, and how the secret got out anyway.</itunes:summary>
+      <itunes:episode>3</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/nicholas-and-the-three-bags-of-gold.mp3" length="13545800" type="audio/mpeg"/>
+      <itunes:duration>0:45:09</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Gerasimus and the Lion Who Lost the Donkey</title>
+      <link>https://example.invalid/saints-by-candlelight/gerasimus-and-the-lion.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-gerasimus-and-the-lion</guid>
+      <pubDate>Tue, 20 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A fifth-century abbot by the river Jordan pulls a thorn from a lion&#39;s paw, gives him a job guarding the monastery donkey, and learns something about blame when the donkey goes missing and the lion is left carrying the water. What&#39;s true: Gerasimus, his lavra near Jericho by the Jordan, its way of life, and his death in about the year four hundred and seventy-five are historical, attested by Cyril of Scythopolis Legend: The lion, the thorn, the lost donkey, the camel caravan and the lion&#39;s death at the grave come from John Moschus&#39;s Spiritual Meadow, written down well over a century after Gerasimus died Invented for this episode: The lion&#39;s and the donkey&#39;s personalities, most dialogue, the young monk Brother Theodore, the soldier&#39;s words, the camel drivers coming back to apologise, and small details of daily life are our own invention Feast day: Orthodox churches keep Saint Gerasimus on the fourth of March; the Roman Martyrology names him on the fifth of March Full script and sources: https://example.invalid/saints-by-candlelight/gerasimus-and-the-lion.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A fifth-century abbot by the river Jordan pulls a thorn from a lion&#39;s paw, gives him a job guarding the monastery donkey, and learns something about blame when the donkey goes missing and the lion is left carrying the water.</itunes:summary>
+      <itunes:episode>2</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/gerasimus-and-the-lion.mp3" length="12184154" type="audio/mpeg"/>
+      <itunes:duration>0:40:37</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/gerasimus-and-the-lion.html" type="text/html"/>
+    </item>
+    <item>
       <title>The Angel Who Called Himself Azarias</title>
       <link>https://example.invalid/saints-by-candlelight/the-angel-who-called-himself-azarias.html</link>
       <guid isPermaLink="false">saints-by-candlelight-the-angel-who-called-himself-azarias</guid>
