@@ -140,7 +140,13 @@ export const DEV_DIR = 'dev';
 // not a product, so it carries no index.html of its own.
 export const SHOWCASE_DIR = 'showcase';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, SHOWCASE_DIR]);
+// The site feedback form (`build.mjs`, `renderFeedbackPage`, PR #8723): a page
+// about the site, linked from the About page and the footer, not a product.
+// Unlisted, it was held to a product's contract and failed every build on
+// main (2026-10-20), so nothing deployed.
+export const FEEDBACK_DIR = 'feedback';
+
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
