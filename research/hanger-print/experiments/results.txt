@@ -1,0 +1,28 @@
+assumptions: PLA E 3500 MPa, allowable 40 MPa in plane, Kt 2, dynamic x2, design garment 1.5 kg, depth 12 mm unless stated
+== A. Printed designs: safety factor at depth 12 mm; depth needed for SF 3 (mass uses at least 6 mm); tip deflection; sliced mass at that depth; fits a 220 / 256 mm bed whole, and one arm with its hub on 220 (best turn, deg); loop stress MPa
+design          w_cm r_cm   SF12  d_SF3   defl   mass_g   bed220  bed256  half220   loop
+adj child       15.8 2.86  71.47    0.5  0.007     63   no @45  yes@45  yes@60   0.18
+adj wS          18.8 2.86  58.02    0.6  0.013     73   no @45  no @45  yes@60   0.18
+adj S           21.8 2.86  48.83    0.7  0.023     83   no @45  no @45  yes@60   0.18
+adj M           22.8 2.86  46.38    0.8  0.026     86   no @45  no @45  yes@60   0.18
+adj L           23.8 2.86  44.17    0.8  0.031     90   no @45  no @45  yes@60   0.18
+adj XL          24.8 2.86  42.15    0.9  0.035     93   no @45  no @45  yes@60   0.18
+adj XXL         25.8 2.86  40.32    0.9  0.040     96   no @45  no @45  no @60   0.18
+rack w16        16.0 2.86  70.39    0.5  0.008     63   no @45  yes@45  yes@60   0.18
+rack w19        19.0 2.86  57.30    0.6  0.014     73   no @45  no @45  yes@60   0.18
+rack w22        22.0 2.86  48.32    0.7  0.023     83   no @45  no @45  yes@60   0.18
+rack w25        25.0 2.86  41.77    0.9  0.036     94   no @45  no @45  yes@60   0.18
+wire-like       20.5 0.15   0.13  277.6 174.328    351   no @45  no @45  yes@65   0.18
+plastic-like    20.0 0.50   1.48   24.3  4.311     51   no @45  no @45  yes@65   0.18
+wood-like       22.5 2.00  22.07    1.6  0.084     60   no @45  no @45  yes@60   0.18
+== B. Round end against stiffness: w 23 cm, slope/bow of the adjustable shape, 12 mm deep
+ r_cm    SF12  d_SF3_mm  mass_g  defl_mm
+ 0.15    0.11     323.3     445  275.347
+ 0.30    0.45      80.3     137   33.745
+ 0.50    1.26      28.7      65    7.098
+ 1.00    5.14       7.0      36    0.829
+ 1.50   11.83       3.0      47    0.229
+ 2.00   21.54       1.7      62    0.090
+ 2.86   45.92       0.8      87    0.027
+== C. Tip deflection against the shape error hanger-fit reports
+deflection of the printed adjustable arm at 12 mm depth, M size: 0.026 mm; hanger-fit's adjustable error: 1.6 mm (0.16 cm)
