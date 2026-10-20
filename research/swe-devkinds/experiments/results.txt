@@ -1,0 +1,7 @@
+records 1606, with a deviation 213
+runs per kind (a run can have several): {'other': 38, 'skipped': 108, 'switched': 43, 'tooling': 27}
+--- A: partial outcome, track-stratified, kind minus no-deviation
+other     runs in usable strata   36  diff +13.3 pp  p=0.008
+skipped   runs in usable strata  106  diff  +1.3 pp  p=0.668
+switched  runs in usable strata   41  diff  +1.3 pp  p=0.634
+tooling   runs in usable strata   24  diff +22.6 pp  p=0.001
