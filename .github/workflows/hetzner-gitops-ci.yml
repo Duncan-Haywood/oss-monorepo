@@ -54,13 +54,15 @@ permissions:
 jobs:
   gitops:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
-    # Normally ~2-3 minutes (pytest + two network downloads + a front-door
-    # generator run). Without a cap here a hung apt-get, curl, or nginx
+    # ~12 minutes on a GitHub-hosted runner (2026-10-20: `pytest gitops/tests`
+    # ~10 of it, plus two network downloads). 20 leaves room for the suite to
+    # grow without the cap cutting off kustomize/kubeconform at the end, which
+    # 15 did once the front-door tests were also in this job. Without a cap here a hung apt-get, curl, or nginx
     # boot rides the default 360-minute GitHub-hosted ceiling — on a
     # metered-minutes account (see CLAUDE.md's CI-starvation history) that
     # is the difference between one stuck job and the next allowance cycle
     # arriving early.
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -124,20 +126,14 @@ jobs:
       - name: pytest (root-only host installer tests)
         if: runner.environment == 'github-hosted'
         run: sudo "$(command -v pytest)" gitops/tests/test_install_codex_host.py gitops/tests/test_install_github_runner_host.py -v
-      # The generator behind `gitops/prod/front-door/index.html`. Run here
-      # rather than in portfolio-pages.yml because the page it produces is a
-      # GitOps input, not part of the Pages artifact — and because this is the
-      # workflow that already triggers on the directory it lands in.
-      - name: front door generator
-        run: node --test "platform/marketing/*.test.mjs"
-      # Same guard as `portfolio-validate.yml`'s, on the other half of the
-      # trigger surface: that workflow catches a venture edit growing the
-      # mirror, this one catches a `platform/marketing/**` change doing it --
-      # a wider `STARTER_SET`, or an injection that adds bytes to all 173
-      # mirrored pages at once, which is the change most able to move the
-      # number in one commit. See `MIRROR_HEADROOM_WARN_RATIO`.
-      - name: front door mirror has room left
-        run: node platform/marketing/front-door-tools.mjs --headroom
+      # The front-door generator suite (`node --test "platform/marketing/*.test.mjs"`)
+      # and the mirror headroom check used to run here too. They are identical
+      # to steps in `portfolio-validate.yml`, which triggers on every path that
+      # suite reads (`platform/marketing/**`, `platform/pages/**`,
+      # `gitops/prod/**`, `gitops/tests/**`), so they run there only. Here they
+      # added ~4.5 minutes to a job whose pytest step alone takes ~10, and on
+      # 2026-10-20 that pushed this job past its timeout on `main` (#8591's
+      # push run) and on PRs, cutting off kustomize and kubeconform below.
       - name: infra layout
         run: |
           python3 infra/tests/test_infra_layout.py

@@ -1,0 +1,5 @@
+step,location,base_usd,first_22000_per_sqft,over_22000_per_sqft,adu_usd
+2026-01-01,inside Denver,3205,0.86,0.43,2055
+2026-01-01,outside Denver,4490,1.20,0.60,2870
+2026-07-01,inside Denver,3380,1.01,0.50,2170
+2026-07-01,outside Denver,4740,1.42,0.71,3030
