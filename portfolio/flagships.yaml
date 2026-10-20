@@ -117,6 +117,12 @@ flagships:
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
-      README roadmap item 2: the feeder CAD package (launcher head, hopper,
-      lateral base, catch-net frame) generated and tested the same way as the
-      collector's.
+      The feeder CAD v0.1 package is in (manufacturing/feeder/: launcher head,
+      trunnion cheeks, turntable, 2040 base with brackets, mast, 3 m net beam,
+      poles and camera bar; the build tilts the head through -15..+45 deg for
+      collisions and sizes wind ballast). Next: the parts it does not model,
+      in this order: the hopper with feed tube and gate, the elevation
+      actuator bracket and azimuth drive, then the netting trough that rolls
+      balls to the hopper inlet; then check the head's wheel-to-wheel gap
+      and plate clearance against the ball path with the flight model's
+      launch speeds.
