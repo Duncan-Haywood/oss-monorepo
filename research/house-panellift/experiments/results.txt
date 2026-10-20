@@ -1,0 +1,20 @@
+house-panellift: handling the wall panels of house-offsite (28 x 40 ft house, advanced 2x6 @24, 24 ft limit)
+Densities, glazing weight, impact factor and drag coefficient are assumptions of this project.
+
+A. Panel weights and two-pick lifts (picks placed to minimise the plate moment; impact factor 1.5)
+panel        len ft  open lb closed lb    picks (in)  plate fb/allow  pick lb  door cut at max moment
+front 0        20.0      546       791     [48, 180]            0.10      409  False
+front 240      20.0      559       751    [288, 426]            0.12      419  False
+rear 0         20.0      518       877     [48, 174]            0.10      388  False
+rear 240       20.0      559       751    [288, 426]            0.12      419  False
+gable L 0      11.6      343       376     [30, 108]            0.04      257  False
+gable L 139    15.5      442       554    [181, 283]            0.06      332  False
+gable R 0      11.6      343       376     [30, 108]            0.04      257  False
+gable R 139    15.5      442       554    [181, 283]            0.06      332  False
+
+Shell total 3753 lb open, 5031 lb closed; heaviest panel 559 / 877 lb
+
+B. Longest solid panel whose top-plate bending stays within the allowable (lower bound: sheathing ignored)
+ picks  open ft  closed ft
+     1       28         28
+     2       60         56
