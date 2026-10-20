@@ -86,6 +86,11 @@ export function classify(raw) {
   if (tidy !== s) { notes.push("invisible, full-width or look-alike characters were replaced"); s = tidy; }
   const label = /^(?:gtin(?:-?\d+)?|upc(?:-?[aeAE])?|ean(?:-?\d+)?|isbn(?:-?\d+)?|barcode)\s*[:#=]?\s*(?=[\d'"=])/i.exec(s);
   if (label) { notes.push(`the "${label[0].trim()}" label was removed`); s = s.slice(label[0].length); }
+  // GS1 data carriers: a Digital Link URL (.../01/<gtin>), the (01) Application Identifier, a scanner symbology prefix (]E0, ]C1, ]d2).
+  const link = /^https?:\/\/[^\s/]+(?:\/[^\s/?#]+)*?\/01\/(\d{8,14})(?=[/?#]|$)\S*$/i.exec(s);
+  if (link) { notes.push("the GTIN was taken from a GS1 Digital Link URL"); s = link[1]; }
+  else if (/^\(01\)\s*\d[\d\s-]*$/.test(s)) { notes.push("the (01) GS1 application identifier was removed"); s = s.replace(/^\(01\)\s*/, ""); }
+  else if (/^\][A-Za-z][0-9A-Za-z]\d[\d\s-]*$/.test(s)) { notes.push("a scanner symbology prefix was removed"); s = s.slice(3); }
   if (/^\d{1,3}(?:,\d{3})+$/.test(s)) { notes.push("thousands separators were removed"); s = s.replace(/,/g, ""); }
   if (/^'/.test(s)) { s = s.slice(1); notes.push("a leading apostrophe was removed"); }
   s = s.replace(/^="?|"$/g, "").trim();
