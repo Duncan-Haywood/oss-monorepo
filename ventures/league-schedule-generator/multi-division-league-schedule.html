@@ -89,6 +89,9 @@
     <h2 style="margin-top:18px">3. Teams that share a coach or players (optional)</h2>
     <label for="links">One group per line, written Division/Team</label>
     <textarea id="links" rows="3" placeholder="U10/Hawks, U12/Hawks"></textarea>
+    <h2 style="margin-top:18px">4. Rainouts (optional)</h2>
+    <label for="rainouts">One per line: a date alone cancels the night; add a division or Division/Team to cancel just those matches; end with <code>-&gt; 2026-12-01</code> to name the make-up night</label>
+    <textarea id="rainouts" rows="2" placeholder="2026-10-13 U10/Hawks, U12/Owls"></textarea>
     <button type="button" id="build">Build the schedule</button>
     <button type="button" class="secondary" id="reshuffle">Reshuffle</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
@@ -134,11 +137,11 @@
   </footer>
 
   <script type="module">
-    import { readDivisionsSpec, buildDivisions, validateDivisions, divisionsCsv, divisionsText } from "./divisions.mjs";
+    import { readDivisionsSpec, buildDivisions, applyDivisionRainouts, validateDivisions, divisionsCsv, divisionsText } from "./divisions.mjs";
     import { dayIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
-    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links"];
+    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts"];
     const EXAMPLE = {
       divisions: "U10: Hawks, Owls, Lynx, Otters, Foxes, Wolves\nU12: Hawks, Owls, Lynx, Otters, Foxes, Wolves, Bears, Eagles\nAdult: Rams, Kings, Stars, Comets, Pilots, Bolts (double)",
       courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School, Gym B @ School", times: "18:00, 19:30", start: "2026-10-06", weekdays: "Tue, Thu",
@@ -164,13 +167,15 @@
       if (!$("#courts").value.trim()) errors.push("Name the shared courts.");
       if (errors.length) { status.textContent = errors.join(" "); $("#report").hidden = true; return false; }
       let s, v;
-      try { s = buildDivisions(spec); v = validateDivisions(s); } catch (e) { status.textContent = e.message; $("#report").hidden = true; return false; }
+      let moved = null;
+      try { s = buildDivisions(spec); if (f.rainouts.trim()) { moved = applyDivisionRainouts(s, f.rainouts); s = moved.schedule; } v = validateDivisions(s); } catch (e) { status.textContent = e.message; $("#report").hidden = true; return false; }
       last = s;
       const st = s.stats;
       status.textContent = "Built.";
       $("#big").innerHTML = [[st.matches, "matches"], [st.nights, "nights"], [st.trips, "venue changes"], ...(st.travelMinutes !== undefined ? [[st.travelMinutes, "minutes of travel"]] : []), [st.clashes, "linked-team clashes"], [Math.round(st.utilisation * 100) + "%", "court slots used"]]
         .map(([n, l]) => `<div><strong>${n}</strong>${l}</div>`).join("");
-      $("#notices").innerHTML = s.conflicts.length ? `<div class="warn"><strong>Conflicts that could not be avoided:</strong><ul>${s.conflicts.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "";
+      const rain = moved ? (moved.moves.length ? `<div class="warn"><strong>Moved for rainouts:</strong><ul>${moved.moves.map((m) => `<li>${esc(m.division)} ${esc(m.home)} v ${esc(m.away)}: ${dayIso(m.from)} to ${dayIso(m.to)} ${esc(m.time)} ${esc(m.court)}</li>`).join("")}</ul></div>` : "") + (moved.errors.length ? `<div class="warn"><strong>Not moved:</strong><ul>${moved.errors.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "") : "";
+      $("#notices").innerHTML = rain + (s.conflicts.length ? `<div class="warn"><strong>Conflicts that could not be avoided:</strong><ul>${s.conflicts.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "");
       $("#check-line").innerHTML = v.ok ? '<span class="pill good">checked</span> Every pair meets the right number of times, home and away is balanced, and no court is booked twice.' : `<span class="pill high">problem</span> ${v.errors.map(esc).join(" ")}`;
       const rows = [];
       for (const n of s.nights) for (const m of n.matches) rows.push(`<tr><td>${dayIso(n.day)}</td><td>${esc(m.time || "")}</td><td>${esc(m.court)}</td><td>${esc(m.venue || "")}</td><td>${esc(m.division)}</td><td class="n">${m.round + 1}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td></tr>`);
