@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "Earlier in the session I quoted the site URL from CLAUDE.md (monorepo-projects) without checking it against the repository name; the user caught it.",
-    "First pass rewrote platform/ci/publish_surface.py, which matches the retired gitops manifests; reverted after its tests failed."
+    "First pass rewrote platform/ci/publish_surface.py, which matches the retired gitops manifests; reverted after its tests failed.",
+    "Also renamed bootstrap/ (retired cluster scripts paired with gitops/ tests); reverted after the gitops job failed. Pages added on main after branching carried the old URL and needed the rename re-applied after merging main."
   ],
   "integrity_issues": [],
   "doc_friction": [
