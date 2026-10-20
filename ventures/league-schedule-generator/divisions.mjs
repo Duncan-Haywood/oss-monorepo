@@ -12,6 +12,7 @@ import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseT
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
 const W_TRIP = 5;
+const W_FAIR = 3; // per match-slot a team is over its even share of a venue (only when venue fairness is on)
 
 /** "U10: Hawks, Owls, Lynx" per line (a trailing "(double)" makes that division a double round robin). */
 export function parseDivisions(text) {
@@ -91,7 +92,11 @@ function playDays(start, weekdays, skip) {
 
 /**
  * spec: { divisions:[{name, teams[], double}], courts[], times[], venues{court: venueName}, start (day),
- *         weekdays[], skipDays[], courtClosures{court: days[]}, links:[[{d,t}...]], seed, optimize }
+ *         weekdays[], skipDays[], courtClosures{court: days[]}, links:[[{d,t}...]], seed, optimize,
+ *         venueFairness, venueHistory{"Division/Team": {venue: matches}} }
+ * `venueFairness: true` (or any `venueHistory`) also weighs how often each team has played at each venue, so a team that
+ * had the far or poor venue most of last season gets the other one this season. `venueHistory` carries earlier seasons in
+ * (`carryVenueHistory` builds it from a finished schedule); with fairness on and no history it evens out within the season.
  * `optimize: false` is the naive baseline (matches take cells in the order they come), kept so the
  * gain can be measured. Returns { divisions[{name, teams, rounds[{day, label, matches[]}]}], nights[], conflicts[], stats, config }.
  */
@@ -125,6 +130,12 @@ export function buildDivisions(spec) {
     linkOf.get(k).add(`${b.d}/${b.t}`);
   }
   const lastVenue = new Map(); // "d/t" -> venue of the previous match
+  const venueList = [...new Set(courts.map(venueOf))];
+  const history = spec.venueHistory && typeof spec.venueHistory === "object" ? spec.venueHistory : null;
+  const fair = venueList.length > 1 && Boolean(spec.venueFairness || (history && Object.keys(history).length));
+  const tally = new Map(); // "d/t" -> {venue: matches played there, earlier seasons included}
+  const tallyOf = (k) => { let o = tally.get(k); if (!o) { o = Object.fromEntries(venueList.map((v) => [v, 0])); tally.set(k, o); } return o; };
+  if (fair && history) divs.forEach((d, di) => d.teams.forEach((name, ti) => { const h = history[`${d.name}/${name}`]; if (h) for (const v of venueList) tallyOf(`${di}/${ti}`)[v] += Number(h[v]) || 0; }));
   const out = divs.map((d) => ({ name: d.name, teams: d.teams, double: Boolean(d.double), rounds: [] }));
   const nights = [];
   const days = playDays(spec.start, spec.weekdays, spec.skipDays);
@@ -165,6 +176,14 @@ export function buildDivisions(spec) {
       for (const t of [m.home, m.away]) { const pv = lastVenue.get(`${m.div}/${t}`); if (pv !== undefined && pv !== v) n += travelMin(pv, v) / tripUnit; }
       return n;
     };
+    // how far over an even share of venue v the team already is, summed over both teams of the match
+    const unfair = (m, c) => {
+      if (!fair) return 0;
+      const v = venueOf(courts[open[c].ci]);
+      let n = 0;
+      for (const t of [m.home, m.away]) { const o = tallyOf(`${m.div}/${t}`); n += o[v] - venueList.reduce((a, x) => a + o[x], 0) / venueList.length; }
+      return n;
+    };
     const clashCost = (k, c, cells) => {
       let s = 0;
       for (let j = 0; j < ms.length; j++) {
@@ -183,7 +202,7 @@ export function buildDivisions(spec) {
       }
       return s;
     };
-    const total = (cells) => cells.reduce((s, c, k) => s + W_TRIP * trip(ms[k], c) + clashCost(k, c, cells) / 2, 0);
+    const total = (cells) => cells.reduce((s, c, k) => s + W_TRIP * trip(ms[k], c) + W_FAIR * unfair(ms[k], c) + clashCost(k, c, cells) / 2, 0);
     if (optimize) {
       let cur = total(cellOf);
       const iters = (travel ? 6000 : 600) + 40 * ms.length; // a travel table has more to gain from search (measured in divisions.test.mjs)
@@ -213,6 +232,7 @@ export function buildDivisions(spec) {
       const rec = { division: out[m.div].name, home: m.home, away: m.away, homeName: out[m.div].teams[m.home], awayName: out[m.div].teams[m.away], court, time: times[cell.ti], venue: venueOf(court) };
       out[m.div].rounds[out[m.div].rounds.length - 1].matches.push(rec);
       night.matches.push({ ...rec, div: m.div, round: m.round });
+      if (fair) { tallyOf(`${m.div}/${m.home}`)[rec.venue]++; tallyOf(`${m.div}/${m.away}`)[rec.venue]++; }
       lastVenue.set(`${m.div}/${m.home}`, rec.venue);
       lastVenue.set(`${m.div}/${m.away}`, rec.venue);
     });
@@ -220,7 +240,7 @@ export function buildDivisions(spec) {
     nights.push(night);
   }
   if (queues.some((q) => q.next < q.plan.length)) throw new Error("Not enough playable nights in the next few years for every division. Add weekdays, courts or time slots.");
-  const schedule = { divisions: out, nights, config: { weekdays: spec.weekdays, skipDays: spec.skipDays || [], courts, times, venues: Object.fromEntries(courts.map((c) => [c, venueOf(c)])), closures, start: spec.start, links: spec.links || [], travel: travel || {}, seed: spec.seed ?? 1 } };
+  const schedule = { divisions: out, nights, config: { weekdays: spec.weekdays, skipDays: spec.skipDays || [], courts, times, venues: Object.fromEntries(courts.map((c) => [c, venueOf(c)])), closures, start: spec.start, links: spec.links || [], travel: travel || {}, seed: spec.seed ?? 1, ...(fair ? { venueFairness: true, venueHistory: history || {} } : {}) } };
   schedule.conflicts = linkConflicts(schedule);
   schedule.stats = divisionStats(schedule);
   return schedule;
@@ -459,6 +479,25 @@ export function linkConflicts(schedule) {
   return out;
 }
 
+/**
+ * Matches each team has played at each venue: { "Division/Team": {venue: n} }, the schedule plus any `venueHistory` it was
+ * built with. Pass the result as the next season's `venueHistory` and that season starts from where this one left off.
+ */
+export function carryVenueHistory(schedule) {
+  const venues = [...new Set(Object.values(schedule.config.venues))];
+  const out = {};
+  schedule.divisions.forEach((d) => d.teams.forEach((t) => { out[`${d.name}/${t}`] = Object.fromEntries(venues.map((v) => [v, Number((schedule.config.venueHistory || {})[`${d.name}/${t}`]?.[v]) || 0])); }));
+  for (const n of schedule.nights) for (const m of n.matches) for (const t of [m.home, m.away]) out[`${m.division}/${schedule.divisions[m.div].teams[t]}`][m.venue]++;
+  return out;
+}
+
+/** Mean over teams of (most-played venue minus least-played venue), in matches: 0 is an even split. */
+export function venueImbalance(history) {
+  const rows = Object.values(history);
+  if (!rows.length) return 0;
+  return rows.reduce((a, o) => { const c = Object.values(o); return a + Math.max(...c) - Math.min(...c); }, 0) / rows.length;
+}
+
 export function divisionStats(schedule) {
   let trips = 0, matches = 0, travelMinutes = 0;
   const travel = schedule.config.travel && Object.keys(schedule.config.travel).length ? schedule.config.travel : null;
@@ -479,7 +518,7 @@ export function divisionStats(schedule) {
     }
   }
   const cap = schedule.config.courts.length * schedule.config.times.length;
-  return { nights: schedule.nights.length, matches, trips, homeAwayBreaks, ...(travel ? { travelMinutes } : {}), clashes: schedule.conflicts.length, utilisation: matches / (schedule.nights.length * cap), lastDay: schedule.nights.length ? schedule.nights[schedule.nights.length - 1].day : null };
+  return { nights: schedule.nights.length, matches, trips, homeAwayBreaks, ...(travel ? { travelMinutes } : {}), ...(schedule.config.venueFairness ? { venueImbalance: venueImbalance(carryVenueHistory(schedule)) } : {}), clashes: schedule.conflicts.length, utilisation: matches / (schedule.nights.length * cap), lastDay: schedule.nights.length ? schedule.nights[schedule.nights.length - 1].day : null };
 }
 
 /** Independent re-check of a finished multi-division schedule. */
@@ -575,10 +614,17 @@ export function readDivisionsSpec(f) {
   errors.push(...tr.errors);
   const cc = parseCourtClosures(f.courtClosures, names.length ? names : null);
   errors.push(...cc.errors);
-  return { errors, spec: { divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
+  // venueFairness: "yes" evens venues out within the season; venueHistory: the JSON `carryVenueHistory` printed last season
+  let venueHistory;
+  if (f.venueHistory) {
+    try { venueHistory = typeof f.venueHistory === "string" ? JSON.parse(f.venueHistory) : f.venueHistory; } catch { errors.push("Venue history is not valid JSON; paste what last season's run printed."); }
+    if (venueHistory && (typeof venueHistory !== "object" || Array.isArray(venueHistory))) { errors.push("Venue history must be an object of Division/Team to venue counts."); venueHistory = undefined; }
+  }
+  const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || ""));
+  return { errors, spec: { venueFairness, venueHistory, divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
 }
 
-// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV). spec.json holds the form fields.
+// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, or --history for next season's venueHistory). spec.json holds the form fields.
 if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
@@ -594,6 +640,7 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   }
   const v = validateDivisions(s);
   if (!v.ok) { console.error(v.errors.join("\n")); process.exit(1); }
+  if (process.argv.includes("--history")) { process.stdout.write(JSON.stringify(carryVenueHistory(s), null, 1) + "\n"); process.exit(0); }
   process.stdout.write(process.argv.includes("--csv") ? divisionsCsv(s) : divisionsText(s));
 }
 
