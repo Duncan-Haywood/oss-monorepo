@@ -469,6 +469,14 @@ time budgets. Each change should move one of the dashboard's CI numbers.
   owner's brief in the ventures sub-prompt (ambitious, AI/ML where it helps,
   mobile apps, real business potential). The finish line for a venture is a
   working one-click self-deploy page (the business model under Mission).
+  **Deepen the flagships** (the owner, 2026-10-20): "on the one hand I like
+  the thousand plus small tools, but on the other hand I want to work on
+  deeper business and engineering problems and more of the work to be to
+  deepening and improving existing projects that have real depth to them."
+  So the small tools stay and get maintained, but most venture runs deepen
+  one of the few ventures listed in
+  [`portfolio/flagships.yaml`](../portfolio/flagships.yaml), which
+  `allocate.py` ranks first.
 - **Research:** merged projects that pass the research guardrails and a
   quality audit: the code re-runs, the README numbers match its output, and
   every citation checks out.
