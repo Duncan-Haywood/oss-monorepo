@@ -30,7 +30,7 @@ platform's expected names.
 `repair()` trims, lowercases emails, drops the BOM, writes commas, optionally renames headings to
 the chosen platform's names, keeps the first of exact duplicates and, only when asked, fixes typo
 domains. Rows with a blank or invalid email, the wrong cell count or an exact duplicate go to a
-rejected file with the reason. Alias duplicates, role and disposable addresses are never removed
+rejected file with the reason. If you supply a do-not-email list (unsubscribes, bounces, complaints; one address per line or any export, `@domain.com` for a whole domain), matching rows go to the rejected file too, so an import cannot re-subscribe them; a Gmail dot/plus alias of a listed address is only flagged. Alias duplicates, role and disposable addresses are never removed
 for you, and no name, phone or other value is rewritten.
 
 ## Not covered
@@ -42,3 +42,8 @@ advice. Platform heading names are read from memory of public help pages.
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+
+Also flagged: placeholder addresses (`test@test.com`, `none@none.com`). The safe-fixes copy rescues
+addresses wrapped in `mailto:`, `Name <a@b.com>`, quotes or trailing punctuation, and writes
+internationalised domains in punycode, instead of rejecting those rows.
