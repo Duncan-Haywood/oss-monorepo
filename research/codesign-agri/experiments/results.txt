@@ -1,0 +1,27 @@
+Best objective J after n simulator evaluations (budget 40); J = sellable value per minute / 20 (unbruised berry 1.0, bruised 0.4, missed or dropped 0), designs over the 60 USD cap score -1.
+Baselines: median [min, max] over 20 seeds. Session agent: one run of 4 rounds x 10.
+
+method | n=10 | n=20 | n=30 | n=40
+random search | 0.543 [0.090, 0.932] | 0.650 [0.296, 0.932] | 0.692 [0.366, 0.932] | 0.692 [0.366, 0.932]
+CMA-ES | 0.449 [0.000, 0.714] | 0.594 [0.000, 0.973] | 0.648 [0.143, 1.038] | 0.736 [0.369, 1.038]
+Bayesian opt (GP-EI) | 0.392 [0.058, 0.945] | 0.567 [0.058, 1.026] | 0.751 [0.058, 1.028] | 0.825 [0.058, 1.069]
+session agent | 0.924 | 1.034 | 1.045 | 1.054
+
+At n=40, seeds that matched or beat the agent's best (J = 1.054):
+random search: 0 of 20
+CMA-ES: 0 of 20
+Bayesian opt (GP-EI): 1 of 20
+
+Evaluations to first reach J >= 0.85 (median over seeds that reach it; seeds that never do in brackets):
+random search: 8.0 (19 of 20 never)
+CMA-ES: 29.0 (14 of 20 never)
+Bayesian opt (GP-EI): 23.5 (10 of 20 never)
+session agent: 2
+
+Fraction of evaluations over the cost cap:
+random search: 0.501
+CMA-ES: 0.255
+Bayesian opt (GP-EI): 0.155
+session agent: 0.175
+
+Best design seen in any run (cheapest at the top J): x = [4.48, 0.06, 3.08, 47.73, 0.78] (W mm, E MPa, F N, S mm, V m/s), J = 1.069, cost 59 USD, 24.7 picks/min, ok 0.87, bruised 0.00, dropped 0.03, missed 0.08, knocked 0.02

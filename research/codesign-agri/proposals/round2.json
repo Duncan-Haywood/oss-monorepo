@@ -1,0 +1,3 @@
+{"round": 2, "notes": "Read round 1: drops vanish at F>=4 N with E<=0.4 and W>=24; remaining loss is knocked (span over 54) or missed (span under 52) berries and cycle time. Best two were the 0.6-0.7 m/s designs at the cost cap. So: shave force to 3.5-4 N to pay for speed, narrow span to 50-53, keep wide soft pads, push V to 0.7-0.85.",
+ "designs": [[28,0.2,3.5,52,0.75],[28,0.25,4,51,0.8],[30,0.2,3.5,53,0.7],[27,0.3,3.5,50,0.85],[28,0.2,4,52,0.7],
+             [30,0.15,3.5,52,0.8],[26,0.25,3,52,0.8],[28,0.2,4.5,54,0.75],[29,0.3,3.8,51,0.9],[25,0.2,4,50,0.8]]}

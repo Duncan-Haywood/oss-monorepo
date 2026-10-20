@@ -1,0 +1,11 @@
+J for one fixed design over 30 policy-search seeds (same test fruit): min / median / max
+agent best  [26, 0.15, 3.4, 50, 0.77]: 0.750 / 1.054 / 1.054
+baseline best [4.48, 0.06, 3.08, 47.73, 0.78]: 0.877 / 1.041 / 1.065
+
+Pad width sweep at E 0.1 MPa, F 3.2 N, S 50 mm, V 0.77 m/s: W mm | J | bruised share | mean pressure kPa | cost USD
+4 | 0.888 | 0.20 | 47.6 | 58.5
+6 | 0.997 | 0.05 | 38.3 | 58.6
+8 | 1.034 | 0.00 | 33.0 | 58.7
+14 | 1.034 | 0.00 | 24.4 | 59.1
+20 | 1.034 | 0.00 | 20.1 | 59.4
+28 | 1.034 | 0.00 | 16.8 | 59.9

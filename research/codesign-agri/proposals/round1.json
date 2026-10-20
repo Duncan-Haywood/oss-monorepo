@@ -1,0 +1,3 @@
+{"round": 1, "notes": "Written from the statics before scoring anything. A berry must be held against its stem pull (about 2 N, times a 1.5 margin) by two pads: 2*mu*F >= 3 N plus weight, so F of about 3 to 5 N with a soft pad (mu about 0.6 at E of 0.3 MPa). Pressure is force over patch area, so wide pads (20 to 28 mm). The opening must cover the 44 mm largest berry plus a 5 mm camera error, so 50 to 60 mm, but wider catches neighbours. Speed in the middle because both cost and the impact stress rise with it.",
+ "designs": [[22,0.3,4,55,0.5],[25,0.4,5,52,0.6],[18,0.3,3.5,58,0.4],[28,0.2,4,60,0.7],[20,0.5,4.5,50,0.5],
+             [24,0.3,6,56,0.5],[26,0.15,3,54,0.6],[22,0.8,5,55,0.4],[16,0.3,3,60,0.5],[28,0.4,4,50,0.45]]}
