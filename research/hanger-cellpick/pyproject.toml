@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-cellpick"
+version = "0.1.0"
+description = "The laundry-hanging cell with the hanger-pick pile model as its picker: dryers per cell and the bottleneck under pinch, see and sweep pick policies"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
