@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01BrJELerskhS8KXJMwEbCt7",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T09:18:13Z",
+  "ended": "2026-10-20T10:09:20Z",
+  "wall_minutes": 51.43,
+  "tokens_in": 4559147,
+  "tokens_out": 20382,
+  "cost_usd": 1.4919,
+  "tool_calls": 45,
+  "task": "mimic-twinswing next step (milestones 10 and 11 blocked by network)",
+  "projects": [
+    "mimic-twingrid"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8780",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to run experiments with run_in_background but does not mention OMP_NUM_THREADS=1; four multiprocessing workers with default BLAS/sklearn threads reached load 20 on 4 CPUs and a run did not finish in 35 minutes. Fixed by setting OMP_NUM_THREADS=1 (about 10 minutes)."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Milestones 10 and 11 of track 11 depend on zenodo.org and huggingface.co, which the cloud container cannot reach; the milestone text does not say so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "Took the twinswing 'Next steps' item instead of milestones 10/11, which were network-blocked."
+    }
+  ],
+  "goal": null,
+  "notes": "Track 11 draw. mimic-webcam needs DUX from zenodo.org and mimic-codeloop needs an open code model from huggingface.co; both hosts are refused by the sandbox proxy (403), so I took the twinswing next step, which needs no downloads. Checks: 8 tests pass, build.py ok (766), check_md_links ok, research_live_links updated 0. Cost not attached (see notes in PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3b46e5aa-cdb7-5652-927d-40c6d73083cd",
+    "transcripts": 1,
+    "first": "2026-10-20T09:18:13Z",
+    "last": "2026-10-20T10:09:39Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 44,
+        "input": 92,
+        "output": 20382,
+        "thinking": 3058,
+        "cache_read": 4460084,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98971,
+        "api_equivalent_usd": 1.4919,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 92,
+      "output": 20382,
+      "thinking": 3058,
+      "cache_read": 4460084,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98971,
+      "api_equivalent_usd": 1.4919,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 39,
+      "mcp__github__search_pull_requests": 2,
+      "Read": 1,
+      "Monitor": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 51.43,
+      "active_minutes": 33.3,
+      "model_minutes": 3.37,
+      "tool_minutes": 29.93,
+      "waiting_on_human_minutes": 18.13,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, run and write up a small control-twin experiment plus site entries",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 402.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 {
   "id": "P036",
   "title": "Finish the deadweight cut: dead workflows, DIRECTION.md, the playbook, the red-team gate",
-  "status": "open",
+  "status": "in_progress",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -31,5 +31,10 @@
   "source": "owner, in session 2026-10-20",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-20",
+      "note": "Parts (4) and (7) done: land-your-work.md 166->158 lines and steering.md 124->120 (both at/under budget); byok.mjs copies already identical on main and tests pass (ats-resume-checker 66, persona-conversation-simulator 21). Parts 1,2,3,5,6 remain; split before the next run."
+    }
+  ]
 }
