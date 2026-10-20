@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -723,20 +724,19 @@ def main(argv: Optional[list[str]] = None) -> int:
 
 
 def _reexec_with_libyaml() -> None:
-    """Run as a script under an interpreter with libyaml: ~2s instead of ~35s of YAML parsing."""
-    import os
-    import shutil
-    if getattr(yaml, "CSafeLoader", None) or os.environ.get("ALLOCATE_NO_REEXEC"):
+    """Re-run this script under an interpreter whose PyYAML has libyaml (35s -> ~2s).
+
+    Only when run as a script and the current PyYAML lacks libyaml; one hop
+    (ALLOCATE_REEXEC) so a bad candidate cannot loop. Silent if none is found.
+    """
+    if getattr(yaml, "CSafeLoader", None) or os.environ.get("ALLOCATE_REEXEC"):
         return
-    for name in ("python3.13", "python3.12", "python3.11", "python3.14", "python3"):
-        exe = shutil.which(name)
-        if not exe or os.path.realpath(exe) == os.path.realpath(sys.executable):
-            continue
-        probe = subprocess.run([exe, "-c", "import yaml,sys; sys.exit(0 if hasattr(yaml,'CSafeLoader') else 1)"],
-                               capture_output=True)
-        if probe.returncode == 0:
-            os.environ["ALLOCATE_NO_REEXEC"] = "1"
-            os.execv(exe, [exe, *sys.argv])
+    probe = "import yaml,sys; sys.exit(0 if getattr(yaml,'CSafeLoader',None) else 1)"
+    for cand in ("/usr/bin/python3.13", "/usr/bin/python3.12", "/usr/bin/python3"):
+        if cand != sys.executable and os.path.exists(cand) and \
+                subprocess.run([cand, "-I", "-c", probe], capture_output=True).returncode == 0:
+            os.environ["ALLOCATE_REEXEC"] = "1"
+            os.execv(cand, [cand, *sys.argv])
 
 
 if __name__ == "__main__":

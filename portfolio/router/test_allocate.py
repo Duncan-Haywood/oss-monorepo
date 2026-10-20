@@ -582,9 +582,6 @@ class DecisionsByMeritTests(unittest.TestCase):
             self.assertLessEqual(r["merit_scored"], r["blocked_ventures"])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class FamilyTests(unittest.TestCase):
     """One product cloned per niche must not fill the queue (2026-10-16 report)."""
@@ -639,3 +636,20 @@ class RecentCommitsTest(unittest.TestCase):
     def test_returns_int_counts_by_slug(self):
         counts = recent_commits(days=3650, deepen=False)
         self.assertTrue(all(isinstance(k, str) and isinstance(n, int) and n > 0 for k, n in counts.items()))
+
+
+class ReexecTests(unittest.TestCase):
+    def test_reexec_is_noop_when_libyaml_present_or_already_hopped(self):
+        import os
+        from unittest import mock
+        import allocate
+        with mock.patch.object(os, "execv") as ex:
+            with mock.patch.dict(os.environ, {"ALLOCATE_REEXEC": "1"}):
+                allocate._reexec_with_libyaml()
+            if getattr(allocate.yaml, "CSafeLoader", None):
+                allocate._reexec_with_libyaml()
+            ex.assert_not_called()
+
+
+if __name__ == "__main__":
+    unittest.main()
