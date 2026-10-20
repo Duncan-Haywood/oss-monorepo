@@ -28,7 +28,7 @@ test("syntax: good and bad addresses", () => {
 });
 
 test("domain typos get a suggested fix", () => {
-  const cases = { "gmial.com": "gmail.com", "gmal.com": "gmail.com", "hotmial.com": "hotmail.com", "yahooo.com": "yahoo.com", "outlok.com": "outlook.com", "gmail.con": "gmail.com", "yahoo.coom": "yahoo.com", "example.con": "example.com", "hotmail.cmo": "hotmail.com", "gmail.co": "gmail.com", "gmaiil.com": "gmail.com" };
+  const cases = { "gmial.com": "gmail.com", "gmal.com": "gmail.com", "hotmial.com": "hotmail.com", "yahooo.com": "yahoo.com", "outlok.com": "outlook.com", "gmail.con": "gmail.com", "yahoo.coom": "yahoo.com", "example.con": "example.com", "hotmail.cmo": "hotmail.com", "gmail.co": "gmail.com", "gmaiil.com": "gmail.com", "sbcgobal.net": "sbcglobal.net", "verzon.net": "verizon.net", "bellsouth.nt": "bellsouth.net", "protonmal.com": "protonmail.com", "icloud.con": "icloud.com", "verizin.net": "verizon.net" };
   for (const [d, fix] of Object.entries(cases)) assert.equal(suggestDomain(d), fix, d);
   for (const ok of ["gmail.com", "example.com", "live.com", "yahoo.co.uk", "love.com", "company.co"]) assert.equal(suggestDomain(ok), null, ok);
 });
