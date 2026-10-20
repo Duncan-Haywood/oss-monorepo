@@ -178,7 +178,7 @@ function driftAdjust(x, m, trend0, profile) {
  * Returns { adjusted, slope } with the slope per point; the adjusted series
  * keeps the mean level of the input.
  */
-export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false } = {}) {
+export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false, joint = false } = {}) {
   const n = x.length;
   const d = [];
   for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
@@ -242,10 +242,29 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
   if (maxBends && n >= 40) {
     const step = Math.max(1, Math.round(n / 40));
     const gap = Math.ceil(0.15 * n);
+    // joint: score every pair of knots on a grid over 10-90% of the series and start from the best pair (or none) by BIC,
+    // so a second bend does not have to survive being judged alone after the first; greedy then adds any further bend
+    let lo = Math.ceil(0.2 * n), hi = Math.floor(0.8 * n);
+    if (joint && maxBends >= 2) {
+      lo = Math.ceil(0.1 * n); hi = Math.floor(0.9 * n);
+      const grid = [];
+      for (let k = lo; k <= hi; k += step) grid.push(k);
+      let pick = null;
+      for (let a = 0; a < grid.length; a++) {
+        const one = fit([grid[a]]);
+        if (one.bic < (pick || best).bic) pick = one;
+        for (let b = a + 1; b < grid.length; b++) {
+          if (grid[b] - grid[a] < gap) continue;
+          const f = fit([grid[a], grid[b]]);
+          if (f.bic < (pick || best).bic) pick = f;
+        }
+      }
+      if (pick) best = pick;
+    }
     // greedy: add the knot that lowers BIC most, keep going while some knot still does
-    for (let round = 0; round < maxBends; round++) {
+    for (let round = best.knots.length; round < maxBends; round++) {
       let found = null;
-      for (let knot = Math.ceil(0.2 * n); knot <= Math.floor(0.8 * n); knot += step) {
+      for (let knot = lo; knot <= hi; knot += step) {
         if (best.knots.some((k) => Math.abs(k - knot) < gap)) continue;
         const f = fit([...best.knots, knot].sort((p, q) => p - q));
         if (f.bic < (found || best).bic) found = f;
@@ -257,7 +276,6 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
     // slide each knot one point at a time within a grid step of where it landed, keeping any move that lowers BIC
     if (step > 1 && best.knots.length) {
       for (let j = 0; j < best.knots.length; j++) {
-        const lo = Math.ceil(0.2 * n), hi = Math.floor(0.8 * n);
         const around = best.knots[j];
         let pick = null;
         for (let knot = Math.max(lo, around - step + 1); knot <= Math.min(hi, around + step - 1); knot++) {
@@ -833,7 +851,7 @@ export function analyze(input = {}) {
   let slope = null, slopeAfter, knot, knots, slopes;
   if (o.trend) {
     if (model === 'poisson') throw new Error('The trend removal subtracts a line, which breaks counts: use "mean" or "meanvar" with a trend.');
-    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false }));
+    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' || o.trend === 'bends-joint' ? 3 : false, joint: o.trend === 'bends-joint' }));
   }
   let sigma = robustSd(values);
   let rho = null;

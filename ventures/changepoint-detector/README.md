@@ -199,6 +199,15 @@ series, 40 each, in `engine.test.mjs`):
   18 to 20 of 20 and no run with exactly one change, with or without `--ar1`, so bends, seasonality and sticky noise together are
   not reliable yet. The first knot of a mild bend (slope change 0.1 against noise 1) is often 5 or more points off, and the cause is still being
   worked out. Next: a dynamic-programming knot search, which would also remove the 20 to 80% limit, aimed at the 23 of 40.
+- **Joint knot search (`--trend bends-joint`, opt-in).** Greedy judges the second bend alone after the first. This scores
+  every pair of knots on the n/40 grid over 10 to 90% of the series (the 20 to 80% limit is gone), starts from the best
+  pair or none by BIC, then refines as before. Same generator as above, 240 points, seeds 1001..1040. AR(1) rho 0.5 with
+  `--ar1`: exactly two knots in 36 of 40 against 20 of 40 greedy, both within 6 points of 80 and 160 in 20 against 11.
+  **Mixed:** on white noise it found two knots in 40 of 40 (greedy 39) but both within 6 points in only 19 against 27
+  (second knot 5.7 points off on average against 3.0), and it costs about 1.5 to 2 s per series against 0.26 s. So it
+  is offered for sticky noise, where the greedy search misses a bend, not as the default. Not a true dynamic program:
+  continuity of the line couples the segments, so this is an exhaustive pair search. Next: why the second knot drifts on
+  white noise (the wider range admits a knot near the end), and a faster pair search.
 - **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
   steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
   long-run factor. On 200 points, slope 0.1, AR(1) rho 0.5, shift 5 at point 100 (seeds 701..740): PELT gave

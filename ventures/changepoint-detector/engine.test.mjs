@@ -627,3 +627,15 @@ test('trend bends with sticky noise: --ar1 keeps the wandering from being cut in
   }
   assert.ok(falseBend <= 3, `false bends ${falseBend}/${N}`);
 });
+
+test('trend bends-joint: scores pairs of knots and finds both bends under sticky noise more often than greedy', () => {
+  const n = 240, f = (i) => 0.1 * i + 0.1 * Math.max(0, i - 80) - 0.25 * Math.max(0, i - 160);
+  let g = 0, j = 0;
+  for (let s = 1001; s <= 1006; s++) {
+    let p = 0;
+    const x = normals(rng(s), n).map((v, i) => { p = 0.5 * p + v; return f(i) + p; });
+    g += (trendAdjust(x, { bend: 3, ar1: true }).knots || []).length === 2;
+    j += (trendAdjust(x, { bend: 3, ar1: true, joint: true }).knots || []).length === 2;
+  }
+  assert.ok(j >= g && j >= 4, `joint ${j}/6, greedy ${g}/6`);
+});
