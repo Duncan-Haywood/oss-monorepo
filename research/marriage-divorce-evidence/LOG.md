@@ -1,5 +1,13 @@
 # Research log
 
+## 2026-10-20 · NSFG 1995–2023: every survey cycle pooled, held-out skill more than doubled
+
+- New data: all eight NSFG female cycles (1995–2023) and all seven male cycles from 2002, official CDC files. Every file's record count matches the official sample size and weighted totals match NCHS's published populations; 2017–19 dissolution counts match the codebook exactly; the 2002 women reproduce the existing lens exactly (4,126 marriages, 1,492 dissolutions). 29,202 women's first marriages and 10,529 dissolutions (both sexes: 43,336 and 15,256).
+- Timing and leakage: months suppressed after 2015 are imputed within the published years (mean error +0.3 months on exact-date cycles; skill unchanged on exact-date cycles alone); the wife's degree counts only when dated on or before the wedding; anything measured at interview (education, current religion, income, residence, husband's education) is excluded.
+- Held out by person (95% person-bootstrap CIs): gradient boosting 6.29% (5.85–6.73%), C 0.703, AUC 0.72 at 5 and 10 years, top tenth 13.5 times the bottom; additive spline GLM 5.69%, C 0.695. The 2002 lens refit on the same folds: 2.86%, C 0.645. On the 2002 women alone boosting still adds +1.29 points. Out of time (trained on pre-2000 weddings, tested on 12,460 weddings 2000–2023): boosting 6.73%, C 0.713, observed/expected 0.99; the 2002 lens 4.41% with observed/expected 0.84.
+- Rate ratios (additive GLM, cluster bootstrap): wife married at 17 against 23, 2.63; at 28, 0.60; bachelor's degree by the wedding 0.63; husband's prior children 1.35; husband married before 1.26; different race-ethnicity 1.29; not raised by both parents 1.30; no premarital sex against 4.8 years 0.68; born outside the U.S. 0.85; weddings in 2020 against 2000, 0.82. Living together first: 1.01 (0.97–1.06). Survival: 79.4% intact at 5 years, 66.7% at 10, 51.8% at 20.
+- The bundle carries the GLM and boosting as scoring models, a both-sexes model, an out-of-distribution score, a `population_reference` in the standard shape (median predicted dissolution 17.8% / 30.2% / 46.1% at 5 / 10 / 20 years) and partner distributions. Parity 4/4 to 10<sup>-9</sup>. Listed in the app; scoring needs a form adapter.
+
 ## 2026-10-20 · Los Angeles newlyweds: trained-observer conflict codes add nothing to divorce prediction
 
 - New data: Smith, Block & Karney's public OSF release (hxn84) of 368 low-income, mostly Hispanic Los Angeles newlywed couples followed for about 12 years, 145 divorced. Both spouses are measured, and couples' conflict discussions were coded by trained observers (IFIRS positivity, negativity, effective communication). Hostility, described elsewhere as observed, is a 14-item self-report questionnaire, so it is a separate block here.
