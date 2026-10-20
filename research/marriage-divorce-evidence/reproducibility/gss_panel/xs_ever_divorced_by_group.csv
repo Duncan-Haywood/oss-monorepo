@@ -1,0 +1,40 @@
+sample,group,level,respondents,ever_divorced,weighted_share,ci_low,ci_high
+"ever-married, aged 35-64, 1972-2024",survey_decade,1970s,4795,1253,0.2416,0.2282,0.2552
+"ever-married, aged 35-64, 1972-2024",survey_decade,1980s,5964,2338,0.3420,0.3281,0.3558
+"ever-married, aged 35-64, 1972-2024",survey_decade,1990s,5961,2870,0.4135,0.4008,0.4269
+"ever-married, aged 35-64, 1972-2024",survey_decade,2000s,6899,3510,0.4486,0.4348,0.4623
+"ever-married, aged 35-64, 1972-2024",survey_decade,2010s,5040,2582,0.4474,0.4322,0.4651
+"ever-married, aged 35-64, 1972-2024",survey_decade,2020s,3980,1944,0.4335,0.4122,0.4545
+"ever-married, aged 35-64, 1972-2024",sex,Female,18185,8328,0.4043,0.3962,0.4130
+"ever-married, aged 35-64, 1972-2024",sex,Male,14445,6166,0.3763,0.3676,0.3847
+"ever-married, aged 35-64, 1972-2024",sex,Unknown,9,3,0.3339,0.0000,0.7196
+"ever-married, aged 35-64, 1972-2024",race,Black,4077,2328,0.5079,0.4883,0.5269
+"ever-married, aged 35-64, 1972-2024",race,Other,1949,769,0.3204,0.2947,0.3447
+"ever-married, aged 35-64, 1972-2024",race,Unknown,55,36,0.5143,0.3424,0.7358
+"ever-married, aged 35-64, 1972-2024",race,White,26558,11364,0.3826,0.3759,0.3896
+"ever-married, aged 35-64, 1972-2024",degree,Bachelor,5351,1974,0.3055,0.2921,0.3202
+"ever-married, aged 35-64, 1972-2024",degree,Graduate,3310,1148,0.2828,0.2657,0.3000
+"ever-married, aged 35-64, 1972-2024",degree,High school,16102,7696,0.4269,0.4190,0.4368
+"ever-married, aged 35-64, 1972-2024",degree,Junior college,2174,1120,0.4308,0.4103,0.4580
+"ever-married, aged 35-64, 1972-2024",degree,Less than high school,5639,2529,0.4089,0.3949,0.4236
+"ever-married, aged 35-64, 1972-2024",degree,Unknown,63,30,0.4399,0.3049,0.5915
+"ever-married, aged 35-64, 1972-2024",religion_raised,Catholic,9170,3761,0.3521,0.3412,0.3639
+"ever-married, aged 35-64, 1972-2024",religion_raised,None,1758,873,0.4544,0.4287,0.4836
+"ever-married, aged 35-64, 1972-2024",religion_raised,Other,1498,543,0.2992,0.2730,0.3279
+"ever-married, aged 35-64, 1972-2024",religion_raised,Protestant,18526,8683,0.4190,0.4106,0.4277
+"ever-married, aged 35-64, 1972-2024",religion_raised,Unknown,1687,637,0.3490,0.3221,0.3742
+"ever-married, aged 35-64, 1972-2024",attend_band,2-3 times a month to nearly weekly,4810,2003,0.3585,0.3434,0.3729
+"ever-married, aged 35-64, 1972-2024",attend_band,Never or under once a year,8389,4628,0.5027,0.4899,0.5157
+"ever-married, aged 35-64, 1972-2024",attend_band,Unknown,285,121,0.3719,0.3102,0.4386
+"ever-married, aged 35-64, 1972-2024",attend_band,Weekly or more,8942,2945,0.2781,0.2675,0.2879
+"ever-married, aged 35-64, 1972-2024",attend_band,Yearly to monthly,10213,4800,0.4156,0.4040,0.4272
+"ever-married, aged 35-64, 1972-2024",family_at_16,Both parents,23251,9453,0.3539,0.3465,0.3608
+"ever-married, aged 35-64, 1972-2024",family_at_16,Other,2341,1331,0.5192,0.4935,0.5424
+"ever-married, aged 35-64, 1972-2024",family_at_16,Parent died,2741,1248,0.4025,0.3816,0.4232
+"ever-married, aged 35-64, 1972-2024",family_at_16,Parents divorced or separated,3535,2073,0.5386,0.5206,0.5572
+"ever-married, aged 35-64, 1972-2024",family_at_16,Unknown,771,392,0.4675,0.4280,0.5078
+"ever-married, aged 35-64, years asking AGEWED (1972-1994, 2006)",age_first_married,20-22,4441,1592,0.3179,0.3031,0.3334
+"ever-married, aged 35-64, years asking AGEWED (1972-1994, 2006)",age_first_married,23-25,2752,790,0.2506,0.2326,0.2674
+"ever-married, aged 35-64, years asking AGEWED (1972-1994, 2006)",age_first_married,26-29,1619,463,0.2408,0.2154,0.2635
+"ever-married, aged 35-64, years asking AGEWED (1972-1994, 2006)",age_first_married,30+,1100,260,0.2132,0.1854,0.2430
+"ever-married, aged 35-64, years asking AGEWED (1972-1994, 2006)",age_first_married,under 20,4222,2033,0.4406,0.4252,0.4574

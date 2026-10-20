@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>This checker vs. reading the manifest by eye</title>
-  <meta name="description" content="Skimming a Deployment or StatefulSet's YAML before it merges is the default review every team already does. It reliably misses a container that has a memory request but no memory limit -- it already looks resourced -- and a CPU request set above its own limit two lines apart, which the API server rejects at apply time rather than warning about in review. This free tool checks both automatically.">
+  <meta name="description" content="Skimming a Deployment or StatefulSet's YAML before it merges is the default review every team already does.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="./vs-reading-the-manifest-by-eye.html">
   <meta property="og:type" content="article">

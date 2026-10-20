@@ -9,7 +9,7 @@
 <meta property="og:description" content="Year-by-year divorce odds from explainable models trained on U.S. surveys (NLSY79 couples, NSFG first marriages), with model disagreement and limits.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from explainable models (additive and spline Poisson regressions and Poisson decision trees) trained on two U.S. surveys: NLSY79 married couples and NSFG 2002 first marriages from the wedding day. Runs entirely in the browser.","featureList":["Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link","Population percentile overall and within subgroups","Just-me estimate averaged over realistic partners","Rank several candidate partners per lens","Batch CSV scoring in the browser with downloadable results","Dashboard of partner traits and what-ifs with non-negotiables"],"license":"https://opensource.org/licenses/MIT"}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Divorce odds calculator for couples","applicationCategory":"ResearchApplication","operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"Model-estimated divorce odds per year of marriage for a couple, from explainable models (additive and spline Poisson regressions and Poisson decision trees) trained on two U.S. surveys: NLSY79 married couples and NSFG 2002 first marriages from the wedding day. Runs entirely in the browser.","featureList":["Divorce odds for each year of marriage","Chance of no divorce by year 5 to 50","Lifelong marriage estimate counting mortality (UN WPP 2024 U.S. death rates)","Per-input model explanations","Model agreement and held-out skill for every evidence lens","Shareable scenarios stored only in the link","Population percentile overall and within subgroups","Just-me estimate averaged over realistic partners","Rank several candidate partners per lens","Batch CSV scoring in the browser with downloadable results","Dashboard of partner traits and what-ifs with non-negotiables","Optional literature-based adjustment for conflict, depression, alcohol problems, neuroticism and earlier cohabitations, from verified published hazard ratios","CDC/NCHS population baselines of first-marriage disruption by matching characteristics"],"license":"https://opensource.org/licenses/MIT"}
 </script>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -65,9 +65,42 @@
   <h2>Compared with the surveyed population</h2>
   <p class="sub">Where this couple’s predicted risk sits among the lens’s own surveyed marriages, overall and within the groups the couple belongs to.</p>
   <div id="popPanel"></div>
+  <h2>Population baselines (CDC/NCHS)</h2>
+  <p class="sub">Official life tables from the National Center for Health Statistics for the rows that match this couple: the share of first marriages disrupted (separation or divorce) by 5, 10, 15 and 20 years, from the 1995 survey (Bramlett &amp; Mosher 2002) and the 2006–2010 survey (Copen et al. 2012). No model: these are what the surveys observed.</p>
+  <div id="nchsPanel"></div>
   <h2>Lifelong marriage, counting mortality</h2>
   <p class="sub">How the marriage ends over the projection horizon, if it ends: in divorce, or only when one partner dies.</p>
   <div id="lifelong"></div>
+
+  <section id="literature" aria-labelledby="litHead">
+    <h2 id="litHead">What the surveys don’t measure (published research, lower confidence)</h2>
+    <p class="sub">Some well-studied risks are not in any lens’s survey: destructive conflict, depression, alcohol problems, neuroticism, earlier cohabitations. Answer any of these to shift the lens’s curve by hazard ratios published in peer-reviewed studies. Every question is optional. Only numbers re-checked word for word against the full text of the source are used, and factors the selected lens already models are not asked, so nothing is counted twice. This is a <strong>literature-based adjustment</strong>: the studies used other populations and measures, so it is less certain than the lens itself. The answers stay in this page and its link.</p>
+    <div id="litQuestions"></div>
+    <details><summary>Factors not asked here, and why</summary><div id="litNotAsked"></div></details>
+    <div id="litOut" aria-live="polite"></div>
+    <details id="gottman">
+      <summary>About Gottman’s accuracy claims</summary>
+      <p class="small">John Gottman’s lab is often quoted as predicting divorce with “over 90% accuracy”. Those figures come from discriminant analyses fitted and scored on the same small samples, with no holdout. When few couples divorce, a rule that predicts <em>nobody divorces</em> already scores high, so the table sets each claim against that rule, using only base rates a retrieved source prints.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Study</th><th class="num" scope="col">Claimed accuracy</th><th class="num" scope="col">Divorced / total</th><th class="num" scope="col">“Nobody divorces” scores</th><th scope="col">Where the claim was checked</th></tr></thead>
+        <tbody>
+          <tr><td>Buehlman, Gottman &amp; Katz 1992</td><td class="num">93.6%</td><td class="num">7 / 56</td><td class="num">87.5%</td><td>Gottman Institute FAQ (secondhand)</td></tr>
+          <tr><td>Carrère et al. 2000, Time 2</td><td class="num">87.4%</td><td class="num">16 / 95 by Time 3</td><td class="num">over 83.2% (fewer had divorced by Time 2)</td><td>abstract</td></tr>
+          <tr><td>Carrère et al. 2000, Time 3</td><td class="num">81%</td><td class="num">16 / 95</td><td class="num">83.2%: above the claim</td><td>abstract</td></tr>
+          <tr><td>Gottman, Coan, Carrère &amp; Swanson 1998</td><td class="num">“90%”</td><td class="num">17 / 147</td><td class="num">88.4%</td><td>Gottman Institute FAQ (secondhand)</td></tr>
+          <tr><td>Gottman &amp; Levenson 2000</td><td class="num">93%</td><td class="num">21 / 79</td><td class="num">73.4%</td><td>abstract; the model includes the couple’s own satisfaction and thoughts of divorce</td></tr>
+          <tr><td>Fowers &amp; Olson 1986 (PREPARE)</td><td class="num">91%</td><td class="num">31 / 90 (extreme groups)</td><td class="num">65.6%</td><td>full text; in-sample</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="small">
+        <li>At 12–17% divorce, predicting that nobody divorces scores 83–88%. A model has to beat that, out of sample, to show skill.</li>
+        <li>Out of sample the accuracy falls: Heyman &amp; Slep (2001) report that “accuracy and predictive value drops precipitously during crossvalidation”, and Kim, Capaldi &amp; Crosby (2007) found that “the major findings of Gottman et al. failed to replicate” in 85 at-risk couples.</li>
+        <li>What holds up prospectively is hostile conflict measured as a hazard: Birditt et al. (2010) followed 373 couples for 16 years, and wives’ destructive conflict in year 1 predicted divorce (HR 1.51 per point on a 1–4 scale). That is the number this page uses for the conflict question; it never uses an accuracy figure.</li>
+        <li>Gottman’s work identifies real correlates of unhappy marriages, especially contempt and hostility. The headline accuracy figures are not evidence that one couple’s divorce can be predicted with 90% accuracy.</li>
+      </ul>
+      <p class="small">Sources, quotes and the full appraisal: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/reproducibility/literature_evidence/EVIDENCE.md">EVIDENCE.md</a> (286 records, each checked against its source).</p>
+    </details>
+  </section>
   <details id="compareBox" open>
     <summary>Every lens, side by side</summary>
     <p class="sub">The same couple through each dataset that can score them. The outcomes differ (legal divorce at ages 35–64 versus any break-up of a first marriage from the wedding day), so read the rows next to each other, never as one number.</p>
@@ -175,6 +208,7 @@
     <li><strong>Couple.</strong> Each survey interviewed one spouse. The NLSY79 lens scores the couple from both partners’ points of view and averages them; the NSFG lens uses the wife’s report, as the survey did. Same-sex couples were not in either survey, so the app shows no number for them rather than guessing.</li>
     <li><strong>Outside the data.</strong> Years outside what a lens saw (NLSY79: ages under 35 or over 64; NSFG: beyond year 24 of marriage) are shaded, and the numbers there are extrapolation. A couple a lens cannot speak to at all (for NSFG: a wife married before, or a wedding age outside the data) gets no number from that lens. Wealth, occupation and relationship quality are not covered.</li>
     <li><strong>Population comparison.</strong> For the NSFG 2002 lenses, every surveyed woman’s first marriage was scored at its wedding by models fitted on the other four-fifths of women (the same held-out folds as the skill numbers), and the app stores only survey-weighted percentiles of those predictions, overall and in groups of at least 100 marriages. Your percentile is read off those, interpolated, and capped at “below p1” and “above p99”. The NLSY79 lenses have no reference yet (their person-level data are not in the repository).</li>
+    <li><strong>Published evidence (lower confidence).</strong> The optional questions under “What the surveys don’t measure” apply hazard ratios from 9 published records (Birditt et al. 2010, Breslau et al. 2011, Roberts et al. 2007, Rosenfeld &amp; Roesler 2019, Manning &amp; Cohen 2012, Killewald 2016), each quote and number checked against the full text. Every hazard ratio is drawn from its published interval plus a between-study spread, stacked adjustments are shrunk for overlap, and the result is labelled literature-based. Full appraisal of 286 records: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/reproducibility/literature_evidence/EVIDENCE.md">EVIDENCE.md</a>.</li>
     <li><strong>Not causal, not personal.</strong> Coefficients describe who divorced in one cohort. No validated “ideal partner”, safe anniversary or personal forecast is established. Full methods: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/reproducibility/ml_couples/METHODS.md">ml_couples/METHODS.md</a> and the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/research/marriage-divorce-evidence/MODEL_CARD.md">model card</a>.</li>
   </ul>
   <p class="small">Open source (MIT): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/research/marriage-divorce-evidence/app">source code</a>. Not advice of any kind.</p>

@@ -5,7 +5,8 @@ to a marketplace or retailer: wrong check digits (with an adjacent-swap suggesti
 lost to Excel (restored only when the check digit proves it), scientific notation like 3.60003E+11
 (expanded when provable, flagged as unrecoverable when digits were rounded away), duplicates (a UPC
 and its EAN-13 form count as one), blanks, placeholders, GS1 reserved prefixes and ISBN-10s, each
-with its line number. It writes the file back with every provable fix applied. The file is read
+with its line number. An 8-digit UPC-E short code that is not a valid GTIN-8 is expanded to its
+UPC-A form when the check digit proves it. It writes the file back with every provable fix applied. The file is read
 locally and never uploaded.
 
 **Live tool:** https://duncan-haywood.github.io/monorepo-projects/gtin-list-check/

@@ -164,3 +164,17 @@ fieldset.excl label { margin-top: 4px; }
   .wi { grid-template-columns: 1fr; }
   .traits { grid-template-columns: 1fr; }
 }
+/* Published-evidence layer and NCHS baselines */
+.lit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 4px 16px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 4px 16px 14px; }
+.lit-grid small { margin-top: 3px; }
+.lit-list { padding-left: 1.2em; font-size: 0.9rem; }
+.lit-list li { margin: 4px 0; }
+.lit-applied { padding-left: 1.3em; font-size: 0.9rem; }
+.lit-applied li { margin: 10px 0; }
+.lit-label { margin: 14px 0 8px; font-size: 0.92rem; color: var(--text-secondary); }
+.tile.lit { border-style: dashed; }
+.tile.lit .r b { color: var(--text-primary); font-weight: 600; }
+.cite { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; overflow-wrap: anywhere; }
+.cite blockquote { margin: 6px 0; padding: 4px 10px; border-left: 3px solid var(--border); color: var(--text-primary); font-style: italic; }
+th.grp { background: var(--surface-0); color: var(--text-primary); }
+#literature { margin-top: 0; }
