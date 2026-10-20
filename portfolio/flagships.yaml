@@ -67,8 +67,7 @@ flagships:
       15 uncoverable hours and sits within ~$70 of the roster found, but the
       proof of the cheapest roster still times out (the coverage flow now runs on a sparse graph, 1.7x more nodes in the same 8 s, ~11k nodes/s here, ~94k nodes vs 57k). Symmetry cuts between people who differ only by name are in (equal
       crews of 6-8 on 10 shifts now proven in under 0.5 s, 24x fewer nodes at 4 people; README), but the
-      all-different sample week is still not proven. `node cli.mjs --weeks 4 --week-start <Monday>` now plans a month from the terminal (carry-over, dated time off, fairness totals; tested). The bound now skips its flow graph when total capacity already cuts a branch (1.6x more nodes in the same 8 s; still not proven). Next: close that last gap (an incremental flow reused down the tree, or
-      dominance between people where one's availability and limits contain another's at the same wage) so full weeks are proven, then
+      all-different sample week is still not proven. `node cli.mjs --weeks 4 --week-start <Monday>` now plans a month from the terminal (carry-over, dated time off, fairness totals; tested). The bound now skips its flow graph when total capacity already cuts a branch (1.6x more nodes in the same 8 s; still not proven). Measured: the sample week's last $69 is the hours-balance term, not pay (pay in the best roster equals the root bound's pay), and 3.36M nodes / 150 s still does not prove it (README). Next: a balance bound that couples people through the fixed total of covered hours (a convex separable allocation, not each person's minimum alone) so full weeks are proven, then
       multi-week rostering that carries fairness and time off across weeks
       (README Limits).
   - venture: photo-editing
