@@ -9,6 +9,31 @@ yourself, inside your own product, or as a business of your own.
 
 **Free tools by trade or business:** [Roofers](https://duncan-haywood.github.io/monorepo-projects/c/for-roofers/) · [HVAC contractors](https://duncan-haywood.github.io/monorepo-projects/c/for-hvac/) · [Plumbers](https://duncan-haywood.github.io/monorepo-projects/c/for-plumbers/) · [Electricians](https://duncan-haywood.github.io/monorepo-projects/c/for-electricians/) · [Painters](https://duncan-haywood.github.io/monorepo-projects/c/for-painters/) · [Cleaning businesses](https://duncan-haywood.github.io/monorepo-projects/c/for-cleaning-businesses/) · [Landscapers](https://duncan-haywood.github.io/monorepo-projects/c/for-landscapers/) · [Pool & hot tub pros](https://duncan-haywood.github.io/monorepo-projects/c/for-pool-hot-tub/) · [Auto detailing & repair](https://duncan-haywood.github.io/monorepo-projects/c/for-auto-detailing-repair/) · [Etsy sellers](https://duncan-haywood.github.io/monorepo-projects/c/for-etsy-sellers/) · [eBay sellers](https://duncan-haywood.github.io/monorepo-projects/c/for-ebay-sellers/) · [Amazon sellers & KDP authors](https://duncan-haywood.github.io/monorepo-projects/c/for-amazon-sellers/) · [Shopify stores](https://duncan-haywood.github.io/monorepo-projects/c/for-shopify-stores/) · [Resellers](https://duncan-haywood.github.io/monorepo-projects/c/for-resellers/) · [Landlords & hosts](https://duncan-haywood.github.io/monorepo-projects/c/for-landlords/) · [Freelancers](https://duncan-haywood.github.io/monorepo-projects/c/for-freelancers/) · [Photographers & videographers](https://duncan-haywood.github.io/monorepo-projects/c/for-photographers/) · [Wedding & event pros](https://duncan-haywood.github.io/monorepo-projects/c/for-wedding-event-pros/) · [Restaurants, cafes & bars](https://duncan-haywood.github.io/monorepo-projects/c/for-restaurants-bars/) · [Pet businesses](https://duncan-haywood.github.io/monorepo-projects/c/for-pet-businesses/) · [Creators](https://duncan-haywood.github.io/monorepo-projects/c/for-creators/) · [Childcare providers](https://duncan-haywood.github.io/monorepo-projects/c/for-childcare/) · [Tutors & teachers](https://duncan-haywood.github.io/monorepo-projects/c/for-tutors-teachers/) · [Truckers & owner-operators](https://duncan-haywood.github.io/monorepo-projects/c/for-truckers/) · [Farms & homesteads](https://duncan-haywood.github.io/monorepo-projects/c/for-farms/) · [Therapists & clinics](https://duncan-haywood.github.io/monorepo-projects/c/for-health-practices/) · [Salons & beauty pros](https://duncan-haywood.github.io/monorepo-projects/c/for-salons-beauty/).
 
+## Browse
+
+- **[The full catalogue in this repository](ventures/README.md)**: every tool,
+  grouped the way the site groups them (trade and contractor bids, marketplace
+  seller fees, service-business pricing, restaurant costing, back-office money
+  and contracts, compliance checks, CI and developer checks, UK tax,
+  self-hosted business apps), each linked to its live page and its source.
+  It includes CSV import checkers for Shopify, Etsy, Mailchimp, Klaviyo,
+  Salesforce and more.
+- **Self-hosted business apps**: open-source alternatives to paid SaaS you run
+  on your own server, such as Stripe failed-payment recovery, cancellation
+  flows, status pages, cookie-free analytics and license keys
+  ([section](https://duncan-haywood.github.io/monorepo-projects/c/self-hosted/)).
+- **Open research**: over 700 reproducible papers with code, on verification
+  markets, chip design, robotics, digital twins and more, at
+  [duncan-haywood.github.io/monorepo-projects/research/](https://duncan-haywood.github.io/monorepo-projects/research/)
+  (source in [`research/`](research/README.md)).
+- **Developer tools**: [`uitest`](platform/uitest/README.md), AI-agent
+  end-to-end UI testing for any web app (CLI and GitHub Action), a
+  [bring-your-own-key LLM client](platform/llm/README.md), and the rest of the
+  shared tooling in [`platform/`](platform/README.md).
+- **How it is built**: a public
+  [development dashboard](https://duncan-haywood.github.io/monorepo-projects/dev/)
+  of merges, CI results and agent run cost.
+
 ## What else is here
 
 One repository for two peer portfolios, products (`ventures/`) and open
@@ -66,7 +91,7 @@ directory that inherits the platform automatically.
 ventures/     one directory per business; each has a VENTURE.yaml
 research/     one directory per research project (MIT); a peer of ventures/,
               its homepage is published at /research/ on the Pages site
-platform/     shared agent definitions, skills, and CI — versioned once
+platform/     shared tooling: the Pages site build, CI guards, open-source tools (platform/README.md)
 prompts/      the prompt system: prompt.md (the master prompt) routes each run to
               a sub-prompt here, run records measure it, and a review track
               improves the prompts and docs from the records (prompts/README.md)
@@ -85,6 +110,11 @@ addresses or ask for `HETZNERSSHKEY` again. Actions secrets that stack used
 trigger, not GitOps. Table: [`infra/OWNER_CHECKLIST.md`](infra/OWNER_CHECKLIST.md).
 
 ### ventures/
+
+The catalogue of every tool, grouped and linked to its live page, is
+[`ventures/README.md`](ventures/README.md) (generated by
+`node platform/pages/ventures-readme.mjs`; GitHub's folder view lists only the
+first 1,000 directories).
 
 Each venture is self-contained and carries a `VENTURE.yaml` at its root. That
 file is the interface between "this business exists" and "the router knows
@@ -134,7 +164,8 @@ directory that carries a `VENTURE.yaml` — marker or not.
 
 The open research portfolio: one self-contained project per directory, each
 with a README, tests and a card on the research homepage
-(`research/_homepage/build.py`, published at `/research/`). It was its own
+(`research/_homepage/build.py`, published at
+[`/research/`](https://duncan-haywood.github.io/monorepo-projects/research/)). It was its own
 repository, `oss-research-monorepo`, until 2026-10-16. Its history was merged
 in (`git log -- research/<slug>` shows each project's original commits), and
 that repository is now archived, read-only history. Research work lands here
@@ -143,9 +174,10 @@ gate, usage tracking, disclaimers) do not apply inside it.
 
 ### platform/
 
-The processes that are the same across ventures: agent definitions, skills,
-reusable CI. If a procedure is being copy-pasted between ventures, it belongs
-here instead.
+The processes that are the same across ventures: the site build, reusable
+CI, the usage counter, deploy bundles. If a procedure is being copy-pasted
+between ventures, it belongs here instead. [`platform/README.md`](platform/README.md)
+lists each directory.
 
 [`platform/uitest/`](platform/uitest/README.md) is an open-source tool that any
 project can use: AI-agent end-to-end UI testing for any web app. It runs as a
@@ -154,6 +186,7 @@ deterministic checks without one.
 
 ### portfolio/
 
+[`portfolio/README.md`](portfolio/README.md) lists each directory.
 `ledger/` records revenue, cost, agent-hours, and outcomes per venture.
 `router/` reads the ledger plus each `VENTURE.yaml` and decides where agent
 effort goes next. See [portfolio/router/README.md](portfolio/router/README.md)
@@ -201,16 +234,6 @@ existing venture to avoid duplicate products.
 Ventures were merged in with `git subtree`, so each one's full commit history
 is preserved and attributed. The original standalone repositories still exist
 and were not deleted.
-
-## Product-first execution
-
-The current operating direction is to ship useful, free, local-first software
-for narrow customer problems, measure anonymous feature usage, and improve what
-people return to. New products should leave a stranger able to complete one
-valuable task without an account, payment, or a paid dependency. See
-[`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and
-[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) for the launch checklist, safety
-guardrails, and opportunity-selection criteria.
 
 ## License
 

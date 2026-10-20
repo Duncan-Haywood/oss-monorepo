@@ -1,4 +1,4 @@
-# klaviyo-profile-csv-check
+# Klaviyo Profile CSV Check — Find Import Errors Before You Import
 
 Checks a Klaviyo profile import CSV in the browser before it is imported: emails and duplicates,
 phone format, rows with no identifier, Excel damage to zips, phones and IDs, latitude, longitude and

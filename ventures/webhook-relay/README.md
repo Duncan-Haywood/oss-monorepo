@@ -1,4 +1,4 @@
-# webhook-relay
+# webhook-relay — Free Self-Hosted Webhook Retries and Replay
 
 After using this, you can now **stop losing webhooks when your app is down,
 mid-deploy or crashing**: every event is verified, saved to disk, delivered

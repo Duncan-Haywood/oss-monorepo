@@ -1,4 +1,4 @@
-# etsy-listing-csv-check
+# Etsy Listing CSV Check — Find Bulk Upload Errors Before You Upload
 
 Checks an Etsy bulk listing CSV in the browser before it is uploaded: title length, tag count and
 length, price, currency, quantity, image links, variation values, SKUs and Excel damage, each with

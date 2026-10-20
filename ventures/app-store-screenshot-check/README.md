@@ -1,4 +1,4 @@
-# app-store-screenshot-check
+# App Store Screenshot Checker — Catch a Rejected Icon or Wrong-Size Screenshot Before Upload
 
 Check the images you are about to attach to an App Store Connect or Google Play
 listing, before the upload refuses them.

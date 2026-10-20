@@ -1,4 +1,4 @@
-# devsec-toolkit
+# devsec-toolkit — Every DevSecOps Check in One Free, Open-Source Command
 
 Every DevSecOps check, one command. Free, open source (MIT), zero
 dependencies, and nothing leaves your machine.
