@@ -5335,6 +5335,37 @@ export function injectFavicon(html, toRoot) {
   return html.replace(/<head(\s[^>]*)?>/i, (head) => `${head}${link}`);
 }
 
+/**
+ * Keep a page's `<meta name="description">` to what a results page can show.
+ *
+ * Venture pages were hand-written with descriptions up to 550 characters; a
+ * search engine cuts them mid-sentence. Rather than edit hundreds of other
+ * ventures' pages, the published copy ends the description at the last whole
+ * sentence that fits `max`, or at the last word with an ellipsis when the
+ * first sentence alone is longer. Only the authored text is shortened, never
+ * added to, and a description already within `max` is returned untouched.
+ */
+export const META_DESCRIPTION_MAX = 320;
+export function clampMetaDescription(html, max = META_DESCRIPTION_MAX) {
+  return html.replace(
+    /(<meta[^>]+name=["']description["'][^>]+content=")([^"]*)(")/i,
+    (whole, open, content, close) => {
+      if (content.length <= max) return whole;
+      const window = content.slice(0, max);
+      const stop = Math.max(
+        window.lastIndexOf('. '),
+        window.lastIndexOf('! '),
+        window.lastIndexOf('? '),
+      );
+      // A "sentence" under 80 characters is usually a heading fragment: prefer words.
+      if (stop >= 80) return `${open}${content.slice(0, stop + 1)}${close}`;
+      const cut = window.slice(0, max - 1);
+      const word = cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:\-\u2013\u2014(]+$/, '');
+      return `${open}${word}\u2026${close}`;
+    },
+  );
+}
+
 export async function copyTree(from, to, baseUrl) {
   await fs.mkdir(to, { recursive: true });
   const entries = await fs.readdir(from, { withFileTypes: true });
@@ -5357,7 +5388,11 @@ export async function copyTree(from, to, baseUrl) {
 
     if (REWRITABLE.has(path.extname(entry.name))) {
       const contents = await fs.readFile(src, 'utf8');
-      await fs.writeFile(dest, rewriteOrigin(contents, baseUrl));
+      const rewritten = rewriteOrigin(contents, baseUrl);
+      await fs.writeFile(
+        dest,
+        path.extname(entry.name) === '.html' ? clampMetaDescription(rewritten) : rewritten,
+      );
     } else {
       await fs.copyFile(src, dest);
     }
