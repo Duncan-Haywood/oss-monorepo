@@ -1,12 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1298 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1300 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-20T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>CSV to SEPA Payment File (pain.001) — Free Bulk Credit Transfer Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sepa-pain001/"/>
+    <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain001</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free CSV to SEPA converter: turn a spreadsheet of supplier or payroll payments into a pain.001 XML file for your bank&#39;s bulk upload. Checks every IBAN and amount first, writes exact control totals, and never uploads your list.</summary>
+  </entry>
+  <entry>
+    <title>CSV to SEPA Direct Debit File (pain.008) — Free Mandate Collection Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sepa-pain008/"/>
+    <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain008</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free CSV to SEPA direct debit converter: turn a spreadsheet of member or customer collections into a pain.008 XML file for your bank. Checks every IBAN, mandate and your creditor identifier first, groups FRST/RCUR/OOFF/FNAL batches, and never uploads your list.</summary>
+  </entry>
   <entry>
     <title>Personality Conversation Simulator: Fictional Characters (Free)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/persona-conversation-simulator/"/>
@@ -150,21 +166,5 @@
     <updated>2026-10-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find every schedule cron that is invalid, faster than GitHub&#39;s 5-minute minimum, or pinned to the top of the hour where scheduled runs get delayed. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Financial Aid Award Letter Comparator — true cost of each college offer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aid-award-letter-comparator/"/>
-    <id>tag:marisstella.dev,2026:tool/aid-award-letter-comparator</id>
-    <updated>2026-10-17T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free financial aid award letter comparator. Type in each college&#39;s cost, grants, loans and work-study and see the true four-year cost, loans repaid with interest, the year-2 price jump and the grant that would match the cheapest offer. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>JWT Security Check — decode a token and find misconfigurations</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/jwt-security-check/"/>
-    <id>tag:marisstella.dev,2026:tool/jwt-security-check</id>
-    <updated>2026-10-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a JWT and get its header and payload decoded, plus every common security misconfiguration flagged: alg:none, embedded jwk/jku/x5u/x5c key material, symmetric-vs-asymmetric algorithm confusion, a kid header shaped like path traversal or SQL injection, missing/excessive exp, and sensitive-looking fields in the unencrypted payload. Free JWT decoder and security checker, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
