@@ -1,0 +1,13 @@
+[project]
+name = "house-panellift"
+version = "0.1.0"
+description = "Can a crane or telehandler lift the house-offsite wall panels? Panel weights, pick-point positions and plate bending checks, open and closed panels"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-offsite/src", "../house-framing/src"]
