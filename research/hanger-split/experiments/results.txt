@@ -1,0 +1,29 @@
+assumptions: PLA bearing 30 MPa, in-plane shear 15 MPa, tension 40 MPa, hole Kt 2.5, steel bolt shear 150 MPa, printed peg shear 12 MPa; design garment 1.5 kg, dynamic x2; depth 12 mm; creep factor multiplies every PLA allowable
+default joint: M4 bolts at y -17 and 16 mm (spacing 33), boss radius 8 mm, hole 4.4 mm
+== A. One half, one arm with its hub: does it fit a 220 mm bed (best turn, deg; longer side mm), joint safety factor (creep 1 / 0.5) and governing mode
+design      w_cm  fits220  turn  side_mm  fits210   Fb_N  SF_c1  SF_c.5 mode      arm_SF
+child       15.8      yes    70    147.2      yes   55.5  12.98    6.49 bearing     71.5
+rack 16     16.0      yes    70    148.8      yes   56.3  12.78    6.39 bearing     70.4
+rack 19     19.0      yes    70    173.1      yes   69.2  10.40    5.20 bearing     57.3
+rack 22     22.0      yes    65    194.9      yes   82.1   8.77    4.39 bearing     48.3
+M adj       22.8      yes    65    200.2      yes   85.5   8.42    4.21 bearing     46.4
+rack 25     25.0      yes    65    214.6       no   94.9   7.58    3.79 bearing     41.8
+XXL adj     25.8      yes    65    219.8       no   98.4   7.32    3.66 bearing     40.3
+== B. Bolt size and spacing, M size (w 22.8), depth 12, creep 0.5: governing safety factor (mode); boss radius = 2 x bolt diameter (6 mm minimum), spacing centred 1 mm below the hook; at 40 mm the bosses reach the hub edge
+bolt               s=20 mm             s=30 mm             s=40 mm
+M3            1.91 (bearing)        2.87 (bearing)        3.83 (bearing)
+M4            2.55 (bearing)        3.83 (bearing)        5.10 (bearing)
+M5            3.19 (bearing)        4.78 (bearing)        6.38 (bearing)
+== C. Hardware-free: printed pegs (shear 12 MPa along the layers) against steel M4 bolts, M size, creep 0.5
+bolt d=4: SF  4.21 (bearing); bolt-or-peg shear alone  22.05
+bolt d=5: SF  5.26 (bearing); bolt-or-peg shear alone  34.45
+bolt d=6: SF  6.32 (bearing); bolt-or-peg shear alone  49.60
+peg d=4: SF  0.88 (bolt); bolt-or-peg shear alone   0.88
+peg d=5: SF  1.38 (bolt); bolt-or-peg shear alone   1.38
+peg d=6: SF  1.98 (bolt); bolt-or-peg shear alone   1.98
+== D. Depth (front to back) that gives the joint a safety factor of 3, M size, default joint, against the arm's own need
+arm alone (hanger-print): 0.78 mm
+joint, creep 1.0: bolts 4.3 mm; printed M4-size pegs: depth does not help, shear alone is SF 1.76
+joint, creep 0.5: bolts 8.6 mm; printed M4-size pegs: depth does not help, shear alone is SF 0.88
+== E. Extra plastic of the two bolt bosses per half, and the hanger's sliced mass for reference
+bosses, both halves, solid: 5.5 g (one-piece hanger-print M size, at 6 mm: see hanger-print results.txt)
