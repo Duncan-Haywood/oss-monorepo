@@ -114,5 +114,23 @@ test('the research builder gets the same markup, and splices it in', async () =>
   assert.deepEqual([...new Set(template.header.match(/\{\{\w+\}\}/g))], ['{{ROOT}}']);
   const builder = readFileSync(path.join(REPO, 'research', '_homepage', 'build.py'), 'utf8');
   assert.match(builder, /--site-chrome/);
-  assert.match(builder, /chrome\["header"\]\.replace\("\{\{ROOT\}\}", root\)/);
+  assert.match(builder, /chrome\[header_key\]\.replace\("\{\{ROOT\}\}", root\)/);
+});
+
+test('research topic and project pages get the breadcrumb variants of the same header', () => {
+  const template = researchChromeTemplate();
+  assert.deepEqual(
+    [...new Set(template.topic_header.match(/\{\{\w+\}\}/g))].sort(),
+    ['{{ROOT}}', '{{TOPIC}}'],
+  );
+  assert.deepEqual(
+    [...new Set(template.project_header.match(/\{\{\w+\}\}/g))].sort(),
+    ['{{ROOT}}', '{{TITLE}}', '{{TOPIC_ID}}', '{{TOPIC}}'],
+  );
+  // Home › Research › topic › project, the topic linking its own page.
+  assert.match(template.project_header, /class="pfs-crumbs"/);
+  assert.match(template.project_header, /href="\{\{ROOT\}\}research\/">Research<\/a>/);
+  assert.match(template.project_header, /href="\{\{ROOT\}\}research\/topics\/\{\{TOPIC_ID\}\}\/">\{\{TOPIC\}\}<\/a>/);
+  assert.match(template.project_header, /<span aria-current="page">\{\{TITLE\}\}<\/span>/);
+  assert.match(template.topic_header, /<span aria-current="page">\{\{TOPIC\}\}<\/span>/);
 });

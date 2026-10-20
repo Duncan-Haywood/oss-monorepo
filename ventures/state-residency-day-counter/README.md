@@ -63,6 +63,7 @@ server only hands out files and never sees a date you type.
   has a nine-month presumption rather than a 183-day test; figures recomputed by
   the test suite.
 - `nyc-resident-tax-183-day-test.html` - guide to New York City's own statutory-resident test (abode in the City plus more than 183 days inside the five boroughs); add `NYC` to a stay line and the counter tracks the City beside the State. Figures recomputed by the test suite.
+- `six-month-residency-nebraska-colorado-arkansas-kansas.html` - guide to the four more-than-six-months tests (the counter's limit is 182); figures recomputed by the test suite.
 - `remote-work-convenience-of-the-employer-rule.html` - guide on the
   employer-state rule, its dollar figures recomputed by the test suite.
 

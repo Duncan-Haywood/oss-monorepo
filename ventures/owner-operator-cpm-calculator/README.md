@@ -126,3 +126,12 @@ relying on it or booking a load. To the maximum extent permitted by law, the
 authors accept no liability for loss or damage arising from its use.
 
 MIT licensed — see [`LICENSE`](LICENSE).
+
+## Host your own copy
+
+You do not need the author's site. Fork the repository and run your own:
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the site's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts, and nothing you type reaches a server. The Docker image has not been built in the session that added these files, so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.

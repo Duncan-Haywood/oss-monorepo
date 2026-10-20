@@ -238,6 +238,24 @@ class TestSweep(Fixture):
         self.assertEqual(sorted(row[1] for row in everything),
                          ["claude/old", "claude/stranded"])
 
+    def test_same_day_branches_are_listed_in_reverse_name_order(self):
+        # Red-team seeding (2026-10-19): sorting on the commit list instead of
+        # the branch name passed every test.
+        for name in ("claude/aaa", "claude/zzz"):
+            self.branch(name)
+            self.commit(f"{name}.txt", "x\n", name, day="2026-10-01")
+            self.push(name)
+        found = uw.sweep(str(self.clone), since=None, probe=self.probe)
+        self.assertEqual([row[1] for row in found], ["claude/zzz", "claude/aaa"])
+
+    def test_probe_is_created_under_directories_that_do_not_exist_yet(self):
+        deep = self.probe.parent / "not" / "yet" / "probe.git"
+        self.branch("claude/stranded")
+        self.commit("a.txt", "a\n", "a", day="2026-10-01")
+        self.push("claude/stranded")
+        found = uw.sweep(str(self.clone), since=None, probe=deep)
+        self.assertEqual([row[1] for row in found], ["claude/stranded"])
+
     def test_sweep_finds_its_own_probe_when_none_is_given(self):
         self.branch("claude/stranded")
         self.commit("a.txt", "a\n", "a", day="2026-10-01")

@@ -148,6 +148,8 @@
     <button type="button" class="secondary" id="plan-run">Compare ways to sell</button>
     <div id="plan-out"></div>
     <button type="button" id="download">Download rows (CSV)</button>
+    <button type="button" class="secondary" id="download-tax-software">Download for tax-software import (CSV)</button>
+    <p class="note" id="tax-software-note" hidden></p>
   </section>
 
   <section class="card">
@@ -189,7 +191,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, parse1099da, reconcile1099da, form8949Totals, form8949BoxTotals, parsePrices, harvestPlan, waitPlan, planSale, idRecord, toForm8949Csv, toIncomeCsv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
+    import { analyze, parse1099da, reconcile1099da, form8949Totals, form8949BoxTotals, parsePrices, harvestPlan, waitPlan, planSale, idRecord, toForm8949Csv, toTurboTaxCsv, turboTaxSkipped, toIncomeCsv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
     import { convertMany, FORMAT_LABELS, suggestMapping, applyMapping, MAP_FIELDS, MAP_KINDS } from "./importers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -380,6 +382,17 @@
       a.href = URL.createObjectURL(new Blob([toForm8949Csv(last.rows)], { type: "text/csv" }));
       a.download = `form-8949-rows-${last.year}-${last.method}.csv`;
       a.click();
+      record("report_downloaded");
+    });
+    $("#download-tax-software").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toTurboTaxCsv(last.rows)], { type: "text/csv" }));
+      a.download = `crypto-sales-tax-software-${last.year}-${last.method}.csv`;
+      a.click();
+      const n = turboTaxSkipped(last.rows), note = $("#tax-software-note");
+      note.hidden = !n;
+      note.textContent = n ? `${n} sale row${n > 1 ? "s" : ""} with no purchase on record ${n > 1 ? "were" : "was"} left out of this file; add the missing purchases and match again.` : "";
       record("report_downloaded");
     });
     $("#download-income").addEventListener("click", () => {

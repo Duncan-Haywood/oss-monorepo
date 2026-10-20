@@ -940,7 +940,7 @@ ArduPilot (track 9).
 5. `capture-edit`: the automated edit. An open pipeline from multi-camera raw footage to a reel
    (sync, shot detection, reframing, angle selection, a film-look grade), scored on openly
    licensed footage against a fixed-cut baseline.
-6. `capture-bystander`: filming in public without harm. Automatic blurring of bystanders' faces
+6. `capture-bystander` (done 2026-10-19): filming in public without harm. Automatic blurring of bystanders' faces
    and plates, and how conspicuous each platform is; a design input, not a way to hide filming.
 7. Owner steps: build the best kit from open hardware, with a priced bill of materials, and test
    it on a trip.

@@ -16,6 +16,11 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   cut-outs, straight / running bond / diagonal lattices, greedy guillotine
   offcut reuse, the starting-position search, the layout comparison, the cut
   list, and an independent `verifyLayout` check.
+- `materials()` in `calc.mjs` - grout and thinset estimate: joint volume from the
+  laid layout (floor tiled minus tile faces) times tile thickness at ~1.86 kg per
+  litre, thinset by trowel notch per m², both plus your extra %, optional bag counts.
+- The page keeps your last entries in local storage and has a "Copy share link"
+  button; the setup rides in the URL fragment, which no server receives.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-many-tiles-do-i-need.html` - guide with a worked example that the test
   suite recomputes.
@@ -23,7 +28,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 **No warranty.** Free and as-is; a planning aid, not construction advice,
 installation instructions or a material guarantee. It does not model blade
 width, breakage, warp, lippage, shade matching, trims, slopes, herringbone or
-other patterns, or adhesive and grout quantities. Diagonal offcuts are not
+other patterns. Grout and thinset are estimates from typical coverage figures; use the coverage printed on your bags. Diagonal offcuts are not
 reused, so diagonal counts are conservative. Unverified against a real
 installation: tested on hand-computed layouts and on random rooms whose pieces
 are checked to add up to the floor.

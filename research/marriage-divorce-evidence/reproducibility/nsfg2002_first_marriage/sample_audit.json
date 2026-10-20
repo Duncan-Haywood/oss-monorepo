@@ -1,0 +1,26 @@
+{
+ "respondents_in_file": 7643,
+ "weighted_women_15_44_millions": 61.56,
+ "ever_married": 4126,
+ "first_marriage_dissolutions": 1492,
+ "of_which_divorce_or_annulment": 1232,
+ "widowed_censored": 58,
+ "intervals": 32460,
+ "person_years": 30340.666666666664,
+ "husband_age_missing": 42,
+ "wife_age_at_marriage_under_14": 7,
+ "unknown_counts": {
+  "cohabited_first": 18,
+  "husband_married_before": 21,
+  "husband_prior_children": 22,
+  "wife_race_ethnicity": 0,
+  "same_race_ethnicity": 17,
+  "wife_intact_family": 0
+ },
+ "wedding_years": [
+  1972,
+  2002
+ ],
+ "folds": "5 folds by respondent, seeded shuffle",
+ "python_sklearn": "1.7.2"
+}
