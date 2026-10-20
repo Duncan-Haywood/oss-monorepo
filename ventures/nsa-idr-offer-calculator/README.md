@@ -13,6 +13,7 @@ initiation dates. No patient information is needed; nothing is uploaded.
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, win-chance curve, expected net, break-even, offer search, deadlines, CSV.
+- Calibrate from your own results: paste closed disputes (`label, billed, QPA, your offer, won|lost`) and `fitWinCurve` fits a logistic win-chance curve over where your offer sat between the QPA and the billed charge, with a ridge pull toward your current assumption so a few results nudge it and many replace it. It fills the two win-chance boxes, shows the Wilson range on your win rate and the fit error against your old guess. In the CLI: `--outcomes past.csv`. In-sample arithmetic on your records, not a prediction.
 - `cli.mjs` - the same sizing in a terminal, for billing teams that export claims from a practice-management system: `node cli.mjs claims.csv --admin-fee 115 --entity-fee 700` (fees are whatever the federal IDR portal currently says; they default to zero), `--csv`, `--json`, `--example`, and `--deadlines 2026-03-02 --holidays 2026-05-25` for the negotiation and initiation dates. Zero dependencies, no network; tests in `cli.test.mjs`.
 - `usage.mjs` - local-only feature counters with an opt-out.
 
@@ -34,7 +35,7 @@ the server only hands out files and never sees a figure you type.
 - **Managed IDR services:** they run the dispute for you and take a share of recovery. This decides which claims are
   worth filing and what to offer, free, before you pay anyone.
 - **What this adds:** a per-claim expected-net offer search, a break-even win chance, a sensitivity table, the
-  negotiation and initiation dates, a CLI for claim exports, and no signup, no patient data and no upload.
+  negotiation and initiation dates, a win-chance curve fitted to your own closed disputes instead of a guess, a CLI for claim exports, and no signup, no patient data and no upload.
 
 **No warranty.** Free and as-is; arithmetic on figures you type, not legal or
 billing advice. The win-chance curve is the user's assumption, not a prediction of
