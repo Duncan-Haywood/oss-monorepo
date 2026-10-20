@@ -1,0 +1,3 @@
+{"theme": "capture",
+ "title": "Does a soft confidence weight beat a hard switch for repairing stereo-depth view synthesis, and does matching cost help?",
+ "summary": "A ramped weight on how much the nearest raw camera replaces a stereo-depth synthesis, driven by disagreement between the two warps, beats the hard switch in every condition tried by 0.1&ndash;0.5 dB (29.5 against 29.3 dB at a 15&deg; gap on held-out seeds) and leaves about a quarter fewer false edges, but closes only about a tenth of the 2.6 dB gap to a per-pixel oracle. The stereo matching cost is a worse confidence signal than warp disagreement: gating on it is level with plain hole filling and worse under a bystander or sensor noise. Stylised toy scene, parameters tuned on development seeds."}
