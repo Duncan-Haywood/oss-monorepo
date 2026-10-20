@@ -53,7 +53,6 @@ export const NAMED_ENTITIES = Object.freeze({
   le: '≤',
   ge: '≥',
   radic: '√',
-  rho: 'ρ',
   lceil: '⌈',
   rceil: '⌉',
   sup2: '²',
@@ -71,6 +70,7 @@ export const NAMED_ENTITIES = Object.freeze({
   beta: 'β',
   pi: 'π',
   mu: 'μ',
+  rho: 'ρ',
 
   larr: '←',
   rarr: '→',

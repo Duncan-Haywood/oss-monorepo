@@ -10,3 +10,5 @@ mkdir -p raw
 f=raw/nlsy79_all_1979-2022.zip
 [ -f "$f" ] || curl --fail -sSL https://nlsinfo.org/cohort-data/nlsy79_all_1979-2022.zip -o "$f"
 sha256sum -c SHA256SUMS
+# 2026-10-20 extension columns (origin, siblings, religion, net wealth, occupation), streamed into work/:
+#   python3 -I extract_ext.py raw/nlsy79_all_1979-2022.zip work

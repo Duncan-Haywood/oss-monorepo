@@ -10,6 +10,9 @@
 # rewrites it to the following milestone in the same PR. The owner can
 # reorder, add or drop entries; agents may too, with the evidence in the PR.
 #
+# Why depth, argued at more length (an opinion, not a rule):
+# portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
+#
 # Chosen 2026-10-20 from an audit of the largest ventures by source size,
 # keeping those whose code works today and whose next step is a hard business
 # or engineering problem. Passed over for now: local-site-studio (real
@@ -27,10 +30,13 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      Models for real-world series the README lists as limits: a Poisson
-      cost for counts, a seasonal-difference or STL pre-step for seasonal
-      data, and an AR(1)-aware cost so autocorrelated series stop showing
-      false changes, each checked against R's changepoint package output.
+      A Poisson cost for counts, a seasonal adjustment (--period n) and an
+      AR(1)-aware noise scale (--ar1) are in, each measured on seeded
+      synthetic series (README Verification), and --ar1 gives the Bayesian pass a conditional AR(1)
+      likelihood (false detections 40/40 -> 0/40, power 40/40 at shift 8, up from 25/40 with prewhitening). The mean and
+      mean-and-variance PELT match the independent ruptures package on 100 of 100
+      seeded cases (fixture in data/). The Poisson model matches ruptures' PELT with a scipy
+      Poisson cost on 90 of 90 seeded cases (fixture in data/). Re-estimating rho for the Bayesian pass from PELT residuals was measured and dropped (27 to 29 of 40 hits, inside noise; README). The PELT side has a joint mean-plus-AR(1) fit (--ar1 joint: 34/40 power at shift 4 against 28/40, same 4/40 false runs). --period --drift --ar1 together is measured (sticky noise: 9.5 -> 1.3 changes per series, README) and choosing the --drift window by leave-one-out error was tried and dropped (worse on all five shapes, README). Next: a trend-aware seasonal adjustment (a changing level under --period currently reads as steps) or a drift window chosen by a rule that rewards clean detection rather than prediction, e.g. minimum PELT segment count on the series itself.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -44,10 +50,12 @@ flagships:
       the self-hosted API and lists the findings (official.mjs). The Peppol
       credit-note and XRechnung CII examples now pass the official rules in
       tests, and the 30 DE-R rules Peppol applies to German invoices have
-      English fixes. Next: a WASM/in-browser path so the static Pages copy can
-      run it too without a server (Saxon-JS in the page, SEF files built in CI
-      and served as static assets), then CreditNote and CII credit-note
-      defect examples.
+      English fixes. An in-browser path is in (node build-browser.mjs writes ./browser/ with Saxon-JS's
+      browser runtime and the SEFs; checked in headless Chromium, no server). It is not
+      on the owner's Pages copy because Saxon-JS's licence bars redistributing it from
+      a site that mainly serves it; the owner could ask Saxonica for permission, or the
+      rules could be ported to a plain-JS evaluator. Next: that decision, then
+      CreditNote and CII credit-note defect examples.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -79,24 +87,40 @@ flagships:
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      A survey builder: an admin creates a survey from their own items and
-      attributes, shares a link and exports the ranking with confidence
-      intervals. Then the information-gain pair selector (IMPROVEMENT-PLAN.md, P1).
+      The survey builder's back end is in: POST /api/admin/surveys creates a
+      survey from an admin's own options (validated in surveyBuilder.ts), and
+      GET /api/admin/surveys/[slug]/ranking[?format=csv] returns the pooled
+      ranking with random-effects 95% intervals and rank ranges (groupRanking.ts,
+      coverage checked on seeded data). Next: an admin form on /admin that
+      calls them and shows the intervals, a /s/[slug] respondent page for
+      admin-made surveys, then the information-gain pair selector
+      (IMPROVEMENT-PLAN.md, P1).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
       assignment under rest constraints, blackouts, play-offs, ladders and
       Swiss formats, with a self-hosted league page.
     next: >-
-      Multi-division scheduling on shared venues: one constraint solve across
-      divisions over shared courts and dates, minimizing back-to-backs and
-      travel, with the conflicts it could not avoid listed.
+      Multi-division scheduling on shared venues is in (divisions.mjs, and now
+      a browser page, multi-division-league-schedule.html, linked from the
+      index and sitemap; venue changes -25% against the naive order on the
+      example, unavoidable clashes listed). Venue-to-venue travel times are in
+      (`travel` field, minutes per venue pair; -10% road minutes against a flat
+      trip count on three venues, README). Next: filling partial nights (split a round
+      across nights without breaking its balance), rainout moves that work
+      across divisions, and a share link that carries the division form.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
-      README roadmap item 2: the feeder CAD package (launcher head, hopper,
-      lateral base, catch-net frame) generated and tested the same way as the
-      collector's.
+      The feeder CAD v0.1 package is in (manufacturing/feeder/: launcher head,
+      trunnion cheeks, turntable, 2040 base with brackets, mast, 3 m net beam,
+      poles and camera bar; the build tilts the head through -15..+45 deg for
+      collisions and sizes wind ballast). Next: the parts it does not model,
+      in this order: the hopper with feed tube and gate, the elevation
+      actuator bracket and azimuth drive, then the netting trough that rolls
+      balls to the hopper inlet; then check the head's wheel-to-wheel gap
+      and plate clearance against the ball path with the flight model's
+      launch speeds.

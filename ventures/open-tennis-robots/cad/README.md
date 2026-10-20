@@ -7,6 +7,7 @@ needs:
 ```
 pip install -r requirements.txt        # build123d, pinned
 python -m otr_cad collector --out ../manufacturing/collector
+python -m otr_cad feeder --out ../manufacturing/feeder
 ```
 
 | Output | For |
@@ -56,6 +57,17 @@ the part you actually buy before cutting metal.
 
 - **Collector: v0.2 package complete.** It has not been built yet, so
   expect a revision after the first build.
-- **Feeder: not yet modelled.** It is next. The launcher head, hopper,
-  lateral base and catch-net frame follow the same pattern: flat plates,
-  printed brackets and an extrusion cut list.
+- **Feeder: v0.1 package.** Launcher head (two plates, standoffs, wheel and
+  motor envelopes), trunnion cheeks with printed feet, mast plate and
+  turntable plate over a lazy-susan bearing, a 2040 base with drive and
+  idler brackets, the 3 m net beam, poles, printed foot and elbow sockets,
+  and a 2020 camera bar. Checks beyond the collector's:
+  the head is tilted through -15 to +45 degrees and tested for collisions at
+  each step (`package.elevation_sweep`), the head plates must clear the
+  67 mm ball path, cheek-foot pilots must land on turntable-plate holes, and
+  the wind force on the net sets a ballast figure in the manifest
+  (`Feeder.ballast_kg`: moment balance about the wheel line; solidity and drag
+  coefficient are assumptions to replace with a measurement).
+  **Not yet modelled:** the netting and trough, hopper and agitator, feed
+  tube, elevation actuator bracket, azimuth drive and cabling. The BOM lists
+  the actuator and drive as bought parts without a mount.

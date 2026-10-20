@@ -77,9 +77,8 @@ Usage:
 
 Exit codes: 0 nothing to do (or fixed, without `--check`), 1 drift found under
 `--check` or a file could not be rewritten, 2 a count could not be derived at
-all -- which is never reported as "in sync", for the same reason
-`outage_triage.py` exits 2 rather than letting "no reading taken" read as a
-pass.
+all -- which is never reported as "in sync", so "no reading taken"
+never reads as a pass.
 """
 
 from __future__ import annotations

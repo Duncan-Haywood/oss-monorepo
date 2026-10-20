@@ -16,7 +16,7 @@ const pts = (x) => `${x >= 0 ? '+' : '−'}${(100 * Math.abs(x)).toFixed(1)}`;
 const fmtN = (x) => Math.round(x).toLocaleString('en-US');
 const yrs = (h) => `${fmtYears(h)} y`;
 
-export const VIEWS = ['couple', 'justme', 'candidates', 'batch', 'dashboard', 'scenarios'];
+export const VIEWS = ['couple', 'justme', 'candidates', 'batch', 'dashboard', 'scenarios', 'report'];
 let constraints = emptyConstraints();
 let view = 'couple';
 

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ACX Audiobook Requirements: How to Check Your Files Before Upload</title>
+  <meta name="description" content="ACX audio requirements in one list: 192 kbps CBR MP3, 44.1 kHz, 120-minute files, RMS -23 to -18 dB, peak -3 dB, noise floor -60 dB, 2400 px cover. Check them free.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="ACX audiobook requirements, and how to check your files">
+  <meta property="og:description" content="Every file-level rule ACX publishes for audiobook submissions, what each one means, and a free checker that reads your files without uploading them.">
+  <link rel="canonical" href="./acx-audiobook-requirements.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Check audiobook files against ACX requirements","step":[{"@type":"HowToStep","text":"Export each chapter as its own file, plus opening credits, closing credits and a 1 to 5 minute retail sample."},{"@type":"HowToStep","text":"Check loudness on the WAV masters: RMS between -23 and -18 dB, peak at or below -3 dB, noise floor at or below -60 dB."},{"@type":"HowToStep","text":"Encode to MP3 at 192 kbps constant bitrate, 44.1 kHz, all mono or all stereo."},{"@type":"HowToStep","text":"Run the files through Publish Kit's audiobook check, in the browser or with publish-kit audiobook check."},{"@type":"HowToStep","text":"Check the cover is a square JPEG of at least 2400 by 2400 pixels."}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c1d24; background: #f5f3ef; }
+    body { max-width: 780px; margin: auto; padding: 24px; }
+    h1 { color: #2b2147; line-height: 1.15; }
+    h2 { color: #2b2147; margin-top: 28px; font-size: 1.2rem; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; background: #fff; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e5e0d6; vertical-align: top; }
+    pre { background: #fff; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .85rem; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd8ce; padding-top: 14px; font-size: .86rem; color: #5a5d6b; }
+  </style>
+</head>
+<body>
+<p><a href="./index.html">← Publish Kit</a></p>
+<h1>ACX audiobook requirements, and how to check your files before you upload</h1>
+<p>ACX is the platform that distributes audiobooks to Audible, Amazon and Apple Books. It rejects a submission at quality review when a file breaks one of its published audio rules. The rejection email arrives days later and names the rule, not the file. Here is every file-level rule in one table, with what the <a href="./index.html#audiobook">free checker</a> does for each.</p>
+
+<h2>The rules</h2>
+<table>
+  <thead><tr><th>Rule</th><th>What ACX asks for</th><th>Publish Kit</th></tr></thead>
+  <tbody>
+    <tr><td>Format</td><td>MP3</td><td>Checked</td></tr>
+    <tr><td>Bitrate</td><td>192 kbps or higher, <strong>constant</strong> bitrate (CBR)</td><td>Checked. Every frame is read, so a VBR file is caught even without a VBR header</td></tr>
+    <tr><td>Sample rate</td><td>44.1 kHz</td><td>Checked</td></tr>
+    <tr><td>Channels</td><td>All files mono, or all files stereo, never mixed</td><td>Checked across the set</td></tr>
+    <tr><td>File length</td><td>One chapter or section per file, at most 120 minutes</td><td>Checked</td></tr>
+    <tr><td>Credits</td><td>Opening credits and closing credits, each in its own file</td><td>Flagged when no file name looks like credits</td></tr>
+    <tr><td>Retail sample</td><td>A separate 1–5 minute sample</td><td>Flagged when no file name contains "sample"</td></tr>
+    <tr><td>RMS loudness</td><td>Between −23 dB and −18 dB</td><td>Measured on 16-bit WAV masters</td></tr>
+    <tr><td>Peak</td><td>−3 dB or lower</td><td>Measured on 16-bit WAV masters</td></tr>
+    <tr><td>Noise floor</td><td>−60 dB RMS or lower</td><td>Estimated from the quietest half-second (your room tone) in WAV masters</td></tr>
+    <tr><td>Room tone</td><td>0.5–1 s at the head and 1–5 s at the tail of each file</td><td>Not checked; listen for it</td></tr>
+    <tr><td>Cover art</td><td>Square, at least 2400 × 2400 px, JPEG, RGB</td><td>Checked by <code>publish-kit cover cover.jpg --for audiobook</code></td></tr>
+  </tbody>
+</table>
+<p>ACX revises its requirements. These are as published when this page was written, so read ACX's own audio submission requirements before you submit.</p>
+
+<h2>Why measure loudness on the WAV, not the MP3</h2>
+<p>Encoding changes peaks slightly, but RMS and noise floor come through MP3 encoding almost unchanged. A WAV master is plain samples, so it can be measured exactly in the browser without decoding. Fix levels on the master, then encode. To measure an MP3 directly, FFmpeg prints RMS and peak with:</p>
+<pre>ffmpeg -i chapter-01.mp3 -af astats=metadata=0 -f null -</pre>
+
+<h2>Encoding that passes</h2>
+<pre>ffmpeg -i chapter-01.wav -ar 44100 -ac 1 -codec:a libmp3lame -b:a 192k chapter-01.mp3</pre>
+<p><code>-b:a</code> with libmp3lame gives constant bitrate. <code>-q:a</code> gives VBR, the most common reason a file fails the bitrate rule.</p>
+
+<h2>From the command line</h2>
+<pre>publish-kit audiobook check audio/*.mp3      # the file rules
+publish-kit audiobook check masters/*.wav    # plus loudness
+publish-kit audiobook m4b --run              # one chaptered .m4b for direct sale
+publish-kit audiobook feed                   # a private podcast-style feed of the chapters</pre>
+<p>Each command takes <code>--json</code> and exits 1 when a rule fails, so an AI agent or a CI job can loop until the set passes. See <a href="./index.html#cli">the CLI</a>.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or publishing-contract advice, and it does not replace a qualified professional. A clean result is not a promise that ACX, Audible or any retailer will accept your audiobook. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p>Publish Kit is not affiliated with ACX, Audible or Amazon. Their names are used only to describe the requirements checked.</p>
+</footer>
+</body>
+</html>

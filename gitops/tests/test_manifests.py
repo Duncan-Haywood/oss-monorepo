@@ -3086,10 +3086,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
     # +1: `s-corp-basis-tracker` graduated (browser S corporation stock and debt basis roll-forward in Form 7203 order, suspended losses and excess distributions).
     # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
-    total = 1306  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1306 tools" wording.
+    total = 1308  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1308 tools" wording.
+    # +1: `interview-content-studio` graduated (browser and CLI: interviews about a brand or topic become a per-platform plan, a 4-week calendar and drafts for 14 platforms, optional own-key AI with a no-invented-numbers check).
     # +1: `open-tennis-robots` graduated (open-source tennis ball machine with a moving catch net and a ball-collecting rover: shot planner, catch simulation, route planner, ESP32 firmware, seller listing tool, collector manufacturing package).
     # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
     # +1: `sales-cadence-builder` graduated (browser and CLI multi-channel prospecting cadence: email, call with voicemail, LinkedIn note and letter on business days, calls in the prospect's local 9-5, suppression and CASL/EU consent gating, CSV and .ics export, optional own-key AI).
+    # +1: `publish-kit` graduated (podcast RSS feed generator, Markdown to EPUB, ACX audiobook checks, KDP spine/cover size; browser page plus an agent-drivable CLI).
     # +1: `actions-schedule-check` graduated (browser + CLI lint of GitHub Actions schedule crons: invalid, faster than 5 minutes, minute 0).
     # +1: `liability-audit` graduated (zero-dependency repository scanner for legal and financial exposure: consent, auto-renewal, disclosures, leaked keys, open LLM endpoints, cloud budgets; CLI, SARIF, monorepo sweep, browser page, agent playbook).
     # +1: `llm-spend-guard` graduated (self-hosted proxy and zero-dependency library: hard per-user/feature/run LLM budgets with worst-case holds, loop breakers, browser log-replay simulator).

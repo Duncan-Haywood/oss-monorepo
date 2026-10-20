@@ -46,6 +46,19 @@ class Audit(unittest.TestCase):
             self.assertEqual(r["missing"], ["ventures/a/bad.html"])
             self.assertEqual(s.main(["--root", d]), 1)
 
+    def test_limits_are_inclusive(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "ventures/a").mkdir(parents=True)
+            (root / "ventures/a/x.html").write_text(page("T" * 60, "D" * 160))
+            r = s.audit(root)
+            self.assertEqual((r["long_titles"], r["long_descriptions"]), (0, 0))
+            self.assertEqual(r["worst_ventures"], [])
+
+    def test_empty_tree_does_not_divide_by_zero(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(s.main(["--root", d]), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

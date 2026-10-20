@@ -100,8 +100,8 @@ jobs:
         with:
           node-version: "22"
 
-      # The build runs python3 (decision_queue.py and the research homepage
-      # builder); gitops/tests/test_ci_runner.py requires the job to set it up.
+      # The build step runs portfolio/ledger/decision_queue.py; pin the
+      # interpreter rather than rely on the runner image having python3.
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
