@@ -26,8 +26,8 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
-  "ci_failures_before_green": null,
+  "merged": true,
+  "ci_failures_before_green": 5,
   "review_findings": null,
   "tests_added": 117,
   "outcome": "success",
@@ -54,6 +54,10 @@
     {
       "file": "platform/marketing/front-door-tools.mjs",
       "issue": "Its usage comment says --write output in gitops/prod/front-door-tools/ is committed, but main does not track that directory; it leaves ~6,000 untracked files."
+    },
+    {
+      "file": "platform/marketing/regen.mjs",
+      "issue": "regen reported the surface current while 00-mirror-alias.conf was stale; only front-door-tools.mjs --write fixed it."
     }
   ],
   "deviations": [
@@ -67,7 +71,7 @@
     }
   ],
   "goal": null,
-  "notes": "Two tools were built by subagents in parallel to a spec written first, then reviewed: all three venture suites pass (run_venture_tests.py), headless Chromium at 390px shows no console errors, no external requests and no horizontal scroll (one overflow fixed on the conformal page). Verification numbers are in each venture README. Desktop app packaging (macOS/Windows/Linux) is the open distribution gap; queued as a suggested task for the owner. Report and handoff steps: docs/history/research-tools-2026-10-20.md; blog post docs/posts/2026-10-20-research-algorithms-in-your-browser.md. Also synced a stale runs-on count in gitops/ci/README.md that was red on main.",
+  "notes": "Two tools were built by subagents in parallel to a spec written first, then reviewed: all three venture suites pass (run_venture_tests.py), headless Chromium at 390px shows no console errors, no external requests and no horizontal scroll (one overflow fixed on the conformal page). Verification numbers are in each venture README. Desktop app packaging (macOS/Windows/Linux) is the open distribution gap; queued as a suggested task for the owner. Report and handoff steps: docs/history/research-tools-2026-10-20.md; blog post docs/posts/2026-10-20-research-algorithms-in-your-browser.md. Also synced a stale runs-on count in gitops/ci/README.md that was red on main. Verification after merging main (pushes after the first triggered no workflows, so checked locally per verify-and-merge.md): agents, privacy+webcheck, distribution node suites 0 fail; prompts pytest 86 passed; run_venture_tests --changed 3 suites 0 failed; checklist_coverage, check_md_links, siblings --check, router/validate.py, regen --verify all ok; marketing suite 275/275 before the merge and the alias/mirror tests 7/7 after; build.test targeted (cache name, categories, share cards) 30/30 (the earlier full run's one cache-name failure came from editing the tree mid-run); gitops/tests 17 failures, all also failing on clean origin/main 8e277907 (test_publish_branch stub lacks platform/daily/build.mjs; test_ci_runner setup check), none from this PR.",
   "corrections": [],
   "redteam": null
 }
