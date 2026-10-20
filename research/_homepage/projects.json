@@ -3552,6 +3552,11 @@
      "slug": "mimic-cursor",
      "title": "Can an imitator that changes its own code fool a human-vs-bot cursor detector, and does shared feedback help either side?",
      "summary": "Browser use, the first subject of the adversarial-imitation track beyond writing. Cursor strokes of 46 people from DUX (CC-BY-4.0) against an imitator built from code components and a detector that picks 3 of 11 feature functions, 4 feedback conditions &times; 8 seeds &times; 30 rounds at equal budget. A reference detector the loop never saw catches every final imitator at AUROC 0.99 to 1.00; detector explanations and shared imitator code did not make a better imitator. Detectors trained with two-way sharing did best against other runs&rsquo; imitators (cross-play AUROC 0.81 vs 0.70 blind), but the paired interval includes zero. An 8&times; larger search ends at 0.88, no better than replaying a real stroke, so the component library is the limit. Preliminary: one web form, 8 seeds, no model-written code."
+    },
+    {
+     "slug": "mimic-webcam",
+     "title": "Can a generator imitate a person's webcam emotion signals well enough to fool a detector?",
+     "summary": "Webcam, the third subject of the adversarial-imitation track, signals first: no pixels or faces. Ten-second windows of 12 facial-coding channels (Affectiva scores logged by DUX, CC-BY-4.0) from 46 people, split by person. Six fixed generators from constant to AR(1) with channel correlation, holds and spikes, and an imitator that tunes its own generator code against a 3-feature-group detector for 30 rounds (8 seeds; 4 seeds at 8&times; the budget), are all separated from held-out people by a boosted-tree reference detector the loop never saw at AUROC 0.997 or higher. Only replaying whole windows of other people gets near chance (0.61, which is the gap between people). Preliminary and stylised: one context, a fixed component library, and windows biased toward moments when the person was using the mouse or keyboard."
     }
    ]
   },

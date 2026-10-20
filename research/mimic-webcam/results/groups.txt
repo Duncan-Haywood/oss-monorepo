@@ -1,0 +1,9 @@
+group	mean AUROC alone (L5 vs held-out people, 8 seeds)
+extremes	1.000
+holds	0.995
+autocorr	0.954
+spread	0.937
+roughness	0.936
+floor	0.914
+level	0.907
+cross	0.772
