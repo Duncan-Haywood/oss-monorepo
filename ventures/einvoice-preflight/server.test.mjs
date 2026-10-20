@@ -115,3 +115,15 @@ test("GET /create.html serves the creator page", async () => {
   assert.match(await r.text(), /invoice creator/i);
   await s.close();
 });
+
+test("serves the ES modules the page imports, but not tests, CLIs or the server", async () => {
+  const s = await start();
+  const ok = await fetch(`${s.base}/report.mjs`);
+  assert.equal(ok.status, 200);
+  assert.match(ok.headers.get("content-type"), /javascript/);
+  assert.equal((await fetch(`${s.base}/official.mjs`)).status, 200);
+  for (const p of ["server.mjs", "server.test.mjs", "official.test.mjs", "schematron-cli.mjs", "build-schematron.mjs", "nope.mjs"]) {
+    assert.equal((await fetch(`${s.base}/${p}`)).status, 404, p);
+  }
+  await s.close();
+});

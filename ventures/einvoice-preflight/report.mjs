@@ -3,7 +3,6 @@ import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } f
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
-import { runSchematron } from "./schematron.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
 export const DEFAULT_MAX_FILES = 50;
@@ -72,6 +71,8 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       let schematronStatus = "";
       if (schematron) {
         // The official rules, beside the built-in ones. JSON drafts have no XML to check.
+        // Loaded on demand: schematron.mjs needs node:fs, which a browser page cannot import.
+        const { runSchematron } = await import("./schematron.mjs");
         const official = xml ? runSchematron(xml) : { status: "unavailable", findings: [] };
         schematronStatus = official.status;
         errors.push(...official.findings);
