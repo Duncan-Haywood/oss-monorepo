@@ -898,10 +898,29 @@ test('negative binomial PELT: independent clumpy counts, 40 seeded series (READM
   assert.ok(hits >= 36, `step found on ${hits} of 40`);
 });
 
-test('analyze --overdispersion nb uses the negative-binomial cost and refuses a period or trend', () => {
+test('analyze --overdispersion nb uses the negative-binomial cost', () => {
   const r = rng(5);
   const x = Array.from({ length: 120 }, (_, i) => poissons(r, 1, (i < 60 ? 10 : 25) * Math.exp(0.35 * normals(r, 1)[0]))[0]);
   const res = analyze({ csv: x.join('\n'), model: 'poisson', overdispersion: 'nb' });
   assert.ok(res.pelt.changepoints.some((c) => Math.abs((c.index ?? c.start ?? c) - 60) <= 8), JSON.stringify(res.pelt.changepoints));
-  assert.throws(() => analyze({ csv: x.join('\n'), model: 'poisson', overdispersion: 'nb', period: 7 }), /does not yet combine/);
+});
+
+test('negative binomial with exposures: a constant exposure matches the closed form, and --period --overdispersion nb stops seasonal false steps', () => {
+  const x = [2, 4, 6, 9, 1, 5];
+  const plain = makeCost(x, 'negbin', 1, 0, null, 4), withE = makeCost(x, 'negbin', 1, 0, x.map(() => 1), 4);
+  assert.ok(Math.abs(plain(0, 6) - withE(0, 6)) < 1e-6);
+  const season = [1.6, 1.4, 1.2, 1, 0.8, 0.5, 0.5];
+  let pois = 0, nb = 0, hits = 0;
+  for (let seed = 1800; seed < 1815; seed++) {
+    const r = rng(seed);
+    const gen = (step) => Array.from({ length: 210 }, (_, i) => poissons(r, 1, 10 * season[i % 7] * (step && i >= 105 ? 1.8 : 1) * Math.exp(0.35 * normals(r, 1)[0] - 0.06))[0]);
+    const flat = gen(false);
+    pois += analyze({ values: flat, model: 'poisson', period: 7 }).pelt.changepoints.length;
+    nb += analyze({ values: flat, model: 'poisson', period: 7, overdispersion: 'nb' }).pelt.changepoints.length;
+    if (analyze({ values: gen(true), model: 'poisson', period: 7, overdispersion: 'nb' }).pelt.changepoints.some((c) => Math.abs((c.index ?? c) - 105) <= 10)) hits++;
+  }
+  assert.ok(pois / 15 > 2 && nb / 15 < 0.5, `false changes per series: Poisson ${pois / 15}, NB ${nb / 15}`);
+  assert.ok(hits >= 14, `step found on ${hits} of 15`);
+  const g = analyze({ values: Array.from({ length: 140 }, (_, i) => poissons(rng(i + 9), 1, 8 * Math.exp(0.01 * i))[0]), model: 'poisson', trend: true, overdispersion: 'nb' });
+  assert.ok(Array.isArray(g.pelt.changepoints));
 });
