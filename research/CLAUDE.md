@@ -6,7 +6,8 @@
 the goals and research guardrails in [`prompts/goals.md`](../prompts/goals.md). The root `CLAUDE.md`
 is about the product portfolio under `ventures/`; its session gate, usage tracking,
 disclaimers and venture rules do not apply to work that stays inside `research/`.
-Its public-repository rules do.
+Its public-repository rules and its landing rules ("Every session lands its own work":
+open the PR, merge it yourself, run `unlanded_work.py`) do.
 
 New projects come from the priority tracks in [`PROJECTS.md`](PROJECTS.md).
 
