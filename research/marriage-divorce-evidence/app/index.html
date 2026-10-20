@@ -13,6 +13,7 @@
 </script>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="report.css">
 </head>
 <body>
 <header class="wrap">
@@ -40,6 +41,7 @@
     <button type="button" role="tab" id="tab-justme" data-view="justme" aria-controls="justMe">Just me</button>
     <button type="button" role="tab" id="tab-candidates" data-view="candidates" aria-controls="candidates">Me + many people</button>
     <button type="button" role="tab" id="tab-dashboard" data-view="dashboard" aria-controls="dashboard">Your dashboard</button>
+    <button type="button" role="tab" id="tab-report" data-view="report" aria-controls="report">Profile report</button>
     <button type="button" role="tab" id="tab-batch" data-view="batch" aria-controls="batch">Many couples (CSV)</button>
     <button type="button" role="tab" id="tab-scenarios" data-view="scenarios" aria-controls="scenarios">Compare options</button>
   </div>
@@ -183,6 +185,13 @@
     <p><button type="button" id="clearRules">Clear all rules</button></p>
   </details>
   <div id="dashOut" aria-live="polite"></div>
+</section>
+
+<section id="report" class="view" role="tabpanel" aria-labelledby="tab-report" hidden>
+  <h2>Profile report: who you would be lowest-risk with, and what moves it</h2>
+  <p class="sub">A decision aid, not a verdict. For you and, separately, for the person you are looking at: the predicted break-ups if you married that person, the partners people like you actually marry, or anyone at all; whether that is above or below average; which partner profiles the lens scores lowest; which factors move the risk most for your profile; and the changes with the biggest predicted drop. One lens at a time (switch it at the top); lenses are never pooled.</p>
+  <p class="warn" role="note">These are associations in past surveys of other people’s marriages. A lower number for a type of partner is not a reason to choose or reject a person, and most of what predicts divorce is not in any survey. Only changes graded “randomised trials” or “natural experiments” have evidence that changing them changes the outcome.</p>
+  <div id="reportOut" aria-live="polite"></div>
 </section>
 
 <section id="batch" class="view" role="tabpanel" aria-labelledby="tab-batch" hidden>

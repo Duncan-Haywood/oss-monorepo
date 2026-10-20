@@ -6,6 +6,7 @@ import { QUALITY, HAPMAR, PARTY, PARENTS_VIEW, COUNT3, RELIGION_RAISED, MOTHER_E
 import { summariseAll, shortName } from './summary.js';
 import { inputsFromFields } from './scenarios.js';
 import { initScenarios, renderScenarios, importScenariosFromHash } from './scenarios-ui.js';
+import { renderReport } from './report-ui.js';
 
 const $ = (s) => document.querySelector(s);
 const pct = (x, d = 0) => (100 * x).toFixed(d) + '%';
@@ -174,9 +175,9 @@ function applyView() {
   }
   $('#form').hidden = v === 'batch';
   $('fieldset[data-who="b"]').hidden = v === 'justme' || v === 'candidates';
-  $('fieldset[data-who="b"] legend').textContent = v === 'dashboard' ? 'Reference partner (the profile searches start from)' : 'Your partner';
+  $('fieldset[data-who="b"] legend').textContent = v === 'dashboard' ? 'Reference partner (the profile searches start from)' : v === 'report' ? 'The person you are looking at' : 'Your partner';
   $('.share').hidden = v === 'batch';
-  for (const [id, view] of [['justMe', 'justme'], ['candidates', 'candidates'], ['dashboard', 'dashboard'], ['batch', 'batch'], ['scenarios', 'scenarios']]) $('#' + id).hidden = v !== view;
+  for (const [id, view] of [['justMe', 'justme'], ['candidates', 'candidates'], ['dashboard', 'dashboard'], ['batch', 'batch'], ['scenarios', 'scenarios'], ['report', 'report']]) $('#' + id).hidden = v !== view;
   $('#summaryBox').hidden = v !== 'couple';
   if (v !== 'couple') { $('#results').hidden = true; $('#refuse').hidden = true; }
 }
@@ -191,6 +192,7 @@ function render() {
     if (v === 'justme') renderJustMe({ lenses, a: f.a, couple: f.couple });
     else if (v === 'candidates') renderCandidates({ lenses, a: f.a, couple: f.couple, mortality });
     else if (v === 'scenarios') renderScenarios();
+    else if (v === 'report') renderReport({ el: $('#reportOut'), lens: cur, lenses, a: f.a, b: f.b, couple: f.couple });
     else if (v === 'dashboard') {
       if (!cur.summary.scorable) $('#dashOut').innerHTML = '<p class="note">This lens gives no numbers; pick a scorable lens at the top.</p>';
       else renderDashboard({ bundle: cur.bundle, a: f.a, b: f.b, couple: f.couple, label: cur.summary.label });
