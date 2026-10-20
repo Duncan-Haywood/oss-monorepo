@@ -657,6 +657,9 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
     for (let p = 0; p < P; p++) if (elig[p][i]) m = Math.min(m, burden * staff[p].wage * mFloor * paidMinutes(o, s) / 60);
     return Math.min(BIG * len[i], m);
   });
+  // The same without the BIG cap, for the part of the bound that adds to the cost of leaving hours open instead of replacing it.
+  const cheapPay = cheapest.map((c, i) => (c < BIG * len[i] ? c : 0));
+  const payRate = Math.max(0, ...cheapPay.map((c, i) => (len[i] > 0 ? c / len[i] : 0)));
   const order = [...Array(S).keys()].sort((a, b) => {
     const ea = elig.reduce((t, r) => t + (r[a] ? 1 : 0), 0), eb = elig.reduce((t, r) => t + (r[b] ? 1 : 0), 0);
     return ea - eb || slots[a].start - slots[b].start;
@@ -664,10 +667,11 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
   // suffix tables: from position k on, the hours (and prefer-window hours) each person could still take
   const sufHours = Array.from({ length: S + 1 }, () => new Array(P).fill(0));
   const sufPrefer = Array.from({ length: S + 1 }, () => new Array(P).fill(0));
-  const sufCheap = new Array(S + 1).fill(0);
+  const sufCheap = new Array(S + 1).fill(0), sufPay = new Array(S + 1).fill(0);
   for (let k = S - 1; k >= 0; k--) {
     const i = order[k];
     sufCheap[k] = sufCheap[k + 1] + cheapest[i];
+    sufPay[k] = sufPay[k + 1] + cheapPay[i];
     for (let p = 0; p < P; p++) {
       sufHours[k][p] = sufHours[k + 1][p] + (elig[p][i] ? len[i] : 0);
       sufPrefer[k][p] = sufPrefer[k + 1][p] + (elig[p][i] && staff[p].prefer ? avoidMinutes(staff[p], slots[i], "prefer") / 60 : 0);
@@ -684,6 +688,59 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
   };
   const lists = Array.from({ length: P }, () => []);
   const owner = new Array(S).fill(-1);
+  // Most hours of the shifts still undecided (positions k on) that could be covered at all. A relaxation of the real rules: each
+  // person takes at most their weekly hours left and at most the longest set of shifts they could work without overlap or breaking
+  // the rest gap with each other or with what they already have (a weighted interval chain), and a shift's hours may be split
+  // across people. Solved as a max flow shifts -> people. Daily caps and consecutive days are ignored, so it can only overstate.
+  const byStart = [...Array(S).keys()].sort((a, b) => slots[a].start - slots[b].start || a - b);
+  const pos = new Array(S);
+  order.forEach((i, k) => { pos[i] = k; });
+  const clash = (s, t) => (s.start >= t.start ? s.start < t.end + ctx.restMin : t.start < s.end + ctx.restMin);
+  const maxCover = (k) => {
+    const open = byStart.filter((i) => pos[i] >= k);
+    if (!open.length) return 0;
+    const n = open.length, N = n + P + 2, src = n + P, snk = n + P + 1;
+    const cap = Array.from({ length: N }, () => new Float64Array(N));
+    for (let a = 0; a < n; a++) cap[src][a] = len[open[a]];
+    for (let p = 0; p < P; p++) {
+      const L = lists[p], room = staff[p].maxHours - hoursOf(ctx, L);
+      if (room <= 1e-9) continue;
+      const ok = [];
+      for (let a = 0; a < n; a++) {
+        const s = slots[open[a]];
+        if (!elig[p][open[a]] || s.start < (staff[p].prevEnd ?? -Infinity) + ctx.restMin) continue;
+        if (L.some((j) => clash(s, slots[j]))) continue;
+        ok.push(a);
+      }
+      const chain = new Array(ok.length).fill(0);
+      let top = 0;
+      for (let x = 0; x < ok.length; x++) {
+        const sx = slots[open[ok[x]]];
+        let b = 0;
+        for (let y = 0; y < x; y++) if (sx.start >= slots[open[ok[y]]].end + ctx.restMin) b = Math.max(b, chain[y]);
+        chain[x] = b + len[open[ok[x]]];
+        top = Math.max(top, chain[x]);
+      }
+      for (const a of ok) cap[a][n + p] = len[open[a]];
+      cap[n + p][snk] = Math.min(room, top);
+    }
+    let flow = 0;
+    for (;;) {
+      const prev = new Int32Array(N).fill(-1);
+      prev[src] = src;
+      const q = [src];
+      for (let h = 0; h < q.length && prev[snk] < 0; h++) {
+        const u = q[h];
+        for (let v = 0; v < N; v++) if (prev[v] < 0 && cap[u][v] > 1e-9) { prev[v] = u; q.push(v); }
+      }
+      if (prev[snk] < 0) break;
+      let f = Infinity;
+      for (let v = snk; v !== src; v = prev[v]) f = Math.min(f, cap[prev[v]][v]);
+      for (let v = snk; v !== src; v = prev[v]) { cap[prev[v]][v] -= f; cap[v][prev[v]] += f; }
+      flow += f;
+    }
+    return flow;
+  };
   const lowerBound = (k, unfilledH) => {
     let lb = BIG * unfilledH, capacity = 0;
     for (let p = 0; p < P; p++) {
@@ -702,9 +759,13 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
     // Weekly hour limits can force hours open: whatever the people still free cannot absorb costs BIG, which dwarfs any pay.
     let demand = 0;
     for (let j = k; j < S; j++) demand += len[order[j]];
-    return lb + Math.max(sufCheap[k], BIG * Math.max(0, demand - capacity));
+    const uncovered = Math.max(0, demand - capacity, demand - maxCover(k));
+    // Every hour that cannot be covered costs BIG; the rest of the shifts still cost at least their cheapest pay, less at most the
+    // pay of the uncovered hours themselves, which are not paid.
+    return lb + Math.max(sufCheap[k] - 0, BIG * uncovered + Math.max(0, sufPay[k] - uncovered * payRate));
   };
   const rootBound = lowerBound(0, 0);
+  const minOpenHours = Math.max(0, len.reduce((t, x) => t + x, 0) - maxCover(0));
   let best = incumbent, bestOwner = null, nodes = 0, aborted = false;
   const t0 = Date.now();
   const rec = (k, unfilledH) => {
@@ -735,7 +796,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000 } 
     rec(k + 1, unfilledH + len[i]);
   };
   rec(0, 0);
-  return { proven: !aborted, nodes, rootBound, owner: bestOwner, score: bestOwner ? best : null };
+  return { proven: !aborted, nodes, rootBound, minOpenHours, owner: bestOwner, score: bestOwner ? best : null };
 }
 
 // What a manager gets filling shifts in time order with the first valid person in the list.
@@ -819,7 +880,10 @@ export function optimalityText(opt) {
   if (!opt) return "";
   if (opt.status === "optimal") return "Checked against an exact search: no roster under your rules scores better than this one.";
   if (opt.status === "improved") return `Checked against an exact search: the quick search was ${num(opt.gapPct)}% off the best possible, so this roster is the better one the exact search found (proven best).`;
-  return `Exact search ran out of time before it could prove anything. The best roster it found is shown; the true best could still be better by up to ${num(opt.gapPct)}% of the score by a loose bound, so treat this as a good roster, not a proven one.`;
+  const cover = opt.minOpenHours > 1e-6 && opt.openHours - opt.minOpenHours < 1e-6
+    ? `Coverage is proven: at least ${num(opt.minOpenHours)} h must stay open under your rules and this roster leaves exactly that, so only pay can still improve. `
+    : "";
+  return `${cover}Exact search ran out of time before it could prove the cheapest pay. The best roster it found is shown; the true best could still be better by up to ${num(opt.gapPct)}% of the score by a loose bound, so treat this as a good roster, not a proven one.`;
 }
 
 export function buildRoster(staff, slots, options = {}) {
@@ -845,7 +909,7 @@ export function buildRoster(staff, slots, options = {}) {
     optimality = {
       status: ex.proven ? (gap > 1e-6 ? "improved" : "optimal") : "bounded",
       annealScore, bestScore: best.score, lowerBound: ex.proven ? best.score : ex.rootBound,
-      gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
+      gap: Math.max(0, gap), minOpenHours: ex.minOpenHours, openHours: scoreOwner(ctx, best.owner).unfilled, gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
     };
   }
   const res = summarise(ctx, best.owner);

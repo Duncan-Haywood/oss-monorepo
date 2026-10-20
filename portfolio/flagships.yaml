@@ -36,12 +36,13 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      The exact branch-and-bound check now exists (calc.mjs exactSearch) and
-      runs by itself on weeks of up to 14 shifts (--prove forces it) but cannot finish the proof on the 32-shift sample week
-      (root bound far below the optimum). Next: a stronger bound (a
-      min-cost flow or LP relaxation of coverage plus per-person hours) so
-      full weeks are proven, then multi-week rostering that carries fairness
-      and time off across weeks (README Limits).
+      The exact check now proves coverage on full weeks (a max-flow bound: the
+      32-shift sample week provably leaves at least 15 h open and the roster
+      leaves exactly that) but still cannot prove the cheapest pay there (bound
+      within 0.02%, 3.8M nodes without closing it). Next: a pay bound that
+      accounts for overtime and balance across people (an LP or min-cost flow
+      over hours) so the whole sample week is proven, then multi-week rostering
+      that carries fairness and time off across weeks (README Limits).
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,

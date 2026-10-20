@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
-  sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
+  sampleStaff, sampleShifts, optimalityText, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
 const staffOf = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
@@ -1361,4 +1361,14 @@ test("exact search runs by itself on small weeks and can be switched off", () =>
   assert.equal(buildRoster(staff, small, { exact: false }).optimality, null);
   const big = slotsOf("Mon,8,16,3\nTue,8,16,3\nWed,8,16,3\nThu,8,16,3\nFri,8,16,3");
   assert.equal(buildRoster(staff, big).optimality, null, "15 shifts is past the automatic limit");
+});
+
+test("the exact search proves the least coverage the sample week can leave open even when it cannot prove the pay", () => {
+  const st = parseStaff(sampleStaff()), sh = parseShifts(sampleShifts());
+  const r = buildRoster(st.staff, sh.slots, { exact: true });
+  assert.equal(r.optimality.status, "bounded");
+  assert.equal(r.optimality.minOpenHours, 15);
+  assert.equal(r.optimality.openHours, 15);
+  assert.ok(r.optimality.gapPct < 0.1, "root bound is within 0.1% (was 79% before the flow bound)");
+  assert.match(optimalityText(r.optimality), /Coverage is proven: at least 15 h/);
 });
