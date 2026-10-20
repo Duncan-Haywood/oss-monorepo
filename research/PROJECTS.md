@@ -11,8 +11,11 @@ and a passing `python3 research/_homepage/build.py`, as `CLAUDE.md` says. Every 
 
 `oss-research-monorepo` was merged into `oss-monorepo` under `research/` with its full history
 (oss-monorepo#6832), mirrored while both were live, and cut over on 2026-10-16: the mirror is
-retired and research lands here. The old repository is read-only history, archived and never
-deleted; its pull requests, review threads and old Pages site stay there.
+retired and research lands here. The old repository was deleted on 2026-10-20, after
+`platform/ci/research_archive.py ready` recorded that nothing copyable would be lost: its
+branches (as `archive/research/*` and in `branches.bundle`) and its pull requests, review
+threads and issues (as JSON) are on the `archive/research-meta` branch. Its old Pages site is gone;
+the research homepage is served at `/research/`.
 
 ## Site milestones (both portfolios)
 
@@ -20,7 +23,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
    professional redesign, with one super homepage that routes to both. Added on 2026-10-14 at the
    owner's request.
    - **The two sites.** The research homepage
-     (<https://duncan-haywood.github.io/oss-research-monorepo/>) is built here by
+     (now at `/research/` on the catalogue site; the old `oss-research-monorepo` Pages URL is gone) is built here by
      `_homepage/build.py` from `_homepage/template.html` and `_homepage/projects.json`. The product catalogue
      (<https://duncan-haywood.github.io/monorepo-projects/>) is built in `oss-monorepo` by
      `platform/pages/build.mjs`.

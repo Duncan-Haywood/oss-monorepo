@@ -25,7 +25,8 @@ Usage — the metric while everything is free — is specified in
 
 **For research work, read [`research/CLAUDE.md`](research/CLAUDE.md).** Research
 lands here (the `oss-research-monorepo` mirror was cut over on 2026-10-16 and
-that repository is archived). Its brief, not the product rules below, governs
+that repository was deleted on 2026-10-20; its branches and PRs are kept on
+`archive/research-meta`). Its brief, not the product rules below, governs
 work inside `research/`; the public-repository and landing rules apply
 everywhere.
 

@@ -33,6 +33,13 @@ repository would still lose three things, and this tool keeps each one here:
   at its latest update, and none still open. `--record` writes the verdict as
   `READY.json` and `READY.md`; `status` reads it back from the meta branch.
 
+**Upstream was deleted on 2026-10-20**, after `ready` recorded READY on
+2026-10-19, and the scheduled workflow was removed with it. `status` still
+reads the final verdict from the meta branch, which is now the only copy of
+the 534 branches in `branches.bundle` and of every exported pull request:
+never delete `archive/research-meta`. The other commands need upstream and
+now fail.
+
 What no tool can carry, and `ready` lists every time: stars, watchers and
 forks, the old Pages URL (the homepage is built here at `/research/`), and
 links to upstream pull requests from elsewhere on the web.
