@@ -3247,6 +3247,11 @@
      "summary": "Of 1,564 run records, 203 (13%) list a deviation from the brief, mostly review (59%) and ventures (27%) runs. Within track, deviating runs take about 1.6&times; as long and cost about 1.2&times; as much (stratified permutation p &lt; 0.001), but the cost gap rests mainly on the long process track (1.07&times;, p = 0.052 without it), and deviating runs end partial 5 points more often. Observational and self-reported: preliminary."
     },
     {
+     "slug": "swe-notests",
+     "title": "Do agent runs that add no tests end worse?",
+     "summary": "Of 621 run records that count tests added, 84 (13.5%) add none, mostly research runs. Within track and recording regime they end <code>partial</code> 4 of 84 times against 16 of 537 for runs that add tests: a +2.6 point difference, permutation p = 0.23, so no detectable effect (only 20 partial outcomes exist, so power is low). They cost less (median $0.56 against $0.99 in research), most likely because they do less. Observational and self-reported; preliminary."
+    },
+    {
      "slug": "swe-fieldfill",
      "title": "How complete are the agent run records, field by field?",
      "summary": "Counts which fields are present on each of the 1,362 run records in <code>prompts/runs/</code> (1 to 19 October 2026). <code>cost_usd</code>, tokens and wall time are present on 47% of records (Wilson 45% to 50%), but on 0% to 7% of records on 13 to 15 October and 61% to 82% from 16 October, so the rate is a date effect. <code>merged</code> is filled on 4.6%, a pull request is named on 81.2%, and 237 of 1,279 records with outcome <code>success</code> (18.5%, 16% to 21%) name none. <em>Preliminary</em>: presence is measured, not correctness, and an empty list can mean a clean run."
