@@ -10738,6 +10738,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
   const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+  // Posts link live tools by their full address, which reads correctly on
+  // GitHub too. Under another base URL those links follow it, as venture
+  // pages do (`rewriteOrigin`).
+  if (base !== DEFAULT_BASE_URL) {
+    for (const name of await fs.readdir(path.join(outDir, WRITING_PATH), { recursive: true })) {
+      if (!/\.(html|xml)$/.test(name)) continue;
+      const file = path.join(outDir, WRITING_PATH, name);
+      const before = await fs.readFile(file, 'utf8');
+      const after = rewriteOrigin(before, base);
+      if (after !== before) await fs.writeFile(file, after);
+    }
+  }
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.
