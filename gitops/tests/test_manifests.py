@@ -3086,7 +3086,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
     # +1: `s-corp-basis-tracker` graduated (browser S corporation stock and debt basis roll-forward in Form 7203 order, suspended losses and excess distributions).
     # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
-    total = 1298  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1298 tools" wording.
+    total = 1299  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1299 tools" wording.
     # +1: `open-tennis-robots` graduated (open-source tennis ball machine with a moving catch net and a ball-collecting rover: shot planner, catch simulation, route planner, ESP32 firmware, seller listing tool, collector manufacturing package).
     # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
     # +1: `actions-schedule-check` graduated (browser + CLI lint of GitHub Actions schedule crons: invalid, faster than 5 minutes, minute 0).
@@ -4035,3 +4035,20 @@ def test_portfolio_site_build_uses_flags_the_build_scripts_accept() -> None:
     # dependency-free: there is no npm install step in the pod, and adding one
     # would need network egress the NetworkPolicy does not grant this pod.
     assert "npm install" not in script and "npm ci" not in script
+
+
+def test_the_generated_front_door_tools_mirror_is_not_committed() -> None:
+    # P024: the tree fed the k3s origin retired on 2026-10-01 and the tests
+    # build it into a temp dir. Venture PRs kept re-adding thousands of its
+    # files (6,202 on 2026-10-20) by running `front-door-tools.mjs --write`
+    # with no `--out`; pass `--out <dir>` if you need to inspect it.
+    import subprocess
+
+    tracked = subprocess.run(
+        ["git", "ls-files", "gitops/prod/front-door-tools"],
+        cwd=REPO, capture_output=True, text=True, check=True,
+    ).stdout.split()
+    assert not tracked, (
+        f"{len(tracked)} files are tracked under gitops/prod/front-door-tools/; "
+        "`git rm -r` it. It is generated and no longer committed."
+    )

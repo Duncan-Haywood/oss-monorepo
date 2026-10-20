@@ -47,3 +47,7 @@ Open `index.html` through any static server. Tests: `node --test`.
 Also flagged: placeholder addresses (`test@test.com`, `none@none.com`). The safe-fixes copy rescues
 addresses wrapped in `mailto:`, `Name <a@b.com>`, quotes or trailing punctuation, and writes
 internationalised domains in punycode, instead of rejecting those rows.
+
+## Usage counts
+
+Feature events (`file_checked`, `example_loaded`, `fixes_applied`, `rejected_downloaded`, `suppression_used`) are counted only in your browser's local storage. Once you have some, the page offers a "Share my anonymous counts" link that opens a prefilled GitHub issue holding just those counts (never the list); nothing is sent unless you submit it. Do Not Track and Global Privacy Control turn counting off.

@@ -1,0 +1,46 @@
+|--- num__marriage_years <= 13.5000
+|   |--- num__age_at_marriage <= 21.5000
+|   |   |--- num__marriage_years <= 0.5000
+|   |   |   |--- num__marriage_year <= 1971.5000
+|   |   |   |   |--- value: [0.0122]
+|   |   |   |--- num__marriage_year >  1971.5000
+|   |   |   |   |--- value: [0.0193]
+|   |   |--- num__marriage_years >  0.5000
+|   |   |   |--- num__marriage_years <= 8.5000
+|   |   |   |   |--- value: [0.0501]
+|   |   |   |--- num__marriage_years >  8.5000
+|   |   |   |   |--- value: [0.0266]
+|   |--- num__age_at_marriage >  21.5000
+|   |   |--- num__marriage_years <= 0.5000
+|   |   |   |--- num__marriage_year <= 1975.5000
+|   |   |   |   |--- value: [0.0053]
+|   |   |   |--- num__marriage_year >  1975.5000
+|   |   |   |   |--- value: [0.0102]
+|   |   |--- num__marriage_years >  0.5000
+|   |   |   |--- num__age_at_marriage <= 26.5000
+|   |   |   |   |--- value: [0.0261]
+|   |   |   |--- num__age_at_marriage >  26.5000
+|   |   |   |   |--- value: [0.0185]
+|--- num__marriage_years >  13.5000
+|   |--- num__marriage_years <= 20.5000
+|   |   |--- num__age_at_marriage <= 19.5000
+|   |   |   |--- num__marriage_year <= 1971.5000
+|   |   |   |   |--- value: [0.0187]
+|   |   |   |--- num__marriage_year >  1971.5000
+|   |   |   |   |--- value: [0.0235]
+|   |   |--- num__age_at_marriage >  19.5000
+|   |   |   |--- cat__nativity_US-born <= 0.5000
+|   |   |   |   |--- value: [0.0094]
+|   |   |   |--- cat__nativity_US-born >  0.5000
+|   |   |   |   |--- value: [0.0152]
+|   |--- num__marriage_years >  20.5000
+|   |   |--- num__age_at_marriage <= 20.5000
+|   |   |   |--- num__marriage_years <= 23.5000
+|   |   |   |   |--- value: [0.0157]
+|   |   |   |--- num__marriage_years >  23.5000
+|   |   |   |   |--- value: [0.0108]
+|   |   |--- num__age_at_marriage >  20.5000
+|   |   |   |--- num__marriage_year <= 1967.5000
+|   |   |   |   |--- value: [0.0058]
+|   |   |   |--- num__marriage_year >  1967.5000
+|   |   |   |   |--- value: [0.0089]
