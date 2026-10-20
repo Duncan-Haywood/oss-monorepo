@@ -3714,8 +3714,10 @@ const CATEGORY_RULES = [
     id: 'learning',
     title: 'Learning & practice',
     accent: '#127a4b',
-    blurb: 'Learn a language or a technical skill by doing it: hands-free speaking drills, graded audio stories, and project-first engineering lessons, free in your browser.',
-    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio'].includes(slug),
+    blurb: 'Learn a language or a technical skill by doing it: hands-free speaking drills, graded audio stories, and project-first engineering lessons, free in your browser. Plus free stories to read or listen to.',
+    // `hearth-and-horizon` joined 2026-10-20: free stories with audio and
+    // podcast feeds, the same read-and-listen axis as the graded stories.
+    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon'].includes(slug),
   },
 ];
 

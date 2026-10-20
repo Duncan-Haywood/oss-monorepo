@@ -1,0 +1,17 @@
+{
+  "brother-martin-and-the-mice": {
+    "bytes": 3381571,
+    "seconds": 563.5,
+    "voice": "en_US-ljspeech-high"
+  },
+  "notes-dot-md": {
+    "bytes": 7372335,
+    "seconds": 1228.6,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-slowest-bell-on-the-moon": {
+    "bytes": 8949259,
+    "seconds": 1491.4,
+    "voice": "en_US-ljspeech-high"
+  }
+}
