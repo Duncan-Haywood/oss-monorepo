@@ -56,3 +56,10 @@ test("links to the German and French pages and the sitemap entry is its own url 
   assert.match(html, /href="poland-ksef-e-invoice-mandate\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*romania-e-factura-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("every other country page links to the Romania page", () => {
+  for (const f of fs.readdirSync(new URL("./", import.meta.url)).filter((n) => /-mandate\.html$/.test(n) && !n.startsWith("romania"))) {
+    const page = fs.readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
+    assert.match(page, /href="romania-e-factura-e-invoice-mandate\.html"/, f);
+  }
+});
