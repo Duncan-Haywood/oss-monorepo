@@ -9,6 +9,7 @@
 //   node cli.mjs --messages [--week-start 2026-10-19] staff.txt shifts.txt   # one paste-ready text per person
 //   node cli.mjs --open-post [--week-start 2026-10-19] staff.txt shifts.txt   # group message for shifts left open, with who could take each
 //   node cli.mjs --check staff.txt shifts.txt               # exit 1 if any shift stays open (cron, CI, a Sunday reminder)
+//   node cli.mjs --weeks 4 --week-start 2026-11-02 staff.txt shifts.txt   # a month: rest gaps and tough-shift tallies carry week to week
 //   node cli.mjs --example                                  # run on the built-in invented week
 //
 // Staff and shift files are the same text as on the web page. Zero dependencies, no network: names and wages never
@@ -18,7 +19,7 @@
 import { readFile } from "node:fs/promises";
 import process from "node:process";
 import {
-  parseStaff, parseShifts, buildRoster, optimalityText, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, planWeeks, planFairness, optimalityText, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -34,6 +35,7 @@ Options:
   --ot-after <h>      weekly overtime threshold (default 40)
   --ot-mult <x>       overtime multiplier (default 1.5)
   --balance <0-100>   how hard to even out hours (default 25)
+  --tough-balance <0-100>  how hard to even out weekend, closing and opening shifts across weeks (default 0)
   --week-start <date> Monday of the week, YYYY-MM-DD (lets time-off dates in the staff file apply)
   --last-week <csv>   last week's roster CSV, to carry shift end times into Monday
   --csv | --hours | --json   machine-readable output
@@ -42,6 +44,8 @@ Options:
   --open-post                a group message for the shifts left open and who could take each (empty when none)
   --no-prove          skip the exact search (it runs by itself on weeks of up to 14 shifts)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
+  --weeks <n>         plan n consecutive weeks (1-8) from the same shifts; needs --week-start so dated time off lands in its week;
+                      rest gaps and the tough-shift tally carry over; prints a fairness total. With --csv a "week" column is added
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
   -h, --help          this text
@@ -51,11 +55,11 @@ Planning aid, not legal advice. It does not know your local scheduling-notice, b
 
 const FLAGS = {
   "--rest": "minRestHours", "--consec": "maxConsecDays", "--daily": "maxDailyHours", "--ot-after": "otAfter",
-  "--ot-mult": "otMult", "--balance": "balance",
+  "--ot-mult": "otMult", "--balance": "balance", "--tough-balance": "toughBalance",
 };
 
 export function parseArgs(argv) {
-  const o = { options: {}, files: [], mode: "report", example: false, check: false, help: false, lastWeek: null, weekStart: null, person: null };
+  const o = { options: {}, files: [], mode: "report", example: false, check: false, help: false, lastWeek: null, weekStart: null, person: null, weeks: 1 };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "-h" || a === "--help") o.help = true;
@@ -69,7 +73,11 @@ export function parseArgs(argv) {
     else if (a === "--check") o.check = true;
     else if (a === "--prove") o.options.exact = true;
     else if (a === "--no-prove") o.options.exact = false;
-    else if (a === "--example") o.example = true;
+    else if (a === "--weeks") {
+      const v = Number(argv[++i]);
+      if (!Number.isInteger(v) || v < 1 || v > 8) throw new Error("--weeks needs a whole number from 1 to 8");
+      o.weeks = v;
+    } else if (a === "--example") o.example = true;
     else if (a === "--last-week") { o.lastWeek = argv[++i]; if (!o.lastWeek) throw new Error("--last-week needs a CSV file"); }
     else if (a === "--week-start") {
       o.weekStart = argv[++i];
@@ -128,6 +136,10 @@ export function run(staffText, shiftsText, opts = {}) {
       }, null, 2) + "\n",
     };
   }
+  return { code, out: reportText(r) };
+}
+
+function reportText(r) {
   const lines = [`${r.slots - r.unfilledSlots} of ${r.slots} shifts covered, payroll ${money(r.cost)}, ${num(r.otHours)} overtime hours`, ""];
   const w = Math.max(...r.grid.map((g) => g.name.length));
   for (const g of r.grid) {
@@ -146,6 +158,37 @@ export function run(staffText, shiftsText, opts = {}) {
   if (r.optimality) lines.push("", optimalityText(r.optimality));
   if (r.savingVsListed > 0.5) lines.push("", `Versus filling shifts in the order listed: saves ${money(r.savingVsListed)}.`);
   lines.push("", "Planning aid, not legal advice. Local scheduling-notice, break and minor-labor rules are not modelled.");
+  return lines.join("\n") + "\n";
+}
+
+/** Several weeks in a row (planWeeks): one report per week, then each person's tough shifts added up. */
+export function runPlan(staffText, shiftsText, opts = {}) {
+  if (!opts.weekStart) return { code: 2, out: "--weeks needs --week-start (the first Monday, YYYY-MM-DD)\n" };
+  if (new Date(opts.weekStart + "T00:00:00Z").getUTCDay() !== 1) return { code: 2, out: "--week-start must be a Monday\n" };
+  const staffIn = opts.lastWeekCsv ? carryOverStaff(staffText, opts.lastWeekCsv).text : staffText;
+  const plan = planWeeks(staffIn, shiftsText, { ...(opts.options || {}), weeks: opts.weeks, weekStart: opts.weekStart });
+  if (plan.error) return { code: 2, out: plan.error + "\n" };
+  const code = opts.check && plan.totalOpenHours > 0 ? 1 : 0;
+  if (opts.mode === "csv") {
+    const rows = plan.weeks.map((w) => w.csv.trimEnd().split("\n").map((l, i) => (i === 0 ? "week," : `${w.weekStart},`) + l));
+    return { code, out: [rows[0][0], ...rows.flatMap((r) => r.slice(1))].join("\n") + "\n" };
+  }
+  if (opts.mode === "json") {
+    return { code, out: JSON.stringify({
+      totalPayroll: plan.totalCost, totalOpenHours: plan.totalOpenHours,
+      weeks: plan.weeks.map((w) => ({ weekStart: w.weekStart, payroll: w.roster.cost, overtimeHours: w.roster.otHours, unfilledShifts: w.roster.unfilledSlots, unfilledHours: w.roster.unfilledHours })),
+      fairness: planFairness(plan).rows,
+    }, null, 2) + "\n" };
+  }
+  if (opts.mode !== "report") return { code: 2, out: "--weeks works with the report, --csv and --json outputs\n" };
+  const lines = [];
+  for (const w of plan.weeks) lines.push(`=== Week ${w.week}, starting ${w.weekStart} ===`, reportText(w.roster).replace(/\nPlanning aid, not legal advice[^\n]*\n$/, ""), "");
+  const f = planFairness(plan);
+  lines.push(`=== ${plan.weeks.length} weeks: payroll ${money(plan.totalCost)}, ${num(plan.totalOpenHours)} hours left open ===`, "", "Tough shifts (weekend, closing, opening) per person over the plan:");
+  const w = Math.max(...f.rows.map((x) => x.name.length));
+  for (const x of f.rows) lines.push(`  ${x.name.padEnd(w)}  ${x.tough} tough of ${x.shifts} shifts (${x.weekend} weekend, ${x.closing} closing, ${x.opening} opening), ${num(x.hours)} h`);
+  if (f.flag) lines.push("", `Uneven: ${f.most.name} has ${f.spread} more tough shifts than ${f.least.name}. Try --tough-balance, or widen who can close or open.`);
+  lines.push("", "Planning aid, not legal advice. Local scheduling-notice, break and minor-labor rules are not modelled.");
   return { code, out: lines.join("\n") + "\n" };
 }
 
@@ -158,7 +201,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       ? [sampleStaff(), sampleShifts()]
       : [await readInput(o.files[0]), await readFile(o.files[1], "utf8")];
     const lastWeekCsv = o.lastWeek ? await readFile(o.lastWeek, "utf8") : null;
-    const r = run(staffText, shiftsText, { ...o, lastWeekCsv });
+    const r = o.weeks > 1 ? runPlan(staffText, shiftsText, { ...o, lastWeekCsv }) : run(staffText, shiftsText, { ...o, lastWeekCsv });
     (r.code === 2 ? process.stderr : process.stdout).write(r.out);
     process.exit(r.code);
   } catch (e) { process.stderr.write(`${e.message}\n`); process.exit(2); }

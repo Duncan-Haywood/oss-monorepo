@@ -111,3 +111,42 @@ test("--prove adds an exact-search line to the report and optimality to --json",
   const json = JSON.parse(run(staff, shifts, { ...o, mode: "json" }).out);
   assert.ok(["optimal", "improved"].includes(json.optimality.status));
 });
+
+import { runPlan } from "./cli.mjs";
+import { planWeeks } from "./calc.mjs";
+
+test("--weeks needs a whole number 1-8 and a Monday --week-start", () => {
+  assert.equal(parseArgs(["--weeks", "4"]).weeks, 4);
+  assert.throws(() => parseArgs(["--weeks", "9"]), /1 to 8/);
+  assert.throws(() => parseArgs(["--weeks", "2.5"]), /1 to 8/);
+  assert.equal(parseArgs(["--tough-balance", "60"]).options.toughBalance, 60);
+  assert.match(runPlan(sampleStaff(), sampleShifts(), { weeks: 2 }).out, /needs --week-start/);
+  assert.match(runPlan(sampleStaff(), sampleShifts(), { weeks: 2, weekStart: "2026-11-03" }).out, /must be a Monday/);
+});
+
+test("--weeks matches planWeeks: totals, per-week CSV rows and fairness", () => {
+  const opts = { weeks: 3, weekStart: "2026-11-02", mode: "report", options: { exact: false } };
+  const plan = planWeeks(sampleStaff(), sampleShifts(), { weeks: 3, weekStart: "2026-11-02", exact: false });
+  const rep = runPlan(sampleStaff(), sampleShifts(), opts);
+  assert.equal(rep.code, 0);
+  assert.match(rep.out, /=== Week 3, starting 2026-11-16 ===/);
+  assert.match(rep.out, /Tough shifts \(weekend, closing, opening\) per person/);
+  assert.equal(runPlan(sampleStaff(), sampleShifts(), { ...opts, check: true }).code, plan.totalOpenHours > 0 ? 1 : 0);
+  const json = JSON.parse(runPlan(sampleStaff(), sampleShifts(), { ...opts, mode: "json" }).out);
+  assert.equal(json.weeks.length, 3);
+  assert.equal(json.totalPayroll, plan.totalCost);
+  const csv = runPlan(sampleStaff(), sampleShifts(), { ...opts, mode: "csv" }).out.trim().split("\n");
+  assert.match(csv[0], /^week,day,/);
+  const rows = plan.weeks.reduce((t, w) => t + w.csv.trim().split("\n").length - 1, 0);
+  assert.equal(csv.length - 1, rows);
+  assert.ok(csv.slice(1).every((l) => /^2026-11-(02|09|16),/.test(l)));
+});
+
+test("--weeks carries --last-week into the first week", () => {
+  const staff = "name, wage, max hours, min hours, availability\nAna, 15, 40, 0, any";
+  const shifts = "day, start, end, people needed\nMon, 6, 14, 1";
+  const last = "day,start,end,hours,label,assigned_to,role\nSun,2pm,11pm,9.00,,Ana,\n";
+  const base = { weeks: 2, weekStart: "2026-11-02", mode: "report", options: { exact: false } };
+  assert.match(runPlan(staff, shifts, base).out, /2 weeks: payroll/);
+  assert.match(runPlan(staff, shifts, { ...base, lastWeekCsv: last }).out, /Week 1[\s\S]*Shifts left open/);
+});
