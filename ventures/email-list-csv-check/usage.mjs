@@ -75,7 +75,10 @@ const SHARE_EVENTS = ["file_checked", "example_loaded", "fixes_applied", "reject
 export function usageShare(counts) {
   const c = counts && typeof counts === "object" ? counts : {};
   const lines = SHARE_EVENTS.map((e) => `${e}: ${Number.isFinite(Number(c[e])) ? Math.max(0, Math.floor(Number(c[e]))) : 0}`);
-  const total = lines.reduce((n, l) => n + Number(l.split(": ")[1]), 0);
+  const total = SHARE_EVENTS.reduce((n, e) => n + (Number.isFinite(Number(c[e])) ? Math.max(0, Math.floor(Number(c[e]))) : 0), 0);
+  const checked = Number(c.file_checked) > 0 ? Math.floor(Number(c.file_checked)) : 0;
+  // The do-not-email hypothesis in VENTURE.yaml is measured as this ratio.
+  if (checked) lines.push(`suppression_share: ${Math.round((Math.max(0, Math.floor(Number(c.suppression_used)) || 0) / checked) * 100)}% of file checks`);
   const text = lines.join("\n");
   const url = "https://github.com/Duncan-Haywood/oss-monorepo/issues/new?title=" +
     encodeURIComponent("email-list-csv-check: anonymous usage counts") +

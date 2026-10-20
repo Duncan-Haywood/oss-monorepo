@@ -70,5 +70,6 @@ test("usageShare reports only the known event counts and builds an issue link", 
   assert.match(s.text, /^rejected_downloaded: 0$/m);
   assert.ok(!s.text.includes("a@b.com"));
   assert.ok(s.url.startsWith("https://github.com/Duncan-Haywood/oss-monorepo/issues/new?"));
+  assert.match(s.text, /^suppression_share: 25% of file checks$/m);
   assert.equal(usageShare(null).total, 0);
 });
