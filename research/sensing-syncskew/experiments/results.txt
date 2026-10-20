@@ -1,0 +1,28 @@
+# sensing-syncskew: excitation needed to fit the camera-gyro offset, and what clock skew does (synthetic)
+setup: Setup(omega_rms=30.0, f_band=2.0, gyro_noise=0.2, gyro_bias=0.5, cam_noise=0.3, fs_g=200.0, fs_c=30.0); window 40 s; 8 seeds per cell unless stated
+
+## A. Excitation: offset fit vs motion (true td = 20 ms, no skew; success = |error| < 5 ms)
+omega_rms (deg/s) | success (of 8) | rms error (ms)
+0.3 | 0 | 59.9
+1 | 2 | 33.9
+2 | 5 | 10.7
+4 | 5 | 7.7
+8 | 6 | 3.0
+16 | 8 | 1.4
+30 | 8 | 0.9
+
+## B. Clock skew: attitude error with td0 = 0 and skew, window 40 s (td reaches skew*40 s by the end)
+skew (ppm) | drift at 40 s (ms) | rms error, no correction (deg) | fixed-offset fit (deg) | offset+skew fit (deg) | fitted skew (ppm)
+0 | 0 | 0.152 | 0.155 | 0.156 | 36
+100 | 4 | 0.162 | 0.157 | 0.155 | 137
+500 | 20 | 0.293 | 0.185 | 0.156 | 546
+1000 | 40 | 0.514 | 0.254 | 0.155 | 1048
+2000 | 80 | 0.980 | 0.425 | 0.155 | 1978
+reference with no offset and no skew: 0.152 deg
+
+## C. Skew recovery vs window length (true skew 500 ppm, td0 = 5 ms, 8 seeds)
+window (s) | mean skew estimate (ppm) | rms skew error (ppm)
+10 | 173 | 563
+20 | 281 | 268
+40 | 485 | 75
+80 | 545 | 106
