@@ -3878,6 +3878,11 @@
     "slug": "hanger-fit",
     "title": "What hanger shape keeps a shirt in shape, and can one hanger fit every size?",
     "summary": "A 2D cloth-drape model (discrete elastic chain with penalty contact, solved by L-BFGS) scores how far a garment hangs from its worn shape, and CMA-ES designs the hanger. Over seven sizes from a child&rsquo;s tee to XXL, the best single fixed hanger averages 2.1&nbsp;cm RMS shape error (5.4&nbsp;cm worst). One adjustable-width hanger set per garment averages 0.18&nbsp;cm (0.22 worst), 12&times; better, and a rack of four widths keeps every size within 1&nbsp;cm. Wire and plastic hangers fold the cloth at the tip (about 65&deg;/cm against 14&deg; worn); a 2&ndash;3&nbsp;cm round end removes it, but a loop scored on shape alone converges on wire-thin ends. CMA-ES beats random search (0.19 vs 0.44&nbsp;cm at 150 drapes). Stylised: 2D, no friction, assumed fabric constants."
+   },
+   {
+    "slug": "hanger-fold",
+    "title": "Should a laundry robot hang a garment or fold it, and what can it sense to tell?",
+    "summary": "Adds a stretch-set model for hanging (permanent shoulder lengthening from <code>hanger-fit</code>&rsquo;s drape) and a crease-set model for folding to five fabric archetypes, prices both in cm of departure from the pressed shape, and learns a rule on 600 simulated garments. Woven shirts and linen are better hung, t-shirts, fleece and heavy knits better folded. Shoulder width, mass and stretch when lifted choose the better action for 89&ndash;91% of garments in 5-fold cross-validation (always fold: 59%; adding the fabric class: 94%); width alone adds nothing. The split is driven by the assumed crease model: a 6&nbsp;h stack instead of 48&nbsp;h moves the share better hung from 41% to 8%, while a hundredfold change in the stretch penalty moves it from 48% to 37%. Stylised: every fabric constant is assumed, the population is synthetic, no motion."
    }
   ]
  }

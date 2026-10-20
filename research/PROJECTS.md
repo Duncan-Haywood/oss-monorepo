@@ -1257,12 +1257,12 @@ SIGGRAPH. Hansen (2016), the CMA evolution strategy tutorial. Commercial folding
 PyBullet, SoftGym, Blender's cloth solver, Gymnasium. Check each before citing it.
 
 **Milestones.**
-1. `hanger-fit`: a hanger designed in a sim loop. A 2D drape model of a garment's shoulder
+1. `hanger-fit` (done 2026-10-19): a hanger designed in a sim loop. A 2D drape model of a garment's shoulder
    line and sleeve over a hanger arm scores how far the garment hangs from its worn shape and
    how sharply it is bent (the cause of shoulder bumps). Compare stock hangers, a custom hanger
    per garment, one universal hanger, an adjustable-width hanger and a rack of k sizes, with
    CMA-ES against random search at the same budget.
-2. `hanger-fold`: hang or fold? Add a wrinkle and stretch-set model per fabric and the folded
+2. `hanger-fold` (done 2026-10-20; the fold side is a one-line crease model and drives the result): hang or fold? Add a wrinkle and stretch-set model per fabric and the folded
    alternative, and learn the decision rule a robot can apply from what it can sense (size,
    weight, stretch when lifted).
 3. `hanger-insert`: getting the hanger in. Simulate inserting a rigid, collapsible or
