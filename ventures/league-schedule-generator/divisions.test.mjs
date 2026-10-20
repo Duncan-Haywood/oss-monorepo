@@ -277,6 +277,26 @@ test("rainouts with flip:true swap home and away of moved matches: fewer breaks,
   assert.ok(swaps > 0 && flipped < plain, `${swaps} swaps, ${flipped} against ${plain}`); // measured 7 seeds: 345 -> 333 (README)
 });
 
+test("rainouts with relocate:true move make-ups to earlier nights already on the calendar: fewer breaks, no later, still valid", () => {
+  const { spec } = readDivisionsSpec({ ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School" });
+  let plain = 0, moved = 0, relocated = 0;
+  for (const seed of [1, 2, 3, 4, 5, 6, 8]) {
+    const s = buildDivisions({ ...spec, seed });
+    const text = s.nights.filter((_, i) => i % 4 === 1).map((n) => dayIso(n.day)).join("\n");
+    const a = applyDivisionRainouts(s, text, { balance: true });
+    const r = applyDivisionRainouts(s, text, { balance: true, relocate: true });
+    assert.deepEqual(r.errors, []);
+    assert.deepEqual(validateDivisions(r.schedule).errors, []);
+    assert.equal(r.schedule.stats.matches, s.stats.matches);
+    assert.ok(r.schedule.stats.lastDay <= a.schedule.stats.lastDay);
+    r.moves.forEach((m, i) => assert.ok(m.to <= a.moves[i].to && m.to > m.from));
+    assert.ok(r.schedule.stats.homeAwayBreaks <= a.schedule.stats.homeAwayBreaks);
+    plain += a.schedule.stats.homeAwayBreaks; moved += r.schedule.stats.homeAwayBreaks;
+    relocated += r.moves.filter((m) => m.relocated).length;
+  }
+  assert.ok(relocated > 0 && moved < plain, `${relocated} moved, ${moved} against ${plain}`); // measured 7 seeds with balance: 300 -> 296 (README)
+});
+
 test("linked teams in back-to-back slots are not sent to different venues when another slot is free (30 seeds)", () => {
   const slots = ["18:00", "19:00", "20:00"];
   for (const links of ["A/a1, B/b1", "A/a1, B/b1\nA/a2, B/b2"]) for (let seed = 1; seed <= 30; seed++) {
