@@ -44,6 +44,7 @@ on:
       - "platform/devlog/**"
       - "platform/deploy/**"
       - "platform/devstats/**"
+      - "platform/daily/**"
       - "docs/posts/**"
       - "prompts/**"
       - "portfolio/research/**"
@@ -63,6 +64,8 @@ on:
       - "research/_homepage/**"
       - "research/README.md"
       - "research/*/app/**"
+      - "platform/daily/**"
+      - "platform/devstats/**"
       - ".github/workflows/portfolio-pages.yml"
   workflow_dispatch:
 
@@ -110,6 +113,12 @@ jobs:
         with:
           node-version: "22"
 
+      # The decision-queue step below runs python3; pin it rather than rely on
+      # the runner image happening to ship one (gitops/tests/test_ci_runner.py).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       # A glob, not a list. The list named build and check only, so
       # `clauses.test.mjs` had never run here — a suite can be added beside the
       # thing it tests and silently not be CI's problem, which is the one way a
@@ -117,6 +126,11 @@ jobs:
       - name: Test the site builder
         run: node --test "*.test.mjs"
         working-directory: platform/pages
+
+      # The dashboard and the daily brief are added to the artifact after
+      # check.mjs, so their own suites are the only check they get.
+      - name: Test the development dashboard and the daily brief
+        run: node --test platform/devstats/*.test.mjs platform/daily/*.test.mjs
 
       - name: Build the site
         env:
@@ -156,6 +170,20 @@ jobs:
           prev="${RUNNER_TEMP}/prev-stats.json"
           curl -fsS --retry 3 "${SITE_URL%/}/dev/stats.json" -o "$prev" || rm -f "$prev"
           node platform/devstats/build.mjs --out=platform/pages/dist/dev --previous="$prev" >/dev/null
+
+      # The engineering brief and The Merge Report (platform/daily/): the last
+      # seven days from git and the run records, the newest with the CI
+      # snapshot the dashboard just took. Pull requests build it too (no
+      # stats.json there, so the snapshot reads "not recorded") so a broken
+      # generator fails the PR rather than the publish.
+      - name: Build the daily brief
+        env:
+          PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+        run: |
+          asks="${RUNNER_TEMP}/asks.json"
+          python3 portfolio/ledger/decision_queue.py --json > "$asks" || rm -f "$asks"
+          node platform/daily/build.mjs --out=platform/pages/dist/dev/daily \
+            --stats=platform/pages/dist/dev/stats.json --asks="$asks"
 
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'

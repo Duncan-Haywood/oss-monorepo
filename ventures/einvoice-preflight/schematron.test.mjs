@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { parseSvrl, detectSyntax, runSchematron, schematronAvailable } from "./schematron.mjs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { parseSvrl, detectSyntax, runSchematron, schematronAvailable, addonsFor, SEF_DIR } from "./schematron.mjs";
 import { plainFix, hasSpecificFix } from "./schematron-fixes.mjs";
 import { preflightDocuments } from "./report.mjs";
 
@@ -43,11 +44,49 @@ test("report says unavailable for JSON drafts and never throws", async () => {
 });
 
 const ready = schematronAvailable("ubl");
+const read = (name) => readFileSync(new URL(`./examples/${name}`, import.meta.url), "utf8");
 test("official rules flag the planted defects and pass the clean invoice", { skip: !ready && "run build-schematron.mjs" }, (t) => {
-  const bad = runSchematron(readFileSync(new URL("./examples/ubl-invoice-with-defects.xml", import.meta.url), "utf8"));
+  const bad = runSchematron(read("ubl-invoice-with-defects.xml"));
   if (bad.status === "unavailable") return t.skip("saxon-js not installed");
   assert.equal(bad.status, "ok");
   assert.ok(bad.findings.some((f) => f.rule === "BR-CO-15"));
-  const good = runSchematron(readFileSync(new URL("./examples/ubl-invoice.xml", import.meta.url), "utf8"));
-  assert.deepEqual(good.findings, []);
+  const good = runSchematron(read("ubl-invoice.xml"));
+  assert.deepEqual(good.findings.filter((f) => f.source === "en16931-schematron"), []);
+});
+
+const addonsReady = ready && addonsFor("<CustomizationID>xrechnung</CustomizationID>", "ubl").length > 0;
+test("XRechnung add-on runs when BT-24 names XRechnung and says what is missing", { skip: !addonsReady && "run build-schematron.mjs" }, (t) => {
+  const r = runSchematron(read("ubl-invoice.xml"));
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  assert.deepEqual(r.sets, ["en16931", "xrechnung"]);
+  const de = r.findings.filter((f) => f.source === "xrechnung-schematron");
+  assert.ok(de.some((f) => f.rule === "BR-DE-2"));
+  assert.match(de.find((f) => f.rule === "BR-DE-2").fix, /seller contact/);
+  const plain = runSchematron(read("ubl-invoice.xml").replace(/urn:cen\.eu:en16931:2017#compliant#urn:xeinkauf\.de:kosit:xrechnung_3\.0/, "urn:cen.eu:en16931:2017"));
+  assert.deepEqual(plain.sets, ["en16931"]);
+});
+
+test("Peppol add-on runs when BT-24 names Peppol BIS 3", { skip: !ready && "run build-schematron.mjs" }, (t) => {
+  const pep = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0";
+  const xml = read("ubl-invoice.xml").replace(/urn:cen\.eu:en16931:2017#compliant#urn:xeinkauf\.de:kosit:xrechnung_3\.0/, pep);
+  if (!existsSync(join(SEF_DIR, "peppol-ubl.sef.json"))) return t.skip("run build-schematron.mjs");
+  const r = runSchematron(xml);
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  assert.deepEqual(r.sets, ["en16931", "peppol"]);
+  assert.ok(r.findings.every((f) => f.source !== "xrechnung-schematron"));
+});
+
+const ciiXrReady = ready && existsSync(join(SEF_DIR, "cii.sef.json")) && addonsFor(read("xrechnung-cii-invoice.xml"), "cii").length > 0;
+test("the XRechnung CII example passes the official EN 16931 and BR-DE rules", { skip: !ciiXrReady && "run build-schematron.mjs" }, (t) => {
+  const r = runSchematron(read("xrechnung-cii-invoice.xml"));
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  assert.deepEqual(r.sets, ["en16931", "xrechnung"]);
+  assert.deepEqual(r.findings.filter((f) => f.severity === "fatal"), []);
+});
+
+test("XRechnung CII add-on flags a missing seller contact (BR-DE-2)", { skip: !ciiXrReady && "run build-schematron.mjs" }, (t) => {
+  const xml = read("xrechnung-cii-invoice.xml").replace(/<ram:DefinedTradeContact>[\s\S]*?<\/ram:DefinedTradeContact>/, "");
+  const r = runSchematron(xml);
+  if (r.status === "unavailable") return t.skip("saxon-js not installed");
+  assert.ok(r.findings.some((f) => f.source === "xrechnung-schematron" && f.rule === "BR-DE-2"));
 });

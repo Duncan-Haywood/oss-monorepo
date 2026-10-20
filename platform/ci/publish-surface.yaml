@@ -743,6 +743,9 @@ workflows:
 - workflow: hardwood-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hearth-and-horizon-ci.yml
+  classification: none
+  publishes: []
 - workflow: helm-values-schema-check-ci.yml
   classification: none
   publishes: []

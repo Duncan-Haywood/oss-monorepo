@@ -343,8 +343,8 @@ test('every hub link resolves to a file that exists', async () => {
 
   const hub_ = path.join(outDir, 'index.html');
   for (const href of hrefs) {
-    // deploy/ and dev/ are written after the site build (publish-branch.sh).
-    if (LATE_NAV_DIRS.some((dir) => href === `${dir}/` || href.startsWith(`${dir}/?`))) continue;
+    // deploy/ and dev/ (and dev/daily/ under it) are written after the site build.
+    if (LATE_NAV_DIRS.some((dir) => href.startsWith(`${dir}/`))) continue;
     // A fragment names a section of the target page, not a file.
     await fs.access(hrefTarget(href.split('#')[0], hub_, outDir));
   }

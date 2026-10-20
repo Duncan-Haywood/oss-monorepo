@@ -182,7 +182,7 @@ class CountApprovalsTest(unittest.TestCase):
 
 
 class HumanGateTest(unittest.TestCase):
-    def test_ventures_paths_are_human_gated(self):
+    def test_ventures_paths_are_detected(self):
         self.assertTrue(path_touches_ventures(["ventures/local-site-studio/app/page.tsx"]))
         self.assertFalse(path_touches_ventures(["platform/ci/agent_review/review.py"]))
 
