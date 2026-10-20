@@ -1,5 +1,23 @@
 # Research log
 
+## 2026-10-20 · Train the models yourself: the NSFG 1995–2023 lens retrained in the browser, matching scikit-learn
+
+- The app has a new "Train the models yourself" panel. A background worker downloads a 374 KB public extract of the NSFG 1995–2023 women's first marriages: 29,202 marriages, 10,529 dissolutions and 249,868 marriage-years. It contains only inputs fixed at or before the wedding. The worker then refits the lens in plain JavaScript with the Python pipeline's person-held-out five folds.
+- The NSFG files are U.S. government works and not under copyright, so the extract can be published. The NCHS data-use terms are recorded in the file: statistical use only, no attempt to identify anyone, no linkage.
+- Held out, the browser reproduces scikit-learn 1.7.2 on the same extract:
+
+  | Model | Browser | scikit-learn |
+  | --- | --- | --- |
+  | Duration-only GLM | 0.645% | 0.645% |
+  | Additive spline Poisson GLM | 5.688%, C 0.6947 | 5.688%, C 0.6947 |
+  | Depth-4 Poisson tree | 3.333%, C 0.6512 | 3.333%, C 0.6512 |
+  | Poisson gradient boosting (250 rounds) | 6.298%, C 0.7029 | 6.297%, C 0.7028 |
+
+  scikit-learn on the extract also matches the shipped lens's 5.688% and 6.289%, which confirms the extract.
+- The JS GLM's coefficients equal scikit-learn's within 4×10<sup>−14</sup>. It uses Newton's method with the Hessian accumulated per person and per marriage year, so a fit takes 0.7 s. Gradient boosting fits histogram trees with per-person runs and child-histogram subtraction, at about 21 ms per round.
+- A full run took 35 s in Node and 44 s in headless Chromium at 1200 px. At 390 px with 25 boosting rounds it took 13 s, but boosting's gain fell to 3.85%. The main thread never stalled more than 68 ms, cancelling works, there were no console errors and no horizontal scroll. No real phone has been timed yet.
+- After training, the models are refitted on every marriage, and a visitor can score a profile with the models they just trained. `tests/train.test.mjs` checks the coefficients to 10<sup>−6</sup>, the held-out gains (0.001 points; 0.15 for boosting), the C indices, O/E and the extract's sample.
+
 ## 2026-10-20 · Every lens scored in the app: relationship quality, marriage happiness, newlyweds, Census and Canada, with a summary that pools nothing
 
 - The calculator now scores all 15 lenses (13 bundles plus the NSFG 1995–2023 both-sexes view); only Fair's affairs surveys stay listed, as their outcome is not divorce. New form adapters (`app/lens-adapters.js`) map the form onto each bundle's documented inputs: HCMST (relationship quality, married or not, same-sex, how you met, years together, party pair), GSS panels (marriage happiness), NLSY79 and NLSY97 first marriages (with the spouse's traits), NSFG 1995–2023 (wife's report, and each spouse's own report), Statistics Canada (one partner at a time, 2017 cycle), the Los Angeles newlyweds (satisfaction, self-reported hostility, conflict questions mapped to observer-code percentiles and labelled an unvalidated approximation), SIPP first marriages, SIPP couples one year ahead (both spouses' earnings, net worth, debt, home ownership) and ACS one-year incidence (labelled cross-sectional).
