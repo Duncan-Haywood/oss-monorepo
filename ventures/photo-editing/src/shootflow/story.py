@@ -60,6 +60,7 @@ class AssetAnalysis:
     motion_score: float
     duration_seconds: float | None = None
     tags: tuple[str, ...] = ()
+    perceptual_hash: str | None = None
 
 
 @dataclass(frozen=True)

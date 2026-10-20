@@ -239,6 +239,9 @@ workflows:
 - workflow: business-loan-offer-comparator-ci.yml
   classification: none
   publishes: []
+- workflow: business-template-ci.yml
+  classification: none
+  publishes: []
 - workflow: business-vehicle-depreciation-calculator-ci.yml
   classification: none
   publishes: []
