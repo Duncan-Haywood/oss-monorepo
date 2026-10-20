@@ -173,7 +173,9 @@ with a README, tests and a card on the research homepage
 [`/research/`](https://duncan-haywood.github.io/monorepo-projects/research/)). It was its own
 repository, `oss-research-monorepo`, until 2026-10-16. Its history was merged
 in (`git log -- research/<slug>` shows each project's original commits), and
-that repository is now archived, read-only history. Research work lands here
+that repository was deleted on 2026-10-20. Its branches, pull requests and
+reviews are kept on the `archive/research-meta` branch
+(`python3 platform/ci/research_archive.py status`). Research work lands here
 under [`research/CLAUDE.md`](research/CLAUDE.md); the product rules (session
 gate, usage tracking, disclaimers) do not apply inside it.
 

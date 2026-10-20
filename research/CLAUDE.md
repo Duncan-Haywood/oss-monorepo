@@ -19,8 +19,8 @@ Honest results still come first: never overstate a finding to rank.
 **Research work lands here.** `research/` is a peer of `ventures/`, not a copy of anything.
 It was merged in from `oss-research-monorepo` with its full history (`git log -- research/<slug>`
 shows each project's original commits), and the mirror that kept the two in step was retired at
-cutover on 2026-10-16. That repository is read-only history: build, edit and land research
-here, in this repository's pull requests.
+cutover on 2026-10-16. That repository was deleted on 2026-10-20 (its branches, pull requests and reviews are kept on
+the `archive/research-meta` branch): build, edit and land research here, in this repository's pull requests.
 
 ## Every run ships something useful
 

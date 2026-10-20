@@ -1243,9 +1243,6 @@ workflows:
 - workflow: requirements-pin-check-ci.yml
   classification: none
   publishes: []
-- workflow: research-archive.yml
-  classification: none
-  publishes: []
 - workflow: research-ci.yml
   classification: none
   publishes: []
